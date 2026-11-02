@@ -550,12 +550,22 @@ W16_READINGS = {
         "+132 / -2: the eq-table parallel threshold as a constant, and a deferred column fold that accumulates "
         "exact i128 sums before one reduction (the same field values), prover side"),
     "src/gpu/mod.rs": ("d7812f7d9404",
-        "+111 / -?: the Metal backend seam (`MetalBackend`, `MetalCommit` as an `EncodedStore`, its `try_commit*`), "
+        "+106 / -5 in 5 hunks (corrected by gate round 26, F-B4; was '+111 / -?'): the Metal backend seam "
+        "(`MetalBackend`, `MetalCommit` as an `EncodedStore`, its `try_commit*`), "
         "all behind `feature = \"gpu-metal\"`; the CPU build's seam is the core's `Cpu` backend as before"),
 }
 
 
 def classify_pins(bundle, r19b_manifest: str) -> dict:
+    """[2026-11-02, gate round 26] a moved pin is read by the R26 readings
+    (`zk60_native_rg_r26readings.R26_READINGS`: the FULL digest must equal the
+    reading's; a CPU-PATH reading only on a bundle whose manifest says
+    `proved_on_gpu: false`) or by W16_READINGS (as before); any other digest is
+    UNREAD.  F-B1: the bundle's prover backend must be admissible
+    (`zk60_native_rg_r26readings.gpu_backend`: a bundle that does not record
+    `proved_on_gpu` is refused as UNKNOWN, a GPU-made one while the Metal
+    backend has no full reading); `ok` needs both."""
+    import zk60_native_rg_r26readings as R26
     want = {}
     if r19b_manifest and os.path.exists(r19b_manifest):
         with open(r19b_manifest) as fh:
@@ -564,23 +574,37 @@ def classify_pins(bundle, r19b_manifest: str) -> dict:
                 if len(parts) == 2:     # "<sha256>  hashline/src/..." or "<sha256>  zkp-core/src/..."
                     want[parts[1]] = parts[0]
     pins = bundle.manifest.get("source_pins", [])
-    at_r19b, read_here, unread = [], [], []
+    backend = R26.gpu_backend(bundle.manifest)
+    at_r19b, read_here, unread, r26 = [], [], [], {}
     for pin in pins:
         f, d = pin["file"], pin["sha256"]
         key = os.path.normpath(os.path.join("hashline", f))
+        r = R26.reading_for(f, d, backend["proved_on_gpu"])
         if want.get(key) == d:
             at_r19b.append(f)
+        elif r is not None:
+            read_here.append(f)
+            r26[f] = r
         elif f in W16_READINGS and d.startswith(W16_READINGS[f][0]):
             read_here.append(f)
         else:
-            unread.append({"file": f, "sha256": d[:12], "r19b": (want.get(key) or "absent")[:12]})
+            u = {"file": f, "sha256": d[:12], "r19b": (want.get(key) or "absent")[:12]}
+            if R26.cpu_path_only(f, d):
+                u["why"] = ("only a CPU-PATH reading (F-B1) exists at this digest, and this bundle's manifest does not "
+                            "say it proved off the GPU")
+            unread.append(u)
+    self_read = sorted(f for f, r in r26.items() if r["self_read"])
     return {"what": "every source pin the bundle declares: at the r19b frozen tree's digest (the tree v24 last "
-                    "read), moved and read here (W16_READINGS), or moved and UNREAD",
+                    "read), moved and read here (the gate round 26 readings by full digest, or W16_READINGS), or moved "
+                    "and UNREAD; and the prover backend (F-B1)",
             "r19b_manifest": r19b_manifest, "r19b_manifest_found": bool(want), "pins": len(pins),
-            "at_r19b": len(at_r19b), "read_here": read_here, "unread": unread,
-            "readings": {k: v[1] for k, v in W16_READINGS.items() if k in read_here},
+            "at_r19b": len(at_r19b), "at_r19b_files": at_r19b, "read_here": read_here, "unread": unread,
+            "readings": {k: v[1] for k, v in W16_READINGS.items() if k in read_here and k not in r26},
+            "readings_r26": r26,
+            "self_read_pending_independent_check": self_read,
+            "backend": backend,
             "range16_rs_pinned": any(p["file"] == "src/private_block/range16.rs" for p in pins),
-            "ok": bool(want) and not unread}
+            "ok": bool(want) and not unread and backend["admissible"]}
 
 
 # ---------------------------------------------------------------- the driver

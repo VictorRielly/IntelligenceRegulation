@@ -40,7 +40,10 @@ an R13 accuracy profile (the W16-family path is unchanged).  What is R13 here:
          (`zk60_native_rg_terminals.check_source_pins`) is RUN AND REPORTED; at
          this tree it refuses (the private_block files moved since r19b), so
          R13-3's figures are computed on the bundle as given and the record is
-         DEV-PASS at best -- the same rule the W16 records follow
+         DEV-PASS at best -- the same rule the W16 records follow.  [gate round
+         26] Unless every pin it refuses is read by the pin classification
+         (`zk60_native_rg_w16.classify_pins`, the R26 readings): the D55
+         driver checks exactly that
 
 NOTHING HERE IS A PRIVACY STATEMENT OR AN ACCEPTANCE.
 """
@@ -486,7 +489,9 @@ def _r13_terminals(b, rp, facts, controls=True, forks=None, control_fork=None) -
                                                 "bilinear_definition_selected_by_the_argument_pin")}
     rec["source_pins_applied"] = False
     rec["source_pins_note"] = ("the R13 terminal port's own pin check is RUN AND REPORTED, not applied: the slot figures below are "
-                               "computed on the bundle as given; with a refused pin the record is DEV-PASS at best")
+                               "computed on the bundle as given. [gate round 26] Every pin it refuses must be read by "
+                               "zk60_native_rg_w16.classify_pins (at r19b, or by a W16 / R26 reading); the D55 driver checks "
+                               "that (PINS.terminal_port_refusals) and the record is DEV-PASS at best otherwise")
     cals = fork_calibrations(b, facts)
     evaluated = [c for c in cals if forks is None or c["fork"] in forks]
     rec["forks_evaluated"] = [c["fork"] for c in evaluated]

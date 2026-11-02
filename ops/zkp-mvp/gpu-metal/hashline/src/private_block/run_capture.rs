@@ -167,7 +167,7 @@ pub(super) fn schema_of(arrays: bool) -> &'static str {
 /// is a list of `(file, sha256)` objects; adding entries renames nothing,
 /// reorders nothing a loader reads by name and removes nothing. Bundles
 /// already committed keep the shorter list their own manifests pin.
-pub(super) const SHARED_SOURCE_FILES: [&str; 29] = [
+pub(super) const SHARED_SOURCE_FILES: [&str; 31] = [
     // hashline's own shared modules on the run's path
     "src/zk.rs",
     "src/tables_attn.rs",
@@ -216,6 +216,14 @@ pub(super) const SHARED_SOURCE_FILES: [&str; 29] = [
     "src/gpu/mod.rs",
     "src/tables_v3.rs",
     "../zkp-core/src/tables.rs",
+    // GATE ROUND 26, finding F-B1 (Low): the Metal backend. In a gpu-metal
+    // binary run with HL_GPU=1 these two compute receipt bytes (the hiding
+    // coset encoding, the column leaves, the opened columns, the message half
+    // of every clear vector, the device sumcheck rounds); with
+    // `gpu::enabled()` false they answer only `enabled()` / `label()`. The
+    // manifest records which (`proved_on_gpu`). PURE ADDITION.
+    "src/gpu/metal.rs",
+    "src/gpu/metal_kernels.metal",
 ];
 
 pub(super) const OWN_SOURCE_FILES: [&str; 44] = [
@@ -307,8 +315,11 @@ pub(super) const OWN_SOURCE_FILES: [&str; 44] = [
     // round-kernel codegen. Compiled under `gpu-metal` (the IR in every test
     // build too); with HL_GPU=1 a slot's round sums — receipt bytes — are
     // evaluated from them on the Apple GPU, after the runtime IR guard and
-    // byte-identical to the CPU's at the gated shapes. A bundle written by a
-    // Metal-built binary is therefore tied to them as well. PURE ADDITION:
+    // byte-identical to the CPU's at the gated shapes. These three tie a
+    // GPU-made bundle to its IR and kernel codegen only, NOT to the Metal
+    // backend that runs them and computes the commitments (`gpu/metal.rs`,
+    // `gpu/metal_kernels.metal`): those two are pinned in
+    // `SHARED_SOURCE_FILES` since gate round 26 (F-B1). PURE ADDITION:
     // bundles already recorded keep the list their manifests pin.
     "src/private_block/slot_ir.rs",
     "src/private_block/slot_ir_accuracy.rs",
@@ -4265,6 +4276,8 @@ pub(super) const ALLOWED_KEYS: &[&str] = &[
     "source_pins",
     "files",
     "total_bytes",
+    // gate round 26 F-B1: whether the run proved on the GPU (a boolean)
+    "proved_on_gpu",
     // TOKEN I/O (round 7; the gate lane's capture request): the token run
     // file's `token_io` facts, the token boundaries, a token stage file's
     // kind / r_emb / plane table. Every one is a public statement word, a
@@ -4451,7 +4464,9 @@ fn write_fork_bundle(dir: &std::path::Path, b: &Bundle, frames: &[Vec<u8>], note
     put("README.md".into(), readme.as_bytes())?;
     let pins = source_pins()?;
     let mut m = Vec::new();
-    write!(m, "{{\"schema\":{SCHEMA_D55:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"writer\":\"run_capture::write_bundle (a registered D55 run profile, D60)\",\"source_pins\":[", b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into())).expect("write to a Vec");
+    // gate round 26 F-B1: `proved_on_gpu` = `gpu::enabled()`, the switch every
+    // device path of the prover is gated on, read in the proving process
+    write!(m, "{{\"schema\":{SCHEMA_D55:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"writer\":\"run_capture::write_bundle (a registered D55 run profile, D60)\",\"proved_on_gpu\":{},\"source_pins\":[", b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into()), crate::gpu::enabled()).expect("write to a Vec");
     for (i, (f, s)) in pins.iter().enumerate() {
         write!(m, "{}{{\"file\":{f:?},\"sha256\":{s:?}}}", if i > 0 { "," } else { "" }).expect("write to a Vec");
     }
@@ -4569,7 +4584,7 @@ pub(super) fn write_bundle(dir: &std::path::Path, b: &Bundle, segments: &[Vec<u8
     let pins = source_pins()?;
     let pins = if bundle_is_classify(b) { classify_source_pins(pins)? } else { pins };
     let mut manifest = Vec::new();
-    write!(manifest, "{{\"schema\":{schema:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"source_pins\":[", b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into())).expect("write to a Vec");
+    write!(manifest, "{{\"schema\":{schema:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"proved_on_gpu\":{},\"source_pins\":[", b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into()), crate::gpu::enabled()).expect("write to a Vec");
     for (i, (name, sha)) in pins.iter().enumerate() {
         if i > 0 {
             write!(manifest, ",").expect("write to a Vec");

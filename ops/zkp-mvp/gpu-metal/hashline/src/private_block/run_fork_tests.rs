@@ -952,9 +952,11 @@ fn d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test
     cap::write_bundle(&dir, &b, &frames, "D60 test: a registered R13-rung D55 run (public synthetic fixture)", "run_fork_tests::d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one").unwrap_or_else(|e| panic!("the capture writer refused a REGISTERED D55 fork run: {e}"));
     let manifest = std::fs::read_to_string(dir.join("manifest.json")).expect("the manifest is written last");
     assert!(manifest.contains(cap::SCHEMA_D55) && manifest.contains(run::RUN_PROFILE_D55_R13_RUNG_H24), "{}", manifest.chars().take(300).collect::<String>());
-    for pin in ["\"file\":\"src/private_block/run_fork.rs\"", "\"file\":\"src/private_block/run_fork_wire.rs\""] {
+    for pin in ["\"file\":\"src/private_block/run_fork.rs\"", "\"file\":\"src/private_block/run_fork_wire.rs\"", "\"file\":\"src/gpu/metal.rs\"", "\"file\":\"src/gpu/metal_kernels.metal\""] {
         assert_eq!(manifest.matches(pin).count(), 1, "{pin} is not pinned exactly once");
     }
+    // gate round 26 F-B1: the manifest records whether the run proved on the GPU
+    assert_eq!(manifest.matches(&format!("\"proved_on_gpu\":{}", crate::gpu::enabled())).count(), 1, "the manifest does not record proved_on_gpu = gpu::enabled()");
     for f in ["run.json", "stage-00.json", "stage-02.json", cap::D55_TAIL_FILE, cap::ARRAYS_FILE, "receipt/head.bin", "receipt/fork-00.bin", "receipt/fork-02.bin", "receipt/tail.bin", "README.md"] {
         assert!(dir.join(f).is_file(), "the registered bundle has no {f}");
         assert!(manifest.contains(&format!("\"file\":\"{f}\"")), "the manifest does not list {f}");

@@ -591,6 +591,13 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
     for why in ["`gpu/cuda.rs` and `gpu/kernels.cu`", "`gpu-cuda` feature", "`layer.rs` / `wcache.rs`"] {
         assert!(rc.contains(why), "run_capture.rs no longer gives the reason for an N-r4-d exclusion ({why})");
     }
+    // (d3) gate round 26, finding F-B1: the Metal backend computes receipt
+    // bytes under HL_GPU=1, so it is pinned (and the manifest says whether
+    // the run proved on the GPU)
+    for f in ["src/gpu/metal.rs", "src/gpu/metal_kernels.metal"] {
+        assert!(pinned.contains(&f), "{f} — F-B1, the Metal backend — is not a source pin");
+    }
+    assert!(rc.contains("\\\"proved_on_gpu\\\":{}"), "a bundle manifest no longer records whether the run proved on the GPU (F-B1)");
     // (e) no duplicates, and every pin resolves to a file with a digest
     let mut sorted = pinned.clone();
     sorted.sort();

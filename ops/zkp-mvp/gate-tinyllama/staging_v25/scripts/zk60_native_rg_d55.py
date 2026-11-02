@@ -86,6 +86,18 @@ the W16 slots, NL-1, TS-1, the hash census, the pins).
     with its controls J-C1 .. J-C6 -- J-C3 makes the three-role joint fail.
 
 The W16 path's parts and figures are unchanged (two parts added).
+
+[2026-11-02, gate round 26] THE PINS ARE READ.  `classify_pins` now reads a
+moved pin through the round-26 readings (`zk60_native_rg_r26readings`: two
+independent readers, r19b -> HEAD 8b78aabd, every moved pin; the D60 bundles'
+older dd81ab4f digests too; a pin is read only at the reading's FULL digest)
+and applies F-B1's backend rule: a bundle whose manifest does not record
+`proved_on_gpu` is refused as UNKNOWN, a GPU-made one while the Metal backend
+has no full reading.  For an R13 run every pin the terminal port's own check
+refuses must be read by that classification.  "D55-PASS" is reachable: every
+part true, every pin at r19b or read, the backend admissible; a record whose
+pins include a SELF-READ reading (READINGS_R26_WIRING.json) names it, owed an
+independent check at the v25 freeze review.  Still not a privacy statement.
 """
 
 from __future__ import annotations
@@ -841,21 +853,43 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
         rec["D55-C replay controls"] = replay_controls(b)
         parts["D55-C replay controls"] = rec["D55-C replay controls"]["ok"]
     pins = W.classify_pins(b, r19b_manifest if r19b_manifest is not None else W.default_r19b_manifest())
+    # [2026-11-02, gate round 26] the R13 terminal port's own pin check stays
+    # reported, not applied; every pin it refuses must be read by the
+    # classification above (at r19b, or by a W16 / R26 reading), else PINS fails
+    t3 = rec.get("R13-3 terminals")
+    if t3 is not None:
+        sp = t3.get("source_pins") or {}
+        refused = [m.split(":")[0].strip() for m in sp.get("pins_that_moved", []) + sp.get("pins_missing_from_the_bundle", [])]
+        covered = set(pins["at_r19b_files"]) | set(pins["read_here"])
+        not_read = [f for f in refused if f not in covered]
+        pins["terminal_port_refusals"] = {"what": "every pin the R13 terminal port's own check refuses, read by this classification",
+                                          "refused_by_the_port": refused, "not_read_here": not_read, "ok": not not_read}
+        pins["ok"] = bool(pins["ok"] and not not_read)
     rec["PINS"] = pins
     rec["parts"] = parts
     all_true = all(parts.values())
     rec["status"] = "D55-PASS" if all_true and pins["ok"] else "D55-DEV-PASS" if all_true else "NOT-OK"
-    rec["status_means"] = {"D55-PASS": "every part true and every pin read",
-                           "D55-DEV-PASS": "every part true, but some pin is unread: computed figures, NOT admissible evidence",
+    rec["status_means"] = {"D55-PASS": "every part true, every pin read (at r19b, or by a W16 / gate round 26 reading) and the "
+                                       "prover backend admissible (F-B1)" + (
+                                           "; the readings marked self-read ("
+                                           + ", ".join(pins["self_read_pending_independent_check"])
+                                           + ") are owed an independent check at the v25 freeze review"
+                                           if pins["self_read_pending_independent_check"] else ""),
+                           "D55-DEV-PASS": "every part true, but some pin is unread or the prover backend is refused (F-B1): "
+                                           "computed figures, NOT admissible evidence",
                            "NOT-OK": "some part is false"}[rec["status"]]
+    if not pins["backend"]["admissible"]:
+        rec["backend_refused"] = pins["backend"]["refused"]
+    pin_items = ([] if pins["ok"] else ["the reading of the unread pins / an admissible prover backend (PINS)"]) + (
+        ["the independent check of the self-read readings (READINGS_R26_WIRING.json) at the v25 freeze review"]
+        if pins["self_read_pending_independent_check"] else [])
     if family == "W16":
         rec["not_here"] = ["T-0 terminal identity of the seven W16-redefined slots", "NL-1 S1-S5 on them",
-                           "TS-1 and the claim census", "full preimage", "hash census", "the reading of the unread pins"]
+                           "TS-1 and the claim census", "full preimage", "hash census"] + pin_items
     else:
         rec["not_here"] = ["NL-1 S1-S5 (the non-linear table checks) on the R13 slots", "TS-1 and the claim census",
                            "the full zero-data preimage (A and H at MSG != PAD)", "the hash census on the Python side",
-                           "the reading of the unread pins (only argument.rs's `define` is read here, in memory)",
-                           "G_k in the clear: recovered on SC_FZC, not read from a bound line"]
+                           "G_k in the clear: recovered on SC_FZC, not read from a bound line"] + pin_items
     if not joint:
         rec["not_here"].append("the run-level joint rank (D55-J), not requested")
     rec["tool_sha256"] = W.tool_hashes()
@@ -891,7 +925,11 @@ def main(argv=None):
         print(f"{kk}: {'PASS' if v else 'FAIL'}")
     pins = rec.get("PINS", {})
     print(f"pins: {pins.get('pins')} declared, {pins.get('at_r19b')} at r19b, {len(pins.get('read_here', []))} read here, "
-          f"{len(pins.get('unread', []))} UNREAD")
+          f"{len(pins.get('unread', []))} UNREAD {[u['file'] for u in pins.get('unread', [])]}; "
+          f"self-read {pins.get('self_read_pending_independent_check')}")
+    be = pins.get("backend") or {}
+    print(f"backend: proved_on_gpu {be.get('proved_on_gpu')}, admissible {be.get('admissible')}"
+          + (f" -- REFUSED: {be.get('refused')}" if be.get("refused") else ""))
     print(f"status: {rec.get('status')} ({rec.get('seconds')} s) -> {path}")
     return 0 if rec.get("status") in ("D55-PASS", "D55-DEV-PASS") else 1
 
