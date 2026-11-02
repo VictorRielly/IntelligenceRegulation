@@ -74,7 +74,6 @@ fn slots_len(lay: &Layout) -> usize {
 }
 
 fn mask_len(lay: &Layout) -> usize {
-    let bd = Dim::block(lay);
     2 * MASK_VEC * 16 + MASK_CHECKS * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32)
 }
 
