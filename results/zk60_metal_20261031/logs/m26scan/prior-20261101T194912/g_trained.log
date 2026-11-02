@@ -1,0 +1,46 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times ... M4-TRAINED R13_8B_T128_H24 setup 0.67 s
+M4-PHASES R13_8B_T128_H24 gpu= | witness planes + commit A 0.451 | commit M 0.005 | LogUp helpers + commit H 0.421 | 23 masked sumchecks 3.074
+M4-PHASES R13_8B_T128_H24 gpu=1 | witness planes + commit A 0.260 | commit M 0.005 | LogUp helpers + commit H 0.198 | 23 masked sumchecks 0.425
+M4-TRAINED R13_8B_T128_H24 cpu 4.195 s metal-cold 1.123 s (prove core cpu 4.017 s metal 0.950 s; kernel compile 0.004 s, device sumcheck rounds 0.149 s; 1 slots without a matching IR; buffer pool 53 reused / 44 new) digest cpu 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89 metal 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89
+M4-PHASES R13_8B_T128_H24 gpu=1 | witness planes + commit A 0.110 | commit M 0.005 | LogUp helpers + commit H 0.089 | 23 masked sumchecks 0.270
+M4-TRAINED R13_8B_T128_H24 cpu 4.195 s metal-warm 0.707 s (prove core cpu 4.017 s metal 0.531 s; kernel compile 0.000 s, device sumcheck rounds 0.148 s; 1 slots without a matching IR; buffer pool 97 reused / 3 new) digest cpu 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89 metal 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89
+M4-PHASES R13_8B_T128_H24 gpu=1 | witness planes + commit A 0.104 | commit M 0.005 | LogUp helpers + commit H 0.086 | 23 masked sumchecks 0.251
+M4-TRAINED R13_8B_T128_H24 cpu 4.195 s metal-warm 0.676 s (prove core cpu 4.017 s metal 0.505 s; kernel compile 0.000 s, device sumcheck rounds 0.129 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89 metal 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89
+M4-PHASES R13_8B_T128_H24 gpu=1 | witness planes + commit A 0.106 | commit M 0.005 | LogUp helpers + commit H 0.083 | 23 masked sumchecks 0.256
+M4-TRAINED R13_8B_T128_H24 cpu 4.195 s metal-warm 0.681 s (prove core cpu 4.017 s metal 0.510 s; kernel compile 0.000 s, device sumcheck rounds 0.133 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89 metal 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89
+M4-TRAINED R13_SHIELD_T128_H24 setup 0.49 s
+M4-PHASES R13_SHIELD_T128_H24 gpu= | witness planes + commit A 0.465 | commit M 0.005 | LogUp helpers + commit H 0.430 | 23 masked sumchecks 2.808
+M4-PHASES R13_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.150 | commit M 0.005 | LogUp helpers + commit H 0.128 | 23 masked sumchecks 0.323
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.953 s metal-cold 0.839 s (prove core cpu 3.779 s metal 0.665 s; kernel compile 0.003 s, device sumcheck rounds 0.194 s; 1 slots without a matching IR; buffer pool 91 reused / 2 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101 metal 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101
+M4-PHASES R13_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.107 | commit M 0.005 | LogUp helpers + commit H 0.086 | 23 masked sumchecks 0.296
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.953 s metal-warm 0.722 s (prove core cpu 3.779 s metal 0.551 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101 metal 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101
+M4-PHASES R13_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.108 | commit M 0.005 | LogUp helpers + commit H 0.083 | 23 masked sumchecks 0.298
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.953 s metal-warm 0.725 s (prove core cpu 3.779 s metal 0.550 s; kernel compile 0.000 s, device sumcheck rounds 0.174 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101 metal 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101
+M4-PHASES R13_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.105 | commit M 0.005 | LogUp helpers + commit H 0.083 | 23 masked sumchecks 0.292
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.953 s metal-warm 0.715 s (prove core cpu 3.779 s metal 0.544 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101 metal 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101
+M4-TRAINED W16_SHIELD_T128_H24 setup 0.46 s
+M4-PHASES W16_SHIELD_T128_H24 gpu= | witness planes + commit A 0.248 | commit M 0.005 | LogUp helpers + commit H 0.273 | 23 masked sumchecks 0.959
+M4-PHASES W16_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.147 | commit M 0.005 | LogUp helpers + commit H 0.142 | 23 masked sumchecks 0.321
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.695 s metal-cold 0.798 s (prove core cpu 1.557 s metal 0.657 s; kernel compile 0.043 s, device sumcheck rounds 0.098 s; 0 slots without a matching IR; buffer pool 93 reused / 14 new) digest cpu 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2 metal 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2
+M4-PHASES W16_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.085 | commit M 0.005 | LogUp helpers + commit H 0.064 | 23 masked sumchecks 0.191
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.695 s metal-warm 0.524 s (prove core cpu 1.557 s metal 0.385 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 99 reused / 1 new) digest cpu 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2 metal 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2
+M4-PHASES W16_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.075 | commit M 0.005 | LogUp helpers + commit H 0.064 | 23 masked sumchecks 0.186
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.695 s metal-warm 0.511 s (prove core cpu 1.557 s metal 0.370 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2 metal 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2
+M4-PHASES W16_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.075 | commit M 0.005 | LogUp helpers + commit H 0.069 | 23 masked sumchecks 0.188
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.695 s metal-warm 0.516 s (prove core cpu 1.557 s metal 0.377 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2 metal 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2
+M4-TRAINED W16_8B_T128_H24 setup 0.60 s
+M4-PHASES W16_8B_T128_H24 gpu= | witness planes + commit A 0.250 | commit M 0.005 | LogUp helpers + commit H 0.250 | 23 masked sumchecks 0.876
+M4-PHASES W16_8B_T128_H24 gpu=1 | witness planes + commit A 0.104 | commit M 0.005 | LogUp helpers + commit H 0.094 | 23 masked sumchecks 0.189
+M4-TRAINED W16_8B_T128_H24 cpu 1.581 s metal-cold 0.570 s (prove core cpu 1.440 s metal 0.432 s; kernel compile 0.003 s, device sumcheck rounds 0.084 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56fcdb60417bb2c205c6fb693fadeae7b metal c5e0bdac78cc47bb4de6528a29e809f56fcdb60417bb2c205c6fb693fadeae7b
+M4-PHASES W16_8B_T128_H24 gpu=1 | witness planes + commit A 0.075 | commit M 0.005 | LogUp helpers + commit H 0.066 | 23 masked sumchecks 0.174
+M4-TRAINED W16_8B_T128_H24 cpu 1.581 s metal-warm 0.501 s (prove core cpu 1.440 s metal 0.361 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56fcdb60417bb2c205c6fb693fadeae7b metal c5e0bdac78cc47bb4de6528a29e809f56fcdb60417bb2c205c6fb693fadeae7b
+M4-PHASES W16_8B_T128_H24 gpu=1 | witness planes + commit A 0.073 | commit M 0.005 | LogUp helpers + commit H 0.088 | 23 masked sumchecks 0.172
+M4-TRAINED W16_8B_T128_H24 cpu 1.581 s metal-warm 0.517 s (prove core cpu 1.440 s metal 0.379 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56fcdb60417bb2c205c6fb693fadeae7b metal c5e0bdac78cc47bb4de6528a29e809f56fcdb60417bb2c205c6fb693fadeae7b
+M4-PHASES W16_8B_T128_H24 gpu=1 | witness planes + commit A 0.072 | commit M 0.005 | LogUp helpers + commit H 0.067 | 23 masked sumchecks 0.176
+M4-TRAINED W16_8B_T128_H24 cpu 1.581 s metal-warm 0.500 s (prove core cpu 1.440 s metal 0.361 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56fcdb60417bb2c205c6fb693fadeae7b metal c5e0bdac78cc47bb4de6528a29e809f56fcdb60417bb2c205c6fb693fadeae7b
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 32.51s
+

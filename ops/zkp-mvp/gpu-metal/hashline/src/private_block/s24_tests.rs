@@ -37,6 +37,24 @@ fn every_shape() -> Vec<Shape> {
     vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::rung_e32(), Shape::m125()]
 }
 
+/// **M26 (2026-11-01): the OPT-IN, UNREGISTERED block profiles whose strings
+/// are in `shape.rs`** — W16 (D54), every entry of `shape::W16_PROFILES`,
+/// built by the W16 tests' own recipe (`range16_tests::built`, the R13
+/// registry's calibration). They register nothing: no run profile (their run
+/// identities are test-only, in `w16_privacy_gate_tests.rs`), and they are on
+/// no registered list, which
+/// [`every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct`]
+/// asserts. But their strings are in the source registry and a W16 block
+/// proof hashes under them today (the trained door admits them,
+/// `shape::is_trained_profile_string`), so the registry tests MEASURE them
+/// beside the registered profiles rather than skip them: their four keys must
+/// be distinct from every other live key, and s25 prints their hash input
+/// kinds. (D55's fork run profile is in no `shape.rs` / `run.rs` literal: it
+/// is test-only, in `run_fork.rs`, and none of these tests reads it.)
+pub(super) fn opt_in_unregistered_shapes() -> Vec<Shape> {
+    super::shape::W16_PROFILES.iter().map(|s| super::range16_tests::built(s.profile)).collect()
+}
+
 /// `clog2`, as `Shape::natural_log` uses it
 fn clog2(v: usize) -> usize {
     (usize::BITS - (v - 1).leading_zeros()) as usize
@@ -174,6 +192,20 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     // TOKEN I/O ROUND 12: the classifier run profile(s), their own list
     runs.extend(super::token_io::classify::registered_classify_runs().into_iter().map(|(p, _)| p));
     runs.extend(super::accuracy_profile_tests::registered_runs().into_iter().map(|(p,_)|p));
+    // M26 (2026-11-01): W16's opt-in block profiles are in `shape.rs` and are
+    // UNREGISTERED. That is CHECKED here, not assumed: none is a registered
+    // block profile, a registered run profile, or the block of a registered
+    // accuracy run. They are then measured with the registered ones (their
+    // keys enter (3) below), and the registry comparison holds over both.
+    let opt_in = opt_in_unregistered_shapes();
+    assert_eq!(opt_in.len(), super::shape::W16_PROFILES.len());
+    for sh in &opt_in {
+        assert!(sh.range16(), "{}: an opt-in W16 profile does not build a W16 shape", sh.name);
+        assert!(!shapes.iter().any(|r| r.profile == sh.profile), "{}: a W16 profile is on a registered block list; it is no longer opt-in, so move it", sh.profile);
+        assert!(!runs.contains(&sh.profile), "{}: a W16 profile is a registered run profile", sh.profile);
+        assert!(super::run::accuracy_run_profile(sh.profile).is_none(), "{}: a W16 block profile has a registered run profile", sh.profile);
+    }
+    shapes.extend(opt_in);
     let mut covered: Vec<String> = shapes.iter().map(|s| s.profile.to_string()).collect();
     covered.extend(runs.iter().map(|r| r.to_string()));
     covered.sort();
@@ -470,13 +502,22 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
             "src/private_block/endpoint_g.rs",
             "src/private_block/hash_domain.rs",
             "src/private_block/layout.rs",
+            // M26 (2026-11-01): the Metal round-kernel codegen, production
+            // under `gpu-metal` (`#[cfg(feature = "gpu-metal")]`), pinned
+            "src/private_block/metal_slot.rs",
             "src/private_block/mvp_driver.rs",
             "src/private_block/pad.rs",
             "src/private_block/protocol.rs",
+            // M26: W16 (D54), the 16-bit range families, pinned
+            "src/private_block/range16.rs",
             "src/private_block/rope.rs",
             "src/private_block/run.rs",
             "src/private_block/run_sink.rs",
             "src/private_block/shape.rs",
+            // M26: the slot expression IR, production under `gpu-metal`
+            // (`#[cfg(any(test, feature = "gpu-metal"))]`; this line reader
+            // takes only a bare `#[cfg(test)]` as test-only), pinned
+            "src/private_block/slot_ir.rs",
             "src/private_block/tied_tables.rs",
             "src/private_block/timing.rs",
             // TOKEN I/O R1 LANE: the token-I/O run (stage IN, stage OUT, its

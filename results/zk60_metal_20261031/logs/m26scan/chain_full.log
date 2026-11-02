@@ -1,0 +1,280 @@
+== build 19:38:19
+[zk60-guard 19:38:19] START m26scan-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=5824921c855d
+[zk60-guard 19:38:19] END m26scan-build exit=0 child_wall=0s peak_rss=0.00G min_avail=236.03G
+402
+B=/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+-rwxr-xr-x  1 victorrielly  staff  18125360 Nov  1 19:35 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+== scans 19:38:24
+[zk60-guard 19:38:25] START m26scan-scans class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=d19f2ae1daa8
+[zk60-guard 19:39:01] END m26scan-scans exit=0 child_wall=36s peak_rss=4.97G min_avail=230.57G
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... FAILED
+thread 'private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length' (3613205) panicked at src/private_block/s25_tests.rs:778:9:
+test result: FAILED. 34 passed; 1 failed; 0 ignored; 0 measured; 905 filtered out; finished in 35.54s
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 35.94s
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 36.14s
+[zk60-guard 19:39:01] START m26scan-scans-print class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=f66b086cca4d
+[zk60-guard 19:40:02] END m26scan-scans-print exit=0 child_wall=61s peak_rss=4.75G min_avail=230.93G
+S24 C-3 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-7 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-4 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 87 + 256 = 343 of 512
+S24 C-4 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 82 + 256 = 338 of 512
+S24 C-4 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 117 + 256 = 373 of 512
+S24 C-2 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-5 inside the last 10 of the point
+S24 C-2 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S24 C-2 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 10 of the point
+S24 C-2 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S25 W-2: 103 profiles, 6193 hash input kinds, 1512 pairs within one byte, 9 declared equal-length pairs
+S33 J-7a lemma: 85 registered profiles, 1930 absorb layouts, EVERY one separated; the thinnest is 14 forced-NUL positions at `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1`
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 60.77s
+S24 C-3 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-7 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-4 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 87 + 256 = 343 of 512
+S24 C-4 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 82 + 256 = 338 of 512
+S24 C-4 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 117 + 256 = 373 of 512
+S24 C-2 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-5 inside the last 10 of the point
+S24 C-2 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S24 C-2 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 10 of the point
+S24 C-2 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S25 W-2: 103 profiles, 6193 hash input kinds, 1512 pairs within one byte, 9 declared equal-length pairs
+S33 J-7a lemma: 85 registered profiles, 1930 absorb layouts, EVERY one separated; the thinnest is 14 forced-NUL positions at `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1`
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 60.98s
+== zkp-core 19:40:12
+[zk60-guard 19:40:12] START m26scan-zkpcore class=build need=4G cap=10G enforce=watchdog-only waited=0s run=002b36e35a5b
+[zk60-guard 19:40:12] END m26scan-zkpcore exit=0 child_wall=0s peak_rss=0.00G min_avail=236.16G
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+== bytes-default 19:40:22
+[zk60-guard 19:40:22] START m26scan-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=6a745678b8cb
+[zk60-guard 19:40:29] END m26scan-bytes-default exit=0 child_wall=6s peak_rss=2.04G min_avail=230.91G peak_vram=3732MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 6.02s
+== bytes-0 19:40:39
+[zk60-guard 19:40:39] START m26scan-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=4c11acfe9232
+[zk60-guard 19:40:45] END m26scan-bytes-0 exit=0 child_wall=6s peak_rss=1.79G min_avail=231.16G peak_vram=3380MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 6.05s
+== unit-default 19:40:55
+[zk60-guard 19:40:55] START m26scan-unit-default class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=84e61050b39c
+[zk60-guard 19:41:20] END m26scan-unit-default exit=0 child_wall=25s peak_rss=4.78G min_avail=231.06G
+test result: ok. 99 passed; 0 failed; 9 ignored; 0 measured; 833 filtered out; finished in 25.16s
+== unit-0 19:41:30
+[zk60-guard 19:41:30] START m26scan-unit-0 class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=c99cfd194c44
+[zk60-guard 19:41:56] END m26scan-unit-0 exit=0 child_wall=25s peak_rss=4.84G min_avail=230.92G
+test result: ok. 99 passed; 0 failed; 9 ignored; 0 measured; 833 filtered out; finished in 25.25s
+== trained 19:42:06
+[zk60-guard 19:42:06] START m26scan-trained class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=74edb7db611e
+[zk60-guard 19:42:38] END m26scan-trained exit=0 child_wall=33s peak_rss=10.90G min_avail=218.10G peak_vram=10875MiB
+M4-TRAINED R13_8B_T128_H24 cpu 4.195 s metal-warm 0.707 s (prove core cpu 4.017 s metal 0.531 s; kernel compile 0.000 s, device sumcheck rounds 0.148 s; 1 slots without a matching IR; buffer pool 97 reused / 3 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.195 s metal-warm 0.676 s (prove core cpu 4.017 s metal 0.505 s; kernel compile 0.000 s, device sumcheck rounds 0.129 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.195 s metal-warm 0.681 s (prove core cpu 4.017 s metal 0.510 s; kernel compile 0.000 s, device sumcheck rounds 0.133 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.953 s metal-warm 0.722 s (prove core cpu 3.779 s metal 0.551 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.953 s metal-warm 0.725 s (prove core cpu 3.779 s metal 0.550 s; kernel compile 0.000 s, device sumcheck rounds 0.174 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.953 s metal-warm 0.715 s (prove core cpu 3.779 s metal 0.544 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.695 s metal-warm 0.524 s (prove core cpu 1.557 s metal 0.385 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 99 reused / 1 new) digest cpu 01a6d51d3b0476dac75ecaf0ff3754
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.695 s metal-warm 0.511 s (prove core cpu 1.557 s metal 0.370 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.695 s metal-warm 0.516 s (prove core cpu 1.557 s metal 0.377 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_8B_T128_H24 cpu 1.581 s metal-warm 0.501 s (prove core cpu 1.440 s metal 0.361 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.581 s metal-warm 0.517 s (prove core cpu 1.440 s metal 0.379 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.581 s metal-warm 0.500 s (prove core cpu 1.440 s metal 0.361 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 32.51s
+== r13 19:42:48
+[zk60-guard 19:42:49] START m26scan-r13 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=83953833a435
+[zk60-guard 19:42:50] END m26scan-r13 exit=0 child_wall=1s peak_rss=0.51G min_avail=233.48G peak_vram=3739MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 1.27s
+== golden 19:43:00
+cpu r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+ALL 0
+== full-suite 19:43:35
+[zk60-guard 19:43:35] START m26scan-full class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=81e23ed58cdd
+[zk60-guard 19:46:47] END m26scan-full exit=101 child_wall=192s peak_rss=8.88G min_avail=226.50G
+test private_block::hash_domain::tests::the_length_formulas_are_still_the_ones_zkp_core_hashes ... FAILED
+test private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies ... FAILED
+test private_block::token_io::classify_cli::batch::r18::r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels ... FAILED
+test private_block::token_io::classify_cli::batch::r18::r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers ... FAILED
+test private_block::token_io::classify_cli::batch::r18::r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking ... FAILED
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... FAILED
+test private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name ... FAILED
+thread 'private_block::hash_domain::tests::the_length_formulas_are_still_the_ones_zkp_core_hashes' (3636222) panicked at src/private_block/hash_domain_tests.rs:35:5:
+thread 'private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies' (3637018) panicked at src/private_block/review_tests.rs:738:5:
+thread 'private_block::token_io::classify_cli::batch::r18::r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels' (3639968) panicked at src/private_block/token_io/classify_r18_tests.rs:186:5:
+thread 'private_block::token_io::classify_cli::batch::r18::r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers' (3639976) panicked at src/private_block/token_io/classify_r18_tests.rs:218:42:
+thread 'private_block::token_io::classify_cli::batch::r18::r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking' (3639984) panicked at src/private_block/token_io/classify_r18_tests.rs:248:5:
+thread 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces' (3641177) panicked at src/private_block/trained_accuracy.rs:515:96:
+thread 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name' (3641330) panicked at src/private_block/trained_stack_tests.rs:553:44:
+test result: FAILED. 852 passed; 7 failed; 82 ignored; 0 measured; 0 filtered out; finished in 192.34s
+THE FULL SUITE IS NOT GREEN
+== build 19:49:12
+[zk60-guard 19:49:12] START m26scan-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=e916639a3018
+[zk60-guard 19:51:26] END m26scan-build exit=0 child_wall=134s peak_rss=3.47G min_avail=232.58G
+134
+B=/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+-rwxr-xr-x  1 victorrielly  staff  18125360 Nov  1 19:51 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+== scans 19:51:31
+[zk60-guard 19:51:31] START m26scan-scans class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=35ed6726b4c3
+[zk60-guard 19:52:07] END m26scan-scans exit=0 child_wall=36s peak_rss=5.29G min_avail=230.17G
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 883 filtered out; finished in 35.21s
+[zk60-guard 19:52:07] START m26scan-scans-print class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=4fe87f26bee1
+[zk60-guard 19:53:07] END m26scan-scans-print exit=0 child_wall=60s peak_rss=4.99G min_avail=230.52G
+S24 C-3 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-7 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-4 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 87 + 256 = 343 of 512
+S24 C-4 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 82 + 256 = 338 of 512
+S24 C-4 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 117 + 256 = 373 of 512
+S24 C-2 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-5 inside the last 10 of the point
+S24 C-2 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S24 C-2 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 10 of the point
+S24 C-2 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S25 W-2: 103 profiles, 6193 hash input kinds, 1512 pairs within one byte, 9 declared equal-length pairs
+S33 J-7a lemma: 85 registered profiles, 1930 absorb layouts, EVERY one separated; the thinnest is 14 forced-NUL positions at `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1`
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 883 filtered out; finished in 60.30s
+== zkp-core 19:53:17
+[zk60-guard 19:53:17] START m26scan-zkpcore class=build need=4G cap=10G enforce=watchdog-only waited=0s run=1157da015a6c
+[zk60-guard 19:53:18] END m26scan-zkpcore exit=0 child_wall=0s peak_rss=0.00G min_avail=235.99G
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+== bytes-default 19:53:28
+[zk60-guard 19:53:28] START m26scan-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=268f451a5ba6
+[zk60-guard 19:53:34] END m26scan-bytes-default exit=0 child_wall=6s peak_rss=1.81G min_avail=231.01G peak_vram=3705MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 5.91s
+== bytes-0 19:53:44
+[zk60-guard 19:53:44] START m26scan-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=36379bd54d84
+[zk60-guard 19:53:50] END m26scan-bytes-0 exit=0 child_wall=6s peak_rss=2.08G min_avail=230.72G peak_vram=3735MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 5.91s
+== unit-default 19:54:00
+[zk60-guard 19:54:00] START m26scan-unit-default class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=c2db75e11d8a
+[zk60-guard 19:54:25] END m26scan-unit-default exit=0 child_wall=25s peak_rss=4.57G min_avail=230.49G
+test result: ok. 99 passed; 0 failed; 9 ignored; 0 measured; 833 filtered out; finished in 24.50s
+== unit-0 19:54:35
+[zk60-guard 19:54:35] START m26scan-unit-0 class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=0f6db0972686
+[zk60-guard 19:54:59] END m26scan-unit-0 exit=0 child_wall=25s peak_rss=4.70G min_avail=230.76G
+test result: ok. 99 passed; 0 failed; 9 ignored; 0 measured; 833 filtered out; finished in 24.54s
+== trained 19:55:09
+[zk60-guard 19:55:10] START m26scan-trained class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=6721e596421e
+[zk60-guard 19:55:43] END m26scan-trained exit=0 child_wall=33s peak_rss=10.83G min_avail=218.08G peak_vram=10872MiB
+M4-TRAINED R13_8B_T128_H24 cpu 4.356 s metal-warm 0.706 s (prove core cpu 4.187 s metal 0.543 s; kernel compile 0.000 s, device sumcheck rounds 0.139 s; 1 slots without a matching IR; buffer pool 91 reused / 2 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.356 s metal-warm 0.675 s (prove core cpu 4.187 s metal 0.512 s; kernel compile 0.000 s, device sumcheck rounds 0.134 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.356 s metal-warm 0.689 s (prove core cpu 4.187 s metal 0.527 s; kernel compile 0.000 s, device sumcheck rounds 0.137 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.936 s metal-warm 0.722 s (prove core cpu 3.769 s metal 0.558 s; kernel compile 0.000 s, device sumcheck rounds 0.170 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.936 s metal-warm 0.714 s (prove core cpu 3.769 s metal 0.550 s; kernel compile 0.000 s, device sumcheck rounds 0.170 s; 1 slots without a matching IR; buffer pool 92 reused / 1 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.936 s metal-warm 0.713 s (prove core cpu 3.769 s metal 0.549 s; kernel compile 0.000 s, device sumcheck rounds 0.171 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.865 s metal-warm 0.516 s (prove core cpu 1.734 s metal 0.383 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.865 s metal-warm 0.544 s (prove core cpu 1.734 s metal 0.398 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.865 s metal-warm 0.513 s (prove core cpu 1.734 s metal 0.378 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_8B_T128_H24 cpu 1.813 s metal-warm 0.498 s (prove core cpu 1.681 s metal 0.365 s; kernel compile 0.000 s, device sumcheck rounds 0.078 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.813 s metal-warm 0.490 s (prove core cpu 1.681 s metal 0.361 s; kernel compile 0.000 s, device sumcheck rounds 0.076 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.813 s metal-warm 0.494 s (prove core cpu 1.681 s metal 0.363 s; kernel compile 0.000 s, device sumcheck rounds 0.076 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 33.07s
+== r13 19:55:53
+[zk60-guard 19:55:53] START m26scan-r13 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=cf20bead69a8
+[zk60-guard 19:55:54] END m26scan-r13 exit=0 child_wall=1s peak_rss=0.51G min_avail=233.31G peak_vram=3739MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 940 filtered out; finished in 1.28s
+== golden 19:56:04
+cpu r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+ALL 0
+== full-suite 19:56:39
+[zk60-guard 19:56:39] START m26scan-full class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=63a4c5ff5860
+[zk60-guard 19:59:53] END m26scan-full exit=101 child_wall=193s peak_rss=8.78G min_avail=226.67G
+test result: FAILED. 853 passed; 6 failed; 82 ignored; 0 measured; 0 filtered out; finished in 193.35s
+full-suite failures:
+private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+private_block::token_io::classify_cli::batch::r18::r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels
+private_block::token_io::classify_cli::batch::r18::r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers
+private_block::token_io::classify_cli::batch::r18::r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking
+private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+== done 19:59:53

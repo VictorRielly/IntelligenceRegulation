@@ -32,7 +32,17 @@ fn the_length_formulas_are_still_the_ones_zkp_core_hashes() {
     // squeeze -> 32 + 7 + 8
     assert!(tr.contains("h.update(&self.state);\n        h.update(b\"squeeze\");\n        h.update(&self.counter.to_le_bytes());"), "the squeeze no longer hashes state | \"squeeze\" | counter");
     let rng = include_str!("../../../zkp-core/src/rng.rs");
-    assert!(rng.contains("h.update(&self.key);\n        h.update(&self.counter.to_le_bytes());"), "ZkRng::refill no longer hashes a 40-byte block");
+    // M26 (2026-11-01): ZK60-METAL M4d (54e58518) moved the refill's hash,
+    // unchanged, into ONE helper `block_bytes` that `refill` and the parallel
+    // `fill_fp` both call: unkeyed, the 32-byte key then the LE counter, 40
+    // bytes, XOF. Pinned at the helper, at `refill`'s call, and by the helper
+    // being the file's only XOF stream (a second one fails here)
+    assert!(
+        rng.contains("fn block_bytes(key: &[u8; 32], counter: u64, out: &mut [u8]) {\n    let mut h = blake3::Hasher::new();\n    h.update(key);\n    h.update(&counter.to_le_bytes());\n    h.finalize_xof().fill(out);\n}"),
+        "ZkRng::refill no longer hashes a 40-byte block"
+    );
+    assert!(rng.contains("fn refill(&mut self) {\n        block_bytes(&self.key, self.counter, &mut self.buf);"), "ZkRng::refill no longer draws its block through block_bytes");
+    assert_eq!(rng.matches("finalize_xof(").count(), 1, "zkp-core/src/rng.rs has an XOF stream other than block_bytes");
     let mk = include_str!("../../../zkp-core/src/merkle.rs");
     assert!(mk.contains("pub fn hash_pair(a: &Digest, b: &Digest) -> Digest"), "the Merkle node is no longer blake3 over two digests");
     let pcs = include_str!("../../../zkp-core/src/pcs.rs");
@@ -369,7 +379,7 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         assert!(!u.label.is_empty() && !u.site.is_empty() && !u.data.is_empty(), "the table entry for `{}` is incomplete", u.label);
     }
     let table: Vec<String> = entries.iter().map(|u| u.label.to_string()).collect();
-    let lane: [(&str, &str); 47] = [
+    let lane: [(&str, &str); 51] = [
         ("argument_accuracy.rs", include_str!("argument_accuracy.rs")),
         ("accuracy_act.rs", include_str!("accuracy_act.rs")),
         ("accuracy_fold.rs", include_str!("accuracy_fold.rs")),
@@ -427,6 +437,18 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         ("token_io/classify_tied.rs", include_str!("token_io/classify_tied.rs")),
         ("token_io/cli.rs", include_str!("token_io/cli.rs")),
         ("token_io/load.rs", include_str!("token_io/load.rs")),
+        // M26 (2026-11-01): the four production files the Metal and W16 work
+        // added to the path — `range16.rs` (W16 / D54), `slot_ir.rs` and its
+        // `#[path]` child `slot_ir_accuracy.rs` (compiled under `gpu-metal`
+        // too), `metal_slot.rs` (`gpu-metal`). None absorbs a literal label in
+        // its production text: `slot_ir` only DRAWS challenges, from a clone
+        // of the transcript (`argument.rs`); the labels in
+        // `slot_ir_accuracy.rs` are inside its `#[cfg(test)] mod tests`. One
+        // added fails here
+        ("range16.rs", include_str!("range16.rs")),
+        ("slot_ir.rs", include_str!("slot_ir.rs")),
+        ("slot_ir_accuracy.rs", include_str!("slot_ir_accuracy.rs")),
+        ("metal_slot.rs", include_str!("metal_slot.rs")),
     ];
     // TOKEN ROUND 18 (REVIEW A5 finding 2) and ROUND 19 (REVIEW_R18 R18-2),
     // FAIL-CLOSED over every module line: every production FILE module a
@@ -457,10 +479,11 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
             followed += 1;
         }
     }
-    // private_block.rs's 28 production modules, token_io.rs's 11, and the six
-    // others: tied_tables -> derive, argument / witness / trained_block -> their
-    // accuracy children, classify_cli -> classify_batch -> classify_batch_plan
-    assert_eq!(followed, 45, "the scanned files' production modules moved");
+    // private_block.rs's 31 production modules (M26: + range16, slot_ir,
+    // metal_slot), token_io.rs's 11, and the seven others: tied_tables ->
+    // derive, argument / witness / trained_block / slot_ir -> their accuracy
+    // children, classify_cli -> classify_batch -> classify_batch_plan
+    assert_eq!(followed, 49, "the scanned files' production modules moved");
     // TOKEN I/O ROUND 12: the classifier header's two labels are absorbed ONLY
     // by a classifier run's header (`ClassifyRunStatement::transcript`) and by
     // the run capture's rebuild of that header; the shared table, and so every

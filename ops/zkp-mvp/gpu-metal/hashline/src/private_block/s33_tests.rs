@@ -152,6 +152,10 @@ fn every_registered_profile_context_and_label_is_printable_ascii_with_no_nul() {
     // TOKEN I/O ROUND 12: the classifier run profile(s)
     built.extend(super::token_io::classify::registered_classify_runs().iter().map(|(p, _)| p.to_string()));
     built.extend(super::accuracy_profile_tests::registered_runs().iter().map(|(p,_)|p.to_string()));
+    // M26 (2026-11-01): W16's opt-in, UNREGISTERED block profiles, whose
+    // strings are in `shape.rs` (s24's H-4 test checks they are on no
+    // registered list); a W16 proof hashes them, so the premise covers them
+    built.extend(super::s24_tests::opt_in_unregistered_shapes().iter().map(|sh| sh.profile.to_string()));
     built.sort();
     built.dedup();
     assert_eq!(built, registry_profiles(), "the registry read from the source and the registry built here disagree");
@@ -330,6 +334,52 @@ fn the_declared_sixty_byte_pair_is_separated_at_the_positions_the_record_names()
         in_first,
         in_second
     );
+}
+
+/// **M26 (2026-11-01): the SECOND instance of stage 32's class, at the W16
+/// rung.** The opt-in, unregistered W16 rung profile
+/// `hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1` is 51 bytes, so its
+/// constructor input is 63 bytes — exactly an absorb of the 7-byte label
+/// `pb-slot` with 8 bytes of data (`32 + 8 + 7 + 8 + 8`), both under the
+/// transcript key. s25's W-2 census found the pair when it began measuring the
+/// W16 profiles and declares it; the lemma above already separates EVERY
+/// 63-byte layout at that profile, and this test pins the declared row's
+/// length, layout and positions the way the sixty-byte test pins stage 32's,
+/// and shows the separation on real bytes with an adversarial state.
+#[test]
+fn the_declared_sixty_three_byte_w16_rung_pair_is_separated_at_the_positions_the_record_names() {
+    let p = super::shape::W16_RUNG_H24;
+    assert_eq!(p.len(), 51, "the W16 rung profile string is no longer 51 bytes, so s25's declared 63-byte row describes nothing");
+    let ctor: Vec<u8> = CTOR_PREFIX.iter().chain(p.as_bytes()).copied().collect();
+    assert_eq!(ctor.len(), 63, "the constructor input is not 63 bytes");
+    // the declared partner is on this profile's path: `pb-slot` with 8 bytes
+    let sh = super::range16_tests::built(p);
+    assert!(
+        hash_domain::path_labels(&sh, None).iter().any(|u| u.label == "pb-slot" && u.data.contains(&8)),
+        "`pb-slot` with 8 bytes of data is not on the W16 rung's path; the declared row describes nothing"
+    );
+    let (label, data_len) = (b"pb-slot".to_vec(), 8usize);
+    assert_eq!(48 + label.len() + data_len, ctor.len(), "the declared partner is not of the constructor input's length");
+    let sep = separating_positions(p.as_bytes(), label.len(), data_len);
+    // `le64(7)` at offset 32: seven NULs at 33..39; `le64(8)` at offset 47: seven at 48..54
+    let in_first: Vec<usize> = sep.iter().copied().filter(|q| (32..40).contains(q)).collect();
+    assert_eq!(in_first, (33..40).collect::<Vec<_>>(), "the first length field's forced NULs are not where the record says");
+    let in_second: Vec<usize> = sep.iter().copied().filter(|q| (47..55).contains(q)).collect();
+    assert_eq!(in_second, (48..55).collect::<Vec<_>>(), "the second length field's forced NULs are not where the record says");
+    assert_eq!(sep.len(), 14, "the declared pair's separating positions moved");
+    // ---- on real bytes, the state chosen adversarially
+    let mut absorb: Vec<u8> = ctor[..32].to_vec();
+    absorb.extend_from_slice(&(label.len() as u64).to_le_bytes());
+    absorb.extend_from_slice(&label);
+    absorb.extend_from_slice(&(data_len as u64).to_le_bytes());
+    absorb.extend_from_slice(&[0xffu8; 8]);
+    assert_eq!(absorb.len(), ctor.len(), "the two inputs are not the same length after all");
+    assert_ne!(absorb, ctor, "the declared pair's two inputs are EQUAL");
+    for q in &sep {
+        assert_eq!(absorb[*q], 0u8, "offset {q} is not a forced NUL of the absorb input");
+        assert_ne!(ctor[*q], 0u8, "offset {q} of the constructor input is a NUL");
+    }
+    eprintln!("S33 J-7a (M26): the declared 63-byte W16 rung pair is separated at {} positions — {in_first:?} in le64(|label|) and {in_second:?} in le64(|data|)", sep.len());
 }
 
 /// **THE LEMMA'S OWN CONTROL.** The separation is not a property of the

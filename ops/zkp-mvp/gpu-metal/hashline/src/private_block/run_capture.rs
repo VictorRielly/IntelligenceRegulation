@@ -218,7 +218,7 @@ pub(super) const SHARED_SOURCE_FILES: [&str; 29] = [
     "../zkp-core/src/tables.rs",
 ];
 
-pub(super) const OWN_SOURCE_FILES: [&str; 38] = [
+pub(super) const OWN_SOURCE_FILES: [&str; 42] = [
     "src/private_block/argument_accuracy.rs",
     "src/private_block/accuracy_act.rs",
     "src/private_block/accuracy_fold.rs",
@@ -298,7 +298,21 @@ pub(super) const OWN_SOURCE_FILES: [&str; 38] = [
     "src/private_block/accuracy_tables.rs",
     "src/private_block/trained_accuracy.rs",
     "src/private_block/witness_accuracy.rs",
-
+    // M26 (2026-11-01, s24's partition): W16 (D54) — the range families'
+    // tags, folds, table and support columns and the limb lookups, which
+    // decide the public range tables and the multiplicity planes a W16
+    // bundle records.
+    "src/private_block/range16.rs",
+    // M26: the slot expression IR, its accuracy-stack child and the Metal
+    // round-kernel codegen. Compiled under `gpu-metal` (the IR in every test
+    // build too); with HL_GPU=1 a slot's round sums — receipt bytes — are
+    // evaluated from them on the Apple GPU, after the runtime IR guard and
+    // byte-identical to the CPU's at the gated shapes. A bundle written by a
+    // Metal-built binary is therefore tied to them as well. PURE ADDITION:
+    // bundles already recorded keep the list their manifests pin.
+    "src/private_block/slot_ir.rs",
+    "src/private_block/slot_ir_accuracy.rs",
+    "src/private_block/metal_slot.rs",
 ];
 
 /// **The production modules of `private_block` that are NOT source pins, with

@@ -618,7 +618,7 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     // function, each with what separates them. Anything else fails.
     // `(length, a, b, the separating literal)` — `a` and `b` are substrings
     // of the kinds' plain-words names.
-    const DECLARED: [(usize, &str, &str, &str); 8] = [
+    const DECLARED: [(usize, &str, &str, &str); 9] = [
         // **STAGE 32, at the rung-W14 profile.** Its profile string is 48
         // bytes, so `Transcript::new`'s input — `b"hashline-v1/" ‖ profile`
         // — is 60 bytes, which is exactly what an absorb of the 4-byte
@@ -649,6 +649,21 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
             "the transcript constructor at",
             "the transcript absorb of `rows`",
             "le64(4) ‖ \"rows\" ‖ le64(8) — fourteen positions forced to NUL inside the two length fields (33..39 and 45..51), where the constructor carries the profile string's own ASCII bytes (stage 32, a 48-byte profile; CHECKED as a lemma over every profile length and every layout by stage 33's s33_tests, ruling J-7a)",
+        ),
+        // **M26 (2026-11-01), the same class at the opt-in W16 rung.** Found
+        // when this census began measuring the W16 profiles: the 51-byte
+        // `…private-block-rung-lh-t32-w16-dev/1` makes a 63-byte constructor
+        // input, exactly an absorb of `pb-slot` (7 bytes) with 8 bytes of
+        // data, both under the transcript key. Separated by the same
+        // argument, CHECKED the same way: s33's J-7a lemma covers every
+        // 63-byte layout at that profile (it reads the registry from the
+        // source), and s33's sixty-three-byte test pins this row's layout and
+        // positions on real bytes.
+        (
+            63,
+            "the transcript constructor at",
+            "the transcript absorb of `pb-slot`",
+            "le64(7) ‖ \"pb-slot\" ‖ le64(8) — fourteen positions forced to NUL inside the two length fields (33..39 and 48..54), where the constructor carries the profile string's own ASCII bytes (M26: the 51-byte opt-in W16 rung profile; CHECKED by s33's J-7a lemma over every registry length and every layout, and pinned by s33's sixty-three-byte test)",
         ),
         (
             49,
@@ -687,6 +702,13 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     // run bound to its trained-model statement, at L = 1 (what is proved
     // first) and at the whole TinyLlama stack's L = 22
     for sh in super::trained_calib_tests::registered_trained_shapes().into_iter().chain(super::accuracy_profile_tests::registered_shapes()) {
+        profiles.push((sh.profile.to_string(), sh, None));
+    }
+    // M26 (2026-11-01): W16's opt-in, UNREGISTERED block profiles (strings in
+    // `shape.rs`, no run profile; s24's H-4 test checks they are on no
+    // registered list). A W16 block proof hashes under them, so their kinds
+    // are measured and held to the same per-function rule as everyone's
+    for sh in super::s24_tests::opt_in_unregistered_shapes() {
         profiles.push((sh.profile.to_string(), sh, None));
     }
     for (p, sh) in super::trained_calib_tests::registered_trained_runs() {
@@ -1546,6 +1568,10 @@ fn stage_24s_twelve_key_test_still_covers_every_tagged_profile() {
     let mut all_shapes = every_shape();
     all_shapes.extend(super::trained_calib_tests::registered_trained_shapes());
     all_shapes.extend(super::accuracy_profile_tests::registered_shapes());
+    // M26 (2026-11-01): W16's opt-in, UNREGISTERED block profiles, measured
+    // beside the registered ones (s24's H-4 test checks they are on no
+    // registered list); their keys enter the distinctness check below
+    all_shapes.extend(super::s24_tests::opt_in_unregistered_shapes());
     for sh in all_shapes.iter().cloned() {
         let t = sh.hash_tag();
         if sh.hashes_under_the_legacy_rule() {
@@ -1610,7 +1636,9 @@ fn production_sources() -> Vec<(String, String)> {
         .filter_map(|line| line.trim().strip_prefix("mod ").or_else(|| line.trim().strip_prefix("pub mod ")))
         .collect::<Vec<_>>();
     assert_eq!(children,vec!["derive;"],"the tied-table production module enumeration moved");
-    for (parent,child) in [("trained_block.rs","trained_accuracy.rs"),("witness.rs","witness_accuracy.rs"),("argument.rs","argument_accuracy.rs")] {
+    // M26 (2026-11-01): `slot_ir.rs` is the fourth accuracy parent (its
+    // `#[path = "slot_ir_accuracy.rs"] mod accuracy;`, ZK60-METAL M4)
+    for (parent,child) in [("trained_block.rs","trained_accuracy.rs"),("witness.rs","witness_accuracy.rs"),("argument.rs","argument_accuracy.rs"),("slot_ir.rs","slot_ir_accuracy.rs")] {
         let text=source(&format!("src/private_block/{parent}"));
         assert!(text.contains(&format!(r#"#[path = "{child}"]"#)),"{parent}: accuracy child path changed");
         let declarations=text.lines().filter_map(|line| line.trim().strip_prefix("mod "))
@@ -1622,10 +1650,23 @@ fn production_sources() -> Vec<(String, String)> {
     // the toy's and the frozen-seam rung's endpoint and therefore on the
     // block's path, although it lives outside this module and outside this
     // lane's write set; it declares no module.
+    //
+    // M26 (2026-11-01), three modules of `private_block.rs` read and listed:
+    // `range16` (W16 / D54, the 16-bit tagged range lookups: plain code, no
+    // hash, absorb or generator; reached only by a W16 profile), `slot_ir`
+    // (`#[cfg(any(test, feature = "gpu-metal"))]`: the slot expression IR,
+    // which draws its challenges from a CLONE of the transcript taken before
+    // `define` in `argument.rs`; no hash, absorb or generator) and
+    // `metal_slot` (`#[cfg(feature = "gpu-metal")]`: the Metal round-kernel
+    // codegen and the runtime IR guard, whose points come from a local
+    // splitmix stream, never from `ZkRng`). Both GPU-side modules are
+    // PRODUCTION under `gpu-metal` (the follower reads only a bare
+    // `#[cfg(test)]` as test-only, which is the safe direction), and so is
+    // `slot_ir`'s `#[path]` child `slot_ir_accuracy.rs` below.
     const PB: &str = "src/private_block.rs";
     let mut want: Vec<(String, String)> = [
         "accuracy", "accuracy_act", "accuracy_aligned", "accuracy_fold", "accuracy_groups", "accuracy_layout", "accuracy_precision", "accuracy_public", "accuracy_tables", "argument", "boundary", "endpoint_g",
-        "hash_domain", "layout", "mvp_driver", "pad", "protocol", "rope", "run", "run_sink", "shape", "tied_tables", "timing", "token_io", "trained_block", "trained_statement", "wire", "witness",
+        "hash_domain", "layout", "metal_slot", "mvp_driver", "pad", "protocol", "range16", "rope", "run", "run_sink", "shape", "slot_ir", "tied_tables", "timing", "token_io", "trained_block", "trained_statement", "wire", "witness",
     ]
     .iter()
     .map(|m| (PB.to_string(), format!("src/private_block/{m}.rs")))
@@ -1638,6 +1679,7 @@ fn production_sources() -> Vec<(String, String)> {
     want.extend(
         [
             ("src/private_block/argument.rs", "src/private_block/argument_accuracy.rs"),
+            ("src/private_block/slot_ir.rs", "src/private_block/slot_ir_accuracy.rs"),
             ("src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs"),
             ("src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs"),
             ("src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs"),
@@ -1649,7 +1691,8 @@ fn production_sources() -> Vec<(String, String)> {
     );
     want.sort();
     assert_eq!(graph.edges, want, "the production module graph of the path moved (REVIEW A5 finding 2, REVIEW_R18 R18-2): read each new module, then list its edge here");
-    assert_eq!(graph.files.len(), 47, "the path's production files are no longer the 47 this census was written against");
+    // M26: 47 + range16, slot_ir, metal_slot and slot_ir_accuracy
+    assert_eq!(graph.files.len(), 51, "the path's production files are no longer the 51 this census was written against");
     graph.files.into_iter().map(|(f, _)| {
         let t = source(&f);
         (f, t)
@@ -2477,10 +2520,17 @@ fn r19b_the_module_follower_refuses_include_outside_test_code() {
 /// the path, each compiled as test code only (declared `#[cfg(test)]` by its
 /// parent: read for this list with `r19b/tools/mirror19b.py`). Paths are
 /// relative to `src/private_block/`.
-const TEST_ONLY_FILES: [&str; 79] = [
+const TEST_ONLY_FILES: [&str; 80] = [
     // D55 PROTOTYPE (2026-11-01): the unregistered "commit, fork, join" run
     // profile, declared `#[cfg(test)]` by `run.rs` and `wire.rs`
     "run_fork.rs", "run_fork_tests.rs", "run_fork_wire.rs",
+    // W16 (D54), M26 (2026-11-01): the W16 acceptance tests and the W16
+    // privacy gate's checks (with its test-only run identities), each
+    // declared by a bare `#[cfg(test)]` in `private_block.rs` and nowhere else
+    "range16_tests.rs", "w16_privacy_gate_tests.rs",
+    // (M26: `slot_ir.rs` LEFT this list. Since ZK60-METAL M3 it is
+    // `#[cfg(any(test, feature = "gpu-metal"))]` and `argument.rs` calls it
+    // in production under `gpu-metal`, so it is on the path.)
     "accuracy_binding_tests.rs", "accuracy_layout_tests.rs", "accuracy_profile_tests.rs", "accuracy_proof_tests.rs",
     "c6_tests.rs", "cs_port_tests.rs", "dense_tests.rs", "e32_tests.rs", "grow_tests.rs", "hash_domain_tests.rs",
     "hash_tag_tests.rs", "k4_tests.rs", "ladder8b_tests.rs", "lane_c_tinyllama_tests.rs", "norm_alias.rs",
@@ -2489,7 +2539,7 @@ const TEST_ONLY_FILES: [&str; 79] = [
     "review_tests.rs", "rulings_tests.rs", "run_capture.rs", "run_capture_tests.rs", "run_statement_file.rs",
     "run_tests.rs", "rung_tests.rs", "s20_review_tests.rs", "s23_tests.rs", "s24_tests.rs", "s25_tests.rs",
     "s26_tests.rs", "s28_review_tests.rs", "s28_tests.rs", "s29_tests.rs", "s33_tests.rs", "s35_tests.rs",
-    "slot_ir.rs", "slot_ir_tests.rs", "tamper.rs", "tests.rs", "token_io/capture_tests.rs", "token_io/classify_capture_tests.rs",
+    "slot_ir_tests.rs", "tamper.rs", "tests.rs", "token_io/capture_tests.rs", "token_io/classify_capture_tests.rs",
     "token_io/classify_cli_tests.rs", "token_io/classify_r14_tests.rs", "token_io/classify_r15_tests.rs", "token_io/classify_r16_tests.rs",
     "token_io/classify_r16b_tests.rs", "token_io/classify_r17_tests.rs", "token_io/classify_r18_tests.rs",
     "token_io/classify_tests.rs", "token_io/classify_tied_tests.rs", "token_io/cli_tests.rs", "token_io/gate19_capture_tests.rs",
