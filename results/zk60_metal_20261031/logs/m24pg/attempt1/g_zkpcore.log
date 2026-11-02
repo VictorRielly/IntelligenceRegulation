@@ -1,0 +1,24 @@
+    Finished `release` profile [optimized] target(s) in 0.02s
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/zkp_core-68bf4449a8e0df65)
+
+running 17 tests
+test merkle::tests::m9_bench_keyed_tree_over_2_16_leaves ... ignored
+test mle::tests::m8_bench_column_fold_at_the_8b_ffn_shape ... ignored
+test pcs::tag_tests::a_salted_leaf_is_a_merkle_node_under_the_legacy_rule_and_is_not_under_a_tag ... ok
+test mle::tests::eq_table_sums_to_one_and_matches_point ... ok
+test transcript::tests::the_unkeyed_transcript_is_unchanged ... ok
+test transcript::tests::deterministic_and_sensitive ... ok
+test transcript::tests::a_keyed_transcript_separates_and_its_clone_does_not ... ok
+test merkle::tests::paths_verify_and_tampers_fail ... ok
+test merkle::tests::a_keyed_node_separates_and_a_wrong_node_key_fails_the_path ... ok
+test mle::tests::matrix_folds_are_tensor_evaluations ... ok
+test pcs::tag_tests::the_tagged_verifier_refuses_a_path_of_the_wrong_length ... ok
+test mle::tests::eq_table_across_the_parallel_cutoff_matches_point ... ok
+test mle::tests::m8_deferred_column_fold_equals_the_field_fold ... ok
+test sumcheck::rounds::tests::masked_transcripts_and_one_or_two_extension_rounds_match ... ok
+test sumcheck::grouped::tests::native_masked_bytes_folds_finals_and_extensions_match ... ok
+test pcs::encode_buffer::tests::tagged_commitment_matches_old_encoding_tree_and_rng_continuation ... ok
+test sumcheck::rounds::tests::parallel_and_serial_folds_match_original ... ok
+
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+

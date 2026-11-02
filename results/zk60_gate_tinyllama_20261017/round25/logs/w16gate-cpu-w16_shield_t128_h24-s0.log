@@ -1,0 +1,9 @@
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 67 declared, 46 at r19b, 9 read here, 12 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs']
+status: W16-DEV-PASS (65.7 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round25/w16/w16-cpu-w16_shield_t128_h24-s0.json

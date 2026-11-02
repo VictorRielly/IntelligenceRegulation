@@ -1,0 +1,117 @@
+== build 18:41:41
+[zk60-guard 18:41:42] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:42:42] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:43:36] START m24pg-build class=build need=4G cap=10G enforce=watchdog-only waited=115s run=b39dbd623223
+[zk60-guard 18:43:37] END m24pg-build exit=0 child_wall=0s peak_rss=0.00G min_avail=236.75G
+134
+B=/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+-rwxr-xr-x@ 1 victorrielly  staff  17699072 Nov  1 18:39 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+== zkp-core 18:43:47
+[zk60-guard 18:43:47] START m24pg-zkpcore class=build need=4G cap=10G enforce=watchdog-only waited=0s run=3e7d0c9cba5e
+[zk60-guard 18:43:47] END m24pg-zkpcore exit=0 child_wall=0s peak_rss=0.00G min_avail=238.19G
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+== bytes-default 18:43:57
+[zk60-guard 18:43:57] START m24pg-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=7672e385a342
+[zk60-guard 18:44:02] END m24pg-bytes-default exit=0 child_wall=5s peak_rss=1.82G min_avail=233.01G peak_vram=4042MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 931 filtered out; finished in 5.41s
+== bytes-0 18:44:12
+[zk60-guard 18:44:13] START m24pg-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=52e3a18d7459
+[zk60-guard 18:44:18] END m24pg-bytes-0 exit=0 child_wall=6s peak_rss=1.78G min_avail=233.03G peak_vram=4019MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 931 filtered out; finished in 5.67s
+== unit-default 18:44:28
+[zk60-guard 18:44:28] START m24pg-unit-default class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=a0217822792a
+[zk60-guard 18:44:54] END m24pg-unit-default exit=0 child_wall=26s peak_rss=7.14G min_avail=230.56G
+test result: ok. 117 passed; 0 failed; 20 ignored; 0 measured; 795 filtered out; finished in 25.69s
+== unit-0 18:45:04
+[zk60-guard 18:45:04] START m24pg-unit-0 class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=836627050ef4
+[zk60-guard 18:45:30] END m24pg-unit-0 exit=0 child_wall=26s peak_rss=7.04G min_avail=228.95G
+test result: ok. 117 passed; 0 failed; 20 ignored; 0 measured; 795 filtered out; finished in 25.47s
+== pg-rung 18:45:40
+[zk60-guard 18:45:40] START m24pg-rung class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=fb62c6540c68
+[zk60-guard 18:45:43] END m24pg-rung exit=0 child_wall=3s peak_rss=0.65G min_avail=235.66G
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_development_rung ... W16-PG W16_RUNG_H24 PG-1 plane-index PASS 75 A planes (90 data rows), 46 H planes (108 data rows); tiling, domains and per-slot claim counts agree
+W16-PG W16_RUNG_H24 PG-2 names PASS 14 histograms (A, Dom::Tab, one row of 2^14 each) with their table helpers (H, Fp2): A_R1_0+H_GR1_0 A_R2_0+H_GR2_0 A_R3_0+H_GR3_0 A_R4_0+H_GR4_0 A_R5_0+H_GR5_0 A_R7_0+H_GR7_0 A_R12_0+H_GR12_0 A_R13_0+H_GR13_0 A_R15_0+H_GR15_0 A_R15_1+H_GR15_1 A_R16_0+H_GR16_0 A_R16_1+H_GR16_1 A_R16_2+H_GR16_2 A_R16_3+H_GR16_3
+W16-PG W16_RUNG_H24 PG-3 one-claim PASS 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs; SC_TAB declares 17 A / 17 H sites
+W16-PG W16_RUNG_H24 PG-4 mask-pairs PASS A 114 sites on 114 distinct pairs, H 46 sites on 46 distinct pairs
+W16-PG W16_RUNG_H24 PG-5 definitions PASS 23 slots, 162 private tables, each slot's order equal to the index's
+W16-PG W16_RUNG_H24 C-1 pre-W16-index PASS fires: private block: the H plane name table has 32 names for 46 planes
+W16-PG W16_RUNG_H24 PG-6 capture PASS an honest one-block run proved and verified; the recorder's own replay agreed at every site and every slot's private tables are the index's order; export replay 17 statement tables, 217600 entries (act3_values x1, act_support x1, exp_values x1, fold(w_d) x1, fold(w_g) x1, fold(w_k) x1, fold(w_o) x1, fold(w_q) x1, fold(w_u) x1, fold(w_v) x1, gamma_a x1, gamma_m x1, group_column x1, rope_cos@Kv x1, rope_cos@Q x1, rope_sin@Kv x1, rope_sin@Q x1)
+W16-PG W16_RUNG_H24 PG-7 allow-list PASS 18548 fields, every one on the allow-list; no forbidden word
+W16-PG W16_RUNG_H24 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 68 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 7 constant planes skipped)
+W16-PG W16_RUNG_H24 PG-10 input-independent-shape PASS two hidden inputs: 18548 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [15503528] B; the hidden inputs differ and 14 of the 14 range histograms differ between them
+W16-PG W16_RUNG_H24 C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 286
+W16-PG W16_RUNG_H24 C-3a collapsed-tags PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 C-3b wrong-gamma PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 61
+W16-PG W16_RUNG_H24 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_RUNG_H24 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG R13+legacy A-1 index-unchanged PASS 15 shapes (9 with an index), each byte-identical with and without the W16 additions
+W16-PG VERDICT 18 checks, all PASS
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 931 filtered out; finished in 2.80s
+== pg-metal 18:45:53
+[zk60-guard 18:45:53] START m24pg-metal class=gpu need=24G cap=80G enforce=watchdog-only waited=0s run=7e0871f284c3
+[zk60-guard 18:46:47] END m24pg-metal exit=101 child_wall=54s peak_rss=8.86G min_avail=226.09G peak_vram=7518MiB
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_on_the_metal_path ... W16-PG W16_RUNG_H24@metal MG-0 device PASS gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device); the seeded proof ran 2 commitments and 0.039 s of sumcheck rounds on the device, the captured run 4 commitments and 0.028 s; 0 declines
+W16-PG W16_RUNG_H24@metal MG-1 seeded-bytes PASS the seeded core proof at this shape and hidden input digests to dd0b1236645d47c8 on the CPU and on Metal
+W16-PG W16_RUNG_H24@metal PG-6 capture PASS an honest one-block run proved and verified; the recorder's own replay agreed at every site and every slot's private tables are the index's order; export replay 17 statement tables, 217600 entries (act3_values x1, act_support x1, exp_values x1, fold(w_d) x1, fold(w_g) x1, fold(w_k) x1, fold(w_o) x1, fold(w_q) x1, fold(w_u) x1, fold(w_v) x1, gamma_a x1, gamma_m x1, group_column x1, rope_cos@Kv x1, rope_cos@Q x1, rope_sin@Kv x1, rope_sin@Q x1)
+W16-PG W16_RUNG_H24@metal PG-7 allow-list PASS 18548 fields, every one on the allow-list; no forbidden word
+W16-PG W16_RUNG_H24@metal PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24@metal PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 68 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 7 constant planes skipped)
+W16-PG W16_RUNG_H24@metal C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 286
+W16-PG W16_RUNG_H24@metal C-3a collapsed-tags PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24@metal C-3b wrong-gamma PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24@metal C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 61
+W16-PG W16_RUNG_H24@metal C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_RUNG_H24@metal C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG W16_RUNG_H24@metal MG-2 view-vs-cpu PASS 46500 values (scalars and innermost scalar arrays: digests, Fp2 pairs) in 3 documents line up one to one under the same keys, plus 359 arrays.bin offsets of array references (storage positions, not compared; each array is compared by its content digest); 9832 are reproduced by the CPU under fresh randomness and every one is byte-equal on Metal; 36668 differ CPU/Metal, all at values that also differ CPU/CPU (0 CPU/CPU-differing values happen to equal on Metal); keys whose values move with the randomness (CPU/Metal differing / values): a_root 1/1, array 334/359, blob_sha256 1/1, c 23/23, claimed_sum 23/23, coefficient 544/844, definition_challenges 351/351, end_tag 1/1, expected_policy 1/1, expected_policy_sha256 1/1, fixed 58/58, h_root 1/1, index 1280/1280, input_root 1/1, lambdas 163/163, logup_challenges 3/3, mask_eval 23/23, mask_root 1/
+W16-PG W16_RUNG_H24@metal MG-3 structure-vs-cpu PASS the same hidden input on the CPU and on Metal: two hidden inputs: 18548 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [15503528] B
+W16-PG W16_RUNG_H24@metal C-7 doctored-metal-leaf PASS fires: document 1 value 141 (key "log_size"): the CPU reproduces 14 under fresh randomness, the Metal view has 15
+W16-PG W16_RUNG_H24@metal C-8 doctored-array-digest PASS fires: document 1 value 163 (key "array"): the CPU reproduces "c2046ce5acbffb3389b4349f1d60c2c4df7c04ec06cbfee under fresh randomness, the Metal view has "02046ce5acbf
+W16-PG W16_RUNG_H24@metal done (5 s wall, shared Mac, not a timing)
+W16-PG W16_SHIELD_T128_H24@metal MG-0 device PASS gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device); the seeded proof ran 2 commitments and 0.099 s of sumcheck rounds on the device, the captured run 4 commitments and 0.094 s; 0 declines
+W16-PG W16_SHIELD_T128_H24@metal MG-1 seeded-bytes PASS the seeded core proof at this shape and hidden input digests to 44542174a2419e73 on the CPU and on Metal
+W16-PG W16_SHIELD_T128_H24@metal PG-6 capture PASS an honest one-block run proved and verified; the recorder's own replay agreed at every site and every slot's private tables are the index's order; export replay 17 statement tables, 4546560 entries (act3_values x1, act_support x1, exp_values x1, fold(w_d) x1, fold(w_g) x1, fold(w_k) x1, fold(w_o) x1, fold(w_q) x1, fold(w_u) x1, fold(w_v) x1, gamma_a x1, gamma_m x1, group_column x1, rope_cos@Kv x1, rope_cos@Q x1, rope_sin@Kv x1, rope_sin@Q x1)
+W16-PG W16_SHIELD_T128_H24@metal PG-7 allow-list PASS 34001 fields, every one on the allow-list; no forbidden word
+W16-PG W16_SHIELD_T128_H24@metal PG-8 masked-claims PASS 111 A and 44 H claims as captured, each on its own reserved pair; 13 histograms and 13 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_SHIELD_T128_H24@metal PG-9 public-tables PASS 13 range columns and 7 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (17, "act_support")]; 43 distinct public tables, none equal to any of 61 non-constant A planes (all 13 range histograms and the byte histogram among them, as the prover fills them; 11 constant planes skipped)
+W16-PG W16_SHIELD_T128_H24@metal C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 2472
+W16-PG W16_SHIELD_T128_H24@metal C-3a collapsed-tags PASS fires: range column 0 (2-bit) differs
+W16-PG W16_SHIELD_T128_H24@metal C-3b wrong-gamma PASS fires: range column 0 (2-bit) differs
+W16-PG W16_SHIELD_T128_H24@metal C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 59
+W16-PG W16_SHIELD_T128_H24@metal C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_SHIELD_T128_H24@metal C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG W16_SHIELD_T128_H24@metal MG-2 view-vs-cpu PASS 62875 values (scalars and innermost scalar arrays: digests, Fp2 pairs) in 3 documents line up one to one under the same keys, plus 614 arrays.bin offsets of array references (storage positions, not compared; each array is compared by its content digest); 24812 are reproduced by the CPU under fresh randomness and every one is byte-equal on Metal; 38063 differ CPU/Metal, all at values that also differ CPU/CPU (0 CPU/CPU-differing values happen to equal on Metal); keys whose values move with the randomness (CPU/Metal differing / values): a_root 1/1, array 590/614, blob_sha256 1/1, c 23/23, claimed_sum 23/23, coefficient 527/816, definition_challenges 426/426, end_tag 1/1, expected_policy 1/1, expected_policy_sha256 1/1, fixed 81/81, h_root 1/1, index 1280/1280, input_root 1/1, lambdas 158/158, logup_challenges 3/3, mask_eval 23/23, mask
+W16-PG W16_SHIELD_T128_H24@metal MG-3 structure-vs-cpu PASS the same hidden input on the CPU and on Metal: two hidden inputs: 34001 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [25031592] B
+W16-PG W16_SHIELD_T128_H24@metal C-7 doctored-metal-leaf PASS fires: document 1 value 175 (key "log_size"): the CPU reproduces 19 under fresh randomness, the Metal view has 20
+W16-PG W16_SHIELD_T128_H24@metal C-8 doctored-array-digest PASS fires: document 1 value 202 (key "array"): the CPU reproduces "ba475b7544ebccb16f645533eb3865383d0ecfe02f4ef92 under fresh randomness, the Metal view has "0a475b7544eb
+W16-PG W16_SHIELD_T128_H24@metal done (25 s wall, shared Mac, not a timing)
+W16-PG W16_8B_T128_H24@metal MG-0 device PASS gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device); the seeded proof ran 2 commitments and 0.085 s of sumcheck rounds on the device, the captured run 4 commitments and 0.085 s; 0 declines
+W16-PG W16_8B_T128_H24@metal MG-1 seeded-bytes PASS the seeded core proof at this shape and hidden input digests to 7187f07dbafc73c2 on the CPU and on Metal
+W16-PG W16_8B_T128_H24@metal PG-6 capture PASS an honest one-block run proved and verified; the recorder's own replay agreed at every site and every slot's private tables are the index's order; export replay 17 statement tables, 4546560 entries (act3_values x1, act_support x1, exp_values x1, fold(w_d) x1, fold(w_g) x1, fold(w_k) x1, fold(w_o) x1, fold(w_q) x1, fold(w_u) x1, fold(w_v) x1, gamma_a x1, gamma_m x1, group_column x1, rope_cos@Kv x1, rope_cos@Q x1, rope_sin@Kv x1, rope_sin@Q x1)
+W16-PG W16_8B_T128_H24@metal PG-7 allow-list PASS 33974 fields, every one on the allow-list; no forbidden word
+W16-PG W16_8B_T128_H24@metal PG-8 masked-claims PASS 111 A and 44 H claims as captured, each on its own reserved pair; 13 histograms and 13 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_8B_T128_H24@metal PG-9 public-tables PASS 13 range columns and 7 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (17, "act_support")]; 42 distinct public tables, none equal to any of 60 non-constant A planes (all 13 range histograms and the byte histogram among them, as the prover fills them; 12 constant planes skipped)
+W16-PG W16_8B_T128_H24@metal C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 2472
+W16-PG W16_8B_T128_H24@metal C-3a collapsed-tags PASS fires: range column 0 (2-bit) differs
+W16-PG W16_8B_T128_H24@metal C-3b wrong-gamma PASS fires: range column 0 (2-bit) differs
+W16-PG W16_8B_T128_H24@metal C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 59
+W16-PG W16_8B_T128_H24@metal C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_8B_T128_H24@metal C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG W16_8B_T128_H24@metal MG-2 view-vs-cpu FAIL document 1 value 13563 (key "index"): the CPU reproduces 4072 under fresh randomness, the Metal view has 3741
+W16-PG W16_8B_T128_H24@metal MG-3 structure-vs-cpu PASS the same hidden input on the CPU and on Metal: two hidden inputs: 33974 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [25030632] B
+W16-PG W16_8B_T128_H24@metal C-7 doctored-metal-leaf PASS fires: document 1 value 155 (key "log_size"): the CPU reproduces 19 under fresh randomness, the Metal view has 20
+W16-PG W16_8B_T128_H24@metal C-8 doctored-array-digest PASS fires: document 1 value 1011 (key "array"): the CPU reproduces "31574bc9a12f2c400f6a1bf25b82994325a56c623423cb9 under fresh randomness, the Metal view has "01574bc9a12
+W16-PG W16_8B_T128_H24@metal done (23 s wall, shared Mac, not a timing)
+thread 'private_block::w16_privacy_gate_tests::w16_privacy_gate_on_the_metal_path' (3505424) panicked at src/private_block/w16_privacy_gate_tests.rs:106:9:
+W16 privacy gate: 1 of 48 checks FAILED:
+FAILED
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 931 filtered out; finished in 53.77s

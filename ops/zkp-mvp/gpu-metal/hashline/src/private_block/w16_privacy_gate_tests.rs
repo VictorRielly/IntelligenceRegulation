@@ -947,3 +947,362 @@ fn w16_privacy_gate_at_the_trained_t128_shapes() {
     assert!(!rec.0.is_empty(), "HL_W16PG_PROFILES names no W16 profile");
     rec.assert_all();
 }
+
+// ---------------------------------------------------------------- the Metal path (2026-11-01, m24pg)
+
+/// the holder [`leaves`] gives an array reference's `arrays.bin` offset
+#[cfg(feature = "gpu-metal")]
+const STORE_OFFSET: &str = "<arrays.bin offset of an array reference>";
+
+/// one JSON document's VALUES in order, each with the key that holds it (the
+/// object key it is the value of, or the key of the array it sits in). A
+/// value is a scalar, or a whole innermost array of scalars: a digest is
+/// written as 32 byte values and an `Fp2` as a pair, and one random byte of a
+/// digest equals its counterpart in another run one time in 256, so a digest
+/// is compared whole (found on the first Metal run, 2026-11-01).
+///
+/// One value is relabelled, not compared: the `offset` of an array reference
+/// `{"array":<sha256>,"elem","len","offset","bytes"}` is a POSITION in
+/// `arrays.bin`, and the store writes identical arrays once, so the offset of
+/// every later array moves whenever a run's column queries repeat an index
+/// (256 queries into 2^16 encoded columns repeat about once in two runs; the
+/// two copies are one column, byte-identical). It is held by [`STORE_OFFSET`];
+/// every array is still compared by its content digest. Found on the first
+/// 8B T128 Metal run, 2026-11-01: a CPU run with three repeated H queries, one
+/// with none, the Metal run with one.
+#[cfg(feature = "gpu-metal")]
+fn leaves(b: &[u8]) -> Result<Vec<(String, &[u8])>, String> {
+    let mut out: Vec<(String, &[u8])> = Vec::new();
+    let mut holders: Vec<String> = Vec::new();
+    // per open container: (is an array, holds a container, first value's
+    // index, its opening position, is an array reference: None before its first key)
+    let mut frames: Vec<(bool, bool, usize, usize, Option<bool>)> = Vec::new();
+    let mut key: Option<String> = None;
+    let mut i = 0usize;
+    while i < b.len() {
+        match b[i] {
+            b'{' | b'[' => {
+                if let Some(f) = frames.last_mut() {
+                    f.1 = true;
+                }
+                frames.push((b[i] == b'[', false, out.len(), i, None));
+                let h = key.take().or_else(|| holders.last().cloned()).unwrap_or_default();
+                holders.push(h);
+                i += 1;
+            }
+            b'}' | b']' => {
+                let (array, nested, first, open, _) = frames.pop().ok_or("unbalanced JSON")?;
+                let h = holders.pop().ok_or("unbalanced JSON")?;
+                if array && !nested && out.len() > first {
+                    out.truncate(first);
+                    out.push((h, &b[open..=i]));
+                }
+                i += 1;
+            }
+            b'"' => {
+                let s = i;
+                i += 1;
+                while i < b.len() && b[i] != b'"' {
+                    i += if b[i] == b'\\' { 2 } else { 1 };
+                }
+                i += 1;
+                if i > b.len() {
+                    return Err("an unterminated JSON string".into());
+                }
+                let tok = &b[s..i];
+                let mut j = i;
+                while j < b.len() && b[j].is_ascii_whitespace() {
+                    j += 1;
+                }
+                if b.get(j) == Some(&b':') {
+                    let mut name = String::from_utf8_lossy(&tok[1..tok.len() - 1]).into_owned();
+                    if let Some(f) = frames.last_mut() {
+                        if !f.0 {
+                            let is_ref = *f.4.get_or_insert(name == "array");
+                            if is_ref && name == "offset" {
+                                name = STORE_OFFSET.to_string();
+                            }
+                        }
+                    }
+                    key = Some(name);
+                    i = j + 1;
+                } else {
+                    let h = key.take().or_else(|| holders.last().cloned()).unwrap_or_default();
+                    out.push((h, tok));
+                }
+            }
+            c if c == b',' || c.is_ascii_whitespace() => i += 1,
+            _ => {
+                let s = i;
+                while i < b.len() && !matches!(b[i], b',' | b']' | b'}') && !b[i].is_ascii_whitespace() {
+                    i += 1;
+                }
+                let h = key.take().or_else(|| holders.last().cloned()).unwrap_or_default();
+                out.push((h, &b[s..i]));
+            }
+        }
+    }
+    if !holders.is_empty() {
+        return Err("unbalanced JSON".into());
+    }
+    Ok(out)
+}
+
+/// what a capture holds besides its files, as one more JSON document: the
+/// statement tables the recorder replayed and the array store's counts
+#[cfg(feature = "gpu-metal")]
+fn capture_side(c: &Captured) -> Vec<u8> {
+    let st: Vec<String> = c.bundle.statement.iter().map(|t| format!("{{\"stage\":{},\"slot\":{},\"nth\":{},\"what\":{:?},\"len\":{},\"sha256\":{:?}}}", t.stage, t.slot, t.nth, t.what, t.len, t.sha256)).collect();
+    // (references written and arrays left inline; the distinct / deduplicated
+    // counts and the blob length move with repeated column queries, see [`leaves`])
+    let (_, s, _, inl, _) = c.bundle.arrays.stats();
+    format!("{{\"statement\":[{}],\"arrays\":[{s},{inl}],\"blob_sha256\":{:?}}}", st.join(","), crate::export_v3::sha256_hex(c.bundle.arrays.blob())).into_bytes()
+}
+
+/// **MG-2: the Metal view against the CPU's, value by value** ([`leaves`]).
+/// `cpu` are CPU-proved captures of ONE hidden input and `m` a Metal-proved
+/// one (each a list of JSON documents). A run draws fresh OS randomness and
+/// its endpoint owners cannot be cloned, so no two runs are byte-equal; what
+/// CAN be asked is: every value the CPU runs reproduce under fresh randomness
+/// is byte-equal on Metal, the values line up one to one under the same keys,
+/// and Metal differs only where the CPU runs differ.
+///
+/// `cpu` holds THREE CPU captures in the test: a value counts as reproduced
+/// only when all of them agree. Two were not enough (the first 8B T128 run
+/// of attempt 2, 2026-11-01): the opened columns' query indices are written
+/// in sorted order, so the index at one position is an order statistic in a
+/// narrow window and two runs agree there about once in four 8B captures.
+/// Three independent runs agree by chance only when two such coincidences
+/// meet at one position.
+#[cfg(feature = "gpu-metal")]
+fn views_agree(cpu: &[&[Vec<u8>]], m: &[Vec<u8>]) -> Result<String, String> {
+    if cpu.len() < 2 || cpu.iter().any(|c| c.len() != m.len()) {
+        return Err(format!("{} CPU captures of {:?} documents against {}", cpu.len(), cpu.iter().map(|c| c.len()).collect::<Vec<_>>(), m.len()));
+    }
+    let show = |v: &[u8]| String::from_utf8_lossy(&v[..v.len().min(48)]).into_owned();
+    // per key: values, reproduced, CPU/CPU differ, CPU/Metal differ
+    let mut per: BTreeMap<String, [usize; 4]> = BTreeMap::new();
+    let (mut total, mut repro, mut chance, mut offsets) = (0usize, 0usize, 0usize, 0usize);
+    for k in 0..m.len() {
+        let lc: Vec<Vec<(String, &[u8])>> = cpu.iter().map(|c| leaves(&c[k])).collect::<Result<_, _>>()?;
+        let lz = leaves(&m[k])?;
+        if lc.iter().any(|l| l.len() != lz.len()) {
+            return Err(format!("document {k}: {:?} CPU values against {} on Metal", lc.iter().map(|l| l.len()).collect::<Vec<_>>(), lz.len()));
+        }
+        for (i, r) in lz.iter().enumerate() {
+            let p = &lc[0][i];
+            if lc.iter().any(|l| l[i].0 != r.0) {
+                return Err(format!("document {k} value {i}: held by {:?} on the CPU, {:?} on Metal", lc.iter().map(|l| l[i].0.clone()).collect::<Vec<_>>(), r.0));
+            }
+            if p.0 == STORE_OFFSET {
+                offsets += 1;
+                continue;
+            }
+            let e = per.entry(p.0.clone()).or_default();
+            e[0] += 1;
+            total += 1;
+            if lc.iter().all(|l| l[i].1 == p.1) {
+                e[1] += 1;
+                repro += 1;
+                if r.1 != p.1 {
+                    return Err(format!("document {k} value {i} (key {:?}): {} CPU runs reproduce {} under fresh randomness, the Metal view has {}", p.0, cpu.len(), show(p.1), show(r.1)));
+                }
+            } else {
+                e[2] += 1;
+                if r.1 != p.1 {
+                    e[3] += 1;
+                } else {
+                    chance += 1;
+                }
+            }
+        }
+    }
+    let moved: Vec<String> = per.iter().filter(|(_, v)| v[2] > 0).map(|(k, v)| format!("{k} {}/{}", v[3], v[0])).collect();
+    let cpu_only: Vec<&String> = per.iter().filter(|(_, v)| v[2] > 0 && v[3] == 0).map(|(k, _)| k).collect();
+    let differ: usize = per.values().map(|v| v[3]).sum();
+    Ok(format!(
+        "{total} values (scalars and innermost scalar arrays: digests, Fp2 pairs) in {} documents line up one to one under the same keys, plus {offsets} arrays.bin offsets of array references (storage positions, not compared; each array is compared by its content digest); {repro} are reproduced by all {} CPU runs under fresh randomness and every one is byte-equal on Metal; {differ} differ CPU/Metal, all at values that also differ between CPU runs ({chance} CPU-differing values happen to equal on Metal); keys whose values move with the randomness (CPU/Metal differing / values): {}{}",
+        m.len(),
+        cpu.len(),
+        moved.join(", "),
+        if cpu_only.is_empty() { String::new() } else { format!("; keys that moved CPU/CPU but never CPU/Metal: {cpu_only:?}") }
+    ))
+}
+
+/// one seeded accuracy-stack core proof's digest (the recipe of
+/// `slot_ir::accuracy::tests::seeded_accuracy_digest`, its own seed): the
+/// prover with its randomness FIXED, so CPU and Metal must give equal bytes
+#[cfg(feature = "gpu-metal")]
+fn seeded_core_digest(sh: &Shape, blk: &BlockPublic, w: Witness) -> Result<String, String> {
+    let lay = Layout::for_shape(sh)?;
+    let (rows, n) = (sh.endpoint_rows, 1usize << sh.endpoint_log_n);
+    let ids = Ids::new(sh)?;
+    let io = |p: usize| -> Vec<Fp> {
+        let mut d = vec![Fp::ZERO; rows * n];
+        for (i, v) in w.planes[p].iter().enumerate().take(d.len()) {
+            d[i] = Fp::from_i64(*v);
+        }
+        d
+    };
+    let (ein, eout) = (io(ids.at(A_X)), io(ids.at(A_X2)));
+    let ntt = crate::ntt::NttTables::new(super::protocol::ntt_log_at(sh));
+    let mut rng = crate::zk::ZkRng::new(20261101, b"zk60 w16 privacy gate metal");
+    let mut tr = Transcript::new(b"zk60 w16 privacy gate metal");
+    tr.absorb(b"profile", sh.profile.as_bytes());
+    tr.absorb(b"schedule", &lay.schedule_digest());
+    let mut ph = super::timing::Phases::start();
+    let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+    let core = super::protocol::prove_core(sh, &lay, blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?;
+    let text = format!(
+        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
+        core.a_root, core.h_root, core.mask_root, core.slots, core.mask_open, core.a_open, core.h_open, core.io_claims, core.order, core.lookups, tr.state()
+    );
+    Ok(blake3::hash(text.as_bytes()).to_hex().to_string())
+}
+
+/// the gate on the Metal path at one W16 profile: three CPU captures and one
+/// Metal capture of the SAME hidden input (seed 0), the seeded prover's
+/// bytes on both, every capture check and control on the Metal view, and the
+/// Metal view against the CPU's (MG-2, MG-3)
+#[cfg(feature = "gpu-metal")]
+fn metal_gate_at(rec: &mut Record, profile: &str) {
+    let name = shape::accuracy_spec(profile).expect("a W16 profile").name;
+    let mname = format!("{name}@metal");
+    std::env::remove_var("HL_GPU");
+    let (sh, blk, w) = w16_case(profile, 0);
+    let cpu_digest = seeded_core_digest(&sh, &blk, w.clone());
+    let (a, a2, a3) = (prove_and_capture(profile, 0), prove_and_capture(profile, 0), prove_and_capture(profile, 0));
+    let declines0 = crate::gpu::declines();
+    let (sc0, n0) = (crate::gpu::metal_sumcheck_stats().1, crate::gpu::metal_stats().0);
+    std::env::set_var("HL_GPU", "1");
+    let live = crate::gpu::enabled();
+    let label = crate::gpu::label();
+    let metal_digest = seeded_core_digest(&sh, &blk, w);
+    let (sc1, n1) = (crate::gpu::metal_sumcheck_stats().1, crate::gpu::metal_stats().0);
+    let m = prove_and_capture(profile, 0);
+    std::env::remove_var("HL_GPU");
+    let (sc2, n2) = (crate::gpu::metal_sumcheck_stats().1, crate::gpu::metal_stats().0);
+    let declines = crate::gpu::declines() - declines0;
+    rec.put(&mname, "MG-0 device", if live && sc1 > sc0 && n1 > n0 && sc2 > sc1 && n2 > n1 && declines == 0 {
+        Ok(format!("{label}; the seeded proof ran {} commitments and {:.3} s of sumcheck rounds on the device, the captured run {} commitments and {:.3} s; 0 declines", n1 - n0, sc1 - sc0, n2 - n1, sc2 - sc1))
+    } else {
+        Err(format!("the device did not carry both proofs (live {live}, {label}; seeded {} commitments / {:.3} s, run {} / {:.3} s, {declines} declines)", n1 - n0, sc1 - sc0, n2 - n1, sc2 - sc1))
+    });
+    rec.put(&mname, "MG-1 seeded-bytes", match (&cpu_digest, &metal_digest) {
+        (Ok(c), Ok(g)) if c == g => Ok(format!("the seeded core proof at this shape and hidden input digests to {} on the CPU and on Metal", &c[..16])),
+        (Ok(c), Ok(g)) => Err(format!("the seeded core proof differs: cpu {} metal {}", &c[..16], &g[..16])),
+        (c, g) => Err(format!("the seeded core proof failed: cpu {:?} metal {:?}", c.as_ref().err(), g.as_ref().err())),
+    });
+    let (a, a2, a3, m) = match (a, a2, a3, m) {
+        (Ok(a), Ok(a2), Ok(a3), Ok(m)) => (a, a2, a3, m),
+        (a, a2, a3, m) => {
+            rec.put(&mname, "PG-6 capture", Err(format!("a capture failed: cpu {:?} cpu {:?} cpu {:?} metal {:?}", a.err(), a2.err(), a3.err(), m.err())));
+            return;
+        }
+    };
+    if m.sh != sh || a.sh != sh {
+        rec.put(&mname, "PG-6 capture", Err("a captured run is not at the case's shape".into()));
+        return;
+    }
+    // every capture-level check and control on the Metal-proved view
+    capture_checks(rec, &mname, &m, None);
+    capture_controls(rec, &mname, &m, Some(&a));
+    // MG-2 / MG-3: the Metal view against the CPU's
+    let docs = |c: &Captured| -> Vec<Vec<u8>> { bundle_files(&c.bundle).into_iter().chain(std::iter::once(capture_side(c))).collect() };
+    let (da, da2, da3, dm) = (docs(&a), docs(&a2), docs(&a3), docs(&m));
+    let cpu: [&[Vec<u8>]; 3] = [&da, &da2, &da3];
+    rec.put(&mname, "MG-2 view-vs-cpu", views_agree(&cpu, &dm));
+    rec.put(&mname, "MG-3 structure-vs-cpu", same_structure(sh.n_slots(), &bundle_files(&a.bundle), &seg_lens(&a), &bundle_files(&m.bundle), &seg_lens(&m)).map(|d| format!("the same hidden input on the CPU and on Metal: {d}")));
+    // C-7: one reproducible leaf of the Metal stage file changed is seen
+    {
+        let s = String::from_utf8(dm[1].clone()).expect("a UTF-8 stage file");
+        let at = s.find("\"log_size\":").expect("a log_size") + "\"log_size\":".len();
+        let end = at + s[at..].find(|c: char| !c.is_ascii_digit()).expect("a number");
+        let v: u64 = s[at..end].parse().expect("a number");
+        let mut doctored = dm.clone();
+        doctored[1] = format!("{}{}{}", &s[..at], v + 1, &s[end..]).into_bytes();
+        control(rec, &mname, "C-7 doctored-metal-leaf", views_agree(&cpu, &doctored));
+    }
+    // C-8: a reproducible array's content digest changed in the Metal stage
+    // file is seen (the offsets are not compared; the digests are)
+    {
+        let s = String::from_utf8(dm[1].clone()).expect("a UTF-8 stage file");
+        let (sa, sa2) = (String::from_utf8_lossy(&da[1]).into_owned(), String::from_utf8_lossy(&da3[1]).into_owned());
+        let pat = "{\"array\":\"";
+        let mut from = 0usize;
+        let mut hit = None;
+        while let Some(p) = s[from..].find(pat) {
+            let at = from + p + pat.len();
+            let sha = &s[at..at + 64];
+            if sa.contains(sha) && sa2.contains(sha) {
+                hit = Some(at);
+                break;
+            }
+            from = at;
+        }
+        let r = match hit {
+            Some(at) => {
+                let flipped = if &s[at..at + 1] == "0" { "1" } else { "0" };
+                let mut doctored = dm.clone();
+                doctored[1] = format!("{}{}{}", &s[..at], flipped, &s[at + 1..]).into_bytes();
+                views_agree(&cpu, &doctored)
+            }
+            None => Ok("no reproducible array reference to doctor".into()),
+        };
+        control(rec, &mname, "C-8 doctored-array-digest", r);
+    }
+}
+
+/// **THE W16 GATE ON THE METAL PATH** (`HL_W16PG_PROFILES`, default the
+/// rung): per profile, three CPU captures and one Metal capture of one hidden
+/// input; MG-0 the device carried the proofs, MG-1 the seeded prover's bytes
+/// are equal on both, PG-6 .. PG-9 and the controls on the Metal view, MG-2
+/// the Metal view against the CPU's leaf by leaf, MG-3 its structure. Toggles
+/// `HL_GPU` in-process: run alone by name with `HL_GPU_REQUIRED=1`, guarded.
+#[cfg(feature = "gpu-metal")]
+#[test]
+#[ignore = "toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded"]
+fn w16_privacy_gate_on_the_metal_path() {
+    assert!(crate::gpu::required(), "run with HL_GPU_REQUIRED=1, so that no device decline falls back to the CPU unseen");
+    let want = std::env::var("HL_W16PG_PROFILES").unwrap_or_else(|_| "W16_RUNG_H24".into());
+    let mut rec = Record::default();
+    for spec in shape::W16_PROFILES.iter().filter(|s| want.split(',').any(|w| w == s.name)) {
+        let t0 = std::time::Instant::now();
+        metal_gate_at(&mut rec, spec.profile);
+        eprintln!("W16-PG {}@metal done ({:.0} s wall, shared Mac, not a timing)", spec.name, t0.elapsed().as_secs_f64());
+    }
+    assert!(!rec.0.is_empty(), "HL_W16PG_PROFILES names no W16 profile");
+    rec.assert_all();
+}
+
+/// **THE W16 GATE BUNDLES ON DISK**, the input of the Python gate's W16
+/// items: per profile in `HL_W16PG_PROFILES` (default the rung), one honest
+/// one-block run per hidden input (seeds 0 and 1), captured as
+/// `prove_and_capture` does and written by `run_capture::write_bundle` into
+/// `HL_W16PG_CAPTURE_DIR/<shape>-s<seed>`, with the plane index the recorder
+/// checked in `run.json`. The path (CPU, or Metal under `HL_GPU=1`) is the
+/// caller's and is named in the README. Test-only bundles; delete them once
+/// recorded.
+#[test]
+#[ignore = "writes the W16 gate bundles; set HL_W16PG_CAPTURE_DIR"]
+fn w16_privacy_gate_write_the_w16_bundles() {
+    let root = std::path::PathBuf::from(std::env::var("HL_W16PG_CAPTURE_DIR").expect("HL_W16PG_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    let want = std::env::var("HL_W16PG_PROFILES").unwrap_or_else(|_| "W16_RUNG_H24".into());
+    let mut n = 0usize;
+    for spec in shape::W16_PROFILES.iter().filter(|s| want.split(',').any(|w| w == s.name)) {
+        for seed in [0usize, 1] {
+            let c = prove_and_capture(spec.profile, seed).unwrap_or_else(|e| panic!("{} seed {seed}: {e}", spec.name));
+            let dir = root.join(format!("{}-s{seed}", spec.name.to_ascii_lowercase()));
+            let note = format!(
+                "W16 privacy gate fixture (D54 re-check): one honest one-block run at the W16 block profile `{}` under the TEST-ONLY run identity `{}`, public synthetic weights (`range16_tests::case`), a hidden synthetic input from seed {seed} (`w16_privacy_gate_tests::w16_case`); proved on this path: {}. Test-only: delete once recorded.",
+                spec.profile,
+                run_profile_of(spec.profile),
+                crate::gpu::label()
+            );
+            run_capture::write_bundle(&dir, &c.bundle, &c.segs, &note, "HL_W16PG_CAPTURE_DIR=<dir> [HL_W16PG_PROFILES=<names>] <hashline lib test binary> --ignored --exact --nocapture private_block::w16_privacy_gate_tests::w16_privacy_gate_write_the_w16_bundles").unwrap_or_else(|e| panic!("{} seed {seed}: {e}", spec.name));
+            eprintln!("W16-PG-BUNDLE {} seed {seed} -> {} ({} stage bytes, segments {:?} B)", spec.name, dir.display(), c.bundle.stages.iter().map(|s| s.len()).sum::<usize>(), seg_lens(&c));
+            n += 1;
+        }
+    }
+    assert!(n > 0, "HL_W16PG_PROFILES names no W16 profile");
+}
