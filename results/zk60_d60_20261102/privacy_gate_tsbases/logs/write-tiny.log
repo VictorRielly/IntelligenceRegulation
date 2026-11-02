@@ -1,0 +1,37 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles ... D60-PG-BUNDLE R13_TINY_T128_LOW:0 -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_tiny_t128_low-s0 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1 | 3 forks, 9907279 stage bytes, tail 3128881 B, frames [144, 23545352, 23545352, 23545352, 3403888] B | 7.8 s | the registered TRAINED base hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1 at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation groups; no trained weights); hidden input 0: M10's input family at s = 0
+D60-PG-BUNDLE R13_TINY_T128_LOW:1 -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_tiny_t128_low-s1 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1 | 3 forks, 9905450 stage bytes, tail 3125580 B, frames [144, 23545352, 23545352, 23545352, 3403888] B | 7.7 s | the registered TRAINED base hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1 at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation groups; no trained weights); hidden input 1: M10's input family at s = 7
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 REG registered-writer PASS run_capture::write_bundle under hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1; run.json, 3 fork stage files, the tail and 3 fork frames re-hashed to the manifest
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 PG-7 allow-list (run, every fork, tail) PASS 102097 fields, every one on the allow-list; no forbidden word
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 fork 0 PG-8 masked-claims PASS 145 A and 53 H claims as captured, each on its own reserved pair; 0 histograms and 0 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 fork 1 PG-8 masked-claims PASS 145 A and 53 H claims as captured, each on its own reserved pair; 0 histograms and 0 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 fork 2 PG-8 masked-claims PASS 145 A and 53 H claims as captured, each on its own reserved pair; 0 histograms and 0 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 fork 0 PG-10 input-independent-shape PASS two hidden inputs: 33855 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [23545352] B
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 fork 1 PG-10 input-independent-shape PASS two hidden inputs: 33855 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [23545352] B
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 fork 2 PG-10 input-independent-shape PASS two hidden inputs: 33855 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [23545352] B
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 PG-10 tail input-independent-shape PASS two hidden inputs: the tail's 4706 keys in the same order, the same array and table lengths
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0 C-2 shared-mask-pair PASS fires: slot 1: two A claims share the mask pair at row 2311
+W16-PG VERDICT R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0: 12 checks, all PASS
+D60-PG-RUST R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0: 12 checks, all PASS
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 REG registered-writer PASS run_capture::write_bundle under hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1; run.json, 3 fork stage files, the tail and 3 fork frames re-hashed to the manifest
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 PG-7 allow-list (run, every fork, tail) PASS 102097 fields, every one on the allow-list; no forbidden word
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 fork 0 PG-8 masked-claims PASS 145 A and 53 H claims as captured, each on its own reserved pair; 0 histograms and 0 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 fork 1 PG-8 masked-claims PASS 145 A and 53 H claims as captured, each on its own reserved pair; 0 histograms and 0 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 fork 2 PG-8 masked-claims PASS 145 A and 53 H claims as captured, each on its own reserved pair; 0 histograms and 0 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 fork 0 PG-10 input-independent-shape PASS two hidden inputs: 33855 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [23545352] B
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 fork 1 PG-10 input-independent-shape PASS two hidden inputs: 33855 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [23545352] B
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 fork 2 PG-10 input-independent-shape PASS two hidden inputs: 33855 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [23545352] B
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 PG-10 tail input-independent-shape PASS two hidden inputs: the tail's 4706 keys in the same order, the same array and table lengths
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1 C-2 shared-mask-pair PASS fires: slot 1: two A claims share the mask pair at row 2311
+W16-PG VERDICT R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1: 12 checks, all PASS
+D60-PG-RUST R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1: 12 checks, all PASS
+D60-PG-RUST VERDICT 2 bundles, every check PASS and every control fired
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 16.68s
+

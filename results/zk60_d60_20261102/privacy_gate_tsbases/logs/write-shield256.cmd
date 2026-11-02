@@ -1,0 +1,3 @@
+binary 7a4d312582642d55 /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a66569775d5063fa
+env HL_D60PG_CAPTURE_DIR=/Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases HL_D60PG_CASES=R13_SHIELD_T256_H24:0,R13_SHIELD_T256_H24:1 HL_TEST_SOURCE_COMMIT=e44c01f5 HL_R13_LOADER_FIXTURES=/Users/victorrielly/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/loader-fixtures (HL_GPU unset)
+args --ignored --exact --nocapture --test-threads=1 private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles
