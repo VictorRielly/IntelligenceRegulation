@@ -1,0 +1,5 @@
+toy n=16 N=32 Q=4 K=20 e=6: false claim accepted 7445/20000 = 0.3723; lemma bound (1-(e+1)/N)^Q = 0.3725
+W16R2 (1/2, Q260): counted (delta/2) 2^-105.946; explicit close-case attack attains 2^-105.946
+W16   (1/4, Q256): counted (delta/3) 2^-105.609; explicit close-case attack (unique radius) 2^-172.443
+  W16R2: 97 openings union 2^-99.35
+  W16 best-known: 97 openings union 2^-165.84
