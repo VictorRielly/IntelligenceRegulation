@@ -1,0 +1,260 @@
+== d55-py-r13-8b-s0.json: D55-DEV-PASS (375.6 s, peak 1863 MB) family R13
+   parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'D55-IO joined claims from the forks': True, 'D55-J joint rank': True, 'R13-2 layout': True, 'R13-3 terminals': True, 'R13-6 per commitment': True, 'R13-7 mask and CFS': True, 'R13-H registered header': True}
+   profile hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-v1-statement/1 | base hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1 | registered True
+   geometry {'family': 'R13', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 10, 'tail_openings_checked': 4} | schedule digest equal True
+   replay positions 376 challenges 30339 failures 0 binding True s0 True s1 True tail end True tail openings 4
+   header: parameter line recomputed True | schedule True | binding by replay True | findings []
+   header controls {'H-1 the run replayed as its test-only identity': True, 'H-2 one schedule line changed': True, 'H-3 the parameter line doctored': True}
+   fork 0: G 19 (closing [19]), slots 23/23, captured tables 15, rebuilt 6, struct fail 0, digest fail 0, group True, 73.4 s
+   fork 1: G 19 (closing [19]), slots 23/23, captured tables 15, rebuilt 6, struct fail 0, digest fail 0, group True, 73.5 s
+   fork 2: G 19 (closing [19]), slots 23/23, captured tables 15, rebuilt 6, struct fail 0, digest fail 0, group True, 73.4 s
+   R13 controls {'NC-1_R13_score_precision_moved': True, 'R13-ACT_act3_table_doctored': True, 'R13-GC_group_column_doctored': True, 'R13-G_gate_denominator_moved': True, 'R13-L_legacy_fzc_on_r13_bytes': True, 'R13-N_norm_tn_moved': True, 'R13-W_gate_weight_fold_doctored': True} on fork 1
+   terminal-port pins ok False moved ['src/private_block/layout.rs', 'src/private_block/protocol.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/pad.rs'] | argument.rs reading added / removed True True
+   A@0       block              rows  4577 data  4283 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   H@0       block              rows  4390 data  4280 disclosed 2 (want 2) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   A@1       block              rows  4577 data  4283 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@1       block              rows  4390 data  4280 disclosed 2 (want 2) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   A@2       block              rows  4577 data  4283 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@2       block              rows  4390 data  4280 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   B0        internal-boundary  rows    38 data    32 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   B1        internal-boundary  rows    38 data    32 disclosed 0 (want 0) distinct 254/256 pads 256 margin 2 minor True/True hyp True
+   E-Input   external-endpoint  rows    37 data    32 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   E-Output  external-endpoint  rows    37 data    32 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   M@0       M rows 50 disclosed 0
+   M@1       M rows 50 disclosed 0
+   M@2       M rows 50 disclosed 0
+   pad block {'commitment': 'B0', 'distinct_columns': 255, 'exact_rank_of_the_pad_block': 255, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.1} | exclusivity controls True
+   mask/CFS True entries 49122 differing 0 leaves 768 controls True
+   D55-IO True claims derived 6 control fires True
+   J B0: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@0', 'B0', 'A@1'] parts {'A@0': 0, 'A@1': 0, 'B0': 0} joint 0 (154 x 9128, 64 identified rows) block-diagonal True ok True
+   J B1: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@1', 'B1', 'A@2'] parts {'A@1': 0, 'A@2': 0, 'B1': 0} joint 0 (154 x 9128, 64 identified rows) block-diagonal True ok True
+   J whole run 308 x 27009 joint 6 sum 6 identified 192 ok True
+   J forks 0 and 1 with boundary 0: 202 x 18013 joint 4 sum 4 ok True
+   J forks 1 and 2 with boundary 1: 202 x 18013 joint 4 sum 4 ok True
+   J controls {'J-C1 two claims share one reserved pair': (True, 2), 'J-C2 a single proximity row': (True, 1), 'J-C3 a blinding row shared between A_0 and B_0': (True, 16384), 'J-C4 a boundary claim whose source fork is wrong': (True, None), 'J-C5 a fork file of another run': (True, None), 'J-C6 one pad fewer than the distinct opened columns': (True, None)}
+   D55-C {'C1 a joined claim value moved': (True, 179), 'C2 the fork index dropped': (True, 31109)}
+   pins 73 at r19b 43 read 7 unread 23
+== d55-py-r13-8b-s1.json: D55-DEV-PASS (376.2 s, peak 1900 MB) family R13
+   parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'D55-IO joined claims from the forks': True, 'D55-J joint rank': True, 'R13-2 layout': True, 'R13-3 terminals': True, 'R13-6 per commitment': True, 'R13-7 mask and CFS': True, 'R13-H registered header': True}
+   profile hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-v1-statement/1 | base hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1 | registered True
+   geometry {'family': 'R13', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 10, 'tail_openings_checked': 4} | schedule digest equal True
+   replay positions 376 challenges 30339 failures 0 binding True s0 True s1 True tail end True tail openings 4
+   header: parameter line recomputed True | schedule True | binding by replay True | findings []
+   header controls {'H-1 the run replayed as its test-only identity': True, 'H-2 one schedule line changed': True, 'H-3 the parameter line doctored': True}
+   fork 0: G 19 (closing [19]), slots 23/23, captured tables 15, rebuilt 6, struct fail 0, digest fail 0, group True, 73.7 s
+   fork 1: G 19 (closing [19]), slots 23/23, captured tables 15, rebuilt 6, struct fail 0, digest fail 0, group True, 73.9 s
+   fork 2: G 19 (closing [19]), slots 23/23, captured tables 15, rebuilt 6, struct fail 0, digest fail 0, group True, 73.4 s
+   R13 controls {'NC-1_R13_score_precision_moved': True, 'R13-ACT_act3_table_doctored': True, 'R13-GC_group_column_doctored': True, 'R13-G_gate_denominator_moved': True, 'R13-L_legacy_fzc_on_r13_bytes': True, 'R13-N_norm_tn_moved': True, 'R13-W_gate_weight_fold_doctored': True} on fork 1
+   terminal-port pins ok False moved ['src/private_block/layout.rs', 'src/private_block/protocol.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/pad.rs'] | argument.rs reading added / removed True True
+   A@0       block              rows  4577 data  4283 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   H@0       block              rows  4390 data  4280 disclosed 2 (want 2) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   A@1       block              rows  4577 data  4283 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@1       block              rows  4390 data  4280 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   A@2       block              rows  4577 data  4283 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@2       block              rows  4390 data  4280 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   B0        internal-boundary  rows    38 data    32 disclosed 0 (want 0) distinct 254/256 pads 256 margin 2 minor True/True hyp True
+   B1        internal-boundary  rows    38 data    32 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   E-Input   external-endpoint  rows    37 data    32 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   E-Output  external-endpoint  rows    37 data    32 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   M@0       M rows 50 disclosed 0
+   M@1       M rows 50 disclosed 0
+   M@2       M rows 50 disclosed 0
+   pad block {'commitment': 'B0', 'distinct_columns': 254, 'exact_rank_of_the_pad_block': 254, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.1} | exclusivity controls True
+   mask/CFS True entries 49122 differing 0 leaves 768 controls True
+   D55-IO True claims derived 6 control fires True
+   J B0: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@0', 'B0', 'A@1'] parts {'A@0': 0, 'A@1': 0, 'B0': 0} joint 0 (154 x 9128, 64 identified rows) block-diagonal True ok True
+   J B1: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@1', 'B1', 'A@2'] parts {'A@1': 0, 'A@2': 0, 'B1': 0} joint 0 (154 x 9128, 64 identified rows) block-diagonal True ok True
+   J whole run 308 x 27009 joint 6 sum 6 identified 192 ok True
+   J forks 0 and 1 with boundary 0: 202 x 18013 joint 4 sum 4 ok True
+   J forks 1 and 2 with boundary 1: 202 x 18013 joint 4 sum 4 ok True
+   J controls {'J-C1 two claims share one reserved pair': (True, 2), 'J-C2 a single proximity row': (True, 1), 'J-C3 a blinding row shared between A_0 and B_0': (True, 16384), 'J-C4 a boundary claim whose source fork is wrong': (True, None), 'J-C5 a fork file of another run': (True, None), 'J-C6 one pad fewer than the distinct opened columns': (True, None)}
+   D55-C {'C1 a joined claim value moved': (True, 179), 'C2 the fork index dropped': (True, 31109)}
+   pins 73 at r19b 43 read 7 unread 23
+== d55-py-r13-rung-s0.json: D55-DEV-PASS (97.6 s, peak 631 MB) family R13
+   parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'D55-IO joined claims from the forks': True, 'D55-J joint rank': True, 'R13-2 layout': True, 'R13-3 terminals': True, 'R13-6 per commitment': True, 'R13-7 mask and CFS': True, 'R13-H registered header': True}
+   profile hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1 | base hashline-zk-mr1/private-run-rung-lh-t32-dev/1 | registered True
+   geometry {'family': 'R13', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 10, 'tail_openings_checked': 4} | schedule digest equal True
+   replay positions 376 challenges 4934 failures 0 binding True s0 True s1 True tail end True tail openings 4
+   header: parameter line recomputed True | schedule True | binding by replay True | findings []
+   header controls {'H-1 the run replayed as its test-only identity': True, 'H-2 one schedule line changed': True, 'H-3 the parameter line doctored': True}
+   fork 0: G 20 (closing [20]), slots 23/23, captured tables 15, rebuilt 7, struct fail 0, digest fail 0, group True, 4.0 s
+   fork 1: G 21 (closing [21]), slots 23/23, captured tables 15, rebuilt 7, struct fail 0, digest fail 0, group True, 4.1 s
+   fork 2: G 20 (closing [20]), slots 23/23, captured tables 15, rebuilt 7, struct fail 0, digest fail 0, group True, 4.0 s
+   R13 controls {'NC-1_R13_score_precision_moved': True, 'R13-ACT_act3_table_doctored': True, 'R13-G2_another_forks_gate_denominator': True, 'R13-GC_group_column_doctored': True, 'R13-G_gate_denominator_moved': True, 'R13-L_legacy_fzc_on_r13_bytes': True, 'R13-N_norm_tn_moved': True, 'R13-W_gate_weight_fold_doctored': True} on fork 1
+   terminal-port pins ok False moved ['src/private_block/layout.rs', 'src/private_block/protocol.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/pad.rs'] | argument.rs reading added / removed True True
+   A@0       block              rows   437 data   139 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@0       block              rows   248 data   136 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   A@1       block              rows   437 data   139 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   H@1       block              rows   248 data   136 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   A@2       block              rows   437 data   139 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   H@2       block              rows   248 data   136 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   B0        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   B1        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   E-Input   external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   E-Output  external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   M@0       M rows 50 disclosed 0
+   M@1       M rows 50 disclosed 0
+   M@2       M rows 50 disclosed 0
+   pad block {'commitment': 'B0', 'distinct_columns': 255, 'exact_rank_of_the_pad_block': 255, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.4} | exclusivity controls True
+   mask/CFS True entries 48375 differing 0 leaves 768 controls True
+   D55-IO True claims derived 6 control fires True
+   J B0: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@0', 'B0', 'A@1'] parts {'A@0': 0, 'A@1': 0, 'B0': 0} joint 0 (154 x 879, 2 identified rows) block-diagonal True ok True
+   J B1: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@1', 'B1', 'A@2'] parts {'A@1': 0, 'A@2': 0, 'B1': 0} joint 0 (154 x 879, 2 identified rows) block-diagonal True ok True
+   J whole run 308 x 2225 joint 6 sum 6 identified 6 ok True
+   J forks 0 and 1 with boundary 0: 202 x 1480 joint 4 sum 4 ok True
+   J forks 1 and 2 with boundary 1: 202 x 1480 joint 4 sum 4 ok True
+   J controls {'J-C1 two claims share one reserved pair': (True, 2), 'J-C2 a single proximity row': (True, 1), 'J-C3 a blinding row shared between A_0 and B_0': (True, 16384), 'J-C4 a boundary claim whose source fork is wrong': (True, None), 'J-C5 a fork file of another run': (True, None), 'J-C6 one pad fewer than the distinct opened columns': (True, None)}
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5704)}
+   pins 73 at r19b 43 read 7 unread 23
+== d55-py-r13-rung-s1.json: D55-DEV-PASS (96.7 s, peak 628 MB) family R13
+   parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'D55-IO joined claims from the forks': True, 'D55-J joint rank': True, 'R13-2 layout': True, 'R13-3 terminals': True, 'R13-6 per commitment': True, 'R13-7 mask and CFS': True, 'R13-H registered header': True}
+   profile hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1 | base hashline-zk-mr1/private-run-rung-lh-t32-dev/1 | registered True
+   geometry {'family': 'R13', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 10, 'tail_openings_checked': 4} | schedule digest equal True
+   replay positions 376 challenges 4934 failures 0 binding True s0 True s1 True tail end True tail openings 4
+   header: parameter line recomputed True | schedule True | binding by replay True | findings []
+   header controls {'H-1 the run replayed as its test-only identity': True, 'H-2 one schedule line changed': True, 'H-3 the parameter line doctored': True}
+   fork 0: G 20 (closing [20]), slots 23/23, captured tables 15, rebuilt 7, struct fail 0, digest fail 0, group True, 4.0 s
+   fork 1: G 21 (closing [21]), slots 23/23, captured tables 15, rebuilt 7, struct fail 0, digest fail 0, group True, 4.0 s
+   fork 2: G 20 (closing [20]), slots 23/23, captured tables 15, rebuilt 7, struct fail 0, digest fail 0, group True, 4.0 s
+   R13 controls {'NC-1_R13_score_precision_moved': True, 'R13-ACT_act3_table_doctored': True, 'R13-G2_another_forks_gate_denominator': True, 'R13-GC_group_column_doctored': True, 'R13-G_gate_denominator_moved': True, 'R13-L_legacy_fzc_on_r13_bytes': True, 'R13-N_norm_tn_moved': True, 'R13-W_gate_weight_fold_doctored': True} on fork 1
+   terminal-port pins ok False moved ['src/private_block/layout.rs', 'src/private_block/protocol.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/pad.rs'] | argument.rs reading added / removed True True
+   A@0       block              rows   437 data   139 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   H@0       block              rows   248 data   136 disclosed 2 (want 2) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   A@1       block              rows   437 data   139 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   H@1       block              rows   248 data   136 disclosed 2 (want 2) distinct 254/256 pads 256 margin 2 minor True/True hyp True
+   A@2       block              rows   437 data   139 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@2       block              rows   248 data   136 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   B0        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   B1        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   E-Input   external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   E-Output  external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   M@0       M rows 50 disclosed 0
+   M@1       M rows 50 disclosed 0
+   M@2       M rows 50 disclosed 0
+   pad block {'commitment': 'B0', 'distinct_columns': 256, 'exact_rank_of_the_pad_block': 256, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.3} | exclusivity controls True
+   mask/CFS True entries 48375 differing 0 leaves 768 controls True
+   D55-IO True claims derived 6 control fires True
+   J B0: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@0', 'B0', 'A@1'] parts {'A@0': 0, 'A@1': 0, 'B0': 0} joint 0 (154 x 879, 2 identified rows) block-diagonal True ok True
+   J B1: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@1', 'B1', 'A@2'] parts {'A@1': 0, 'A@2': 0, 'B1': 0} joint 0 (154 x 879, 2 identified rows) block-diagonal True ok True
+   J whole run 308 x 2225 joint 6 sum 6 identified 6 ok True
+   J forks 0 and 1 with boundary 0: 202 x 1480 joint 4 sum 4 ok True
+   J forks 1 and 2 with boundary 1: 202 x 1480 joint 4 sum 4 ok True
+   J controls {'J-C1 two claims share one reserved pair': (True, 2), 'J-C2 a single proximity row': (True, 1), 'J-C3 a blinding row shared between A_0 and B_0': (True, 16384), 'J-C4 a boundary claim whose source fork is wrong': (True, None), 'J-C5 a fork file of another run': (True, None), 'J-C6 one pad fewer than the distinct opened columns': (True, None)}
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5704)}
+   pins 73 at r19b 43 read 7 unread 23
+== d55-py-w16-rung-s0.json: D55-DEV-PASS (80.5 s, peak 660 MB) family W16
+   parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'D55-IO joined claims from the forks': True, 'D55-J joint rank': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-w16-tst/1 | base hashline-zk-mr1/private-run-rung-lh-t32-w16-tst/1 | registered None
+   geometry {'endpoint_inv_rate': 4, 'family': 'W16', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 10, 'tail_openings_checked': 4} | schedule digest equal True
+   replay positions 376 challenges 4247 failures 0 binding True s0 True s1 True tail end True tail openings 4
+   A@0       block              rows   320 data    90 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   H@0       block              rows   202 data   106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   A@1       block              rows   320 data    90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@1       block              rows   202 data   106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   A@2       block              rows   320 data    90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@2       block              rows   202 data   106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   B0        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   B1        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   E-Input   external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   E-Output  external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   M@0       M rows 50 disclosed 0
+   M@1       M rows 50 disclosed 0
+   M@2       M rows 50 disclosed 0
+   pad block {'commitment': 'B0', 'distinct_columns': 255, 'exact_rank_of_the_pad_block': 255, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.5} | exclusivity controls True
+   mask/CFS True entries 48375 differing 0 leaves 768 controls True
+   D55-IO True claims derived 6 control fires True
+   J B0: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@0', 'B0', 'A@1'] parts {'A@0': 0, 'A@1': 0, 'B0': 0} joint 0 (154 x 645, 2 identified rows) block-diagonal True ok True
+   J B1: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@1', 'B1', 'A@2'] parts {'A@1': 0, 'A@2': 0, 'B1': 0} joint 0 (154 x 645, 2 identified rows) block-diagonal True ok True
+   J whole run 308 x 1736 joint 6 sum 6 identified 6 ok True
+   J forks 0 and 1 with boundary 0: 202 x 1154 joint 4 sum 4 ok True
+   J forks 1 and 2 with boundary 1: 202 x 1154 joint 4 sum 4 ok True
+   J controls {'J-C1 two claims share one reserved pair': (True, 2), 'J-C2 a single proximity row': (True, 1), 'J-C3 a blinding row shared between A_0 and B_0': (True, 16384), 'J-C4 a boundary claim whose source fork is wrong': (True, None), 'J-C5 a fork file of another run': (True, None), 'J-C6 one pad fewer than the distinct opened columns': (True, None)}
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5017)}
+   pins 74 at r19b 45 read 7 unread 22
+== d55-py-w16-rung-s1.json: D55-DEV-PASS (80.6 s, peak 587 MB) family W16
+   parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'D55-IO joined claims from the forks': True, 'D55-J joint rank': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-w16-tst/1 | base hashline-zk-mr1/private-run-rung-lh-t32-w16-tst/1 | registered None
+   geometry {'endpoint_inv_rate': 4, 'family': 'W16', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 10, 'tail_openings_checked': 4} | schedule digest equal True
+   replay positions 376 challenges 4247 failures 0 binding True s0 True s1 True tail end True tail openings 4
+   A@0       block              rows   320 data    90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@0       block              rows   202 data   106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   A@1       block              rows   320 data    90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@1       block              rows   202 data   106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   A@2       block              rows   320 data    90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   H@2       block              rows   202 data   106 disclosed 2 (want 2) distinct 254/256 pads 256 margin 2 minor True/True hyp True
+   B0        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   B1        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 254/256 pads 256 margin 2 minor True/True hyp True
+   E-Input   external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 minor True/True hyp True
+   E-Output  external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 minor True/True hyp True
+   M@0       M rows 50 disclosed 0
+   M@1       M rows 50 disclosed 0
+   M@2       M rows 50 disclosed 0
+   pad block {'commitment': 'B0', 'distinct_columns': 256, 'exact_rank_of_the_pad_block': 256, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.4} | exclusivity controls True
+   mask/CFS True entries 48375 differing 0 leaves 768 controls True
+   D55-IO True claims derived 6 control fires True
+   J B0: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@0', 'B0', 'A@1'] parts {'A@0': 0, 'A@1': 0, 'B0': 0} joint 0 (154 x 645, 2 identified rows) block-diagonal True ok True
+   J B1: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@1', 'B1', 'A@2'] parts {'A@1': 0, 'A@2': 0, 'B1': 0} joint 0 (154 x 645, 2 identified rows) block-diagonal True ok True
+   J whole run 308 x 1736 joint 6 sum 6 identified 6 ok True
+   J forks 0 and 1 with boundary 0: 202 x 1154 joint 4 sum 4 ok True
+   J forks 1 and 2 with boundary 1: 202 x 1154 joint 4 sum 4 ok True
+   J controls {'J-C1 two claims share one reserved pair': (True, 2), 'J-C2 a single proximity row': (True, 1), 'J-C3 a blinding row shared between A_0 and B_0': (True, 16384), 'J-C4 a boundary claim whose source fork is wrong': (True, None), 'J-C5 a fork file of another run': (True, None), 'J-C6 one pad fewer than the distinct opened columns': (True, None)}
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5017)}
+   pins 74 at r19b 45 read 7 unread 22
+== d55-py-w16r2-rung-s0.json: D55-DEV-PASS (80.3 s, peak 612 MB) family W16
+   parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'D55-IO joined claims from the forks': True, 'D55-J joint rank': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1 | base hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1 | registered None
+   geometry {'endpoint_inv_rate': 2, 'family': 'W16R2', 'inv_rate': 2, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 260, 'q': 260, 'regular_openings_checked': 10, 'tail_openings_checked': 4} | schedule digest equal True
+   replay positions 376 challenges 4247 failures 0 binding True s0 True s1 True tail end True tail openings 4
+   A@0       block              rows   320 data    90 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 minor True/True hyp True
+   H@0       block              rows   202 data   106 disclosed 2 (want 2) distinct 259/260 pads 260 margin 1 minor True/True hyp True
+   A@1       block              rows   320 data    90 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 minor True/True hyp True
+   H@1       block              rows   202 data   106 disclosed 2 (want 2) distinct 258/260 pads 260 margin 2 minor True/True hyp True
+   A@2       block              rows   320 data    90 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 minor True/True hyp True
+   H@2       block              rows   202 data   106 disclosed 2 (want 2) distinct 259/260 pads 260 margin 1 minor True/True hyp True
+   B0        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 minor True/True hyp True
+   B1        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 minor True/True hyp True
+   E-Input   external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 minor True/True hyp True
+   E-Output  external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 minor True/True hyp True
+   M@0       M rows 50 disclosed 0
+   M@1       M rows 50 disclosed 0
+   M@2       M rows 50 disclosed 0
+   pad block {'commitment': 'B0', 'distinct_columns': 259, 'exact_rank_of_the_pad_block': 259, 'full_rank': True, 'pad_positions': 260, 'seconds': 30.8} | exclusivity controls True
+   mask/CFS True entries 48375 differing 0 leaves 768 controls True
+   D55-IO True claims derived 6 control fires True
+   J B0: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@0', 'B0', 'A@1'] parts {'A@0': 0, 'A@1': 0, 'B0': 0} joint 0 (154 x 645, 2 identified rows) block-diagonal True ok True
+   J B1: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@1', 'B1', 'A@2'] parts {'A@1': 0, 'A@2': 0, 'B1': 0} joint 0 (154 x 645, 2 identified rows) block-diagonal True ok True
+   J whole run 308 x 1736 joint 6 sum 6 identified 6 ok True
+   J forks 0 and 1 with boundary 0: 202 x 1154 joint 4 sum 4 ok True
+   J forks 1 and 2 with boundary 1: 202 x 1154 joint 4 sum 4 ok True
+   J controls {'J-C1 two claims share one reserved pair': (True, 2), 'J-C2 a single proximity row': (True, 1), 'J-C3 a blinding row shared between A_0 and B_0': (True, 16384), 'J-C4 a boundary claim whose source fork is wrong': (True, None), 'J-C5 a fork file of another run': (True, None), 'J-C6 one pad fewer than the distinct opened columns': (True, None)}
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5017)}
+   pins 74 at r19b 45 read 7 unread 22
+== d55-py-w16r2-rung-s1.json: D55-DEV-PASS (80.5 s, peak 569 MB) family W16
+   parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'D55-IO joined claims from the forks': True, 'D55-J joint rank': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1 | base hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1 | registered None
+   geometry {'endpoint_inv_rate': 2, 'family': 'W16R2', 'inv_rate': 2, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 260, 'q': 260, 'regular_openings_checked': 10, 'tail_openings_checked': 4} | schedule digest equal True
+   replay positions 376 challenges 4247 failures 0 binding True s0 True s1 True tail end True tail openings 4
+   A@0       block              rows   320 data    90 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 minor True/True hyp True
+   H@0       block              rows   202 data   106 disclosed 2 (want 2) distinct 259/260 pads 260 margin 1 minor True/True hyp True
+   A@1       block              rows   320 data    90 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 minor True/True hyp True
+   H@1       block              rows   202 data   106 disclosed 2 (want 2) distinct 260/260 pads 260 margin 0 minor True/True hyp True
+   A@2       block              rows   320 data    90 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 minor True/True hyp True
+   H@2       block              rows   202 data   106 disclosed 2 (want 2) distinct 260/260 pads 260 margin 0 minor True/True hyp True
+   B0        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 minor True/True hyp True
+   B1        internal-boundary  rows     7 data     1 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 minor True/True hyp True
+   E-Input   external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 minor True/True hyp True
+   E-Output  external-endpoint  rows     6 data     1 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 minor True/True hyp True
+   M@0       M rows 50 disclosed 0
+   M@1       M rows 50 disclosed 0
+   M@2       M rows 50 disclosed 0
+   pad block {'commitment': 'B0', 'distinct_columns': 260, 'exact_rank_of_the_pad_block': 260, 'full_rank': True, 'pad_positions': 260, 'seconds': 30.8} | exclusivity controls True
+   mask/CFS True entries 48375 differing 0 leaves 768 controls True
+   D55-IO True claims derived 6 control fires True
+   J B0: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@0', 'B0', 'A@1'] parts {'A@0': 0, 'A@1': 0, 'B0': 0} joint 0 (154 x 645, 2 identified rows) block-diagonal True ok True
+   J B1: reserved rank 6/6 disclosed 0 det!=0 True | three roles ['A@1', 'B1', 'A@2'] parts {'A@1': 0, 'A@2': 0, 'B1': 0} joint 0 (154 x 645, 2 identified rows) block-diagonal True ok True
+   J whole run 308 x 1736 joint 6 sum 6 identified 6 ok True
+   J forks 0 and 1 with boundary 0: 202 x 1154 joint 4 sum 4 ok True
+   J forks 1 and 2 with boundary 1: 202 x 1154 joint 4 sum 4 ok True
+   J controls {'J-C1 two claims share one reserved pair': (True, 2), 'J-C2 a single proximity row': (True, 1), 'J-C3 a blinding row shared between A_0 and B_0': (True, 16384), 'J-C4 a boundary claim whose source fork is wrong': (True, None), 'J-C5 a fork file of another run': (True, None), 'J-C6 one pad fewer than the distinct opened columns': (True, None)}
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5017)}
+   pins 74 at r19b 45 read 7 unread 22

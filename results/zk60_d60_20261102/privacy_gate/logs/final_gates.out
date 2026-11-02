@@ -1,0 +1,34 @@
+== build 03:42:31
+[zk60-guard 03:42:32] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 03:42:37] START pg-build3 class=build need=4G cap=12G enforce=watchdog-only waited=5s run=b6eefd349740
+[zk60-guard 03:45:00] END pg-build3 exit=0 child_wall=143s peak_rss=3.61G min_avail=228.64G
+warnings: 133
+87b5d29d32651c2c22ff0a3713598ea3e59939aeef6b6f5d73408ddcc7debff8  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac47d053f76c60f1c/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-7112a1a8a3022416
+2
+== scans 03:45:05
+[zk60-guard 03:45:05] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 03:45:41] START pg-scans class=cpu need=4G cap=20G enforce=watchdog-only waited=36s run=26e6212f7387
+[zk60-guard 03:46:17] END pg-scans exit=0 child_wall=36s peak_rss=4.95G min_avail=227.11G
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 925 filtered out; finished in 35.48s
+== devbytes 03:46:22
+[zk60-guard 03:46:22] START pg-devbytes class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=43ea6c5756b4
+[zk60-guard 03:46:28] END pg-devbytes exit=0 child_wall=6s peak_rss=1.77G min_avail=227.34G peak_vram=3746MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 982 filtered out; finished in 5.97s
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2ed5e77d353815c5358a4688e41f5fa8bff1c6661df5a1b27adfa9f3e7 metal 01fa1b2ed5e77
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8cc01346e941599857a83c1069e82c43a1c7bb3bfb6284a18aabca450 metal 992034f8cc013
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00baf149b98e149dfed90480624306428987038be3883c6abe78ac2496 metal 371e6b00ba
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df674c9d4dd4187c07472f309fe7af69fee261927c4f793688799ffb7a metal 3ab090df67
+== d55-cpu 03:46:33
+[zk60-guard 03:46:33] START pg-d55_cpu class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=56a17381b2ba
+[zk60-guard 03:48:18] END pg-d55_cpu exit=0 child_wall=105s peak_rss=2.30G min_avail=229.40G
+test result: ok. 18 passed; 0 failed; 4 ignored; 0 measured; 961 filtered out; finished in 105.02s
+D60 CAPTURE | the registered R13-rung D55 run's bundle WRITTEN by run_capture::write_bundle (65691897 B outside receipt/, schema hashline-native-capture/8-d55-fork-run-prototype); the test-only identity's REFUSED: run capture: a D55 fork-run capture under "d55-commit-fork-join-runs/opt-in-prototype-
+D60 CAPTURE | the Rust gate on the written bundle: R13_RUNG_H24 D55-registered registered: 7 checks, all PASS
+test result: ok. 18 passed; 0 failed; 4 ignored; 0 measured; 961 filtered out; finished in 105.02s
+== py-suite 03:48:23
+[zk60-guard 03:48:23] START pg-suite class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=ff8678ef7a2c
+[zk60-guard 03:49:31] END pg-suite exit=1 child_wall=67s peak_rss=0.60G min_avail=231.56G
+FAIL: test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control)
+Ran 139 tests in 66.682s
+FAILED (failures=1, skipped=71)
+== done 03:49:31
