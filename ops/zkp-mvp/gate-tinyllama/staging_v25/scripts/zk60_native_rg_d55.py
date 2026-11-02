@@ -66,9 +66,26 @@ is read too (not reachable at this tree).  "NOT-OK" otherwise.  NOTHING HERE IS
 A PRIVACY STATEMENT OR AN ACCEPTANCE.
 
 NOT HERE (owed): the W16 items `zk60_native_rg_w16` lists as not here (T-0 of
-the W16 slots, NL-1, the joint checks across A_k / B_k / A_{k+1}, TS-1, the
-hash census, the pins); and for D55 the run-level joint rank over the three
-commitments that hold each interior plane (the D12a joint stage has no D55 port).
+the W16 slots, NL-1, TS-1, the hash census, the pins).
+
+[2026-11-02, D60 / review F3] EXTENDED, additively:
+
+  * a REGISTERED D55 run over an R13 base (`zk60_native_rg_d55r13`): R13-1
+    facts with the REGISTERED header strings (the parameter-line clause
+    `/d55-commit-fork-join-registered-d60`, the schedule literal
+    `.../d55-registered-d60/1` and the F6 lines, recomputed), R13-H the
+    registered header recomputed word by word (controls: the run replayed as
+    its test-only identity; a schedule line and the parameter line doctored),
+    R13-2 the R13 plane list, R13-3 every fork's 23-slot terminal identity at
+    its own calibration and recovered G_k with the R13 block port's controls;
+    the per-commitment rank and mask / CFS as for W16;
+  * D55-IO (both families): every joined IO claim the tail opens DERIVED
+    from its fork's slot-21 / slot-22 terminals (and a control);
+  * D55-J (both families): THE RUN-LEVEL JOINT RANK over A_k, B_k, A_{k+1}
+    (D12a's run gate stage 4 / ruling M-8, ported: `zk60_native_rg_d55joint`)
+    with its controls J-C1 .. J-C6 -- J-C3 makes the three-role joint fail.
+
+The W16 path's parts and figures are unchanged (two parts added).
 """
 
 from __future__ import annotations
@@ -386,6 +403,11 @@ def d55_facts(b: D55Bundle) -> dict:
     run = b.run
     sh = run["shape"]
     block = sh["profile"]
+    # [2026-11-02, D60] an R13 base: a REGISTERED D55 run profile and the
+    # registered header (zk60_native_rg_d55r13); the W16 path below is unchanged
+    import zk60_native_rg_d55r13 as X
+    if X.is_r13_block_profile(block):
+        return dict(X.r13_facts(b), family="R13")
     if not W.is_w16_block_profile(block) or run.get("block_profile") != block:
         raise ValueError(f"D55-1: the block profile {block!r} is not a W16-family profile")
     if not b.profile.startswith(D55_PREFIX):
@@ -607,7 +629,7 @@ class _ControlBundle:
         self.stages = [_ControlStage(b.stages[0])]
 
 
-def d55_stage3(b: D55Bundle, rp: D55Replay, do_controls=True) -> dict:
+def d55_stage3(b: D55Bundle, rp: D55Replay, do_controls=True, return_views=False):
     """`run_gate.stage3` at a D55 run: every fork's A and H, every tail
     commitment and every fork's M, ranked exactly as D12a's are"""
     from zk60_native_rg_exclusivity import exclusivity_controls
@@ -652,10 +674,57 @@ def d55_stage3(b: D55Bundle, rp: D55Replay, do_controls=True) -> dict:
         for r in rows
     ) and all(m["meets_expectation"] for m in masks)
     xc = exclusivity_controls(_ControlBundle(b), views) if do_controls else {"skipped": "controls not requested", "ok": True}
-    return {"per_commitment": rows, "masking_commitments": masks, "expected": RG.EXPECTED_DISCLOSED,
-            "pad_block_exact_rank_cross_check": pad, "exclusivity_controls": xc,
-            "per_slot_terminal_check": {"status": "the W16 slots' terminal identity is not ported (owed)"},
-            "ok": ok and (pad is None or pad["full_rank"]) and xc["ok"]}
+    r13 = b.run["shape"]["profile"] in R.ACCURACY_PROFILES
+    rec = {"per_commitment": rows, "masking_commitments": masks, "expected": RG.EXPECTED_DISCLOSED,
+           "pad_block_exact_rank_cross_check": pad, "exclusivity_controls": xc,
+           "per_slot_terminal_check": ({"status": "at an R13 base: part R13-3 (all 23 slots on every fork)"} if r13 else
+                                       {"status": "the W16 slots' terminal identity is not ported (owed)"}),
+           "ok": ok and (pad is None or pad["full_rank"]) and xc["ok"]}
+    return (rec, views) if return_views else rec
+
+
+# ---------------------------------------------------------------- D55-IO: the joined claims from the forks' terminals
+def io_claims_from_terminals(b, doctor=None) -> dict:
+    """[2026-11-02, D60] the joined IO claims DERIVED from the forks: per fork
+    k and IO slot s (21, 22), the tail's claim for (k, s) has the value of
+    that slot's IO-table terminal and the evaluation point and size of its A
+    claim (the slot's tau), and the fork's A claim has the value of its A-table
+    terminal.  (The D55 replay binds the claims the tail opens through S1;
+    this binds them to each fork's own slot transcript, whose terminals the
+    sumcheck and the terminal identity fix.)  `doctor`: (fork, slot) whose IO
+    terminal is read moved by one (a control)."""
+    ins, outs = joined_claims(b)
+    f, n = [], 0
+    for st in b.stages:
+        k = st.index
+        a_role = st.role("A")
+        for s, claims in ((SC_IO_IN, ins[k]), (SC_IO_OUT, outs[k])):
+            arg = st.doc["arguments"][s]
+            privs = [t for t in arg["tables"] if t["kind"] == "private"]
+            terms = [f2_from_list(x) for x in arg["terminals"]]
+            if len(terms) != len(privs) or len(privs) != 2 or len(claims) != 1:
+                f.append(f"fork {k} slot {s}: {len(terms)} terminals for {len(privs)} private tables, {len(claims)} tail claims")
+                continue
+            roles = [t["role"] for t in privs]
+            ia = roles.index("A")
+            io = 1 - ia
+            a_tab, o_tab = privs[ia], privs[io]
+            t_io = terms[io]
+            if doctor == (k, s):
+                t_io = ((t_io[0] + 1) % W.P, t_io[1])
+            c = claims[0]
+            a_cl = a_role["claims"][a_tab["claim"]]
+            if f2_from_list(c["value"]) != t_io:
+                f.append(f"fork {k} slot {s}: the tail's joined claim value is not the fork's {o_tab['role']} terminal")
+            if f2_from_list(a_cl["value"]) != terms[ia]:
+                f.append(f"fork {k} slot {s}: the fork's A claim value is not its A terminal")
+            if (c["parts"][0]["log_size"], c["parts"][0]["point"]) != (a_cl["parts"][0]["log_size"], a_cl["parts"][0]["point"]) \
+                    or c["parts"][0]["log_size"] != o_tab["log_size"]:
+                f.append(f"fork {k} slot {s}: the tail claim is not at the fork's evaluation point / size")
+            n += 1
+    return {"what": "every joined IO claim the tail opens, derived from its fork's slot-21 / slot-22 transcript: value = the IO "
+                    "table's terminal, point and size = the slot's A claim's; and each A claim = its A terminal",
+            "claims_derived": n, "findings": f, "ok": not f and n == 2 * b.blocks}
 
 
 # ---------------------------------------------------------------- D55-C: replay controls
@@ -679,15 +748,27 @@ def replay_controls(b: D55Bundle) -> dict:
 
 
 # ---------------------------------------------------------------- the driver
-def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None) -> dict:
+def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None, terminal_forks=None, joint=True) -> dict:
+    """[2026-11-02, D60] the family dispatch: a W16-family block profile runs
+    the W16 items as before (W16-4 / W16-5, the W16 slots' terminals owed); an
+    R13 block profile under a REGISTERED D55 profile runs R13-H (the registered
+    header recomputed), R13-2 (the layout) and R13-3 (every fork's 23-slot
+    terminal identity) from `zk60_native_rg_d55r13`.  Both then run the per-
+    commitment rank, mask / CFS, D55-IO (the joined claims from the forks'
+    terminals), D55-J (the run-level joint rank, `zk60_native_rg_d55joint`)
+    and the replay controls.  `other_dir`: a second bundle of the same profile
+    (J-C5's fork-file swap)."""
     import zk60_native_rg_mask as M
     from zk60_native_rg_mcontrols import mask_controls_at_shape
+    import zk60_native_rg_d55joint as J
+    import zk60_native_rg_d55r13 as X
     t0 = time.time()
     b = D55Bundle(bundle_dir)
-    rec = {"gate": "zk60-native-d55-gate", "version": 1, "staging": "v25", "privacy_property_established": False,
+    rec = {"gate": "zk60-native-d55-gate", "version": 2, "staging": "v25", "privacy_property_established": False,
            "privacy_acceptance": False, "bundle": b.name, "bundle_dir": b.dir, "profile": b.profile,
-           "what_this_is": "the v25 W16 gate's items on ONE D55 fork-run capture (test-only run identity, synthetic public "
-                           "weights, unregistered prototype), at that run's real challenges; NOT a privacy statement"}
+           "what_this_is": "the v25 D55 gate on ONE D55 fork-run capture (a W16 test-only identity, or a REGISTERED D55 "
+                           "profile over an R13 base), synthetic public weights, at that run's real challenges; NOT a "
+                           "privacy statement"}
     parts = {}
     rec["D55-0 integrity"] = d55_integrity(b)
     parts["D55-0 integrity"] = rec["D55-0 integrity"]["ok"]
@@ -699,20 +780,35 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None) -> dict:
         rec["D55-1/2 facts"] = {"refused": str(exc), "ok": False}
         rec.update({"status": "REFUSED", "parts": {**parts, "D55-1/2 facts": False}, "seconds": round(time.time() - t0, 1)})
         return rec
+    family = facts.get("family", "W16")
+    rec["family"] = family
     rp = D55Replay(b).run()
     rec["D55-3 replay"] = rp.summary()
     parts["D55-3 replay"] = rec["D55-3 replay"]["ok"]
-    rec["W16-4 layout"] = W.check_layout(b, facts)
-    parts["W16-4 layout"] = rec["W16-4 layout"]["ok"]
-    tabs = [W.check_tab_tables(b, facts, k) for k in range(b.blocks)]
-    rec["W16-5 tab tables"] = {"per_fork": tabs, "ok": all(t["ok"] for t in tabs)}
-    if controls:
-        rec["W16-5 tab tables"]["control"] = W.tab_control(b, facts)
-        rec["W16-5 tab tables"]["ok"] = rec["W16-5 tab tables"]["ok"] and rec["W16-5 tab tables"]["control"]["ok"]
-    parts["W16-5 tab tables"] = rec["W16-5 tab tables"]["ok"]
+    if family == "W16":
+        rec["W16-4 layout"] = W.check_layout(b, facts)
+        parts["W16-4 layout"] = rec["W16-4 layout"]["ok"]
+        tabs = [W.check_tab_tables(b, facts, k) for k in range(b.blocks)]
+        rec["W16-5 tab tables"] = {"per_fork": tabs, "ok": all(t["ok"] for t in tabs)}
+        if controls:
+            rec["W16-5 tab tables"]["control"] = W.tab_control(b, facts)
+            rec["W16-5 tab tables"]["ok"] = rec["W16-5 tab tables"]["ok"] and rec["W16-5 tab tables"]["control"]["ok"]
+        parts["W16-5 tab tables"] = rec["W16-5 tab tables"]["ok"]
+    else:
+        rec["R13-H registered header"] = X.registered_header(b, facts, bool(rp.run_binding_ok and parts["D55-3 replay"]), controls=controls)
+        parts["R13-H registered header"] = rec["R13-H registered header"]["ok"]
+        rec["R13-2 layout"] = X.r13_layout(b)
+        parts["R13-2 layout"] = rec["R13-2 layout"]["ok"]
+        if parts["D55-3 replay"]:
+            rec["R13-3 terminals"] = X.r13_terminals(b, rp, facts, controls=controls, forks=terminal_forks)
+            parts["R13-3 terminals"] = rec["R13-3 terminals"]["ok"]
+        else:
+            parts["R13-3 terminals"] = False
+    pre = family
     if parts["D55-3 replay"]:
-        rec["W16-6 per commitment"] = d55_stage3(b, rp, do_controls=controls)
-        parts["W16-6 per commitment"] = rec["W16-6 per commitment"]["ok"]
+        s3, views = d55_stage3(b, rp, do_controls=controls, return_views=True)
+        rec[f"{pre}-6 per commitment"] = s3
+        parts[f"{pre}-6 per commitment"] = s3["ok"]
         stages = [M.mask_cfs_stage(b, rp, k) for k in range(b.blocks)]
         mc = {"per_fork": stages, "ok": all(s.get("ok") for s in stages),
               "entries_recomputed": sum((s.get("entries_recomputed") or {}).get("total", 0) for s in stages),
@@ -721,10 +817,26 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None) -> dict:
         if controls:
             mc["controls"] = mask_controls_at_shape(b, rp, k=0)
             mc["ok"] = bool(mc["ok"] and mc["controls"].get("ok", False))
-        rec["W16-7 mask and CFS"] = mc
-        parts["W16-7 mask and CFS"] = mc["ok"]
+        rec[f"{pre}-7 mask and CFS"] = mc
+        parts[f"{pre}-7 mask and CFS"] = mc["ok"]
+        io = io_claims_from_terminals(b)
+        if controls:
+            victim = (1 if b.blocks > 1 else 0, SC_IO_IN)
+            bad = io_claims_from_terminals(b, doctor=victim)
+            io["control"] = {"what": f"fork {victim[0]}'s slot-{victim[1]} IO terminal read moved by one",
+                             "findings": bad["findings"][:2], "fires": not bad["ok"]}
+            io["ok"] = io["ok"] and io["control"]["fires"]
+        rec["D55-IO joined claims from the forks"] = io
+        parts["D55-IO joined claims from the forks"] = io["ok"]
+        if joint:
+            other = D55Bundle(other_dir) if other_dir else None
+            rec["D55-J joint rank"] = J.d55_joint(b, views, do_controls=controls, other=other, rp=rp)
+            parts["D55-J joint rank"] = rec["D55-J joint rank"]["ok"]
     else:
-        parts["W16-6 per commitment"] = parts["W16-7 mask and CFS"] = False
+        parts[f"{pre}-6 per commitment"] = parts[f"{pre}-7 mask and CFS"] = False
+        parts["D55-IO joined claims from the forks"] = False
+        if joint:
+            parts["D55-J joint rank"] = False
     if controls:
         rec["D55-C replay controls"] = replay_controls(b)
         parts["D55-C replay controls"] = rec["D55-C replay controls"]["ok"]
@@ -736,9 +848,16 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None) -> dict:
     rec["status_means"] = {"D55-PASS": "every part true and every pin read",
                            "D55-DEV-PASS": "every part true, but some pin is unread: computed figures, NOT admissible evidence",
                            "NOT-OK": "some part is false"}[rec["status"]]
-    rec["not_here"] = ["T-0 terminal identity of the seven W16-redefined slots", "NL-1 S1-S5 on them",
-                       "joint checks (D12a's joint stage, and for D55 the joint rank over A_k / B_k / A_{k+1})",
-                       "TS-1 and the claim census", "full preimage", "hash census", "the reading of the unread pins"]
+    if family == "W16":
+        rec["not_here"] = ["T-0 terminal identity of the seven W16-redefined slots", "NL-1 S1-S5 on them",
+                           "TS-1 and the claim census", "full preimage", "hash census", "the reading of the unread pins"]
+    else:
+        rec["not_here"] = ["NL-1 S1-S5 (the non-linear table checks) on the R13 slots", "TS-1 and the claim census",
+                           "the full zero-data preimage (A and H at MSG != PAD)", "the hash census on the Python side",
+                           "the reading of the unread pins (only argument.rs's `define` is read here, in memory)",
+                           "G_k in the clear: recovered on SC_FZC, not read from a bound line"]
+    if not joint:
+        rec["not_here"].append("the run-level joint rank (D55-J), not requested")
     rec["tool_sha256"] = W.tool_hashes()
     rec["seconds"] = round(time.time() - t0, 1)
     return rec
@@ -751,8 +870,18 @@ def main(argv=None):
     ap.add_argument("--name")
     ap.add_argument("--no-controls", action="store_true")
     ap.add_argument("--r19b-manifest")
+    ap.add_argument("--other", help="a second bundle of the same profile on another hidden input (J-C5)")
+    ap.add_argument("--terminal-forks", help="R13-3 on these forks only (comma list; a bounded-cost run)")
+    ap.add_argument("--no-joint", action="store_true")
     a = ap.parse_args(argv)
-    rec = d55_gate(a.bundle, controls=not a.no_controls, r19b_manifest=a.r19b_manifest)
+    forks = [int(x) for x in a.terminal_forks.split(",")] if a.terminal_forks else None
+    rec = d55_gate(a.bundle, controls=not a.no_controls, r19b_manifest=a.r19b_manifest, other_dir=a.other,
+                   terminal_forks=forks, joint=not a.no_joint)
+    try:
+        import resource
+        rec["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1 << 20))
+    except Exception:  # noqa: BLE001
+        pass
     os.makedirs(a.evidence, exist_ok=True)
     name = a.name or os.path.basename(os.path.normpath(a.bundle))
     path = os.path.join(a.evidence, f"d55-{name}.json")
