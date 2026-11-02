@@ -1,0 +1,127 @@
+B=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac8a2b43086591196/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-15ecdaf490e4c989
+97ed46f4d1784bd5b698c87830ba1f1448044c58338426849a215e3433902dd6  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac8a2b43086591196/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-15ecdaf490e4c989
+== ab 23:57:25
+[zk60-guard 23:57:25] START w16r2-ab class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=82f3e2be78e8
+[zk60-guard 23:57:38] END w16r2-ab exit=0 child_wall=13s peak_rss=4.63G min_avail=223.78G peak_vram=8282MiB
+test private_block::w16r2_tests::w16r2_ab_w16_against_w16r2_on_one_binary ... W16R2-AB W16_8B_T128_H24 cold (kernel compiles) prove core 0.678 s
+W16R2-AB W16R2_8B_T128_H24 cold (kernel compiles) prove core 0.392 s
+W16R2-AB W16_8B_T128_H24 warm pass 0 prove core 0.389 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 0 prove core 0.335 s
+W16R2-AB W16_8B_T128_H24 warm pass 1 prove core 0.373 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 1 prove core 0.336 s
+W16R2-AB W16_8B_T128_H24 warm pass 2 prove core 0.373 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 2 prove core 0.340 s
+W16R2-AB W16_8B_T128_H24 warm pass 3 prove core 0.372 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 3 prove core 0.336 s
+W16R2-AB W16_8B_T128_H24 warm pass 4 prove core 0.369 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 4 prove core 0.336 s
+W16R2-AB SUMMARY W16_8B_T128_H24 rate 1/4 Q 256 | prove core warm [0.389, 0.373, 0.373, 0.372, 0.369] s, median 0.373 s | verify core (CPU) [0.227, 0.228, 0.224] s, median 0.227 s | core bytes 23531376 (A open 15120384, H open 8140800, M open 243712, slots 26384) | one endpoint/boundary opening (counted) 749568 B | column term 2^-105.609
+W16R2-AB SUMMARY W16R2_8B_T128_H24 rate 1/2 Q 260 | prove core warm [0.335, 0.336, 0.34, 0.336, 0.336] s, median 0.336 s | verify core (CPU) [0.221, 0.226, 0.221] s, median 0.221 s | core bytes 23685680 (A open 15196768, H open 8218720, M open 243712, slots 26384) | one endpoint/boundary opening (counted) 744768 B | column term 2^-105.946
+W16R2-AB device evidence: Metal kernel compile 0.006 s, device sumcheck rounds 0.925 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 12.80s
+== ab-rev 23:57:48
+[zk60-guard 23:57:48] START w16r2-ab-rev class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=a13faf55b4b9
+[zk60-guard 23:58:01] END w16r2-ab-rev exit=0 child_wall=13s peak_rss=4.59G min_avail=223.28G peak_vram=8279MiB
+test private_block::w16r2_tests::w16r2_ab_w16_against_w16r2_on_one_binary ... W16R2-AB W16R2_8B_T128_H24 cold (kernel compiles) prove core 0.625 s
+W16R2-AB W16_8B_T128_H24 cold (kernel compiles) prove core 0.449 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 0 prove core 0.348 s
+W16R2-AB W16_8B_T128_H24 warm pass 0 prove core 0.380 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 1 prove core 0.345 s
+W16R2-AB W16_8B_T128_H24 warm pass 1 prove core 0.374 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 2 prove core 0.337 s
+W16R2-AB W16_8B_T128_H24 warm pass 2 prove core 0.370 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 3 prove core 0.337 s
+W16R2-AB W16_8B_T128_H24 warm pass 3 prove core 0.375 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 4 prove core 0.337 s
+W16R2-AB W16_8B_T128_H24 warm pass 4 prove core 0.372 s
+W16R2-AB SUMMARY W16R2_8B_T128_H24 rate 1/2 Q 260 | prove core warm [0.348, 0.345, 0.337, 0.337, 0.337] s, median 0.337 s | verify core (CPU) [0.231, 0.224, 0.22] s, median 0.224 s | core bytes 23685680 (A open 15196768, H open 8218720, M open 243712, slots 26384) | one endpoint/boundary opening (counted) 744768 B | column term 2^-105.946
+W16R2-AB SUMMARY W16_8B_T128_H24 rate 1/4 Q 256 | prove core warm [0.38, 0.374, 0.37, 0.375, 0.372] s, median 0.374 s | verify core (CPU) [0.232, 0.224, 0.234] s, median 0.232 s | core bytes 23531376 (A open 15120384, H open 8140800, M open 243712, slots 26384) | one endpoint/boundary opening (counted) 749568 B | column term 2^-105.609
+W16R2-AB device evidence: Metal kernel compile 0.006 s, device sumcheck rounds 0.922 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 12.85s
+== ab-gpu 23:58:11
+[zk60-guard 23:58:11] START w16r2-ab-gpu class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=bd88cb9857ec
+[zk60-guard 23:58:19] END w16r2-ab-gpu exit=0 child_wall=7s peak_rss=4.82G min_avail=219.34G peak_vram=11447MiB
+test private_block::w16r2_tests::w16r2_ab_w16_against_w16r2_on_one_binary ... [ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.031 s, gpu total 0.074 s (inverse 0.010, init 0.000, forward 0.039, hash 0.003)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^16: setup 0.033 s, gpu total 0.060 s (inverse 0.011, init 0.000, forward 0.041, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.025 s, gpu total 0.027 s (inverse 0.005, init 0.000, forward 0.021, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.004 s, gpu total 0.031 s (inverse 0.008, init 0.000, forward 0.021, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.038 s (inverse 0.006, init 0.000, forward 0.025, hash 0.003)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.035 s (inverse 0.005, init 0.000, forward 0.026, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.004 s, gpu total 0.022 s (inverse 0.005, init 0.000, forward 0.012, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.022 s, gpu total 0.020 s (inverse 0.005, init 0.000, forward 0.013, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.034 s (inverse 0.005, init 0.000, forward 0.025, hash 0.003)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.035 s (inverse 0.005, init 0.000, forward 0.026, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.002 s, gpu total 0.021 s (inverse 0.005, init 0.000, forward 0.012, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.020 s (inverse 0.005, init 0.000, forward 0.013, hash 0.002)
+W16R2-AB SUMMARY W16_8B_T128_H24 rate 1/4 Q 256 | prove core warm [0.455, 0.441] s, median 0.455 s | verify core (CPU) [0.24] s, median 0.240 s | core bytes 23531376 (A open 15120384, H open 8140800, M open 243712, slots 26384) | one endpoint/boundary opening (counted) 749568 B | column term 2^-105.
+W16R2-AB SUMMARY W16R2_8B_T128_H24 rate 1/2 Q 260 | prove core warm [0.401, 0.379] s, median 0.401 s | verify core (CPU) [0.24] s, median 0.240 s | core bytes 23685680 (A open 15196768, H open 8218720, M open 243712, slots 26384) | one endpoint/boundary opening (counted) 744768 B | column term 2^-10
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 7.39s
+== d55-w16a 23:58:29
+[zk60-guard 23:58:29] START w16r2-d55-w16a class=gpu need=80G cap=180G enforce=watchdog-only waited=0s run=78f5a76a0e56
+[zk60-guard 00:00:25] END w16r2-d55-w16a exit=0 child_wall=116s peak_rss=23.79G min_avail=192.83G peak_vram=28257MiB
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16_8B_T128_H24 L32 T128: setup 14.9 s (one witness 0.30 GB; 32 alive per call)
+D55-AB W16_8B_T128_H24 L32 serial cold (kernel compiles): wall 12.714 s = 10.07 proved tok/s
+D55-AB W16_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.98 s
+D55-AB W16_8B_T128_H24 L32 T128 serial pass 0: wall 12.258 s = 10.44 proved tok/s; receipt 786061536 B
+D55-AB W16_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.54 s
+D55-AB W16_8B_T128_H24 L32 T128 forks N6 pass 0: wall 6.494 s = 19.71 proved tok/s; 6 workers; preflight 0.346 s, commit 0.310 s, forks 5.744 s, join 0.094 s; fork prove_core min 0.501 median 0.980 max 1.474 s; receipt 786061728 B
+D55-AB W16_8B_T128_H24 L32 T128 serial pass 1: wall 12.415 s = 10.31 proved tok/s; receipt 786061536 B
+D55-AB W16_8B_T128_H24 L32 T128 forks N6 pass 1: wall 6.360 s = 20.13 proved tok/s; 6 workers; preflight 0.335 s, commit 0.286 s, forks 5.659 s, join 0.080 s; fork prove_core min 0.587 median 0.961 max 1.179 s; receipt 786061728 B
+D55-AB SUMMARY W16_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 12.258 s = 10.44 tok/s | mean 12.336 s = 10.38 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 6.360 s = 20.13 tok/s | mean 6.427 s = 19.92 tok/s | 1.93x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.005 s, device sumcheck rounds 23.784 s
+D55-AB W16_8B_T128_H24 L32: total 116.2 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 116.16s
+== d55-r2a 00:00:35
+[zk60-guard 00:00:35] START w16r2-d55-r2a class=gpu need=80G cap=180G enforce=watchdog-only waited=0s run=566782badcb3
+[zk60-guard 00:02:27] END w16r2-d55-r2a exit=0 child_wall=112s peak_rss=22.46G min_avail=201.65G peak_vram=19806MiB
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: setup 14.9 s (one witness 0.30 GB; 32 alive per call)
+D55-AB W16R2_8B_T128_H24 L32 serial cold (kernel compiles): wall 11.934 s = 10.73 proved tok/s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.79 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0: wall 11.284 s = 11.34 proved tok/s; receipt 790843840 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.43 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0: wall 6.045 s = 21.17 proved tok/s; 6 workers; preflight 0.383 s, commit 0.240 s, forks 5.310 s, join 0.112 s; fork prove_core min 0.446 median 0.877 max 1.459 s; receipt 790844032 B
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 1: wall 11.662 s = 10.98 proved tok/s; receipt 790843840 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 1: wall 5.542 s = 23.10 proved tok/s; 6 workers; preflight 0.377 s, commit 0.226 s, forks 4.862 s, join 0.077 s; fork prove_core min 0.433 median 0.863 max 1.078 s; receipt 790844032 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 11.284 s = 11.34 tok/s | mean 11.473 s = 11.16 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.542 s = 23.10 tok/s | mean 5.794 s = 22.09 tok/s | 2.04x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.102 s, device sumcheck rounds 21.278 s
+D55-AB W16R2_8B_T128_H24 L32: total 111.6 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 111.64s
+== d55-r2b 00:02:37
+[zk60-guard 00:02:37] START w16r2-d55-r2b class=gpu need=80G cap=180G enforce=watchdog-only waited=0s run=7d867b466929
+[zk60-guard 00:04:28] END w16r2-d55-r2b exit=0 child_wall=111s peak_rss=24.60G min_avail=199.26G peak_vram=20962MiB
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: setup 15.1 s (one witness 0.30 GB; 32 alive per call)
+D55-AB W16R2_8B_T128_H24 L32 serial cold (kernel compiles): wall 11.541 s = 11.09 proved tok/s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.66 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0: wall 11.061 s = 11.57 proved tok/s; receipt 790843840 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.38 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0: wall 5.971 s = 21.44 proved tok/s; 6 workers; preflight 0.381 s, commit 0.234 s, forks 5.258 s, join 0.098 s; fork prove_core min 0.440 median 0.846 max 1.523 s; receipt 790844032 B
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 1: wall 11.398 s = 11.23 proved tok/s; receipt 790843840 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 1: wall 5.579 s = 22.94 proved tok/s; 6 workers; preflight 0.397 s, commit 0.219 s, forks 4.886 s, join 0.077 s; fork prove_core min 0.497 median 0.872 max 1.056 s; receipt 790844032 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 11.061 s = 11.57 tok/s | mean 11.229 s = 11.40 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.579 s = 22.94 tok/s | mean 5.775 s = 22.17 tok/s | 1.98x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.041 s, device sumcheck rounds 21.646 s
+D55-AB W16R2_8B_T128_H24 L32: total 110.9 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 110.88s
+== d55-w16b 00:04:38
+[zk60-guard 00:04:38] START w16r2-d55-w16b class=gpu need=80G cap=180G enforce=watchdog-only waited=0s run=822ead53b490
+[zk60-guard 00:06:34] END w16r2-d55-w16b exit=0 child_wall=115s peak_rss=24.05G min_avail=192.42G peak_vram=28766MiB
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16_8B_T128_H24 L32 T128: setup 15.0 s (one witness 0.30 GB; 32 alive per call)
+D55-AB W16_8B_T128_H24 L32 serial cold (kernel compiles): wall 12.397 s = 10.33 proved tok/s
+D55-AB W16_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.85 s
+D55-AB W16_8B_T128_H24 L32 T128 serial pass 0: wall 12.065 s = 10.61 proved tok/s; receipt 786061536 B
+D55-AB W16_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.53 s
+D55-AB W16_8B_T128_H24 L32 T128 forks N6 pass 0: wall 6.576 s = 19.47 proved tok/s; 6 workers; preflight 0.383 s, commit 0.311 s, forks 5.790 s, join 0.091 s; fork prove_core min 0.413 median 0.979 max 1.519 s; receipt 786061728 B
+D55-AB W16_8B_T128_H24 L32 T128 serial pass 1: wall 12.276 s = 10.43 proved tok/s; receipt 786061536 B
+D55-AB W16_8B_T128_H24 L32 T128 forks N6 pass 1: wall 6.148 s = 20.82 proved tok/s; 6 workers; preflight 0.390 s, commit 0.298 s, forks 5.378 s, join 0.083 s; fork prove_core min 0.618 median 0.951 max 1.098 s; receipt 786061728 B
+D55-AB SUMMARY W16_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 12.065 s = 10.61 tok/s | mean 12.170 s = 10.52 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 6.148 s = 20.82 tok/s | mean 6.362 s = 20.12 tok/s | 1.96x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.043 s, device sumcheck rounds 23.604 s
+D55-AB W16_8B_T128_H24 L32: total 115.3 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 115.27s
+== done 00:06:34

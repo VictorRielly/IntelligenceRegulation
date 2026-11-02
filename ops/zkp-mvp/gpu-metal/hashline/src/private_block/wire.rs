@@ -17,6 +17,12 @@ pub(crate) const HEADER: usize = 8 + 32;
 const MASK_VEC: usize = 1024;
 const MASK_DOM: usize = 4096;
 const MASK_PATH: usize = 12;
+/// **D59: the masking commitment's OWN opened-column count** (`zk::MASK_Q`).
+/// Until the W16R2 profiles it was read as the block's `Dim::checks`, which
+/// was the same 256 at every profile; at a W16R2 profile the block opens 260
+/// columns and `M` still opens 256, so `M`'s count is its own constant. The
+/// value is 256 at every profile, so no frame length or byte moves.
+const MASK_CHECKS: usize = crate::zk::MASK_Q;
 /// **THE TOY'S wire bound, unchanged in name and value for every existing
 /// caller.** A toy frame over 4 MiB is refused exactly as it always was.
 pub const MAX_WIRE_BYTES: usize = 4 * 1024 * 1024;
@@ -122,7 +128,7 @@ pub(crate) fn encoded_len(lay: &Layout) -> usize {
     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
     let sl = lay.slots();
     let slots: usize = (0..lay.n_slots()).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
-    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
+    let mask = 2 * MASK_VEC * 16 + MASK_CHECKS * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
     HEADER + 3 * 32 + slots + mask + bd.opening_len(sh.a_groups(), lay.a_rows) + bd.opening_len(sh.h_groups(), lay.h_rows) + 2 * ed.opening_len(1, sh.endpoint_rows)
 }
 
@@ -142,7 +148,7 @@ pub(crate) fn validate(r: &Receipt, lay: &Layout) -> Result<(), String> {
     let m = &r.mask_open;
     if m.q.len() != MASK_VEC
         || m.prox.len() != MASK_VEC
-        || m.columns.len() != bd.checks
+        || m.columns.len() != MASK_CHECKS
         || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
         || !bd.hiding_ok(&r.a_open, sh.a_groups(), lay.a_rows)
         || !bd.hiding_ok(&r.h_open, sh.h_groups(), lay.h_rows)
@@ -250,7 +256,7 @@ pub(crate) fn decode(bytes: &[u8], binding: &Digest, lay: &Layout) -> Result<Rec
     }
     let q = r.fp2_vec(MASK_VEC)?;
     let prox = r.fp2_vec(MASK_VEC)?;
-    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+    let columns = (0..MASK_CHECKS).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
     let mask_open = MaskOpening { q, prox, columns };
     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;
@@ -342,7 +348,7 @@ pub(crate) fn segment_len(lay: &Layout, g: SegGeom) -> usize {
     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
     let sl = lay.slots();
     let slots: usize = (0..lay.n_slots()).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
-    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
+    let mask = 2 * MASK_VEC * 16 + MASK_CHECKS * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
     let (gi, ri) = g.incoming(sh.endpoint_rows);
     RUN_HEADER
         + usize::from(g.commits_boundary()) * 32
@@ -377,7 +383,7 @@ fn validate_segment(s: &Segment, lay: &Layout, g: SegGeom) -> Result<(), String>
     let (gi, ri) = g.incoming(sh.endpoint_rows);
     if m.q.len() != MASK_VEC
         || m.prox.len() != MASK_VEC
-        || m.columns.len() != bd.checks
+        || m.columns.len() != MASK_CHECKS
         || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
         || !bd.hiding_ok(&s.a_open, sh.a_groups(), lay.a_rows)
         || !bd.hiding_ok(&s.h_open, sh.h_groups(), lay.h_rows)
@@ -466,7 +472,7 @@ pub(crate) fn decode_segment(bytes: &[u8], lay: &Layout, g: SegGeom, binding: &D
     }
     let q = r.fp2_vec(MASK_VEC)?;
     let prox = r.fp2_vec(MASK_VEC)?;
-    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+    let columns = (0..MASK_CHECKS).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
     let mask_open = MaskOpening { q, prox, columns };
     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;

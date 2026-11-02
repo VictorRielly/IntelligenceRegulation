@@ -3268,7 +3268,7 @@ fn write_run(r: &Rec) -> Vec<u8> {
     write!(out, "],\"transcript_program\":").expect("write to a Vec");
     let program: &[&str] = if fork { &D55_TRANSCRIPT_PROGRAM } else { &TRANSCRIPT_PROGRAM };
     strings(&mut out, &program.iter().map(|s| s.to_string()).collect::<Vec<_>>());
-    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, sh.opened_cols).expect("write to a Vec");
+    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, crate::zk::MASK_Q).expect("write to a Vec");
     // **STAGE 15.** The plane index table: a property of the SHAPE, so it
     // lives in the run file and not in a stage. `take` refuses a bundle
     // without one, and `stage_begin` has compared it with every stage's.
@@ -3605,7 +3605,7 @@ fn write_run_token(r: &Rec) -> Vec<u8> {
     }
     write!(out, "],\"transcript_program\":").expect("write to a Vec");
     strings(&mut out, &TRANSCRIPT_PROGRAM_TOKEN.iter().map(|s| s.to_string()).collect::<Vec<_>>());
-    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, sh.opened_cols).expect("write to a Vec");
+    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, crate::zk::MASK_Q).expect("write to a Vec");
     out.write_all(&r.index_json).expect("write to a Vec");
     write!(out, ",\"not_in_a_capture\":[\"witness values\",\"pad values\",\"mask coefficients\",\"unopened columns\",\"unpublished salts\",\"unmasked sumcheck rounds\",\"hidden inputs, outputs and boundary planes\",\"prover randomness\",\"the prompt's token ids and the next token\",\"owner decommitments\"]").expect("write to a Vec");
     writeln!(out, "}}").expect("write to a Vec");
@@ -3883,7 +3883,7 @@ fn write_run_classify(r: &Rec) -> Vec<u8> {
     }
     write!(out, "],\"transcript_program\":").expect("write to a Vec");
     strings(&mut out, &TRANSCRIPT_PROGRAM_CLASSIFY.iter().map(|s| s.to_string()).collect::<Vec<_>>());
-    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, sh.opened_cols).expect("write to a Vec");
+    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, crate::zk::MASK_Q).expect("write to a Vec");
     out.write_all(&r.index_json).expect("write to a Vec");
     write!(out, ",\"not_in_a_capture\":[\"witness values\",\"pad values\",\"mask coefficients\",\"unopened columns\",\"unpublished salts\",\"unmasked sumcheck rounds\",\"hidden inputs, outputs and boundary planes\",\"prover randomness\",\"the content's token ids\",\"the margin, its limbs and the final-norm values\",\"owner decommitments\"]").expect("write to a Vec");
     writeln!(out, "}}").expect("write to a Vec");
