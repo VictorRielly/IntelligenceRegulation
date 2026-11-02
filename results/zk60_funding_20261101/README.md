@@ -60,4 +60,5 @@ out. The biggest boosts are a named collaborator, something public, and one user
 ## Keep the "other funding" lines current
 Each draft lists the other applications. After each submission, add it here, so the next form's list is right.
 
-Submitted so far: none.
+Submitted so far:
+- **Y Combinator W27**: submitted by Victor 2026-11-01. It included the founder video (take 2, 59.6 s) and the captioned demo video (1:41). Decision by Dec 11.

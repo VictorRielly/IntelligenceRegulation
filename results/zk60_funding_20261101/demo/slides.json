@@ -1,0 +1,69 @@
+[
+ {
+  "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/video/s1.png",
+  "title": "Hashline",
+  "body": "Proofs of what an AI did, without the data\n\n\nDemo  \u00b7  November 2026  \u00b7  Victor Rielly",
+  "center": true
+ },
+ {
+  "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/video/s2.png",
+  "image": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/screenshots/feed.png",
+  "crop": [
+   170,
+   125,
+   740,
+   230
+  ],
+  "caption": "A demo social app. Every post is labelled by a real AI safety classifier (Mistral's open Shieldstral-1.0-3B) for explicit content, violence and hate."
+ },
+ {
+  "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/video/s3.png",
+  "image": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/screenshots/post.png",
+  "crop": [
+   160,
+   160,
+   1120,
+   370
+  ],
+  "caption": "Each label comes with a zero-knowledge proof that this classifier, run on this post, produced this verdict. Checking it never requires the post or the model's internal steps."
+ },
+ {
+  "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/video/s4.png",
+  "image": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/screenshots/post.png",
+  "crop": [
+   160,
+   525,
+   1120,
+   330
+  ],
+  "caption": "One proof per category, under a fixed registered policy and threshold. Proved once, when the post is created; the proof then travels with the post."
+ },
+ {
+  "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/video/s5.png",
+  "image": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/screenshots/ledger.png",
+  "crop": [
+   160,
+   120,
+   1120,
+   390
+  ],
+  "caption": "Proof records are batched and anchored on a public chain: Base Sepolia testnet, block 52,373,745 (test ETH only)."
+ },
+ {
+  "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/video/s6.png",
+  "title": "The same prover on a GPU",
+  "body": "One Llama-3-8B-sized layer, 128 hidden tokens:\n\tLaptop CPU\t12.3 s\n\tMac CPU (32 cores)\t4.66 s\n\tApple M3 Ultra GPU\t0.36 s\n\n\u2248 11 proved tokens/s per request  \u00b7  \u2248 22 with several at once\nNext: NVIDIA GPUs, aiming at 50 tokens/s for an 8B model on one card",
+  "footnote": "Measured per layer with synthetic weights at the true 8B shape; whole-model rates are computed from it."
+ },
+ {
+  "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/video/s7.png",
+  "title": "What is and isn't claimed",
+  "body": "\u2022  Hidden: inputs, outputs and every intermediate activation\n\u2022  Soundness \u2248 97 bits per run, checked by independent internal reviews\n\u2022  Privacy statements accepted after internal review; an external audit is next\n\u2022  This classifier's privacy statement is still pending, as the app's banner says\n\u2022  The app's proofs ran on a laptop CPU, minutes per category"
+ },
+ {
+  "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/video/s8.png",
+  "title": "Hashline",
+  "body": "Planned to be open source  \u00b7  NVIDIA GPU prover  \u00b7  first platform pilots\n\n\nvictor23@pdx.edu",
+  "center": true
+ }
+]
