@@ -1,0 +1,57 @@
+[inputs] 6 code-printed profiles parsed; mismatches against the re-check's derivation: 0
+[inputs] rows (code, not re-derived; they enter only the bias and the bytes): {'W16R2_RUNG_H24': ('317', '198', '6'), 'W16_RUNG_H24': ('317', '198', '6'), 'W16R2_SHIELD_T128_H24': ('2501', '2602', '37'), 'W16_SHIELD_T128_H24': ('2501', '2602', '37'), 'W16R2_8B_T128_H24': ('2501', '2602', '37'), 'W16_8B_T128_H24': ('2501', '2602', '37')}
+
+== 1. per regular opening at n = 2^14, N = 2^15 (rate 1/2), unique decoding, q_pad = Q
+   Q      K     e  col (exact)  col (1-dt)^Q     field  col+field
+ 256  16640  8064    -104.3459     -104.3310  -112.830  -104.3419   (short of W16)
+ 257  16641  8063    -104.7385     -104.7310  -112.830  -104.7333   (short of W16)
+ 258  16642  8063    -105.1461     -105.1310  -112.830  -105.1391   (short of W16)
+ 259  16643  8062    -105.5385     -105.5309  -112.830  -105.5293   (short of W16)
+ 260  16644  8062    -105.9460     -105.9308  -112.830  -105.9338   <- W16R2   (>= W16)
+ 261  16645  8061    -106.3382     -106.3306  -112.830  -106.3223   (>= W16)
+ 262  16646  8061    -106.7457     -106.7304  -112.830  -106.7246   (>= W16)
+W16 (rate 1/4, Q 256, delta/3): K 16640, e 16298, col -105.6090, field -113.684, total -105.6036
+M (RS(1024, 4096), MASK_Q 256, delta/3): e 1024, col -106.2496, field -115.678, total -106.2475
+minimum Q keeping W16's figure: column-only 260, column+field 260
+
+== 2. per block (derived from the shape replica)
+W16R2_8B_T128_H24        lookups 32,276,480 exp 524,288 act 2,097,152 N_lk 34,897,920 T_d 127,668 LogUp -102.922 | sum(main+ext)deg 1099 -> -117.898 | zero-check 1179 -> -117.797
+W16R2_SHIELD_T128_H24    lookups 32,276,480 exp 524,288 act 2,097,152 N_lk 34,897,920 T_d 127,668 LogUp -102.922 | sum(main+ext)deg 1159 -> -117.821 | zero-check 1179 -> -117.797
+W16R2_RUNG_H24           lookups 1,015,808 exp 16,384 act 32,768 N_lk 1,064,960 T_d 127,670 LogUp -107.412 | sum(main+ext)deg 924 -> -118.148 | zero-check 957 -> -118.098
+   8B vs Shieldstral sumcheck: +60 = three D-domain indicator slots (SS, SSM, DZC: (19+1) each) because d = 3072 pads to 4096
+   slots 8B [(19, 1, 3), (19, 1, 3), (7, 1, 3), (14, 1, 4), (19, 1, 3), (12, 1, 2), (12, 1, 2), (12, 1, 2), (10, 2, 3), (10, 2, 3), (12, 1, 2), (12, 1, 2), (12, 1, 2), (14, 1, 2), (19, 1, 4), (19, 1, 4), (17, 1, 4), (19, 1, 4), (21, 1, 5), (14, 1, 3), (14, 1, 2), (19, 1, 2), (19, 1, 2)]
+   rung lookups: S-count 9, not 7 (inferred: wrho_s = 17 there, so SR and SG are two-limb; the (1, 1) family is their top limb)
+
+== 3. whole run (3L + 1 regular openings, L M openings, L blocks), log2
+profile                    L  reg    column   pcs fld     logup    sumchk   zerochk     WHOLE
+W16R2_8B_T128_H24         32   97   -99.004  -106.166   -97.922  -112.898  -112.797   -97.361
+W16_8B_T128_H24           32   97   -98.732  -106.969   -97.922  -112.898  -112.797   -97.269
+W16R2_SHIELD_T128_H24     26   79   -99.301  -106.462   -98.222  -113.121  -113.096   -97.660
+W16_SHIELD_T128_H24       26   79   -99.029  -107.266   -98.222  -113.121  -113.096   -97.568
+W16R2_RUNG_H24             1    4  -103.680  -110.781  -107.412  -118.148  -118.098  -103.565
+W16R2_RUNG_H24             3   10  -102.310  -109.449  -105.828  -116.563  -116.513  -102.180
+W16_RUNG_H24               1    4  -103.394  -111.596  -107.412  -118.148  -118.098  -103.303
+W16_RUNG_H24               3   10  -102.033  -110.257  -105.828  -116.563  -116.513  -101.928
+   W16R2_8B_T128_H24 L32: 97.361 vs W16 97.269 (+0.092 bit); margin over 95: +2.361
+   W16R2_SHIELD_T128_H24 L26: 97.660 vs W16 97.568 (+0.092 bit); margin over 95: +2.660
+   W16R2_RUNG_H24 L1: 103.565 vs W16 103.303 (+0.262 bit); margin over 95: +8.565
+   W16R2_RUNG_H24 L3: 102.180 vs W16 101.928 (+0.252 bit); margin over 95: +7.180
+
+== 4. the lemma check's s.6 row #1, reproduced with ITS per-opening form ((1 - delta_t)^Q)
+   column term, 97 regular + 32 M: (1-dt)^Q form -98.992; exact integer form -99.004
+
+== 5. sensitivities (8B T128, L 32)
+   as counted: -97.361
+   far + close halves ADDED per opening (no exclusivity, i.e. without refinement 1): -97.036
+   carried 4096 ceiling dropped: -97.361; ceiling x100: -97.317
+   row-weight reduction bias (1 + p/2^128)^(2m) - 1 ~ 2m p / 2^128 at m = 2606: 2^-51.65
+   powers of one challenge instead (Thm 1.6): (m - 1) N / |Fp2| at m = 2606: 2^-101.65 per opening
+   M's theta batching of <= 36 functionals per block (powers of one theta), not itemised: 32 x 36/|Fp2| = 2^-117.83
+
+== 6. D27's named workload (8B T512, R13 layout, MEMO_G02 s.2 terms) -- carried figure cross-check
+   today rate 1/4 Q 256 delta/3   per opening -105.929; column -98.991; field -106.169; whole -94.656
+   rate 1/2 Q 258 delta/2         per opening -106.112; column -99.133; field -105.278; whole -94.662
+   rate 1/2 Q 260 delta/2         per opening -106.927; column -99.716; field -105.278; whole -94.684
+
+== 7. what the in-tree token / classifier counters (token_io.rs hiding_opening_log2, delta/3 only) would price a W16R2 opening at
+   (1 - delta/3)^260 at rate 1/2: -67.200 per opening; 97 of them -60.600 (a D27 policy gate on that figure fails closed)
