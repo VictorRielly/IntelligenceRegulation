@@ -1,0 +1,22 @@
+{
+ "schema": "zk60-trained-stack-run/2",
+ "scope": "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement",
+ "statement_written_by": "stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified",
+ "prover_reported": {"backend": "gpu: off (built without --features gpu-cuda)", "gpu_declines": 0, "what": "self-reports of the prover (privacy review P-7): a CPU proof and a GPU proof have the same form, so no verifier can check these fields"},
+ "block_profile": "hashline-zk-mr1/private-block-rung-lh-t32-dev/1",
+ "run_profile": "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1",
+ "base_run_profile": "hashline-zk-mr1/private-run-rung-lh-t32-dev/1",
+ "run_construction": "D55 commit, fork, join (a registered opt-in run profile, ruling D60): every internal boundary committed before any block challenge, each block proved on its own fork of that transcript, one joined opening phase; the frames are d55-head.bin, d55-fork-NNN.bin and d55-tail.bin",
+ "blocks": 1,
+ "export_variant": "r13-h24-wide",
+ "export_profile_sha256": "5e7ca7b4f0fa68575e5b5bdf16e2e739cffe6f41dbff97eb1c38637854055ea2",
+ "calibration_tool_sha256": "4abec5efb80985b54be4b276a8267b2e285a7ee101ce37e898eed4761bbc58ac",
+ "trained_statement_identity": "6ac6d19087ee02ba9f87bcc6f772404b23726c293dd213b04d7392dc7f519b5b",
+ "context_label": "zk60-trained-stack",
+ "context": "7e33b5acbe33f9ec07ca917a1f772b612b55b36040b5709f8d3dfb4a231cb4f3",
+ "expected_io": "48424c4b455850317e33b5acbe33f9ec07ca917a1f772b612b55b36040b5709f8d3dfb4a231cb4f300000000000000005168313a19d62c870aaa25331baf0bb248877a1051061e8230cee1e73d927206e8c33d204a2fcde4d70714305c1aa51dc104801c94b3185cc177d69092715f51",
+ "layers": [
+  {"layer": 0, "block_digest": "98d82e8afe0b787c3f0caa667bf109164ce0830823e8e9f2557f15f9ddac907e", "manifest_sha256": "b193e4228fb54a68a577778245dda19fe4c2ea853ffc854610a8867b129a4aae", "silu_member": [-3, -11], "exp_e_s": 4, "accuracy_gate_shift": 20}
+ ],
+ "shape": {"tokens": 32, "width": 384, "hidden": 768, "q_heads": 16, "kv_heads": 8, "head_dim": 64, "log_cols": 14, "inv_rate": 4, "opened_cols": 256, "f_e": 12, "wrho_s": 17, "norm_wrho": 31, "norm_tn": 10, "norm_cn_a": 10000, "norm_cn_m": 10000, "norm_ceps": 1, "sh_ao": 7, "sh_qkv": 8, "sh_s": 6, "sh_o": 9, "sh_g": 8, "sh_h": 14, "sh_z": 6, "d_max": 642119}
+}

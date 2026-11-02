@@ -59,11 +59,21 @@ fn fixtures() -> PathBuf {
 struct Chain {
     witnesses: Vec<Option<Witness>>,
     planes: Vec<Vec<i16>>,
+    /// D60 (a cheating prover's witness, test only): `(block, plane, word)`
+    /// has its low bit flipped when the block's witness is handed out (a
+    /// byte limb stays a byte, so every lookup still hits)
+    tamper: Option<(usize, usize, usize)>,
 }
 
 impl RunWitnessSource for Chain {
     fn witness(&mut self, k: usize) -> Result<Witness, String> {
-        self.witnesses.get_mut(k).and_then(Option::take).ok_or_else(|| format!("witness {k} was consumed"))
+        let mut w = self.witnesses.get_mut(k).and_then(Option::take).ok_or_else(|| format!("witness {k} was consumed"))?;
+        if let Some((blk, plane, at)) = self.tamper {
+            if blk == k {
+                w.planes[plane][at] ^= 1;
+            }
+        }
+        Ok(w)
     }
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
         self.planes.get(k).cloned().ok_or_else(|| format!("no boundary {k}"))
@@ -82,11 +92,19 @@ struct Rung {
     owners: Option<Endpoints>,
 }
 
-/// An `l`-stage run at the R13 h24 rung: stage 0 is the fixture's layer 0,
-/// odd stages its other-gate twin (`(-4, -13)`, as the D12a two-stage test),
-/// even stages layer 0's block again; the witness chain is built honestly
-/// from the fixture's public sequence.
-fn rung(l: usize, context: u8) -> Rung {
+/// The PUBLIC side of an `l`-stage run at the R13 h24 rung (what a verifier
+/// in a fresh process rebuilds from the fixture alone): stage 0 is the
+/// fixture's layer 0, odd stages its other-gate twin (`(-4, -13)`, as the
+/// D12a two-stage test), even stages layer 0's block again.
+struct RungPublic {
+    ex: TrainedExport,
+    seed: crate::private_block::shape::Shape,
+    shapes: Vec<crate::private_block::shape::Shape>,
+    blocks: Vec<BlockPublic>,
+    model: TrainedModelStatement,
+}
+
+fn rung_public(l: usize) -> RungPublic {
     let path = fixtures().join("r13-h24-wide");
     assert!(path.join("profile.json").exists(), "the R13 loader fixture {} is missing: set HL_R13_LOADER_FIXTURES (results/zk60_1b_native_20261017/r13/loader-fixtures)", path.display());
     let mut ex = TrainedExport::load(&path).unwrap();
@@ -112,16 +130,48 @@ fn rung(l: usize, context: u8) -> Rung {
         blocks.push(b);
     }
     let shapes: Vec<_> = records.iter().map(|r| r.shape_at(&seed).unwrap()).collect();
+    let model = ex.statement_of_records(&seed, &c, records).unwrap();
+    RungPublic { ex, seed, shapes, blocks, model }
+}
+
+/// D60: how a rung chain departs from the honest one (the false statements)
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Tweak {
+    Honest,
+    /// `B_k` holds block `k`'s output with word 0 (a true support position)
+    /// moved by one, and block `k + 1` is run on what `B_k` holds: only block
+    /// `k`'s outgoing equality (fork `k`, slot 22) can object
+    MoveBoundary(usize),
+    /// `B_k` holds block `k`'s TRUE output, and block `k + 1` is run on it
+    /// with word 0 moved by one: block `k + 1`'s incoming equality (fork
+    /// `k + 1`, slot 21) objects
+    OffInput(usize),
+}
+
+/// An `l`-stage run at the R13 h24 rung ([`rung_public`]); the witness chain
+/// is built honestly from the fixture's public sequence.
+fn rung(l: usize, context: u8) -> Rung {
+    rung_with(l, context, Tweak::Honest)
+}
+
+fn rung_with(l: usize, context: u8, tweak: Tweak) -> Rung {
+    let RungPublic { ex, seed, shapes, blocks, model } = rung_public(l);
     let (mut x, _) = ex.load_seq(&shapes[0], "public", 0).unwrap();
     let ids = Ids::new(&seed).unwrap();
     let (mut witnesses, mut planes, mut input, mut output) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
     for k in 0..l {
-        let w = witness::build_for_block(&shapes[k], &blocks[k], &x).unwrap_or_else(|e| panic!("stage {k} of the R13 rung chain is not admissible: {e}"));
+        let w = witness::build_for_block(&shapes[k], &blocks[k], &x).unwrap_or_else(|e| panic!("stage {k} of the R13 rung chain ({tweak:?}) is not admissible: {e}"));
         if k == 0 {
             input = w.planes[ids.at(A_X)].iter().map(|&v| v as i16).collect();
         }
-        let out = w.output().unwrap();
+        let mut out = w.output().unwrap();
+        if tweak == Tweak::MoveBoundary(k) {
+            out[0] += 1;
+        }
         x = unpad(&seed, &out);
+        if tweak == Tweak::OffInput(k) {
+            x[0] += 1;
+        }
         if k + 1 < l {
             planes.push(out);
         } else {
@@ -129,11 +179,10 @@ fn rung(l: usize, context: u8) -> Rung {
         }
         witnesses.push(Some(w));
     }
-    let model = ex.statement_of_records(&seed, &c, records).unwrap();
     let ctx = [context; 32];
     let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&seed, ctx, 0, 0).unwrap(), &input, &output).unwrap();
     let st = RunStatement::new_bound(RunShape::accuracy(seed, l).unwrap(), ctx, expected, &blocks, &vec![(0, 0); l], &model).unwrap();
-    Rung { st, blocks, src: Chain { witnesses, planes }, owners: Some(owners) }
+    Rung { st, blocks, src: Chain { witnesses, planes, tamper: None }, owners: Some(owners) }
 }
 
 fn prove_forks(r: &mut Rung, workers: usize) -> (ForkReceipt, ForkStats) {
@@ -226,7 +275,11 @@ fn d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross() {
     // F3: the fork run's header is D12a's six absorbs under its OWN
     // constructor — rebuilt here from the public words under the D55 profile
     // string it is the binding, and under the base profile string it is not
-    assert_eq!(fra.profile(), d55_profile_of(a.st.rs().profile()), "the D55 profile string is not the prefix and the base");
+    // D60: the R13 rung is an eligible base, so its fork run hashes under its
+    // REGISTERED D55 profile, the marker and the base
+    assert_eq!(fra.profile(), run::RUN_PROFILE_D55_R13_RUNG_H24, "the R13 rung's fork run is not under its registered D55 profile");
+    assert_eq!(fra.profile(), fork_profile_for(a.st.rs().profile()));
+    assert!(fra.is_registered());
     assert_ne!(fra.profile(), a.st.rs().profile());
     let header_under = |domain: &str| -> Digest {
         let st = &a.st;
@@ -247,8 +300,8 @@ fn d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross() {
     assert_eq!(header_under(fra.profile()), fra.binding().unwrap(), "the fork run's transcript is not constructed under its own D55 profile string (F3)");
     assert_ne!(header_under(a.st.rs().profile()), fra.binding().unwrap(), "the fork run's transcript is constructed under the BASE profile string (F3)");
     let (pl_a, pl_f) = (a.st.parameter_line().unwrap(), fra.parameter_line().unwrap());
-    assert!(pl_a.ends_with("/one-run-one-transcript") && pl_f.ends_with("/d55-commit-fork-join-prototype-unregistered"), "{pl_a} / {pl_f}");
-    assert_eq!(pl_a.strip_suffix("/one-run-one-transcript"), pl_f.strip_suffix("/d55-commit-fork-join-prototype-unregistered"), "the fork line moved more than its construction clause");
+    assert!(pl_a.ends_with("/one-run-one-transcript") && pl_f.ends_with("/d55-commit-fork-join-registered-d60"), "{pl_a} / {pl_f}");
+    assert_eq!(pl_a.strip_suffix("/one-run-one-transcript"), pl_f.strip_suffix("/d55-commit-fork-join-registered-d60"), "the fork line moved more than its construction clause");
     // the fork string is no run profile CS-7 registers
     let leaked: &'static str = Box::leak(fra.profile().to_string().into_boxed_str());
     let e = RunShape::new(a.st.rs().sh().clone(), 3, leaked).err().expect("THE D55 FORK PROFILE IS A REGISTERED RUN PROFILE");
@@ -609,6 +662,397 @@ fn d55_every_single_block_tamper_family_is_rejected_on_an_interior_fork() {
     eprintln!("D55 F1 TAMPER | all {} families rejected by verify_run_with_forks, {in_fork_1} of them inside fork 1's own verify_core", cases.len());
 }
 
+// ------------------------------------------------------------------ D60: the registered profiles
+
+/// **D60: the registry.** Every registered D55 run profile is the marker and
+/// its base (an R13 blocks-only run profile of `ACCURACY_RUN_PROFILES`, each
+/// base exactly once); none is a D12a run profile CS-7 admits, a base, a
+/// token-I/O or classifier profile, or another D55 string; and the door
+/// admits each base under its registered string at `L` = 1, 2 and 32 (the
+/// constructor census holds at each).
+#[test]
+fn d60_every_registered_d55_profile_is_the_marker_and_its_base() {
+    use crate::private_block::trained_statement::accuracy_hash_model;
+    let mut seen: Vec<&str> = Vec::new();
+    for (d55, base) in run::D55_RUN_PROFILES {
+        let tail = base.strip_prefix("hashline-zk-mr1/").expect("a hashline-zk-mr1 base");
+        assert_eq!(d55, format!("hashline-zk-mr1/{}{tail}", run::D55_REGISTERED_MARKER), "{d55} is not the marker and its base");
+        assert!(run::ACCURACY_RUN_PROFILES.iter().any(|(r, _)| *r == base), "{base} is not an R13 blocks-only run profile");
+        assert!(!run::TOKEN_IO_RUN_PROFILES.contains(&base) && !run::is_classify_run_profile(base));
+        assert!(!run::ACCURACY_RUN_PROFILES.iter().any(|(r, b)| *r == d55 || *b == d55), "{d55} is also a D12a run or block profile");
+        assert!(!seen.contains(&d55) && !seen.contains(&base), "a D55 string or base appears twice");
+        seen.push(d55);
+        seen.push(base);
+        assert_eq!(run::d55_run_profile(base), Some(d55));
+    }
+    assert_eq!(run::D55_RUN_PROFILES.len(), run::ACCURACY_RUN_PROFILES.len(), "an R13 blocks-only base has no registered D55 profile (or one too many)");
+    let mut n = 0usize;
+    for (p, sh) in crate::private_block::accuracy_profile_tests::registered_runs() {
+        let d55 = run::d55_run_profile(p).expect("every R13 run profile is an eligible base");
+        // CS-7: a D12a run cannot carry the D55 string
+        let e = RunShape::new(sh.clone(), 2, d55).err().expect("CS-7 ADMITTED A D55 STRING AS A D12a RUN PROFILE");
+        assert!(e.contains("CS-7"), "{e}");
+        for l in [1usize, 2, 32] {
+            let spec = IoSpec::new_shaped(&sh, [9; 32], 0, 0).unwrap();
+            let model = accuracy_hash_model(&sh, l);
+            let st = RunStatement::new_bound_from_digests(RunShape::accuracy(sh.clone(), l).unwrap(), [9; 32], crate::private_block::ExpectedIo::from_roots(spec, [1; 32], [2; 32]), model.layers.iter().map(|r| r.block_digest).collect(), &vec![crate::private_block::ENDPOINT_SCALES; l], &model).unwrap();
+            let fr = ForkRun::new(&st, D55OptIn::registered_profile()).unwrap_or_else(|e| panic!("{p} L{l}: the registered door refuses an eligible base: {e}"));
+            assert_eq!(fr.profile(), d55);
+            assert!(fr.is_registered());
+            assert!(fr.parameter_line().unwrap().ends_with("/d55-commit-fork-join-registered-d60"));
+            let (lit, lines) = fr.schedule_lines().unwrap();
+            assert_eq!(lit, b"hashline/private-run-fork-schedule/d55-registered-d60/1");
+            assert!(lines.iter().any(|s| s.starts_with(&format!("phase 1 (commit): the {} internal boundaries", l - 1))), "{p} L{l}: F6's counted phase-1 line is missing");
+            if l == 32 {
+                eprintln!("D60 | registered | {d55} over {p}: {}", fr.census().unwrap());
+            }
+            n += 1;
+        }
+    }
+    eprintln!("D60 | registry | {} registered D55 run profiles, each the marker and its R13 base; CS-7 refuses every one as a D12a profile; the registered door admits all {n} (base, L) statements", run::D55_RUN_PROFILES.len());
+}
+
+/// **D60: the registered door refuses an ineligible base by name**, and only
+/// a test build's `unreviewed_prototype()` gives such a base its TEST-ONLY
+/// identity (here the rung-G development run, a D12a-registered pre-R13
+/// profile with no registered D55 profile).
+#[test]
+fn d60_the_registered_door_refuses_a_base_with_no_registered_d55_profile() {
+    let c = GChain::honest(2);
+    let (st, _owners) = c.statement(140);
+    let e = ForkRun::new(&st, D55OptIn::registered_profile()).err().expect("THE REGISTERED DOOR ADMITTED A BASE WITH NO REGISTERED D55 PROFILE");
+    assert!(e.contains("D60") && e.contains("no registered D55 profile"), "{e}");
+    let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).expect("the test-only fallback");
+    assert!(!fr.is_registered());
+    assert_eq!(fr.profile(), d55_profile_of(st.rs().profile()));
+    assert!(fr.parameter_line().unwrap().ends_with("/d55-commit-fork-join-prototype-unregistered"));
+    // and a registered base takes its registered string under either opt-in
+    let r = rung(2, 141);
+    let a = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+    let b = ForkRun::new(&r.st, D55OptIn::unreviewed_prototype()).unwrap();
+    assert_eq!(a.profile(), run::RUN_PROFILE_D55_R13_RUNG_H24);
+    assert_eq!(a.profile(), b.profile());
+    assert_eq!(a.binding().unwrap(), b.binding().unwrap());
+    eprintln!("D60 | door | rung-G refused by the registered door ({}); its test-only identity is {}; the R13 rung takes {} under both opt-ins", e.chars().take(110).collect::<String>(), fr.profile(), a.profile());
+}
+
+/// the binding at `[8..40]` of every frame, the start tag at `[56..88]` of a
+/// fork frame, the S0 tag at the head's end, the S1 tag at `[48..80]` of the
+/// tail (`run_fork_wire.rs`)
+fn rewrite(frame: &[u8], at: usize, with: &[u8]) -> Vec<u8> {
+    let mut b = frame.to_vec();
+    b[at..at + with.len()].copy_from_slice(with);
+    b
+}
+
+/// **D55 review F7 / D60: a foreign fork frame from a second honest run of
+/// the same base and context** (fresh endpoint commitments and boundaries,
+/// since an endpoint owner opens once and cannot be reused) spliced in at
+/// fork 1: refused by the binding as it stands; with the binding rewritten to
+/// this run's, by the fork's start tag (the second run's roots made another
+/// `S0`); and with the start tag rewritten too, by fork 1's own
+/// `verify_core` — the chain, not a tag compare.
+#[test]
+fn d60_f7_a_foreign_fork_frame_from_a_second_run_is_rejected_by_the_tag_and_then_by_the_chain() {
+    let mut a = rung(3, 150);
+    let (rc, _) = prove_forks(&mut a, 3);
+    let mut b = rung(3, 150);
+    let (other, _) = prove_forks(&mut b, 3);
+    let fr = ForkRun::new(&a.st, D55OptIn::registered_profile()).unwrap();
+    let binding = fr.binding().unwrap();
+    let (roots, _) = super::super::super::wire::fork::decode_head(&rc.head, &binding, 3).unwrap();
+    let start1 = position_tag(&fr.fork(&roots, 1, None).unwrap());
+    let cases = [
+        ("as it stands", other.forks[1].clone(), "another run"),
+        ("its binding rewritten", rewrite(&other.forks[1], 8, &binding), "start tag"),
+        ("its binding and start tag rewritten", rewrite(&rewrite(&other.forks[1], 8, &binding), 56, &start1), "fork 1"),
+    ];
+    for (what, frame, want) in cases {
+        let mut bad = rc.clone();
+        bad.forks[1] = frame;
+        let e = verify_run_with_forks(&fr, &a.blocks, &bad, 3).err().unwrap_or_else(|| panic!("A FOREIGN FORK FRAME ({what}) VERIFIED"));
+        assert!(e.contains(want), "{what}: {e}");
+        if what.ends_with("start tag rewritten") {
+            assert!(!e.contains(" tag "), "{what}: refused by a tag compare, not by the chain: {e}");
+        }
+        eprintln!("D60 F7 | a foreign fork frame from a second run, {what} | REJECTED: {e}");
+    }
+}
+
+/// **D55 review F7 / D60: `L = 1`** — one fork, no internal boundary (the
+/// head carries no root), the join and both endpoint openings: an honest run
+/// verifies on one and three verifier threads, and a changed byte in each
+/// frame is refused.
+#[test]
+fn d60_f7_a_one_block_fork_run_verifies_and_a_changed_byte_is_refused() {
+    let mut r = rung(1, 151);
+    let (rc, stats) = prove_forks(&mut r, 2);
+    assert_eq!((stats.workers, stats.generators), (1, 2));
+    let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+    assert_eq!(rc.head.len(), super::super::super::wire::fork::head_len(1));
+    for vw in [1usize, 3] {
+        verify_run_with_forks(&fr, &r.blocks, &rc, vw).unwrap_or_else(|e| panic!("the honest L1 fork run does not verify ({vw} threads): {e}"));
+    }
+    for (what, bad) in [("head", ForkReceipt { head: flipped(&rc.head), ..rc.clone() }), ("fork", ForkReceipt { forks: vec![flipped(&rc.forks[0])], ..rc.clone() }), ("tail", ForkReceipt { tail: flipped(&rc.tail), ..rc.clone() })] {
+        let e = verify_run_with_forks(&fr, &r.blocks, &bad, 1).err().unwrap_or_else(|| panic!("L1: A CHANGED BYTE IN THE {what} VERIFIED"));
+        eprintln!("D60 F7 | L1 | a changed byte in the {what} | REJECTED: {}", e.chars().take(120).collect::<String>());
+    }
+    eprintln!("D60 F7 | L1 | the honest one-block fork run verifies: {} B (head {} B, fork {} B, tail {} B)", rc.bytes(), rc.head.len(), rc.forks[0].len(), rc.tail.len());
+}
+
+/// **D55 review F7 / D60: one statement under ANOTHER fork profile, and a
+/// D12a stage body re-wrapped as a fork.** (i) The R13 rung's registered
+/// receipt checked under the same statement's TEST-ONLY identity (another
+/// constructor domain): refused by the binding; with every frame's binding
+/// and the head's S0 tag and each fork's start tag rewritten to that
+/// profile's own, by fork 0's `verify_core`. (ii) A D12a run's stage-1 body
+/// (its three roots, slots and `M` / `A` / `H` openings) re-wrapped to the
+/// fork frame's length with the D55 verifier's own header and tags: refused
+/// by fork 1's `verify_core` — so neither crossing rests on a length.
+#[test]
+fn d60_f7_a_receipt_under_another_profile_and_a_rewrapped_d12a_body_are_rejected_by_the_chain() {
+    let fw = super::super::super::wire::fork::head_len;
+    let mut r = rung(3, 152);
+    let (rc, _) = prove_forks(&mut r, 3);
+    let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+    let other = ForkRun::new_test_identity(&r.st).unwrap();
+    assert_ne!(fr.profile(), other.profile());
+    let e = verify_run_with_forks(&other, &r.blocks, &rc, 3).err().expect("A REGISTERED RECEIPT VERIFIED UNDER ANOTHER D55 PROFILE");
+    assert!(e.contains("another run"), "{e}");
+    eprintln!("D60 F7 | the registered receipt under the test-only profile, as it stands | REJECTED: {e}");
+    let ob = other.binding().unwrap();
+    let (roots, _) = super::super::super::wire::fork::decode_head(&rc.head, &fr.binding().unwrap(), 3).unwrap();
+    let s0 = position_tag(&other.s0(&roots, None).unwrap());
+    let mut forged = ForkReceipt { head: rewrite(&rewrite(&rc.head, 8, &ob), fw(3) - 32, &s0), forks: Vec::new(), tail: rewrite(&rc.tail, 8, &ob) };
+    for (k, f) in rc.forks.iter().enumerate() {
+        let start = position_tag(&other.fork(&roots, k, None).unwrap());
+        forged.forks.push(rewrite(&rewrite(f, 8, &ob), 56, &start));
+    }
+    let e = verify_run_with_forks(&other, &r.blocks, &forged, 3).err().expect("A REGISTERED RECEIPT WITH ITS HEADERS REWRITTEN VERIFIED UNDER ANOTHER D55 PROFILE");
+    assert!(e.contains("fork 0") && !e.contains(" tag "), "the crossing was refused by a tag, not by the chain: {e}");
+    eprintln!("D60 F7 | the registered receipt under the test-only profile, every binding and S0 / start tag rewritten | REJECTED by the chain: {e}");
+    // (ii) a D12a stage body in a fork frame
+    let mut d = rung(3, 152);
+    let mut segs: Vec<Vec<u8>> = Vec::new();
+    run::prove_run(&d.st, &d.blocks, &mut d.src, d.owners.take().unwrap(), &mut |_, b| {
+        segs.push(b);
+        Ok(())
+    })
+    .expect("the D12a run proves");
+    // a D55 receipt of the SAME statement is impossible (an endpoint owner
+    // opens once), so the fork receipt is proved on a twin of the same base
+    // and context, whose statement the verifier then uses, and the D12a body
+    // is spliced into it
+    let mut e2 = rung(3, 152);
+    let (rc2, _) = prove_forks(&mut e2, 3);
+    let f = ForkRun::new(&e2.st, D55OptIn::registered_profile()).unwrap();
+    let honest = &rc2.forks[1];
+    let body_len = honest.len() - 88 - 32;
+    // segment 1 carries its boundary root (32 B) after the 88-byte header
+    let body = &segs[1][88 + 32..88 + 32 + body_len];
+    let mut wrapped = honest[..88].to_vec();
+    wrapped.extend_from_slice(body);
+    wrapped.extend_from_slice(&honest[honest.len() - 32..]);
+    assert_eq!(wrapped.len(), honest.len(), "the re-wrapped body is not the fork frame's length");
+    let mut bad = rc2.clone();
+    bad.forks[1] = wrapped;
+    let e = verify_run_with_forks(&f, &e2.blocks, &bad, 3).err().expect("A D12a STAGE BODY RE-WRAPPED AS A FORK VERIFIED");
+    assert!(e.contains("fork 1") && !e.contains(" tag "), "the re-wrapped D12a body was refused by a tag, not by the chain: {e}");
+    eprintln!("D60 F7 | a D12a stage-1 body re-wrapped to fork 1's length with the D55 verifier's own header and tags | REJECTED by the chain: {e}");
+}
+
+/// **D60: THE HEADLINE NEGATIVE TEST UNDER A REGISTERED PROFILE.** The rung-G
+/// port above runs under a test-only identity; this is the same two
+/// variants at the R13 h24 rung, an eligible base, under its REGISTERED D55
+/// profile, the forks on two and three workers: (i) `B_1` moved (fork 1's
+/// slot 22, `IO-out`, objects); (ii) block 2 run on something other than
+/// block 1's output, `B_1` keeping the true output (fork 2's slot 21,
+/// `IO-in`). The PROVER must make the receipt; only the verifier may refuse.
+#[test]
+fn d60_the_headline_negative_test_is_rejected_under_the_registered_profile() {
+    for (tweak, workers, fork, slot, context) in [(Tweak::MoveBoundary(1), 2usize, "fork 1", "IO-out", 160u8), (Tweak::OffInput(1), 3, "fork 2", "IO-in", 161)] {
+        let mut r = rung_with(3, context, tweak);
+        let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+        assert!(fr.is_registered());
+        let (rc, _) = prove_run_with_forks(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), workers).unwrap_or_else(|e| panic!("{tweak:?}: the PROVER refused, so this case says nothing about the verifier: {e}"));
+        let e = verify_run_with_forks(&fr, &r.blocks, &rc, 3).err().unwrap_or_else(|| panic!("{tweak:?}: A REGISTERED FORK RUN WHOSE BLOCKS ARE NOT CHAINED VERIFIED"));
+        assert!(e.contains(fork) && e.contains(slot), "{tweak:?}: expected {fork}'s {slot} slot to object, got: {e}");
+        eprintln!("D60 HEADLINE | {} | {tweak:?} | {workers} prover workers | REJECTED by the verifier: {e}", fr.profile());
+    }
+}
+
+/// **D60: the R13 byte-limb tamper families on an INTERIOR fork, under the
+/// registered profile.** Native R13's relation mutations
+/// (`accuracy_proof_tests`' byte attacks: one limb byte of a quotient,
+/// projection, remainder or product plane has its low bit flipped, so it
+/// stays a byte and every lookup still hits) applied to block 1 of an
+/// `L = 3` R13-rung fork run, the cheating switch carried into every fork
+/// worker (asserted from the stats), the receipt made by the prover and
+/// refused by `verify_run_with_forks`.
+#[test]
+fn d60_the_r13_limb_tamper_families_on_an_interior_fork_are_rejected_under_the_registered_profile() {
+    use crate::private_block::accuracy_layout::Limbs as L;
+    let probe = rung_public(1);
+    let ids = Ids::new(&probe.seed).unwrap();
+    let acc = ids.accuracy().expect("an R13 layout");
+    let roles = [(L::Y, 1), (L::Ym, 1), (L::Q, 1), (L::K, 1), (L::V, 1), (L::O, 1), (L::Rao, 2), (L::Rs, 2), (L::Rg, 2), (L::Up, 1), (L::H, 2), (L::Rh, 1), (L::Rd, 2)];
+    let _cheating = crate::private_block::protocol::CheatingProver::on();
+    let (mut rejected, mut in_fork_1, mut skipped) = (0usize, 0usize, Vec::new());
+    for (i, (role, k)) in roles.iter().enumerate() {
+        if acc.count(*role) <= *k {
+            skipped.push(format!("{role:?}[{k}]"));
+            continue;
+        }
+        let mut r = rung(3, 170 + i as u8);
+        r.src.tamper = Some((1, acc.limb(*role, *k), 0));
+        let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+        let (rc, stats) = prove_run_with_forks(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), 3).unwrap_or_else(|e| panic!("{role:?}[{k}] in block 1: the PROVER refused: {e}"));
+        assert!(stats.fork_hooks.iter().all(|h| h.block.cheating_prover), "{role:?}[{k}]: the cheating switch did not reach every fork worker");
+        let e = verify_run_with_forks(&fr, &r.blocks, &rc, 3).err().unwrap_or_else(|| panic!("{role:?}[{k}] in block 1: A TAMPERED REGISTERED FORK RUN VERIFIED"));
+        rejected += 1;
+        in_fork_1 += usize::from(e.contains("fork 1"));
+        eprintln!("D60 TAMPER | {role:?}[{k}] low bit in block 1 (interior fork) | REJECTED by the verifier: {}", e.chars().take(160).collect::<String>());
+    }
+    assert!(rejected >= 10, "only {rejected} R13 families were exercised (skipped: {skipped:?})");
+    eprintln!("D60 TAMPER | {rejected} R13 limb families rejected by verify_run_with_forks under {}, {in_fork_1} of them inside fork 1; not in this layout: {skipped:?}", run::RUN_PROFILE_D55_R13_RUNG_H24);
+}
+
+/// **D60: the capture writer and a fork run.** A registered R13-rung D55 run
+/// (`L = 3`), captured by the fork-run recorder (each fork on its own
+/// verifier worker) and export-replayed, is WRITTEN by
+/// `run_capture::write_bundle` (the D55 schema, the receipt's frames, the
+/// source pins with `run_fork.rs` / `run_fork_wire.rs` once each, the
+/// manifest last); the same base under its TEST-ONLY identity is REFUSED by
+/// that writer. (The Python D55 replay gate has been run on test-only W16 /
+/// W16R2 bundles only; a registered R13 bundle is its next input.)
+#[test]
+fn d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one() {
+    use crate::private_block::run_capture::{self as cap, CaptureOpts};
+    let capture = |fr: &ForkRun, blocks: &Vec<BlockPublic>, rc: &ForkReceipt| -> cap::Bundle {
+        let guard = cap::Recorder::attach();
+        cap::begin_fork_run_with(fr.capture_header().unwrap(), fr.binding().unwrap(), CaptureOpts { arrays: true, public_tables: true });
+        let v = verify_run_with_forks(fr, blocks, rc, 3);
+        let taken = cap::take();
+        drop(guard);
+        v.expect("the fork run verifies with a recorder attached");
+        let mut b = taken.expect("the fork-run recorder took the capture");
+        assert_eq!(b.stages.len(), 3, "the capture did not record every fork");
+        cap::export_replay(&mut b, &mut |k| ForkBlocks::get(blocks, k).cloned()).expect("the export replay of the fork run's statement tables");
+        b
+    };
+    let root = std::env::temp_dir().join(format!("d60-capture-writer-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    // the registered profile: written
+    let mut r = rung(3, 180);
+    let (rc, _) = prove_forks(&mut r, 3);
+    let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+    let b = capture(&fr, &r.blocks, &rc);
+    let frames: Vec<Vec<u8>> = rc.frames().cloned().collect();
+    let dir = root.join("registered");
+    cap::write_bundle(&dir, &b, &frames, "D60 test: a registered R13-rung D55 run (public synthetic fixture)", "run_fork_tests::d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one").unwrap_or_else(|e| panic!("the capture writer refused a REGISTERED D55 fork run: {e}"));
+    let manifest = std::fs::read_to_string(dir.join("manifest.json")).expect("the manifest is written last");
+    assert!(manifest.contains(cap::SCHEMA_D55) && manifest.contains(run::RUN_PROFILE_D55_R13_RUNG_H24), "{}", manifest.chars().take(300).collect::<String>());
+    for pin in ["\"file\":\"src/private_block/run_fork.rs\"", "\"file\":\"src/private_block/run_fork_wire.rs\""] {
+        assert_eq!(manifest.matches(pin).count(), 1, "{pin} is not pinned exactly once");
+    }
+    for f in ["run.json", "stage-00.json", "stage-02.json", cap::D55_TAIL_FILE, cap::ARRAYS_FILE, "receipt/head.bin", "receipt/fork-00.bin", "receipt/fork-02.bin", "receipt/tail.bin", "README.md"] {
+        assert!(dir.join(f).is_file(), "the registered bundle has no {f}");
+        assert!(manifest.contains(&format!("\"file\":\"{f}\"")), "the manifest does not list {f}");
+    }
+    let total: u64 = std::fs::read_dir(&dir).unwrap().filter_map(|e| e.ok()).filter_map(|e| e.metadata().ok()).filter(|m| m.is_file()).map(|m| m.len()).sum();
+    // the same base under its TEST-ONLY identity: refused by the writer
+    let mut t = rung(3, 181);
+    let ft = ForkRun::new_test_identity(&t.st).unwrap();
+    let (rt, _) = prove_run_with_forks(&ft, &t.blocks, &mut t.src, t.owners.take().unwrap(), 3).unwrap();
+    let bt = capture(&ft, &t.blocks, &rt);
+    let e = cap::write_bundle(&root.join("test-only"), &bt, &rt.frames().cloned().collect::<Vec<_>>(), "D60 test", "-").err().expect("THE CAPTURE WRITER WROTE A TEST-ONLY FORK IDENTITY'S BUNDLE");
+    assert!(e.contains("not a registered D55 run profile"), "{e}");
+    assert!(!root.join("test-only").exists(), "the refused bundle left a directory");
+    std::fs::remove_dir_all(&root).unwrap();
+    eprintln!("D60 CAPTURE | the registered R13-rung D55 run's bundle WRITTEN by run_capture::write_bundle ({} B outside receipt/, schema {}); the test-only identity's REFUSED: {}", total, cap::SCHEMA_D55, e.chars().take(120).collect::<String>());
+}
+
+/// the directory and its marker for the fresh-process receipts
+fn receipt_dir() -> PathBuf {
+    PathBuf::from(std::env::var("HL_D60_RECEIPT_DIR").expect("HL_D60_RECEIPT_DIR names the directory of the D60 test receipts"))
+}
+
+const TEST_RECEIPT_MARKER: &str = "TEST RECEIPTS, NOT FOR PUBLICATION: proved by run_fork_tests::d60_fresh_process_write_test_receipts on the public synthetic R13 loader fixture r13-h24-wide (layer 0 and its other-gate twin) and its public sequence; no real content. Ruling D60 requires the Python privacy gate on a D55 capture before any receipt for real content.\n";
+
+/// **D60, PROCESS 1 of 2 (`#[ignore]`d; run alone, then
+/// [`d60_fresh_process_verify_test_receipts`] in a NEW process): write a
+/// three-block R13-rung D55 receipt (the registered profile) and a D12a
+/// receipt of the same base into `HL_D60_RECEIPT_DIR`**, each run directory
+/// with its endpoint policy beside it (`<run>.expected.bin`). Fixture data
+/// only; the directory is marked as test receipts, not for publication.
+#[test]
+#[ignore = "D60 fresh-process receipts: run with HL_D60_RECEIPT_DIR, then the verify test in another process"]
+fn d60_fresh_process_write_test_receipts() {
+    let dir = receipt_dir();
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(dir.join("TEST_RECEIPTS_NOT_FOR_PUBLICATION.txt"), TEST_RECEIPT_MARKER).unwrap();
+    let (d55, d12a) = (dir.join("d55-run"), dir.join("d12a-run"));
+    for p in [&d55, &d12a] {
+        assert!(!p.exists(), "{} exists; the receipts are written into new directories", p.display());
+        std::fs::create_dir(p).unwrap();
+    }
+    let mut r = rung(3, 200);
+    let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+    let (rc, stats) = prove_run_with_forks(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), 3).unwrap();
+    let written = write_fork_receipt(&d55, &rc).unwrap();
+    std::fs::write(dir.join("d55-run.expected.bin"), r.st.expected.to_bytes()).unwrap();
+    let mut s = rung(3, 201);
+    let mut sink = super::super::super::run_sink::DirSink::create(&d12a, 3).unwrap();
+    run::prove_run(&s.st, &s.blocks, &mut s.src, s.owners.take().unwrap(), &mut |k, b| super::super::super::run_sink::SegmentSink::accept(&mut sink, k, b)).unwrap();
+    std::fs::write(dir.join("d12a-run.expected.bin"), s.st.expected.to_bytes()).unwrap();
+    let mut manifest = format!("profile {}\nbase {}\nworkers {} generators {} forks {:.3} s total {:.3} s\n", fr.profile(), r.st.rs().profile(), stats.workers, stats.generators, stats.forks_s, stats.total_s);
+    for (name, (n, h)) in d55_file_names(3).iter().zip(&written) {
+        manifest.push_str(&format!("d55-run/{name} {n} {h}\n"));
+    }
+    for (k, (n, h)) in sink.lengths().iter().zip(sink.digests()).enumerate() {
+        manifest.push_str(&format!("d12a-run/{} {n} {h}\n", super::super::super::run_sink::segment_file_name(k)));
+    }
+    std::fs::write(dir.join("MANIFEST.txt"), &manifest).unwrap();
+    eprintln!("D60 FRESH-PROCESS WRITE | {} | pid {}\n{manifest}", dir.display(), std::process::id());
+}
+
+/// **D60, PROCESS 2 of 2 (`#[ignore]`d): in a NEW process, rebuild both
+/// statements from the fixture and the policy files alone and verify from
+/// the directories**: the D55 receipt verifies under its registered profile;
+/// the D12a verifier refuses the D55 directory and the D55 frames; the D55
+/// verifier refuses the D12a directory and the D12a segments; the D12a
+/// receipt verifies under D12a.
+#[test]
+#[ignore = "D60 fresh-process receipts: run after d60_fresh_process_write_test_receipts, in another process"]
+fn d60_fresh_process_verify_test_receipts() {
+    let dir = receipt_dir();
+    assert_eq!(std::fs::read_to_string(dir.join("TEST_RECEIPTS_NOT_FOR_PUBLICATION.txt")).unwrap(), TEST_RECEIPT_MARKER);
+    let public = |ctx: u8, policy: &str| -> (RunStatement, Vec<BlockPublic>) {
+        let p = rung_public(3);
+        let expected = crate::private_block::ExpectedIo::from_bytes_at(&p.seed, &std::fs::read(dir.join(policy)).unwrap()).unwrap();
+        let st = RunStatement::new_bound(RunShape::accuracy(p.seed, 3).unwrap(), [ctx; 32], expected, &p.blocks, &[(0, 0); 3], &p.model).unwrap();
+        (st, p.blocks)
+    };
+    let (st55, b55) = public(200, "d55-run.expected.bin");
+    let fr = ForkRun::new(&st55, D55OptIn::registered_profile()).unwrap();
+    let seen = verify_run_with_forks_from_dir(&fr, &b55, &dir.join("d55-run"), 3).unwrap_or_else(|e| panic!("the D55 test receipt does not verify in a fresh process: {e}"));
+    eprintln!("D60 FRESH-PROCESS VERIFY | pid {} | the D55 receipt ({}) VERIFIES: {} frames, {} B", std::process::id(), fr.profile(), seen.len(), seen.iter().map(|(n, _)| n).sum::<u64>());
+    let e1 = run::verify_run_from_dir(&st55, &b55, &dir.join("d55-run")).err().expect("THE D12a VERIFIER ACCEPTED THE D55 DIRECTORY");
+    eprintln!("D60 FRESH-PROCESS VERIFY | the D12a verifier on the D55 directory | REFUSED: {e1}");
+    let (rc, _) = read_fork_receipt(&fr, &dir.join("d55-run")).unwrap();
+    let e2 = run::verify_run(&st55, &b55, &rc.forks).err().expect("THE D12a VERIFIER ACCEPTED THE D55 FORK FRAMES AS SEGMENTS");
+    eprintln!("D60 FRESH-PROCESS VERIFY | the D12a verifier on the D55 fork frames as segments | REFUSED: {e2}");
+    let (st12, b12) = public(201, "d12a-run.expected.bin");
+    let fr12 = ForkRun::new(&st12, D55OptIn::registered_profile()).unwrap();
+    let e3 = verify_run_with_forks_from_dir(&fr12, &b12, &dir.join("d12a-run"), 3).err().expect("THE D55 VERIFIER ACCEPTED THE D12a DIRECTORY");
+    eprintln!("D60 FRESH-PROCESS VERIFY | the D55 verifier on the D12a directory | REFUSED: {e3}");
+    let segs: Vec<Vec<u8>> = (0..3).map(|k| std::fs::read(dir.join("d12a-run").join(super::super::super::run_sink::segment_file_name(k))).unwrap()).collect();
+    let e4 = verify_run_with_forks(&fr12, &b12, &ForkReceipt { head: rc.head.clone(), forks: segs.clone(), tail: rc.tail.clone() }, 3).err().expect("THE D55 VERIFIER ACCEPTED D12a SEGMENTS AS FORKS");
+    eprintln!("D60 FRESH-PROCESS VERIFY | the D55 verifier on the D12a segments as forks | REFUSED: {e4}");
+    run::verify_run_from_dir(&st12, &b12, &dir.join("d12a-run")).unwrap_or_else(|e| panic!("the D12a test receipt does not verify in a fresh process: {e}"));
+    eprintln!("D60 FRESH-PROCESS VERIFY | the D12a receipt VERIFIES under D12a; all four cross-checks refused");
+}
+
 // ------------------------------------------------------------------ the A/B
 
 fn env_or<T: std::str::FromStr>(name: &str, default: T) -> T {
@@ -630,8 +1074,13 @@ fn env_or<T: std::str::FromStr>(name: &str, default: T) -> T {
 fn d55_ab_one_request_serial_against_forks() {
     use crate::private_block::shape;
     let name: String = env_or("HL_D55_PROFILE", "W16_8B_T128_H24".to_string());
-    // D59: a W16R2 (rate 1/2) base too
-    let spec = shape::W16_PROFILES.iter().chain(shape::W16R2_PROFILES.iter()).find(|s| s.name == name).expect("a W16 or W16R2 profile name");
+    // D59: a W16R2 (rate 1/2) base too; D60: and an R13 base, whose fork run
+    // is under its REGISTERED D55 profile (the W16 / W16R2 ones under their
+    // test-only identities)
+    let spec = shape::ACCURACY_PROFILES.iter().chain(shape::W16_PROFILES.iter()).chain(shape::W16R2_PROFILES.iter()).find(|s| s.name == name).expect("an R13, W16 or W16R2 profile name");
+    // D60: `HL_D55_ORDER` = `serial-first` (the default), `forks-first`, or
+    // `both` (alternating per pass, serial first in even passes)
+    let order: String = env_or("HL_D55_ORDER", "serial-first".to_string());
     let l: usize = env_or("HL_D55_L", 32usize);
     let workers: Vec<usize> = std::env::var("HL_D55_WORKERS").unwrap_or_else(|_| "1,2,4,6".into()).split(',').filter_map(|v| v.trim().parse().ok()).collect();
     let passes: usize = env_or("HL_D55_PASSES", 2usize).max(1);
@@ -669,7 +1118,9 @@ fn d55_ab_one_request_serial_against_forks() {
         }
     }
     let digest = blk.digest();
-    let run_profile = crate::private_block::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().find(|(_, b)| *b == sh.profile).map(|(r, _)| *r).expect("a W16 test-only run identity");
+    let run_profile = run::accuracy_run_profile(sh.profile)
+        .or_else(|| crate::private_block::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().find(|(_, b)| *b == sh.profile).map(|(r, _)| *r))
+        .expect("an R13 run profile or a W16 test-only run identity");
     let mut prov = Provenance::recipe("D55 A/B fixture (public synthetic)", 1.0, [3; 32], [4; 32]);
     prov.rope_theta = shape::trained_rope_theta(sh.profile).expect("a W16 profile's pinned RoPE base");
     prov.rope_scaling = shape::trained_rope_scaling(sh.profile).expect("a W16 profile's pinned RoPE transform");
@@ -708,7 +1159,7 @@ fn d55_ab_one_request_serial_against_forks() {
             hs.into_iter().flat_map(|h| h.join().expect("a witness builder")).collect()
         });
         got.sort_by_key(|(k, _)| *k);
-        Chain { witnesses: got.into_iter().map(|(_, w)| Some(w)).collect(), planes: planes.clone() }
+        Chain { witnesses: got.into_iter().map(|(_, w)| Some(w)).collect(), planes: planes.clone(), tamper: None }
     };
     let statement = |ctx: u8| -> (RunStatement, Endpoints) {
         let c = [ctx; 32];
@@ -759,32 +1210,60 @@ fn d55_ab_one_request_serial_against_forks() {
     eprintln!("D55-AB {name} L{l} serial cold (kernel compiles): wall {cold:.3} s = {:.2} proved tok/s", tok(cold));
     let mut table: Vec<(String, Vec<f64>)> = std::iter::once(("serial (D12a)".to_string(), Vec::new())).chain(workers.iter().map(|n| (format!("forks N={n}"), Vec::new()))).collect();
     let mut ctx = 2u8;
+    // D60: every wall with the order of its pass (`true`: the forks ran first)
+    let mut by_order: Vec<(bool, usize, f64)> = Vec::new();
     for p in 0..passes {
-        let (wall, bytes) = serial(ctx, p == 0);
-        ctx += 1;
-        eprintln!("D55-AB {name} L{l} T{} serial pass {p}: wall {wall:.3} s = {:.2} proved tok/s; receipt {bytes} B", sh.tokens, tok(wall));
-        table[0].1.push(wall);
-        for (i, &n) in workers.iter().enumerate() {
-            let (wall, bytes, st) = forked(ctx, n, p == 0);
-            ctx += 1;
-            let mut core = st.fork_core_s.clone();
-            core.sort_by(|a, b| a.partial_cmp(b).unwrap());
-            eprintln!(
-                "D55-AB {name} L{l} T{} forks N{n} pass {p}: wall {wall:.3} s = {:.2} proved tok/s; {} workers; preflight {:.3} s, commit {:.3} s, forks {:.3} s, join {:.3} s; fork prove_core min {:.3} median {:.3} max {:.3} s; receipt {bytes} B",
-                sh.tokens,
-                tok(wall),
-                st.workers,
-                st.preflight_s,
-                st.commit_s,
-                st.forks_s,
-                st.join_s,
-                core[0],
-                core[core.len() / 2],
-                core[core.len() - 1]
-            );
-            table[i + 1].1.push(wall);
+        let forks_first = match order.as_str() {
+            "forks-first" => true,
+            "both" => p % 2 == 1,
+            _ => false,
+        };
+        for phase in if forks_first { [1, 0] } else { [0, 1] } {
+            if phase == 0 {
+                let (wall, bytes) = serial(ctx, p == 0);
+                ctx += 1;
+                eprintln!("D55-AB {name} L{l} T{} serial pass {p} ({}): wall {wall:.3} s = {:.2} proved tok/s; receipt {bytes} B", sh.tokens, if forks_first { "forks first" } else { "serial first" }, tok(wall));
+                table[0].1.push(wall);
+                by_order.push((forks_first, 0, wall));
+                continue;
+            }
+            for (i, &n) in workers.iter().enumerate() {
+                let (wall, bytes, st) = forked(ctx, n, p == 0);
+                ctx += 1;
+                let mut core = st.fork_core_s.clone();
+                core.sort_by(|a, b| a.partial_cmp(b).unwrap());
+                eprintln!(
+                    "D55-AB {name} L{l} T{} forks N{n} pass {p} ({}): wall {wall:.3} s = {:.2} proved tok/s; {} workers; preflight {:.3} s, commit {:.3} s, forks {:.3} s, join {:.3} s; fork prove_core min {:.3} median {:.3} max {:.3} s; receipt {bytes} B",
+                    sh.tokens,
+                    if forks_first { "forks first" } else { "serial first" },
+                    tok(wall),
+                    st.workers,
+                    st.preflight_s,
+                    st.commit_s,
+                    st.forks_s,
+                    st.join_s,
+                    core[0],
+                    core[core.len() / 2],
+                    core[core.len() - 1]
+                );
+                table[i + 1].1.push(wall);
+                by_order.push((forks_first, i + 1, wall));
+            }
         }
     }
+    // D60: the same table split by order
+    for ff in [false, true] {
+        for (i, (arm, _)) in table.iter().enumerate() {
+            let walls: Vec<f64> = by_order.iter().filter(|(f, a, _)| *f == ff && *a == i).map(|(_, _, w)| *w).collect();
+            if walls.is_empty() {
+                continue;
+            }
+            let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
+            let mean = walls.iter().sum::<f64>() / walls.len() as f64;
+            eprintln!("D55-AB ORDER {} | {arm:<14} | {} passes | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s", if ff { "forks-first " } else { "serial-first" }, walls.len(), tok(best), tok(mean));
+        }
+    }
+    eprintln!("D55-AB {name} L{l}: the fork run's profile {}", { let (st, _o) = statement(250); ForkRun::new(&st, D55OptIn::unreviewed_prototype()).map(|f| format!("{} (registered: {})", f.profile(), f.is_registered())).unwrap_or_else(|e| e) });
     let base = table[0].1.iter().cloned().fold(f64::INFINITY, f64::min);
     eprintln!("D55-AB SUMMARY {name} L{l} T{} ({passes} warm passes; best and mean wall; proved tokens/s per request = T / wall):", sh.tokens);
     for (arm, walls) in &table {

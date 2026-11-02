@@ -1,0 +1,20 @@
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_RUNG_H24 L3 T32: setup 0.1 s (one witness 0.01 GB; 3 alive per call)
+D55-AB W16R2_RUNG_H24 L3 serial cold (kernel compiles): wall 0.672 s = 47.62 proved tok/s
+D55-AB W16R2_RUNG_H24 L3 serial: verified (D12a verifier, one thread) in 0.41 s
+D55-AB W16R2_RUNG_H24 L3 T32 serial pass 0 (serial first): wall 0.633 s = 50.52 proved tok/s; receipt 45674552 B
+D55-AB W16R2_RUNG_H24 L3 forks N2: verified (D55 verifier, 6 threads) in 0.18 s
+D55-AB W16R2_RUNG_H24 L3 T32 forks N2 pass 0 (serial first): wall 0.468 s = 68.37 proved tok/s; 2 workers; preflight 0.016 s, commit 0.016 s, forks 0.427 s, join 0.009 s; fork prove_core min 0.191 median 0.233 max 0.241 s; receipt 45674744 B
+D55-AB ORDER serial-first | serial (D12a)  | 1 passes | best 0.633 s = 50.52 tok/s | mean 0.633 s = 50.52 tok/s
+D55-AB ORDER serial-first | forks N=2      | 1 passes | best 0.468 s = 68.37 tok/s | mean 0.468 s = 68.37 tok/s
+D55-AB W16R2_RUNG_H24 L3: the fork run's profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1 (registered: false)
+D55-AB SUMMARY W16R2_RUNG_H24 L3 T32 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 0.633 s = 50.52 tok/s | mean 0.633 s = 50.52 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=2      | best 0.468 s = 68.37 tok/s | mean 0.468 s = 68.37 tok/s | 1.35x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.004 s, device sumcheck rounds 0.321 s
+D55-AB W16R2_RUNG_H24 L3: total 2.6 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 2.61s
+

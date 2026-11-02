@@ -1,0 +1,104 @@
+    Checking hashline v0.1.0 (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a13712d1ade4dcee1/ops/zkp-mvp/gpu-metal/hashline)
+src/attention.rs:787:42: warning: unused import: `eval_mle_ext`
+src/private_block/token_io/run.rs:737:1: warning: unused doc comment
+src/private_block/review_tests.rs:16:39: warning: unused import: `verify_inner_at`
+src/private_block/s28_review_tests.rs:19:21: warning: unused import: `Dom`
+src/private_block/argument_accuracy.rs:162:9: warning: unused variable: `ls`: help: if this is intentional, prefix it with an underscore: `_ls`
+src/private_block/argument_accuracy.rs:162:12: warning: unused variable: `lp`: help: if this is intentional, prefix it with an underscore: `_lp`
+src/private_block/argument_accuracy.rs:165:9: warning: unused variable: `n_pad`: help: if this is intentional, prefix it with an underscore: `_n_pad`
+src/private_block/argument_accuracy.rs:345:9: warning: unused variable: `low`: help: if this is intentional, prefix it with an underscore: `_low`
+src/private_block/argument_accuracy.rs:345:33: warning: unused variable: `precision`: help: if this is intentional, prefix it with an underscore: `_precision`
+src/private_block/argument_accuracy.rs:346:25: warning: unused variable: `g_exp`: help: if this is intentional, prefix it with an underscore: `_g_exp`
+src/private_block/argument_accuracy.rs:350:9: warning: unused variable: `n_pad`: help: if this is intentional, prefix it with an underscore: `_n_pad`
+src/private_block/argument_accuracy.rs:350:39: warning: unused variable: `cube`: help: if this is intentional, prefix it with an underscore: `_cube`
+src/private_block/protocol.rs:1613:10: warning: variable does not need to be mutable
+src/private_block/protocol.rs:1615:10: warning: variable does not need to be mutable
+src/private_block/run.rs:1367:13: warning: variable does not need to be mutable
+src/attention.rs:1046:13: warning: variable does not need to be mutable
+src/attention.rs:1086:13: warning: variable does not need to be mutable
+src/attention.rs:2025:9: warning: variable does not need to be mutable
+src/attention.rs:2077:9: warning: variable does not need to be mutable
+src/attention.rs:2859:9: warning: variable does not need to be mutable
+src/private_block.rs:1300:19: warning: associated items `to_bytes_at` and `from_bytes_at` are never used
+src/private_block.rs:1320:15: warning: function `verify_bytes_at` is never used
+src/private_block/argument.rs:286:15: warning: function `priv_table_into` is never used
+src/private_block/argument.rs:292:15: warning: function `priv_table_into_at` is never used
+src/private_block/argument.rs:531:15: warning: function `eq_cube_into` is never used
+src/private_block/argument.rs:544:15: warning: function `eq_cube_split_into` is never used
+src/private_block/argument.rs:564:18: warning: constant `EQ_SPLIT_MIN` is never used
+src/private_block/argument.rs:567:15: warning: function `eq_cube_into_at` is never used
+src/private_block/argument.rs:642:4: warning: function `table_into` is never used
+src/private_block/argument.rs:654:15: warning: function `build_tables_into` is never used
+src/private_block/argument.rs:673:19: warning: static `TABLE_KIND_NS` is never used
+src/private_block/argument.rs:674:19: warning: static `TABLE_KIND_N` is never used
+src/private_block/argument.rs:676:15: warning: function `table_kind_timing` is never used
+src/private_block/argument.rs:682:15: warning: function `table_kind_report` is never used
+src/private_block/argument.rs:1525:15: warning: function `causal_mask` is never used
+src/private_block/argument.rs:1585:15: warning: function `rope_tables` is never used
+src/private_block/accuracy.rs:25:15: warning: function `product` is never used
+src/private_block/accuracy_groups.rs:23:15: warning: function `group_folds` is never used
+src/private_block/accuracy_aligned.rs:12:15: warning: function `derive_aligned` is never used
+src/private_block/accuracy_act.rs:85:15: warning: function `query_values` is never used
+src/private_block/accuracy_public.rs:47:15: warning: function `encoded_len` is never used
+src/private_block/accuracy_public.rs:84:19: warning: associated items `new`, `check_for`, `registry`, and `base` are never used
+src/private_block/boundary.rs:108:19: warning: associated items `new`, `index`, and `scale` are never used
+src/private_block/boundary.rs:250:19: warning: method `commitment` is never used
+src/private_block/endpoint_g.rs:126:19: warning: associated function `new` is never used
+src/private_block/hash_domain.rs:192:7: warning: constant `SEED_USE_BOUNDARY` is never used
+src/private_block/hash_domain.rs:226:15: warning: function `boundary_seed_domain` is never used
+src/private_block/hash_domain.rs:270:15: warning: function `boundary_seed_input_len` is never used
+src/private_block/hash_domain.rs:549:15: warning: function `at_shape` is never used
+src/private_block/hash_domain.rs:568:15: warning: function `full_at_shape` is never used
+src/private_block/layout.rs:41:18: warning: constant `D` is never used
+src/private_block/layout.rs:42:18: warning: constant `H` is never used
+src/private_block/layout.rs:44:18: warning: constant `HALF` is never used
+src/private_block/layout.rs:45:18: warning: constant `KV` is never used
+src/private_block/layout.rs:47:18: warning: constant `F` is never used
+src/private_block/layout.rs:65:18: warning: constant `NORM_WRHO` is never used
+src/private_block/layout.rs:74:18: warning: constant `WRHO_S` is never used
+src/private_block/layout.rs:78:18: warning: constant `SH_G` is never used
+src/private_block/layout.rs:79:18: warning: constant `SH_H_PROD` is never used
+src/private_block/layout.rs:80:18: warning: constant `SH_Z` is never used
+src/private_block/layout.rs:272:18: warning: constant `A_PL1` is never used
+src/private_block/layout.rs:274:18: warning: constant `A_SR1` is never used
+src/private_block/layout.rs:315:15: warning: function `is_multiplicity` is never used
+src/private_block/layout.rs:472:19: warning: associated function `toy` is never used
+src/private_block/layout.rs:552:18: warning: constant `H_GU8` is never used
+src/private_block/layout.rs:553:18: warning: constant `H_GEXP` is never used
+src/private_block/layout.rs:554:18: warning: constant `H_GACT` is never used
+src/private_block/layout.rs:556:18: warning: constant `H_U` is never used
+src/private_block/layout.rs:572:15: warning: function `h_is_table` is never used
+src/private_block/layout.rs:829:15: warning: function `lookups` is never used
+src/private_block/layout.rs:959:15: warning: function `helpers` is never used
+src/private_block/layout.rs:1125:18: warning: constant `M_ROWS` is never used
+src/private_block/layout.rs:1135:15: warning: function `slot_terms` is never used
+src/private_block/layout.rs:1139:15: warning: function `mask_specs` is never used
+src/private_block/layout.rs:1147:15: warning: function `rows_of` is never used
+src/private_block/layout.rs:1169:15: warning: function `no_commitment_has_a_node_shaped_column` is never used
+src/private_block/protocol.rs:77:15: warning: function `pcs_params` is never used
+src/private_block/run.rs:403:19: warning: associated functions `rung_g`, `rung_k4`, `rung_c6`, `rung_w14`, `rung_e32`, and `tinyllama_t32_trained` are never used
+src/private_block/run_sink.rs:116:19: warning: struct `MemorySink` is never constructed
+src/private_block/run_sink.rs:121:19: warning: method `segments` is never used
+src/private_block/rope.rs:50:25: warning: associated function `llama3_1` is never used
+src/private_block/shape.rs:1913:19: warning: multiple associated items are never used
+src/private_block/shape.rs:2906:19: warning: struct `Totals` is never constructed
+src/private_block/timing.rs:266:19: warning: method `slot` is never used
+src/private_block/timing.rs:434:15: warning: function `timed` is never used
+src/private_block/trained_statement.rs:275:19: warning: associated function `recipe` is never used
+src/private_block/trained_statement.rs:649:19: warning: associated function `new` is never used
+src/private_block/trained_block.rs:454:4: warning: function `constants_of` is never used
+src/private_block/trained_block.rs:548:15: warning: function `tied_of` is never used
+src/private_block/trained_block.rs:652:4: warning: function `table_keys_of` is never used
+src/private_block/trained_block.rs:759:19: warning: method `is_dd` is never used
+src/private_block/trained_accuracy.rs:35:9: warning: field `sha256` is never read
+src/private_block/trained_accuracy.rs:38:15: warning: function `load` is never used
+src/attention.rs:1593:8: warning: associated function `of` is never used
+src/attention.rs:1932:8: warning: method `pd` is never used
+warning: `hashline` (lib) generated 92 warnings (1 duplicate) (run `cargo fix --lib -p hashline` to apply 16 suggestions)
+warning: `hashline` (lib) generated 92 warnings (91 duplicates) (run `cargo fix --lib -p hashline` to apply 1 suggestion)
+src/private_block/rung_tests.rs:302:18: warning: unused variable: `hp`: help: if this is intentional, prefix it with an underscore: `_hp`
+src/private_block/run_capture.rs:2621:13: warning: value assigned to `cached` is never read
+src/private_block/run_fork.rs:118:15: warning: function `fork_profile_for` is never used
+src/private_block/run_capture.rs:910:5: warning: field `boundaries` is never read
+warning: `hashline` (lib test) generated 35 warnings (28 duplicates) (run `cargo fix --lib -p hashline --tests` to apply 3 suggestions)
+    Finished `release` profile [optimized] target(s) in 9.04s

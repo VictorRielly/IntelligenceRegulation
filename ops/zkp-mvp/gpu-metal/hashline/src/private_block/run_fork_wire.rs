@@ -1,6 +1,7 @@
-//! **D55 PROTOTYPE (2026-11-01): the frames of a "commit, fork, join" run
-//! receipt.** TEST BUILDS ONLY, UNREGISTERED (Victor's D55 ruling: an opt-in
-//! prototype run profile; nothing registered, nothing in production). Design:
+//! **D55 (2026-11-01): the frames of a "commit, fork, join" run receipt.**
+//! Built as an opt-in, unregistered prototype under Victor's D55 ruling;
+//! REGISTERED by D60 (2026-11-02) as an opt-in run profile, so production code
+//! since D60. No byte of the format moved at registration. Design:
 //! `docs/zkmatrix-poc/ZK60_D55_CONCURRENT_RUN_DESIGN.md`; prover and verifier:
 //! `run_fork.rs`.
 //!

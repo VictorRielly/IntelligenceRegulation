@@ -1,0 +1,19 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_fresh_process_write_test_receipts ... D60 FRESH-PROCESS WRITE | /Users/victorrielly/zk60-artifacts/d60_20261102/test-binary | pid 25877
+profile hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1
+base hashline-zk-mr1/private-run-rung-lh-t32-dev/1
+workers 3 generators 4 forks 1.333 s total 1.391 s
+d55-run/d55-head.bin 144 e35d105bcda3f1b1f71037fc7e5c6c1152ba78bf99bbd67e641cb41080c9aa15
+d55-run/d55-fork-000.bin 14465864 881bbc4520b55726e5d04cd3db1a5fe5c412164131ac18a1822556b12af84448
+d55-run/d55-fork-001.bin 14465864 ac69d172920b9dfc6a47bebc47d46cb7fdb563eed967e5e2d501840c02a7b850
+d55-run/d55-fork-002.bin 14465864 248afaeb9760027658fcb79bd7d19ce5a7e67c4934fc7262fba128a0b484edfd
+d55-run/d55-tail.bin 3281008 12cf0b6c573fa1bbf3023a96a6c452c193866cb533be008d17ed9e626182241b
+d12a-run/segment-000.bin 15151976 fa7e09f7e4625234a3a301afaed8fcfa033f06979a4ebc6d2871ba090b83ea0b
+d12a-run/segment-001.bin 15420264 3cdb9a11abce2b91d06b2bcba42c32a953f6f8060cdcb62ee24d15687bdd01cb
+d12a-run/segment-002.bin 16106312 8fb27451ddb37eb55c3fc6f37c0f23ca955126ac74e93095964c9d591d9b6e93
+
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 4.87s
+

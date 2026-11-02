@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one ... D60 CAPTURE | the registered R13-rung D55 run's bundle WRITTEN by run_capture::write_bundle (65693714 B outside receipt/, schema hashline-native-capture/8-d55-fork-run-prototype); the test-only identity's REFUSED: run capture: a D55 fork-run capture under "d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 4.28s
+
