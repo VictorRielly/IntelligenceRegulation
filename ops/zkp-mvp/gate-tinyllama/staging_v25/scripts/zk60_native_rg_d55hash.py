@@ -66,7 +66,9 @@ HASH-2  THE HASH CENSUS, MEASURED (gate round 22's `round22/census/
         commonest absorb (W-2), HC-3 one byte longer (W-2's margin), HC-4 an
         unkeyed 40-byte input (C-R1), HC-5 an absorb of a new label whose
         input is as long as an existing absorb of another label (W-2g), HC-6
-        a keyed call under a key no rule derives (ACC).
+        a keyed call under a key no rule derives (ACC), and with a printout
+        HC-7 a `parameters` absorb 64 bytes longer than the run's (the Rust-
+        table lookup must name it).
 
 WHAT IS NOT MEASURED HERE.  The prover's own calls (the generator's refill
 and seed derivations, R1; the commit-phase / per-fork seed domains) and the
@@ -642,6 +644,24 @@ def census_controls(b, honest: Recorder, rust=None) -> dict:
         B3.blake3(key=b"\x07" * 32).update(b"abc").digest()
     e6 = with_calls(foreign)
     out["HC-6 a keyed call under a key no rule derives"] = {"ACC": e6["ACC_every_call_attributed"], "fires": e6["ACC_every_call_attributed"] is False}
+    # HC-7 (2026-11-02, after the L = 2..9 finding): the Rust-table lookup itself.  A REAL `parameters`
+    # absorb 64 bytes longer than the bundle's (its line with 64 bytes appended: longer than the line at any
+    # L, which grows by one byte per digit of L, at most 20) is merged into the measurement: the lookup must
+    # name it among the kinds the Rust table does not list.  Only with a printout.
+    if rust is not None:
+        line = b.run["parameter_line"].encode() + b"x" * 64
+
+        def longer():
+            tr = rule.transcript(bytes(b.run["transcript_domain_bytes"]))
+            tr.absorb(b"parameters", line)
+        r7 = Recorder(rule)
+        with r7:
+            longer()
+        e7 = evaluate(honest.merged(r7), rust=rust)
+        want = f"the transcript absorb of `parameters` with {len(line)} bytes of data"
+        miss = [m["what"] for m in e7["rust_table"]["measured_not_in_rust"]]
+        out["HC-7 a parameters absorb 64 bytes longer than the run's"] = {"kind": want, "named_by_the_lookup": want in miss,
+                                                                       "fires": want in miss and not e7["rust_table"]["ok"]}
     out["ok"] = all(v["fires"] for v in out.values() if isinstance(v, dict))
     return out
 

@@ -822,28 +822,101 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     // base), so it is added after the registry comparison; each is held to
     // the per-function rule below like every registered profile.
     let mut d55_bases: Vec<&RunStatement> = profiles.iter().filter_map(|(_, _, run)| run.as_ref().map(|(_, _, st)| st)).collect();
-    let mut at_32: Vec<RunStatement> = Vec::new();
+    // [TS / CENSUS lane, 2026-11-02] each native R13 run at EVERY L of
+    // 2..=32 but 22 (L = 1 and 22 are measured above): a registered D55
+    // run's parameter line carries `L{l}` and `rows{boundary rows}` (0 at
+    // L = 1), so its `parameters` absorb has a different length at L = 1, at
+    // L = 2..9 and at L = 10..99. At L = 1, 22 and 32 alone the 2..9 class was
+    // never measured, and the Python D55 hash census, measuring L = 3 bundles,
+    // found the 257 / 258 / 259-byte absorbs (TinyLlama / Shieldstral / 8B T128)
+    // in no table. 1..=32 covers every R13 checkpoint's block count (22, 26,
+    // 32: D60 F9) and the A/B's 32; every larger L is covered by the length
+    // lemma asserted below.
+    let mut at_l: Vec<RunStatement> = Vec::new();
     for (_, sh) in super::accuracy_profile_tests::registered_runs() {
-        let l = 32usize;
-        let spec = IoSpec::new_shaped(&sh, s25_context(), 0, 0).unwrap();
-        let model = super::trained_statement::accuracy_hash_model(&sh, l);
-        at_32.push(
-            RunStatement::new_bound_from_digests(RunShape::accuracy(sh.clone(), l).unwrap(), s25_context(), ExpectedIo::from_roots(spec, [1; 32], [2; 32]), model.layers.iter().map(|r| r.block_digest).collect(), &vec![super::ENDPOINT_SCALES; l], &model).unwrap(),
-        );
+        for l in (2usize..=32).filter(|l| *l != 22) {
+            let spec = IoSpec::new_shaped(&sh, s25_context(), 0, 0).unwrap();
+            let model = super::trained_statement::accuracy_hash_model(&sh, l);
+            at_l.push(
+                RunStatement::new_bound_from_digests(RunShape::accuracy(sh.clone(), l).unwrap(), s25_context(), ExpectedIo::from_roots(spec, [1; 32], [2; 32]), model.layers.iter().map(|r| r.block_digest).collect(), &vec![super::ENDPOINT_SCALES; l], &model).unwrap(),
+            );
+        }
     }
-    d55_bases.extend(at_32.iter());
+    d55_bases.extend(at_l.iter());
     let n_d55 = d55_bases.len();
-    let mut d55_registered_measured: Vec<String> = Vec::new();
+    // per registered D55 profile: (L, its parameter line, the boundary rows, its F_T kinds)
+    let mut d55_registered_measured: Vec<(String, usize, String, usize, Vec<Kind>)> = Vec::new();
     for st in d55_bases {
         let (p, kinds) = kinds_of_fork(st);
         if super::run::D55_RUN_PROFILES.iter().any(|(d, _)| *d == p) {
-            d55_registered_measured.push(p.clone());
+            let fr = super::run::fork::ForkRun::new(st, super::run::fork::D55OptIn::unreviewed_prototype()).expect("the D55 door");
+            let line = fr.parameter_line().expect("the fork run's parameter line");
+            let l = st.rs().l();
+            let rows = if l > 1 { st.boundary_spec(0).expect("the run's first boundary").commitment_rows() } else { 0 };
+            let ft: Vec<Kind> = kinds.iter().filter(|k| k.func == "F_T").cloned().collect();
+            d55_registered_measured.push((p.clone(), l, line, rows, ft));
         }
         all.push((p, st.rs().sh().clone(), kinds));
     }
-    // D60: every registered D55 profile was measured (at L = 1, 22 and 32)
+    // D60, widened: every registered D55 profile was measured at EVERY L in 1..=32
+    let mut lemma_rows: Vec<String> = Vec::new();
     for (d, _) in super::run::D55_RUN_PROFILES {
-        assert_eq!(d55_registered_measured.iter().filter(|p| p.as_str() == d).count(), 3, "the registered D55 profile {d} was not measured at L = 1, 22 and 32");
+        let mine: Vec<&(String, usize, String, usize, Vec<Kind>)> = d55_registered_measured.iter().filter(|m| m.0 == d).collect();
+        let mut ls: Vec<usize> = mine.iter().map(|m| m.1).collect();
+        ls.sort_unstable();
+        assert_eq!(ls, (1..=32).collect::<Vec<usize>>(), "the registered D55 profile {d} was not measured at every L in 1..=32");
+        // THE LENGTH LEMMA, checked on every measured line: the parameter
+        // line at L is the L = 1 line with `/L1/` replaced by `/L{L}/` and
+        // `-rows0-sites` by `-rows{R}-sites` (R the boundary commitment's rows),
+        // and nothing else; so its length at ANY L is len1 + (digits(L) - 1)
+        // + (L > 1 ? digits(R) - 1 : 0), one value per digit count of L
+        let one = mine.iter().find(|m| m.1 == 1).expect("L = 1");
+        let r = mine.iter().find(|m| m.1 == 2).expect("L = 2").3;
+        assert!(r > 0 && mine.iter().all(|m| m.1 == 1 || m.3 == r), "{d}: the boundary rows depend on L");
+        assert_eq!(one.2.matches("/L1/").count(), 1, "{d}: the L = 1 line does not carry `/L1/` once");
+        assert_eq!(one.2.matches("-rows0-sites").count(), 1, "{d}: the L = 1 line does not carry `-rows0-sites` once");
+        let line_at = |l: usize| -> String {
+            let s = one.2.replacen("/L1/", &format!("/L{l}/"), 1);
+            if l > 1 { s.replacen("-rows0-sites", &format!("-rows{r}-sites"), 1) } else { s }
+        };
+        for m in &mine {
+            assert_eq!(m.2, line_at(m.1), "{d} at L = {}: the parameter line is not the L = 1 line with L and the boundary rows substituted", m.1);
+        }
+        // every digit count of a u64 L (1..=20), held to the per-function rule
+        // against the profile's other transcript-function kinds (measured at L = 32)
+        let others: Vec<&Kind> = mine.iter().find(|m| m.1 == 32).expect("L = 32").4.iter().filter(|k| !k.what.starts_with("the transcript absorb of `parameters`")).collect();
+        // the length at an L of `dg` digits, `gt1` = (L > 1): the lemma's formula
+        let formula = |gt1: bool, dg: usize| one.2.len() + (dg - 1) + if gt1 { r.to_string().len() - 1 } else { 0 };
+        assert_eq!((formula(false, 1), formula(true, 1), formula(true, 2)), (line_at(1).len(), line_at(2).len(), line_at(10).len()), "{d}: the length formula is not the substituted lines' length");
+        let mut lens: Vec<usize> = Vec::new();
+        for digits in 1usize..=20 {
+            for (gt1, dg) in if digits == 1 { vec![(false, 1usize), (true, 1)] } else { vec![(true, digits)] } {
+                let n = formula(gt1, dg);
+                let what = format!("the transcript absorb of `parameters` with {n} bytes of data");
+                let len = 48 + "parameters".len() + n;
+                for k in &others {
+                    if k.len == len {
+                        assert!(declared(len, &what, &k.what).is_some(), "{d}: at {digits}-digit L the `parameters` absorb ({len} B) is as long as the undeclared `{}` (F_T)", k.what);
+                    }
+                }
+                if !lens.contains(&n) {
+                    lens.push(n);
+                }
+            }
+        }
+        // the measured lengths are exactly the lemma's for 1- and 2-digit L
+        let mut measured: Vec<usize> = mine.iter().map(|m| m.2.len()).collect();
+        measured.sort_unstable();
+        measured.dedup();
+        let mut want = vec![line_at(1).len(), line_at(2).len(), line_at(10).len()];
+        want.sort_unstable();
+        want.dedup();
+        assert_eq!(measured, want, "{d}: the measured parameter-line lengths are not the lemma's");
+        lemma_rows.push(format!("{d}: R = {r}, parameter-line lengths {lens:?} over every u64 L (measured {measured:?} at L = 1..=32)"));
+    }
+    eprintln!("--- S25 W-2 D55 parameter-line length lemma (TS / CENSUS lane), {} registered D55 profiles ---", lemma_rows.len());
+    for row in &lemma_rows {
+        eprintln!("    {row}");
     }
 
     let mut one_byte_rows: Vec<String> = Vec::new();
@@ -911,7 +984,7 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
         assert!(margin_families.contains(&format!("{lo}|{hi}")), "the memo's one-byte margin {lo} vs {hi} ({what}) is not in the printout");
     }
     eprintln!("S25 W-2: {} profiles, {total_kinds} hash input kinds, {} pairs within one byte, {} declared equal-length pairs", profiles.len(), one_byte_rows.len(), DECLARED.len());
-    eprintln!("S25 W-2 D55: the fork run measured over {n_d55} base run statements, each under its own constructor and held to the same per-function rule (one declared pair of its own: pb-fork-s0 / pb-fork-s1); D60: the {} registered D55 run profiles among them, each at L = 1, 22 and 32", super::run::D55_RUN_PROFILES.len());
+    eprintln!("S25 W-2 D55: the fork run measured over {n_d55} base run statements, each under its own constructor and held to the same per-function rule (one declared pair of its own: pb-fork-s0 / pb-fork-s1); D60: the {} registered D55 run profiles among them, each at EVERY L in 1..=32, and its `parameters` absorb at every digit count of L by the length lemma", super::run::D55_RUN_PROFILES.len());
 }
 
 /// **The memo's §5 and §5.1 tables, re-derived from the code.** Every fixed
