@@ -960,6 +960,10 @@ fn d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test
         assert!(manifest.contains(&format!("\"file\":\"{f}\"")), "the manifest does not list {f}");
     }
     let total: u64 = std::fs::read_dir(&dir).unwrap().filter_map(|e| e.ok()).filter_map(|e| e.metadata().ok()).filter(|m| m.is_file()).map(|m| m.len()).sum();
+    // D60 review F3: the Rust gate's capture checks (the production writer's
+    // manifest, PG-7 the allow-list over the run file, every fork and the
+    // tail, PG-8 per fork, and their controls) on the bundle AS WRITTEN
+    let gate = crate::private_block::w16_privacy_gate_tests::d60_registered_bundle_checks(r.st.rs().sh(), &dir, None).unwrap_or_else(|e| panic!("the Rust gate checks on the registered bundle FAILED: {e}"));
     // the same base under its TEST-ONLY identity: refused by the writer
     let mut t = rung(3, 181);
     let ft = ForkRun::new_test_identity(&t.st).unwrap();
@@ -970,6 +974,231 @@ fn d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test
     assert!(!root.join("test-only").exists(), "the refused bundle left a directory");
     std::fs::remove_dir_all(&root).unwrap();
     eprintln!("D60 CAPTURE | the registered R13-rung D55 run's bundle WRITTEN by run_capture::write_bundle ({} B outside receipt/, schema {}); the test-only identity's REFUSED: {}", total, cap::SCHEMA_D55, e.chars().take(120).collect::<String>());
+    eprintln!("D60 CAPTURE | the Rust gate on the written bundle: {gate}");
+}
+
+// ------------------------------------------------------------------ D60: the Python privacy gate's inputs
+
+/// one honest fork run's verifier view, recorded with arrays and public-table
+/// values (each fork on its own verifier worker) and export-replayed: the
+/// D60 capture-writer test's recipe
+fn d60pg_capture(fr: &ForkRun, blocks: &dyn ForkBlocks, rc: &ForkReceipt, workers: usize) -> crate::private_block::run_capture::Bundle {
+    use crate::private_block::run_capture::{self as cap, CaptureOpts};
+    let guard = cap::Recorder::attach();
+    cap::begin_fork_run_with(fr.capture_header().unwrap(), fr.binding().unwrap(), CaptureOpts { arrays: true, public_tables: true });
+    let v = verify_run_with_forks(fr, blocks, rc, workers);
+    let taken = cap::take();
+    drop(guard);
+    v.expect("the fork run verifies with a recorder attached");
+    let mut b = taken.expect("the fork-run recorder took the capture");
+    assert_eq!(b.stages.len(), blocks.count(), "the capture did not record every fork");
+    cap::export_replay(&mut b, &mut |k| blocks.get(k).cloned()).expect("the export replay of the fork run's statement tables");
+    b
+}
+
+/// the witnesses and boundary planes of an honest chain from `x0` through
+/// `blocks` (stage `k` at `shapes[k]`), with the run's padded input and
+/// output planes; an inadmissible stage is an `Err`
+#[allow(clippy::type_complexity)]
+fn d60pg_chain(seed: &crate::private_block::shape::Shape, shapes: &[crate::private_block::shape::Shape], blocks: &[BlockPublic], x0: &[i16]) -> Result<(Vec<Option<Witness>>, Vec<Vec<i16>>, Vec<i16>, Vec<i16>), String> {
+    let ids = Ids::new(seed)?;
+    let (mut witnesses, mut planes, mut input, mut output) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
+    let mut x = x0.to_vec();
+    for k in 0..blocks.len() {
+        let w = witness::build_for_block(&shapes[k], &blocks[k], &x).map_err(|e| format!("stage {k}: {e}"))?;
+        if k == 0 {
+            input = w.planes[ids.at(A_X)].iter().map(|&v| v as i16).collect();
+        }
+        let out = w.output()?;
+        x = unpad(seed, &out);
+        if k + 1 < blocks.len() {
+            planes.push(out);
+        } else {
+            output = out;
+        }
+        witnesses.push(Some(w));
+    }
+    Ok((witnesses, planes, input, output))
+}
+
+/// **D60 privacy gate: an `l`-block R13-rung run on hidden input `hidden`.**
+/// Input 0 is the fixture's public sequence ([`rung`]'s); input `s > 0` is
+/// the first admissible deterministic variant of it: its token rows rotated
+/// by `5 s` and every word nudged by -1, 0 or +1, else only rotated, else
+/// only nudged, else the token order reversed. Returns the run and which
+/// variant it is.
+fn d60pg_rung(l: usize, context: u8, hidden: usize) -> (Rung, String) {
+    let RungPublic { ex, seed, shapes, blocks, model } = rung_public(l);
+    let (x, _) = ex.load_seq(&shapes[0], "public", 0).unwrap();
+    let (t, w) = (seed.tokens, seed.width);
+    let rot = |x: &[i16], r: usize| -> Vec<i16> { (0..t * w).map(|i| x[((i / w + r) % t) * w + i % w]).collect() };
+    let nudge = |x: &[i16], s: usize| -> Vec<i16> { x.iter().enumerate().map(|(i, &v)| v.saturating_add(((i * 7 + s) % 3) as i16 - 1)).collect() };
+    let rev: Vec<i16> = (0..t * w).map(|i| x[(t - 1 - i / w) * w + i % w]).collect();
+    let candidates: Vec<(String, Vec<i16>)> = if hidden == 0 {
+        vec![("the fixture's public sequence".into(), x.clone())]
+    } else {
+        let r = (5 * hidden) % t;
+        vec![
+            (format!("the fixture's public sequence, token rows rotated by {r}, every word nudged by ((i 7 + {hidden}) mod 3) - 1"), nudge(&rot(&x, r), hidden)),
+            (format!("the fixture's public sequence, token rows rotated by {r}"), rot(&x, r)),
+            (format!("the fixture's public sequence, every word nudged by ((i 7 + {hidden}) mod 3) - 1"), nudge(&x, hidden)),
+            ("the fixture's public sequence, token order reversed".into(), rev),
+        ]
+    };
+    let mut why = Vec::new();
+    for (what, x0) in candidates {
+        match d60pg_chain(&seed, &shapes, &blocks, &x0) {
+            Ok((witnesses, planes, input, output)) => {
+                let ctx = [context; 32];
+                let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&seed, ctx, 0, 0).unwrap(), &input, &output).unwrap();
+                let st = RunStatement::new_bound(RunShape::accuracy(seed, l).unwrap(), ctx, expected, &blocks, &vec![(0, 0); l], &model).unwrap();
+                return (Rung { st, blocks, src: Chain { witnesses, planes, tamper: None }, owners: Some(owners) }, what);
+            }
+            Err(e) => why.push(format!("{what}: {e}")),
+        }
+    }
+    panic!("no admissible hidden input {hidden} for the R13 rung chain: {why:?}");
+}
+
+/// **D60's privacy-gate inputs: REGISTERED D55 fork-run bundles over R13
+/// bases, written by the PRODUCTION capture writer** (`run_capture::write_bundle`),
+/// for the Python D55 gate's R13 port (`staging_v25/scripts/zk60_native_rg_d55.py`).
+/// `HL_D60PG_CASES` (default `R13_RUNG_H24:0,R13_RUNG_H24:1`) names
+/// `PROFILE:hidden` pairs, each one honest `HL_D60PG_L`-fork run (default 3)
+/// under the base's REGISTERED D55 run profile, proved on `L` workers,
+/// verified with the recorder attached (arrays and public-table values),
+/// export-replayed and written into `HL_D60PG_CAPTURE_DIR/d55-<profile>-s<hidden>`:
+/// * `R13_RUNG_H24`: the public synthetic loader fixture `r13-h24-wide`
+///   (layer 0 and its other-gate twin, [`rung_public`]); hidden input 0 is the
+///   fixture's public sequence, input `s > 0` a deterministic variant of it
+///   ([`d60pg_rung`]);
+/// * a TRAINED R13 base (`R13_8B_T128_H24`, `R13_SHIELD_T128_H24`,
+///   `R13_TINY_T128_LOW`): the run profile registered for real content, at
+///   its true geometry, with ONE public synthetic block at every layer (the
+///   A/B's recipe: `range16_tests::case`, tame diagonal weights; no trained
+///   weights are on this host) and M10's admissible input family
+///   (`((i 37 + 11 + s) mod (41 + 20 (s mod 3))) - 20`, the first admissible
+///   `s` from `7 hidden`).
+///
+/// Test-only synthetic bundles, not for publication; the Python gate reads
+/// them and they are deleted once recorded.
+#[test]
+#[ignore = "writes registered D55 R13 fork-run capture bundles; set HL_D60PG_CAPTURE_DIR"]
+fn d60_privacy_gate_write_registered_r13_fork_bundles() {
+    use crate::private_block::run_capture as cap;
+    use crate::private_block::shape;
+    let root = PathBuf::from(std::env::var("HL_D60PG_CAPTURE_DIR").expect("HL_D60PG_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    let l: usize = env_or("HL_D60PG_L", 3usize);
+    let cases: String = env_or("HL_D60PG_CASES", "R13_RUNG_H24:0,R13_RUNG_H24:1".to_string());
+    let command = "HL_D60PG_CAPTURE_DIR=<dir> [HL_D60PG_CASES=<PROFILE:hidden,...>] [HL_D60PG_L=<L>] HL_R13_LOADER_FIXTURES=<fixtures> <hashline lib test binary> --ignored --exact --nocapture private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles";
+    let mut n = 0usize;
+    // per profile name: the run's shape and every bundle written for it
+    let mut written: Vec<(String, crate::private_block::shape::Shape, Vec<PathBuf>)> = Vec::new();
+    for case in cases.split(',').map(str::trim).filter(|c| !c.is_empty()) {
+        let (name, hidden) = case.split_once(':').unwrap_or((case, "0"));
+        let hidden: usize = hidden.parse().unwrap_or_else(|_| panic!("{case}: the hidden-input index is not a number"));
+        let t0 = Instant::now();
+        let dir = root.join(format!("d55-{}-s{hidden}", name.to_ascii_lowercase()));
+        let context = 210u8.wrapping_add((n as u8).wrapping_mul(3));
+        let (rc, b, what, profile, base, run_sh) = if name == "R13_RUNG_H24" {
+            let (mut r, what) = d60pg_rung(l, context, hidden);
+            let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+            assert!(fr.is_registered(), "{case}: not under a registered D55 profile");
+            let (rc, stats) = prove_run_with_forks(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), l).unwrap_or_else(|e| panic!("{case}: the honest fork run did not prove: {e}"));
+            honest_stats_hold(&r.st, &stats);
+            let b = d60pg_capture(&fr, &r.blocks, &rc, l);
+            (rc, b, format!("the public synthetic R13 loader fixture r13-h24-wide (layer 0 and its other-gate twin (-4, -13), alternating); hidden input {hidden}: {what}"), fr.profile().to_string(), r.st.rs().profile().to_string(), r.st.rs().sh().clone())
+        } else {
+            let spec = shape::ACCURACY_PROFILES.iter().find(|s| s.name == name).unwrap_or_else(|| panic!("{case}: not an R13 accuracy profile"));
+            let original = crate::private_block::range16_tests::built(spec.profile);
+            let (sh, data, public, ff) = crate::private_block::range16_tests::case(original, 3);
+            let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+            let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+            let mut s = 7 * hidden;
+            let x0 = loop {
+                let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+                match build(&input) {
+                    Ok(_) => break input,
+                    Err(_) if s < 7 * hidden + 6 => s += 1,
+                    Err(e) => panic!("{case}: no admissible synthetic input: {e}"),
+                }
+            };
+            let ids = Ids::new(&sh).unwrap();
+            let (mut x, mut witnesses, mut planes, mut input, mut output) = (x0, Vec::new(), Vec::new(), Vec::new(), Vec::new());
+            for k in 0..l {
+                let w = build(&x).unwrap_or_else(|e| panic!("{case}: layer {k} of the synthetic chain is not admissible: {e}"));
+                if k == 0 {
+                    input = w.planes[ids.at(A_X)].iter().map(|&v| v as i16).collect::<Vec<i16>>();
+                }
+                let out = w.output().unwrap();
+                x = unpad(&sh, &out);
+                if k + 1 < l {
+                    planes.push(out);
+                } else {
+                    output = out;
+                }
+                witnesses.push(Some(w));
+            }
+            let run_profile = run::accuracy_run_profile(sh.profile).expect("an R13 base has a registered D12a run profile");
+            let mut prov = Provenance::recipe("D60 privacy-gate fixture (public synthetic)", 1.0, [3; 32], [4; 32]);
+            prov.rope_theta = shape::trained_rope_theta(sh.profile).expect("a trained profile's pinned RoPE base");
+            prov.rope_scaling = shape::trained_rope_scaling(sh.profile).expect("a trained profile's pinned RoPE transform");
+            let source = ModelSource { kind: SourceKind::PublicSyntheticRecipe, repo: "synthetic/d60-privacy-gate".into(), revision: "d60".into(), weights_sha256: [0; 32], config_sha256: [0; 32], checkpoint_parameters: 0, checkpoint_layers: l as u32 };
+            let r0 = LayerRecord::of_block(0, &blk, vec![]);
+            let records: Vec<LayerRecord> = (0..l)
+                .map(|i| {
+                    let mut r = r0.clone();
+                    r.index = i as u32;
+                    r
+                })
+                .collect();
+            let model = TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&sh, run_profile, source, IntegerCalibration::as_the_code_proves(&sh, &prov), records).unwrap_or_else(|e| panic!("{case}: the synthetic {l}-layer statement: {e}"));
+            let c = [context; 32];
+            let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&sh, c, 0, 0).unwrap(), &input, &output).unwrap();
+            let st = RunStatement::new_bound_from_digests(RunShape::new(sh.clone(), l, run_profile).unwrap(), c, expected, vec![blk.digest(); l], &vec![(0, 0); l], &model).unwrap();
+            let fr = ForkRun::new(&st, D55OptIn::registered_profile()).unwrap();
+            assert!(fr.is_registered(), "{case}: not under a registered D55 profile");
+            let rep = RepeatBlock::new(&blk, l);
+            let mut src = Chain { witnesses, planes, tamper: None };
+            let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, l).unwrap_or_else(|e| panic!("{case}: the honest fork run did not prove: {e}"));
+            honest_stats_hold(&st, &stats);
+            let b = d60pg_capture(&fr, &rep, &rc, l);
+            (rc, b, format!("the registered TRAINED base {run_profile} at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation groups; no trained weights); hidden input {hidden}: M10's input family at s = {s}"), fr.profile().to_string(), run_profile.to_string(), st.rs().sh().clone())
+        };
+        let frames: Vec<Vec<u8>> = rc.frames().cloned().collect();
+        let note = format!(
+            "D60 privacy-gate fixture (2026-11-02): one honest {l}-fork D55 run under the REGISTERED D55 run profile `{profile}` (base `{base}`), {what}; proved and verified on this path: {}. TEST-ONLY SYNTHETIC BUNDLE, NOT FOR PUBLICATION: no real content; delete once recorded.",
+            crate::gpu::label()
+        );
+        cap::write_bundle(&dir, &b, &frames, &note, command).unwrap_or_else(|e| panic!("{case}: the production capture writer refused the registered fork run: {e}"));
+        eprintln!(
+            "D60-PG-BUNDLE {case} -> {} | {profile} | {l} forks, {} stage bytes, tail {} B, frames {:?} B | {:.1} s | {what}",
+            dir.display(),
+            b.stages.iter().map(|s| s.len()).sum::<usize>(),
+            b.fork_tail.as_ref().map(|t| t.len()).unwrap_or(0),
+            frames.iter().map(|f| f.len()).collect::<Vec<_>>(),
+            t0.elapsed().as_secs_f64()
+        );
+        match written.iter_mut().find(|(p, _, _)| p == name) {
+            Some((_, _, dirs)) => dirs.push(dir.clone()),
+            None => written.push((name.to_string(), run_sh, vec![dir.clone()])),
+        }
+        n += 1;
+    }
+    assert!(n > 0, "HL_D60PG_CASES names no case");
+    // D60 review F3: the Rust gate's capture checks on every bundle exactly as
+    // the production writer laid it on disk (the first two of a profile as
+    // the PG-10 pair)
+    let mut verdicts = Vec::new();
+    for (name, sh, dirs) in &written {
+        for (i, d) in dirs.iter().enumerate() {
+            let other = if dirs.len() > 1 { Some(dirs[if i == 0 { 1 } else { 0 }].as_path()) } else { None };
+            let v = crate::private_block::w16_privacy_gate_tests::d60_registered_bundle_checks(sh, d, other).unwrap_or_else(|e| panic!("{name}: the Rust gate checks on the written bundle FAILED: {e}"));
+            eprintln!("D60-PG-RUST {v}");
+            verdicts.push(v);
+        }
+    }
+    eprintln!("D60-PG-RUST VERDICT {} bundles, every check PASS and every control fired", verdicts.len());
 }
 
 /// the directory and its marker for the fresh-process receipts
