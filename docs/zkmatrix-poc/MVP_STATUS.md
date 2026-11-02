@@ -1,5 +1,16 @@
 # Where the MVP stands, in plain words
 
+**2026-11-02: the rate-1/2 commitment (D59) is built as an opt-in profile and about 10% faster, with no soundness given up.**
+- **What it is:** the W16R2 profiles encode A, H, the run boundaries and the endpoints at code rate 1/2 (was 1/4) with 260 opened columns,
+  counted at the Reed–Solomon unique-decoding radius. The mask commitment M is unchanged.
+- **Speed** [MEASURED, 8B T128, synthetic weights, one binary, warm]: prove core 0.373 → 0.336 s per block; one request with D55 at six forks
+  goes from 20.8 to 22.9 proved tokens/s; receipts grow 0.6%.
+- **Soundness** [COUNTED, builder's recount]: 2^-105.93 per opening (was 2^-105.61); 8B whole run 2^-97.36 (was 2^-97.27).
+- **Correctness:** all D59 malicious controls are rejected; existing bytes and goldens are unchanged; full suite 872/6/84 (the known Mac-only six).
+- **Before any receipt uses it:** an independent re-check of the recount, an independent code review and a privacy re-check (all running).
+  D55 itself is reviewed (F1–F5 closed) and waiting on registration (D60).
+- **The Mac's ceiling is about 23 tokens/s per request.** 50 still needs the RTX 5090.
+
 **2026-11-01 (night): one request now proves at about 21 proved tokens/s with the D55 prototype (opt-in, unreviewed).**
 - **What changed:** Victor approved D55. Its "commit, fork, join" profile lets one request's 32 blocks prove concurrently.
 - **Speed** [MEASURED, W16 8B T128, synthetic weights, one process, best of 3]: one request goes from 10.57 tokens/s (serial) to 20.85 at
