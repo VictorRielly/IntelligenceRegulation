@@ -2015,3 +2015,163 @@ fn d55_privacy_gate_write_the_fork_bundles() {
     }
     assert!(n > 0, "HL_W16PG_PROFILES names no rung profile");
 }
+
+// ---------------------------------------------------------------- D60 review F3: a REGISTERED bundle as written to disk
+
+/// one file of a bundle directory, re-hashed against its manifest entry
+fn d60_file(dir: &std::path::Path, manifest: &str, name: &str) -> Result<Vec<u8>, String> {
+    let path = dir.join(name);
+    let bytes = std::fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let want = format!("{{\"file\":{name:?},\"bytes\":{},\"sha256\":{:?}}}", bytes.len(), crate::export_v3::sha256_hex(&bytes));
+    if !manifest.contains(&want) {
+        return Err(format!("{name}: its length / SHA-256 on disk are not the manifest's"));
+    }
+    Ok(bytes)
+}
+
+/// a registered fork-run bundle read from its directory: the manifest, the
+/// run file, the fork stage files, the tail and each fork frame's length
+#[allow(clippy::type_complexity)]
+fn d60_bundle(dir: &std::path::Path) -> Result<(String, Vec<u8>, Vec<Vec<u8>>, Vec<u8>, Vec<usize>), String> {
+    let manifest = std::fs::read_to_string(dir.join("manifest.json")).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let at = manifest.find("\"blocks\":").ok_or("the manifest names no block count")? + "\"blocks\":".len();
+    let l: usize = manifest[at..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().map_err(|_| "the manifest's block count")?;
+    let run = d60_file(dir, &manifest, "run.json")?;
+    let stages = (0..l).map(|k| d60_file(dir, &manifest, &run_capture::stage_file(k))).collect::<Result<Vec<_>, _>>()?;
+    let tail = d60_file(dir, &manifest, run_capture::D55_TAIL_FILE)?;
+    let frames = (0..l).map(|k| d60_file(dir, &manifest, &format!("receipt/fork-{k:02}.bin")).map(|f| f.len())).collect::<Result<Vec<_>, _>>()?;
+    Ok((manifest, run, stages, tail, frames))
+}
+
+/// **D60 REVIEW F3: THE RUST GATE'S CAPTURE CHECKS ON A REGISTERED D55 BUNDLE
+/// AS THE PRODUCTION WRITER LAID IT ON DISK** (`run_capture::write_bundle`),
+/// at the run's shape `sh` (any accuracy layout: R13 or W16):
+/// * REG: the manifest is the production writer's, under a REGISTERED D55 run
+///   profile (`run::D55_RUN_PROFILES`) and schema `SCHEMA_D55`, and every file
+///   read here re-hashes to its manifest entry;
+/// * PG-7: the allow-list and the forbidden words over `run.json`, every fork
+///   stage file and the tail;
+/// * PG-8 per fork: every A / H masked claim on its own reserved pair inside
+///   the reserved rows, one per declared site (the W16 range-plane part has
+///   no object at an R13 layout: no range family);
+/// * PG-10 (with `other`, a second bundle of the same profile on another
+///   hidden input): per fork and for the tail, the same keys in the same
+///   order, the same array and table lengths, every slot's claims and mask
+///   pairs, and the same fork-frame lengths;
+/// * controls: C-6 a field outside the allow-list in `run.json`; C-2 two A
+///   claims of fork 0 made to share a mask pair; C-5 one mask pair moved in
+///   the other bundle's fork 0 (PG-10).
+///
+/// PG-9 (W16's range and support columns) is W16-only and not run; the
+/// Python D55 gate rebuilds or structure-checks every public table at R13.
+/// Returns the verdict line, or every failed check. NOTHING HERE IS A PRIVACY
+/// STATEMENT.
+pub(super) fn d60_registered_bundle_checks(sh: &Shape, dir: &std::path::Path, other: Option<&std::path::Path>) -> Result<String, String> {
+    let mut rec = Record::default();
+    let name = format!("{} D55-registered {}", sh.name, dir.file_name().and_then(|n| n.to_str()).unwrap_or("?"));
+    let name = name.as_str();
+    let (manifest, run_json, stages, tail, frames) = d60_bundle(dir).map_err(|e| format!("{name}: the bundle does not read: {e}"))?;
+    let prof = manifest.find("\"profile\":\"").map(|i| &manifest[i + 11..]).and_then(|s| s.find('"').map(|j| &s[..j])).unwrap_or("");
+    rec.put(
+        name,
+        "REG registered-writer",
+        if !manifest.contains("\"writer\":\"run_capture::write_bundle (a registered D55 run profile, D60)\"") {
+            Err("the manifest is not the production writer's".into())
+        } else if !manifest.contains(&format!("\"schema\":{:?}", run_capture::SCHEMA_D55)) {
+            Err("the manifest's schema is not SCHEMA_D55".into())
+        } else if !run::D55_RUN_PROFILES.iter().any(|(d, _)| *d == prof) {
+            Err(format!("the manifest's profile {prof:?} is not a registered D55 run profile"))
+        } else {
+            Ok(format!("run_capture::write_bundle under {prof}; run.json, {} fork stage files, the tail and {} fork frames re-hashed to the manifest", stages.len(), frames.len()))
+        },
+    );
+    let mut files: Vec<(&str, &[u8])> = vec![("run.json", run_json.as_slice())];
+    for s in &stages {
+        files.push(("fork stage", s.as_slice()));
+    }
+    files.push((run_capture::D55_TAIL_FILE, tail.as_slice()));
+    rec.put(name, "PG-7 allow-list (run, every fork, tail)", allow_list(&files));
+    let lay = Layout::for_shape(sh).map_err(|e| format!("{name}: no layout at the run's shape: {e}"))?;
+    let idx = plane_index::build(&lay).map_err(|e| format!("{name}: no plane index at the run's shape: {e}"))?;
+    for (k, s) in stages.iter().enumerate() {
+        rec.put(&format!("{name} fork {k}"), "PG-8 masked-claims", masked_claims(&lay, s, &idx));
+    }
+    match other.map(d60_bundle) {
+        None => {}
+        Some(Err(e)) => rec.put(name, "PG-10 input-independent-shape", Err(format!("the other bundle does not read: {e}"))),
+        Some(Ok((_, run_b, stages_b, tail_b, frames_b))) => {
+            for k in 0..stages.len() {
+                let r = match (stages_b.get(k), frames_b.get(k..k + 1)) {
+                    (Some(sb), Some(fb)) => same_structure(sh.n_slots(), &[run_json.clone(), stages[k].clone()], &frames[k..k + 1], &[run_b.clone(), sb.clone()], fb),
+                    _ => Err(format!("the other bundle has no fork {k}")),
+                };
+                rec.put(&format!("{name} fork {k}"), "PG-10 input-independent-shape", r);
+            }
+            let (kx, ky) = (run_capture::keys_of(&tail), run_capture::keys_of(&tail_b));
+            rec.put(
+                name,
+                "PG-10 tail input-independent-shape",
+                if kx != ky {
+                    Err("the tail files' key sequences differ".into())
+                } else if array_lengths(&tail) != array_lengths(&tail_b) || nums(&tail, "len") != nums(&tail_b, "len") {
+                    Err("the tail files' array or table lengths differ".into())
+                } else {
+                    Ok(format!("two hidden inputs: the tail's {} keys in the same order, the same array and table lengths", kx.len()))
+                },
+            );
+            // C-5: one mask pair moved in the other bundle's fork 0
+            let s = String::from_utf8(stages_b[0].clone()).unwrap_or_default();
+            let r = match s.find("\"mask_row\":").map(|i| i + "\"mask_row\":".len()) {
+                Some(at) => {
+                    let end = at + s[at..].find(|c: char| !c.is_ascii_digit()).unwrap_or(0);
+                    let v: u64 = s[at..end].parse().unwrap_or(0);
+                    let moved = format!("{}{}{}", &s[..at], v + 2, &s[end..]).into_bytes();
+                    same_structure(sh.n_slots(), &[run_json.clone(), stages[0].clone()], &frames[..1], &[run_b.clone(), moved], &frames_b[..1])
+                }
+                None => Ok("no mask pair to move".into()),
+            };
+            control(&mut rec, name, "C-5 moved-pair", r);
+        }
+    }
+    // C-6: a field outside the allow-list
+    {
+        let mut rj = run_json.clone();
+        while rj.last().map(|c| c.is_ascii_whitespace()).unwrap_or(false) {
+            rj.pop();
+        }
+        rj.pop();
+        rj.extend_from_slice(b",\"histogram_values\":[1,2,3]}");
+        control(&mut rec, name, "C-6 off-list-field", allow_list(&[("run.json", rj.as_slice())]));
+    }
+    // C-2: two A claims of fork 0 made to share a mask pair
+    {
+        let stage = &stages[0];
+        let tables = slot_tables(stage, sh.n_slots()).unwrap_or_default();
+        let a_claims: Vec<&[u8]> = tables.iter().flatten().copied().filter(|e| field_str(e, "kind") == Some("private") && field_str(e, "role") == Some("A")).take(2).collect();
+        let r = if a_claims.len() == 2 {
+            let (m0, m1) = (num(a_claims[0], "mask_row").unwrap_or(0), num(a_claims[1], "mask_row").unwrap_or(0));
+            let text = std::str::from_utf8(a_claims[1]).unwrap_or("");
+            match find_from(stage, text, 0) {
+                Some(at) => {
+                    let entry = text.replace(&format!("\"mask_row\":{m1},"), &format!("\"mask_row\":{m0},"));
+                    let mut doctored = stage[..at].to_vec();
+                    doctored.extend_from_slice(entry.as_bytes());
+                    doctored.extend_from_slice(&stage[at + a_claims[1].len()..]);
+                    masked_claims(&lay, &doctored, &idx)
+                }
+                None => Ok("the second A claim was not found to doctor".into()),
+            }
+        } else {
+            Ok("fewer than two A claims to doctor".into())
+        };
+        control(&mut rec, name, "C-2 shared-mask-pair", r);
+    }
+    let failed: Vec<String> = rec.0.iter().filter(|c| !c.pass).map(|c| format!("{} {}: {}", c.shape, c.name, c.detail)).collect();
+    if failed.is_empty() {
+        let v = format!("{name}: {} checks, all PASS", rec.0.len());
+        eprintln!("W16-PG VERDICT {v}");
+        Ok(v)
+    } else {
+        Err(format!("{name}: {} of {} checks FAILED:\n{}", failed.len(), rec.0.len(), failed.join("\n")))
+    }
+}
