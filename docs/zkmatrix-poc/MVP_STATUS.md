@@ -24,8 +24,10 @@
     gates pass.
   - **Still owed before any W16 receipt:**
     - ~~the malicious-prover controls F3~~: **done 2026-11-01** (four test-only controls, each refused by the verifier; every gate green, golden 8/8; `results/zk60_metal_20261031/logs/m22f3/`);
-    - the privacy gate run on W16, whose tooling must first learn W16's tables; the 16-bit histograms must be on
-      its list;
+    - the privacy gate run on W16: **the Rust gate is done (2026-11-01).** The plane index and recorder now cover W16's
+      range histograms and helpers, and they PASS at the rung and both T128 shapes with no leak found
+      (`results/zk60_metal_20261031/logs/m23pg/`). Still owed: the Python gate (v24) for W16, a W16 statement text, a
+      GPU-path capture and an independent privacy review;
     - registration;
     - the DD variants.
   - Report: `results/zk60_limb16_20261031/REVIEW_W16_20261101.md`.
