@@ -314,7 +314,7 @@ def gpu_backend(manifest: dict) -> dict:
         if unpinned or unread:
             why = (["not pinned: " + ", ".join(unpinned)] if unpinned else []) + \
                   (["no FULL reading at the pinned digest: " + ", ".join(unread)] if unread else [])
-            refused = ("GPU-MADE BUNDLE (proved_on_gpu = true), and the Metal backend has " + "; ".join(why) + ". Under "
+            refused = ("GPU-MADE BUNDLE (proved_on_gpu = true), and the Metal backend is not admissible (" + "; ".join(why) + "). Under "
                        "HL_GPU=1 these files compute receipt bytes (the hiding coset encoding, the column leaves, the "
                        "opened columns, the clear vectors' message half, the device sumcheck rounds); F-B1 read only "
                        "their privacy-relevant paths. Refused until both are pinned and fully read")

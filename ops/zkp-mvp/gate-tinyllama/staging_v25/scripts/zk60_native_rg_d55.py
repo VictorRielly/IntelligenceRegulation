@@ -759,6 +759,48 @@ def replay_controls(b: D55Bundle) -> dict:
     return out
 
 
+# ---------------------------------------------------------------- PINS controls (gate round 26)
+def pin_controls(b: D55Bundle, r19b_manifest: str) -> dict:
+    """[2026-11-02, gate round 26] the classification on DOCTORED COPIES of the
+    manifest (the bundle's files untouched): F-B1's backend rule -- B-1 the
+    bundle marked GPU-made, B-2 the backend field removed, B-3 the field not a
+    boolean, each REFUSED -- and the full-digest rule -- P-1 one R26-read pin's
+    digest with the same 12-hex prefix and another tail, P-2 that pin at an
+    unknown digest, each UNREAD.  Every control must fire."""
+    import copy
+    import types
+
+    def classify(man):
+        return W.classify_pins(types.SimpleNamespace(manifest=man), r19b_manifest)
+
+    base = classify(b.manifest)
+    out = {}
+    for name, what, doctor in (
+            ("B-1 marked GPU-made", "the manifest's proved_on_gpu set to true", lambda m: m.__setitem__("proved_on_gpu", True)),
+            ("B-2 backend unknown", "the manifest's proved_on_gpu removed", lambda m: m.pop("proved_on_gpu", None)),
+            ("B-3 not a boolean", "the manifest's proved_on_gpu set to the string \"false\"", lambda m: m.__setitem__("proved_on_gpu", "false"))):
+        m = copy.deepcopy(b.manifest)
+        doctor(m)
+        p = classify(m)
+        out[name] = {"what": what, "refused": p["backend"]["refused"],
+                     "metal_pins_unread": [u["file"] for u in p["unread"] if u["file"].startswith("src/gpu/metal")],
+                     "fires": (not p["ok"]) and (not p["backend"]["admissible"])}
+    victim = sorted(base["readings_r26"])[0] if base["readings_r26"] else None
+    for name, what, tail in (("P-1 prefix only", "the same 12-hex prefix, another tail", lambda d: d[:12] + ("0" if d[12] != "0" else "1") + d[13:]),
+                             ("P-2 unknown digest", "a digest no reading names", lambda d: "f" * 64 if d != "f" * 64 else "e" * 64)):
+        if victim is None:
+            out[name] = {"what": what, "no_object": "no pin of this bundle is read by an R26 reading", "fires": True}
+            continue
+        m = copy.deepcopy(b.manifest)
+        for pin in m["source_pins"]:
+            if pin["file"] == victim:
+                pin["sha256"] = tail(pin["sha256"])
+        p = classify(m)
+        out[name] = {"what": f"{victim}: {what}", "fires": victim in [u["file"] for u in p["unread"]] and not p["ok"]}
+    return {"what": "gate round 26: F-B1's backend refusals and the full-digest rule, on doctored manifest copies",
+            "controls": out, "ok": all(v["fires"] for v in out.values())}
+
+
 # ---------------------------------------------------------------- the driver
 def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None, terminal_forks=None, joint=True) -> dict:
     """[2026-11-02, D60] the family dispatch: a W16-family block profile runs
@@ -866,6 +908,9 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
                                           "refused_by_the_port": refused, "not_read_here": not_read, "ok": not not_read}
         pins["ok"] = bool(pins["ok"] and not not_read)
     rec["PINS"] = pins
+    if controls:
+        rec["PINS controls"] = pin_controls(b, r19b_manifest if r19b_manifest is not None else W.default_r19b_manifest())
+        parts["PINS controls"] = rec["PINS controls"]["ok"]
     rec["parts"] = parts
     all_true = all(parts.values())
     rec["status"] = "D55-PASS" if all_true and pins["ok"] else "D55-DEV-PASS" if all_true else "NOT-OK"

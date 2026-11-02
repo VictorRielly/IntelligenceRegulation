@@ -58,7 +58,11 @@ WHAT IT RUNS (one record part each):
          in W16_READINGS); or moved and UNREAD.  v24's own mask-layer and
          run-layer pin tables are run and REPORTED (both refuse a post-R9
          tree); they are not applied as a suspension, and the record's
-         status says so.
+         status says so.  [2026-11-02, gate round 26] A moved pin is also
+         read by the round-26 readings (`zk60_native_rg_r26readings`, at
+         their FULL digest), and the bundle's prover backend must be
+         admissible (F-B1: `proved_on_gpu` recorded, and false while the
+         Metal backend has no full reading).
 
 STATUS.  "W16-DEV-PASS" when every part is true but some pin is unread or a
 v24 pin table refuses: the figures were computed on the bundle as given and
@@ -585,7 +589,9 @@ def classify_pins(bundle, r19b_manifest: str) -> dict:
         elif r is not None:
             read_here.append(f)
             r26[f] = r
-        elif f in W16_READINGS and d.startswith(W16_READINGS[f][0]):
+        elif f in W16_READINGS and d.startswith(W16_READINGS[f][0]) and (f, d[:12]) not in R26.R26_READINGS:
+            # (a W16 reading names only a 12-hex prefix; where round 26 re-read
+            # that digest its FULL digest decides, so a prefix twin stays unread)
             read_here.append(f)
         else:
             u = {"file": f, "sha256": d[:12], "r19b": (want.get(key) or "absent")[:12]}
