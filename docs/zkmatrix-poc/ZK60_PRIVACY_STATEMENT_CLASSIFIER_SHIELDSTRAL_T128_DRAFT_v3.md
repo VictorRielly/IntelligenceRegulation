@@ -1,4 +1,4 @@
-# Privacy statement for the Shieldstral-1.0-3B classifier proof (T128, native R13, public-row, verdict as a public bit) — DRAFT v3, for the security owner's decision (NOT accepted, NOT in force)
+# Privacy statement for the Shieldstral-1.0-3B classifier proof (T128, native R13, public-row, verdict as a public bit) — v3, **ACCEPTED by Victor 2026-11-01 (D58)**
 
 Draft v1 was written 2026-10-29 from 21:37 UTC (gate round 21), draft v2 from 23:15 UTC (gate round 22) and draft v3
 2026-10-30 from 02:18 UTC (gate round 23), all by the PRIVACY GATE lane (a delegated Claude Opus 5.5 agent), at the
@@ -17,7 +17,7 @@ It follows the form of the two statements in force, D33 (`docs/zkmatrix-poc/ZK60
 and D36 (`docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_NEXT_TOKEN_TINYLLAMA_T32.md`). It is a separate draft beside them, not
 an edit of either, and it extends neither.
 
-| Status | **DRAFT v3. NOT accepted, NOT in force, and NOT a privacy acceptance. Nothing on this page establishes a privacy property.** It proposes a sentence for one classifier run, a corollary for one post, and lists what they rest on, what is measured, and what is still owed. The re-review of v2 found it acceptable with changes; v3 makes them. Next: the security owner's decision, then Victor's acceptance. **The policy wording is pending Victor's strict / moderate ruling: this page names the policy list as a parameter and evaluates it at the registered moderate list.** |
+| Status | **ACCEPTED by Victor, 2026-11-01 (D58), and in force within its stated scope and conditions.** Accepted text: v3 sha256 `6356e35b…`, which carries both text fixes required by the independent check (`results/zk60_privacy_review_20261029/CLASSIFIER_T128_V3_CHECK.md`: 17 distinct pairs; the per-mode NL-1 counts). It is in force for the named CPU binaries only, at the registered moderate policy list. Conditions C-7 and C-8 still stand before any non-public post. GPU proving and other binaries are outside it. *History: this page was a draft (NOT accepted, NOT in force) until that ruling.* It proposes a sentence for one classifier run, a corollary for one post, and lists what they rest on, what is measured, and what is still owed. The re-review of v2 found it acceptable with changes; v3 makes them. Next: the security owner's decision, then Victor's acceptance. **The policy wording is pending Victor's strict / moderate ruling: this page names the policy list as a parameter and evaluates it at the registered moderate list.** |
 |---|---|
 
 **Labels.**

@@ -1,5 +1,7 @@
 # Where the MVP stands, in plain words
 
+**2026-11-01 (evening): the Shieldstral classifier privacy statement is accepted (D58).** Victor accepted v3 with the checker's two text fixes. It is in force for the named CPU binaries at the moderate policy list; conditions C-7 and C-8 still stand before non-public posts, and GPU proving is not yet covered. W16's F3 malicious controls are closed. A funding push is under way (D57; `results/zk60_funding_20261101/`).
+
 **2026-11-01 (Mac, latest): one request now proves at about 11 proved tokens/s (13 at 256 tokens per block), and about
 22 with six requests at once.**
 - **Measured** on the committed code [MEASURED, W16 8B blocks, every proof byte-identical to a solo proof, synthetic
