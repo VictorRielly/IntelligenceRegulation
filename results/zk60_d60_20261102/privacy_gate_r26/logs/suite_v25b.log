@@ -1,0 +1,191 @@
+test_a_test_only_or_dd_identity_is_refused_by_name (test_d55_r13_gate.D55R13Bundle.test_a_test_only_or_dd_identity_is_refused_by_name) ... ok
+test_integrity_facts_replay_and_the_registered_header (test_d55_r13_gate.D55R13Bundle.test_integrity_facts_replay_and_the_registered_header) ... ok
+test_the_joined_claims_and_their_control (test_d55_r13_gate.D55R13Bundle.test_the_joined_claims_and_their_control) ... ok
+test_the_layout_and_one_forks_terminals (test_d55_r13_gate.D55R13Bundle.test_the_layout_and_one_forks_terminals) ... ok
+test_the_run_level_joint_rank_and_its_controls (test_d55_r13_gate.D55R13Bundle.test_the_run_level_joint_rank_and_its_controls) ... /opt/homebrew/Caskroom/miniconda/base/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_r26/d55-r13_rung_h24-s1/arrays.bin'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_joint_module_imports_v24s_rank_functions_unchanged (test_d55_r13_gate.D55R13Port.test_the_joint_module_imports_v24s_rank_functions_unchanged) ... ok
+test_the_registered_schedule_lines (test_d55_r13_gate.D55R13Port.test_the_registered_schedule_lines) ... ok
+test_the_registry_is_the_marker_and_its_base (test_d55_r13_gate.D55R13Port.test_the_registry_is_the_marker_and_its_base) ... ok
+test_a_cpu_made_bundle_reads_the_metal_pins_at_the_cpu_path_scope_only (test_r26_readings.R26Classification.test_a_cpu_made_bundle_reads_the_metal_pins_at_the_cpu_path_scope_only) ... ok
+test_a_full_digest_is_read_and_a_prefix_twin_or_unknown_digest_is_not (test_r26_readings.R26Classification.test_a_full_digest_is_read_and_a_prefix_twin_or_unknown_digest_is_not) ... ok
+test_a_gpu_made_bundle_is_refused_and_its_metal_pins_are_unread (test_r26_readings.R26Classification.test_a_gpu_made_bundle_is_refused_and_its_metal_pins_are_unread) ... ok
+test_a_non_boolean_backend_is_refused (test_r26_readings.R26Classification.test_a_non_boolean_backend_is_refused) ... ok
+test_a_w16_prefix_reading_does_not_read_a_digest_round_26_reread (test_r26_readings.R26Classification.test_a_w16_prefix_reading_does_not_read_a_digest_round_26_reread)
+W16_READINGS names 6b66c0bcf200 for zkp-core's merkle.rs by prefix ... ok
+test_the_backend_absent_is_refused_as_unknown (test_r26_readings.R26Classification.test_the_backend_absent_is_refused_as_unknown) ... ok
+test_every_moved_pin_is_read_and_the_backend_is_admissible (test_r26_readings.R26FreshBundle.test_every_moved_pin_is_read_and_the_backend_is_admissible) ... ok
+test_every_pin_is_read_but_the_backend_is_unknown (test_r26_readings.R26OldD60Bundle.test_every_pin_is_read_but_the_backend_is_unknown) ... ok
+test_a_file_on_disk_at_a_wired_digest_rehashes (test_r26_readings.R26Table.test_a_file_on_disk_at_a_wired_digest_rehashes)
+the HEAD digests the table wires are this checkout's files (a pin ... ok
+test_every_reader_entry_is_wired_at_its_full_digest (test_r26_readings.R26Table.test_every_reader_entry_is_wired_at_its_full_digest)
+each (file, prefix) of both readers' wiring tables is in R26_READINGS ... ok
+test_the_self_read_entries_are_the_wiring_record (test_r26_readings.R26Table.test_the_self_read_entries_are_the_wiring_record) ... ok
+test_a_frozen_shape_reads_the_frozen_literals (test_tinyllama_port.Calibration.test_a_frozen_shape_reads_the_frozen_literals) ... ok
+test_a_mixed_declaration_is_refused (test_tinyllama_port.Calibration.test_a_mixed_declaration_is_refused) ... ok
+test_the_frozen_top_limb_pins_are_the_historical_literals (test_tinyllama_port.Calibration.test_the_frozen_top_limb_pins_are_the_historical_literals) ... ok
+test_the_trained_bundle_declares_pg_rot1 (test_tinyllama_port.Calibration.test_the_trained_bundle_declares_pg_rot1) ... skipped 'the trained bundle is not on disk'
+test_m125 (test_tinyllama_port.FrozenShapesUnchanged.test_m125) ... skipped '125M bundle not on disk'
+test_rung_k4 (test_tinyllama_port.FrozenShapesUnchanged.test_rung_k4) ... skipped 'rung-K4 bundle not on disk'
+test_the_trained_shape_moves_exactly_the_windowed_pins (test_tinyllama_port.FrozenShapesUnchanged.test_the_trained_shape_moves_exactly_the_windowed_pins) ... skipped 'the trained bundle is not on disk'
+test_every_original_pin_survives_the_merge (test_tinyllama_port.Pins.test_every_original_pin_survives_the_merge) ... ok
+test_every_tinyllama_digest_carries_a_reading (test_tinyllama_port.Pins.test_every_tinyllama_digest_carries_a_reading) ... ok
+test_the_merge_never_replaces_a_reading (test_tinyllama_port.Pins.test_the_merge_never_replaces_a_reading) ... ok
+test_chunks_and_the_label (test_v4_status_g10.ClassifierV19.test_chunks_and_the_label) ... ok
+test_d34_recount (test_v4_status_g10.ClassifierV19.test_d34_recount) ... ok
+test_geometry_against_rc1 (test_v4_status_g10.ClassifierV19.test_geometry_against_rc1) ... ok
+test_rc1_readings (test_v4_status_g10.ClassifierV19.test_rc1_readings) ... /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_classpins.py:589: ResourceWarning: unclosed file <_io.TextIOWrapper name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256' mode='r' encoding='UTF-8'>
+  for line in open(man):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_synthetic_relations_and_controls (test_v4_status_g10.ClassifierV19.test_synthetic_relations_and_controls) ... ok
+test_the_capture_reader_refuses_a_non_classifier_bundle (test_v4_status_g10.ClassifierV19.test_the_capture_reader_refuses_a_non_classifier_bundle) ... ok
+test_d41_chunk (test_v4_status_g10.ClassifierV20.test_d41_chunk) ... skipped 'the D41 chunk capture is not on disk'
+test_reader_replay_terminals_and_controls (test_v4_status_g10.ClassifierV20.test_reader_replay_terminals_and_controls)
+[v21] the R-C1 capture is now a NEGATIVE fixture: REVIEW_R13 N-r13-8 ... skipped 'the classifier rung capture is not on disk'
+test_derived_tables_reproduce_the_references (test_v4_status_g10.ClassifierV21.test_derived_tables_reproduce_the_references) ... ok
+test_short_item_capture_end_to_end (test_v4_status_g10.ClassifierV21.test_short_item_capture_end_to_end) ... skipped 'the r14 short-item capture is not on disk'
+test_short_item_geometry (test_v4_status_g10.ClassifierV21.test_short_item_geometry) ... ok
+test_the_p18_capture_pins_and_a_full_item (test_v4_status_g10.ClassifierV21.test_the_p18_capture_pins_and_a_full_item) ... skipped 'the P-18 r14 capture is not on disk'
+test_length_and_digest_only_capture_path (test_v4_status_g10.ClassifierV22.test_length_and_digest_only_capture_path)
+[v22] a capture written with public tables as length + digest only (the ... skipped 'the R13 rung capture is not on disk'
+test_r13_capture_pins_integrity_and_classifier_stages (test_v4_status_g10.ClassifierV22.test_r13_capture_pins_integrity_and_classifier_stages) ... skipped 'the R13 rung capture is not on disk'
+test_refusal_term_recount (test_v4_status_g10.ClassifierV22.test_refusal_term_recount) ... ok
+test_shieldstral_derivation_arithmetic (test_v4_status_g10.ClassifierV22.test_shieldstral_derivation_arithmetic) ... ok
+test_shieldstral_policy_list (test_v4_status_g10.ClassifierV22.test_shieldstral_policy_list) ... ok
+test_f19_g1_repository_root_searched_upward (test_v4_status_g10.ClassifierV23.test_f19_g1_repository_root_searched_upward) ... ok
+test_f19_g2_refused_pins_are_a_written_refusal (test_v4_status_g10.ClassifierV23.test_f19_g2_refused_pins_are_a_written_refusal) ... skipped 'the r14 short-item capture is not on disk'
+test_r17_pin_reading_and_self_check (test_v4_status_g10.ClassifierV23.test_r17_pin_reading_and_self_check) ... ok
+test_r17_rung_values_capture_closes_all_23_block_slots (test_v4_status_g10.ClassifierV23.test_r17_rung_values_capture_closes_all_23_block_slots) ... skipped 'the r17 rung values capture is not on disk'
+test_streamed_file_hash (test_v4_status_g10.ClassifierV23.test_streamed_file_hash) ... /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_v4_status_g10.py:1795: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_classgate.py'>
+  want = hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_capture_cli_binary (test_v4_status_g10.ClassifierV24.test_capture_cli_binary) ... ok
+test_e7_checkpoint_rule_mirrored (test_v4_status_g10.ClassifierV24.test_e7_checkpoint_rule_mirrored)
+the cases of derive.rs (1d615010) `r19_the_default_checkpoint_is_under_zk60_models_when_set_else_ ... ok
+test_e7_rule_is_what_the_stream_opens (test_v4_status_g10.ClassifierV24.test_e7_rule_is_what_the_stream_opens)
+at the call site (`_shield_stream`): a set ZK60_MODELS naming a missing file is refused there and ... /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_classtied.py:459: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/gate-v24-e7-4cfslst_/export/profile.json'>
+  pbytes = open(os.path.join(export_dir, "profile.json"), "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_classtied.py:466: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/gate-v24-e7-4cfslst_/export/rotation_sign.bin'>
+  sign_bytes = open(os.path.join(export_dir, "rotation_sign.bin"), "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_r19b_readings_chain_to_the_r16b_links (test_v4_status_g10.ClassifierV24.test_r19b_readings_chain_to_the_r16b_links) ... ok
+test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control) ... FAIL
+test_the_r19b_p18_capture (test_v4_status_g10.ClassifierV24.test_the_r19b_p18_capture) ... skipped 'the round-24 r19b P-18 capture is not on disk (deleted after its record, D46)'
+test_v24_pin_rule_on_the_trees (test_v4_status_g10.ClassifierV24.test_v24_pin_rule_on_the_trees)
+the 72 pins of frozen-r18 / r19 / r19b: v24 accepts each, v23 refuses each by name ... ok
+test_v24_still_reads_the_older_captures_and_refuses_r14 (test_v4_status_g10.ClassifierV24.test_v24_still_reads_the_older_captures_and_refuses_r14) ... ok
+test_a_non_dd_bundle_keeps_its_ports (test_v4_status_g10.DDPorts.test_a_non_dd_bundle_keeps_its_ports) ... ok
+test_lookups_at_dd (test_v4_status_g10.DDPorts.test_lookups_at_dd) ... ok
+test_terminals_attribution_controls_and_nl1_on_the_rung (test_v4_status_g10.DDPorts.test_terminals_attribution_controls_and_nl1_on_the_rung) ... skipped 'the DD rung capture is not on disk'
+test_inert_and_firing_at_a_frozen_development_bundle (test_v4_status_g10.G10.test_inert_and_firing_at_a_frozen_development_bundle) ... skipped 'rung-K4 bundles not on disk'
+test_one_block_run_all_four_fire_and_v3_accepted_them (test_v4_status_g10.G10.test_one_block_run_all_four_fire_and_v3_accepted_them) ... skipped 'L = 1 bundles not on disk'
+test_two_block_run (test_v4_status_g10.G10.test_two_block_run) ... skipped 'L = 2 bundles not on disk'
+test_a_refusal_not_by_mechanism_or_none_fails (test_v4_status_g10.G4Criterion.test_a_refusal_not_by_mechanism_or_none_fails) ... ok
+test_draw_count_arm (test_v4_status_g10.G4Criterion.test_draw_count_arm) ... ok
+test_indicator_arm (test_v4_status_g10.G4Criterion.test_indicator_arm) ... ok
+test_a_dropped_shared_pin_is_refused (test_v4_status_g10.PinEnforcement.test_a_dropped_shared_pin_is_refused) ... skipped 'L = 1 bundle not on disk'
+test_a_g2_pin_at_another_digest_is_refused (test_v4_status_g10.PinEnforcement.test_a_g2_pin_at_another_digest_is_refused) ... skipped 'L = 1 bundle not on disk'
+test_a_shared_file_a_port_reads_suspends_its_stages (test_v4_status_g10.PinEnforcement.test_a_shared_file_a_port_reads_suspends_its_stages) ... skipped 'L = 1 bundle not on disk'
+test_a_shared_file_no_port_reads_fails_ok_without_suspending (test_v4_status_g10.PinEnforcement.test_a_shared_file_no_port_reads_fails_ok_without_suspending) ... skipped 'L = 1 bundle not on disk'
+test_an_r5_writer_missing_a_g2_pin_is_refused (test_v4_status_g10.PinEnforcement.test_an_r5_writer_missing_a_g2_pin_is_refused) ... skipped 'L = 1 bundle not on disk'
+test_an_r5_writer_with_its_g2_pins_is_ok (test_v4_status_g10.PinEnforcement.test_an_r5_writer_with_its_g2_pins_is_ok) ... skipped 'L = 1 bundle not on disk'
+test_honest_tree_a_bundle (test_v4_status_g10.PinEnforcement.test_honest_tree_a_bundle) ... skipped 'L = 1 bundle not on disk'
+test_run_rs_moved_suspends_every_stage_and_the_arms (test_v4_status_g10.PinEnforcement.test_run_rs_moved_suspends_every_stage_and_the_arms) ... skipped 'L = 1 bundle not on disk'
+test_a_pre_r5_bundle_gains_no_g2_leaf (test_v4_status_g10.R5Pins.test_a_pre_r5_bundle_gains_no_g2_leaf) ... skipped 'L = 1 bundle not on disk'
+test_every_r5_digest_carries_a_reading (test_v4_status_g10.R5Pins.test_every_r5_digest_carries_a_reading) ... ok
+test_every_r5_digest_is_the_r5_copys_file (test_v4_status_g10.R5Pins.test_every_r5_digest_is_the_r5_copys_file) ... skipped "the gate's R5 copy is not on disk"
+test_round_one_readings_survive_and_r5_is_merged (test_v4_status_g10.R5Pins.test_round_one_readings_survive_and_r5_is_merged) ... ok
+test_an_r5b_writer_must_pin_the_nr4d_group (test_v4_status_g10.R5bPins.test_an_r5b_writer_must_pin_the_nr4d_group) ... skipped 'L = 1 bundle not on disk'
+test_every_r5b_digest_is_the_r5b_copys_file (test_v4_status_g10.R5bPins.test_every_r5b_digest_is_the_r5b_copys_file) ... skipped "the gate's R5b copy is not on disk"
+test_an_r7_pin_set_is_accepted_and_a_moved_one_refused (test_v4_status_g10.R7Pins.test_an_r7_pin_set_is_accepted_and_a_moved_one_refused) ... skipped 'L = 1 bundle not on disk'
+test_every_r7_digest_is_the_r7_copys_file (test_v4_status_g10.R7Pins.test_every_r7_digest_is_the_r7_copys_file) ... skipped "the gate's R7 copy is not on disk"
+test_every_r9_digest_and_the_pin_split (test_v4_status_g10.R9Pins.test_every_r9_digest_and_the_pin_split) ... skipped "R9, the gate's R9 copy or its pin list is not on disk"
+test_the_r9_pin_set_is_accepted_and_refused_without_its_reading (test_v4_status_g10.R9Pins.test_the_r9_pin_set_is_accepted_and_refused_without_its_reading) ... skipped 'the DD rung capture is not on disk'
+test_reader_and_refusals (test_v4_status_g10.StageCal.test_reader_and_refusals) ... ok
+test_t128_dd_l2_stage_one_and_tl6 (test_v4_status_g10.StageCal.test_t128_dd_l2_stage_one_and_tl6) ... skipped 'the T128 DD L = 2 capture is not on disk'
+test_a_coupling_not_respected_is_not_ok (test_v4_status_g10.Status.test_a_coupling_not_respected_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_a_mask_entry_that_differs_is_not_ok (test_v4_status_g10.Status.test_a_mask_entry_that_differs_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_a_mask_stage_that_is_not_ok_is_not_ok (test_v4_status_g10.Status.test_a_mask_stage_that_is_not_ok_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_a_pcs_entry_that_differs_is_not_ok (test_v4_status_g10.Status.test_a_pcs_entry_that_differs_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_a_restricted_pcs_arm_is_not_ok (test_v4_status_g10.Status.test_a_restricted_pcs_arm_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_a_second_joint_finding_is_not_ok (test_v4_status_g10.Status.test_a_second_joint_finding_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_a_skip_for_another_reason_is_not_arms_only (test_v4_status_g10.Status.test_a_skip_for_another_reason_is_not_arms_only) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_a_stage_that_raised_is_not_ok (test_v4_status_g10.Status.test_a_stage_that_raised_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_another_stage_false_is_not_ok (test_v4_status_g10.Status.test_another_stage_false_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_by_name_skips_are_not_this_state (test_v4_status_g10.Status.test_by_name_skips_are_not_this_state) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_controls_requested_is_never_arms_only (test_v4_status_g10.Status.test_controls_requested_is_never_arms_only) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_mask_controls_that_ran_and_failed_are_not_ok (test_v4_status_g10.Status.test_mask_controls_that_ran_and_failed_are_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_mask_pins_refused_is_not_ok (test_v4_status_g10.Status.test_mask_pins_refused_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_ok_true_is_pass_and_ok_is_never_changed (test_v4_status_g10.Status.test_ok_true_is_pass_and_ok_is_never_changed) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_the_l22_zero_arms_record_is_arms_only (test_v4_status_g10.Status.test_the_l22_zero_arms_record_is_arms_only) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_the_l2_zero_arms_record_is_arms_only (test_v4_status_g10.Status.test_the_l2_zero_arms_record_is_arms_only) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_v5_a_non_bool_ok_is_not_ok (test_v4_status_g10.Status.test_v5_a_non_bool_ok_is_not_ok) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_v5_arms_only_needs_stages_1_to_3_and_the_arms (test_v4_status_g10.Status.test_v5_arms_only_needs_stages_1_to_3_and_the_arms) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_v5_every_joint_conjunct_has_a_negative (test_v4_status_g10.Status.test_v5_every_joint_conjunct_has_a_negative) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_v5_every_mask_arm_conjunct_has_a_negative (test_v4_status_g10.Status.test_v5_every_mask_arm_conjunct_has_a_negative) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_v5_pass_needs_every_false_leaf_explained_by_e (test_v4_status_g10.Status.test_v5_pass_needs_every_false_leaf_explained_by_e) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_v5_rule_a_only_for_the_control_families (test_v4_status_g10.Status.test_v5_rule_a_only_for_the_control_families) ... skipped 'the L = 2 zero-arms record is not on disk'
+test_a_tk7_pin_set_is_accepted_and_a_moved_one_refused (test_v4_status_g10.TK7Pins.test_a_tk7_pin_set_is_accepted_and_a_moved_one_refused) ... skipped 'L = 1 bundle or the tk7 pin list not on disk'
+test_every_tk7_digest_is_the_tk7_copys_file (test_v4_status_g10.TK7Pins.test_every_tk7_digest_is_the_tk7_copys_file) ... skipped "the gate's tk7 copy or its pin list is not on disk"
+test_a_tk9_pin_set_is_accepted_refused_without_the_reading_and_a_moved_one_refused (test_v4_status_g10.TK9Pins.test_a_tk9_pin_set_is_accepted_refused_without_the_reading_and_a_moved_one_refused) ... skipped 'L = 1 bundle or the tk9 pin list not on disk'
+test_every_tk9_digest_and_the_pin_split (test_v4_status_g10.TK9Pins.test_every_tk9_digest_and_the_pin_split) ... skipped "the gate's tk9 copy, frozen-r9 or the tk9 pin list is not on disk"
+test_block_terminals_and_nc0_with_the_permanent_reading (test_v4_status_g10.TokenBlocksV11.test_block_terminals_and_nc0_with_the_permanent_reading) ... skipped 'the token capture is not on disk'
+test_l1_bundle_attributed_and_a1_fires_without_its_line (test_v4_status_g10.TokenCalAttributionParse.test_l1_bundle_attributed_and_a1_fires_without_its_line) ... skipped 'the round-10 attribution log or the L1 token capture is not on disk'
+test_prefixed_line_is_read (test_v4_status_g10.TokenCalAttributionParse.test_prefixed_line_is_read) ... ok
+test_a_block_run_bundle_is_refused (test_v4_status_g10.TokenGate.test_a_block_run_bundle_is_refused) ... skipped 'the token capture is not on disk'
+test_replay_and_integrity_on_the_capture (test_v4_status_g10.TokenGate.test_replay_and_integrity_on_the_capture) ... skipped 'the token capture is not on disk'
+test_gate_takes_an_export (test_v4_status_g10.TokenGateExportOverride.test_gate_takes_an_export) ... ok
+test_joint_figure_and_controls (test_v4_status_g10.TokenGateV10.test_joint_figure_and_controls) ... skipped 'the token capture is not on disk'
+test_plane_index_cross_check (test_v4_status_g10.TokenIoGeometry.test_plane_index_cross_check) ... ok
+test_r2_and_r3_counted_layouts (test_v4_status_g10.TokenIoGeometry.test_r2_and_r3_counted_layouts) ... ok
+test_static_g_items (test_v4_status_g10.TokenIoGeometry.test_static_g_items) ... ok
+test_readings_chain_and_failing_first (test_v4_status_g10.TokenR11Pins.test_readings_chain_and_failing_first) ... skipped 'the r9 CLI capture, frozen-r9 or frozen-r11 is not on disk'
+test_the_r11_cli_capture_pins (test_v4_status_g10.TokenR11Pins.test_the_r11_cli_capture_pins) ... skipped 'the round-11 CLI-path capture is not on disk'
+test_readings_and_pin_checks (test_v4_status_g10.TokenR9Pins.test_readings_and_pin_checks) ... skipped 'the CLI capture or frozen-r7 is not on disk'
+test_calibration_rule_and_readme (test_v4_status_g10.TokenRound10.test_calibration_rule_and_readme) ... skipped 'the token capture is not on disk'
+test_nl1_s1_to_s5_on_the_new_slots (test_v4_status_g10.TokenRound10.test_nl1_s1_to_s5_on_the_new_slots) ... skipped 'the token capture is not on disk'
+test_surjection_on_the_token_endpoints (test_v4_status_g10.TokenRound10.test_surjection_on_the_token_endpoints) ... skipped 'the token capture is not on disk'
+test_a_block_run_loader_refuses_the_schema (test_w16_gate.D55Bundle.test_a_block_run_loader_refuses_the_schema) ... ok
+test_integrity_facts_and_replay (test_w16_gate.D55Bundle.test_integrity_facts_and_replay) ... ok
+test_the_replay_controls_fire (test_w16_gate.D55Bundle.test_the_replay_controls_fire) ... ok
+test_lookups_and_helper_counts (test_w16_gate.W16Port.test_lookups_and_helper_counts) ... ok
+test_no_v24_module_is_changed_by_this_one (test_w16_gate.W16Port.test_no_v24_module_is_changed_by_this_one) ... ok
+test_plane_list_counts_per_domain (test_w16_gate.W16Port.test_plane_list_counts_per_domain) ... ok
+test_refusals_by_name (test_w16_gate.W16Port.test_refusals_by_name) ... ok
+test_the_d55_claim_encoding_and_schedule_lines (test_w16_gate.W16Port.test_the_d55_claim_encoding_and_schedule_lines) ... ok
+test_the_gate_shift_moves_one_family (test_w16_gate.W16Port.test_the_gate_shift_moves_one_family) ... ok
+test_the_opening_geometry_check_refuses_by_name (test_w16_gate.W16Port.test_the_opening_geometry_check_refuses_by_name) ... ok
+test_the_range_and_support_columns (test_w16_gate.W16Port.test_the_range_and_support_columns) ... ok
+test_the_w16r2_profiles_and_their_geometry (test_w16_gate.W16Port.test_the_w16r2_profiles_and_their_geometry) ... ok
+test_widths_families_and_sub_planes_at_the_rung (test_w16_gate.W16Port.test_widths_families_and_sub_planes_at_the_rung) ... ok
+test_a_w16r2_shape_at_w16s_rate_is_refused (test_w16_gate.W16R2RungBundle.test_a_w16r2_shape_at_w16s_rate_is_refused) ... ok
+test_facts_and_geometry (test_w16_gate.W16R2RungBundle.test_facts_and_geometry) ... ok
+test_a_non_w16_run_profile_is_refused (test_w16_gate.W16RungBundle.test_a_non_w16_run_profile_is_refused) ... ok
+test_facts (test_w16_gate.W16RungBundle.test_facts) ... ok
+test_layout_and_its_controls (test_w16_gate.W16RungBundle.test_layout_and_its_controls) ... ok
+test_pins_are_classified_and_range16_is_not_pinned (test_w16_gate.W16RungBundle.test_pins_are_classified_and_range16_is_not_pinned) ... ok
+test_tab_tables_and_their_controls (test_w16_gate.W16RungBundle.test_tab_tables_and_their_controls) ... ok
+
+======================================================================
+FAIL: test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_v4_status_g10.py", line 1884, in test_r19b_self_check_and_its_control
+    self.assertTrue(sc["ok"], sc["findings"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : ['the r16b CLI binary: re-hashed None, listed dfb8025eb903, named dfb8025eb903', 'the r17 CLI binary: re-hashed None, listed 81bd86248e9f, named 81bd86248e9f', 'the r18 CLI binary: re-hashed None, listed 110f0c53c56f, named 110f0c53c56f', 'the r19 CLI binary: re-hashed None, listed 841ba983ceba, named 841ba983ceba', 'the r19b CLI binary: re-hashed None, listed 6d65d32ea783, named 6d65d32ea783']
+
+----------------------------------------------------------------------
+Ran 150 tests in 66.566s
+
+FAILED (failures=1, skipped=71)
+<sys>:0: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_r26/d55-r13_rung_h24-s0/arrays.bin'>
+<sys>:0: ResourceWarning: unclosed file <_io.BufferedReader name='/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/d55-w16_rung_h24-s0/arrays.bin'>
+<sys>:0: ResourceWarning: unclosed file <_io.BufferedReader name='/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/w16r2_rung_h24-s0/arrays.bin'>
+<sys>:0: ResourceWarning: unclosed file <_io.BufferedReader name='/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/w16_rung_h24-s0/arrays.bin'>

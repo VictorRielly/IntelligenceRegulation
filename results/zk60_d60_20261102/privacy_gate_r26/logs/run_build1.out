@@ -1,0 +1,4 @@
+[zk60-guard 05:14:12] START r26-build1 class=build need=4G cap=12G enforce=watchdog-only waited=0s run=20b1efe365d4
+[zk60-guard 05:16:43] END r26-build1 exit=0 child_wall=151s peak_rss=3.66G min_avail=228.34G
+warnings: 133
+8f18469b2aa6467ee4af6e6d3afa8331ccbbde4a4c800650b5e4e51400f72a5d  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-1c13c905d461d38a

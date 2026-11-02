@@ -1,0 +1,8 @@
+
+running 3 tests
+test private_block::run_capture_tests::the_bundle_pins_every_source_file_that_decides_its_contents ... ok
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... ok
+test private_block::run_capture_tests::every_key_of_a_bundle_is_on_the_allow_list ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 988 filtered out; finished in 1.66s
+

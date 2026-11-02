@@ -209,7 +209,15 @@ class W16RungBundle(unittest.TestCase):
         files = [x["file"] for x in self.b.manifest.get("source_pins", [])]
         self.assertEqual(p["range16_rs_pinned"], "src/private_block/range16.rs" in files)
         if p["range16_rs_pinned"]:
-            self.assertIn("src/private_block/range16.rs", [u["file"] for u in p["unread"]])
+            # [2026-11-02, gate round 26] the block reader read range16.rs at
+            # 62061f62.. (READINGS_R26_BLOCK.json): at that FULL digest it is
+            # read; at any other digest it is still UNREAD
+            import zk60_native_rg_r26readings as R26
+            d = {x["file"]: x["sha256"] for x in self.b.manifest["source_pins"]}["src/private_block/range16.rs"]
+            if R26.reading_for("src/private_block/range16.rs", d, p["backend"]["proved_on_gpu"]) is not None:
+                self.assertIn("src/private_block/range16.rs", p["readings_r26"])
+            else:
+                self.assertIn("src/private_block/range16.rs", [u["file"] for u in p["unread"]])
 
 
 R2_BUNDLE = os.environ.get("ZK60_W16R2_RUNG_BUNDLE", "")

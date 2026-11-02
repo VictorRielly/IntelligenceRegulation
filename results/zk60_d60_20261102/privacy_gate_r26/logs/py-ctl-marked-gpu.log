@@ -1,0 +1,15 @@
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+pins: 75 declared, 41 at r19b, 32 read here, 2 UNREAD ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal']; self-read ['src/private_block/run_capture.rs']
+backend: proved_on_gpu True, admissible False -- REFUSED: GPU-MADE BUNDLE (proved_on_gpu = true), and the Metal backend is not admissible (no FULL reading at the pinned digest: src/gpu/metal.rs, src/gpu/metal_kernels.metal). Under HL_GPU=1 these files compute receipt bytes (the hiding coset encoding, the column leaves, the opened columns, the clear vectors' message half, the device sumcheck rounds); F-B1 read only their privacy-relevant paths. Refused until both are pinned and fully read
+status: D55-DEV-PASS (96.9 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/results/zk60_d60_20261102/privacy_gate_r26/records/d55-py-ctl-marked-gpu.json

@@ -1,0 +1,14 @@
+
+running 9 tests
+test private_block::w16_privacy_gate_tests::d55_privacy_gate_write_the_fork_bundles ... ignored, writes D55 fork-run capture bundles; set HL_W16PG_CAPTURE_DIR
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_trained_t128_shapes ... ignored, heavy: full W16 T128 runs captured on the CPU; run by name, guarded
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_on_the_metal_path ... ignored, toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_write_the_w16_bundles ... ignored, writes the W16 gate bundles; set HL_W16PG_CAPTURE_DIR
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_development_rung ... ok
+test private_block::w16_privacy_gate_tests::w16r2_privacy_gate_on_the_metal_path ... ignored, toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded
+test private_block::w16_privacy_gate_tests::w16r2_privacy_gate_at_the_development_rung ... ok
+test private_block::w16_privacy_gate_tests::d55_fork_run_capture_passes_the_w16_gate_checks_at_the_development_rung ... ok
+test private_block::w16_privacy_gate_tests::d55_fork_run_capture_passes_the_w16_gate_checks_at_the_w16r2_rung ... ok
+
+test result: ok. 4 passed; 0 failed; 5 ignored; 0 measured; 982 filtered out; finished in 9.09s
+

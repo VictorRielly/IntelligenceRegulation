@@ -1,0 +1,256 @@
+{
+ "what": "gate round 26, the WIRING's own reading: the run_capture.rs diff of the F-B1 fix and the CPU-path scope of the two Metal backend files (the digests a fresh bundle at 23199feb pins)",
+ "privacy_acceptance": false,
+ "reader": "the round-26 wiring agent (Claude), who WROTE the run_capture.rs change: SELF-READ. Owed an independent check at the v25 freeze review; the gate names these readings in every record that uses them (PINS.self_read_pending_independent_check)",
+ "self_read": true,
+ "date_utc": "2026-11-02",
+ "method": "diff -u of run_capture.rs at 6d06b8b0 (equal to 8b78aabd for every source file: `git diff --stat 8b78aabd 6d06b8b0 -- hashline/src zkp-core/src` is empty; its digest cbb78dc0 is the run-level reader's HEAD) against 23199feb; every hunk classified and every privacy-relevant one argued with line numbers of the new file. The Metal files: their 8b78aabd blobs (equal at 23199feb) re-read for the CPU path only (their reachable surface when gpu::enabled() is false), sizes checked against F-B1's.",
+ "trees": {
+  "base": {
+   "commit": "6d06b8b0",
+   "equals": "8b78aabd for hashline/src and zkp-core/src",
+   "run_capture_rs": "cbb78dc04ac5ca62e56318ae6b2e844666ef3016e03a774e81d7e3d6dc569135"
+  },
+  "new": {
+   "commit": "23199feb",
+   "run_capture_rs": "10b6d3be860c73cd257e4b6b040b0351f10b993d8b1d1fdb5775057b71ef21c7"
+  }
+ },
+ "capture_pins": {
+  "source": "run_capture.rs OWN_SOURCE_FILES (44) + SHARED_SOURCE_FILES (31) = 75 at 23199feb",
+  "added": [
+   "src/gpu/metal.rs",
+   "src/gpu/metal_kernels.metal"
+  ],
+  "moved_by_this_change": [
+   "src/private_block/run_capture.rs"
+  ]
+ },
+ "diffs": [
+  {
+   "file": "hashline/src/private_block/run_capture.rs",
+   "from": "6d06b8b0 (cbb78dc0)",
+   "to": "23199feb",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_wiring/wiring-head-r26w-run_capture.rs.diff",
+   "sha256": "54c7efd667bdd27e786db6de7f196b96ad3cc339c1bae33fe5b11ba63c236df9",
+   "plus": 20,
+   "minus": 5,
+   "hunks": 6
+  }
+ ],
+ "readings": {
+  "src/private_block/run_capture.rs": {
+   "r19b": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf",
+   "base": "cbb78dc04ac5ca62e56318ae6b2e844666ef3016e03a774e81d7e3d6dc569135",
+   "new": "10b6d3be860c73cd257e4b6b040b0351f10b993d8b1d1fdb5775057b71ef21c7",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "TEST-ONLY module (`#[cfg(test)] mod run_capture;`); its content IS what a capture contains",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_wiring/wiring-head-r26w-run_capture.rs.diff",
+   "diff_sha256": "54c7efd667bdd27e786db6de7f196b96ad3cc339c1bae33fe5b11ba63c236df9",
+   "diff_stat": "+20 / -5, 6 hunk(s) against cbb78dc0 (the run-level reader's HEAD)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "base_at": 167,
+     "new_lines": [
+      167,
+      173
+     ],
+     "plus": 1,
+     "minus": 1,
+     "n": 1,
+     "class": "production privacy-neutral (test-only module; a type)",
+     "what": "SHARED_SOURCE_FILES: [&str; 29] -> [&str; 31]",
+     "argument": "The array length only; the compiler checks it against the entries."
+    },
+    {
+     "base_at": 216,
+     "new_lines": [
+      216,
+      229
+     ],
+     "plus": 8,
+     "minus": 0,
+     "n": 2,
+     "class": "privacy-relevant (what a manifest lists)",
+     "what": "two pins appended to SHARED_SOURCE_FILES after ../zkp-core/src/tables.rs: src/gpu/metal.rs and src/gpu/metal_kernels.metal, with the F-B1 comment",
+     "argument": "A pin is (file name, SHA-256 of the PUBLIC source file at capture time), read by source_pins() (:4618) from CARGO_MANIFEST_DIR; nothing is absorbed into any transcript, frame or statement, and the manifest is not hashed into a receipt. Appended: source_files() (:4613) is OWN then SHARED, so every earlier pin keeps its index; the classifier's five (classify_source_pins) now follow two later, and every reader indexes pins by file name (zk60_native_rg_classpins.check_classify_pins, zk60_native_rg_w16.classify_pins, zk60_native_rg_terminals). s24's partition test covers OWN_SOURCE_FILES only (private_block's modules), so the gpu files need no excusal; s24 (d3) now asserts both are pinned. Closes F-B1's pin-coverage half."
+    },
+    {
+     "base_at": 307,
+     "new_lines": [
+      315,
+      325
+     ],
+     "plus": 5,
+     "minus": 2,
+     "n": 3,
+     "class": "text only",
+     "what": "the M26 comment above slot_ir.rs / slot_ir_accuracy.rs / metal_slot.rs corrected",
+     "argument": "It said a Metal-built bundle is 'tied to them as well' (overstating: those three are the IR and its codegen, not the backend that runs the kernels and computes the commitments); it now says so and points at the two new SHARED pins. Comment only."
+    },
+    {
+     "base_at": 4265,
+     "new_lines": [
+      4276,
+      4283
+     ],
+     "plus": 2,
+     "minus": 0,
+     "n": 4,
+     "class": "privacy-relevant (the allow-list)",
+     "what": "ALLOWED_KEYS gains \"proved_on_gpu\" in its manifest section",
+     "argument": "The allow-list grows by ONE key whose value is a boolean (hunks 5, 6). The value is a function of the prover's environment (HL_GPU and whether the Metal device initialised), not of any witness value, hidden input, output, activation, weight, pad, mask coefficient, salt or prover draw (P1's hidden set). No run.json / stage / tail writer emits the key (those writers are unchanged), so PG-7's scans of those files are unaffected; the forbidden-word scan is unchanged. every_key_of_a_bundle_is_on_the_allow_list (run_capture_tests.rs:361) scans the generic writer's manifest and passes with the key listed."
+    },
+    {
+     "base_at": 4451,
+     "new_lines": [
+      4464,
+      4472
+     ],
+     "plus": 3,
+     "minus": 1,
+     "n": 5,
+     "class": "privacy-relevant (a new manifest field)",
+     "what": "the registered-D55 fork-run manifest (write_fork_bundle :4467-4469) writes \"proved_on_gpu\":<bool> after \"writer\" and before \"source_pins\", the value crate::gpu::enabled()",
+     "argument": "gpu::enabled() is the switch every device path of the prover is gated on (gpu/mod.rs:774, :786, :798 the Metal commit seam; argument.rs:2636 / :2662-2688 the slot IR and so every metal_rounds / MetalTables call; trained_block.rs:2600). It is read in the proving process at write time: both writers run in-process after the verifier closed with the recorder attached, and no test changes HL_GPU between the proof and the write (the tests that toggle HL_GPU in-process -- w16_privacy_gate_tests::metal_gate_at, slot_ir_accuracy.rs, w16r2_tests.rs -- check their captures in memory and call neither writer). No-feature build: always false. gpu-metal: HL_GPU == \"1\" and ctx() Ok (metal.rs:96-109); with HL_GPU unset it returns before touching the device; with HL_GPU=1 the context is the one the prover already made. It discloses only how the prover ran, which the bundle README's note already states (gpu::label(), run_fork_tests.rs:1177) and the prover's logs print; no branch, absorb or byte of run.json / stage files / tail / frames moves. Rust's bool Display is JSON true / false. The Rust REG check (contains the writer string) is unaffected."
+    },
+    {
+     "base_at": 4569,
+     "new_lines": [
+      4584,
+      4590
+     ],
+     "plus": 1,
+     "minus": 1,
+     "n": 6,
+     "class": "privacy-relevant (a new manifest field)",
+     "what": "the generic write_bundle manifest (:4587) writes \"proved_on_gpu\":<bool> after \"source_commit\"",
+     "argument": "The same field and value as hunk 5, for every other bundle kind (block runs, token-I/O, classifier); the same argument. The rest of the manifest (pins, files, total) is unchanged."
+    }
+   ],
+   "counts": {
+    "hunks": 6,
+    "test_only": 0,
+    "production_privacy_neutral": 1,
+    "text_only": 1,
+    "privacy_relevant": 4,
+    "privacy_relevant_safe": 4
+   },
+   "findings": [],
+   "verdict": "SELF-READ; safe (no finding); owed an independent check at the v25 freeze review",
+   "readings": {
+    "10b6d3be860c73cd257e4b6b040b0351f10b993d8b1d1fdb5775057b71ef21c7": {
+     "base": "cbb78dc04ac5ca62e56318ae6b2e844666ef3016e03a774e81d7e3d6dc569135",
+     "diff_stat": "+20 / -5, 6 hunk(s) against cbb78dc0",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "test-only",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_wiring/wiring-head-r26w-run_capture.rs.diff",
+     "chained_on": "READINGS_R26_RUN.json readings['src/private_block/run_capture.rs'] (r19b -> cbb78dc0)",
+     "reading": "[GATE ROUND 26, the wiring's own reading, SELF-READ, cbb78dc0 -> 10b6d3be] F-B1's capture half: src/gpu/metal.rs and src/gpu/metal_kernels.metal appended to SHARED_SOURCE_FILES; \"proved_on_gpu\" (= gpu::enabled() in the proving process) in both manifest writers and on ALLOWED_KEYS; the M26 pin comment corrected. Nothing on not_in_a_capture is written; no transcript, frame, stage, tail or run.json byte moves; the value is prover-environment metadata, not a function of any hidden value. Chained on the run-level reader's r19b -> cbb78dc0 reading (READINGS_R26_RUN.json). No finding."
+    }
+   }
+  },
+  "src/gpu/metal.rs": {
+   "r19b": null,
+   "head": "a96882bcc6716deedd37f56ba3846724a015c232f84a6d6e26f08667593a121d",
+   "bytes": 92982,
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES (since 23199feb)"
+   ],
+   "compiled": "gpu-metal production only",
+   "scope": "cpu-path",
+   "readings": {
+    "a96882bcc6716deedd37f56ba3846724a015c232f84a6d6e26f08667593a121d": {
+     "scope": "cpu-path",
+     "basis": "READINGS_R26_BLOCK.json findings F-B1 (the block reader; HEAD 8b78aabd, by size), re-checked here",
+     "reading": "CPU-PATH SCOPE ONLY (a CPU-made bundle: proved_on_gpu = false). The block reader's F-B1 says it: 'for them metal.rs only answers enabled() == false'; re-checked here at this digest. metal.rs is compiled only under feature gpu-metal without gpu-cuda (gpu/mod.rs:25-26). Its reachable surface from the prover: enabled() (:96-109) and label() (:112-124) return before ctx() (:70-88) unless HL_GPU == \"1\"; every device entry is gated at its caller by gpu::enabled(): the commitment seam's try_commit / try_commit_zk_keyed / try_commit_zk return None first (gpu/mod.rs:774, :786, :798), so no commitment carries a MetalCommit store and MetalCommit::fold_rows / columns (the EncodedStore of a device commitment) are never called; the slot IR and every metal_rounds / metal_rounds_owned / MetalTables::new call need def.metal = Some, set only under metal_on = Prove && gpu::enabled() (argument.rs:2636, :2662-2688, :897-903, :980, :1002); trained_block.rs:2600 is a label. With enabled() false this file computes no byte of a receipt or a bundle. The device paths (metal_commit_zk, MetalCommit::columns / fold_rows, MetalRounds::masked_prove) are F-B1's privacy-relevant reading (no leak) and are NOT read in full: a GPU-made bundle is refused."
+    }
+   },
+   "verdict": "CPU-PATH SCOPE: SELF-READ, no byte computed when gpu::enabled() is false; the device paths are NOT read in full"
+  },
+  "src/gpu/metal_kernels.metal": {
+   "r19b": null,
+   "head": "be9682364115ea8d94a2db6bfd68cc2ec6585c92448b1548813ef82a565b3b88",
+   "bytes": 39117,
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES (since 23199feb)"
+   ],
+   "compiled": "a string constant (include_str!) of the gpu-metal build",
+   "scope": "cpu-path",
+   "readings": {
+    "be9682364115ea8d94a2db6bfd68cc2ec6585c92448b1548813ef82a565b3b88": {
+     "scope": "cpu-path",
+     "basis": "READINGS_R26_BLOCK.json findings F-B1, re-checked here",
+     "reading": "CPU-PATH SCOPE ONLY. The kernel source is include_str! into metal.rs's SRC (:31) and compiled to a device library only inside ctx() (newLibraryWithSource, :75), which enabled() / label() reach only under HL_GPU=1; on a CPU-made bundle it is a string constant in the binary, never compiled or executed. NOT read as kernel code (F-B1: a GPU-made bundle is refused until it is)."
+    }
+   },
+   "verdict": "CPU-PATH SCOPE: SELF-READ, never compiled or run when gpu::enabled() is false; NOT read as kernel code"
+  }
+ },
+ "special_attention": {
+  "proved_on_gpu_semantics": "gpu::enabled() at write time in the proving process. Conservative: HL_GPU=1 with every device call declined still says true (and is refused); HL_GPU=1 with no device says false, and then every device path is off. A future out-of-process writer, or a test that toggles HL_GPU between a proof and a write, would have to carry the value from the proof (none exists at 23199feb).",
+  "gate_rule": "staging_v25 zk60_native_rg_r26readings.gpu_backend: absent -> refused (UNKNOWN), true -> refused while either Metal file lacks a FULL reading, false -> admissible with the CPU-path readings above"
+ },
+ "notes": [
+  {
+   "id": "N-R26-W1",
+   "severity": "Info",
+   "what": "The test-only W16 fork writer (w16_privacy_gate_tests::write_fork_bundle) does not record proved_on_gpu; its bundles are refused as UNKNOWN by the gate (they are test-only identities with unread test pins and never reach PASS)."
+  },
+  {
+   "id": "N-R26-W2",
+   "severity": "Info",
+   "what": "F-B2 (slot_ir.rs's stale module doc) and F-B3 (the 'byte table' wording) are production text; not changed here (no production Rust change in this round)."
+  }
+ ],
+ "not_read_here": {
+  "src/gpu/metal.rs (device paths)": "F-B1's privacy-relevant paths only (block reader); a full reading is owed before any GPU-made bundle can be admitted",
+  "src/gpu/metal_kernels.metal": "not read as kernel code"
+ },
+ "wiring_w16_readings_style": {
+  "src/private_block/run_capture.rs": [
+   [
+    "10b6d3be860c",
+    "23199feb (SELF-READ): cbb78dc0 + the F-B1 capture fix (two pins, proved_on_gpu in both manifests and on ALLOWED_KEYS, a comment); no finding"
+   ]
+  ],
+  "src/gpu/metal.rs": [
+   [
+    "a96882bcc671",
+    "CPU-PATH ONLY (SELF-READ on F-B1): enabled() / label() return before ctx() unless HL_GPU=1; every device entry gated by gpu::enabled() at its caller"
+   ]
+  ],
+  "src/gpu/metal_kernels.metal": [
+   [
+    "be9682364115",
+    "CPU-PATH ONLY (SELF-READ on F-B1): compiled only inside ctx(); never run when gpu::enabled() is false"
+   ]
+  ],
+  "note": "wired in staging_v25/scripts/zk60_native_rg_r26readings.py R26_READINGS (full digests; the two Metal entries at scope cpu-path, admissible only on a bundle whose manifest says proved_on_gpu: false)"
+ },
+ "summary": {
+  "files_read": 3,
+  "capture_pins_read": 3,
+  "self_read": true,
+  "totals": {
+   "hunks": 6,
+   "privacy_relevant": 4,
+   "privacy_relevant_safe": 4,
+   "findings": 0
+  },
+  "new_digests": {
+   "src/private_block/run_capture.rs": "10b6d3be860c73cd257e4b6b040b0351f10b993d8b1d1fdb5775057b71ef21c7",
+   "src/gpu/metal.rs": "a96882bcc6716deedd37f56ba3846724a015c232f84a6d6e26f08667593a121d",
+   "src/gpu/metal_kernels.metal": "be9682364115ea8d94a2db6bfd68cc2ec6585c92448b1548813ef82a565b3b88"
+  },
+  "verdict": "SELF-READ, no finding; the run_capture.rs diff is safe and the Metal files compute nothing on a CPU-made bundle; owed an independent check at the v25 freeze review"
+ }
+}

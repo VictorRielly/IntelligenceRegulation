@@ -1,0 +1,14 @@
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+pins: 74 declared, 45 at r19b, 23 read here, 6 UNREAD ['src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/wire.rs', 'src/private_block/run_fork.rs', 'src/private_block/run_fork_wire.rs', 'src/private_block/w16_privacy_gate_tests.rs']; self-read []
+backend: proved_on_gpu None, admissible False -- REFUSED: UNKNOWN PROVER BACKEND: the manifest does not record `proved_on_gpu` (a bundle written before gate round 26's F-B1 fix). Under HL_GPU=1 src/gpu/metal.rs and src/gpu/metal_kernels.metal compute receipt bytes, and neither has a full reading, so a bundle that does not say how it was proved is refused as evidence
+status: D55-DEV-PASS (80.4 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/results/zk60_d60_20261102/privacy_gate_r26/records/d55-py-w16r2-rung-s0.json

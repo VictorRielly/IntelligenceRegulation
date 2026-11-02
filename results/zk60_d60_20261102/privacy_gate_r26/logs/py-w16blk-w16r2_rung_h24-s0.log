@@ -1,0 +1,9 @@
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 23 read here, 3 UNREAD: ['src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/wire.rs']
+status: W16-DEV-PASS (56.9 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/results/zk60_d60_20261102/privacy_gate_r26/records/w16-blk-w16r2_rung_h24-s0.json

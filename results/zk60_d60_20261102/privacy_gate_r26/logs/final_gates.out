@@ -1,0 +1,69 @@
+== warnings 05:30:50
+build1 (gpu-metal test build + no-feature check): 133 warnings, 2 Finished
+== scans 05:30:50
+[zk60-guard 05:30:50] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:31:51] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:32:52] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:33:53] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:34:54] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:35:55] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:36:56] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:37:56] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:38:57] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:39:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:40:59] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:42:00] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:43:01] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:44:02] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:45:03] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:46:04] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:47:05] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:48:05] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:49:06] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:49:42] START r26-scans_final class=cpu need=4G cap=20G enforce=watchdog-only waited=1131s run=71022c4027b3
+[zk60-guard 05:50:17] END r26-scans_final exit=0 child_wall=36s peak_rss=4.92G min_avail=226.75G
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 933 filtered out; finished in 35.66s
+== devbytes 05:50:20
+[zk60-guard 05:50:21] START r26-devbytes class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=0b58a8f118f9
+[zk60-guard 05:50:27] END r26-devbytes exit=0 child_wall=6s peak_rss=1.78G min_avail=227.12G peak_vram=3731MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 6.10s
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2ed5e77d353815c5358a4688e41f5fa8bff1c6661df5a1b27adfa9f3e7 metal 01fa1b2ed5e77
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8cc01346e941599857a83c1069e82c43a1c7bb3bfb6284a18aabca450 metal 992034f8cc013
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00baf149b98e149dfed90480624306428987038be3883c6abe78ac2496 metal 371e6b00ba
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df674c9d4dd4187c07472f309fe7af69fee261927c4f793688799ffb7a metal 3ab090df67
+== d55-cpu 05:50:30
+[zk60-guard 05:50:30] START r26-d55_cpu class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=504497c48358
+[zk60-guard 05:52:20] END r26-d55_cpu exit=0 child_wall=110s peak_rss=2.25G min_avail=229.10G
+thread '<unnamed>' (4674072) panicked at src/private_block/run_fork.rs:1012:13:
+thread '<unnamed>' (4674073) panicked at src/private_block/run_fork.rs:1012:13:
+thread '<unnamed>' (4674073) panicked at src/private_block/run_fork.rs:1012:13:
+D60 F8 | every fork worker panics (L3, 2 workers) | the prover FAILS and returns: D55: fork 0: its worker panicked: D60 F8 test switch: fork 0's worker panics
+test result: ok. 23 passed; 0 failed; 7 ignored; 0 measured; 961 filtered out; finished in 109.80s
+D60 CAPTURE | the registered R13-rung D55 run's bundle WRITTEN by run_capture::write_bundle (65670170 B outside receipt/, schema hashline-native-capture/8-d55-fork-run-prototype); the test-only identity's REFUSED: run capture: a D55 fork-run capture under "d55-commit-fork-join-runs/opt-in-prototype-
+D60 CAPTURE | the Rust gate on the written bundle: R13_RUNG_H24 D55-registered registered: 7 checks, all PASS
+test result: ok. 23 passed; 0 failed; 7 ignored; 0 measured; 961 filtered out; finished in 109.80s
+== w16-privacy-gate 05:52:23
+[zk60-guard 05:52:23] START r26-w16pg class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=c531444e368e
+[zk60-guard 05:52:32] END r26-w16pg exit=0 child_wall=9s peak_rss=3.47G min_avail=228.16G
+test result: ok. 4 passed; 0 failed; 5 ignored; 0 measured; 982 filtered out; finished in 9.09s
+== capture-tests 05:52:35
+[zk60-guard 05:52:35] START r26-capture_final class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=bf4401d4d34e
+[zk60-guard 05:52:37] END r26-capture_final exit=0 child_wall=2s peak_rss=0.16G min_avail=231.83G
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 988 filtered out; finished in 1.66s
+== w16-one-block-regressions 05:52:40
+[zk60-guard 05:52:40] START r26-w16blk-w16_rung_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=b61fb3c43b9a
+[zk60-guard 05:53:37] END r26-w16blk-w16_rung_h24-s0 exit=0 child_wall=56s peak_rss=0.41G min_avail=231.36G
+pins: 71 declared, 45 at r19b, 23 read here, 3 UNREAD: ['src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/wire.rs']
+status: W16-DEV-PASS (56.2 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/results/zk60_d60_20261102/privacy_gate_r26/records/w16-blk-w16_rung_h24-s0.json
+[zk60-guard 05:53:37] START r26-w16blk-w16r2_rung_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=7de9262a75dd
+[zk60-guard 05:54:34] END r26-w16blk-w16r2_rung_h24-s0 exit=0 child_wall=57s peak_rss=0.42G min_avail=231.38G
+pins: 71 declared, 45 at r19b, 23 read here, 3 UNREAD: ['src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/wire.rs']
+status: W16-DEV-PASS (56.9 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad2863f50f3102344/results/zk60_d60_20261102/privacy_gate_r26/records/w16-blk-w16r2_rung_h24-s0.json
+== py-suite 05:54:37
+[zk60-guard 05:54:37] START r26-suite class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=40275a79b35a
+[zk60-guard 05:55:44] END r26-suite exit=1 child_wall=67s peak_rss=0.60G min_avail=231.29G
+FAIL: test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control)
+FAIL: test_pins_are_classified_and_range16_is_not_pinned (test_w16_gate.W16RungBundle.test_pins_are_classified_and_range16_is_not_pinned)
+Ran 150 tests in 66.178s
+FAILED (failures=2, skipped=71)
+== done 05:55:44

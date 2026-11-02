@@ -1,0 +1,6 @@
+d55-py-r13-rung-s0.json D55-PASS 96.8 s 592 MB
+d55-py-r13-rung-s1.json D55-PASS 96.7 s 562 MB
+d55-py-r13-8b-s0.json D55-PASS 377.7 s 2019 MB
+d55-py-r13-8b-s1.json D55-PASS 375.1 s 1693 MB
+regular commitments ranked 40 | disclosed {0: 28, 2: 12} | = expectation 40 | certifying minor full rank, det != 0 40 | reduction hypotheses true 40 | M at 0 12 | pad margins {0: 24, 1: 13, 2: 2, 3: 1}
+controls (part, fired): count {('D55-C', True): 8, ('D55-IO', True): 4, ('D55-J', True): 24, ('PINS', True): 20, ('R13-3', True): 30, ('R13-H', True): 12, ('exclusivity', True): 4, ('mask', True): 4}
