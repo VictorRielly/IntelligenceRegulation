@@ -1,5 +1,7 @@
 # ZKP efficiency explorer — durable state
 
+**Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
+
 ## 2026-11-03: Claude researcher cycle (D50): the RTX 5090 projection and the levers re-ranked
 
 **COMPLETE.** **No measured proving improvement.** Only `research/zkp-efficiency/` was written. There was no build,
