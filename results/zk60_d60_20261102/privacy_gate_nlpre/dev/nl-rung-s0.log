@@ -1,0 +1,91 @@
+{
+ "forks": 3,
+ "slot_instances": "21/21",
+ "gates": {
+  "0": 20,
+  "1": 21,
+  "2": 20
+ },
+ "T0": "21/21",
+ "E0": "21/21",
+ "T0_control_fires": "21/21",
+ "per_mode": {
+  "run": {
+   "F0": "21/21",
+   "S1": {
+    "premise_holds": 21,
+    "public_factor_every_monomial": 21,
+    "degree_fits": 21,
+    "budget_ok": 21,
+    "of": 21
+   },
+   "S4": {
+    "miniatures_pass": 21,
+    "terminal_map_onto": 21,
+    "of": 21
+   }
+  },
+  "random-1": {
+   "F0": "21/21",
+   "S1": {
+    "premise_holds": 21,
+    "public_factor_every_monomial": 21,
+    "degree_fits": 21,
+    "budget_ok": 21,
+    "of": 21
+   },
+   "S4": {
+    "miniatures_pass": 21,
+    "terminal_map_onto": 21,
+    "of": 21
+   }
+  },
+  "random-2": {
+   "F0": "21/21",
+   "S1": {
+    "premise_holds": 21,
+    "public_factor_every_monomial": 21,
+    "degree_fits": 21,
+    "budget_ok": 21,
+    "of": 21
+   },
+   "S4": {
+    "miniatures_pass": 21,
+    "terminal_map_onto": 21,
+    "of": 21
+   }
+  },
+  "random-3": {
+   "F0": "21/21",
+   "S1": {
+    "premise_holds": 21,
+    "public_factor_every_monomial": 21,
+    "degree_fits": 21,
+    "budget_ok": 21,
+    "of": 21
+   },
+   "S4": {
+    "miniatures_pass": 21,
+    "terminal_map_onto": 21,
+    "of": 21
+   }
+  }
+ },
+ "S3": "25/25 at [(15, 3), (15, 4), (15, 5), (16, 4), (16, 5)]",
+ "S3_all_23_slots": "55/55",
+ "budget_all_23_slots": true,
+ "S5": {
+  "N5_1_fires": "21/21",
+  "N5_2_fires": "15/15 (not applicable at slack > 0: 6)",
+  "N5_3_fires": true,
+  "N5_4_fires": true,
+  "F_1_fires": "21/21"
+ },
+ "S5_ok": true,
+ "D55_controls": {
+  "NL-TAB-GC a doctored group-column entry": true,
+  "NL-TAB-ACT a doctored ACT3 table entry": true,
+  "NL-G the gate denominator moved": true
+ }
+}
+status: PASS (24.7 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a19d9832207e830a4/results/zk60_d60_20261102/privacy_gate_nlpre/dev/d55nl-rung-s0.json
