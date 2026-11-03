@@ -1625,7 +1625,7 @@ fn value_len(b: &[u8], at: usize) -> Result<usize, String> {
 }
 
 /// the rank over `F_p` of a matrix given by its rows (Gaussian elimination)
-fn rank_fp(mut m: Vec<Vec<Fp>>) -> usize {
+pub(super) fn rank_fp(mut m: Vec<Vec<Fp>>) -> usize {
     let cols = m.first().map(|r| r.len()).unwrap_or(0);
     let mut rank = 0usize;
     for c in 0..cols {
@@ -1656,7 +1656,7 @@ fn rank_fp(mut m: Vec<Vec<Fp>>) -> usize {
 /// ZERO message with the `i`-th unit pad, so its entry `j` is what pad symbol
 /// `i` adds at encoded position `j`. `coset: None` is the controls'
 /// systematic domain (every coset power 1, i.e. evaluation on `G_nn` itself).
-fn pad_codewords(log_n: usize, inv_rate: usize, q: usize, coset: Option<Fp>, ntt: &crate::ntt::NttTables) -> Vec<Vec<Fp>> {
+pub(super) fn pad_codewords(log_n: usize, inv_rate: usize, q: usize, coset: Option<Fp>, ntt: &crate::ntt::NttTables) -> Vec<Vec<Fp>> {
     let (n, nn) = (1usize << log_n, (1usize << log_n) * inv_rate);
     let pows = match coset {
         Some(h) => crate::pcs::coset_powers(h, nn),
@@ -1675,7 +1675,7 @@ fn pad_codewords(log_n: usize, inv_rate: usize, q: usize, coset: Option<Fp>, ntt
 }
 
 /// the rank of the pad block (its first `q_used` pad coordinates) at the opened positions `idx`
-fn pad_rank(cw: &[Vec<Fp>], idx: &[usize], q_used: usize) -> usize {
+pub(super) fn pad_rank(cw: &[Vec<Fp>], idx: &[usize], q_used: usize) -> usize {
     rank_fp(idx.iter().map(|&j| cw[..q_used].iter().map(|c| c[j]).collect()).collect())
 }
 
@@ -1840,7 +1840,7 @@ fn r2_checks(rec: &mut Record, name: &str, sh: &Shape, files: &[(String, Vec<u8>
 }
 
 /// **D59 CONDITION (5): THE W16 PRIVACY GATE AT THE W16R2 DEVELOPMENT RUNG**
-/// (`W16R2_RUNG_H24`, rate 1/2, Q = 260): every W16 check (PG-1 .. PG-10) and
+/// (`W16R2_RUNG_H24`, rate 1/2, Q = `W16R2_OPENED_COLS` = 280): every W16 check (PG-1 .. PG-10) and
 /// control on two captured runs (two hidden inputs), plus PG-R2 and its
 /// controls C-R2a .. c. A mechanical check of one development shape's view:
 /// NOTHING HERE IS A PRIVACY STATEMENT.

@@ -3,8 +3,9 @@
 //!
 //! The profiles (`shape::W16R2_PROFILES`) are W16's geometries under new
 //! strings. Their regular commitments (`A`, `H`, every boundary and both
-//! endpoints) are encoded at rate 1/2 with `Q = 260` opened columns and
-//! `Q` pads per row; the masking commitment `M` keeps its own constants. The
+//! endpoints) are encoded at rate 1/2 with `Q = 280` opened columns and
+//! `Q` pads per row (`shape::W16R2_OPENED_COLS`: Victor's ruling on review
+//! F2, 2026-11-02; it was 260); the masking commitment `M` keeps its own constants. The
 //! lemma that prices them is the independent check of 2026-11-01
 //! (`research/zkp-efficiency/handoffs/20261101-delta-half-lemma-check.md`):
 //! per opening `(1 - (e + 1)/N)^Q + N/|Fp2|`, `e = floor((N - K)/2)`,
@@ -44,12 +45,20 @@
 //!   (`results/zk60_w16r2_20261101/ACCOUNTING.md` reads them);
 //! * the A/B on one binary (W16 against W16R2 at 8B T128), ignored.
 //!
-//! **`Q` is ONE constant** (`shape::W16R2_OPENED_COLS`; review F2 may move it
-//! from 260 to 280). Every control added on 2026-11-02 derives `Q`, `K`, `e`
-//! and its expected probabilities from that constant and the shape. The
-//! deliberate literal pins of the profile facts (which a change of the
-//! constant must update by hand) are listed in
-//! `results/zk60_w16r2_20261101/FINDINGS_CLOSED_20261102.md`.
+//! **`Q` is ONE constant** (`shape::W16R2_OPENED_COLS`; review F2's ruling
+//! moved it from 260 to 280, 2026-11-03). Every control added on 2026-11-02
+//! derives `Q`, `K`, `e` and its expected probabilities from that constant
+//! and the shape. The deliberate literal pins, which a change of the
+//! constant must update by hand, are the profile-facts test
+//! (`w16r2_profiles_fix_rate_one_half_and_q_280_and_change_nothing_else`)
+//! and the rung golden [`W16R2_RUNG_GOLDEN`]
+//! (`results/zk60_w16r2_q280_20261103/README.md`).
+//! * since F2's ruling: the privacy argument's hypotheses at `Q = 280`,
+//!   checked on the production encoder (the pad block is `diag(Z_n) V`,
+//!   full rank on any `<= Q` distinct opened points; `Q` = the pad count);
+//! * review F6: the token and classifier whole-run counters price a W16R2
+//!   block opening by the lemma that covers it, and every other profile's
+//!   figure bit for bit as before.
 use super::layout::*;
 use super::protocol::{self, CoreProof, CoreView};
 use super::range16_tests::{built, rung_case};
@@ -160,19 +169,19 @@ fn core_bytes(core: &CoreProof) -> (usize, usize, usize, usize, usize) {
 
 /// **The profile facts, and nothing else moves.** Each W16R2 profile is its
 /// W16 sibling's geometry and layout with the regular commitments at rate
-/// 1/2 and `Q = 260` (pads included), its endpoint geometry following the
+/// 1/2 and `Q = 280` (pads included; review F2's ruling, 2026-11-02), its endpoint geometry following the
 /// core's, its own string of the sibling's length, its own four keys and a
 /// parameter line of the sibling's length that differs only in the rate and
 /// `Q`. Every other profile this lane builds keeps its rate and `Q = 256`.
 #[test]
-fn w16r2_profiles_fix_rate_one_half_and_q_260_and_change_nothing_else() {
+fn w16r2_profiles_fix_rate_one_half_and_q_280_and_change_nothing_else() {
     assert_eq!(shape::W16R2_PROFILES.len(), PAIRS.len());
     for (r2, w16) in PAIRS {
         let (a, b) = (built(r2), built(w16));
         a.check_constructed().unwrap();
         assert!(shape::is_w16r2_profile(a.profile) && !shape::is_w16r2_profile(b.profile));
         assert!(a.range16() && b.range16() && shape::is_trained_profile_string(a.profile));
-        assert_eq!((a.log_cols, a.inv_rate, a.opened_cols, a.endpoint_log_n, a.endpoint_inv_rate), (14, 2, 260, 14, 2), "{}", a.name);
+        assert_eq!((a.log_cols, a.inv_rate, a.opened_cols, a.endpoint_log_n, a.endpoint_inv_rate), (14, 2, 280, 14, 2), "{}", a.name);
         assert_eq!((b.log_cols, b.inv_rate, b.opened_cols, b.endpoint_log_n, b.endpoint_inv_rate), (14, 4, 256, 14, 4), "{}", b.name);
         assert_eq!(a.column_regime(), ColumnRegime::UniqueDecoding);
         assert_eq!(b.column_regime(), ColumnRegime::GeneralCode);
@@ -189,31 +198,37 @@ fn w16r2_profiles_fix_rate_one_half_and_q_260_and_change_nothing_else() {
         let (da, db) = (la.describe(), lb.describe());
         assert_eq!(da.len(), db.len(), "{}: the schedule's line count moved", a.name);
         assert_eq!(da[1..], db[1..], "{}: the slot schedule moved outside its header line", a.name);
-        assert_eq!(da[0].replacen(a.profile, b.profile, 1).replace("inv_rate=2 Q=260", "inv_rate=4 Q=256"), db[0], "{}: the schedule's header differs outside the profile, rate and Q", a.name);
+        assert_eq!(da[0].replacen(a.profile, b.profile, 1).replace("inv_rate=2 Q=280", "inv_rate=4 Q=256"), db[0], "{}: the schedule's header differs outside the profile, rate and Q", a.name);
         assert_ne!(la.schedule_digest(), lb.schedule_digest());
         // the PCS parameters every verifier site reads
         let (p, e) = (protocol::pcs_params_at(&a), protocol::endpoint_pcs_params(&a));
-        assert_eq!((p.log_cols, p.inv_rate, p.num_col_checks), (14, 2, 260));
-        assert_eq!((e.log_cols, e.inv_rate, e.num_col_checks), (14, 2, 260));
-        assert_eq!(ZkOpts::standard(&p).q_pad, 260, "q_pad >= Q: the pads ARE the opened-column count");
+        assert_eq!((p.log_cols, p.inv_rate, p.num_col_checks), (14, 2, 280));
+        assert_eq!((e.log_cols, e.inv_rate, e.num_col_checks), (14, 2, 280));
+        assert_eq!((ZkOpts::standard(&p).q_pad, ZkOpts::standard(&e).q_pad), (280, 280), "q_pad = Q: the pads ARE the opened-column count");
         assert_eq!(protocol::ntt_log_at(&a), 15);
         // strings, keys, parameter line
         assert_eq!(a.profile.len(), b.profile.len(), "{}: the W16R2 string is not its sibling's length", a.name);
         assert!(!a.hashes_under_the_legacy_rule() && a.hash_tag() == HashTag::for_profile(a.profile) && a.hash_tag() != b.hash_tag());
         let (pa, pb) = (protocol::parameter_line(&a), protocol::parameter_line(&b));
         assert_eq!(pa.len(), pb.len(), "the parameter line changed length");
-        assert_eq!(pa.replace("inv_rate2/Q260", "inv_rate4/Q256").replace("rate2-pad260", "rate4-pad256"), pb, "the parameter lines differ outside the rate and Q");
+        assert_eq!(pa.replace("inv_rate2/Q280", "inv_rate4/Q256").replace("rate2-pad280", "rate4-pad256"), pb, "the parameter lines differ outside the rate and Q");
         // the per-opening column term: no soundness given up
         let ((ca, cea), (cb, ceb)) = (a.regular_column_terms_log2(), b.regular_column_terms_log2());
         assert!(ca <= cb && cea <= ceb, "{}: the W16R2 opening ({ca:.3}) is weaker than W16's ({cb:.3})", a.name);
-        eprintln!("W16R2 {} vs {}: rate 1/2 Q 260 column term 2^{ca:.3} (unique decoding) against 2^{cb:.3} (rate 1/4 Q 256, delta/3); A rows {}, H rows {}, receipt (counted) {} B against {} B", a.name, b.name, la.a_rows, la.h_rows, a.receipt_bytes().total, b.receipt_bytes().total);
+        eprintln!("W16R2 {} vs {}: rate 1/2 Q 280 column term 2^{ca:.3} (unique decoding) against 2^{cb:.3} (rate 1/4 Q 256, delta/3); A rows {}, H rows {}, receipt (counted) {} B against {} B", a.name, b.name, la.a_rows, la.h_rows, a.receipt_bytes().total, b.receipt_bytes().total);
     }
     // the lemma check's figures (§5): Q = 260 gives 2^-105.946 (exact form),
-    // Q = 259 2^-105.53, W16 2^-105.61
+    // Q = 259 2^-105.53, W16 2^-105.61 — so 260 is the PROVEN-bound minimum
+    // (review F2 asks that this gate stay), and the ruled Q is at or above it
     let ud = |q| shape::column_term_log2(ColumnRegime::UniqueDecoding, 14, 2, q);
+    let w16 = shape::column_term_log2(ColumnRegime::GeneralCode, 14, 4, 256);
     assert!((ud(260) + 105.946).abs() < 0.001 && (ud(259) + 105.53).abs() < 0.01, "{} {}", ud(260), ud(259));
-    assert!((shape::column_term_log2(ColumnRegime::GeneralCode, 14, 4, 256) + 105.61).abs() < 0.01);
-    assert!(ud(259) > shape::column_term_log2(ColumnRegime::GeneralCode, 14, 4, 256), "Q = 259 would already suffice; 260 is not the minimum");
+    assert!((w16 + 105.61).abs() < 0.01);
+    assert!(ud(259) > w16 && ud(260) <= w16, "260 is no longer the smallest Q that keeps W16's proven per-opening figure");
+    // F2's ruling: Q = 280, 2^-113.932 per opening (the recount's figure)
+    assert_eq!(shape::W16R2_OPENED_COLS, 280);
+    assert!((ud(shape::W16R2_OPENED_COLS) + 113.932).abs() < 0.001, "{}", ud(shape::W16R2_OPENED_COLS));
+    assert!(shape::W16R2_OPENED_COLS >= 260 && ud(shape::W16R2_OPENED_COLS) <= w16);
     // nothing else moves: every other profile this lane builds keeps Q = 256
     let mut others: Vec<Shape> = vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::rung_e32(), Shape::m125()];
     others.extend(super::trained_calib_tests::registered_trained_shapes());
@@ -223,7 +238,7 @@ fn w16r2_profiles_fix_rate_one_half_and_q_260_and_change_nothing_else() {
         assert_eq!(sh.opened_cols, 256, "{}: Q moved", sh.name);
         assert!(!shape::is_w16r2_profile(sh.profile) && sh.column_regime() == ColumnRegime::GeneralCode, "{}", sh.name);
     }
-    eprintln!("W16R2 profiles: {} at rate 1/2 Q 260; {} other profiles unchanged at Q 256 under the delta/3 count", shape::W16R2_PROFILES.len(), others.len());
+    eprintln!("W16R2 profiles: {} at rate 1/2 Q 280; {} other profiles unchanged at Q 256 under the delta/3 count", shape::W16R2_PROFILES.len(), others.len());
 }
 
 /// **The verifier reads `(rate, Q)` from the PROFILE.** A shape carrying a
@@ -298,8 +313,9 @@ fn w16r2_rung_core_proves_and_verifies_and_its_golden_digest_is_pinned() {
     eprintln!("W16R2 rung core: prove {prove_s:.2} s, verify {verify_s:.2} s (CPU); core {bytes} B (A {a}, H {h}, M {m}, slots {slots}); a changed A root: {e}");
 }
 
-/// the first eight hex digits of the W16R2 rung's seeded CPU digest
-const W16R2_RUNG_GOLDEN: &str = "334e168f";
+/// the first eight hex digits of the W16R2 rung's seeded CPU digest (at
+/// `Q = 280` since F2's ruling; `334e168f` at `Q = 260`)
+const W16R2_RUNG_GOLDEN: &str = "c6d5c2d8";
 
 /// **CPU = Metal at the W16R2 rung, and both equal the golden.** Toggles
 /// `HL_GPU` in-process, so it is ignored and run alone by name.
@@ -529,7 +545,7 @@ fn assert_the_replica_is_open_zk(rig: &Rig, seed: u64) {
 /// radius the lemma counts at — and opens the honest clear vectors. At the
 /// W16R2 profile's own geometry (`n = 2^14`, `N = 2^15`,
 /// `Q = W16R2_OPENED_COLS`, its keys) the verifier must reject at the column
-/// test; the miss probability is `(1 - (e+1)/N)^Q` (2^-105.95 at `Q = 260`).
+/// test; the miss probability is `(1 - (e+1)/N)^Q` (2^-113.93 at `Q = 280`).
 /// Then at a toy rate-1/2 geometry (`n = 16`, `N = 32`, `Q = 4`, `e = 6`)
 /// where that probability is 0.373, the empirical acceptance rate must sit
 /// at the bound (for this attack the bound is exact) within 5 sigma; review
@@ -1318,6 +1334,210 @@ fn w16r2_the_lemmas_load_bearing_invariants_are_pinned() {
         assert!(!s.hashes_under_the_legacy_rule() && s.hash_tag().column_key().is_some(), "{}: not a tagged profile", spec.name);
     }
     eprintln!("W16R2 invariants: proximity weights = rows independent challenge_fp2 draws; indices after both absorbs in open_zk and verify_zk_tagged, and they move with the vectors; q_pad >= Q; A/H through verify_zk_tagged (path length checked) under each profile's keys");
+}
+
+// ------------------------------------------------ F2's ruling: the privacy argument at Q = 280
+
+/// **The privacy argument's hypotheses at the ruled `Q = 280`, checked on the
+/// production encoder** (D59 condition (5), re-checked for F2's ruling). The
+/// argument (`results/zk60_w16r2_20261101/PRIVACY_RECHECK_20261102.md`): a
+/// regular row is `f = f_data + Z_n g`, `Z_n = X^n - 1`, `g` the row's
+/// `q_pad` uniform pads as coefficients, evaluated on the coset `7 G_N`; the
+/// opened entries of a row are uniform given its message exactly when the pad
+/// block at the DISTINCT opened positions has full rank, and `Q` draws give at
+/// most `Q` distinct positions. Checked here, not assumed:
+/// 1. `Q = q_pad` BY CONSTRUCTION at every W16R2 shape, at both geometries
+///    (`pcs_params_at`, `endpoint_pcs_params`, and `ZkOpts::standard`, whose
+///    text is read), and an honest opening draws exactly `Q` indices;
+/// 2. the pad block of `pcs::encode_row_zk`, at ALL `N` encoded positions and
+///    for every one of the `q_pad` unit pads, IS `diag(Z_n(x_j)) V` with
+///    `V_{j,i} = x_j^i` (`i < q_pad`); the `x_j` are pairwise distinct and
+///    `Z_n(x_j) != 0` at every one of the `N` positions (no opened column is
+///    pad-free). A Vandermonde block times a nonzero diagonal has full rank
+///    on ANY `<= q_pad` distinct rows, which is the claim;
+/// 3. as a measurement on that encoder: rank `Q` at `Q`-point sets chosen to
+///    stress it (the first and the last `Q` positions, a stride, positions in
+///    one small sub-coset, positions sharing `x^n`, random sets, a real
+///    opening's draw), and rank exactly `q_pad` at `q_pad + 1` points — the
+///    reason `Q` may never exceed the pad count.
+#[test]
+fn w16r2_at_q_280_the_pad_block_is_full_rank_on_any_q_distinct_opened_points() {
+    use super::w16_privacy_gate_tests::{pad_codewords, pad_rank};
+    let q = shape::W16R2_OPENED_COLS;
+    assert_eq!(q, 280, "F2's ruling");
+    // 1. Q = q_pad by construction
+    let pcs = source("../zkp-core/src/pcs.rs");
+    assert!(pcs.contains("ZkOpts { q_pad: params.num_col_checks, coset: Fp::new(7) }"), "ZkOpts::standard no longer takes its pad count from the column count");
+    for spec in shape::W16R2_PROFILES.iter() {
+        let s = built(spec.profile);
+        for (what, p) in [("pcs_params_at", protocol::pcs_params_at(&s)), ("endpoint_pcs_params", protocol::endpoint_pcs_params(&s))] {
+            assert_eq!((p.inv_rate, p.num_col_checks, ZkOpts::standard(&p).q_pad, s.opened_cols), (2, q, q, q), "{}: {what}", spec.name);
+        }
+    }
+    let rig = Rig::profile(&built(shape::W16R2_RUNG_H24));
+    let (n, nn) = (rig.n(), rig.nn());
+    assert_eq!((n, nn, rig.zko.q_pad, rig.params.num_col_checks), (1 << 14, 1 << 15, q, q));
+    let c = rig.commit(rig.matrix(61), 61);
+    let (o, drawn, _) = open_as(&c, &mut rig.transcript(&c.commitment().root), &Cheat::default());
+    let mut real: Vec<usize> = drawn.clone();
+    real.sort_unstable();
+    real.dedup();
+    assert!(drawn.len() == q && o.columns.len() == q && real.len() <= rig.zko.q_pad, "an opening draws {} indices ({} distinct) against {} pads", drawn.len(), real.len(), rig.zko.q_pad);
+    // 2. the pad block's structure, every unit pad at every position
+    let t = std::time::Instant::now();
+    let xs = coset_points(&rig);
+    let mut keys: Vec<u64> = xs.iter().map(|x| x.0).collect();
+    keys.sort_unstable();
+    keys.dedup();
+    assert_eq!(keys.len(), nn, "two encoded positions share an evaluation point");
+    let z: Vec<Fp> = xs.iter().map(|x| x.pow(n as u64).sub(Fp::ONE)).collect();
+    assert!(z.iter().all(|v| !v.is_zero()), "Z_n vanishes at an encoded position: that opened column would carry no pad randomness");
+    let cw = pad_codewords(shape::W16R2_LOG_COLS, shape::W16R2_INV_RATE, rig.zko.q_pad, Some(rig.zko.coset), &rig.ntt);
+    assert_eq!(cw.len(), rig.zko.q_pad);
+    let mut pw = z.clone(); // Z_n(x_j) x_j^i, i = 0 first
+    for (i, row) in cw.iter().enumerate() {
+        assert_eq!(row.len(), nn);
+        if let Some(j) = (0..nn).find(|&j| row[j] != pw[j]) {
+            panic!("unit pad {i}: the encoder's entry at position {j} is not Z_n(x_j) x_j^{i}");
+        }
+        for (p, x) in pw.iter_mut().zip(&xs) {
+            *p = p.mul(*x);
+        }
+    }
+    let structure_s = t.elapsed().as_secs_f64();
+    // 3. the rank, measured
+    let mut rng = ZkRng::new(20261103, b"w16r2 q280 pad rank");
+    let mut random_set = || -> Vec<usize> {
+        let mut s: Vec<usize> = Vec::new();
+        while s.len() < q {
+            let j = (rng.fp().0 % nn as u64) as usize;
+            if !s.contains(&j) {
+                s.push(j);
+            }
+        }
+        s
+    };
+    let sets: Vec<(&str, Vec<usize>)> = vec![
+        ("the first Q positions", (0..q).collect()),
+        ("the last Q positions", (nn - q..nn).collect()),
+        ("a stride of N / Q", (0..q).map(|k| k * (nn / q)).collect()),
+        ("the sub-coset 7 G_512 (stride 64)", (0..q).map(|k| k * 64).collect()),
+        ("the even positions (x^n all equal 7^n)", (0..q).map(|k| 2 * k).collect()),
+        ("the odd positions (x^n all equal -7^n)", (0..q).map(|k| 2 * k + 1).collect()),
+        ("random 1", random_set()),
+        ("random 2", random_set()),
+        ("random 3", random_set()),
+    ];
+    let mut lines = Vec::new();
+    for (what, set) in &sets {
+        let mut d = set.clone();
+        d.sort_unstable();
+        d.dedup();
+        assert_eq!(d.len(), q, "{what}: not {q} distinct positions");
+        let r = pad_rank(&cw, &d, rig.zko.q_pad);
+        assert_eq!(r, q, "{what}: the pad block at {q} distinct positions has rank {r}");
+        lines.push(format!("{what} {r}"));
+    }
+    let r = pad_rank(&cw, &real, rig.zko.q_pad);
+    assert_eq!(r, real.len(), "an honest opening's {} distinct positions: rank {r}", real.len());
+    let over: Vec<usize> = (0..q + 1).collect();
+    let r_over = pad_rank(&cw, &over, rig.zko.q_pad);
+    assert_eq!(r_over, q, "q_pad + 1 positions: rank {r_over}, not the pad count");
+    eprintln!(
+        "W16R2 PRIVACY Q = q_pad = {q} (n {n}, N {nn}, coset {}): Q = q_pad by construction at every W16R2 shape and both geometries; an honest opening draws {} indices, {} distinct; the encoder's pad block = diag(Z_n(x_j)) x_j^i at all {nn} positions for all {} unit pads, the x_j pairwise distinct and Z_n(x_j) != 0 at every position ({structure_s:.2} s): so full rank on ANY <= {q} distinct points; measured rank at {q}-point sets: {}; at the opening's draw {r}; at {} points {r_over} (= q_pad)",
+        rig.zko.coset.0,
+        drawn.len(),
+        real.len(),
+        cw.len(),
+        lines.join(", "),
+        over.len()
+    );
+}
+
+// ------------------------------------------------ review F6: the production counters take the regime
+
+/// **Review F6 (pre-registration): the production whole-run counters price a
+/// block opening by the lemma that covers its profile** — the token run's
+/// `whole_run_of` and the classifier run's `whole_run_of_classifier`, through
+/// `token_io::run::push_block_openings` / `omitted_bound` /
+/// `whole_run_words`. Before F6 both priced every block and boundary opening
+/// at D15's delta/3 (`hiding_opening_log2`), about 2^-72 at a W16R2 shape.
+/// * At EVERY other profile this lane builds: the regime is `GeneralCode`,
+///   and each term is the old float BIT FOR BIT — the per-opening column
+///   term, the field term, the pushed sequence (the column sum is a float sum,
+///   so its order matters), the omitted bound, and the parameter-line words.
+///   That is why no registered statement's whole-run floor, which its
+///   parameter line binds, can move.
+/// * At each W16R2 shape: BCIKS20 Thm 3.1, 2^-113.93 per opening at Q = 280,
+///   field `(N + 4096)/p^2`; the 8B T128 run's 32 blocks give the block
+///   part of `ACCOUNTING.md`'s column term (97 regular openings and 32 `M`),
+///   and the parameter-line words name the regime and its count.
+#[test]
+fn w16r2_f6_the_whole_run_counters_price_each_block_opening_under_its_profiles_regime() {
+    use super::token_io::run::{omitted_bound, push_block_openings, whole_run_words, WholeRun, PCS_FIELD_PER_OPENING_LOG2, SUMCHECK_PER_STAGE_LOG2};
+    use super::token_io::{hiding_opening_log2, mask_opening_log2, regular_opening_field_log2, regular_opening_log2};
+    let bits = |v: &[f64]| -> Vec<u64> { v.iter().map(|x| x.to_bits()).collect() };
+    let old_block_openings = |sh: &Shape, l: usize| -> Vec<f64> {
+        let mut c = Vec::new();
+        for _ in 0..l {
+            c.push(hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
+            c.push(hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
+            c.push(mask_opening_log2());
+        }
+        for _ in 0..=l {
+            c.push(hiding_opening_log2(sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols));
+        }
+        c
+    };
+    let wr = |regime: ColumnRegime, special: usize| WholeRun { openings: 141, column_log2: -100.0, logup_log2: -98.0, omitted_log2: -106.0, total_log2: -97.5, floor_bits: 97, block_regime: regime, block_regime_openings: special };
+    // every other profile: bit for bit
+    let mut others: Vec<Shape> = vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::rung_e32(), Shape::m125()];
+    others.extend(super::trained_calib_tests::registered_trained_shapes());
+    others.extend(super::accuracy_profile_tests::registered_shapes());
+    others.extend(shape::W16_PROFILES.iter().map(|s| built(s.profile)));
+    for sh in &others {
+        assert_eq!(sh.column_regime(), ColumnRegime::GeneralCode, "{}", sh.name);
+        for (ln, ir) in [(sh.log_cols, sh.inv_rate), (sh.endpoint_log_n, sh.endpoint_inv_rate)] {
+            assert_eq!(regular_opening_log2(sh.column_regime(), ln, ir, sh.opened_cols).to_bits(), hiding_opening_log2(ln, ir, sh.opened_cols).to_bits(), "{}: the column term moved", sh.name);
+            assert_eq!(regular_opening_field_log2(sh.column_regime(), ln, ir).to_bits(), PCS_FIELD_PER_OPENING_LOG2.to_bits(), "{}: the field term moved", sh.name);
+        }
+        for l in [1usize, 3, 22, 32] {
+            let mut col = vec![-103.69, -106.25];
+            let (special, field) = push_block_openings(sh, l, &mut col);
+            let mut old = vec![-103.69, -106.25];
+            old.extend(old_block_openings(sh, l));
+            assert_eq!(bits(&col), bits(&old), "{} L{l}: the pushed sequence moved", sh.name);
+            assert_eq!((special, field.to_bits()), (0, 0.0f64.to_bits()), "{} L{l}", sh.name);
+            let was = col.len() as f64 * PCS_FIELD_PER_OPENING_LOG2.exp2() + (l + 2) as f64 * SUMCHECK_PER_STAGE_LOG2.exp2();
+            assert_eq!(omitted_bound(col.len(), special, field, l + 2).to_bits(), was.to_bits(), "{} L{l}: the omitted bound moved", sh.name);
+        }
+    }
+    let figure = "column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound";
+    assert_eq!(whole_run_words(&wr(ColumnRegime::GeneralCode, 0), figure), format!("whole-run-floor-97-bits-141-openings-{figure}"), "the registered parameter-line words moved");
+    // the W16R2 shapes: Thm 3.1
+    let p2 = 2.0 * (crate::field::P as f64).log2();
+    for spec in shape::W16R2_PROFILES.iter() {
+        let sh = built(spec.profile);
+        assert_eq!(sh.column_regime(), ColumnRegime::UniqueDecoding);
+        let (ud, d3) = (regular_opening_log2(sh.column_regime(), sh.log_cols, sh.inv_rate, sh.opened_cols), hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
+        assert!((ud + 113.932).abs() < 0.001, "{}: {ud}", spec.name);
+        assert_eq!(ud.to_bits(), shape::column_term_log2(ColumnRegime::UniqueDecoding, sh.log_cols, sh.inv_rate, sh.opened_cols).to_bits());
+        assert!(d3 > -73.0 && d3 < -72.0, "{}: the delta/3 figure F6 replaces is {d3}", spec.name);
+        let f = regular_opening_field_log2(sh.column_regime(), sh.endpoint_log_n, sh.endpoint_inv_rate);
+        assert!((f - ((32768.0f64 + 4096.0).log2() - p2)).abs() < 1e-12 && f > PCS_FIELD_PER_OPENING_LOG2, "{}: field {f}", spec.name);
+        let l = 32;
+        let mut col = Vec::new();
+        let (special, field) = push_block_openings(&sh, l, &mut col);
+        assert_eq!((col.len(), special), (4 * l + 1, 3 * l + 1), "{}", spec.name);
+        let column: f64 = col.iter().map(|x| x.exp2()).sum();
+        let want = (97.0 * ud.exp2() + 32.0 * mask_opening_log2().exp2()).log2();
+        assert!((column.log2() - want).abs() < 1e-9 && (column.log2() + 101.228).abs() < 0.001, "{}: block column part 2^{}", spec.name, column.log2());
+        assert!((field.log2() - (97.0f64.log2() + f)).abs() < 1e-9, "{}: block field part 2^{}", spec.name, field.log2());
+        let w = whole_run_words(&wr(sh.column_regime(), special), figure);
+        assert_eq!(w, format!("whole-run-floor-97-bits-141-openings-{figure}-with-97-block-and-boundary-openings-at-the-unique-decoding-radius-d59"));
+        eprintln!("W16R2 F6 {}: a block/boundary opening is priced 2^{ud:.3} (Thm 3.1; delta/3 said 2^{d3:.3}), field 2^{f:.3}; at L = {l}: {} block openings, {special} at the unique-decoding radius, block column part 2^{:.3}, block field part 2^{:.3}; the statement words end \"...{}\"", spec.name, col.len(), column.log2(), field.log2(), &w[w.len() - 72..]);
+    }
+    eprintln!("W16R2 F6: {} other profiles' counters unchanged bit for bit (column, field, sequence, omitted bound, words)", others.len());
 }
 
 // ------------------------------------------------ the codec against the count (F4 (b))

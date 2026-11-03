@@ -43,7 +43,7 @@ use super::super::run::RunShape;
 use super::super::shape::NormCalibration;
 use super::super::trained_statement::{apply_own, cal_field, has_own, TrainedModelStatement, OWN_FIELDS};
 use super::super::wire::{self, SegGeom};
-use super::run::{block_logup_size, WholeRun, PCS_FIELD_PER_OPENING_LOG2, SUMCHECK_PER_STAGE_LOG2};
+use super::run::{block_logup_size, WholeRun};
 use super::*;
 use crate::ntt::NttTables;
 use crate::pcs::CommittedZk;
@@ -878,14 +878,9 @@ pub(crate) fn whole_run_of_classifier(sh: &Shape, l: usize, cp: &ClassifierProfi
         col.push(mask_opening_log2());
     }
     col.push(t.per_opening_log2(t.ep_log_n, t.ep_inv_rate));
-    for _ in 0..l {
-        col.push(hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
-        col.push(hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
-        col.push(mask_opening_log2());
-    }
-    for _ in 0..=l {
-        col.push(hiding_opening_log2(sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols));
-    }
+    // the L blocks (A, H, M) and the L + 1 boundaries, under the block
+    // profile's regime (W16R2 review F6; the token run's helper, same order)
+    let (special, special_field) = super::run::push_block_openings(sh, l, &mut col);
     let mut lk = vec![super::stage_out_c::logup_size(&super::stage_out_c::layout(sh, cp))];
     let field_log2 = 2.0 * (P as f64).log2();
     let column: f64 = col.iter().map(|x| x.exp2()).sum();
@@ -904,9 +899,9 @@ pub(crate) fn whole_run_of_classifier(sh: &Shape, l: usize, cp: &ClassifierProfi
     let lg = clog2(cp.d_pad) as u128;
     num += (n_in + r_in * (3 + lg) + cp.tokens as u128 * lg) as f64;
     let logup = num * (-field_log2).exp2();
-    let omitted = col.len() as f64 * PCS_FIELD_PER_OPENING_LOG2.exp2() + (l + 2) as f64 * SUMCHECK_PER_STAGE_LOG2.exp2();
+    let omitted = super::run::omitted_bound(col.len(), special, special_field, l + 2);
     let total_log2 = (column + logup + omitted).log2();
-    WholeRun { openings: col.len(), column_log2: column.log2(), logup_log2: logup.log2(), omitted_log2: omitted.log2(), total_log2, floor_bits: (-total_log2).floor() as u32 }
+    WholeRun { openings: col.len(), column_log2: column.log2(), logup_log2: logup.log2(), omitted_log2: omitted.log2(), total_log2, floor_bits: (-total_log2).floor() as u32, block_regime: sh.column_regime(), block_regime_openings: special }
 }
 
 impl ClassifyRunStatement {
@@ -1120,7 +1115,7 @@ impl ClassifyRunStatement {
         let b = self.boundary_spec(0)?;
         let t = self.cp.tier;
         Ok(format!(
-            "{}/L{}/boundaries-B_in-B_out-and-interior-log_n{}-rate{}-pad{}-rows{}-sites2/token-endpoint-in-log_n{}-rate{}-pad{}-words{}-rows{}-sites1/no-output-endpoint/stages-log_n{}-rate{}-pad{}/{}/whole-run-floor-{}-bits-{}-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript",
+            "{}/L{}/boundaries-B_in-B_out-and-interior-log_n{}-rate{}-pad{}-rows{}-sites2/token-endpoint-in-log_n{}-rate{}-pad{}-words{}-rows{}-sites1/no-output-endpoint/stages-log_n{}-rate{}-pad{}/{}/{}/one-run-one-transcript",
             protocol::parameter_line(sh).replace("/two-private-endpoints/", "/two-internal-boundaries/"),
             self.l(),
             sh.endpoint_log_n,
@@ -1136,8 +1131,7 @@ impl ClassifyRunStatement {
             t.stage_inv_rate,
             t.opened_cols,
             self.cp.describe_under(self.profile()),
-            self.whole_run.floor_bits,
-            self.whole_run.openings
+            super::run::whole_run_words(&self.whole_run, "column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound")
         ))
     }
 
