@@ -1,0 +1,49 @@
+wide bundle d55-r13_shield_t256_h24-s0 ref bundle_dir d55-r13_shield_t256_h24-s0
+{
+ "control_a_record_file": {
+  "against": "/Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-shield-t256-s0.json",
+  "fork": 1,
+  "slots": [
+   3,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19
+  ],
+  "reference_instance_counts": {
+   "random-1": {
+    "S1": 7,
+    "S4": 7
+   },
+   "random-2": {
+    "S1": 7,
+    "S4": 7
+   },
+   "random-3": {
+    "S1": 7,
+    "S4": 7
+   },
+   "run": {
+    "S1": 7,
+    "S4": 7
+   }
+  },
+  "reference_T0_rows": 7,
+  "reference_IR": 7,
+  "differences": [],
+  "acted_on": true,
+  "reproduces": true,
+  "record_sha256": "e1efaa05db91062b8cd9e3694439fb0a12cabc5f45bea297c4e15d303a92330c",
+  "record_G": 19,
+  "G_equal": true
+ },
+ "self_test": {
+  "differences": [
+   "run S1: fork 1 (G 19) slot 3 SC_LZC (legacy body, R13 Dom::L lookups)"
+  ],
+  "fires": true
+ },
+ "wide_record_sha256": "ae37367c9fcc44fd13164d72702b86b7aac9a1b47e50d1637068374bc1fef2ce"
+}

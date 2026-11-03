@@ -20,7 +20,7 @@ Not a privacy statement and not an acceptance; `D55_REAL_CONTENT_PRIVACY_GATE_PA
 | bundle | G | slots S1 / S4 (4 modes) | S3 (fork's pairs; all 23 slots of every fork) | control (a) | wall | peak RSS |
 |---|---:|---|---|---|---:|---:|
 | `d55-r13_8b_t128_h24-s0` | 19 | 23/23, 23/23 | 55/55; 55/55, budget ok | v25 in-process + merged record `d55-mg-r13-8b-s0`: identical | 159 s | 1,468 MiB |
-| `d55-r13_shield_t256_h24-s0` | 19 | 23/23, 23/23 | 75/75; 75/75, budget ok | v25 in-process: identical (no merged NL-1 record existed yet) | 371 s | 2,597 MiB |
+| `d55-r13_shield_t256_h24-s0` | 19 | 23/23, 23/23 | 75/75; 75/75, budget ok | v25 in-process: identical; merged record `d55-mg-shield-t256-s0`: identical (checked after the fact, see below) | 371 s | 2,597 MiB |
 | `d55-r13_tiny_t128_low-s0` | 19 | 23/23, 23/23 | 75/75; 75/75, budget ok | v25 in-process + merged record `d55-mg-tiny-t128-s0`: identical | 97 s | 891 MiB |
 | rung `d55-r13_rung_h24-s0` (development) | 21 | 23/23, 23/23 | 55/55; 55/55 | both: identical | 22 s | 239 MiB |
 
@@ -29,6 +29,13 @@ How the run went:
   guard peak 2.50 GiB.
 - The job waited 19,894 s for the heavy lock behind the merged-gate queue.
 - On each fork, R13-3 recovers G (19 everywhere) and closes 23/23 slots before NL-1 runs.
+- Shieldstral T256's control (a) against the merged record was done after the fact (coordinator, 2026-11-03),
+  once the merged queue had written `d55-mg-shield-t256-s0.json` (sha256 e1efaa05…). `control_a_after.py`
+  runs the tool's own `compare_seven` on the two saved records, with the same G check and the same
+  self-test (one reference S1 row's L + 1). Result: the seven slots are identical in all four modes
+  (7 S1 and 7 S4 rows per mode, 7 T-0 rows, 7 IR entries), G 19 = 19, and the self-test fires.
+  The output is in `records/fr25_17-shield-t256-s0.control_a_record_file.txt`. The closing record itself
+  (sha256 ae37367c…) is unchanged.
 
 The legacy slots on fork 1 are 0, 1, 2, 4, 5–13 and 20–22. For each the table gives main / extension / declared
 degree d / mask length L. On every one of them the walked maximum product degree equals the per-variable bound
