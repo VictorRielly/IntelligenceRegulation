@@ -46,6 +46,10 @@ inv_rate).  Per role:
          group and requires them to agree; so does this module: TS-1F runs
          the null-space form too on the bundle's cheapest TS-1 row(s) (at
          most `FIDELITY_MAX_DATA_ROWS` data rows) and both must agree.
+         [v25 freeze fixes, FR25-11] With no such row TS-1F is NOT
+         APPLICABLE (ok None): it no longer counts as held, and the
+         controls' ok needs at least one applicable control that holds.  A
+         fidelity limit below 1 is refused (TS-1F false).
   TS-RC  the review's own controls (`ts_trained.controls`: honest reference,
          C1 shared reserved pair, C2 cm = 0, C3 lambda_c = 0, C6 cw = delta,
          C8 Fp-dependent pair weights, G7-D1 / D2 / D3 duplicate-claim
@@ -414,6 +418,32 @@ def census_controls(TT, ent):
     return out
 
 
+# ---------------------------------------------------------------- [FR25-11] not applicable is not fired
+def fidelity_control(fid, max_rows, count) -> dict:
+    """TS-1F's record from its rows (each with `forms_agree` and
+    `equals_the_ts1_original_form`).  A fidelity limit below 1 is REFUSED (ok
+    False: the limit alone would make TS-1F vacuous); no row to act on is NOT
+    APPLICABLE (ok None), never a pass by `all([])`."""
+    rec = {"what": f"the pair-removed arm by BOTH of ts_trained's forms on the bundle's cheapest TS-1 row(s) (at most "
+                   f"{max_rows} data rows, {count} row(s)); they must agree and equal TS-1's figure",
+           "rows": fid, "ok": all(f["forms_agree"] and f["equals_the_ts1_original_form"] for f in fid)}
+    if max_rows < 1 or count < 1:
+        rec.update(refused=f"ZK60_D55TS_FIDELITY_ROWS = {max_rows} / ZK60_D55TS_FIDELITY_COUNT = {count}: a fidelity limit "
+                           f"below 1 is refused (FR25-11)", ok=False)
+    elif not fid:
+        rec.update(not_run=f"no TS-1 row of this bundle has at most {max_rows} data rows (the null-space form would cost "
+                           f"rows x N x 2(N + 1) evaluations); the cross-check is recorded on the bundles where it ran",
+                   not_applicable=True, ok=None)
+    return rec
+
+
+def controls_ok(ctl: dict) -> bool:
+    """the TS controls' verdict: a NOT-APPLICABLE control (ok None) is left
+    out, no applicable one may fail, and at least one must be applicable"""
+    applicable = [v for v in ctl.values() if isinstance(v, dict) and v.get("ok") is not None]
+    return bool(applicable) and all(v["ok"] is True for v in applicable)
+
+
 # ---------------------------------------------------------------- the part
 def d55_ts_census(bundle_dir, controls=True, workers=None):
     """returns (the TS-1 record, the CENSUS record); each has `ok`"""
@@ -510,14 +540,7 @@ def d55_ts_census(bundle_dir, controls=True, workers=None):
         for f in fid:
             want = next(x for x in rows if x.get("role") == f["role"])
             f["equals_the_ts1_original_form"] = f["original_form_disclosed_Fp"] == want["pair_removed_disclosed_Fp"]
-        ctl["TS-1F the null-space form on the cheapest TS-1 row"] = {
-            "what": f"the pair-removed arm by BOTH of ts_trained's forms on the bundle's cheapest TS-1 row(s) (at most "
-                    f"{FIDELITY_MAX_DATA_ROWS} data rows, {FIDELITY_ROWS} row(s)); they must agree and equal TS-1's figure",
-            "rows": fid, "ok": all(f["forms_agree"] and f["equals_the_ts1_original_form"] for f in fid)}
-        if not fid:
-            ctl["TS-1F the null-space form on the cheapest TS-1 row"]["not_run"] = (
-                f"no TS-1 row of this bundle has at most {FIDELITY_MAX_DATA_ROWS} data rows (the null-space form would cost "
-                f"rows x N x 2(N + 1) evaluations); the cross-check is recorded on the bundles where it ran")
+        ctl["TS-1F the null-space form on the cheapest TS-1 row"] = fidelity_control(fid, FIDELITY_MAX_DATA_ROWS, FIDELITY_ROWS)
         a0 = next((v["ent"] for k, v in per_role.items() if k.endswith(":A") and any(len(g) == 2 for g in v["ent"]["role"].groups)), None)
         if a0 is not None:
             rv = got("review", a0, None)
@@ -528,7 +551,8 @@ def d55_ts_census(bundle_dir, controls=True, workers=None):
                 "ok": all(fires.get(k) is v for k, v in REVIEW_PREDICTION.items())}
         else:
             ctl["TS-RC the review's controls on fork 0's A"] = {"not_found": "no A role has a two-member group", "ok": False}
-        ctl["ok"] = all(v["ok"] for v in ctl.values() if isinstance(v, dict))
+        ctl["not_applicable"] = [k for k, v in ctl.items() if isinstance(v, dict) and v.get("ok") is None]
+        ctl["ok"] = controls_ok(ctl)
         ts["controls"] = ctl
         ok = ok and ctl["ok"]
     ts["summary"] = {r["role"]: {"rows": r["rows"], "groups": r["groups"], "surjective": r["surjective_groups"],

@@ -55,20 +55,26 @@ HASH-2  THE HASH CENSUS, MEASURED (gate round 22's `round22/census/
           ACC   every BLAKE3 call is attributed to exactly one of the six
                 functions (a keyed call under any other key is a finding),
                 and the F_T multiset equals the transcript's own account.
-        Optionally (`ZK60_S25_W2_PRINTOUT` names the Rust s25 W-2 census's
-        printout; its SHA-256 is recorded) every measured F_T / F_C / F_L /
-        F_N / K kind is looked up in the Rust table for the bundle's run
-        profile: a measured kind the Rust arithmetic does not list is a
-        finding.  Controls (each must fire; each makes REAL BLAKE3 calls
+        MANDATORY since the v25 freeze fixes (FR25-01 / FR25-02):
+        `ZK60_S25_W2_PRINTOUT` names the Rust s25 W-2 census's printout,
+        whose SHA-256 must equal `S25_W2_PRINTOUT_PIN` (the v2 printout
+        made by `s25_tests.rs` at 076a485f, `S25_W2_PRINTOUT_MADE_BY`); every
+        measured F_T / F_C / F_L / F_N / K kind is looked up in the Rust table
+        for the bundle's run profile: a measured kind the Rust arithmetic does
+        not list is a finding.  A printout that is not given, cannot be read
+        or is not the pinned file makes HASH-2 FALSE (it was skipped before,
+        and HASH-2 then passed on the gate's own conditions alone).
+        Controls (each must fire; each makes REAL BLAKE3 calls
         through the same recorder on doctored inputs, merged into the honest
         measurement): HC-1 a 35-byte transcript domain (constructor 47 B,
         C-R2), HC-2 a domain making the constructor exactly as long as the
         commonest absorb (W-2), HC-3 one byte longer (W-2's margin), HC-4 an
         unkeyed 40-byte input (C-R1), HC-5 an absorb of a new label whose
         input is as long as an existing absorb of another label (W-2g), HC-6
-        a keyed call under a key no rule derives (ACC), and with a printout
-        HC-7 a `parameters` absorb 64 bytes longer than the run's (the Rust-
-        table lookup must name it).
+        a keyed call under a key no rule derives (ACC), and HC-7 a
+        `parameters` absorb 64 bytes longer than the run's (the Rust-table
+        lookup must name it).  HC-7 is always in the control list: without
+        the pinned printout it is recorded as not fired (FR25-01).
 
 WHAT IS NOT MEASURED HERE.  The prover's own calls (the generator's refill
 and seed derivations, R1; the commit-phase / per-fork seed domains) and the
@@ -122,6 +128,27 @@ DECLARED = (
     (295, "`parameters`", "`pb-term`", "le64(10) || \"parameters\" against le64(7) || \"pb-term\", at offset 32"),
 )
 FUNCS = ("F_T", "F_C", "F_L", "F_N", "K", "F_U")
+
+# [2026-11-02, v25 freeze fixes, FR25-01 / FR25-02] THE RUST s25 W-2 PRINTOUT,
+# PINNED (as `zk60_native_rg_tokents.TS_TRAINED_PIN` pins ts_trained.py): the
+# TS / CENSUS lane's pass-2 printout, `s25_w2_printout_v2.log` (4,816,242 B;
+# kept outside the repository at /Users/victorrielly/zk60-artifacts/
+# d60_20261102/, committed gzipped at S25_W2_PRINTOUT_COPY, digest listed in
+# that folder's PRINTOUTS_SHA256.txt).  Any other file is refused, and so
+# HASH-2 is false.
+S25_W2_PRINTOUT_ENV = "ZK60_S25_W2_PRINTOUT"
+S25_W2_PRINTOUT_PIN = "bac4bbd6838b2a090b131dd003ec1f6962063e12e1bb1cff80fa7a35ab65dc53"
+S25_W2_PRINTOUT_COPY = "results/zk60_d60_20261102/privacy_gate_tsbases/logs/s25_w2_printout_v2.log.gz"
+# the Rust file that printed it: `s25_tests.rs` at commit 076a485f (the
+# s25 L = 1..=32 fix; the blob is unchanged since), which is in no capture
+# pin list, so the printout is tied to it here by digest
+S25_W2_PRINTOUT_MADE_BY = {
+    "file": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/s25_tests.rs",
+    "commit": "076a485f592407e989d70e6553e68d7a1735340f",
+    "git_blob": "5ab2202054a2f0bf01e311fc13a0da5fb5b7eea4",
+    "sha256": "39b2e1c02606f72f49052025d0dfbb3e4bc65ac7e776b00f991922845503b99e",
+    "bytes": 205091,
+}
 
 
 def _sha(p):
@@ -553,23 +580,34 @@ def evaluate(rec: Recorder, rust=None) -> dict:
     return out
 
 
+def _rust_table_lines(lines, profile):
+    rows, cur = set(), False
+    for line in lines:
+        if line.startswith("--- "):
+            cur = line.startswith(f"--- {profile} (")
+            continue
+        if cur and line.startswith("    ") and " B  " in line:
+            left, _, rest = line.strip().partition(" B  ")
+            fn, _, what = rest.partition(" ")
+            try:
+                rows.add((fn.strip(), int(left), what.strip()))
+            except ValueError:
+                pass
+    return rows
+
+
 def rust_table(path, profile):
     """the s25 W-2 printout's kinds for `profile` (every block of it, at
     every L): {(func, len, what)}"""
-    rows, cur = set(), False
     with open(path, encoding="utf-8", errors="replace") as fh:
-        for line in fh:
-            if line.startswith("--- "):
-                cur = line.startswith(f"--- {profile} (")
-                continue
-            if cur and line.startswith("    ") and " B  " in line:
-                left, _, rest = line.strip().partition(" B  ")
-                fn, _, what = rest.partition(" ")
-                try:
-                    rows.add((fn.strip(), int(left), what.strip()))
-                except ValueError:
-                    pass
-    return rows
+        return _rust_table_lines(fh, profile)
+
+
+def rust_table_of_bytes(raw: bytes, profile):
+    """`rust_table` on bytes already read (and hashed): the same text decoding
+    and line splitting as `open(path, encoding="utf-8", errors="replace")`"""
+    import io
+    return _rust_table_lines(io.TextIOWrapper(io.BytesIO(raw), encoding="utf-8", errors="replace"), profile)
 
 
 def rust_compare(ks, rust):
@@ -585,7 +623,8 @@ def rust_compare(ks, rust):
                 missing.append({"func": fn, "len": ln, "what": w})
         elif (fn, ln) not in names:
             missing.append({"func": fn, "len": ln, "what": w})
-    return {"printout": path, "printout_sha256": sha, "rust_kinds_for_this_profile": len(table),
+    return {"printout": path, "printout_sha256": sha, "printout_pin": rust.get("pin"), "printout_made_by": rust.get("made_by"),
+            "rust_kinds_for_this_profile": len(table),
             "measured_compared": sum(1 for k in ks if k[0] != "F_U"), "measured_not_in_rust": missing, "ok": bool(table) and not missing}
 
 
@@ -647,8 +686,13 @@ def census_controls(b, honest: Recorder, rust=None) -> dict:
     # HC-7 (2026-11-02, after the L = 2..9 finding): the Rust-table lookup itself.  A REAL `parameters`
     # absorb 64 bytes longer than the bundle's (its line with 64 bytes appended: longer than the line at any
     # L, which grows by one byte per digit of L, at most 20) is merged into the measurement: the lookup must
-    # name it among the kinds the Rust table does not list.  Only with a printout.
-    if rust is not None:
+    # name it among the kinds the Rust table does not list.  [FR25-01] Always in the list: without the
+    # pinned printout there is no lookup to test, and HC-7 is recorded as NOT fired (HASH-2 is false then).
+    if rust is None:
+        out["HC-7 a parameters absorb 64 bytes longer than the run's"] = {
+            "not_run": "no pinned Rust s25 W-2 printout was loaded, so the lookup HC-7 tests does not exist; HASH-2 is false",
+            "fires": False}
+    else:
         line = b.run["parameter_line"].encode() + b"x" * 64
 
         def longer():
@@ -666,12 +710,48 @@ def census_controls(b, honest: Recorder, rust=None) -> dict:
     return out
 
 
-def load_rust(profile):
-    p = os.environ.get("ZK60_S25_W2_PRINTOUT", "")
-    if not p or not os.path.exists(p):
-        return None, {"not_compared": "ZK60_S25_W2_PRINTOUT is not set to the Rust s25 W-2 printout"}
-    t = rust_table(p, profile)
-    return {"table": t, "path": p, "sha256": _sha(p)}, None
+def load_rust(profile, path=None):
+    """[FR25-01 / FR25-02] the Rust s25 W-2 table for `profile`, from the
+    printout `ZK60_S25_W2_PRINTOUT` names (or `path`): read ONCE, its SHA-256
+    compared with `S25_W2_PRINTOUT_PIN`, and parsed from the bytes that were
+    hashed.  Returns (rust, None), or (None, refusal) when the printout is not
+    given, cannot be read or is not the pinned file; the caller's HASH-2 is
+    then FALSE."""
+    p = path if path is not None else os.environ.get(S25_W2_PRINTOUT_ENV, "")
+    base = {"printout": p or None, "printout_pin": S25_W2_PRINTOUT_PIN, "printout_made_by": S25_W2_PRINTOUT_MADE_BY,
+            "printout_copy_in_the_repository": S25_W2_PRINTOUT_COPY, "ok": False}
+    if not p:
+        return None, dict(base, refused=f"{S25_W2_PRINTOUT_ENV} is not set: at an R13 base the Rust s25 W-2 printout is "
+                                        f"mandatory (FR25-01), so HASH-2 is false")
+    try:
+        with open(p, "rb") as fh:
+            raw = fh.read()
+    except OSError as exc:
+        return None, dict(base, refused=f"{S25_W2_PRINTOUT_ENV} = {p}: the printout cannot be read ({exc.__class__.__name__}: "
+                                        f"{exc}), so HASH-2 is false (FR25-01)")
+    sha = hashlib.sha256(raw).hexdigest()
+    if sha != S25_W2_PRINTOUT_PIN:
+        return None, dict(base, printout_sha256=sha, refused=f"{p}: sha256 {sha} is not the pinned s25 W-2 printout "
+                                                             f"{S25_W2_PRINTOUT_PIN} (FR25-02), so HASH-2 is false")
+    t = rust_table_of_bytes(raw, profile)
+    return {"table": t, "path": p, "sha256": sha, "pin": S25_W2_PRINTOUT_PIN, "made_by": S25_W2_PRINTOUT_MADE_BY}, None
+
+
+def hash2_verdict(hc: dict, rust, why, replay_ok, hash_layer_ok) -> dict:
+    """[FR25-01] HASH-2's verdict from the evaluated census `hc` (`evaluate`):
+    true only when the gate's own conditions hold, the PINNED Rust table was
+    loaded and lists every measured kind, and the replay and the fold the
+    measurement ran reproduced.  A refused printout (`why`) is a finding.
+    (The controls, when run, are and-ed in after this.)"""
+    if why:
+        hc["rust_table"] = why
+        hc["findings"] = list(hc.get("findings", [])) + [f"HASH-2: {why.get('refused')}"]
+    rt = hc.get("rust_table") or {}
+    hc["rust_table_compared"] = rust is not None and rt.get("ok") is True
+    hc["replay_ok_while_measured"] = replay_ok
+    hc["hash_layer_ok_while_measured"] = hash_layer_ok
+    hc["ok"] = bool(hc.get("ok") and not why and hc["rust_table_compared"] and replay_ok and hash_layer_ok)
+    return hc
 
 
 # ---------------------------------------------------------------- the parts
@@ -687,15 +767,15 @@ def d55_hash(b, controls=True) -> tuple:
     rust, why = load_rust(b.profile)
     rec = measure(b)
     hc = evaluate(rec, rust=rust)
-    if why:
-        hc["rust_table"] = why
-    hc["replay_ok_while_measured"] = rec.replay_ok
-    hc["hash_layer_ok_while_measured"] = rec.hash_layer_ok
     hc["not_measured_here"] = ["the prover's calls: the generator's refill and seed derivations (R1), the commit-phase and per-fork "
                                "seed domains", "statement digests a capture does not let the gate recompute: D1 calibration identity, "
                                "D2 block public digest, D3 block schedule, D4 run statement, D7 boundary spec (the Rust s25 W-2 "
                                "census covers them by arithmetic)"]
-    hc["ok"] = bool(hc["ok"] and rec.replay_ok and rec.hash_layer_ok)
+    hc["s25_printout"] = {"mandatory": True, "pin": S25_W2_PRINTOUT_PIN, "made_by": S25_W2_PRINTOUT_MADE_BY,
+                          "given": rust["path"] if rust is not None else why.get("printout"),
+                          "sha256_read": rust["sha256"] if rust is not None else why.get("printout_sha256"),
+                          "accepted": rust is not None}
+    hash2_verdict(hc, rust, why, rec.replay_ok, rec.hash_layer_ok)
     if controls:
         hc["controls"] = census_controls(b, rec, rust)
         hc["ok"] = bool(hc["ok"] and hc["controls"]["ok"])

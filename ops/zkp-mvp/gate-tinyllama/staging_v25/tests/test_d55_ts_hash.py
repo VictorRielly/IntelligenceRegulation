@@ -168,7 +168,28 @@ class OnABundle(unittest.TestCase):
                 self.assertEqual(row["pair_removed_disclosed_Fp"], n)
 
     def test_the_hash_layer_and_census_and_every_control(self):
-        hl, hc = H.d55_hash(self.b, controls=True)
+        # [v25 freeze fixes, FR25-01] the pinned Rust printout is mandatory: the one
+        # ZK60_S25_W2_PRINTOUT names, else the committed gzipped copy, unpacked to a
+        # temporary file (its digest is checked by the gate itself)
+        import gzip
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as tmp:
+            p = os.environ.get(H.S25_W2_PRINTOUT_ENV, "")
+            if not p:
+                d = os.path.dirname(os.path.abspath(__file__))
+                for _ in range(8):
+                    if os.path.isfile(os.path.join(d, H.S25_W2_PRINTOUT_COPY)):
+                        break
+                    d = os.path.dirname(d)
+                with gzip.open(os.path.join(d, H.S25_W2_PRINTOUT_COPY), "rb") as fh:
+                    raw = fh.read()
+                p = os.path.join(tmp, "s25_w2_printout_v2.log")
+                with open(p, "wb") as fh:
+                    fh.write(raw)
+            with mock.patch.dict(os.environ, {H.S25_W2_PRINTOUT_ENV: p}):
+                hl, hc = H.d55_hash(self.b, controls=True)
+        self.assertTrue(hc["s25_printout"]["accepted"], hc.get("rust_table"))
         self.assertTrue(hl["ok"], hl.get("findings"))
         self.assertEqual(hl["columns_authenticated"], hl["columns_checked"])
         self.assertTrue(all(v["fires"] for v in hl["controls"].values() if isinstance(v, dict)))

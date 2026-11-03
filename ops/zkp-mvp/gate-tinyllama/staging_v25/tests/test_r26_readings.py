@@ -84,23 +84,39 @@ class R26Table(unittest.TestCase):
                     self.assertTrue(pointer.startswith(rel), key)
                     self.assertTrue(summary and "\n" not in summary)
                     seen.add(key)
-        independent = {k for k, v in R26.R26_READINGS.items() if v[2] != R26.SELF_READ}
+        independent = {k for k, v in R26.R26_READINGS.items() if v[2] not in (R26.SELF_READ, R26.WIRING_CHECKED)}
         self.assertEqual(independent, seen)
         self.assertEqual(len(seen), 39)
 
-    def test_the_self_read_entries_are_the_wiring_record(self):
+    def test_the_wiring_entries_are_the_wiring_record_and_carry_the_independent_check(self):
+        """[v25 freeze fixes, FR25-13] the three wiring readings are labelled
+        with the independent check (748fe707) as their reader; none is
+        SELF_READ any more; the Metal files keep the CPU-PATH scope"""
         doc = _record(R26.R26_WIRING)
         self.assertTrue(doc["self_read"])
-        self_read = {k: v for k, v in R26.R26_READINGS.items() if v[2] == R26.SELF_READ}
-        self.assertEqual(sorted(f for f, _p in self_read), sorted(doc["summary"]["new_digests"]))
-        for (f, prefix), (full, scope, _who, _s, pointer) in self_read.items():
+        self.assertEqual([k for k, v in R26.R26_READINGS.items() if v[2] == R26.SELF_READ], [])
+        wiring = {k: v for k, v in R26.R26_READINGS.items() if v[2] == R26.WIRING_CHECKED}
+        self.assertEqual(sorted(f for f, _p in wiring), sorted(doc["summary"]["new_digests"]))
+        for (f, prefix), (full, scope, _who, _s, pointer) in wiring.items():
             self.assertEqual(doc["summary"]["new_digests"][f], full)
             self.assertIn(full, doc["readings"][f]["readings"])
             self.assertEqual(scope, R26.CPU_PATH if f in R26.GPU_BACKEND_SOURCES else R26.FULL)
             self.assertTrue(pointer.startswith(R26.R26_WIRING))
+            self.assertIn(R26.R26_WIRING_CHECK, pointer)
         # the run_capture.rs chain: r19b -> cbb78dc0 (run-level reader) -> the wiring's digest
         rc = doc["readings"]["src/private_block/run_capture.rs"]
         self.assertEqual(rc["base"], _full("src/private_block/run_capture.rs", "cbb78dc04ac5"))
+
+    def test_the_independent_check_is_the_committed_record_and_names_each_digest(self):
+        import hashlib
+        with open(os.path.join(REPO, R26.R26_WIRING_CHECK), "rb") as fh:
+            raw = fh.read()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), R26.R26_WIRING_CHECK_SHA256)
+        text = raw.decode()
+        for (f, _p), (full, _scope, who, _s, _ptr) in R26.R26_READINGS.items():
+            if who == R26.WIRING_CHECKED:
+                self.assertIn(full, text, f)
+        self.assertIn("**SAFE", text)
 
     def test_a_file_on_disk_at_a_wired_digest_rehashes(self):
         """the HEAD digests the table wires are this checkout's files (a pin
@@ -125,10 +141,11 @@ class R26Classification(unittest.TestCase):
             self.assertFalse(p["ok"])
 
     def test_a_w16_prefix_reading_does_not_read_a_digest_round_26_reread(self):
-        """W16_READINGS names 6b66c0bcf200 for zkp-core's merkle.rs by prefix
-        only; round 26 re-read it at its full digest, so a prefix twin stays
-        unread"""
-        self.assertTrue(W.W16_READINGS["../zkp-core/src/merkle.rs"][0] == "6b66c0bcf200")
+        """W16_READINGS names 6b66c0bcf200.. for zkp-core's merkle.rs (since
+        FR25-06 by its full digest); round 26 re-read it at its full digest, so
+        a prefix twin stays unread"""
+        self.assertTrue(W.W16_READINGS["../zkp-core/src/merkle.rs"][0].startswith("6b66c0bcf200"))
+        self.assertEqual(W.W16_READINGS["../zkp-core/src/merkle.rs"][0], MERKLE[1])
         twin = MERKLE[1][:-1] + ("0" if MERKLE[1][-1] != "0" else "1")
         p = _classify(_manifest([(MERKLE[0], twin)], gpu=False))
         self.assertEqual([u["file"] for u in p["unread"]], [MERKLE[0]])
@@ -161,7 +178,9 @@ class R26Classification(unittest.TestCase):
         self.assertTrue(p["backend"]["admissible"])
         self.assertEqual(p["unread"], [])
         self.assertEqual(p["readings_r26"][METAL[0]]["scope"], R26.CPU_PATH)
-        self.assertEqual(p["self_read_pending_independent_check"], sorted([METAL[0], KERNELS[0]]))
+        # FR25-13: checked independently (748fe707), so no longer pending
+        self.assertEqual(p["self_read_pending_independent_check"], [])
+        self.assertEqual(p["readings_r26"][METAL[0]]["reader"], R26.WIRING_CHECKED)
         self.assertTrue(p["ok"])
         # a Metal file at another digest is UNREAD even on a CPU-made bundle
         p = _classify(_manifest([(METAL[0], "cd" * 32)], gpu=False))

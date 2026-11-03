@@ -1,0 +1,98 @@
+run_capture.rs sha256 10b6d3be860c73cd257e4b6b040b0351f10b993d8b1d1fdb5775057b71ef21c7 == 10b6d3be..: True
+OWN 44 SHARED 31 total 75 distinct 75
+REGISTERED_WRITER_PINS = (
+    'src/private_block/argument_accuracy.rs',
+    'src/private_block/accuracy_act.rs',
+    'src/private_block/accuracy_fold.rs',
+    'src/private_block/accuracy_layout.rs',
+    'src/private_block/run_capture.rs',
+    'src/private_block/run.rs',
+    'src/private_block/boundary.rs',
+    'src/private_block/protocol.rs',
+    'src/private_block/argument.rs',
+    'src/private_block/layout.rs',
+    'src/private_block/plane_index.rs',
+    'src/private_block/shape.rs',
+    'src/private_block/wire.rs',
+    'src/private_block/run_sink.rs',
+    'src/private_block/endpoint_g.rs',
+    'src/private_block/hash_domain.rs',
+    'src/private_block.rs',
+    'src/private_block/witness.rs',
+    'src/private_block/pad.rs',
+    'src/private_block/trained_statement.rs',
+    'src/private_block/token_io.rs',
+    'src/private_block/token_io/stage_in.rs',
+    'src/private_block/token_io/stage_out.rs',
+    'src/private_block/token_io/run.rs',
+    'src/private_block/token_io/load.rs',
+    'src/private_block/token_io/cli.rs',
+    'src/private_block/trained_block.rs',
+    'src/private_block/rope.rs',
+    'src/private_block/tied_tables.rs',
+    'src/private_block/tied_tables/derive.rs',
+    'src/private_block/accuracy.rs',
+    'src/private_block/accuracy_aligned.rs',
+    'src/private_block/accuracy_groups.rs',
+    'src/private_block/accuracy_precision.rs',
+    'src/private_block/accuracy_public.rs',
+    'src/private_block/accuracy_tables.rs',
+    'src/private_block/trained_accuracy.rs',
+    'src/private_block/witness_accuracy.rs',
+    'src/private_block/range16.rs',
+    'src/private_block/slot_ir.rs',
+    'src/private_block/slot_ir_accuracy.rs',
+    'src/private_block/metal_slot.rs',
+    'src/private_block/run_fork.rs',
+    'src/private_block/run_fork_wire.rs',
+    'src/zk.rs',
+    'src/tables_attn.rs',
+    'src/causal_oracle.rs',
+    'src/private_seam.rs',
+    'src/export_v3.rs',
+    'src/field.rs',
+    'src/merkle.rs',
+    'src/mle.rs',
+    'src/ntt.rs',
+    'src/pcs.rs',
+    'src/sumcheck.rs',
+    'src/transcript.rs',
+    '../zkp-core/src/lib.rs',
+    '../zkp-core/src/field.rs',
+    '../zkp-core/src/hashtag.rs',
+    '../zkp-core/src/merkle.rs',
+    '../zkp-core/src/mle.rs',
+    '../zkp-core/src/ntt.rs',
+    '../zkp-core/src/pcs.rs',
+    '../zkp-core/src/pcs/backend.rs',
+    '../zkp-core/src/rng.rs',
+    '../zkp-core/src/sumcheck.rs',
+    '../zkp-core/src/transcript.rs',
+    '../zkp-core/src/pcs/encode_buffer.rs',
+    '../zkp-core/src/sumcheck/rounds.rs',
+    '../zkp-core/src/sumcheck/grouped.rs',
+    'src/gpu/mod.rs',
+    'src/tables_v3.rs',
+    '../zkp-core/src/tables.rs',
+    'src/gpu/metal.rs',
+    'src/gpu/metal_kernels.metal',
+)
+s25_w2_printout_v2.log bac4bbd6838b2a090b131dd003ec1f6962063e12e1bb1cff80fa7a35ab65dc53 4816242
+s25_tests.rs 39b2e1c02606f72f49052025d0dfbb3e4bc65ac7e776b00f991922845503b99e 205091
+d55-r13_8b_t128_h24-s0: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_8b_t128_h24-s1: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_rung_h24-s0: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_rung_h24-s1: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_shield_t128_h24-own-s0: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_shield_t128_h24-own-s1: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_shield_t128_h24-s0: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_shield_t128_h24-s1: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_shield_t256_h24-s0: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_shield_t256_h24-s1: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_tiny_t128_low-s0: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_tiny_t128_low-s1: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=False
+d55-r13_8b_t128_h24-s0: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=73 distinct=73 missing=['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal'] extra=[] proved_on_gpu=ABSENT
+d55-r13_8b_t128_h24-s1: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=73 distinct=73 missing=['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal'] extra=[] proved_on_gpu=ABSENT
+d55-r13_rung_h24-s0: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=73 distinct=73 missing=['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal'] extra=[] proved_on_gpu=ABSENT
+d55-r13_rung_h24-s1: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=73 distinct=73 missing=['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal'] extra=[] proved_on_gpu=ABSENT
+d55-r13_rung_h24-s0-marked-gpu: writer='run_capture::write_bundle (a registered D55 run profile, D60)' pins=75 distinct=75 missing=[] extra=[] proved_on_gpu=True

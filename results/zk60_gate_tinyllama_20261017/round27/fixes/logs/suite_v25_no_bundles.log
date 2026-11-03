@@ -1,0 +1,35 @@
+sss.....sssss......ssss/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_terminal_surjection_review/ts_review.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_terminal_surjection_review/ts_field.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_terminal_surjection_review/ts_components.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..s...sss..................................ss.......ssss....../Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_classpins.py:589: ResourceWarning: unclosed file <_io.TextIOWrapper name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256' mode='r' encoding='UTF-8'>
+  for line in open(man):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...ss.s.sss....s.s/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_v4_status_g10.py:1795: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_classgate.py'>
+  want = hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_classtied.py:459: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/gate-v24-e7-efs1kmwj/export/profile.json'>
+  pbytes = open(os.path.join(export_dir, "profile.json"), "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_classtied.py:466: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/gate-v24-e7-efs1kmwj/export/rotation_sign.bin'>
+  sign_bytes = open(os.path.join(export_dir, "rotation_sign.bin"), "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..Fs....ssss...sssssssss.s.ssssss.sssssssssssssssssssssssssssss.ss.s...sssssssss..........sssssss
+======================================================================
+FAIL: test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_v4_status_g10.py", line 1884, in test_r19b_self_check_and_its_control
+    self.assertTrue(sc["ok"], sc["findings"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : ['the r16b CLI binary: re-hashed None, listed dfb8025eb903, named dfb8025eb903', 'the r17 CLI binary: re-hashed None, listed 81bd86248e9f, named 81bd86248e9f', 'the r18 CLI binary: re-hashed None, listed 110f0c53c56f, named 110f0c53c56f', 'the r19 CLI binary: re-hashed None, listed 841ba983ceba, named 841ba983ceba', 'the r19b CLI binary: re-hashed None, listed 6d65d32ea783, named 6d65d32ea783']
+
+----------------------------------------------------------------------
+Ran 203 tests in 8.103s
+
+FAILED (failures=1, skipped=99)

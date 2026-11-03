@@ -1,0 +1,30 @@
+test_a_cpu_made_bundle_reads_the_metal_pins_at_the_cpu_path_scope_only (test_r26_readings.R26Classification.test_a_cpu_made_bundle_reads_the_metal_pins_at_the_cpu_path_scope_only) ... ok
+test_a_full_digest_is_read_and_a_prefix_twin_or_unknown_digest_is_not (test_r26_readings.R26Classification.test_a_full_digest_is_read_and_a_prefix_twin_or_unknown_digest_is_not) ... ok
+test_a_gpu_made_bundle_is_refused_and_its_metal_pins_are_unread (test_r26_readings.R26Classification.test_a_gpu_made_bundle_is_refused_and_its_metal_pins_are_unread) ... ok
+test_a_non_boolean_backend_is_refused (test_r26_readings.R26Classification.test_a_non_boolean_backend_is_refused) ... ok
+test_a_w16_prefix_reading_does_not_read_a_digest_round_26_reread (test_r26_readings.R26Classification.test_a_w16_prefix_reading_does_not_read_a_digest_round_26_reread)
+W16_READINGS names 6b66c0bcf200.. for zkp-core's merkle.rs (since ... ok
+test_the_backend_absent_is_refused_as_unknown (test_r26_readings.R26Classification.test_the_backend_absent_is_refused_as_unknown) ... ok
+test_every_moved_pin_is_read_and_the_backend_is_admissible (test_r26_readings.R26FreshBundle.test_every_moved_pin_is_read_and_the_backend_is_admissible) ... skipped 'set ZK60_D55_R13_BUNDLE to a registered R13 D55 bundle of the round-26 tree'
+test_every_pin_is_read_but_the_backend_is_unknown (test_r26_readings.R26OldD60Bundle.test_every_pin_is_read_but_the_backend_is_unknown) ... skipped "set ZK60_D60_OLD_BUNDLE to a D60 bundle written before F-B1's fix"
+test_a_file_on_disk_at_a_wired_digest_rehashes (test_r26_readings.R26Table.test_a_file_on_disk_at_a_wired_digest_rehashes)
+the HEAD digests the table wires are this checkout's files (a pin ... ok
+test_every_reader_entry_is_wired_at_its_full_digest (test_r26_readings.R26Table.test_every_reader_entry_is_wired_at_its_full_digest)
+each (file, prefix) of both readers' wiring tables is in R26_READINGS ... ok
+test_the_independent_check_is_the_committed_record_and_names_each_digest (test_r26_readings.R26Table.test_the_independent_check_is_the_committed_record_and_names_each_digest) ... ERROR
+test_the_wiring_entries_are_the_wiring_record_and_carry_the_independent_check (test_r26_readings.R26Table.test_the_wiring_entries_are_the_wiring_record_and_carry_the_independent_check)
+[v25 freeze fixes, FR25-13] the three wiring readings are labelled ... ok
+
+======================================================================
+ERROR: test_the_independent_check_is_the_committed_record_and_names_each_digest (test_r26_readings.R26Table.test_the_independent_check_is_the_committed_record_and_names_each_digest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_r26_readings.py", line 118, in test_the_independent_check_is_the_committed_record_and_names_each_digest
+    rc = doc["readings"]["src/private_block/run_capture.rs"]
+         ^^^
+NameError: name 'doc' is not defined
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.003s
+
+FAILED (errors=1, skipped=2)

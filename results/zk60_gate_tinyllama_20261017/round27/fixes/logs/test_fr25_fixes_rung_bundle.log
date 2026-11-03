@@ -1,0 +1,8 @@
+test_hash2_with_the_pinned_printout_holds (test_fr25_fixes.OnABundle.test_hash2_with_the_pinned_printout_holds) ... ok
+test_hash2_without_the_printout_is_false_and_hc7_is_not_fired (test_fr25_fixes.OnABundle.test_hash2_without_the_printout_is_false_and_hc7_is_not_fired) ... ok
+test_the_bundles_pins_and_controls (test_fr25_fixes.OnABundle.test_the_bundles_pins_and_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.026s
+
+OK
