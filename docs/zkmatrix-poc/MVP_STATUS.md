@@ -14,14 +14,17 @@
   about +3.5% receipt bytes), and the token and classifier bit counters must learn the new count before registration.
 - **D55 is now registered (D60)** over the 12 R13 block-run profiles, with test receipts verified in a fresh process. On R13 8B T128 it
   measures 7.59 → 11.95 proved tokens/s at six forks. Its independent review found no soundness defect or leak, and its findings are
-  closed. Every source file that moved since the privacy gate last read it has now been read and found safe, and the Python gate
-  gives a full PASS on fresh registered R13 fork bundles (CPU-made; GPU-made bundles are refused until the Metal code is fully read).
-  The three readings the wiring agent did itself were then checked independently and found safe; one latent issue (W-1) goes to the
-  freeze review. The older gate items for R13 are now ported to D55 and pass. The hash census found one gap in the Rust
-  table: it had never measured the hash inputs of runs with 2 to 9 blocks. The gap is fixed in test code. All 12 registered bundles pass, now including TinyLlama and Shieldstral T128/T256. NL-1 and the
-  full preimage pass on the four R13 bundles. The gate with every new check combined is queued on all 12.
+  closed. Every source file that moved since the privacy gate last read it has now been read and found safe, including an
+  independent check of the three readings the wiring agent did itself (one latent issue, W-1, goes to the freeze review).
+  CPU-made bundles only; GPU-made bundles are refused until the Metal code is fully read.
+  The older gate items for R13 are now ported to D55. Each check passes on every bundle it has run on: all 12 registered bundles
+  (now including TinyLlama and Shieldstral T128/T256) for the hash and claim checks, and the four R13 bundles for NL-1 and the
+  full preimage. The hash census found one gap in the Rust table (it had never measured runs of 2 to 9 blocks), now fixed in test
+  code. **Correction:** the earlier records were PASS only for the checks run at the time. Each still listed privacy checks not
+  yet run on it, so none of them is a privacy PASS record. Only the gate with every check combined can give one. It is now
+  running on all 12 bundles, and its first record is a full PASS.
   The separate review of the gate before its freeze is done: freeze after named fixes. It found no leak in any recorded bundle, but
-  the status could reach PASS with a check skipped or a pin list cut short; those fixes are being made.
+  the status could reach PASS with a check skipped or a pin list cut short. Those fixes are made and are being re-checked.
   The CLI still refuses D55 real-content runs. Lifting that needs the combined records, the fixed gate frozen, and Victor's go-ahead.
 - **The Mac's ceiling is about 23 tokens/s per request.** 50 still needs the RTX 5090.
 
