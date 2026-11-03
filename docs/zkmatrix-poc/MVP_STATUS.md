@@ -20,8 +20,9 @@
   freeze review. The older gate items for R13 are now ported to D55 and pass. The hash census found one gap in the Rust
   table: it had never measured the hash inputs of runs with 2 to 9 blocks. The gap is fixed in test code. All 12 registered bundles pass, now including TinyLlama and Shieldstral T128/T256. NL-1 and the
   full preimage pass on the four R13 bundles. The gate with every new check combined is queued on all 12.
-  The CLI still refuses D55 real-content runs. Lifting that needs those combined records, the gate version frozen after a separate
-  review, and Victor's go-ahead.
+  The separate review of the gate before its freeze is done: freeze after named fixes. It found no leak in any recorded bundle, but
+  the status could reach PASS with a check skipped or a pin list cut short; those fixes are being made.
+  The CLI still refuses D55 real-content runs. Lifting that needs the combined records, the fixed gate frozen, and Victor's go-ahead.
 - **The Mac's ceiling is about 23 tokens/s per request.** 50 still needs the RTX 5090.
 
 **2026-11-01 (night): one request now proves at about 21 proved tokens/s with the D55 prototype (opt-in, unreviewed).**
