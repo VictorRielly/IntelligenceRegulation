@@ -1,0 +1,32 @@
+== build 17:32:57
+[zk60-guard 17:32:57] START m32-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=7fdfe2688726
+[zk60-guard 17:35:21] END m32-build exit=0 child_wall=143s peak_rss=3.66G min_avail=230.85G
+-rwxr-xr-x@ 1 victorrielly  staff  19131568 Nov  2 17:35 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+warnings: 133
+== targeted 17:35:26
+[zk60-guard 17:35:26] START m32-tests class=gpu need=30G cap=120G enforce=watchdog-only waited=0s run=3809367f69ed
+[zk60-guard 17:36:37] END m32-tests exit=0 child_wall=71s peak_rss=7.23G min_avail=221.81G peak_vram=7930MiB
+test result: ok. 132 passed; 0 failed; 23 ignored; 0 measured; 836 filtered out; finished in 70.89s
+== bytes 17:36:37
+[zk60-guard 17:36:37] START m32-bytes class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=6618289855f1
+[zk60-guard 17:36:43] END m32-bytes exit=0 child_wall=6s peak_rss=1.71G min_avail=230.08G peak_vram=3645MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 5.71s
+== pysuite 17:36:48
+[zk60-guard 17:36:48] START m32-py class=cpu need=8G cap=48G enforce=watchdog-only waited=0s run=b2b54e74a16a
+[zk60-guard 17:43:50] END m32-py exit=1 child_wall=422s peak_rss=2.56G min_avail=233.33G
+FAIL: test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control)
+Ran 168 tests in 420.657s
+FAILED (failures=1, skipped=72)
+== full-suite 17:43:50
+[zk60-guard 17:43:50] START m32-full class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=3b49d653ee26
+[zk60-guard 17:48:31] END m32-full exit=101 child_wall=282s peak_rss=8.94G min_avail=225.79G
+test result: FAILED. 896 passed; 3 failed; 92 ignored; 0 measured; 0 filtered out; finished in 281.47s
+full-suite failures:
+private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+== done 17:48:32
