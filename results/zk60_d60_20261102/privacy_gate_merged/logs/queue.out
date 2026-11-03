@@ -1,0 +1,298 @@
+[zk60-guard 17:48:32] START mg-mg-r13-rung-s0 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=0af2d192b937
+[zk60-guard 18:16:27] END mg-mg-r13-rung-s0 exit=0 child_wall=1676s peak_rss=12.23G min_avail=222.54G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (1675.4 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-r13-rung-s0.json
+[zk60-guard 18:16:27] START mg-mg-r13-rung-s1 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=54e23dd82cf5
+[zk60-guard 18:44:34] END mg-mg-r13-rung-s1 exit=0 child_wall=1687s peak_rss=12.25G min_avail=222.46G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (1686.3 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-r13-rung-s1.json
+[zk60-guard 18:44:34] START mg-mg-r13-8b-s0 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=28aa39cbfad1
+[zk60-guard 20:11:53] END mg-mg-r13-8b-s0 exit=0 child_wall=5239s peak_rss=13.53G min_avail=221.92G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (5238.6 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-r13-8b-s0.json
+[zk60-guard 20:11:53] START mg-mg-r13-8b-s1 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=b72193949884
+[zk60-guard 21:38:32] END mg-mg-r13-8b-s1 exit=0 child_wall=5199s peak_rss=13.52G min_avail=221.78G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (5198.7 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-r13-8b-s1.json
+[zk60-guard 21:38:32] START mg-mg-tiny-t128-s0 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=10ab33582229
+[zk60-guard 22:37:39] END mg-mg-tiny-t128-s0 exit=0 child_wall=3548s peak_rss=12.41G min_avail=222.58G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (3547.3 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-tiny-t128-s0.json
+[zk60-guard 22:37:39] START mg-mg-tiny-t128-s1 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=c86e75f93dcf
+[zk60-guard 23:36:57] END mg-mg-tiny-t128-s1 exit=0 child_wall=3557s peak_rss=12.63G min_avail=221.98G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (3557.3 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-tiny-t128-s1.json
+[zk60-guard 23:36:57] START mg-mg-shield-t128-s0 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=965d1a250f0b
+[zk60-guard 01:05:06] END mg-mg-shield-t128-s0 exit=0 child_wall=5289s peak_rss=13.85G min_avail=213.92G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (5288.4 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-shield-t128-s0.json
+[zk60-guard 01:05:06] START mg-mg-shield-t128-s1 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=33d05e49f4ab
+[zk60-guard 02:34:15] END mg-mg-shield-t128-s1 exit=0 child_wall=5349s peak_rss=13.50G min_avail=214.17G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (5348.9 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-shield-t128-s1.json
+[zk60-guard 02:34:15] START mg-mg-shield-t128-own-s0 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=d017781fdca2
+[zk60-guard 04:02:32] END mg-mg-shield-t128-own-s0 exit=0 child_wall=5297s peak_rss=13.98G min_avail=212.87G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (5297.1 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-shield-t128-own-s0.json
+[zk60-guard 04:02:32] START mg-mg-shield-t128-own-s1 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=c7c62ba6363d
+[zk60-guard 05:29:33] END mg-mg-shield-t128-own-s1 exit=0 child_wall=5220s peak_rss=13.17G min_avail=214.12G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (5219.9 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-shield-t128-own-s1.json
+[zk60-guard 05:29:33] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:30:03] waiting for admission lock (0s)
+[zk60-guard 05:30:34] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:31:35] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:32:36] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:33:01] waiting for admission lock (0s)
+[zk60-guard 05:33:38] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:34:39] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:35:39] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:36:10] waiting for admission lock (0s)
+[zk60-guard 05:36:41] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:37:42] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:38:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:39:44] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:40:44] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:41:45] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:42:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:43:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:44:47] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:45:48] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:46:48] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:47:49] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:48:45] START mg-mg-shield-t256-s0 class=cpu need=24G cap=160G enforce=watchdog-only waited=1152s run=d87052755ac5
+[zk60-guard 09:02:46] END mg-mg-shield-t256-s0 exit=0 child_wall=11641s peak_rss=20.95G min_avail=70.43G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (11641.1 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-shield-t256-s0.json
+[zk60-guard 09:02:46] START mg-mg-shield-t256-s1 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=abccdc6d4fe6
+[zk60-guard 12:13:02] END mg-mg-shield-t256-s1 exit=0 child_wall=11416s peak_rss=22.34G min_avail=206.35G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+NL-1 R13 slots, every fork: PASS
+PRE full zero-data preimage: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (11415.8 s) -> /Users/victorrielly/IntelligenceRegulation/results/zk60_d60_20261102/privacy_gate_merged/records/d55-mg-shield-t256-s1.json
