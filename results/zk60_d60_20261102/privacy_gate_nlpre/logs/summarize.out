@@ -1,0 +1,141 @@
+== py-r13-8b-s0: status D55-PASS  (4705.3 s, peak 5647 MB)
+   parts: D55-0 integrity=T, D55-1/2 facts=T, D55-3 replay=T, D55-C replay controls=T, D55-IO joined claims from the forks=T, D55-J joint rank=T, NL-1 R13 slots, every fork=T, PINS controls=T, PRE full zero-data preimage=T, R13-2 layout=T, R13-3 terminals=T, R13-6 per commitment=T, R13-7 mask and CFS=T, R13-H registered header=T
+   not_here: ['TS-1 and the claim census', 'the hash census on the Python side', 'G_k in the clear: recovered on SC_FZC, not read from a bound line', 'the independent check of the self-read readings (READINGS_R26_WIRING.json) at the v25 freeze review']
+   pins 75: at r19b 41, read 34, unread 0; backend admissible True
+   NL-1: ok True  forks 3  instances 21/21  G {'0': 19, '1': 19, '2': 19}  T-0 21/21  E-0 21/21  T-0 control 21/21  (87.5 s)
+      random-1: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      random-2: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      random-3: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      run: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      S3 25/25 at [(15, 3), (15, 4), (18, 4), (20, 4), (22, 5)];  S3 all 23 slots 55/55;  budget all 23 True  (worst L 112)
+      S5 {'F_1_fires': '21/21', 'N5_1_fires': '21/21', 'N5_2_fires': '18/18 (not applicable at slack > 0: 3)', 'N5_3_fires': True, 'N5_4_fires': True}  ok True;  D55 controls {'NL-G the gate denominator moved': True, 'NL-TAB-ACT a doctored ACT3 table entry': True, 'NL-TAB-GC a doctored group-column entry': True}
+   PRE: ok True  exhibited 10/10  entries 9,424,908 differing 0  leaves 2560  d55 findings []  (4241.4 s)
+      A@0       rows  4577 data  4283 groups  36 claims  146 n 16384 Q 256 d 256 entries 1,787,538 diff 0 leaves 256/256 fibre 3,604,260 (247.65 s)
+      H@0       rows  4390 data  4280 groups   9 claims   54 n 16384 Q 256 d 255 entries 1,285,904 diff 0 leaves 256/256 fibre 1,478,840 (159.5 s)
+      A@1       rows  4577 data  4283 groups  36 claims  146 n 16384 Q 256 d 255 entries 1,782,961 diff 0 leaves 256/256 fibre 3,608,763 (247.75 s)
+      H@1       rows  4390 data  4280 groups   9 claims   54 n 16384 Q 256 d 256 entries 1,290,294 diff 0 leaves 256/256 fibre 1,474,470 (159.08 s)
+      A@2       rows  4577 data  4283 groups  36 claims  146 n 16384 Q 256 d 256 entries 1,787,538 diff 0 leaves 256/256 fibre 3,604,260 (246.84 s)
+      H@2       rows  4390 data  4280 groups   9 claims   54 n 16384 Q 256 d 255 entries 1,285,904 diff 0 leaves 256/256 fibre 1,478,840 (159.57 s)
+      B0        rows    38 data    32 groups   2 claims    2 n 16384 Q 256 d 256 entries 59,650 diff 0 leaves 256/256 fibre 0 (33.3 s)
+      B1        rows    38 data    32 groups   2 claims    2 n 16384 Q 256 d 256 entries 59,650 diff 0 leaves 256/256 fibre 0 (33.28 s)
+      E-Input   rows    37 data    32 groups   1 claims    1 n 16384 Q 256 d 255 entries 42,716 diff 0 leaves 256/256 fibre 33 (32.22 s)
+      E-Output  rows    37 data    32 groups   1 claims    1 n 16384 Q 256 d 256 entries 42,753 diff 0 leaves 256/256 fibre 0 (32.27 s)
+      ah_controls on {'A': 'A@1', 'H': 'H@1'}: fire 6/6, applicable 6, not applicable []  (2671.8 s)
+         P-1: fires True  H@1: pad:group4 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the
+         P-2: fires True  A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside th
+         P-3: fires True  H@1: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the
+         P-4: fires True  H@1: row 0 -- NO PREIMAGE: 255 pad symbols cannot meet 256 distinct opened columns (the interpolant of the req
+         P-5: fires True  
+         P-6: fires True  
+         PRE-A2 a PAD/MSG swap (fork A): fires True  A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside th
+         PRE-A3 a salted leaf changed (fork A): fires True  
+         PRE-T1 an opened column changed (tail): fires True  B0: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the 
+         PRE-T2 a PAD/MSG swap (tail): fires True  B0: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the
+         PRE-T3 a salted leaf changed (tail): fires True  
+   control verdicts in the record: 137; fire 134; not run / not applicable 3 ['NL-1 R13 slots, every fork/S5_controls/N5_2[5]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[12]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[19]']; do NOT fire []
+== py-r13-8b-s1: status D55-PASS  (4625.7 s, peak 5179 MB)
+   parts: D55-0 integrity=T, D55-1/2 facts=T, D55-3 replay=T, D55-C replay controls=T, D55-IO joined claims from the forks=T, D55-J joint rank=T, NL-1 R13 slots, every fork=T, PINS controls=T, PRE full zero-data preimage=T, R13-2 layout=T, R13-3 terminals=T, R13-6 per commitment=T, R13-7 mask and CFS=T, R13-H registered header=T
+   not_here: ['TS-1 and the claim census', 'the hash census on the Python side', 'G_k in the clear: recovered on SC_FZC, not read from a bound line', 'the independent check of the self-read readings (READINGS_R26_WIRING.json) at the v25 freeze review']
+   pins 75: at r19b 41, read 34, unread 0; backend admissible True
+   NL-1: ok True  forks 3  instances 21/21  G {'0': 19, '1': 19, '2': 19}  T-0 21/21  E-0 21/21  T-0 control 21/21  (87.7 s)
+      random-1: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      random-2: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      random-3: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      run: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      S3 25/25 at [(15, 3), (15, 4), (18, 4), (20, 4), (22, 5)];  S3 all 23 slots 55/55;  budget all 23 True  (worst L 112)
+      S5 {'F_1_fires': '21/21', 'N5_1_fires': '21/21', 'N5_2_fires': '18/18 (not applicable at slack > 0: 3)', 'N5_3_fires': True, 'N5_4_fires': True}  ok True;  D55 controls {'NL-G the gate denominator moved': True, 'NL-TAB-ACT a doctored ACT3 table entry': True, 'NL-TAB-GC a doctored group-column entry': True}
+   PRE: ok True  exhibited 10/10  entries 9,428,999 differing 0  leaves 2560  d55 findings []  (4160.0 s)
+      A@0       rows  4577 data  4283 groups  36 claims  146 n 16384 Q 256 d 256 entries 1,787,538 diff 0 leaves 256/256 fibre 3,604,260 (245.12 s)
+      H@0       rows  4390 data  4280 groups   9 claims   54 n 16384 Q 256 d 256 entries 1,290,294 diff 0 leaves 256/256 fibre 1,474,470 (157.76 s)
+      A@1       rows  4577 data  4283 groups  36 claims  146 n 16384 Q 256 d 254 entries 1,778,384 diff 0 leaves 256/256 fibre 3,613,266 (243.29 s)
+      H@1       rows  4390 data  4280 groups   9 claims   54 n 16384 Q 256 d 256 entries 1,290,294 diff 0 leaves 256/256 fibre 1,474,470 (157.99 s)
+      A@2       rows  4577 data  4283 groups  36 claims  146 n 16384 Q 256 d 256 entries 1,787,538 diff 0 leaves 256/256 fibre 3,604,260 (244.97 s)
+      H@2       rows  4390 data  4280 groups   9 claims   54 n 16384 Q 256 d 256 entries 1,290,294 diff 0 leaves 256/256 fibre 1,474,470 (158.07 s)
+      B0        rows    38 data    32 groups   2 claims    2 n 16384 Q 256 d 255 entries 59,612 diff 0 leaves 256/256 fibre 32 (33.13 s)
+      B1        rows    38 data    32 groups   2 claims    2 n 16384 Q 256 d 256 entries 59,650 diff 0 leaves 256/256 fibre 0 (33.11 s)
+      E-Input   rows    37 data    32 groups   1 claims    1 n 16384 Q 256 d 253 entries 42,642 diff 0 leaves 256/256 fibre 99 (31.87 s)
+      E-Output  rows    37 data    32 groups   1 claims    1 n 16384 Q 256 d 256 entries 42,753 diff 0 leaves 256/256 fibre 0 (32.21 s)
+      ah_controls on {'A': 'A@1', 'H': 'H@1'}: fire 6/6, applicable 6, not applicable []  (2607.5 s)
+         P-1: fires True  H@1: pad:group4 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the
+         P-2: fires True  A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside th
+         P-3: fires True  H@1: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the
+         P-4: fires True  H@1: row 0 -- NO PREIMAGE: 255 pad symbols cannot meet 256 distinct opened columns (the interpolant of the req
+         P-5: fires True  
+         P-6: fires True  
+         PRE-A2 a PAD/MSG swap (fork A): fires True  A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside th
+         PRE-A3 a salted leaf changed (fork A): fires True  
+         PRE-T1 an opened column changed (tail): fires True  B0: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the 
+         PRE-T2 a PAD/MSG swap (tail): fires True  B0: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the
+         PRE-T3 a salted leaf changed (tail): fires True  
+   control verdicts in the record: 137; fire 134; not run / not applicable 3 ['NL-1 R13 slots, every fork/S5_controls/N5_2[5]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[12]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[19]']; do NOT fire []
+== py-r13-rung-s0: status D55-PASS  (1432.0 s, peak 1618 MB)
+   parts: D55-0 integrity=T, D55-1/2 facts=T, D55-3 replay=T, D55-C replay controls=T, D55-IO joined claims from the forks=T, D55-J joint rank=T, NL-1 R13 slots, every fork=T, PINS controls=T, PRE full zero-data preimage=T, R13-2 layout=T, R13-3 terminals=T, R13-6 per commitment=T, R13-7 mask and CFS=T, R13-H registered header=T
+   not_here: ['TS-1 and the claim census', 'the hash census on the Python side', 'G_k in the clear: recovered on SC_FZC, not read from a bound line', 'the independent check of the self-read readings (READINGS_R26_WIRING.json) at the v25 freeze review']
+   pins 75: at r19b 41, read 34, unread 0; backend admissible True
+   NL-1: ok True  forks 3  instances 21/21  G {'0': 20, '1': 21, '2': 20}  T-0 21/21  E-0 21/21  T-0 control 21/21  (10.9 s)
+      random-1: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      random-2: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      random-3: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      run: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      S3 25/25 at [(15, 3), (15, 4), (15, 5), (16, 4), (16, 5)];  S3 all 23 slots 55/55;  budget all 23 True  (worst L 82)
+      S5 {'F_1_fires': '21/21', 'N5_1_fires': '21/21', 'N5_2_fires': '15/15 (not applicable at slack > 0: 6)', 'N5_3_fires': True, 'N5_4_fires': True}  ok True;  D55 controls {'NL-G the gate denominator moved': True, 'NL-TAB-ACT a doctored ACT3 table entry': True, 'NL-TAB-GC a doctored group-column entry': True}
+   PRE: ok True  exhibited 10/10  entries 3,045,032 differing 0  leaves 2560  d55 findings []  (1324.2 s)
+      A@0       rows   437 data   139 groups  36 claims  148 n 16384 Q 256 d 256 entries 727,700 diff 0 leaves 256/256 fibre 3,669,792 (103.79 s)
+      H@0       rows   248 data   136 groups   9 claims   55 n 16384 Q 256 d 255 entries 229,695 diff 0 leaves 256/256 fibre 1,507,464 (53.29 s)
+      A@1       rows   437 data   139 groups  36 claims  148 n 16384 Q 256 d 256 entries 727,700 diff 0 leaves 256/256 fibre 3,669,792 (103.24 s)
+      H@1       rows   248 data   136 groups   9 claims   55 n 16384 Q 256 d 255 entries 229,695 diff 0 leaves 256/256 fibre 1,507,464 (53.38 s)
+      A@2       rows   437 data   139 groups  36 claims  148 n 16384 Q 256 d 255 entries 727,263 diff 0 leaves 256/256 fibre 3,670,155 (103.06 s)
+      H@2       rows   248 data   136 groups   9 claims   55 n 16384 Q 256 d 256 entries 229,943 diff 0 leaves 256/256 fibre 1,507,236 (53.57 s)
+      B0        rows     7 data     1 groups   2 claims    2 n 16384 Q 256 d 255 entries 51,707 diff 0 leaves 256/256 fibre 1 (32.7 s)
+      B1        rows     7 data     1 groups   2 claims    2 n 16384 Q 256 d 255 entries 51,707 diff 0 leaves 256/256 fibre 1 (32.48 s)
+      E-Input   rows     6 data     1 groups   1 claims    1 n 16384 Q 256 d 256 entries 34,817 diff 0 leaves 256/256 fibre 0 (31.65 s)
+      E-Output  rows     6 data     1 groups   1 claims    1 n 16384 Q 256 d 254 entries 34,805 diff 0 leaves 256/256 fibre 4 (31.35 s)
+      ah_controls on {'A': 'A@1', 'H': 'H@1'}: fire 6/6, applicable 6, not applicable []  (535.6 s)
+         P-1: fires True  H@1: pad:group5 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the
+         P-2: fires True  A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside th
+         P-3: fires True  H@1: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the
+         P-4: fires True  H@1: row 0 -- NO PREIMAGE: 254 pad symbols cannot meet 255 distinct opened columns (the interpolant of the req
+         P-5: fires True  
+         P-6: fires True  
+         PRE-A2 a PAD/MSG swap (fork A): fires True  A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside th
+         PRE-A3 a salted leaf changed (fork A): fires True  
+         PRE-T1 an opened column changed (tail): fires True  B0: pad:group1 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the 
+         PRE-T2 a PAD/MSG swap (tail): fires True  B0: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the
+         PRE-T3 a salted leaf changed (tail): fires True  
+   control verdicts in the record: 138; fire 132; not run / not applicable 6 ['NL-1 R13 slots, every fork/S5_controls/N5_2[1]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[5]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[8]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[12]']; do NOT fire []
+== py-r13-rung-s1: status D55-PASS  (1434.5 s, peak 1696 MB)
+   parts: D55-0 integrity=T, D55-1/2 facts=T, D55-3 replay=T, D55-C replay controls=T, D55-IO joined claims from the forks=T, D55-J joint rank=T, NL-1 R13 slots, every fork=T, PINS controls=T, PRE full zero-data preimage=T, R13-2 layout=T, R13-3 terminals=T, R13-6 per commitment=T, R13-7 mask and CFS=T, R13-H registered header=T
+   not_here: ['TS-1 and the claim census', 'the hash census on the Python side', 'G_k in the clear: recovered on SC_FZC, not read from a bound line', 'the independent check of the self-read readings (READINGS_R26_WIRING.json) at the v25 freeze review']
+   pins 75: at r19b 41, read 34, unread 0; backend admissible True
+   NL-1: ok True  forks 3  instances 21/21  G {'0': 20, '1': 21, '2': 20}  T-0 21/21  E-0 21/21  T-0 control 21/21  (10.9 s)
+      random-1: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      random-2: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      random-3: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      run: F-0 21/21  S1 {'budget_ok': 21, 'degree_fits': 21, 'of': 21, 'premise_holds': 21, 'public_factor_every_monomial': 21}  S4 {'miniatures_pass': 21, 'of': 21, 'terminal_map_onto': 21}
+      S3 25/25 at [(15, 3), (15, 4), (15, 5), (16, 4), (16, 5)];  S3 all 23 slots 55/55;  budget all 23 True  (worst L 82)
+      S5 {'F_1_fires': '21/21', 'N5_1_fires': '21/21', 'N5_2_fires': '15/15 (not applicable at slack > 0: 6)', 'N5_3_fires': True, 'N5_4_fires': True}  ok True;  D55 controls {'NL-G the gate denominator moved': True, 'NL-TAB-ACT a doctored ACT3 table entry': True, 'NL-TAB-GC a doctored group-column entry': True}
+   PRE: ok True  exhibited 10/10  entries 3,045,110 differing 0  leaves 2560  d55 findings []  (1326.4 s)
+      A@0       rows   437 data   139 groups  36 claims  148 n 16384 Q 256 d 255 entries 727,263 diff 0 leaves 256/256 fibre 3,670,155 (103.59 s)
+      H@0       rows   248 data   136 groups   9 claims   55 n 16384 Q 256 d 256 entries 229,943 diff 0 leaves 256/256 fibre 1,507,236 (53.23 s)
+      A@1       rows   437 data   139 groups  36 claims  148 n 16384 Q 256 d 255 entries 727,263 diff 0 leaves 256/256 fibre 3,670,155 (103.06 s)
+      H@1       rows   248 data   136 groups   9 claims   55 n 16384 Q 256 d 256 entries 229,943 diff 0 leaves 256/256 fibre 1,507,236 (53.2 s)
+      A@2       rows   437 data   139 groups  36 claims  148 n 16384 Q 256 d 256 entries 727,700 diff 0 leaves 256/256 fibre 3,669,792 (103.24 s)
+      H@2       rows   248 data   136 groups   9 claims   55 n 16384 Q 256 d 256 entries 229,943 diff 0 leaves 256/256 fibre 1,507,236 (53.23 s)
+      B0        rows     7 data     1 groups   2 claims    2 n 16384 Q 256 d 255 entries 51,707 diff 0 leaves 256/256 fibre 1 (32.41 s)
+      B1        rows     7 data     1 groups   2 claims    2 n 16384 Q 256 d 256 entries 51,714 diff 0 leaves 256/256 fibre 0 (32.69 s)
+      E-Input   rows     6 data     1 groups   1 claims    1 n 16384 Q 256 d 256 entries 34,817 diff 0 leaves 256/256 fibre 0 (31.65 s)
+      E-Output  rows     6 data     1 groups   1 claims    1 n 16384 Q 256 d 256 entries 34,817 diff 0 leaves 256/256 fibre 0 (31.74 s)
+      ah_controls on {'A': 'A@1', 'H': 'H@1'}: fire 6/6, applicable 6, not applicable []  (538.1 s)
+         P-1: fires True  H@1: pad:group5 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the
+         P-2: fires True  A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside th
+         P-3: fires True  H@1: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the
+         P-4: fires True  H@1: row 0 -- NO PREIMAGE: 255 pad symbols cannot meet 256 distinct opened columns (the interpolant of the req
+         P-5: fires True  
+         P-6: fires True  
+         PRE-A2 a PAD/MSG swap (fork A): fires True  A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside th
+         PRE-A3 a salted leaf changed (fork A): fires True  
+         PRE-T1 an opened column changed (tail): fires True  B0: pad:group1 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the 
+         PRE-T2 a PAD/MSG swap (tail): fires True  B0: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the
+         PRE-T3 a salted leaf changed (tail): fires True  
+   control verdicts in the record: 138; fire 132; not run / not applicable 6 ['NL-1 R13 slots, every fork/S5_controls/N5_2[1]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[5]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[8]', 'NL-1 R13 slots, every fork/S5_controls/N5_2[12]']; do NOT fire []
+TOTAL control verdicts 550; fire 532; not run / not applicable 18

@@ -1,0 +1,26 @@
+[zk60-guard 06:30:29] START nlpre-pre-rung-s0 class=cpu need=8G cap=24G enforce=watchdog-only waited=0s run=3067fd3c7469
+[zk60-guard 06:53:34] END nlpre-pre-rung-s0 exit=0 child_wall=1385s peak_rss=1.51G min_avail=228.80G
+{
+ "exhibited": 10,
+ "not_exhibited": [],
+ "entries": 3045032,
+ "differing": 0,
+ "leaves": 2560,
+ "d55_findings": [],
+ "controls": {
+  "P-1": true,
+  "P-2": true,
+  "P-3": true,
+  "P-4": true,
+  "P-5": true,
+  "P-6": true
+ },
+ "d55_controls": {
+  "PRE-T1 an opened column changed (tail)": true,
+  "PRE-T2 a PAD/MSG swap (tail)": true,
+  "PRE-A2 a PAD/MSG swap (fork A)": true,
+  "PRE-T3 a salted leaf changed (tail)": true,
+  "PRE-A3 a salted leaf changed (fork A)": true
+ }
+}
+status: PASS (1385.1 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a19d9832207e830a4/results/zk60_d60_20261102/privacy_gate_nlpre/dev/d55pre-rung-s0.json

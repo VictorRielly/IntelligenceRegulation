@@ -1,0 +1,3730 @@
+{
+ "bundle": "d55-r13_rung_h24-s0",
+ "commitments": [
+  "A@0",
+  "H@0",
+  "A@1",
+  "H@1",
+  "A@2",
+  "H@2",
+  "B0",
+  "B1",
+  "E-Input",
+  "E-Output"
+ ],
+ "controls": {
+  "controls": [
+   {
+    "control": "P-1",
+    "entry": {
+     "column_index": 261,
+     "row": 124
+    },
+    "fires": true,
+    "honest_entries_compared": 229695,
+    "honest_preimage_exhibited": true,
+    "refusal": "H@1: pad:group5 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the residual is not divisible by the sampled nodes' vanishing polynomial)",
+    "refusal_names_the_step": true,
+    "refused": true,
+    "what": "one OPENED COLUMN entry of this commitment moved by one",
+    "why": "the row's pad polynomial is the interpolant through the d sampled nodes, so moving one opened value moves that row's pad by a Lagrange basis polynomial of degree d-1; every combination that reads the row then has a pad residual that Z_S (degree d) does not divide"
+   },
+   {
+    "control": "P-2",
+    "entry": {
+     "group": 0,
+     "members": 1,
+     "position": 0
+    },
+    "fires": true,
+    "honest_preimage_exhibited": true,
+    "refusal": "A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint",
+    "refusal_names_the_step": true,
+    "refused": true,
+    "what": "one GROUP VECTOR entry moved by one, at a MESSAGE position the group's column key really reads",
+    "why": "the anchor pair absorbs the moved entry, so the group VECTOR is still reproduced -- and then the verifier's own group identity <v_g, cw> = sum lambda*value no longer holds, and no correction inside the kernel of the vector constraint can change that sum.  This is the control that tests the gate's OWN criterion: a channel with no preimage must be reported as having none"
+   },
+   {
+    "control": "P-3",
+    "entry": {
+     "group": 0,
+     "pad_coefficient": 0
+    },
+    "fires": true,
+    "honest_preimage_exhibited": true,
+    "refusal": "H@1: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the residual is not divisible by the sampled nodes' vanishing polynomial)",
+    "refusal_names_the_step": true,
+    "refused": true,
+    "what": "one GROUP VECTOR entry moved by one, at the first PAD coefficient",
+    "why": "the pads are already fixed at the d sampled nodes by the opened columns, so the only freedom left in the combination is a multiple of Z_S; a constant added to the residual is not one"
+   },
+   {
+    "control": "P-4",
+    "distinct_opened_columns": 255,
+    "fires": true,
+    "honest_preimage_exhibited": true,
+    "pads_modelled": 254,
+    "pads_the_receipt_has": 256,
+    "refusal": "H@1: row 0 -- NO PREIMAGE: 254 pad symbols cannot meet 255 distinct opened columns (the interpolant of the required values has degree 254)",
+    "refusal_names_the_step": true,
+    "refused": true,
+    "what": "the commitment modelled with 254 pad symbols against 255 distinct opened columns",
+    "why": "the required pad values at d distinct nodes determine an interpolant of degree d-1; a commitment with fewer than d pad symbols cannot carry it, and the refusal names the degree"
+   },
+   {
+    "applicable": true,
+    "control": "P-5",
+    "each_row_is_forced_by_its_own_commitment": true,
+    "fires": true,
+    "first_position_that_differs": 0,
+    "honest_preimage_exhibited": true,
+    "joint_preimage_exists": false,
+    "message_positions_compared": 16384,
+    "positions_where_the_two_forced_values_differ": 16384,
+    "what": "the reserved mask row 139 of A@1 (group 0) and row 138 of H@1 (group 0) declared the SAME blinding unknown",
+    "why": "both per-commitment preimages exist, and they force DIFFERENT values on the shared unknown: no JOINT preimage exists.  This is the case a per-commitment acceptance cannot see, and it is why the run gate's joint figures (ruling R-3) are not evidence of independent blinding",
+    "why_forced": "each is the anchor of a group whose only non-data support is that pair and whose correction kernel is empty, so with the data at zero its value at every message position is the unique solution of an invertible 2x2 system"
+   },
+   {
+    "after_projection": {
+     "all_entries_equal": true,
+     "entries_compared": 229695,
+     "refusal": null,
+     "solved": true
+    },
+    "applicable": true,
+    "before_projection": {
+     "all_entries_equal": null,
+     "refusal": "H@1: group 8 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint",
+     "solved": false
+    },
+    "control": "P-6",
+    "fires": true,
+    "projection": {
+     "applied": true,
+     "identities": [
+      {
+       "already_satisfied": false,
+       "applied": true,
+       "corrected_rows": [
+        0,
+        1
+       ],
+       "group": 8,
+       "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+       "residual_before": [
+        681065371388413853,
+        7668699675928924428
+       ]
+      }
+     ]
+    },
+    "u_rows": [
+     136,
+     137
+    ],
+    "what": "a SECOND fixed input -- a public, deterministic, in-range pseudorandom one from the seed 'zk60-privacy-gate/fixed-input/v1' -- on every data row of H@1, before and after projection onto the identity the view discloses",
+    "why": "H's disclosed dimension of 2 is exactly this identity.  A fixed input off it has NO preimage -- the disclosed dimension shows up as a REFUSAL, not as a number -- and the same input projected onto it has one, verified entry by entry.  The all-zero input is ON the identity because the published LogUp sum is zero, which is why round 7's honest case is feasible at all"
+   }
+  ],
+  "controls_applicable": 6,
+  "controls_that_fire": 6,
+  "controls_total": 6,
+  "not_applicable": [],
+  "nothing_on_disk_was_written": true,
+  "ok": true,
+  "on": {
+   "A": "A@1",
+   "H": "H@1"
+  },
+  "seconds": 548.9,
+  "what": "each control is shown to pass on the honest capture first, and each must make the construction refuse by name at the thing that moved"
+ },
+ "d55": {
+  "commitments_expected": [
+   "A@0",
+   "H@0",
+   "A@1",
+   "H@1",
+   "A@2",
+   "H@2",
+   "B0",
+   "B1",
+   "E-Input",
+   "E-Output"
+  ],
+  "findings": [],
+  "forks": 3,
+  "ok": true,
+  "per_commitment": [
+   {
+    "claims": 148,
+    "columns_rehashed": 256,
+    "commitment": "A@0",
+    "data_rows": 139,
+    "distinct_opened_columns": 256,
+    "entries_compared": 727700,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 3669792,
+    "groups": 36,
+    "kind": "block",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 437,
+    "salted_leaves_authenticated": 256,
+    "seconds": 102.16
+   },
+   {
+    "claims": 55,
+    "columns_rehashed": 256,
+    "commitment": "H@0",
+    "data_rows": 136,
+    "distinct_opened_columns": 255,
+    "entries_compared": 229695,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 1507464,
+    "groups": 9,
+    "kind": "block",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 248,
+    "salted_leaves_authenticated": 256,
+    "seconds": 53.42
+   },
+   {
+    "claims": 148,
+    "columns_rehashed": 256,
+    "commitment": "A@1",
+    "data_rows": 139,
+    "distinct_opened_columns": 256,
+    "entries_compared": 727700,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 3669792,
+    "groups": 36,
+    "kind": "block",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 437,
+    "salted_leaves_authenticated": 256,
+    "seconds": 102.73
+   },
+   {
+    "claims": 55,
+    "columns_rehashed": 256,
+    "commitment": "H@1",
+    "data_rows": 136,
+    "distinct_opened_columns": 255,
+    "entries_compared": 229695,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 1507464,
+    "groups": 9,
+    "kind": "block",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 248,
+    "salted_leaves_authenticated": 256,
+    "seconds": 53.0
+   },
+   {
+    "claims": 148,
+    "columns_rehashed": 256,
+    "commitment": "A@2",
+    "data_rows": 139,
+    "distinct_opened_columns": 255,
+    "entries_compared": 727263,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 3670155,
+    "groups": 36,
+    "kind": "block",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 437,
+    "salted_leaves_authenticated": 256,
+    "seconds": 101.92
+   },
+   {
+    "claims": 55,
+    "columns_rehashed": 256,
+    "commitment": "H@2",
+    "data_rows": 136,
+    "distinct_opened_columns": 256,
+    "entries_compared": 229943,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 1507236,
+    "groups": 9,
+    "kind": "block",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 248,
+    "salted_leaves_authenticated": 256,
+    "seconds": 52.97
+   },
+   {
+    "claims": 2,
+    "columns_rehashed": 256,
+    "commitment": "B0",
+    "data_rows": 1,
+    "distinct_opened_columns": 255,
+    "entries_compared": 51707,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 1,
+    "groups": 2,
+    "kind": "internal-boundary",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 7,
+    "salted_leaves_authenticated": 256,
+    "seconds": 32.44
+   },
+   {
+    "claims": 2,
+    "columns_rehashed": 256,
+    "commitment": "B1",
+    "data_rows": 1,
+    "distinct_opened_columns": 255,
+    "entries_compared": 51707,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 1,
+    "groups": 2,
+    "kind": "internal-boundary",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 7,
+    "salted_leaves_authenticated": 256,
+    "seconds": 32.52
+   },
+   {
+    "claims": 1,
+    "columns_rehashed": 256,
+    "commitment": "E-Input",
+    "data_rows": 1,
+    "distinct_opened_columns": 256,
+    "entries_compared": 34817,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 0,
+    "groups": 1,
+    "kind": "external-endpoint",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 6,
+    "salted_leaves_authenticated": 256,
+    "seconds": 32.42
+   },
+   {
+    "claims": 1,
+    "columns_rehashed": 256,
+    "commitment": "E-Output",
+    "data_rows": 1,
+    "distinct_opened_columns": 254,
+    "entries_compared": 34805,
+    "entries_differing": 0,
+    "every_leaf_authenticated": true,
+    "exhibited": true,
+    "fibre_dimension_fp": 4,
+    "groups": 1,
+    "kind": "external-endpoint",
+    "msg_n": 16384,
+    "msg_ne_pad": true,
+    "opened_columns": 256,
+    "pad_Q": 256,
+    "rows": 6,
+    "salted_leaves_authenticated": 256,
+    "seconds": 32.49
+   }
+  ],
+  "tail_commitments": 4,
+  "what": "every fork's A and H and every tail commitment, each exhibited at d = 0, A / H at MSG != PAD, every opened column's salted leaf authenticated"
+ },
+ "d55_controls": {
+  "PRE-A2 a PAD/MSG swap (fork A)": {
+   "control": "PRE-A2",
+   "entries_changed": 512,
+   "fires": true,
+   "honest_preimage_exhibited": true,
+   "on": "A@1",
+   "refusal": "A@1: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint",
+   "refusal_names_the_step": true,
+   "refused": true,
+   "what": "A@1: group 0's published vector with message entries [0, 256) and pad entries [16384, 16640) exchanged (MSG n = 16384, PAD Q = 256)"
+  },
+  "PRE-A3 a salted leaf changed (fork A)": {
+   "column_index": 3820,
+   "control": "PRE-A3",
+   "fires": true,
+   "honest_authenticates": true,
+   "honest_rebuilt_equals_the_published_column": true,
+   "on": "A@1",
+   "perturbed": {
+    "path node one bit flipped": {
+     "authenticated": 0,
+     "failure": "A@1: the column rebuilt at index 3820 does not authenticate against the published salt and path",
+     "refused": true
+    },
+    "rebuilt entry moved by one": {
+     "authenticated": 0,
+     "failure": "A@1: the column rebuilt at index 3820 does not authenticate against the published salt and path",
+     "refused": true
+    },
+    "salt one bit flipped": {
+     "authenticated": 0,
+     "failure": "A@1: the column rebuilt at index 3820 does not authenticate against the published salt and path",
+     "refused": true
+    }
+   },
+   "what": "A@1: opened column 3820 rebuilt from the exhibited (0, r'), re-hashed under the bundle's rule and folded along its published salt and path (the hash layer's own method)"
+  },
+  "PRE-T1 an opened column changed (tail)": {
+   "control": "PRE-T1",
+   "entry": {
+    "column_index": 134,
+    "row": 3
+   },
+   "fires": true,
+   "honest_entries_compared": 51707,
+   "honest_preimage_exhibited": true,
+   "on": "B0",
+   "refusal": "B0: pad:group1 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the residual is not divisible by the sampled nodes' vanishing polynomial)",
+   "refusal_names_the_step": true,
+   "refused": true,
+   "what": "one OPENED COLUMN entry of this commitment moved by one",
+   "why": "the row's pad polynomial is the interpolant through the d sampled nodes, so moving one opened value moves that row's pad by a Lagrange basis polynomial of degree d-1; every combination that reads the row then has a pad residual that Z_S (degree d) does not divide"
+  },
+  "PRE-T2 a PAD/MSG swap (tail)": {
+   "control": "PRE-T2",
+   "entries_changed": 512,
+   "fires": true,
+   "honest_preimage_exhibited": true,
+   "on": "B0",
+   "refusal": "B0: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint",
+   "refusal_names_the_step": true,
+   "refused": true,
+   "what": "B0: group 0's published vector with message entries [0, 256) and pad entries [16384, 16640) exchanged (MSG n = 16384, PAD Q = 256)"
+  },
+  "PRE-T3 a salted leaf changed (tail)": {
+   "column_index": 11607,
+   "control": "PRE-T3",
+   "fires": true,
+   "honest_authenticates": true,
+   "honest_rebuilt_equals_the_published_column": true,
+   "on": "B0",
+   "perturbed": {
+    "path node one bit flipped": {
+     "authenticated": 0,
+     "failure": "B0: the column rebuilt at index 11607 does not authenticate against the published salt and path",
+     "refused": true
+    },
+    "rebuilt entry moved by one": {
+     "authenticated": 0,
+     "failure": "B0: the column rebuilt at index 11607 does not authenticate against the published salt and path",
+     "refused": true
+    },
+    "salt one bit flipped": {
+     "authenticated": 0,
+     "failure": "B0: the column rebuilt at index 11607 does not authenticate against the published salt and path",
+     "refused": true
+    }
+   },
+   "what": "B0: opened column 11607 rebuilt from the exhibited (0, r'), re-hashed under the bundle's rule and folded along its published salt and path (the hash layer's own method)"
+  },
+  "ok": true,
+  "on_fork": 1,
+  "on_tail": "B0",
+  "seconds": 194.2
+ },
+ "exhibited": [
+  "A@0",
+  "H@0",
+  "A@1",
+  "H@1",
+  "A@2",
+  "H@2",
+  "B0",
+  "B1",
+  "E-Input",
+  "E-Output"
+ ],
+ "fixed_input": "all zero (a public object: no capture carries a witness and none is read)",
+ "half": "message and pad, plus every opened column, plus the salted leaves of the opened columns",
+ "not_exhibited": [],
+ "ok": true,
+ "peak_rss_mb": 1550,
+ "per_commitment": [
+  {
+   "boundary": null,
+   "commitment": "A@0",
+   "commitment_kind": "block",
+   "exhibited_randomness_sha256": "007284fb1c9a8e537dfa4ca8c0cd2594550e5fbcac62949113f7c43decd617c7",
+   "fibre": {
+    "blinding_unknowns": 4994304,
+    "distinct_opened_columns": 256,
+    "fibre_dimension_fp": 3669792,
+    "generators_fp": 74,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 3669792,
+    "pad_block_fp": 0,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 30.39,
+   "msg_groups_seconds": 7.62,
+   "msg_proximity_seconds": 0.52,
+   "pads_seconds": 25.09,
+   "preimage_exhibited": true,
+   "seconds": 102.16,
+   "solve_findings": [],
+   "solve_seconds": 33.23,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group1"
+    },
+    {
+     "constraint_rank": 10,
+     "constraints": 12,
+     "correction_unknowns": 30,
+     "feasible": true,
+     "free_fp": 163830,
+     "kernel_dim_per_position": 10,
+     "step": "msg:group2"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group3"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group4"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group5"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group6"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group7"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group8"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group9"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group10"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group11"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group12"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group13"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group14"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group15"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group16"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group17"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group18"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group19"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group20"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group21"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group22"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group23"
+    },
+    {
+     "constraint_rank": 76,
+     "constraints": 78,
+     "correction_unknowns": 228,
+     "feasible": true,
+     "free_fp": 1245108,
+     "kernel_dim_per_position": 76,
+     "step": "msg:group24"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group25"
+    },
+    {
+     "constraint_rank": 26,
+     "constraints": 28,
+     "correction_unknowns": 78,
+     "feasible": true,
+     "free_fp": 425958,
+     "kernel_dim_per_position": 26,
+     "step": "msg:group26"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group27"
+    },
+    {
+     "constraint_rank": 26,
+     "constraints": 28,
+     "correction_unknowns": 78,
+     "feasible": true,
+     "free_fp": 425958,
+     "kernel_dim_per_position": 26,
+     "step": "msg:group28"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group29"
+    },
+    {
+     "constraint_rank": 28,
+     "constraints": 30,
+     "correction_unknowns": 84,
+     "feasible": true,
+     "free_fp": 458724,
+     "kernel_dim_per_position": 28,
+     "step": "msg:group30"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group31"
+    },
+    {
+     "constraint_rank": 30,
+     "constraints": 32,
+     "correction_unknowns": 90,
+     "feasible": true,
+     "free_fp": 491490,
+     "kernel_dim_per_position": 30,
+     "step": "msg:group32"
+    },
+    {
+     "constraint_rank": 4,
+     "constraints": 6,
+     "correction_unknowns": 12,
+     "feasible": true,
+     "free_fp": 65532,
+     "kernel_dim_per_position": 4,
+     "step": "msg:group33"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group34"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group35"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group1"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group2"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group3"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group4"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group5"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group6"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group7"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group8"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group9"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group10"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group11"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group12"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group13"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group14"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group15"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group16"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group17"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group18"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group19"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group20"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group21"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group22"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group23"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group24"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group25"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group26"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group27"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group28"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group29"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group30"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group31"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group32"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group33"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group34"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group35"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 148,
+    "commitment": "A@0",
+    "data_rows": 139,
+    "distinct_opened_columns_d": 256,
+    "equations_claim_values_fp": 296,
+    "equations_group_vectors_fp": 1198080,
+    "equations_opened_columns_fp": 111872,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 0,
+    "equations_total_fp": 1343528,
+    "findings": [],
+    "generators_2_G_plus_1": 74,
+    "groups": 36,
+    "groups_reading_another_groups_rows": {},
+    "matrix_digest": "75d5dd359b02607f9f7e1d775e43caccdb39f8d67b1516dabde7935f3175b787",
+    "message_positions_n": 16384,
+    "non_data_rows": 298,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     435,
+     436
+    ],
+    "reserved_pairs": 148,
+    "rows": 437,
+    "solve_order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35
+    ],
+    "u_rows": [],
+    "unknowns_msg_block_fp": 4882432,
+    "unknowns_pad_block_fp": 111872,
+    "unknowns_total_fp": 4994304
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 148,
+    "column_entries": 111872,
+    "column_mismatches": 0,
+    "columns_verified": 256,
+    "entries_compared": 727700,
+    "first_mismatch": null,
+    "group_vector_entries": 599040,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 29.55,
+    "seconds_vectors_and_claims": 8.73
+   }
+  },
+  {
+   "boundary": null,
+   "commitment": "H@0",
+   "commitment_kind": "block",
+   "exhibited_randomness_sha256": "433d6f5de65053618dd72cd5c956486e2d14df43f9d344e319c8e4fa7c7df316",
+   "fibre": {
+    "blinding_unknowns": 1898494,
+    "distinct_opened_columns": 255,
+    "fibre_dimension_fp": 1507464,
+    "generators_fp": 20,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 1507236,
+    "pad_block_fp": 228,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 29.92,
+   "msg_groups_seconds": 1.45,
+   "msg_proximity_seconds": 0.25,
+   "pads_seconds": 8.61,
+   "preimage_exhibited": true,
+   "seconds": 53.42,
+   "solve_findings": [],
+   "solve_seconds": 10.3,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "constraint_rank": 32,
+     "constraints": 34,
+     "correction_unknowns": 96,
+     "feasible": true,
+     "free_fp": 524256,
+     "kernel_dim_per_position": 32,
+     "step": "msg:group1"
+    },
+    {
+     "constraint_rank": 12,
+     "constraints": 14,
+     "correction_unknowns": 36,
+     "feasible": true,
+     "free_fp": 196596,
+     "kernel_dim_per_position": 12,
+     "step": "msg:group2"
+    },
+    {
+     "constraint_rank": 12,
+     "constraints": 14,
+     "correction_unknowns": 36,
+     "feasible": true,
+     "free_fp": 196596,
+     "kernel_dim_per_position": 12,
+     "step": "msg:group3"
+    },
+    {
+     "constraint_rank": 18,
+     "constraints": 20,
+     "correction_unknowns": 54,
+     "feasible": true,
+     "free_fp": 294894,
+     "kernel_dim_per_position": 18,
+     "step": "msg:group4"
+    },
+    {
+     "constraint_rank": 14,
+     "constraints": 16,
+     "correction_unknowns": 42,
+     "feasible": true,
+     "free_fp": 229362,
+     "kernel_dim_per_position": 14,
+     "step": "msg:group5"
+    },
+    {
+     "constraint_rank": 4,
+     "constraints": 6,
+     "correction_unknowns": 12,
+     "feasible": true,
+     "free_fp": 65532,
+     "kernel_dim_per_position": 4,
+     "step": "msg:group6"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 4,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group8"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group7"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 32,
+     "step": "pad:group1"
+    },
+    {
+     "feasible": true,
+     "free_fp": 12,
+     "step": "pad:group2"
+    },
+    {
+     "feasible": true,
+     "free_fp": 12,
+     "step": "pad:group3"
+    },
+    {
+     "feasible": true,
+     "free_fp": 18,
+     "step": "pad:group4"
+    },
+    {
+     "feasible": true,
+     "free_fp": 14,
+     "step": "pad:group5"
+    },
+    {
+     "feasible": true,
+     "free_fp": 4,
+     "step": "pad:group6"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group8"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group7"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 55,
+    "commitment": "H@0",
+    "data_rows": 136,
+    "distinct_opened_columns_d": 255,
+    "equations_claim_values_fp": 110,
+    "equations_group_vectors_fp": 299520,
+    "equations_opened_columns_fp": 63240,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 2,
+    "equations_total_fp": 396152,
+    "findings": [],
+    "generators_2_G_plus_1": 20,
+    "groups": 9,
+    "groups_reading_another_groups_rows": {
+     "7": [
+      8
+     ]
+    },
+    "matrix_digest": "5c1af9f62d3d01f7a1a4e9f436296244939c2ff84c187c08b22d1947a13c2f95",
+    "message_positions_n": 16384,
+    "non_data_rows": 112,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     246,
+     247
+    ],
+    "reserved_pairs": 55,
+    "rows": 248,
+    "solve_order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     8,
+     7
+    ],
+    "u_rows": [
+     136,
+     137
+    ],
+    "unknowns_msg_block_fp": 1835008,
+    "unknowns_pad_block_fp": 63488,
+    "unknowns_total_fp": 1898494
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 55,
+    "column_entries": 63240,
+    "column_mismatches": 0,
+    "columns_verified": 255,
+    "entries_compared": 229695,
+    "first_mismatch": null,
+    "group_vector_entries": 149760,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 11.69,
+    "seconds_vectors_and_claims": 1.43
+   }
+  },
+  {
+   "boundary": null,
+   "commitment": "A@1",
+   "commitment_kind": "block",
+   "exhibited_randomness_sha256": "e2acf51fec817fb9252c6c47ca5828b6e3078ccfb5a4e02025cc3e982ac15d9b",
+   "fibre": {
+    "blinding_unknowns": 4994304,
+    "distinct_opened_columns": 256,
+    "fibre_dimension_fp": 3669792,
+    "generators_fp": 74,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 3669792,
+    "pad_block_fp": 0,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 31.08,
+   "msg_groups_seconds": 7.66,
+   "msg_proximity_seconds": 0.52,
+   "pads_seconds": 25.01,
+   "preimage_exhibited": true,
+   "seconds": 102.73,
+   "solve_findings": [],
+   "solve_seconds": 33.2,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group1"
+    },
+    {
+     "constraint_rank": 10,
+     "constraints": 12,
+     "correction_unknowns": 30,
+     "feasible": true,
+     "free_fp": 163830,
+     "kernel_dim_per_position": 10,
+     "step": "msg:group2"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group3"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group4"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group5"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group6"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group7"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group8"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group9"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group10"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group11"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group12"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group13"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group14"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group15"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group16"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group17"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group18"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group19"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group20"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group21"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group22"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group23"
+    },
+    {
+     "constraint_rank": 76,
+     "constraints": 78,
+     "correction_unknowns": 228,
+     "feasible": true,
+     "free_fp": 1245108,
+     "kernel_dim_per_position": 76,
+     "step": "msg:group24"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group25"
+    },
+    {
+     "constraint_rank": 26,
+     "constraints": 28,
+     "correction_unknowns": 78,
+     "feasible": true,
+     "free_fp": 425958,
+     "kernel_dim_per_position": 26,
+     "step": "msg:group26"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group27"
+    },
+    {
+     "constraint_rank": 26,
+     "constraints": 28,
+     "correction_unknowns": 78,
+     "feasible": true,
+     "free_fp": 425958,
+     "kernel_dim_per_position": 26,
+     "step": "msg:group28"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group29"
+    },
+    {
+     "constraint_rank": 28,
+     "constraints": 30,
+     "correction_unknowns": 84,
+     "feasible": true,
+     "free_fp": 458724,
+     "kernel_dim_per_position": 28,
+     "step": "msg:group30"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group31"
+    },
+    {
+     "constraint_rank": 30,
+     "constraints": 32,
+     "correction_unknowns": 90,
+     "feasible": true,
+     "free_fp": 491490,
+     "kernel_dim_per_position": 30,
+     "step": "msg:group32"
+    },
+    {
+     "constraint_rank": 4,
+     "constraints": 6,
+     "correction_unknowns": 12,
+     "feasible": true,
+     "free_fp": 65532,
+     "kernel_dim_per_position": 4,
+     "step": "msg:group33"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group34"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group35"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group1"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group2"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group3"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group4"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group5"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group6"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group7"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group8"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group9"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group10"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group11"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group12"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group13"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group14"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group15"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group16"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group17"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group18"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group19"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group20"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group21"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group22"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group23"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group24"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group25"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group26"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group27"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group28"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group29"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group30"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group31"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group32"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group33"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group34"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group35"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 148,
+    "commitment": "A@1",
+    "data_rows": 139,
+    "distinct_opened_columns_d": 256,
+    "equations_claim_values_fp": 296,
+    "equations_group_vectors_fp": 1198080,
+    "equations_opened_columns_fp": 111872,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 0,
+    "equations_total_fp": 1343528,
+    "findings": [],
+    "generators_2_G_plus_1": 74,
+    "groups": 36,
+    "groups_reading_another_groups_rows": {},
+    "matrix_digest": "0d9df99ff3d2619bfae94e59af14e9ca9b71d3933ea2124a8dee56217c60a60c",
+    "message_positions_n": 16384,
+    "non_data_rows": 298,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     435,
+     436
+    ],
+    "reserved_pairs": 148,
+    "rows": 437,
+    "solve_order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35
+    ],
+    "u_rows": [],
+    "unknowns_msg_block_fp": 4882432,
+    "unknowns_pad_block_fp": 111872,
+    "unknowns_total_fp": 4994304
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 148,
+    "column_entries": 111872,
+    "column_mismatches": 0,
+    "columns_verified": 256,
+    "entries_compared": 727700,
+    "first_mismatch": null,
+    "group_vector_entries": 599040,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 29.4,
+    "seconds_vectors_and_claims": 8.84
+   }
+  },
+  {
+   "boundary": null,
+   "commitment": "H@1",
+   "commitment_kind": "block",
+   "exhibited_randomness_sha256": "2216a87b75c69bf760db3db4d8cad627b1694dd07cf8f1a86be56bffbc5998bb",
+   "fibre": {
+    "blinding_unknowns": 1898494,
+    "distinct_opened_columns": 255,
+    "fibre_dimension_fp": 1507464,
+    "generators_fp": 20,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 1507236,
+    "pad_block_fp": 228,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 29.89,
+   "msg_groups_seconds": 1.45,
+   "msg_proximity_seconds": 0.25,
+   "pads_seconds": 8.58,
+   "preimage_exhibited": true,
+   "seconds": 53.0,
+   "solve_findings": [],
+   "solve_seconds": 10.28,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "constraint_rank": 32,
+     "constraints": 34,
+     "correction_unknowns": 96,
+     "feasible": true,
+     "free_fp": 524256,
+     "kernel_dim_per_position": 32,
+     "step": "msg:group1"
+    },
+    {
+     "constraint_rank": 12,
+     "constraints": 14,
+     "correction_unknowns": 36,
+     "feasible": true,
+     "free_fp": 196596,
+     "kernel_dim_per_position": 12,
+     "step": "msg:group2"
+    },
+    {
+     "constraint_rank": 12,
+     "constraints": 14,
+     "correction_unknowns": 36,
+     "feasible": true,
+     "free_fp": 196596,
+     "kernel_dim_per_position": 12,
+     "step": "msg:group3"
+    },
+    {
+     "constraint_rank": 18,
+     "constraints": 20,
+     "correction_unknowns": 54,
+     "feasible": true,
+     "free_fp": 294894,
+     "kernel_dim_per_position": 18,
+     "step": "msg:group4"
+    },
+    {
+     "constraint_rank": 14,
+     "constraints": 16,
+     "correction_unknowns": 42,
+     "feasible": true,
+     "free_fp": 229362,
+     "kernel_dim_per_position": 14,
+     "step": "msg:group5"
+    },
+    {
+     "constraint_rank": 4,
+     "constraints": 6,
+     "correction_unknowns": 12,
+     "feasible": true,
+     "free_fp": 65532,
+     "kernel_dim_per_position": 4,
+     "step": "msg:group6"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 4,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group8"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group7"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 32,
+     "step": "pad:group1"
+    },
+    {
+     "feasible": true,
+     "free_fp": 12,
+     "step": "pad:group2"
+    },
+    {
+     "feasible": true,
+     "free_fp": 12,
+     "step": "pad:group3"
+    },
+    {
+     "feasible": true,
+     "free_fp": 18,
+     "step": "pad:group4"
+    },
+    {
+     "feasible": true,
+     "free_fp": 14,
+     "step": "pad:group5"
+    },
+    {
+     "feasible": true,
+     "free_fp": 4,
+     "step": "pad:group6"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group8"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group7"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 55,
+    "commitment": "H@1",
+    "data_rows": 136,
+    "distinct_opened_columns_d": 255,
+    "equations_claim_values_fp": 110,
+    "equations_group_vectors_fp": 299520,
+    "equations_opened_columns_fp": 63240,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 2,
+    "equations_total_fp": 396152,
+    "findings": [],
+    "generators_2_G_plus_1": 20,
+    "groups": 9,
+    "groups_reading_another_groups_rows": {
+     "7": [
+      8
+     ]
+    },
+    "matrix_digest": "ef169696c19aa4989dd44a9b4fb47755ead7bc36cf41eb0b8e623a4995a57969",
+    "message_positions_n": 16384,
+    "non_data_rows": 112,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     246,
+     247
+    ],
+    "reserved_pairs": 55,
+    "rows": 248,
+    "solve_order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     8,
+     7
+    ],
+    "u_rows": [
+     136,
+     137
+    ],
+    "unknowns_msg_block_fp": 1835008,
+    "unknowns_pad_block_fp": 63488,
+    "unknowns_total_fp": 1898494
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 55,
+    "column_entries": 63240,
+    "column_mismatches": 0,
+    "columns_verified": 255,
+    "entries_compared": 229695,
+    "first_mismatch": null,
+    "group_vector_entries": 149760,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 11.38,
+    "seconds_vectors_and_claims": 1.36
+   }
+  },
+  {
+   "boundary": null,
+   "commitment": "A@2",
+   "commitment_kind": "block",
+   "exhibited_randomness_sha256": "2e6ca0442267634a5b4b688b59899b3db5cc4dc85e4192d073337457d0a06fc4",
+   "fibre": {
+    "blinding_unknowns": 4994304,
+    "distinct_opened_columns": 255,
+    "fibre_dimension_fp": 3670155,
+    "generators_fp": 74,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 3669792,
+    "pad_block_fp": 363,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 30.3,
+   "msg_groups_seconds": 7.66,
+   "msg_proximity_seconds": 0.56,
+   "pads_seconds": 25.15,
+   "preimage_exhibited": true,
+   "seconds": 101.92,
+   "solve_findings": [],
+   "solve_seconds": 33.37,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group1"
+    },
+    {
+     "constraint_rank": 10,
+     "constraints": 12,
+     "correction_unknowns": 30,
+     "feasible": true,
+     "free_fp": 163830,
+     "kernel_dim_per_position": 10,
+     "step": "msg:group2"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group3"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group4"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group5"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group6"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group7"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group8"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group9"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group10"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group11"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group12"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group13"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group14"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group15"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group16"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group17"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group18"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group19"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group20"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group21"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group22"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group23"
+    },
+    {
+     "constraint_rank": 76,
+     "constraints": 78,
+     "correction_unknowns": 228,
+     "feasible": true,
+     "free_fp": 1245108,
+     "kernel_dim_per_position": 76,
+     "step": "msg:group24"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group25"
+    },
+    {
+     "constraint_rank": 26,
+     "constraints": 28,
+     "correction_unknowns": 78,
+     "feasible": true,
+     "free_fp": 425958,
+     "kernel_dim_per_position": 26,
+     "step": "msg:group26"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group27"
+    },
+    {
+     "constraint_rank": 26,
+     "constraints": 28,
+     "correction_unknowns": 78,
+     "feasible": true,
+     "free_fp": 425958,
+     "kernel_dim_per_position": 26,
+     "step": "msg:group28"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group29"
+    },
+    {
+     "constraint_rank": 28,
+     "constraints": 30,
+     "correction_unknowns": 84,
+     "feasible": true,
+     "free_fp": 458724,
+     "kernel_dim_per_position": 28,
+     "step": "msg:group30"
+    },
+    {
+     "constraint_rank": 2,
+     "constraints": 4,
+     "correction_unknowns": 6,
+     "feasible": true,
+     "free_fp": 32766,
+     "kernel_dim_per_position": 2,
+     "step": "msg:group31"
+    },
+    {
+     "constraint_rank": 30,
+     "constraints": 32,
+     "correction_unknowns": 90,
+     "feasible": true,
+     "free_fp": 491490,
+     "kernel_dim_per_position": 30,
+     "step": "msg:group32"
+    },
+    {
+     "constraint_rank": 4,
+     "constraints": 6,
+     "correction_unknowns": 12,
+     "feasible": true,
+     "free_fp": 65532,
+     "kernel_dim_per_position": 4,
+     "step": "msg:group33"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group34"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group35"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group1"
+    },
+    {
+     "feasible": true,
+     "free_fp": 10,
+     "step": "pad:group2"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group3"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group4"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group5"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group6"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group7"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group8"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group9"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group10"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group11"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group12"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group13"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group14"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group15"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group16"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group17"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group18"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group19"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group20"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group21"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group22"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group23"
+    },
+    {
+     "feasible": true,
+     "free_fp": 76,
+     "step": "pad:group24"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group25"
+    },
+    {
+     "feasible": true,
+     "free_fp": 26,
+     "step": "pad:group26"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group27"
+    },
+    {
+     "feasible": true,
+     "free_fp": 26,
+     "step": "pad:group28"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group29"
+    },
+    {
+     "feasible": true,
+     "free_fp": 28,
+     "step": "pad:group30"
+    },
+    {
+     "feasible": true,
+     "free_fp": 2,
+     "step": "pad:group31"
+    },
+    {
+     "feasible": true,
+     "free_fp": 30,
+     "step": "pad:group32"
+    },
+    {
+     "feasible": true,
+     "free_fp": 4,
+     "step": "pad:group33"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group34"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group35"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 148,
+    "commitment": "A@2",
+    "data_rows": 139,
+    "distinct_opened_columns_d": 255,
+    "equations_claim_values_fp": 296,
+    "equations_group_vectors_fp": 1198080,
+    "equations_opened_columns_fp": 111435,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 0,
+    "equations_total_fp": 1343091,
+    "findings": [],
+    "generators_2_G_plus_1": 74,
+    "groups": 36,
+    "groups_reading_another_groups_rows": {},
+    "matrix_digest": "fc51427dc008f9210226b9585ebae143afdc2e3f00b45f308b3576a22beb5820",
+    "message_positions_n": 16384,
+    "non_data_rows": 298,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     435,
+     436
+    ],
+    "reserved_pairs": 148,
+    "rows": 437,
+    "solve_order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35
+    ],
+    "u_rows": [],
+    "unknowns_msg_block_fp": 4882432,
+    "unknowns_pad_block_fp": 111872,
+    "unknowns_total_fp": 4994304
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 148,
+    "column_entries": 111435,
+    "column_mismatches": 0,
+    "columns_verified": 255,
+    "entries_compared": 727263,
+    "first_mismatch": null,
+    "group_vector_entries": 599040,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 29.33,
+    "seconds_vectors_and_claims": 8.7
+   }
+  },
+  {
+   "boundary": null,
+   "commitment": "H@2",
+   "commitment_kind": "block",
+   "exhibited_randomness_sha256": "360bc3fefd1fe2c8faca4f7e53d01c85e140fd6382c6be0ff00b04c6b3a863c8",
+   "fibre": {
+    "blinding_unknowns": 1898494,
+    "distinct_opened_columns": 256,
+    "fibre_dimension_fp": 1507236,
+    "generators_fp": 20,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 1507236,
+    "pad_block_fp": 0,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 29.86,
+   "msg_groups_seconds": 1.45,
+   "msg_proximity_seconds": 0.25,
+   "pads_seconds": 8.58,
+   "preimage_exhibited": true,
+   "seconds": 52.97,
+   "solve_findings": [],
+   "solve_seconds": 10.28,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "constraint_rank": 32,
+     "constraints": 34,
+     "correction_unknowns": 96,
+     "feasible": true,
+     "free_fp": 524256,
+     "kernel_dim_per_position": 32,
+     "step": "msg:group1"
+    },
+    {
+     "constraint_rank": 12,
+     "constraints": 14,
+     "correction_unknowns": 36,
+     "feasible": true,
+     "free_fp": 196596,
+     "kernel_dim_per_position": 12,
+     "step": "msg:group2"
+    },
+    {
+     "constraint_rank": 12,
+     "constraints": 14,
+     "correction_unknowns": 36,
+     "feasible": true,
+     "free_fp": 196596,
+     "kernel_dim_per_position": 12,
+     "step": "msg:group3"
+    },
+    {
+     "constraint_rank": 18,
+     "constraints": 20,
+     "correction_unknowns": 54,
+     "feasible": true,
+     "free_fp": 294894,
+     "kernel_dim_per_position": 18,
+     "step": "msg:group4"
+    },
+    {
+     "constraint_rank": 14,
+     "constraints": 16,
+     "correction_unknowns": 42,
+     "feasible": true,
+     "free_fp": 229362,
+     "kernel_dim_per_position": 14,
+     "step": "msg:group5"
+    },
+    {
+     "constraint_rank": 4,
+     "constraints": 6,
+     "correction_unknowns": 12,
+     "feasible": true,
+     "free_fp": 65532,
+     "kernel_dim_per_position": 4,
+     "step": "msg:group6"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 4,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group8"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group7"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group1"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group2"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group3"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group4"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group5"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group6"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group8"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group7"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 55,
+    "commitment": "H@2",
+    "data_rows": 136,
+    "distinct_opened_columns_d": 256,
+    "equations_claim_values_fp": 110,
+    "equations_group_vectors_fp": 299520,
+    "equations_opened_columns_fp": 63488,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 2,
+    "equations_total_fp": 396400,
+    "findings": [],
+    "generators_2_G_plus_1": 20,
+    "groups": 9,
+    "groups_reading_another_groups_rows": {
+     "7": [
+      8
+     ]
+    },
+    "matrix_digest": "c82582b5056f2afe7556d48fb719f6af6d2e02b97e3a2780b31ccf686b318d9b",
+    "message_positions_n": 16384,
+    "non_data_rows": 112,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     246,
+     247
+    ],
+    "reserved_pairs": 55,
+    "rows": 248,
+    "solve_order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     8,
+     7
+    ],
+    "u_rows": [
+     136,
+     137
+    ],
+    "unknowns_msg_block_fp": 1835008,
+    "unknowns_pad_block_fp": 63488,
+    "unknowns_total_fp": 1898494
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 55,
+    "column_entries": 63488,
+    "column_mismatches": 0,
+    "columns_verified": 256,
+    "entries_compared": 229943,
+    "first_mismatch": null,
+    "group_vector_entries": 149760,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 11.39,
+    "seconds_vectors_and_claims": 1.35
+   }
+  },
+  {
+   "boundary": 0,
+   "commitment": "B0",
+   "commitment_kind": "internal-boundary",
+   "exhibited_randomness_sha256": "2606ab931444ff47b7c146629e77b34ccc21e67966785af0e7b216272fda587d",
+   "fibre": {
+    "blinding_unknowns": 100096,
+    "distinct_opened_columns": 255,
+    "fibre_dimension_fp": 1,
+    "generators_fp": 6,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 0,
+    "pad_block_fp": 1,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 29.67,
+   "msg_groups_seconds": 0.24,
+   "msg_proximity_seconds": 0.13,
+   "pads_seconds": 1.14,
+   "preimage_exhibited": true,
+   "seconds": 32.44,
+   "solve_findings": [],
+   "solve_seconds": 1.51,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group1"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group1"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 2,
+    "commitment": "B0",
+    "data_rows": 1,
+    "distinct_opened_columns_d": 255,
+    "equations_claim_values_fp": 4,
+    "equations_group_vectors_fp": 66560,
+    "equations_opened_columns_fp": 1785,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 0,
+    "equations_total_fp": 101629,
+    "findings": [],
+    "generators_2_G_plus_1": 6,
+    "groups": 2,
+    "groups_reading_another_groups_rows": {},
+    "matrix_digest": "daef6883fa85f94f6f707143fce7c3b540a2c80580851c823246adcd68ce97b6",
+    "message_positions_n": 16384,
+    "non_data_rows": 6,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     5,
+     6
+    ],
+    "reserved_pairs": 2,
+    "rows": 7,
+    "solve_order": [
+     0,
+     1
+    ],
+    "u_rows": [],
+    "unknowns_msg_block_fp": 98304,
+    "unknowns_pad_block_fp": 1792,
+    "unknowns_total_fp": 100096
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 2,
+    "column_entries": 1785,
+    "column_mismatches": 0,
+    "columns_verified": 255,
+    "entries_compared": 51707,
+    "first_mismatch": null,
+    "group_vector_entries": 33280,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 1.2,
+    "seconds_vectors_and_claims": 0.04
+   }
+  },
+  {
+   "boundary": 1,
+   "commitment": "B1",
+   "commitment_kind": "internal-boundary",
+   "exhibited_randomness_sha256": "eb1e009d2c6fd391d5449254a17006f439e295fc18279afe3b93984910db68a7",
+   "fibre": {
+    "blinding_unknowns": 100096,
+    "distinct_opened_columns": 255,
+    "fibre_dimension_fp": 1,
+    "generators_fp": 6,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 0,
+    "pad_block_fp": 1,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 29.76,
+   "msg_groups_seconds": 0.24,
+   "msg_proximity_seconds": 0.13,
+   "pads_seconds": 1.14,
+   "preimage_exhibited": true,
+   "seconds": 32.52,
+   "solve_findings": [],
+   "solve_seconds": 1.51,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group1"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group1"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 2,
+    "commitment": "B1",
+    "data_rows": 1,
+    "distinct_opened_columns_d": 255,
+    "equations_claim_values_fp": 4,
+    "equations_group_vectors_fp": 66560,
+    "equations_opened_columns_fp": 1785,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 0,
+    "equations_total_fp": 101629,
+    "findings": [],
+    "generators_2_G_plus_1": 6,
+    "groups": 2,
+    "groups_reading_another_groups_rows": {},
+    "matrix_digest": "ca6254269c0215571bd11e5fdf9777445f282577f763be70de5d4e812983b913",
+    "message_positions_n": 16384,
+    "non_data_rows": 6,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     5,
+     6
+    ],
+    "reserved_pairs": 2,
+    "rows": 7,
+    "solve_order": [
+     0,
+     1
+    ],
+    "u_rows": [],
+    "unknowns_msg_block_fp": 98304,
+    "unknowns_pad_block_fp": 1792,
+    "unknowns_total_fp": 100096
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 2,
+    "column_entries": 1785,
+    "column_mismatches": 0,
+    "columns_verified": 255,
+    "entries_compared": 51707,
+    "first_mismatch": null,
+    "group_vector_entries": 33280,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 1.2,
+    "seconds_vectors_and_claims": 0.05
+   }
+  },
+  {
+   "boundary": null,
+   "commitment": "E-Input",
+   "commitment_kind": "external-endpoint",
+   "exhibited_randomness_sha256": "0d84d5fa924ff2989e1d919f28955c47242758d8148c68a173e06eb3189c9945",
+   "fibre": {
+    "blinding_unknowns": 83456,
+    "distinct_opened_columns": 256,
+    "fibre_dimension_fp": 0,
+    "generators_fp": 4,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 0,
+    "pad_block_fp": 0,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 30.44,
+   "msg_groups_seconds": 0.12,
+   "msg_proximity_seconds": 0.13,
+   "pads_seconds": 0.83,
+   "preimage_exhibited": true,
+   "seconds": 32.42,
+   "solve_findings": [],
+   "solve_seconds": 1.08,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 1,
+    "commitment": "E-Input",
+    "data_rows": 1,
+    "distinct_opened_columns_d": 256,
+    "equations_claim_values_fp": 2,
+    "equations_group_vectors_fp": 33280,
+    "equations_opened_columns_fp": 1536,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 0,
+    "equations_total_fp": 68098,
+    "findings": [],
+    "generators_2_G_plus_1": 4,
+    "groups": 1,
+    "groups_reading_another_groups_rows": {},
+    "matrix_digest": "ba31184f8064d10bd8cc7f8654d81c813959539b9423c619e20cbc0031bb533f",
+    "message_positions_n": 16384,
+    "non_data_rows": 5,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     3,
+     4
+    ],
+    "reserved_pairs": 1,
+    "rows": 6,
+    "solve_order": [
+     0
+    ],
+    "u_rows": [],
+    "unknowns_msg_block_fp": 81920,
+    "unknowns_pad_block_fp": 1536,
+    "unknowns_total_fp": 83456
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 1,
+    "column_entries": 1536,
+    "column_mismatches": 0,
+    "columns_verified": 256,
+    "entries_compared": 34817,
+    "first_mismatch": null,
+    "group_vector_entries": 16640,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 0.86,
+    "seconds_vectors_and_claims": 0.03
+   }
+  },
+  {
+   "boundary": null,
+   "commitment": "E-Output",
+   "commitment_kind": "external-endpoint",
+   "exhibited_randomness_sha256": "6e69c006306055850b659b604ed1c131c48dbc865777ac973843e39246948b8f",
+   "fibre": {
+    "blinding_unknowns": 83456,
+    "distinct_opened_columns": 254,
+    "fibre_dimension_fp": 4,
+    "generators_fp": 4,
+    "independent_of_the_fixed_input": true,
+    "msg_block_fp": 0,
+    "pad_block_fp": 4,
+    "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+   },
+   "fixed_input": "all zero",
+   "half": "message and pad",
+   "layout_seconds": 30.56,
+   "msg_groups_seconds": 0.12,
+   "msg_proximity_seconds": 0.13,
+   "pads_seconds": 0.79,
+   "preimage_exhibited": true,
+   "seconds": 32.49,
+   "solve_findings": [],
+   "solve_seconds": 1.04,
+   "solved": true,
+   "steps": [
+    {
+     "constraint_rank": 0,
+     "constraints": 2,
+     "correction_unknowns": 0,
+     "feasible": true,
+     "free_fp": 0,
+     "kernel_dim_per_position": 0,
+     "step": "msg:group0"
+    },
+    {
+     "correction_unknowns": 32768,
+     "feasible": true,
+     "free_fp": 0,
+     "step": "msg:prox"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:group0"
+    },
+    {
+     "feasible": true,
+     "free_fp": 0,
+     "step": "pad:prox"
+    }
+   ],
+   "system": {
+    "claims": 1,
+    "commitment": "E-Output",
+    "data_rows": 1,
+    "distinct_opened_columns_d": 254,
+    "equations_claim_values_fp": 2,
+    "equations_group_vectors_fp": 33280,
+    "equations_opened_columns_fp": 1524,
+    "equations_proximity_fp": 33280,
+    "equations_public_zero_sum_fp": 0,
+    "equations_total_fp": 68086,
+    "findings": [],
+    "generators_2_G_plus_1": 4,
+    "groups": 1,
+    "groups_reading_another_groups_rows": {},
+    "matrix_digest": "5075b95a303fbd11e2d532845bce37c356f179a9ba142a70b1ae24b04ba0efda",
+    "message_positions_n": 16384,
+    "non_data_rows": 5,
+    "opened_columns": 256,
+    "pad_symbols_Q": 256,
+    "proximity_rows": [
+     3,
+     4
+    ],
+    "reserved_pairs": 1,
+    "rows": 6,
+    "solve_order": [
+     0
+    ],
+    "u_rows": [],
+    "unknowns_msg_block_fp": 81920,
+    "unknowns_pad_block_fp": 1536,
+    "unknowns_total_fp": 83456
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "channels_not_verified": [
+     "the UNOPENED leaves of the Merkle tree: they are hidden behind their salts, so nothing can reproduce them from a preimage -- their hiding is assumption M-2 / M-3 and stays ARGUED",
+     "the masking commitment M's own rows (the CFS channel)"
+    ],
+    "channels_verified": [
+     "every opening group's vector, message half AND pad half",
+     "the proximity vector, both halves",
+     "every claim value",
+     "every opened column, every row"
+    ],
+    "claim_value_mismatches": 0,
+    "claim_values": 1,
+    "column_entries": 1524,
+    "column_mismatches": 0,
+    "columns_verified": 254,
+    "entries_compared": 34805,
+    "first_mismatch": null,
+    "group_vector_entries": 16640,
+    "group_vector_mismatches": 0,
+    "hash_layer": {
+     "checked": true,
+     "columns_rehashed": 256,
+     "failures": [],
+     "leaf_digests_equal_to_the_capture_s": 256,
+     "ok": true,
+     "rule": "blake3-keyed/1",
+     "salted_leaves_authenticated": 256,
+     "unopened_leaves": "NOT reproducible from any preimage: an unopened leaf is a salted digest and nothing about it is published.  Its hiding is M-2 / M-3 and stays ARGUED"
+    },
+    "proximity_entries": 16640,
+    "proximity_mismatches": 0,
+    "seconds_opened_columns": 0.84,
+    "seconds_vectors_and_claims": 0.03
+   }
+  }
+ ],
+ "ported_from": "zk60_native_run_gate.stage11 (D12a, round 7): full_preimages + ah_controls, both unchanged",
+ "requested": true,
+ "salted_leaves_authenticated": 2560,
+ "seconds": 1339.5,
+ "this_is_not_a_privacy_result": true,
+ "total_seconds": 1385.1,
+ "view_entries_compared": 3045032,
+ "view_entries_differing": 0,
+ "what": "for every PCS commitment of the run -- A and H included -- prover blinding that reproduces the captured view under the ALL-ZERO hidden input, solved exactly over Fp and then verified by recomputing the view entry by entry",
+ "what_it_does_not_show": [
+  "nothing about the LAW of the blinding: a preimage EXISTS, which is not the statement that the honest prover's randomness is uniform on the fibre (that is the lemma's job)",
+  "nothing about the masking commitment M's own rows (the CFS channel)",
+  "nothing about an UNOPENED Merkle leaf, which no preimage can reproduce (M-2, M-3)",
+  "nothing at the 125M shape and nothing nonlinear"
+ ]
+}
