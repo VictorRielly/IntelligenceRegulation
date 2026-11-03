@@ -16,8 +16,12 @@
   measures 7.59 → 11.95 proved tokens/s at six forks. Its independent review found no soundness defect or leak, and its findings are
   closed. Every source file that moved since the privacy gate last read it has now been read and found safe, and the Python gate
   gives a full PASS on fresh registered R13 fork bundles (CPU-made; GPU-made bundles are refused until the Metal code is fully read).
-  The CLI still refuses D55 real-content runs. Lifting that needs the gate version frozen after a separate review (which also
-  re-checks three readings the wiring agent did itself), a few older gate items, and Victor's go-ahead.
+  The three readings the wiring agent did itself were then checked independently and found safe; one latent issue (W-1) goes to the
+  freeze review. The older gate items for R13 are now ported to D55 and pass. The hash census found one gap in the Rust
+  table: it had never measured the hash inputs of runs with 2 to 9 blocks. The gap is fixed in test code. All 12 registered bundles pass, now including TinyLlama and Shieldstral T128/T256. NL-1 and the
+  full preimage pass on the four R13 bundles. The gate with every new check combined is queued on all 12.
+  The CLI still refuses D55 real-content runs. Lifting that needs those combined records, the gate version frozen after a separate
+  review, and Victor's go-ahead.
 - **The Mac's ceiling is about 23 tokens/s per request.** 50 still needs the RTX 5090.
 
 **2026-11-01 (night): one request now proves at about 21 proved tokens/s with the D55 prototype (opt-in, unreviewed).**
