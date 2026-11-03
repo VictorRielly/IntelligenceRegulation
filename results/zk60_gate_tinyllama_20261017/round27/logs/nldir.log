@@ -1,0 +1,5 @@
+zk60_native_rg_d55hash already imported before load_nl: False
+load_nl accepted dir: /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/fr25/nldir | sys.path[0] now: /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/fr25/nldir
+HSH loaded from: /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/fr25/nldir/zk60_native_rg_d55hash.py | SHADOW: True
+d55_hash() returns: ({'ok': True, 'shadow': True}, {'ok': True, 'shadow': True})
+shadow file listed in the record's tool_sha256 (W.tool_hashes): True
