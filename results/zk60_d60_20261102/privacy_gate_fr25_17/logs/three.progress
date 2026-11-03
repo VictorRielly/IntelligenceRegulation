@@ -1,0 +1,8 @@
+2026-11-03T13:29:33Z job 32669c76ab41 starts the closing pass
+2026-11-03T13:29:33Z start r13-8b-t128-s0
+2026-11-03T13:32:12Z r13-8b-t128-s0 rc=0
+2026-11-03T13:32:12Z start shield-t256-s0
+2026-11-03T13:38:23Z shield-t256-s0 rc=0
+2026-11-03T13:38:23Z start tiny-t128-s0
+2026-11-03T13:40:00Z tiny-t128-s0 rc=0
+2026-11-03T13:40:00Z all done

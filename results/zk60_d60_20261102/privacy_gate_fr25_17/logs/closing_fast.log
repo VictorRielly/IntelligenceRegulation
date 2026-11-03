@@ -1,0 +1,407 @@
+{
+ "bundle": "d55-r13_8b_t128_h24-s0",
+ "fork": 1,
+ "G": 19,
+ "summary": {
+  "forks": [
+   1
+  ],
+  "slot_instances": "23/23",
+  "gates": {
+   "1": 19
+  },
+  "T0": "23/23",
+  "E0": "23/23",
+  "T0_control_fires": "23/23",
+  "per_mode": {
+   "run": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 10.1
+   },
+   "random-1": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 2.7
+   },
+   "random-2": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 2.7
+   },
+   "random-3": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 2.8
+   }
+  },
+  "extension_split_crosscheck": {
+   "run": true,
+   "random-1": true,
+   "random-2": true,
+   "random-3": true
+  },
+  "S3": "55/55 at [(8, 3), (12, 3), (13, 2), (15, 2), (15, 3), (15, 4), (18, 4), (20, 2), (20, 3), (20, 4), (22, 5)]",
+  "S3_all_23_slots_every_fork": "55/55",
+  "budget_all_23_slots_every_fork": true,
+  "S5_tokennl_raw": {
+   "N5_1_fires": "21/23",
+   "N5_2_fires": "22/22 (not applicable at slack > 0: 1)",
+   "N5_3_fires": true,
+   "N5_4_fires": true,
+   "F_1_fires": "23/23"
+  },
+  "S5_tokennl_raw_ok": false,
+  "S5_adjudicated_ok": true,
+  "S5_N5_1_as_predicted": "23/23",
+  "bilinear_C1_C2_C3_ok": true,
+  "S1_negative_controls": {
+   "NC-DEG": true,
+   "NC-SPLIT": true,
+   "NC-EXTREC": true
+  },
+  "D55_controls": {
+   "NL-TAB-GC a doctored group-column entry": true,
+   "NL-TAB-ACT a doctored ACT3 table entry": true,
+   "NL-G the gate denominator moved": true
+  }
+ },
+ "control_a": {
+  "v25_in_process": {
+   "reproduces": true,
+   "differences": []
+  },
+  "record_file": {
+   "reproduces": true,
+   "differences": []
+  }
+ },
+ "control_a_self_test_fires": true,
+ "R13-3_fork": {
+  "slot_checks_equal": 23,
+  "ok": true
+ },
+ "seconds": {
+  "load": 0.7,
+  "replay": 1.0,
+  "R13-3_fork": 74.1,
+  "v25_reference_fork_only": 25.3,
+  "widened_all23": 58.0
+ },
+ "peak_rss_mib": 1467.6
+}
+status: PASS (159.1 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0f46a16788e085dc/results/zk60_d60_20261102/privacy_gate_fr25_17/records/fr25_17-r13-8b-t128-s0.json
+{
+ "bundle": "d55-r13_shield_t256_h24-s0",
+ "fork": 1,
+ "G": 19,
+ "summary": {
+  "forks": [
+   1
+  ],
+  "slot_instances": "23/23",
+  "gates": {
+   "1": 19
+  },
+  "T0": "23/23",
+  "E0": "23/23",
+  "T0_control_fires": "23/23",
+  "per_mode": {
+   "run": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 25.1
+   },
+   "random-1": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 5.7
+   },
+   "random-2": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 5.7
+   },
+   "random-3": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 5.7
+   }
+  },
+  "extension_split_crosscheck": {
+   "run": true,
+   "random-1": true,
+   "random-2": true,
+   "random-3": true
+  },
+  "S3": "75/75 at [(9, 3), (12, 3), (13, 2), (13, 3), (15, 2), (16, 2), (16, 3), (16, 4), (19, 4), (21, 2), (21, 4), (21, 5), (22, 3), (22, 4), (23, 5)]",
+  "S3_all_23_slots_every_fork": "75/75",
+  "budget_all_23_slots_every_fork": true,
+  "S5_tokennl_raw": {
+   "N5_1_fires": "21/23",
+   "N5_2_fires": "21/21 (not applicable at slack > 0: 2)",
+   "N5_3_fires": true,
+   "N5_4_fires": true,
+   "F_1_fires": "23/23"
+  },
+  "S5_tokennl_raw_ok": false,
+  "S5_adjudicated_ok": true,
+  "S5_N5_1_as_predicted": "23/23",
+  "bilinear_C1_C2_C3_ok": true,
+  "S1_negative_controls": {
+   "NC-DEG": true,
+   "NC-SPLIT": true,
+   "NC-EXTREC": true
+  },
+  "D55_controls": {
+   "NL-TAB-GC a doctored group-column entry": true,
+   "NL-TAB-ACT a doctored ACT3 table entry": true,
+   "NL-G the gate denominator moved": true
+  }
+ },
+ "control_a": {
+  "v25_in_process": {
+   "reproduces": true,
+   "differences": []
+  }
+ },
+ "control_a_self_test_fires": true,
+ "R13-3_fork": {
+  "slot_checks_equal": 23,
+  "ok": true
+ },
+ "seconds": {
+  "load": 1.0,
+  "replay": 1.8,
+  "R13-3_fork": 187.4,
+  "v25_reference_fork_only": 47.1,
+  "widened_all23": 133.9
+ },
+ "peak_rss_mib": 2596.8
+}
+status: PASS (371.2 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0f46a16788e085dc/results/zk60_d60_20261102/privacy_gate_fr25_17/records/fr25_17-shield-t256-s0.json
+{
+ "bundle": "d55-r13_tiny_t128_low-s0",
+ "fork": 1,
+ "G": 19,
+ "summary": {
+  "forks": [
+   1
+  ],
+  "slot_instances": "23/23",
+  "gates": {
+   "1": 19
+  },
+  "T0": "23/23",
+  "E0": "23/23",
+  "T0_control_fires": "23/23",
+  "per_mode": {
+   "run": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 5.6
+   },
+   "random-1": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 1.3
+   },
+   "random-2": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 1.3
+   },
+   "random-3": {
+    "F0": "23/23",
+    "S1": {
+     "premise_holds": 23,
+     "public_factor_every_monomial": 23,
+     "degree_fits": 23,
+     "budget_ok": 23,
+     "of": 23
+    },
+    "S4": {
+     "miniatures_pass": 23,
+     "terminal_map_onto": 23,
+     "of": 23
+    },
+    "seconds": 1.3
+   }
+  },
+  "extension_split_crosscheck": {
+   "run": true,
+   "random-1": true,
+   "random-2": true,
+   "random-3": true
+  },
+  "S3": "75/75 at [(8, 3), (10, 3), (11, 3), (12, 2), (14, 2), (15, 2), (15, 3), (15, 4), (16, 4), (19, 2), (19, 3), (19, 4), (20, 3), (20, 4), (21, 5)]",
+  "S3_all_23_slots_every_fork": "75/75",
+  "budget_all_23_slots_every_fork": true,
+  "S5_tokennl_raw": {
+   "N5_1_fires": "21/23",
+   "N5_2_fires": "22/22 (not applicable at slack > 0: 1)",
+   "N5_3_fires": true,
+   "N5_4_fires": true,
+   "F_1_fires": "23/23"
+  },
+  "S5_tokennl_raw_ok": false,
+  "S5_adjudicated_ok": true,
+  "S5_N5_1_as_predicted": "23/23",
+  "bilinear_C1_C2_C3_ok": true,
+  "S1_negative_controls": {
+   "NC-DEG": true,
+   "NC-SPLIT": true,
+   "NC-EXTREC": true
+  },
+  "D55_controls": {
+   "NL-TAB-GC a doctored group-column entry": true,
+   "NL-TAB-ACT a doctored ACT3 table entry": true,
+   "NL-G the gate denominator moved": true
+  }
+ },
+ "control_a": {
+  "v25_in_process": {
+   "reproduces": true,
+   "differences": []
+  },
+  "record_file": {
+   "reproduces": true,
+   "differences": []
+  }
+ },
+ "control_a_self_test_fires": true,
+ "R13-3_fork": {
+  "slot_checks_equal": 23,
+  "ok": true
+ },
+ "seconds": {
+  "load": 0.6,
+  "replay": 0.9,
+  "R13-3_fork": 40.6,
+  "v25_reference_fork_only": 17.8,
+  "widened_all23": 36.8
+ },
+ "peak_rss_mib": 890.6
+}
+status: PASS (96.8 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0f46a16788e085dc/results/zk60_d60_20261102/privacy_gate_fr25_17/records/fr25_17-tiny-t128-s0.json
