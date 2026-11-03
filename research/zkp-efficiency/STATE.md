@@ -1,5 +1,78 @@
 # ZKP efficiency explorer — durable state
 
+## 2026-11-03: Claude researcher cycle (D50): the RTX 5090 projection and the levers re-ranked
+
+**COMPLETE.** **No measured proving improvement.** Only `research/zkp-efficiency/` was written. There was no build,
+proof, GPU run or Git write; the one micro-benchmark was a 0.03 s byte scan.
+[Experiment](experiments/rtx5090-projection-20261103/README.md) ·
+[Handoff](handoffs/20261103-rtx5090-projection.md) ·
+[Dated report](progress/20261103-claude-rtx5090-projection.md).
+
+**The 5090 projection** (W16R2 at Q = 280 + D55, one request, 8B T128) [MODEL on ESTIMATE ranges]:
+- **Proof only** (the Mac's 22.9 clock):
+  - p10–p90 **54–82 tok/s** with today's serial head;
+  - **69–117** with the H122/H123 head fixes;
+  - about **40** for a pessimistic straight port.
+- **Limiter in the central case:** the per-fork host path (about 0.21 s per block, mostly one thread), with VRAM capping
+  the fork count near 8. Not the GPU (26.5 ms per block).
+
+**The witness: the main finding** [INFERRED].
+- **What the harness shows.** The D55 A/B harness spends 8.48–8.71 s per call building the 32 witnesses outside the
+  timer, in all five logs. That is about 0.27 s per 8B block, against 0.17 s per block of proving.
+- **Why it adds directly.** D55's phase 1 needs every boundary plane before any fork, so the forward chain is a serial
+  prefix of one request.
+- **Under the target's clock** (witness work included):
+  - the Mac's one request is about **9 tok/s**;
+  - a 5090 with today's witness code is **6–11**;
+  - with an exact GPU int8 forward it is **48–76**, P(≥ 50) ≈ 0.86.
+
+**Levers re-ranked** (×, Mac one request / 5090 central):
+1. H124 witness: target clock ×2 / 6–11 → 48–76.
+2. H122 preflight: ×1.06 / ×1.22.
+3. H125 host path on the device: ×1.00 / ×1.05–1.19.
+4. H121 per-fork queues: ×1.0–1.25 / built into the streams regime.
+5. H123 boundary commits in parallel: ×1.03 / ×1.10.
+6. Coefficient-form rows: ×1.09 / ×1.01. Changes bytes; needs a ruling.
+7. #2 zero-check kernels: ×1.02–1.11 / ×1.00–1.01.
+8. #3 equal-size batching: ×1.03–1.08 / ×1.02–1.03, with −28% core bytes. Ruling.
+9. #4 non-power-of-two F: ×1.04 / ×1.01. Ruling.
+10. H114: ×1.00 / ×1.01–1.02.
+11. #5 pruned NTT: ×1.01. Drop it: at rate 1/2 it is −0.7 ms.
+
+**Mac totals:** byte-preserving levers 26–28 tok/s; with the byte-changing ones 31–37.
+
+**Hypothesis bookkeeping** (126 in total):
+- **Adopted from `handoffs/20261101-gpu-work-per-block.md`:**
+  - H117 (rate 1/2 + coefficient form): rate 1/2 is **done** as W16R2 (D59, measured ×1.11 core); **H117b**,
+    coefficient form, stays open.
+  - H118 (δ/2 accounting): **adopted** (D59).
+  - H119 (point at infinity): **narrowed**. After M13, shared per-point loads come first.
+  - H120 (equal-size batching).
+  - H121 (per-fork queues + GPU-busy attribution): **H113's remainder merged here**.
+- **H112 retired:** subsumed by D55 while GPU-bound.
+- **New:**
+  - H122: per-request serial preflight. 0.377 s; 7 GB of i8 scanned with `contains`.
+  - H123: serial D55 commit phase. 0.226 s for 31 boundaries.
+  - H124: the witness forward chain.
+  - H125: the 5090's host path against VRAM-capped forks. M5a's Mac negative does not transfer to it.
+  - H126: on the 5090 one request prefers T128 (T256: 65.6 against 107.9 tok/s); many requests are bounded by the GPU
+    and the host cores.
+
+**Top three now:** H124, H122, H125.
+
+**For Victor.** Coefficient-form rows change every byte, so they must either join W16R2 before registration (sharing
+the open Q = 280 branch's gate cycle) or wait for a W16R3 string. Hiding and the δ/2 lemma hold in form. **#3 and #4**
+need rulings too.
+
+**Next** (Mac, after the heavy lock frees; all small):
+1. a direct `witness::build_accuracy` clock on one W16 8B T128 block, split into matmul and the rest;
+2. a preflight sub-step timer;
+3. getrusage CPU-s over a D55 forks phase;
+4. per-fork MTLCommandBuffer timestamps.
+
+New full-stack proofs, passes and proved positions: **0 / 0 / 0**. The complete private 8B at ≥ 50 proved tokens/s on
+an RTX 5090 remains **unachieved**.
+
 ## 2026-11-01: Claude researcher cycle (D50; the Codex explorer cannot run on the Mac)
 
 **COMPLETE.** **No measured proving improvement.** Only `research/zkp-efficiency/` was written. There was no native

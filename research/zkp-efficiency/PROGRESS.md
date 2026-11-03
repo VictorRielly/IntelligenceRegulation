@@ -1,5 +1,52 @@
 # ZKP efficiency progress
 
+## 2026-11-03 — Claude researcher cycle (rtx5090-projection-20261103)
+
+**No measured proving improvement.** This cycle projected today's stack onto an RTX 5090 from the Mac's measured
+profile, and re-ranked what is left.
+
+**The projection** (W16R2 at Q = 280 + D55, one 8B request of 128 tokens; arithmetic on measured parts and spec
+sheets):
+- **Counting only the proof**, as the Mac's 22.9 tokens/s does: about **54–82 proved tokens/s** with today's code
+  around the proof, **69–117** after two small byte-identical fixes, and about 40 if the port is done badly.
+- **The GPU is not what limits it.** The host work each concurrent block proof still does is the limit, because 32 GB of
+  VRAM fits only about 8 of them at once.
+
+**The bigger finding: the witness is outside every clock so far.**
+- **What it costs.** The test harness spends about 8.6 s per request building the 32 layers' witnesses before the timer
+  starts. That is about 0.27 s per layer, more than the 0.17 s per layer of proving. The figure is inferred from the
+  test's wall clocks, not timed directly.
+- **Why it adds.** D55 needs every layer's output before any block proof starts, so this time adds directly to one
+  request.
+- **Counted the way the target counts:**
+  - the Mac is at about **9 tokens/s**, not 23;
+  - a 5090 with today's witness code would be about **6–11**;
+  - with an exact integer forward pass on the GPU, **48–76** (86% of the model's range clears 50).
+
+**What to do, in order:**
+1. Time the witness directly.
+2. Replace the witness's scalar matrix products with exact int8 SIMD or GPU products (byte-identical).
+3. Two small fixes to the serial start of a request:
+   - check the weights once per loaded model, not once per request (0.38 s);
+   - commit the 31 layer boundaries in parallel (0.23 s).
+4. On the 5090, move the host work into the GPU port, not just the kernels.
+
+**The remaining kernel and commitment levers.**
+- On the Mac they are worth 1–11% each. The byte-preserving ones together give about 26–28 tokens/s; with the
+  format-changing ones (coefficient-form rows, batched zero-checks, a non-power-of-two FFN domain), about 31–37.
+- **Coefficient-form rows** keep the hiding and soundness arguments, but change every byte. They need Victor's call:
+  join W16R2 before it registers, or wait for a later profile.
+
+**For ≥ 50 proved tokens/s on the complete private 8B:**
+- The Mac cannot reach it on any lever found.
+- A 5090 plausibly can, but only with a fast exact witness forward **and** the host work moved onto the device or kept
+  under about 0.2 s per concurrent block.
+- It remains **unachieved**. New full-stack proofs, passes and proved positions: **0 / 0 / 0**.
+
+[Experiment](experiments/rtx5090-projection-20261103/README.md) ·
+[Handoff](handoffs/20261103-rtx5090-projection.md) ·
+[Dated report](progress/20261103-claude-rtx5090-projection.md).
+
 ## 2026-11-01 — Claude researcher cycle (logup-gkr-20261101)
 
 **No measured proving improvement.** This cycle settled the LogUp-GKR question with a measurement instead of an

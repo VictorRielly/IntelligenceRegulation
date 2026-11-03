@@ -1,5 +1,16 @@
 # Where the MVP stands, in plain words
 
+**2026-11-03: correction — every proved-tokens/s figure since the Mac bring-up is proof-only; witness building was outside the clock.**
+- **What was missed:** the D55 A/B harness (`run_fork_tests.rs`, `d55_ab_one_request_serial_against_forks`) builds every block's
+  witness before it starts each clock. Our own target (`ZK60_THROUGHPUT_TARGET.md`) counts witness work.
+- **Size** [INFERRED from measured walls, W16R2 8B T128, `results/zk60_w16r2_20261101/logs/ab/m_d55_r2b.log`]: total 110.9 s, minus
+  setup 15.1 s, five timed calls 45.6 s and two verifications 7.0 s, leaves 43.2 s: about **8.6 s of witness building per request** (32
+  blocks, 8 builder threads), against 5.6 s of proving. Counting it, one request on the Mac is about **9 tokens/s, not 22.9**.
+  All earlier rows of the speed table (7.6 / 12.0 / 20.8 / 22.9) are on the same proof-only clock.
+- **What it means for 50:** the researcher's 5090 model (`research/zkp-efficiency/handoffs/20261103-rtx5090-projection.md`) gives
+  54–82 proof-only [MODEL], but 6–11 counting today's witness code, and 48–76 with an exact SIMD/GPU forward pass (H124, byte-identical,
+  no ruling). The witness is now the first lever, ahead of the GPU kernels. A direct clock of `witness::build_accuracy` comes first.
+
 **2026-11-02: the rate-1/2 commitment (D59) is built as an opt-in profile and about 10% faster, with no soundness given up.**
 - **What it is:** the W16R2 profiles encode A, H, the run boundaries and the endpoints at code rate 1/2 (was 1/4) with 260 opened columns,
   counted at the Reed–Solomon unique-decoding radius. The mask commitment M is unchanged.

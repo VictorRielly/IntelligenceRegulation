@@ -1,0 +1,580 @@
+{
+ "mac_check": {
+  "gpu_attr_s": 0.10929999999999998,
+  "eta": 1.390096065873742,
+  "forks_s": 4.861999999999999,
+  "limiter": "GPU kernels",
+  "wall_s": 5.541999999999999,
+  "tok_s": 23.096355106459765,
+  "measured_wall_s": 5.542,
+  "measured_tok_s": 23.09635510645976
+ },
+ "eta_mac": [
+  1.273575020955574,
+  1.390096065873742
+ ],
+ "corners": [
+  {
+   "name": "P: straight port",
+   "regime": "serial-queue",
+   "N": 6,
+   "g_tp_ms": 73.96398149959471,
+   "g_own_ms": 53.2078201754386,
+   "host_ms_per_fork_block": 342.85714285714283,
+   "pcie_ms": 27.0,
+   "serial_s": 0.85,
+   "forks_s": 2.3668474079870307,
+   "wall_s": 3.216847407987031,
+   "tok_s": 39.790510324546936,
+   "limiter": "GPU kernels",
+   "x_host_blk_s": 15.149029982504215,
+   "x_gpu_blk_s": 13.520094236753325,
+   "x_link_blk_s": 37.03703703703704,
+   "x_hostbw_blk_s": 17.142857142857142,
+   "x_cores_blk_s": 16.8,
+   "aggregate_ceiling_tok_s": 54.0803769470133
+  },
+  {
+   "name": "P2: streams, host-built tables",
+   "regime": "streams",
+   "N": 8,
+   "g_tp_ms": 26.516880744007242,
+   "g_own_ms": 32.6596117141565,
+   "host_ms_per_fork_block": 244.44444444444443,
+   "pcie_ms": 27.0,
+   "serial_s": 0.65,
+   "forks_s": 1.2692760140396502,
+   "wall_s": 1.9192760140396503,
+   "tok_s": 66.69181455073176,
+   "limiter": "host DRAM bandwidth",
+   "x_host_blk_s": 28.870021286953616,
+   "x_gpu_blk_s": 37.71182627602222,
+   "x_link_blk_s": 37.03703703703704,
+   "x_hostbw_blk_s": 26.666666666666668,
+   "x_cores_blk_s": 38.400000000000006,
+   "aggregate_ceiling_tok_s": 106.66666666666667
+  },
+  {
+   "name": "C: streams, device tables",
+   "regime": "streams",
+   "N": 8,
+   "g_tp_ms": 26.516880744007242,
+   "g_own_ms": 32.6596117141565,
+   "host_ms_per_fork_block": 211.11111111111111,
+   "pcie_ms": 13.0,
+   "serial_s": 0.65,
+   "forks_s": 1.0360255720073874,
+   "wall_s": 1.6860255720073876,
+   "tok_s": 75.91818423465712,
+   "limiter": "host (forks x per-fork host path)",
+   "x_host_blk_s": 32.817722765396724,
+   "x_gpu_blk_s": 37.71182627602222,
+   "x_link_blk_s": 76.92307692307692,
+   "x_hostbw_blk_s": 106.66666666666667,
+   "x_cores_blk_s": 38.400000000000006,
+   "aggregate_ceiling_tok_s": 150.8473051040889
+  },
+  {
+   "name": "C + H122/H123",
+   "regime": "streams",
+   "N": 8,
+   "g_tp_ms": 26.516880744007242,
+   "g_own_ms": 32.6596117141565,
+   "host_ms_per_fork_block": 211.11111111111111,
+   "pcie_ms": 13.0,
+   "serial_s": 0.15000000000000002,
+   "forks_s": 1.0360255720073874,
+   "wall_s": 1.1860255720073876,
+   "tok_s": 107.92347401359632,
+   "limiter": "host (forks x per-fork host path)",
+   "x_host_blk_s": 32.817722765396724,
+   "x_gpu_blk_s": 37.71182627602222,
+   "x_link_blk_s": 76.92307692307692,
+   "x_hostbw_blk_s": 106.66666666666667,
+   "x_cores_blk_s": 38.400000000000006,
+   "aggregate_ceiling_tok_s": 150.8473051040889
+  },
+  {
+   "name": "O: compact uploads, fast host",
+   "regime": "streams",
+   "N": 10,
+   "g_tp_ms": 18.823325245700246,
+   "g_own_ms": 25.424325245700246,
+   "host_ms_per_fork_block": 181.8181818181818,
+   "pcie_ms": 5.0,
+   "serial_s": 0.1,
+   "forks_s": 0.7149866493703931,
+   "wall_s": 0.8149866493703931,
+   "tok_s": 157.05778750962935,
+   "limiter": "host (forks x per-fork host path)",
+   "x_host_blk_s": 48.252649235311175,
+   "x_gpu_blk_s": 53.12557621711535,
+   "x_link_blk_s": 200.0,
+   "x_hostbw_blk_s": 600.0,
+   "x_cores_blk_s": 123.2,
+   "aggregate_ceiling_tok_s": 212.5023048684614
+  }
+ ],
+ "monte_carlo": [
+  {
+   "regime": "serial-queue",
+   "fixed_head": false,
+   "device_tables": false,
+   "witness": null,
+   "p10": 50.61269140698161,
+   "p50": 57.841116392595865,
+   "p90": 66.16621765748249,
+   "p_ge_50": 0.9221,
+   "limiter_share": {
+    "GPU kernels": 0.803,
+    "host (forks x per-fork host path)": 0.167,
+    "host DRAM bandwidth": 0.022,
+    "host cores": 0.007
+   }
+  },
+  {
+   "regime": "streams",
+   "fixed_head": false,
+   "device_tables": false,
+   "witness": null,
+   "p10": 53.61788587917517,
+   "p50": 66.36023376001722,
+   "p90": 80.84749678301745,
+   "p_ge_50": 0.96605,
+   "limiter_share": {
+    "GPU kernels": 0.128,
+    "PCIe uploads": 0.033,
+    "host (forks x per-fork host path)": 0.684,
+    "host DRAM bandwidth": 0.092,
+    "host cores": 0.064
+   }
+  },
+  {
+   "regime": "streams",
+   "fixed_head": false,
+   "device_tables": true,
+   "witness": null,
+   "p10": 54.06963825533084,
+   "p50": 67.6267197254326,
+   "p90": 82.2330032252827,
+   "p_ge_50": 0.9674,
+   "limiter_share": {
+    "GPU kernels": 0.179,
+    "host (forks x per-fork host path)": 0.751,
+    "host cores": 0.07
+   }
+  },
+  {
+   "regime": "streams",
+   "fixed_head": true,
+   "device_tables": true,
+   "witness": null,
+   "p10": 69.12234600404555,
+   "p50": 92.47758890487093,
+   "p90": 117.32781593655724,
+   "p_ge_50": 1.0,
+   "limiter_share": {
+    "GPU kernels": 0.179,
+    "host (forks x per-fork host path)": 0.751,
+    "host cores": 0.07
+   }
+  }
+ ],
+ "witness_monte_carlo": [
+  {
+   "regime": "streams",
+   "fixed_head": true,
+   "device_tables": true,
+   "witness": "today's CPU code (16-28 desktop cores)",
+   "p10": 6.509801134658905,
+   "p50": 8.062934565794356,
+   "p90": 10.6768820552549,
+   "p_ge_50": 0.0,
+   "limiter_share": {
+    "witness forward chain": 1.0
+   }
+  },
+  {
+   "regime": "streams",
+   "fixed_head": true,
+   "device_tables": true,
+   "witness": "SIMD int8 CPU products (SDOT/VNNI, int16 split in two int8 limbs)",
+   "p10": 32.24809906441743,
+   "p50": 38.184672828946034,
+   "p90": 46.89240958783936,
+   "p_ge_50": 0.0388,
+   "limiter_share": {
+    "host (forks x per-fork host path)": 0.089,
+    "host cores": 0.004,
+    "witness forward chain": 0.908
+   }
+  },
+  {
+   "regime": "streams",
+   "fixed_head": true,
+   "device_tables": true,
+   "witness": "exact forward on the GPU (int8 tensor-core products, two limbs)",
+   "p10": 48.35749798884325,
+   "p50": 59.95523977610034,
+   "p90": 76.40209243870622,
+   "p_ge_50": 0.85675,
+   "limiter_share": {
+    "GPU kernels": 0.141,
+    "host (forks x per-fork host path)": 0.734,
+    "host cores": 0.07,
+    "witness forward chain": 0.054
+   }
+  }
+ ],
+ "levers": [
+  {
+   "lever": "coefficient-form rows (drop the inverse NTT)",
+   "mac_tok_s": 25.11197755028265,
+   "mac_x": 1.087270152997394,
+   "c_tok_s": 109.13455556247331,
+   "c_x": 1.011221669427769,
+   "c_today_head_tok_s": 76.51548120652468,
+   "c_today_head_x": 1.0078676403800881,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "#5 pruned coset NTT at rate 1/2 (first stage, 1 - Q/n of pairs)",
+   "mac_tok_s": 23.226856983098504,
+   "mac_x": 1.005650323440093,
+   "c_tok_s": 108.01213370916011,
+   "c_x": 1.0008215052042582,
+   "c_today_head_tok_s": 75.96204540708464,
+   "c_today_head_x": 1.0005777426432112,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "#2 zero-check kernels, low (shared loads only)",
+   "mac_tok_s": 23.666228766552777,
+   "mac_x": 1.0246737486268398,
+   "c_tok_s": 108.24339680118945,
+   "c_x": 1.0029643484933854,
+   "c_today_head_tok_s": 76.07635395578436,
+   "c_today_head_x": 1.0020834233948266,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "#2 zero-check kernels, high",
+   "mac_tok_s": 25.558068866339323,
+   "mac_x": 1.1065845129472853,
+   "c_tok_s": 109.21464762965911,
+   "c_x": 1.0119637884886854,
+   "c_today_head_tok_s": 76.55484240474419,
+   "c_today_head_x": 1.0083861090265174,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "#3 batch equal-size zero-checks, low",
+   "mac_tok_s": 23.76395306727979,
+   "mac_x": 1.0289049054598798,
+   "c_tok_s": 110.59459323705754,
+   "c_x": 1.0247501226945743,
+   "c_today_head_tok_s": 77.23031487913599,
+   "c_today_head_x": 1.017283482971921,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "#3 batch equal-size zero-checks, high",
+   "mac_tok_s": 25.002877303898334,
+   "mac_x": 1.0825464532672233,
+   "c_tok_s": 111.4300568867026,
+   "c_x": 1.0324913824833375,
+   "c_today_head_tok_s": 77.63680196634516,
+   "c_today_head_x": 1.0226377612822763,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "#4 non-power-of-two F domain",
+   "mac_tok_s": 23.981813425797522,
+   "mac_x": 1.0383375781700772,
+   "c_tok_s": 108.87897848571284,
+   "c_x": 1.0088535370163876,
+   "c_today_head_tok_s": 76.38976245772919,
+   "c_today_head_x": 1.0062116636195415,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "H114 helper inverses by gather",
+   "mac_tok_s": 23.09635510645976,
+   "mac_x": 1.0,
+   "c_tok_s": 109.67010278350087,
+   "c_x": 1.0161839561399266,
+   "c_today_head_tok_s": 76.77834774804838,
+   "c_today_head_x": 1.011330138122542,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "H122 preflight once per resident model / parallel",
+   "mac_tok_s": 24.418161007249143,
+   "mac_x": 1.0572300648607402,
+   "c_tok_s": 107.92347401359632,
+   "c_x": 1.0,
+   "c_today_head_tok_s": 92.35038846694364,
+   "c_today_head_x": 1.2164462229693993,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "H123 boundary commits in parallel",
+   "mac_tok_s": 23.73887240356083,
+   "mac_x": 1.0278189910979227,
+   "c_tok_s": 107.92347401359632,
+   "c_x": 1.0,
+   "c_today_head_tok_s": 83.33194598623804,
+   "c_today_head_x": 1.0976546242026228,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "5090: store folds on the device",
+   "mac_tok_s": 23.09635510645976,
+   "mac_x": 1.0,
+   "c_tok_s": 115.2665070678675,
+   "c_x": 1.0680392576442275,
+   "c_today_head_tok_s": 79.47990257031178,
+   "c_today_head_x": 1.046915220267198,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "5090: public weight folds on the device",
+   "mac_tok_s": 23.09635510645976,
+   "mac_x": 1.0,
+   "c_tok_s": 128.18712964743563,
+   "c_x": 1.187759482531914,
+   "c_today_head_tok_s": 85.41646155574843,
+   "c_today_head_x": 1.1251120191670139,
+   "c_limiter": "GPU kernels"
+  },
+  {
+   "lever": "5090: Merkle trees + salts on the device",
+   "mac_tok_s": 23.09635510645976,
+   "mac_x": 1.0,
+   "c_tok_s": 113.33863787206172,
+   "c_x": 1.0501759594746107,
+   "c_today_head_tok_s": 78.55850517675445,
+   "c_today_head_x": 1.0347785048959588,
+   "c_limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "lever": "5090: witness planes, lookups, helpers on the device",
+   "mac_tok_s": 23.09635510645976,
+   "mac_x": 1.0,
+   "c_tok_s": 128.18712964743563,
+   "c_x": 1.187759482531914,
+   "c_today_head_tok_s": 85.41646155574843,
+   "c_today_head_x": 1.1251120191670139,
+   "c_limiter": "GPU kernels"
+  },
+  {
+   "lever": "5090: the whole host path on the device (residue 0.04 s)",
+   "mac_tok_s": 23.09635510645976,
+   "mac_x": 1.0,
+   "c_tok_s": 128.18712964743563,
+   "c_x": 1.187759482531914,
+   "c_today_head_tok_s": 85.41646155574843,
+   "c_today_head_x": 1.1251120191670139,
+   "c_limiter": "GPU kernels"
+  }
+ ],
+ "t256": [
+  {
+   "T": 128,
+   "N": 8,
+   "wall_s": 1.1860255720073876,
+   "tok_s": 107.92347401359632,
+   "limiter": "host (forks x per-fork host path)"
+  },
+  {
+   "T": 256,
+   "N": 4,
+   "wall_s": 3.9020785672885574,
+   "tok_s": 65.60605984360973,
+   "limiter": "host (forks x per-fork host path)"
+  }
+ ],
+ "inputs": {
+  "MAC_GPU": {
+   "ntt_inverse": [
+    10.0,
+    13.0
+   ],
+   "ntt_forward": [
+    18.0,
+    25.0
+   ],
+   "leaf_hash": [
+    4.0,
+    4.0
+   ],
+   "zc_heavy": [
+    59.7,
+    59.7
+   ],
+   "zc_tab": [
+    5.1,
+    5.1
+   ],
+   "zc_small": [
+    12.5,
+    12.5
+   ]
+  },
+  "SPLIT": {
+   "ntt_inverse": [
+    0.4,
+    0.2,
+    0.0,
+    0.0,
+    0.4
+   ],
+   "ntt_forward": [
+    0.5,
+    0.5,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "leaf_hash": [
+    0.0,
+    0.1,
+    0.0,
+    0.9,
+    0.0
+   ],
+   "zc_heavy": [
+    0.47,
+    0.08,
+    0.2,
+    0.0,
+    0.25
+   ],
+   "zc_tab": [
+    0.15,
+    0.05,
+    0.0,
+    0.0,
+    0.8
+   ],
+   "zc_small": [
+    0.15,
+    0.05,
+    0.0,
+    0.0,
+    0.8
+   ]
+  },
+  "K": {
+   "mul": [
+    4.0,
+    8.0
+   ],
+   "dram": [
+    1.9,
+    2.2
+   ],
+   "cache": [
+    2.0,
+    4.0
+   ],
+   "alu32": [
+    3.0,
+    3.7
+   ],
+   "lat": [
+    1.5,
+    4.0
+   ]
+  },
+  "H_MAC": [
+   0.2,
+   0.24
+  ],
+  "HOST_SPEED": [
+   0.7,
+   1.1
+  ],
+  "PCIE_MS": {
+   "naive": 27.0,
+   "device_tables": 13.0,
+   "compact": 5.0
+  },
+  "N_FORKS": [
+   6,
+   8,
+   10
+  ],
+  "S_TODAY": [
+   0.45,
+   0.85
+  ],
+  "S_FIXED": [
+   0.1,
+   0.2
+  ],
+  "MAC_D55": {
+   "wall": 5.542,
+   "preflight": 0.377,
+   "commit": 0.226,
+   "forks": 4.862,
+   "join": 0.077,
+   "N": 6,
+   "blocks": 32,
+   "tokens": 128
+  },
+  "HOST_GB_PER_BLOCK": {
+   "today": [
+    2.5,
+    3.5
+   ],
+   "device_tables": [
+    0.5,
+    1.0
+   ]
+  },
+  "HOST_BW": [
+   60.0,
+   300.0
+  ],
+  "HOST_CPU_S": [
+   0.25,
+   0.5
+  ],
+  "HOST_CORES": [
+   12,
+   28
+  ],
+  "WITNESS_MAC_S": 0.27,
+  "WITNESS_5090_BOX": {
+   "today's CPU code (16-28 desktop cores)": [
+    0.3,
+    0.6
+   ],
+   "SIMD int8 CPU products (SDOT/VNNI, int16 split in two int8 limbs)": [
+    0.04,
+    0.08
+   ],
+   "exact forward on the GPU (int8 tensor-core products, two limbs)": [
+    0.01,
+    0.035
+   ]
+  },
+  "CENTRAL": {
+   "mac_pick": "lo",
+   "k_pick": "mid",
+   "regime": "streams",
+   "eta": 1.15,
+   "h_mac": 0.19,
+   "host_speed": 0.9,
+   "n": 8,
+   "pcie": 13.0,
+   "s": 0.65,
+   "drain_frac": 0.25,
+   "host_gb": 0.75,
+   "host_bw": 80.0,
+   "cpu_s": 0.375,
+   "cores": 16
+  }
+ }
+}

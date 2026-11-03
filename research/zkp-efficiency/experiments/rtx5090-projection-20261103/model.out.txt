@@ -1,0 +1,53 @@
+== Mac calibration (k = 1 everywhere) ==
+summed GPU attribution 109.3 ms/block; eta (forks/32 over attribution) 1.27-1.39
+model wall 5.542 s = 23.1 tok/s; measured 5.542 s = 23.1 tok/s; limiter GPU kernels
+
+== 5090 corners, one request, W16R2 (Q 280) + D55, 8B T128, PROOF ONLY (the Mac's 22.9 clock) [MODEL on ESTIMATE ranges] ==
+scenario                            N  G_tp ms  G_own   H ms  PCIe   S s forks s wall s  tok/s  aggr  limiter
+P: straight port                    6     74.0   53.2    343    27  0.85    2.37   3.22   39.8    54  GPU kernels
+P2: streams, host-built tables      8     26.5   32.7    244    27  0.65    1.27   1.92   66.7   107  host DRAM bandwidth
+C: streams, device tables           8     26.5   32.7    211    13  0.65    1.04   1.69   75.9   151  host (forks x per-fork host path)
+C + H122/H123                       8     26.5   32.7    211    13  0.15    1.04   1.19  107.9   151  host (forks x per-fork host path)
+O: compact uploads, fast host      10     18.8   25.4    182     5  0.10    0.71   0.81  157.1   213  host (forks x per-fork host path)
+
+== Monte Carlo over the ranges, PROOF ONLY (uniform, 20,000 draws, seed 20261103) ==
+regime serial-queue device tables False head fixed False: p10 50.6  p50 57.8  p90 66.2 tok/s; P(>=50) 0.92; limiter {'GPU kernels': 0.803, 'host (forks x per-fork host path)': 0.167, 'host DRAM bandwidth': 0.022, 'host cores': 0.007}
+regime streams      device tables False head fixed False: p10 53.6  p50 66.4  p90 80.8 tok/s; P(>=50) 0.97; limiter {'GPU kernels': 0.128, 'PCIe uploads': 0.033, 'host (forks x per-fork host path)': 0.684, 'host DRAM bandwidth': 0.092, 'host cores': 0.064}
+regime streams      device tables True  head fixed False: p10 54.1  p50 67.6  p90 82.2 tok/s; P(>=50) 0.97; limiter {'GPU kernels': 0.179, 'host (forks x per-fork host path)': 0.751, 'host cores': 0.07}
+regime streams      device tables True  head fixed True : p10 69.1  p50 92.5  p90 117.3 tok/s; P(>=50) 1.00; limiter {'GPU kernels': 0.179, 'host (forks x per-fork host path)': 0.751, 'host cores': 0.07}
+
+== The target's clock: the witness forward chain is a serial prefix of one D55 request ==
+Mac today [INFERRED]: 0.27 s/block x 32 = 8.6 s before the commit phase; with the measured 5.542 s proof: 9.0 tok/s (proof-only 23.1)
+5090, streams, device tables, head fixed, witness = today's CPU code (16-28 desktop cores): p10 6.5  p50 8.1  p90 10.7; P(>=50) 0.00
+5090, streams, device tables, head fixed, witness = SIMD int8 CPU products (SDOT/VNNI, int16 split in two int8 limbs): p10 32.2  p50 38.2  p90 46.9; P(>=50) 0.04
+5090, streams, device tables, head fixed, witness = exact forward on the GPU (int8 tensor-core products, two limbs): p10 48.4  p50 60.0  p90 76.4; P(>=50) 0.86
+today's witness code, even perfectly overlapped, on 16 host cores: 7-30 tok/s aggregate ceiling (2.15-8.6 CPU-s per block) [INFERRED]
+
+== Levers: Mac one request (GPU-bound, N = 6) and 5090 central (C + H122/H123) ==
+lever                                                          Mac tok/s     x 5090 C tok/s     x 5090 C(today head)     x
+(baseline)                                                          23.1  1.00        107.9  1.00               75.9  1.00
+coefficient-form rows (drop the inverse NTT)                        25.1  1.09        109.1  1.01               76.5  1.01
+#5 pruned coset NTT at rate 1/2 (first stage, 1 - Q/n of pairs)      23.2  1.01        108.0  1.00               76.0  1.00
+#2 zero-check kernels, low (shared loads only)                      23.7  1.02        108.2  1.00               76.1  1.00
+#2 zero-check kernels, high                                         25.6  1.11        109.2  1.01               76.6  1.01
+#3 batch equal-size zero-checks, low                                23.8  1.03        110.6  1.02               77.2  1.02
+#3 batch equal-size zero-checks, high                               25.0  1.08        111.4  1.03               77.6  1.02
+#4 non-power-of-two F domain                                        24.0  1.04        108.9  1.01               76.4  1.01
+H114 helper inverses by gather                                      23.1  1.00        109.7  1.02               76.8  1.01
+H122 preflight once per resident model / parallel                   24.4  1.06        107.9  1.00               92.4  1.22
+H123 boundary commits in parallel                                   23.7  1.03        107.9  1.00               83.3  1.10
+5090: store folds on the device                                     23.1  1.00        115.3  1.07               79.5  1.05
+5090: public weight folds on the device                             23.1  1.00        128.2  1.19               85.4  1.13
+5090: Merkle trees + salts on the device                            23.1  1.00        113.3  1.05               78.6  1.03
+5090: witness planes, lookups, helpers on the device                23.1  1.00        128.2  1.19               85.4  1.13
+5090: the whole host path on the device (residue 0.04 s)            23.1  1.00        128.2  1.19               85.4  1.13
+
+== Forks needed so the GPU, not the host path, is the limiter (central) ==
+host path per fork-block 150 ms: N >= 6.9 (VRAM fits about 8-9 at 3.3-3.5 GB per fork)
+host path per fork-block 200 ms: N >= 8.8 (VRAM fits about 8-9 at 3.3-3.5 GB per fork)
+host path per fork-block 250 ms: N >= 10.7 (VRAM fits about 8-9 at 3.3-3.5 GB per fork)
+host path per fork-block 300 ms: N >= 12.5 (VRAM fits about 8-9 at 3.3-3.5 GB per fork)
+
+== T256 against T128 on the 5090, central factors [MODEL] ==
+T128: N 8 (30 GB / 3.4 GB), wall 1.19 s, 107.9 proved tok/s, limiter host (forks x per-fork host path)
+T256: N 4 (30 GB / 6.6 GB), wall 3.90 s, 65.6 proved tok/s, limiter host (forks x per-fork host path)
