@@ -1,0 +1,5 @@
+W16 prefix-only entries (no R26 reading at the same prefix): [('src/private_block/run.rs', 'b9b40cadef4a'), ('src/private_block/run_capture.rs', 'd10d33e3e04f')]
+(a) src/private_block/run.rs @ b9b40cadef4a0000..: read_here=['src/private_block/run.rs'] unread=[] ok=True
+(a) src/private_block/run_capture.rs @ d10d33e3e04f0000..: read_here=['src/private_block/run_capture.rs'] unread=[] ok=True
+(b) PINS controls with no R26-read pin: {'B-1 marked GPU-made': (True, None), 'B-2 backend unknown': (True, None), 'B-3 not a boolean': (True, None), 'P-1 prefix only': (True, 'no pin of this bundle is read by an R26 reading'), 'P-2 unknown digest': (True, 'no pin of this bundle is read by an R26 reading')} ok True
+(c) proved_on_gpu false, Metal files not pinned: admissible True ok True sources {'src/gpu/metal.rs': {'pinned': None, 'reading_scope': None}, 'src/gpu/metal_kernels.metal': {'pinned': None, 'reading_scope': None}}

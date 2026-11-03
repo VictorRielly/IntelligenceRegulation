@@ -1,0 +1,306 @@
+{
+ "review": "gate round 27: independent freeze review of the v25 staging privacy gate (D55 commit, fork, join)",
+ "date": "2026-11-02",
+ "reviewer": "Claude (Opus 5.5), read-only",
+ "tree": {
+  "branch": "perf/zk-batch-optimizations",
+  "commit": "22039169",
+  "staging_v25_files_equal_to_commit": 258,
+  "new_in_v25": 14,
+  "v24_files_changed": 0
+ },
+ "bottom_line": "freeze after named fixes",
+ "fix_before_freeze": [
+  "FR25-01",
+  "FR25-02",
+  "FR25-03",
+  "FR25-04",
+  "FR25-05",
+  "FR25-06",
+  "FR25-13"
+ ],
+ "records_note": "the merged 18-part run's figures stand; before using its records as freeze evidence check each for controls on, joint on, the printout at the pinned digest, the 75 expected pins and no prefix-only reading, or re-run on the fixed tool state",
+ "scope_sha256": {
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py": "60f1c73e888114a85e19e5958f2499fd98b180d997e2f1c76ac3e0d384139201",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55r13.py": "927cb40841a1b7c54bec464943714e247239a41c8fe58ab6cc5023d981d4b556",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55joint.py": "3fc784d6e547fcba9465c2496b571bab8d340591c00999629bdb0d6ba77242d7",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55nl.py": "e8d855b36b8a0ad76c3f63181ef9e5aef6b2898269859855dbc37a0e8231109b",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55preimage.py": "dbbf3f1c05556472114a429752ca44890855c4f90a78b021f8ff084e87934b90",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55ts.py": "d938b0c7c2b6b1cc6bab2998f206569a464bfc8a09be6fa12772b380fcb10a0d",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55hash.py": "929fc51b85f8fb702bde4d7d7c6aa569e4c644bfade8db93f9661295c405e5ed",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_r26readings.py": "e601e9554c3359949b47431de974292bd36bd5d9e340a4c90c69521dde892b77",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_w16.py": "96342f8a1868c400684ab2f773a62a2d4f569c4a9c2504bea94e8c8a3ae46530",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_d55_nl_preimage.py": "58d742073020a8eecde625f23331e4c7f59dcdf163e90b410bb9eceafda03e60",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_d55_r13_gate.py": "ad5df13caa1e966f60cc7459865ea038d9ad53446561223fe9d17142c8a3d146",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_d55_ts_hash.py": "c1bcafb40cf429f4aec23f8988c22b451d960a64bb3bb8329209755a2b820c21",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_r26_readings.py": "6776c320823623113f0110c50f7132954df1a2155390ff7412b6d8ce2830d69b",
+  "ops/zkp-mvp/gate-tinyllama/staging_v25/tests/test_w16_gate.py": "6f4c4229eacae49e7edd9e15167cc1bda5d663a7fec5e4d4def6599cf601e96f"
+ },
+ "findings": [
+  {
+   "id": "FR25-01",
+   "severity": "High",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55hash.py:669-674",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55hash.py:547",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55hash.py:651",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:987",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:993"
+   ],
+   "title": "HASH-2 passes without the Rust s25 W-2 table",
+   "scenario": "ZK60_S25_W2_PRINTOUT unset or naming a missing file -> load_rust returns None -> HASH-2 checks only the gate-side conditions, HC-7 is dropped, the part is true -> D55-PASS. records/d55-first-r13-rung-s0.json (TS lane pass 1) is D55-PASS 16/16 with 'not_compared'; in the same pass the only HASH-2 finding on the 8B bundles was this lookup (the L = 3 parameters absorb, 317 B), so the L = 2..9 finding would have been D55-PASS everywhere without the variable.",
+   "fix": "At an R13 base make the printout mandatory (absent or unreadable -> HASH-2 false); run HC-7 always.",
+   "evidence": "results/zk60_d60_20261102/privacy_gate_tsbases/logs/summarize_pass1.out:1-27"
+  },
+  {
+   "id": "FR25-02",
+   "severity": "Medium",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55hash.py:669-674",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55hash.py:588",
+    "results/zk60_d60_20261102/privacy_gate_merged/pygate.sh:6-8,18,24"
+   ],
+   "title": "The s25 printout is an unpinned, operator-chosen file",
+   "scenario": "Any file named by ZK60_S25_W2_PRINTOUT is the 'Rust census'; an edited or foreign printout listing more kinds makes the lookup pass. Its sha256 is recorded but compared with nothing; s25_tests.rs is in no pin list; the wrapper's comment claims a digest check that neither the wrapper nor the gate performs.",
+   "fix": "Pin the printout's sha256 in the gate (like TS_TRAINED_PIN) and refuse any other; record and read the s25_tests.rs digest that made it."
+  },
+  {
+   "id": "FR25-03",
+   "severity": "Medium",
+   "status": "CONFIRMED (code)",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:885-893",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:894-896",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:911-916",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:938-939",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:688",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55preimage.py:238-240",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55nl.py:551",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55r13.py:313",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55r13.py:555",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55ts.py:497",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55ts.py:549",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55hash.py:682",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55hash.py:699"
+   ],
+   "title": "--no-joint and --no-controls still give D55-PASS",
+   "scenario": "--no-joint: D55-J (ruling M-8's run-level joint rank, the one D55-specific obligation) is not run and not a part; status D55-PASS. --no-controls: no negative control anywhere and status D55-PASS; the record does not say so beyond missing keys.",
+   "fix": "Cap the status at D55-DEV-PASS (or a status of its own) when joint or controls is false; write controls_run / joint_run into the record."
+  },
+  {
+   "id": "FR25-04",
+   "severity": "Medium",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:916",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:928-937",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:957",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:963",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:994"
+   ],
+   "title": "D55-PASS ignores not_here",
+   "scenario": "(a) The four round-26 bundles and first-r13-rung-s0 are D55-PASS while not_here lists NL-1, the full preimage (and at round 26 TS-1, the census, the hash census); D60's 'until a PASS record exists' was met by records owing four privacy items. (b) W16 family: D55-PASS needs only the eight W16 parts while not_here lists T-0, NL-1, TS-1/census, full preimage, hash census; unreachable today only because the test-only fork writer records no proved_on_gpu (w16_privacy_gate_tests.rs:1966).",
+   "fix": "D55-PASS only when every not_here entry is a named accepted residual (constant list citing its decision row); cap the W16 family at DEV-PASS."
+  },
+  {
+   "id": "FR25-05",
+   "severity": "Medium",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_w16.py:580-613",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:897-909",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:278"
+   ],
+   "title": "The declared pin list is never checked for completeness",
+   "scenario": "The real rung manifest with 69 of 75 pins removed (kept: argument, layout, plane_index, protocol, pad, shape) gives PINS ok and an admissible backend; removed: run_fork.rs, run_fork_wire.rs, run_capture.rs, zkp-core pcs.rs / rng.rs, gpu/metal.rs, metal_kernels.metal. D55-0 does not hash manifest.json. W16 family: an empty list passes.",
+   "fix": "Hold the expected pin set per writer (the 75 files of OWN_SOURCE_FILES + SHARED_SOURCE_FILES of the read run_capture.rs 10b6d3be; the test-only writer's three extras) and require exactly that set; require a known manifest 'writer'.",
+   "evidence": "round27/logs/pins.log"
+  },
+  {
+   "id": "FR25-06",
+   "severity": "Medium",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_w16.py:529-537",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_w16.py:592",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:788"
+   ],
+   "title": "A 48-bit prefix still reads run.rs and run_capture.rs",
+   "scenario": "W16_READINGS run.rs b9b40cadef4a and run_capture.rs d10d33e3e04f have no R26 reading at the same prefix, so a digest sharing those 12 hex digits is 'read here' and PINS is ok (prefix + 52 zeros, both files). Contradicts r26readings' 'a 48-bit prefix alone never reads a pin'; P-1 targets only R26-read pins. Cost about 2^48 SHA-256.",
+   "fix": "Full digests in W16_READINGS matched by equality, or no prefix branch for D55 bundles; a P-3 control on a W16-read pin.",
+   "evidence": "round27/logs/prefix.log (a)"
+  },
+  {
+   "id": "FR25-07",
+   "severity": "Low",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55nl.py:118-130",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55nl.py:142-143",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:983-984",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:970"
+   ],
+   "title": "ZK60_NL_CHECK_DIR can replace later-imported gate modules",
+   "scenario": "The directory goes to sys.path[0] for the rest of the process; d55hash / d55ts are imported after NL-1. A directory with the two pinned NL files plus a zk60_native_rg_d55hash.py passes load_nl, and the driver then imports that file; tool_sha256 still shows the staging digest.",
+   "fix": "Load nl_check by file location without sys.path (or remove it after); import part modules at the top of d55_gate; hash loaded modules' __file__ into tool_sha256; record the variable.",
+   "evidence": "round27/logs/nldir.log"
+  },
+  {
+   "id": "FR25-08",
+   "severity": "Low",
+   "status": "CONFIRMED (code)",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:359-374",
+    "hashline/src/private_block/w16_privacy_gate_tests.rs:2069"
+   ],
+   "title": "receipt/tail.bin is not bound to d55_tail.json",
+   "scenario": "The tail frame (every boundary and endpoint opening) is checked only against the manifest's file hash; d55_tail.json has no segment_bytes / segment_sha256, unlike the fork stage files; the Rust checks compare only tail JSON shapes. A writer that publishes a tail frame other than the one recorded would pass. No current bundle affected (run_fork_tests.rs:1227-1232 writes the verified frames).",
+   "fix": "Record the tail frame's length and sha256 in d55_tail.json and check it as for the forks; better, decode the frames."
+  },
+  {
+   "id": "FR25-09",
+   "severity": "Low",
+   "status": "PLAUSIBLE",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_r26readings.py:291-324",
+    "hashline/src/private_block/run_capture.rs:4469"
+   ],
+   "title": "The backend rule trusts proved_on_gpu and ignores the writer identity",
+   "scenario": "W-1 / W-2: proved_on_gpu is the capturing process's enabled() at write time. The gate never reads the manifest's 'writer', which today is what distinguishes an in-process registered capture. A future CLI-child D55 capture would be admitted on the capture process's value.",
+   "fix": "Rust latches the backend per proof and records the prover's own; the gate requires writer == the registered in-process writer, else UNKNOWN."
+  },
+  {
+   "id": "FR25-10",
+   "severity": "Low",
+   "status": "CONFIRMED (code)",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_w16.py:574-579",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_w16.py:633-640",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:897",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:1009"
+   ],
+   "title": "The r19b reference manifest is an unpinned input",
+   "scenario": "--r19b-manifest naming a later tree's manifest_final, or an edited manifest_final_r19b.sha256 found by the upward walk, makes every moved pin 'at r19b' with no reading; the record keeps only the path.",
+   "fix": "Pin the r19b manifest's sha256 in the gate; refuse others; record the digest."
+  },
+  {
+   "id": "FR25-11",
+   "severity": "Low",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:788-793",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55ts.py:115",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55ts.py:509-520"
+   ],
+   "title": "Two controls count as fired without an object",
+   "scenario": "P-1 / P-2 are fires: True when no pin uses an R26 reading; TS-1F is all([]) = true when no TS-1 row has at most ZK60_D55TS_FIDELITY_ROWS data rows (0 makes it vacuous everywhere). D12a's rule: no object = NOT APPLICABLE, none applicable = not a pass.",
+   "fix": "fires: None for no object; at least one applicable per family; refuse a fidelity limit below 1.",
+   "evidence": "round27/logs/prefix.log (b)"
+  },
+  {
+   "id": "FR25-12",
+   "severity": "Low",
+   "status": "CONFIRMED (code)",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55joint.py:315-329",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:885-887"
+   ],
+   "title": "J-C5 is optional and its premise unchecked",
+   "scenario": "Without --other J-C5 drops silently out of 'applicable'; with an --other of another profile or shape the replay fails at the header and the control 'fires' for an unrelated reason. --other feeds no figure.",
+   "fix": "Require other.profile == b.profile and a different run_binding; name the expected failure site; require --other for a record."
+  },
+  {
+   "id": "FR25-13",
+   "severity": "Info",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_r26readings.py:246-262",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:928-930"
+   ],
+   "title": "The independently checked readings are still labelled SELF_READ",
+   "scenario": "748fe707 checked the three wiring readings; every PASS record still lists the check as owed.",
+   "fix": "At the freeze, re-label with READINGS_R26_WIRING_CHECK.md as the independent reader; keep the Metal files at CPU-path scope."
+  },
+  {
+   "id": "FR25-14",
+   "severity": "Info",
+   "status": "CONFIRMED",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/tests/",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:1037",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55.py:1025"
+   ],
+   "title": "No unit test of the status computation; exit code and record overwrite",
+   "scenario": "Nothing calls d55_gate's status logic with stubbed parts (the lane blocks are checked as text only); main exits 0 for PASS and DEV-PASS; a record of the same name is overwritten silently.",
+   "fix": "Stub-part status tests for every flag combination with the FR25-01/03/04 fixes; a distinct exit code for DEV-PASS; refuse to overwrite."
+  },
+  {
+   "id": "FR25-15",
+   "severity": "Info",
+   "status": "CONFIRMED (code)",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55r13.py:427-446",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55r13.py:456-459"
+   ],
+   "title": "Per-fork own calibration: d_max / norm_wrho not re-derived; an out-of-class own shift crashes the run",
+   "scenario": "Inherited from v24 (r13blocks.py:323-324); both fail closed (no record, or a broken terminal).",
+   "fix": "Re-derive as stagecal.stage_shapes (SC-7); catch the ValueError into R13-3 false."
+  },
+  {
+   "id": "FR25-16",
+   "severity": "Info",
+   "status": null,
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55r13.py:506-517"
+   ],
+   "title": "G_k is recovered, not read",
+   "scenario": "See verdict: sound for the privacy question, a determination not a binding.",
+   "fix": "Print the denominator in the D55 stage line (bound through the schedule digest) and compare."
+  },
+  {
+   "id": "FR25-17",
+   "severity": "Low",
+   "status": null,
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55nl.py:109-110",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55nl.py:495-496"
+   ],
+   "title": "S1-S5 on the 16 slots R13 does not redefine never computed at a D55 base shape",
+   "scenario": "S1's extension-round premise and per-variable bound depend on each slot's (main, extension) split, which differs at 8B T128, Shieldstral T256 and TinyLlama T128 from D33's T32. Evidence gap, not a gate bug.",
+   "fix": "Run d55_nl1 with SLOTS7 widened to range(23) (legacy ports via T.PORTS; the bilinear eq point as r13blocks.py:237-242) on fork 1 of d55-r13_8b_t128_h24-s0, d55-r13_shield_t256_h24-s0, d55-r13_tiny_t128_low-s0; about 5 min each at the cpu class."
+  },
+  {
+   "id": "FR25-18",
+   "severity": "Info",
+   "status": "PLAUSIBLE",
+   "where": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55ts.py:197-241",
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_d55ts.py:273-289"
+   ],
+   "title": "TS-1 and the census re-read the bundle from disk without the manifest check",
+   "scenario": "With a 78-min record, a file changed after D55-0 would be ranked unchecked; the inline-mode cache keys roles by path.",
+   "fix": "Pass the loaded documents to TS, or re-hash each file against the manifest; key the cache by digest."
+  }
+ ],
+ "verdicts": {
+  "Q1_fail_open": "a FALSE part never gives D55-PASS; an ABSENT or SKIPPED one can (FR25-01, -03, -04, -11, -12); not_here never enters the status",
+  "Q2_controls": "the traced controls mutate the object the real check reads and restore it; exceptions FR25-06 (P-1 blind to W16 prefix readings), FR25-11, FR25-12; no control removes a pin or drops the printout",
+  "Q3_binding": "replay and rank figures are bound to the bundle's transcript; --other feeds only J-C5; unbound or partly bound: the printout (FR25-01/02), ZK60_NL_CHECK_DIR (FR25-07), the r19b manifest (FR25-10), the pin list (FR25-05), tail.bin (FR25-08); the Python gate reads no HL_* variable",
+  "Q4_pins_and_backend": "R26 readings require the full digest (correct); two W16 entries still read on a 48-bit prefix (FR25-06); backend rule: missing -> UNKNOWN refused, non-boolean refused, true refused, false admissible even with no Metal pin (FR25-05)",
+  "W-1": "agree: Medium, latent; no recorded D55 bundle affected (in-process writer); live at the first CLI-child D55 capture; fix FR25-09",
+  "W-2": "agree: Low; needs --ignored without --exact or --include-ignored with >1 thread; the gate cannot see it; fix in Rust (latch)",
+  "G_k_recovered": "sound for the privacy question: only SC_FZC depends on G, exactly one value in 17..24 must close it, G enters public coefficients only; not a binding to the statement (the verifier's job); hardening FR25-16",
+  "NL1_16_slots_on_D33": "still valid at D55 by the D58 argument (define byte-identical; per-fork M and generator; R13-3 23/23 every fork; S3 and the mask budget at all 23 slots); S1/S4/S5 of the 16 bodies unmeasured at the D55 base shapes (FR25-17, exact run given)",
+  "own_shift_sh_s": "no path to a wrong PASS found: fork_calibrations copies the v24 classifier port that closed 23/23 on 25 real Shieldstral blocks carrying own sh_s / sh_ao / sh_h / cn_a / cn_m; clauses are bound through the registered schedule digest; a wrong application fails closed; residual FR25-15; untested on a D55 bundle",
+  "hash_census_coverage": "the L classes are closed (076a485f); no other length class found: every other absorb, column digest and seed-domain length is fixed by the registered shape (per-fork seed domain uses le64(k)); a future variable run base (e.g. product shift 9 vs 10) would add one, caught only by the printout lookup (FR25-01)"
+ },
+ "experiments": {
+  "round27/logs/pins.log": "75 pins ok; 6 pins ok; 0 pins refused at R13 only by the terminal port's four files; W16 driver ok with 0 pins",
+  "round27/logs/nldir.log": "ZK60_NL_CHECK_DIR shadow: the driver's next import loads the scratch module; tool_sha256 shows the staging digest",
+  "round27/logs/prefix.log": "(a) both W16 prefix twins read; (b) P-1 / P-2 fire with no object; (c) proved_on_gpu false with no Metal pin admissible"
+ },
+ "heavy_confirmation_not_run": "copy one rung bundle, cut manifest.json source_pins to six files, run zk60_native_rg_d55.py with --other, controls and joint on, ZK60_S25_W2_PRINTOUT unset, guard cpu class (~6 min, ~12 GiB): predicted D55-PASS, PINS.pins 6, HASH-2 not_compared",
+ "privacy_statement": false
+}

@@ -1,0 +1,5 @@
+bundle /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_r26/d55-r13_rung_h24-s0 proved_on_gpu False pins 75
+honest             {'pins_declared': 75, 'unread': [], 'backend_admissible': True, 'terminal_port_not_read': [], 'PINS_ok': True}
+only the port's 4+2 {'pins_declared': 6, 'unread': [], 'backend_admissible': True, 'terminal_port_not_read': [], 'PINS_ok': True} kept ['src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/pad.rs', 'src/private_block/plane_index.rs', 'src/private_block/protocol.rs', 'src/private_block/shape.rs']
+dropped 69 incl. ['../zkp-core/src/pcs.rs', '../zkp-core/src/rng.rs', 'src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/pcs.rs', 'src/private_block/run_capture.rs', 'src/private_block/run_fork.rs', 'src/private_block/run_fork_wire.rs']
+no pins at all      {'pins_declared': 0, 'unread': [], 'backend_admissible': True, 'terminal_port_not_read': ['src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/protocol.rs', 'src/private_block/plane_index.rs'], 'PINS_ok': False} (W16-family driver has no terminal-port floor: True )
