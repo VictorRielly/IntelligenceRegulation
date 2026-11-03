@@ -1,0 +1,78 @@
+r19b manifest: /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_token_io_r1_20261017/manifest_final_r19b.sha256
+
+A. run_capture.rs sha256 10b6d3be860c == RUN_CAPTURE_RS_READ: True
+   OWN declared 44 parsed 44 | SHARED declared 31 parsed 31
+   derived == REGISTERED_WRITER_PINS (order too): True | as sets: True | distinct: 75
+   test-only writer extras parsed: ['src/private_block/run_fork.rs', 'src/private_block/run_fork_wire.rs', 'src/private_block/w16_privacy_gate_tests.rs'] == TEST_ONLY_EXTRA_PINS: True
+   expected sizes: {'run_capture::write_bundle (a r': 75, 'w16_privacy_gate_tests::write_': 76}
+   writer strings in the Rust sources: True True
+
+B. every D55 manifest in the artifacts
+   close/pg-20261102T041619/bundles/d55-r13_rung_h24-s0: writer_known True set 73/75 ok False | unread 0 backend False self_read [] | PINS.ok False | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   close/pg-20261102T041619/bundles/d55-r13_rung_h24-s1: writer_known True set 73/75 ok False | unread 0 backend False self_read [] | PINS.ok False | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles/d55-r13_8b_t128_h24-s0: writer_known True set 73/75 ok False | unread 0 backend False self_read [] | PINS.ok False | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles/d55-r13_8b_t128_h24-s1: writer_known True set 73/75 ok False | unread 0 backend False self_read [] | PINS.ok False | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles/d55-r13_rung_h24-s0: writer_known True set 73/75 ok False | unread 0 backend False self_read [] | PINS.ok False | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles/d55-r13_rung_h24-s1: writer_known True set 73/75 ok False | unread 0 backend False self_read [] | PINS.ok False | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_bases/d55-r13_shield_t128_h24-own-s0: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_bases/d55-r13_shield_t128_h24-own-s1: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_bases/d55-r13_shield_t128_h24-s0: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_bases/d55-r13_shield_t128_h24-s1: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_bases/d55-r13_shield_t256_h24-s0: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_bases/d55-r13_shield_t256_h24-s1: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_bases/d55-r13_tiny_t128_low-s0: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_bases/d55-r13_tiny_t128_low-s1: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_r26/d55-r13_8b_t128_h24-s0: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_r26/d55-r13_8b_t128_h24-s1: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_r26/d55-r13_rung_h24-s0: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_r26/d55-r13_rung_h24-s1: writer_known True set 75/75 ok True | unread 0 backend True self_read [] | PINS.ok True | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+   pg_bundles_r26_controls/d55-r13_rung_h24-s0-marked-gpu: writer_known True set 75/75 ok True | unread 2 backend False self_read [] | PINS.ok False | controls ok True n/a [] {'B-1': True, 'B-2': True, 'B-3': True, 'P-1': True, 'P-2': True, 'P-3': True, 'P-4': True, 'P-5': True}
+
+C. W16_READINGS
+   ../zkp-core/src/merkle.rs: 64-hex True, R26 at prefix yes, equal
+   ../zkp-core/src/mle.rs: 64-hex True, R26 at prefix yes, equal
+   ../zkp-core/src/pcs.rs: 64-hex True, R26 at prefix yes, equal
+   ../zkp-core/src/pcs/backend.rs: 64-hex True, R26 at prefix yes, equal
+   ../zkp-core/src/rng.rs: 64-hex True, R26 at prefix yes, equal
+   ../zkp-core/src/transcript.rs: 64-hex True, R26 at prefix yes, equal
+   src/gpu/mod.rs: 64-hex True, R26 at prefix yes, equal
+   src/private_block/run.rs: 64-hex True, R26 at prefix no
+   src/private_block/run_capture.rs: 64-hex True, R26 at prefix no
+   src/private_block/run.rs @ full: read_here True, unread False, classify ok True
+   src/private_block/run.rs @ prefix+52 zeros: read_here False, unread True, classify ok False
+   src/private_block/run.rs @ last hex flipped: read_here False, unread True, classify ok False
+   src/private_block/run_capture.rs @ full: read_here True, unread False, classify ok True
+   src/private_block/run_capture.rs @ prefix+52 zeros: read_here False, unread True, classify ok False
+   src/private_block/run_capture.rs @ last hex flipped: read_here False, unread True, classify ok False
+
+D. pin_set_check bypass attempts on the rung manifest
+   honest: {'writer_known': True, 'declared': 75, 'expected': 75, 'ok': True, 'missing': 0, 'unexpected': [], 'dup': []}
+   writer with a trailing space: {'writer_known': False, 'declared': 75, 'expected': None, 'ok': False, 'missing': 0, 'unexpected': None, 'dup': []}
+   writer absent: {'writer_known': False, 'declared': 75, 'expected': None, 'ok': False, 'missing': 0, 'unexpected': None, 'dup': []}
+   writer = test-only string, 75 pins: {'writer_known': True, 'declared': 75, 'expected': 76, 'ok': False, 'missing': 1, 'unexpected': [], 'dup': []}
+   a path variant of run.rs: {'writer_known': True, 'declared': 75, 'expected': 75, 'ok': False, 'missing': 1, 'unexpected': ['src/private_block/./run.rs'], 'dup': []}
+   one pin duplicated, one dropped: {'writer_known': True, 'declared': 75, 'expected': 75, 'ok': False, 'missing': 1, 'unexpected': [], 'dup': ['src/private_block/argument_accuracy.rs']}
+   pins reordered: {'writer_known': True, 'declared': 75, 'expected': 75, 'ok': True, 'missing': 0, 'unexpected': [], 'dup': []}
+   an entry without 'file': {'writer_known': True, 'declared': 76, 'expected': 75, 'ok': False, 'missing': 0, 'unexpected': [None], 'dup': []}
+
+E. d55_status probes
+   all true, R13, not_here [G_k]: D55-PASS  reasons 0
+   all true, R13, not_here []: D55-PASS  reasons 0
+   pins not ok: D55-DEV-PASS  reasons 1
+   no controls: D55-DEV-PASS  reasons 1
+   no joint: D55-DEV-PASS  reasons 1
+   W16 family: D55-DEV-PASS  reasons 1
+   unaccepted not_here: D55-DEV-PASS  reasons 1
+   a part false: NOT-OK  reasons 0
+   no parts: NOT-OK  reasons 0
+   a part None: NOT-OK  reasons 0
+   G_k string with a trailing space: D55-DEV-PASS  reasons 1
+   ACCEPTED_RESIDUALS: {'G_k in the clear: recovered on SC_FZC, not read from a bound line': 'round 27 freeze review, §3 Q5 (to be recorded in the D60 row)'}
+   places assigning rec['status'] in the driver: ['        rec.update({"status": "REFUSED", "parts": {**parts, "D55-1/2 facts": False}, "seconds": round(time.time() - t0, 1)})']
+
+F. load_rust
+   unset: loaded False, kinds None, HASH-2 ok False, refused 'ZK60_S25_W2_PRINTOUT is not set: at an R13 base the Rust s25 W-2 print'
+   missing file: loaded False, kinds None, HASH-2 ok False, refused 'ZK60_S25_W2_PRINTOUT = /nonexistent/s25.log: the printout cannot be re'
+   a directory: loaded False, kinds None, HASH-2 ok False, refused 'ZK60_S25_W2_PRINTOUT = /tmp: the printout cannot be read (IsADirectory'
+   an edited copy: loaded False, kinds None, HASH-2 ok False, refused '/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01c'
+   the genuine printout: loaded True, kinds 129, HASH-2 ok True, refused ''

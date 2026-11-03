@@ -1,0 +1,43 @@
+test_a_family_of_only_not_applicable_controls_is_not_ok (test_fr25_fixes.NotApplicable.test_a_family_of_only_not_applicable_controls_is_not_ok) ... ok
+test_p1_p2_without_an_object_are_not_applicable_not_fired (test_fr25_fixes.NotApplicable.test_p1_p2_without_an_object_are_not_applicable_not_fired)
+the review's exp_prefix (b): no pin read by an R26 reading ... ok
+test_ts1f_without_a_row_is_not_applicable_and_a_limit_below_1_is_refused (test_fr25_fixes.NotApplicable.test_ts1f_without_a_row_is_not_applicable_and_a_limit_below_1_is_refused) ... ok
+test_hash2_with_the_pinned_printout_holds (test_fr25_fixes.OnABundle.test_hash2_with_the_pinned_printout_holds) ... skipped 'set ZK60_D55_R13_BUNDLE to a registered R13 D55 capture (and install blake3)'
+test_hash2_without_the_printout_is_false_and_hc7_is_not_fired (test_fr25_fixes.OnABundle.test_hash2_without_the_printout_is_false_and_hc7_is_not_fired) ... skipped 'set ZK60_D55_R13_BUNDLE to a registered R13 D55 capture (and install blake3)'
+test_the_bundles_pins_and_controls (test_fr25_fixes.OnABundle.test_the_bundles_pins_and_controls) ... skipped 'set ZK60_D55_R13_BUNDLE to a registered R13 D55 capture (and install blake3)'
+test_a_list_cut_to_six_pins_is_refused (test_fr25_fixes.PinSet.test_a_list_cut_to_six_pins_is_refused)
+the review's exp_pins shape: only the terminal port's four plus two ... ok
+test_an_extra_or_a_duplicate_pin_is_refused (test_fr25_fixes.PinSet.test_an_extra_or_a_duplicate_pin_is_refused) ... ok
+test_controls_p4_and_p5_fire_on_the_rung_manifest (test_fr25_fixes.PinSet.test_controls_p4_and_p5_fire_on_the_rung_manifest) ... ok
+test_every_retained_d55_manifest_is_its_writers_set (test_fr25_fixes.PinSet.test_every_retained_d55_manifest_is_its_writers_set) ... ok
+test_the_honest_manifest_is_exactly_the_registered_set (test_fr25_fixes.PinSet.test_the_honest_manifest_is_exactly_the_registered_set) ... ok
+test_the_registered_list_is_run_captures_own_plus_shared_at_the_read_digest (test_fr25_fixes.PinSet.test_the_registered_list_is_run_captures_own_plus_shared_at_the_read_digest) ... ok
+test_the_writer_must_be_known_and_selects_its_set (test_fr25_fixes.PinSet.test_the_writer_must_be_known_and_selects_its_set) ... ok
+test_a_wrong_digest_printout_is_refused (test_fr25_fixes.Printout.test_a_wrong_digest_printout_is_refused)
+an edited copy that lists one more kind (the review's FR25-02 scenario) ... ok
+test_hash2_is_false_without_the_pinned_table (test_fr25_fixes.Printout.test_hash2_is_false_without_the_pinned_table) ... ok
+test_not_set_or_unreadable_is_refused (test_fr25_fixes.Printout.test_not_set_or_unreadable_is_refused) ... ok
+test_the_genuine_printout_is_the_pin_and_parses_as_before (test_fr25_fixes.Printout.test_the_genuine_printout_is_the_pin_and_parses_as_before) ... ok
+test_the_printout_names_the_s25_tests_rs_that_made_it (test_fr25_fixes.Printout.test_the_printout_names_the_s25_tests_rs_that_made_it) ... ok
+test_an_unaccepted_not_here_entry_blocks_pass (test_fr25_fixes.Status.test_an_unaccepted_not_here_entry_blocks_pass) ... ok
+test_no_controls_or_no_joint_never_gives_pass (test_fr25_fixes.Status.test_no_controls_or_no_joint_never_gives_pass) ... ok
+test_pins_not_ok_is_dev_pass_and_a_false_or_missing_part_is_not_ok (test_fr25_fixes.Status.test_pins_not_ok_is_dev_pass_and_a_false_or_missing_part_is_not_ok) ... ok
+test_the_accepted_residuals_are_the_one_review_verdict (test_fr25_fixes.Status.test_the_accepted_residuals_are_the_one_review_verdict) ... ok
+test_the_genuine_shape_is_pass_and_names_its_accepted_residual (test_fr25_fixes.Status.test_the_genuine_shape_is_pass_and_names_its_accepted_residual) ... ok
+test_the_w16_family_is_capped (test_fr25_fixes.Status.test_the_w16_family_is_capped) ... ok
+test_a_cut_or_extended_pin_list_is_refused (test_fr25_fixes.StubbedDriver.test_a_cut_or_extended_pin_list_is_refused) ... ok
+test_a_false_part_is_not_ok (test_fr25_fixes.StubbedDriver.test_a_false_part_is_not_ok) ... ok
+test_a_self_read_reading_is_owed_and_blocks_pass (test_fr25_fixes.StubbedDriver.test_a_self_read_reading_is_owed_and_blocks_pass) ... ok
+test_no_controls_and_no_joint_are_capped (test_fr25_fixes.StubbedDriver.test_no_controls_and_no_joint_are_capped) ... ok
+test_the_genuine_shape_is_d55_pass_with_its_record_fields (test_fr25_fixes.StubbedDriver.test_the_genuine_shape_is_d55_pass_with_its_record_fields) ... ok
+test_the_w16_family_is_capped (test_fr25_fixes.StubbedDriver.test_the_w16_family_is_capped) ... ok
+test_a_prefix_twin_of_a_w16_read_pin_is_unread (test_fr25_fixes.W16FullDigests.test_a_prefix_twin_of_a_w16_read_pin_is_unread)
+the review's exp_prefix (a): the 12-hex prefix and 52 zeros ... ok
+test_control_p3_fires_and_catches_a_prefix_rule (test_fr25_fixes.W16FullDigests.test_control_p3_fires_and_catches_a_prefix_rule) ... ok
+test_every_w16_reading_is_a_full_digest_and_agrees_with_round_26 (test_fr25_fixes.W16FullDigests.test_every_w16_reading_is_a_full_digest_and_agrees_with_round_26) ... ok
+test_the_full_digests_are_the_ones_the_round25_w16_bundles_declared (test_fr25_fixes.W16FullDigests.test_the_full_digests_are_the_ones_the_round25_w16_bundles_declared) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 0.129s
+
+OK (skipped=3)

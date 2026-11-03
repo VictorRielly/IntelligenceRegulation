@@ -1,0 +1,4 @@
+src/private_block/run_capture.rs declared at its W16-era digest d10d33e3e04f: read_here True, classify ok True, terminal-port ok False, pin_set ok True -> PINS ok False; the set was derived from run_capture.rs 10b6d3be860c
+src/private_block/run.rs declared at its W16-era digest b9b40cadef4a: read_here True, classify ok True, terminal-port ok False, pin_set ok True -> PINS ok False; the set was derived from run_capture.rs 10b6d3be860c
+src/private_block/run_capture.rs declared at its W16-era digest d10d33e3e04f: read_here True, classify ok True, terminal-port refusals not read [], pin_set ok True -> PINS ok True; the set was derived from run_capture.rs 10b6d3be860c
+src/private_block/run.rs declared at its W16-era digest b9b40cadef4a: read_here True, classify ok True, terminal-port refusals not read [], pin_set ok True -> PINS ok True; the set was derived from run_capture.rs 10b6d3be860c
