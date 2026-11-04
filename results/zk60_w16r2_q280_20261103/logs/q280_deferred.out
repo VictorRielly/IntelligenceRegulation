@@ -2,3 +2,13 @@
 q280_targeted.sh exit 0
 -rwxr-xr-x@ 1 victorrielly  staff  19165296 Nov  3 05:42 /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7e40cbdbbf3f1b5d/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-7ba0d0401b32d774
 == wait-gate-queue 05:50:39
+after_queue.done: 0 at 13:18:43
+== full-suite 13:18:43
+[zk60-guard 13:18:43] START q280-full class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=bc138f24972d
+[zk60-guard 13:23:00] END q280-full exit=101 child_wall=258s peak_rss=9.69G min_avail=230.10G
+test result: FAILED. 898 passed; 3 failed; 92 ignored; 0 measured; 0 filtered out; finished in 257.62s
+full-suite failures:
+private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+== done 13:23:00
