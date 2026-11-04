@@ -13,8 +13,9 @@ The plain-words version, the modelling choices and the open decisions are in
 `docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md`.
 
 **Status:**
-- `Statements.lean` holds STATEMENTS. None of `ProductionReady`, `ZeroKnowledge` or `SemanticHiding` is proved for
-  our protocol yet; the lemmas below are ingredients of `ZeroKnowledge`, proved about models of our commitment.
+- `Statements.lean` holds STATEMENTS. None of `ProductionReady`, `ZeroKnowledge`, `SemanticHiding` or
+  `KnowledgeSound` is proved for our protocol yet; the lemmas below are ingredients of `ZeroKnowledge` (step L4) and of
+  `KnowledgeSound` (step L3), proved about models of our commitment and of our IOP.
 - Proved so far (step L4, zero knowledge; every file builds with no `sorry` and no warnings, and `#print axioms`
   shows only `propext`, `Classical.choice`, `Quot.sound`):
   - `Hiding.lean`: the opened columns of a masked row are EXACTLY uniform for every message
@@ -59,6 +60,35 @@ The plain-words version, the modelling choices and the open decisions are in
     receipts, and the instance that connects them to `ZeroKnowledge`), is in each file's header and in
     `docs/zkmatrix-poc/ZK60_LEAN_L4_FINDINGS_20261104.md`.
   - A sanity check: the trivial arithmetization satisfies `CircuitIff`.
+- Proved so far (step L3, soundness of the IOP, foundations; interactive, with uniform independent challenges, no
+  Fiat–Shamir yet; same build and axiom checks as above):
+  - `SoundSchwartzZippel.lean`: a nonzero polynomial of degree `≤ d` over a finite field vanishes at a uniform point
+    with probability `≤ d/|F|` (`schwartzZippel`, `schwartzZippel_ne`), and the counting-to-probability lemmas the other
+    files use.
+  - `SoundSumcheck.lean`: the sumcheck as `zkp_core::sumcheck` runs it. Round messages are `d + 1` values at
+    `X = 0, …, d`; the verifier's `interpolate_eval` is the Lagrange interpolant (`interpEval_eq`), so the degree bound
+    is automatic once `d < char F` (`roundPoly_natDegree_le`). For a false claim and ANY prover strategy the verifier
+    accepts with probability `≤ n·d/|F|` (`sumcheck_sound`; one round, `sumcheck_sound_one_round`). The bound is
+    unchanged for the CFS-masked sumcheck on `f + c·g` with the claim `S + c·G` (`sumcheck_sound_masked`), and is
+    `(n + 1)·d/|F|` with the last-round extension (`sumcheck_sound_extended`), which is sound only because every slot
+    polynomial vanishes once its public inputs are zero (`extension_halves`).
+  - `SoundMultilinear.lean`: the same theorem in the code's own terms: tables on the cube, `poly` of total degree
+    `≤ d`, the terminal check `poly(finals)` (`sumcheck_sound_tables`, via `indDegLE_mle_comp`).
+  - `SoundLogUp.lean`: the LogUp identity `Σ_i 1/(X − a_i) = Σ_j m_j/(X − t_j)` in `RatFunc F` holds iff every value's
+    lookup count equals the table's multiplicity mass there (`logup_iff_counts`); with fewer lookups than `char F`
+    every looked-up value is then in the table, whatever the multiplicities (`logup_mem_of_eq`); the multiset form
+    with natural multiplicities (`logup_iff_multiset`); and a failing identity holds at a uniform non-pole `α` with
+    probability `≤ (|S| − 1)/|F| ≤ (N + M − 1)/|F|` (`logup_challenge_bound`, `logup_challenge_bound'`).
+  - `SoundLogUpBlock.lean`: LogUp with the code's helper columns (single and pair helpers, table helpers, the value-0
+    sum claim) and the `(β, γ)` tuple fold. A looked-up tuple outside the table survives `β, γ, α` with probability
+    `≤ (N + 4M − 1)/|F|`, `M` the distinct table tuples (`logup_block_bound`): the count's per-block LogUp term
+    `(N_lk + 4·T_d − 1)/|Fp2|`.
+  - `SoundZeroCheck.lean`: Schwartz–Zippel for the multilinear extension (`mle_zero_prob`, `n/|F|`), the zero-check
+    composed with the sumcheck (`zerocheck_sound`, `(n + n·(d + 1))/|F|`), and batching with independent coefficients
+    (`batch_prob`, `1/|F|`).
+  - The comparison with the counted figures, the code's departures from the textbook protocols, the findings and what
+    L3 still needs (the PCS, composition over slots and blocks, Fiat–Shamir, the instances) are in
+    `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).
