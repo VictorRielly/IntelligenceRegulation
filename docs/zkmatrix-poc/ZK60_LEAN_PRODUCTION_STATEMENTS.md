@@ -5,6 +5,12 @@
 statements of the ZKPs." This file proposes the precise statements. Nothing here is proved yet. The formalization
 is the last step before production; it does not hold up the latency work.
 
+**The statements are also written in Lean 4** (`formal/ZK60Formal/Statements.lean`; Lean 4.34.1, Mathlib v4.34.1;
+build with `lake -d formal build`). It states `CircuitIff`, `Complete`, `KnowledgeSound`, `Binding`,
+`ZeroKnowledge`, `SemanticHiding` and the bundle `ProductionReady` for an abstract profile. A real profile becomes
+an instance of its structures, and proving `ProductionReady` for that instance is the remaining work. The Lean text
+is the authoritative wording. The code blocks below are its readable sketch; where they differ, the Lean file wins.
+
 ## 1. In plain words
 
 **Statement 1, "the proof is right exactly when the answer is right."**
