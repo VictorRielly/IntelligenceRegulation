@@ -23,7 +23,7 @@ The honesty rules of `docs/zkmatrix-poc/ZK60_FUNDING_PLAN.md` apply: never round
 |---|---|---|
 | V1 | Your current job (employer and role) | "a full-time research position" (no employer named) |
 | V2 | Hours a week you will give the project | **10–15 hours a week** |
-| V3 | References: two people, with name, role and email | **Set (Victor, 2026-11-01):** (1) Bruno Jedynak, Portland State University, bruno.jedynak@pdx.edu; (2) Kamel Lahouel, Translational Genomics Research Institute (TGen), klahouel@tgen.org. The second name is inferred from the email and the shared papers: confirm it |
+| V3 | References: two people, with name, role and email | **Set (Victor, 2026-11-01):** two references chosen; their names and emails are kept in local files only, never in the repository |
 | V4 | How the money is received | **As an individual** for small grants. For grants above about $150k, through a fiscal sponsor or a company (section 9) |
 | V5 | US citizen or permanent resident? (federal programs only) | unknown; federal drafts leave it blank |
 | V6 | May a funder publish your name, the amount and a summary? | Yes, with the one-sentence summary only |
@@ -42,7 +42,7 @@ Source: Victor's CV (`~/Downloads/Resume.pdf`, saved 2026-11-01) and LinkedIn, c
 
 - **Name:** Victor Rielly
 - **Email:** victor23@pdx.edu
-- **Phone:** 971-271-0267 (local files only; never on a public page)
+- **Phone:** [phone: kept in local files only] (local files only; never on a public page)
 - **LinkedIn:** https://www.linkedin.com/in/victor-rielly-50508b3a/
 - **Location:** Portland, Oregon area, USA (Pacific time)
 - **Education:**

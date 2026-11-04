@@ -107,8 +107,8 @@ groups closest to this work. A newcomer starts from a documented codebase: a tas
 byte-identity acceptance.
 
 **References:**
-- Bruno Jedynak, Portland State University: bruno.jedynak@pdx.edu
-- Kamel Lahouel, Translational Genomics Research Institute: klahouel@tgen.org
+- Bruno Jedynak, Portland State University: [reference email: local files only]
+- Kamel Lahouel, Translational Genomics Research Institute: [reference email: local files only]
 
 ## 4. Logistics
 

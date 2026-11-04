@@ -52,7 +52,7 @@ fields, the facts you can draw on, and logistics.
   how well (1–4), and context (their title and links, what you worked on, when,
   for how long, how closely). They may be contacted without notice and asked
   to respond within a week, so tell them tonight.
-- Reference 1: the TGen contact, klahouel@tgen.org; full name
+- Reference 1: the TGen contact, [reference email: local files only]; full name
   **[VICTOR]**.
 - References 2 and 3: **[VICTOR]**, e.g. your PhD advisor and the Intel
   manager.

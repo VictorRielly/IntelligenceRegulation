@@ -6,7 +6,7 @@
 - The decision time is not stated. Aggregators (UNVERIFIED) say a Lambda Cloud account needs phone verification and a
   card on file.
 
-**Contact information:** Victor Rielly · 971-271-0267 · victor23@pdx.edu · Company: Hashline (optional field)
+**Contact information:** Victor Rielly · [phone: kept in local files only] · victor23@pdx.edu · Company: Hashline (optional field)
 
 **Related publications:**
 - arxiv.org/abs/2206.15215

@@ -141,9 +141,9 @@ paste the link here. [V]
 **30. Lobbying?** leave empty (none).
 
 **31. References:**
-> - Bruno Jedynak, bruno.jedynak@pdx.edu: Portland State University; co-author of my research. [V: confirm the role,
+> - Bruno Jedynak, [reference email: local files only]: Portland State University; co-author of my research. [V: confirm the role,
 >   e.g. PhD advisor]
-> - Kamel Lahouel, klahouel@tgen.org: TGen; co-author and research colleague. [V: confirm]
+> - Kamel Lahouel, [reference email: local files only]: TGen; co-author and research colleague. [V: confirm]
 
 **32. Referral to other funders:** Forward.
 

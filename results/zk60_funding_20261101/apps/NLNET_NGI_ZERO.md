@@ -34,7 +34,7 @@ later.
 ---
 
 ### Contact
-Victor Rielly · victor23@pdx.edu · 971-271-0267 · USA · Organisation: none (individual)
+Victor Rielly · victor23@pdx.edu · [phone: kept in local files only] · USA · Organisation: none (individual)
 
 ### Proposal name
 Hashline: open zero-knowledge proofs of private AI inference

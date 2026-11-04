@@ -116,5 +116,5 @@ be open and reviewable than owned by one company. The only fast competitor I kno
 If two funders cover the same budget line, I will tell both and take only one.
 
 **References:**
-- Bruno Jedynak (Portland State University), bruno.jedynak@pdx.edu
-- Kamel Lahouel (TGen), klahouel@tgen.org
+- Bruno Jedynak (Portland State University), [reference email: local files only]
+- Kamel Lahouel (TGen), [reference email: local files only]

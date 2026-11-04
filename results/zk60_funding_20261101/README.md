@@ -50,7 +50,7 @@ out. The biggest boosts are a named collaborator, something public, and one user
   applications.
 
 ## Your one-time answers (already applied in the drafts)
-- **References:** Bruno Jedynak (bruno.jedynak@pdx.edu); Kamel Lahouel (klahouel@tgen.org). Confirm Kamel's name.
+- **References:** Bruno Jedynak ([reference email: local files only]); Kamel Lahouel ([reference email: local files only]). Confirm Kamel's name.
 - **Full-time:** part-time now; if a program needs a full-time founder, you will arrange it if accepted.
 - **Still yours to answer:**
   - hours a week (the drafts say 10–15);
