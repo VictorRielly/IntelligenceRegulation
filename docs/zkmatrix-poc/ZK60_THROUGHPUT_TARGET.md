@@ -1,6 +1,25 @@
-# Current throughput target — 2026-09-26
+# Current throughput target — 2026-11-04 (D64): meet or exceed FlashProve
 
-Victor's latest direction: a complete private **8B-parameter forward-pass proof
+**Victor, 2026-11-04:** "we now have a new latency target to meet or exceed after anthropics announcement". The bar
+is Anthropic's FlashProve:
+- about **110 proved tokens/s** on one H100;
+- prefill, a batch of 24 requests of 1,024 tokens in about 223 s;
+- Llama 4 Maverick, about 17B active parameters per token, 4-bit integer weights;
+- the weights hidden, the prompt and the reply public.
+
+**Coordinator's reading, for Victor to confirm** (the measurement rules below are unchanged):
+- **Headline target:** at least 110 proved tokens/s on this document's clock: amortized over the whole workload,
+  witness work included, every receipt verified.
+  - It is for a complete private (P1) 8B forward pass on one GPU (RTX 5090 or H100).
+  - Batching concurrent requests is allowed, as FlashProve's figure is a 24-request batch; report the batch size and
+    the per-request latency beside the rate.
+- **Like-for-like stretch:** FlashProve proves about 17B active parameters per token, about 2.1× our 8B. Equal work
+  per second would be about 230 tok/s at 8B. Its weights are 4-bit; ours are 8-bit.
+- The ≥ 50 tok/s target below is superseded as the goal and kept as a milestone.
+
+## Previous target — 2026-09-26
+
+Victor's direction then: a complete private **8B-parameter forward-pass proof
 at >=50 proved tokens per second on an RTX 5090 or another high-end GPU**.
 Larger token workloads are acceptable to amortize initialization and initial
 prefill. This supersedes treating the historical 512-token window and its

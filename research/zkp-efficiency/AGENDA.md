@@ -1,5 +1,10 @@
 # Standing research agenda — Victor, 2026-09-26
 
+> **Target raised, 2026-11-04 (D64):** meet or exceed Anthropic's FlashProve, about **110 proved tokens/s** on one
+> GPU. That is the headline on `ZK60_THROUGHPUT_TARGET.md`'s clock (witness included; request batching allowed and
+> reported). The like-for-like stretch is about 230 tok/s at 8B, matching its about 17B active parameters per token.
+> Wherever this agenda says ≥ 50, read it as the milestone on the way; the goal is now ≥ 110.
+
 Victor expects the researcher to continuously ask and investigate questions
 like whether KV caching, larger proof windows, or reusable preprocessing can
 make a complete private 8B forward-pass proof sustain >=50 proved tokens/s
