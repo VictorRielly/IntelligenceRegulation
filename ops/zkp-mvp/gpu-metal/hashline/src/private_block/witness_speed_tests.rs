@@ -50,13 +50,40 @@ fn check(sh: &Shape, r: &mut Rng, xs: usize, inner: usize, outer: usize, os: usi
 fn every_product(sh: &Shape, seed: u64) {
     let mut r = Rng(seed);
     let (dp, fp, kvw) = (sh.d_pad, sh.f_pad, sh.kv_heads * sh.head_dim);
-    for (xlo, xhi) in [(-127i64, 127i64), (-32768, 32767), (-(1i64 << 40), 1i64 << 40)] {
+    // H124: (-32767, 32767) is the i16 fast path at its edge; (-32768, 32767) and
+    // (-(2^23 - 1), 2^23 - 1) take the i32 path; +-2^40 takes the i64 path
+    for (xlo, xhi) in [(-127i64, 127i64), (-32767, 32767), (-32768, 32767), (-(1i64 << 23) + 1, (1i64 << 23) - 1), (-(1i64 << 40), 1i64 << 40)] {
         // Wq, Wo (d -> d), Wk / Wv (d -> kvw): out-in
         check(sh, &mut r, dp, dp, dp, dp, false, xlo, xhi);
         check(sh, &mut r, dp, dp, kvw, kvw, false, xlo, xhi);
         // Wg / Wu (d -> f), Wd (f -> d): in-out
         check(sh, &mut r, dp, dp, fp, fp, true, xlo, xhi);
         check(sh, &mut r, fp, fp, dp, dp, true, xlo, xhi);
+    }
+}
+
+/// **H124: the i16 path is exact at its worst case.** Every product at its
+/// largest magnitude (|x| = 2^15 - 1, w = -128 or 127, one sign throughout),
+/// so each i32 block sum sits at its bound; at inner widths that span several
+/// blocks and end on a partial one.
+#[test]
+fn the_i16_products_are_exact_at_their_extremes() {
+    let sh = Shape::rung_c6();
+    for &(xv, wv) in &[(32767i64, -128i8), (-32767, -128), (32767, 127), (-32767, 127)] {
+        for &(inner, outer, in_out) in &[(1000usize, 7usize, false), (1000, 7, true), (513, 300, false), (513, 300, true)] {
+            let rows = sh.t_pad;
+            let mut x = vec![0i64; rows * inner];
+            for t in 0..sh.tokens {
+                for i in 0..inner {
+                    x[t * inner + i] = xv;
+                }
+            }
+            let w = vec![wv; inner * outer];
+            let out_len = rows * outer;
+            let want = witness::matmul_reference(sh.tokens, &x, inner, &w, inner, outer, outer, out_len, in_out);
+            let got = witness::matmul_parallel(&sh, &x, inner, &w, inner, outer, outer, out_len, in_out);
+            assert_eq!(got, want, "x = {xv}, w = {wv}, {inner} -> {outer}, in_out {in_out}");
+        }
     }
 }
 

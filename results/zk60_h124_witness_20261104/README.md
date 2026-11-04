@@ -32,3 +32,46 @@
   3. Building the witness inside each D55 fork, so it overlaps the proving.
 - **Acceptance:** byte-identical witnesses. The existing equality test (`the_parallel_products_equal_the_sequential_ones_*`)
   and the goldens hold the planes fixed.
+
+## Step 1 landed: an exact i16 fast path (2026-11-04)
+
+**What changed:** `witness::matmul` and `matmul_in_out` gain a third path. When every input word fits an i16
+(|x| < 2^15), products are summed exactly in i32 over blocks of 256 and widened to i64 between blocks: each product is
+at most 2^22, so each block sum is at most 2^30. The i32 path (|x| < 2^23) and the i64 path are unchanged.
+
+**Checks** [MEASURED, `check_i16.sh`, one guarded job; `check.progress`]:
+- **Exact:**
+  - parallel = sequential at the trained-rung and TinyLlama dimensions, for five input classes (int8; i16 at its edge
+    ±32767; i16 with −32768, which takes the i32 path; ±(2^23 − 1); ±2^40);
+  - a new worst-case test (`the_i16_products_are_exact_at_their_extremes`): every product at its largest size, one
+    sign throughout, over widths that span several blocks.
+- **Byte-identical:**
+  - the W16R2 rung golden (CPU = Metal) passes;
+  - the trained digests 2b0d04bb, 678953f6, 01a6d51d, c5e0bdac, 4e189ccc and a9a19ee5 (R13, W16 and W16R2, 8B and
+    Shieldstral) all reappear unchanged.
+- **Time, one W16R2 8B T128 block** [MEASURED, best of 3, shared box]:
+
+  | | before | after |
+  |---|---:|---:|
+  | whole witness, 32 threads | 0.438 s | 0.379 s |
+  | whole witness, 1 thread | 5.94 CPU s | 4.97 CPU s |
+  | the seven weight products, 32 threads | 0.361 s | 0.237 s |
+  | the seven weight products, 1 thread | 5.62 s | 4.08 s (about 6.8 G MACs/s) |
+
+  About 1.5× on the products and 1.16× on the whole witness. The compiler vectorized the loops only partly.
+
+## Next (H124b): exact products on the matrix hardware
+
+**The exactness argument:**
+- Every product `x w` and every partial sum here is an integer: |x| < 2^23, |w| ≤ 128, and at most 14,336 terms,
+  so every partial sum is below 2^44.
+- Every integer below 2^53 is exact in f64, so an f64 matrix product returns EXACTLY the same integers, in any
+  summation order, with or without fused multiply-add.
+
+**Where that leads:**
+- **On the Mac:** Apple's Accelerate `cblas_dgemm` runs on the matrix coprocessor. A block is 55.8 G f64 operations,
+  plus converting about 218 M int8 weights to f64. Cache the converted weights per model where memory allows.
+- **On the GPU:** integer kernels (Metal now, CUDA on the RTX 5090) with i32 block sums as above. 27.9 G MACs per block
+  is small for either.
+- **Overlap:** building each fork's witness inside the fork overlaps it with proving.
+- **Acceptance stays the same:** parallel = sequential, the goldens, and the pinned digests.
