@@ -1,0 +1,75 @@
+d55-mg-r13-rung-s0.json: D55-PASS -> D55-PASS  parts 18/18, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+d55-py-ctl-marked-gpu.json: D55-DEV-PASS -> D55-DEV-PASS  parts 12/12, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; TS-1 and the claim census; the full zero-data preimage (A and H at MSG != PAD); the hash census on the Python side; the reading of the unread pins / an admissible prover backend (PINS); the independent check of the self-read readings (READINGS_R26_WIRING.json) at the v25 freeze review
+d55-py-old-d60-rung-s0.json: D55-DEV-PASS -> D55-DEV-PASS  parts 12/12, controls True, joint True, printout pinned False, pin set False (73/75), W16 prefix reads []
+    below PASS: PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; TS-1 and the claim census; the full zero-data preimage (A and H at MSG != PAD); the hash census on the Python side; the reading of the unread pins / an admissible prover backend (PINS)
+d55-py-r13-8b-s0.json: D55-PASS -> D55-DEV-PASS  parts 12/12, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; TS-1 and the claim census; the full zero-data preimage (A and H at MSG != PAD); the hash census on the Python side
+d55-py-r13-8b-s1.json: D55-PASS -> D55-DEV-PASS  parts 12/12, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; TS-1 and the claim census; the full zero-data preimage (A and H at MSG != PAD); the hash census on the Python side
+d55-py-r13-rung-s0.json: D55-PASS -> D55-DEV-PASS  parts 12/12, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; TS-1 and the claim census; the full zero-data preimage (A and H at MSG != PAD); the hash census on the Python side
+d55-py-r13-rung-s1.json: D55-PASS -> D55-DEV-PASS  parts 12/12, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; TS-1 and the claim census; the full zero-data preimage (A and H at MSG != PAD); the hash census on the Python side
+d55-py-w16-rung-s0.json: D55-DEV-PASS -> D55-DEV-PASS  parts 11/11, controls True, joint True, printout pinned False, pin set False (74/76), W16 prefix reads []
+    below PASS: PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused
+    below PASS: the W16 family is capped at D55-DEV-PASS until its owed items are ported (T-0 and NL-1 on the seven W16-redefined slots, TS-1 and the claim census, the full preimage, the hash census; FR25-04)
+    below PASS: not_here lists items no decision or review accepts: T-0 terminal identity of the seven W16-redefined slots; NL-1 S1-S5 on them; TS-1 and the claim census; full preimage; hash census; the reading of the unread pins / an admissible prover backend (PINS)
+d55-py-w16-rung-s1.json: D55-DEV-PASS -> D55-DEV-PASS  parts 11/11, controls True, joint True, printout pinned False, pin set False (74/76), W16 prefix reads []
+    below PASS: PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused
+    below PASS: the W16 family is capped at D55-DEV-PASS until its owed items are ported (T-0 and NL-1 on the seven W16-redefined slots, TS-1 and the claim census, the full preimage, the hash census; FR25-04)
+    below PASS: not_here lists items no decision or review accepts: T-0 terminal identity of the seven W16-redefined slots; NL-1 S1-S5 on them; TS-1 and the claim census; full preimage; hash census; the reading of the unread pins / an admissible prover backend (PINS)
+d55-py-w16r2-rung-s0.json: D55-DEV-PASS -> D55-DEV-PASS  parts 11/11, controls True, joint True, printout pinned False, pin set False (74/76), W16 prefix reads []
+    below PASS: PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused
+    below PASS: the W16 family is capped at D55-DEV-PASS until its owed items are ported (T-0 and NL-1 on the seven W16-redefined slots, TS-1 and the claim census, the full preimage, the hash census; FR25-04)
+    below PASS: not_here lists items no decision or review accepts: T-0 terminal identity of the seven W16-redefined slots; NL-1 S1-S5 on them; TS-1 and the claim census; full preimage; hash census; the reading of the unread pins / an admissible prover backend (PINS)
+d55-py-w16r2-rung-s1.json: D55-DEV-PASS -> D55-DEV-PASS  parts 11/11, controls True, joint True, printout pinned False, pin set False (74/76), W16 prefix reads []
+    below PASS: PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused
+    below PASS: the W16 family is capped at D55-DEV-PASS until its owed items are ported (T-0 and NL-1 on the seven W16-redefined slots, TS-1 and the claim census, the full preimage, the hash census; FR25-04)
+    below PASS: not_here lists items no decision or review accepts: T-0 terminal identity of the seven W16-redefined slots; NL-1 S1-S5 on them; TS-1 and the claim census; full preimage; hash census; the reading of the unread pins / an admissible prover backend (PINS)
+w16-blk-w16_rung_h24-s0.json: W16-DEV-PASS -> D55-DEV-PASS  parts 7/7, controls False, joint False, printout pinned False, pin set False (71/None), W16 prefix reads []
+    below PASS: PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused
+    below PASS: the negative controls were not run (--no-controls)
+    below PASS: the run-level joint rank D55-J was not run (--no-joint)
+    below PASS: the W16 family is capped at D55-DEV-PASS until its owed items are ported (T-0 and NL-1 on the seven W16-redefined slots, TS-1 and the claim census, the full preimage, the hash census; FR25-04)
+    below PASS: not_here lists items no decision or review accepts: T-0 terminal identity of the seven W16-redefined slots; NL-1 S1-S5 on them; joint checks; TS-1 and the claim census; full preimage; hash census; the reading of the unread pins
+w16-blk-w16r2_rung_h24-s0.json: W16-DEV-PASS -> D55-DEV-PASS  parts 7/7, controls False, joint False, printout pinned False, pin set False (71/None), W16 prefix reads []
+    below PASS: PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused
+    below PASS: the negative controls were not run (--no-controls)
+    below PASS: the run-level joint rank D55-J was not run (--no-joint)
+    below PASS: the W16 family is capped at D55-DEV-PASS until its owed items are ported (T-0 and NL-1 on the seven W16-redefined slots, TS-1 and the claim census, the full preimage, the hash census; FR25-04)
+    below PASS: not_here lists items no decision or review accepts: T-0 terminal identity of the seven W16-redefined slots; NL-1 S1-S5 on them; joint checks; TS-1 and the claim census; full preimage; hash census; the reading of the unread pins
+d55-final-r13-8b-s0.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-r13-8b-s1.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-r13-rung-s0.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-r13-rung-s1.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-shield-t128-own-s0.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-shield-t128-own-s1.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-shield-t128-s0.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-shield-t128-s1.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-shield-t256-s0.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-shield-t256-s1.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-tiny-t128-s0.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-final-tiny-t128-s1.json: D55-PASS -> D55-DEV-PASS  parts 16/16, controls True, joint True, printout pinned True, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: NL-1 S1-S5 (the non-linear table checks) on the R13 slots; the full zero-data preimage (A and H at MSG != PAD)
+d55-py-r13-8b-s0.json: D55-PASS -> D55-DEV-PASS  parts 14/14, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: TS-1 and the claim census; the hash census on the Python side
+d55-py-r13-8b-s1.json: D55-PASS -> D55-DEV-PASS  parts 14/14, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: TS-1 and the claim census; the hash census on the Python side
+d55-py-r13-rung-s0.json: D55-PASS -> D55-DEV-PASS  parts 14/14, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: TS-1 and the claim census; the hash census on the Python side
+d55-py-r13-rung-s1.json: D55-PASS -> D55-DEV-PASS  parts 14/14, controls True, joint True, printout pinned False, pin set True (75/75), W16 prefix reads []
+    below PASS: not_here lists items no decision or review accepts: TS-1 and the claim census; the hash census on the Python side

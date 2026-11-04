@@ -98,6 +98,33 @@ refuses must be read by that classification.  "D55-PASS" is reachable: every
 part true, every pin at r19b or read, the backend admissible; a record whose
 pins include a SELF-READ reading (READINGS_R26_WIRING.json) names it, owed an
 independent check at the v25 freeze review.  Still not a privacy statement.
+
+[2026-11-02, v25 freeze fixes: gate round 27's FR25-01 .. -06, -11, -13]
+WHAT THE STATUS COUNTS (no check computes anything new; the status and the
+pins admit less):
+
+  * the status is one pure function, `d55_status`, of the parts, the PINS
+    verdict, the family, `not_here` and the two run flags, computed once at
+    the end.  "D55-PASS" needs, besides every part true and PINS ok: the
+    controls run AND the run-level joint rank run (FR25-03: either one off
+    caps the record at D55-DEV-PASS; `controls_run` / `joint_run` are in the
+    record), the R13 family (FR25-04: the W16 family is capped at
+    D55-DEV-PASS until its owed items are ported), and every `not_here` entry
+    an ACCEPTED RESIDUAL, `ACCEPTED_RESIDUALS`, each naming the review verdict
+    that accepts it (FR25-04; a self-read reading is owed, so not accepted);
+  * PINS also needs the declared pin SET to be exactly the expected set of a
+    KNOWN writer (`pin_set_check`, FR25-05: the registered writer's 75 files,
+    `OWN_SOURCE_FILES` + `SHARED_SOURCE_FILES` of run_capture.rs 10b6d3be;
+    the test-only writer adds three); a W16 reading reads a pin only at its
+    FULL digest (FR25-06, `zk60_native_rg_w16.W16_READINGS`), with control
+    P-3 on that path, and P-4 / P-5 remove a pin / add one;
+  * HASH-2 needs the PINNED Rust s25 printout (FR25-01 / -02,
+    `zk60_native_rg_d55hash.load_rust`);
+  * a control with nothing to act on is NOT APPLICABLE, never "fired"
+    (FR25-11: P-1 / P-2 here, TS-1F in `zk60_native_rg_d55ts`); a control
+    family needs at least one applicable control that fired;
+  * the three wiring readings carry the independent check (748fe707) as their
+    reader (FR25-13, `zk60_native_rg_r26readings`).
 """
 
 from __future__ import annotations
@@ -140,6 +167,63 @@ D55_LABELS = (
 # run_fork_wire.rs encode_head: magic (8), binding (32), L (8), the L - 1 roots, the S0 tag (32)
 HEAD_FIXED = 8 + 32 + 8 + 32
 SC_IO_IN, SC_IO_OUT = 21, 22
+
+# ---------------------------------------------------------------- [FR25-05] the writers and their pin sets
+# The manifest's `writer` strings, verbatim: run_capture.rs `write_fork_bundle`
+# (:4469) and w16_privacy_gate_tests.rs `write_fork_bundle` (:1966).
+REGISTERED_WRITER = "run_capture::write_bundle (a registered D55 run profile, D60)"
+TEST_ONLY_WRITER = "w16_privacy_gate_tests::write_fork_bundle (test-only)"
+# `source_files()` = OWN_SOURCE_FILES (44) then SHARED_SOURCE_FILES (31) of
+# run_capture.rs at the digest the freeze review read (git blob dd1195a2,
+# last changed by 23199feb), in that order.  Derived from the file by
+# results/zk60_gate_tinyllama_20261017/round27/fixes/derive_pins.py, and
+# re-derived from the file at this digest by the tests.
+RUN_CAPTURE_RS_READ = "10b6d3be860c73cd257e4b6b040b0351f10b993d8b1d1fdb5775057b71ef21c7"
+RUN_CAPTURE_RS_READ_BLOB = "dd1195a2995643d897bf994f90d82ce1d23107bf"
+REGISTERED_WRITER_PINS = (
+    "src/private_block/argument_accuracy.rs", "src/private_block/accuracy_act.rs", "src/private_block/accuracy_fold.rs",
+    "src/private_block/accuracy_layout.rs", "src/private_block/run_capture.rs", "src/private_block/run.rs",
+    "src/private_block/boundary.rs", "src/private_block/protocol.rs", "src/private_block/argument.rs",
+    "src/private_block/layout.rs", "src/private_block/plane_index.rs", "src/private_block/shape.rs",
+    "src/private_block/wire.rs", "src/private_block/run_sink.rs", "src/private_block/endpoint_g.rs",
+    "src/private_block/hash_domain.rs", "src/private_block.rs", "src/private_block/witness.rs",
+    "src/private_block/pad.rs", "src/private_block/trained_statement.rs", "src/private_block/token_io.rs",
+    "src/private_block/token_io/stage_in.rs", "src/private_block/token_io/stage_out.rs", "src/private_block/token_io/run.rs",
+    "src/private_block/token_io/load.rs", "src/private_block/token_io/cli.rs", "src/private_block/trained_block.rs",
+    "src/private_block/rope.rs", "src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs",
+    "src/private_block/accuracy.rs", "src/private_block/accuracy_aligned.rs", "src/private_block/accuracy_groups.rs",
+    "src/private_block/accuracy_precision.rs", "src/private_block/accuracy_public.rs", "src/private_block/accuracy_tables.rs",
+    "src/private_block/trained_accuracy.rs", "src/private_block/witness_accuracy.rs", "src/private_block/range16.rs",
+    "src/private_block/slot_ir.rs", "src/private_block/slot_ir_accuracy.rs", "src/private_block/metal_slot.rs",
+    "src/private_block/run_fork.rs", "src/private_block/run_fork_wire.rs",
+    "src/zk.rs", "src/tables_attn.rs", "src/causal_oracle.rs", "src/private_seam.rs", "src/export_v3.rs",
+    "src/field.rs", "src/merkle.rs", "src/mle.rs", "src/ntt.rs", "src/pcs.rs", "src/sumcheck.rs", "src/transcript.rs",
+    "../zkp-core/src/lib.rs", "../zkp-core/src/field.rs", "../zkp-core/src/hashtag.rs", "../zkp-core/src/merkle.rs",
+    "../zkp-core/src/mle.rs", "../zkp-core/src/ntt.rs", "../zkp-core/src/pcs.rs", "../zkp-core/src/pcs/backend.rs",
+    "../zkp-core/src/rng.rs", "../zkp-core/src/sumcheck.rs", "../zkp-core/src/transcript.rs",
+    "../zkp-core/src/pcs/encode_buffer.rs", "../zkp-core/src/sumcheck/rounds.rs", "../zkp-core/src/sumcheck/grouped.rs",
+    "src/gpu/mod.rs", "src/tables_v3.rs", "../zkp-core/src/tables.rs", "src/gpu/metal.rs", "src/gpu/metal_kernels.metal",
+)
+# w16_privacy_gate_tests.rs:1956: the test-only writer appends these three to
+# `source_pins()` unless already there (since D60 the first two are, so its
+# set is the 75 plus the test file)
+TEST_ONLY_EXTRA_PINS = ("src/private_block/run_fork.rs", "src/private_block/run_fork_wire.rs",
+                        "src/private_block/w16_privacy_gate_tests.rs")
+EXPECTED_PINS = {
+    REGISTERED_WRITER: frozenset(REGISTERED_WRITER_PINS),
+    TEST_ONLY_WRITER: frozenset(REGISTERED_WRITER_PINS) | frozenset(TEST_ONLY_EXTRA_PINS),
+}
+
+# ---------------------------------------------------------------- [FR25-04] the accepted residuals
+# A `not_here` entry that is in this list does not keep a record below
+# D55-PASS; every other entry does.  Each names the decision or review verdict
+# that accepts it.  Add an entry only with such a ruling.
+ACCEPTED_RESIDUALS = {
+    "G_k in the clear: recovered on SC_FZC, not read from a bound line":
+        "round 27 freeze review, §3 Q5 (to be recorded in the D60 row)",
+}
+W16_FAMILY_CAP = ("the W16 family is capped at D55-DEV-PASS until its owed items are ported (T-0 and NL-1 on the seven "
+                  "W16-redefined slots, TS-1 and the claim census, the full preimage, the hash census; FR25-04)")
 
 
 def _read(path: str) -> bytes:
@@ -759,16 +843,62 @@ def replay_controls(b: D55Bundle) -> dict:
     return out
 
 
+# ---------------------------------------------------------------- [FR25-05] the declared pin set
+def pin_set_check(manifest: dict) -> dict:
+    """[2026-11-02, v25 freeze fixes, FR25-05] the pin list a bundle declares
+    must be EXACTLY the expected set of a KNOWN writer (`EXPECTED_PINS`): an
+    unknown `writer`, a missing pin, an unexpected pin or a file pinned twice is
+    refused.  (The classification reads only the pins that are declared, so a
+    shortened list would otherwise pass.)"""
+    writer = manifest.get("writer")
+    files = [p.get("file") for p in manifest.get("source_pins", [])]
+    want = EXPECTED_PINS.get(writer) if isinstance(writer, str) else None
+    dup = sorted({f for f in files if files.count(f) > 1}, key=str)
+    rec = {"what": "the declared source-pin set against the expected set of the manifest's writer (FR25-05)",
+           "writer": writer, "writer_known": want is not None, "known_writers": sorted(EXPECTED_PINS),
+           "declared": len(files), "expected": len(want) if want is not None else None,
+           "expected_from": f"run_capture.rs {RUN_CAPTURE_RS_READ[:12]} OWN_SOURCE_FILES + SHARED_SOURCE_FILES"
+                            + (" + the test-only writer's three" if writer == TEST_ONLY_WRITER else ""),
+           "duplicates": dup}
+    if want is None:
+        rec.update(missing=None, unexpected=None, refused=f"the manifest's writer {writer!r} is not a known D55 bundle writer", ok=False)
+        return rec
+    have = set(files)
+    rec["missing"] = sorted(want - have)
+    rec["unexpected"] = sorted((f for f in have if f not in want), key=str)
+    rec["ok"] = not rec["missing"] and not rec["unexpected"] and not dup and len(files) == len(want)
+    return rec
+
+
 # ---------------------------------------------------------------- PINS controls (gate round 26)
+def _control_family_ok(out: dict) -> bool:
+    """[FR25-11] no control may have fired False, and each family (B-*, P-*)
+    needs at least one APPLICABLE control (fires not None) that fired"""
+    fams = {}
+    for k, v in out.items():
+        fams.setdefault(k.split("-", 1)[0], []).append(v["fires"])
+    return (bool(fams) and all(f is not False for fs in fams.values() for f in fs)
+            and all(any(f is True for f in fs) for fs in fams.values()))
+
+
 def pin_controls(b: D55Bundle, r19b_manifest: str) -> dict:
     """[2026-11-02, gate round 26] the classification on DOCTORED COPIES of the
     manifest (the bundle's files untouched): F-B1's backend rule -- B-1 the
     bundle marked GPU-made, B-2 the backend field removed, B-3 the field not a
     boolean, each REFUSED -- and the full-digest rule -- P-1 one R26-read pin's
     digest with the same 12-hex prefix and another tail, P-2 that pin at an
-    unknown digest, each UNREAD.  Every control must fire."""
+    unknown digest, each UNREAD.  Every control must fire.
+
+    [v25 freeze fixes] P-3 (FR25-06): a W16-READ pin -- one of this bundle's,
+    or, when it has none, a W16 reading's file and full digest written into the
+    copy -- is read at the reading's full digest and UNREAD at its 48-bit
+    prefix twin (prefix + 52 zeros, the review's construction).  P-4 / P-5
+    (FR25-05): one expected pin removed / one unexpected pin added: the pin set
+    is refused.  A control with nothing to act on is NOT APPLICABLE (`fires`
+    None, FR25-11), and each family (B-*, P-*) needs one that fired."""
     import copy
     import types
+    import zk60_native_rg_r26readings as R26
 
     def classify(man):
         return W.classify_pins(types.SimpleNamespace(manifest=man), r19b_manifest)
@@ -789,7 +919,7 @@ def pin_controls(b: D55Bundle, r19b_manifest: str) -> dict:
     for name, what, tail in (("P-1 prefix only", "the same 12-hex prefix, another tail", lambda d: d[:12] + ("0" if d[12] != "0" else "1") + d[13:]),
                              ("P-2 unknown digest", "a digest no reading names", lambda d: "f" * 64 if d != "f" * 64 else "e" * 64)):
         if victim is None:
-            out[name] = {"what": what, "no_object": "no pin of this bundle is read by an R26 reading", "fires": True}
+            out[name] = {"what": what, "not_applicable": "no pin of this bundle is read by an R26 reading", "fires": None}
             continue
         m = copy.deepcopy(b.manifest)
         for pin in m["source_pins"]:
@@ -797,8 +927,111 @@ def pin_controls(b: D55Bundle, r19b_manifest: str) -> dict:
                 pin["sha256"] = tail(pin["sha256"])
         p = classify(m)
         out[name] = {"what": f"{victim}: {what}", "fires": victim in [u["file"] for u in p["unread"]] and not p["ok"]}
-    return {"what": "gate round 26: F-B1's backend refusals and the full-digest rule, on doctored manifest copies",
-            "controls": out, "ok": all(v["fires"] for v in out.values())}
+    # P-3 (FR25-06): the W16 readings' path, at full digests
+    w16_read = [f for f in base["read_here"] if f in W.W16_READINGS and f not in base["readings_r26"]]
+    w16_only = [f for f, (d, _t) in sorted(W.W16_READINGS.items()) if (f, d[:12]) not in R26.R26_READINGS]
+    f3, injected = (sorted(w16_read)[0], False) if w16_read else ((w16_only[0], True) if w16_only else (None, None))
+    if f3 is None:
+        out["P-3 W16 reading, prefix twin"] = {"what": "a W16 reading's prefix twin", "fires": None,
+                                               "not_applicable": "every W16 reading is decided by a round-26 reading"}
+    else:
+        full = W.W16_READINGS[f3][0]
+        twin = full[:12] + ("0" * 52 if full[12:] != "0" * 52 else "1" * 52)
+
+        def at(d):
+            m = copy.deepcopy(b.manifest)
+            pins = m.setdefault("source_pins", [])
+            hit = [p for p in pins if p["file"] == f3]
+            for p in hit:
+                p["sha256"] = d
+            if not hit:
+                pins.append({"file": f3, "sha256": d})
+            return classify(m)
+        p_full, p_twin = at(full), at(twin)
+        read_at_full = f3 in p_full["read_here"]
+        twin_unread = f3 in [u["file"] for u in p_twin["unread"]] and not p_twin["ok"]
+        out["P-3 W16 reading, prefix twin"] = {
+            "what": f"{f3}: the W16 reading's full digest {full[:12]}.. is read, its 48-bit prefix twin {twin[:16]}.. is UNREAD"
+                    + (" (the file and digest written into the copy: no pin of this bundle is W16-read)" if injected else ""),
+            "injected": injected, "read_at_the_full_digest": read_at_full, "twin_unread": twin_unread,
+            "fires": read_at_full and twin_unread}
+    # P-4 / P-5 (FR25-05): the declared pin set
+    want = EXPECTED_PINS.get(b.manifest.get("writer"))
+    declared = [p["file"] for p in b.manifest.get("source_pins", [])]
+    gone = next((f for f in declared if want is not None and f in want), None)
+    if want is None or gone is None:
+        why = "the manifest's writer is not a known writer, so there is no expected set" if want is None else "no expected pin is declared"
+        out["P-4 a pin removed"] = {"what": "one expected pin removed from the list", "not_applicable": why, "fires": None}
+        out["P-5 an extra pin"] = {"what": "one unexpected pin added to the list", "not_applicable": why, "fires": None}
+    else:
+        m = copy.deepcopy(b.manifest)
+        m["source_pins"] = [p for p in m["source_pins"] if p["file"] != gone]
+        s4 = pin_set_check(m)
+        out["P-4 a pin removed"] = {"what": f"{gone} removed from the list", "missing": s4["missing"], "fires": not s4["ok"]}
+        extra = "src/private_block/s25_tests.rs"
+        m = copy.deepcopy(b.manifest)
+        m["source_pins"] = list(m["source_pins"]) + [{"file": extra, "sha256": "0" * 64}]
+        s5 = pin_set_check(m)
+        out["P-5 an extra pin"] = {"what": f"{extra} added to the list", "unexpected": s5["unexpected"], "fires": not s5["ok"]}
+    return {"what": "gate round 26: F-B1's backend refusals and the full-digest rule, on doctored manifest copies; the v25 freeze "
+                    "fixes' P-3 (a W16 reading's prefix twin) and P-4 / P-5 (the pin set)",
+            "controls": out, "not_applicable": [k for k, v in out.items() if v["fires"] is None],
+            "ok": _control_family_ok(out)}
+
+
+# ---------------------------------------------------------------- the status (v25 freeze fixes)
+STATUS_PASS, STATUS_DEV, STATUS_NOT_OK = "D55-PASS", "D55-DEV-PASS", "NOT-OK"
+
+
+def d55_status(parts: dict, pins_ok: bool, family: str, not_here: list, controls_run: bool, joint_run: bool) -> dict:
+    """[2026-11-02, v25 freeze fixes, FR25-03 / FR25-04 / FR25-14] THE STATUS,
+    as one pure function of what the record holds.
+
+      NOT-OK        some part is false (or there is no part)
+      D55-DEV-PASS  every part true, but at least one reason below: computed
+                    figures, NOT admissible evidence
+      D55-PASS      every part true and no reason
+
+    The reasons: PINS not ok (an unread pin, the pin set not the writer's, or
+    the backend refused); the negative controls not run (`--no-controls`);
+    the run-level joint rank not run (`--no-joint`); a family other than R13
+    (the W16 family is capped until its owed items are ported); a `not_here`
+    entry that is not an ACCEPTED_RESIDUALS entry.
+
+    FR25-03's choice: a run without its controls or its joint rank is CAPPED
+    at D55-DEV-PASS rather than given a status of its own.  DEV-PASS already
+    means "every part that ran is true, NOT admissible evidence", which is
+    exactly such a run; the status set stays closed, so every consumer that
+    admits only "D55-PASS" (D60's "a PASS record exists", the queue
+    summaries) stays correct with no change, and the reason is named in
+    `status_reasons`."""
+    reasons = []
+    if not pins_ok:
+        reasons.append("PINS is not ok: some pin is unread, the declared pin set is not the writer's, or the prover backend is refused")
+    if not controls_run:
+        reasons.append("the negative controls were not run (--no-controls)")
+    if not joint_run:
+        reasons.append("the run-level joint rank D55-J was not run (--no-joint)")
+    if family != "R13":
+        reasons.append(W16_FAMILY_CAP if family == "W16" else f"the family {family!r} is not R13")
+    unaccepted = [x for x in not_here if x not in ACCEPTED_RESIDUALS]
+    if unaccepted:
+        reasons.append("not_here lists items no decision or review accepts: " + "; ".join(unaccepted))
+    accepted = {x: ACCEPTED_RESIDUALS[x] for x in not_here if x in ACCEPTED_RESIDUALS}
+    if not parts or not all(parts.values()):
+        status, means = STATUS_NOT_OK, "some part is false"
+    elif reasons:
+        status = STATUS_DEV
+        means = "every part true, but: " + " | ".join(reasons) + " -- computed figures, NOT admissible evidence"
+    else:
+        status = STATUS_PASS
+        means = ("every part true, the controls and the run-level joint rank run, every pin read (at r19b, or by a W16 / gate "
+                 "round 26 reading at its full digest), the declared pin set exactly the writer's, the prover backend admissible "
+                 "(F-B1), and every not_here entry an accepted residual" + (
+                     " (" + "; ".join(f"{k} -- accepted by {v}" for k, v in accepted.items()) + ")" if accepted else ""))
+    return {"status": status, "status_means": means, "status_reasons": reasons,
+            "not_here_accepted": accepted, "not_here_unaccepted": unaccepted,
+            "controls_run": bool(controls_run), "joint_run": bool(joint_run)}
 
 
 # ---------------------------------------------------------------- the driver
@@ -822,7 +1055,9 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
            "privacy_acceptance": False, "bundle": b.name, "bundle_dir": b.dir, "profile": b.profile,
            "what_this_is": "the v25 D55 gate on ONE D55 fork-run capture (a W16 test-only identity, or a REGISTERED D55 "
                            "profile over an R13 base), synthetic public weights, at that run's real challenges; NOT a "
-                           "privacy statement"}
+                           "privacy statement",
+           # [FR25-03] which optional checks ran, in the record itself
+           "controls_run": bool(controls), "joint_run": bool(joint)}
     parts = {}
     rec["D55-0 integrity"] = d55_integrity(b)
     parts["D55-0 integrity"] = rec["D55-0 integrity"]["ok"]
@@ -907,25 +1142,19 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
         pins["terminal_port_refusals"] = {"what": "every pin the R13 terminal port's own check refuses, read by this classification",
                                           "refused_by_the_port": refused, "not_read_here": not_read, "ok": not not_read}
         pins["ok"] = bool(pins["ok"] and not not_read)
+    # [FR25-05] the declared pin SET must be exactly the writer's
+    pins["pin_set"] = pin_set_check(b.manifest)
+    pins["ok"] = bool(pins["ok"] and pins["pin_set"]["ok"])
     rec["PINS"] = pins
     if controls:
         rec["PINS controls"] = pin_controls(b, r19b_manifest if r19b_manifest is not None else W.default_r19b_manifest())
         parts["PINS controls"] = rec["PINS controls"]["ok"]
+    # the same dict: the parts the lane blocks below add are in the record too.
+    # [v25 freeze fixes] The status is computed ONCE, at the end (`d55_status`).
     rec["parts"] = parts
-    all_true = all(parts.values())
-    rec["status"] = "D55-PASS" if all_true and pins["ok"] else "D55-DEV-PASS" if all_true else "NOT-OK"
-    rec["status_means"] = {"D55-PASS": "every part true, every pin read (at r19b, or by a W16 / gate round 26 reading) and the "
-                                       "prover backend admissible (F-B1)" + (
-                                           "; the readings marked self-read ("
-                                           + ", ".join(pins["self_read_pending_independent_check"])
-                                           + ") are owed an independent check at the v25 freeze review"
-                                           if pins["self_read_pending_independent_check"] else ""),
-                           "D55-DEV-PASS": "every part true, but some pin is unread or the prover backend is refused (F-B1): "
-                                           "computed figures, NOT admissible evidence",
-                           "NOT-OK": "some part is false"}[rec["status"]]
     if not pins["backend"]["admissible"]:
         rec["backend_refused"] = pins["backend"]["refused"]
-    pin_items = ([] if pins["ok"] else ["the reading of the unread pins / an admissible prover backend (PINS)"]) + (
+    pin_items = ([] if pins["ok"] else ["the reading of the unread pins / the writer's exact pin set / an admissible prover backend (PINS)"]) + (
         ["the independent check of the self-read readings (READINGS_R26_WIRING.json) at the v25 freeze review"]
         if pins["self_read_pending_independent_check"] else [])
     if family == "W16":
@@ -946,8 +1175,8 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
     # (`zk60_native_rg_d55preimage`: the D12a run gate's stage 11, unchanged
     # functions).  Both need the replay; NL-1 needs R13-3's record, the preimage
     # the per-commitment views.  Each part that RAN leaves `not_here`.  These
-    # parts can only lower the status computed above: a false one makes the
-    # record NOT-OK; true ones leave it as it was.
+    # parts can only lower the status: a false one makes the record NOT-OK
+    # (`d55_status`, at the end); true ones leave it as it was.
     if family == "R13":
         import zk60_native_rg_d55nl as NLX
         import zk60_native_rg_d55preimage as PRX
@@ -963,9 +1192,6 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
             rec["not_here"] = [x for x in rec["not_here"] if x != PRX.NOT_HERE_CLOSED]
         else:
             parts[PRX.PART] = False
-        if not (parts[NLX.PART] and parts[PRX.PART]) and rec["status"] != "NOT-OK":
-            rec["status"] = "NOT-OK"
-            rec["status_means"] = "some part is false"
     # --- [NL-1 / PRE lane, 2026-11-02] end
     rec["tool_sha256"] = W.tool_hashes()
     # --- [TS / CENSUS lane, 2026-11-02] begin
@@ -977,8 +1203,8 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
     # census (C-R1 / C-R2 / W-2 / s25's per-function rule, MEASURED on this
     # process's own replay; `zk60_native_rg_d55hash`).  Computed only once the
     # replay reproduced the transcript, as every other figure part.  Each is a
-    # part: a false one makes the record NOT-OK.  The items they cover leave
-    # `not_here`.  The W16 path is unchanged.
+    # part: a false one makes the record NOT-OK (`d55_status`, at the end).
+    # The items they cover leave `not_here`.  The W16 path is unchanged.
     if family == "R13":
         import zk60_native_rg_d55hash as HSH
         import zk60_native_rg_d55ts as TSC
@@ -992,10 +1218,9 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
             rec[name] = part
             parts[name] = bool(part.get("ok"))
         rec["not_here"] = [x for x in rec["not_here"] if x not in ("TS-1 and the claim census", "the hash census on the Python side")]
-        if not all(parts.values()) and rec["status"] != "NOT-OK":
-            rec["status"] = "NOT-OK"
-            rec["status_means"] = "some part is false"
     # --- [TS / CENSUS lane, 2026-11-02] end
+    # [v25 freeze fixes, FR25-03 / FR25-04] the status, once, from what the record holds
+    rec.update(d55_status(parts, pins["ok"], family, rec["not_here"], controls, joint))
     rec["seconds"] = round(time.time() - t0, 1)
     return rec
 
@@ -1033,6 +1258,13 @@ def main(argv=None):
     be = pins.get("backend") or {}
     print(f"backend: proved_on_gpu {be.get('proved_on_gpu')}, admissible {be.get('admissible')}"
           + (f" -- REFUSED: {be.get('refused')}" if be.get("refused") else ""))
+    ps = pins.get("pin_set") or {}
+    print(f"pin set: writer {ps.get('writer')!r} known {ps.get('writer_known')}, {ps.get('declared')} declared / "
+          f"{ps.get('expected')} expected, missing {ps.get('missing')}, unexpected {ps.get('unexpected')}")
+    print(f"controls_run {rec.get('controls_run')}, joint_run {rec.get('joint_run')}; not_here accepted "
+          f"{list((rec.get('not_here_accepted') or {}))}, unaccepted {rec.get('not_here_unaccepted')}")
+    for r in rec.get("status_reasons") or []:
+        print(f"below D55-PASS because: {r}")
     print(f"status: {rec.get('status')} ({rec.get('seconds')} s) -> {path}")
     return 0 if rec.get("status") in ("D55-PASS", "D55-DEV-PASS") else 1
 

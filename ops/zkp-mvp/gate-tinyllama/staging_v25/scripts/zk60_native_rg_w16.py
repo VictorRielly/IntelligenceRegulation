@@ -62,7 +62,9 @@ WHAT IT RUNS (one record part each):
          read by the round-26 readings (`zk60_native_rg_r26readings`, at
          their FULL digest), and the bundle's prover backend must be
          admissible (F-B1: `proved_on_gpu` recorded, and false while the
-         Metal backend has no full reading).
+         Metal backend has no full reading).  [2026-11-02, v25 freeze fixes,
+         FR25-06] W16_READINGS carries FULL digests too and reads a pin by
+         equality: no 48-bit prefix reads a pin anywhere in this module.
 
 STATUS.  "W16-DEV-PASS" when every part is true but some pin is unread or a
 v24 pin table refuses: the figures were computed on the bundle as given and
@@ -526,46 +528,61 @@ def tab_control(bundle, facts) -> dict:
 # moved since r19b and READ in this session (diff r19b -> this tree, hunk by
 # hunk; `capture-tree-r19b` = frozen-r19b against the gpu-metal tree of
 # 2026-11-01).  A digest here is the bundle's declared one.
+#
+# [2026-11-02, v25 freeze fixes, FR25-06] FULL SHA-256 digests, matched by
+# EQUALITY (they were 12-hex prefixes, so a file sharing 48 bits with a read
+# digest was "read here").  Each is the digest the round-25 W16 bundles
+# declared for the pin this reading read: `W16-0 integrity.source_pins` of
+# every record in results/zk60_gate_tinyllama_20261017/round25/w16/ (five
+# records, all agree).  `run.rs` and `run_capture.rs` are also the git blobs
+# of commit efd2e515 (2026-11-01, the W16 privacy-gate commit: the
+# gpu-metal tree of 2026-11-01).  The other seven equal the round-26
+# readings' full digests at the same prefix (`R26_READINGS`, which decide for
+# them anyway).
 W16_READINGS = {
-    "src/private_block/run.rs": ("b9b40cadef4a",
+    "src/private_block/run.rs": ("b9b40cadef4ac98ad1c0820dd42c035d491298bc603c2536f2294df2fd1b44c6",
         "+7 / -0, one hunk: inside `registered_block_shape`, a `#[cfg(test)]` arm that admits the three TEST-ONLY "
         "W16 run identities (w16_privacy_gate_tests::W16_TEST_RUN_PROFILES); production text unchanged"),
-    "src/private_block/run_capture.rs": ("d10d33e3e04f",
+    "src/private_block/run_capture.rs": ("d10d33e3e04f5a35695023ed55c99d14398a1c3edecbf6c5db8f787e5feaaee1",
         "+24 / -2: `statement_table_at(sh, slot, nth, n_pub)` replaces `r13_statement_table` at the one call site; "
         "it returns R13's label everywhere except SC_TAB at a W16 shape, where only the ACT support (index 4 + #sub, "
         "of 5 + #sub + #narrow) is a statement table; the export replay treats that table as R13's fifth. "
         "No field added, none removed; the writer's key set and order are unchanged"),
-    "../zkp-core/src/transcript.rs": ("e766e9e14304",
+    "../zkp-core/src/transcript.rs": ("e766e9e14304a0d58bd17937f2afad490e0cc29e8c27094a0e8f14a96e8e134e",
         "+14 / -0: two read-only accessors, `counter()` and `fs_key()`, for the Metal device rounds; absorb, "
         "squeeze, challenge_* and the keyed form byte-identical"),
-    "../zkp-core/src/pcs.rs": ("856929b34333",
+    "../zkp-core/src/pcs.rs": ("856929b343335f44638f44d577af4808ce8efc3c4fae44634160efcf6876d224",
         "+1 / -1: the hiding opening's row folds hand `dc.fold_batch()` vectors per device call instead of 4; "
         "the same linear map in a different batching, prover side"),
-    "../zkp-core/src/merkle.rs": ("6b66c0bcf200",
+    "../zkp-core/src/merkle.rs": ("6b66c0bcf20042373794b30c1d04b7340163ae3e93117ed19166c593ebe819a7",
         "+50 / -0: `with_min_len(merkle_min_pairs())` on the two parallel level maps (the same hashes in the same "
         "order, only the task split) and an ignored bench test"),
-    "../zkp-core/src/rng.rs": ("f6728bd2d520",
+    "../zkp-core/src/rng.rs": ("f6728bd2d5208bb5b81f999d59baae12eb760a27811bdd2e0a5c309beba98aa2",
         "+107 / -6: `refill` factored into `block_bytes(key, counter)` (the same blake3(key || counter_le) XOF), "
         "a parallel `fill_fp` that `fp_vec` now calls, tested equal word for word and state for state to the "
         "`fp()` loop (`fill_fp_equals_the_draw_loop_and_leaves_the_same_state`); `new`, `from_os` unchanged"),
-    "../zkp-core/src/pcs/backend.rs": ("4f03047ac467",
+    "../zkp-core/src/pcs/backend.rs": ("4f03047ac467bbb0a6c2c26341f414846577fee44e29a6c8f01d53f78c55b462",
         "+8 / -0: `EncodedStore::fold_batch()` defaulting to 4 (the batching hint pcs.rs reads)"),
-    "../zkp-core/src/mle.rs": ("ed7f8849f48d",
+    "../zkp-core/src/mle.rs": ("ed7f8849f48df402c08b0a74a8119a9eff9aeecf4535847bbeceafa93459cebd",
         "+132 / -2: the eq-table parallel threshold as a constant, and a deferred column fold that accumulates "
         "exact i128 sums before one reduction (the same field values), prover side"),
-    "src/gpu/mod.rs": ("d7812f7d9404",
+    "src/gpu/mod.rs": ("d7812f7d9404b55963387a9f40270fbdd871f8b6c09378116967e5568643c4c6",
         "+106 / -5 in 5 hunks (corrected by gate round 26, F-B4; was '+111 / -?'): the Metal backend seam "
         "(`MetalBackend`, `MetalCommit` as an `EncodedStore`, its `try_commit*`), "
         "all behind `feature = \"gpu-metal\"`; the CPU build's seam is the core's `Cpu` backend as before"),
 }
+# where the full digests were found (FR25-06)
+W16_READINGS_DIGEST_SOURCE = (
+    "results/zk60_gate_tinyllama_20261017/round25/w16/*.json `W16-0 integrity.source_pins` (the bundles the W16 "
+    "readings read; five records agree); run.rs and run_capture.rs also = git blobs at efd2e515 (2026-11-01)")
 
 
 def classify_pins(bundle, r19b_manifest: str) -> dict:
     """[2026-11-02, gate round 26] a moved pin is read by the R26 readings
     (`zk60_native_rg_r26readings.R26_READINGS`: the FULL digest must equal the
     reading's; a CPU-PATH reading only on a bundle whose manifest says
-    `proved_on_gpu: false`) or by W16_READINGS (as before); any other digest is
-    UNREAD.  F-B1: the bundle's prover backend must be admissible
+    `proved_on_gpu: false`) or by W16_READINGS (since FR25-06 also at its FULL
+    digest, by equality); any other digest is UNREAD.  F-B1: the bundle's prover backend must be admissible
     (`zk60_native_rg_r26readings.gpu_backend`: a bundle that does not record
     `proved_on_gpu` is refused as UNKNOWN, a GPU-made one while the Metal
     backend has no full reading); `ok` needs both."""
@@ -589,9 +606,10 @@ def classify_pins(bundle, r19b_manifest: str) -> dict:
         elif r is not None:
             read_here.append(f)
             r26[f] = r
-        elif f in W16_READINGS and d.startswith(W16_READINGS[f][0]) and (f, d[:12]) not in R26.R26_READINGS:
-            # (a W16 reading names only a 12-hex prefix; where round 26 re-read
-            # that digest its FULL digest decides, so a prefix twin stays unread)
+        elif f in W16_READINGS and d == W16_READINGS[f][0] and (f, d[:12]) not in R26.R26_READINGS:
+            # [FR25-06] a W16 reading reads a pin only at its FULL digest (a
+            # 48-bit prefix alone never reads a pin); where round 26 re-read
+            # that digest its reading decides, as before
             read_here.append(f)
         else:
             u = {"file": f, "sha256": d[:12], "r19b": (want.get(key) or "absent")[:12]}

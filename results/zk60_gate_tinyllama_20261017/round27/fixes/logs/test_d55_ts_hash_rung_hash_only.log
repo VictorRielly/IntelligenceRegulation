@@ -1,0 +1,16 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_terminal_surjection_review/ts_review.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_terminal_surjection_review/ts_field.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_terminal_surjection_review/ts_components.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_the_hash_layer_and_census_and_every_control (test_d55_ts_hash.OnABundle.test_the_hash_layer_and_census_and_every_control) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.872s
+
+OK
+<sys>:0: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_r26/d55-r13_rung_h24-s0/arrays.bin'>

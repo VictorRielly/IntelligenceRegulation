@@ -21,10 +21,15 @@ alone never reads a pin, so a file crafted to share a prefix stays UNREAD).
 Then: the reading's scope, who read it, a one-line summary, and the pointer
 to the record.
 
-`.../round26/READINGS_R26_WIRING.json` adds three SELF-READ entries, to be
-checked independently at the v25 freeze review: `run_capture.rs` after this
-round's F-B1 change (on top of the run-level reader's cbb78dc0), and the two
-Metal backend files at the CPU-PATH scope only.
+`.../round26/READINGS_R26_WIRING.json` adds three entries the round-26 wiring
+read itself: `run_capture.rs` after this round's F-B1 change (on top of the
+run-level reader's cbb78dc0), and the two Metal backend files at the CPU-PATH
+scope only.  [2026-11-02, v25 freeze fixes, FR25-13] All three were checked
+independently in commit 748fe707 (`.../round26/READINGS_R26_WIRING_CHECK.md`,
+read-only, every digest re-hashed: SAFE at their scope), so their reader is
+now that check (`WIRING_CHECKED`), not SELF_READ.  The scope is unchanged:
+`metal.rs` and `metal_kernels.metal` stay CPU-PATH only (the check did not
+read the device code), so a GPU-made bundle is still refused.
 
 F-B1 (Low, the block reader).  `src/gpu/metal.rs` and
 `src/gpu/metal_kernels.metal` compute receipt bytes when a run proves on the
@@ -54,12 +59,21 @@ R26_DIR = "results/zk60_gate_tinyllama_20261017/round26/"
 R26_RUN = R26_DIR + "READINGS_R26_RUN.json"
 R26_BLOCK = R26_DIR + "READINGS_R26_BLOCK.json"
 R26_WIRING = R26_DIR + "READINGS_R26_WIRING.json"
+# FR25-13: the independent check of the three wiring readings (commit 748fe707)
+R26_WIRING_CHECK = R26_DIR + "READINGS_R26_WIRING_CHECK.md"
+R26_WIRING_CHECK_SHA256 = "3c3dae4a7504ed17b91630d3d8cce224c123f3fe121a1c7b46f10ca4893b0670"
+R26_WIRING_CHECK_COMMIT = "748fe7072c490b942b9535771345fc921758c27b"
 
 FULL = "full"
 CPU_PATH = "cpu-path"
 RUN_READER = "run-level reader (independent)"
 BLOCK_READER = "block-level reader (independent)"
+# no entry carries SELF_READ since FR25-13; the label stays defined so that a
+# future self-read entry is named as one (and is then owed a check: the D55
+# driver keeps such a record below D55-PASS, FR25-04)
 SELF_READ = "SELF-READ by the round-26 wiring (independent check owed at the v25 freeze review)"
+WIRING_CHECKED = ("round-26 wiring reading, independently checked (READINGS_R26_WIRING_CHECK.md, commit 748fe707, "
+                  "sha256 3c3dae4a; read-only, every digest re-hashed)")
 
 _D60 = "dd81ab4f (the four D60 bundles): the HEAD reading less commit ed519548's F3 / F4 / F7 / F8 and text hunks; no capture byte differs"
 
@@ -242,24 +256,26 @@ R26_READINGS = {
         "HEAD: the Metal backend seam behind gpu-metal (host-drawn pads and salts, hiding coset encode on the device, "
         "decline -> CPU), +106 / -5 in 5 hunks (F-B4); the backend it reaches is metal.rs (F-B1)",
         R26_BLOCK + " readings['src/gpu/mod.rs']"),
-    # ------------------------------------------------ the wiring's own (SELF-READ)
+    # ------------------------------------------------ the wiring's own, independently checked (FR25-13)
     ("src/private_block/run_capture.rs", "10b6d3be860c"): (
-        "10b6d3be860c73cd257e4b6b040b0351f10b993d8b1d1fdb5775057b71ef21c7", FULL, SELF_READ,
+        "10b6d3be860c73cd257e4b6b040b0351f10b993d8b1d1fdb5775057b71ef21c7", FULL, WIRING_CHECKED,
         "(test-only module) cbb78dc0 (the run-level reading) + round 26's F-B1 diff: metal.rs and metal_kernels.metal "
         "appended to SHARED_SOURCE_FILES, `proved_on_gpu` (= gpu::enabled()) in both manifest writers and on "
-        "ALLOWED_KEYS, the M26 pin comment corrected; no other byte",
-        R26_WIRING + " readings['src/private_block/run_capture.rs']"),
+        "ALLOWED_KEYS, the M26 pin comment corrected; no other byte (check: SAFE; W-1 Medium latent, W-2 Low)",
+        R26_WIRING + " readings['src/private_block/run_capture.rs']; checked in " + R26_WIRING_CHECK + " Pin 1"),
     ("src/gpu/metal.rs", "a96882bcc671"): (
-        "a96882bcc6716deedd37f56ba3846724a015c232f84a6d6e26f08667593a121d", CPU_PATH, SELF_READ,
+        "a96882bcc6716deedd37f56ba3846724a015c232f84a6d6e26f08667593a121d", CPU_PATH, WIRING_CHECKED,
         "CPU PATH ONLY: with gpu::enabled() false metal.rs is reached only through enabled() / label(), which return "
         "before ctx() unless HL_GPU=1, and every device entry is gated by gpu::enabled() at its caller; the device paths "
-        "are F-B1's (privacy-relevant paths read, no leak) -- NOT a full reading",
-        R26_WIRING + " readings['src/gpu/metal.rs']"),
+        "are F-B1's (privacy-relevant paths read, no leak) -- NOT a full reading (check: SAFE for receipt bytes on the "
+        "CPU path; W-3 Low)",
+        R26_WIRING + " readings['src/gpu/metal.rs']; checked in " + R26_WIRING_CHECK + " Pin 2"),
     ("src/gpu/metal_kernels.metal", "be9682364115"): (
-        "be9682364115ea8d94a2db6bfd68cc2ec6585c92448b1548813ef82a565b3b88", CPU_PATH, SELF_READ,
+        "be9682364115ea8d94a2db6bfd68cc2ec6585c92448b1548813ef82a565b3b88", CPU_PATH, WIRING_CHECKED,
         "CPU PATH ONLY: include_str! into metal.rs's SRC (:31), compiled to a device library only inside ctx() "
-        "(newLibraryWithSource), so never compiled or run when gpu::enabled() is false -- NOT read as kernel code",
-        R26_WIRING + " readings['src/gpu/metal_kernels.metal']"),
+        "(newLibraryWithSource), so never compiled or run when gpu::enabled() is false -- NOT read as kernel code "
+        "(check: SAFE on the CPU path)",
+        R26_WIRING + " readings['src/gpu/metal_kernels.metal']; checked in " + R26_WIRING_CHECK + " Pin 3"),
 }
 
 # F-B1: the files that compute receipt bytes only on the GPU path
