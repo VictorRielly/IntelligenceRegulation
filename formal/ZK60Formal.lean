@@ -10,3 +10,5 @@ import ZK60Formal.HidingMerkle
 import ZK60Formal.SoundSchwartzZippel
 import ZK60Formal.SoundSumcheck
 import ZK60Formal.SoundLogUp
+import ZK60Formal.SoundLogUpBlock
+import ZK60Formal.SoundZeroCheck

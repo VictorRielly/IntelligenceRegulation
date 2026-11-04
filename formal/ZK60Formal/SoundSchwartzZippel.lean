@@ -41,6 +41,37 @@ theorem prob_le_of_card_filter {α : Type} [Fintype α] [Nonempty α] (E : α �
   rw [Nat.card_eq_fintype_card, Fintype.card_ofFinset]
   simpa using h
 
+/-- A count scaled by `q`: if `|E| · q ≤ k · |Ω|`, then `Pr[E] ≤ k / q`. With `Ω = F^n` and `q = |F|` this turns a count
+of `k·|F|^(n−1)` bad points into the probability `k / |F|` without a subtraction in the exponent. -/
+theorem prob_le_of_card_mul {Ω : Type} [Fintype Ω] [Nonempty Ω] (E : Ω → Prop) [DecidablePred E] (k q : ℕ)
+    (hq : q ≠ 0) (h : (Finset.univ.filter E).card * q ≤ k * Fintype.card Ω) :
+    (PMF.uniformOfFintype Ω).toOuterMeasure {ω | E ω} ≤ (k : ℝ≥0∞) / q := by
+  rw [PMF.toOuterMeasure_uniformOfFintype_apply, Fintype.card_ofFinset]
+  have hq0 : (q : ℝ≥0∞) ≠ 0 := by exact_mod_cast hq
+  have hqt : (q : ℝ≥0∞) ≠ ⊤ := ENNReal.natCast_ne_top _
+  have hΩ0 : (Fintype.card Ω : ℝ≥0∞) ≠ 0 := by exact_mod_cast Fintype.card_ne_zero
+  have hΩt : (Fintype.card Ω : ℝ≥0∞) ≠ ⊤ := ENNReal.natCast_ne_top _
+  have hfilt : (Finset.univ.filter (fun ω => ω ∈ {ω | E ω})) = Finset.univ.filter E := by
+    ext ω
+    simp
+  rw [hfilt]
+  calc ((Finset.univ.filter E).card : ℝ≥0∞) / Fintype.card Ω
+      = ((Finset.univ.filter E).card * q : ℝ≥0∞) / (Fintype.card Ω * q) :=
+        (ENNReal.mul_div_mul_right _ _ hq0 hqt).symm
+    _ ≤ ((k * Fintype.card Ω : ℕ) : ℝ≥0∞) / (Fintype.card Ω * q) := by
+        gcongr
+        exact_mod_cast h
+    _ = (k : ℝ≥0∞) / q := by
+        rw [Nat.cast_mul, mul_comm (Fintype.card Ω : ℝ≥0∞) (q : ℝ≥0∞)]
+        exact ENNReal.mul_div_mul_right _ _ hΩ0 hΩt
+
+/-- Counting pairs by their first entry. -/
+theorem card_filter_prod {α β : Type} [Fintype α] [Fintype β] (E : α × β → Prop) [DecidablePred E] :
+    (Finset.univ.filter E).card = ∑ a : α, (Finset.univ.filter (fun b : β => E (a, b))).card := by
+  rw [Finset.card_filter, Fintype.sum_prod_type]
+  refine Finset.sum_congr rfl (fun a _ => ?_)
+  rw [Finset.card_filter]
+
 variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
 
 /-- A nonzero polynomial over a finite field vanishes at no more points than its degree. -/
