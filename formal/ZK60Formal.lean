@@ -1,2 +1,6 @@
 import ZK60Formal.Statements
 import ZK60Formal.Hiding
+import ZK60Formal.HidingRows
+import ZK60Formal.HidingOpening
+import ZK60Formal.HidingOpeningSum
+import ZK60Formal.HidingSumcheck
