@@ -475,14 +475,73 @@ fn dot16(x: &[i16], w: &[i8]) -> i64 {
         .sum()
 }
 
+/// H124 step 2: the i16 products TILED by output columns, so each weight row is read
+/// once for all `t_rows` tokens instead of once per token (the untiled loops re-read
+/// the whole matrix 128 times per block and were memory-bound). Each task owns a
+/// block of output columns for every token; partial sums are i32 over blocks of
+/// [`I16_BLOCK`] input indices (each |sum| <= 2^30), widened to i64 between blocks.
+/// Exact integer sums, so the plane equals the untiled one entry for entry.
+/// `in_out`: `w` stored (input, output), else (output, input).
+#[allow(clippy::too_many_arguments)]
+fn tiled16(t_rows: usize, x16: &[i16], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Vec<i64> {
+    use rayon::prelude::*;
+    let threads = rayon::current_num_threads().max(1);
+    let jb = (outer / (4 * threads)).clamp(16, 256) / 16 * 16;
+    let blocks: Vec<usize> = (0..outer).step_by(jb).collect();
+    let parts: Vec<(usize, usize, Vec<i64>)> = blocks
+        .par_iter()
+        .map(|&j0| {
+            let jn = jb.min(outer - j0);
+            let mut acc = vec![0i64; t_rows * jn];
+            if in_out {
+                let mut acc32 = vec![0i32; t_rows * jn];
+                for i0 in (0..inner).step_by(I16_BLOCK) {
+                    for i in i0..(i0 + I16_BLOCK).min(inner) {
+                        let wr = &w[i * outer + j0..i * outer + j0 + jn];
+                        for t in 0..t_rows {
+                            let xv = i32::from(x16[t * xs + i]);
+                            if xv != 0 {
+                                for (a, wv) in acc32[t * jn..(t + 1) * jn].iter_mut().zip(wr) {
+                                    *a += xv * i32::from(*wv);
+                                }
+                            }
+                        }
+                    }
+                    for (a, a32) in acc.iter_mut().zip(acc32.iter_mut()) {
+                        *a += i64::from(*a32);
+                        *a32 = 0;
+                    }
+                }
+            } else {
+                for dj in 0..jn {
+                    let wr = &w[(j0 + dj) * inner..(j0 + dj + 1) * inner];
+                    for t in 0..t_rows {
+                        acc[t * jn + dj] = dot16(&x16[t * xs..t * xs + inner], wr);
+                    }
+                }
+            }
+            (j0, jn, acc)
+        })
+        .collect();
+    let mut out = vec![0i64; out_len];
+    for (j0, jn, acc) in parts {
+        for t in 0..t_rows {
+            out[t * os + j0..t * os + j0 + jn].copy_from_slice(&acc[t * jn..(t + 1) * jn]);
+        }
+    }
+    out
+}
+
 /// `out[t, j] = sum_i x[t, i] * w[j, i]`, `w` stored (output, input), reading
 /// `x` at stride `xs` and writing at stride `os` on a plane of `out_len`.
 fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
     use rayon::prelude::*;
+    if let Some(x16) = narrow16(x) {
+        return tiled16(g.t, &x16, xs, w, inner, outer, os, out_len, false);
+    }
     let mut out = vec![0i64; out_len];
     let c = out_chunk(os, 256);
-    let x16 = narrow16(x);
-    let x32 = if x16.is_some() { None } else { narrow(x) };
+    let x32 = narrow(x);
     out.par_chunks_mut(c).enumerate().for_each(|(ci, chunk)| {
         let start = ci * c;
         let (t, j0) = (start / os, start % os);
@@ -492,10 +551,9 @@ fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, 
         let jn = (outer - j0).min(chunk.len());
         for (dj, o) in chunk[..jn].iter_mut().enumerate() {
             let wr = &w[(j0 + dj) * inner..(j0 + dj + 1) * inner];
-            *o = match (&x16, &x32) {
-                (Some(x16), _) => dot16(&x16[t * xs..t * xs + inner], wr),
-                (None, Some(x32)) => x32[t * xs..t * xs + inner].iter().zip(wr).map(|(a, b)| i64::from(a * i32::from(*b))).sum(),
-                (None, None) => x[t * xs..t * xs + inner].iter().zip(wr).map(|(a, b)| a * i64::from(*b)).sum(),
+            *o = match &x32 {
+                Some(x32) => x32[t * xs..t * xs + inner].iter().zip(wr).map(|(a, b)| i64::from(a * i32::from(*b))).sum(),
+                None => x[t * xs..t * xs + inner].iter().zip(wr).map(|(a, b)| a * i64::from(*b)).sum(),
             };
         }
     });
@@ -508,10 +566,12 @@ fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, 
 /// sequential form walked `w` at stride `outer`).
 fn matmul_in_out(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
     use rayon::prelude::*;
+    if let Some(x16) = narrow16(x) {
+        return tiled16(g.t, &x16, xs, w, inner, outer, os, out_len, true);
+    }
     let mut out = vec![0i64; out_len];
     let c = out_chunk(os, 512);
-    let x16 = narrow16(x);
-    let x32 = if x16.is_some() { None } else { narrow(x) };
+    let x32 = narrow(x);
     out.par_chunks_mut(c).enumerate().for_each(|(ci, chunk)| {
         let start = ci * c;
         let (t, j0) = (start / os, start % os);
@@ -520,29 +580,6 @@ fn matmul_in_out(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: 
         }
         let jn = (outer - j0).min(chunk.len());
         let acc = &mut chunk[..jn];
-        if let Some(x16) = &x16 {
-            // H124: i32 running sums over blocks of I16_BLOCK input rows (each
-            // |sum| <= I16_BLOCK * 2^22 = 2^30), widened into the i64 outputs
-            // between blocks; the same integers as the i64 path
-            let mut acc32 = [0i32; 512];
-            let acc32 = &mut acc32[..jn];
-            for i0 in (0..inner).step_by(I16_BLOCK) {
-                for i in i0..(i0 + I16_BLOCK).min(inner) {
-                    let xv = i32::from(x16[t * xs + i]);
-                    if xv != 0 {
-                        let wr = &w[i * outer + j0..i * outer + j0 + jn];
-                        for (a, wv) in acc32.iter_mut().zip(wr) {
-                            *a += xv * i32::from(*wv);
-                        }
-                    }
-                }
-                for (a, a32) in acc.iter_mut().zip(acc32.iter_mut()) {
-                    *a += i64::from(*a32);
-                    *a32 = 0;
-                }
-            }
-            return;
-        }
         for i in 0..inner {
             let wr = &w[i * outer + j0..i * outer + j0 + jn];
             match &x32 {

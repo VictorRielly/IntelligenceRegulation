@@ -75,3 +75,37 @@ at most 2^22, so each block sum is at most 2^30. The i32 path (|x| < 2^23) and t
   is small for either.
 - **Overlap:** building each fork's witness inside the fork overlaps it with proving.
 - **Acceptance stays the same:** parallel = sequential, the goldens, and the pinned digests.
+
+## Step 2 landed: the i16 products tiled by output columns (2026-11-04)
+
+**Why:** both product loops re-read the whole weight matrix once per token (128 times per block, about 59 MB per
+matrix each time), so they were memory-bound. Vectorizing alone (step 1) therefore gained little.
+
+**What changed:** `witness::tiled16` gives each rayon task a block of output columns for every token.
+- Each weight row is read once and reused across all tokens.
+- Partial sums are i32 over blocks of 256 input indices (each at most 2^30), widened to i64 between blocks.
+- The i32 and i64 paths are unchanged.
+
+**Checks** (`check_tiled.sh`, one guarded job, `tiled.progress`):
+- exact: the equality tests over five input classes at the rung and TinyLlama dimensions, and the worst-case test;
+- byte-identical: the W16R2 rung golden, and all six pinned trained digests (2b0d04bb, 678953f6, 01a6d51d, c5e0bdac,
+  4e189ccc, a9a19ee5);
+- no new compiler warnings.
+
+**Time, one W16R2 8B T128 block** [MEASURED, best of 3, shared box]:
+
+| | original | step 1 | step 2 (tiled) |
+|---|---:|---:|---:|
+| the seven weight products, 32 threads | 0.361 s | 0.237 s | **0.085 s** |
+| the seven weight products, 1 thread | 5.62 s | 4.08 s | **1.39 s** (about 20 G MACs/s) |
+| whole witness, 32 threads | 0.438 s | 0.379 s | **0.249 s** |
+| whole witness, 1 thread | 5.94 CPU s | 4.97 | **1.38 CPU s** |
+
+- **The products are now about 4.2× faster, and a block costs 4.3× less CPU.**
+- On 32 threads the rest of the builder (norms, RoPE, attention, lookups, limbs) is now most of the wall time: about
+  0.16 s of 0.25 s, because it scales poorly across threads.
+- The products-alone figure uses dense random words. The real block's inputs skip zeros, so on one thread its
+  products cost slightly less than this figure.
+- **Next:** parallelize the rest of the builder, and build several blocks' witnesses at once. The forward chain of
+  one request is serial, but its products are now cheap enough to compute the chain first and build the 32 witnesses
+  in parallel.

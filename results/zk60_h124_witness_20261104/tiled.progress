@@ -1,0 +1,12 @@
+2026-11-04T20:48:21Z start
+2026-11-04T20:50:38Z build rc=0
+2026-11-04T20:51:03Z equality (incl. TinyLlama dims, extremes, timing) rc=0
+2026-11-04T20:51:04Z w16r2 rung golden rc=0
+2026-11-04T20:51:32Z trained digests rc=0
+2026-11-04T20:51:32Z digest 2b0d04bb present
+2026-11-04T20:51:32Z digest 678953f6 present
+2026-11-04T20:51:32Z digest 01a6d51d present
+2026-11-04T20:51:32Z digest c5e0bdac present
+2026-11-04T20:51:32Z digest 4e189ccc present
+2026-11-04T20:51:32Z digest a9a19ee5 present
+2026-11-04T20:51:32Z all done
