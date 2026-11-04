@@ -1,0 +1,92 @@
+warm build: exit 0 (guard 0)
+== build 05:42:39
+[zk60-guard 05:42:39] START q280-build class=build need=6G cap=16G enforce=watchdog-only waited=0s run=f7b9010b35ff
+[zk60-guard 05:42:52] END q280-build exit=0 child_wall=13s peak_rss=2.03G min_avail=224.88G
+warnings: 133 (floor 133)
+-rwxr-xr-x@ 1 victorrielly  staff  19165296 Nov  3 05:42 /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7e40cbdbbf3f1b5d/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-7ba0d0401b32d774
+fd00944450c96682db47fa67aa521c907314343036e1347c80f01f11cee66dac  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7e40cbdbbf3f1b5d/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-7ba0d0401b32d774
+== targeted-cpu 05:42:52
+[zk60-guard 05:42:52] START q280-targeted-cpu class=cpu need=16G cap=80G enforce=watchdog-only waited=0s run=899e3a4502f9
+[zk60-guard 05:45:24] END q280-targeted-cpu exit=0 child_wall=152s peak_rss=7.43G min_avail=218.87G
+test result: ok. 248 passed; 0 failed; 28 ignored; 0 measured; 717 filtered out; finished in 151.39s
+
+ASSERTED: per opening 2^-113.932 at Q 280; 8B T128 whole run 2^-97.779 (2^-97.361 at Q 260); W16 2^-97.269 proven, 2^-97.783 attack;
+          proven reading W16R2 stronger by +0.510 bit; attack reading W16R2 short by 0.0038 bit, which no Q closes (limit -97.781)
+== targeted-metal 05:45:24
+[zk60-guard 05:45:24] START q280-targeted-metal class=gpu need=30G cap=120G enforce=watchdog-only waited=0s run=07e96287eb1f
+[zk60-guard 05:46:32] END q280-targeted-metal exit=0 child_wall=68s peak_rss=6.79G min_avail=214.75G peak_vram=7000MiB
+test result: ok. 134 passed; 0 failed; 23 ignored; 0 measured; 836 filtered out; finished in 68.31s
+== by-name-bundle 05:46:32
+[zk60-guard 05:46:32] START q280-byname class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=168e5eb74251
+[zk60-guard 05:48:42] END q280-byname exit=0 child_wall=130s peak_rss=10.82G min_avail=208.30G peak_vram=10773MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu c6d5c2d8d3e6656ca9a51f1bb7c23418d238fe7fe66f3f9157a75f2a5e42bddf metal c6d5c2d8d3e6656ca9a51f1bb7c23418d238fe7fe66f3f9157a75f2a5e42bddf
+W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu c6d5c2d8d3e6656ca9a51f1bb7c23418d238fe7fe66f3f9157a75f2a5e42bddf metal c6d5c2d8d3e6656ca9a51f1bb7c23418d238fe7fe66f3f9157a75f2a5e42bddf
+M4-TRAINED R13_8B_T128_H24 cpu 4.061 s metal-cold 1.091 s (prove core cpu 3.883 s metal 0.919 s; kernel compile 0.009 s, device sumcheck rounds 0.151 s; 1 slots without a matching IR; buffer pool 58 reused / 46 new) digest cpu 678953f646fcd
+M4-TRAINED R13_8B_T128_H24 cpu 4.061 s metal-warm 0.706 s (prove core cpu 3.883 s metal 0.530 s; kernel compile 0.000 s, device sumcheck rounds 0.138 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd1
+M4-TRAINED R13_8B_T128_H24 cpu 4.061 s metal-warm 0.689 s (prove core cpu 3.883 s metal 0.516 s; kernel compile 0.000 s, device sumcheck rounds 0.137 s; 1 slots without a matching IR; buffer pool 92 reused / 1 new) digest cpu 678953f646fcd1
+M4-TRAINED R13_8B_T128_H24 cpu 4.061 s metal-warm 0.682 s (prove core cpu 3.883 s metal 0.506 s; kernel compile 0.000 s, device sumcheck rounds 0.132 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd1
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.095 s metal-cold 0.853 s (prove core cpu 3.920 s metal 0.668 s; kernel compile 0.007 s, device sumcheck rounds 0.195 s; 1 slots without a matching IR; buffer pool 91 reused / 2 new) digest cpu 2b0d04bbf2
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.095 s metal-warm 0.775 s (prove core cpu 3.920 s metal 0.602 s; kernel compile 0.037 s, device sumcheck rounds 0.180 s; 1 slots without a matching IR; buffer pool 98 reused / 2 new) digest cpu 2b0d04bbf2
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.095 s metal-warm 0.720 s (prove core cpu 3.920 s metal 0.547 s; kernel compile 0.000 s, device sumcheck rounds 0.170 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf2
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.095 s metal-warm 0.721 s (prove core cpu 3.920 s metal 0.548 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf2
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.641 s metal-cold 0.739 s (prove core cpu 1.504 s metal 0.598 s; kernel compile 0.008 s, device sumcheck rounds 0.092 s; 0 slots without a matching IR; buffer pool 90 reused / 10 new) digest cpu 01a6d51d3
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.641 s metal-warm 0.517 s (prove core cpu 1.504 s metal 0.378 s; kernel compile 0.000 s, device sumcheck rounds 0.086 s; 0 slots without a matching IR; buffer pool 98 reused / 2 new) digest cpu 01a6d51d3b
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.641 s metal-warm 0.506 s (prove core cpu 1.504 s metal 0.371 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 99 reused / 1 new) digest cpu 01a6d51d3b
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.641 s metal-warm 0.505 s (prove core cpu 1.504 s metal 0.367 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3
+M4-TRAINED W16_8B_T128_H24 cpu 1.541 s metal-cold 0.558 s (prove core cpu 1.401 s metal 0.422 s; kernel compile 0.006 s, device sumcheck rounds 0.081 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc4
+M4-TRAINED W16_8B_T128_H24 cpu 1.541 s metal-warm 0.494 s (prove core cpu 1.401 s metal 0.357 s; kernel compile 0.000 s, device sumcheck rounds 0.076 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc4
+M4-TRAINED W16_8B_T128_H24 cpu 1.541 s metal-warm 0.529 s (prove core cpu 1.401 s metal 0.393 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc4
+M4-TRAINED W16_8B_T128_H24 cpu 1.541 s metal-warm 0.512 s (prove core cpu 1.401 s metal 0.377 s; kernel compile 0.000 s, device sumcheck rounds 0.078 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc4
+M4-TRAINED W16R2_RUNG_H24 cpu 0.530 s metal-cold 0.382 s (prove core cpu 0.439 s metal 0.278 s; kernel compile 0.011 s, device sumcheck rounds 0.049 s; 0 slots without a matching IR; buffer pool 55 reused / 14 new) digest cpu fa656326974d20
+M4-TRAINED W16R2_RUNG_H24 cpu 0.530 s metal-warm 0.298 s (prove core cpu 0.439 s metal 0.195 s; kernel compile 0.000 s, device sumcheck rounds 0.040 s; 0 slots without a matching IR; buffer pool 65 reused / 0 new) digest cpu fa656326974d205
+M4-TRAINED W16R2_RUNG_H24 cpu 0.530 s metal-warm 0.284 s (prove core cpu 0.439 s metal 0.192 s; kernel compile 0.000 s, device sumcheck rounds 0.034 s; 0 slots without a matching IR; buffer pool 79 reused / 0 new) digest cpu fa656326974d205
+M4-TRAINED W16R2_RUNG_H24 cpu 0.530 s metal-warm 0.268 s (prove core cpu 0.439 s metal 0.176 s; kernel compile 0.000 s, device sumcheck rounds 0.033 s; 0 slots without a matching IR; buffer pool 71 reused / 1 new) digest cpu fa656326974d205
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.782 s metal-cold 0.564 s (prove core cpu 1.638 s metal 0.420 s; kernel compile 0.006 s, device sumcheck rounds 0.097 s; 0 slots without a matching IR; buffer pool 98 reused / 2 new) digest cpu a9a19ee5
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.782 s metal-warm 0.508 s (prove core cpu 1.638 s metal 0.363 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu a9a19ee
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.782 s metal-warm 0.514 s (prove core cpu 1.638 s metal 0.370 s; kernel compile 0.001 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 106 reused / 1 new) digest cpu a9a19ee
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.782 s metal-warm 0.506 s (prove core cpu 1.638 s metal 0.362 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu a9a19ee
+M4-TRAINED W16R2_8B_T128_H24 cpu 2.707 s metal-cold 0.539 s (prove core cpu 2.562 s metal 0.394 s; kernel compile 0.006 s, device sumcheck rounds 0.084 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 4e189ccc9c8
+M4-TRAINED W16R2_8B_T128_H24 cpu 2.707 s metal-warm 0.511 s (prove core cpu 2.562 s metal 0.365 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 4e189ccc9c8
+M4-TRAINED W16R2_8B_T128_H24 cpu 2.707 s metal-warm 0.495 s (prove core cpu 2.562 s metal 0.349 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 4e189ccc9c8
+M4-TRAINED W16R2_8B_T128_H24 cpu 2.707 s metal-warm 0.501 s (prove core cpu 2.562 s metal 0.358 s; kernel compile 0.000 s, device sumcheck rounds 0.082 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 4e189ccc9c8
+W16R2 trained digest at Q 280: W16R2_8B_T128_H24 cpu = metal 4e189ccc at 4 passes
+W16R2 trained digest at Q 280: W16R2_SHIELD_T128_H24 cpu = metal a9a19ee5 at 4 passes
+W16R2 trained digest at Q 280: W16R2_RUNG_H24 cpu = metal fa656326 at 4 passes
+pg_metal_rung: 20 PASS, 0 FAIL lines
+W16-PG W16R2_RUNG_H24@metal PG-R2 geometry PASS 4 regular openings at rate 1/2, Q = pads = 280 (clear vectors n + 280); every pad block of the production encoder (coset 7) has full rank at its distinct opened positions (smallest pad margin 0, 3 repeated indice
+W16-PG W16R2_RUNG_H24@metal C-R2a systematic-domain PASS fires: on the systematic domain the pad block at A's 280 distinct opened positions has rank 142 (positions where the pads add nothing)
+W16-PG W16R2_RUNG_H24@metal C-R2b fewer-pads-than-opened PASS fires: with 256 pads (W16's 256, or d - 1) the pad block at 280 distinct opened positions has rank 256
+W16-PG W16R2_RUNG_H24@metal C-R2c w16-geometry PASS fires: protocol::pcs_params_at gives log 14 rate 1/2 Q 280, the gate wants log 14 rate 1/4 Q 256
+pg_metal_8b: 20 PASS, 0 FAIL lines
+W16-PG W16R2_8B_T128_H24@metal PG-R2 geometry PASS 4 regular openings at rate 1/2, Q = pads = 280 (clear vectors n + 280); every pad block of the production encoder (coset 7) has full rank at its distinct opened positions (smallest pad margin 0, 1 repeated ind
+W16-PG W16R2_8B_T128_H24@metal C-R2a systematic-domain PASS fires: on the systematic domain the pad block at A's 280 distinct opened positions has rank 145 (positions where the pads add nothing)
+W16-PG W16R2_8B_T128_H24@metal C-R2b fewer-pads-than-opened PASS fires: with 256 pads (W16's 256, or d - 1) the pad block at 280 distinct opened positions has rank 256
+W16-PG W16R2_8B_T128_H24@metal C-R2c w16-geometry PASS fires: protocol::pcs_params_at gives log 14 rate 1/2 Q 280, the gate wants log 14 rate 1/4 Q 256
+pg_cpu_8b: 22 PASS, 0 FAIL lines
+W16-PG W16R2_8B_T128_H24 PG-R2 geometry PASS 4 regular openings at rate 1/2, Q = pads = 280 (clear vectors n + 280); every pad block of the production encoder (coset 7) has full rank at its distinct opened positions (smallest pad margin 0, 3 repeated indices i
+W16-PG W16R2_8B_T128_H24 C-R2a systematic-domain PASS fires: on the systematic domain the pad block at A's 280 distinct opened positions has rank 138 (positions where the pads add nothing)
+W16-PG W16R2_8B_T128_H24 C-R2b fewer-pads-than-opened PASS fires: with 256 pads (W16's 256, or d - 1) the pad block at 280 distinct opened positions has rank 256
+W16-PG W16R2_8B_T128_H24 C-R2c w16-geometry PASS fires: protocol::pcs_params_at gives log 14 rate 1/2 Q 280, the gate wants log 14 rate 1/4 Q 256
+W16-PG W16R2_8B_T128_H24 PG-R2 geometry (second capture) PASS 4 regular openings at rate 1/2, Q = pads = 280 (clear vectors n + 280); every pad block of the production encoder (coset 7) has full rank at its distinct opened positions (smallest pad margin 0, 5 r
+pg_cpu_rung: 22 PASS, 0 FAIL lines
+W16-PG W16R2_RUNG_H24 PG-R2 geometry PASS 4 regular openings at rate 1/2, Q = pads = 280 (clear vectors n + 280); every pad block of the production encoder (coset 7) has full rank at its distinct opened positions (smallest pad margin 0, 6 repeated indices in a
+W16-PG W16R2_RUNG_H24 C-R2a systematic-domain PASS fires: on the systematic domain the pad block at A's 280 distinct opened positions has rank 122 (positions where the pads add nothing)
+W16-PG W16R2_RUNG_H24 C-R2b fewer-pads-than-opened PASS fires: with 256 pads (W16's 256, or d - 1) the pad block at 280 distinct opened positions has rank 256
+W16-PG W16R2_RUNG_H24 C-R2c w16-geometry PASS fires: protocol::pcs_params_at gives log 14 rate 1/2 Q 280, the gate wants log 14 rate 1/4 Q 256
+W16-PG W16R2_RUNG_H24 PG-R2 geometry (second capture) PASS 4 regular openings at rate 1/2, Q = pads = 280 (clear vectors n + 280); every pad block of the production encoder (coset 7) has full rank at its distinct opened positions (smallest pad margin 0, 3 repe
+pg_d55_rung: 25 PASS, 0 FAIL lines
+W16-PG W16R2_RUNG_H24 D55 PG-R2 geometry PASS 10 regular openings at rate 1/2, Q = pads = 280 (clear vectors n + 280); every pad block of the production encoder (coset 7) has full rank at its distinct opened positions (smallest pad margin 0, 13 repeated indice
+W16-PG W16R2_RUNG_H24 D55 C-R2a systematic-domain PASS fires: on the systematic domain the pad block at A's 278 distinct opened positions has rank 141 (positions where the pads add nothing)
+W16-PG W16R2_RUNG_H24 D55 C-R2b fewer-pads-than-opened PASS fires: with 256 pads (W16's 256, or d - 1) the pad block at 278 distinct opened positions has rank 256
+W16-PG W16R2_RUNG_H24 D55 C-R2c w16-geometry PASS fires: protocol::pcs_params_at gives log 14 rate 1/2 Q 280, the gate wants log 14 rate 1/4 Q 256
+W16-PG W16R2_RUNG_H24 D55 PG-R2 tail (boundaries + endpoints) PASS 4 regular openings at rate 1/2, Q = pads = 280 (clear vectors n + 280); every pad block of the production encoder (coset 7) has full rank at its distinct opened positions (smallest pad margin 0
+== done 05:48:43
+failed checks: 0

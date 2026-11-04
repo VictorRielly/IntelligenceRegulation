@@ -20,9 +20,18 @@
 //!       which is disjoint from G_n, so NO opened position is systematic
 //!       and the sampling stays uniform over all 4n columns. The code is
 //!       RS(n + Q, 4n) on the coset: rate 0.254, distance 0.7455,
-//!       (1 - delta/3)^Q = 2^-105.6 at Q = 256 (the memo's number); the
+//!       (1 - delta/3)^Q = 2^-105.6 at Q = 256 (the memo's number; D15's
+//!       general-code count, delta = 1 - (n + Q)/N, which is what prices
+//!       every opening of THIS path and the masking commitment M); the
 //!       NTT sizes are unchanged (n + Q coefficients zero-padded to 4n;
-//!       the coset is a coefficient scaling by h^i).
+//!       the coset is a coefficient scaling by h^i). (D59, 2026-11-01:
+//!       the private-block W16R2 profiles encode their A, H, boundary and
+//!       endpoint commitments at rate 1/2, RS(n + Q, 2n), Q = q_pad = 280,
+//!       and count them at the unique-decoding radius instead, BCIKS20
+//!       Thm 3.1: (1 - (e + 1)/N)^Q, e = floor((N - n - Q)/2), plus
+//!       N/|F_p^2|, 2^-113.93 per opening at n = 2^14; the regime is a
+//!       profile fact, `private_block::shape::ColumnRegime`. M keeps this
+//!       module's rate 1/4 and delta/3 count at every profile.)
 //!  (ii) MASK ROWS: one uniformly random row (n symbols + pads) per
 //!       (private table, opening point) pair, committed WITH the data.
 //!       The memo's "v' = rho^T M + u with u's inner product read off"
@@ -2029,9 +2038,13 @@ mod tests {
 // "layer-v3-{l}", so a v3 ZK proof never shares randomness with a v2 one.
 // Soundness parameters unchanged and stated: Goldilocks + F_{p^2}
 // challenges, RS(n + Q, 4n) on the coset (distance 0.7455), Q = 256
-// column checks, (1 - delta/3)^Q = 2^-105.6; the mask commitment RS(1024,
-// 4096) with 256 checks. The v2 ZK path (`--zk` alone) and the non-zk
-// paths are untouched (the three byte gates re-run at rung 0).
+// column checks, (1 - delta/3)^Q = 2^-105.6 (D15's general-code count,
+// delta = 1 - (n + Q)/N; this layer path is never counted at the
+// unique-decoding radius, which D59 admits only for the private-block
+// W16R2 profiles' rate-1/2 regular openings, see the module header); the
+// mask commitment RS(1024, 4096) with 256 checks, delta/3 everywhere. The
+// v2 ZK path (`--zk` alone) and the non-zk paths are untouched (the three
+// byte gates re-run at rung 0).
 // ===========================================================================
 
 use crate::export_v3::V3Witness;

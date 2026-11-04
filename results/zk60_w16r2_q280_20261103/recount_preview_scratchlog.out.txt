@@ -1,0 +1,144 @@
+====================================================================================================
+count.py (results/zk60_w16r2_20261101/count.py), W16R2 Q = 280, inputs checked against /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7e40cbdbbf3f1b5d/results/zk60_w16r2_20261101/logs/close/q280_experiment_tests.log
+====================================================================================================
+inputs: all 6 profiles' values equal the code's printed lines in /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7e40cbdbbf3f1b5d/results/zk60_w16r2_20261101/logs/close/q280_experiment_tests.log
+
+== per regular opening (A, H, a boundary, an endpoint)
+profile                  rule          n      N    Q      K      e     column      field       both
+W16R2_8B_T128_H24        delta/2   16384  32768  280  16664   8052   -113.932   -112.830   -112.278
+W16_8B_T128_H24          delta/3   16384  65536  256  16640  16298   -105.609   -113.684   -105.604
+W16R2_SHIELD_T128_H24    delta/2   16384  32768  280  16664   8052   -113.932   -112.830   -112.278
+W16_SHIELD_T128_H24      delta/3   16384  65536  256  16640  16298   -105.609   -113.684   -105.604
+W16R2_RUNG_H24           delta/2   16384  32768  280  16664   8052   -113.932   -112.830   -112.278
+W16_RUNG_H24             delta/3   16384  65536  256  16640  16298   -105.609   -113.684   -105.604
+M (both)                 delta/3     512   4096  256   1024   1024   -106.250   -115.678   -106.248
+
+== per block: LogUp, sumcheck, zero-check allowance
+W16R2_8B_T128_H24        N_lk  34,897,920 T_d  127,668  LogUp 2^-102.922  sumcheck 2^-117.898  zero-check 2^-117.797
+W16_8B_T128_H24          N_lk  34,897,920 T_d  127,668  LogUp 2^-102.922  sumcheck 2^-117.898  zero-check 2^-117.797
+W16R2_SHIELD_T128_H24    N_lk  34,897,920 T_d  127,668  LogUp 2^-102.922  sumcheck 2^-117.821  zero-check 2^-117.797
+W16_SHIELD_T128_H24      N_lk  34,897,920 T_d  127,668  LogUp 2^-102.922  sumcheck 2^-117.821  zero-check 2^-117.797
+W16R2_RUNG_H24           N_lk   1,064,960 T_d  127,670  LogUp 2^-107.412  sumcheck 2^-118.148  zero-check 2^-118.098
+W16_RUNG_H24             N_lk   1,064,960 T_d  127,670  LogUp 2^-107.412  sumcheck 2^-118.148  zero-check 2^-118.098
+
+== whole run (union bound), log2 of each term and of the sum
+profile                    L  openings    column   pcs fld     logup    sumchk   zerochk     WHOLE
+W16R2_8B_T128_H24         32    97+32M  -101.228  -106.166   -97.922  -112.898  -112.797   -97.779
+W16_8B_T128_H24           32    97+32M   -98.732  -106.969   -97.922  -112.898  -112.797   -97.269
+W16R2_SHIELD_T128_H24     26    79+26M  -101.528  -106.462   -98.222  -113.121  -113.096   -98.079
+W16_SHIELD_T128_H24       26    79+26M   -99.029  -107.266   -98.222  -113.121  -113.096   -97.568
+W16R2_RUNG_H24             1      4+1M  -106.222  -110.781  -107.412  -118.148  -118.098  -105.655
+W16R2_RUNG_H24             3     10+3M  -104.641  -109.449  -105.828  -116.563  -116.513  -104.080
+W16_RUNG_H24               1      4+1M  -103.394  -111.596  -107.412  -118.148  -118.098  -103.303
+W16_RUNG_H24               3     10+3M  -102.033  -110.257  -105.828  -116.563  -116.513  -101.928
+
+== W16R2 against W16, bits (positive = W16R2 stronger)
+W16R2_8B_T128_H24        per opening 112.278 vs 105.604 (+6.675); L32 whole run 97.779 vs 97.269 (+0.510)
+W16R2_SHIELD_T128_H24    per opening 112.278 vs 105.604 (+6.675); L26 whole run 98.079 vs 97.568 (+0.511)
+W16R2_RUNG_H24           per opening 112.278 vs 105.604 (+6.675); L1 whole run 105.655 vs 103.303 (+2.352); L3 whole run 104.080 vs 101.928 (+2.152)
+
+lemma-check cross-check: Q 260 2^-105.946 (stated 2^-105.946, exact form), Q 259 2^-105.539 (stated 2^-105.53, the (1 - delta/2)^Q form), W16 2^-105.609 (stated 2^-105.61)
+row-weight reduction bias (1 + p/2^128)^(2m) at m = 2606: 1 + 2^-51.65 (multiplies the column bound; negligible)
+powers of one challenge instead (BCIKS20 Thm 1.6), the field term would be (m - 1) N / p^2 = 2^-101.65 at m = 2606, N = 2^15
+
+====================================================================================================
+accounting_recheck.py (independent; does not import count.py), W16R2 Q = 280
+====================================================================================================
+[inputs] 6 code-printed profiles parsed; mismatches against the re-check's derivation: 0
+[inputs] rows (code, not re-derived; they enter only the bias and the bytes): {'W16R2_RUNG_H24': ('317', '198', '6'), 'W16_RUNG_H24': ('317', '198', '6'), 'W16R2_SHIELD_T128_H24': ('2501', '2602', '37'), 'W16_SHIELD_T128_H24': ('2501', '2602', '37'), 'W16R2_8B_T128_H24': ('2501', '2602', '37'), 'W16_8B_T128_H24': ('2501', '2602', '37')}
+
+== 1. per regular opening at n = 2^14, N = 2^15 (rate 1/2), unique decoding, q_pad = Q
+   Q      K     e  col (exact)  col (1-dt)^Q     field  col+field
+ 256  16640  8064    -104.3459     -104.3310  -112.830  -104.3419   (short of W16)
+ 257  16641  8063    -104.7385     -104.7310  -112.830  -104.7333   (short of W16)
+ 258  16642  8063    -105.1461     -105.1310  -112.830  -105.1391   (short of W16)
+ 259  16643  8062    -105.5385     -105.5309  -112.830  -105.5293   (short of W16)
+ 260  16644  8062    -105.9460     -105.9308  -112.830  -105.9338   <- W16R2   (>= W16)
+ 261  16645  8061    -106.3382     -106.3306  -112.830  -106.3223   (>= W16)
+ 262  16646  8061    -106.7457     -106.7304  -112.830  -106.7246   (>= W16)
+W16 (rate 1/4, Q 256, delta/3): K 16640, e 16298, col -105.6090, field -113.684, total -105.6036
+M (RS(1024, 4096), MASK_Q 256, delta/3): e 1024, col -106.2496, field -115.678, total -106.2475
+minimum Q keeping W16's figure: column-only 260, column+field 260
+
+== 2. per block (derived from the shape replica)
+W16R2_8B_T128_H24        lookups 32,276,480 exp 524,288 act 2,097,152 N_lk 34,897,920 T_d 127,668 LogUp -102.922 | sum(main+ext)deg 1099 -> -117.898 | zero-check 1179 -> -117.797
+W16R2_SHIELD_T128_H24    lookups 32,276,480 exp 524,288 act 2,097,152 N_lk 34,897,920 T_d 127,668 LogUp -102.922 | sum(main+ext)deg 1159 -> -117.821 | zero-check 1179 -> -117.797
+W16R2_RUNG_H24           lookups 1,015,808 exp 16,384 act 32,768 N_lk 1,064,960 T_d 127,670 LogUp -107.412 | sum(main+ext)deg 924 -> -118.148 | zero-check 957 -> -118.098
+   8B vs Shieldstral sumcheck: +60 = three D-domain indicator slots (SS, SSM, DZC: (19+1) each) because d = 3072 pads to 4096
+   slots 8B [(19, 1, 3), (19, 1, 3), (7, 1, 3), (14, 1, 4), (19, 1, 3), (12, 1, 2), (12, 1, 2), (12, 1, 2), (10, 2, 3), (10, 2, 3), (12, 1, 2), (12, 1, 2), (12, 1, 2), (14, 1, 2), (19, 1, 4), (19, 1, 4), (17, 1, 4), (19, 1, 4), (21, 1, 5), (14, 1, 3), (14, 1, 2), (19, 1, 2), (19, 1, 2)]
+   rung lookups: S-count 9, not 7 (inferred: wrho_s = 17 there, so SR and SG are two-limb; the (1, 1) family is their top limb)
+
+== 3. whole run (3L + 1 regular openings, L M openings, L blocks), log2
+profile                    L  reg    column   pcs fld     logup    sumchk   zerochk     WHOLE
+W16R2_8B_T128_H24         32   97  -101.228  -106.166   -97.922  -112.898  -112.797   -97.779
+W16_8B_T128_H24           32   97   -98.732  -106.969   -97.922  -112.898  -112.797   -97.269
+W16R2_SHIELD_T128_H24     26   79  -101.528  -106.462   -98.222  -113.121  -113.096   -98.079
+W16_SHIELD_T128_H24       26   79   -99.029  -107.266   -98.222  -113.121  -113.096   -97.568
+W16R2_RUNG_H24             1    4  -106.222  -110.781  -107.412  -118.148  -118.098  -105.655
+W16R2_RUNG_H24             3   10  -104.641  -109.449  -105.828  -116.563  -116.513  -104.080
+W16_RUNG_H24               1    4  -103.394  -111.596  -107.412  -118.148  -118.098  -103.303
+W16_RUNG_H24               3   10  -102.033  -110.257  -105.828  -116.563  -116.513  -101.928
+   W16R2_8B_T128_H24 L32: 97.779 vs W16 97.269 (+0.510 bit); margin over 95: +2.779
+   W16R2_SHIELD_T128_H24 L26: 98.079 vs W16 97.568 (+0.511 bit); margin over 95: +3.079
+   W16R2_RUNG_H24 L1: 105.655 vs W16 103.303 (+2.352 bit); margin over 95: +10.655
+   W16R2_RUNG_H24 L3: 104.080 vs W16 101.928 (+2.152 bit); margin over 95: +9.080
+
+== 4. the lemma check's s.6 row #1, reproduced with ITS per-opening form ((1 - delta_t)^Q)
+   column term, 97 regular + 32 M: (1-dt)^Q form -98.992; exact integer form -99.004
+
+== 5. sensitivities (8B T128, L 32)
+   as counted: -97.779
+   far + close halves ADDED per opening (no exclusivity, i.e. without refinement 1): -97.777
+   carried 4096 ceiling dropped: -97.780; ceiling x100: -97.720
+   row-weight reduction bias (1 + p/2^128)^(2m) - 1 ~ 2m p / 2^128 at m = 2606: 2^-51.65
+   powers of one challenge instead (Thm 1.6): (m - 1) N / |Fp2| at m = 2606: 2^-101.65 per opening
+   M's theta batching of <= 36 functionals per block (powers of one theta), not itemised: 32 x 36/|Fp2| = 2^-117.83
+
+== 6. D27's named workload (8B T512, R13 layout, MEMO_G02 s.2 terms) -- carried figure cross-check
+   today rate 1/4 Q 256 delta/3   per opening -105.929; column -98.991; field -106.169; whole -94.656
+   rate 1/2 Q 258 delta/2         per opening -106.112; column -99.133; field -105.278; whole -94.662
+   rate 1/2 Q 260 delta/2         per opening -106.927; column -99.716; field -105.278; whole -94.684
+
+== 7. what the in-tree token / classifier counters (token_io.rs hiding_opening_log2, delta/3 only) would price a W16R2 opening at
+   (1 - delta/3)^260 at rate 1/2: -67.200 per opening; 97 of them -60.600 (a D27 policy gate on that figure fails closed)
+
+====================================================================================================
+F2: the two readings, count.py's arithmetic
+====================================================================================================
+
+-- per regular opening (column; column + field), log2
+   W16R2 Q 280 (delta/2, attained): column -113.932; with field -112.278
+   W16R2 Q 260 (delta/2, attained): column -105.946; with field -105.934
+   W16 Q 256, proven (delta/3):     column -105.609; with field -105.604
+   W16 Q 256, best known attack:    column -172.443; with field -113.684
+
+-- whole run (3L + 1 regular openings, L M openings, L blocks), log2; positive delta = W16R2 stronger
+   profile                    L  W16R2@280  W16R2@260  W16 proven  W16 attack  d proven  d attack
+   W16R2_8B_T128_H24         32    -97.779    -97.361     -97.269     -97.783    +0.510    -0.004
+   W16R2_SHIELD_T128_H24     26    -98.079    -97.660     -97.568     -98.082    +0.511    -0.004
+   W16R2_RUNG_H24             1   -105.655   -103.565    -103.303    -105.692    +2.352    -0.037
+   W16R2_RUNG_H24             3   -104.080   -102.180    -101.928    -104.111    +2.152    -0.031
+   8B T128 L32 at Q 280, the terms: column -101.228, pcs_field -106.166, logup -97.922, sumcheck -112.898, zerocheck -112.797; WHOLE -97.779
+   W16 8B T128 L32, attack reading, the terms: column -101.250, pcs_field -106.969, logup -97.922, sumcheck -112.898, zerocheck -112.797; WHOLE -97.783
+
+-- Q sweep, 8B T128 L32 and Shieldstral T128 L26 (W16R2 whole run, log2), against W16's two readings
+   W16 8B: proven -97.269, attack -97.783; W16 Shieldstral: proven -97.568, attack -98.082
+   Q 256: per opening column  -104.346 (+field  -104.342); 8B -96.763 (vs attack -1.019); Shieldstral -97.061 (vs attack -1.021)
+   Q 258: per opening column  -105.146 (+field  -105.139); 8B -97.113 (vs attack -0.669); Shieldstral -97.412 (vs attack -0.671)
+   Q 259: per opening column  -105.539 (+field  -105.529); 8B -97.247 (vs attack -0.536); Shieldstral -97.545 (vs attack -0.537)
+   Q 260: per opening column  -105.946 (+field  -105.934); 8B -97.361 (vs attack -0.422); Shieldstral -97.660 (vs attack -0.423)
+   Q 265: per opening column  -107.937 (+field  -107.889); 8B -97.663 (vs attack -0.120); Shieldstral -97.963 (vs attack -0.120)
+   Q 270: per opening column  -109.942 (+field  -109.759); 8B -97.751 (vs attack -0.032); Shieldstral -98.050 (vs attack -0.032)
+   Q 275: per opening column  -111.930 (+field  -111.311); 8B -97.773 (vs attack -0.010); Shieldstral -98.073 (vs attack -0.010)
+   Q 278: per opening column  -113.135 (+field  -111.974); 8B -97.778 (vs attack -0.005); Shieldstral -98.077 (vs attack -0.005)
+   Q 279: per opening column  -113.525 (+field  -112.136); 8B -97.778 (vs attack -0.004); Shieldstral -98.078 (vs attack -0.004)
+   Q 280: per opening column  -113.932 (+field  -112.278); 8B -97.779 (vs attack -0.004); Shieldstral -98.079 (vs attack -0.004)
+   Q 281: per opening column  -114.323 (+field  -112.391); 8B -97.780 (vs attack -0.003); Shieldstral -98.079 (vs attack -0.003)
+   Q 285: per opening column  -115.917 (+field  -112.670); 8B -97.780 (vs attack -0.002); Shieldstral -98.080 (vs attack -0.002)
+   Q 290: per opening column  -117.917 (+field  -112.788); 8B -97.781 (vs attack -0.002); Shieldstral -98.080 (vs attack -0.002)
+   Q 300: per opening column  -121.895 (+field  -112.827); 8B -97.781 (vs attack -0.002); Shieldstral -98.081 (vs attack -0.002)
+   Q 400: per opening column  -161.361 (+field  -112.830); 8B -97.781 (vs attack -0.002); Shieldstral -98.081 (vs attack -0.002)
+   Q -> infinity (regular column term 0, the rate-1/2 field term N/|Fp2| kept): 8B -97.781, Shieldstral -98.081
+
+ASSERTED: per opening 2^-113.932 at Q 280; 8B T128 whole run 2^-97.779 (2^-97.361 at Q 260); W16 2^-97.269 proven, 2^-97.783 attack;
+          proven reading W16R2 stronger by +0.510 bit; attack reading W16R2 short by 0.0038 bit, which no Q closes (limit -97.781)

@@ -25,8 +25,9 @@ const MASK_DOM: usize = 1 << crate::zk::MASK_LOG_DOM;
 const MASK_PATH: usize = crate::zk::MASK_LOG_DOM as usize;
 /// **D59: the masking commitment's OWN opened-column count** (`zk::MASK_Q`).
 /// Until the W16R2 profiles it was read as the block's `Dim::checks`, which
-/// was the same 256 at every profile; at a W16R2 profile the block opens 260
-/// columns and `M` still opens 256, so `M`'s count is its own constant. The
+/// was the same 256 at every profile; at a W16R2 profile the block opens
+/// `shape::W16R2_OPENED_COLS` (280 since the F2 ruling of 2026-11-02; 260
+/// before) columns and `M` still opens 256, so `M`'s count is its own constant. The
 /// value is 256 at every profile, so no frame length or byte moves.
 const MASK_CHECKS: usize = crate::zk::MASK_Q;
 /// **THE TOY'S wire bound, unchanged in name and value for every existing

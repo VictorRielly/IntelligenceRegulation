@@ -94,12 +94,57 @@ pub(crate) struct WholeRun {
     pub omitted_log2: f64,
     pub total_log2: f64,
     pub floor_bits: u32,
+    /// **W16R2 review F6 (D59):** the regime the block shape's regular
+    /// openings (`A`, `H`, every boundary) were counted under, and how many
+    /// openings that is. `GeneralCode` with every registered profile; the
+    /// statement's parameter line names a non-`GeneralCode` regime (and its
+    /// count) outright, so the claim encodes which lemma priced it.
+    pub block_regime: ColumnRegime,
+    pub block_regime_openings: usize,
 }
 
 /// MEMO_G02's per-opening PCS field term and per-stage sumcheck term, log2
 /// (review R2-1: the bound added before the floor)
 pub(crate) const PCS_FIELD_PER_OPENING_LOG2: f64 = -113.0;
 pub(crate) const SUMCHECK_PER_STAGE_LOG2: f64 = -117.2;
+
+/// **W16R2 review F6 (D59): a run's BLOCK openings, counted under the block
+/// profile's regime** — for each of the `L` blocks its `A`, `H` and `M`, then
+/// the `L + 1` boundaries `B_in, B_1 .. B_out`, pushed onto `col` in exactly
+/// the order both whole-run counters always used (the column sum is a float
+/// sum, so the order is part of the figure). `A`, `H` and the boundaries go
+/// through [`regular_opening_log2`] at `sh.column_regime()`; `M` keeps its
+/// own constants. Returns `(openings counted at a non-GeneralCode regime, the
+/// sum of their PCS field terms beyond the carried constant's share)` —
+/// `(0, 0.0)` at every registered profile, so its floor is the same float.
+pub(crate) fn push_block_openings(sh: &Shape, l: usize, col: &mut Vec<f64>) -> (usize, f64) {
+    let r = sh.column_regime();
+    // A / H at the block geometry; the boundaries at the endpoint geometry
+    let core = regular_opening_log2(r, sh.log_cols, sh.inv_rate, sh.opened_cols);
+    let edge = regular_opening_log2(r, sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols);
+    for _ in 0..l {
+        col.push(core);
+        col.push(core);
+        col.push(mask_opening_log2());
+    }
+    for _ in 0..=l {
+        col.push(edge);
+    }
+    if r == ColumnRegime::GeneralCode {
+        return (0, 0.0);
+    }
+    let (core_f, edge_f) = (regular_opening_field_log2(r, sh.log_cols, sh.inv_rate), regular_opening_field_log2(r, sh.endpoint_log_n, sh.endpoint_inv_rate));
+    (3 * l + 1, (2 * l) as f64 * core_f.exp2() + (l + 1) as f64 * edge_f.exp2())
+}
+
+/// the explicit PCS-field-and-sumcheck bound of a run with `openings`
+/// openings of which `special` carry their own field term (`special_field`,
+/// from [`push_block_openings`]) over `stages` stages:
+/// `(openings - special) * 2^-113 + special_field + stages * 2^-117.2`. With
+/// `special = 0` it is the float the counters always computed.
+pub(crate) fn omitted_bound(openings: usize, special: usize, special_field: f64, stages: usize) -> f64 {
+    (openings - special) as f64 * PCS_FIELD_PER_OPENING_LOG2.exp2() + special_field + stages as f64 * SUMCHECK_PER_STAGE_LOG2.exp2()
+}
 
 /// one block's LogUp size: the `U8` lookups of every lookup domain over its
 /// padded (lifted) extent, plus the exponential pair over `S` and the
@@ -156,16 +201,11 @@ pub(crate) fn whole_run_of(sh: &Shape, l: usize, tp: &TokenProfile) -> WholeRun 
     for _ in 0..2 {
         col.push(t.per_opening_log2(t.ep_log_n, t.ep_inv_rate));
     }
-    // the L blocks: A and H at the block shape's geometry, then M
-    for _ in 0..l {
-        col.push(hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
-        col.push(hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
-        col.push(mask_opening_log2());
-    }
-    // the L + 1 boundaries B_in, B_1 .. B_out
-    for _ in 0..=l {
-        col.push(hiding_opening_log2(sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols));
-    }
+    // the L blocks: A and H at the block shape's geometry, then M; then the
+    // L + 1 boundaries B_in, B_1 .. B_out — under the block profile's regime
+    // (review F6; the stage and token-endpoint openings above are the tier's,
+    // at D15's delta/3)
+    let (special, special_field) = push_block_openings(sh, l, &mut col);
     // the byte / exp / act lookup arguments: stage OUT and the L blocks
     let mut lk = vec![stage_out::logup_size(&stage_out::layout(sh, tp), tp)];
     let field_log2 = 2.0 * (P as f64).log2();
@@ -185,9 +225,23 @@ pub(crate) fn whole_run_of(sh: &Shape, l: usize, tp: &TokenProfile) -> WholeRun 
     let lg = clog2(tp.d_pad) as u128;
     num += (n_in + r_in * (2 + lg) + tp.tokens as u128 * lg) as f64;
     let logup = num * (-field_log2).exp2();
-    let omitted = col.len() as f64 * PCS_FIELD_PER_OPENING_LOG2.exp2() + (l + 2) as f64 * SUMCHECK_PER_STAGE_LOG2.exp2();
+    let omitted = omitted_bound(col.len(), special, special_field, l + 2);
     let total_log2 = (column + logup + omitted).log2();
-    WholeRun { openings: col.len(), column_log2: column.log2(), logup_log2: logup.log2(), omitted_log2: omitted.log2(), total_log2, floor_bits: (-total_log2).floor() as u32 }
+    WholeRun { openings: col.len(), column_log2: column.log2(), logup_log2: logup.log2(), omitted_log2: omitted.log2(), total_log2, floor_bits: (-total_log2).floor() as u32, block_regime: sh.column_regime(), block_regime_openings: special }
+}
+
+/// **W16R2 review F6: the whole-run figure's words in a statement's
+/// parameter line.** `whole-run-floor-{bits}-bits-{openings}-openings-{figure}`
+/// as always; at a block regime other than D15's `GeneralCode` (a W16R2 block
+/// shape, unregistered) the line also states the regime and how many openings
+/// it priced, so the claim a receipt binds names the lemma behind its floor.
+/// Every registered profile's text is unchanged byte for byte.
+pub(crate) fn whole_run_words(w: &WholeRun, figure: &str) -> String {
+    let base = format!("whole-run-floor-{}-bits-{}-openings-{figure}", w.floor_bits, w.openings);
+    match w.block_regime {
+        ColumnRegime::GeneralCode => base,
+        ColumnRegime::UniqueDecoding => format!("{base}-with-{}-block-and-boundary-openings-at-the-unique-decoding-radius-d59", w.block_regime_openings),
+    }
 }
 
 /// **THE VERIFIER'S POLICY (D27; review TR-1):** the minimum derived
@@ -359,7 +413,7 @@ impl TokenRunStatement {
         let block_line = if legacy { protocol::parameter_line(sh) } else { protocol::parameter_line(sh).replace("/two-private-endpoints/", "/two-internal-boundaries/") };
         let figure = if legacy { "column-plus-logup-derived" } else { "column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound" };
         Ok(format!(
-            "{}/L{}/boundaries-B_in-B_out-and-interior-log_n{}-rate{}-pad{}-rows{}-sites2/token-endpoints-log_n{}-rate{}-pad{}-in-words{}-in-rows{}-out-words{}-out-rows{}-sites1/stages-log_n{}-rate{}-pad{}/{}/whole-run-floor-{}-bits-{}-openings-{figure}/one-run-one-transcript",
+            "{}/L{}/boundaries-B_in-B_out-and-interior-log_n{}-rate{}-pad{}-rows{}-sites2/token-endpoints-log_n{}-rate{}-pad{}-in-words{}-in-rows{}-out-words{}-out-rows{}-sites1/stages-log_n{}-rate{}-pad{}/{}/{}/one-run-one-transcript",
             block_line,
             self.l(),
             sh.endpoint_log_n,
@@ -377,8 +431,7 @@ impl TokenRunStatement {
             t.stage_inv_rate,
             t.opened_cols,
             self.tp.describe_under(self.profile()),
-            self.whole_run.floor_bits,
-            self.whole_run.openings
+            whole_run_words(&self.whole_run, figure)
         ))
     }
 

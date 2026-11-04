@@ -141,7 +141,7 @@ pub(crate) const R3_F_E: u32 = 9;
 
 use super::argument::{build_tables_at, Acc, Cm, Coord, Poly, Priv, Side, SlotProof, Tab, TABLES_PAR_MIN};
 use super::layout::SlotKind;
-use super::shape::Shape;
+use super::shape::{ColumnRegime, Shape};
 use crate::field::{Fp, Fp2, P};
 use crate::merkle::Digest;
 use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
@@ -256,7 +256,11 @@ impl Tier {
         PcsParams { log_cols: self.stage_log_n as u32, inv_rate: self.stage_inv_rate, num_col_checks: self.opened_cols }
     }
     /// the per-opening miss probability of a commitment at this tier
-    /// (column test `(1 - delta/3)^Q`, ZK code `RS(n + Q, n inv_rate)`), log2
+    /// (column test `(1 - delta/3)^Q`, ZK code `RS(n + Q, n inv_rate)`), log2.
+    /// The tier's own stage and token-endpoint commitments are always counted
+    /// under D15's delta/3 (`ColumnRegime::GeneralCode`); a run's BLOCK and
+    /// boundary openings take the block profile's regime instead
+    /// ([`regular_opening_log2`], W16R2 review F6).
     pub(crate) fn per_opening_log2(&self, log_n: usize, inv_rate: usize) -> f64 {
         hiding_opening_log2(log_n, inv_rate, self.opened_cols)
     }
@@ -289,6 +293,51 @@ pub(crate) fn hiding_opening_log2(log_n: usize, inv_rate: usize, q: usize) -> f6
 /// `MASK_Q` column checks, for every stage and block alike (2^-106.25)
 pub(crate) fn mask_opening_log2() -> f64 {
     column_log2(MASK_VEC, MASK_DOM, crate::zk::MASK_Q)
+}
+
+/// **W16R2 review F6 (D59; lemma check §8 item 5): the column term of one
+/// REGULAR hiding opening — a block's `A` / `H`, a boundary, an endpoint —
+/// under the regime its block profile is counted at** (`Shape::column_regime`,
+/// a profile fact; D27: a tier lever is a profile parameter). The code is
+/// `RS(n + q_pad, n inv_rate)` with `q_pad` = `ZkOpts::standard`'s pad count
+/// (equal to `q` by construction; the lemma's `K` is `n + q_pad`).
+/// * `GeneralCode` (D15, every registered profile): EXACTLY
+///   [`hiding_opening_log2`], the same float operations, so no registered
+///   statement's whole-run floor (bound in its parameter line) can move.
+/// * `UniqueDecoding` (D59, the W16R2 profiles only): BCIKS20 Thm 3.1,
+///   `(1 - (e + 1)/N)^q`, `e = floor((N - K)/2)`, `K = n + q_pad`
+///   (`shape::column_term_log2`); 2^-113.93 at `n = 2^14`, rate 1/2, `q = 280`.
+///   Before F6 a W16R2 opening reached this counter only through the delta/3
+///   formula, which prices it at about 2^-72 (wrong, though fail-closed).
+/// `M` is never a regular opening here: it keeps [`mask_opening_log2`].
+pub(crate) fn regular_opening_log2(regime: ColumnRegime, log_n: usize, inv_rate: usize, q: usize) -> f64 {
+    let q_pad = crate::pcs::ZkOpts::standard(&PcsParams { log_cols: log_n as u32, inv_rate, num_col_checks: q }).q_pad;
+    match regime {
+        ColumnRegime::GeneralCode => hiding_opening_log2(log_n, inv_rate, q_pad),
+        ColumnRegime::UniqueDecoding => {
+            // the lemma's K = n + q_pad; its Q = q. They are one number
+            // (`ZkOpts::standard`); a future split must be counted apart.
+            assert_eq!(q_pad, q, "D59: a unique-decoding opening's pad count is not its column count");
+            super::shape::column_term_log2(ColumnRegime::UniqueDecoding, log_n, inv_rate, q)
+        }
+    }
+}
+
+/// **W16R2 review F6: the PCS field term of one regular hiding opening,
+/// log2, under its regime.** `GeneralCode`: the counters' carried per-opening
+/// figure (`run::PCS_FIELD_PER_OPENING_LOG2`, MEMO_G02's 2^-113 at its largest
+/// geometry), unchanged. `UniqueDecoding`: Thm 3.1's `N / |F_p^2|` plus the
+/// carried PCS ceiling of 4096 (REVIEW_R14 A5; `ACCOUNTING.md`'s count), never
+/// below the carried figure: `(N + 4096) / p^2` = 2^-112.83 at `N = 2^15`,
+/// above 2^-113, so the carried constant alone would under-count it.
+pub(crate) fn regular_opening_field_log2(regime: ColumnRegime, log_n: usize, inv_rate: usize) -> f64 {
+    match regime {
+        ColumnRegime::GeneralCode => run::PCS_FIELD_PER_OPENING_LOG2,
+        ColumnRegime::UniqueDecoding => {
+            let nn = ((1usize << log_n) * inv_rate) as f64;
+            ((nn + 4096.0).log2() - 2.0 * (P as f64).log2()).max(run::PCS_FIELD_PER_OPENING_LOG2)
+        }
+    }
 }
 
 /// review R2-6: the run profiles whose receipts are the R1 / R2 evidence,

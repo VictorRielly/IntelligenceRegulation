@@ -256,23 +256,26 @@ AccuracyProfile{profile:W16_8B_T512_H24,name:"W16_8B_T512_H24",legacy:LLAMA3_8B_
 // geometry under a NEW profile string (so its own transcript domain and its
 // own four hash keys), proved exactly as W16 except for the PCS parameters of
 // its REGULAR commitments: `A`, `H`, every boundary `B_k` and both endpoints
-// are encoded at rate 1/2 (`inv_rate` 2) with `Q = 260` opened columns and
-// `Q` pads per row. The column test of those openings is counted at the
+// are encoded at rate 1/2 (`inv_rate` 2) with `Q = 280` opened columns and
+// `Q` pads per row (Victor's ruling on review F2, 2026-11-02, D59; it was
+// 260). The column test of those openings is counted at the
 // Reed–Solomon unique-decoding radius `delta_t = (1 - (n + Q)/N)/2` (BCIKS20
 // Thm 3.1; `research/zkp-efficiency/handoffs/20261101-delta-half-lemma-check.md`):
 // `(1 - (e + 1)/N)^Q` with `e = floor((N - K)/2)`, `K = n + Q`, which at
-// `n = 2^14`, `N = 2^15`, `Q = 260` is 2^-105.95 per opening against W16's
-// 2^-105.61 (D15's delta/3 count at rate 1/4, `Q = 256`). The masking
+// `n = 2^14`, `N = 2^15`, `Q = 280` is 2^-113.93 per opening, against W16's
+// 2^-105.61 (D15's delta/3 count at rate 1/4, `Q = 256`) — and that count is
+// TIGHT (review F1: the close-case attack is accepted with exactly it), so a
+// miscount of `Q`, `K`, `e` or the sampling is directly exploitable. The masking
 // commitment `M` is NOT covered by that lemma and is untouched: its own
 // constants (`zk::MASK_*`, rate 1/4, `MASK_Q = 256`) never read a shape field.
 // Unregistered, as W16 is (no run profile, on no registered list; the source
 // scans carry them through `s24_tests::opt_in_unregistered_shapes`). Every
 // string has its W16 sibling's length, and the parameter line's
-// `inv_rate2/Q260` has `inv_rate4/Q256`'s, so the constructor input and the
+// `inv_rate2/Q280` has `inv_rate4/Q256`'s, so the constructor input and the
 // `profile` / `parameters` absorbs keep W16's lengths. Other hash inputs on
 // the block path DO take new lengths (W16R2 review F5, 2026-11-02): each
 // clear vector the `pcs-vec` / `pcs-prox` absorbs carries `(n + Q)` Fp2
-// words (266,304 data bytes at `Q = 260`, against W16's 266,240), and the
+// words (266,624 data bytes at `Q = 280`, against W16's 266,240), and the
 // tree has 2^15 leaves, not 2^16. Under the profile's tag that separates
 // nothing and matters for nothing (s25's W-2 census measures every one); the
 // one equal-length pair inside the transcript function, the W16R2 rung's
@@ -292,10 +295,19 @@ AccuracyProfile{profile:W16R2_8B_T128_H24,name:"W16R2_8B_T128_H24",legacy:LLAMA3
 /// the boundaries and both endpoints): `1 / W16R2_INV_RATE`
 pub(crate) const W16R2_INV_RATE: usize = 2;
 /// **D59: the opened columns of a W16R2 profile's regular commitments, and
-/// their pads per row** — the smallest `Q` whose unique-decoding column term
-/// at `n = 2^W16R2_LOG_COLS`, `N = 2n` is at least W16's per-opening figure
-/// (the lemma check's §5 table: 259 gives 2^-105.53, short of 2^-105.61)
-pub(crate) const W16R2_OPENED_COLS: usize = 260;
+/// their pads per row** (`ZkOpts::standard` takes `q_pad` from this count, so
+/// the two are one number by construction). **Victor's ruling on W16R2 review
+/// F2 (2026-11-02): 280**, for parity under both readings of "no soundness
+/// given up": the PROVEN bounds (260 was the smallest `Q` whose
+/// unique-decoding term at `n = 2^W16R2_LOG_COLS`, `N = 2n` reaches W16's
+/// 2^-105.61; 259 gives 2^-105.53) and the BEST KNOWN ATTACKS (W16's rate-1/4
+/// figure is a loose delta/3 bound, its close-case attack about 2^-172 per
+/// opening, while W16R2's count is attained; at 280 the 8B T128 whole run is
+/// 2^-97.779 against W16's 2^-97.783 under that reading, the last 0.004 bit
+/// being the rate-1/2 field term `N/|Fp2|`, which no `Q` removes).
+/// 2^-113.93 per opening; the code rate is unchanged. Recount:
+/// `results/zk60_w16r2_q280_20261103/`.
+pub(crate) const W16R2_OPENED_COLS: usize = 280;
 /// the one row width [`W16R2_OPENED_COLS`] is counted for; every W16R2 profile
 /// is at it, and [`Shape::build`] refuses a W16R2 shape at any other
 pub(crate) const W16R2_LOG_COLS: usize = 14;
@@ -313,8 +325,10 @@ pub(crate) fn is_w16_family_profile(profile: &str) -> bool {
 /// **D59: the column-test regime a profile's regular openings are COUNTED
 /// under** (D27: a tier lever is a profile parameter, never a constant). It
 /// changes no verifier check — the verifier is the same `verify_zk_tagged` —
-/// only which lemma prices the column round.
-#[cfg_attr(not(test), allow(dead_code))]
+/// only which lemma prices the column round. Since review F6 (2026-11-03) the
+/// production bit counters read it (`token_io::regular_opening_log2`, the token
+/// and classifier runs' whole-run figure), so a W16R2 block is priced by the
+/// lemma that covers it and not by D15's delta/3.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ColumnRegime {
     /// D15: the Ligero / Brakedown `delta/3` count, `delta = 1 - (n + Q)/N`
@@ -326,7 +340,6 @@ pub(crate) enum ColumnRegime {
 /// regime: `n = 2^log_n` message symbols, `N = n inv_rate` encoded columns,
 /// `q` opened columns and `q` pads (so the code is `RS(n + q, N)`). The field
 /// terms are counted apart (`ACCOUNTING.md`).
-#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn column_term_log2(regime: ColumnRegime, log_n: usize, inv_rate: usize, q: usize) -> f64 {
     let n = (1usize << log_n) as f64;
     let nn = n * inv_rate as f64;
@@ -800,8 +813,8 @@ impl Shape {
     }
     /// **D59:** the regime this profile's regular openings are counted under
     /// — unique decoding at a W16R2 profile, D15's general-code count at
-    /// every other. A profile fact, like the stack.
-    #[cfg_attr(not(test), allow(dead_code))]
+    /// every other. A profile fact, like the stack (review F6: the token and
+    /// classifier whole-run counters read it).
     pub(crate) fn column_regime(&self) -> ColumnRegime {
         if is_w16r2_profile(self.profile) {
             ColumnRegime::UniqueDecoding

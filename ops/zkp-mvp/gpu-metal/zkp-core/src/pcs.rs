@@ -13,10 +13,26 @@
 //! random linear combination of their row weights. A proximity test
 //! (random rho) rides on the same columns.
 //!
-//! Soundness (Brakedown Thm. with the conservative delta/3 bound): with
-//! RS relative distance delta = 1 - 1/inv_rate the column test fails
-//! to catch a far matrix with probability (1 - delta/3)^Q; at inv_rate
-//! 4, Q = 256: (3/4)^256 = 2^-106. Field terms are O(n / 2^128).
+//! Soundness. The code is RS(K, N), N = n * inv_rate: K = n in the plain
+//! mode above (delta = 1 - 1/inv_rate), K = n + q_pad in the ZK mode
+//! below (`ZkOpts`, q_pad = Q by `ZkOpts::standard`; delta = 1 - K/N).
+//! Which lemma prices the column test is a PROFILE fact of the caller
+//! (hashline's `private_block::shape::ColumnRegime`), never a check here:
+//! the verifier below is the same under both regimes.
+//!  * D15, the general-code count (Brakedown / Ligero, the conservative
+//!    delta/3 bound), every rate-1/4 profile and the masking commitment:
+//!    a far matrix escapes the column test with probability
+//!    (1 - delta/3)^Q; at n = 2^14, inv_rate 4, Q = 256 in ZK mode,
+//!    ((2N + K)/(3N))^256 = 2^-105.61 (plain mode, delta = 3/4:
+//!    (3/4)^256 = 2^-106.25). Field terms O(N / |F_p^2|).
+//!  * D59, the unique-decoding count (BCIKS20 Thm 3.1 from Thm 1.7, with
+//!    `rows` independent uniform F_p^2 proximity weights), ONLY for the
+//!    rate-1/2 W16R2 profiles' regular openings through `verify_zk_tagged`:
+//!    (1 - (e + 1)/N)^Q with e = floor((N - K)/2), plus N / |F_p^2|; at
+//!    n = 2^14, inv_rate 2, Q = q_pad = 280: 2^-113.93 per opening. This
+//!    bound is attained (W16R2 review F1), so Q, K = n + q_pad, e and the
+//!    index sampling must be counted exactly. Powers of one challenge as
+//!    the weights would cost a factor m - 1 (Thm 1.6).
 //!
 //! Moved from `hashline/src/pcs.rs` (CL20, round 12). The only change
 //! besides the RNG import is the accelerator seam: the device arms became
