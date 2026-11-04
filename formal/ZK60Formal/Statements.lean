@@ -11,8 +11,8 @@ This file states them precisely, for one abstract registered profile: `IntModel`
 with D55) is an INSTANCE of these structures; writing the instances and proving `ProductionReady` for them is
 the formalization work (plan L1–L5 in docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md).
 
-Status: PROPOSED wording, awaiting Victor's approval (that document's §6). Error targets are parameters
-of `ProductionReady` so that his ruling on them changes one line.
+Status: wording APPROVED by Victor, 2026-11-04, with the §6 choices of that document (error targets below,
+production acceptance by the Lean verifier, reuse of FlashProve's Lean library and ArkLib where they fit).
 
 Modelling choices (each is a statement-level choice a reader must accept):
 * The hash is a random oracle: a uniformly random function `Q → D` on a finite query space `Q`

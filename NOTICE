@@ -1,0 +1,9 @@
+Intelligence Regulation
+Copyright 2026 Victor Rielly
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party components included in this repository (for example, vendored crates and copied sources under
+research/ experiments) remain under their own licences, which are kept with them. Model weights are not included
+in this repository; the scripts fetch them pinned by revision and hash, and they are used under their own licences
+(Meta Llama 3, TinyLlama, Mistral / Shieldstral).

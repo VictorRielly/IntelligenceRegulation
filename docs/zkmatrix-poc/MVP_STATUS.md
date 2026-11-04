@@ -4,8 +4,9 @@
 - **Gate:** the merged 18-part gate ran on all 12 registered R13 D55 bundles: 12/12 D55-PASS, re-scored with the fixed
   rules (18/18 parts, pins 75/75), the only open item being the accepted G_k residual. Also: the fixed tools'
   suite (203 tests, the known r19b failure only), a rung re-gate (2/2), and FR25-17 (all 23 slots on 8B, Shieldstral
-  T256 and TinyLlama). Not yet a privacy acceptance: the CLI still refuses D55 real-content runs until Victor's
-  go-ahead.
+  T256 and TinyLlama). Not yet a privacy acceptance: the CLI still refuses D55 real-content runs. Victor ruled (D60, 2026-11-04) to
+  "build it proper" for GPUs. The switch waits until GPU-made bundles pass the gate too (the Metal device code read,
+  the backend recorded by the prover itself), and production waits for D63.
 - **Anthropic's FlashProve** (Apache-2.0, `github.com/anthropics/FlashProve`) is a strong, complementary result:
   - It proves Llama 4 Maverick (400B MoE, about 17B active) at about 110 tok/s of batched prefill (24 requests) on
     one H100.
@@ -17,7 +18,8 @@
   when the output is the discretized model's output. (2) The receipts reveal nothing useful about the hidden data.
   Proposed statements: `ZK60_LEAN_PRODUCTION_STATEMENTS.md` (awaiting Victor's approval). The latency work continues
   in parallel.
-- **The repository is public, and all work is open source (D62).** A licence file is still to be chosen.
+- **The repository is public, and all work is open source (D62)**, under Apache-2.0 (`LICENSE`, `NOTICE`,
+  `SECURITY.md`). The Lean statements (D63) were approved by Victor on 2026-11-04.
 
 **2026-11-03: correction — every proved-tokens/s figure since the Mac bring-up is proof-only; witness building was outside the clock.**
 - **What was missed:** the D55 A/B harness (`run_fork_tests.rs`, `d55_ab_one_request_serial_against_forks`) builds every block's

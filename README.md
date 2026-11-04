@@ -1,75 +1,89 @@
-# Intelligence Regulation
+# Intelligence Regulation: private, provable AI inference
 
-The ZKP prototype has complete small-block proofs and private zkVM receipts
-for a synthetic two-block token computation. Trained-model integration,
-larger-profile privacy and complete-model performance remain open. See
-[current project status](docs/zkmatrix-poc/MVP_STATUS.md).
+We build zero-knowledge proofs that an approved AI model produced an answer **on private data, without revealing
+the data**. A regulator, auditor or user can check that the approved model ran and what it decided (for example a
+safety classifier's verdict) without seeing the prompt, the answer or anything computed in between.
 
-For the local Tech Week demonstration, run
-`python3 scripts/zk60_techweek_server.py` and open <http://127.0.0.1:8765>.
-It verifies real saved proofs, rejects tampered artifacts, and offers live
-synthetic-block proving. [Demo scope, prerequisites and presentation guide](docs/zkmatrix-poc/ZK60_TECHWEEK_DEMO.md).
+- **P1 (current):** inputs, outputs and every intermediate activation are hidden; the model weights are public.
+- **P3 (later):** the weights are hidden too.
 
-## Description: The world is racing to build Intelligence as quickly as it can. But this intelligence isn't being built to serve people, its being built because if we don't build it they will and they will win. This is a recipe for dissaster. Very quickly tragedy will strike and the world will cry out for AI to pause and only then will it become clear that short of destroying all fabs worldwide, we have no pause button for AI. Some might think its ok, we just need to build it out to be beneficial to all, but unfortunately even if AI never misbehaves, companies and governments, if left to allow runnaway competition to continue will have to make the choice between serving their people and falling behind in the AI race or neglecting the people. Eventually, AI developement must be monitored on a global scale by a single governing organization. This is the only way to remove the competition pressures that are driving humanity towards catastrophe. The only question we have left to answer is how can we establish a worldwide AI and intelligence governance system that is equitable for all countries.
+Why we are doing this: [docs/VISION.md](docs/VISION.md).
 
-## Features
+> **Research prototype.** It has not been audited, and no proof made with it is in production use. Our rule
+> (decision D63) is that nothing goes into production before its soundness and zero-knowledge statements are proved
+> in Lean. See [SECURITY.md](SECURITY.md) to report a break.
 
-- We propose to have worldwide regulations on the AI systems and robotics that can be published for consumption by the countries and general public. Thus, the world as a whole will decide which AI technology is adopted and which requires further testing. We hope this will remove the competition pressures driving companies to throw all caution to the wind when developing AI. We also hope this will allow the world as a whole to monitor and control the development of AI. 
-- Regulations are useless unless they are enforced. We propose and develop technology to identify and verify the identity of AI models used in queries and responses. The first step of regulation is establishing the ability to identify problematic behavior and to assign responsibility of this behavior to the responsible parties. It is unclear what actions should be taken in response to unsanctioned AI network traffic however at the very least with our infrastructure we can identify and block such activity from accessing anything on the network. We imagine this network as acting as a replacement for https with certain gaurantees of safety for the users worldwide.
-- We further develop the technology to distinguish approved from unapproved AI in a knowledgeless manner using zero knowledge proofs. This will allow all countries to develop and grow on the same network of intelligence without revealing sensitive information. In addition, all countries will be able to agree on which countries are adhering to the global technology standards without necessarily having to know what each country is doing. Competition must be ended on all levels both between companies and between countries so an infrastructure must be built to allow all countries to agree that all countries are playing by the same rules without exposing sensitive information.
-- We also propose and attempt to implement a currency on the blockchain designed to ensure humanity continues to have value in a world where it is concievable most if not all human labor could be accomplished by AI and robotics. Our economies are tied to assets that do not actually reflect what a healthy society runs on. For example, an economy tied to the quantity of gold would eventually seek to mine more and more gold at the expense of human life if possible. This was not a problem hystorically because Humanity had to be prospering to have the capacity to mine more gold. However, as we go forth into a future of extreme automation, the assets our economies call valuable can soon be attained without the presence of humanity. This sets the stage for a disasterous situation where our world is driven towards the collection of these assets at the complete disregard for human life. We propose to tie the global economic value directly to the availability of human free will. 
-- We propose to build off existing emerging infrastructure on the blockchain for identifying people and providing each person a token specialized to them (in a completely anonamized way). Each person will continue to mint their token throughout their life. The entire global economy should be run on currency tied to these tokens which each individual will have the freedom to use for whatever goods or services they require or desire. An individuals tokens act as a vote of confidence by that person for the things this person values in life. This builds a democratic system where through our tokens all members of society are constantly voting on the direction they desire society to continue.
+## Where it stands (2026-11-04)
 
-Please reach out if you have further ideas on how we can make this work. victorrielly@gmail.com
+Plain-words status, with labelled numbers: [docs/zkmatrix-poc/MVP_STATUS.md](docs/zkmatrix-poc/MVP_STATUS.md).
 
-## Installation
+- **The prover (Hashline)**:
+  - Ligero-style hiding polynomial commitments over the Goldilocks field and its quadratic extension, BLAKE3
+    Merkle trees and Fiat–Shamir, LogUp lookups and a masked sumcheck.
+  - Exact integer semantics for the model: integer matrix products, lookup tables for the nonlinear functions, and
+    exact rounding rules.
+  - Backends: CPU, and Apple Metal (GPU). The CUDA port for an RTX 5090 is next.
+- **The proof profiles**:
+  - Registered run profiles at Llama-3-8B, TinyLlama-1.1B and Shieldstral-1.0-3B (classifier) shapes.
+  - "Commit, fork, join" (D55) proves one request's blocks in parallel.
+- **Speed** [MEASURED on an M3 Ultra Mac, 8B shapes with synthetic weights, one request, 128 tokens]:
+  - 22.9 proved tokens/s proof-only, or about 9 counting witness generation.
+  - The target is ≥ 50 proved tokens/s on one high-end GPU.
+- **Privacy evidence**:
+  - An 18-part privacy gate reads real captures of the shipped prover's output. It passes on all 12 registered D55
+    bundles (CPU-made).
+  - This is evidence, not yet a proof. GPU-made bundles still have to pass it.
+- **Formal verification:** the two production statements are written in Lean 4 in [formal/](formal/). The proofs
+  are the work ahead.
+- Every product and security ruling: [docs/zkmatrix-poc/ZK60_DECISIONS.md](docs/zkmatrix-poc/ZK60_DECISIONS.md).
 
-Install Rust/Cargo and Python 3.10 or newer, then clone this repository. The
-component demo builds its CPU example automatically; it needs no CUDA setup or
-downloaded model. Cargo needs its dependencies available locally or access to
-the package registry on the first build.
+## How this relates to Anthropic's FlashProve
 
-## Usage
+[FlashProve](https://github.com/anthropics/FlashProve) (Apache-2.0) proves Llama 4 Maverick at about 110 tokens/s
+of batched prefill on one H100, with Lean proofs. The two projects answer different questions:
 
-```bash
-flock /tmp/zk-heavy.lock python3 scripts/zk60_p1_demo.py --output /tmp/zk60-p1-demo
-```
+| | FlashProve | This project (P1) |
+|---|---|---|
+| Hidden | the model weights | the user's inputs, outputs and activations |
+| Public | the prompt and the reply | the model weights, and any output part we choose to publish (e.g. a verdict) |
+| Question answered | which committed model produced this reply? | did the approved model produce this result on private data? |
+| Speed | about 110 tok/s, batched, H100 | 22.9 tok/s proof-only, one request, Apple M3 Ultra |
+| Lean | soundness, completeness, ZK proved for its Lean model | statements written; proofs ahead |
 
-Use a new output directory for each run. The command prepares the public weight
-registration, proves a synthetic P1 feed-forward computation, verifies the
-saved receipt in a separate process, and checks that altered requests, weights,
-endpoints and receipt bytes are rejected. It saves artifacts and a JSON result
-manifest. This is an experimental component demonstration; its synthetic inputs
-are public and full privacy has not been established. It does not complete the
-private-block MVP. [Demo details](docs/zkmatrix-poc/ZK60_P1_DEMO.md).
+We intend to reuse FlashProve's Lean library where it fits, under its licence.
 
-## Project Plans
+## Start here
 
-- [Task board](docs/zkmatrix-poc/TASK_BOARD.md): the executable queue of small, self-checking prove/verify-clock tasks (exact commands, byte-identity acceptance) — any agent starts here.
-- [Continuation: fast, lightweight proofs](docs/zkmatrix-poc/CONTINUATION.md): standing queue after U-AG-B1 wave 4 / U-PERF — lattice-first, PC waves next, other channels only if the contract clocks prove unreachable.
-- [ZK-of-LLM PoC roadmap](docs/zkmatrix-poc/LLM_POC_ROADMAP.md): the consolidated path from the closed aggregation design trench to a proven 32-layer-class FFN pass on a real model (frugal-lm 125M first rung); frames the U-AG-B1 build round ([ledger](PROGRESS_UAGB1.md)).
-- [Music provenance PoC](docs/provenance/MUSIC_PROVENANCE_POC.md): proving music is man-made — attested capture, ZK edit chain (mixdown as committed matmul; spike `scripts/music_provenance_spike.py` 7/7), and the honest limits of the analog-hole classifier screen.
-- [zkMatrix proof-of-concept plan](docs/zkmatrix-poc/README.md): roadmap for proving a small Transformer-like feed-forward with committed matrix multiplication proofs and explicit nonlinear constraints.
-- [zkMatrix implementation guide](docs/zkmatrix-poc/IMPLEMENTATION.md): how to build, test, and benchmark the Python and Rust zkMatrix proof prototypes, including the "Deviations From The Paper" record.
-- [Review notes and roadmap](ZKMATRIX_REVIEW_NOTES.md): independent code-and-paper review; the P0 decoupling-challenge fix and P1 transcript-binding fix are now implemented across all backends.
-- `zk_lattice/`: lattice-based (post-quantum) zero-knowledge proofs of matrix multiplication — the Route-Z reference implementation of `zk-matrix-multiplication-lattice.pdf` (protocols Pi1 and Pi2, SIS/knapsack-LWE assumptions, transparent setup).
-- [Transformer proof plan](docs/zkmatrix-poc/TRANSFORMER_PROOF_PLAN.md): the formalized plan for proving a full transformer feed-forward pass (claim DAG, operation taxonomy, gadget assignments, milestones M0-M5, ranked risks).
-- [Prover optimization plan](docs/zkmatrix-poc/PROVER_OPTIMIZATIONS.md): tiered optimization plan for both provers with measured tier-0 results.
+- [docs/zkmatrix-poc/START_HERE.md](docs/zkmatrix-poc/START_HERE.md): what is built, the measured numbers, the
+  rules, and a glossary.
+- [docs/zkmatrix-poc/ZK60_MAC_BRINGUP_20261031.md](docs/zkmatrix-poc/ZK60_MAC_BRINGUP_20261031.md): building and
+  proving on Apple silicon. The prover crate is `ops/zkp-mvp/gpu-metal/hashline`.
+- [docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md](docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md)
+  and [formal/](formal/): the statements every proof must satisfy before production.
+- [research/zkp-efficiency/](research/zkp-efficiency/): the efficiency research lane (hypotheses, experiments,
+  handoffs).
+- [docs/zkmatrix-poc/TASK_BOARD.md](docs/zkmatrix-poc/TASK_BOARD.md): small, self-checking tasks with exact
+  commands.
 
-## Requirements
+An older CPU component demo (synthetic public inputs; it does not establish privacy) runs with
+`python3 scripts/zk60_p1_demo.py --output <new directory>`; see
+[docs/zkmatrix-poc/ZK60_P1_DEMO.md](docs/zkmatrix-poc/ZK60_P1_DEMO.md).
 
-- CPU component demo: Rust/Cargo, Python 3.10+, and `flock` on Linux.
-- Optional GPU and model-scale experiments have separate requirements in their
-  runbooks; they are not needed for the component demo.
+Heavy builds and proofs on a shared machine go through `scripts/zk60_resource_guard.py`; see
+[docs/zkmatrix-poc/ZK60_RESOURCE_PROTOCOL.md](docs/zkmatrix-poc/ZK60_RESOURCE_PROTOCOL.md).
 
-## Contributing
+## Other directions in this repository
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- [Music provenance](docs/provenance/MUSIC_PROVENANCE_POC.md): proving music is human-made (attested capture, a ZK
+  edit chain), and the honest limits of a classifier screen.
+- `zk_lattice/`: a lattice-based (post-quantum) proof of matrix multiplication, the reference implementation of an
+  earlier route.
 
 ## License
 
-[Specify your license here]
+Apache License 2.0: [LICENSE](LICENSE) and [NOTICE](NOTICE). Third-party components keep their own licences. Model
+weights are not included; they are fetched pinned and used under their own licences.
 
 ## Contact
 
-[Add contact information if desired]
+Victor Rielly, victorrielly@gmail.com.

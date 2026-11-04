@@ -1,6 +1,6 @@
 # The two statements every ZKP must have proved in Lean before production (proposal, 2026-11-04)
 
-**Status: PROPOSED by the coordinator for Victor's approval.** The requirement itself is Victor's ruling (D63,
+**Status: APPROVED by Victor, 2026-11-04** ("I approve the lean statements and section 6 choices"; "go ahead and reuse FlashProve's library when appropriate"), together with every choice in §6. The requirement itself is Victor's ruling (D63,
 2026-11-04): "Before we put any ZKPs into production we need to formalize and prove in lean the following two
 statements of the ZKPs." This file proposes the precise statements. Nothing here is proved yet. The formalization
 is the last step before production; it does not hold up the latency work.
