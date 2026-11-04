@@ -9,7 +9,9 @@ LogUp polynomial's degree over `|Fp2|`), the zero-check point. This file states 
 `Statements.lean`.
 
 What is here:
-* `prob_le_of_card`: a uniform probability is at most a count over the size of the space;
+* `prob_le_of_card`, `prob_le_of_card_filter`: a uniform probability is at most a count over the size of the space;
+* `prob_le_of_card_mul`: the same with the count scaled (`|E|·q ≤ k·|Ω|` gives `Pr[E] ≤ k/q`), and
+  `card_filter_prod`: counting pairs by their first entry;
 * `card_roots_le`: a nonzero polynomial vanishes at most at `natDegree` points of a finite field;
 * `schwartzZippel`: `Pr_r[p(r) = 0] ≤ d / |F|` for nonzero `p` of degree `≤ d`;
 * `schwartzZippel_ne`: two different polynomials of degree `≤ d` agree at a random point with probability `≤ d / |F|`.
