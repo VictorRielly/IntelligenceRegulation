@@ -1,0 +1,20 @@
+2026-11-04T22:01:38Z start
+2026-11-04T22:03:55Z build rc=0
+2026-11-04T22:07:19Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::token_io::classify_r16_tests::r16_a_block_at_another_stage_shape_and_the_run_seed_shape_are_refused
+    private_block::token_io::classify_r16_tests::r16_a_doctored_per_layer_gate_shift_is_refused_before_any_header
+    private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_loader_imports_both_stacks_and_reconstructs_dd_records
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_schema_stack_and_fp12_are_checked_before_layer_payloads
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 870 passed; 32 failed; 93 ignored; 0 measured; 0 filtered out; finished in 203.70s
+2026-11-04T22:07:20Z w16r2 rung golden rc=0
+2026-11-04T22:07:48Z trained digests rc=0
+2026-11-04T22:07:48Z digest 2b0d04bb present
+2026-11-04T22:07:48Z digest 678953f6 present
+2026-11-04T22:07:48Z digest 01a6d51d present
+2026-11-04T22:07:48Z digest c5e0bdac present
+2026-11-04T22:07:48Z digest 4e189ccc present
+2026-11-04T22:07:49Z digest a9a19ee5 present
+2026-11-04T22:07:49Z all done

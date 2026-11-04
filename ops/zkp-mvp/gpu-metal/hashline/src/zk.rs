@@ -1121,6 +1121,11 @@ where
     assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
     assert_eq!(degree, mask.degree, "masked extension: round degree mismatch");
     let mut sk = extension_round(finals, exts, degree, poly);
+    // D63 L4 finding (formal/ZK60Formal/HidingSumcheckJoint.lean, `slot_chainDefect`): s_k(1) = poly(ext). The
+    // verifier requires s_k(0) + s_k(1) = poly(fin), so every honest proof has poly(ext) = 0. If it ever does not,
+    // the receipt would be rejected AND its published round would carry the defect poly(ext), a function of the
+    // mask rows. Refuse instead of publishing it.
+    assert!(sk.len() > 1 && sk[1].is_zero(), "masked extension: the extension round is not an identity (poly(ext) != 0); abandon proof attempt");
     let gk = mask.round(prev.len(), prev);
     assert_eq!(sk.len(), gk.len(), "masked extension: round length mismatch");
     for (x, g) in sk.iter_mut().zip(gk.iter()) { *x = x.add(c.mul(*g)); }

@@ -179,3 +179,16 @@ The first three items of the list above are done. Three new files: `HidingM.lean
   - the slots of a block (independent masks; a host slot's scalar combines other slots' totals);
   - the D12a/D55 run structure and R receipts.
 - The instance that connects all of this to `ZeroKnowledge` in `Statements.lean`.
+
+## Fixed, 2026-11-04: the prover now refuses an extension round that is not an identity
+
+`zk::extension` (`hashline/src/zk.rs`, the only place `run_slot` and the private seam build an extension round) now
+asserts `s_k(1) = poly(ext) = 0` before masking and absorbing the round.
+- The verifier already requires `s_k(0) + s_k(1) = poly(fin)`, so this cannot refuse an honest proof that would verify.
+  It only stops the prover from publishing the defect `poly(ext)` in a receipt that would be rejected anyway.
+- Checks (`results/zk60_h124_witness_20261104/`, `ext.progress`, `ext_full2.log`):
+  - full lib suite 899 passed / 3 failed / 93 ignored, the failures exactly the known three;
+  - the refusal never fired;
+  - the W16R2 rung golden and the six pinned trained digests are unchanged.
+- The first suite run (`ext_full.log`, 32 failures) lacked `HL_R13_LOADER_FIXTURES`. It was rerun with the variable set,
+  as earlier suites were.
