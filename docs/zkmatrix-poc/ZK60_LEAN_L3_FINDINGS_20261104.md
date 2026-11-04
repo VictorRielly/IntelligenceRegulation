@@ -245,3 +245,17 @@ For soundness the consequence is worse than "honest proofs fail".
   - The 23 slot polynomials: their degrees and the public-factor premise of F1.
   - `N_lk` and `T_d` derived from the layout in Lean.
   - The extractor for `KnowledgeSound`, from the hash-query log.
+
+## Coordinator's note on F1 (2026-11-04)
+
+The premise F1 depends on, "a public factor in every monomial" of every slot polynomial, is already checked
+statically by the Python privacy gate: NL-1 S1 ("premise, a public factor in every monomial").
+- The FR25-17 closing run passed it on all 23 slots in all four challenge modes, at fork 1 of the 8B T128,
+  Shieldstral T256 and TinyLlama T128 registered bundles (`results/zk60_d60_20261102/privacy_gate_fr25_17/`).
+- The merged 18-part gate covers the other seven slots on every registered bundle.
+- So the property holds on everything registered today.
+
+What F1 adds is that it is a SOUNDNESS premise too, not only a privacy one. Still owed, as the finding says:
+- a Rust-side static test per slot (every public input zero, random private inputs: `poly` must vanish);
+- the corrected `argument.rs` header comment;
+- the premise proved per slot in the Lean instance (L2/L3).

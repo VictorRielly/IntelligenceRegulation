@@ -64,4 +64,4 @@ docs/zkmatrix-poc/ZK60_FUNDING_PLAN.md
 **/cv/
 
 # Lean build output and fetched dependencies (D63 formalization)
-formal/.lake/
+formal/.lake
