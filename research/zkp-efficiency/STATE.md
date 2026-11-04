@@ -2,6 +2,17 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+**2026-11-04 (coordinator), H124 partly landed, byte-identical:**
+- **Witness:** the weight products are tiled and use an exact i16 path. One 8B block's witness went from 0.438 to
+  0.249 s, its products from 0.361 to 0.085 s [MEASURED].
+- **One request:** the witness went from about 8.6 to 3.1 s, giving 9.0 → 15.3 tok/s on the target's clock
+  [INFERRED]. Proof-only is 24.25 tok/s.
+- **What's left in the witness** is the builder's poorly parallel remainder (about 0.16 s per block at 32 threads)
+  and the serial forward chain.
+- **The target is now D64:** meet or exceed FlashProve (about 110 tok/s; see `AGENDA.md`). Re-project the RTX 5090
+  case against ≥ 110, with request batching.
+- Details: `results/zk60_h124_witness_20261104/README.md`.
+
 ## 2026-11-03: Claude researcher cycle (D50): the RTX 5090 projection and the levers re-ranked
 
 **COMPLETE.** **No measured proving improvement.** Only `research/zkp-efficiency/` was written. There was no build,
