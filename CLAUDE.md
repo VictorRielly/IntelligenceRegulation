@@ -4,6 +4,19 @@
 (plain words: what is built, the measured numbers, why the speed goal
 is hard, the open choices, the rules, a glossary).
 
+**The repository is PUBLIC, and all work is open source (D62, Victor 2026-11-04).** Every commit on
+every pushed branch is world-readable, history included. Before any commit (Claude, Sol, Astra, any agent):
+- no credentials, keys, tokens, salts, openings or owner-private values;
+- no personal data: phone numbers, home addresses, CVs, references' contacts, employment details;
+- no funding applications or business plans. These live outside the repository, and `.gitignore` refuses
+  `results/zk60_funding_*/` and `cv/`;
+- no model weights (pin and fetch instead).
+
+Stage named paths, never `git add -A` / `git add .` in the main checkout. **Production rule (D63):** no ZKP goes
+into production before its two Lean statements are proved
+(`docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md`, proposed, awaiting Victor's approval). The
+latency work does not wait for it.
+
 **Machine change, 2026-10-31 (Victor): work continues on the M3 Ultra Mac
 Studio** (macOS arm64, 256 GB unified memory, 32 CPU cores, 80-core GPU)
 until the RTX 5090 box is up; the WSL laptop is no longer reachable. Read
