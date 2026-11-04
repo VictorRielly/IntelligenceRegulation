@@ -1,0 +1,12 @@
+[zk60-guard 12:20:36] START fr25-regate-rung-s0 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=3e7f8565388c
+[zk60-guard 12:49:03] END fr25-regate-rung-s0 exit=0 child_wall=1708s peak_rss=12.42G min_avail=221.07G
+regate rung-s0 rc=0
+pin set: writer 'run_capture::write_bundle (a registered D55 run profile, D60)' known True, 75 declared / 75 expected, missing [], unexpected []
+controls_run True, joint_run True; not_here accepted ['G_k in the clear: recovered on SC_FZC, not read from a bound line'], unaccepted []
+status: D55-PASS (1707.3 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_gate_tinyllama_20261017/round27/fixes/records/d55-fr25-r13-rung-s0.json
+[zk60-guard 12:49:03] START fr25-regate-rung-s1 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=38fdd8efb84f
+[zk60-guard 13:17:43] END fr25-regate-rung-s1 exit=0 child_wall=1719s peak_rss=12.38G min_avail=227.95G
+regate rung-s1 rc=0
+pin set: writer 'run_capture::write_bundle (a registered D55 run profile, D60)' known True, 75 declared / 75 expected, missing [], unexpected []
+controls_run True, joint_run True; not_here accepted ['G_k in the clear: recovered on SC_FZC, not read from a bound line'], unaccepted []
+status: D55-PASS (1719.2 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/fr25-fixes/results/zk60_gate_tinyllama_20261017/round27/fixes/records/d55-fr25-r13-rung-s1.json

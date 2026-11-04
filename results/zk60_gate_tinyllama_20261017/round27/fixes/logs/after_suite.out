@@ -1,0 +1,5 @@
+[zk60-guard 12:13:22] START fr25-suite_v25_fr25 class=cpu need=8G cap=48G enforce=watchdog-only waited=0s run=5791ee1e69b0
+[zk60-guard 12:20:36] END fr25-suite_v25_fr25 exit=1 child_wall=433s peak_rss=2.57G min_avail=230.94G
+FAIL: test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control)
+Ran 203 tests in 432.061s
+FAILED (failures=1, skipped=72)
