@@ -26,11 +26,23 @@ This file models `Fp ⊂ Fp2` as any field extension `F → K` with `[K : F] = 2
   load-bearing.
 * `pair_coeffs_independent`, `independent_of_det_ne_zero`: the code's two refusals (a zero mask coefficient, a zero
   proximity determinant) give exactly the independence hypotheses used here.
-* `openingView_law_eq`, `openingView_law_eq_of_points`: the joint law of (group vectors, proximity vector, opened
-  columns) of one opening is the same for every data matrix.
+* `openingView_law_eq`, `openingView_law_eq_of_points`: the joint law of (every claim's row combination, the
+  proximity vector, all opened columns) of one opening is the same for every data matrix.
+* `openingView_law_eq_comp`: hence so is the law of anything computed from them by a fixed map, in particular the
+  verifier's group vectors (the λ-combinations of the claims' row combinations in each group) and every claim's
+  value (its row combination's message part against the claim's column weights).
+
+How the model reads the protocol. The index `Γ` runs over the CLAIM SITES (each with its own reserved pair), not
+over the column-weight groups. The view's "claim vectors" `C_κ = ρ_κᵀ [M | pads]` are more than the verifier sees;
+the verifier sees `Σ_{κ ∈ g} λ_κ C_κ` per group and each claim's value, both fixed linear images. Proving the law of
+the larger view data-independent proves it for the smaller one. (Reading `Γ` as groups instead would miss the
+individual values of a group with several claims, which come from the sumcheck and are not a function of the group
+vector.) Rows that are no designated pair (data, extra mask rows, the zero-sum rows) are the data rows `Dat`; their
+messages are arbitrary in the theorem, so random ones are covered too.
 
 NOT covered here (each is further L4 work): the value-0 LogUp sum group on `H`, whose mask is the zero-sum pair `u`
-(constrained, not uniform; the data must satisfy the public identity); the CFS channel (the masked sumchecks and the
+(constrained, not uniform; the data must satisfy the public identity), which is `HidingOpeningSum.lean`; the CFS
+channel (the masked sumchecks and the
 mask commitment `M`); the salted Merkle paths of the opened columns and the hiding of the root (random-oracle
 level); the Fiat–Shamir derivation of the challenges (here the weights and the sampled points are FIXED, so this is
 the honest-verifier statement for one fixed challenge value); and composition over the commitments of a run.
@@ -59,7 +71,7 @@ theorem pair_decomp (hK : Module.finrank F K = 2) {a b : K} (hab : LinearIndepen
 /-- **A mask pair hides one clear vector.** Let `w` be any vector over `K` (the data's contribution and every other
 row's), and let the clear vector be `w + a·R₁ + b·R₂`, where `R₁, R₂` are independent uniform vectors over `F` (the two
 rows of a reserved pair) and `a, b` are `F`-independent. Then the clear vector is uniform over `K`, whatever `w` is.
-At a claim site `a = λ·e` and `b = λ·e·u` (`pair_coeffs_independent`); for the proximity vector `a, b` are the two
+At a claim site `a = cm` and `b = cm·u` (`pair_coeffs_independent`); for the proximity vector `a, b` are the two
 proximity-pair weights (`independent_of_det_ne_zero`). This is ONE vector alone; `openingView_law_eq` is the joint
 statement with the other vectors and the opened columns. -/
 theorem pairMask_uniform [Fintype F] [Fintype K] {ι : Type} [Fintype ι] [DecidableEq ι]
@@ -145,10 +157,10 @@ theorem singleMask_law_injective [Fintype F] (hK : Module.finrank F K = 2) (e : 
 
 /-! ## The code's refusals give the independence hypotheses -/
 
-/-- **A claim site's pair coefficients are independent.** The pair enters a group vector with coefficients
-`c = λ·e` and `c·u` (`build_claim`: `cm` and `cm·u`, times the group's λ). They are `F`-independent exactly when
-`c ≠ 0`, given `u ∉ F`. `audit_claims` refuses a zero terminal mask coefficient and `check_opening_challenges` a zero
-group member coefficient, so `c ≠ 0`. -/
+/-- **A claim site's pair coefficients are independent.** The pair enters its claim's row combination with
+coefficients `c` and `c·u` (`build_claim`: `cm` and `cm·u`; inside a group vector both are further multiplied by the
+claim's λ). They are `F`-independent exactly when `c ≠ 0`, given `u ∉ F`. `audit_claims` refuses a zero terminal mask
+coefficient, so `c ≠ 0`. -/
 theorem pair_coeffs_independent {c u : K} (hc : c ≠ 0) (hu : u ∉ Set.range (algebraMap F K)) :
     LinearIndependent F ![c, c * u] := by
   rw [LinearIndependent.pair_iff' hc]
@@ -198,10 +210,11 @@ Q pad entries"; the encoder `encode_row_zk` is a bijection from these `n + Q` sy
 abbrev Row (F : Type) (n Q : ℕ) := Fin n ⊕ Fin Q → F
 
 /-- The weights of one opening, by role of the row. The rows are split into: data rows `Dat` (every row that is not
-a designated pair, INCLUDING extra mask rows; their contents are arbitrary, so the theorem holds for random ones too);
-one designated reserved pair per group `g ∈ Γ` (rows `(g, true)` and `(g, false)`, read as `R_re`, `R_im`); and the
-proximity pair. Group `g` weighs the data rows by `wD g` and its own pair by `a g`, `b g`, and touches no other
-group's pair and not the proximity pair (`audit_claims`). The proximity vector weighs everything. -/
+a reserved pair; their contents are arbitrary, so the theorem holds for random ones too); one reserved pair per claim
+site `κ ∈ Γ` (rows `(κ, true)` and `(κ, false)`, read as `R_re`, `R_im`); and the proximity pair. Claim `κ` weighs the
+data rows by `wD κ` and its own pair by `a κ`, `b κ`, and touches no other claim's pair and not the proximity pair
+(`audit_claims`: "every reserved pair row is touched by exactly ONE claim", "nothing but the proximity combination
+touches the proximity pair"). The proximity vector weighs everything. -/
 structure Weights (K : Type) (Dat Γ : Type) where
   wD : Γ → Dat → K
   a : Γ → K
@@ -216,8 +229,9 @@ the designated pairs and of the proximity pair. -/
 abbrev Coins (F : Type) (n Q : ℕ) (Dat Γ : Type) :=
   (Dat → Fin Q → F) × (Γ × Bool → Row F n Q) × (Bool → Row F n Q)
 
-/-- The verifier's view of one opening: the group vectors, the proximity vector, and the opened columns of the data
-rows, of the pairs and of the proximity pair, at the `k` opened points. -/
+/-- The view of one opening: every claim's row combination, the proximity vector, and the opened columns of the
+data rows, of the pairs and of the proximity pair, at the `k` opened points. (The verifier sees fixed linear images of
+the first component: the λ-combined group vectors and the claim values.) -/
 abbrev View (F K : Type) (n Q k : ℕ) (Dat Γ : Type) :=
   (Γ → Row K n Q) × Row K n Q × (Dat → Fin k → F) × (Γ × Bool → Fin k → F) × (Bool → Fin k → F)
 
@@ -256,17 +270,17 @@ theorem ann_sum {ι : Type} [Fintype ι] (E : Matrix (Fin k) (Fin n ⊕ Fin Q) F
 /-- **The joint view of one opening does not depend on the data (the zero-witness simulator).** Fix the opened
 points (through `E`) and the challenges (through the weights). Suppose:
 * `[K : F] = 2` (Fp2 over Fp);
-* each group's designated pair has `F`-independent coefficients (`pair_coeffs_independent`);
+* each claim's reserved pair has `F`-independent coefficients (`pair_coeffs_independent`);
 * the proximity pair has `F`-independent coefficients (`independent_of_det_ne_zero`);
 * the pad block of the opened points is surjective (`padBlock_surjective`: at most `Q` distinct points outside the
   message domain).
-Then for every data matrix `d`, the law of (group vectors, proximity vector, all opened columns) over uniform coins
-equals its law at `d = 0`. A simulator that runs the honest opening on the zero matrix with fresh coins therefore
-produces exactly the real view. The claimed values are functions of the clear vectors, and repeated samples are a
-fixed copy of these columns, so they are covered too.
+Then for every data matrix `d`, the law of (claim row combinations, proximity vector, all opened columns) over
+uniform coins equals its law at `d = 0`. A simulator that runs the honest opening on the zero matrix with fresh coins
+therefore produces exactly the real view. The group vectors, the claim values and the copies of repeated samples are
+fixed functions of this view (`openingView_law_eq_comp`).
 
-The proof shifts the coins: the data rows' pads absorb the data's opened values (`hE`), each group's pair absorbs
-the data's contribution to its clear vector (its coordinates in the pair's basis), and the proximity pair absorbs the
+The proof shifts the coins: the data rows' pads absorb the data's opened values (`hE`), each claim's pair absorbs
+the data's contribution to its row combination (its coordinates in the pair's basis), and the proximity pair absorbs the
 rest. Every shift is invisible at the opened points, and a shift of uniform coins is uniform. -/
 theorem openingView_law_eq [Fintype F] (hK : Module.finrank F K = 2)
     (E : Matrix (Fin k) (Fin n ⊕ Fin Q) F) (ω : Weights K Dat Γ)
@@ -329,7 +343,7 @@ theorem openingView_law_eq [Fintype F] (hK : Module.finrank F K = 2)
     obtain ⟨p, A, P⟩ := r
     simp only [openingView, hrd, Prod.mk_add_mk, Pi.add_apply, Pi.zero_apply, Prod.mk.injEq]
     refine ⟨?_, ?_, ?_, ?_, ?_⟩
-    · -- group vectors
+    · -- the claims' row combinations
       funext g c
       have hkey : ∑ i, ω.wD g i * algebraMap F K (δ i c)
           = ω.a g * algebraMap F K (ΔA g c) + ω.b g * algebraMap F K (ΔB g c) := by
@@ -402,6 +416,17 @@ theorem openingView_law_eq_of_points [Fintype F] (hK : Module.finrank F K = 2)
   rw [← hg]
   funext j
   simp only [hEpad, Matrix.mulVec, dotProduct, padBlock]
+
+/-- **Anything the verifier computes from the view inherits it.** For any fixed map `φ` (the λ-combination of the
+claim vectors into group vectors, the claim values against their column weights, the copies of repeated samples,
+the order of the rows in the real layout), the law of `φ` of the view is the same for every data matrix. -/
+theorem openingView_law_eq_comp [Fintype F] {β : Type} (φ : View F K n Q k Dat Γ → β)
+    (E : Matrix (Fin k) (Fin n ⊕ Fin Q) F) (ω : Weights K Dat Γ) (d : Dat → Fin n → F)
+    (h : (PMF.uniformOfFintype (Coins F n Q Dat Γ)).map (openingView E ω d)
+      = (PMF.uniformOfFintype (Coins F n Q Dat Γ)).map (openingView E ω 0)) :
+    (PMF.uniformOfFintype (Coins F n Q Dat Γ)).map (φ ∘ openingView E ω d)
+      = (PMF.uniformOfFintype (Coins F n Q Dat Γ)).map (φ ∘ openingView E ω 0) := by
+  rw [← PMF.map_comp, ← PMF.map_comp, h]
 
 end Joint
 
