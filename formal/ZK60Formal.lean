@@ -6,3 +6,4 @@ import ZK60Formal.HidingOpeningSum
 import ZK60Formal.HidingSumcheck
 import ZK60Formal.HidingM
 import ZK60Formal.HidingSumcheckJoint
+import ZK60Formal.HidingMerkle
