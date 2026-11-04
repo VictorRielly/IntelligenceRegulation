@@ -93,3 +93,70 @@ fn native_witness_time_per_block_at_the_trained_tinyllama_shapes() {
         eprintln!("NATIVE R3-1 witness T{t}: best of 3 {best:.3} s per block on {} rayon threads (dense synthetic words; shared box)", rayon::current_num_threads());
     }
 }
+
+/// **H124: one block's witness time at the W16R2 8B T128 shape, and how much of it is
+/// the seven weight products.**
+///
+/// - The block is the D55 A/B fixture's: public synthetic data at the true geometry
+///   (`range16_tests::case`), with M10's admissible input.
+/// - It times `build_accuracy` on the global rayon pool and on a one-thread pool (CPU seconds).
+/// - It then times the seven weight products alone (q, k, v, o, gate, up, down) at the same
+///   sizes, through the builder's own parallel products on random words.
+///
+/// Release; the box is shared, so read the numbers as an estimate.
+#[test]
+#[ignore = "release timing (H124): the W16R2 8B T128 witness, all threads and one thread, and the weight products alone"]
+fn h124_witness_time_per_block_at_w16r2_8b_t128() {
+    use super::range16_tests::{built, case};
+    let (sh, data, public, ff) = case(built(super::shape::W16R2_8B_T128_H24), 3);
+    let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+    let mut s = 0usize;
+    let input = loop {
+        let x: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+        match build(&x) {
+            Ok(_) => break x,
+            Err(_) if s < 6 => s += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let best = |f: &dyn Fn()| {
+        let mut b = f64::MAX;
+        for _ in 0..3 {
+            let t0 = std::time::Instant::now();
+            f();
+            b = b.min(t0.elapsed().as_secs_f64());
+        }
+        b
+    };
+    let threads = rayon::current_num_threads();
+    let all = best(&|| drop(build(&input).unwrap()));
+    let one_pool = rayon::ThreadPoolBuilder::new().num_threads(1).build().unwrap();
+    let one = one_pool.install(|| best(&|| drop(build(&input).unwrap())));
+
+    let (t, d, qw, kv, h) = (sh.tokens, sh.width, sh.q_width(), sh.kv_heads * sh.head_dim, sh.hidden);
+    let mut r = Rng(0x9e37_79b9_7f4a_7c15);
+    let words = |r: &mut Rng, n: usize, m: i64| -> Vec<i64> { (0..n).map(|_| r.range(-m, m)).collect() };
+    let weights = |r: &mut Rng, n: usize| -> Vec<i8> { (0..n).map(|_| r.range(-127, 127) as i8).collect() };
+    // (inner, outer, in_out): the projections in the attention orientation, the feed-forward in its own
+    let shapes = [(d, qw, false), (d, kv, false), (d, kv, false), (qw, d, false), (d, h, true), (d, h, true), (h, d, true)];
+    let operands: Vec<(Vec<i64>, Vec<i8>, usize, usize, bool)> =
+        shapes.iter().map(|&(inner, outer, in_out)| (words(&mut r, t * inner, 100), weights(&mut r, inner * outer), inner, outer, in_out)).collect();
+    let products = || {
+        for (x, w, inner, outer, in_out) in &operands {
+            drop(witness::matmul_parallel(&sh, x, *inner, w, *inner, *outer, *outer, t * *outer, *in_out));
+        }
+    };
+    let prod_all = best(&products);
+    let prod_one = one_pool.install(|| best(&products));
+    let macs: usize = shapes.iter().map(|&(i, o, _)| t * i * o).sum();
+    eprintln!(
+        "H124 {} witness per block: {all:.3} s on {threads} threads, {one:.3} s on 1 thread (CPU s); \
+         seven weight products alone: {prod_all:.3} s on {threads} threads, {prod_one:.3} s on 1 thread ({:.2} G MACs); \
+         rest (all threads) {:.3} s; a 32-block request at this rate: {:.1} s on all threads, {:.1} CPU s",
+        sh.name,
+        macs as f64 / 1e9,
+        all - prod_all,
+        32.0 * all,
+        32.0 * one
+    );
+}
