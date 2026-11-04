@@ -14,7 +14,11 @@ The plain-words version, the modelling choices and the open decisions are in
 
 **Status:**
 - These are STATEMENTS. Nothing about our protocol is proved yet.
-- The only proof is a sanity check: the trivial arithmetization satisfies `CircuitIff`.
+- Proved so far:
+  - `Hiding.lean`, the first zero-knowledge ingredient: the opened columns of a masked row are EXACTLY uniform
+    for every message (`openedValues_uniform`), when the `Q` opened points are distinct and outside the message
+    domain. This is the D59 pad-block property, now a theorem, using only Lean's three standard axioms.
+  - A sanity check: the trivial arithmetization satisfies `CircuitIff`.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).
