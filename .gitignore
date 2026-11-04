@@ -56,3 +56,9 @@ local-models/zk60-llama3-8b/
 
 # Recoverable native MVP candidate; reviewed overlays and hashes are retained.
 ops/zkp-mvp/candidate/
+
+# The repository is public (2026-11-04). Funding applications, CVs and other personal or business
+# material are kept outside it (Victor: remove the publicly released funding applications).
+results/zk60_funding_*/
+docs/zkmatrix-poc/ZK60_FUNDING_PLAN.md
+**/cv/
