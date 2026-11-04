@@ -109,3 +109,20 @@ matrix each time), so they were memory-bound. Vectorizing alone (step 1) therefo
 - **Next:** parallelize the rest of the builder, and build several blocks' witnesses at once. The forward chain of
   one request is serial, but its products are now cheap enough to compute the chain first and build the 32 witnesses
   in parallel.
+
+## One request end to end after step 2 (D55 A/B harness, 2026-11-04)
+
+**Command:** `d55_ab_one_request_serial_against_forks`, guarded (class gpu), `HL_D55_PROFILE=W16R2_8B_T128_H24`,
+`HL_D55_L=32`, `HL_D55_WORKERS=6`, `HL_D55_PASSES=2`. The tree now includes Q = 280. Log: `d55_ab_tiled.log`.
+
+| | 2026-11-01 (`m_d55_r2b.log`) | 2026-11-04 (tiled witness, Q = 280) |
+|---|---:|---:|
+| D55 fork run at N = 6, best wall | 5.579 s = 22.94 tok/s | **5.278 s = 24.25 tok/s** |
+| D12a serial, best wall | 11.061 s | 11.119 s |
+| setup | 15.1 s | 9.1 s |
+| total | 110.9 s | 77.1 s |
+| witness per call [INFERRED: total − setup − timed calls − verifications, over 5 calls] | 8.64 s | **3.09 s** |
+| **one request on the target's clock** (proof + witness) | about 14.2 s = **9.0 tok/s** | about 8.4 s = **15.3 tok/s** |
+| receipt | 790,844,032 B | 818,728,672 B (+3.5%, as Q = 280 predicted) |
+
+Both figures are inferred by the same subtraction; the box is shared.

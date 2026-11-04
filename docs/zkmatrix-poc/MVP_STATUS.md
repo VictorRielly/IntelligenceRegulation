@@ -18,13 +18,16 @@
   when the output is the discretized model's output. (2) The receipts reveal nothing useful about the hidden data.
   Proposed statements: `ZK60_LEAN_PRODUCTION_STATEMENTS.md` (awaiting Victor's approval). The latency work continues
   in parallel.
-- **The witness (H124) is now measured directly** (`results/zk60_h124_witness_20261104/`):
-  - one W16R2 8B T128 block takes 0.438 s on 32 threads, of which the seven weight products are 0.361 s (95% of
-    the CPU time, scalar code);
-  - a first exact fast path (i16 inputs, i32 block sums) brings that to 0.379 s, byte-identical (goldens and all six
-    pinned trained digests unchanged);
-  - the next step is the matrix hardware: f64 matrix products are exact here (every partial sum is an integer below
-    2^44), and so are integer GPU kernels.
+- **The witness (H124): measured, then made about 2.8× faster, byte-identically** (`results/zk60_h124_witness_20261104/`):
+  - The weight products were 95% of the witness CPU time and memory-bound: every token re-read the whole weight
+    matrix. Tiling them by output columns and summing i16 inputs exactly in i32 blocks cut one 8B block's products
+    from 0.361 to 0.085 s, and its witness from 0.438 to 0.249 s (5.94 to 1.38 CPU s).
+  - Goldens and all six pinned trained digests are unchanged.
+  - **One request on the target's clock (proof + witness) is now about 15.3 tok/s, up from about 9** [INFERRED,
+    the D55 A/B harness]: witness about 3.1 s plus 5.28 s of proving.
+  - Proof-only is 24.25 tok/s at Q = 280.
+  - Next: the builder's poorly parallel remainder, overlapping the witness with proving, then GPU products.
+  - The new target is ≥ 110 (D64).
 - **The repository is public, and all work is open source (D62)**, under Apache-2.0 (`LICENSE`, `NOTICE`,
   `SECURITY.md`). The Lean statements (D63) were approved by Victor on 2026-11-04.
 
