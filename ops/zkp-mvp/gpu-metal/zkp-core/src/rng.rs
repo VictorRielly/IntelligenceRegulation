@@ -52,17 +52,22 @@ impl Clone for XofForm {
 
 impl Copy for XofForm {}
 
-/// [A14] 0: as the environment says (`HL_RNG_XOF=blake3` for [`XofForm::Blake3`],
-/// otherwise [`XofForm::Lanes8`]); 1: Blake3; 2: Lanes8
+/// [A14] 0: as the environment says (`HL_RNG_XOF=lanes8` for [`XofForm::Lanes8`],
+/// otherwise [`XofForm::Blake3`]); 1: Blake3; 2: Lanes8
 static XOF_FORM: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 
-/// [A14] the form `fill_fp` uses now
+/// [A14] the form `fill_fp` uses now. **The default is [`XofForm::Blake3`]**
+/// (coordinator, 2026-11-05): the eight-lane form gives the same bytes, but on
+/// top of the lazy sums it moved the proof-only wall by -0.2% (noise), and it
+/// is a hand-written BLAKE3 compression inside the hiding generator, which the
+/// privacy gate would have to audit for no measured gain. `HL_RNG_XOF=lanes8`
+/// opts in (for the RTX 5090's CPU-bound host path, to be measured there).
 pub fn xof_form() -> XofForm {
     static ENV: std::sync::OnceLock<XofForm> = std::sync::OnceLock::new();
     match XOF_FORM.load(std::sync::atomic::Ordering::Relaxed) {
         1 => XofForm::Blake3,
         2 => XofForm::Lanes8,
-        _ => *ENV.get_or_init(|| if std::env::var("HL_RNG_XOF").map(|v| v == "blake3").unwrap_or(false) { XofForm::Blake3 } else { XofForm::Lanes8 }),
+        _ => *ENV.get_or_init(|| if std::env::var("HL_RNG_XOF").map(|v| v == "lanes8").unwrap_or(false) { XofForm::Lanes8 } else { XofForm::Blake3 }),
     }
 }
 

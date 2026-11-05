@@ -10,9 +10,10 @@
 | the fork run's host work (A11: one rayon pool per fork, not one shared pool) | about 0.5 s per block | stream +19%, proof only −9.5% (A/B, both orders) |
 | the device slots' tables, 1.32 GB per block (A12: built on the GPU, not the CPU) | about 47 ms per block per fork | stream +5%, proof only −6.5% (A/B, both orders) |
 | the openings' store folds (A8: row-sparse, prefetched, 16-bit lanes) | A 24.6 ms, H 31.5 ms per fold | stream +2.2%, proof only −2.9% (A/B, both orders) |
+| the forks' host sums (A14: summed exactly, reduced once) | — | proof only −2.8%, the stream −1.8% (A/B, both orders; under review) |
 | **one request from its input, all witness work on the clock** | 11.1 tok/s | **15.5 tok/s** |
-| **a stream of 4 requests, steady** | 15.9 tok/s | **24.2 tok/s** (amortized 20.9; latency 8.6–10.0 s) |
-| proof only | 22.7 tok/s | **32.6 tok/s** |
+| **a stream of 4 requests, steady** | 15.9 tok/s | **24.3 tok/s** (amortized 20.6–20.9; latency 8.6–10.0 s) |
+| proof only | 22.7 tok/s | **32.2–32.6 tok/s** |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -34,10 +35,14 @@
   rows once); the fold was waiting on memory. The independent A/B gain is smaller than the agent's (−2.9% against
   −5.1% proof only). One note for the privacy gate: its fast path makes the prover's time depend slightly on whether
   the hidden words are 16-bit.
+- **A13 did not pay, and A14 helped proof only but not the stream** [MEASURED]:
+  - A13, doing each block's before-challenge work during the sealing pass: what the forks saved, the sealing pass lost.
+  - A14's lazy sums: proof only −2.8%, the stream −1.8%.
+- **A13 found a large lever: the sealing pass wastes its cores.** About 10 of 32 are busy, and 62% of its CPU is system
+  time. A harness probe with an 8-thread pool gave one request −11.5% (16.9 tok/s) and the stream +19.6% (28.1 tok/s)
+  [MEASURED, 2 passes].
 - **D64's target is ≥ 110.** Next:
-  - A13: the work in each block before its first challenge (A's rows, A's commitment, the mask commitment), about 22%
-    of a block, done during the sealing pass instead of after it;
-  - A14: the forks' remaining host work (the private slots' tables, the transcript absorb, the randomness fill);
+  - A15: the sealing pass on its own thread pool, in production, with a witness byte test and a 6-pass A/B (running);
   - the protocol bundle W16R3, ruled 2026-11-05 (D67):
     - it is B1 + B2 + B3;
     - no B4, so statement 1 stays exactly as approved;

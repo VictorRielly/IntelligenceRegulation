@@ -428,3 +428,122 @@ alternating.
   same digest);
 - the unexplained small rise in system CPU (flat on the merged tree);
 - an in-process A/B at N = 1.
+
+## A13: before-challenge work during the sealing pass, a negative result (not merged)
+
+Full write-up: `a13/README.md`. Only its results are in perf. The code stays on its branch as a record (8158de49,
+35573146), because it adds complexity to two privacy-gated files for no gain.
+
+**The idea:** a fork's work before its first transcript use needs only its own block's witness. That work is A's rows,
+the lookups and histograms, the mask rows, A's commitment and M's commitment. Do it during the sealing pass instead of
+after it.
+- **Byte-identical:** every parked fork equals the same fork proved whole, byte for byte, and the rung golden holds with
+  the core split across threads.
+- **Its share:** 63 ms per block alone (21.5%) and 140 ms per block at N = 6 [MEASURED].
+
+**Why it does not pay** [MEASURED, 2 passes, both orders]:
+- With all 32 parts made beside the sealing pass, the forks phase fell 9.4% but the sealing pass rose 9.2% (CPU
+  contention; the GPU wait barely moved).
+- **Net:** one request +1.1%, within the noise; the stream steady −7.3%.
+- **Smaller windows and lower QoS did not rescue it:** one request −3.5% to +1.6%, the stream −3.5% to −12.1%.
+- **The ceiling:** even a free before-part would take only about 0.3 s off one request [INFERRED].
+- **Memory:** peak 72–80 GiB with 32 forks parked, against 35–64 GiB [MEASURED, Metal pool on].
+
+**What it found on the way: the sealing pass wastes its cores.**
+- It keeps about 10 of 32 cores busy, and 26 of its 42 CPU-seconds are system time.
+- **A harness-only probe** ran its witness builds in a rayon pool of 8 or 16 threads instead of the 32-thread global
+  pool. Every pair favours it, in both orders [MEASURED, 2 passes; the proof-only control moved +0.3% to +5.5%]:
+
+| pool | sealing pass | one request from its input | stream, steady |
+|---|---:|---:|---:|
+| 16 threads | −17.8% (4.22 → 3.47 s) | −11.0% (16.8 tok/s) | +16.4% (27.3 tok/s) |
+| 8 threads | −21.8% (→ 3.30 s) | −11.5% (16.9 tok/s) | +19.6% (28.1 tok/s) |
+
+- **This is item A15,** now running: the same pool in the production sealing pass, the cause of the system time, a
+  witness-plane byte test, and a 6-pass A/B to choose the pool size.
+
+## A14: the forks' remaining host work, done (lazy sums on; the lane XOF and parallel absorb opt-in)
+
+Full write-up: `a14/README.md`. Merged into perf; acceptance and an independent repeat of the A/B on the merged tree:
+`check_a14merge.sh`, `a14merge.progress`, `a14merge_pairs.md`.
+
+**The profile** [MEASURED, macOS `sample`, N = 6, tree 76e9b280]:
+- In the forks phase each fork's main line waits on the GPU 48% of the time.
+- The host share, by main-line time:
+
+| bucket | share |
+|---|---:|
+| A/H zero-fill and free | 14.2% |
+| the store fold | 11.7% |
+| lookups and histograms | 10.2% |
+| `define`'s public weight folds | 9.7% |
+| helper inverses | 9.5% |
+| randomness | 7.8% |
+| commit host parts | 6.2% |
+| private slots' tables | 5.1% |
+| per-block public checks | 4.1% |
+| witness planes into A | 4.0% |
+| extension rounds | 3.9% |
+| claimed sums | 2.9% |
+| transcript absorb | 2.8% |
+
+**What changed** (all byte-preserving):
+- **Lazy sums** (`argument.rs`, the default; `HL_ARG_LAZY=0` restores):
+  - Where: the accumulating private tables and `mask_eval_eq`.
+  - How: the `Fp2 × Fp` products are summed exactly in u128, with wrap counts, then reduced once (2^128 ≡ −2^32 mod p).
+  - My check: each product is below 2^128, every wrap is counted, and the constant is right.
+- **The randomness XOF in NEON lanes** (zkp-core `rng.rs`; **opt-in**, `HL_RNG_XOF=lanes8`):
+  - It is byte-identical to blake3 over 4,000 blocks and every counter edge, and `fill_fp` leaves the same state.
+  - A14 made it the default. **The coordinator made it opt-in:** on top of the lazy sums it moved the proof-only wall
+    by −0.2%, and it is a hand-written BLAKE3 compression inside the hiding generator, which the privacy gate would
+    have to audit for no measured gain.
+  - It is kept for the RTX 5090, whose host path is projected to be the limit.
+- **A parallel transcript absorb** (zkp-core `transcript.rs`, via `blake3::hazmat`; opt-in, `HL_TRANSCRIPT_PAR=1`): it
+  measured +1% worse.
+
+**Byte evidence:**
+- The lazy sums equal the per-term sums on every table of the rung (476 tables) and on the 8B private slots (56 tables,
+  8.56 M words).
+- The rung golden `96e4f0b6` holds on the CPU and on Metal under all six settings.
+- One 8B block's core proof gives digest `a32cb0dd0fc2ec46` under every setting.
+- 330 parallel absorbs equal the serial digest.
+
+**Acceptance on the merged tree** (the default XOF switched to blake3) [MEASURED, one guarded job]:
+- build rc 0; no-feature `cargo check --tests` rc 0;
+- full lib suite: 925 passed, exactly the known three failed, 106 ignored; zkp-core lib 81 passed;
+- the A14, A8, A12, A11 and A7 byte tests, the W16R2 rung golden and all six post-F12 digests pass;
+- D55 default:
+  - proof only, best 3.981 s = 32.15 tok/s;
+  - one request from its input, best 8.264 s = 15.49 tok/s;
+  - the stream 24.29 tok/s steady (20.63 amortized);
+  - every receipt verified; 818,728,672 B unchanged.
+
+**The independent A/B** [MEASURED, `a14merge_pairs.md`]: the lazy sums against the per-term sums, 4 passes, alternating.
+
+| metric | order bias removed | pairs favouring the lazy sums |
+|---|---:|---:|
+| proof-only wall | **−2.8%** | 3 of 4 |
+| forks phase | **−3.2%** | 3 of 4 |
+| one request from its input | −0.4% | 2 of 4 |
+| stream, steady | **−1.8% (worse)** | 0 of 4 |
+| stream, amortized | −0.7% (worse) | 1 of 4 |
+| user CPU | −3.4% | 4 of 4 |
+
+- **The stream did not gain.** The agent's own A/B agrees (stream steady −0.7%).
+- The stream appears limited by the sealing pass and the forks sharing the machine, which is A15's target.
+- **The lazy sums stay on for now.** A15's final A/B repeats this pair on top of its sealing pool. If the stream still
+  loses there, they become opt-in.
+
+**For the privacy gate:**
+- Digests that moved: `private_block/argument.rs`, zkp-core `rng.rs` and `transcript.rs` (the last two are in the run
+  capture's `SHARED_SOURCE_FILES`).
+- No new timing dependence on the hidden data: the lazy sums have no data-dependent branch; the lane XOF is
+  constant-time and off by default; the absorb splits by length only.
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+**Left on the host** (A14's ranking):
+- the A/H zero-fill (first-touch by the parallel writers is still untried);
+- lookups, inverses and witness planes;
+- the per-block public checks, which repeat preflight's and could be cached per resident model;
+- `define`'s public int8 weight folds, which would need a device fold;
+- salts drawn one by one in `pcs.rs`.

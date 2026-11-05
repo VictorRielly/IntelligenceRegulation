@@ -2838,7 +2838,8 @@ fn a8_store_fold_census_and_bench_on_the_8b_block() {
 
 /// [A14] the six settings of A14's three forms: (label, the generator's XOF,
 /// a long absorb in parallel, the lazy sums). `a14old` is the tree before A14,
-/// `a14new` every form on, `a14def` the default (the parallel absorb is opt-in).
+/// `a14new` every form on; the default is `lazy1 only` (the parallel absorb and
+/// the lane XOF are opt-in), and `xof8+lazy1` is the default A14 proposed.
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
 const A14_SETTINGS: [(&str, zkp_core::rng::XofForm, bool, bool); 6] = [
     ("a14old", zkp_core::rng::XofForm::Blake3, false, false),
@@ -2846,7 +2847,7 @@ const A14_SETTINGS: [(&str, zkp_core::rng::XofForm, bool, bool); 6] = [
     ("trpar only", zkp_core::rng::XofForm::Blake3, true, false),
     ("lazy1 only", zkp_core::rng::XofForm::Blake3, false, true),
     ("a14new", zkp_core::rng::XofForm::Lanes8, true, true),
-    ("a14def", zkp_core::rng::XofForm::Lanes8, false, true),
+    ("xof8+lazy1", zkp_core::rng::XofForm::Lanes8, false, true),
 ];
 
 /// [A14] put one setting in force for the process, or (`None`) the environment's

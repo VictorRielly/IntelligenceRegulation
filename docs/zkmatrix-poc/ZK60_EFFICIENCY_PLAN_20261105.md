@@ -92,7 +92,14 @@ are redone once, not per change.
   faster store fold instead (row-sparse, prefetched, 16-bit NEON lanes, pads in the same pass): 2–2.5× on the fold.
   Independent A/B on the merged tree: proof only −2.9%, stream steady +2.2%. The Mac is now at 15.5 tok/s for one
   request, 24.2 for the stream steady and 32.6 proof only [MEASURED].
-- Next, both byte-preserving:
+- **A13, a negative result, not merged.** The forks phase fell 9.4% and the sealing pass rose 9.2%; one request moved
+  +1.1% and the stream −7.3%. Its probe found the sealing pass in the global pool keeps about 10 of 32 cores busy, with
+  62% system time. An 8-thread pool gave one request −11.5% and the stream +19.6% (harness, 2 passes) [MEASURED].
+- **A14 done:** lazy sums (the default; proof only −2.8%, the stream −1.8%, re-checked in A15). The lane XOF and the
+  parallel absorb are opt-in.
+- **A15 (running): the sealing pass on its own rayon pool,** in production and in the harness: the cause of the system
+  time, a witness-plane byte test, and a 6-pass A/B for the pool size.
+- Earlier plan text, kept for the record:
   - **A13, before-challenge work during the sealing pass.** A fork's work before its first transcript use (A's rows,
     A's commitment, the mask commitment) needs only its own block's witness. That is about 22% of a block [MEASURED,
     A1]. Done during the sealing pass, it could take up to about 0.8 s off one request [ESTIMATE]. Memory is the limit.
