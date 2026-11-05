@@ -17,9 +17,13 @@ pub(crate) fn requant(accumulator: i128, multiplier: u64, shift: u32) -> Result<
     let numerator = accumulator.checked_mul(multiplier as i128)
         .and_then(|value| value.checked_add(denominator / 2))
         .ok_or("R13 requantization: numerator overflow")?;
-    let word = i64::try_from(numerator.div_euclid(denominator))
+    // Efficiency plan A5: the divisor is 2^shift > 0, so Euclidean division is the arithmetic
+    // right shift (floor) and the Euclidean remainder is the low `shift` bits, in [0, 2^shift).
+    // The same words as `div_euclid` / `rem_euclid`, which compiled to the generic i128
+    // division and were the builder's hottest call (`requant_shift_form_equals_euclid`).
+    let word = i64::try_from(numerator >> shift)
         .map_err(|_| "R13 requantization: output exceeds int64")?;
-    Ok(Rounded { word, remainder: numerator.rem_euclid(denominator) as u64, shift })
+    Ok(Rounded { word, remainder: (numerator & (denominator - 1)) as u64, shift })
 }
 
 pub(crate) fn product(a: i64, up: i64, shift_h: u32, output_exponent_delta: i32) -> Result<Rounded, String> {
@@ -35,6 +39,36 @@ pub(crate) fn product(a: i64, up: i64, shift_h: u32, output_exponent_delta: i32)
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Efficiency plan A5: the shift form of `requant` returns exactly the words of the
+    /// Euclidean form (`div_euclid` / `rem_euclid` by `2^shift`), at every shift, for
+    /// negative, zero and positive numerators, including the extremes that do not overflow.
+    #[test]
+    fn requant_shift_form_equals_euclid() {
+        let mut z = 0xA5A5_0000_1234_5678u64;
+        let mut next = move || {
+            z ^= z << 13;
+            z ^= z >> 7;
+            z ^= z << 17;
+            z
+        };
+        for shift in 1..=63u32 {
+            let d = 1i128 << shift;
+            let mut accs: Vec<i128> = vec![0, 1, -1, 2, -2, d - 1, -d + 1, d, -d, d + 1, -d - 1, i64::MAX as i128, i64::MIN as i128];
+            accs.extend((0..64).map(|_| (next() as i64) as i128 >> (next() % 40)));
+            for &acc in &accs {
+                for &m in &[1u64, 3, 255, 65_535] {
+                    let Some(n) = acc.checked_mul(m as i128).and_then(|v| v.checked_add(d / 2)) else { continue };
+                    let want = i64::try_from(n.div_euclid(d)).map(|w| (w, n.rem_euclid(d) as u64));
+                    match (requant(acc, m, shift), want) {
+                        (Ok(r), Ok((w, rem))) => assert_eq!((r.word, r.remainder), (w, rem), "acc {acc} m {m} shift {shift}"),
+                        (Err(_), Err(_)) => {}
+                        (got, want) => panic!("acc {acc} m {m} shift {shift}: {:?} against {:?}", got.map(|r| (r.word, r.remainder)), want),
+                    }
+                }
+            }
+        }
+    }
 
     #[test]
     fn requantization_matches_independent_rational_vectors() {

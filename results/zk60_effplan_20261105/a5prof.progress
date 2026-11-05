@@ -1,0 +1,11 @@
+2026-11-05T10:07:32Z start
+2026-11-05T10:07:32Z build rc=0
+2026-11-05T10:07:33Z loop pid 59720
+2026-11-05T10:07:50Z sample rc=0
+2026-11-05T10:07:50Z loop rc=0
+H124c build 115: 0.149 s
+H124c build 116: 0.154 s
+H124c build 117: 0.158 s
+H124c build 118: 0.162 s
+H124c build 119: 0.222 s
+2026-11-05T10:07:50Z all done

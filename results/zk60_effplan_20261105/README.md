@@ -124,3 +124,25 @@ transfer mode, at the slab extremes, and on every witness plane for six profiles
 digest before any GPU-made bundle counts: `gpu/metal.rs`, `gpu/mod.rs` and `private_block/witness.rs`. The details are
 in `a4/README.md`, "What the privacy gate will need to read". The device handles private activations on the local GPU.
 `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+## A5: the builder's remainder, first step (no measurable gain; stopped)
+
+**The profile** (`check_a5_profile.sh`, `a5prof_sample.txt` not committed, 14.5 MB). With the A4 device products on,
+the hottest CPU work in the builder was `requant`. It divides by `2^shift` with i128 `div_euclid`/`rem_euclid`, which
+compiles to the generic 128-bit division.
+
+**The change** (`accuracy.rs`): an arithmetic right shift and a mask, the same words for every sign. The test
+`requant_shift_form_equals_euclid` covers every shift 1..=63 with negative, zero, positive and extreme numerators.
+
+**Acceptance** (`check_a5.sh`, `a5.progress`): the full lib suite is 920 / 3 known / 96; the W16R2 rung golden is
+unchanged; all six post-F12 digests are present.
+
+**Time** [MEASURED, one run, shared box]: no measurable gain end to end. The witness per block is 0.114 s (A4's run:
+0.103 s), the sealing pass 3.606 s (3.551), the stream 19.56 tok/s steady (20.36). These are within run-to-run
+variation.
+- **Why:** the division is parallel work over 32 threads. Its share of CPU samples was not a share of the critical
+  path.
+- **More witness speed now buys little for the stream.** The stream costs about 6.3 s per request against about
+  5.2 s for the fork run alone, so it is close to GPU-bound. A5 is stopped here.
+- The change stays: it is byte-identical and uses less CPU, which matters on a host-bound 5090.
+- **The next gains are on the GPU side** (A7/A6, running) and in the protocol bundle (W16R3).
