@@ -264,3 +264,82 @@ Every pair, in both orders, favours the per-fork pools. This agrees with the age
 - the randomness fill.
 
 The forks phase is about 4.0–4.3 s, against A7's GPU-busy bound of about 2.8 s.
+
+(Correction, same day: `a11merge_pairs.md` first came out as an empty table because `check_a11merge.sh` passed
+`--n 4`. That flag of `a11/pairs.py` is the fork count N, not the pass count. The table above was computed by hand
+from the log. `pairs.py ... --n 6` now gives the same numbers, and the file and both check scripts are fixed.)
+
+## A12: the device slots' tables built on the GPU, done
+
+Full write-up: `a12/README.md`. Merged into perf; acceptance and an independent repeat of the A/B on the merged tree:
+`check_a12merge.sh`, `a12merge.progress`, `a12merge_pairs.md`.
+
+**What the map found** [MEASURED, W16R2 8B]:
+- The device slots 14–19, 21 and 22 build 168 tables per block: 82.6 M extension words (1.32 GB), 95% of all table words.
+  - 18 are eq tables, 34 are public tables and 116 are committed-plane gathers.
+- On the host they cost about 19–20 ms per block per fork at N = 1, and about 46–47 ms at N = 6.
+
+**What changed** (byte-preserving):
+- **Two device kernels:**
+  - an eq table is the product of its point's two half tables (the host's `eq_cube_split_into`);
+  - a committed plane is gathered through the host's own inverse bit map (`argument::plane_plan`).
+- **Public tables** are still written by the host, beside the device's.
+- **Where the rows come from:** A's and H's rows are read from the commitments' own device copies, which `prove_core`
+  registers for its slots (`MetalCommit::resident_rows`). Lookup is by exact address and length, on the registering
+  thread only.
+- **When it runs:** the build is encoded at the head of the slot's first round command buffer, so it costs no command
+  buffer or queue wait of its own.
+- **Why that form:** the first form ran in its own command buffer and mapped fresh views of the host rows. It lost about
+  9% at N = 6, because of about 2.2 ms of residency per 330 MB view plus the queue wait behind the other forks.
+- **Switches:** the default is the device build. `HL_METAL_DEVICE_TABLES=0` restores the host build, and `=sync`
+  selects the own-command-buffer form. A large slice that is not resident is never mapped; that slot stays on the host
+  build.
+
+**Byte evidence:**
+- **CPU test** (in the suite): the kernels' formula, evaluated on the host, equals both host builders on every word, at
+  every slot of the W16R2 rung.
+- **Metal census:** every word equals the host's.
+  - W16R2 8B: 228 tables, 87.0 M words.
+  - The rung: 238 tables.
+  - This holds in both forms and with deferred builds.
+- **Rung golden `96e4f0b6`:** holds with the tables on the host, on the device ahead of the first round, and on the
+  device in their own command buffer. It holds alone and as three concurrent proofs.
+
+**Acceptance on the merged tree** [MEASURED, one guarded job]:
+- build rc 0; no-feature `cargo check --tests` rc 0;
+- full lib suite: 923 passed, exactly the known three failed, 101 ignored; zkp-core field tests 6/6;
+- the A12 census and rung-mode tests, the A11 pool tests (CPU and Metal), the A7 queue test, the W16R2 rung golden and
+  all six post-F12 digests pass;
+- D55 default:
+  - proof only, best 4.256 s = **30.08 tok/s**;
+  - one request from its input, best 8.356 s = **15.32 tok/s**;
+  - the 4-request stream **23.60 tok/s steady** (20.34 amortized; per-request latency 8.9–10.4 s);
+  - every receipt verified; fork receipts 818,728,672 B, unchanged.
+
+**The independent A/B** [MEASURED, `a12merge_pairs.md`]: device tables against host tables, 4 passes, arm order
+alternating.
+
+| metric | order bias removed | means host / device |
+|---|---:|---:|
+| proof-only wall | **−6.5%** | 4.68 / 4.37 s |
+| forks phase | **−7.8%** | 4.30 / 3.96 s |
+| one request from its input | **−4.0%** | 9.01 / 8.65 s |
+| stream, steady | **+5.0%** | 22.9 / 24.0 tok/s |
+| stream, amortized | **+5.0%** | 19.5 / 20.5 tok/s |
+| user CPU | **−16.5%** | 56.2 / 46.9 s |
+
+Every pair, in both orders, favours the device build. This agrees with the agent's own 6-pass A/B: −6.9%, −3.5%, +6.4%
+and +4.8%.
+
+**For the privacy gate:** the production digests that moved are `gpu/metal.rs`, `private_block/argument.rs` and
+`private_block/protocol.rs`, where one scoped statement in `prove_core` registers the resident rows. `metal_kernels.metal`,
+`gpu/mod.rs` and `metal_slot.rs` are unchanged; the new kernels are a source string inside `metal.rs`.
+`D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+**Still on the host:**
+- the private slots 00–13's tables and the public-table copies (about 10 ms per block per fork at N = 6);
+- the openings' store folds (**A8, in final acceptance**);
+- the A/H zero-fills;
+- the randomness fill.
+
+The forks phase is now about 3.9–4.0 s, against the GPU-busy bound of about 2.75 s.

@@ -34,6 +34,6 @@ done
 env HL_GPU=1 HL_PB_ORACLE=0 HL_METAL_TIMING=0 HL_D55_PROFILE=W16R2_8B_T128_H24 HL_D55_L=32 HL_D55_WORKERS=6 HL_D55_PASSES=2 HL_D55_SEALED=1 HL_D55_PIPE=4 $C $D -- --ignored --exact --nocapture --test-threads=1 > $O/a11merge_d55.log 2>&1; say "d55 default rc=$?"
 grep -E "sealing pass|verified|^D55-AB SUMMARY|^D55-AB PIPE" $O/a11merge_d55.log | cut -c1-260 >> $P
 env HL_GPU=1 HL_PB_ORACLE=0 HL_METAL_TIMING=0 HL_D55_PROFILE=W16R2_8B_T128_H24 HL_D55_L=32 HL_D55_WORKERS=6 HL_D55_PASSES=1 HL_D55_AB_PASSES=4 HL_D55_AB_ALTERNATE=1 HL_D55_AB_SEALED=1 HL_D55_AB_PIPE=4 HL_D55_GPU_AB=global,fpauto $C $D -- --ignored --exact --nocapture --test-threads=1 > $O/a11merge_d55_ab.log 2>&1; say "d55 A/B global against fpauto rc=$?"
-python3 $O/a11/pairs.py $O/a11merge_d55_ab.log global fpauto --alternate --n 4 > $O/a11merge_pairs.md 2>&1
+python3 $O/a11/pairs.py $O/a11merge_d55_ab.log global fpauto --alternate --n 6 > $O/a11merge_pairs.md 2>&1
 cat $O/a11merge_pairs.md >> $P
 say "all done"

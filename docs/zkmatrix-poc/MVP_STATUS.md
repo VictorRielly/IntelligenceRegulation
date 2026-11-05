@@ -8,9 +8,10 @@
 | preflight (A2) | 0.35 s | 0.08 s |
 | the sealing pass, the serial forward chain (A4: weight products on the GPU, exact) | 5.45 s | 3.55 s |
 | the fork run's host work (A11: one rayon pool per fork, not one shared pool) | about 0.5 s per block | stream +19%, proof only −9.5% (A/B, both orders) |
-| **one request from its input, all witness work on the clock** | 11.1 tok/s | **14.5 tok/s** |
-| **a stream of 4 requests, steady** | 15.9 tok/s | **24.0 tok/s** (amortized 20.2; latency about 10.3 s) |
-| proof only | 22.7 tok/s | **29.5 tok/s** |
+| the device slots' tables, 1.32 GB per block (A12: built on the GPU, not the CPU) | about 47 ms per block per fork | stream +5%, proof only −6.5% (A/B, both orders) |
+| **one request from its input, all witness work on the clock** | 11.1 tok/s | **15.3 tok/s** |
+| **a stream of 4 requests, steady** | 15.9 tok/s | **23.6–24.4 tok/s** (amortized 20.3–20.7; latency 8.9–10.4 s) |
+| proof only | 22.7 tok/s | **30.1 tok/s** |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -25,9 +26,12 @@
 - **A11 found and fixed the cause** [MEASURED]: the six forks shared one rayon thread pool, so each fork's parallel
   steps waited behind the other forks' work. Each fork now has its own pool. Byte-identical; the A/B was repeated
   independently on the merged tree.
+- **A12: the device slots' tables are now built on the GPU** [MEASURED]. Every table word is checked equal to the CPU's;
+  the A/B was repeated independently on the merged tree. The forks phase is now about 3.9–4.0 s, against about 2.75 s
+  of GPU work.
 - **D64's target is ≥ 110.** Next:
-  - the remaining host work in the forks: the slot tables built on the GPU (A12, running) and Gram folding of the
-    store folds (A8, running);
+  - the remaining host work in the forks: Gram folding of the store folds (A8, in final acceptance), the private
+    slots' tables, the A/H zero-fills and the randomness fill;
   - the protocol bundle W16R3 (awaiting Victor);
   - the RTX 5090.
 
