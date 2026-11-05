@@ -1782,6 +1782,14 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.a_range(ids.at(A_LIMB), ids.at(A_LIMBM))?;
             let h0 = b.h(hids.first_helper(Dom::L))?;
             let lks = lk_tables(lay, Dom::L, &b.shaped, g_u8);
+            // D63 L3 finding F2: the all-ones batching below is sound for ONE helper
+            // relation only. Two or more could cancel each other pointwise on the cube,
+            // and the single sum claim would then absorb a failed lookup. Every shape has
+            // one today (`lookups_per_position(Dom::L) = 2`); a shape with more must draw
+            // `mu` as the other slots do, which changes the receipt bytes.
+            if sh.helpers(Dom::L) != 1 {
+                return Err(format!("private block: SC_LZC batches its helper relations with the all-ones vector, which is sound only for one helper; this shape has {}", sh.helpers(Dom::L)));
+            }
             let mu = vec![Fp2::ONE; sh.helpers(Dom::L)];
             let mut pz = PadTerm::none();
             if pad_on {

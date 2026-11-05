@@ -210,6 +210,10 @@ For soundness the consequence is worse than "honest proofs fail".
 - **The gap.** Nothing at the slot asserts `helpers(Dom::L) == 1`.
 - **Suggested:** draw `μ` as every other slot does (`tr.challenge_fp2_vec`, covered by `batch_prob`), or refuse by
   name when `helpers(Dom::L) != 1`.
+- **Fixed, 2026-11-04 (byte-preserving):** `define`'s `SC_LZC` arm refuses by name a shape with
+  `helpers(Dom::L) != 1`. It is a function of the public shape only. Every shape has one helper today, so no receipt
+  changes. A future shape with more helpers must draw `μ`, which changes the bytes. The full lib suite is 904 / 3
+  known / 94 (`results/zk60_h124_witness_20261104/f2_full.log`).
 
 **F3 (Info: the count does not itemize two batching terms).**
 - **The pad-zero term.** It batches its planes with powers of ONE challenge `ζ` (`argument.rs:1439`, "their power of

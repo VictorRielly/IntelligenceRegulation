@@ -1,0 +1,16 @@
+2026-11-05T04:36:54Z start
+2026-11-05T04:39:12Z build rc=0
+2026-11-05T04:43:58Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 904 passed; 3 failed; 94 ignored; 0 measured; 0 filtered out; finished in 285.54s
+2026-11-05T04:43:59Z loop pid 19069
+2026-11-05T04:44:15Z sample rc=0
+2026-11-05T04:44:21Z loop rc=0
+H124c build 75: 0.253 s
+H124c build 76: 0.255 s
+H124c build 77: 0.253 s
+H124c build 78: 0.252 s
+H124c build 79: 0.254 s
+2026-11-05T04:44:21Z all done
