@@ -32,8 +32,8 @@ below the count's joint `(N + 4M − 1)/|F|`, because under Fiat–Shamir an att
 attacks one round (the maximum, not the sum, of the two rounds' errors).
 
 **What this does not cover.** That the relations hold on the whole cube and the sum claim's value are checked by the
-zero-check sumchecks and the PCS (their own protocols); the zero-sum mask row `u`; the composition with the slots on
-one chain; the extraction of the lookups and multiplicities from the `A` commitment.
+zero-check sumchecks and the PCS (their own protocols); the zero-sum mask row `u`; the hand-off to the slots on one
+chain (`FSComposeBlock.lean` composes them, with the hand-offs as premises); the extraction of the lookups and multiplicities from the `A` commitment.
 -/
 import ZK60Formal.FSWideRbr
 import ZK60Formal.SoundLogUpBlock

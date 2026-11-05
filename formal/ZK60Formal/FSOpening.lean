@@ -44,8 +44,8 @@ longer logs extract the same matrix (`cut_proverLog_stable`): that is the stabil
 * `fs_opening_knowledge_code`: the same with the code's derivations: `ε = max(A/|E| · (1 + p/2^128)^(2·w0), col)`.
 
 **What this does not cover.** The statement (the root and the claims) is one item; in the code the root is absorbed
-before the slots that fix the claims (a weaker prover, so the model is conservative, but the composition with the
-slots is not stated). A message absorbed as several items (`"pcs-vec"` per group, then `"pcs-prox"`) is one item
+before the slots that fix the claims (a weaker prover, so the model is conservative; the composition with the
+slots is `FSComposeBlock.lean`'s, with the hand-offs as premises). A message absorbed as several items (`"pcs-vec"` per group, then `"pcs-prox"`) is one item
 here: the same chain with more links. `M`'s opening (`zk::mask_verify_tagged`) is not run here.
 -/
 import ZK60Formal.FSWideRbr

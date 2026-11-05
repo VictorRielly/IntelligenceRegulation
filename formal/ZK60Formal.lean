@@ -35,3 +35,6 @@ import ZK60Formal.FSWide
 import ZK60Formal.FSWideRbr
 import ZK60Formal.FSLogUp
 import ZK60Formal.FSOpening
+import ZK60Formal.FSCompose
+import ZK60Formal.FSComposeBlock
+import ZK60Formal.FSComposeZeroCheck

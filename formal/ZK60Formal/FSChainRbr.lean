@@ -26,7 +26,7 @@ header's several labelled absorbs (`ZK60_LEAN_L3_FINDINGS_20261104.md`, Fiat–S
 same chain with more links and changes nothing but `T`. The counter of `sq j` is `j` here; in the code it is the
 transcript's squeeze count, which differs from `j` by the squeezes drawn before the sumcheck: a fixed offset, so the
 decoder with that offset is the same argument. Slots of a block share one chain; the composition of several
-protocols on one chain is not stated here.
+protocols on one chain is `FSCompose.lean`'s.
 -/
 import ZK60Formal.FSChain
 import ZK60Formal.FSSumcheck
