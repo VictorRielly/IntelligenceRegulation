@@ -13,8 +13,19 @@
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
-- **D64's target is ≥ 110.** Next: the zero-check kernels, the remaining serial builder work, per-fork queues, the
-  protocol bundle W16R3 (awaiting Victor), and the RTX 5090.
+- **A7 (GPU timestamps): the fork run is not GPU-bound** [MEASURED].
+  - In the forks phase the GPU is busy only 53–59% of the time. It sits idle when all six forks are doing host work at
+    once.
+  - A fork's host work per block takes 0.47–0.62 s with six forks running, against 0.22 s alone, while only about 20
+    of the 32 cores are busy.
+  - Per-thread GPU queues did not help once the A/B ran in both orders (+1.4% proof only, −2.7% stream). They stay
+    opt-in.
+  - The zero-check kernel work (A6) is deferred, since kernels are not the limit.
+- **D64's target is ≥ 110.** Next:
+  - the forks' host path: first a profile of why host work slows under six forks, then Gram folding of the store folds
+    (A8);
+  - the protocol bundle W16R3 (awaiting Victor);
+  - the RTX 5090.
 
 **2026-11-04 (night): Lean, Fiat–Shamir part 6 merged; the soundness target needs one more theorem (F20, Medium).**
 - Proved: the wide-digest lemma, LogUp and one commitment opening under Fiat–Shamir (with the extractor), and the

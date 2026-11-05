@@ -143,6 +143,66 @@ variation.
 - **Why:** the division is parallel work over 32 threads. Its share of CPU samples was not a share of the critical
   path.
 - **More witness speed now buys little for the stream.** The stream costs about 6.3 s per request against about
-  5.2 s for the fork run alone, so it is close to GPU-bound. A5 is stopped here.
+  5.2 s for the fork run alone, so the fork run sets the pace. A5 is stopped here.
 - The change stays: it is byte-identical and uses less CPU, which matters on a host-bound 5090.
-- **The next gains are on the GPU side** (A7/A6, running) and in the protocol bundle (W16R3).
+- **Correction (A7, below):** this section first called the stream "close to GPU-bound". A7's timestamps show that
+  the fork run is bound by the fork threads' host work, not by the GPU.
+
+## A7: GPU timestamps and command queues (H121), done; per-thread queues are opt-in only
+
+Full write-up: `a7/README.md`. Merged into perf on top of A5.
+
+**Acceptance on the merged tree** (`check_a7merge.sh`, `a7merge.progress`, one guarded job) [MEASURED]:
+- build rc 0; no-feature `cargo check --tests` rc 0; the requant tests 6/6;
+- the full lib suite: 920 passed, exactly the known three failed, 98 ignored;
+- the A7 queue test: six concurrent rung proofs give `96e4f0b6` on both the shared and per-thread queues;
+- the W16R2 rung golden holds, and all six post-F12 digests are present under `HL_GPU_REQUIRED=1`;
+- D55, default path:
+  - one request from its input, best 9.18 s = 13.95 tok/s;
+  - the 4-request stream 19.25 tok/s steady (17.20 amortized);
+  - proof only, best 5.04 s = 25.38 tok/s;
+  - fork receipts 818,728,672 B, every receipt verified.
+
+  These match the pre-A7 figures within run-to-run variation, as expected: the default path did not change.
+
+**The fork run is not GPU-bound** [MEASURED, W16R2 8B T128, 32 blocks, N = 6]:
+- In the forks phase, the GPU runs at least one command buffer only **53–59%** of the time (2.8 s of a 4.8–5.3 s
+  phase).
+- Almost all of the idle time is in gaps of 5 ms or more, when all six forks are on the host at once. Gaps under 1 ms
+  total under 15 ms.
+- Each fork thread spends about 60% of its time on the host between command buffers. That is 0.47–0.62 s per block,
+  against 0.22 s for the same work with no other fork running. Only 18–21 of the 32 cores are busy.
+- Uncontended (the serial arm), a block needs 0.099 s of GPU: sumcheck batches 68 ms, commitments 31 ms.
+
+**The queues.** The single shared queue lets at most 3 command buffers run at once, and a finished one is noticed
+1.7 ms late. Per-thread queues (`HL_METAL_QUEUES=thread`) allow 6 at once and cut the delay to 0.2 ms, but they do
+not move the wall:
+- the proof-only fork run is about +1.4% (no gain);
+- the stream's steady state is about −2.7% (a small loss).
+
+So the shared queue stays the default. The first A/B claimed a 5.6% gain; that was arm-order bias (the second arm
+of a pass runs about 4.5% faster whichever it is). **Every in-process A/B must now run both orders.**
+
+**Also added, all opt-in or test-only:** the GPU timeline (command-buffer timestamps, read after completion), a CPU
+meter, an in-process policy A/B in the D55 harness, and spin-then-block waits (`HL_METAL_SPIN_US`). The default code
+path is the pre-A7 one.
+
+**A6 was not implemented,** because the kernels do not limit the wall. Its census found an exact cut for later: slot 18
+(the F zero-check) declares degree 5, but its IR reaches only degree 4 at W16R2 8B, so the sixth round value follows
+from the other five. That saves about 5 ms of GPU per block (under 1% of the wall today) and touches the pinned
+`metal_kernels.metal` (`a7/README.md` §6).
+
+**Unresolved, one order only:** spin against block against spin-200, the device row fold (looked 2.7% slower), and
+N = 8 against N = 6. Nobody should act on these before a both-orders A/B.
+
+**For the privacy gate.** `gpu/metal.rs` and `gpu/mod.rs` changed digest again (diagnostics and opt-ins only). They
+must be re-read at their new digests with A4's files before any GPU-made bundle counts.
+`D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+**What this means for the plan.** The next byte-preserving gains are in the forks' host path:
+- **why** a fork's host work takes 2–3× longer when six run together, with cores to spare: memory bandwidth, a shared
+  rayon pool, allocator or driver locks, or the spinning waits;
+- the host items themselves: the A row build at the phase's start (the longest gap, 0.17–0.22 s), the store folds
+  (A8, Gram folding), and the opening's host fold.
+
+A host profile of the forks phase comes first.
