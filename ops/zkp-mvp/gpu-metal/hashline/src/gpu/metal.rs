@@ -1067,14 +1067,55 @@ impl MetalCommit {
         }
         let t = std::time::Instant::now();
         let src = as_u64s(buf, self.rows * nn);
-        // [M11] the lazy form for a few rho vectors: 10 x 2606 rows 13.4 -> 8.7 ms;
-        // at 37 vectors it is no faster (8.3 -> 8.7 ms; narrower chunks 15 ms),
-        // so many vectors keep the per-term form (`logs/m11/fold_*.log`)
-        let out = if lazy_fold_on() && rhos.len() <= LAZY_FOLD_MAX_RHOS { fold_rows_host_lazy(src, self.rows, self.n, nn, ir, rhos) } else { fold_rows_host(src, self.rows, self.n, nn, ir, rhos) };
+        #[cfg(test)]
+        if let Some(c) = FOLD_CAPTURE.lock().expect("the fold capture").as_mut() {
+            c.push(FoldCapture { rows: self.rows, n: self.n, nn, ir, src: src.to_vec(), rhos: rhos.to_vec(), pads: None });
+        }
+        let out = fold_rows_host_by_form(src, self.rows, self.n, nn, ir, rhos);
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             eprintln!("[ZK60-METAL] store fold: {} rho x {} rows x {} cols ({}) in {:.4} s", rhos.len(), self.rows, self.n, if self.data.is_some() { "zk data" } else { "systematic" }, t.elapsed().as_secs_f64());
         }
         Ok(out)
+    }
+
+    /// **[A8]** the hiding opening's vectors `rho^T [M | pads]` in ONE parallel
+    /// pass ([`fold_segments_a8`]: the data rows' chunks and the pad rows'
+    /// chunks together, written straight into vectors of their final length).
+    /// Before A8 the core folded the pads afterwards on ONE thread (`q = 280`
+    /// columns are a single chunk of its host fold) and grew every vector to
+    /// append them. The same values (see `EncodedStore::fold_rows_with_pads`).
+    /// `None` (the core's path, as before) under the M11 forms, the device
+    /// fold or the plain (systematic) form.
+    pub fn fold_rows_with_pads(&self, rhos: &[Vec<Fp2>], pads: &[Fp], q: usize) -> Option<Result<Vec<Vec<Fp2>>, String>> {
+        let small = match a8_fold_form() {
+            A8Form::M11 => return None,
+            A8Form::Sparse => false,
+            A8Form::Small => true,
+        };
+        let data = match &self.data {
+            Some(d) if !device_fold_on() => d,
+            _ => return None,
+        };
+        if let Some(r) = rhos.iter().find(|r| r.len() < self.rows) {
+            return Some(Err(format!("metal fold: rho of {} entries for {} rows", r.len(), self.rows)));
+        }
+        if pads.len() != self.rows * q {
+            return Some(Err(format!("metal fold: {} pad words for {} rows x q = {q}", pads.len(), self.rows)));
+        }
+        let t = std::time::Instant::now();
+        let src = as_u64s(data, self.rows * self.n);
+        // SAFETY: Fp is repr(transparent) over u64
+        let pw: &[u64] = unsafe { std::slice::from_raw_parts(pads.as_ptr() as *const u64, pads.len()) };
+        #[cfg(test)]
+        if let Some(c) = FOLD_CAPTURE.lock().expect("the fold capture").as_mut() {
+            c.push(FoldCapture { rows: self.rows, n: self.n, nn: self.n, ir: 1, src: src.to_vec(), rhos: rhos.to_vec(), pads: Some((pw.to_vec(), q)) });
+        }
+        let segs = [A8Seg { src, n: self.n, nn: self.n, ir: 1 }, A8Seg { src: pw, n: q, nn: q, ir: 1 }];
+        let out = fold_segments_a8_opts(&segs, self.rows, rhos, a8_opts(self.n, small));
+        if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+            eprintln!("[ZK60-METAL] store fold with pads ({:?}): {} rho x {} rows x ({} + {q}) cols (zk data) in {:.4} s", a8_fold_form(), rhos.len(), self.rows, self.n, t.elapsed().as_secs_f64());
+        }
+        Some(Ok(out))
     }
 
     /// The encoded columns at `idx` (each `rows` entries), in the order of `idx`.
@@ -1289,6 +1330,429 @@ pub fn fold_rows_host_lazy(src: &[u64], rows: usize, n: usize, nn: usize, ir: us
 #[cfg(test)]
 pub fn fold_rows_host_for_test(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
     fold_rows_host(src, rows, n, nn, ir, rhos)
+}
+
+/// [M11] the forms before A8: the lazy form for a few rho vectors (10 x 2606
+/// rows 13.4 -> 8.7 ms); at 37 vectors it was no faster (8.3 -> 8.7 ms;
+/// narrower chunks 15 ms), so many vectors kept the per-term form
+/// (`logs/m11/fold_*.log`)
+fn fold_rows_host_m11(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
+    if lazy_fold_on() && rhos.len() <= LAZY_FOLD_MAX_RHOS {
+        fold_rows_host_lazy(src, rows, n, nn, ir, rhos)
+    } else {
+        fold_rows_host(src, rows, n, nn, ir, rhos)
+    }
+}
+
+/// [M11, tests] the forms before A8, as the opening chose them
+#[cfg(test)]
+pub fn fold_rows_host_m11_for_test(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
+    fold_rows_host_m11(src, rows, n, nn, ir, rhos)
+}
+
+/// the opening's host fold, in the form the A8 switch selects (equal values)
+fn fold_rows_host_by_form(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
+    match a8_fold_form() {
+        A8Form::M11 => fold_rows_host_m11(src, rows, n, nn, ir, rhos),
+        A8Form::Sparse => fold_rows_host_a8(src, rows, n, nn, ir, rhos, a8_opts(n, false)),
+        A8Form::Small => fold_rows_host_a8(src, rows, n, nn, ir, rhos, a8_opts(n, true)),
+    }
+}
+
+/// [A8] the opening fold's host form. Every form returns the same canonical
+/// words (each output entry is the field sum `sum_i rho_g[i] * src[i][j]`,
+/// formed exactly; only how it is formed differs)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum A8Form {
+    /// the M11 forms (lazy for at most 16 vectors, per-term above)
+    M11,
+    /// the row-sparse lazy form ([`fold_rows_host_a8`] without the small-word path)
+    Sparse,
+    /// the row-sparse lazy form with the 16-bit small-word path
+    Small,
+}
+
+/// [A8, tests] 0 lets `HL_METAL_A8_FOLD` decide; 1 + the form's index otherwise
+static A8_FORM_TEST: AtomicUsize = AtomicUsize::new(0);
+
+/// [A8] `HL_METAL_A8_FOLD=m11|sparse|small` (read once); the default is the
+/// small-word form (the in-process A/B at N = 6, both arm orders:
+/// `results/zk60_effplan_20261105/a8/`); `m11` restores the forms before A8
+fn a8_fold_form() -> A8Form {
+    match A8_FORM_TEST.load(Ordering::Relaxed) {
+        1 => A8Form::M11,
+        2 => A8Form::Sparse,
+        3 => A8Form::Small,
+        _ => {
+            static F: OnceLock<A8Form> = OnceLock::new();
+            *F.get_or_init(|| match std::env::var("HL_METAL_A8_FOLD").as_deref() {
+                Ok("m11") => A8Form::M11,
+                Ok("sparse") => A8Form::Sparse,
+                _ => A8Form::Small,
+            })
+        }
+    }
+}
+
+/// [A8, tests] the opening fold's host form for this process (`None`: as the
+/// environment says); returns the previous setting
+#[cfg(test)]
+pub fn set_a8_fold_for_test(form: Option<A8Form>) -> Option<A8Form> {
+    let v = match form {
+        None => 0,
+        Some(A8Form::M11) => 1,
+        Some(A8Form::Sparse) => 2,
+        Some(A8Form::Small) => 3,
+    };
+    match A8_FORM_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(A8Form::M11),
+        2 => Some(A8Form::Sparse),
+        3 => Some(A8Form::Small),
+        _ => None,
+    }
+}
+
+/// [A8, tests] the inputs of one host store fold (the census and the bench)
+#[cfg(test)]
+pub struct FoldCapture {
+    pub rows: usize,
+    pub n: usize,
+    pub nn: usize,
+    pub ir: usize,
+    pub src: Vec<u64>,
+    pub rhos: Vec<Vec<Fp2>>,
+    /// the hiding opening's pads (rows x q, row-major) and q, when the fold
+    /// took them too (`fold_rows_with_pads`)
+    pub pads: Option<(Vec<u64>, usize)>,
+}
+
+#[cfg(test)]
+static FOLD_CAPTURE: Mutex<Option<Vec<FoldCapture>>> = Mutex::new(None);
+
+/// [A8, tests] start (`true`) or stop capturing the host store folds' inputs;
+/// returns what was captured since the last call
+#[cfg(test)]
+pub fn fold_capture_for_test(on: bool) -> Vec<FoldCapture> {
+    let mut g = FOLD_CAPTURE.lock().expect("the fold capture");
+    let got = g.take().unwrap_or_default();
+    if on {
+        *g = Some(Vec::new());
+    }
+    got
+}
+
+/// **[A8] the opening fold's options**, as measured on the W16R2 8B T128
+/// block's two store folds (`results/zk60_effplan_20261105/a8/`, stages 1 and
+/// 1b): chunks of 256 columns, the next row's slice prefetched, the small-word
+/// lanes in NEON. The fold is bound by the memory latency at each row's start
+/// (every row's slice of a chunk is a page away from the last one's), not by
+/// its accumulators: narrow chunks that keep the accumulators in L1 were up to
+/// 2x slower, and one row of prefetch took a 6-thread pool's A fold from 21.7
+/// to 14.1 ms (row-sparse) and to 9.9 ms with the small-word path.
+pub fn a8_opts(n: usize, small: bool) -> A8Opts {
+    A8Opts { w: 256usize.min(n.max(1)), small, pf: 1, neon: true }
+}
+
+/// the half-width of the small-word path: a word is small if it is a signed
+/// integer `x` with `-2^15 <= x < 2^15` (that is `v < 2^15` or `v >= p - 2^15`)
+const A8_SMALL_HALF: u64 = 1 << 15;
+
+/// a canonical word `v` as `(x + 2^15) mod p` for its signed representative
+/// `x`: below `2^16` exactly when the word is small (`v + 2^15` cannot wrap a
+/// u64, as `v < p`)
+#[inline(always)]
+fn a8_shifted(v: u64) -> u64 {
+    let t = v + A8_SMALL_HALF;
+    if t >= crate::field::P {
+        t - crate::field::P
+    } else {
+        t
+    }
+}
+
+/// one rayon split's scratch for [`fold_rows_host_a8`] (reused across its chunks)
+#[derive(Default)]
+struct A8Scratch {
+    lo: Vec<u128>,
+    hi: Vec<u64>,
+    sm: Vec<u64>,
+    csum: Vec<u128>,
+    vs: Vec<u32>,
+    row: Vec<u64>,
+}
+
+/// **[A8] the opening's row fold, row-sparse and exact.** The same canonical
+/// words as [`fold_rows_host`]: every output entry is the field sum
+/// `sum_i rho_g[i] * src[i][j]` (per component), formed here as an exact
+/// integer and reduced once. Only how the sum is formed differs:
+/// - each row's nonzero coefficients are listed once (`terms`), so a row is
+///   read once per column chunk and each of its vectors touches it without a
+///   zero test per vector and row (the u128 form of [`fold_rows_host_lazy`]
+///   for every vector count; the M11 per-term form above 16 vectors is gone);
+/// - the slice of the row `pf` rows ahead is prefetched ([`A8Opts`],
+///   [`a8_opts`]: the fold waits on each row's first lines otherwise);
+/// - the outputs are written in place (no per-chunk vectors to copy);
+/// - `small`: a row chunk whose words are all small signed integers
+///   (`-2^15 <= x < 2^15`) is summed as `x + 2^15 < 2^16` against the
+///   coefficient's two 32-bit halves in u64 lanes (products below 2^48, fewer
+///   than 2^16 rows, so no lane overflows), and `2^15 * sum_i rho_g[i]` over
+///   those rows is subtracted once per vector and chunk. That is the same
+///   integer sum, so the same field value. Every other row chunk takes the
+///   u128 form of [`fold_rows_host_lazy`].
+#[allow(clippy::too_many_arguments)]
+pub fn fold_rows_host_a8(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>], opts: A8Opts) -> Vec<Vec<Fp2>> {
+    fold_segments_a8_opts(&[A8Seg { src, n, nn, ir }], rows, rhos, opts)
+}
+
+/// [A8] one column segment of a fold: `n` columns whose entry `j` of row `i`
+/// is `src[i * nn + j * ir]`
+#[derive(Clone, Copy)]
+pub struct A8Seg<'a> {
+    pub src: &'a [u64],
+    pub n: usize,
+    pub nn: usize,
+    pub ir: usize,
+}
+
+/// [A8] how [`fold_segments_a8_opts`] forms the same sums (equal values every way)
+#[derive(Clone, Copy, Debug)]
+pub struct A8Opts {
+    /// the chunk width (columns per task)
+    pub w: usize,
+    /// the 16-bit small-word path
+    pub small: bool,
+    /// prefetch the slice of the row this many rows ahead (0: none)
+    pub pf: usize,
+    /// the small-word lanes in explicit NEON (aarch64) instead of the scalar loop
+    pub neon: bool,
+}
+
+/// [A8, tests] [`fold_segments_a8_opts`] at chunk width `w`, without the
+/// prefetch and with the scalar small-word lanes
+#[cfg(test)]
+pub fn fold_segments_a8(segs: &[A8Seg<'_>], rows: usize, rhos: &[Vec<Fp2>], w: usize, small: bool) -> Vec<Vec<Fp2>> {
+    fold_segments_a8_opts(segs, rows, rhos, A8Opts { w, small, pf: 0, neon: false })
+}
+
+/// [A8] a prefetch hint for the cache line holding `p` (`prfm`: no
+/// architectural effect, never faults)
+#[inline(always)]
+fn a8_prefetch(p: &u64) {
+    #[cfg(target_arch = "aarch64")]
+    // SAFETY: `prfm` only hints the cache; it reads and writes nothing
+    // architecturally and cannot fault (and `p` is a live reference)
+    unsafe {
+        std::arch::asm!("prfm pldl1keep, [{0}]", in(reg) p as *const u64, options(nostack, preserves_flags, readonly));
+    }
+    #[cfg(not(target_arch = "aarch64"))]
+    let _ = p;
+}
+
+/// [A8] the small-word lanes: `a[j] += l0 * v[j]`, `b[j] += h0 * v[j]`,
+/// `c[j] += l1 * v[j]`, `e[j] += h1 * v[j]` (u32 x u32 -> u64), in NEON's
+/// widening multiply-accumulate on aarch64; the same integers as the scalar loop
+#[inline(always)]
+#[allow(clippy::too_many_arguments)]
+fn a8_small_lanes(a: &mut [u64], b: &mut [u64], c: &mut [u64], e: &mut [u64], vs: &[u32], l0: u32, h0: u32, l1: u32, h1: u32, neon: bool) {
+    let n = vs.len();
+    assert!(a.len() >= n && b.len() >= n && c.len() >= n && e.len() >= n);
+    let mut j = 0usize;
+    #[cfg(target_arch = "aarch64")]
+    if neon {
+        use std::arch::aarch64::*;
+        let n4 = n & !3;
+        // SAFETY: NEON is part of the aarch64 base ISA; every pointer below
+        // addresses entries j..j + 4 <= n4 <= n of a slice holding at least n
+        unsafe {
+            while j < n4 {
+                let v = vld1q_u32(vs.as_ptr().add(j));
+                let vl = vget_low_u32(v);
+                let pa = a.as_mut_ptr().add(j);
+                vst1q_u64(pa, vmlal_n_u32(vld1q_u64(pa), vl, l0));
+                vst1q_u64(pa.add(2), vmlal_high_n_u32(vld1q_u64(pa.add(2)), v, l0));
+                let pb = b.as_mut_ptr().add(j);
+                vst1q_u64(pb, vmlal_n_u32(vld1q_u64(pb), vl, h0));
+                vst1q_u64(pb.add(2), vmlal_high_n_u32(vld1q_u64(pb.add(2)), v, h0));
+                let pc = c.as_mut_ptr().add(j);
+                vst1q_u64(pc, vmlal_n_u32(vld1q_u64(pc), vl, l1));
+                vst1q_u64(pc.add(2), vmlal_high_n_u32(vld1q_u64(pc.add(2)), v, l1));
+                let pe = e.as_mut_ptr().add(j);
+                vst1q_u64(pe, vmlal_n_u32(vld1q_u64(pe), vl, h1));
+                vst1q_u64(pe.add(2), vmlal_high_n_u32(vld1q_u64(pe.add(2)), v, h1));
+                j += 4;
+            }
+        }
+    }
+    #[cfg(not(target_arch = "aarch64"))]
+    let _ = neon;
+    for ((((x, y), z), t), &v) in a[j..n].iter_mut().zip(b[j..n].iter_mut()).zip(c[j..n].iter_mut()).zip(e[j..n].iter_mut()).zip(vs[j..n].iter()) {
+        *x += (l0 as u64) * (v as u64);
+        *y += (h0 as u64) * (v as u64);
+        *z += (l1 as u64) * (v as u64);
+        *t += (h1 as u64) * (v as u64);
+    }
+}
+
+/// [A8] [`fold_rows_host_a8`] over several column segments at once (the
+/// hiding opening's message rows, then its pad rows): each output vector is
+/// the segments' folds one after another, `sum_s n_s` entries, formed in ONE
+/// parallel pass over every segment's chunks, as [`A8Opts`] says (the same
+/// values every way)
+pub fn fold_segments_a8_opts(segs: &[A8Seg<'_>], rows: usize, rhos: &[Vec<Fp2>], opts: A8Opts) -> Vec<Vec<Fp2>> {
+    let A8Opts { w, small, pf, neon } = opts;
+    let k = rhos.len();
+    let total: usize = segs.iter().map(|s| s.n).sum();
+    let mut out: Vec<Vec<Fp2>> = (0..k).into_par_iter().map(|_| vec![Fp2::ZERO; total]).collect();
+    if k == 0 || total == 0 || rows == 0 {
+        return out;
+    }
+    for s in segs {
+        assert!(s.n == 0 || (s.ir >= 1 && s.src.len() >= (rows - 1) * s.nn + (s.n - 1) * s.ir + 1), "a8 fold: a segment's source is too short");
+    }
+    // u64 small-word lanes hold fewer than 2^16 rows of products below 2^48
+    let small = small && rows < (1 << 16);
+    // row i's nonzero coefficients, in vector order: terms[starts[i]..starts[i + 1]]
+    let mut starts = Vec::with_capacity(rows + 1);
+    let mut terms: Vec<(u64, u64, u32)> = Vec::new();
+    starts.push(0usize);
+    for i in 0..rows {
+        for (g, rho) in rhos.iter().enumerate() {
+            let r = rho[i];
+            if !r.is_zero() {
+                terms.push((r.c0.0, r.c1.0, g as u32));
+            }
+        }
+        starts.push(terms.len());
+    }
+    let w = w.max(1);
+    let t64 = Fp::from_u128(1u128 << 64);
+    let c128 = t64.mul(t64);
+    let red = |l: u128, h: u64| Fp::from_u128(l).add(Fp::new(h).mul(c128));
+    let half = Fp::new(A8_SMALL_HALF);
+    // the chunks: (segment, first column) for every w columns of each segment
+    let chunks: Vec<(usize, usize)> = segs.iter().enumerate().flat_map(|(si, s)| (0..s.n.div_ceil(w)).map(move |c| (si, c * w))).collect();
+    // each chunk's k output slices, so every chunk writes its own columns
+    let mut dst: Vec<Vec<&mut [Fp2]>> = (0..chunks.len()).map(|_| Vec::with_capacity(k)).collect();
+    for o in out.iter_mut() {
+        let mut rest: &mut [Fp2] = o.as_mut_slice();
+        let mut ci = 0usize;
+        for s in segs {
+            let (seg, tail) = std::mem::take(&mut rest).split_at_mut(s.n);
+            rest = tail;
+            for piece in seg.chunks_mut(w) {
+                dst[ci].push(piece);
+                ci += 1;
+            }
+        }
+    }
+    dst.into_par_iter().zip(chunks.into_par_iter()).for_each_init(A8Scratch::default, |sc, (mut d, (si, c0))| {
+        let A8Seg { src, nn, ir, .. } = segs[si];
+        let wc = d[0].len();
+        // the u128 sums and their overflow counts, per vector: [2 * wc] each;
+        // the small-word sums, per vector: four [wc] lanes (the low and high
+        // coefficient halves of each component), and the coefficients' sums
+        sc.lo.clear();
+        sc.lo.resize(k * 2 * wc, 0);
+        sc.hi.clear();
+        sc.hi.resize(k * 2 * wc, 0);
+        if small {
+            sc.sm.clear();
+            sc.sm.resize(k * 4 * wc, 0);
+            sc.csum.clear();
+            sc.csum.resize(k * 2, 0);
+            sc.vs.resize(wc, 0);
+        }
+        if ir != 1 {
+            sc.row.resize(wc, 0);
+        }
+        let A8Scratch { lo, hi, sm, csum, vs, row } = sc;
+        for i in 0..rows {
+            // the slice of the row `pf` rows ahead, one hint per 128-byte line:
+            // each row's slice starts a page away from the last one's, which the
+            // hardware prefetcher does not follow
+            if pf > 0 && ir == 1 && i + pf < rows {
+                let nb = (i + pf) * nn + c0;
+                let mut o = 0;
+                while o < wc {
+                    a8_prefetch(&src[nb + o]);
+                    o += 16;
+                }
+            }
+            let ts = &terms[starts[i]..starts[i + 1]];
+            if ts.is_empty() {
+                continue;
+            }
+            let base = i * nn + c0 * ir;
+            let r: &[u64] = if ir == 1 {
+                &src[base..base + wc]
+            } else {
+                for (j, v) in row[..wc].iter_mut().enumerate() {
+                    *v = src[base + j * ir];
+                }
+                &row[..wc]
+            };
+            // the row chunk's words as x + 2^15, and whether all are small (a
+            // chunk whose first word is not small is not looked at further:
+            // rows of full-width words, such as all of H's, cost one test)
+            let is_small = small && a8_shifted(r[0]) >> 16 == 0 && {
+                let mut any_big = 0u64;
+                for (o, &v) in vs[..wc].iter_mut().zip(r.iter()) {
+                    let t = a8_shifted(v);
+                    any_big |= t >> 16;
+                    *o = t as u32;
+                }
+                any_big == 0
+            };
+            if is_small {
+                for &(r0, r1, g) in ts {
+                    let g = g as usize;
+                    let (l0, h0, l1, h1) = (r0 as u32, (r0 >> 32) as u32, r1 as u32, (r1 >> 32) as u32);
+                    let s = &mut sm[g * 4 * wc..(g + 1) * 4 * wc];
+                    let (s_l0, s) = s.split_at_mut(wc);
+                    let (s_h0, s) = s.split_at_mut(wc);
+                    let (s_l1, s_h1) = s.split_at_mut(wc);
+                    a8_small_lanes(s_l0, s_h0, s_l1, s_h1, &vs[..wc], l0, h0, l1, h1, neon);
+                    csum[2 * g] += r0 as u128;
+                    csum[2 * g + 1] += r1 as u128;
+                }
+            } else {
+                for &(r0, r1, g) in ts {
+                    let g = g as usize;
+                    let (r0, r1) = (r0 as u128, r1 as u128);
+                    let lo_g = &mut lo[g * 2 * wc..(g + 1) * 2 * wc];
+                    let hi_g = &mut hi[g * 2 * wc..(g + 1) * 2 * wc];
+                    for ((l, h), &v) in lo_g.chunks_exact_mut(2).zip(hi_g.chunks_exact_mut(2)).zip(r.iter()) {
+                        let v = v as u128;
+                        let (s0, o0) = l[0].overflowing_add(r0 * v);
+                        l[0] = s0;
+                        h[0] += o0 as u64;
+                        let (s1, o1) = l[1].overflowing_add(r1 * v);
+                        l[1] = s1;
+                        h[1] += o1 as u64;
+                    }
+                }
+            }
+        }
+        for (g, o) in d.iter_mut().enumerate() {
+            let (lo_g, hi_g) = (&lo[g * 2 * wc..(g + 1) * 2 * wc], &hi[g * 2 * wc..(g + 1) * 2 * wc]);
+            for (j, e) in o.iter_mut().enumerate() {
+                *e = Fp2::new(red(lo_g[2 * j], hi_g[2 * j]), red(lo_g[2 * j + 1], hi_g[2 * j + 1]));
+            }
+            if small {
+                // sum_i r_i (x_i + 2^15) = (low lanes) + 2^32 (high lanes), each
+                // lane below 2^64; minus 2^15 sum_i r_i over the same rows
+                let c = Fp2::new(Fp::from_u128(csum[2 * g]).mul(half), Fp::from_u128(csum[2 * g + 1]).mul(half));
+                let s = &sm[g * 4 * wc..(g + 1) * 4 * wc];
+                let (s_l0, s_h0, s_l1, s_h1) = (&s[..wc], &s[wc..2 * wc], &s[2 * wc..3 * wc], &s[3 * wc..]);
+                for (j, e) in o.iter_mut().enumerate() {
+                    let x0 = Fp::from_u128(s_l0[j] as u128 + ((s_h0[j] as u128) << 32));
+                    let x1 = Fp::from_u128(s_l1[j] as u128 + ((s_h1[j] as u128) << 32));
+                    *e = e.add(Fp2::new(x0, x1)).sub(c);
+                }
+            }
+        }
+    });
+    out
 }
 
 /// zkp-core `pcs::fold_rows_host`, over raw canonical u64 values.

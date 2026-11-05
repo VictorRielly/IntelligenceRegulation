@@ -1,0 +1,36 @@
+2026-11-05T15:44:32Z start
+2026-11-05T15:46:59Z build rc=0
+2026-11-05T15:47:00Z word-for-word fold test rc=0
+test private_block::w16r2_tests::a8_store_fold_forms_equal_the_per_term_fold_word_for_word ... A8-FOLD-EQUAL: 765 fold forms equal the per-term fold, word for word
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 0.52s
+2026-11-05T15:47:04Z rung golden under every form rc=0
+test private_block::w16r2_tests::a8_w16r2_rung_golden_under_every_store_fold_form ... A8-RUNG W16R2_RUNG_H24 form M11 column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 r
+A8-RUNG W16R2_RUNG_H24 form M11 column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384, 10 rho x 202 rows x 16384); 90 forms equal the per-term fold wor
+A8-RUNG W16R2_RUNG_H24 form Sparse column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 90 forms equal the p
+A8-RUNG W16R2_RUNG_H24 form Sparse column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 90 forms equal the pe
+A8-RUNG W16R2_RUNG_H24 form Small column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 90 forms equal the pe
+A8-RUNG W16R2_RUNG_H24 form Small column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 90 forms equal the per
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 3.91s
+2026-11-05T15:57:54Z d55 A/B rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.466 s = 12.23 tok/s | mean 10.466 s = 12.23 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.783 s = 26.76 tok/s | mean 4.783 s = 26.76 tok/s | 2.19x serial (best)
+D55-AB SUMMARY | forks N=6 m11+cols+vecfill | A7 GPU-policy A/B, interleaved, 6 passes | best 4.512 s = 28.37 tok/s | mean 4.651 s = 27.52 tok/s
+D55-AB SUMMARY | forks N=6 small+nocols+calloc | A7 GPU-policy A/B, interleaved, 6 passes | best 4.432 s = 28.88 tok/s | mean 4.582 s = 27.94 tok/s
+D55-AB SUMMARY | forks N=6 SEALED m11+cols+vecfill | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.525 s = 15.02 tok/s | mean 8.808 s = 14.53 tok/s
+D55-AB SUMMARY | forks N=6 SEALED small+nocols+calloc | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.730 s = 14.66 tok/s | mean 8.903 s = 14.38 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 m11+cols+vecfill | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 23.20 tok/s (best 23.62) | amortized mean 19.77 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 small+nocols+calloc | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 22.50 tok/s (best 23.16) | amortized mean 19.55 tok/s
+# A11 pairs: [small+nocols+calloc] against [m11+cols+vecfill], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s2_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +0.6% (3, 2) | -3.4% (3, 3) | **-1.4%** | 4.651 / 4.582 |
+| forks phase s | +0.7% (3, 2) | -3.3% (3, 3) | **-1.3%** | 4.282 / 4.224 |
+| sealed wall s | +2.5% (3, 0) | -0.3% (3, 2) | **+1.1%** | 8.809 / 8.903 |
+| stream steady tok/s | -4.3% (3, 0) | -1.7% (3, 1) | **-3.0%** | 23.202 / 22.497 |
+| stream amortized tok/s | -2.2% (3, 0) | +0.0% (3, 2) | **-1.1%** | 19.770 / 19.553 |
+| user CPU s | -8.1% (3, 3) | -7.9% (3, 3) | **-8.0%** | 55.517 / 51.083 |
+| sys CPU s | +23.8% (3, 0) | +6.1% (3, 1) | **+15.0%** | 7.467 / 8.567 |
+| minor faults | +7.3% (3, 0) | -1.1% (3, 2) | **+3.1%** | 1,175,063 / 1,207,340 |
+2026-11-05T15:57:54Z all done

@@ -43,6 +43,17 @@ pub trait EncodedStore: Sync {
     fn fold_batch(&self) -> usize {
         4
     }
+    /// [A8] The hiding opening's vectors `rho^T [M | pads]` in one call: for
+    /// each `rho`, the `n` message entries of [`fold_rows`](Self::fold_rows)
+    /// followed by the `q` entries of `rho^T pads` (`pads` row-major, `rows x
+    /// q`). `None` (the default) declines, and the core forms them as before
+    /// (`fold_rows` in batches of [`fold_batch`](Self::fold_batch), then its
+    /// host fold of the pads). A store that takes it over MUST return exactly
+    /// those field values; only how the same linear maps are formed changes.
+    fn fold_rows_with_pads(&self, rhos: &[Vec<Fp2>], pads: &[Fp], q: usize) -> Option<Result<Vec<Vec<Fp2>>, String>> {
+        let _ = (rhos, pads, q);
+        None
+    }
 }
 
 /// The store type of a backend that never takes over: no value of this

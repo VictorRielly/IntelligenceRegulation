@@ -2072,10 +2072,13 @@ struct GpuArm {
     /// first round; `devtabsync`: on the device in a command buffer of their
     /// own; `hosttab`: on the host; unnamed: as the environment says
     device_tables: Option<u8>,
+    /// A8: the openings' host store fold, `m11` (0, the forms before A8), `sparse`
+    /// (1) or `small` (2); unnamed: as the environment says
+    a8_form: Option<u8>,
 }
 
 fn gpu_arm(spec: &str) -> Option<GpuArm> {
-    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None };
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None };
     for w in spec.split('+').map(str::trim) {
         if let Some(t) = w.strip_prefix("fp").and_then(|t| t.parse::<usize>().ok()) {
             a.fork_pool = Some(t);
@@ -2097,6 +2100,9 @@ fn gpu_arm(spec: &str) -> Option<GpuArm> {
             "devtabsync" => a.device_tables = Some(crate::private_block::argument::DT_SYNC),
             #[cfg(feature = "gpu-metal")]
             "hosttab" => a.device_tables = Some(crate::private_block::argument::DT_HOST),
+            "m11" => a.a8_form = Some(0),
+            "sparse" => a.a8_form = Some(1),
+            "small" => a.a8_form = Some(2),
             _ => a.wait = Some(w.strip_prefix("spin")?.parse().ok()?),
         }
     }
@@ -2514,6 +2520,9 @@ fn d55_ab_one_request_serial_against_forks() {
         let own_w = crate::gpu::metal_set_wait_for_test(None);
         crate::gpu::metal_set_queues_for_test(own_q);
         crate::gpu::metal_set_wait_for_test(own_w);
+        // A8: the process's store fold form, restored after
+        let own_form = crate::gpu::metal_set_a8_fold_for_test(None);
+        crate::gpu::metal_set_a8_fold_for_test(own_form);
         queue_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("forks N={n} {}", a.label), Vec::new()))).collect();
         ab_sealed_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("forks N={n} SEALED {}", a.label), Vec::new()))).collect();
         ab_pipe_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("PIPE {ab_pipe} N={n} {}", a.label), Vec::new()))).collect();
@@ -2529,6 +2538,12 @@ fn d55_ab_one_request_serial_against_forks() {
                 crate::gpu::metal_set_wait_for_test(a.wait);
                 crate::gpu::metal_set_device_fold_for_test(Some(a.devfold));
                 crate::private_block::argument::set_device_tables_for_test(a.device_tables);
+                crate::gpu::metal_set_a8_fold_for_test(match a.a8_form {
+                    Some(0) => Some(crate::gpu::MetalA8Form::M11),
+                    Some(1) => Some(crate::gpu::MetalA8Form::Sparse),
+                    Some(_) => Some(crate::gpu::MetalA8Form::Small),
+                    None => own_form,
+                });
                 a11_set_arm(&a.label);
                 if a.fork_pool == Some(usize::MAX) {
                     set_fork_pool_auto_for_test();
@@ -2588,6 +2603,7 @@ fn d55_ab_one_request_serial_against_forks() {
         crate::gpu::metal_set_wait_for_test(own_w);
         crate::gpu::metal_set_device_fold_for_test(None);
         crate::private_block::argument::set_device_tables_for_test(None);
+        crate::gpu::metal_set_a8_fold_for_test(own_form);
         a11_set_arm("");
         set_fork_pool_for_test(None);
     }

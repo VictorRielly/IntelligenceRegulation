@@ -1,0 +1,19 @@
+2026-11-05T15:28:24Z start
+2026-11-05T15:30:46Z build rc=0
+2026-11-05T15:30:47Z word-for-word fold test rc=0
+test private_block::w16r2_tests::a8_store_fold_forms_equal_the_per_term_fold_word_for_word ... A8-FOLD-EQUAL: 721 fold forms equal the per-term fold, word for word
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 0.49s
+2026-11-05T15:31:24Z census and bench rc=0
+test private_block::w16r2_tests::a8_store_fold_census_and_bench_on_the_8b_block ... A8-CENSUS W16R2_8B_T128_H24 A rows 2504 H rows 2606 n 16384
+A8-CENSUS cold pass (M11 forms) prove core 0.550 s digest e17a4a5a5ecd3667
+A8-CENSUS prove core [m11+cols] 0.347 s (digest equal) | open M (zk::mask_open, ONE call) 3.07 ms | open A (schedule audit + pcs::open_zk) 20.52 ms | open H (schedule audit + pcs::open_zk) 17.23 ms
+A8-CENSUS prove core [sparse+nocols] 0.348 s (digest equal) | open M (zk::mask_open, ONE call) 3.14 ms | open A (schedule audit + pcs::open_zk) 38.12 ms | open H (schedule audit + pcs::open_zk) 35.02 ms
+A8-CENSUS prove core [small+nocols] 0.309 s (digest equal) | open M (zk::mask_open, ONE call) 3.09 ms | open A (schedule audit + pcs::open_zk) 19.65 ms | open H (schedule audit + pcs::open_zk) 13.78 ms
+A8-CENSUS prove core [m11+cols] 0.310 s (digest equal) | open M (zk::mask_open, ONE call) 3.06 ms | open A (schedule audit + pcs::open_zk) 21.52 ms | open H (schedule audit + pcs::open_zk) 16.27 ms
+A8-CENSUS prove core [sparse+nocols] 0.315 s (digest equal) | open M (zk::mask_open, ONE call) 3.05 ms | open A (schedule audit + pcs::open_zk) 21.57 ms | open H (schedule audit + pcs::open_zk) 16.32 ms
+A8-CENSUS prove core [small+nocols] 0.319 s (digest equal) | open M (zk::mask_open, ONE call) 3.08 ms | open A (schedule audit + pcs::open_zk) 19.76 ms | open H (schedule audit + pcs::open_zk) 14.02 ms
+A8-CENSUS 2 store folds captured: 37 rho x 2504 rows, 10 rho x 2606 rows
+A8-CENSUS fold 0: 37 rho x 2504 rows x (16384 + 280) cols | nonzero coefficients 5658 (2.26 rows' worth; per vector [34, 34, 18, 6, 6, 6, 6, 6, 6, 6, 6, 6, 68, 34, 34, 34, 34, 10, 34, 10, 34, 34, 34, 130, 646, 6, 204, 34, 60, 10, 272, 6, 1170, 48, 34, 34, 2504]) | per row max 11, rows with none 0 | small16 rows 1900 of 2504, small32 rows 2280; small16 words 84.7%; small16 32-column chunks, weighted by coefficients, 8
+A8-CENSUS fold 1: 10 rho x 2606 rows x (16384 + 280) cols | nonzero coefficients 7726 (2.96 rows' worth; per vector [4, 660, 198, 54, 330, 1290, 64, 4, 2516, 2606]) | per row max 3, rows with none 0 | small16 rows 0 of 2606, small32 rows 0; small16 words 1.2%; small16 32-column chunks, weighted by coefficients, 1.0% of the updates
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 36.99s
+2026-11-05T15:31:24Z all done

@@ -36,6 +36,10 @@ pub use metal::mul_bench_for_test as metal_mul_bench_for_test;
 pub use metal::src_bench_for_test as metal_src_bench_for_test;
 #[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
 pub use metal::{fold_rows_host_for_test as metal_fold_rows_host_for_test, fold_rows_host_lazy as metal_fold_rows_host_lazy};
+// [A8] tests: the opening fold's forms (equal values), its form switch and the
+// capture of its inputs (the census and the bench)
+#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::{a8_opts as metal_a8_opts, fold_capture_for_test as metal_fold_capture_for_test, fold_rows_host_a8 as metal_fold_rows_host_a8, fold_rows_host_m11_for_test as metal_fold_rows_host_m11_for_test, fold_segments_a8 as metal_fold_segments_a8, fold_segments_a8_opts as metal_fold_segments_a8_opts, set_a8_fold_for_test as metal_set_a8_fold_for_test, A8Form as MetalA8Form, A8Opts as MetalA8Opts, A8Seg as MetalA8Seg, FoldCapture as MetalFoldCapture};
 // [A4] the witness weight products on the device (exact; the CPU stays the
 // reference and the default, `private_block/witness.rs`)
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -783,6 +787,10 @@ mod seam {
         }
         fn fold_batch(&self) -> usize {
             usize::MAX // unified memory: one pass over the data for every vector
+        }
+        // [A8] the message rows and the pads in one parallel pass (equal values)
+        fn fold_rows_with_pads(&self, rhos: &[Vec<Fp2>], pads: &[Fp], q: usize) -> Option<Result<Vec<Vec<Fp2>>, String>> {
+            MetalCommit::fold_rows_with_pads(self, rhos, pads, q)
         }
     }
 

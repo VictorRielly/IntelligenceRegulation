@@ -1,0 +1,25 @@
+2026-11-05T16:45:46Z start
+2026-11-05T16:48:19Z build rc=0
+2026-11-05T16:58:36Z d55 A/B on the merged tree rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.556 s = 13.40 tok/s | mean 9.556 s = 13.40 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.105 s = 31.18 tok/s | mean 4.105 s = 31.18 tok/s | 2.33x serial (best)
+D55-AB SUMMARY | forks N=6 m11  | A7 GPU-policy A/B, interleaved, 6 passes | best 4.274 s = 29.95 tok/s | mean 4.304 s = 29.74 tok/s
+D55-AB SUMMARY | forks N=6 small | A7 GPU-policy A/B, interleaved, 6 passes | best 4.022 s = 31.83 tok/s | mean 4.087 s = 31.32 tok/s
+D55-AB SUMMARY | forks N=6 SEALED m11 | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.442 s = 15.16 tok/s | mean 8.631 s = 14.83 tok/s
+D55-AB SUMMARY | forks N=6 SEALED small | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.204 s = 15.60 tok/s | mean 8.354 s = 15.32 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 m11 | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 24.13 tok/s (best 24.41) | amortized mean 20.61 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 small | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 24.76 tok/s (best 24.95) | amortized mean 21.10 tok/s
+# A11 pairs: [small] against [m11], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s10_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -4.7% (3, 3) | -5.4% (3, 3) | **-5.1%** | 4.304 / 4.087 |
+| forks phase s | -5.2% (3, 3) | -5.5% (3, 3) | **-5.3%** | 3.937 / 3.726 |
+| sealed wall s | -3.5% (3, 3) | -2.9% (3, 3) | **-3.2%** | 8.631 / 8.354 |
+| stream steady tok/s | +3.1% (3, 3) | +2.2% (3, 3) | **+2.6%** | 24.128 / 24.762 |
+| stream amortized tok/s | +2.6% (3, 3) | +2.1% (3, 3) | **+2.4%** | 20.610 / 21.097 |
+| user CPU s | -10.0% (3, 3) | -9.9% (3, 3) | **-10.0%** | 47.217 / 42.500 |
+| sys CPU s | +1.2% (3, 2) | +0.1% (3, 1) | **+0.7%** | 6.817 / 6.833 |
+| minor faults | -4.3% (3, 2) | +0.9% (3, 2) | **-1.7%** | 1,130,001 / 1,108,993 |
+2026-11-05T16:58:36Z all done
