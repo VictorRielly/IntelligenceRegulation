@@ -41,6 +41,8 @@ counters `c, c + 1, …` are), and `link` injective with a left inverse, as in `
 import ZK60Formal.FSChainRbr
 import ZK60Formal.SoundOpeningRO
 
+set_option autoImplicit false
+
 namespace ZK60.Sound
 
 open scoped ENNReal
@@ -50,7 +52,8 @@ section Run
 
 variable {Q D : Type}
 
-/-- The digests of a step started by the query `y`: the first is `H y`, the `(j + 1)`-th is the answer to `nx j` of the `j`-th (for the chain, `nx j d = link(d, item j + 1)`). -/
+/-- The digests of a step started by the query `y`: the first is `H y`, the `(j + 1)`-th is the answer to `nx j` of
+the `j`-th (for the chain, `nx j d = link(d, item j + 1)`). -/
 def wideValsN (H : Q → D) (y : Q) (nx : ℕ → D → Q) : ℕ → D
   | 0 => H y
   | j + 1 => H (nx j (wideValsN H y nx j))
@@ -100,7 +103,9 @@ theorem wideVals_extend (H : Q → D) (y : Q) (nx : ℕ → D → Q) (k : ℕ) (
   funext j
   exact key j j.isLt
 
-/-- **The swap.** Exchange the step's digests under `H` with a free vector: `(H, e) ↦ (H rewritten to `e` along its own step, the old digests)`. A bijection of `(Q → D) × D^k`, its inverse rewriting `H` along the queries of the given vector. -/
+/-- **The swap.** Exchange the step's digests under `H` with a free vector: `(H, e) ↦ (H rewritten to `e` along its
+own step, the old digests)`. A bijection of `(Q → D) × D^k`, its inverse rewriting `H` along the queries of the given
+vector. -/
 noncomputable def wideSwap (y : Q) (nx : ℕ → D → Q) (k : ℕ)
     (hinj : ∀ b : Fin k → D, Function.Injective (widePts y nx b)) :
     (Q → D) × (Fin k → D) ≃ (Q → D) × (Fin k → D) where
@@ -133,7 +138,9 @@ noncomputable def wideSwap (y : Q) (nx : ℕ → D → Q) (k : ℕ)
     · simp only
       rw [Function.extend_apply' _ _ _ hx, Function.extend_apply' _ _ _ hx]
 
-/-- **The counting core.** If an event `W H b` about the step's digests `b` survives rewriting `H` along the step's own queries, then the oracles where the step's digests satisfy it, counted `|D|^k` times, are at most the pairs `(H, b)` that satisfy it: the step's digests are as good as a free uniform vector. -/
+/-- **The counting core.** If an event `W H b` about the step's digests `b` survives rewriting `H` along the step's
+own queries, then the oracles where the step's digests satisfy it, counted `|D|^k` times, are at most the pairs `(H,
+b)` that satisfy it: the step's digests are as good as a free uniform vector. -/
 theorem wide_card_le [Fintype Q] [DecidableEq Q] [Fintype D] (y : Q) (nx : ℕ → D → Q) (k : ℕ)
     (hinj : ∀ b : Fin k → D, Function.Injective (widePts y nx b)) (W : (Q → D) → (Fin k → D) → Prop)
     [DecidablePred (fun H : Q → D => W H (wideVals H y nx k))]
@@ -158,14 +165,18 @@ section Hit
 
 variable {Q D : Type} [Fintype Q] [DecidableEq Q] [Fintype D] [Nonempty D]
 
-/-- **A wide fresh hit** in a log: some entry asks, for the first time, a query `y` that starts a step of `wd y` digests (next queries `nx y`); none of the step's queries was asked before it; and the step's digests satisfy `Bad`, named by the log before `y` and by `y`. -/
+/-- **A wide fresh hit** in a log: some entry asks, for the first time, a query `y` that starts a step of `wd y`
+digests (next queries `nx y`); none of the step's queries was asked before it; and the step's digests satisfy `Bad`,
+named by the log before `y` and by `y`. -/
 def WideHit (wd : Q → ℕ) (nx : Q → ℕ → D → Q) (Bad : List (Q × D) → Q → List D → Prop) (H : Q → D)
     (L : List (Q × D)) : Prop :=
   ∃ t e, L[t]? = some e ∧ e.1 ∉ (L.take t).map Prod.fst
     ∧ (∀ j, widePts e.1 (nx e.1) (wideVals H e.1 (nx e.1) (wd e.1)) j ∉ (L.take t).map Prod.fst)
     ∧ Bad (L.take t) e.1 (List.ofFn (wideVals H e.1 (nx e.1) (wd e.1)))
 
-/-- **The wide-digest lemma, in an adaptive run.** For a computation making at most `T` queries, and a set `Bad` named by the log and the start query, of probability at most `ε` for a uniform `wd y`-vector of digests: a wide fresh hit has probability at most `T·ε`. -/
+/-- **The wide-digest lemma, in an adaptive run.** For a computation making at most `T` queries, and a set `Bad` named
+by the log and the start query, of probability at most `ε` for a uniform `wd y`-vector of digests: a wide fresh hit
+has probability at most `T·ε`. -/
 theorem wideHit_prob_le {α : Type} (A : OC Q D α) (T : ℕ) (hA : A.Bounded T) (wd : Q → ℕ)
     (nx : Q → ℕ → D → Q) (hinj : ∀ y (b : Fin (wd y) → D), Function.Injective (widePts y (nx y) b))
     (Bad : List (Q × D) → Q → List D → Prop) (ε : ℝ≥0∞)
@@ -271,7 +282,8 @@ theorem wideHit_prob_le {α : Type} (A : OC Q D α) (T : ℕ) (hA : A.Bounded T)
     have hΩ0 : (Fintype.card (Q → D) : ℝ≥0∞) ≠ 0 := by exact_mod_cast Fintype.card_ne_zero
     have hΩt : (Fintype.card (Q → D) : ℝ≥0∞) ≠ ⊤ := ENNReal.natCast_ne_top _
     rw [prob_uniform_eq_card (E t), ENNReal.div_le_iff hΩ0 hΩt]
-    have hU : univ.filter (E t) ⊆ univ.biUnion (fun y => univ.filter (fun H => W t y H (wideVals H y (nx y) (wd y)))) := by
+    have hU : univ.filter (E t)
+        ⊆ univ.biUnion (fun y => univ.filter (fun H => W t y H (wideVals H y (nx y) (wd y)))) := by
       intro H hH
       simp only [mem_filter, mem_univ, true_and] at hH
       obtain ⟨y, hy⟩ := hH
@@ -301,7 +313,8 @@ def stepItem (cont : It → ℕ → It) (it : It) : ℕ → It
   | 0 => it
   | j + 1 => cont it j
 
-/-- **Steps.** Each item `it` starts a step of `wd it ≥ 1` items, itself and its forced continuation `cont it j` (for a squeeze `sq c` of a `k`-wide challenge: `sq (c + 1 + j)`); the items of a step are distinct. -/
+/-- **Steps.** Each item `it` starts a step of `wd it ≥ 1` items, itself and its forced continuation `cont it j` (for
+a squeeze `sq c` of a `k`-wide challenge: `sq (c + 1 + j)`); the items of a step are distinct. -/
 structure Steps (It : Type) where
   wd : It → ℕ
   wd_pos : ∀ it, 0 < wd it
@@ -378,7 +391,8 @@ variable {It Q D : Type} (C : ChainEnc It Q D)
 /-- The next queries of the step `it` starts: the `(j + 1)`-th links the `j`-th digest with `cont it j`. -/
 def stepNx (S : Steps It) (it : It) : ℕ → D → Q := fun j d => C.link d (S.cont it j)
 
-/-- Hashing the first `m` items of a step extends the chain by those items paired with the step's first `m` digests. -/
+/-- Hashing the first `m` items of a step extends the chain by those items paired with the step's first `m` digests.
+-/
 theorem chainFrom_stepPrefix (S : Steps It) (H : Q → D) (τ : List (It × D)) (it : It) : ∀ m : ℕ,
     C.chainFrom H τ ((List.range m).map (stepItem S.cont it))
       = τ ++ S.ents it ((List.range m).map (wideValsN H (C.link (C.lastD H τ) it) (C.stepNx S it)))
@@ -395,13 +409,15 @@ theorem chainFrom_stepPrefix (S : Steps It) (H : Q → D) (τ : List (It × D)) 
         ← List.append_assoc, lastD_snoc]
       simp [stepItem, wideValsN, stepNx]
 
-/-- **Hashing a whole step** extends the chain by the step's entries, its digests being `wideValsN` of its start query. -/
+/-- **Hashing a whole step** extends the chain by the step's entries, its digests being `wideValsN` of its start
+query. -/
 theorem chainFrom_step (S : Steps It) (H : Q → D) (τ : List (It × D)) (it : It) :
     C.chainFrom H τ (S.items it)
       = τ ++ S.ents it ((List.range (S.wd it)).map (wideValsN H (C.link (C.lastD H τ) it) (C.stepNx S it))) :=
   C.chainFrom_stepPrefix S H τ it (S.wd it)
 
-/-- **The step where the chain escapes.** If the chain `τ` is doomed and its extension by the expanded heads `hs` is not, some head `it` (after the heads `pre`) takes the doomed chain of `pre` out of doom in one whole step. -/
+/-- **The step where the chain escapes.** If the chain `τ` is doomed and its extension by the expanded heads `hs` is
+not, some head `it` (after the heads `pre`) takes the doomed chain of `pre` out of doom in one whole step. -/
 theorem chain_flip_steps (S : Steps It) (H : Q → D) (St : List (It × D) → Prop) :
     ∀ (hs : List It) (τ : List (It × D)), ¬ St τ → St (C.chainFrom H τ (hs.flatMap S.items)) →
       ∃ pre it post, hs = pre ++ it :: post ∧ ¬ St (C.chainFrom H τ (pre.flatMap S.items))
@@ -479,7 +495,8 @@ theorem widePts_injective (S : Steps It) (y : Q) (b : Fin (C.wdQ S y) → D) :
 
 variable [DecidableEq Q] [DecidableEq D]
 
-/-- **The set a query names**: decode it as `link(d, it)`, trace `d` back through the log to a chain `τ`; if `τ` is doomed (at least `s` items, whole steps), the digest lists that take `τ` out of doom in the step `it` starts. -/
+/-- **The set a query names**: decode it as `link(d, it)`, trace `d` back through the log to a chain `τ`; if `τ` is
+doomed (at least `s` items, whole steps), the digest lists that take `τ` out of doom in the step `it` starts. -/
 def stepBad (S : Steps It) (St : List (Q × D) → List (It × D) → Prop) (s ℓ : ℕ) (P : List (Q × D)) (y : Q)
     (ds : List D) : Prop :=
   ∃ d it τ, C.ldec y = some (d, it) ∧ C.traceBack P (ℓ + 1) d = some τ ∧ s ≤ τ.length
@@ -540,7 +557,13 @@ section SoundWide
 
 variable {It Q D : Type} [Fintype Q] [DecidableEq Q] [Fintype D] [Nonempty D] [DecidableEq D]
 
-/-- **Fiat–Shamir soundness on the code's chain, with vector challenges.** Let `St P τ` be a state on chains (it may read the log `P`) such that from a doomed chain of whole steps (at least `s` items), for every next head `it`, a uniform vector of `wd it` digests escapes doom with probability at most `ε`, and such that once a chain's queries are logged a longer log does not change its state (`hstab`). A prover making at most `q` hash queries outputs heads; the verifier hashes every step of them (at most `ℓ` items). The probability that the chain of the first `s` heads is doomed while the whole chain is not is at most `T·ε + collBound T D + collBound (T + 1) D`, `T = q + ℓ + 1`. The state is evaluated with the log of the whole run (the prover's queries, then the verifier's). -/
+/-- **Fiat–Shamir soundness on the code's chain, with vector challenges.** Let `St P τ` be a state on chains (it may
+read the log `P`) such that from a doomed chain of whole steps (at least `s` items), for every next head `it`, a
+uniform vector of `wd it` digests escapes doom with probability at most `ε`, and such that once a chain's queries are
+logged a longer log does not change its state (`hstab`). A prover making at most `q` hash queries outputs heads; the
+verifier hashes every step of them (at most `ℓ` items). The probability that the chain of the first `s` heads is
+doomed while the whole chain is not is at most `T·ε + collBound T D + collBound (T + 1) D`, `T = q + ℓ + 1`. The state
+is evaluated with the log of the whole run (the prover's queries, then the verifier's). -/
 theorem chain_sound_wide (C : ChainEnc It Q D) (S : Steps It) (St : List (Q × D) → List (It × D) → Prop)
     (s : ℕ) (ε : ℝ≥0∞)
     (hround : ∀ P τ it, s ≤ τ.length → (∃ hs : List It, τ.map Prod.fst = hs.flatMap S.items) → ¬ St P τ →

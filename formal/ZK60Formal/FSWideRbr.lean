@@ -39,6 +39,8 @@ argument). Several protocols composed on one chain are not stated.
 -/
 import ZK60Formal.FSWide
 
+set_option autoImplicit false
+
 namespace ZK60.Sound
 
 open scoped ENNReal
@@ -58,7 +60,8 @@ theorem ctr_strictMono {w : ℕ → ℕ} (hw : ∀ i, 0 < w i) : StrictMono (ctr
   strictMono_nat_of_lt_succ (fun i => by simp only [ctr]; have := hw i; omega)
 
 open Classical in
-/-- The width of the step a squeeze with counter `c` starts: round `i`'s width when `c` is round `i`'s first counter (`i < n`), else `1` (a squeeze out of the schedule). -/
+/-- The width of the step a squeeze with counter `c` starts: round `i`'s width when `c` is round `i`'s first counter
+(`i < n`), else `1` (a squeeze out of the schedule). -/
 noncomputable def sqWidth (n : ℕ) (w : ℕ → ℕ) (c : ℕ) : ℕ :=
   if h : ∃ i, i < n ∧ ctr w i = c then w (Classical.choose h) else 1
 
@@ -82,7 +85,10 @@ theorem sqWidth_le {n : ℕ} {w : ℕ → ℕ} (hw : ∀ i, 0 < w i) (i : ℕ) :
   · rw [sqWidth_ctr hw hi]
   · unfold sqWidth
     split_ifs with h
-    · exact absurd (by have := (Classical.choose_spec h); rw [(ctr_strictMono hw).injective this.2] at this; exact this.1) hi
+    · exact absurd (by
+        have := Classical.choose_spec h
+        rw [(ctr_strictMono hw).injective this.2] at this
+        exact this.1) hi
     · exact hw i
 
 end Schedule
@@ -184,10 +190,13 @@ section Reader
 
 variable {X M D : Type}
 
-/-- The reader's state: the transcript so far, the pending message, and the current round's digests so far; `none` once the chain leaves the schedule. -/
+/-- The reader's state: the transcript so far, the pending message, and the current round's digests so far; `none`
+once the chain leaves the schedule. -/
 abbrev RState (M D : Type) := Option (List (M × List D) × Option M × List D)
 
-/-- **One step of the reader.** A message is held until its round's squeezes (only in a round that has one); a squeeze must carry the round's next counter; the round's last squeeze completes the round with its message (or `m₀`) and its digests; anything else leaves the schedule. -/
+/-- **One step of the reader.** A message is held until its round's squeezes (only in a round that has one); a squeeze
+must carry the round's next counter; the round's last squeeze completes the round with its message (or `m₀`) and its
+digests; anything else leaves the schedule. -/
 def rStepW (n : ℕ) (w : ℕ → ℕ) (hasMsg : ℕ → Bool) (m₀ : M) : RState M D → PItem X M × D → RState M D
   | some (τ, none, []), (.msg m, _) => if τ.length < n ∧ hasMsg τ.length = true then some (τ, some m, []) else none
   | some (τ, pm, ds), (.sq c, d) =>
@@ -330,7 +339,8 @@ theorem foldl_bnd_flatMap (hw : ∀ i, 0 < w i) : ∀ (hs : List (PItem X M)) (e
     rw [← List.take_append_drop k es, List.foldl_append]
     exact foldl_bnd_flatMap hw hs _ _ (foldl_step_bnd hw h h0 _ h1) h2
 
-/-- **The reader on the verifier's chain**: the items of `|ms|` rounds, with any digests, read as exactly `|ms|` more rounds. -/
+/-- **The reader on the verifier's chain**: the items of `|ms|` rounds, with any digests, read as exactly `|ms|` more
+rounds. -/
 theorem foldl_roundHeads (hw : ∀ i, 0 < w i) : ∀ (ms : List M) (i : ℕ) (ptr : List (M × List D))
     (es : List (PItem X M × D)), ptr.length = i → i + ms.length ≤ n →
     es.map Prod.fst = (roundHeads w hasMsg i ms).flatMap (pSteps n w hw).items →
@@ -401,7 +411,9 @@ section Lift
 
 variable {X M Q D : Type}
 
-/-- **Round-by-round soundness with vector challenges, at the level of digests**: from a doomed transcript of fewer than `n` rounds, whatever the round's message, a uniform vector of the round's `w i` digests leads out of doom with probability at most `ε`. -/
+/-- **Round-by-round soundness with vector challenges, at the level of digests**: from a doomed transcript of fewer
+than `n` rounds, whatever the round's message, a uniform vector of the round's `w i` digests leads out of doom with
+probability at most `ε`. -/
 structure RbrWide [Fintype D] [Nonempty D] (n : ℕ) (w : ℕ → ℕ) (St : X → List (M × List D) → Prop) (ε : ℝ≥0∞) :
     Prop where
   round : ∀ x τ m, τ.length < n → ¬ St x τ →
@@ -412,7 +424,8 @@ def liftOfW (St : X → List (M × List D) → Prop) (x : X) : RState M D → Pr
   | some (ptr, _, _) => St x ptr
   | none => False
 
-/-- **The protocol's state on chains**: the chain starts with the statement, then the protocol's state of the transcript read off the rest. It may read the log `P`. -/
+/-- **The protocol's state on chains**: the chain starts with the statement, then the protocol's state of the
+transcript read off the rest. It may read the log `P`. -/
 def liftStW (n : ℕ) (w : ℕ → ℕ) (hasMsg : ℕ → Bool) (m₀ : M) (St : List (Q × D) → X → List (M × List D) → Prop)
     (P : List (Q × D)) : List (PItem X M × D) → Prop
   | (.stmt x, _) :: rest => liftOfW (St P) x (rDecodeW n w hasMsg m₀ rest)
@@ -420,7 +433,9 @@ def liftStW (n : ℕ) (w : ℕ → ℕ) (hasMsg : ℕ → Bool) (m₀ : M) (St :
 
 variable {n : ℕ} {w : ℕ → ℕ} {hasMsg : ℕ → Bool} {m₀ : M}
 
-/-- **The lifted state is round by round, step by step.** From a doomed chain of whole steps, a message step never escapes, the squeeze step of round `i` escapes with probability at most `ε` (`RbrWide.round`), and any other step dooms the chain. -/
+/-- **The lifted state is round by round, step by step.** From a doomed chain of whole steps, a message step never
+escapes, the squeeze step of round `i` escapes with probability at most `ε` (`RbrWide.round`), and any other step
+dooms the chain. -/
 theorem liftStW_round [Fintype D] [Nonempty D] (hw : ∀ i, 0 < w i)
     (St : List (Q × D) → X → List (M × List D) → Prop) (ε : ℝ≥0∞) (hR : ∀ P, RbrWide n w (St P) ε)
     (P : List (Q × D)) (τ : List (PItem X M × D)) (it : PItem X M) (hlen : 1 ≤ τ.length)
@@ -598,7 +613,9 @@ theorem pHeadsW_length_le (hw : ∀ i, 0 < w i) (x : X) (ms : List M) :
   simp only [zero_add]
   exact sum_le_sum_of_subset (range_subset_range.mpr (by simp))
 
-/-- **The chain verifier**: exactly `n` messages; the chain of the verifier's items is hashed from the start query; the items after the statement read as a transcript (each round's message and digests), and the protocol's verifier accepts it. -/
+/-- **The chain verifier**: exactly `n` messages; the chain of the verifier's items is hashed from the start query;
+the items after the statement read as a transcript (each round's message and digests), and the protocol's verifier
+accepts it. -/
 def chainAcceptsW (n : ℕ) (w : ℕ → ℕ) (hw : ∀ i, 0 < w i) (hasMsg : ℕ → Bool) (m₀ : M) {Mf : Type}
     (accept : X → List (M × List D) → Mf → Prop) (C : ChainEnc (PItem X M) Q D) (H : Q → D) (x : X)
     (ms : List M) (mf : Mf) : Prop :=
@@ -626,7 +643,10 @@ theorem chainAcceptsW_length (hw : ∀ i, 0 < w i)
 
 variable [Fintype Q] [DecidableEq Q] [Fintype D] [Nonempty D] [DecidableEq D]
 
-/-- **The protocol on the chain, the general form.** For a state that may read the log (stable once the statement's link is logged) and is round-by-round sound with vector challenges for every log: a prover making at most `q` hash queries gets a doomed statement and a chain that reads as a transcript the state does not doom with probability at most `T·ε + collBound T D + collBound (T + 1) D`, `T = q + ℓW n w + 1`. -/
+/-- **The protocol on the chain, the general form.** For a state that may read the log (stable once the statement's
+link is logged) and is round-by-round sound with vector challenges for every log: a prover making at most `q` hash
+queries gets a doomed statement and a chain that reads as a transcript the state does not doom with probability at
+most `T·ε + collBound T D + collBound (T + 1) D`, `T = q + ℓW n w + 1`. -/
 theorem fs_chain_wide_flip (hw : ∀ i, 0 < w i) (C : ChainEnc (PItem X M) Q D)
     (St : List (Q × D) → X → List (M × List D) → Prop) (ε : ℝ≥0∞) (hR : ∀ P, RbrWide n w (St P) ε)
     (hstab : ∀ (H : Q → D) (P P' : List (Q × D)) (x : X) (τ : List (M × List D)), C.start ∈ P.map Prod.fst →
@@ -685,7 +705,10 @@ theorem fs_chain_wide_flip (hw : ∀ i, 0 < w i) (C : ChainEnc (PItem X M) Q D)
     rw [hdec]
     exact hst
 
-/-- **Fiat–Shamir soundness with vector challenges on the code's chain.** A protocol that is round-by-round sound with vector challenges (`RbrWide`, plus the start and final conditions), run on the chain with its rounds' widths, messages and counters, accepts a false statement from a prover making at most `q` hash queries with probability at most `T·ε + collBound T D + collBound (T + 1) D`, `T = q + ℓW n w + 1`. -/
+/-- **Fiat–Shamir soundness with vector challenges on the code's chain.** A protocol that is round-by-round sound with
+vector challenges (`RbrWide`, plus the start and final conditions), run on the chain with its rounds' widths, messages
+and counters, accepts a false statement from a prover making at most `q` hash queries with probability at most `T·ε +
+collBound T D + collBound (T + 1) D`, `T = q + ℓW n w + 1`. -/
 theorem fs_chain_sound_of_rbr_wide (hw : ∀ i, 0 < w i) (C : ChainEnc (PItem X M) Q D) {Mf : Type}
     {L : X → Prop} {accept : X → List (M × List D) → Mf → Prop} {St : X → List (M × List D) → Prop}
     (ε : ℝ≥0∞) (hR : RbrWide n w St ε) (hstart : ∀ x, ¬ L x → ¬ St x [])
@@ -710,9 +733,13 @@ end Lift
 
 section Bias
 
+/-- The code's 32-byte digest (a squeeze's output), as its two 128-bit halves `(lo, hi)`. -/
+abbrev Dg : Type := Fin (2 ^ 128) × Fin (2 ^ 128)
+
 variable {D : Type} [Fintype D] [Nonempty D]
 
-/-- **A vector challenge through a derivation.** If each challenge value has at most `K` digest preimages, a vector of `k` digests, read coordinatewise, lands in a set with at most the uniform probability times `biasFactor K C D ^ k`. -/
+/-- **A vector challenge through a derivation.** If each challenge value has at most `K` digest preimages, a vector of
+`k` digests, read coordinatewise, lands in a set with at most the uniform probability times `biasFactor K C D ^ k`. -/
 theorem prob_vec_comap_le {C : Type} [Fintype C] [Nonempty C] [DecidableEq C] (chal : D → C) (K : ℕ)
     (hK : ∀ c, (univ.filter (fun d : D => chal d = c)).card ≤ K) (k : ℕ) (S : (Fin k → C) → Prop) :
     (PMF.uniformOfFintype (Fin k → D)).toOuterMeasure {b | S (fun j => chal (b j))}
@@ -754,7 +781,8 @@ theorem biasFactor_fp2_pow_le {F : Type} [Fintype F] (N p : ℕ) [NeZero N] (hF 
   gcongr
   exact biasFactor_fp2_le N p hF
 
-/-- **The code's `challenge_fp2_vec`**: `k` squeezes, each read as an `Fp2` element, land in a set with at most its uniform probability times `(1 + p/2^128)^(2k)`. -/
+/-- **The code's `challenge_fp2_vec`**: `k` squeezes, each read as an `Fp2` element, land in a set with at most its
+uniform probability times `(1 + p/2^128)^(2k)`. -/
 theorem prob_fp2_vec_le {F : Type} [Fintype F] [Nonempty F] [DecidableEq F] (p : ℕ) [NeZero p] (ι : ZMod p × ZMod p ≃ F)
     (k : ℕ) (S : (Fin k → F) → Prop) :
     (PMF.uniformOfFintype (Fin k → Fin (2 ^ 128) × Fin (2 ^ 128))).toOuterMeasure
