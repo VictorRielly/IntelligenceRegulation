@@ -1,0 +1,12 @@
+# 883 self samples with leaf ~ from_elem|__bzero|mach_vm_deallocate|madvise (role fork)
+    512  _$LT$T$u20$as$u20$alloc..vec..spec_from_elem..SpecFromElem$GT$::from_elem <- hashline::private_block::protocol::prove_core <- hashline::private_block::run::fork::prove_forks_inner::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+    169  __bzero <- hashline::private_block::protocol::prove_core <- hashline::private_block::run::fork::prove_forks_inner::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+    124  _kernelrpc_mach_vm_deallocate_trap <- mach_vm_deallocate <- mvm_deallocate_plat <- _xzm_segment_group_segment_deallocate <- xzm_segment_group_free_chunk
+     35  __bzero <- hashline::private_block::accuracy_act::denominators <- hashline::private_block::protocol::prove_core <- hashline::private_block::run::fork::prove_forks_inner::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b <- std::sys::backtrace::__rust_begin_short_backtrace
+     21  __bzero <- hashline::private_block::accuracy_act::group_column <- hashline::private_block::argument::accuracy::fzc_w16 <- hashline::private_block::argument::define <- hashline::private_block::argument::argument
+      5  __bzero <- zkp_core::pcs::zpart_weights <- zkp_core::pcs::group_zclaims <- zkp_core::pcs::open_zk <- hashline::private_block::protocol::prove_core
+      5  __bzero <- zkp_core::rng::ZkRng::fp_vec <- hashline::pcs::commit_zk_owned_tagged <- hashline::private_block::protocol::prove_core <- hashline::private_block::run::fork::prove_forks_inner::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b
+      4  madvise <- <deduplicated_symbol> <- xzm_metapool_free <- xzm_segment_group_free_chunk <- core::ptr::drop_in_place$LT$hashline..pcs_compact..CosetTree$GT$
+      3  __bzero <- zkp_core::pcs::group_zclaims <- zkp_core::pcs::open_zk <- hashline::private_block::protocol::prove_core <- hashline::private_block::run::fork::prove_forks_inner::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b
+      3  madvise <- <deduplicated_symbol> <- xzm_metapool_free <- xzm_segment_group_free_chunk <- core::ptr::drop_in_place$LT$alloc..vec..Vec$LT$$LP$hashline..private_block..layout..Dom$C$
+      2  __bzero <- hashline::private_block::argument::rope_tables_at <- hashline::private_block::argument::accuracy::qzc_w16 <- hashline::private_block::argument::define <- hashline::private_block::argument::argument

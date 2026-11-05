@@ -340,6 +340,58 @@ fn w16r2_rung_cpu_and_metal_digests_equal_the_golden() {
     assert!(ran > 0.0, "no sumcheck round ran on the device");
 }
 
+/// **[A11] the pool a proof runs in changes no byte (CPU).** The seeded W16R2
+/// rung proof as a fork worker's own pool runs it (`run_fork.rs`,
+/// `HL_D55_FORK_POOL`): inside a rayon pool of one thread, of two and of three,
+/// and on the global pool. Every digest is the golden.
+#[test]
+fn a11_w16r2_rung_golden_inside_small_rayon_pools() {
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    for threads in [Some(1usize), Some(2), Some(3), None] {
+        let d = match threads {
+            Some(t) => rayon::ThreadPoolBuilder::new().num_threads(t).build().expect("a rayon pool").install(|| seeded_digest(&sh, &blk, copy(&w))),
+            None => seeded_digest(&sh, &blk, copy(&w)),
+        };
+        eprintln!("A11-POOLS {}: rayon pool {threads:?}: {d}", sh.name);
+        assert!(d.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's digest moved inside a pool of {threads:?} threads: {d}");
+    }
+}
+
+/// **[A11] the same on the device, concurrently.** Three seeded W16R2 rung
+/// proofs at once, each inside its own rayon pool of `t` threads (1, 2, 6), as
+/// three fork workers with their own pools run them: every digest is the CPU's,
+/// which is the golden. Toggles `HL_GPU` in-process, so it is ignored and run
+/// alone by name (`HL_GPU_REQUIRED=1`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A11: toggles HL_GPU in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn a11_w16r2_rung_digests_in_per_fork_pools_on_the_device() {
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu = seeded_digest(&sh, &blk, copy(&w));
+    assert!(cpu.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's digest moved");
+    std::env::set_var("HL_GPU", "1");
+    for t in [1usize, 2, 6] {
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        let got: Vec<String> = std::thread::scope(|s| {
+            let hs: Vec<_> = (0..3)
+                .map(|_| {
+                    let (sh, blk, w) = (&sh, &blk, copy(&w));
+                    s.spawn(move || rayon::ThreadPoolBuilder::new().num_threads(t).build().expect("a rayon pool").install(|| seeded_digest(sh, blk, w)))
+                })
+                .collect();
+            hs.into_iter().map(|h| h.join().expect("a proof thread")).collect()
+        });
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        eprintln!("A11-POOLS {} on the device: three concurrent proofs, each in its own pool of {t}: {:?} (device sumcheck rounds {ran:.4} s)", sh.name, got.iter().map(|d| &d[..8]).collect::<Vec<_>>());
+        for d in &got {
+            assert_eq!(d, &cpu, "a Metal W16R2 rung proof inside a pool of {t} threads differs from the CPU's");
+        }
+        assert!(ran > 0.0, "no sumcheck round ran on the device");
+    }
+    std::env::remove_var("HL_GPU");
+}
+
 /// **[A7] the queues change no byte, under concurrency.** The seeded W16R2 rung
 /// proof on six threads at once, as six fork workers would run: first with every
 /// thread's command buffers on the one shared queue, then on six queues (one per

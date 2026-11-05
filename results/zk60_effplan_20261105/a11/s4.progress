@@ -1,0 +1,67 @@
+2026-11-05T13:30:14Z start
+2026-11-05T13:30:14Z build rc=0
+2026-11-05T13:34:35Z d55 fork-pool size A/B rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.570 s = 12.11 tok/s | mean 10.570 s = 12.11 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.278 s = 24.25 tok/s | mean 5.278 s = 24.25 tok/s | 2.00x serial (best)
+D55-AB SUMMARY | forks N=6 global | A7 GPU-policy A/B, interleaved, 6 passes | best 4.603 s = 27.81 tok/s | mean 4.820 s = 26.56 tok/s
+D55-AB SUMMARY | forks N=6 fp4  | A7 GPU-policy A/B, interleaved, 6 passes | best 4.610 s = 27.76 tok/s | mean 4.745 s = 26.97 tok/s
+D55-AB SUMMARY | forks N=6 fp5  | A7 GPU-policy A/B, interleaved, 6 passes | best 4.409 s = 29.03 tok/s | mean 4.544 s = 28.17 tok/s
+D55-AB SUMMARY | forks N=6 fp6  | A7 GPU-policy A/B, interleaved, 6 passes | best 4.324 s = 29.60 tok/s | mean 4.485 s = 28.54 tok/s
+D55-AB SUMMARY | forks N=6 fp8  | A7 GPU-policy A/B, interleaved, 6 passes | best 4.283 s = 29.88 tok/s | mean 4.497 s = 28.47 tok/s
+D55-AB SUMMARY | forks N=6 fp6+pool | A7 GPU-policy A/B, interleaved, 6 passes | best 4.495 s = 28.48 tok/s | mean 4.610 s = 27.77 tok/s
+# A11 pairs: [fp4] against [global], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -3.7% (3, 3) | +0.8% (3, 1) | **-1.4%** | 4.820 / 4.745 |
+| forks phase s | -4.3% (3, 3) | +0.1% (3, 2) | **-2.1%** | 4.457 / 4.357 |
+| user CPU s | -26.5% (3, 3) | -26.8% (3, 3) | **-26.7%** | 70.433 / 51.633 |
+| sys CPU s | -83.2% (3, 3) | -82.0% (3, 3) | **-82.6%** | 22.750 / 3.950 |
+| minor faults | -2.2% (3, 2) | +1.4% (3, 1) | **-0.4%** | 1,211,385 / 1,198,275 |
+# A11 pairs: [fp5] against [global], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -7.3% (3, 3) | -4.0% (3, 3) | **-5.7%** | 4.820 / 4.544 |
+| forks phase s | -8.1% (3, 3) | -4.6% (3, 3) | **-6.3%** | 4.457 / 4.173 |
+| user CPU s | -24.3% (3, 3) | -24.3% (3, 3) | **-24.3%** | 70.433 / 53.333 |
+| sys CPU s | -80.5% (3, 3) | -81.3% (3, 3) | **-80.9%** | 22.750 / 4.350 |
+| minor faults | +1.6% (3, 1) | -5.9% (3, 2) | **-2.1%** | 1,211,385 / 1,175,416 |
+# A11 pairs: [fp6] against [global], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -9.6% (3, 3) | -4.1% (3, 3) | **-6.9%** | 4.820 / 4.485 |
+| forks phase s | -10.4% (3, 3) | -5.0% (3, 3) | **-7.7%** | 4.457 / 4.110 |
+| user CPU s | -21.2% (3, 3) | -21.2% (3, 3) | **-21.2%** | 70.433 / 55.500 |
+| sys CPU s | -80.0% (3, 3) | -79.5% (3, 3) | **-79.8%** | 22.750 / 4.600 |
+| minor faults | -7.6% (3, 2) | -7.9% (3, 3) | **-7.8%** | 1,211,385 / 1,109,983 |
+# A11 pairs: [fp8] against [global], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -6.6% (3, 3) | -6.8% (3, 3) | **-6.7%** | 4.820 / 4.496 |
+| forks phase s | -7.1% (3, 3) | -7.8% (3, 3) | **-7.4%** | 4.457 / 4.123 |
+| user CPU s | -16.0% (3, 3) | -18.0% (3, 3) | **-17.0%** | 70.433 / 58.467 |
+| sys CPU s | -70.4% (3, 3) | -70.6% (3, 3) | **-70.5%** | 22.750 / 6.717 |
+| minor faults | +4.7% (3, 1) | +1.2% (3, 1) | **+2.9%** | 1,211,385 / 1,235,378 |
+# A11 pairs: [fp6+pool] against [global], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -5.9% (3, 3) | -2.6% (3, 2) | **-4.3%** | 4.820 / 4.610 |
+| forks phase s | -6.6% (3, 3) | -2.8% (3, 2) | **-4.7%** | 4.457 / 4.243 |
+| user CPU s | -19.2% (3, 3) | -19.9% (3, 3) | **-19.5%** | 70.433 / 56.667 |
+| sys CPU s | -79.5% (3, 3) | -81.0% (3, 3) | **-80.2%** | 22.750 / 4.500 |
+| minor faults | -38.0% (3, 3) | -44.0% (3, 3) | **-41.0%** | 1,211,385 / 714,394 |
+# A11 pairs: [fp6+pool] against [fp6], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +4.1% (3, 0) | +1.5% (3, 0) | **+2.8%** | 4.485 / 4.610 |
+| forks phase s | +4.2% (3, 0) | +2.3% (3, 1) | **+3.2%** | 4.110 / 4.243 |
+| user CPU s | +2.5% (3, 0) | +1.7% (3, 0) | **+2.1%** | 55.500 / 56.667 |
+| sys CPU s | +2.6% (3, 2) | -7.1% (3, 3) | **-2.2%** | 4.600 / 4.500 |
+| minor faults | -32.2% (3, 3) | -39.3% (3, 3) | **-35.7%** | 1,109,983 / 714,394 |
+2026-11-05T13:34:35Z all done

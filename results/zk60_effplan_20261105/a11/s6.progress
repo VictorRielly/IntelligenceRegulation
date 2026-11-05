@@ -1,0 +1,26 @@
+2026-11-05T14:16:55Z start
+2026-11-05T14:19:16Z build rc=0
+2026-11-05T14:20:29Z N6 ready pid 21657
+2026-11-05T14:20:31Z N6 go
+2026-11-05T14:20:42Z N6 sample rc=0
+2026-11-05T14:20:46Z d55 profile after rc=0
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 4.418 s, forks 4.062 s | process user 54.2 s + sys 8.8 s = 14.3 cores | minor faults 2015184 (456178/s), major 0 | csw voluntary 0, involuntary 114796 | fork workers: prove_core 22.51 s summed, their own thread CPU 21.69 s (96%) | host pool so far: 0 hits, 0 misses
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [global+phases]: wall 5.051 s, forks 4.703 s | process user 69.9 s + sys 21.2 s = 18.0 cores | minor faults 1175112 (232647/s), major 0 | csw voluntary 0, involuntary 782370 | fork workers: prove_core 26.15 s summed, their own thread CPU 14.07 s (54%) | host pool so far: 0 hits, 0 
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fpauto+phases]: wall 4.471 s, forks 4.118 s | process user 54.9 s + sys 4.5 s = 13.3 cores | minor faults 1266311 (283246/s), major 0 | csw voluntary 0, involuntary 120323 | fork workers: prove_core 22.75 s summed, their own thread CPU 22.09 s (97%) | host pool so far: 0 hits, 0 m
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fpauto+phases]: wall 4.684 s, forks 4.323 s | process user 56.1 s + sys 4.6 s = 13.0 cores | minor faults 1283518 (274028/s), major 0 | csw voluntary 0, involuntary 126440 | fork workers: prove_core 23.81 s summed, their own thread CPU 23.17 s (97%) | host pool so far: 0 hits, 0 m
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [global+phases]: wall 4.888 s, forks 4.525 s | process user 68.3 s + sys 21.3 s = 18.3 cores | minor faults 1145785 (234400/s), major 0 | csw voluntary 0, involuntary 903963 | fork workers: prove_core 25.47 s summed, their own thread CPU 12.15 s (48%) | host pool so far: 0 hits, 0 
+A11-SAMPLE READY N6 pid 21657
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.922 s, forks 4.413 s | process user 51.2 s + sys 4.6 s = 11.3 cores | minor faults 1007639 (204733/s), major 0 | csw voluntary 0, involuntary 146789 | fork workers: prove_core 24.71 s summed, their own thread CPU 17.52 s (71%) | host pool so far: 0 hits, 0 misses
+A11-SAMPLE N6 call 0: started 0.000 s into the window, wall 4.922 s, forks 4.413 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 5.095 s, forks 4.603 s | process user 52.4 s + sys 4.6 s = 11.2 cores | minor faults 941777 (184846/s), major 0 | csw voluntary 0, involuntary 157015 | fork workers: prove_core 25.57 s summed, their own thread CPU 18.38 s (72%) | host pool so far: 0 hits, 0 misses
+A11-SAMPLE N6 call 1: started 4.922 s into the window, wall 5.095 s, forks 4.603 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.470 s, forks 4.059 s | process user 54.9 s + sys 4.3 s = 13.2 cores | minor faults 1028050 (229992/s), major 0 | csw voluntary 0, involuntary 131449 | fork workers: prove_core 22.37 s summed, their own thread CPU 21.73 s (97%) | host pool so far: 0 hits, 0 misses
+A11-SAMPLE N6 call 2: started 10.017 s into the window, wall 4.470 s, forks 4.059 s
+A11-SAMPLE DONE N6 after 14.487 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.494 s = 12.20 tok/s | mean 10.494 s = 12.20 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.418 s = 28.98 tok/s | mean 4.418 s = 28.98 tok/s | 2.38x serial (best)
+D55-AB SUMMARY | forks N=6 global+phases | A7 GPU-policy A/B, interleaved, 2 passes | best 4.888 s = 26.19 tok/s | mean 4.970 s = 25.76 tok/s
+D55-AB SUMMARY | forks N=6 fpauto+phases | A7 GPU-policy A/B, interleaved, 2 passes | best 4.471 s = 28.63 tok/s | mean 4.577 s = 27.96 tok/s
+2026-11-05T14:20:46Z summary rc=0
+2026-11-05T14:20:46Z all done

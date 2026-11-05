@@ -1,0 +1,36 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling crossbeam-epoch v0.9.20
+   Compiling typenum v1.20.1
+   Compiling crossbeam-deque v0.8.7
+   Compiling shlex v2.0.1
+   Compiling libc v0.2.189
+   Compiling find-msvc-tools v0.1.11
+   Compiling rayon-core v1.13.0
+   Compiling cfg-if v1.0.4
+   Compiling arrayvec v0.7.8
+   Compiling either v1.18.0
+   Compiling constant_time_eq v0.4.2
+   Compiling cc v1.4.4
+   Compiling generic-array v0.14.7
+   Compiling blake3 v1.8.7
+   Compiling cpufeatures v0.2.17
+   Compiling rayon v1.12.0
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling zkp-core v0.1.0 (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/ops/zkp-mvp/gpu-metal/zkp-core)
+    Finished `release` profile [optimized] target(s) in 16.54s
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/zkp_core-68bf4449a8e0df65)
+
+running 6 tests
+test field::tests::two_adic_roots ... ok
+test field::tests::inverse_and_batch ... ok
+test field::tests::add_sub_match_reference ... ok
+test field::tests::from_u128_is_the_canonical_residue_of_the_division ... ok
+test field::tests::ext_arith ... ok
+test field::tests::mul_matches_u128_reference ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 74 filtered out; finished in 0.01s
+

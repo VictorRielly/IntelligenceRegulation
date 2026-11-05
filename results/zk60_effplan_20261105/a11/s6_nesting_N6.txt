@@ -1,0 +1,54 @@
+# rayon worker self samples by wait_until_cold nesting (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s6_sample_N6.txt); total 235567
+  nesting 0  other                 4    0.0%
+  nesting 1  other               253    0.1%
+  nesting 1  running a job     20368    8.6%
+  nesting 1  waiting/idle     204111   86.6%
+  nesting 2  other                89    0.0%
+  nesting 2  running a job      4790    2.0%
+  nesting 2  waiting/idle       1283    0.5%
+  nesting 3  other                57    0.0%
+  nesting 3  running a job      1691    0.7%
+  nesting 3  waiting/idle        582    0.2%
+  nesting 4  other                37    0.0%
+  nesting 4  running a job       637    0.3%
+  nesting 4  waiting/idle        293    0.1%
+  nesting 5  other                27    0.0%
+  nesting 5  running a job       300    0.1%
+  nesting 5  waiting/idle        179    0.1%
+  nesting 6  other                14    0.0%
+  nesting 6  running a job       149    0.1%
+  nesting 6  waiting/idle        111    0.0%
+  nesting 7  other                16    0.0%
+  nesting 7  running a job       103    0.0%
+  nesting 7  waiting/idle         74    0.0%
+  nesting 8  other                10    0.0%
+  nesting 8  running a job        46    0.0%
+  nesting 8  waiting/idle         63    0.0%
+  nesting 9  other                 5    0.0%
+  nesting 9  running a job        41    0.0%
+  nesting 9  waiting/idle         44    0.0%
+  nesting 10  other                 4    0.0%
+  nesting 10  running a job        26    0.0%
+  nesting 10  waiting/idle         22    0.0%
+  nesting 11  other                 5    0.0%
+  nesting 11  running a job        24    0.0%
+  nesting 11  waiting/idle         13    0.0%
+  nesting 12  other                 3    0.0%
+  nesting 12  running a job        16    0.0%
+  nesting 12  waiting/idle         18    0.0%
+  nesting 13  other                 2    0.0%
+  nesting 13  running a job        11    0.0%
+  nesting 13  waiting/idle          8    0.0%
+  nesting 14  other                 2    0.0%
+  nesting 14  running a job         4    0.0%
+  nesting 14  waiting/idle          8    0.0%
+  nesting 15  other                 1    0.0%
+  nesting 15  running a job         1    0.0%
+  nesting 15  waiting/idle          4    0.0%
+  nesting 16  running a job         3    0.0%
+  nesting 16  waiting/idle          6    0.0%
+  nesting 17  other                 1    0.0%
+  nesting 17  running a job         3    0.0%
+  nesting 17  waiting/idle          2    0.0%
+  nesting 18  running a job         2    0.0%
+  nesting 20  waiting/idle          1    0.0%

@@ -1,0 +1,48 @@
+2026-11-05T12:43:26Z start
+2026-11-05T12:45:54Z build rc=0
+2026-11-05T12:47:41Z N1 ready pid 69354
+2026-11-05T12:47:43Z N1 go
+2026-11-05T12:48:09Z N1 sample rc=0
+2026-11-05T12:48:24Z N6 ready pid 69354
+2026-11-05T12:48:26Z N6 go
+2026-11-05T12:48:39Z N6 sample rc=0
+2026-11-05T12:48:45Z d55 profile rc=0
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N1: 93.8 CPU-seconds (user + system, the whole process) over the 10.603 s call = 8.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N1 []: wall 10.603 s, forks 10.204 s | process user 67.2 s + sys 26.6 s = 8.8 cores | minor faults 302892 (28568/s), major 0 | csw voluntary 0, involuntary 962080 | fork workers: prove_core 10.12 s summed, their own thread CPU 5.81 s (57%)
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 107.9 CPU-seconds (user + system, the whole process) over the 5.296 s call = 20.4 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 5.296 s, forks 4.905 s | process user 72.0 s + sys 35.9 s = 20.4 cores | minor faults 1706761 (322273/s), major 0 | csw voluntary 0, involuntary 840044 | fork workers: prove_core 28.17 s summed, their own thread CPU 13.52 s (48%)
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N1: 95.4 CPU-seconds (user + system, the whole process) over the 10.798 s call = 8.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N1 [shared+spin+phases]: wall 10.798 s, forks 10.402 s | process user 67.2 s + sys 28.2 s = 8.8 cores | minor faults 289103 (26775/s), major 0 | csw voluntary 0, involuntary 988741 | fork workers: prove_core 10.32 s summed, their own thread CPU 5.90 s (57%)
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 95.9 CPU-seconds (user + system, the whole process) over the 5.059 s call = 19.0 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+phases]: wall 5.059 s, forks 4.627 s | process user 71.9 s + sys 24.0 s = 19.0 cores | minor faults 1118369 (221059/s), major 0 | csw voluntary 0, involuntary 858130 | fork workers: prove_core 26.22 s summed, their own thread CPU 13.28 s (51%)
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N1: 91.7 CPU-seconds (user + system, the whole process) over the 10.654 s call = 8.6 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N1 [shared+block+phases]: wall 10.654 s, forks 10.268 s | process user 63.9 s + sys 27.8 s = 8.6 cores | minor faults 287450 (26981/s), major 0 | csw voluntary 0, involuntary 959789 | fork workers: prove_core 10.19 s summed, their own thread CPU 2.33 s (23%)
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 88.1 CPU-seconds (user + system, the whole process) over the 5.089 s call = 17.3 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+block+phases]: wall 5.089 s, forks 4.692 s | process user 63.0 s + sys 25.1 s = 17.3 cores | minor faults 1261001 (247801/s), major 0 | csw voluntary 1, involuntary 751018 | fork workers: prove_core 26.46 s summed, their own thread CPU 3.86 s (15%)
+A11-SAMPLE READY N1 pid 69354
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N1 [sample]: wall 13.246 s, forks 12.679 s | process user 67.4 s + sys 28.7 s = 7.3 cores | minor faults 298019 (22498/s), major 0 | csw voluntary 0, involuntary 1055215 | fork workers: prove_core 12.60 s summed, their own thread CPU 5.59 s (44%)
+A11-SAMPLE N1 call 0: started 0.000 s into the window, wall 13.246 s, forks 12.679 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N1 [sample]: wall 12.775 s, forks 12.293 s | process user 67.3 s + sys 28.5 s = 7.5 cores | minor faults 238414 (18662/s), major 0 | csw voluntary 0, involuntary 1050951 | fork workers: prove_core 12.21 s summed, their own thread CPU 5.56 s (46%)
+A11-SAMPLE N1 call 1: started 13.247 s into the window, wall 12.775 s, forks 12.293 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N1 [sample]: wall 10.574 s, forks 10.189 s | process user 67.6 s + sys 28.6 s = 9.1 cores | minor faults 240480 (22743/s), major 0 | csw voluntary 0, involuntary 970049 | fork workers: prove_core 10.11 s summed, their own thread CPU 5.80 s (57%)
+A11-SAMPLE N1 call 2: started 26.022 s into the window, wall 10.574 s, forks 10.189 s
+A11-SAMPLE DONE N1 after 36.596 s
+A11-SAMPLE READY N6 pid 69354
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 7.535 s, forks 7.004 s | process user 67.3 s + sys 22.2 s = 11.9 cores | minor faults 1087503 (144318/s), major 0 | csw voluntary 0, involuntary 884375 | fork workers: prove_core 40.23 s summed, their own thread CPU 9.03 s (22%)
+A11-SAMPLE N6 call 0: started 0.000 s into the window, wall 7.535 s, forks 7.004 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 6.197 s, forks 5.734 s | process user 70.0 s + sys 23.3 s = 15.0 cores | minor faults 976021 (157487/s), major 0 | csw voluntary 0, involuntary 830603 | fork workers: prove_core 32.54 s summed, their own thread CPU 11.67 s (36%)
+A11-SAMPLE N6 call 1: started 7.536 s into the window, wall 6.197 s, forks 5.734 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.962 s, forks 4.579 s | process user 72.0 s + sys 23.3 s = 19.2 cores | minor faults 1106983 (223075/s), major 0 | csw voluntary 0, involuntary 820372 | fork workers: prove_core 25.80 s summed, their own thread CPU 13.13 s (51%)
+A11-SAMPLE N6 call 2: started 13.734 s into the window, wall 4.962 s, forks 4.579 s
+A11-SAMPLE DONE N6 after 18.696 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.840 s = 11.81 tok/s | mean 10.840 s = 11.81 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=1      | best 10.603 s = 12.07 tok/s | mean 10.603 s = 12.07 tok/s | 1.02x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.296 s = 24.17 tok/s | mean 5.296 s = 24.17 tok/s | 2.05x serial (best)
+D55-AB SUMMARY | forks N=1 shared+spin+phases | A7 GPU-policy A/B, interleaved, 1 passes | best 10.798 s = 11.85 tok/s | mean 10.798 s = 11.85 tok/s
+D55-AB SUMMARY | forks N=6 shared+spin+phases | A7 GPU-policy A/B, interleaved, 1 passes | best 5.059 s = 25.30 tok/s | mean 5.059 s = 25.30 tok/s
+D55-AB SUMMARY | forks N=1 shared+block+phases | A7 GPU-policy A/B, interleaved, 1 passes | best 10.654 s = 12.01 tok/s | mean 10.654 s = 12.01 tok/s
+D55-AB SUMMARY | forks N=6 shared+block+phases | A7 GPU-policy A/B, interleaved, 1 passes | best 5.089 s = 25.15 tok/s | mean 5.089 s = 25.15 tok/s
+2026-11-05T12:48:45Z N1 summary rc=0
+2026-11-05T12:48:46Z N6 summary rc=0
+2026-11-05T12:48:46Z all done

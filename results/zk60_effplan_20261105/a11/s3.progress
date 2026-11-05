@@ -1,0 +1,97 @@
+2026-11-05T13:11:54Z start
+2026-11-05T13:14:15Z build rc=0
+2026-11-05T13:14:18Z a11 CPU pool byte test rc=0
+test private_block::w16r2_tests::a11_w16r2_rung_golden_inside_small_rayon_pools_and_in_every_host_matrix_mode ... A11-POOLS W16R2_RUNG_H24: rayon pool Some(1), host matrices vec!: 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0
+A11-POOLS W16R2_RUNG_H24: rayon pool Some(3), host matrices pool: 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0
+A11-POOLS W16R2_RUNG_H24: rayon pool None, host matrices parallel-zeroed: 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1023 filtered out; finished in 3.10s
+2026-11-05T13:14:20Z a11 Metal pool byte test rc=0
+test private_block::w16r2_tests::a11_w16r2_rung_digests_in_per_fork_pools_on_the_device ... A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, each in its own pool of 1: ["96e4f0b6", "96e4f0b6", "96e4f0b6"] (device sumcheck ro
+A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, each in its own pool of 2: ["96e4f0b6", "96e4f0b6", "96e4f0b6"] (device sumcheck rounds 0.0936 s)
+A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, each in its own pool of 6: ["96e4f0b6", "96e4f0b6", "96e4f0b6"] (device sumcheck rounds 0.1018 s)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1023 filtered out; finished in 1.93s
+2026-11-05T13:17:31Z d55 fork-pool A/B rc=0
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 5.242 s, forks 4.855 s | process user 69.2 s + sys 35.4 s = 20.0 cores | minor faults 1740807 (332083/s), major 0 | csw voluntary 0, involuntary 838648 | fork workers: prove_core 27.38 s summed, their own thread CPU 13.85 s (51%) | host pool so far: 0 hits, 0 misses
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [global]: wall 4.753 s, forks 4.395 s | process user 68.6 s + sys 23.1 s = 19.3 cores | minor faults 1035461 (217864/s), major 0 | csw voluntary 0, involuntary 857815 | fork workers: prove_core 24.76 s summed, their own thread CPU 12.93 s (52%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [global] pass 0: wall 4.753 s = 26.93 proved tok/s; preflight 0.077 s, commit 0.199 s, forks 4.395 s, join 0.082 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp6]: wall 4.524 s, forks 4.140 s | process user 54.7 s + sys 5.4 s = 13.3 cores | minor faults 1462048 (323146/s), major 0 | csw voluntary 0, involuntary 120925 | fork workers: prove_core 22.78 s summed, their own thread CPU 22.08 s (97%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp6] pass 0: wall 4.524 s = 28.29 proved tok/s; preflight 0.094 s, commit 0.195 s, forks 4.140 s, join 0.096 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp12]: wall 4.502 s, forks 4.148 s | process user 59.1 s + sys 11.0 s = 15.6 cores | minor faults 1244328 (276409/s), major 0 | csw voluntary 0, involuntary 524861 | fork workers: prove_core 23.21 s summed, their own thread CPU 20.02 s (86%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp12] pass 0: wall 4.502 s = 28.43 proved tok/s; preflight 0.076 s, commit 0.202 s, forks 4.148 s, join 0.076 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp24]: wall 4.506 s, forks 4.113 s | process user 65.8 s + sys 29.5 s = 21.2 cores | minor faults 1167190 (259011/s), major 0 | csw voluntary 0, involuntary 1185429 | fork workers: prove_core 23.16 s summed, their own thread CPU 17.79 s (77%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp24] pass 0: wall 4.506 s = 28.40 proved tok/s; preflight 0.109 s, commit 0.209 s, forks 4.113 s, join 0.075 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp24]: wall 4.556 s, forks 4.196 s | process user 66.5 s + sys 27.3 s = 20.6 cores | minor faults 1220747 (267964/s), major 0 | csw voluntary 0, involuntary 1240185 | fork workers: prove_core 23.70 s summed, their own thread CPU 18.39 s (78%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp24] pass 1: wall 4.556 s = 28.10 proved tok/s; preflight 0.082 s, commit 0.201 s, forks 4.196 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp12]: wall 4.795 s, forks 4.418 s | process user 63.4 s + sys 11.8 s = 15.7 cores | minor faults 1250486 (260810/s), major 0 | csw voluntary 0, involuntary 543711 | fork workers: prove_core 24.64 s summed, their own thread CPU 21.84 s (89%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp12] pass 1: wall 4.795 s = 26.70 proved tok/s; preflight 0.095 s, commit 0.204 s, forks 4.418 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp6]: wall 4.676 s, forks 4.295 s | process user 55.9 s + sys 5.1 s = 13.0 cores | minor faults 1200787 (256800/s), major 0 | csw voluntary 0, involuntary 127340 | fork workers: prove_core 23.66 s summed, their own thread CPU 22.98 s (97%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp6] pass 1: wall 4.676 s = 27.37 proved tok/s; preflight 0.099 s, commit 0.205 s, forks 4.295 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [global]: wall 4.801 s, forks 4.391 s | process user 70.1 s + sys 23.3 s = 19.4 cores | minor faults 1101431 (229409/s), major 0 | csw voluntary 0, involuntary 897137 | fork workers: prove_core 24.98 s summed, their own thread CPU 12.48 s (50%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [global] pass 1: wall 4.801 s = 26.66 proved tok/s; preflight 0.102 s, commit 0.223 s, forks 4.391 s, join 0.086 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [global]: wall 4.744 s, forks 4.360 s | process user 72.1 s + sys 23.1 s = 20.1 cores | minor faults 1169722 (246591/s), major 0 | csw voluntary 0, involuntary 875981 | fork workers: prove_core 24.91 s summed, their own thread CPU 13.29 s (53%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [global] pass 2: wall 4.744 s = 26.98 proved tok/s; preflight 0.099 s, commit 0.206 s, forks 4.360 s, join 0.078 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp6]: wall 4.486 s, forks 4.108 s | process user 55.0 s + sys 5.2 s = 13.4 cores | minor faults 1301035 (290022/s), major 0 | csw voluntary 0, involuntary 126175 | fork workers: prove_core 22.63 s summed, their own thread CPU 21.97 s (97%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp6] pass 2: wall 4.486 s = 28.53 proved tok/s; preflight 0.101 s, commit 0.200 s, forks 4.108 s, join 0.078 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp12]: wall 4.466 s, forks 4.080 s | process user 61.2 s + sys 11.4 s = 16.3 cores | minor faults 1297912 (290628/s), major 0 | csw voluntary 0, involuntary 544530 | fork workers: prove_core 22.71 s summed, their own thread CPU 19.98 s (88%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp12] pass 2: wall 4.466 s = 28.66 proved tok/s; preflight 0.104 s, commit 0.207 s, forks 4.080 s, join 0.075 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp24]: wall 4.689 s, forks 4.315 s | process user 67.0 s + sys 26.8 s = 20.0 cores | minor faults 1230608 (262464/s), major 0 | csw voluntary 0, involuntary 1119402 | fork workers: prove_core 23.95 s summed, their own thread CPU 18.69 s (78%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp24] pass 2: wall 4.689 s = 27.30 proved tok/s; preflight 0.095 s, commit 0.205 s, forks 4.315 s, join 0.074 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp24]: wall 4.708 s, forks 4.335 s | process user 67.7 s + sys 28.4 s = 20.4 cores | minor faults 1181611 (251005/s), major 0 | csw voluntary 0, involuntary 1224922 | fork workers: prove_core 23.97 s summed, their own thread CPU 18.92 s (79%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp24] pass 3: wall 4.708 s = 27.19 proved tok/s; preflight 0.093 s, commit 0.202 s, forks 4.335 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp12]: wall 4.461 s, forks 4.087 s | process user 61.5 s + sys 11.1 s = 16.3 cores | minor faults 1227608 (275168/s), major 0 | csw voluntary 0, involuntary 532127 | fork workers: prove_core 22.91 s summed, their own thread CPU 20.20 s (88%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp12] pass 3: wall 4.461 s = 28.69 proved tok/s; preflight 0.092 s, commit 0.205 s, forks 4.087 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp6]: wall 4.307 s, forks 3.927 s | process user 54.9 s + sys 5.1 s = 13.9 cores | minor faults 1196219 (277708/s), major 0 | csw voluntary 0, involuntary 118843 | fork workers: prove_core 21.94 s summed, their own thread CPU 21.33 s (97%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp6] pass 3: wall 4.307 s = 29.72 proved tok/s; preflight 0.101 s, commit 0.203 s, forks 3.927 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [global]: wall 5.065 s, forks 4.698 s | process user 72.4 s + sys 23.3 s = 18.9 cores | minor faults 1185335 (234034/s), major 0 | csw voluntary 0, involuntary 833169 | fork workers: prove_core 25.88 s summed, their own thread CPU 13.24 s (51%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [global] pass 3: wall 5.065 s = 25.27 proved tok/s; preflight 0.084 s, commit 0.207 s, forks 4.698 s, join 0.076 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [global]: wall 4.872 s, forks 4.496 s | process user 72.3 s + sys 23.7 s = 19.7 cores | minor faults 1069635 (219554/s), major 0 | csw voluntary 0, involuntary 832043 | fork workers: prove_core 25.46 s summed, their own thread CPU 13.32 s (52%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [global] pass 4: wall 4.872 s = 26.27 proved tok/s; preflight 0.090 s, commit 0.206 s, forks 4.496 s, join 0.080 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp6]: wall 4.663 s, forks 4.273 s | process user 56.0 s + sys 5.4 s = 13.2 cores | minor faults 1195636 (256434/s), major 0 | csw voluntary 0, involuntary 125579 | fork workers: prove_core 23.45 s summed, their own thread CPU 22.85 s (97%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp6] pass 4: wall 4.663 s = 27.45 proved tok/s; preflight 0.110 s, commit 0.203 s, forks 4.273 s, join 0.076 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp12]: wall 4.583 s, forks 4.207 s | process user 61.9 s + sys 11.5 s = 16.0 cores | minor faults 1263694 (275764/s), major 0 | csw voluntary 0, involuntary 529126 | fork workers: prove_core 23.41 s summed, their own thread CPU 20.68 s (88%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp12] pass 4: wall 4.583 s = 27.93 proved tok/s; preflight 0.093 s, commit 0.207 s, forks 4.207 s, join 0.075 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp24]: wall 4.402 s, forks 4.032 s | process user 66.6 s + sys 26.9 s = 21.2 cores | minor faults 1099463 (249745/s), major 0 | csw voluntary 0, involuntary 1194145 | fork workers: prove_core 22.85 s summed, their own thread CPU 17.99 s (79%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp24] pass 4: wall 4.402 s = 29.08 proved tok/s; preflight 0.084 s, commit 0.209 s, forks 4.032 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp24]: wall 5.027 s, forks 4.656 s | process user 68.5 s + sys 28.4 s = 19.3 cores | minor faults 1235067 (245700/s), major 0 | csw voluntary 0, involuntary 1185011 | fork workers: prove_core 25.76 s summed, their own thread CPU 20.43 s (79%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp24] pass 5: wall 5.027 s = 25.46 proved tok/s; preflight 0.090 s, commit 0.206 s, forks 4.656 s, join 0.075 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp12]: wall 4.685 s, forks 4.305 s | process user 62.5 s + sys 11.5 s = 15.8 cores | minor faults 1248070 (266375/s), major 0 | csw voluntary 0, involuntary 539810 | fork workers: prove_core 23.92 s summed, their own thread CPU 21.17 s (89%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp12] pass 5: wall 4.685 s = 27.32 proved tok/s; preflight 0.101 s, commit 0.204 s, forks 4.305 s, join 0.075 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [fp6]: wall 4.483 s, forks 4.112 s | process user 55.7 s + sys 4.9 s = 13.5 cores | minor faults 1202646 (268282/s), major 0 | csw voluntary 0, involuntary 115629 | fork workers: prove_core 23.07 s summed, their own thread CPU 22.40 s (97%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [fp6] pass 5: wall 4.483 s = 28.55 proved tok/s; preflight 0.087 s, commit 0.202 s, forks 4.112 s, join 0.081 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [global]: wall 4.993 s, forks 4.611 s | process user 72.5 s + sys 23.4 s = 19.2 cores | minor faults 1146592 (229652/s), major 0 | csw voluntary 0, involuntary 836597 | fork workers: prove_core 25.88 s summed, their own thread CPU 13.74 s (53%) | host pool so far: 0 hits, 0 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [global] pass 5: wall 4.993 s = 25.64 proved tok/s; preflight 0.098 s, commit 0.207 s, forks 4.611 s, join 0.077 s; receipt 818728672 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.935 s = 11.71 tok/s | mean 10.935 s = 11.71 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.242 s = 24.42 tok/s | mean 5.242 s = 24.42 tok/s | 2.09x serial (best)
+D55-AB SUMMARY | forks N=6 global | A7 GPU-policy A/B, interleaved, 6 passes | best 4.744 s = 26.98 tok/s | mean 4.871 s = 26.28 tok/s
+D55-AB SUMMARY | forks N=6 fp6  | A7 GPU-policy A/B, interleaved, 6 passes | best 4.307 s = 29.72 tok/s | mean 4.523 s = 28.30 tok/s
+D55-AB SUMMARY | forks N=6 fp12 | A7 GPU-policy A/B, interleaved, 6 passes | best 4.461 s = 28.69 tok/s | mean 4.582 s = 27.94 tok/s
+D55-AB SUMMARY | forks N=6 fp24 | A7 GPU-policy A/B, interleaved, 6 passes | best 4.402 s = 29.08 tok/s | mean 4.648 s = 27.54 tok/s
+# A11 pairs: [fp6] against [global], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -4.8% (3, 3) | -9.3% (3, 3) | **-7.1%** | 4.871 / 4.523 |
+| forks phase s | -5.5% (3, 3) | -9.8% (3, 3) | **-7.7%** | 4.492 / 4.143 |
+| user CPU s | -22.2% (3, 3) | -22.5% (3, 3) | **-22.4%** | 71.333 / 55.367 |
+| sys CPU s | -77.1% (3, 3) | -78.4% (3, 3) | **-77.8%** | 23.317 / 5.183 |
+| minor faults | +21.4% (3, 0) | +4.9% (3, 0) | **+13.2%** | 1,118,029 / 1,259,728 |
+# A11 pairs: [fp12] against [global], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -5.7% (3, 3) | -6.1% (3, 3) | **-5.9%** | 4.871 / 4.582 |
+| forks phase s | -6.2% (3, 3) | -6.3% (3, 2) | **-6.2%** | 4.492 / 4.207 |
+| user CPU s | -14.5% (3, 3) | -12.8% (3, 3) | **-13.6%** | 71.333 / 61.600 |
+| sys CPU s | -51.5% (3, 3) | -50.9% (3, 3) | **-51.2%** | 23.317 / 11.383 |
+| minor faults | +16.4% (3, 0) | +8.6% (3, 0) | **+12.5%** | 1,118,029 / 1,255,350 |
+# A11 pairs: [fp24] against [global], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -5.3% (3, 3) | -3.8% (3, 2) | **-4.6%** | 4.871 / 4.648 |
+| forks phase s | -5.9% (3, 3) | -3.7% (3, 2) | **-4.8%** | 4.492 / 4.274 |
+| user CPU s | -6.3% (3, 3) | -5.7% (3, 3) | **-6.0%** | 71.333 / 67.017 |
+| sys CPU s | +19.1% (3, 0) | +20.1% (3, 0) | **+19.6%** | 23.317 / 27.883 |
+| minor faults | +6.9% (3, 0) | +6.1% (3, 1) | **+6.5%** | 1,118,029 / 1,189,114 |
+2026-11-05T13:17:31Z all done
