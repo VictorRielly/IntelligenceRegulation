@@ -27,3 +27,5 @@ import ZK60Formal.SoundOpeningRO
 import ZK60Formal.FSRbr
 import ZK60Formal.FSChallenge
 import ZK60Formal.FSSumcheck
+import ZK60Formal.FSChain
+import ZK60Formal.FSChainRbr

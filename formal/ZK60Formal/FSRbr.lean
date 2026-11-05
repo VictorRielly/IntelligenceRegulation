@@ -46,7 +46,8 @@ Fiat–Shamir" attacks).
 **What this does not cover** (each is said again where it matters, and in `ZK60_LEAN_L3_FINDINGS_20261104.md`):
 * The code's transcript is a hash CHAIN (`zkp_core::transcript`: each absorb hashes the previous 32-byte state with the
   new message; each challenge hashes the state with a counter), not a hash of the whole prefix. The chain is a prefix
-  hash only up to collisions and out-of-order guesses; that reduction is not proved here.
+  hash only up to collisions and out-of-order guesses: that reduction is `FSChain.lean`, and `FSChainRbr.lean` runs
+  an RBR-sound protocol on it.
 * A challenge drawn as several squeezes (`challenge_fp2_vec`, `challenge_indices` beyond four indices) is one challenge
   of this model only if the squeezes are read as one wide digest; that reading is not proved here either.
 * The protocol's messages are values here. In the receipts the large messages are Merkle roots, and the statement the

@@ -27,10 +27,12 @@ What is proved.
   in bijection with `ZMod p × ZMod p`): `(q + n)·d/|F| · (1 + p/2^128)²`; for `p ≤ 2^64` (Goldilocks)
   `(q + n)·d/|F| · (1 + 2^-64)²` (`fs_sumcheck_sound_goldilocks`).
 
-What is not covered: the code's transcript is a hash chain, not a hash of the prefix (`FSChain.lean`); the polynomial
-`f` is a value of the statement here, while in a receipt it is the committed tables (the extractor's job); the CFS mask
-and the last-round extension are the same statement on `f + c·g` and on the extended polynomial (`sumcheck_sound_masked`
-and `sumcheck_sound_extended` reduce them to `sumcheck_sound`'s hypotheses, and they reduce the same way here).
+What is not covered here: the code's transcript is a hash chain, not a hash of the prefix (the same sumcheck on the
+chain is `FSChainRbr.lean`'s `fs_sumcheck_chain_sound`); the polynomial
+`f` is a value of the statement here, while in a receipt it is the committed tables (the extractor's job). The CFS
+mask and the last-round extension turn a false claim into a false statement for this theorem deterministically, for
+every `c` (`sumcheck_sound_masked`, `sumcheck_sound_extended`); drawing `c` and running the sumcheck on ONE chain is
+the composition of two protocols, which is not stated yet.
 -/
 import ZK60Formal.FSChallenge
 import ZK60Formal.SoundSumcheck
