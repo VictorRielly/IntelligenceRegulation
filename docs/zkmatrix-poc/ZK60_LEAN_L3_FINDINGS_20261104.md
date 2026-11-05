@@ -1895,3 +1895,262 @@ Per hash query; `|F| = p²`; 8B T128, W16R2, `Q = 280` (Part 6 §U2/§U4).
 - **The code-level instance** (unchanged from Part 6): `ChainEnc` for keyed BLAKE3, the header's absorbs, the counter
   offset, and the registered profile's `ℓW`.
 - **`KnowledgeSound`** of `Statements.lean`.
+
+# Part 8 (2026-11-04): a tree of chains: the D55 fork-join under Fiat–Shamir (F26)
+
+New files under `formal/ZK60Formal/`: `FSTree.lean`, `FSTreeRbr.lean`, `FSTreeD55.lean`.
+- `lake -d formal build` succeeds with no warnings (3405 jobs). Each new module was first built alone through the
+  resource guard. No file uses `sorry`, `axiom`, `admit`, `native_decide`, `implemented_by` or a `maxHeartbeats`
+  option.
+- `#print axioms` was run on all 29 theorems of the three files. Each depends on `propext`, `Classical.choice` and
+  `Quot.sound` only, or on fewer (`stQ_eq`, `chainsOC_queries`, `brT_heads`: `propext`; `chainsOC_run`: `Quot.sound`).
+- No new lake dependency. No third-party code was read or adapted. One comment changed (`FSComposeBlock.lean`'s header
+  now points here). No statement changed, in `Statements.lean` or elsewhere.
+
+## W1. What is proved
+
+**The tree theorem** (`FSTree.lean`).
+- The model: a prover makes at most `q` hash queries; then a verifier `V`, with at most `v` queries, hashes a FAMILY of
+  chains. Each chain starts at the start query and is made of whole steps of its own branch. The family may depend on
+  the oracle: the join's head carries digests of the forks.
+- **Why the rate stays the maximum.** As in `chain_sound_wide`, the escaping step is found by tracing back the state
+  digest of its first query through the log before that query. A trace-back is ONE path, so a query names at most one
+  branch and one round of it. The bad set charged to the query is that round's escape set. The union over the
+  branches is then a union of EVENTS inside one `T·ε` bound, not a sum of bounds.
+- **What had to be new: widths read off the log.** A squeeze query is `state ‖ "squeeze" ‖ counter`. In D55 every
+  branch starts its squeezes at `S0`'s counter, `0`. The same counter therefore starts a step of a different width in
+  different branches: a fork's `β, γ` is two squeezes, the join's first `λ`/`ρ` vector is `w0`. `FSWide.lean`'s `Steps`
+  give each item one width, so they cannot describe two branches at once.
+  - `WideHitP`, `wideHitP_prob_le`: the wide-digest lemma with the width `wd P y` and the next queries `nx P y`
+    computed from the log `P` before the query. The swap of `wideSwap` is applied for each log prefix separately (the
+    swap only touches the step's own fresh queries, so it keeps the prefix), and the prefixes are summed.
+  - `stQ`, `wdT`, `nxT`, `stepBadT`: the steps of the branch that the query's traced path belongs to (`br` reads the
+    branch off the path), and `FSWide.lean`'s `stepBad` with those steps. `stepBadT_prob_le`: probability `≤ ε`.
+- `flip_subset`: `chain_sound_wide`'s event inclusion for ONE chain of branch `b` whose queries are among those of ANY
+  computation: doomed at its first `s` heads and alive at its end implies a wide hit, a collision or a guess.
+```lean
+theorem tree_sound_wide (C : ChainEnc It Q D) (S : B → Steps It) (br : List It → B) (b₀ : B)
+    (St : List (Q × D) → List (It × D) → Prop) (s : ℕ) (ε : ℝ≥0∞)
+    (hround : ∀ P τ it, s ≤ τ.length →
+      (∃ hs : List It, τ.map Prod.fst = hs.flatMap (S (br (τ.map Prod.fst))).items) → ¬ St P τ →
+      (PMF.uniformOfFintype (Fin ((S (br (τ.map Prod.fst))).wd it) → D)).toOuterMeasure
+        {b | St P (τ ++ (S (br (τ.map Prod.fst))).ents it (List.ofFn b))} ≤ ε)
+    (hstab : …)   -- as in `chain_sound_wide`; `Iff.rfl` for a state that ignores the log
+    {α β : Type} (V : α → OC Q D β) (v : ℕ) (hV : ∀ o, (V o).Bounded v)
+    (chains : (Q → D) → α → List (B × List It)) (ℓ : ℕ)
+    (hℓ : ∀ H o, ∀ c ∈ chains H o, (c.2.flatMap (S c.1).items).length ≤ ℓ)
+    (hbr : ∀ H o, ∀ c ∈ chains H o, ∀ its : List It, br ((c.2.take s).flatMap (S c.1).items ++ its) = c.1)
+    (hqV : ∀ H o, ∀ c ∈ chains H o, ∀ y ∈ OC.queries H (C.chainOC (c.2.flatMap (S c.1).items)),
+      y ∈ OC.queries H (V o))
+    (q : ℕ) (A : OC Q D α) (hA : A.Bounded q) :
+    prH (fun H => ∃ c ∈ chains H (A.run H),
+        ¬ St ((A.bind V).runLog H).2 (C.chainFrom H [] ((c.2.take s).flatMap (S c.1).items))
+        ∧ St ((A.bind V).runLog H).2 (C.chainFrom H [] (c.2.flatMap (S c.1).items)))
+      ≤ ((q + v : ℕ) : ℝ≥0∞) * ε + collBound (q + v) D + collBound (q + v + 1) D
+```
+- In words: if every round of every branch escapes doom with probability at most `ε` per attempt, then the chance that
+  ANY chain the verifier hashes goes from doomed to alive is at most `(q + v)·ε` plus the two chain terms. The number
+  of chains does not appear. Cross-branch digest collisions are inside `collBound (q + v)`, which covers every pair of
+  queries of the whole run.
+- `chainsOC`, `chainsOC_run`, `chainsOC_queries`, `chainsOC_bounded`: the verifier's hashing of several chains in turn.
+
+**The protocol on the tree** (`FSTreeRbr.lean`).
+- `Tree`: `nf` forks and a join, each a branch with its own schedule (`n`, `w`, `hasMsg`). Fork `k` is branch `fk k`
+  with head `fkHead k`; the join is branch `jn`, and its head is computed from the forks' chains (`joinOf`).
+- A branch chain is the trunk item `PItem.stmt (inl x)`, the head item `PItem.stmt (inr j)`, then the branch's rounds
+  (`tHeads`). The verifier (`Tree.verOC`) hashes every fork chain from the start query, computes the join's head from
+  them, and hashes the join chain; `Tree.Accepts`: every fork `k < nf` and the join read as whole transcripts that
+  their verifiers accept. `Tree.ℓT = Σ_k (ℓW_k + 2) + ℓW_join + 2`.
+- `liftT`, `liftT_round`: a chain is in the state of the branch its head names; from a doomed path, a step of the
+  path's branch escapes with that branch's round error (`FSWideRbr.lean`'s `liftStW_round`, after the trunk item).
+```lean
+theorem Tree.fs_tree_sound (T : Tree X J M D B) (C : ChainEnc (TItem X J M) Q D) {Mf : Type} {Lg : X → Prop}
+    (accF : ℕ → X × J → List (M × List D) → Mf → Prop) (accJ : X × J → List (M × List D) → Mf → Prop)
+    (St : B → X × J → List (M × List D) → Prop) (ε : ℝ≥0∞) (hR : ∀ b, RbrWide (T.n b) (T.w b) (St b) ε)
+    (hstart : ∀ x, ¬ Lg x → ∃ k < T.nf, ¬ St (T.fk k) (x, T.fkHead k) [])
+    (hhand : ∀ x (τs : List (List (TItem X J M × D))) k τ ptr mf, k < T.nf → τs[k]? = some τ →
+      T.decode (T.fk k) τ = some (ptr, none, []) → ptr.length = T.n (T.fk k) →
+      ¬ St (T.fk k) (x, T.fkHead k) ptr → accF k (x, T.fkHead k) ptr mf → ¬ St T.jn (x, T.joinOf x τs) [])
+    (hfinal : ∀ x j ptr mf, ptr.length = T.n T.jn → ¬ St T.jn (x, j) ptr → ¬ accJ (x, j) ptr mf)
+    (q : ℕ) (A : OC Q D (X × (ℕ → List M) × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ Lg (A.run H).1
+        ∧ T.Accepts C accF accJ H (A.run H).1 (A.run H).2.1 (A.run H).2.2.1 (A.run H).2.2.2)
+      ≤ ((q + T.ℓT : ℕ) : ℝ≥0∞) * ε + collBound (q + T.ℓT) D + collBound (q + T.ℓT + 1) D
+```
+- In words: a false statement dooms some fork. Either that fork's chain escapes doom (one round of one fork was hit),
+  or the fork ends doomed while its verifier accepts, so its claims, carried in the join's head, doom the join; then
+  the join's chain must escape. Both are flips of one chain of the family, inside `tree_sound_wide`'s one bound.
+- `Tree.fs_tree_sound_sched`: each branch a schedule of `SubProt`s (`FSCompose.lean`), its state "every sub-protocol
+  alive", `ε` above every sub-protocol's error in every branch, each branch's `frame` condition a premise.
+
+**The D55 instance** (`FSTreeD55.lean`).
+- `D55Head.fork k`; `D55Head.join es L` with `es` the forks' `(k, end state, squeeze counter, claims)` in block order;
+  `d55JoinOf` computes it from the forks' chains (`endD`: the last digest; `sqCount`: the number of squeezes; `cl k x τ`:
+  the claims fork `k`'s verifier computes from its chain). `d55Tree`: forks `some k`, the join `none`.
+```lean
+theorem fs_d55_sound_8B (L : ℕ) (d₀ : Dg) (cl : ℕ → X → List (TItem X (D55Head Dg Cl) M × Dg) → Cl)
+    (cs : Option ℕ → List (SubProt (X × D55Head Dg Cl) M Dg)) (hk : ∀ b, ∀ c ∈ cs b, Kind8B c)
+    (hwpos : …) (m₀ : M) (C : ChainEnc (TItem X (D55Head Dg Cl) M) Q Dg) … (ClaimsTrue : X → ℕ → Cl → Prop)
+    (hframe : …)   -- per branch, as in `fs_run_sound_8B`
+    (hstart : ∀ x, ¬ Lg x → ∃ k < L, ∃ i, ¬ SOf (cs (some k)) i (x, D55Head.fork k) [])
+    (hclaims : ∀ x k τ ptr mf, k < L → rDecodeW … (τ.drop 2) = some (ptr, none, []) →
+      ptr.length = nOf (cs (some k)) → (∃ i, ¬ SOf (cs (some k)) i (x, D55Head.fork k) ptr) →
+      accF k (x, D55Head.fork k) ptr mf → ¬ ClaimsTrue x k (cl k x τ))
+    (hjoin : ∀ x es l, (∃ e ∈ es, ¬ ClaimsTrue x e.1 e.2.2.2) → ∃ i, ¬ SOf (cs none) i (x, D55Head.join es l) [])
+    (hfinal : ∀ x j ptr mf, ptr.length = nOf (cs none) → (∃ i, ¬ SOf (cs none) i (x, j) ptr) → ¬ accJ (x, j) ptr mf)
+    (q : ℕ) (A : OC Q Dg (X × (ℕ → List M) × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ Lg (A.run H).1 ∧ (d55Tree L d₀ cl cs hwpos m₀).Accepts C accF accJ H …)
+      ≤ ((q + (d55Tree L d₀ cl cs hwpos m₀).ℓT : ℕ) : ℝ≥0∞) * εRate8B
+        + collBound (q + (d55Tree …).ℓT) Dg + collBound (q + (d55Tree …).ℓT + 1) Dg
+```
+- In words: with every sub-protocol of every fork and of the join one of `Kind8B` (the proved rounds, `M` assumed),
+  the D55 run's per-query rate is `εRate8B = 135/2^110`, for any number of forks.
+- `fs_d55_sound_8B_target`: at most `εsTarget (max q ℓT)` for `q ≤ 2^76` and `ℓT ≤ 2^76`.
+
+## W2. The figures
+
+Per hash query; 8B T128, W16R2, `Q = 280`, `L = 32` forks (Part 7 §V2 for the rounds).
+
+| Bound | Per hash query | Status |
+|---|---|---|
+| D55 tree, composed (`fs_d55_sound_8B`) | **2^-102.933** (Lean bound `135/2^110` = 2^-102.923) | proved, given `M` and the premises (W3) |
+| D12a run on one chain (`fs_run_sound_8B`, Part 7) | the same | the same |
+| D55, union over the `L = 32` forks (Part 7, F26) | `32 · 2^-102.933` = 2^-97.93 | superseded |
+| Approved target `λ₁` | 2^-100 | |
+
+- **The rate is 2.92 bits under the approved 2^-100**, as for the D12a run. F26's rate gap is closed, under the
+  premises of W3.
+- **The q-free part** is `ℓT·ε + collBound T + collBound (T + 1)`, `ℓT = Σ_k (ℓW_k + 2) + ℓW_join + 2`.
+  - Each branch chain re-hashes the start query and the trunk, and adds its head (the code rebuilds `S0` per fork the
+    same way). Against a D12a run with the same rounds (the join's openings are the D12a run's boundary and endpoint
+    openings), `ℓT` is larger by about `3·(L + 1)`. Its order is the same, about 2^16 to 2^18 (an estimate from the
+    code's squeeze counts, not computed in Lean).
+  - So F25 applies to D55 unchanged: the q-free part is about 2^-87 to 2^-85, and `εs` holds with `q` replaced by
+    `max(q, ℓT)`.
+
+## W3. What is assumed, and what the code check found
+
+**Assumed** (premises of `fs_d55_sound_8B`).
+1. **`M`'s opening** in every fork: any sub-protocol with error at most 2^-106 per round (waits on F12, as in Part 7).
+2. **The claims fit together.**
+   - `hframe`, per branch: as for the D12a block (Part 7 §V3, item 2).
+   - `hstart`: a false run statement dooms some block's fork at its start, relative to the boundary data the trunk's
+     roots name (the arithmetization, step L2).
+   - `hclaims`: a fork that ends doomed and is accepted has false IO claims. This joins two block-level facts: a fork's
+     own openings (`M`, `A`, `H`) reject when they end doomed, and a doomed IO slot's claims (slots 21 and 22) are false
+     of the boundary data.
+   - `hjoin`: a join head that carries a false claim dooms the join's openings at their start.
+   - `hfinal`: the join's verifier rejects when an opening ends doomed.
+3. **The trunk and the heads are one item each.** The code absorbs the trunk as the header's six absorbs plus three
+   per root plus `pb-fork-s0`, a fork head as two absorbs, and the join head as `4L + 1` absorbs. Absorbs never escape,
+   so this changes only `ℓT` (the same simplification as the header in `FSChainRbr.lean`).
+4. **The committed data.** As in Part 7 (§V3, item 3): the states are soundness states of data the statement names;
+   the knowledge version is not composed. See F31 for what this means for D55's per-fork roots.
+5. **The join's openings** (the `L − 1` boundary openings and the two endpoint openings) are taken as `Kind8B.opening`,
+   at the W16R2 opening's parameters (`N = 2^15`, `e = 8,052`, `Q = 280`). A boundary commitment of another column
+   count needs its own `N` (Part 7 §V3, item 6).
+
+**The model's requirements on the fork derivation**, and whether the code meets them.
+- **R1. One trunk, shared.** Every branch chain starts with the same trunk, and the trunk has no squeeze, so every
+  branch's counter starts at `0`. Code: `ForkRun::transcript` (`run_fork.rs:749-764`) and `absorb_commit`
+  (`805-817`) only absorb; `fork` rebuilds `S0` from the same header and roots (`797-802`, verifier `1268`), and the
+  join continues from `S0` on the run transcript (`1318`, `1391`). **Met.**
+- **R2. The head names its branch, and distinct branches have distinct heads** (`br_fk`, `br_jn`, with `link`
+  injective). Code: a fork's first absorb is `pb-run-fork` with `k` as a little-endian `u64` (`835`), then
+  `pb-run-fork-block` (`837`); the join's first absorb is `pb-join-fork` (`865`), another label. In a production build
+  the index is always absorbed (`#[cfg(not(test))] let with_index = true`, `832-833`). **Met.**
+  - No premise on the derived STATES is needed. Distinct head queries give independent digests in the random-oracle
+    model; two forks with equal derived states would be a collision, counted in `collBound T`.
+  - The test-only `DropForkIndex` mutation (the review's F2 control) removes `pb-run-fork`. Two forks of identical
+    blocks (`RepeatBlock`) then have the SAME head and the same transcript: R2 fails, which is the attack that control
+    demonstrates.
+- **R3. The join's head is computed by the verifier from the forks' chains, and its openings check exactly the claims
+  it absorbs.** Code: the join absorbs `seen[k]`, the verifier's own end state, counter and claims from
+  `verify_one_fork` (`1290`, `1391-1393`; `absorb_join`, `864-871`; `claim_bytes` writes every public word of a claim,
+  `843-860`). The boundary openings use the same claims, `seen[k].claims[1] ++ seen[k + 1].claims[0]`
+  (`1428-1430`), and the endpoints `seen[0].claims[0]` and `seen[L − 1].claims[1]` (`1454`, `1462`). **Met.**
+- **R4. The verifier accepts only if every fork and the join accept.** Code: every fork must verify (`1372-1389`),
+  then every opening of the tail (`1425-1471`). **Met.**
+
+**The code check** (task 3; read only). Files: `private_block/run_fork.rs` (module doc, `742-875`, `1008-1048`,
+`1067-1252`, `1264-1478`), `private_block/run.rs:946-961`, `zkp-core/src/transcript.rs` (whole),
+`private_block/protocol.rs:96-158` and `1998-2056`, `zkp-core/src/pcs.rs:952-973` and `1180-1230`.
+- **The fork derivation and the join's absorption order match the model.**
+  - Fork `k`: `S0`, then `pb-run-fork k`, `pb-run-fork-block`, then `verify_core` on fork `k`'s frame, whose first
+    operations are absorbs (`A`'s root, `rows`, `log-cols`, `M`'s root; `protocol.rs:2023-2024`) and whose first
+    squeeze is `β` at counter `0` (`2025`).
+  - The join: `S0`, then for `k = 0, …, L − 1` in block order `pb-join-fork k`, `pb-join-state` (32-byte end state and
+    the 8-byte counter), `pb-join-in-claims`, `pb-join-out-claims`; then `pb-fork-s1 L` (`close_join`, `1394`); then
+    the boundary openings in boundary order and the two endpoints. `d55JoinOf` lists the same data in the same order.
+  - The prover mirrors it (`1109`, `1211-1219`, `1231-1243`).
+- **No fork's challenges can depend on another fork's messages.** `verify_one_fork` builds fork `k`'s transcript from
+  the public header and the roots alone (`fork(roots, k, None)`), decodes `rc.forks[k]` alone, and runs `verify_core`
+  on that frame and the public block `k` (`1264-1284`). The prover's `prove_one` likewise uses only the roots and block
+  `k`'s witness (`1017-1031`). Only the join reads every fork, and it absorbs their data before any join challenge.
+- **The S1 position tag fits the model.**
+  - `position_tag` (`run.rs:954-961`) squeezes two challenges on a clone that copies the state and the counter
+    (`transcript.rs:170-176`). The clone is discarded, and the tag is never absorbed: the verifier computes its own
+    and `decode_tail` compares it with the tail's (`run_fork.rs:1400`).
+  - At `S1` the next live operation is `B_0`'s opening, `verify_zk_tagged`, whose first transcript operation is
+    `zk_rhos`'s `challenge_fp2_vec` (`pcs.rs:1212`, `952-970`). So the S1 tag equals the first two live squeezes of
+    that opening (F27(c), now re-read and confirmed).
+  - In the model the tags are not modelled. They only add rejection conditions, so a receipt the code accepts is one
+    the model accepts; and the S1 tag's queries are queries of the join chain anyway.
+  - Every other D55 tag (`S0`, `1110`/`1319`; fork start, `1020`/`1269`; fork end, `1034`/`1285`; the tail's end,
+    `1245`/`1470`) is taken where the next live operation is an absorb or the chain ends.
+
+## W4. Findings
+
+**F28 (Info: F26's rate gap is closed for D55 in the proofs, with stated premises).**
+- On the tree of chains, each hash query attacks one round of one branch. The D55 run's per-query rate is the maximum
+  over all rounds of all forks and the join: LogUp's `α`, 2^-102.933 (Lean bound 2^-102.923), 2.92 bits under the
+  approved 2^-100. The union over 32 forks was 2^-97.93.
+- **Proved:** the tree theorem (`tree_sound_wide`), its protocol form (`fs_tree_sound`, `fs_tree_sound_sched`), the
+  D55 instance (`fs_d55_sound_8B`, `fs_d55_sound_8B_target`), and the numbers (Part 7's).
+- **Assumed:** `M`'s per-round error at most 2^-106; the premises `hframe` (per branch), `hstart`, `hclaims`, `hjoin`,
+  `hfinal`; the trunk and heads as one item each.
+- The q-free part is F25's, unchanged.
+
+**F29 (Info: the D55 branches are separated only by their head absorbs, not by the squeeze counter).**
+- Every D55 branch starts its squeezes at counter `0` (R1), so a fork's squeeze query and the join's differ only in
+  their 32-byte state. In the random-oracle model that is enough: the states descend from distinct head queries.
+- It is why the one-chain lemmas did not apply as they were: the same counter starts steps of different widths in
+  different branches, so a step's width had to be read off the traced path (`wideHitP_prob_le`).
+- The code meets the premise that keeps the branches apart (R2: `pb-run-fork k`, always absorbed in production, and
+  the join's own label). No change recommended. A future change that dropped the index, or gave two branches the same
+  first absorb, would merge their transcripts; the F2 control already guards the index.
+
+**F30 (Info: the join's soundness rests on the absorbed claims; the absorbed end states are not needed for it).**
+- In the model, the join's state reads only the claims its head carries. The forks' end states and counters
+  (`pb-join-state`) enter the join's challenges but no soundness argument here uses them.
+- They bind every fork's whole transcript into the run's final state. That may matter for the knowledge version and
+  for binding a receipt to its frames; it is not needed for this bound. No change recommended.
+
+**F31 (Low: the commitment roots absorbed inside a chain are not items of the `Kind8B` schedules).**
+- **What the model does.** In `verify_core` the `A` and `M` roots are absorbed before LogUp's `β`
+  (`protocol.rs:2023-2024`), and `H`'s root after `α` (`2031`). LogUp's rounds have no message (`luMsg`), so in the
+  model these absorbs are not chain items. The data they commit is treated as named by the statement, that is, fixed
+  before every challenge of the run.
+- **What the code does.** In D55 a fork's `A`, `M` and `H` roots are chosen after `S0`; in a D12a run, block `k`'s
+  roots are chosen after the earlier blocks' challenges. A prover that picks a root after earlier challenges is
+  outside the model's "data named by the statement".
+- **Why it is Low, not a code fault.** Each of those roots is still absorbed before every challenge that tests its
+  data, which is what the knowledge version needs: extract the data from the log cut at the root's absorption (Part
+  6's `cutLog`), with the extraction failure term per opening. That is Part 7's item "the knowledge version", not
+  composed yet. D55's boundary roots are in the trunk, fixed before any challenge, so they match the model exactly.
+- **What closes it.** Give the rounds that follow a root a message (for LogUp, `hasMsg 0 = true` carrying the `A` and
+  `M` roots; for the first slot, the `H` root), and compose the knowledge version (`fs_chain_wide_flip_composed`)
+  with the extracted tables, per branch.
+
+## W5. What remains
+
+- **The premises, per branch** (Part 7 §V5, now for every fork and the join): the slots' arithmetization and
+  hand-offs; `hclaims` as lemmas (the IO slots' terminal values are the claims `absorb_join` writes; a fork's own
+  openings reject when doomed); `hjoin` as a lemma (the boundary openings' start states are the absorbed claims);
+  `hstart` for D55 (a false run statement dooms some block, relative to the trunk's boundary data).
+- **`M`'s opening under Fiat–Shamir**, after F12's fix.
+- **The knowledge version** on the tree (F31): extraction at each root's absorption, per branch.
+- **The q-free part (F25)**, unchanged by D55.
+- **The code-level instance**: `ChainEnc` for keyed BLAKE3, the trunk, heads and root absorbs as several items, the
+  registered D55 profile's `ℓT` computed.
+- **`KnowledgeSound`** of `Statements.lean`.

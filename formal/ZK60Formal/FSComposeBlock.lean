@@ -49,7 +49,8 @@ window, so its claim may be fixed by earlier rounds):
 * `hfinal`: the verifier rejects when some sub-protocol is doomed at the end.
 These are the arithmetization (`CircuitIff`, step L2) and the extraction of the committed tables, not formalized for
 the block. `M`'s error is assumed. The D55 fork-join is not one chain (forks run on transcripts rebuilt from a common
-state and joined by absorbing their end states), so it is not covered (finding F26).
+state and joined by absorbing their end states), so it is not covered here (finding F26); it is a tree of chains, and
+`FSTree.lean`, `FSTreeRbr.lean` and `FSTreeD55.lean` prove the same per-query rate for it.
 -/
 import ZK60Formal.FSCompose
 import ZK60Formal.FSLogUp
