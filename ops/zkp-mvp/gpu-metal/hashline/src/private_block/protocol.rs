@@ -237,11 +237,24 @@ fn part_rows(p: &ZPart, n: usize) -> std::ops::Range<usize> {
 /// whatever the data is. PREMISE, not proven here: independence from the sampled
 /// columns, the salted paths and the CFS channel (the joint-view gate of the
 /// construction section 7 is still owed on captured receipts).
+///
+/// **D63 L4 finding 3.** "Invertible diagonal" needs each pair's two row weights to
+/// be linearly independent over the BASE field (the mask rows are base-field rows),
+/// which a nonzero coefficient alone does not give. The audit therefore computes the
+/// weights the claim actually induces on its pair (`pcs::zpart_row_weight`, its point
+/// included) and refuses a zero determinant, for every evaluation claim and for the
+/// sum claim's zero-sum pair. A nonzero member coefficient `c` of the opening's group
+/// keeps the pair independent (`det(c a, c b) = N(c) det(a, b)`, and `N(c) != 0` since
+/// 7 is a non-residue), so the per-claim check suffices.
 pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize) -> Result<(), String> {
     let fail = |what: &str| Err(format!("private block: mask schedule audit: {what}"));
     if prox + 2 != rows || site_rows.len() % 2 != 0 {
         return fail("proximity pair placement");
     }
+    if !n.is_power_of_two() {
+        return fail("the row width is not a power of two");
+    }
+    let log_n = n.trailing_zeros() as usize;
     let mut uses = vec![0usize; rows];
     let is_site = |r: usize| site_rows.binary_search(&r).is_ok();
     for (ci, claim) in claims.iter().enumerate() {
@@ -259,16 +272,23 @@ pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: 
             }
         }
         let is_sum = claim.parts.iter().all(|p| p.point.is_empty());
+        let weight = |row: usize| claim.parts.iter().fold(Fp2::ZERO, |acc, p| acc.add(pcs::zpart_row_weight(p, log_n, row)));
         match (is_sum, sum_rows) {
             (true, Some(u)) if ci + 1 == claims.len() => {
                 let covered = |row: usize| claim.parts.iter().any(|p| part_rows(p, n).contains(&row) && !p.coef.is_zero());
                 if !touched.is_empty() || !covered(u[0]) || !covered(u[1]) {
                     return fail("the sum claim is not masked by the zero-sum pair alone");
                 }
+                if determinant(weight(u[0]), weight(u[1])).is_zero() {
+                    return fail("the zero-sum pair's weights are dependent over the base field");
+                }
             }
             (false, _) => {
                 if touched.len() != 2 || touched[1] != touched[0] + 1 || (touched[0] - site_rows[0]) % 2 != 0 {
                     return fail("a claim does not carry exactly its own reserved pair");
+                }
+                if determinant(weight(touched[0]), weight(touched[1])).is_zero() {
+                    return fail("a claim's reserved pair weights are dependent over the base field");
                 }
             }
             _ => return fail("unexpected sum claim"),

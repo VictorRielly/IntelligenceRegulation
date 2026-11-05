@@ -46,6 +46,20 @@ The Lean files are under `formal/ZK60Formal/`. They were checked again after the
      Goldilocks prime; checked numerically 2026-11-04).
    - **Task:** add the per-pair determinant check, computed on the row weights the claim actually induces (its point,
      not only its `coef`), with a negative control that a (c, c) pair is refused. The zero-sum pair needs the same.
+   - **Done, 2026-11-04.** Both audits (`private_block` and `private_attention`) now compute each claim's induced
+     weights on its pair with `pcs::zpart_row_weight`, the PCS's own rule with the point included. They refuse a zero
+     base-field determinant, for every evaluation claim and for the zero-sum pair. A group's nonzero member
+     coefficient preserves independence (`det(c a, c b) = N(c) det(a, b)`), so the per-claim check suffices.
+     - Negative controls: `l4_f3_the_schedule_audit_refuses_a_pair_with_dependent_induced_weights` in both test
+       modules. They refuse (c, c), (1, 2), a single part across both rows at a base-field or boolean coordinate, and
+       a (1, 1) zero-sum pair. They accept (c, c·u) and a part across both rows at `3 + u`.
+     - **The fix found a leaking fixture.** The review test `the_mask_schedule_audit_still_refuses_every_case_at_the_rungs_row_width`
+       used an "honest" pair: one part across both rows, read at the coordinate 1, which weights them (0, 1), so only
+       one base-field row masks. The old audit accepted it. The fixture now reads the pair at `u`, and the test asserts
+       that the old one is refused.
+     - Checks (`results/zk60_h124_witness_20261104/`): the full lib suite is 904 / 3 / 93, exactly the known three
+       failures (`f3_full2.log`); the W16R2 rung golden is unchanged (`f3_r2rung.log`); no honest flow refuses.
+       Honest claims weight a pair (cm, cm·u), whose determinant is `N(cm) ≠ 0`.
 4. **`audit_claims`' doc comment says "one pair per group"; the code enforces one pair per claim**, which is what
    hiding needs.
 

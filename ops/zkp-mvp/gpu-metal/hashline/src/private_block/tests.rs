@@ -333,6 +333,48 @@ fn the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows() {
     assert!(audit_claims(&[claim(0, 4), claim(1, 6), unmasked], N, 10, &sites, None, 8).is_err(), "an unmasked claim");
 }
 
+/// **D63 L4 finding 3.** Nonzero pair coefficients are not enough. The audit refuses a
+/// pair whose INDUCED row weights are dependent over the base field, whether:
+/// - the coefficients themselves are dependent, as in (c, c) or (1, 2); or
+/// - the claim's point makes them so: one part spanning both pair rows, read at a
+///   base-field or boolean point coordinate.
+///
+/// The zero-sum pair is checked the same way.
+#[test]
+fn l4_f3_the_schedule_audit_refuses_a_pair_with_dependent_induced_weights() {
+    use crate::field::Fp;
+    let pt: Vec<Fp2> = (0..8).map(|i| Fp2::new(Fp::new(11 + i), Fp::new(3 + 2 * i))).collect();
+    let part = |row: usize, coef: Fp2| ZPart { slice: Slice { offset: row * N, log_size: LOG_N as u32 }, coef, point: pt.clone() };
+    let pair_claim = |data: usize, pair: usize, a: Fp2, b: Fp2| ZClaim { parts: vec![part(data, Fp2::ONE), part(pair, a), part(pair + 1, b)], value: Fp2::ZERO };
+    // rows: data 0..4, reserved pairs (4,5) (6,7), proximity pair (8,9)
+    let sites = [4usize, 5, 6, 7];
+    let audit = |c: &[ZClaim], sum: Option<[usize; 2]>| audit_claims(c, N, 10, &sites, sum, 8);
+    let dependent = |e: Result<(), String>| matches!(e, Err(m) if m.contains("dependent over the base field"));
+    let good = pair_claim(0, 4, Fp2::ONE, Fp2::U);
+    audit(&[good.clone(), pair_claim(1, 6, Fp2::ONE, Fp2::U)], None).unwrap();
+    let c = Fp2::new(Fp::new(5), Fp::new(9));
+    assert!(dependent(audit(&[good.clone(), pair_claim(1, 6, c, c)], None)), "a (c, c) pair");
+    assert!(dependent(audit(&[good.clone(), pair_claim(1, 6, Fp2::ONE, Fp2::from_u64(2))], None)), "a (1, 2) pair");
+    // (c, c u) is independent for any nonzero c: det = N(c) det(1, u) = N(c)
+    audit(&[good.clone(), pair_claim(1, 6, c, c.mul(Fp2::U))], None).unwrap();
+    // ONE part across both pair rows: its weights are c * (1 - x, x), x the point's first coordinate
+    let spanning = |x: Fp2| {
+        let mut point = vec![x];
+        point.extend(pt.iter().copied());
+        let across = ZPart { slice: Slice { offset: 6 * N, log_size: LOG_N as u32 + 1 }, coef: c, point };
+        ZClaim { parts: vec![part(1, Fp2::ONE), across], value: Fp2::ZERO }
+    };
+    assert!(dependent(audit(&[good.clone(), spanning(Fp2::from_u64(3))], None)), "a base-field point coordinate");
+    assert!(dependent(audit(&[good.clone(), spanning(Fp2::ONE)], None)), "a boolean point coordinate (row 6's weight vanishes)");
+    audit(&[good.clone(), spanning(Fp2::U.add(Fp2::from_u64(3)))], None).unwrap();
+    // the zero-sum pair: rows (2, 3), the sum claim last and pairless
+    let sum_part = |row: usize, coef: Fp2| ZPart { slice: Slice { offset: row * N, log_size: LOG_N as u32 }, coef, point: vec![] };
+    let sum = |a: Fp2, b: Fp2| ZClaim { parts: vec![sum_part(2, a), sum_part(3, b)], value: Fp2::ZERO };
+    let other = pair_claim(1, 6, Fp2::ONE, Fp2::U);
+    audit(&[good.clone(), other.clone(), sum(Fp2::ONE, Fp2::U)], Some([2, 3])).unwrap();
+    assert!(dependent(audit(&[good.clone(), other.clone(), sum(Fp2::ONE, Fp2::ONE)], Some([2, 3]))), "a (1, 1) zero-sum pair");
+}
+
 /// DEFECT D-2 of the 2026-09-19 code review: `witness::requant` computed its
 /// rounding bias as `1i64 << (sh - 1)` with `sh: u32`, so at `sh = 0` the
 /// subtraction underflowed to `u32::MAX` — a panic in debug, a masked shift in

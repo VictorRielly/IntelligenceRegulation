@@ -31,6 +31,32 @@ pub type Committed = zkp_core::pcs::Committed<DevStore>;
 /// The core's hiding committed matrix over hashline's device store.
 pub type CommittedZk = zkp_core::pcs::CommittedZk<DevStore>;
 
+/// The weight ONE claim part puts on row `r` of a commitment `2^log_cols` columns wide, by
+/// the rule the core opens with (its private `zpart_weights`):
+/// - a slice of a row or less weights its own row by `coef`;
+/// - a sum slice spanning several rows weights each of them by `coef`;
+/// - an evaluation slice spanning several rows weights its row `r0 + i` by
+///   `coef * eq_table_msb(point[..ls - log_cols])[i]`.
+///
+/// Rows the part does not cover get zero. The schedule audits use it to compute the row
+/// weights a claim actually induces on its reserved pair (D63 L4 finding 3).
+pub fn zpart_row_weight(p: &ZPart, log_cols: usize, r: usize) -> crate::field::Fp2 {
+    let n = 1usize << log_cols;
+    let ls = p.slice.log_size as usize;
+    let r0 = p.slice.offset / n;
+    if ls < log_cols {
+        return if r == r0 { p.coef } else { crate::field::Fp2::ZERO };
+    }
+    let lr = ls - log_cols;
+    if r < r0 || r >= r0 + (1usize << lr) {
+        return crate::field::Fp2::ZERO;
+    }
+    if p.point.is_empty() {
+        return p.coef;
+    }
+    p.coef.mul(zkp_core::mle::eq_table_msb(&p.point[..lr])[r - r0])
+}
+
 /// Commit to `data` (length must be a multiple of n); the device path
 /// (`HL_GPU=1`) is offered first and declines to the CPU body.
 pub fn commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Committed {

@@ -816,6 +816,12 @@ fn an_endpoint_with_a_nonzero_pad_is_rejected_at_the_rung() {
 /// own width (256). The lane parameterised the audit by `n`; a `n` that was
 /// silently the toy's would make every one of these vacuous at the rung, which
 /// is exactly the shape of finding S12-F2.
+///
+/// **D63 L4 finding 3 (2026-11-04).** The fixture's pair part spans both pair
+/// rows and was read at the point coordinate 1, which weights them (0, 1): row 4
+/// unweighted, one base-field row masking. That is the leaking configuration the
+/// finding describes, and the audit now refuses it (asserted below). The fixture
+/// reads the pair at `u` instead: weights (1 - u, u), determinant 1.
 #[test]
 fn the_mask_schedule_audit_still_refuses_every_case_at_the_rungs_row_width() {
     use crate::field::Fp2;
@@ -823,15 +829,18 @@ fn the_mask_schedule_audit_still_refuses_every_case_at_the_rungs_row_width() {
     for log_n in [8usize, 10] {
         let n = 1usize << log_n;
         let sites = vec![4usize, 5, 6, 7];
-        let claim = |i: usize, row: usize| ZClaim {
+        let claim_at = |i: usize, row: usize, x: Fp2| ZClaim {
             parts: vec![
                 ZPart { slice: Slice { offset: i * n, log_size: log_n as u32 }, coef: Fp2::ONE, point: vec![Fp2::ONE] },
-                ZPart { slice: Slice { offset: row * n, log_size: (log_n + 1) as u32 }, coef: Fp2::ONE, point: vec![Fp2::ONE] },
+                ZPart { slice: Slice { offset: row * n, log_size: (log_n + 1) as u32 }, coef: Fp2::ONE, point: vec![x] },
             ],
             value: Fp2::ZERO,
         };
+        let claim = |i: usize, row: usize| claim_at(i, row, Fp2::U);
         let audit = |c: &[ZClaim]| super::protocol::audit_claims(c, n, 10, &sites, None, 8);
         audit(&[claim(0, 4), claim(1, 6)]).unwrap_or_else(|e| panic!("log_n {log_n}: the honest pair assignment was refused: {e}"));
+        let old = audit(&[claim(0, 4), claim_at(1, 6, Fp2::ONE)]);
+        assert!(matches!(&old, Err(e) if e.contains("dependent over the base field")), "log_n {log_n}: the old fixture's (0, 1) pair: {old:?}");
         assert!(audit(&[claim(0, 4), claim(1, 4)]).is_err(), "log_n {log_n}: a pair shared by two claims");
         assert!(audit(&[claim(0, 4)]).is_err(), "log_n {log_n}: an unused reserved pair");
         assert!(audit(&[claim(0, 5), claim(1, 6)]).is_err(), "log_n {log_n}: a misaligned pair");

@@ -81,6 +81,10 @@ fn part_rows(p: &ZPart) -> std::ops::Range<usize> {
 /// whatever the data is. PREMISE, not proven here: independence from the sampled
 /// columns, the salted paths and the CFS channel (the joint-view gate of the
 /// construction section 7 is still owed on captured receipts).
+///
+/// **D63 L4 finding 3**, as in `private_block::protocol::audit_claims`: the weights a
+/// claim induces on its pair (point included) must be independent over the base
+/// field, for every evaluation claim and for the zero-sum pair.
 pub(crate) fn audit_claims(claims: &[ZClaim], rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize) -> Result<(), String> {
     let fail = |what: &str| Err(format!("private attention: mask schedule audit: {what}"));
     if prox + 2 != rows || site_rows.len() % 2 != 0 {
@@ -103,16 +107,23 @@ pub(crate) fn audit_claims(claims: &[ZClaim], rows: usize, site_rows: &[usize], 
             }
         }
         let is_sum = claim.parts.iter().all(|p| p.point.is_empty());
+        let weight = |row: usize| claim.parts.iter().fold(Fp2::ZERO, |acc, p| acc.add(crate::pcs::zpart_row_weight(p, LOG_N, row)));
         match (is_sum, sum_rows) {
             (true, Some(u)) if ci + 1 == claims.len() => {
                 let covered = |row: usize| claim.parts.iter().any(|p| part_rows(p).contains(&row) && !p.coef.is_zero());
                 if !touched.is_empty() || !covered(u[0]) || !covered(u[1]) {
                     return fail("the sum claim is not masked by the zero-sum pair alone");
                 }
+                if determinant(weight(u[0]), weight(u[1])).is_zero() {
+                    return fail("the zero-sum pair's weights are dependent over the base field");
+                }
             }
             (false, _) => {
                 if touched.len() != 2 || touched[1] != touched[0] + 1 || (touched[0] - site_rows[0]) % 2 != 0 {
                     return fail("a claim does not carry exactly its own reserved pair");
+                }
+                if determinant(weight(touched[0]), weight(touched[1])).is_zero() {
+                    return fail("a claim's reserved pair weights are dependent over the base field");
                 }
             }
             _ => return fail("unexpected sum claim"),

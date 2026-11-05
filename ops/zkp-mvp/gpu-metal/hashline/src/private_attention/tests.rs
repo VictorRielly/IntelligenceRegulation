@@ -323,6 +323,28 @@ fn the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows() {
     assert!(audit_claims(&[claim(0, 4), claim(1, 6), unmasked], 10, &sites, None, 8).is_err(), "an unmasked claim");
 }
 
+/// **D63 L4 finding 3**, as in the block's audit: a pair whose induced row weights are
+/// dependent over the base field is refused, both for dependent coefficients ((c, c)) and
+/// for a point that makes them so (one part across both rows at a boolean coordinate).
+#[test]
+fn l4_f3_the_schedule_audit_refuses_a_pair_with_dependent_induced_weights() {
+    use crate::field::Fp;
+    let pt: Vec<Fp2> = (0..8).map(|i| Fp2::new(Fp::new(11 + i), Fp::new(3 + 2 * i))).collect();
+    let part = |row: usize, coef: Fp2| ZPart { slice: Slice { offset: row * N, log_size: LOG_N as u32 }, coef, point: pt.clone() };
+    let pair_claim = |data: usize, pair: usize, a: Fp2, b: Fp2| ZClaim { parts: vec![part(data, Fp2::ONE), part(pair, a), part(pair + 1, b)], value: Fp2::ZERO };
+    let sites = [4usize, 5, 6, 7];
+    let dependent = |e: Result<(), String>| matches!(e, Err(m) if m.contains("dependent over the base field"));
+    let good = pair_claim(0, 4, Fp2::ONE, Fp2::U);
+    audit_claims(&[good.clone(), pair_claim(1, 6, Fp2::ONE, Fp2::U)], 10, &sites, None, 8).unwrap();
+    let c = Fp2::new(Fp::new(5), Fp::new(9));
+    assert!(dependent(audit_claims(&[good.clone(), pair_claim(1, 6, c, c)], 10, &sites, None, 8)), "a (c, c) pair");
+    let mut point = vec![Fp2::ONE];
+    point.extend(pt.iter().copied());
+    let across = ZPart { slice: Slice { offset: 6 * N, log_size: LOG_N as u32 + 1 }, coef: c, point };
+    let spanning = ZClaim { parts: vec![part(1, Fp2::ONE), across], value: Fp2::ZERO };
+    assert!(dependent(audit_claims(&[good, spanning], 10, &sites, None, 8)), "a boolean point coordinate");
+}
+
 #[test]
 fn the_declared_schedule_is_stable_and_bound() {
     let lines = schedule();
