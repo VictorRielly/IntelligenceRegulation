@@ -13,3 +13,7 @@ import ZK60Formal.SoundLogUp
 import ZK60Formal.SoundLogUpBlock
 import ZK60Formal.SoundZeroCheck
 import ZK60Formal.SoundMultilinear
+import ZK60Formal.SoundColumnTest
+import ZK60Formal.SoundProximity
+import ZK60Formal.SoundProximityRS
+import ZK60Formal.SoundOpening

@@ -89,6 +89,38 @@ The plain-words version, the modelling choices and the open decisions are in
   - The comparison with the counted figures, the code's departures from the textbook protocols, the findings and what
     L3 still needs (the PCS, composition over slots and blocks, Fiat–Shamir, the instances) are in
     `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
+- Proved so far (step L3, the polynomial commitment's tests; interactive, uniform independent challenges, the
+  committed matrix fixed before them; same build and axiom checks):
+  - `SoundColumnTest.lean`: `Q` column indices drawn uniformly WITH replacement (`challenge_indices`) miss a set `D`
+    of the `N` columns with probability exactly `((N − |D|)/N)^Q` (`column_miss_prob`), so a re-encoded vector that
+    disagrees with the combination of the committed rows on `≥ e + 1` columns passes with probability
+    `≤ (1 − (e + 1)/N)^Q` (`column_test_sound`), `count.py`'s exact integer form; at rate 1/4 that is at most the
+    counted `((2N + K)/(3N))^Q` (`third_column_le`).
+  - `SoundProximity.lean`: for ANY linear code of minimum distance `d` with `2e < d`, a bound of `A ≥ e + 1`
+    exceptional values for lines gives the bound `A/|E|` for independent uniform weights on any number of rows, with
+    no loss (`comb_close_prob`): the step from BCIKS20's line theorem to its Thm 1.7 / Thm 3.1 form. With the
+    Roth–Zémor line bound at `3e < d` this is the δ/3 lemma (Ligero/AHIV style), `(e + 1)/|E|` (`proximity_third`).
+    The affine form `u + Σ r_i·U_i` of the mask commitment `M` costs `A/(|E| − 1)` (`affine_proximity_third`).
+  - `SoundProximityRS.lean`: our Reed–Solomon code (degree `≤ K` at `N` distinct points, distance `N − K`): δ/3,
+    `(e + 1)/|E|` for `3e + K + 1 ≤ N` (`rs_proximity_third`); **δ/2, the unique-decoding radius (D59, BCIKS20
+    Thm 3.1), `N/|E|` for `2e + K + 1 ≤ N`** (`rs_proximity_half`, from FlashProve's proof of BCIKS20 Thm 4.1); and
+    the code's field split, rows over `F_p`, weights over `F_p²` (`close_of_close_lift`, `rs_proximity_*_ext`).
+  - `SoundOpening.lean`: one opening, the two tests composed. For any prover, the verifier accepts while the
+    committed matrix does not decode to rows that satisfy the claim with probability
+    `≤ A/|E| + (1 − (e + 1)/N)^Q` (`opening_sound`; the far and close cases exclude each other); for our code at
+    rate 1/4 and rate 1/2 (`opening_sound_rs_third`, `opening_sound_rs_half`), and at rate 1/4 in `count.py`'s own
+    terms with its carried ceiling (`opening_sound_rs_third_counted`).
+  - `ThirdParty/FlashProve/`: 15 files adapted from FlashProve's Apache-2.0 Lean library (`lean/`, commit
+    9e2bdd8f, version 0.16.0): `Prob/Cnt`, `Prob/Count` (cut to its counting part), `Code/Agree`, `Code/Third`
+    (Roth–Zémor up to a third of the distance, `cnt_close_le`, `mca_third`), `Code/Mutual`, `Code/Half` (BCIKS20
+    Thm 4.1 for Reed–Solomon codes, `caOn_rsCode`, `mca_rsCode`) and the nine files of `Code/Lines/` (its proof).
+    FlashProve was written for Lean 4.29.1 and an older Mathlib; the port needed four one-line fixes (deprecated
+    names, a `simpa` and a `convert` that the newer versions leave open). Each file says what was changed; the
+    repository's `NOTICE` has the attribution (FlashProve, and ArkLib as FlashProve credits it). No new lake
+    dependency.
+  - What these lemmas assume and what L3 still needs (Merkle binding, the λ batching inside a group, `M`'s
+    product-form test, composition over openings, slots and blocks, Fiat–Shamir) are in the findings document's
+    second part.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).
