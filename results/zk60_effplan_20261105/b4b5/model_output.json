@@ -1,0 +1,804 @@
+{
+ "inventory": {
+  "L": [
+   {
+    "name": "LIMB",
+    "width": 8,
+    "kind": "L",
+    "relation": "isqrt limb (TZC D - limbs)",
+    "b4": "exact"
+   },
+   {
+    "name": "LIMBM",
+    "width": 8,
+    "kind": "L",
+    "relation": "isqrt limb, norm_m",
+    "b4": "exact"
+   }
+  ],
+  "D": [
+   {
+    "name": "X",
+    "width": 16,
+    "kind": "W",
+    "relation": "block input; norm_a sum of squares; residual 1",
+    "b4": "exact"
+   },
+   {
+    "name": "Y",
+    "width": 16,
+    "kind": "W",
+    "relation": "norm_a output; Q/K/V requant input",
+    "b4": "tier B"
+   },
+   {
+    "name": "NR.lo",
+    "width": 16,
+    "kind": "R",
+    "relation": "norm_a division remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "NR.hi",
+    "width": 8,
+    "kind": "R",
+    "relation": "norm_a division remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "NS.lo",
+    "width": 16,
+    "kind": "R",
+    "relation": "norm_a c1 slack",
+    "b4": "exact"
+   },
+   {
+    "name": "NS.hi",
+    "width": 8,
+    "kind": "R",
+    "relation": "norm_a c1 slack",
+    "b4": "exact"
+   },
+   {
+    "name": "AO",
+    "width": 16,
+    "kind": "W",
+    "relation": "Wo requant output; residual 1",
+    "b4": "dropped (implied)"
+   },
+   {
+    "name": "RAL.lo",
+    "width": 16,
+    "kind": "R",
+    "relation": "Wo requant remainder (21 b)",
+    "b4": "exact"
+   },
+   {
+    "name": "RAL.hi",
+    "width": 5,
+    "kind": "R",
+    "relation": "Wo requant remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "X1",
+    "width": 16,
+    "kind": "W",
+    "relation": "residual 1; norm_m sum of squares",
+    "b4": "exact"
+   },
+   {
+    "name": "YM",
+    "width": 16,
+    "kind": "W",
+    "relation": "norm_m output (D12 item 4); gate/up input",
+    "b4": "exact"
+   },
+   {
+    "name": "MR.lo",
+    "width": 16,
+    "kind": "R",
+    "relation": "norm_m division remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "MR.hi",
+    "width": 8,
+    "kind": "R",
+    "relation": "norm_m division remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "MS.lo",
+    "width": 16,
+    "kind": "R",
+    "relation": "norm_m c1 slack",
+    "b4": "exact"
+   },
+   {
+    "name": "MS.hi",
+    "width": 8,
+    "kind": "R",
+    "relation": "norm_m c1 slack",
+    "b4": "exact"
+   },
+   {
+    "name": "Z16",
+    "width": 16,
+    "kind": "W",
+    "relation": "down requant output; residual 2",
+    "b4": "dropped (implied)"
+   },
+   {
+    "name": "RDL.lo",
+    "width": 16,
+    "kind": "R",
+    "relation": "down requant remainder (20 b)",
+    "b4": "exact"
+   },
+   {
+    "name": "RDL.hi",
+    "width": 4,
+    "kind": "R",
+    "relation": "down requant remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "X2",
+    "width": 16,
+    "kind": "W",
+    "relation": "block output (boundary); residual 2",
+    "b4": "exact"
+   }
+  ],
+  "Q": [
+   {
+    "name": "Q",
+    "width": 16,
+    "kind": "W",
+    "relation": "Q requant output; RoPE input",
+    "b4": "tier B"
+   },
+   {
+    "name": "RQL",
+    "width": 15,
+    "kind": "R",
+    "relation": "Q requant remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "QR",
+    "width": 16,
+    "kind": "W",
+    "relation": "RoPE output; score input (bilinear)",
+    "b4": "exact"
+   },
+   {
+    "name": "RQRL",
+    "width": 7,
+    "kind": "R",
+    "relation": "RoPE remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "O",
+    "width": 16,
+    "kind": "W",
+    "relation": "PV requant output; Wo input",
+    "b4": "tier B"
+   },
+   {
+    "name": "RO",
+    "width": 12,
+    "kind": "R",
+    "relation": "PV requant remainder",
+    "b4": "exact"
+   }
+  ],
+  "Kv": [
+   {
+    "name": "K",
+    "width": 16,
+    "kind": "W",
+    "relation": "K requant output; RoPE input",
+    "b4": "tier B"
+   },
+   {
+    "name": "RKL",
+    "width": 15,
+    "kind": "R",
+    "relation": "K requant remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "V",
+    "width": 16,
+    "kind": "W",
+    "relation": "V requant output; PV input",
+    "b4": "tier B"
+   },
+   {
+    "name": "RVL",
+    "width": 16,
+    "kind": "R",
+    "relation": "V requant remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "KR",
+    "width": 16,
+    "kind": "W",
+    "relation": "RoPE output; score input (bilinear)",
+    "b4": "exact"
+   },
+   {
+    "name": "RKRL",
+    "width": 7,
+    "kind": "R",
+    "relation": "RoPE remainder",
+    "b4": "exact"
+   }
+  ],
+  "F": [
+   {
+    "name": "RGL.lo",
+    "width": 16,
+    "kind": "R",
+    "relation": "gate requant remainder (18 b)",
+    "b4": "exact"
+   },
+   {
+    "name": "RGL.hi",
+    "width": 2,
+    "kind": "R",
+    "relation": "gate requant remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "U16",
+    "width": 16,
+    "kind": "W",
+    "relation": "up requant output; product input",
+    "b4": "tier B"
+   },
+   {
+    "name": "RU",
+    "width": 12,
+    "kind": "R",
+    "relation": "up requant remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "H16.lo",
+    "width": 16,
+    "kind": "W",
+    "relation": "product word, low expr (word24)",
+    "b4": "tier H"
+   },
+   {
+    "name": "H16.top",
+    "width": 8,
+    "kind": "W",
+    "relation": "product word, signed top limb",
+    "b4": "tier H"
+   },
+   {
+    "name": "RH",
+    "width": 16,
+    "kind": "R",
+    "relation": "product remainder",
+    "b4": "exact"
+   }
+  ],
+  "S": [
+   {
+    "name": "S8+",
+    "width": 8,
+    "kind": "S8",
+    "relation": "score int8 class, +",
+    "b4": "tier B"
+   },
+   {
+    "name": "S8-",
+    "width": 8,
+    "kind": "S8",
+    "relation": "score int8 class, -",
+    "b4": "tier B"
+   },
+   {
+    "name": "RSL.lo",
+    "width": 16,
+    "kind": "R",
+    "relation": "score requant remainder (18 b)",
+    "b4": "exact"
+   },
+   {
+    "name": "RSL.hi",
+    "width": 2,
+    "kind": "R",
+    "relation": "score requant remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "P",
+    "width": 13,
+    "kind": "Q",
+    "relation": "softmax quotient (no-wrap of P*Sum, PV)",
+    "b4": "tier B"
+   },
+   {
+    "name": "SR",
+    "width": 16,
+    "kind": "R",
+    "relation": "softmax division remainder",
+    "b4": "exact"
+   },
+   {
+    "name": "SG",
+    "width": 16,
+    "kind": "R",
+    "relation": "softmax c3 slack",
+    "b4": "exact"
+   }
+  ]
+ },
+ "lookup_rows_by_kind_today": {
+  "L": 2,
+  "W": 728,
+  "R": 1144,
+  "S8": 64,
+  "Q": 32
+ },
+ "tiers": {
+  "B": {
+   "rows_combined": 304,
+   "G_columns_per_group": 16,
+   "entries_per_combined_value": 4864,
+   "honest_max_combined": 255978240,
+   "L": 268435456,
+   "honest_fits_L": true,
+   "positions": 131072,
+   "position_rows": 8,
+   "limb_widths": [
+    16,
+    12
+   ],
+   "lookups_per_position": 2,
+   "lookup_rows": 16,
+   "helpers": 1,
+   "h_rows": 16,
+   "a2_limb_rows": 8
+  },
+  "H": {
+   "rows_combined": 128,
+   "G_columns_per_group": 32,
+   "entries_per_combined_value": 4096,
+   "honest_max_combined": 68719472640,
+   "L": 68719476736,
+   "honest_fits_L": true,
+   "positions": 65536,
+   "position_rows": 4,
+   "limb_widths": [
+    16,
+    16,
+    4
+   ],
+   "lookups_per_position": 3,
+   "lookup_rows": 12,
+   "helpers": 2,
+   "h_rows": 16,
+   "a2_limb_rows": 8
+  }
+ },
+ "b4_counts_per_position": {
+  "L": 2,
+  "D": 16,
+  "Q": 4,
+  "Kv": 4,
+  "F": 4,
+  "S": 4
+ },
+ "rows": {
+  "today": {
+   "A_data": 2279,
+   "A2_data": 0,
+   "H_data": 2514,
+   "lookup_rows": 1970,
+   "total_data": 4793
+  },
+  "B4": {
+   "A_data": 2151,
+   "A2_data": 22,
+   "H_data": 1698,
+   "lookup_rows": 1342,
+   "total_data": 3871
+  },
+  "B5": {
+   "A_data": 2280,
+   "A2_data": 0,
+   "H_data": 0,
+   "lookup_rows": 1970,
+   "total_data": 2280
+  },
+  "B4+B5": {
+   "A_data": 2152,
+   "A2_data": 22,
+   "H_data": 0,
+   "lookup_rows": 1342,
+   "total_data": 2174
+  }
+ },
+ "nowrap": {
+  "today": {
+   "1 Q requant": [
+    38.991521932573846,
+    true
+   ],
+   "2 K requant": [
+    38.991521932573846,
+    true
+   ],
+   "3 V requant": [
+    39.991521932573846,
+    true
+   ],
+   "4 Wo requant": [
+    42.0112279380209,
+    true
+   ],
+   "5 gate requant": [
+    47.98868746151321,
+    true
+   ],
+   "6 up requant": [
+    37.98939452150118,
+    true
+   ],
+   "7 down requant": [
+    49.79609032289441,
+    true
+   ],
+   "8 score requant": [
+    37.0003521774803,
+    true
+   ],
+   "9 PV requant (naive)": [
+    35.00562472050733,
+    true
+   ],
+   "10 product": [
+    45.022324467457516,
+    true
+   ],
+   "12 norm_a division": [
+    43.57743804843741,
+    true
+   ],
+   "13 norm_m division": [
+    43.57743804843741,
+    true
+   ],
+   "15 sum of squares (norm_a)": [
+    48.027905996569885,
+    true
+   ],
+   "15 sum of squares (norm_m)": [
+    48.027905996569885,
+    true
+   ],
+   "18 residual 1": [
+    16.584962500721158,
+    true
+   ],
+   "18 residual 2": [
+    16.584962500721158,
+    true
+   ],
+   "19 RoPE (q)": [
+    23.584991852128326,
+    true
+   ],
+   "20 softmax c2": [
+    30.00290289640024,
+    true
+   ]
+  },
+  "B4": {
+   "1 Q requant": [
+    51.991697945572696,
+    true
+   ],
+   "2 K requant": [
+    51.991697945572696,
+    true
+   ],
+   "3 V requant": [
+    52.991697945572696,
+    true
+   ],
+   "4 Wo requant": [
+    54.9888663324346,
+    true
+   ],
+   "5 gate requant": [
+    47.98868746151321,
+    true
+   ],
+   "6 up requant": [
+    40.319813227022344,
+    true
+   ],
+   "7 down requant": [
+    62.7962157206961,
+    true
+   ],
+   "8 score requant": [
+    46.002990777203884,
+    true
+   ],
+   "9 PV requant (naive)": [
+    63.000352370934536,
+    true
+   ],
+   "10 product": [
+    58.02250056165267,
+    true
+   ],
+   "12 norm_a division": [
+    55.00052548662694,
+    true
+   ],
+   "13 norm_m division": [
+    43.57743804843741,
+    true
+   ],
+   "15 sum of squares (norm_a)": [
+    48.027905996569885,
+    true
+   ],
+   "15 sum of squares (norm_m)": [
+    48.027905996569885,
+    true
+   ],
+   "18 residual 1": [
+    17.0,
+    true
+   ],
+   "18 residual 2": [
+    17.0,
+    true
+   ],
+   "19 RoPE (q)": [
+    36.00026414654309,
+    true
+   ],
+   "20 softmax c2": [
+    45.00017618815417,
+    true
+   ]
+  },
+  "one tier over all words (rejected)": {
+   "1 Q requant": [
+    51.991697945572696,
+    true
+   ],
+   "2 K requant": [
+    51.991697945572696,
+    true
+   ],
+   "3 V requant": [
+    52.991697945572696,
+    true
+   ],
+   "4 Wo requant": [
+    54.9888663324346,
+    true
+   ],
+   "5 gate requant": [
+    60.98886078659728,
+    true
+   ],
+   "6 up requant": [
+    50.98957059933382,
+    true
+   ],
+   "7 down requant": [
+    62.7962157206961,
+    true
+   ],
+   "8 score requant": [
+    63.00036320447715,
+    true
+   ],
+   "9 PV requant (naive)": [
+    63.000352370934536,
+    true
+   ],
+   "10 product": [
+    58.02250056165267,
+    true
+   ],
+   "12 norm_a division": [
+    56.577604928647595,
+    true
+   ],
+   "13 norm_m division": [
+    56.577604928647595,
+    true
+   ],
+   "15 sum of squares (norm_a)": [
+    68.00035357987073,
+    false
+   ],
+   "15 sum of squares (norm_m)": [
+    68.00035357987073,
+    false
+   ],
+   "18 residual 1": [
+    29.000352177480302,
+    true
+   ],
+   "18 residual 2": [
+    29.000352177480302,
+    true
+   ],
+   "19 RoPE (q)": [
+    36.585138603790135,
+    true
+   ],
+   "20 softmax c2": [
+    45.00017618815417,
+    true
+   ]
+  }
+ },
+ "lemma": {
+  "p": 61,
+  "L": 6,
+  "worst_pass_binary": "1/2",
+  "worst_pass_ternary": "2/3",
+  "scaled_coefficient_counterexample": {
+   "v": 31,
+   "v_centered": -30,
+   "sigma_v": 1
+  }
+ },
+ "soundness": {
+  "today (W16R2)": {
+   "N_lookups": 34897920,
+   "logup_alpha_log2": -102.93284505392865,
+   "rate_log2": -102.93284505392865,
+   "zone_log2": -102.73721869541241,
+   "zone_units_2^-110": 153.57305533023228,
+   "new_round_log2": null
+  },
+  "B4": {
+   "N_lookups": 24608768,
+   "logup_alpha_log2": -103.43243894985551,
+   "rate_log2": -103.43243894985551,
+   "zone_log2": -103.15673141257557,
+   "zone_units_2^-110": 114.82305912665234,
+   "new_round_log2": -128.0
+  },
+  "B5 (all lookups, H retired)": {
+   "N_lookups": 34897920,
+   "logup_alpha_log2": -102.93284505392865,
+   "rate_log2": -102.93284505392865,
+   "zone_log2": -102.74188300866835,
+   "zone_units_2^-110": 153.0773468646581,
+   "new_round_log2": -125.19264507727058
+  },
+  "B4 then B5": {
+   "N_lookups": 24608768,
+   "logup_alpha_log2": -103.43243894985551,
+   "rate_log2": -103.43243894985551,
+   "zone_log2": -103.16297322782025,
+   "zone_units_2^-110": 114.32735066107817,
+   "new_round_log2": -128.0
+  }
+ },
+ "serial_block": {
+  "B4": {
+   "low_s": 0.5331616316347021,
+   "high_s": 0.5481616316347021,
+   "speedup": [
+    1.072676316739816,
+    1.1028550539114386
+   ],
+   "speedup_haircut": [
+    1.0557954257298026,
+    1.0784517275835117
+   ],
+   "notes": []
+  },
+  "B5": {
+   "low_s": 0.44419004839685416,
+   "high_s": 0.5302525483968542,
+   "speedup": [
+    1.1089055616568695,
+    1.3237577071394928
+   ],
+   "speedup_haircut": [
+    1.0829587117704267,
+    1.2357400283366446
+   ],
+   "notes": [
+    "GKR leaves 35,025,844 -> forest [33554432, 2097152]"
+   ]
+  },
+  "B4+B5": {
+   "low_s": 0.44539007202975567,
+   "high_s": 0.5241400720297557,
+   "speedup": [
+    1.12183752278841,
+    1.3201910795189813
+   ],
+   "speedup_haircut": [
+    1.0925524678252478,
+    1.2333139331947849
+   ],
+   "notes": [
+    "GKR leaves 24,736,692 -> forest [16777216, 8388608]"
+   ]
+  },
+  "today_s": 0.588
+ },
+ "gpu_stream": {
+  "B4": {
+   "gpu_low_s": 0.15163606415096526,
+   "gpu_high_s": 0.15313606415096526,
+   "speedup": [
+    1.0774731668520552,
+    1.0881316454885688
+   ]
+  },
+  "B5": {
+   "gpu_low_s": 0.15392934639340455,
+   "gpu_high_s": 0.19221365953051014,
+   "speedup": [
+    0.8584197418800483,
+    1.0719203573976184
+   ],
+   "break_even_gkr_efficiency_vs_today": 0.46664756377369804
+  },
+  "B4+B5": {
+   "gpu_low_s": 0.14477464137366594,
+   "gpu_high_s": 0.17329886241162282,
+   "speedup": [
+    0.9521124241894261,
+    1.1397023569489082
+   ],
+   "break_even_gkr_efficiency_vs_today": 0.33089079138052063,
+   "break_even_gkr_efficiency_vs_B4": 0.48182979157734324
+  }
+ },
+ "receipt": {
+  "B4": {
+   "per_block_MB": 22.466976,
+   "delta_MB": -0.833024,
+   "per_request_delta_MB_32_blocks": -26.656768
+  },
+  "B5": {
+   "per_block_MB": 15.373584,
+   "delta_MB": -7.926416,
+   "per_request_delta_MB_32_blocks": -253.645312
+  },
+  "B4+B5": {
+   "per_block_MB": 16.097296,
+   "delta_MB": -7.202704,
+   "per_request_delta_MB_32_blocks": -230.486528
+  }
+ },
+ "gkr_leaves": {
+  "B5": 35025844,
+  "B5_forest": [
+   33554432,
+   2097152
+  ],
+  "B4+B5": 24736692,
+  "B4+B5_forest": [
+   16777216,
+   8388608
+  ]
+ }
+}
