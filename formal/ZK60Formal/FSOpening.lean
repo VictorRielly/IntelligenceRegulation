@@ -226,10 +226,10 @@ theorem opening_rbrWide (enc : (μ → E) →ₗ[E] (Fin (2 ^ h) → E)) (henc :
     (hca : CAOn Unit (LinearMap.range enc) e A) (clOf : X → OClaims Cl G κ μ E) (d₀ : D) (w0 w1 : ℕ) {nQ : ℕ}
     (chalLR : (Fin w0 → D) → (Cl → E) × (κ → E)) (chalJ : (Fin w1 → D) → (Fin nQ → Fin (2 ^ h)))
     (βLR βJ : ℝ≥0∞)
-    (hLR : ∀ S : (Cl → E) × (κ → E) → Prop, (PMF.uniformOfFintype (Fin w0 → D)).toOuterMeasure {b | S (chalLR b)}
-      ≤ (PMF.uniformOfFintype ((Cl → E) × (κ → E))).toOuterMeasure {y | S y} * βLR)
-    (hJ : ∀ S : (Fin nQ → Fin (2 ^ h)) → Prop, (PMF.uniformOfFintype (Fin w1 → D)).toOuterMeasure {b | S (chalJ b)}
-      ≤ (PMF.uniformOfFintype (Fin nQ → Fin (2 ^ h))).toOuterMeasure {J | S J} * βJ)
+    (hLR : ∀ Ev : (Cl → E) × (κ → E) → Prop, (PMF.uniformOfFintype (Fin w0 → D)).toOuterMeasure {b | Ev (chalLR b)}
+      ≤ (PMF.uniformOfFintype ((Cl → E) × (κ → E))).toOuterMeasure {y | Ev y} * βLR)
+    (hJ : ∀ Ev : (Fin nQ → Fin (2 ^ h)) → Prop, (PMF.uniformOfFintype (Fin w1 → D)).toOuterMeasure {b | Ev (chalJ b)}
+      ≤ (PMF.uniformOfFintype (Fin nQ → Fin (2 ^ h))).toOuterMeasure {J | Ev J} * βJ)
     (Ux : X → κ → Fin (2 ^ h) → E) :
     RbrWide 2 (opW w0 w1) (fun x => opSt enc e clOf d₀ w0 w1 chalLR chalJ (Ux x) x)
       (max ((A : ℝ≥0∞) / Fintype.card E * βLR)
@@ -648,10 +648,10 @@ theorem fs_opening_knowledge (M : MerkleEnc Q D S Col) (colVal : Col → κ → 
     (clOf : X → OClaims Cl G κ μ E) (rootOf : X → D) (d₀ : D) (m₀ : OMsg G μ E) {w0 w1 : ℕ} (h0 : 0 < w0)
     (h1 : 0 < w1) {nQ : ℕ} (chalLR : (Fin w0 → D) → (Cl → E) × (κ → E))
     (chalJ : (Fin w1 → D) → (Fin nQ → Fin (2 ^ h))) (βLR βJ : ℝ≥0∞)
-    (hLR : ∀ S : (Cl → E) × (κ → E) → Prop, (PMF.uniformOfFintype (Fin w0 → D)).toOuterMeasure {b | S (chalLR b)}
-      ≤ (PMF.uniformOfFintype ((Cl → E) × (κ → E))).toOuterMeasure {y | S y} * βLR)
-    (hJ : ∀ S : (Fin nQ → Fin (2 ^ h)) → Prop, (PMF.uniformOfFintype (Fin w1 → D)).toOuterMeasure {b | S (chalJ b)}
-      ≤ (PMF.uniformOfFintype (Fin nQ → Fin (2 ^ h))).toOuterMeasure {J | S J} * βJ)
+    (hLR : ∀ Ev : (Cl → E) × (κ → E) → Prop, (PMF.uniformOfFintype (Fin w0 → D)).toOuterMeasure {b | Ev (chalLR b)}
+      ≤ (PMF.uniformOfFintype ((Cl → E) × (κ → E))).toOuterMeasure {y | Ev y} * βLR)
+    (hJ : ∀ Ev : (Fin nQ → Fin (2 ^ h)) → Prop, (PMF.uniformOfFintype (Fin w1 → D)).toOuterMeasure {b | Ev (chalJ b)}
+      ≤ (PMF.uniformOfFintype (Fin nQ → Fin (2 ^ h))).toOuterMeasure {J | Ev J} * βJ)
     (q : ℕ) (Pv : OC Q D (X × List (OMsg G μ E) × (Fin nQ → MerkleOpening D S Col))) (hPv : Pv.Bounded q) :
     prH (fun H => opAccepts M colVal enc clOf rootOf d₀ m₀ h0 h1 chalLR chalJ C H (Pv.run H).1 (Pv.run H).2.1
           (Pv.run H).2.2
