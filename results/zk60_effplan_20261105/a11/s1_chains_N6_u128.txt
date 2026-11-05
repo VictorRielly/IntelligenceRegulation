@@ -1,0 +1,9 @@
+# 2430 self samples with leaf ~ u128_div_rem|__umodti3 (role any)
+   1675  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem <- __umodti3 <- rayon::iter::plumbing::bridge_producer_consumer::helper <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+    458  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem <- __umodti3 <- rayon::iter::plumbing::bridge_producer_consumer::helper <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core..job..Job$GT$::execu
+    110  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem <- __umodti3 <- core::ops::function::impls::_$LT$impl$u20$core..ops..function..FnMut$LT$A$GT$$u20$for$u20$ <- rayon::iter::plumbing::bridge_producer_consumer::helper
+     61  __umodti3 <- rayon::iter::plumbing::bridge_producer_consumer::helper <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper
+     32  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem <- __umodti3 <- hashline::private_block::boundary::prepare <- hashline::private_block::run::fork::prove_forks_inner
+     28  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem <- __umodti3 <- hashline::private_block::argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ <- hashline::private_block::argument::run_slot
+     15  __umodti3 <- rayon::iter::plumbing::bridge_producer_consumer::helper <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core..job..Job$GT$::execu <- rayon_core::registry::WorkerThread::wait_until_cold
+      9  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem <- __umodti3 <- hashline::zk::mask_commit_tagged <- hashline::private_block::protocol::prove_core

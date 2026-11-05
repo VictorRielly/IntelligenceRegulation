@@ -1,0 +1,52 @@
+2026-11-05T14:20:47Z start
+2026-11-05T14:20:47Z build rc=0
+2026-11-05T14:21:00Z no-feature cargo check --tests rc=0
+2026-11-05T14:25:10Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on
+    private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified
+    private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system
+    private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 918 passed; 8 failed; 99 ignored; 0 measured; 0 filtered out; finished in 250.23s
+2026-11-05T14:25:10Z zkp-core field tests rc=0
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 74 filtered out; finished in 0.00s
+2026-11-05T14:25:13Z a11 CPU pool byte test rc=0
+test private_block::w16r2_tests::a11_w16r2_rung_golden_inside_small_rayon_pools_and_in_every_host_matrix_mode ... A11-POOLS W16R2_RUNG_H24: 
+A11-POOLS W16R2_RUNG_H24: rayon pool Some(3), host matrices pool: 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0
+A11-POOLS W16R2_RUNG_H24: rayon pool None, host matrices parallel-zeroed: 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0
+2026-11-05T14:25:15Z a11 Metal pool byte test rc=0
+test private_block::w16r2_tests::a11_w16r2_rung_digests_in_per_fork_pools_on_the_device ... A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, eac
+A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, each in its own pool of 2: ["96e4f0b6", "96e4f0b6", "96e4f0b6"] (device sumcheck rounds 0.1002 
+A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, each in its own pool of 6: ["96e4f0b6", "96e4f0b6", "96e4f0b6"] (device sumcheck rounds 0.1026 
+2026-11-05T14:25:17Z a7 queue byte test rc=0
+test private_block::w16r2_tests::a7_w16r2_rung_digests_on_six_threads_at_one_and_at_six_queues ... A7-QUEUES W16R2_RUNG_H24 queues shared: six concurrent seeded proofs in 0.41 s (device sumcheck rounds 0.2000 s); digests
+A7-QUEUES W16R2_RUNG_H24 queues thread: six concurrent seeded proofs in 0.37 s (device sumcheck rounds 0.1705 s); digests ["96e4f0b6", "96e4f0b6", "96e4f0b6", "96e4f0b6", "96e4f0b6", "96e4f0b6"]
+2026-11-05T14:25:18Z w16r2 rung golden rc=0
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0 metal 96e4f0b6f34f78762df36c5fc
+2026-11-05T14:25:44Z trained digests rc=0
+2026-11-05T14:25:44Z digest 5a6193d3 present
+2026-11-05T14:25:44Z digest f590b01f present
+2026-11-05T14:25:44Z digest 79f987ef present
+2026-11-05T14:25:44Z digest a8258241 present
+2026-11-05T14:25:44Z digest 0e88d84f present
+2026-11-05T14:25:44Z digest 90003b76 present
+2026-11-05T14:27:36Z d55 final default rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 3.620 s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.57 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 10.498 s = 12.19 proved tok/s; receipt 818728480 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.31 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 4.608 s = 27.77 proved tok/s; 6 workers; preflight 0.140 s, commit 0.218 s, forks 4.172 s, join 0.079 s; fork prove_core min 0.399 median 0.697 max 0.989 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 8.581 s = 14.92 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.922 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 1 (serial first): wall 10.519 s = 12.17 proved tok/s; receipt 818728480 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 1 (serial first): wall 4.554 s = 28.11 proved tok/s; 6 workers; preflight 0.095 s, commit 0.197 s, forks 4.187 s, join 0.075 s; fork prove_core min 0.492 median 0.727 max 0.863 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 8.358 s = 15.31 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.951 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 25.019 s; amortized 20.46 proved tok/s (all witness work on the clock); steady state 23.92 tok/s (completions 8.97, 14.44, 20.06, 25.02); per-request latency 8.97, 10.40, 10.46, 9.87
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 9.6 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.498 s = 12.19 tok/s | mean 10.508 s = 12.18 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.554 s = 28.11 tok/s | mean 4.581 s = 27.94 tok/s | 2.31x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 8.358 s = 15.31 tok/s | mean 8.470 s = 15.11 tok/s
+2026-11-05T14:27:36Z all done

@@ -1910,6 +1910,25 @@ fn d60_close_f5_resident_bytes_of_one_public_block() {
     }
 }
 
+/// **[A11] the fork pools' size rule.** By default each fork worker of a run on
+/// `w > 1` workers gets its own pool of ceil(cores / w) threads, and a run on one
+/// worker keeps the global pool; an explicit size wins, and 0 is the global pool.
+#[test]
+fn a11_the_fork_pool_size_rule() {
+    let cores = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1);
+    set_fork_pool_auto_for_test();
+    assert_eq!(fork_pool_threads(1), 0, "one worker keeps the global pool");
+    for w in [2usize, 3, 6, 8] {
+        assert_eq!(fork_pool_threads(w), cores.div_ceil(w), "the default at {w} workers");
+    }
+    set_fork_pool_for_test(Some(0));
+    assert_eq!(fork_pool_threads(6), 0);
+    set_fork_pool_for_test(Some(5));
+    assert_eq!(fork_pool_threads(6), 5);
+    assert_eq!(fork_pools(3).unwrap().iter().filter(|p| p.as_ref().is_some_and(|p| p.current_num_threads() == 5)).count(), 3);
+    set_fork_pool_for_test(None);
+}
+
 // ------------------------------------------------------------------ the A/B
 
 fn env_or<T: std::str::FromStr>(name: &str, default: T) -> T {
@@ -1919,11 +1938,40 @@ fn env_or<T: std::str::FromStr>(name: &str, default: T) -> T {
 /// A7: this process's user + system CPU seconds so far (`getrusage(RUSAGE_SELF)`;
 /// NaN if the call fails)
 fn cpu_seconds() -> f64 {
+    let u = usage_now();
+    u.user + u.sys
+}
+
+/// A11: what `getrusage(RUSAGE_SELF)` says of this process so far: user and
+/// system CPU seconds, minor and major page faults, voluntary and involuntary
+/// context switches (NaN / 0 if the call fails)
+#[derive(Clone, Copy, Debug, Default)]
+struct Usage {
+    user: f64,
+    sys: f64,
+    minflt: i64,
+    majflt: i64,
+    nvcsw: i64,
+    nivcsw: i64,
+}
+
+impl Usage {
+    fn since(self, before: Usage) -> Usage {
+        Usage { user: self.user - before.user, sys: self.sys - before.sys, minflt: self.minflt - before.minflt, majflt: self.majflt - before.majflt, nvcsw: self.nvcsw - before.nvcsw, nivcsw: self.nivcsw - before.nivcsw }
+    }
+}
+
+fn usage_now() -> Usage {
+    // `tv_usec` is 32-bit on macOS (then 4 bytes of padding) and the low half of a
+    // 64-bit word on little-endian Linux
     #[repr(C)]
     struct Timeval {
         sec: i64,
         usec: i32,
     }
+    // `struct rusage` on 64-bit macOS and Linux: two timevals, then fourteen longs
+    // (maxrss, ixrss, idrss, isrss, minflt, majflt, nswap, inblock, oublock,
+    // msgsnd, msgrcv, nsignals, nvcsw, nivcsw)
     #[repr(C)]
     struct Rusage {
         utime: Timeval,
@@ -1936,9 +1984,57 @@ fn cpu_seconds() -> f64 {
     let mut r = Rusage { utime: Timeval { sec: 0, usec: 0 }, stime: Timeval { sec: 0, usec: 0 }, rest: [0; 14] };
     // SAFETY: RUSAGE_SELF (0) fills the caller's struct, whose layout is the C one
     if unsafe { getrusage(0, &mut r) } != 0 {
-        return f64::NAN;
+        return Usage { user: f64::NAN, sys: f64::NAN, ..Usage::default() };
     }
-    r.utime.sec as f64 + r.utime.usec as f64 * 1e-6 + r.stime.sec as f64 + r.stime.usec as f64 * 1e-6
+    Usage {
+        user: r.utime.sec as f64 + r.utime.usec as f64 * 1e-6,
+        sys: r.stime.sec as f64 + r.stime.usec as f64 * 1e-6,
+        minflt: r.rest[4],
+        majflt: r.rest[5],
+        nvcsw: r.rest[12],
+        nivcsw: r.rest[13],
+    }
+}
+
+/// A11: one fork call's diagnostic lines: the process's usage over the call,
+/// the fork workers' own thread CPU against their `prove_core` walls, and,
+/// when the phase clock was on, every phase summed over the forks
+fn a11_report(name: &str, l: usize, n: usize, arm: &str, wall: f64, u: Usage, st: &ForkStats) {
+    let core: f64 = st.fork_core_s.iter().sum();
+    let tcpu: f64 = st.fork_thread_cpu_s.iter().sum();
+    eprintln!(
+        "D55-AB A11 USAGE {name} L{l} forks N{n} [{arm}]: wall {wall:.3} s, forks {:.3} s | process user {:.1} s + sys {:.1} s = {:.1} cores | minor faults {} ({:.0}/s), major {} | csw voluntary {}, involuntary {} | fork workers: prove_core {core:.2} s summed, their own thread CPU {tcpu:.2} s ({:.0}%)",
+        st.forks_s,
+        u.user,
+        u.sys,
+        (u.user + u.sys) / wall,
+        u.minflt,
+        u.minflt as f64 / wall,
+        u.majflt,
+        u.nvcsw,
+        u.nivcsw,
+        if core > 0.0 { 100.0 * tcpu / core } else { 0.0 }
+    );
+    if st.fork_phases.iter().all(|p| p.is_empty()) {
+        return;
+    }
+    let mut order: Vec<String> = Vec::new();
+    let mut sum: std::collections::HashMap<String, f64> = std::collections::HashMap::new();
+    for rows in &st.fork_phases {
+        for (label, s) in rows {
+            if !sum.contains_key(label) {
+                order.push(label.clone());
+            }
+            *sum.entry(label.clone()).or_insert(0.0) += s;
+        }
+    }
+    let total: f64 = sum.values().sum();
+    let blocks = st.fork_phases.len().max(1) as f64;
+    for label in &order {
+        let s = sum[label];
+        eprintln!("D55-AB A11 PHASE N{n} [{arm}] | {label:<64} | {s:>8.3} s summed over {blocks} forks | {:>8.2} ms per block | {:>5.1}%", 1e3 * s / blocks, 100.0 * s / total.max(1e-12));
+    }
+    eprintln!("D55-AB A11 PHASE N{n} [{arm}] | {:<64} | {total:>8.3} s summed over {blocks} forks | {:>8.2} ms per block (prove_core {:.2} ms)", "ALL PHASES", 1e3 * total / blocks, 1e3 * core / blocks);
 }
 
 /// A7: one arm of the in-process GPU-policy A/B (`HL_D55_GPU_AB`), from `+`-joined
@@ -1951,22 +2047,48 @@ struct GpuArm {
     per_thread: Option<bool>,
     wait: Option<u64>,
     devfold: bool,
+    /// A11: `phases` turns the phase clock on in every fork (diagnostic; no byte changes)
+    phases: bool,
+    /// A11: `fp<t>`: each fork worker's own rayon pool of `t` threads; `fpauto`:
+    /// the default rule (ceil(cores / workers)); `global`: the one global pool;
+    /// unnamed: as the environment says
+    fork_pool: Option<usize>,
 }
 
 fn gpu_arm(spec: &str) -> Option<GpuArm> {
-    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false };
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None };
     for w in spec.split('+').map(str::trim) {
+        if let Some(t) = w.strip_prefix("fp").and_then(|t| t.parse::<usize>().ok()) {
+            a.fork_pool = Some(t);
+            continue;
+        }
         match w {
+            "global" => a.fork_pool = Some(0),
+            "fpauto" => a.fork_pool = Some(usize::MAX),
             "shared" => a.per_thread = Some(false),
             "thread" => a.per_thread = Some(true),
             "spin" => a.wait = None,
             "block" => a.wait = Some(0),
             "hostfold" => a.devfold = false,
             "devfold" => a.devfold = true,
+            "phases" => a.phases = true,
             _ => a.wait = Some(w.strip_prefix("spin")?.parse().ok()?),
         }
     }
     Some(a)
+}
+
+thread_local! {
+    /// A11: the label of the A/B arm the harness thread is running (for the A11 lines)
+    static A11_ARM: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+}
+
+fn a11_arm_label() -> String {
+    A11_ARM.with(|a| a.borrow().clone())
+}
+
+fn a11_set_arm(label: &str) {
+    A11_ARM.with(|a| *a.borrow_mut() = label.to_string());
 }
 
 /// **THE D55 A/B ON ONE REQUEST** (`#[ignore]`d; run guarded, alone): a W16
@@ -2145,12 +2267,14 @@ fn d55_ab_one_request_serial_against_forks() {
         let (st, owners) = statement(ctx);
         let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
         let h0 = tl_start();
-        let cpu0 = cpu_seconds();
+        let u0 = usage_now();
         let t = Instant::now();
         let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves");
         let wall = t.elapsed().as_secs_f64();
-        let cpu = cpu_seconds() - cpu0;
+        let u = usage_now().since(u0);
+        let cpu = u.user + u.sys;
         eprintln!("D55-AB A7 CPU {name} L{l} forks N{n}: {cpu:.1} CPU-seconds (user + system, the whole process) over the {wall:.3} s call = {:.1} cores busy on average", cpu / wall);
+        a11_report(&name, l, n, &a11_arm_label(), wall, u, &stats);
         tl_report(&format!("forks N{n}"), h0, wall, Some((stats.preflight_s + stats.commit_s, stats.forks_s)));
         if verify {
             let tv = Instant::now();
@@ -2366,13 +2490,29 @@ fn d55_ab_one_request_serial_against_forks() {
         queue_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("forks N={n} {}", a.label), Vec::new()))).collect();
         ab_sealed_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("forks N={n} SEALED {}", a.label), Vec::new()))).collect();
         ab_pipe_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("PIPE {ab_pipe} N={n} {}", a.label), Vec::new()))).collect();
+        // A11: `HL_D55_AB_ALTERNATE=1` runs the arms in reverse order in every odd
+        // pass, so one process gives paired changes in both arm orders (the second
+        // arm of a pass ran about 4.5% faster whichever it was, A7)
+        let alternate: bool = env_or("HL_D55_AB_ALTERNATE", 0usize) == 1;
         for p in 0..ab_passes {
-            for (ai, a) in gpu_ab.iter().enumerate() {
+            let order: Vec<usize> = if alternate && p % 2 == 1 { (0..gpu_ab.len()).rev().collect() } else { (0..gpu_ab.len()).collect() };
+            for ai in order {
+                let a = &gpu_ab[ai];
                 crate::gpu::metal_set_queues_for_test(a.per_thread.unwrap_or(own_q));
                 crate::gpu::metal_set_wait_for_test(a.wait);
                 crate::gpu::metal_set_device_fold_for_test(Some(a.devfold));
+                a11_set_arm(&a.label);
+                if a.fork_pool == Some(usize::MAX) {
+                    set_fork_pool_auto_for_test();
+                } else {
+                    set_fork_pool_for_test(a.fork_pool);
+                }
                 for (i, &n) in workers.iter().enumerate() {
+                    // A11: the phase clock in every fork of this arm's proof-only call
+                    // (the workers inherit this thread's switch, D55 review F5)
+                    crate::private_block::timing::force(if a.phases { Some(true) } else { None });
                     let (wall, bytes, st) = forked(ctx, n, p == 0);
+                    crate::private_block::timing::force(None);
                     ctx = ctx.wrapping_add(1);
                     eprintln!(
                         "D55-AB GPU-AB {name} L{l} T{} forks N{n} [{}] pass {p}: wall {wall:.3} s = {:.2} proved tok/s; preflight {:.3} s, commit {:.3} s, forks {:.3} s, join {:.3} s; receipt {bytes} B",
@@ -2419,9 +2559,55 @@ fn d55_ab_one_request_serial_against_forks() {
         crate::gpu::metal_set_queues_for_test(own_q);
         crate::gpu::metal_set_wait_for_test(own_w);
         crate::gpu::metal_set_device_fold_for_test(None);
+        a11_set_arm("");
+        set_fork_pool_for_test(None);
     }
     #[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
     let _ = (&gpu_ab, ab_passes, ab_sealed, ab_pipe);
+    // A11: `HL_A11_SAMPLE=K`: at each worker count, K proof-only fork calls back to
+    // back, on witness sets built before the first, between two handshakes with an
+    // outside sampler (`/usr/bin/sample`): the harness prints `A11-SAMPLE READY
+    // N<n> pid <pid>`, waits for the file `$HL_A11_SAMPLE_DIR/go.N<n>`, runs the K
+    // calls, prints `A11-SAMPLE DONE N<n>` and waits for `next.N<n>`. These calls are
+    // not verified (every other arm verifies its first pass); their receipts are
+    // dropped after the window.
+    let sample_k: usize = env_or("HL_A11_SAMPLE", 0usize);
+    if sample_k > 0 {
+        let dir = PathBuf::from(std::env::var("HL_A11_SAMPLE_DIR").expect("HL_A11_SAMPLE_DIR names the handshake directory"));
+        let wait_for = |f: &std::path::Path, secs: u64| {
+            let t = Instant::now();
+            while !f.exists() {
+                assert!(t.elapsed().as_secs() < secs, "A11-SAMPLE: no {} after {secs} s", f.display());
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+        };
+        for &n in &workers {
+            let mut sets = Vec::with_capacity(sample_k);
+            for _ in 0..sample_k {
+                let src = witnesses();
+                let (st, owners) = statement(ctx);
+                ctx = ctx.wrapping_add(1);
+                sets.push((src, st, owners));
+            }
+            eprintln!("A11-SAMPLE READY N{n} pid {}", std::process::id());
+            wait_for(&dir.join(format!("go.N{n}")), 600);
+            let t = Instant::now();
+            let mut keep = Vec::with_capacity(sample_k);
+            for (i, (mut src, st, owners)) in sets.into_iter().enumerate() {
+                let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+                let u0 = usage_now();
+                let t1 = Instant::now();
+                let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves (A11 sampling window)");
+                let wall = t1.elapsed().as_secs_f64();
+                a11_report(&name, l, n, "sample", wall, usage_now().since(u0), &stats);
+                eprintln!("A11-SAMPLE N{n} call {i}: started {:.3} s into the window, wall {wall:.3} s, forks {:.3} s", t.elapsed().as_secs_f64() - wall, stats.forks_s);
+                keep.push(rc);
+            }
+            eprintln!("A11-SAMPLE DONE N{n} after {:.3} s", t.elapsed().as_secs_f64());
+            wait_for(&dir.join(format!("next.N{n}")), 600);
+            drop(keep);
+        }
+    }
     // D64 / H124d: the stream, once, after the warm passes
     if pipe > 0 {
         for &n in &workers {

@@ -1,0 +1,297 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:162:12
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:165:9
+    |
+165 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:345:9
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:345:33
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:346:25
+    |
+346 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:350:9
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:350:39
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1921:4
+     |
+1921 | fn cpu_seconds() -> f64 {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 28 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.03s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-77da3cdc40742c99)
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 3.632 s
+D55-AB W16R2_8B_T128_H24 L32 T128: setup 4.5 s (one witness 0.30 GB; 32 alive per call)
+D55-AB W16R2_8B_T128_H24 L32 serial cold (kernel compiles): wall 10.698 s = 11.96 proved tok/s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.68 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 10.828 s = 11.82 proved tok/s; receipt 818728480 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 110.2 CPU-seconds (user + system, the whole process) over the 5.504 s call = 20.0 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 5.504 s, forks 5.139 s | process user 68.6 s + sys 41.6 s = 20.0 cores | minor faults 1466935 (266534/s), major 0 | csw voluntary 0, involuntary 798549 | fork workers: prove_core 28.82 s summed, their own thread CPU 12.89 s (45%) | host pool so far: 180 hits, 12 misses
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.80 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 5.504 s = 23.26 proved tok/s; 6 workers; preflight 0.080 s, commit 0.203 s, forks 5.139 s, join 0.082 s; fork prove_core min 0.488 median 0.863 max 1.297 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 93.0 CPU-seconds (user + system, the whole process) over the 4.954 s call = 18.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.954 s, forks 4.598 s | process user 69.2 s + sys 23.9 s = 18.8 cores | minor faults 1157118 (233559/s), major 0 | csw voluntary 0, involuntary 824028 | fork workers: prove_core 26.04 s summed, their own thread CPU 13.65 s (52%) | host pool so far: 180 hits, 12 misses
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.37 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 0: wall 4.954 s = 25.84 proved tok/s; preflight 0.080 s, commit 0.198 s, forks 4.598 s, join 0.078 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 92.5 CPU-seconds (user + system, the whole process) over the 4.889 s call = 18.9 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.889 s, forks 4.532 s | process user 69.9 s + sys 22.7 s = 18.9 cores | minor faults 549291 (112343/s), major 0 | csw voluntary 0, involuntary 844788 | fork workers: prove_core 25.70 s summed, their own thread CPU 13.23 s (52%) | host pool so far: 244 hits, 12 misses
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.36 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 0: wall 4.889 s = 26.18 proved tok/s; preflight 0.083 s, commit 0.195 s, forks 4.532 s, join 0.080 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 91.2 CPU-seconds (user + system, the whole process) over the 4.854 s call = 18.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.854 s, forks 4.505 s | process user 69.2 s + sys 22.0 s = 18.8 cores | minor faults 640159 (131891/s), major 0 | csw voluntary 0, involuntary 815617 | fork workers: prove_core 25.49 s summed, their own thread CPU 12.80 s (50%) | host pool so far: 308 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 1: wall 4.854 s = 26.37 proved tok/s; preflight 0.075 s, commit 0.197 s, forks 4.505 s, join 0.077 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 92.0 CPU-seconds (user + system, the whole process) over the 4.896 s call = 18.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.896 s, forks 4.532 s | process user 68.5 s + sys 23.4 s = 18.8 cores | minor faults 1101686 (225029/s), major 0 | csw voluntary 0, involuntary 859192 | fork workers: prove_core 26.11 s summed, their own thread CPU 13.26 s (51%) | host pool so far: 308 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 1: wall 4.896 s = 26.15 proved tok/s; preflight 0.081 s, commit 0.203 s, forks 4.532 s, join 0.079 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 92.8 CPU-seconds (user + system, the whole process) over the 4.898 s call = 19.0 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.898 s, forks 4.525 s | process user 69.3 s + sys 23.5 s = 19.0 cores | minor faults 1159554 (236761/s), major 0 | csw voluntary 0, involuntary 851091 | fork workers: prove_core 25.62 s summed, their own thread CPU 13.52 s (53%) | host pool so far: 308 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 2: wall 4.898 s = 26.14 proved tok/s; preflight 0.096 s, commit 0.194 s, forks 4.525 s, join 0.083 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.5 CPU-seconds (user + system, the whole process) over the 4.900 s call = 18.5 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.900 s, forks 4.549 s | process user 69.5 s + sys 21.0 s = 18.5 cores | minor faults 644106 (131439/s), major 0 | csw voluntary 0, involuntary 770040 | fork workers: prove_core 25.53 s summed, their own thread CPU 12.87 s (50%) | host pool so far: 372 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 2: wall 4.900 s = 26.12 proved tok/s; preflight 0.081 s, commit 0.195 s, forks 4.549 s, join 0.075 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 89.9 CPU-seconds (user + system, the whole process) over the 5.302 s call = 16.9 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 5.302 s, forks 4.946 s | process user 69.2 s + sys 20.7 s = 16.9 cores | minor faults 643262 (121319/s), major 0 | csw voluntary 0, involuntary 825798 | fork workers: prove_core 27.44 s summed, their own thread CPU 13.43 s (49%) | host pool so far: 436 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 3: wall 5.302 s = 24.14 proved tok/s; preflight 0.079 s, commit 0.197 s, forks 4.946 s, join 0.080 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 92.2 CPU-seconds (user + system, the whole process) over the 4.943 s call = 18.6 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.943 s, forks 4.565 s | process user 68.9 s + sys 23.3 s = 18.6 cores | minor faults 1310333 (265103/s), major 0 | csw voluntary 0, involuntary 837241 | fork workers: prove_core 25.54 s summed, their own thread CPU 13.88 s (54%) | host pool so far: 436 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 3: wall 4.943 s = 25.90 proved tok/s; preflight 0.096 s, commit 0.193 s, forks 4.565 s, join 0.089 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 91.7 CPU-seconds (user + system, the whole process) over the 4.943 s call = 18.6 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.943 s, forks 4.591 s | process user 68.9 s + sys 22.8 s = 18.6 cores | minor faults 1190114 (240746/s), major 0 | csw voluntary 0, involuntary 803432 | fork workers: prove_core 25.83 s summed, their own thread CPU 13.47 s (52%) | host pool so far: 436 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 4: wall 4.943 s = 25.89 proved tok/s; preflight 0.078 s, commit 0.192 s, forks 4.591 s, join 0.083 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.4 CPU-seconds (user + system, the whole process) over the 5.047 s call = 17.9 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 5.047 s, forks 4.701 s | process user 69.6 s + sys 20.8 s = 17.9 cores | minor faults 617809 (122420/s), major 0 | csw voluntary 0, involuntary 780698 | fork workers: prove_core 26.04 s summed, their own thread CPU 13.47 s (52%) | host pool so far: 500 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 4: wall 5.047 s = 25.36 proved tok/s; preflight 0.080 s, commit 0.187 s, forks 4.701 s, join 0.079 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 91.8 CPU-seconds (user + system, the whole process) over the 4.932 s call = 18.6 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.932 s, forks 4.580 s | process user 69.5 s + sys 22.3 s = 18.6 cores | minor faults 646527 (131083/s), major 0 | csw voluntary 0, involuntary 789260 | fork workers: prove_core 25.74 s summed, their own thread CPU 13.02 s (51%) | host pool so far: 564 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 5: wall 4.932 s = 25.95 proved tok/s; preflight 0.082 s, commit 0.193 s, forks 4.580 s, join 0.077 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 92.0 CPU-seconds (user + system, the whole process) over the 4.880 s call = 18.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.880 s, forks 4.508 s | process user 69.0 s + sys 23.0 s = 18.8 cores | minor faults 1082236 (221789/s), major 0 | csw voluntary 0, involuntary 823581 | fork workers: prove_core 25.35 s summed, their own thread CPU 13.33 s (53%) | host pool so far: 564 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 5: wall 4.880 s = 26.23 proved tok/s; preflight 0.097 s, commit 0.197 s, forks 4.508 s, join 0.077 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 91.9 CPU-seconds (user + system, the whole process) over the 4.918 s call = 18.7 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.918 s, forks 4.556 s | process user 69.0 s + sys 22.9 s = 18.7 cores | minor faults 1135547 (230889/s), major 0 | csw voluntary 0, involuntary 825861 | fork workers: prove_core 25.48 s summed, their own thread CPU 13.66 s (54%) | host pool so far: 564 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 6: wall 4.918 s = 26.03 proved tok/s; preflight 0.090 s, commit 0.198 s, forks 4.556 s, join 0.074 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.6 CPU-seconds (user + system, the whole process) over the 4.880 s call = 18.6 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.880 s, forks 4.521 s | process user 69.4 s + sys 21.1 s = 18.6 cores | minor faults 623898 (127859/s), major 0 | csw voluntary 0, involuntary 795462 | fork workers: prove_core 25.63 s summed, their own thread CPU 12.94 s (50%) | host pool so far: 628 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 6: wall 4.880 s = 26.23 proved tok/s; preflight 0.081 s, commit 0.200 s, forks 4.521 s, join 0.077 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 91.0 CPU-seconds (user + system, the whole process) over the 4.874 s call = 18.7 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.874 s, forks 4.512 s | process user 69.4 s + sys 21.6 s = 18.7 cores | minor faults 585548 (120127/s), major 0 | csw voluntary 0, involuntary 807169 | fork workers: prove_core 25.42 s summed, their own thread CPU 13.07 s (51%) | host pool so far: 692 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 7: wall 4.874 s = 26.26 proved tok/s; preflight 0.086 s, commit 0.199 s, forks 4.512 s, join 0.078 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 93.3 CPU-seconds (user + system, the whole process) over the 5.197 s call = 17.9 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 5.197 s, forks 4.819 s | process user 69.7 s + sys 23.5 s = 17.9 cores | minor faults 1215769 (233929/s), major 0 | csw voluntary 0, involuntary 799436 | fork workers: prove_core 26.70 s summed, their own thread CPU 14.36 s (54%) | host pool so far: 692 hits, 12 misses
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 7: wall 5.197 s = 24.63 proved tok/s; preflight 0.103 s, commit 0.197 s, forks 4.819 s, join 0.079 s; receipt 818728672 B
+D55-AB ORDER serial-first | serial (D12a)  | 1 passes | best 10.828 s = 11.82 tok/s | mean 10.828 s = 11.82 tok/s
+D55-AB ORDER serial-first | forks N=6      | 1 passes | best 5.504 s = 23.26 tok/s | mean 5.504 s = 23.26 tok/s
+D55-AB W16R2_8B_T128_H24 L32: the fork run's profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/2 (registered: false)
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.828 s = 11.82 tok/s | mean 10.828 s = 11.82 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.504 s = 23.26 tok/s | mean 5.504 s = 23.26 tok/s | 1.97x serial (best)
+D55-AB SUMMARY | forks N=6 shared+spin+nopool | A7 GPU-policy A/B, interleaved, 8 passes | best 4.880 s = 26.23 tok/s | mean 4.954 s = 25.84 tok/s
+D55-AB SUMMARY | forks N=6 shared+spin+pool | A7 GPU-policy A/B, interleaved, 8 passes | best 4.854 s = 26.37 tok/s | mean 4.960 s = 25.81 tok/s
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.005 s, device sumcheck rounds 137.329 s
+D55-AB A4 witness products on the device: 4511, 4499 written in place (HL_GPU_WITNESS=None, route None); summed activation buffer 0.024 s, pack 5.314 s, weights 0.172 s, output plane + encode 0.798 s, command buffer 16.811 s, of which on the GPU 8.276 s, scatter 0.008 s
+D55-AB W16R2_8B_T128_H24 L32: total 144.1 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1021 filtered out; finished in 144.08s
+

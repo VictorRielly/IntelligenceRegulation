@@ -421,6 +421,12 @@ pub(crate) struct ForkStats {
     /// with the calling thread's before it trusts a cheat)
     #[cfg(test)]
     pub fork_hooks: Vec<ForkHooks>,
+    /// A11 (test builds only): each fork worker's thread CPU seconds on its
+    /// `prove_core`, and its phase clock's rows when the clock is on, in block order
+    #[cfg(test)]
+    pub fork_thread_cpu_s: Vec<f64>,
+    #[cfg(test)]
+    pub fork_phases: Vec<Vec<(String, f64)>>,
     /// D55 review F4: how many generators this proof constructed (`L + 1`:
     /// the commit phase's and one per fork)
     pub generators: usize,
@@ -985,6 +991,99 @@ fn preflight(st: &RunStatement, blocks: &dyn ForkBlocks, check_digests: bool) ->
     st.expected.spec.validate()
 }
 
+// ---------------------------------------------- [A11] one rayon pool per fork worker
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A11;
+// `results/zk60_effplan_20261105/a11/README.md`.) With the one global pool, a
+// pool worker waiting in a join of fork A's parallel region steals and runs
+// whatever is queued, often another fork's task, and A's region cannot end until
+// that task does. Measured at N = 6 (W16R2 8B T128, macOS `sample`): 69% of the
+// pool's running samples were such nested jobs, up to 28 deep (41% at N = 1),
+// while the pool was about half asleep and each fork waited about 3.5x longer on
+// its parallel regions than alone; the pool's sleeping and waking was most of the
+// run's ~23 s of system CPU. Each fork worker gets its own pool; the fork's
+// `prove_core` runs on that pool (`install`), so its parallel regions are worked
+// by its own threads only.
+//
+// **Why no byte can move.** Which threads run a parallel region, and how many,
+// changes no word: every parallel iterator on the proving path is indexed or an
+// exact (field or integer) reduction, so its result does not depend on the pool
+// (zkp-core's encode and sumcheck tests check this at several thread counts, and
+// `w16r2_tests::a11_*` proves the seeded rung inside pools of 1 to 6 threads to
+// the golden digest). The transcript, the randomness and the command buffers are
+// each the fork's own, in the same order.
+//
+// **The default** ([`DEFAULT_FORK_POOL`]): ceil(cores / workers) threads per fork
+// worker. In-process A/Bs at N = 6, both arm orders: the proof-only fork run
+// -6.9% and -7.1% wall against the global pool (12 of 12 pairs faster), system
+// CPU -80%, user CPU -21%; 6 threads was the best size measured (4, 5, 6, 8, 12,
+// 24). `HL_D55_FORK_POOL=0` restores the global pool.
+
+/// `HL_D55_FORK_POOL`: unset or `auto`, the default ([`DEFAULT_FORK_POOL`]);
+/// `0`, the global pool (the pre-A11 path); `t`, each fork worker's own pool of
+/// `t` threads. As a test override: `usize::MAX` none, `AUTO` the default.
+static FORK_POOL_TEST: AtomicUsize = AtomicUsize::new(usize::MAX);
+const AUTO: usize = usize::MAX - 1;
+
+/// [A11] `HL_D55_FORK_POOL` unset: `true` gives each fork worker its own pool of
+/// ceil(cores / workers) threads (6 at N = 6 on the 32-core M3 Ultra), a run on
+/// one worker keeping the global pool; `false` keeps the global pool for all
+const DEFAULT_FORK_POOL: bool = true;
+
+/// the threads of each fork worker's own pool at `workers` workers (0: the global pool)
+fn fork_pool_threads(workers: usize) -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    let t = match FORK_POOL_TEST.load(Ordering::Relaxed) {
+        usize::MAX => *ENV.get_or_init(|| match std::env::var("HL_D55_FORK_POOL").as_deref() {
+            Err(_) | Ok("auto") | Ok("") => AUTO,
+            Ok(v) => v.parse::<usize>().map(|t| t.min(1024)).unwrap_or(AUTO),
+        }),
+        t => t,
+    };
+    if t != AUTO {
+        return t;
+    }
+    if !DEFAULT_FORK_POOL || workers <= 1 {
+        return 0;
+    }
+    std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1).div_ceil(workers)
+}
+
+/// tests: each fork worker's own pool of `t` threads (`Some(0)`: the global
+/// pool; `None`: as the environment says). Changes no byte (see above).
+#[cfg(test)]
+pub(crate) fn set_fork_pool_for_test(threads: Option<usize>) {
+    FORK_POOL_TEST.store(threads.map(|t| t.min(1024)).unwrap_or(usize::MAX), Ordering::Relaxed);
+}
+
+/// tests: the default rule (ceil(cores / workers) threads per fork worker)
+#[cfg(test)]
+pub(crate) fn set_fork_pool_auto_for_test() {
+    FORK_POOL_TEST.store(AUTO, Ordering::Relaxed);
+}
+
+/// the fork workers' pools, made once per (worker index, thread count) and kept
+/// for the process (an idle rayon thread sleeps)
+fn fork_pools(workers: usize) -> Result<Vec<Option<std::sync::Arc<rayon::ThreadPool>>>, String> {
+    let t = fork_pool_threads(workers);
+    if t == 0 {
+        return Ok(vec![None; workers]);
+    }
+    static POOLS: Mutex<Vec<(usize, usize, std::sync::Arc<rayon::ThreadPool>)>> = Mutex::new(Vec::new());
+    let mut g = POOLS.lock().map_err(|_| "D55: the fork pools' lock is poisoned".to_string())?;
+    (0..workers)
+        .map(|w| {
+            if let Some((_, _, p)) = g.iter().find(|(gw, gt, _)| *gw == w && *gt == t) {
+                return Ok(Some(p.clone()));
+            }
+            let p = rayon::ThreadPoolBuilder::new().num_threads(t).thread_name(move |i| format!("hl-fork{w}-pool{i}")).build().map_err(|e| format!("D55: fork {w}'s pool of {t} threads: {e}"))?;
+            let p = std::sync::Arc::new(p);
+            g.push((w, t, p.clone()));
+            Ok(Some(p))
+        })
+        .collect()
+}
+
 /// what one fork's worker hands back
 struct ForkOut {
     k: usize,
@@ -1001,6 +1100,37 @@ struct ForkOut {
     /// the test switches this fork's worker held (F5)
     #[cfg(test)]
     hooks: ForkHooks,
+    /// A11 (test builds only): the CPU seconds the worker's own thread used on
+    /// this fork's `prove_core`, and its phase clock's rows (empty when off)
+    #[cfg(test)]
+    thread_cpu_s: f64,
+    #[cfg(test)]
+    phases: Vec<(String, f64)>,
+}
+
+/// A11 (test builds only): this thread's CPU seconds so far
+/// (`CLOCK_THREAD_CPUTIME_ID`; NaN if the call fails). Spinning on a command
+/// buffer counts; time blocked in a rayon join or a blocking wait does not.
+#[cfg(test)]
+pub(crate) fn thread_cpu_s() -> f64 {
+    #[repr(C)]
+    struct Timespec {
+        sec: i64,
+        nsec: i64,
+    }
+    extern "C" {
+        fn clock_gettime(clk: i32, tp: *mut Timespec) -> i32;
+    }
+    #[cfg(target_os = "macos")]
+    const CLOCK_THREAD_CPUTIME_ID: i32 = 16;
+    #[cfg(not(target_os = "macos"))]
+    const CLOCK_THREAD_CPUTIME_ID: i32 = 3;
+    let mut t = Timespec { sec: 0, nsec: 0 };
+    // SAFETY: fills the caller's struct, whose layout is the C `timespec` on 64-bit targets
+    if unsafe { clock_gettime(CLOCK_THREAD_CPUTIME_ID, &mut t) } != 0 {
+        return f64::NAN;
+    }
+    t.sec as f64 + t.nsec as f64 * 1e-9
 }
 
 /// the shared, read-only inputs of the fork workers (no generator: each fork
@@ -1039,9 +1169,13 @@ impl ForkCtx<'_> {
         let blk = self.blocks.get(k)?;
         let mut ph = timing::Phases::start();
         let (mut phases, mut tick) = (Vec::new(), Instant::now());
+        #[cfg(test)]
+        let cpu0 = thread_cpu_s();
         let t = Instant::now();
         let core = protocol::prove_core(&ssh, &lay, blk, wit, [self.in_data[k], self.out_data[k]], self.ntt, &mut rng, &mut f, &mut ph, &mut phases, &mut tick)?;
         let core_s = t.elapsed().as_secs_f64();
+        #[cfg(test)]
+        let thread_cpu_s = thread_cpu_s() - cpu0;
         let end = (f.state(), f.counter());
         let end_tag = position_tag(&f);
         let frame = ForkFrame { a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open };
@@ -1056,13 +1190,18 @@ impl ForkCtx<'_> {
             core_s,
             #[cfg(test)]
             hooks,
+            #[cfg(test)]
+            thread_cpu_s,
+            #[cfg(test)]
+            phases: ph.rows_for_test(),
         })
     }
 }
 
 /// **THE D55 FORK-RUN PROVER** (D60: a registered, opt-in run profile):
 /// phase 1 on the calling thread, phase 2 on `workers` threads (one shared
-/// Metal context, as M10), phase 3 on the calling thread. The source is asked
+/// Metal context, as M10; [A11] each worker's forks on its own rayon pool by
+/// default), phase 3 on the calling thread. The source is asked
 /// for every boundary plane first, then for every witness in block order;
 /// at most `workers + 1` witnesses are alive at once.
 pub(crate) fn prove_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
@@ -1131,13 +1270,29 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
         let ctx = ForkCtx { fr, blocks, roots: &roots, in_data, out_data, ntt: &ntt, binding, cheat };
         let (tx, rx) = mpsc::sync_channel::<(usize, Witness)>(0);
         let rx = Mutex::new(rx);
+        // [A11] each worker's own rayon pool, or the global one (the default)
+        let pools = fork_pools(workers)?;
         let results: Vec<Result<ForkOut, String>> = std::thread::scope(|s| {
             let hs: Vec<_> = (0..workers)
-                .map(|_| {
-                    let (ctx, rx) = (&ctx, &rx);
+                .map(|w| {
+                    let (ctx, rx, pool) = (&ctx, &rx, pools[w].clone());
                     s.spawn(move || {
                         #[cfg(test)]
                         let _hooks = hooks.install();
+                        // [A11] the fork's proof on this worker's pool, when it has
+                        // one: `install` runs it on a pool thread (which then takes
+                        // this worker's test switches too) and every parallel region
+                        // inside it on that pool's threads only
+                        let prove = |k: usize, wit: Witness| -> Result<ForkOut, String> {
+                            match &pool {
+                                Some(p) => p.install(|| {
+                                    #[cfg(test)]
+                                    let _hooks = hooks.install();
+                                    ctx.prove_one(k, wit)
+                                }),
+                                None => ctx.prove_one(k, wit),
+                            }
+                        };
                         let mut mine = Vec::new();
                         loop {
                             let job = rx.lock().map_err(|_| "D55: the job queue's lock is poisoned".to_string()).and_then(|q| q.recv().map_err(|_| String::new()));
@@ -1150,7 +1305,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                                 // panicked). A release build has `panic =
                                 // "abort"`: there a panic ends the process
                                 // (F8 (a)). Both fail closed.
-                                Ok((k, wit)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ctx.prove_one(k, wit))) {
+                                Ok((k, wit)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| prove(k, wit))) {
                                     Ok(r) => r.map_err(|e| format!("D55: fork {k}: {e}")),
                                     Err(p) => Err(format!("D55: fork {k}: its worker panicked: {}", p.downcast_ref::<String>().map(String::as_str).or_else(|| p.downcast_ref::<&str>().copied()).unwrap_or("(no message)"))),
                                 }),
@@ -1210,6 +1365,8 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     #[cfg(test)]
     {
         stats.fork_hooks = outs.iter().map(|o| o.hooks).collect();
+        stats.fork_thread_cpu_s = outs.iter().map(|o| o.thread_cpu_s).collect();
+        stats.fork_phases = outs.iter_mut().map(|o| std::mem::take(&mut o.phases)).collect();
     }
     stats.generators += outs.len();
     stats.join_claim_bytes = outs.iter().map(|o| [claim_bytes(&o.claims[0]).len(), claim_bytes(&o.claims[1]).len()]).collect();

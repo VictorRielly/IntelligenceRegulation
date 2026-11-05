@@ -1,0 +1,231 @@
+# A11 sample summary: s1 N=6
+interval 2.0 ms; threads: fork 12, other 22, rayon 32
+
+## fork workers (12 threads): 14995 samples = 29.99 thread-s
+  pool-wait     8843 =   17.69 s   59.0%
+  gpu-wait      3652 =    7.30 s   24.4%
+  host          2500 =    5.00 s   16.7%
+
+### fork host samples by phase (first project frame under prove_core), top 30
+      822 =   1.64 s   32.9%  (outside prove_core)
+      619 =   1.24 s   24.8%  hashline::private_block::argument::argument
+      542 =   1.08 s   21.7%  zkp_core::pcs::open_zk
+       99 =   0.20 s    4.0%  hashline::private_block::protocol::inverses
+       97 =   0.19 s    3.9%  hashline::zk::mask_commit_tagged
+       73 =   0.15 s    2.9%  hashline::pcs::commit_zk_owned_tagged
+       70 =   0.14 s    2.8%  hashline::zk::mask_open
+       59 =   0.12 s    2.4%  hashline::private_block::range16::denominator_inverses
+       37 =   0.07 s    1.5%  hashline::private_block::accuracy_act::denominators
+       23 =   0.05 s    0.9%  hashline::private_block::protocol::exp_deltas
+       18 =   0.04 s    0.7%  zkp_core::rng::ZkRng::fill_fp
+       15 =   0.03 s    0.6%  hashline::private_block::protocol::check_opening
+        8 =   0.02 s    0.3%  hashline::private_block::BlockPublic::check_accuracy_for_shape
+        4 =   0.01 s    0.2%  hashline::private_block::protocol::write_h
+        3 =   0.01 s    0.1%  hashline::private_block::range16::table_column
+        3 =   0.01 s    0.1%  zkp_core::rng::ZkRng::next_u64
+        2 =   0.00 s    0.1%  hashline::private_block::protocol::u8_denominator_inverses
+        2 =   0.00 s    0.1%  hashline::private_block::accuracy_act::table
+        2 =   0.00 s    0.1%  hashline::private_block::protocol::w16_histograms
+        1 =   0.00 s    0.0%  hashline::private_block::protocol::lookup_values_at
+        1 =   0.00 s    0.0%  hashline::private_block::shape::Shape::check_constructed
+
+### fork host samples by deepest project frame, top 30
+      822 =   1.64 s   32.9%  hashline::private_block::protocol::prove_core
+      144 =   0.29 s    5.8%  zkp_core::mle::eq_table_msb
+      142 =   0.28 s    5.7%  zkp_core::pcs::fold_rows_host
+      139 =   0.28 s    5.6%  zkp_core::transcript::Transcript::absorb
+      122 =   0.24 s    4.9%  zkp_core::ntt::NttTables::transform
+      100 =   0.20 s    4.0%  zkp_core::field::batch_inverse2
+       77 =   0.15 s    3.1%  zkp_core::rng::ZkRng::next_u64
+       63 =   0.13 s    2.5%  hashline::private_block::argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+       63 =   0.13 s    2.5%  zkp_core::pcs::group_zclaims
+       62 =   0.12 s    2.5%  hashline::private_block::pad::closed_form_indicator
+       62 =   0.12 s    2.5%  hashline::private_block::argument::B::supp
+       59 =   0.12 s    2.4%  hashline::private_block::range16::denominator_inverses
+       45 =   0.09 s    1.8%  hashline::private_block::argument::rope_tables_at
+       41 =   0.08 s    1.6%  hashline::private_block::accuracy_act::group_column
+       38 =   0.08 s    1.5%  hashline::private_block::argument::define::_$u7b$$u7b$closure$u7d$$u7d$
+       37 =   0.07 s    1.5%  hashline::private_block::accuracy_groups::group_folds_for
+       37 =   0.07 s    1.5%  hashline::private_block::accuracy_act::denominators
+       32 =   0.06 s    1.3%  hashline::private_block::accuracy_tables::silu_table
+       25 =   0.05 s    1.0%  hashline::private_block::argument::causal_mask_at
+       23 =   0.05 s    0.9%  hashline::private_block::protocol::exp_deltas
+       21 =   0.04 s    0.8%  zkp_core::transcript::Transcript::absorb_fp2
+       19 =   0.04 s    0.8%  hashline::private_block::argument::accuracy::dzc_w16
+       18 =   0.04 s    0.7%  hashline::private_block::metal_slot::gen_kernel
+       17 =   0.03 s    0.7%  hashline::gpu::metal::TailedRounds::masked_prove
+       16 =   0.03 s    0.6%  hashline::gpu::metal::fold_rows_host
+       15 =   0.03 s    0.6%  zkp_core::pcs::open_zk
+       14 =   0.03 s    0.6%  hashline::private_block::argument::run_slot
+       14 =   0.03 s    0.6%  hashline::private_block::accuracy_aligned::derive_aligned_for
+       13 =   0.03 s    0.5%  zkp_core::transcript::Transcript::challenge_fp2_vec
+       12 =   0.02 s    0.5%  hashline::private_block::accuracy_public::AccuracyPublic::check_for_registry
+
+### fork host samples by leaf, top 30
+      512 =   1.02 s   20.5%  _$LT$T$u20$as$u20$alloc..vec..spec_from_elem..SpecFromElem$GT$::from_elem
+      240 =   0.48 s    9.6%  __bzero
+      144 =   0.29 s    5.8%  zkp_core::mle::eq_table_msb
+      142 =   0.28 s    5.7%  core::ops::function::impls::_$LT$impl$u20$core..ops..function..FnMut$LT$A$GT$$u20$for$u20$$RF$F$GT$::call_mut
+      130 =   0.26 s    5.2%  blake3_hash_many_neon
+      124 =   0.25 s    5.0%  _kernelrpc_mach_vm_deallocate_trap
+      122 =   0.24 s    4.9%  zkp_core::ntt::NttTables::transform
+      100 =   0.20 s    4.0%  zkp_core::field::batch_inverse2
+       68 =   0.14 s    2.7%  blake3::platform::Platform::compress_xof
+       62 =   0.12 s    2.5%  hashline::private_block::argument::B::supp
+       60 =   0.12 s    2.4%  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem
+       57 =   0.11 s    2.3%  _platform_memmove
+       57 =   0.11 s    2.3%  hashline::private_block::range16::denominator_inverses
+       56 =   0.11 s    2.2%  hashline::private_block::pad::closed_form_indicator
+       45 =   0.09 s    1.8%  zkp_core::pcs::group_zclaims
+       43 =   0.09 s    1.7%  hashline::private_block::argument::rope_tables_at
+       38 =   0.08 s    1.5%  hashline::private_block::argument::define::_$u7b$$u7b$closure$u7d$$u7d$
+       37 =   0.07 s    1.5%  hashline::private_block::accuracy_groups::group_folds_for
+       26 =   0.05 s    1.0%  blake3::portable::compress_in_place
+       25 =   0.05 s    1.0%  hashline::private_block::argument::causal_mask_at
+       23 =   0.05 s    0.9%  hashline::private_block::protocol::exp_deltas
+       20 =   0.04 s    0.8%  hashline::private_block::accuracy_act::group_column
+       19 =   0.04 s    0.8%  exp
+       19 =   0.04 s    0.8%  hashline::private_block::argument::accuracy::dzc_w16
+       19 =   0.04 s    0.8%  zkp_core::transcript::Transcript::absorb_fp2
+       13 =   0.03 s    0.5%  mach_absolute_time
+       13 =   0.03 s    0.5%  _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..spec_from_iter_nested..SpecFromIterNested$LT$T$C$I$GT$$GT$::from_iter
+       13 =   0.03 s    0.5%  hashline::private_block::accuracy_aligned::derive_aligned_for
+       12 =   0.02 s    0.5%  hashline::private_block::argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+       11 =   0.02 s    0.4%  _$LT$zkp_core..sumcheck..rounds..ClosureRounds$LT$F$GT$$u20$as$u20$zkp_core..sumcheck..rounds..SumcheckRounds$GT$::round::_$u7b$$u7b$closure$u7d$$u7d$
+
+### fork pool-wait samples by phase and by the frame that joined, top 30
+     3773 =   7.55 s  hashline::private_block::argument::argument
+     1635 =   3.27 s    via hashline::private_block::argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+      825 =   1.65 s  hashline::pcs::commit_zk_owned_tagged
+      808 =   1.62 s  hashline::private_block::BlockPublic::check_accuracy_for_shape
+      760 =   1.52 s  zkp_core::pcs::open_zk
+      709 =   1.42 s    via hashline::private_block::argument::priv_table_fill
+      597 =   1.19 s    via zkp_core::rng::ZkRng::fill_fp
+      588 =   1.18 s  hashline::private_block::protocol::lookup_values_at
+      588 =   1.18 s    via hashline::private_block::protocol::lookup_values_at
+      504 =   1.01 s    via hashline::private_block::weights_vanish_off_support
+      419 =   0.84 s    via hashline::gpu::metal::fold_rows_host_lazy
+      378 =   0.76 s    via zkp_core::mle::fold_cols_i8
+      374 =   0.75 s  hashline::private_block::protocol::w16_histograms
+      374 =   0.75 s    via hashline::private_block::protocol::w16_histograms
+      366 =   0.73 s  zkp_core::rng::ZkRng::fill_fp
+      351 =   0.70 s    via hashline::private_block::argument::build_tables_at
+      341 =   0.68 s    via hashline::gpu::metal::fold_rows_host
+      313 =   0.63 s    via hashline::gpu::metal::upload
+      312 =   0.62 s  hashline::private_block::protocol::write_planes
+      312 =   0.62 s    via hashline::private_block::protocol::write_planes
+      308 =   0.62 s    via hashline::private_block::argument::total_at
+      304 =   0.61 s    via hashline::private_block::BlockPublic::check_accuracy_for_shape
+      246 =   0.49 s    via hashline::private_block::accuracy_fold::fold
+      217 =   0.43 s  hashline::private_block::protocol::inverses
+      217 =   0.43 s    via hashline::private_block::protocol::inverses
+      174 =   0.35 s  (outside prove_core)
+      174 =   0.35 s    via hashline::private_block::protocol::prove_core
+      170 =   0.34 s    via zkp_core::merkle::MerkleTree::build_keyed
+      163 =   0.33 s  hashline::private_block::protocol::write_helpers_w16
+      163 =   0.33 s    via hashline::private_block::protocol::write_helpers_w16
+
+### fork gpu-wait samples by phase, top 30
+     2649 =   5.30 s  hashline::private_block::argument::argument
+      731 =   1.46 s  hashline::pcs::commit_zk_owned_tagged
+      272 =   0.54 s  zkp_core::pcs::open_zk
+
+## rayon workers (32 threads): 119200 samples = 238.40 thread-s
+  idle         60584 =  121.17 s   50.8%
+  busy         58589 =  117.18 s   49.2%
+  idle?           27 =    0.05 s    0.0%
+
+### rayon busy samples by region (outermost project frame), top 30
+    47072 =  94.14 s   80.3%  (no project frame)
+     3881 =   7.76 s    6.6%  hashline::private_block::argument::table_into
+     1315 =   2.63 s    2.2%  hashline::private_block::protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$
+     1164 =   2.33 s    2.0%  zkp_core::field::batch_inverse2
+     1154 =   2.31 s    2.0%  hashline::private_block::argument::eq_cube_split_into
+     1121 =   2.24 s    1.9%  hashline::private_block::BlockPublic::check_accuracy_for_shape
+     1015 =   2.03 s    1.7%  hashline::private_block::protocol::w16_histograms::_$u7b$$u7b$closure$u7d$$u7d$
+      867 =   1.73 s    1.5%  hashline::private_block::argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$
+      301 =   0.60 s    0.5%  hashline::private_block::argument::table_of_taking
+      290 =   0.58 s    0.5%  hashline::private_block::argument::mask_eval_eq::_$u7b$$u7b$closure$u7d$$u7d$
+      269 =   0.54 s    0.5%  hashline::private_block::argument::priv_table_at
+       84 =   0.17 s    0.1%  zkp_core::pcs::salt_leaf_keyed
+       38 =   0.08 s    0.1%  hashline::private_block::argument::define::_$u7b$$u7b$closure$u7d$$u7d$
+       15 =   0.03 s    0.0%  zkp_core::mle::eq_table_msb
+        3 =   0.01 s    0.0%  hashline::private_block::Axis::supported
+
+### rayon busy samples by deepest project frame, top 30
+    14210 =  28.42 s   24.3%  rayon::iter::plumbing::bridge_producer_consumer::helper
+     7915 =  15.83 s   13.5%  core::ops::function::impls::_$LT$impl$u20$core..ops..function..FnMut$LT$A$GT$$u20$for$u20$$RF$F$GT$::call_mut
+     6394 =  12.79 s   10.9%  __psynch_cvwait
+     4659 =   9.32 s    8.0%  swtch_pri
+     4203 =   8.41 s    7.2%  hashline::private_block::argument::priv_table_fill
+     3185 =   6.37 s    5.4%  __psynch_mutexwait
+     2281 =   4.56 s    3.9%  blake3::platform::Platform::compress_xof
+     2226 =   4.45 s    3.8%  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem
+     2209 =   4.42 s    3.8%  _platform_memmove
+     1316 =   2.63 s    2.2%  hashline::private_block::protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$
+     1171 =   2.34 s    2.0%  zkp_core::field::batch_inverse2
+     1034 =   2.07 s    1.8%  hashline::private_block::argument::eq_cube_split_into
+     1015 =   2.03 s    1.7%  hashline::private_block::protocol::w16_histograms::_$u7b$$u7b$closure$u7d$$u7d$
+      855 =   1.71 s    1.5%  __psynch_mutexdrop
+      821 =   1.64 s    1.4%  hashline::private_block::argument::define::_$u7b$$u7b$closure$u7d$$u7d$
+      594 =   1.19 s    1.0%  __psynch_cvsignal
+      554 =   1.11 s    0.9%  hashline::private_block::BlockPublic::check_accuracy_for_shape
+      525 =   1.05 s    0.9%  hashline::private_block::weights_vanish_off_support
+      355 =   0.71 s    0.6%  blake3::portable::compress_in_place
+      331 =   0.66 s    0.6%  rayon_core::registry::WorkerThread::wait_until_cold
+      304 =   0.61 s    0.5%  hashline::private_block::argument::mask_eval_eq::_$u7b$$u7b$closure$u7d$$u7d$
+      298 =   0.60 s    0.5%  crossbeam_deque::deque::Stealer$LT$T$GT$::steal
+      295 =   0.59 s    0.5%  crossbeam_epoch::default::with_handle
+      294 =   0.59 s    0.5%  __ulock_wait2
+      273 =   0.55 s    0.5%  hashline::private_block::argument::eq_cube_at
+      174 =   0.35 s    0.3%  rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+      129 =   0.26 s    0.2%  crossbeam_epoch::internal::Global::try_advance
+      113 =   0.23 s    0.2%  hashline::private_block::argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$
+       89 =   0.18 s    0.2%  _tlv_get_addr
+       86 =   0.17 s    0.1%  zkp_core::pcs::salt_leaf_keyed
+
+### rayon busy samples by leaf, top 30
+    18041 =  36.08 s   30.8%  rayon::iter::plumbing::bridge_producer_consumer::helper
+     8399 =  16.80 s   14.3%  core::ops::function::impls::_$LT$impl$u20$core..ops..function..FnMut$LT$A$GT$$u20$for$u20$$RF$F$GT$::call_mut
+     7147 =  14.29 s   12.2%  __psynch_cvwait
+     5195 =  10.39 s    8.9%  swtch_pri
+     3636 =   7.27 s    6.2%  __psynch_mutexwait
+     2304 =   4.61 s    3.9%  blake3::platform::Platform::compress_xof
+     2263 =   4.53 s    3.9%  _platform_memmove
+     2243 =   4.49 s    3.8%  _RNvNtNtCsdBDPDhOCgU4_17compiler_builtins3int19specialized_div_rem12u128_div_rem
+     1308 =   2.62 s    2.2%  hashline::private_block::protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$
+     1165 =   2.33 s    2.0%  zkp_core::field::batch_inverse2
+      965 =   1.93 s    1.6%  __psynch_mutexdrop
+      821 =   1.64 s    1.4%  hashline::private_block::argument::define::_$u7b$$u7b$closure$u7d$$u7d$
+      680 =   1.36 s    1.2%  __ulock_wait2
+      664 =   1.33 s    1.1%  __psynch_cvsignal
+      502 =   1.00 s    0.9%  madvise
+      366 =   0.73 s    0.6%  blake3::portable::compress_in_place
+      362 =   0.72 s    0.6%  rayon_core::registry::WorkerThread::wait_until_cold
+      342 =   0.68 s    0.6%  crossbeam_deque::deque::Stealer$LT$T$GT$::steal
+      324 =   0.65 s    0.6%  crossbeam_epoch::default::with_handle
+      304 =   0.61 s    0.5%  hashline::private_block::argument::mask_eval_eq::_$u7b$$u7b$closure$u7d$$u7d$
+      182 =   0.36 s    0.3%  rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+      146 =   0.29 s    0.2%  crossbeam_epoch::internal::Global::try_advance
+      109 =   0.22 s    0.2%  hashline::private_block::argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$
+       99 =   0.20 s    0.2%  _tlv_get_addr
+       85 =   0.17 s    0.1%  __umodti3
+       63 =   0.13 s    0.1%  __ulock_wake
+       61 =   0.12 s    0.1%  mach_absolute_time
+       52 =   0.10 s    0.1%  __bzero
+       48 =   0.10 s    0.1%  hashline::private_block::argument::priv_table_fill
+       40 =   0.08 s    0.1%  rayon_core::sleep::Sleep::wake_any_threads
+
+## other threads (22)
+     3725 Thread_11874737   DispatchQueue_1: com.apple.main-thread  (serial) | semaphore_wait_trap 3725
+     3725 Thread_11874755: private_block::run::fork::tests::d55_ab_one_request_s | semaphore_wait_trap 2400; __semwait_signal 814; __ulock_wait 198
+     3682 Thread_11875573 | __workq_kernreturn 3648; start_wqthread 34
+     3650 Thread_11879336 | __workq_kernreturn 3599; start_wqthread 51
+     1241 Thread_11881424 | __workq_kernreturn 1201; start_wqthread 40
+     1022 Thread_11880662 | __workq_kernreturn 1022
+      726 Thread_11881425 | __workq_kernreturn 726
+      152 Thread_<multiple>   DispatchQueue_87: com.Metal.CommandQueueDispatch   | iokit_user_client_trap 144; mach_msg2_trap 4; -[IOGPUMetalCommandQueue _submitCommandBuffers:count:] 1
+       12 Thread_<multiple>   DispatchQueue_90: com.Metal.CompletionQueueDispatc | _platform_memset 2; -[_MTLCommandBuffer didCompleteWithStartTime:endTime:error:] 2; -[MTLResourceList releaseAllObjectsAndReset] 1
+        9 Thread_11881358 | zkp_core::pcs::OpeningZk::write_bytes 8; __open 1
+        9 Thread_11881359 | zkp_core::pcs::OpeningZk::write_bytes 7; _RNvMs3_NtCslDfkGcRelIg_5alloc7raw_vecINtB5_6RawVecINtNtNtCs1rpk7P9zRvo_5gimli4read4unit14AttributeValueINtNtBR_12endia
+        8 Thread_11881357 | zkp_core::pcs::OpeningZk::write_bytes 7; _RNvNtCsfOyy81DYK0U_4core3fmt5write 1

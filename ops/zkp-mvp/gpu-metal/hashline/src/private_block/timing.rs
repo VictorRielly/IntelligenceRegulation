@@ -270,6 +270,24 @@ impl Phases {
         self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), size, unit, 0);
     }
 
+    /// A11 (TEST BUILDS ONLY): the phases recorded so far as `(label, seconds)`,
+    /// a slot's row as `slot NN name`, for the D55 harness to sum a fork run's
+    /// phases over its forks. Durations and public labels only; empty when the
+    /// clock is off.
+    #[cfg(test)]
+    pub(crate) fn rows_for_test(&self) -> Vec<(String, f64)> {
+        self.rows
+            .iter()
+            .map(|r| {
+                let name = match r.slot {
+                    Some(s) => format!("slot {s:02} {}", r.label),
+                    None => r.label.to_string(),
+                };
+                (name, r.secs)
+            })
+            .collect()
+    }
+
     fn push(&mut self, half: Half, label: &'static str, slot: Option<usize>, size: u64, unit: &'static str, bytes: u64) {
         let secs = self.tick.elapsed().as_secs_f64();
         let (rss, hwm) = mem_mib();

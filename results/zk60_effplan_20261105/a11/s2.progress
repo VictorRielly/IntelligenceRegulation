@@ -1,0 +1,63 @@
+2026-11-05T13:01:21Z start
+2026-11-05T13:03:44Z build rc=0
+2026-11-05T13:03:45Z host pool equality test rc=0
+test private_block::host_pool::tests::a11_take_zeroed_equals_the_vec_macro_in_every_mode_after_dirty_reuse ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1021 filtered out; finished in 0.03s
+2026-11-05T13:04:01Z zkp-core field tests rc=0
+test field::tests::two_adic_roots ... ok
+test field::tests::inverse_and_batch ... ok
+test field::tests::add_sub_match_reference ... ok
+test field::tests::from_u128_is_the_canonical_residue_of_the_division ... ok
+test field::tests::ext_arith ... ok
+test field::tests::mul_matches_u128_reference ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 74 filtered out; finished in 0.01s
+2026-11-05T13:06:26Z d55 pool A/B rc=0
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 5.504 s, forks 5.139 s | process user 68.6 s + sys 41.6 s = 20.0 cores | minor faults 1466935 (266534/s), major 0 | csw voluntary 0, involuntary 798549 | fork workers: prove_core 28.82 s summed, their own thread CPU 12.89 s (45%) | host pool so far: 180 hits, 12 misses
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.954 s, forks 4.598 s | process user 69.2 s + sys 23.9 s = 18.8 cores | minor faults 1157118 (233559/s), major 0 | csw voluntary 0, involuntary 824028 | fork workers: prove_core 26.04 s summed, their own thread CPU 13.65 s (52%) | host pool so far: 180 h
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 0: wall 4.954 s = 25.84 proved tok/s; preflight 0.080 s, commit 0.198 s, forks 4.598 s, join 0.078 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.889 s, forks 4.532 s | process user 69.9 s + sys 22.7 s = 18.9 cores | minor faults 549291 (112343/s), major 0 | csw voluntary 0, involuntary 844788 | fork workers: prove_core 25.70 s summed, their own thread CPU 13.23 s (52%) | host pool so far: 244 hits
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 0: wall 4.889 s = 26.18 proved tok/s; preflight 0.083 s, commit 0.195 s, forks 4.532 s, join 0.080 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.854 s, forks 4.505 s | process user 69.2 s + sys 22.0 s = 18.8 cores | minor faults 640159 (131891/s), major 0 | csw voluntary 0, involuntary 815617 | fork workers: prove_core 25.49 s summed, their own thread CPU 12.80 s (50%) | host pool so far: 308 hits
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 1: wall 4.854 s = 26.37 proved tok/s; preflight 0.075 s, commit 0.197 s, forks 4.505 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.896 s, forks 4.532 s | process user 68.5 s + sys 23.4 s = 18.8 cores | minor faults 1101686 (225029/s), major 0 | csw voluntary 0, involuntary 859192 | fork workers: prove_core 26.11 s summed, their own thread CPU 13.26 s (51%) | host pool so far: 308 h
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 1: wall 4.896 s = 26.15 proved tok/s; preflight 0.081 s, commit 0.203 s, forks 4.532 s, join 0.079 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.898 s, forks 4.525 s | process user 69.3 s + sys 23.5 s = 19.0 cores | minor faults 1159554 (236761/s), major 0 | csw voluntary 0, involuntary 851091 | fork workers: prove_core 25.62 s summed, their own thread CPU 13.52 s (53%) | host pool so far: 308 h
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 2: wall 4.898 s = 26.14 proved tok/s; preflight 0.096 s, commit 0.194 s, forks 4.525 s, join 0.083 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.900 s, forks 4.549 s | process user 69.5 s + sys 21.0 s = 18.5 cores | minor faults 644106 (131439/s), major 0 | csw voluntary 0, involuntary 770040 | fork workers: prove_core 25.53 s summed, their own thread CPU 12.87 s (50%) | host pool so far: 372 hits
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 2: wall 4.900 s = 26.12 proved tok/s; preflight 0.081 s, commit 0.195 s, forks 4.549 s, join 0.075 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 5.302 s, forks 4.946 s | process user 69.2 s + sys 20.7 s = 16.9 cores | minor faults 643262 (121319/s), major 0 | csw voluntary 0, involuntary 825798 | fork workers: prove_core 27.44 s summed, their own thread CPU 13.43 s (49%) | host pool so far: 436 hits
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 3: wall 5.302 s = 24.14 proved tok/s; preflight 0.079 s, commit 0.197 s, forks 4.946 s, join 0.080 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.943 s, forks 4.565 s | process user 68.9 s + sys 23.3 s = 18.6 cores | minor faults 1310333 (265103/s), major 0 | csw voluntary 0, involuntary 837241 | fork workers: prove_core 25.54 s summed, their own thread CPU 13.88 s (54%) | host pool so far: 436 h
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 3: wall 4.943 s = 25.90 proved tok/s; preflight 0.096 s, commit 0.193 s, forks 4.565 s, join 0.089 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.943 s, forks 4.591 s | process user 68.9 s + sys 22.8 s = 18.6 cores | minor faults 1190114 (240746/s), major 0 | csw voluntary 0, involuntary 803432 | fork workers: prove_core 25.83 s summed, their own thread CPU 13.47 s (52%) | host pool so far: 436 h
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 4: wall 4.943 s = 25.89 proved tok/s; preflight 0.078 s, commit 0.192 s, forks 4.591 s, join 0.083 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 5.047 s, forks 4.701 s | process user 69.6 s + sys 20.8 s = 17.9 cores | minor faults 617809 (122420/s), major 0 | csw voluntary 0, involuntary 780698 | fork workers: prove_core 26.04 s summed, their own thread CPU 13.47 s (52%) | host pool so far: 500 hits
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 4: wall 5.047 s = 25.36 proved tok/s; preflight 0.080 s, commit 0.187 s, forks 4.701 s, join 0.079 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.932 s, forks 4.580 s | process user 69.5 s + sys 22.3 s = 18.6 cores | minor faults 646527 (131083/s), major 0 | csw voluntary 0, involuntary 789260 | fork workers: prove_core 25.74 s summed, their own thread CPU 13.02 s (51%) | host pool so far: 564 hits
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 5: wall 4.932 s = 25.95 proved tok/s; preflight 0.082 s, commit 0.193 s, forks 4.580 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.880 s, forks 4.508 s | process user 69.0 s + sys 23.0 s = 18.8 cores | minor faults 1082236 (221789/s), major 0 | csw voluntary 0, involuntary 823581 | fork workers: prove_core 25.35 s summed, their own thread CPU 13.33 s (53%) | host pool so far: 564 h
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 5: wall 4.880 s = 26.23 proved tok/s; preflight 0.097 s, commit 0.197 s, forks 4.508 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 4.918 s, forks 4.556 s | process user 69.0 s + sys 22.9 s = 18.7 cores | minor faults 1135547 (230889/s), major 0 | csw voluntary 0, involuntary 825861 | fork workers: prove_core 25.48 s summed, their own thread CPU 13.66 s (54%) | host pool so far: 564 h
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 6: wall 4.918 s = 26.03 proved tok/s; preflight 0.090 s, commit 0.198 s, forks 4.556 s, join 0.074 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.880 s, forks 4.521 s | process user 69.4 s + sys 21.1 s = 18.6 cores | minor faults 623898 (127859/s), major 0 | csw voluntary 0, involuntary 795462 | fork workers: prove_core 25.63 s summed, their own thread CPU 12.94 s (50%) | host pool so far: 628 hits
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 6: wall 4.880 s = 26.23 proved tok/s; preflight 0.081 s, commit 0.200 s, forks 4.521 s, join 0.077 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+pool]: wall 4.874 s, forks 4.512 s | process user 69.4 s + sys 21.6 s = 18.7 cores | minor faults 585548 (120127/s), major 0 | csw voluntary 0, involuntary 807169 | fork workers: prove_core 25.42 s summed, their own thread CPU 13.07 s (51%) | host pool so far: 692 hits
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+pool] pass 7: wall 4.874 s = 26.26 proved tok/s; preflight 0.086 s, commit 0.199 s, forks 4.512 s, join 0.078 s; receipt 818728672 B
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [shared+spin+nopool]: wall 5.197 s, forks 4.819 s | process user 69.7 s + sys 23.5 s = 17.9 cores | minor faults 1215769 (233929/s), major 0 | csw voluntary 0, involuntary 799436 | fork workers: prove_core 26.70 s summed, their own thread CPU 14.36 s (54%) | host pool so far: 692 h
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin+nopool] pass 7: wall 5.197 s = 24.63 proved tok/s; preflight 0.103 s, commit 0.197 s, forks 4.819 s, join 0.079 s; receipt 818728672 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.828 s = 11.82 tok/s | mean 10.828 s = 11.82 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.504 s = 23.26 tok/s | mean 5.504 s = 23.26 tok/s | 1.97x serial (best)
+D55-AB SUMMARY | forks N=6 shared+spin+nopool | A7 GPU-policy A/B, interleaved, 8 passes | best 4.880 s = 26.23 tok/s | mean 4.954 s = 25.84 tok/s
+D55-AB SUMMARY | forks N=6 shared+spin+pool | A7 GPU-policy A/B, interleaved, 8 passes | best 4.854 s = 26.37 tok/s | mean 4.960 s = 25.81 tok/s
+2026-11-05T13:06:26Z pairs rc=0
+# A11 pairs: [shared+spin+pool] against [shared+spin+nopool], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ae8b54c76e79d7cfe/results/zk60_effplan_20261105/a11/s2_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +0.0% (4, 2) | +0.3% (4, 2) | **+0.2%** | 4.954 / 4.960 |
+| forks phase s | +0.2% (4, 2) | +0.7% (4, 2) | **+0.5%** | 4.587 / 4.606 |
+| user CPU s | +0.7% (4, 0) | +0.4% (4, 1) | **+0.6%** | 69.062 / 69.463 |
+| sys CPU s | -8.1% (4, 4) | -7.1% (4, 4) | **-7.6%** | 23.288 / 21.525 |
+| minor faults | -47.5% (4, 4) | -46.2% (4, 4) | **-46.9%** | 1,169,045 / 618,825 |
+2026-11-05T13:06:26Z all done

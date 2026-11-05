@@ -32,9 +32,14 @@ impl Fp {
     pub fn from_i64(v: i64) -> Fp {
         if v >= 0 { Fp::new(v as u64) } else { Fp::new(P - ((-(v as i128)) as u64 % P)) }
     }
+    /// `v mod p`, canonical. [A11] By the Goldilocks reduction `mul` already
+    /// uses ([`reduce128`]), which is exact for EVERY 128-bit input (2^64 = 2^32 - 1
+    /// and 2^96 = -1 mod p): the same word the generic 128-bit `v % p` gave, without
+    /// the software division (`__umodti3`), which was a top leaf of the D55 fork
+    /// run's pool workers through the randomness stream's draws.
     #[inline(always)]
     pub fn from_u128(v: u128) -> Fp {
-        Fp((v % (P as u128)) as u64)
+        reduce128(v)
     }
     #[inline(always)]
     pub fn add(self, rhs: Fp) -> Fp {
@@ -262,6 +267,35 @@ mod tests {
             for &b in &[0u64, 1, P - 1, P - 2, EPSILON, EPSILON + 1, 1u64 << 32, (1u64 << 63)] {
                 assert_eq!(Fp(a).mul(Fp(b)).0, mulmod_ref(a, b), "{a} * {b}");
             }
+        }
+    }
+
+    /// [A11] `from_u128` (now the Goldilocks reduction) is the canonical residue
+    /// the generic 128-bit division gave, on random words of every size and on
+    /// the edges of each limb and of p's multiples
+    #[test]
+    fn from_u128_is_the_canonical_residue_of_the_division() {
+        let reference = |v: u128| (v % (P as u128)) as u64;
+        let mut s = 0x0a11_5eed_0a11_5eedu64;
+        for i in 0..400_000u32 {
+            let (hi, lo) = (rng(&mut s), rng(&mut s));
+            // every width from 0 to 128 bits, uniformly cycled
+            let v = (((hi as u128) << 64) | lo as u128) >> (i % 129).min(127);
+            let v = if i % 129 == 128 { 0 } else { v };
+            assert_eq!(Fp::from_u128(v).0, reference(v), "{v:#x}");
+        }
+        let p = P as u128;
+        let mut edges: Vec<u128> = vec![0, 1, p - 1, p, p + 1, 2 * p - 1, 2 * p, u64::MAX as u128, 1u128 << 64, (1u128 << 64) + 1, (1u128 << 96) - 1, 1u128 << 96, (1u128 << 96) + 1, u128::MAX, u128::MAX - 1, u128::MAX / p * p, u128::MAX / p * p - 1];
+        for k in [1u128, 2, 3, 0xFFFF_FFFF, 1 << 32, (1 << 63) + 7, u64::MAX as u128] {
+            edges.extend([k * p, k * p - 1, k * p + 1]);
+        }
+        for hi in [0u64, 1, EPSILON, 1 << 32, P - 1, P, u64::MAX] {
+            for lo in [0u64, 1, EPSILON, 1 << 32, P - 1, P, u64::MAX] {
+                edges.push(((hi as u128) << 64) | lo as u128);
+            }
+        }
+        for v in edges {
+            assert_eq!(Fp::from_u128(v).0, reference(v), "{v:#x}");
         }
     }
 
