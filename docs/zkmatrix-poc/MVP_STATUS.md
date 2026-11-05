@@ -20,7 +20,9 @@
     - F12 is fixed, under new profile versions (see the top).
     - One constant external refusal: done.
     - The DD dictionary's refusal is challenge-only: done, no receipt byte moved.
-    - F25 is to be closed by a path-wise proof (in progress).
+    - **F25 closed by the path-wise proof (2026-11-05, Part 9):** the run meets the approved target
+      q·2^-100 + 2^-100 for every q ≤ 2^75. The query-free part is ≤ 2^-101.85 and the per-query rate is 2^-102.92.
+      This holds given the hand-off premises and M (both still to prove). The wider-field fallback is not needed.
 - Fixed today: F16, a run receipt now attests its context. F23: `autoImplicit` is off in `formal/`, so a mistyped
   name in a statement can no longer compile silently.
 - Fixed today: L4 finding 3. The mask schedule audit now checks that each pair's actual row weights are independent,
