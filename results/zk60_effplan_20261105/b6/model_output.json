@@ -1,0 +1,1066 @@
+{
+ "census_today": {
+  "label": "CODE formulas + MEASURED totals; slots INFERRED as the residual",
+  "per_block_fork_frame": {
+   "A_opening": 15612928,
+   "A_parts": {
+    "vectors": 9865088,
+    "column_data": 5602240,
+    "paths": 134400,
+    "salts": 8960,
+    "indices": 2240
+   },
+   "H_opening": 8640320,
+   "H_parts": {
+    "vectors": 2666240,
+    "column_data": 5828480,
+    "paths": 134400,
+    "salts": 8960,
+    "indices": 2240
+   },
+   "M_opening": 243712,
+   "M_parts": {
+    "vectors": 32768,
+    "column_data": 102400,
+    "paths": 98304,
+    "salts": 8192,
+    "indices": 2048
+   },
+   "slot_proofs": 42064,
+   "fixed": 216,
+   "total": 24539240
+  },
+  "join_tail": {
+   "boundary_opening_each": 1030592,
+   "boundary_parts": {
+    "vectors": 799872,
+    "column_data": 85120,
+    "paths": 134400,
+    "salts": 8960,
+    "indices": 2240
+   },
+   "boundaries": 31948352,
+   "endpoint_opening_each": 761728,
+   "endpoints": 1523456,
+   "fixed": 112,
+   "total": 33471920
+  },
+  "head": 1072,
+  "total": 818728672,
+  "by_kind": {
+   "vectors": 427913600,
+   "column_data": 371864320,
+   "paths": 16182528,
+   "salts": 1131264,
+   "indices": 282816,
+   "slots_and_frames": 1354144
+  },
+  "by_kind_share": {
+   "vectors": 0.5227,
+   "column_data": 0.4542,
+   "paths": 0.0198,
+   "salts": 0.0014,
+   "indices": 0.0003,
+   "slots_and_frames": 0.0017
+  },
+  "clear_vectors_per_block": 47
+ },
+ "receipt_B6": {
+  "label": "MODEL (byte counts from the stated layouts; t from the delta/2 column test at today's 2^-113.93 per list)",
+  "scaling_rule": "receipt = 32 x [t1 x (stage-1 rows x 8 B + per-tree 40 B + per-tree path 32 B x depth) + tower + M + slots] + join; the stage-1 column data is t1 x 8 B x (committed entries / 2^ell); paths grow with ell",
+  "variants": {
+   "B6a_W16R2": {
+    "label": "B6a on W16R2 rows (2,501 / 2,602; 36 / 9 groups)",
+    "per_block": 12403096,
+    "stage1_columns": 11721920,
+    "tower_bytes": 395152,
+    "tower_plan": [
+     [
+      4,
+      5
+     ],
+     [
+      0,
+      5
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 48,
+      "log_msg": 14,
+      "log_N": 17,
+      "t": 138,
+      "opened_bytes": 190992,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.37
+     },
+     {
+      "rows_fp2": 17,
+      "log_msg": 10,
+      "log_N": 15,
+      "t": 120,
+      "opened_bytes": 98880,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 114.07
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 10,
+      "log_N": 15,
+      "t": 120,
+      "opened_bytes": 68160,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.07
+     },
+     {
+      "base_sent_bytes": 36624
+     }
+    ],
+    "join": 8115008,
+    "join_tower": 505584,
+    "total": 405015152,
+    "vs_today": 0.4947
+   },
+   "B6a_W16R3": {
+    "label": "B6a on Sol's B1-B3 rows (2,397 / 2,462; 34 / 7 groups)",
+    "per_block": 11847704,
+    "stage1_columns": 11175360,
+    "tower_bytes": 386320,
+    "tower_plan": [
+     [
+      4,
+      5
+     ],
+     [
+      0,
+      5
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 44,
+      "log_msg": 14,
+      "log_N": 17,
+      "t": 138,
+      "opened_bytes": 182160,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.37
+     },
+     {
+      "rows_fp2": 17,
+      "log_msg": 10,
+      "log_N": 15,
+      "t": 120,
+      "opened_bytes": 98880,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 114.07
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 10,
+      "log_N": 15,
+      "t": 120,
+      "opened_bytes": 68160,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.07
+     },
+     {
+      "base_sent_bytes": 36624
+     }
+    ],
+    "join": 8115008,
+    "join_tower": 505584,
+    "total": 387242608,
+    "vs_today": 0.473
+   },
+   "B6a_W16R3_multiproof": {
+    "label": "the same, deduplicated Merkle paths",
+    "per_block": 11749650,
+    "stage1_columns": 11175360,
+    "tower_bytes": 288266,
+    "tower_plan": [
+     [
+      4,
+      4
+     ],
+     [
+      0,
+      3
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 44,
+      "log_msg": 14,
+      "log_N": 17,
+      "t": 138,
+      "opened_bytes": 146868,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.37
+     },
+     {
+      "rows_fp2": 17,
+      "log_msg": 10,
+      "log_N": 14,
+      "t": 127,
+      "opened_bytes": 68634,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 114.57
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 10,
+      "log_N": 13,
+      "t": 141,
+      "opened_bytes": 34972,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 113.97
+     },
+     {
+      "base_sent_bytes": 37296
+     }
+    ],
+    "join": 8016954,
+    "join_tower": 407530,
+    "total": 384006826,
+    "vs_today": 0.469
+   },
+   "B6b_ell16": {
+    "label": "B6b, rows of 2^16, B1-B3 data rows",
+    "ell": 16,
+    "t1": 276,
+    "stage1_rows": 1125,
+    "stage1_bytes": 2804160,
+    "stage1_fold_rounds": 11,
+    "tower_bytes": 272464,
+    "tower_plan": [
+     [
+      4,
+      5
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      0,
+      5
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 17,
+      "log_msg": 12,
+      "log_N": 17,
+      "t": 120,
+      "opened_bytes": 106560,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 114.52
+     },
+     {
+      "rows_fp2": 9,
+      "log_msg": 9,
+      "log_N": 14,
+      "t": 121,
+      "opened_bytes": 80344,
+      "fold_rounds": 4,
+      "fold_msg_bytes": 144,
+      "column_term_bits": 114.39
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 9,
+      "log_N": 14,
+      "t": 121,
+      "opened_bytes": 64856,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.39
+     },
+     {
+      "base_sent_bytes": 20272
+     }
+    ],
+    "M_opening": 243712,
+    "per_block": 3363016,
+    "join": 1341552,
+    "join_rows": 267,
+    "join_fold_rounds": 9,
+    "total": 108958176,
+    "vs_today": 0.1331
+   },
+   "B6b_ell16_multiproof": {
+    "label": "B6b, rows of 2^16, deduplicated paths",
+    "ell": 16,
+    "t1": 276,
+    "stage1_rows": 1125,
+    "stage1_bytes": 2645310,
+    "stage1_fold_rounds": 11,
+    "tower_bytes": 178105,
+    "tower_plan": [
+     [
+      4,
+      4
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      0,
+      4
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 17,
+      "log_msg": 12,
+      "log_N": 16,
+      "t": 126,
+      "opened_bytes": 76169,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 114.66
+     },
+     {
+      "rows_fp2": 9,
+      "log_msg": 9,
+      "log_N": 13,
+      "t": 128,
+      "opened_bytes": 48696,
+      "fold_rounds": 4,
+      "fold_msg_bytes": 144,
+      "column_term_bits": 114.15
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 9,
+      "log_N": 13,
+      "t": 128,
+      "opened_bytes": 32312,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.15
+     },
+     {
+      "base_sent_bytes": 20496
+     }
+    ],
+    "M_opening": 243712,
+    "per_block": 3109807,
+    "join": 1008919,
+    "join_rows": 267,
+    "join_fold_rounds": 9,
+    "total": 100522855,
+    "vs_today": 0.1228
+   },
+   "B6b_ell18": {
+    "label": "B6b, rows of 2^18, B1-B3 data rows",
+    "ell": 18,
+    "t1": 275,
+    "stage1_rows": 284,
+    "stage1_bytes": 979000,
+    "stage1_fold_rounds": 9,
+    "tower_bytes": 318368,
+    "tower_plan": [
+     [
+      4,
+      5
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      0,
+      5
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 17,
+      "log_msg": 14,
+      "log_N": 19,
+      "t": 120,
+      "opened_bytes": 114240,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 114.63
+     },
+     {
+      "rows_fp2": 17,
+      "log_msg": 10,
+      "log_N": 15,
+      "t": 120,
+      "opened_bytes": 98880,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 114.07
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 10,
+      "log_N": 15,
+      "t": 120,
+      "opened_bytes": 68160,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.07
+     },
+     {
+      "base_sent_bytes": 36624
+     }
+    ],
+    "M_opening": 243712,
+    "per_block": 1583696,
+    "join": 1000720,
+    "join_rows": 69,
+    "join_fold_rounds": 7,
+    "total": 51679104,
+    "vs_today": 0.0631
+   },
+   "B6b_ell18_multiproof": {
+    "label": "B6b, rows of 2^18, deduplicated paths",
+    "ell": 18,
+    "t1": 275,
+    "stage1_rows": 284,
+    "stage1_bytes": 820777,
+    "stage1_fold_rounds": 9,
+    "tower_bytes": 225670,
+    "tower_plan": [
+     [
+      4,
+      4
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      0,
+      4
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 17,
+      "log_msg": 14,
+      "log_N": 18,
+      "t": 125,
+      "opened_bytes": 83602,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 113.99
+     },
+     {
+      "rows_fp2": 17,
+      "log_msg": 10,
+      "log_N": 14,
+      "t": 127,
+      "opened_bytes": 68634,
+      "fold_rounds": 5,
+      "fold_msg_bytes": 176,
+      "column_term_bits": 114.57
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 10,
+      "log_N": 14,
+      "t": 127,
+      "opened_bytes": 36122,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.57
+     },
+     {
+      "base_sent_bytes": 36848
+     }
+    ],
+    "M_opening": 243712,
+    "per_block": 1332775,
+    "join": 670687,
+    "join_rows": 69,
+    "join_fold_rounds": 7,
+    "total": 43319599,
+    "vs_today": 0.0529
+   },
+   "B6b_ell20": {
+    "label": "B6b, rows of 2^20, B1-B3 data rows",
+    "ell": 20,
+    "t1": 275,
+    "stage1_rows": 73,
+    "stage1_bytes": 550000,
+    "stage1_fold_rounds": 7,
+    "tower_bytes": 383712,
+    "tower_plan": [
+     [
+      5,
+      5
+     ],
+     [
+      5,
+      5
+     ],
+     [
+      0,
+      5
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 33,
+      "log_msg": 15,
+      "log_N": 20,
+      "t": 120,
+      "opened_bytes": 148800,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.65
+     },
+     {
+      "rows_fp2": 33,
+      "log_msg": 10,
+      "log_N": 15,
+      "t": 120,
+      "opened_bytes": 129600,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.07
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 10,
+      "log_N": 15,
+      "t": 120,
+      "opened_bytes": 68160,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.07
+     },
+     {
+      "base_sent_bytes": 36624
+     }
+    ],
+    "M_opening": 243712,
+    "per_block": 1219976,
+    "join": 1013200,
+    "join_rows": 21,
+    "join_fold_rounds": 5,
+    "total": 40052544,
+    "vs_today": 0.0489
+   },
+   "B6b_ell20_multiproof": {
+    "label": "B6b, rows of 2^20, deduplicated paths",
+    "ell": 20,
+    "t1": 275,
+    "stage1_rows": 73,
+    "stage1_bytes": 391766,
+    "stage1_fold_rounds": 7,
+    "tower_bytes": 293527,
+    "tower_plan": [
+     [
+      5,
+      5
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      0,
+      4
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 33,
+      "log_msg": 15,
+      "log_N": 20,
+      "t": 120,
+      "opened_bytes": 118883,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.65
+     },
+     {
+      "rows_fp2": 33,
+      "log_msg": 10,
+      "log_N": 14,
+      "t": 127,
+      "opened_bytes": 101146,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.57
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 10,
+      "log_N": 14,
+      "t": 127,
+      "opened_bytes": 36122,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.57
+     },
+     {
+      "base_sent_bytes": 36848
+     }
+    ],
+    "M_opening": 243712,
+    "per_block": 971557,
+    "join": 685665,
+    "join_rows": 21,
+    "join_fold_rounds": 5,
+    "total": 31775601,
+    "vs_today": 0.0388
+   },
+   "B6b_ell22": {
+    "label": "B6b, rows of 2^22, B1-B3 data rows",
+    "ell": 22,
+    "t1": 275,
+    "stage1_rows": 21,
+    "stage1_bytes": 470800,
+    "stage1_fold_rounds": 5,
+    "tower_bytes": 489472,
+    "tower_plan": [
+     [
+      6,
+      5
+     ],
+     [
+      5,
+      5
+     ],
+     [
+      0,
+      5
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 65,
+      "log_msg": 16,
+      "log_N": 21,
+      "t": 120,
+      "opened_bytes": 214080,
+      "fold_rounds": 7,
+      "fold_msg_bytes": 240,
+      "column_term_bits": 114.66
+     },
+     {
+      "rows_fp2": 33,
+      "log_msg": 11,
+      "log_N": 16,
+      "t": 120,
+      "opened_bytes": 133440,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.37
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 11,
+      "log_N": 16,
+      "t": 120,
+      "opened_bytes": 72000,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.37
+     },
+     {
+      "base_sent_bytes": 69392
+     }
+    ],
+    "M_opening": 243712,
+    "per_block": 1246472,
+    "join": 1145328,
+    "join_rows": 9,
+    "join_fold_rounds": 4,
+    "total": 41032544,
+    "vs_today": 0.0501
+   },
+   "B6b_ell22_multiproof": {
+    "label": "B6b, rows of 2^22, deduplicated paths",
+    "ell": 22,
+    "t1": 275,
+    "stage1_rows": 21,
+    "stage1_bytes": 312564,
+    "stage1_fold_rounds": 5,
+    "tower_bytes": 398605,
+    "tower_plan": [
+     [
+      6,
+      5
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      0,
+      4
+     ]
+    ],
+    "tower": [
+     {
+      "rows_fp2": 65,
+      "log_msg": 16,
+      "log_N": 21,
+      "t": 120,
+      "opened_bytes": 184163,
+      "fold_rounds": 7,
+      "fold_msg_bytes": 240,
+      "column_term_bits": 114.66
+     },
+     {
+      "rows_fp2": 33,
+      "log_msg": 11,
+      "log_N": 15,
+      "t": 126,
+      "opened_bytes": 104405,
+      "fold_rounds": 6,
+      "fold_msg_bytes": 208,
+      "column_term_bits": 114.33
+     },
+     {
+      "rows_fp2": 1,
+      "log_msg": 11,
+      "log_N": 15,
+      "t": 126,
+      "opened_bytes": 39893,
+      "fold_rounds": 0,
+      "fold_msg_bytes": 16,
+      "column_term_bits": 114.33
+     },
+     {
+      "base_sent_bytes": 69584
+     }
+    ],
+    "M_opening": 243712,
+    "per_block": 997369,
+    "join": 817107,
+    "join_rows": 9,
+    "join_fold_rounds": 4,
+    "total": 32733027,
+    "vs_today": 0.04
+   }
+  }
+ },
+ "soundness": {
+  "label": "MODEL; today's figures from ZK60_LEAN_L3_FINDINGS_20261104.md Part 7 V2 and Part 9 W2",
+  "per_round_bits": {
+   "today": {
+    "LogUp alpha (the rate)": 102.93,
+    "LogUp beta,gamma": 110.04,
+    "M opening (assumed)": 106.0,
+    "regular opening: field N/p^2": 113.0,
+    "regular opening: column term": 113.93,
+    "sumcheck round d=5": 125.68
+   },
+   "B6a_new": {
+    "W tower BAT (product coefficients, 2/p^2)": 127.0,
+    "FOLD hiding combination eps (1/p^2)": 128.0,
+    "FOLD sumcheck round, degree 2 (2/p^2)": 127.0,
+    "FOLD line, mutual correlated agreement N_W/p^2 (W at rate 1/8, N = 2^17)": 111.0,
+    "CS / BASE positions, (1 - (e+1)/N)^t": 114.07,
+    "BASE lambda (1/p^2)": 128.0
+   },
+   "B6b_ell18_new": {
+    "stage-1 FOLD line N/p^2 (N = 2^19)": 109.0,
+    "stage-1 column term at t1": 114.0
+   },
+   "B6b_ell20_new": {
+    "stage-1 FOLD line N/p^2 (N = 2^21)": 107.0,
+    "stage-1 column term at t1": 114.1
+   }
+  },
+  "rate_bits": {
+   "today": 102.93,
+   "B6a": 102.93,
+   "B6b ell 18": 102.93,
+   "B6b ell 20": 102.93
+  },
+  "zone_units_of_2^-110": {
+   "today (Lean zone_budget_le: 155/2^110)": 154.5,
+   "B6a (W16R3 rows)": 162.6,
+   "B6b ell 18": 206.2,
+   "B6b ell 20": 298.4
+  },
+  "zone_bits": {
+   "today (Lean zone_budget_le: 155/2^110)": 102.73,
+   "B6a (W16R3 rows)": 102.65,
+   "B6b ell 18": 102.31,
+   "B6b ell 20": 101.78
+  }
+ },
+ "time": {
+  "inputs": {
+   "forks_phase_s_N6": [
+    "MEASURED",
+    3.76,
+    "results/zk60_effplan_20261105/README.md:404 (A8 A/B)"
+   ],
+   "gpu_busy_s_N6": [
+    "MEASURED/INFERRED",
+    2.75,
+    "README.md:345 (the GPU-busy bound)"
+   ],
+   "uncontended_block_gpu_ms": [
+    "MEASURED",
+    {
+     "sumcheck": 68,
+     "commitments": 31
+    },
+    "README.md:175 (A7)"
+   ],
+   "A1_openings_A_H_M_ms": [
+    "MEASURED",
+    44,
+    "README.md:45 (A1, serial block)"
+   ],
+   "A8_store_fold_ms_6thread_pool": [
+    "MEASURED",
+    {
+     "A": 10.1,
+     "H": 19.3
+    },
+    "README.md:367"
+   ],
+   "absorb_of_clear_vectors_MB": [
+    "CODE",
+    12.5,
+    "pcs.rs:1049-1052; 9.9 MB for A in README.md:427"
+   ],
+   "verify_s_32_blocks_6_threads": [
+    "MEASURED",
+    [
+     2.31,
+     2.84
+    ],
+    "a12merge_d55_ab.log (diagonal synthetic weights)"
+   ],
+   "verify_s_32_blocks_D12a_one_block_at_a_time": [
+    "MEASURED",
+    4.53,
+    "a12merge_d55_ab.log"
+   ]
+  },
+  "B6a_per_block_ms": {
+   "W commit (48 Fp2 rows x 2^17 at rate 1/8: 7.5% of A+H's encoded points)": [
+    "ESTIMATE",
+    2.0,
+    4.0,
+    0.0,
+    0.5
+   ],
+   "tower stages 2.. (W2, BASE; under 1% of A's points)": [
+    "ESTIMATE",
+    0.2,
+    1.0,
+    0.5,
+    2.0
+   ],
+   "BAT coefficient rows (Gamma = sum theta_x G(x): 280 x 16,664 Fp2) and W's FOLD (dense c, 48 x 2^14)": [
+    "ESTIMATE",
+    0.0,
+    1.0,
+    2.0,
+    8.0
+   ],
+   "no absorb of the 47 clear vectors (12.5 MB of BLAKE3 on one thread)": [
+    "ESTIMATE",
+    0.0,
+    0.0,
+    -10.0,
+    -4.0
+   ],
+   "clear-vector folds: unchanged (A8's store fold produces W's rows)": [
+    "CODE",
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "B6b_per_block_ms_ell18": {
+   "stage-1 FOLD on A u H (dense coefficient table 84 M Fp2; ~1 G base products at 30-60% of 149 G/s)": [
+    "ESTIMATE",
+    11.0,
+    30.0,
+    0.0,
+    2.0
+   ],
+   "forward NTT at 2^19 instead of 2^15 (x19/15 butterflies, multipass)": [
+    "ESTIMATE",
+    4.0,
+    12.0,
+    0.0,
+    0.0
+   ],
+   "compact site masks (-310 of 5,103 rows of 2^14, -6% of commit points)": [
+    "ESTIMATE",
+    -2.0,
+    -1.0,
+    -1.0,
+    0.0
+   ],
+   "tower, absorb as in B6a": [
+    "ESTIMATE",
+    0.2,
+    1.0,
+    -9.0,
+    -2.0
+   ]
+  },
+  "B6a_sum": {
+   "gpu_ms": [
+    2.2,
+    6.0
+   ],
+   "host_ms": [
+    -7.5,
+    6.5
+   ],
+   "forks_phase_delta_s_if_gpu_bound": [
+    0.07,
+    0.192
+   ],
+   "forks_phase_delta_s_if_host_bound": [
+    -0.04,
+    0.035
+   ],
+   "forks_phase_ratio_range": [
+    0.989,
+    1.051
+   ]
+  },
+  "B6b_ell18_sum": {
+   "gpu_ms": [
+    13.2,
+    42.0
+   ],
+   "host_ms": [
+    -10.0,
+    0.0
+   ],
+   "forks_phase_delta_s_if_gpu_bound": [
+    0.422,
+    1.344
+   ],
+   "forks_phase_delta_s_if_host_bound": [
+    -0.053,
+    0.0
+   ],
+   "forks_phase_ratio_range": [
+    0.986,
+    1.357
+   ]
+  },
+  "verifier": {
+   "counts_per_block": {
+    "today": {
+     "ntt_points": 3080192,
+     "column_mults": 33195960,
+     "hashed_bytes": 11968320,
+     "absorbed_bytes": 12531328
+    },
+    "B6a": {
+     "ntt_points": 4096,
+     "column_mults": 1668681,
+     "hashed_bytes": 12168320,
+     "absorbed_bytes": 20000
+    },
+    "B6b": {
+     "ntt_points": 4096,
+     "column_mults": 78100,
+     "hashed_bytes": 2158000,
+     "absorbed_bytes": 20000
+    }
+   },
+   "modelled_cpu_s_per_block": {
+    "today": 0.4331,
+    "B6a": 0.0279,
+    "B6b": 0.0039
+   },
+   "calibration_factor (today's modelled PCS work scaled to the measured 2.31 s x 6 threads / 32)": 1.46,
+   "receipt_verify_s_6_threads": {
+    "today": 2.31,
+    "B6a": 0.149,
+    "B6b": 0.021
+   },
+   "note": "the measured verifier ran on diagonal synthetic weights, so its time is mostly PCS work; dense public weights add weight-MLE folds that B6 does not touch"
+  }
+ },
+ "toy_joint_view": {
+  "label": "MODEL (toy field F_65537; exact rank arithmetic; 3 challenge draws each)",
+  "parameters": "stage 1: 2 witness rows + masks, n 8, q_pad 3, N 16, t 3; W: n 16, q_pad 3, N 64, t 3; FOLD over 2 row bits",
+  "results": {
+   "P1 today's opening, full-row site masks (sanity)": {
+    "witness_hidden": "3/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "N1 today's opening with compact masks (clear vectors leak)": {
+    "witness_hidden": "0/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "P2 B6a, today's full-row site masks": {
+    "witness_hidden": "3/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "P3 B6a, compact masks, every tower mask on": {
+    "witness_hidden": "3/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "N2 P3 but W opened at t_W = 9 > q_pad_W + uniform fill (3 + 5)": {
+    "witness_hidden": "0/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "I1 P3 with W's unused message entries zero (t_W = q_pad_W = 3)": {
+    "witness_hidden": "3/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "N3 P3 with zero fill and t_W = q_pad_W + 1": {
+    "witness_hidden": "0/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "N4 P3 without the hiding polynomial U": {
+    "witness_hidden": "0/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "N5 P3 without BASE's masking oracle": {
+    "witness_hidden": "0/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "N6 P3 with stage 1 opened at t_A = q_pad_A + 1": {
+    "witness_hidden": "0/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "N7 P3 without the masks on the published values": {
+    "witness_hidden": "0/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "I2 P2 (full-row masks) without U and without BASE's masking oracle": {
+    "witness_hidden": "3/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "I3 P2 with a plain tower: no W pads, zero fill, no U, no masking oracle": {
+    "witness_hidden": "3/3",
+    "verifier_equations_hold": "3/3"
+   },
+   "N8 I3's plain tower with compact masks": {
+    "witness_hidden": "0/3",
+    "verifier_equations_hold": "3/3"
+   }
+  }
+ }
+}

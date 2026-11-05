@@ -2091,7 +2091,8 @@ struct GpuArm {
 /// BLAKE3's tree on rayon), `lazy0` / `lazy1` (the host's `Fp2 x Fp` dot products
 /// per term, or summed exactly and reduced once); `a14old` / `a14new` set all
 /// three off / on (the tree before A14 / every A14 form), `a14def` the A14
-/// default (`xof8+trser+lazy1`: the parallel absorb did not pay and is opt-in)
+/// default (`xofb3+trser+lazy1`: the parallel absorb did not pay and the lane
+/// XOF moved no wall on top of the lazy sums; both are opt-in)
 #[derive(Clone, Copy, Debug, Default)]
 struct A14Arm {
     xof: Option<zkp_core::rng::XofForm>,
@@ -2111,7 +2112,7 @@ fn a14_word(a: &mut A14Arm, w: &str) -> bool {
         "lazy1" => a.lazy = Some(true),
         "a14old" => *a = A14Arm { xof: Some(XofForm::Blake3), absorb_par: Some(false), lazy: Some(false) },
         "a14new" => *a = A14Arm { xof: Some(XofForm::Lanes8), absorb_par: Some(true), lazy: Some(true) },
-        "a14def" => *a = A14Arm { xof: Some(XofForm::Lanes8), absorb_par: Some(false), lazy: Some(true) },
+        "a14def" => *a = A14Arm { xof: Some(XofForm::Blake3), absorb_par: Some(false), lazy: Some(true) },
         _ => return false,
     }
     true
