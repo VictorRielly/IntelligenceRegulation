@@ -1,0 +1,143 @@
+2026-11-05T19:10:05Z start
+2026-11-05T19:12:37Z build rc=0
+2026-11-05T19:13:27Z a13 fork byte test (CPU) rc=101
+thread 'private_block::run::fork::a13_tests::a13_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung' (12590344) panicked at src/private_block/run_fork_a13_tests.rs:342:9:
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 48.75s
+2026-11-05T19:26:09Z d55 exploration rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.882 s = 12.95 tok/s | mean 9.882 s = 12.95 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.315 s = 29.66 tok/s | mean 4.315 s = 29.66 tok/s | 2.29x serial (best)
+D55-AB SUMMARY | forks N=6 noahead | A7 GPU-policy A/B, interleaved, 2 passes | best 4.069 s = 31.46 tok/s | mean 4.134 s = 30.96 tok/s
+D55-AB SUMMARY | forks N=6 ahead32+qos2 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.244 s = 30.16 tok/s | mean 4.270 s = 29.98 tok/s
+D55-AB SUMMARY | forks N=6 ahead32+qos1 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.249 s = 30.12 tok/s | mean 4.269 s = 29.98 tok/s
+D55-AB SUMMARY | forks N=6 ahead16+qos2 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.152 s = 30.83 tok/s | mean 4.209 s = 30.41 tok/s
+D55-AB SUMMARY | forks N=6 sp16 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.069 s = 31.45 tok/s | mean 4.148 s = 30.86 tok/s
+D55-AB SUMMARY | forks N=6 sp8  | A7 GPU-policy A/B, interleaved, 2 passes | best 4.324 s = 29.60 tok/s | mean 4.360 s = 29.36 tok/s
+D55-AB SUMMARY | forks N=6 ahead32+qos2+sp16 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.132 s = 30.98 tok/s | mean 4.152 s = 30.83 tok/s
+D55-AB SUMMARY | forks N=6 SEALED noahead | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.524 s = 15.02 tok/s | mean 8.563 s = 14.95 tok/s
+D55-AB SUMMARY | forks N=6 SEALED ahead32+qos2 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.672 s = 14.76 tok/s | mean 8.698 s = 14.72 tok/s
+D55-AB SUMMARY | forks N=6 SEALED ahead32+qos1 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.223 s = 15.57 tok/s | mean 8.264 s = 15.49 tok/s
+D55-AB SUMMARY | forks N=6 SEALED ahead16+qos2 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.503 s = 15.05 tok/s | mean 8.563 s = 14.95 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp16 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 7.568 s = 16.91 tok/s | mean 7.624 s = 16.79 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp8 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 7.521 s = 17.02 tok/s | mean 7.581 s = 16.88 tok/s
+D55-AB SUMMARY | forks N=6 SEALED ahead32+qos2+sp16 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 7.602 s = 16.84 tok/s | mean 7.750 s = 16.52 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 noahead | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 23.49 tok/s (best 23.55) | amortized mean 20.26 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 ahead32+qos2 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 20.66 tok/s (best 20.66) | amortized mean 17.89 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 ahead32+qos1 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 22.68 tok/s (best 23.05) | amortized mean 19.72 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 ahead16+qos2 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 22.55 tok/s (best 22.57) | amortized mean 19.49 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp16 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 27.34 tok/s (best 27.56) | amortized mean 23.09 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp8 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 28.10 tok/s (best 28.61) | amortized mean 23.67 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 ahead32+qos2+sp16 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 20.83 tok/s (best 20.91) | amortized mean 17.71 tok/s
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [noahead]: wall 8.524 s; sealing pass 4.099 s (9.8 cores busy, 40.1 CPU-s); prove call 4.425 s: preflight 0.176, commit 0.287, forks 3.886, join 0.075 s; 0/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean NaN ms (sum -0.00 s), in a fork mean 148.8 ms (sum 4.76 s); footprint start 23.4 GiB, peak 35.3 GiB, end 24.7 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+qos2]: wall 8.724 s; sealing pass 4.762 s (13.9 cores busy, 66.4 CPU-s); prove call 3.961 s: preflight 0.137, commit 0.273, forks 3.473, join 0.078 s; 32/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean 273.8 ms (sum 8.76 s), in a fork mean NaN ms (sum -0.00 s); footprint start 23.5 GiB, peak 71.9 GiB, end 48.4 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+qos1]: wall 8.223 s; sealing pass 4.439 s (12.5 cores busy, 55.6 CPU-s); prove call 3.783 s: preflight 0.091, commit 0.231, forks 3.351, join 0.111 s; 32/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean 112.4 ms (sum 3.60 s), in a fork mean NaN ms (sum -0.00 s); footprint start 51.1 GiB, peak 78.9 GiB, end 52.6 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead16+qos2]: wall 8.503 s; sealing pass 4.571 s (12.3 cores busy, 56.0 CPU-s); prove call 3.932 s: preflight 0.084, commit 0.209, forks 3.547, join 0.092 s; 16/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean 259.7 ms (sum 4.16 s), in a fork mean 109.4 ms (sum 1.75 s); footprint start 51.9 GiB, peak 70.8 GiB, end 53.2 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [sp16]: wall 7.568 s; sealing pass 3.405 s (5.3 cores busy, 18.1 CPU-s); prove call 4.164 s: preflight 0.080, commit 0.196, forks 3.797, join 0.090 s; 0/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean NaN ms (sum -0.00 s), in a fork mean 143.2 ms (sum 4.58 s); footprint start 52.0 GiB, peak 63.9 GiB, end 53.3 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [sp8]: wall 7.641 s; sealing pass 3.248 s (3.2 cores busy, 10.3 CPU-s); prove call 4.393 s: preflight 0.081, commit 0.216, forks 4.006, join 0.090 s; 0/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean NaN ms (sum -0.00 s), in a fork mean 142.7 ms (sum 4.57 s); footprint start 52.1 GiB, peak 64.1 GiB, end 53.4 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+qos2+sp16]: wall 7.899 s; sealing pass 3.744 s (10.8 cores busy, 40.4 CPU-s); prove call 4.155 s: preflight 0.141, commit 0.320, forks 3.616, join 0.077 s; 25/32 forks parked (7 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean 339.2 ms (sum 8.48 s), in a fork mean 106.6 ms (sum 0.75 s); footprint start 52.1 GiB, peak 75.7 GiB, end 53.4 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+qos2+sp16]: wall 7.602 s; sealing pass 3.678 s (11.1 cores busy, 40.7 CPU-s); prove call 3.924 s: preflight 0.143, commit 0.290, forks 3.410, join 0.081 s; 25/32 forks parked (7 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean 327.5 ms (sum 8.19 s), in a fork mean 107.6 ms (sum 0.75 s); footprint start 51.9 GiB, peak 75.8 GiB, end 53.4 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [sp8]: wall 7.521 s; sealing pass 3.355 s (3.2 cores busy, 10.7 CPU-s); prove call 4.166 s: preflight 0.097, commit 0.220, forks 3.768, join 0.081 s; 0/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean NaN ms (sum -0.00 s), in a fork mean 144.8 ms (sum 4.63 s); footprint start 51.9 GiB, peak 64.7 GiB, end 53.4 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [sp16]: wall 7.681 s; sealing pass 3.531 s (5.4 cores busy, 19.0 CPU-s); prove call 4.149 s: preflight 0.079, commit 0.221, forks 3.746, join 0.102 s; 0/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean NaN ms (sum -0.00 s), in a fork mean 147.1 ms (sum 4.71 s); footprint start 51.9 GiB, peak 64.6 GiB, end 53.5 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead16+qos2]: wall 8.623 s; sealing pass 4.757 s (11.7 cores busy, 55.8 CPU-s); prove call 3.867 s: preflight 0.081, commit 0.217, forks 3.485, join 0.083 s; 16/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean 263.2 ms (sum 4.21 s), in a fork mean 115.3 ms (sum 1.85 s); footprint start 51.9 GiB, peak 71.5 GiB, end 53.5 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+qos1]: wall 8.305 s; sealing pass 4.447 s (12.5 cores busy, 55.5 CPU-s); prove call 3.858 s: preflight 0.067, commit 0.257, forks 3.427, join 0.108 s; 32/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean 112.8 ms (sum 3.61 s), in a fork mean NaN ms (sum -0.00 s); footprint start 51.9 GiB, peak 80.4 GiB, end 53.5 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+qos2]: wall 8.672 s; sealing pass 4.834 s (13.8 cores busy, 66.7 CPU-s); prove call 3.838 s: preflight 0.144, commit 0.243, forks 3.371, join 0.079 s; 32/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean 261.1 ms (sum 8.36 s), in a fork mean NaN ms (sum -0.00 s); footprint start 52.0 GiB, peak 80.4 GiB, end 53.6 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [noahead]: wall 8.603 s; sealing pass 4.345 s (10.3 cores busy, 44.6 CPU-s); prove call 4.257 s: preflight 0.105, commit 0.206, forks 3.870, join 0.077 s; 0/32 forks parked (0 queued parts taken back whole), feeder waited 0.000 s; before-challenge parts: parked mean NaN ms (sum -0.00 s), in a fork mean 156.3 ms (sum 5.00 s); footprint start 52.1 GiB, peak 64.5 GiB, end 53.6 GiB
+  tag commit     95 cbs: GPU 0.9940 s (mean 10.464 ms); commit -> GPU start 0.0929 s (mean 0.978 ms); GPU end -> seen 0.0114 s; encode 0.0020 s
+  tag commit     95 cbs: GPU 0.9825 s (mean 10.342 ms); commit -> GPU start 0.0661 s (mean 0.695 ms); GPU end -> seen 0.0114 s; encode 0.0020 s
+  tag commit     95 cbs: GPU 1.6767 s (mean 17.649 ms); commit -> GPU start 1.2859 s (mean 13.536 ms); GPU end -> seen 0.0266 s; encode 0.0024 s
+  tag commit     64 cbs: GPU 1.6607 s (mean 25.948 ms); commit -> GPU start 1.2630 s (mean 19.734 ms); GPU end -> seen 0.0232 s; encode 0.0021 s
+  tag commit     95 cbs: GPU 1.8410 s (mean 19.379 ms); commit -> GPU start 0.9341 s (mean 9.833 ms); GPU end -> seen 0.0165 s; encode 0.0023 s
+  tag commit     64 cbs: GPU 1.8251 s (mean 28.517 ms); commit -> GPU start 0.9159 s (mean 14.310 ms); GPU end -> seen 0.0135 s; encode 0.0018 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [noahead] (queues shared): the whole call, 4.099 s
+  tag wprod     224 cbs: GPU 0.4829 s (mean 2.156 ms); commit -> GPU start 0.1974 s (mean 0.881 ms); GPU end -> seen 0.0215 s; encode 0.0036 s
+  tag commit     95 cbs: GPU 1.8154 s (mean 19.109 ms); commit -> GPU start 0.8878 s (mean 9.345 ms); GPU end -> seen 0.0342 s; encode 0.0023 s
+  tag commit     64 cbs: GPU 1.7993 s (mean 28.115 ms); commit -> GPU start 0.8688 s (mean 13.576 ms); GPU end -> seen 0.0309 s; encode 0.0019 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [ahead32+qos2] (with its parts): the sealing pass, 4.762 s
+  tag commit     30 cbs: GPU 0.5907 s (mean 19.691 ms); commit -> GPU start 0.5581 s (mean 18.603 ms); GPU end -> seen 0.0051 s; encode 0.0017 s
+  tag wprod     224 cbs: GPU 0.3975 s (mean 1.775 ms); commit -> GPU start 0.3021 s (mean 1.349 ms); GPU end -> seen 0.0268 s; encode 0.0069 s
+  tag commit     95 cbs: GPU 1.9029 s (mean 20.031 ms); commit -> GPU start 0.9133 s (mean 9.614 ms); GPU end -> seen 0.0345 s; encode 0.0026 s
+  tag commit     64 cbs: GPU 1.8874 s (mean 29.491 ms); commit -> GPU start 0.8947 s (mean 13.980 ms); GPU end -> seen 0.0310 s; encode 0.0023 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [ahead32+qos1] (with its parts): the sealing pass, 4.439 s
+  tag commit     31 cbs: GPU 0.5649 s (mean 18.221 ms); commit -> GPU start 0.3611 s (mean 11.649 ms); GPU end -> seen 0.0041 s; encode 0.0009 s
+  tag wprod     224 cbs: GPU 0.3766 s (mean 1.681 ms); commit -> GPU start 0.2920 s (mean 1.303 ms); GPU end -> seen 0.0245 s; encode 0.0037 s
+  tag commit     95 cbs: GPU 1.9957 s (mean 21.007 ms); commit -> GPU start 0.8969 s (mean 9.441 ms); GPU end -> seen 0.0125 s; encode 0.0020 s
+  tag commit     64 cbs: GPU 1.9818 s (mean 30.965 ms); commit -> GPU start 0.8783 s (mean 13.723 ms); GPU end -> seen 0.0087 s; encode 0.0018 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [ahead16+qos2] (with its parts): the sealing pass, 4.571 s
+  tag commit     16 cbs: GPU 0.3082 s (mean 19.263 ms); commit -> GPU start 0.2453 s (mean 15.334 ms); GPU end -> seen 0.0024 s; encode 0.0009 s
+  tag wprod     224 cbs: GPU 0.4254 s (mean 1.899 ms); commit -> GPU start 0.3568 s (mean 1.593 ms); GPU end -> seen 0.0267 s; encode 0.0031 s
+  tag commit     95 cbs: GPU 1.8923 s (mean 19.919 ms); commit -> GPU start 1.1130 s (mean 11.716 ms); GPU end -> seen 0.1239 s; encode 0.0020 s
+  tag commit     64 cbs: GPU 1.8765 s (mean 29.320 ms); commit -> GPU start 1.0927 s (mean 17.073 ms); GPU end -> seen 0.1206 s; encode 0.0018 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [sp16] (queues shared): the whole call, 3.405 s
+  tag wprod     224 cbs: GPU 0.4559 s (mean 2.035 ms); commit -> GPU start 0.2692 s (mean 1.202 ms); GPU end -> seen 0.0258 s; encode 0.0028 s
+  tag commit     95 cbs: GPU 1.9626 s (mean 20.659 ms); commit -> GPU start 1.1649 s (mean 12.262 ms); GPU end -> seen 0.0675 s; encode 0.0019 s
+  tag commit     64 cbs: GPU 1.9467 s (mean 30.418 ms); commit -> GPU start 1.1442 s (mean 17.877 ms); GPU end -> seen 0.0642 s; encode 0.0016 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [sp8] (queues shared): the whole call, 3.248 s
+  tag wprod     224 cbs: GPU 0.4417 s (mean 1.972 ms); commit -> GPU start 0.2558 s (mean 1.142 ms); GPU end -> seen 0.0283 s; encode 0.0027 s
+  tag commit     95 cbs: GPU 1.7435 s (mean 18.352 ms); commit -> GPU start 0.9573 s (mean 10.076 ms); GPU end -> seen 0.0415 s; encode 0.0027 s
+  tag commit     64 cbs: GPU 1.7276 s (mean 26.994 ms); commit -> GPU start 0.9371 s (mean 14.642 ms); GPU end -> seen 0.0380 s; encode 0.0024 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [ahead32+qos2+sp16] (with its parts): the sealing pass, 3.744 s
+  tag commit     19 cbs: GPU 0.3630 s (mean 19.105 ms); commit -> GPU start 0.2277 s (mean 11.986 ms); GPU end -> seen 0.0033 s; encode 0.0013 s
+  tag wprod     224 cbs: GPU 0.3652 s (mean 1.630 ms); commit -> GPU start 0.3148 s (mean 1.405 ms); GPU end -> seen 0.0275 s; encode 0.0033 s
+  tag commit     95 cbs: GPU 1.7182 s (mean 18.086 ms); commit -> GPU start 1.0287 s (mean 10.829 ms); GPU end -> seen 0.0373 s; encode 0.0020 s
+  tag commit     64 cbs: GPU 1.7023 s (mean 26.598 ms); commit -> GPU start 1.0077 s (mean 15.745 ms); GPU end -> seen 0.0338 s; encode 0.0017 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [ahead32+qos2+sp16] (with its parts): the sealing pass, 3.678 s
+  tag commit     20 cbs: GPU 0.4000 s (mean 19.999 ms); commit -> GPU start 0.3189 s (mean 15.947 ms); GPU end -> seen 0.0024 s; encode 0.0014 s
+  tag wprod     224 cbs: GPU 0.3691 s (mean 1.648 ms); commit -> GPU start 0.3555 s (mean 1.587 ms); GPU end -> seen 0.0278 s; encode 0.0031 s
+  tag commit     95 cbs: GPU 1.9993 s (mean 21.046 ms); commit -> GPU start 1.4075 s (mean 14.816 ms); GPU end -> seen 0.1501 s; encode 0.0021 s
+  tag commit     64 cbs: GPU 1.9834 s (mean 30.990 ms); commit -> GPU start 1.3843 s (mean 21.629 ms); GPU end -> seen 0.1467 s; encode 0.0019 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [sp8] (queues shared): the whole call, 3.355 s
+  tag wprod     224 cbs: GPU 0.3972 s (mean 1.773 ms); commit -> GPU start 0.3494 s (mean 1.560 ms); GPU end -> seen 0.0265 s; encode 0.0025 s
+  tag commit     95 cbs: GPU 1.8326 s (mean 19.291 ms); commit -> GPU start 1.1210 s (mean 11.800 ms); GPU end -> seen 0.1412 s; encode 0.0024 s
+  tag commit     64 cbs: GPU 1.8168 s (mean 28.388 ms); commit -> GPU start 1.0981 s (mean 17.158 ms); GPU end -> seen 0.1378 s; encode 0.0022 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [sp16] (queues shared): the whole call, 3.531 s
+  tag wprod     224 cbs: GPU 0.3923 s (mean 1.751 ms); commit -> GPU start 0.3628 s (mean 1.620 ms); GPU end -> seen 0.0268 s; encode 0.0026 s
+  tag commit     95 cbs: GPU 1.9211 s (mean 20.222 ms); commit -> GPU start 1.0017 s (mean 10.544 ms); GPU end -> seen 0.0271 s; encode 0.0022 s
+  tag commit     64 cbs: GPU 1.9054 s (mean 29.771 ms); commit -> GPU start 0.9799 s (mean 15.312 ms); GPU end -> seen 0.0234 s; encode 0.0019 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [ahead16+qos2] (with its parts): the sealing pass, 4.757 s
+  tag commit     16 cbs: GPU 0.2992 s (mean 18.699 ms); commit -> GPU start 0.2948 s (mean 18.427 ms); GPU end -> seen 0.0039 s; encode 0.0010 s
+  tag wprod     224 cbs: GPU 0.3927 s (mean 1.753 ms); commit -> GPU start 0.3692 s (mean 1.648 ms); GPU end -> seen 0.0270 s; encode 0.0030 s
+  tag commit     95 cbs: GPU 1.8147 s (mean 19.102 ms); commit -> GPU start 1.0065 s (mean 10.594 ms); GPU end -> seen 0.0583 s; encode 0.0020 s
+  tag commit     64 cbs: GPU 1.7989 s (mean 28.108 ms); commit -> GPU start 0.9833 s (mean 15.365 ms); GPU end -> seen 0.0547 s; encode 0.0018 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [ahead32+qos1] (with its parts): the sealing pass, 4.447 s
+  tag commit     31 cbs: GPU 0.5429 s (mean 17.514 ms); commit -> GPU start 0.3704 s (mean 11.947 ms); GPU end -> seen 0.0041 s; encode 0.0008 s
+  tag wprod     224 cbs: GPU 0.3557 s (mean 1.588 ms); commit -> GPU start 0.3062 s (mean 1.367 ms); GPU end -> seen 0.0267 s; encode 0.0036 s
+  tag commit     95 cbs: GPU 2.0597 s (mean 21.682 ms); commit -> GPU start 1.1695 s (mean 12.311 ms); GPU end -> seen 0.0942 s; encode 0.0022 s
+  tag commit     64 cbs: GPU 2.0500 s (mean 32.031 ms); commit -> GPU start 1.1520 s (mean 18.000 ms); GPU end -> seen 0.0907 s; encode 0.0019 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [ahead32+qos2] (with its parts): the sealing pass, 4.834 s
+  tag commit     30 cbs: GPU 0.5929 s (mean 19.765 ms); commit -> GPU start 0.5107 s (mean 17.022 ms); GPU end -> seen 0.0046 s; encode 0.0015 s
+  tag wprod     224 cbs: GPU 0.3979 s (mean 1.777 ms); commit -> GPU start 0.3978 s (mean 1.776 ms); GPU end -> seen 0.0273 s; encode 0.0032 s
+  tag commit     95 cbs: GPU 1.7883 s (mean 18.825 ms); commit -> GPU start 0.8445 s (mean 8.890 ms); GPU end -> seen 0.0152 s; encode 0.0021 s
+  tag commit     64 cbs: GPU 1.7732 s (mean 27.706 ms); commit -> GPU start 0.8274 s (mean 12.929 ms); GPU end -> seen 0.0110 s; encode 0.0018 s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 [noahead] (queues shared): the whole call, 4.345 s
+  tag wprod     224 cbs: GPU 0.4106 s (mean 1.833 ms); commit -> GPU start 0.3239 s (mean 1.446 ms); GPU end -> seen 0.0276 s; encode 0.0026 s
+--- ahead32+qos2
+| proof wall s | +1.0% (1, 0) | +5.6% (1, 0) | **+3.3%** | 4.135 / 4.270 |
+| sealed wall s | +2.3% (1, 0) | +0.8% (1, 0) | **+1.6%** | 8.563 / 8.698 |
+| stream steady tok/s | -11.9% (1, 0) | -12.3% (1, 0) | **-12.1%** | 23.495 / 20.655 |
+| stream amortized tok/s | -10.7% (1, 0) | -12.7% (1, 0) | **-11.7%** | 20.260 / 17.890 |
+--- ahead32+qos1
+| proof wall s | +2.1% (1, 0) | +4.4% (1, 0) | **+3.3%** | 4.135 / 4.269 |
+| sealed wall s | -3.5% (1, 1) | -3.5% (1, 1) | **-3.5%** | 8.563 / 8.264 |
+| stream steady tok/s | -4.9% (1, 0) | -2.1% (1, 0) | **-3.5%** | 23.495 / 22.675 |
+| stream amortized tok/s | -4.1% (1, 0) | -1.2% (1, 0) | **-2.6%** | 20.260 / 19.725 |
+--- ahead16+qos2
+| proof wall s | -1.1% (1, 1) | +4.8% (1, 0) | **+1.8%** | 4.135 / 4.209 |
+| sealed wall s | -0.2% (1, 1) | +0.2% (1, 0) | **-0.0%** | 8.563 / 8.563 |
+| stream steady tok/s | -3.7% (1, 0) | -4.3% (1, 0) | **-4.0%** | 23.495 / 22.550 |
+| stream amortized tok/s | -4.2% (1, 0) | -3.4% (1, 0) | **-3.8%** | 20.260 / 19.490 |
+--- sp16
+| proof wall s | +0.6% (1, 0) | +0.0% (1, 0) | **+0.3%** | 4.135 / 4.147 |
+| sealed wall s | -11.2% (1, 1) | -10.7% (1, 1) | **-11.0%** | 8.563 / 7.624 |
+| stream steady tok/s | +17.6% (1, 1) | +15.2% (1, 1) | **+16.4%** | 23.495 / 27.345 |
+| stream amortized tok/s | +14.7% (1, 1) | +13.3% (1, 1) | **+14.0%** | 20.260 / 23.095 |
+--- sp8
+| proof wall s | +4.7% (1, 0) | +6.3% (1, 0) | **+5.5%** | 4.135 / 4.360 |
+| sealed wall s | -10.4% (1, 1) | -12.6% (1, 1) | **-11.5%** | 8.563 / 7.581 |
+| stream steady tok/s | +17.7% (1, 1) | +21.5% (1, 1) | **+19.6%** | 23.495 / 28.100 |
+| stream amortized tok/s | +14.8% (1, 1) | +18.9% (1, 1) | **+16.8%** | 20.260 / 23.670 |
+--- ahead32+qos2+sp16
+| proof wall s | -0.6% (1, 1) | +1.5% (1, 0) | **+0.5%** | 4.135 / 4.152 |
+| sealed wall s | -7.3% (1, 1) | -11.6% (1, 1) | **-9.5%** | 8.563 / 7.751 |
+| stream steady tok/s | -10.8% (1, 0) | -11.8% (1, 0) | **-11.3%** | 23.495 / 20.835 |
+| stream amortized tok/s | -13.7% (1, 0) | -11.4% (1, 0) | **-12.6%** | 20.260 / 17.715 |
+2026-11-05T19:26:10Z all done

@@ -1,0 +1,13 @@
+2026-11-05T19:26:10Z start
+2026-11-05T19:28:44Z build rc=0
+2026-11-05T19:30:36Z a13 fork byte test (CPU) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 111.78s
+2026-11-05T19:31:26Z a13 fork byte test (Metal) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 50.02s
+2026-11-05T19:31:30Z a13 split core golden (CPU) rc=0
+2026-11-05T19:31:32Z a13 split core golden (Metal) rc=0
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-afed131c59aa694b5/results/zk60_effplan_20261105/a13/s5_split_cpu.log:test private_block::w16r2_tests::a13_w16r2_rung_golden_with_the_core_split_across_threads ... A13-SPLIT W16R2_RUNG_H24: whol
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-afed131c59aa694b5/results/zk60_effplan_20261105/a13/s5_split_cpu.log:test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 4.07s
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-afed131c59aa694b5/results/zk60_effplan_20261105/a13/s5_split_metal.log:test private_block::w16r2_tests::a13_w16r2_rung_golden_with_the_core_split_across_threads_on_the_device ... A13-SPLIT W16R
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-afed131c59aa694b5/results/zk60_effplan_20261105/a13/s5_split_metal.log:test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 1.26s
+2026-11-05T19:31:32Z all done
