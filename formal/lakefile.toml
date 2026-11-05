@@ -1,5 +1,7 @@
 name = "ZK60Formal"
 defaultTargets = ["ZK60Formal"]
+# F23: an unknown name in a statement must be an error, never a silently bound implicit variable.
+leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }
 
 [[require]]
 name = "mathlib"

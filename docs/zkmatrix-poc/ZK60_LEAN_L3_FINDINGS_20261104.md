@@ -1603,6 +1603,9 @@ them all. Per hash query, it is the SUM of the sub-protocols' per-query errors:
   only; nothing in `formal/` was changed for the test.
 - **Suggested:** `leanOptions = { autoImplicit = false }` in `formal/lakefile.toml`. It changes every module's build,
   so it was not made here.
+- **Fixed, 2026-11-04, at the merge:** `formal/lakefile.toml` sets `leanOptions = { autoImplicit = false,
+  relaxedAutoImplicit = false }`. All 52 modules rebuilt under the guard: 3399 jobs, no warnings, peak 21 GB. The
+  option is recorded in each module's build setup (`.lake/build/ir/ZK60Formal/*.setup.json`).
 
 ## U6. What remains
 
