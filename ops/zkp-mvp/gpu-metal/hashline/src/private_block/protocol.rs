@@ -628,14 +628,25 @@ pub(crate) fn check_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, w
     if wit.planes.len() != ids.n_a() {
         return Err("private block: witness shape".into());
     }
-    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(lay, wit, *d))).collect();
+    // [A17] at a W16 profile, the one-term columns read from their planes (the
+    // same counts; `HL_A17_LOOKED=0` builds every column, as before)
+    let views_on = sh.range16() && looked_cols_on();
+    let looked: Vec<(Dom, Vec<Vec<i64>>)> = if views_on { Vec::new() } else { lay.lookup_doms().iter().map(|d| (*d, lookup_values(lay, wit, *d))).collect() };
     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
     let (_, exp_missed) = exp_histogram(&exp_deltas(lay, wit), &wit.planes[ids.at(A_E)], &blk.attention().exp);
     let (_, act_missed) = match blk.accuracy() {
         Some(data)=>super::accuracy_act::histogram(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)])?,
         None=>act_histogram(&act_indices(lay,wit),&wit.planes[ids.at(A_A16)],&blk.feed_forward().act),
     };
-    let u8_or_range_missed = if sh.range16() { w16_histograms(lay, &looked).2 } else { u8_misses_of(&looked, lookup_words) };
+    let u8_or_range_missed = if views_on {
+        let built: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, looked_built(lay, wit, *d))).collect();
+        let views: Vec<(Dom, Vec<LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols(lay, wit, *d, b))).collect();
+        w16_histograms_cols(lay, &views).2
+    } else if sh.range16() {
+        w16_histograms(lay, &looked).2
+    } else {
+        u8_misses_of(&looked, lookup_words)
+    };
     refuse_lookup_misses(u8_or_range_missed, exp_missed, act_missed)?;
     // NATIVE R9 (D30, CHECK.md B-8): the dictionary family, in the sealing
     // pass too, before `A` and before the header
@@ -1462,6 +1473,504 @@ pub(super) fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
     }
 }
 
+// ---------------------------------------------------------------- [A17] the forks' host work
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A17;
+// `results/zk60_effplan_20261105/a17/README.md`.) Byte-preserving: each form
+// writes the words the code before it wrote, in the same places, and refuses
+// where it refused. Each sits behind a switch that restores that code:
+// * `HL_A17_LOOKED` ([`LookedCol`]): at a W16 profile, a one-term lookup's
+//   looked column is read straight from its witness plane instead of being
+//   copied out first;
+// * `HL_A17_CHECKED` ([`CheckedPublic`]): in the D55 fork run, the preflight's
+//   record that THIS block object passed its public checks at THIS shape
+//   stands in for the fork's own re-check;
+// * `HL_A17_REUSE` ([`HostMats`]): a D55 fork worker keeps its `A` and `H`
+//   matrices from one block to the next block it proves, and every word of
+//   them is rewritten.
+// Each variable: `0` the code before A17, `1` the A17 form, unset the default.
+// No branch below reads a hidden value: what is borrowed, checked, kept or
+// zeroed is decided by the layout, the shape and the block's address.
+
+/// [A17] a process-wide switch: `0` unread, `1` off, `2` on
+fn a17_switch(cell: &std::sync::atomic::AtomicU8, var: &str, default_on: bool) -> bool {
+    use std::sync::atomic::Ordering::Relaxed;
+    match cell.load(Relaxed) {
+        0 => {
+            let on = match std::env::var(var).as_deref() {
+                Ok("0") => false,
+                Ok("1") => true,
+                _ => default_on,
+            };
+            cell.store(if on { 2 } else { 1 }, Relaxed);
+            on
+        }
+        m => m == 2,
+    }
+}
+
+static A17_LOOKED: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+static A17_CHECKED: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+static A17_REUSE: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
+/// [A17] the defaults of the three forms when their variable is unset
+const A17_LOOKED_DEFAULT: bool = true;
+const A17_CHECKED_DEFAULT: bool = true;
+const A17_REUSE_DEFAULT: bool = true;
+
+/// [A17] `HL_A17_LOOKED`: one-term looked columns read from their planes (W16)
+fn looked_cols_on() -> bool {
+    a17_switch(&A17_LOOKED, "HL_A17_LOOKED", A17_LOOKED_DEFAULT)
+}
+
+/// [A17] `HL_A17_CHECKED`: the fork run's preflight record stands in for the fork's re-check
+fn checked_record_on() -> bool {
+    a17_switch(&A17_CHECKED, "HL_A17_CHECKED", A17_CHECKED_DEFAULT)
+}
+
+/// [A17] `HL_A17_REUSE`: a fork worker's `A` and `H` matrices kept from block to block
+fn host_mats_on() -> bool {
+    a17_switch(&A17_REUSE, "HL_A17_REUSE", A17_REUSE_DEFAULT)
+}
+
+/// TEST ONLY ([A17] A/B and byte tests): `(looked, checked, reuse)`, each on,
+/// off or (`None`) as the environment says. Process-wide; changes no byte.
+#[cfg(test)]
+pub(crate) fn set_a17_for_test(looked: Option<bool>, checked: Option<bool>, reuse: Option<bool>) {
+    use std::sync::atomic::Ordering::Relaxed;
+    let v = |o: Option<bool>| match o {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    A17_LOOKED.store(v(looked), Relaxed);
+    A17_CHECKED.store(v(checked), Relaxed);
+    A17_REUSE.store(v(reuse), Relaxed);
+}
+
+/// TEST ONLY: the three forms as they stand (`(looked, checked, reuse)`)
+#[cfg(test)]
+pub(crate) fn a17_forms_for_test() -> (bool, bool, bool) {
+    (looked_cols_on(), checked_record_on(), host_mats_on())
+}
+
+/// **[A17] One looked column, as the histograms and the helpers read it.** A
+/// ONE-TERM lookup `cst + c * plane[x]` (every W16 lookup but `word24`'s low
+/// limb) is read straight from its witness plane; any other is the column
+/// [`lookup_values_at`] builds. Word `x` of a `Term` is
+/// `cst.wrapping_add(c.wrapping_mul(plane[x]))`, which is that function's fold
+/// over its one term, so every word is the built column's.
+#[derive(Clone, Copy)]
+pub(super) enum LookedCol<'a> {
+    Words(&'a [i64]),
+    Term { plane: &'a [i64], c: i64, cst: i64 },
+}
+
+impl LookedCol<'_> {
+    pub(super) fn len(&self) -> usize {
+        match self {
+            LookedCol::Words(w) => w.len(),
+            LookedCol::Term { plane, .. } => plane.len(),
+        }
+    }
+
+    /// words `[s, s + out.len())` into `out`
+    #[inline]
+    pub(super) fn fill(&self, s: usize, out: &mut [i64]) {
+        let e = s + out.len();
+        match *self {
+            LookedCol::Words(w) => out.copy_from_slice(&w[s..e]),
+            LookedCol::Term { plane, c: 1, cst } => out.iter_mut().zip(&plane[s..e]).for_each(|(o, v)| *o = cst.wrapping_add(*v)),
+            LookedCol::Term { plane, c, cst } => out.iter_mut().zip(&plane[s..e]).for_each(|(o, v)| *o = cst.wrapping_add(c.wrapping_mul(*v))),
+        }
+    }
+
+    /// the whole column, built (test builds: the cheating hooks' form)
+    #[cfg(test)]
+    pub(super) fn to_vec(&self) -> Vec<i64> {
+        let mut v = vec![0i64; self.len()];
+        self.fill(0, &mut v);
+        v
+    }
+}
+
+/// [A17] the words of one sub-block a reader holds at once (an L1-resident buffer)
+const LOOKED_BLOCK: usize = 1 << 10;
+
+/// [A17] the columns of a domain that are NOT one term, built as
+/// [`lookup_values_at`] builds them (in parallel over the column's words above
+/// [`LOOKUP_PAR_MIN`]: an indexed map, so the same vector), in lookup order;
+/// `None` for a one-term lookup
+pub(super) fn looked_built(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Option<Vec<i64>>> {
+    let len = lay.shape().size(dom);
+    lay.lookups(dom)
+        .iter()
+        .map(|l| {
+            if l.terms.len() == 1 {
+                return None;
+            }
+            let word = |x: usize| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])));
+            if len >= LOOKUP_PAR_MIN {
+                use rayon::prelude::*;
+                Some((0..len).into_par_iter().map(word).collect())
+            } else {
+                Some((0..len).map(word).collect())
+            }
+        })
+        .collect()
+}
+
+/// [A17] a domain's looked columns: each one-term lookup borrowed from its
+/// plane over the domain's padded extent (what [`lookup_values_at`] reads),
+/// each other one from `built` ([`looked_built`] of the same domain)
+pub(super) fn looked_cols<'a>(lay: &Layout, wit: &'a Witness, dom: Dom, built: &'a [Option<Vec<i64>>]) -> Vec<LookedCol<'a>> {
+    let len = lay.shape().size(dom);
+    lay.lookups(dom)
+        .iter()
+        .zip(built)
+        .map(|(l, b)| match (b, l.terms.as_slice()) {
+            (Some(v), _) => LookedCol::Words(v),
+            (None, [(p, c)]) => LookedCol::Term { plane: &wit.planes[*p][..len], c: *c, cst: l.cst },
+            (None, _) => unreachable!("looked_built builds every column that is not one term"),
+        })
+        .collect()
+}
+
+/// **[A17] [`w16_histograms`] over [`LookedCol`]s**: the same chunks of 2^16
+/// words, each read a sub-block at a time; the bins and the miss count are
+/// integer sums, so they are that function's
+pub(super) fn w16_histograms_cols(lay: &Layout, looked: &[(Dom, Vec<LookedCol<'_>>)]) -> (Vec<u64>, Vec<Vec<u64>>, usize) {
+    use rayon::prelude::*;
+    let widths: Vec<u32> = lay.shape().range_families().iter().map(|f| f.width).collect();
+    let mut chunks: Vec<(LookedCol<'_>, usize, usize, LkTag)> = Vec::new();
+    for (dom, cols) in looked {
+        for (c, l) in cols.iter().zip(lay.lookups(*dom)) {
+            let n = c.len();
+            chunks.extend((0..n).step_by(1 << 16).map(|s| (*c, s, (s + (1 << 16)).min(n), l.tag)));
+        }
+    }
+    let fresh = || (vec![0u64; U8_LEN], widths.iter().map(|w| vec![0u64; 1usize << w]).collect::<Vec<_>>(), 0usize);
+    chunks
+        .par_iter()
+        .fold(fresh, |mut acc, &(col, s, e, tag)| {
+            let mut buf = [0i64; LOOKED_BLOCK];
+            let f = match tag {
+                LkTag::Range(w) => widths.iter().position(|x| *x == w).expect("a W16 lookup's width is one of the shape's range families"),
+                LkTag::U8 => 0,
+            };
+            let mut x = s;
+            while x < e {
+                let m = (e - x).min(LOOKED_BLOCK);
+                let vs = &mut buf[..m];
+                col.fill(x, vs);
+                match tag {
+                    LkTag::U8 => {
+                        for v in vs.iter() {
+                            if (0..U8_LEN as i64).contains(v) {
+                                acc.0[*v as usize] += 1;
+                            } else {
+                                acc.0[0] += 1;
+                                acc.2 += 1;
+                            }
+                        }
+                    }
+                    LkTag::Range(w) => {
+                        let n = 1i64 << w;
+                        for v in vs.iter() {
+                            if (0..n).contains(v) {
+                                acc.1[f][*v as usize] += 1;
+                            } else {
+                                acc.2 += 1;
+                            }
+                        }
+                    }
+                }
+                x += m;
+            }
+            acc
+        })
+        .reduce(fresh, |mut a, b| {
+            for (x, y) in a.0.iter_mut().zip(&b.0) {
+                *x += *y;
+            }
+            for (fa, fb) in a.1.iter_mut().zip(&b.1) {
+                for (x, y) in fa.iter_mut().zip(fb) {
+                    *x += *y;
+                }
+            }
+            a.2 += b.2;
+            a
+        })
+}
+
+/// [A17] the cheating prover's misfiled range counts (test builds) over
+/// [`LookedCol`]s: the columns built, then [`misfile_range_misses`]
+#[cfg(test)]
+fn misfile_range_misses_cols(lay: &Layout, looked: &[(Dom, Vec<LookedCol<'_>>)], m_rng: Vec<Vec<u64>>) -> Vec<Vec<u64>> {
+    if MISFILED_RANGE.with(|c| c.get()).is_none() {
+        return m_rng;
+    }
+    let built: Vec<(Dom, Vec<Vec<i64>>)> = looked.iter().map(|(d, cols)| (*d, cols.iter().map(|c| c.to_vec()).collect())).collect();
+    misfile_range_misses(lay, &built, m_rng)
+}
+
+/// [A17] [`TaggedColumn`] over a [`LookedCol`]
+pub(super) struct TaggedCol<'a> {
+    pub(super) col: LookedCol<'a>,
+    pub(super) g: Fp2,
+    pub(super) tbl: &'a [Option<Fp2>],
+}
+
+/// [A17] [`HelperJobW16`] over [`LookedCol`]s
+pub(super) struct HelperJobCols<'a> {
+    pub(super) off: (usize, usize),
+    pub(super) a: TaggedCol<'a>,
+    pub(super) b: Option<TaggedCol<'a>>,
+}
+
+/// [A17] [`tagged_column`] over a [`LookedCol`]
+fn tagged_col<'c>(col: LookedCol<'c>, tag: LkTag, g_u8: Fp2, u8_inv: &'c [Option<Fp2>], tabs: &'c [(u32, Fp2, Vec<Option<Fp2>>)]) -> Result<TaggedCol<'c>, String> {
+    match tag {
+        LkTag::U8 => Ok(TaggedCol { col, g: g_u8, tbl: u8_inv }),
+        LkTag::Range(w) => {
+            let t = tabs.iter().find(|t| t.0 == w).ok_or("W16: a lookup width outside the shape's range families")?;
+            Ok(TaggedCol { col, g: t.1, tbl: &t.2 })
+        }
+    }
+}
+
+/// [A17] words per zeroing task
+const ZERO_CHUNK: usize = 1 << 16;
+
+/// [A17] `dst` set to zero, in parallel chunks
+pub(super) fn zero_par(dst: &mut [Fp]) {
+    use rayon::prelude::*;
+    dst.par_chunks_mut(ZERO_CHUNK).for_each(|c| c.fill(Fp::ZERO));
+}
+
+/// **[A17] [`write_helpers_w16`] over [`LookedCol`]s**, with the same checks,
+/// the same carving and the same refusal. With `zero_to = Some(z)` (a kept `H`
+/// whose words are unknown, [`HostMats`]) the same parallel region also writes
+/// zero at every word below `z` that no helper writes, so every word below `z`
+/// is then what this function writes into a zeroed `H`; the caller rewrites
+/// every word at and above `z` (the mask and zero-sum rows).
+pub(super) fn write_helpers_w16_cols(h: &mut [Fp], jobs: &[HelperJobCols<'_>], alpha: Fp2, zero_to: Option<usize>) -> Result<(), String> {
+    let mut ranges: Vec<(usize, usize, usize, bool)> = Vec::with_capacity(2 * jobs.len());
+    for (i, j) in jobs.iter().enumerate() {
+        let len = j.a.col.len();
+        if j.b.as_ref().is_some_and(|b| b.col.len() != len) || (j.off.0 + len > j.off.1 && j.off.1 + len > j.off.0) {
+            return Err("private block: a W16 helper job is malformed".into());
+        }
+        if len > 0 {
+            ranges.push((j.off.0, len, i, false));
+            ranges.push((j.off.1, len, i, true));
+        }
+    }
+    ranges.sort_unstable();
+    if !(ranges.windows(2).all(|w| w[0].0 + w[0].1 <= w[1].0) && ranges.last().is_none_or(|r| r.0 + r.1 <= h.len())) {
+        return Err("private block: W16 helper columns overlap or leave H".into());
+    }
+    let zero_to = zero_to.map(|z| z.min(h.len()));
+    let mut parts: Vec<[Option<&mut [Fp]>; 2]> = (0..jobs.len()).map(|_| [None, None]).collect();
+    let mut gaps: Vec<&mut [Fp]> = Vec::new();
+    let mut rest: &mut [Fp] = h;
+    let mut at = 0usize;
+    for &(start, len, i, im) in &ranges {
+        let (gap, tail) = std::mem::take(&mut rest).split_at_mut(start - at);
+        if let Some(z) = zero_to {
+            let keep = z.saturating_sub(at).min(gap.len());
+            gaps.push(gap.split_at_mut(keep).0);
+        }
+        let (mine, tail) = tail.split_at_mut(len);
+        parts[i][im as usize] = Some(mine);
+        rest = tail;
+        at = start + len;
+    }
+    if let Some(z) = zero_to {
+        let keep = z.saturating_sub(at).min(rest.len());
+        gaps.push(rest.split_at_mut(keep).0);
+    }
+    enum Work<'s, 'c> {
+        Help(&'s mut [Fp], &'s mut [Fp], usize, &'c HelperJobCols<'c>),
+        Zero(&'s mut [Fp]),
+    }
+    let mut items: Vec<Work<'_, '_>> = Vec::new();
+    for (j, [re, im]) in jobs.iter().zip(parts.iter_mut()) {
+        let (Some(re), Some(im)) = (re.take(), im.take()) else { continue };
+        for (c, (r, m)) in re.chunks_mut(HELPER_CHUNK).zip(im.chunks_mut(HELPER_CHUNK)).enumerate() {
+            items.push(Work::Help(r, m, c * HELPER_CHUNK, j));
+        }
+    }
+    for g in gaps {
+        items.extend(g.chunks_mut(ZERO_CHUNK).map(Work::Zero));
+    }
+    let fill = |w: Work<'_, '_>| -> bool {
+        let (r, m, s, j) = match w {
+            Work::Zero(z) => {
+                z.fill(Fp::ZERO);
+                return true;
+            }
+            Work::Help(r, m, s, j) => (r, m, s, j),
+        };
+        let (mut va, mut vb) = ([0i64; LOOKED_BLOCK], [0i64; LOOKED_BLOCK]);
+        let mut i0 = 0usize;
+        while i0 < r.len() {
+            let k = (r.len() - i0).min(LOOKED_BLOCK);
+            j.a.col.fill(s + i0, &mut va[..k]);
+            if let Some(b) = &j.b {
+                b.col.fill(s + i0, &mut vb[..k]);
+            }
+            for i in 0..k {
+                let Ok(mut v) = helper_one_any(va[i], alpha, j.a.g, j.a.tbl) else { return false };
+                if let Some(b) = &j.b {
+                    let Ok(y) = helper_one_any(vb[i], alpha, b.g, b.tbl) else { return false };
+                    v = v.add(y);
+                }
+                r[i0 + i] = v.c0;
+                m[i0 + i] = v.c1;
+            }
+            i0 += k;
+        }
+        true
+    };
+    use rayon::prelude::*;
+    if items.into_par_iter().map(fill).reduce(|| true, |x, y| x && y) {
+        Ok(())
+    } else {
+        Err(ZERO_DENOMINATOR.to_string())
+    }
+}
+
+/// **[A17] [`write_planes`] into a matrix whose words are unknown** (a kept
+/// `A`, [`HostMats`]): every plane's words in its place and zero at every other
+/// word below `zero_to`, in one parallel region, so every word below `zero_to`
+/// is what `write_planes` makes in a zeroed matrix. The words at and above
+/// `zero_to` are the caller's, which rewrites all of them (`A`'s mask and
+/// proximity rows, `fill_fp`). Jobs out of bounds, overlapping or reaching
+/// past `zero_to` (the layout's never do) take the plain form: zero
+/// `[0, zero_to)`, then `write_planes`, which writes and panics where it did.
+pub(super) fn write_planes_over(dst: &mut [Fp], jobs: &[(usize, &[i64])], zero_to: usize) {
+    let zero_to = zero_to.min(dst.len());
+    let mut order: Vec<usize> = (0..jobs.len()).collect();
+    order.sort_by_key(|&k| jobs[k].0);
+    let in_bounds = jobs.iter().all(|(o, p)| o.checked_add(p.len()).is_some_and(|e| e <= zero_to));
+    let disjoint = in_bounds && order.windows(2).all(|w| jobs[w[0]].0 + jobs[w[0]].1.len() <= jobs[w[1]].0);
+    if !disjoint {
+        zero_par(&mut dst[..zero_to]);
+        write_planes(dst, jobs);
+        return;
+    }
+    use rayon::prelude::*;
+    let mut items: Vec<(&mut [Fp], Option<&[i64]>)> = Vec::with_capacity(zero_to / HELPER_CHUNK + 2 * jobs.len() + 1);
+    let (mut rest, mut base) = (&mut dst[..zero_to], 0usize);
+    for &k in &order {
+        let (off, plane) = jobs[k];
+        let (gap, tail) = std::mem::take(&mut rest).split_at_mut(off - base);
+        items.extend(gap.chunks_mut(ZERO_CHUNK).map(|g| (g, None)));
+        let (mine, after) = tail.split_at_mut(plane.len());
+        items.extend(mine.chunks_mut(HELPER_CHUNK).zip(plane.chunks(HELPER_CHUNK)).map(|(d, p)| (d, Some(p))));
+        rest = after;
+        base = off + plane.len();
+    }
+    items.extend(rest.chunks_mut(ZERO_CHUNK).map(|g| (g, None)));
+    items.into_par_iter().for_each(|(d, p)| match p {
+        Some(p) => {
+            for (x, v) in d.iter_mut().zip(p.iter()) {
+                *x = Fp::from_i64(*v);
+            }
+        }
+        None => d.fill(Fp::ZERO),
+    });
+}
+
+/// **[A17] A D55 fork worker's `A` and `H` matrices, kept from one block to the
+/// next block it proves.** Each of the worker's blocks takes a kept matrix of
+/// its length (or a zeroed new one), rewrites every word of it before its
+/// commitment reads any — [`write_planes_over`] and `fill_fp` for `A`;
+/// [`write_helpers_w16_cols`] (or [`zero_par`]) and the writers after it for `H`
+/// — and gives it back after its opening. The worker holds them only while it
+/// lives, inside one fork run, and they are freed when it ends: no block reads
+/// a word another block left, and no word outlives the run.
+///
+/// Why: a fresh 328 + 341 MB pair per block came from the kernel as fresh
+/// pages, was zero-filled on the fork's main line one fault at a time, and went
+/// back to the kernel (`mach_vm_deallocate`) after the openings (stage 1's
+/// profile: about 14% of a fork's main-line host time).
+#[derive(Default)]
+pub(crate) struct HostMats {
+    a: Option<Vec<Fp>>,
+    h: Option<Vec<Fp>>,
+}
+
+impl HostMats {
+    /// a matrix of `len` words: the kept one, whose words are unknown (`true`),
+    /// or a zeroed new one (`false`)
+    fn take(slot: &mut Option<Vec<Fp>>, len: usize) -> (Vec<Fp>, bool) {
+        match slot.take() {
+            Some(v) if v.len() == len => (v, true),
+            _ => (vec![Fp::ZERO; len], false),
+        }
+    }
+
+    /// TEST ONLY: kept matrices of these lengths, every word `word` (a block's
+    /// leftovers, to show that every word is rewritten)
+    #[cfg(test)]
+    pub(crate) fn dirty_for_test(a_len: usize, h_len: usize, word: Fp) -> HostMats {
+        HostMats { a: Some(vec![word; a_len]), h: Some(vec![word; h_len]) }
+    }
+
+    /// TEST ONLY: the kept matrices' lengths
+    #[cfg(test)]
+    pub(crate) fn lens_for_test(&self) -> (Option<usize>, Option<usize>) {
+        (self.a.as_ref().map(Vec::len), self.h.as_ref().map(Vec::len))
+    }
+}
+
+/// **[A17] The record of one passed public check** (rulings CS-1 and CS-4:
+/// `blk.check_for_shape(sh)`), made by the D55 fork run's preflight for each
+/// block and handed to that block's fork. It holds the block it checked BY
+/// REFERENCE, so that block cannot be changed, moved or freed while the record
+/// lives, and the shape by value. [`prove_core_with`] skips its own re-check of
+/// `blk` at `sh` only when the record is for THAT block object (the same
+/// address) at an EQUAL shape; another block, a copy of it, another shape, no
+/// record or `HL_A17_CHECKED=0` runs the check as before. [`CheckedPublic::check`]
+/// is the one constructor, and it runs the check: no record exists for a block
+/// that did not pass.
+pub(crate) struct CheckedPublic<'b> {
+    blk: &'b BlockPublic,
+    sh: Shape,
+}
+
+impl<'b> CheckedPublic<'b> {
+    /// the check, and on success its record
+    pub(crate) fn check(blk: &'b BlockPublic, sh: &Shape) -> Result<CheckedPublic<'b>, String> {
+        blk.check_for_shape(sh)?;
+        Ok(CheckedPublic { blk, sh: sh.clone() })
+    }
+
+    /// whether this record is for this very block object at this shape
+    pub(crate) fn covers(&self, blk: &BlockPublic, sh: &Shape) -> bool {
+        std::ptr::eq(self.blk, blk) && self.sh == *sh
+    }
+}
+
+/// [A17] the shape's name only (never a word of the block)
+impl std::fmt::Debug for CheckedPublic<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CheckedPublic").field("shape", &self.sh.name).finish_non_exhaustive()
+    }
+}
+
+/// **[A17] What a D55 fork hands its core proof beside the block**: the
+/// preflight's record of the block's public checks and the worker's kept
+/// matrices. `CoreHints::default()` (no record, no matrices) is every other
+/// caller's, through [`prove_core`].
+#[derive(Default)]
+pub(crate) struct CoreHints<'h, 'b> {
+    pub(crate) checked: Option<&'h CheckedPublic<'b>>,
+    pub(crate) mats: Option<&'h mut HostMats>,
+}
+
 pub(super) fn check_endpoints(sh: &Shape, expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
     let (rows, _, _) = endpoint_geometry(sh)?;
     // S11b: whichever construction this profile's endpoints ride
@@ -1638,6 +2147,26 @@ pub(crate) fn prove_core(
     phases: &mut Vec<(&'static str, f64)>,
     tick: &mut std::time::Instant,
 ) -> Result<CoreProof, String> {
+    prove_core_with(sh, lay, blk, wit, io_data, ntt, rng, tr, ph, phases, tick, CoreHints::default())
+}
+
+/// **[A17]** [`prove_core`] with a D55 fork's [`CoreHints`]: the same proof,
+/// the same bytes and the same refusals, whatever the hints hold.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prove_core_with(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    wit: Witness,
+    io_data: [&[Fp]; 2],
+    ntt: &NttTables,
+    rng: &mut ZkRng,
+    tr: &mut Transcript,
+    ph: &mut timing::Phases,
+    phases: &mut Vec<(&'static str, f64)>,
+    tick: &mut std::time::Instant,
+    hints: CoreHints<'_, '_>,
+) -> Result<CoreProof, String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
     // RULING CS-8, in the body every proving path shares: the shape is one
     // `Shape::new` builds and the layout the CALLER hands is the one
@@ -1645,8 +2174,17 @@ pub(crate) fn prove_core(
     // committed for this block yet
     sh.check_constructed()?;
     lay.check_is_for_shape(sh)?;
-    // RULINGS CS-1 and CS-4, in the body every proving path shares
-    blk.check_for_shape(sh)?;
+    // RULINGS CS-1 and CS-4, in the body every proving path shares. [A17]: a
+    // D55 fork skips the re-check only when its preflight record is for THIS
+    // block object at THIS shape (`CheckedPublic::covers`); anything else checks
+    if !hints.checked.is_some_and(|c| checked_record_on() && c.covers(blk, sh)) {
+        blk.check_for_shape(sh)?;
+    }
+    // [A17] the worker's kept matrices (`HL_A17_REUSE=0`: a new zeroed pair per block)
+    let mut mats = if host_mats_on() { hints.mats } else { None };
+    // [A17] a W16 profile's one-term looked columns read from their planes
+    // (`HL_A17_LOOKED=0`: every looked column built first, as before)
+    let views_on = sh.range16() && looked_cols_on();
     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
     // every plane but the three derived histograms
     let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
@@ -1657,28 +2195,48 @@ pub(crate) fn prove_core(
     let zko = ZkOpts::standard(&params);
 
     // ---- A: planes, the three committed histograms, every mask row drawn BEFORE the commitment ----
-    let mut a_data = vec![Fp::ZERO; lay.a_rows * n];
+    // [A17] a kept `A` (its words unknown) or a new zeroed one
+    let (mut a_data, a_kept) = match mats.as_deref_mut() {
+        Some(m) => HostMats::take(&mut m.a, lay.a_rows * n),
+        None => (vec![Fp::ZERO; lay.a_rows * n], false),
+    };
     // [ZK60-METAL M4i] the same words in the same places, in one parallel pass
     let plane_jobs: Vec<(usize, &[i64])> = committed.iter().map(|p| (lay.a_off[*p], wit.planes[*p].as_slice())).collect();
-    write_planes(&mut a_data, &plane_jobs);
+    if a_kept {
+        // [A17] every word below the mask rows: a plane's or zero (the mask and
+        // proximity rows are all drawn below, `fill_fp`)
+        write_planes_over(&mut a_data, &plane_jobs, lay.a_mask_base * n);
+    } else {
+        write_planes(&mut a_data, &plane_jobs);
+    }
     drop(plane_jobs);
     ph.mark_bytes(Half::Commit, "A: allocate + witness planes -> committed rows", (lay.a_rows * n) as u64, "words", 8 * (lay.a_rows * n) as u64);
     // Histograms are indexed by registered table entries, never row width:
     // byte/exp and legacy ACT have 256 entries; ACT3 has groups*4096.
     // Invalid queries retain the bucket-0/miss refusal before A masks.
-    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect();
+    let looked: Vec<(Dom, Vec<Vec<i64>>)> = if views_on { Vec::new() } else { lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect() };
+    // [A17] the views: the columns that are not one term built, every other
+    // one borrowed from its plane
+    let built: Vec<(Dom, Vec<Option<Vec<i64>>>)> = if views_on { lay.lookup_doms().iter().map(|d| (*d, looked_built(lay, &wit, *d))).collect() } else { Vec::new() };
+    let views: Vec<(Dom, Vec<LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols(lay, &wit, *d, b))).collect();
     // a public count: how many lookup words the six lookup domains carry at
     // THIS shape. It is a function of the geometry and of nothing private.
-    let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
+    let lookup_words: u64 = if views_on { views.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum() } else { looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum() };
     // W16 (D54): the byte histogram plus one histogram per range family, and
     // the looked words outside their own table; every other profile keeps the
     // byte histogram alone, unchanged
     #[allow(unused_mut)]
-    let (mut m_u8, m_rng, w16_missed) = if sh.range16() { w16_histograms(lay, &looked) } else { (byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN), Vec::new(), 0) };
+    let (mut m_u8, m_rng, w16_missed) = if views_on {
+        w16_histograms_cols(lay, &views)
+    } else if sh.range16() {
+        w16_histograms(lay, &looked)
+    } else {
+        (byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN), Vec::new(), 0)
+    };
     // W16 review F3 (test builds only): the cheating prover's misfiled range
     // counts, and a binding the moved-multiplicity hook below may edit
     #[cfg(test)]
-    let mut m_rng = misfile_range_misses(lay, &looked, m_rng);
+    let mut m_rng = if views_on { misfile_range_misses_cols(lay, &views, m_rng) } else { misfile_range_misses(lay, &looked, m_rng) };
     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
     let deltas = exp_deltas(lay, &wit);
     let (mut m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
@@ -1782,7 +2340,17 @@ pub(crate) fn prove_core(
     let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
-    let mut h_data = vec![Fp::ZERO; lay.h_rows * n];
+    // [A17] a kept `H` (its words unknown) or a new zeroed one. A kept one is
+    // zeroed below its mask rows before any other writer: by the W16 helper
+    // region itself where nothing else writes (the views' form), or here
+    let (mut h_data, h_kept) = match mats.as_deref_mut() {
+        Some(m) => HostMats::take(&mut m.h, lay.h_rows * n),
+        None => (vec![Fp::ZERO; lay.h_rows * n], false),
+    };
+    let h_zero_to = lay.h_mask_base * n;
+    if h_kept && !views_on {
+        zero_par(&mut h_data[..h_zero_to.min(lay.h_rows * n)]);
+    }
     // **STAGE 28.** The 256 byte-table denominators, inverted once for the
     // whole of `H`: what was an element-wise batch inversion over every looked
     // word is a table build plus one indexed lookup per word. Same words, same
@@ -1799,19 +2367,37 @@ pub(crate) fn prove_core(
                 (f.width, g, super::range16::denominator_inverses(f.width, alpha, g))
             })
             .collect();
-        let mut wjobs: Vec<HelperJobW16<'_>> = Vec::new();
-        for (dom, cols) in &looked {
-            let tags: Vec<LkTag> = lay.lookups(*dom).iter().map(|l| l.tag).collect();
-            let (first, count) = lay.helpers(*dom);
-            for k in 0..count {
-                let b = match cols.get(2 * k + 1) {
-                    Some(c) => Some(tagged_column(c, tags[2 * k + 1], g_u8, &u8_inv, &tabs)?),
-                    None => None,
-                };
-                wjobs.push(HelperJobW16 { off: lay.h_off[first + k], a: tagged_column(&cols[2 * k], tags[2 * k], g_u8, &u8_inv, &tabs)?, b });
+        if views_on {
+            // [A17] the same jobs over the views (and, for a kept `H`, the
+            // zeros below its mask rows in the same region)
+            let mut wjobs: Vec<HelperJobCols<'_>> = Vec::new();
+            for (dom, cols) in &views {
+                let tags: Vec<LkTag> = lay.lookups(*dom).iter().map(|l| l.tag).collect();
+                let (first, count) = lay.helpers(*dom);
+                for k in 0..count {
+                    let b = match cols.get(2 * k + 1) {
+                        Some(c) => Some(tagged_col(*c, tags[2 * k + 1], g_u8, &u8_inv, &tabs)?),
+                        None => None,
+                    };
+                    wjobs.push(HelperJobCols { off: lay.h_off[first + k], a: tagged_col(cols[2 * k], tags[2 * k], g_u8, &u8_inv, &tabs)?, b });
+                }
             }
+            write_helpers_w16_cols(&mut h_data, &wjobs, alpha, h_kept.then_some(h_zero_to))?;
+        } else {
+            let mut wjobs: Vec<HelperJobW16<'_>> = Vec::new();
+            for (dom, cols) in &looked {
+                let tags: Vec<LkTag> = lay.lookups(*dom).iter().map(|l| l.tag).collect();
+                let (first, count) = lay.helpers(*dom);
+                for k in 0..count {
+                    let b = match cols.get(2 * k + 1) {
+                        Some(c) => Some(tagged_column(c, tags[2 * k + 1], g_u8, &u8_inv, &tabs)?),
+                        None => None,
+                    };
+                    wjobs.push(HelperJobW16 { off: lay.h_off[first + k], a: tagged_column(&cols[2 * k], tags[2 * k], g_u8, &u8_inv, &tabs)?, b });
+                }
+            }
+            write_helpers_w16(&mut h_data, &wjobs, alpha)?;
         }
-        write_helpers_w16(&mut h_data, &wjobs, alpha)?;
     }
     let mut jobs: Vec<HelperJob<'_>> = Vec::new();
     for (dom, cols) in looked.iter().filter(|_| !sh.range16()) {
@@ -1908,6 +2494,9 @@ pub(crate) fn prove_core(
     // guarantee than the acceptance test the memo asks for, and it is why this
     // step takes the witness by value rather than by reference.
     drop(looked);
+    // [A17] the views borrow the planes and the built columns
+    drop(views);
+    drop(built);
     drop(wit);
     drop(deltas);
     drop(act_idx);
@@ -2019,12 +2608,20 @@ pub(crate) fn prove_core(
     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
     let a_open = pcs::open_zk(&a, &ac, tr);
+    // [A17] the worker keeps `A`'s host matrix for its next block
+    if let Some(m) = mats.as_deref_mut() {
+        m.a = Some(std::mem::take(&mut a.data));
+    }
     drop(a);
     // ROUND 5: counted as the committed words the opening combines
     ph.mark_bytes(Half::Open, "open A (schedule audit + pcs::open_zk)", (lay.a_rows * lay.n()) as u64, "words", 8 * (lay.a_rows * lay.n()) as u64);
     let _ = ac.len();
     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
     let h_open = pcs::open_zk(&h, &hc, tr);
+    // [A17] and `H`'s
+    if let Some(m) = mats.as_deref_mut() {
+        m.h = Some(std::mem::take(&mut h.data));
+    }
     drop(h);
     ph.mark_bytes(Half::Open, "open H (schedule audit + pcs::open_zk)", (lay.h_rows * lay.n()) as u64, "words", 8 * (lay.h_rows * lay.n()) as u64);
     let _ = hc.len();

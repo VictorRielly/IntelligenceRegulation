@@ -1,0 +1,26 @@
+# A14 ranking: /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a712d6f342b57b528/results/zk60_effplan_20261105/a17/raw/s1_sample_N6.txt
+interval 2.0 ms, 3 proof-only fork calls in the window, N = 6
+
+fork main lines: 22756 samples = 45.51 thread-s; gpu-wait 49.9%, host 38.4%, pool-work 8.7%, pool-wait 3.0%
+main-line samples NOT waiting on the GPU: 11408 = 22.82 thread-s (1.268 s per fork per call)
+rayon busy samples: 35867 = 71.73 thread-s (23.91 CPU-s per call)
+
+| bucket | owner | main line, % of its non-GPU samples | main line, s per fork per call | pool busy, CPU-s per call |
+|---|---|---:|---:|---:|
+| A/H zero-fill, free (vec! / bzero / vm_deallocate) | protocol.rs (A13) | 14.5% | 0.184 | 0.08 |
+| openings' store fold (A8) | metal.rs fold region | 12.8% | 0.162 | 4.99 |
+| lookup values + histograms | protocol.rs (A13) | 10.9% | 0.138 | 3.35 |
+| public weight folds and public tables (define) | argument.rs define; accuracy_fold.rs, mle.rs, pad.rs code | 9.9% | 0.126 | 2.04 |
+| LogUp helper inverses | protocol.rs (A13) | 9.6% | 0.122 | 2.64 |
+| randomness: ZkRng (fill_fp, next_u64, the XOF) | rng.rs (A14) | 8.5% | 0.107 | 2.59 |
+| commit host parts (salts, Merkle, host NTT, uploads) | pcs.rs / metal.rs | 6.2% | 0.079 | 1.83 |
+| other / unattributed | - | 4.2% | 0.053 | 0.35 |
+| per-block public checks (check_for_shape, check_for_registry) | prove_core's call (protocol.rs, A13); private_block.rs / accuracy_public.rs code | 4.0% | 0.051 | 2.69 |
+| witness planes into A (write_planes) | protocol.rs (A13) | 4.0% | 0.051 | 1.50 |
+| extension rounds (mask_eval_eq, eq_table_msb) | argument.rs / mle.rs | 3.1% | 0.039 | 0.17 |
+| transcript absorb | transcript.rs (A14) | 3.0% | 0.038 | 0.00 |
+| private slots' tables (priv_table_fill / build_tables_at) | argument.rs (A14) | 2.7% | 0.034 | 0.69 |
+| claimed sum (total_at) | argument.rs | 2.6% | 0.033 | 0.91 |
+| device slots' table plan + public tables (A12 host part) | argument.rs / metal.rs tables (A14) | 2.0% | 0.025 | 0.10 |
+| openings other (group_zclaims, columns, check_opening) | pcs.rs | 1.6% | 0.020 | 0.00 |
+| sumcheck host rounds / host tail | sumcheck (zkp-core) | 0.5% | 0.006 | 0.00 |

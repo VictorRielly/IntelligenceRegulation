@@ -3116,3 +3116,214 @@ fn a15_the_8b_witness_planes_in_every_sealing_pool() {
     }
     std::env::remove_var("HL_GPU");
 }
+
+// ---- [A17] the forks' host work: the looked columns, the checked record, the kept matrices (efficiency plan A17) ----
+
+/// [A17] the eight settings of A17's three forms: (label, the one-term looked
+/// columns read from their planes, the preflight's record standing in for the
+/// re-check, the kept matrices). `a17old` is the code before A17.
+const A17_SETTINGS: [(&str, bool, bool, bool); 8] = [
+    ("a17old", false, false, false),
+    ("looked1 only", true, false, false),
+    ("checked1 only", false, true, false),
+    ("reuse1 only", false, false, true),
+    ("looked1+checked1", true, true, false),
+    ("looked1+reuse1", true, false, true),
+    ("checked1+reuse1", false, true, true),
+    ("a17new", true, true, true),
+];
+
+/// [A17] the word every kept matrix of `HostMats::dirty_for_test` holds before
+/// a block rewrites it: `p - 1`
+const A17_LEFTOVER: Fp = Fp(0xFFFF_FFFF_0000_0000);
+
+/// [A17] [`seeded_digest`]'s recipe exactly, through `prove_core_with` as a D55
+/// fork calls it: the preflight's record of this block at this shape, and the
+/// kept matrices `mats` (handed back filled when the reuse form is on)
+fn a17_seeded_digest(sh: &Shape, blk: &BlockPublic, w: Witness, mats: &mut protocol::HostMats) -> String {
+    let lay = Layout::for_shape(sh).unwrap();
+    let (ein, eout) = io_planes(sh, &w);
+    let ntt = NttTables::new(protocol::ntt_log_at(sh));
+    let mut rng = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+    let mut tr = Transcript::new(b"zk60 metal m4 accuracy");
+    tr.absorb(b"profile", sh.profile.as_bytes());
+    tr.absorb(b"schedule", &lay.schedule_digest());
+    let mut ph = super::timing::Phases::start();
+    let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+    let record = protocol::CheckedPublic::check(blk, sh).expect("the block passes its public checks");
+    let hints = protocol::CoreHints { checked: Some(&record), mats: Some(mats) };
+    let core = protocol::prove_core_with(sh, &lay, blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints).expect("the seeded A17 core proof");
+    let text = format!(
+        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
+        core.a_root, core.h_root, core.mask_root, core.slots, core.mask_open, core.a_open, core.h_open, core.io_claims, core.order, core.lookups, tr.state()
+    );
+    blake3::hash(text.as_bytes()).to_hex().to_string()
+}
+
+/// [A17] one setting's three proofs of a block: with a new pair of matrices, with
+/// the pair that proof kept, and with a kept pair whose every word is `p - 1`;
+/// each digest, and what the first proof kept (the matrices' lengths)
+fn a17_three(sh: &Shape, blk: &BlockPublic, w: &Witness, s: (bool, bool, bool)) -> ([String; 3], (Option<usize>, Option<usize>)) {
+    let lay = Layout::for_shape(sh).unwrap();
+    protocol::set_a17_for_test(Some(s.0), Some(s.1), Some(s.2));
+    let mut mats = protocol::HostMats::default();
+    let fresh = a17_seeded_digest(sh, blk, copy(w), &mut mats);
+    let kept = mats.lens_for_test();
+    let again = a17_seeded_digest(sh, blk, copy(w), &mut mats);
+    let mut dirty = protocol::HostMats::dirty_for_test(lay.a_rows * lay.n(), lay.h_rows * lay.n(), A17_LEFTOVER);
+    let left = a17_seeded_digest(sh, blk, copy(w), &mut dirty);
+    protocol::set_a17_for_test(None, None, None);
+    ([fresh, again, left], kept)
+}
+
+/// **[A17] the rung digests under A17's forms, with kept matrices** (CPU, in the
+/// suite). The W16R2 rung (a W16 profile: the views, the helper region's own
+/// zeros) and the R13 rung (not W16: the plain looked columns, `H` zeroed before
+/// its writers): the code before A17 (`prove_core`, every form off), then all
+/// forms off and all on through `prove_core_with`, each with a new pair, the pair
+/// the first proof kept and a pair of `p - 1` words: every digest is the code
+/// before A17's, and the W16R2 rung's is the golden `96e4f0b6`. (Every setting,
+/// on the CPU and the device: the ignored test below.)
+#[test]
+fn a17_the_rung_digests_under_a17_forms_with_kept_matrices() {
+    for profile in [shape::W16R2_RUNG_H24, shape::R13_RUNG_H24] {
+        let (sh, blk, w) = rung_case(profile);
+        protocol::set_a17_for_test(Some(false), Some(false), Some(false));
+        let want = seeded_digest(&sh, &blk, copy(&w));
+        protocol::set_a17_for_test(None, None, None);
+        if profile == shape::W16R2_RUNG_H24 {
+            assert!(want.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's digest before A17 is not the golden: {}", &want[..8]);
+        }
+        for (label, l, c, r) in [A17_SETTINGS[0], A17_SETTINGS[7]] {
+            let (ds, _) = a17_three(&sh, &blk, &w, (l, c, r));
+            for (what, d) in ["a new pair", "the pair the first proof kept", "a kept pair of p - 1 words"].iter().zip(&ds) {
+                assert_eq!(d, &want, "{} [{label}] with {what}: the digest moved", sh.name);
+            }
+            eprintln!("A17-RUNG {} CPU [{label}]: digest {} with a new pair, the kept pair and a pair of p - 1 words (the code before A17's)", sh.name, &want[..8]);
+        }
+    }
+}
+
+/// **[A17] a preflight record covers only its own block object at its own
+/// shape, and a modified block is still refused** (CPU, in the suite). At the
+/// W16R2 rung: a record covers its block at its shape, not a copy of the block
+/// and not another shape; no record can be made for a block that fails; and a
+/// MODIFIED block (its accuracy data dropped; one weight at `i8::MIN`) handed to
+/// `prove_core_with` beside the honest block's record is refused by CS-1 /
+/// CS-4's own words, with the record switched on and off. (The same through the
+/// fork run, with a block source that changes its answer:
+/// `run_fork_tests::a17_a_fork_refuses_a_block_its_preflight_did_not_check`.)
+#[test]
+fn a17_a_record_covers_only_its_own_block_and_a_modified_block_is_refused() {
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    let lay = Layout::for_shape(&sh).unwrap();
+    let record = protocol::CheckedPublic::check(&blk, &sh).expect("the honest rung block passes");
+    assert!(record.covers(&blk, &sh), "a record does not cover its own block");
+    let twin = blk.clone();
+    assert!(!record.covers(&twin, &sh), "a record covers a copy of its block (another object)");
+    let other = built(shape::W16_RUNG_H24);
+    assert!(other != sh && !record.covers(&blk, &other), "a record covers its block at another shape");
+    let bare = BlockPublic::new(blk.attention().clone(), blk.feed_forward().clone());
+    let mut signed = blk.clone();
+    signed.feed_forward.wd_t[0] = i8::MIN;
+    for (what, bad) in [("without its accuracy data", &bare), ("with one weight at i8::MIN", &signed)] {
+        let want = bad.check_for_shape(&sh).expect_err("the modified block fails CS-1 / CS-4");
+        assert!(protocol::CheckedPublic::check(bad, &sh).is_err(), "a record was made for a block {what}");
+        assert!(!record.covers(bad, &sh));
+        for checked in [true, false] {
+            protocol::set_a17_for_test(None, Some(checked), None);
+            let (ein, eout) = io_planes(&sh, &w);
+            let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+            let mut rng = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+            let mut tr = header(&sh, &lay);
+            let mut ph = super::timing::Phases::start();
+            let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+            let mut mats = protocol::HostMats::default();
+            let hints = protocol::CoreHints { checked: Some(&record), mats: Some(&mut mats) };
+            let got = protocol::prove_core_with(&sh, &lay, bad, copy(&w), [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints);
+            protocol::set_a17_for_test(None, None, None);
+            let e = got.err().unwrap_or_else(|| panic!("A BLOCK {what} PROVED BESIDE THE HONEST BLOCK'S RECORD (record form {checked})"));
+            assert_eq!(e, want, "the block {what}: the refusal is not CS-1 / CS-4's own (record form {checked})");
+        }
+        eprintln!("A17-RECORD {}: the block {what} is refused beside the honest block's record: {}", sh.name, want.chars().take(120).collect::<String>());
+    }
+}
+
+/// **[A17] the W16R2 rung's golden under every setting of A17's forms, on the
+/// CPU and on the device**, each with a new pair of matrices, the kept pair and
+/// a pair of `p - 1` words; with the reuse form on, the first proof keeps both
+/// matrices (at their lengths), and with it off none. Toggles `HL_GPU` and the
+/// forms in-process, so it is ignored and run alone by name
+/// (`HL_GPU_REQUIRED=1`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A17: toggles HL_GPU and the A17 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn a17_w16r2_rung_golden_under_every_a17_setting() {
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    let lay = Layout::for_shape(&sh).unwrap();
+    let lens = (Some(lay.a_rows * lay.n()), Some(lay.h_rows * lay.n()));
+    for gpu in [false, true] {
+        if gpu {
+            std::env::set_var("HL_GPU", "1");
+        } else {
+            std::env::remove_var("HL_GPU");
+        }
+        for (label, l, c, r) in A17_SETTINGS {
+            let before = crate::gpu::metal_sumcheck_stats().1;
+            let (ds, kept) = a17_three(&sh, &blk, &w, (l, c, r));
+            let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+            for (what, d) in ["a new pair", "the kept pair", "a pair of p - 1 words"].iter().zip(&ds) {
+                assert!(d.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung under {label} with {what} ({}): digest {}", if gpu { "Metal" } else { "CPU" }, &d[..8]);
+            }
+            assert_eq!(kept, if r { lens } else { (None, None) }, "{label}: the matrices kept after one proof");
+            assert!(!gpu || ran > 0.0, "no sumcheck round ran on the device under {label}");
+            eprintln!("A17-RUNG {} {} [{label}]: digest {} with a new pair, the kept pair and a pair of p - 1 words (the golden); kept {kept:?}", sh.name, if gpu { "Metal" } else { "CPU" }, &ds[0][..8]);
+        }
+    }
+    std::env::remove_var("HL_GPU");
+}
+
+/// **[A17, ignored] one W16R2 8B T128 block's core proof under every setting
+/// of A17's forms**: A14's 8B recipe (the trained calibration, a seeded
+/// generator) on the device, first through `prove_core` with every form off
+/// (the code before A17), then through `prove_core_with` under each of the
+/// eight settings with a new pair of matrices, the pair that proof kept and a
+/// pair of `p - 1` words: one digest of the whole core proof and the
+/// transcript's final state in all 25. Heavy; run alone by name with
+/// `HL_PB_ORACLE=0`.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A17: heavy (one 8B T128 block on Metal, 25 times), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0"]
+fn a17_the_8b_block_proves_the_same_under_every_a17_setting() {
+    use crate::private_block::shape::NormCalibration;
+    let spec = shape::W16R2_PROFILES.iter().find(|s| s.name == "W16R2_8B_T128_H24").expect("the W16R2 8B profile");
+    let cal = NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+    let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
+    let (sh, data, public, ff) = super::range16_tests::case(original, 3);
+    let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+    let mut seed = 0usize;
+    let input = loop {
+        let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + seed) % (41 + 20 * (seed % 3))) as i16 - 20).collect();
+        match super::witness::build_accuracy(&sh, &public, &ff, &data, &input) {
+            Ok(_) => break input,
+            Err(_) if seed < 6 => seed += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let w = super::witness::build_accuracy(&sh, &public, &ff, &data, &input).unwrap();
+    std::env::set_var("HL_GPU", "1");
+    protocol::set_a17_for_test(Some(false), Some(false), Some(false));
+    let t = std::time::Instant::now();
+    let want = seeded_digest(&sh, &blk, copy(&w));
+    protocol::set_a17_for_test(None, None, None);
+    eprintln!("A17-8B [a17old through prove_core] {:.3} s (cold), digest {}", t.elapsed().as_secs_f64(), &want[..16]);
+    for (label, l, c, r) in A17_SETTINGS {
+        let t = std::time::Instant::now();
+        let (ds, kept) = a17_three(&sh, &blk, &w, (l, c, r));
+        for (what, d) in ["a new pair", "the kept pair", "a pair of p - 1 words"].iter().zip(&ds) {
+            assert_eq!(d, &want, "the 8B block's core proof under {label} with {what} differs");
+        }
+        eprintln!("A17-8B [{label}] three proofs in {:.3} s, digest {} each (equal); kept {kept:?}", t.elapsed().as_secs_f64(), &ds[0][..16]);
+    }
+    std::env::remove_var("HL_GPU");
+}

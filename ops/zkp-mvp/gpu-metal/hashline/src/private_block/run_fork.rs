@@ -961,8 +961,10 @@ impl BlockSource for RepeatBlock<'_> {
 }
 
 /// RULINGS CS-1, CS-4 and CS-6 before anything is absorbed, as
-/// [`super::prove_run_with`] and the D12a verifier's start make them
-fn preflight(st: &RunStatement, blocks: &dyn ForkBlocks, check_digests: bool) -> Result<(), String> {
+/// [`super::prove_run_with`] and the D12a verifier's start make them.
+/// [A17]: on success, each block's record of its passed CS-1 / CS-4 check
+/// (`protocol::CheckedPublic`: that block object at that shape), in block order
+fn preflight<'b>(st: &RunStatement, blocks: &'b dyn ForkBlocks, check_digests: bool) -> Result<Vec<protocol::CheckedPublic<'b>>, String> {
     use rayon::prelude::*;
     let sh = &st.rs.sh;
     as_many_blocks_as_the_statement(st, blocks.count())?;
@@ -971,15 +973,16 @@ fn preflight(st: &RunStatement, blocks: &dyn ForkBlocks, check_digests: bool) ->
     // public weights, about 7 GB at 8B, and ran on one thread, 0.35-0.98 s per request.
     // They now run one block per rayon task. The refusal is the serial loop's: results are
     // read back in block order and the first error is returned.
-    let per_block: Vec<Result<(), String>> = (0..st.rs.l)
+    let per_block: Vec<Result<protocol::CheckedPublic<'b>, String>> = (0..st.rs.l)
         .into_par_iter()
         .map(|k| {
             let ssh = if sh.accuracy_stack() == super::super::accuracy_precision::Stack::Legacy { sh.clone() } else { st.stage_shape(k)? };
-            blocks.get(k)?.check_for_shape(&ssh).map_err(|e| format!("private run: block {k}: {e}"))
+            protocol::CheckedPublic::check(blocks.get(k)?, &ssh).map_err(|e| format!("private run: block {k}: {e}"))
         })
         .collect();
+    let mut checked = Vec::with_capacity(per_block.len());
     for r in per_block {
-        r?;
+        checked.push(r?);
     }
     policy_fits_the_shape(&st.expected, sh)?;
     if check_digests {
@@ -988,7 +991,8 @@ fn preflight(st: &RunStatement, blocks: &dyn ForkBlocks, check_digests: bool) ->
             r?;
         }
     }
-    st.expected.spec.validate()
+    st.expected.spec.validate()?;
+    Ok(checked)
 }
 
 // ---------------------------------------------- [A11] one rayon pool per fork worker
@@ -1138,6 +1142,8 @@ pub(crate) fn thread_cpu_s() -> f64 {
 struct ForkCtx<'c> {
     fr: &'c ForkRun<'c>,
     blocks: &'c dyn ForkBlocks,
+    /// [A17] the preflight's record of each block's passed public checks
+    checked: &'c [protocol::CheckedPublic<'c>],
     roots: &'c [Digest],
     in_data: Vec<&'c [Fp]>,
     out_data: Vec<&'c [Fp]>,
@@ -1147,7 +1153,8 @@ struct ForkCtx<'c> {
 }
 
 impl ForkCtx<'_> {
-    fn prove_one(&self, k: usize, wit: Witness) -> Result<ForkOut, String> {
+    /// one fork; `mats` is the worker's kept `A` and `H` ([A17], `protocol::HostMats`)
+    fn prove_one(&self, k: usize, wit: Witness, mats: &mut protocol::HostMats) -> Result<ForkOut, String> {
         // D60 review F8 (b), test builds only: the every-fork-panics switch
         #[cfg(test)]
         if PANIC_IN_FORK.with(|c| c.get()) {
@@ -1171,8 +1178,11 @@ impl ForkCtx<'_> {
         let (mut phases, mut tick) = (Vec::new(), Instant::now());
         #[cfg(test)]
         let cpu0 = thread_cpu_s();
+        // [A17] the preflight's record for block `k` (used only if it is for this
+        // very block object at this shape) and the worker's kept matrices
+        let hints = protocol::CoreHints { checked: self.checked.get(k), mats: Some(mats) };
         let t = Instant::now();
-        let core = protocol::prove_core(&ssh, &lay, blk, wit, [self.in_data[k], self.out_data[k]], self.ntt, &mut rng, &mut f, &mut ph, &mut phases, &mut tick)?;
+        let core = protocol::prove_core_with(&ssh, &lay, blk, wit, [self.in_data[k], self.out_data[k]], self.ntt, &mut rng, &mut f, &mut ph, &mut phases, &mut tick, hints)?;
         let core_s = t.elapsed().as_secs_f64();
         #[cfg(test)]
         let thread_cpu_s = thread_cpu_s() - cpu0;
@@ -1231,7 +1241,8 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let honest_checks = !protocol::cheating_prover_is_on();
     #[cfg(not(test))]
     let honest_checks = true;
-    preflight(st, blocks, honest_checks)?;
+    // [A17] each block's record of its passed public checks, for its fork
+    let checked = preflight(st, blocks, honest_checks)?;
     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
     let tag = sh.hash_tag();
     let ntt = NttTables::new(st.rs.ntt_log());
@@ -1267,7 +1278,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let mut outs: Vec<ForkOut> = {
         let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { &ein.data[..] } else { bounds[k - 1].1.data() }).collect();
         let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].1.data() }).collect();
-        let ctx = ForkCtx { fr, blocks, roots: &roots, in_data, out_data, ntt: &ntt, binding, cheat };
+        let ctx = ForkCtx { fr, blocks, checked: &checked, roots: &roots, in_data, out_data, ntt: &ntt, binding, cheat };
         let (tx, rx) = mpsc::sync_channel::<(usize, Witness)>(0);
         let rx = Mutex::new(rx);
         // [A11] each worker's own rayon pool, or the global one (the default)
@@ -1283,16 +1294,19 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                         // one: `install` runs it on a pool thread (which then takes
                         // this worker's test switches too) and every parallel region
                         // inside it on that pool's threads only
-                        let prove = |k: usize, wit: Witness| -> Result<ForkOut, String> {
+                        let prove = |k: usize, wit: Witness, mats: &mut protocol::HostMats| -> Result<ForkOut, String> {
                             match &pool {
                                 Some(p) => p.install(|| {
                                     #[cfg(test)]
                                     let _hooks = hooks.install();
-                                    ctx.prove_one(k, wit)
+                                    ctx.prove_one(k, wit, mats)
                                 }),
-                                None => ctx.prove_one(k, wit),
+                                None => ctx.prove_one(k, wit, mats),
                             }
                         };
+                        // [A17] this worker's `A` and `H`, kept from one of its
+                        // blocks to the next and freed when it ends
+                        let mut mats = protocol::HostMats::default();
                         let mut mine = Vec::new();
                         loop {
                             let job = rx.lock().map_err(|_| "D55: the job queue's lock is poisoned".to_string()).and_then(|q| q.recv().map_err(|_| String::new()));
@@ -1305,7 +1319,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                                 // panicked). A release build has `panic =
                                 // "abort"`: there a panic ends the process
                                 // (F8 (a)). Both fail closed.
-                                Ok((k, wit)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| prove(k, wit))) {
+                                Ok((k, wit)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| prove(k, wit, &mut mats))) {
                                     Ok(r) => r.map_err(|e| format!("D55: fork {k}: {e}")),
                                     Err(p) => Err(format!("D55: fork {k}: its worker panicked: {}", p.downcast_ref::<String>().map(String::as_str).or_else(|| p.downcast_ref::<&str>().copied()).unwrap_or("(no message)"))),
                                 }),
