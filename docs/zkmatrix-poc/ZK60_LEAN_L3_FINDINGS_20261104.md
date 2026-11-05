@@ -1309,3 +1309,299 @@ I checked the header, the commitment order, the sumcheck loop and the PCS order 
   offset, including `ldec_start` for the registered domains.
 - **`KnowledgeSound`** of `Statements.lean`: the extractor of the witness and of the commitment openings, composed
   with the above.
+
+# Part 6 (2026-11-04): vector challenges, LogUp and one opening under Fiat–Shamir
+
+New files under `formal/ZK60Formal/`: `FSWide.lean`, `FSWideRbr.lean`, `FSLogUp.lean`, `FSOpening.lean`.
+- `lake -d formal build` succeeds with no warnings (3399 jobs). Each of the 52 modules was also built alone, through
+  the resource guard. No file uses `sorry`, `axiom`, `admit`, `native_decide` or a `maxHeartbeats` option.
+- `#print axioms` was run on all 83 theorems of the four files. Each depends on `propext`, `Classical.choice` and
+  `Quot.sound` only, or on fewer (three on none).
+- The four files set `autoImplicit false` (see F23). No new lake dependency, and nothing was copied from FlashProve.
+
+**Scope.** `Statements.lean`'s model, as in Part 5:
+- one uniformly random `H : Q → D`;
+- the prover is a deterministic `OC Q D _` making at most `q` hash queries on every path, and it chooses the
+  statement;
+- the transcript is the code's hash chain (`FSChain.lean`), and the challenges are the code's derivations of its
+  digests.
+
+The code read is the `gpu-metal` tree (`ops/zkp-mvp/gpu-metal/`), as in Parts 3–5.
+
+## U1. What is proved
+
+**The wide-digest lemma (closes the proof gap of F19)** (`FSWide.lean`).
+- A STEP is an item and its forced continuation (`Steps`). For a squeeze `sq c` that starts a `k`-wide challenge, the
+  continuation is `sq (c + 1)`, …, `sq (c + k − 1)`, with no absorb between them.
+- The step's queries are `y = link(d, it)`, then `link(D_j, item j + 1)`; each names the digest before it.
+- `wideSwap` and `wide_card_le` are the counting core. Fix the start query `y`. Rewriting `H` along the step's own
+  queries (`Function.extend`) is a bijection of `(Q → D) × D^k` that exchanges "the step's digests" with "a free
+  `k`-tuple".
+- `wideHit_prob_le` is the lemma in an adaptive run. It covers a query `y` that is asked for the first time, starts a
+  step whose later queries are all new, and whose `k` digests land in a set named by the log before `y`:
+```lean
+theorem wideHit_prob_le {α : Type} (A : OC Q D α) (T : ℕ) (hA : A.Bounded T) (wd : Q → ℕ)
+    (nx : Q → ℕ → D → Q) (hinj : ∀ y (b : Fin (wd y) → D), Function.Injective (widePts y (nx y) b))
+    (Bad : List (Q × D) → Q → List D → Prop) (ε : ℝ≥0∞)
+    (hBad : ∀ P y, (PMF.uniformOfFintype (Fin (wd y) → D)).toOuterMeasure {b | Bad P y (List.ofFn b)} ≤ ε) :
+    prH (fun H => WideHit wd nx Bad H (A.runLog H).2) ≤ (T : ℝ≥0∞) * ε
+```
+  Each of the `T` positions is one attempt, and each attempt gets a fresh, uniform `k`-tuple. The per-attempt bound
+  `ε` is the WIDE challenge's own (for `ρ`, `A/|E|`), not a bound paid once per squeeze.
+- `chain_sound_wide` is `chain_sound` with steps:
+```lean
+theorem chain_sound_wide (C : ChainEnc It Q D) (S : Steps It) (St : List (Q × D) → List (It × D) → Prop)
+    (s : ℕ) (ε : ℝ≥0∞)
+    (hround : ∀ P τ it, s ≤ τ.length → (∃ hs : List It, τ.map Prod.fst = hs.flatMap S.items) → ¬ St P τ →
+      (PMF.uniformOfFintype (Fin (S.wd it) → D)).toOuterMeasure {b | St P (τ ++ S.ents it (List.ofFn b))} ≤ ε)
+    (hstab : ∀ (H : Q → D) (P P' : List (Q × D)) (τ : List (It × D)) (qs : List Q) (ext : List (It × D)),
+      C.Chain H τ qs → s ≤ τ.length → (∀ y ∈ qs, y ∈ P.map Prod.fst) → P <+: P' → (∀ e ∈ P', e.2 = H e.1) →
+        (St P (τ ++ ext) ↔ St P' (τ ++ ext)))
+    {α : Type} (heads : α → List It) (ℓ : ℕ) (hℓ : ∀ o, ((heads o).flatMap S.items).length ≤ ℓ)
+    (q : ℕ) (A : OC Q D α) (hA : A.Bounded q) :
+    prH (fun H => ¬ St ((C.stepRun S heads A).runLog H).2
+          (C.chainFrom H [] (((heads (A.run H)).take s).flatMap S.items))
+        ∧ St ((C.stepRun S heads A).runLog H).2 (C.chainFrom H [] ((heads (A.run H)).flatMap S.items)))
+      ≤ ((q + ℓ + 1 : ℕ) : ℝ≥0∞) * ε + collBound (q + ℓ + 1) D + collBound (q + ℓ + 1 + 1) D
+```
+  - The verifier hashes every step in full, so a chain is never cut inside a vector challenge. That is why the round
+    hypothesis is asked only of chains made of whole steps.
+  - The state may READ THE LOG (`St P τ`). Knowledge soundness needs this. The condition `hstab` asks that, once a
+    chain's queries are logged, a longer log changes neither its state nor that of its extensions.
+  - The proof is `chain_sound`'s. One more thing is needed: the later queries of the escaping step were not asked
+    before its first one. If one had been, the chain up to it, ordered by `chain_ordered`, would put the first query
+    earlier.
+
+**A protocol with vector challenges on the chain** (`FSWideRbr.lean`).
+- `n` rounds. Round `i` has width `w i ≥ 1` and a message iff `hasMsg i`.
+- The squeeze counter is the code's running count: `ctr w i = Σ_{i'<i} w i'`.
+- The verifier's items are `pHeadsW`, expanded by `pSteps`. The reader is `rDecodeW`: it never stops inside a round
+  (`foldl_bnd_flatMap`), and it reads the verifier's own chain as exactly `|ms|` rounds (`foldl_roundHeads`).
+- The protocol's transcript records each round's message (a default when there is none) and its RAW DIGESTS. The
+  derivation of the challenge is the state function's business.
+- Round-by-round soundness at the level of digests:
+```lean
+structure RbrWide [Fintype D] [Nonempty D] (n : ℕ) (w : ℕ → ℕ) (St : X → List (M × List D) → Prop) (ε : ℝ≥0∞) :
+    Prop where
+  round : ∀ x τ m, τ.length < n → ¬ St x τ →
+    (PMF.uniformOfFintype (Fin (w τ.length) → D)).toOuterMeasure {b | St x (τ ++ [(m, List.ofFn b)])} ≤ ε
+theorem fs_chain_sound_of_rbr_wide (hw : ∀ i, 0 < w i) (C : ChainEnc (PItem X M) Q D) {Mf : Type}
+    {L : X → Prop} {accept : X → List (M × List D) → Mf → Prop} {St : X → List (M × List D) → Prop}
+    (ε : ℝ≥0∞) (hR : RbrWide n w St ε) (hstart : ∀ x, ¬ L x → ¬ St x [])
+    (hfinal : ∀ x τ mf, τ.length = n → ¬ St x τ → ¬ accept x τ mf)
+    (q : ℕ) (A : OC Q D (X × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ L (A.run H).1
+        ∧ chainAcceptsW n w hw hasMsg m₀ accept C H (A.run H).1 (A.run H).2.1 (A.run H).2.2)
+      ≤ ((q + ℓW n w + 1 : ℕ) : ℝ≥0∞) * ε + collBound (q + ℓW n w + 1) D
+        + collBound (q + ℓW n w + 1 + 1) D
+```
+  `ℓW n w = 1 + Σ_{i<n} (1 + w i)`. The general form, with a state that reads the log, is `fs_chain_wide_flip`.
+- From an interactive bound to digests: `prob_vec_comap_le`, a vector read coordinatewise through a derivation with
+  at most `K` digests per value, costs `biasFactor K C D ^ k`. For the code's `challenge_fp2_vec`, `prob_fp2_vec_le`
+  gives `(1 + p/2^128)^(2k)`.
+
+**LogUp** (`FSLogUp.lean`; task 2). It has two rounds with no message, as the code draws them: `(β, γ)` of width 2,
+then `α` of width 1 (`protocol.rs:2005-2007`, the prover at `1708-1710`).
+```lean
+theorem logup_fold_round (A : ι ⊕ (π ⊕ π) → Tup F) (T : κ → Tup F) (m : κ → F) (h : luFalse A T) :
+    (PMF.uniformOfFintype (F × F)).toOuterMeasure {p | foldedId A T m p.1 p.2}
+      ≤ ((2 * (univ.image T).card : ℕ) : ℝ≥0∞) / Fintype.card F
+theorem logup_alpha_round (A : ι ⊕ (π ⊕ π) → Tup F) (T : κ → Tup F) (m : κ → F) (β γ : F)
+    (h : ¬ foldedId A T m β γ) :
+    (PMF.uniformOfFintype F).toOuterMeasure
+        {α | ∃ H, HelperRel (fun l => fold β γ (A l)) (fun j => fold β γ (T j)) m α H}
+      ≤ (((Fintype.card ι + 2 * Fintype.card π) + 2 * (univ.image T).card - 1 : ℕ) : ℝ≥0∞)
+        / Fintype.card F
+theorem fs_logup_chain_sound (p : ℕ) [NeZero p] (eF : ZMod p × ZMod p ≃ F) (T : κ → Tup F)
+    (lu : X → (ι ⊕ (π ⊕ π) → Tup F) × (κ → F)) (C : ChainEnc (PItem X Unit) Q Dg) (q : ℕ)
+    (A : OC Q Dg (X × List Unit × Helpers ι π κ F)) (hA : A.Bounded q) :
+    prH (fun H => luFalse (lu (A.run H).1).1 T
+        ∧ chainAcceptsW 2 luW luW_pos luMsg () (luAccept (fp2Field p (2 ^ 128) eF) T lu) C H (A.run H).1
+            (A.run H).2.1 (A.run H).2.2)
+      ≤ ((q + 6 + 1 : ℕ) : ℝ≥0∞) * luEps (ι := ι) (π := π) p T + collBound (q + 6 + 1) Dg
+        + collBound (q + 6 + 1 + 1) Dg
+```
+- `luEps p T = (N + 2M − 1)/|F| · (1 + p/2^128)^4`, where `N` counts the lookups (two per pair) and `M` the distinct
+  table tuples.
+- The state is "the folded identity holds" after `(β, γ)`, and "some helpers pass every relation and the sum claim"
+  after `α`.
+- The two rounds' errors are the halves of `logup_block_bound`'s proof. They add up to its `(N + 4M − 1)/|F|`
+  (`logup_rounds_add`).
+- The statement carries the lookups and multiplicities as values. The table is fixed (public).
+
+**One opening with the extracted matrix: round-by-round knowledge soundness** (`FSOpening.lean`; task 3).
+- The rounds come from `groups_sound`'s proof, split at the message:
+  - `opening_round0`. If some claim is false of the decoded message (or `U` is far), uniform `(λ, ρ)` keep the
+    opening alive with probability at most `A/|E|`. Alive means close with every group's `λ`-combined claim true, or
+    far with `Σ ρ_i U_i` close (`Alive1`).
+  - `opening_round1`. From a doomed `(λ, ρ)`, whatever vectors the prover sends, uniform `J` pass with probability at
+    most `((N − (e + 1))/N)^Q`.
+- The extraction:
+  - `cutLog` cuts a log at the first query that absorbs the root.
+  - `proverLog` recovers the prover's own log from any longer log by replaying the prover (`OC.replay`).
+  - `xtU` is `extractU` of the prover's log so cut. It reads only the prover's log and the root in the receipt, as
+    `KnowledgeSound` requires.
+  - `cut_proverLog_stable`: once a log contains an absorption of the root, every longer log extracts the same matrix.
+    This is the `hstab` above.
+- `opening_extract_fail` is the Merkle part, in the whole run: the prover, the verifier's chain and the verifier's
+  Merkle checks at the derived indices. An opened column that verifies but is not the extracted one has probability
+  at most `collBound T' D + 2T'²/|D|`, `T' = q + (ℓW + 1) + Q(h + 2)`.
+  - The named set (`extNamed`, at most `4|P| + 2` digests) holds the Merkle children and leaf contents of the log,
+    and the roots that a logged query (or the query itself) absorbs or that the replayed prover outputs.
+  - Part 3's `T(3q₁ + 1)` becomes `2T'²`. Under Fiat–Shamir the commit phase is the prover's whole run up to the
+    root's absorption, so `q₁` is replaced by `T'`.
+- The knowledge theorem with the code's derivations:
+```lean
+theorem fs_opening_knowledge_code (p : ℕ) [NeZero p] (eF : ZMod p × ZMod p ≃ F) (hh : h ≤ 64)
+    (M : MerkleEnc Q Dg S Col) (colVal : Col → κ → F) (c₀ : Col)
+    (enc : (μ → F) →ₗ[F] (Fin (2 ^ h) → F)) (henc : Function.Injective enc) {d e A : ℕ}
+    (hd : MinDist (LinearMap.range enc) d) (h2 : 2 * e < d) (hA : e + 1 ≤ A)
+    (hca : CAOn Unit (LinearMap.range enc) e A) (C : ChainEnc (PItem X (OMsg G μ F)) Q Dg)
+    (clOf : X → OClaims Cl G κ μ F) (rootOf : X → Dg) (d₀ : Dg) (m₀ : OMsg G μ F) {w0 m : ℕ} (h0 : 0 < w0)
+    (hm : 0 < m) {nQ : ℕ} (hnQ : nQ ≤ m * 4) (eLR : Fin w0 ≃ Cl ⊕ κ)
+    (q : ℕ) (Pv : OC Q Dg (X × List (OMsg G μ F) × (Fin nQ → MerkleOpening Dg S Col))) (hPv : Pv.Bounded q) :
+    prH (fun H => opAccepts M colVal enc clOf rootOf d₀ m₀ h0 hm (lrCode p eF eLR) (idxCode h hnQ) C H
+          (Pv.run H).1 (Pv.run H).2.1 (Pv.run H).2.2
+        ∧ ¬ GroupsGood enc e (extractU M colVal c₀ (cutLog C rootOf (rootOf (Pv.run H).1) (Pv.runLog H).2) h
+            (rootOf (Pv.run H).1)) (clOf (Pv.run H).1).rw (clOf (Pv.run H).1).cw (clOf (Pv.run H).1).grp
+            (clOf (Pv.run H).1).val)
+      ≤ ((q + ℓW 2 (opW w0 m) + 1 : ℕ) : ℝ≥0∞)
+          * max ((A : ℝ≥0∞) / Fintype.card F * (1 + (p : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ (2 * w0))
+            ((((Fintype.card (Fin (2 ^ h)) - (e + 1) : ℕ) : ℝ≥0∞) / Fintype.card (Fin (2 ^ h))) ^ nQ * 1)
+        + collBound (q + ℓW 2 (opW w0 m) + 1) Dg + collBound (q + ℓW 2 (opW w0 m) + 1 + 1) Dg
+        + (collBound (q + (ℓW 2 (opW w0 m) + 1) + nQ * (h + 2)) Dg
+          + ((2 * (q + (ℓW 2 (opW w0 m) + 1) + nQ * (h + 2)) * (q + (ℓW 2 (opW w0 m) + 1) + nQ * (h + 2)) : ℕ)
+            : ℝ≥0∞) / Fintype.card Dg)
+```
+  - `fs_opening_knowledge` is the same for any derivations whose bias is bounded.
+  - `lrCode_prob_le`: the code's `(λ, ρ)` costs `(1 + p/2^128)^(2·w0)`.
+  - `idxCode_prob_le`: the code's `challenge_indices` is exactly uniform. `chunkEquiv` gives the four 8-byte chunks
+    of a digest (`lo mod 2^64`, `lo / 2^64`, `hi mod 2^64`, `hi / 2^64`; `chunkEquiv_spec`). Index `k` is chunk
+    `k mod 4` of squeeze `⌊k/4⌋`, masked (`idxCode_spec`). The unused chunks of the last squeeze are free coordinates
+    (`prob_restrict_eq`).
+
+## U2. The bounds compared
+
+The figures are per hash query, with `|F| = |E| = p²`, `N_lk = 34,897,920` and `T_d = 127,668` (Part 1).
+
+| Protocol | Count (interactive, `recount_q280`) | Proved under Fiat–Shamir, per hash query: the max over its rounds |
+|---|---|---|
+| LogUp, one block | `(N_lk + 4T_d − 1)/p²` = 2^-102.922 | `α`: `(N_lk + 2T_d − 1)/p²·(1 + p/2^128)^4` = **2^-102.933**; the fold `2T_d/p²` = 2^-110.04 |
+| Regular opening, W16R2 (N 2^15, Q 280, e 8,052) | column + field −112.278 (proved interactively: −112.392) | field `N/p²·(1 + p/2^128)^(2w0)` = **2^-113.000** (the bias is `1 + O(w0·2^-63)`); column 2^-113.932, bias exactly 1 |
+| `M`'s opening | −106.248 | not under Fiat–Shamir yet (interactive, offset-aware: −106.370, F12) |
+| Sumcheck slot, `d = 5` | — | 5/p² = 2^-125.678 (Part 5) |
+
+- The chain and the extraction add `collBound T + collBound (T + 1) + collBound T' + 2T'²/2^256 ≤ 3.5·T'²/2^256`. That
+  is 2^-126.2 at `T' = 2^64`, and it stays below 2^-100 while `T' ≤ 2^77`.
+- Every bound is linear in `q`, the approved target's shape. Per hash query, LogUp is 2.9 bits under the target's
+  2^-100 and the opening 13 bits under.
+- The count's LogUp term and the proved per-query term differ in kind:
+  - the count's is the interactive SUM of LogUp's two rounds;
+  - the per-query term is the MAXIMUM of the two, because each query attacks one round.
+
+## U3. What the model takes from the code, and where it differs
+
+1. **The vector challenges are back-to-back squeezes** (verified):
+   - `zk_rhos` draws every group's `λ`, then `ρ`, with no transcript operation between them (`pcs.rs:952-973`);
+   - `challenge_fp2_vec` loops `challenge_fp2` (`transcript.rs:131-133`);
+   - `challenge_indices` loops `squeeze_bytes` over four 8-byte chunks each (`transcript.rs:136-148`);
+   - LogUp's `β, γ, α` are three calls in a row (`protocol.rs:2005-2007`).
+   Each squeeze increments the counter (`transcript.rs:101-111`), so the items of one step are distinct, as `Steps`
+   requires.
+2. **The order** (verified):
+   - the `A` root is absorbed (`protocol.rs:2003`) before `β, γ, α` and long before the opening's `λ, ρ`;
+   - in the opening, the vectors are absorbed (`pcs.rs:1220-1226`) before `J` (`pcs.rs:1227`);
+   - the opened column must sit at the sampled index (`pcs.rs:1251`), and its path must have the tree's depth
+     (`pcs.rs:1199-1204`).
+3. **The index derivation is the code's exactly** (`chunkEquiv_spec`, `idxCode_spec`): little-endian `u64` chunks,
+   masked by `bound − 1`, `⌈Q/4⌉` squeezes (70 at `Q = 280`). `v as usize` is lossless on a 64-bit target.
+4. **Where the model simplifies** (none of these is a defect in the code):
+   - **The opening's statement** (the root and the claims) is one item. In the code the root is absorbed first, and
+     the claims are fixed later by the slots' transcript. That prover is weaker, so the model is conservative. But
+     the composition with the slots that fix the claims is not stated.
+   - **The cut item.** `rootAbs` recognizes a statement link that carries the root. A code-level instance must
+     recognize `absorb_root(tr, "A", root, rows, log_cols)` (`protocol.rs:2003`), a different item.
+   - **Multi-absorb messages and headers are one item each**: the opening's `"pcs-vec"` per group and `"pcs-prox"`,
+     LogUp's `A` and `M` roots. This is the same chain with more links; only `T` changes.
+   - **LogUp's lookups and multiplicities are statement values.** In the code they are committed in `A`. The
+     knowledge version (extracting them from `A`'s commitment) is not stated.
+   - **The refusals of zero draws are not modelled.** They only add rejection.
+
+**No place was found where the code's transcript order or challenge derivation does not match what the proofs
+need.**
+
+## U4. Task 4: the whole-block figure, per hash query (union bound)
+
+What is proved so far gives one Fiat–Shamir theorem per sub-protocol. Their union is a bound for a run that contains
+them all. Per hash query, it is the SUM of the sub-protocols' per-query errors:
+
+| One block (8B T128, W16R2 Q 280) | Per hash query |
+|---|---|
+| LogUp | 2^-102.933 (proved, U2) |
+| `M`'s opening | 2^-106.248 (count; not yet under Fiat–Shamir) |
+| 3 regular openings (`A` and `H`, verified in the block, and the endpoint claims `ic, oc` it returns to its caller, `protocol.rs:2030`) | 3 × 2^-113.000 = 2^-111.415 (proved, U2) |
+| 23 sumcheck slots | ≤ 23 × 5/p² = 2^-121.15 (proved per slot, Part 5) |
+| The slots' zero-check `τ` draws and batches | ≈ 23 × 25/p² = 2^-118.83 (wide `τ`: `main/|F|`; `μ`: `1/|F|`; not yet under Fiat–Shamir) |
+| **Union, one block** | **2^-102.791** |
+| **Union, the count's 32-block run** | **2^-97.791 per hash query** |
+
+- The count's whole run is 2^-97.779 (2^-102.779 per block). That is an interactive TOTAL, with no `q`.
+- The union is a per-hash-query RATE: `εs(q) ≈ q·2^-97.79 + 3.5·T'²/2^256`. The two figures agree to 0.01 bit
+  because LogUp dominates both. Its Fiat–Shamir term (`α`'s `N + 2T_d − 1`) is slightly smaller than the count's
+  `N + 4T_d − 1`. Its other entries take the max where the count takes the sum.
+- One chain, composed as ONE round-by-round protocol, would give the maximum over all rounds of the run instead:
+  LogUp's 2^-102.933 per hash query. That composition is not proved (F20).
+
+## U5. Findings
+
+**F20 (Medium: the approved soundness target needs the one-chain composition).**
+- The approved target is `εs(q) = q·2^-100 + 2^-100`, a per-query rate of 2^-100.
+- **What is proved now gives only a union over sub-protocols.** That is 2^-97.79 per hash query for the 32-block run
+  (U4), **2.21 bits above the target**. At `q = 2^64` it is 2^-33.8 against the target's 2^-36.
+- **Composed on one chain**, each query attacks one round of one sub-protocol, and the per-query error is the maximum
+  over all rounds: LogUp's 2^-102.933, **2.93 bits under**. This needs:
+  - a combined state, "every sub-statement still alive", in which a round can only revive the sub-protocol it belongs
+    to;
+  - one schedule for the slots, LogUp, the openings, `M` and the blocks.
+  `FSWideRbr.lean`'s wrapper already takes per-round widths, rounds with and without messages, and the running
+  counter, so it is the natural place.
+- **Until it is proved, no proved bound meets `εs`.** This is not a code defect.
+- **Alternatives**, if the composition stalls: a profile that brings the union under 2^-100 per query (fewer blocks
+  per run, or a smaller LogUp term), or a ruling on the target. Either is Victor's decision.
+
+**F21 (Info: LogUp's per-query error is the `α` round's, not the count's joint figure).**
+- The fold `(β, γ)` and the `α` step are separate rounds. The second has no message: the state after `(β, γ)` is
+  determined by the statement and the two digests, which `RbrWide` allows.
+- Per hash query: `(N + 2M − 1)/|F|` = 2^-102.933. The count's `(N + 4M − 1)/|F|` = 2^-102.922 is their sum.
+- F19's "three rounds" reading (`N + 5M − 1`) is not needed. The wide lemma makes `(β, γ)` one round.
+
+**F22 (Info: the regular opening, per query, is its field term).**
+- `max(N/|E|·(1 + p/2^128)^(2w0), ((N − (e + 1))/N)^Q)` = 2^-113.000 at W16R2.
+- The `(λ, ρ)` bias, `(1 + 2^-64)^(2w0) ≈ 1 + w0·2^-63`, is negligible for `w0 ≤ 2^40`. The column term's
+  derivation is exactly uniform.
+- The extraction under Fiat–Shamir costs `2T'²/2^256` (Part 3's `T(3q₁ + 1)` with `q₁ = T'`).
+
+**F23 (Low: `autoImplicit` is on in `formal/`).**
+- `lakefile.toml` sets no Lean options, and Lean's default turns on auto-bound implicits. An unknown name in a
+  statement then silently becomes a universally quantified variable, and the statement still compiles.
+- **It happened in this work.** A statement in a scratch draft used `Dg`, defined in a file it did not import. It
+  compiled, with `Dg` read as an arbitrary type, until `set_option autoImplicit false` exposed it. The four new files
+  set the option.
+- **All 52 modules compile with `-DautoImplicit=false`.** Each was tested alone against the built imports, in scratch
+  only; nothing in `formal/` was changed for the test.
+- **Suggested:** `leanOptions = { autoImplicit = false }` in `formal/lakefile.toml`. It changes every module's build,
+  so it was not made here.
+
+## U6. What remains
+
+- **The composition on one chain (F20).** The 23 slots, LogUp, the three openings, `M` and the blocks of a run, as
+  one round-by-round protocol: `q·max + T²/2^256`.
+- **`M`'s opening under Fiat–Shamir.** The pattern of `FSOpening.lean`, with the affine proximity test and the
+  product-form test (`SoundMProduct.lean`), after F12's fix.
+- **The knowledge versions of LogUp and the slots:**
+  - the lookups and multiplicities extracted from `A`;
+  - the sumcheck's committed tables;
+  - the zero-check's wide `τ` and the batching vectors under Fiat–Shamir.
+- **The code-level instance.** `ChainEnc` for keyed BLAKE3 byte strings, the header's absorbs, the counter offset,
+  and `rootAbs` for `absorb_root`.
+- **`KnowledgeSound`** of `Statements.lean`, from the above.

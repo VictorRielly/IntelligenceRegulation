@@ -189,6 +189,7 @@ The plain-words version, the modelling choices and the open decisions are in
     (`mproduct_sound_shift`, `k/|E|`). `M`'s whole opening, the affine proximity test with the product test:
     `mopening_sound`, `mopening_sound_absorbed`; the decoded rows are unique (`mDecoded_unique`).
   - The comparison with the count, the model and the findings (F12: High, needs a code check) are in Part 4 of
+    `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
 
 - Proved so far (step L3, Fiat–Shamir in the random-oracle model, with `Statements.lean`'s `OC` and `prH`; the
   challenges are hash outputs and the prover chooses the statement; same build and axiom checks):
@@ -217,10 +218,32 @@ The plain-words version, the modelling choices and the open decisions are in
     message and a counter squeeze): `fs_chain_sound_of_rbr`. The sumcheck as the code hashes it, with the code's
     `challenge_fp2`: `T·d/|F|·(1 + p/2^128)² + collBound T + collBound (T + 1)`, `T = q + 2n + 2`
     (`fs_sumcheck_chain_sound_code`).
+  - `FSWide.lean`: VECTOR challenges (finding F19). The code draws `λ`, `ρ`, the index vector `J` and LogUp's
+    `β, γ, α` as several squeezes with no absorb between. A step of `k` such squeezes is ONE fresh uniform `k`-tuple
+    per attempt: rewriting `H` along the step's own queries is a bijection of `(Q → D) × D^k` (`wideSwap`,
+    `wide_card_le`), so in an adaptive run of `T` queries a set of probability `ε` named by the log is hit with
+    probability at most `T·ε` (`wideHit_prob_le`). `chain_sound_wide` is `chain_sound` with such steps, and its state
+    may read the log (for knowledge soundness), provided the state is frozen once the chain's queries are logged.
+  - `FSWideRbr.lean`: a protocol with per-round widths, rounds with or without a message, and the code's running
+    squeeze counter, on the chain (`pSteps`, `pHeadsW`, the reader `rDecodeW`). Round-by-round soundness with vector
+    challenges at the level of digests (`RbrWide`) gives `T·ε + collBound T + collBound (T + 1)`,
+    `T = q + ℓW + 1` (`fs_chain_sound_of_rbr_wide`; the general form with a log-reading state, `fs_chain_wide_flip`).
+    From the interactive bound to digests: `prob_vec_comap_le`; for `challenge_fp2_vec`, `(1 + p/2^128)^(2k)`
+    (`prob_fp2_vec_le`).
+  - `FSLogUp.lean`: LogUp under Fiat–Shamir as the code draws it. Two rounds with no message, `(β, γ)` then `α`,
+    with the per-round errors `logup_block_bound` decomposes into: the fold `2M/|F|` (`logup_fold_round`) and the
+    `α` step `(N + 2M − 1)/|F|` (`logup_alpha_round`); they add up to `(N + 4M − 1)/|F|` (`logup_rounds_add`).
+    On the chain: `(q + 7)·(N + 2M − 1)/|F|·(1 + p/2^128)^4 + chain terms` (`fs_logup_chain_sound`).
+  - `FSOpening.lean`: one opening under Fiat–Shamir with the matrix EXTRACTED from the prover's log cut at the
+    root's absorption: round-by-round KNOWLEDGE soundness. The rounds (`opening_round0`: `(λ, ρ)`, `A/|E|`;
+    `opening_round1`: `J`, the column term); the cut (`cutLog`, `proverLog` by replaying the prover,
+    `cut_proverLog_stable`); the Merkle extraction failure in the whole run (`opening_extract_fail`,
+    `collBound T' + 2T'²/|D|`); `fs_opening_knowledge`, and `fs_opening_knowledge_code` with the code's derivations
+    (`challenge_fp2_vec`: `(1 + p/2^128)^(2·w0)`; `challenge_indices`: exactly uniform, `chunkEquiv`, `idxCode`).
   - The comparison with the interactive bounds and the target, the code's transcript order (what is absorbed before
-    each challenge), the findings (F12–F15) and what remains (vector challenges drawn by several squeezes, the
-    extractor cut at the root's absorption, composition on one chain) are in Part 4 of
-    `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
+    each challenge), the findings (F16–F19) and what remained are in Part 5 of
+    `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`; the vector challenges, LogUp, the opening, the whole-block
+    figure per hash query and the findings F20–F23 are in its Part 6.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).
