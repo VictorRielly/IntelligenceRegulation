@@ -1524,7 +1524,7 @@ fn a_runs_imposed_set_carries_the_runs_own_statement_class() {
     // registered run profile is legacy — so this is checked on the
     // description, which is the same function without the rule gate
     let sh = Shape::rung();
-    let facts = RunFacts { profile: "hashline-zk-mr1/private-run-rung-t24-dev/1", l: 3, parameter_line: "a synthetic run parameter line" };
+    let facts = RunFacts { profile: "hashline-zk-mr1/private-run-rung-t24-dev/2", l: 3, parameter_line: "a synthetic run parameter line" };
     let set = hash_domain::full_at_shape_with(&sh, Some(&facts));
     assert!(set.describe(29 + 32 * 3).is_some(), "the run's public statement digest is not in the run's set");
     assert!(set.describe(151).is_some(), "the internal boundary's spec digest is not in the run's set");
@@ -2691,7 +2691,10 @@ fn r19b_the_module_follower_refuses_include_outside_test_code() {
 /// the path, each compiled as test code only (declared `#[cfg(test)]` by its
 /// parent: read for this list with `r19b/tools/mirror19b.py`). Paths are
 /// relative to `src/private_block/`.
-const TEST_ONLY_FILES: [&str; 79] = [
+const TEST_ONLY_FILES: [&str; 80] = [
+    // D65(1) (2026-11-04): F12's receipt-level version checks, declared by a
+    // bare `#[cfg(test)]` in `private_block.rs`
+    "f12_version_tests.rs",
     // D55 (2026-11-01): the "commit, fork, join" run's tests, declared
     // `#[cfg(test)]` by `run_fork.rs`. D60 (2026-11-02): `run_fork.rs` and
     // `run_fork_wire.rs` LEFT this list — the registered D55 profile is

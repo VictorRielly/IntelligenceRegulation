@@ -26,11 +26,15 @@ use crate::transcript::Transcript;
 
 /// the R8 / R9 digests of the non-DD shapes (R9's `r9_golden_tests`) and the
 /// R9 digests of the DD shapes, recorded in `r12/r9-golden-tree/`
+/// (`782b64c9..`, `05a22d72..`, `e50e71f8..`, `9c2572a3..`). D65(1), finding
+/// F12 (2026-11-04): re-pinned from this test's own output under the `/2`
+/// profiles and `M` from theta^1 (both are in the digested text), as in
+/// `r9_golden_tests`; the R9 -> R12 byte identity no longer holds by design.
 const GOLDEN: &[(&str, &str)] = &[
-    ("tinyllama-t128", "782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0"),
-    ("llama3-8b-t128", "05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db"),
-    ("tinyllama-t128-dd", "e50e71f86ab64c6f4d69c6bee1ec7881feef75b1dc4c3972e20a6810c4428324"),
-    ("llama3-8b-t128-dd", "9c2572a3d5bc7b39374e39c3781d467f2c065279b23dd580bb0c9e02dd63c282"),
+    ("tinyllama-t128", "d21f06fe13ac860ecd0ebaca43537a20357642dc38c7f2a557f46448170703bd"),
+    ("llama3-8b-t128", "d535bf8ae2a38cb1b56eb34719a8905a7f95e4a2be419de4ddb591b92c74ccb2"),
+    ("tinyllama-t128-dd", "9db560c2c7d66e73628434a490687199e02657dd35727e05b786af2f3b87fe7a"),
+    ("llama3-8b-t128-dd", "31e6a3d7f0917008d898c79a4616fb70126219b2564151df0e5ead917c99111e"),
 ];
 
 fn digest_of_seeded_block(sh: &Shape, blk: &BlockPublic, w: super::witness::Witness) -> String {
@@ -154,13 +158,16 @@ fn r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical() {
 }
 
 /// the R9 identities of the synthetic trained-model statements (cheap): a
-/// statement of an existing profile keeps its bytes across R9 -> R12
+/// statement of an existing profile keeps its bytes across R9 -> R12.
+/// D65(1), finding F12 (2026-11-04): a statement names its block profile, which
+/// moved from `/1` to `/2`, so every identity moved (re-pinned from this test's
+/// own output; the R9 values are in `results/zk60_f12_fix_20261104/REPIN.md`)
 const GOLDEN_IDENTITIES: &[(&str, &str)] = &[
-    ("llama3-8b-t128", "3a1a4533863de5ca158418d2e2eef29c067395c3881ab8cfd4fd55c0afeb0548"),
-    ("llama3-8b-t128-dd", "a0354c192baaf7243f07e023865f003a67d9ef8b1da605186f3f9aeb17b708b7"),
-    ("rung-dd", "35ea356f20f3c001c069273461fb807d3ad28503a81af76cc03e717f0ccc8bcd"),
-    ("tinyllama-t128", "f9b1e6c427637153ef7e40efd336952fb8d53b11e039f09031425d1e4cd8f22a"),
-    ("tinyllama-t128-dd", "0827ed029a86d3aa47679962dcb96ed752a79d59a2603dcc2a9374acd60f8505"),
+    ("llama3-8b-t128", "95c12aac32d497856f6aaf17dd517424ca59277a072c00aee9ac8c2e733e034e"),
+    ("llama3-8b-t128-dd", "446eb305bc1ab6bd07e6160da6d46fdf6e500d538adc1d2620c8aa502ac51513"),
+    ("rung-dd", "586989cae4340ad57b7c5745d78540c5c4201b08887bcd4d44bc28460640ac8a"),
+    ("tinyllama-t128", "a74e1e6cc7e9df8089bf302781d5db10732b512a331ab0522236a3fe139883ec"),
+    ("tinyllama-t128-dd", "40125be623128a3b084f5f68d23166aaed084686fd0777e3a72cee6a586e789f"),
 ];
 
 #[test]
@@ -175,6 +182,8 @@ fn r12_golden_statement_identities() {
         ("llama3-8b-t128-dd", Shape::llama3_8b_t128_trained_dd(&c8, 9).unwrap()),
         ("rung-dd", super::trained_calib_tests::rung_dd()),
     ];
+    // every identity is printed before any is compared, so one run shows all of them
+    let mut got: Vec<(&str, String)> = Vec::new();
     for (name, sh) in shapes {
         let (public, ff, _) = super::grow_tests::tame_case(&sh);
         let blk = BlockPublic::new(public, ff);
@@ -182,6 +191,9 @@ fn r12_golden_statement_identities() {
         let id: String = st.identity().iter().map(|b| format!("{b:02x}")).collect();
         let enc = blake3::hash(&st.encode()).to_hex().to_string();
         eprintln!("R12-GOLDEN-IDENTITY {name} {id} encode-blake3 {enc}");
+        got.push((name, id));
+    }
+    for (name, id) in got {
         let (_, want) = GOLDEN_IDENTITIES.iter().find(|(n, _)| *n == name).expect("every R12 statement needs an R9 identity recording");
         assert_eq!(id, *want, "{name}: the synthetic statement's identity moved between R9 and R12");
     }

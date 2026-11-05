@@ -640,7 +640,7 @@ fn a_receipt_does_not_verify_under_another_shape_at_the_rung() {
     let head_layout = |q_heads, kv_heads| {
         Shape::new(
             "the rung's padded geometry with a different head layout",
-            "hashline-zk-mr1/private-block-rung-t24-dev/1",
+            "hashline-zk-mr1/private-block-rung-t24-dev/2",
             24,
             96,
             192,
@@ -704,14 +704,18 @@ const PRE_LANE_RECEIPTS: [&str; 4] = [
     "/../results/zk60_attention_integration_20260919/block_public",
 ];
 
-/// **ATTACK 6, THE MOST IMPORTANT ONE.** A toy receipt produced BEFORE the lane
-/// must still verify under the lane's verifier, against a public statement the
-/// verifier rebuilds itself. This is stronger than the lane's freeze gate,
-/// which pins a length and a digest of the SCHEDULE TEXT: a change in the
-/// argument's arithmetic, in a claim point, in a challenge order or in the
-/// codec would leave both unmoved and break this.
+/// **ATTACK 6, AS D65(1) LEAVES IT.** Until D65(1) a toy receipt produced
+/// BEFORE the lane had to still verify under the lane's verifier (renamed from
+/// `a_toy_receipt_made_before_the_lane_still_verifies`). Every one of these
+/// archived receipts was made under the `/1` toy and the pre-F12 `M` (theta
+/// powers from theta^0, finding F12). Since D65(1) the toy is `/2`, `M`
+/// starts at theta^1 and the `/1` toy is retired, so each archived receipt
+/// must now be REFUSED, at the frame's own length (the toy's length did not
+/// change). The receipts themselves stayed on the laptop (they are over
+/// 1 MiB), so on the Mac this check finds none and fails for that reason, as
+/// it did before.
 #[test]
-fn a_toy_receipt_made_before_the_lane_still_verifies() {
+fn a_toy_receipt_made_before_f12_is_refused() {
     let (blk, _) = BlockPublic::synthetic_fixture();
     let mut checked = 0usize;
     for dir in PRE_LANE_RECEIPTS {
@@ -728,15 +732,11 @@ fn a_toy_receipt_made_before_the_lane_still_verifies() {
         let expected = ExpectedIo::from_bytes(&policy).expect("the archived endpoint policy parses");
         let r = verify_bytes(&blk, &expected, &frame);
         eprintln!("PRE-LANE {dir}: {} B, verify = {r:?}", frame.len());
-        r.unwrap_or_else(|e| panic!("{dir}: a toy receipt made BEFORE the lane no longer verifies under the lane's verifier: {e}"));
-        // and a one-bit change to the same archived frame is still refused
-        let mut bad = frame.clone();
-        bad[40] ^= 1;
-        assert!(verify_bytes(&blk, &expected, &bad).is_err(), "{dir}: a corrupted archived frame verified");
+        assert!(r.is_err(), "{dir}: a pre-F12 toy receipt (the /1 toy, theta^0) verified under the /2 toy's verifier");
         checked += 1;
     }
     assert!(checked > 0, "no pre-lane toy receipt was found: this check did not run");
-    eprintln!("PRE-LANE: {checked} archived toy receipts still verify under the lane's verifier");
+    eprintln!("PRE-LANE: {checked} archived pre-F12 toy receipts are refused under the /2 toy's verifier");
 }
 
 // ------------------------------------------------------------------ attack 8

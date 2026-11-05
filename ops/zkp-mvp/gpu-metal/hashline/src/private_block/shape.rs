@@ -30,22 +30,32 @@ pub(crate) const LIMBS_ISQRT: usize = 3;
 /// The FROZEN toy profile string. It is the gate of the pad rule (ruling P-1,
 /// finding S9-F1) and of every later shape-driven addition: a new shape is a
 /// NEW profile beside the toy, never an edit of it (D17).
-pub(crate) const TOY_PROFILE: &str = "hashline-zk-mr1/private-block-t32-poc/1";
+///
+/// **D65(1), finding F12 (2026-11-04): version `/2`.** `M`'s theta powers now
+/// start at theta^1, which moves every `M` opening, so the toy's receipt
+/// VALUE moves (its 2,816,472-byte length does not) and the `/1` toy is
+/// retired (no proof is made or checked under it). Every frozen treatment of
+/// the toy (the legacy hash rule, the legacy schedule label, the frozen
+/// parameter line, no pad rule) keys on this constant and carries over
+/// unchanged; only `M`'s opening and the transcript domain differ.
+pub(crate) const TOY_PROFILE: &str = "hashline-zk-mr1/private-block-t32-poc/2";
 /// **The FROZEN-SEAM development rung's profile string** (ruling T-2 as
 /// amended, 2026-09-20). This rung commits its endpoint inside
-/// `private_seam.rs`, a file this lane keeps byte-identical to `11c01b2`, so
+/// `private_seam.rs`, a file this lane keeps byte-identical to `11c01b2` on
+/// the endpoint path (D65(1) changed only the seam RECEIPT's wire magic,
+/// which the endpoint never reads), so
 /// its endpoint cannot be tagged. A profile is WHOLLY legacy or WHOLLY
 /// tagged, never a mixture — so this whole profile stays on the legacy rule.
 /// It is a stepping-stone development FIXTURE, never a deliverable, barred by
 /// name from any privacy statement, and [`Shape::rung_g`] replaces it.
-pub(crate) const FROZEN_SEAM_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-t24-dev/1";
+pub(crate) const FROZEN_SEAM_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-t24-dev/2";
 /// LANE C SCRATCH (not registered in the main tree): the TinyLlama-1.1B block
 /// geometry under a DEVELOPMENT calibration (`tn = 11`, window overridden to
 /// 32). NATIVE LANE: superseded by [`TINYLLAMA_T32_TRAINED_PROFILE`] and kept
 /// only as an UNREGISTERED structural twin (same plane list) for tests, so
 /// its string is deliberately outside the `hashline-zk-mr1/` registry.
 #[cfg(test)]
-pub(crate) const TINYLLAMA_T32_DEV_PROFILE: &str = "unregistered-dev-twin/private-block-tinyllama-1.1b-t32-w32-dev/1";
+pub(crate) const TINYLLAMA_T32_DEV_PROFILE: &str = "unregistered-dev-twin/private-block-tinyllama-1.1b-t32-w32-dev/2";
 /// **NATIVE LANE (2026-10-17): the TinyLlama-1.1B block geometry under a
 /// TRAINED (per-profile) norm calibration** — `norm_tn`, two norm multipliers
 /// `norm_cn_a` / `norm_cn_m`, `norm_ceps` and `sh_ao` are fields of the shape,
@@ -53,25 +63,25 @@ pub(crate) const TINYLLAMA_T32_DEV_PROFILE: &str = "unregistered-dev-twin/privat
 /// schedule's calibration line (and so into every transcript). The profile
 /// STRING names the family; the constants are carried by the schedule digest
 /// and by the trained-model statement. Proposed ruling D24 (norm_tn route).
-pub(crate) const TINYLLAMA_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1";
+pub(crate) const TINYLLAMA_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/2";
 /// **NATIVE LANE: a SMALL development shape under the same trained-calibration
 /// rule**, so the end-to-end norm-alias and coefficient tamper cases (D16 item
 /// 6) run in the ordinary test filter in seconds. Development grade, never a
 /// deliverable, its own profile (D17).
-pub(crate) const TRAINED_CALIB_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-tc-t32-dev/1";
+pub(crate) const TRAINED_CALIB_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-tc-t32-dev/2";
 /// **ROUND 3 (R3-2): the context ladder.** The same TinyLlama-1.1B block
 /// geometry under the same trained-calibration rule at T = 64 and T = 128,
 /// each its OWN profile string (D17: one profile per shape). Row width
 /// `2^(log2 T + 7)` keeps 21 endpoint rows, as at T32, and gives the smallest
 /// counted receipt of the admissible widths (T64: 15,445,848 B at 2^13;
 /// T128: 23,049,192 B at 2^14, `the_trained_tinyllama_counted_layout_ladder`).
-pub(crate) const TINYLLAMA_T64_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/1";
+pub(crate) const TINYLLAMA_T64_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/2";
 /// The T128 string carries a `-block` suffix: at the T32/T64 length plus
 /// one (60 bytes) its transcript constructor would be 71 bytes, the length of
 /// the `pb-term` absorb with 16 bytes of data in the same keyed function
 /// (`s25_tests`' census refuses that); at 66 bytes the constructor is 77,
 /// where this profile hashes no other kind.
-pub(crate) const TINYLLAMA_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1";
+pub(crate) const TINYLLAMA_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/2";
 /// the trained TinyLlama profiles: the pinned checkpoint's, at each
 /// registered context length
 pub(crate) const TINYLLAMA_TRAINED_PROFILES: [&str; 3] = [TINYLLAMA_T32_TRAINED_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE];
@@ -81,7 +91,7 @@ pub(crate) const TINYLLAMA_TRAINED_PROFILES: [&str; 3] = [TINYLLAMA_T32_TRAINED_
 /// over 8 key-value heads, RoPE base 500000). The same trained door and the
 /// same declared classes as TinyLlama; at width 4096 the validator derives
 /// `tn <= 9`. Its own profile (D17).
-pub(crate) const LLAMA3_8B_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1";
+pub(crate) const LLAMA3_8B_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/2";
 /// **NATIVE LANE, speed plan task 3 (2026-10-17 evening): the Llama-3-8B
 /// geometry at T = 64 and T = 128**, each its OWN profile string (D17), the
 /// same trained door, declared classes and pinned checkpoint as T32. Row
@@ -89,8 +99,8 @@ pub(crate) const LLAMA3_8B_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-
 /// 21,697,512 B; T128 2^14, 29,300,856 B; `ladder8b_tests`), 37 endpoint
 /// rows. Both profiles ACCEPTED by the independent review, round 5
 /// (`results/zk60_d24_review_20261017/R5_VERDICT.md`, verdict 2).
-pub(crate) const LLAMA3_8B_T64_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1";
-pub(crate) const LLAMA3_8B_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1";
+pub(crate) const LLAMA3_8B_T64_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t64-trained/2";
+pub(crate) const LLAMA3_8B_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-trained/2";
 /// the trained Llama-3-8B profiles: the pinned checkpoint's, at each
 /// registered context length
 pub(crate) const LLAMA3_8B_TRAINED_PROFILES: [&str; 3] = [LLAMA3_8B_T32_TRAINED_PROFILE, LLAMA3_8B_T64_TRAINED_PROFILE, LLAMA3_8B_T128_TRAINED_PROFILE];
@@ -101,12 +111,12 @@ pub(crate) const LLAMA3_8B_TRAINED_PROFILES: [&str; 3] = [LLAMA3_8B_T32_TRAINED_
 /// rung, each with `DD_CAP` dictionary slots per attention row. Their
 /// lengths equal existing profiles' (65 / 55 / 47 bytes), so no new hash
 /// input length appears on the path.
-pub(crate) const TINYLLAMA_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1";
-pub(crate) const LLAMA3_8B_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1";
+pub(crate) const TINYLLAMA_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/2";
+pub(crate) const LLAMA3_8B_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/2";
 /// development grade, never a deliverable: T32 / d256 / f512, 8 heads of 32
 /// over 2 KV heads — nothing on the head or token axis pads, which DD
 /// requires (see [`Shape::check_dd_geometry`])
-pub(crate) const TRAINED_DD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-dd-t32-dev/1";
+pub(crate) const TRAINED_DD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-dd-t32-dev/2";
 /// **NATIVE R12 (D38): the Shieldstral-1.0-3B text decoder** (Mistral's open
 /// safety classifier; Ministral-3-3B: 26 layers, d 3072, 32 query heads of
 /// 128 over 8 key-value heads — the query axis is 4096 wide, decoupled from
@@ -114,10 +124,10 @@ pub(crate) const TRAINED_DD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-
 /// at T128 and T256, with and without the DD dictionary. Every string's
 /// length equals an existing profile's (65 bytes, as the TinyLlama T128
 /// profiles; the run profiles 67), so no new hash input length appears.
-pub(crate) const SHIELDSTRAL_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1";
-pub(crate) const SHIELDSTRAL_T256_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/1";
-pub(crate) const SHIELDSTRAL_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1";
-pub(crate) const SHIELDSTRAL_T256_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-ddict/1";
+pub(crate) const SHIELDSTRAL_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/2";
+pub(crate) const SHIELDSTRAL_T256_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/2";
+pub(crate) const SHIELDSTRAL_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/2";
+pub(crate) const SHIELDSTRAL_T256_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-ddict/2";
 /// the four Shieldstral profiles (they carry the pinned Shieldstral source)
 pub(crate) const SHIELDSTRAL_PROFILES: [&str; 4] = [SHIELDSTRAL_T128_TRAINED_PROFILE, SHIELDSTRAL_T256_TRAINED_PROFILE, SHIELDSTRAL_T128_DD_TRAINED_PROFILE, SHIELDSTRAL_T256_DD_TRAINED_PROFILE];
 /// **NATIVE R12 (F2): the decoupled-head development rung** — development
@@ -126,7 +136,7 @@ pub(crate) const SHIELDSTRAL_PROFILES: [&str; 4] = [SHIELDSTRAL_T128_TRAINED_PRO
 /// model axis (192, padded 256): every relation that reads the query axis
 /// meets a padded width other than the model's in seconds. Its length equals
 /// the other rungs' (47 bytes).
-pub(crate) const TRAINED_HD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-hd-t32-dev/1";
+pub(crate) const TRAINED_HD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-hd-t32-dev/2";
 /// the DD profiles
 pub(crate) const DD_PROFILES: [&str; 11] = [TINYLLAMA_T128_DD_TRAINED_PROFILE, LLAMA3_8B_T128_DD_TRAINED_PROFILE, TRAINED_DD_RUNG_PROFILE, SHIELDSTRAL_T128_DD_TRAINED_PROFILE, SHIELDSTRAL_T256_DD_TRAINED_PROFILE, R13_TINY_T128_LOW_DD, R13_8B_T128_H24_DD, R13_SHIELD_T128_H24_DD, R13_SHIELD_T256_H24_DD, R13_RUNG_LOW_DD, R13_RUNG_H24_DD];
 /// **D30 / CHECK.md B-8: the dictionary's slots per attention row** — one
@@ -193,18 +203,18 @@ const NORM_CEPS: i128 = 1;
 
 
 // R13 registry. Construction/counting exists before proof activation.
-pub(crate) const R13_TINY_T128_LOW: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-stack-v01/1";
-pub(crate) const R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-ddict-v01/1";
-pub(crate) const R13_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1";
-pub(crate) const R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1";
-pub(crate) const R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1";
-pub(crate) const R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1";
-pub(crate) const R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1";
-pub(crate) const R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1";
-pub(crate) const R13_RUNG_LOW: &str = "hashline-zk-mr1/private-block-rung-lo-t32-dev/1";
-pub(crate) const R13_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-dev/1";
-pub(crate) const R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/private-block-rung-ld-t32-dev/1";
-pub(crate) const R13_RUNG_H24_DD: &str = "hashline-zk-mr1/private-block-rung-hh-t32-dev/1";
+pub(crate) const R13_TINY_T128_LOW: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-stack-v01/2";
+pub(crate) const R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-ddict-v01/2";
+pub(crate) const R13_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/2";
+pub(crate) const R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/2";
+pub(crate) const R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2";
+pub(crate) const R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/2";
+pub(crate) const R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/2";
+pub(crate) const R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/2";
+pub(crate) const R13_RUNG_LOW: &str = "hashline-zk-mr1/private-block-rung-lo-t32-dev/2";
+pub(crate) const R13_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-dev/2";
+pub(crate) const R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/private-block-rung-ld-t32-dev/2";
+pub(crate) const R13_RUNG_H24_DD: &str = "hashline-zk-mr1/private-block-rung-hh-t32-dev/2";
 #[derive(Clone,Copy)]
 pub(crate) struct AccuracyProfile {
     pub profile:&'static str, pub name:&'static str, pub legacy:&'static str,
@@ -232,17 +242,17 @@ pub(crate) fn accuracy_spec(profile:&str)->Option<&'static AccuracyProfile> {ACC
 // confused with the R13 profile's; the R13 entries above are untouched and
 // the R13 sweeps (which iterate `ACCURACY_PROFILES`) never see these.
 // Design: `results/zk60_limb16_20261031/DESIGN.md`.
-pub(crate) const W16_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1";
-pub(crate) const W16_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/1";
-pub(crate) const W16_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/1";
+pub(crate) const W16_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/2";
+pub(crate) const W16_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/2";
+pub(crate) const W16_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/2";
 // [ZK60-METAL M7] longer contexts of the same two geometries, for the
 // measured context scaling (the agenda's >= 50 proved tokens/s target allows
 // longer workloads). `log_cols` grows with T so a block keeps about 32 rows,
 // as R13_SHIELD_T256_H24 does. Measurement profiles: not registered for any
 // receipt (W16 itself is not yet registered, D54).
-pub(crate) const W16_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-w16/1";
-pub(crate) const W16_8B_T256_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t256-lh24-w16/1";
-pub(crate) const W16_8B_T512_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t512-lh24-w16/1";
+pub(crate) const W16_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-w16/2";
+pub(crate) const W16_8B_T256_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t256-lh24-w16/2";
+pub(crate) const W16_8B_T512_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t512-lh24-w16/2";
 pub(crate) const W16_PROFILES:[AccuracyProfile;6]=[
 AccuracyProfile{profile:W16_RUNG_H24,name:"W16_RUNG_H24",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
 AccuracyProfile{profile:W16_SHIELD_T128_H24,name:"W16_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
@@ -283,9 +293,9 @@ AccuracyProfile{profile:W16_8B_T512_H24,name:"W16_8B_T512_H24",legacy:LLAMA3_8B_
 // M26 pair, separated the same way (s33's J-7a lemma; recorded in s25's
 // census row and pinned by s33's sixty-three-byte test for both rungs).
 // Accounting: `results/zk60_w16r2_20261101/ACCOUNTING.md`.
-pub(crate) const W16R2_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1";
-pub(crate) const W16R2_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/1";
-pub(crate) const W16R2_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/1";
+pub(crate) const W16R2_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2";
+pub(crate) const W16R2_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2";
+pub(crate) const W16R2_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2";
 pub(crate) const W16R2_PROFILES:[AccuracyProfile;3]=[
 AccuracyProfile{profile:W16R2_RUNG_H24,name:"W16R2_RUNG_H24",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
 AccuracyProfile{profile:W16R2_SHIELD_T128_H24,name:"W16R2_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
@@ -644,6 +654,27 @@ fn bit_length(v: i128) -> u32 {
 /// build past CS-9's own check because each IS the entry).
 const REGISTERED_BLOCK_SHAPES: [fn() -> Shape; 9] = [Shape::toy, Shape::rung, Shape::rung_g, Shape::rung_k4, Shape::rung_p2, Shape::rung_c6, Shape::rung_w14, Shape::rung_e32, Shape::m125];
 
+/// **D65(1), finding F12 (2026-11-04): the pre-F12 versions are retired.**
+/// `M`'s theta powers now start at theta^1 (`zk::combined_weights`), which
+/// moved every `M` opening, so every profile whose receipts use `M` was given
+/// its version one higher: each `…/1` string became `…/2`
+/// (`results/zk60_f12_fix_20261104/profile_versions.tsv` lists all of them).
+/// A string that ends in `/1` is the pre-F12 version of the string with `/2`
+/// in its place; this returns that successor. Whether the successor is
+/// REGISTERED is the caller's question (CS-9 here, CS-7 in `run.rs`): only
+/// then is the string a retired version, refused by name in every build,
+/// test builds included. No profile string is written here either.
+pub(crate) fn pre_f12_successor(profile: &str) -> Option<String> {
+    profile.strip_suffix("/1").map(|stem| format!("{stem}/2"))
+}
+
+/// The refusal of a retired pre-F12 profile version (CS-9 and CS-7 share it).
+pub(crate) fn pre_f12_refusal(profile: &str, successor: &str) -> String {
+    format!(
+        "{profile:?} is a pre-F12 profile version, retired by ruling D65(1): its receipts combined M's functionals from theta^0, which certifies the first functional only up to the blinding polynomial's sum (finding F12), so no proof is made or checked under it; the current version is {successor:?}"
+    )
+}
+
 /// The one shape a block profile string names (a trained-calibration
 /// profile: its geometry at `f_e`), or `None` for a string this build does
 /// not register. No profile string is written here.
@@ -914,15 +945,31 @@ impl Shape {
         norm_wrho: Option<u32>,
         wrho_s: Option<u32>,
     ) -> Result<Shape, String> {
+        // D65(1), finding F12: a retired pre-F12 string is refused first, before any construction refusal that
+        // keys on the profile string could answer for it under another name
+        Shape::refuse_a_pre_f12_block_profile(profile, f_e)?;
         let sh = Shape::build(name, profile, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s)?;
         sh.block_profile_names_this_shape(cfg!(test))?;
         Ok(sh)
+    }
+
+    /// **D65(1), finding F12.** A pre-F12 version of a registered block profile (see [`pre_f12_successor`]) is
+    /// refused in EVERY build: a test build admits unregistered strings at CS-9, never a retired one.
+    fn refuse_a_pre_f12_block_profile(profile: &str, f_e: u32) -> Result<(), String> {
+        if let Some(succ) = pre_f12_successor(profile) {
+            if registered_block_shape(&succ, f_e).is_some() {
+                return Err(format!("private block shape: ruling CS-9 — {}", pre_f12_refusal(profile, &succ)));
+            }
+        }
+        Ok(())
     }
 
     /// **Ruling CS-9's check** (see [`Shape::new`]). `admit_unregistered` is
     /// `cfg!(test)` at its one production caller.
     fn block_profile_names_this_shape(&self, admit_unregistered: bool) -> Result<(), String> {
         const CS9: &str = "private block shape: ruling CS-9 — ";
+        // D65(1), finding F12: the retired pre-F12 strings, in every build and before the registry is read
+        Shape::refuse_a_pre_f12_block_profile(self.profile, self.f_e)?;
         match registered_block_shape(self.profile, self.f_e) {
             Some(Ok(reg)) if reg == *self => Ok(()),
             Some(Ok(reg)) => {
@@ -1359,7 +1406,7 @@ impl Shape {
     pub(crate) fn rung_g() -> Shape {
         Shape::build(
             "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
-            "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+            "hashline-zk-mr1/private-block-rung-g-t24-dev/2",
             24,
             96,
             192,
@@ -1419,7 +1466,7 @@ impl Shape {
     pub(crate) fn rung_k4() -> Shape {
         Shape::build(
             "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)",
-            "hashline-zk-mr1/private-block-rung-k4-t24-dev/1",
+            "hashline-zk-mr1/private-block-rung-k4-t24-dev/2",
             24,
             96,
             192,
@@ -1482,7 +1529,7 @@ impl Shape {
     pub(crate) fn rung_p2() -> Shape {
         Shape::build(
             "development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)",
-            "hashline-zk-mr1/private-block-rung-p2-t32-dev/1",
+            "hashline-zk-mr1/private-block-rung-p2-t32-dev/2",
             32,
             96,
             256,
@@ -1557,7 +1604,7 @@ impl Shape {
     pub(crate) fn rung_c6() -> Shape {
         Shape::build(
             "development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
-            "hashline-zk-mr1/private-block-rung-c6-t32-dev/1",
+            "hashline-zk-mr1/private-block-rung-c6-t32-dev/2",
             32,
             384,
             512,
@@ -1636,7 +1683,7 @@ impl Shape {
     pub(crate) fn rung_w14() -> Shape {
         Shape::build(
             "development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
-            "hashline-zk-mr1/private-block-rung-w14-t64-dev/1",
+            "hashline-zk-mr1/private-block-rung-w14-t64-dev/2",
             64,
             768,
             1024,
@@ -1698,7 +1745,7 @@ impl Shape {
     pub(crate) fn rung_e32() -> Shape {
         Shape::build(
             "development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
-            "hashline-zk-mr1/private-block-rung-e32-t32-dev/1",
+            "hashline-zk-mr1/private-block-rung-e32-t32-dev/2",
             32,
             768,
             1024,
@@ -1732,7 +1779,7 @@ impl Shape {
     /// 733,184 B. **Padding is what removes the need for C6 here**: there is
     /// no non-power-of-two plane left to batch over (finding S11b-F1).
     pub(crate) fn m125() -> Shape {
-        Shape::build("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
+        Shape::build("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/2", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
             .expect("the 125M shape is well formed")
     }
 

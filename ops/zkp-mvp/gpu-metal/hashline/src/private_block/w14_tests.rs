@@ -170,7 +170,7 @@ fn the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count() 
     assert_eq!(w.size(Dom::Kv), 1usize << w.log_cols, "Dom::Kv does not sit exactly at the row width");
     assert_eq!(w.tokens * w.kv_heads * w.head_dim, 1usize << w.log_cols, "the token count is not the one F-2 forces");
     for t in [16usize, 32] {
-        let smaller = Shape::new("a smaller rung-W14", "hashline-zk-mr1/private-block-w14-probe/1", t, 768, 1024, 12, 64, 4, 14, 4, 12, 9, None, None, None, None);
+        let smaller = Shape::new("a smaller rung-W14", "hashline-zk-mr1/private-block-w14-probe/2", t, 768, 1024, 12, 64, 4, 14, 4, 12, 9, None, None, None, None);
         let e = smaller.expect_err("a shape with fewer tokens was accepted at this row width");
         assert!(e.contains("P-3") && e.contains("Kv"), "the smaller shape was refused for another reason: {e}");
     }
@@ -205,7 +205,7 @@ fn the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count() 
     assert_eq!(w.t_pad * w.d_pad >> w.endpoint_log_n, 4, "the endpoint's data rows");
     assert_eq!(m.t_pad * m.d_pad >> m.endpoint_log_n, 32, "125M's endpoint data rows");
     // ---- D17: its own profile, its own key set
-    assert_eq!(w.profile, "hashline-zk-mr1/private-block-rung-w14-t64-dev/1");
+    assert_eq!(w.profile, "hashline-zk-mr1/private-block-rung-w14-t64-dev/2");
     assert!(!w.hashes_under_the_legacy_rule(), "rung-W14 must be TAGGED");
     for other in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::m125()] {
         assert_ne!(w.profile, other.profile, "rung-W14 shares a profile with {}", other.name);
@@ -213,7 +213,7 @@ fn the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count() 
             assert_ne!(w.hash_tag(), other.hash_tag(), "rung-W14 shares a hash-tag key set with {}", other.name);
         }
     }
-    assert_eq!(run::RUN_PROFILE_RUNG_W14, "hashline-zk-mr1/private-run-rung-w14-t64-dev/1");
+    assert_eq!(run::RUN_PROFILE_RUNG_W14, "hashline-zk-mr1/private-run-rung-w14-t64-dev/2");
     // ---- AND THE COUNTED RECEIPT, FROM THE INDEPENDENT MODEL, WITH EVERY
     // OLDER PROFILE'S STILL IN PLACE
     assert_eq!(w.receipt_bytes().total, W14_FRAME_BYTES, "the counted rung-W14 receipt is not the model's");

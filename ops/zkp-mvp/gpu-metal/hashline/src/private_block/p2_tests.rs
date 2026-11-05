@@ -241,10 +241,10 @@ fn the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move() {
     assert_eq!((sp[SC_KVZC].2, sp[SC_FZC].2), (4, 4), "rung-P2's two unpadded zero-checks are not degree 4");
     assert!(p2.slot_lengths().iter().all(|l| l + 256 <= 512), "a mask row leaves the M budget");
     // D17: its own profile, its own key set
-    assert_eq!(p2.profile, "hashline-zk-mr1/private-block-rung-p2-t32-dev/1");
+    assert_eq!(p2.profile, "hashline-zk-mr1/private-block-rung-p2-t32-dev/2");
     assert!(!p2.hashes_under_the_legacy_rule(), "rung-P2 must be TAGGED");
     assert_ne!(p2.hash_tag(), k4.hash_tag(), "rung-P2 and rung-K4 share a hash-tag key set");
-    assert_eq!(run::RUN_PROFILE_RUNG_P2, "hashline-zk-mr1/private-run-rung-p2-t32-dev/1");
+    assert_eq!(run::RUN_PROFILE_RUNG_P2, "hashline-zk-mr1/private-run-rung-p2-t32-dev/2");
     // and the counted receipt, from the independent model
     assert_eq!(p2.receipt_bytes().total, P2_FRAME_BYTES, "the counted rung-P2 receipt is not the model's");
     assert_eq!(k4.receipt_bytes().total, super::k4_tests::K4_FRAME_BYTES, "rung-K4's counted receipt moved");

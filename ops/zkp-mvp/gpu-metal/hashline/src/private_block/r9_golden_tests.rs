@@ -22,10 +22,15 @@ use crate::field::Fp;
 use crate::transcript::Transcript;
 
 /// the R8 freeze's digests, recorded in `r9/r8-golden-tree/` (a copy of
-/// `r8/frozen-tree/` with this file added) on 2026-10-19
+/// `r8/frozen-tree/` with this file added) on 2026-10-19 (`782b64c9..`,
+/// `05a22d72..`). D65(1), finding F12 (2026-11-04): re-pinned from this test's
+/// own output under the `/2` profiles and `M` from theta^1; the digest covers
+/// `M`'s opening and the final transcript state, and the profile string is
+/// absorbed first, so both moved it. The R8/R9 byte identity this file was
+/// written for no longer holds by design (`results/zk60_f12_fix_20261104/`).
 const GOLDEN: &[(&str, &str)] = &[
-    ("tinyllama-t128", "782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0"),
-    ("llama3-8b-t128", "05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db"),
+    ("tinyllama-t128", "d21f06fe13ac860ecd0ebaca43537a20357642dc38c7f2a557f46448170703bd"),
+    ("llama3-8b-t128", "d535bf8ae2a38cb1b56eb34719a8905a7f95e4a2be419de4ddb591b92c74ccb2"),
 ];
 
 fn digest_of_seeded_block(sh: &Shape, blk: &BlockPublic, w: super::witness::Witness) -> String {

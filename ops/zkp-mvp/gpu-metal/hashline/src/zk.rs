@@ -134,12 +134,18 @@ use crate::field::{Fp, Fp2};
 //          transcript as the predicate id, so "acceptable under predicate P
 //          against filter model M" cannot be re-presented under another P or M.
 //
-// ONE FROZEN EXCEPTION: the tuple (P1, commit, no declared model id) keeps the
-// legacy tag `P1-v3` (`P1` for the v2 statement) byte for byte, because the
-// round-13/14 byte gates and the 8B row 930ce9a0.. freeze it. That tuple IS
-// the tuple the legacy tag has always meant; `describe()` prints it in full so
-// the declaration is never implicit.
+// ONE SHORT EXCEPTION: the tuple (P1, commit, no declared model id) keeps a
+// short legacy tag instead of the header body. Until D65(1) it was `P1-v3`
+// (`P1` for the v2 statement), frozen by the round-13/14 byte gates and the 8B
+// row 930ce9a0.. . D65(1) (finding F12: `M`'s theta powers now start at
+// theta^1) moved every `M` opening, so those gates no longer hold and the tags
+// carry the new version: `P1-v3/2` and `P1/2` (the body is `HL-ZK/2`). That
+// tuple IS the tuple the short tag has always meant; `describe()` prints it in
+// full so the declaration is never implicit.
 // ===========================================================================
+
+/// The v2 statement's header, absorbed by `absorb_statement` (D65(1): was `P1`).
+const V2_P1_HEADER: &[u8] = b"P1/2";
 
 /// The private set a proof claims. Named, not numbered, in the header.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -279,9 +285,11 @@ impl ZkStatementMode {
     fn legacy(&self) -> bool {
         self.privacy == ZkPrivacy::P1 && self.output == OutputClaim::Committed && self.model_id.is_none() && self.pred.is_none()
     }
+    // D65(1), finding F12: every header below carries the version of `M`'s combination. `/2` (and `HL-ZK/2`)
+    // is the θ¹ start of `combined_weights`; the pre-F12 headers `P1`, `P1-v3` and `HL-ZK/1` are retired.
     fn body(&self, profile: &str) -> Vec<u8> {
         format!(
-            "HL-ZK/1|profile={profile}|priv={}|pub={}|out={}|model={}",
+            "HL-ZK/2|profile={profile}|priv={}|pub={}|out={}|model={}",
             self.privacy.private_set(),
             self.privacy.public_set(),
             self.out_tag(),
@@ -291,11 +299,11 @@ impl ZkStatementMode {
     }
     /// The bytes absorbed after the v3 statement fields.
     pub fn header_v3(&self) -> Vec<u8> {
-        if self.legacy() { b"P1-v3".to_vec() } else { self.body("v3") }
+        if self.legacy() { b"P1-v3/2".to_vec() } else { self.body("v3") }
     }
     /// The bytes absorbed after the v2 statement fields.
     pub fn header_v2(&self) -> Vec<u8> {
-        if self.legacy() { b"P1".to_vec() } else { self.body("v2") }
+        if self.legacy() { V2_P1_HEADER.to_vec() } else { self.body("v2") }
     }
     /// The one-line declaration prover and verifier both print.
     pub fn describe(&self, profile: &str) -> String {
@@ -362,7 +370,8 @@ pub use zkp_core::rng::ZkRng;
 // zero sum over G_512: b_512 = -b_0); u_re, u_im (the proximity mask).
 // Every base row is evaluated on the coset 7 * G_4096 (RS(1024, 4096),
 // distance 3/4), the columns are salted and Merkle-committed, and 256
-// columns are opened. A linear functional F = sum_i theta^i <a_{s_i}, w_i>
+// columns are opened. A linear functional F = sum_i theta^(i+1) <a_{s_i}, w_i>
+// (the powers start at theta^1: D65(1), finding F12, see `combined_weights`)
 // with claimed value V is proven by the clear polynomial
 //   q'(x) = sum_s p_{a_s}(x) p_{W_s}(x) + p_b(x)   (degree < 1024)
 // whose sum over G_512 is V (512 (q'_0 + q'_512) = V; the blinding sums
@@ -527,11 +536,29 @@ pub fn mask_commit_tagged(specs: &[(usize, usize)], ntt: &NttTables, rng: &mut Z
 }
 
 /// The combined weight vector of mask row s under theta (over the 512 message positions) and the combined value.
+///
+/// **D65(1), finding F12 (D63 L3).** Functional `i` is weighted by `theta^(i+1)`: the powers START AT `theta^1`,
+/// for the prover (`mask_open`) and the verifier (`mask_verify`, `mask_verify_tagged`) alike, which all form them
+/// here. Nothing checks that the blinding polynomial `b` sums to zero over G_512, so under the old start
+/// (`theta^0 = 1`) a prover committing a `b` with G_512-sum `delta` could claim functional 0 as `true + delta`
+/// (`zk_f12_tests.rs`; `formal/ZK60Formal/SoundMProduct.lean`, `mproduct_offset_accepts`). With the start at
+/// `theta^1` the residual `sum_i delta_i theta^(i+1) - offset` is a nonzero polynomial in `theta` whenever any
+/// functional is false or `b` is offset, so the check catches it with probability at least `1 - k/|F_p^2|`
+/// (`mproduct_sound_shift`). Completeness and hiding are unchanged (the honest `b` still sums to zero, and `q'` is
+/// still uniform given `V`). The change moves every `M` opening, so every profile whose receipts carry one was
+/// given a new version string (D65(1); `results/zk60_f12_fix_20261104/`). There is ONE code path: no build
+/// proves or verifies under the old start.
 fn combined_weights(specs: &[(usize, usize)], functionals: &[MaskFunctional], theta: Fp2) -> (Vec<Vec<Fp2>>, Fp2) {
     let m = 1usize << MASK_LOG_MSG;
     let mut ws: Vec<Vec<Fp2>> = specs.iter().map(|_| vec![Fp2::ZERO; m]).collect();
     let mut v = Fp2::ZERO;
-    let mut th = Fp2::ONE;
+    let mut th = theta;
+    // TEST ONLY: the cross-version tests' hook (see `set_pre_f12_theta_start_for_tests`). Absent from every
+    // non-test build.
+    #[cfg(test)]
+    if pre_f12_theta_start_for_tests() {
+        th = Fp2::ONE;
+    }
     for f in functionals {
         for (row, w) in &f.terms {
             let l = CfsMask::len(specs[*row].0, specs[*row].1);
@@ -544,6 +571,25 @@ fn combined_weights(specs: &[(usize, usize)], functionals: &[MaskFunctional], th
         th = th.mul(theta);
     }
     (ws, v)
+}
+
+#[cfg(test)]
+thread_local! {
+    static PRE_F12_THETA_START: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// **TEST ONLY (D65(1), F12).** On THIS thread, make `combined_weights` start at the pre-F12 `theta^0 = 1`, so that
+/// a test can make (or check) an `M` opening the way a pre-F12 build did and show that the two versions refuse
+/// each other. Thread-local, so tests running in parallel are not affected; it exists only in a test build (the
+/// pattern of `private_block::shape::set_force_legacy_hash_rule`). Every caller must reset it.
+#[cfg(test)]
+pub(crate) fn set_pre_f12_theta_start_for_tests(v: bool) {
+    PRE_F12_THETA_START.with(|c| c.set(v));
+}
+
+#[cfg(test)]
+fn pre_f12_theta_start_for_tests() -> bool {
+    PRE_F12_THETA_START.with(|c| c.get())
 }
 
 /// p_W (the interpolant of W on G_512) as coefficients (re, im).
@@ -982,7 +1028,7 @@ fn absorb_statement(tr: &mut Transcript, st: &Statement) {
     tr.absorb_u64(b"t_rows", st.t_rows as u64);
     tr.absorb(b"shifts", &[st.shifts.0 as u8, st.shifts.1 as u8, st.shifts.2 as u8, st.shifts.3 as u8]);
     tr.absorb(b"table", st.table_digest.as_bytes());
-    tr.absorb(b"zk", b"P1");
+    tr.absorb(b"zk", V2_P1_HEADER);
 }
 
 fn absorb_com(tr: &mut Transcript, label: &[u8], c: &Commitment) {
@@ -2259,7 +2305,7 @@ impl ZkLayoutV3 {
     pub fn describe(&self) -> Vec<String> {
         if self.mr1 {
             let mut out = vec![
-                format!("ffn-v3-mr1-fresh-poc/1: n={} wn={} pred={}", self.a_n, self.w_n, self.pred),
+                format!("ffn-v3-mr1-fresh-poc/2: n={} wn={} pred={}", self.a_n, self.w_n, self.pred),
                 format!("A rows={} masks={:?} prox pair={:?}", self.a_len / self.a_n, self.a_mask_rows(), self.mask_range(self.a_prox)),
                 format!("H rows={} masks={:?} prox pair={:?} zero-sum pair={:?}", self.h_len / self.a_n, self.h_mask_rows(), self.mask_range(self.h_prox), self.h_u),
                 format!("fresh P3 W rows={} masks={:?} prox pair={:?}", self.w_len_p3 / self.w_n, self.w_mask_rows(), self.mask_range(self.w_prox)),
@@ -2670,7 +2716,7 @@ fn prove_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams, n
 /// The Fiat-Shamir domain separator of the repaired-mask probe. Absorbed by
 /// [`prove_layer_zk_v3_mr1`] and [`verify_layer_zk_v3_mr1`], and by no other
 /// entry point in this file.
-pub const MR1_PROBE_PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-probe/1";
+pub const MR1_PROBE_PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-probe/2";
 
 /// Prove one v3 layer with the REPAIRED mask schedule at the caller's shape,
 /// with PUBLIC endpoints. **Cost probe only: no privacy property is
@@ -4444,7 +4490,9 @@ mod tests_v3 {
         assert_ne!(p1.mode.header_v3(), f2.header_v3());
         let mut tv = Transcript::new(b"t");
         assert!(verify_layer_zk_v3(&st, &out1.proof, &params, &ntt, &mut tv, &f2).is_err(), "a function-1 proof verified as function-2");
-        assert_eq!(p1.mode.header_v3(), b"P1-v3".to_vec(), "the frozen P1 tag moved");
+        // D65(1), F12: the short P1 tag carries M's version (was `P1-v3`)
+        assert_eq!(p1.mode.header_v3(), b"P1-v3/2".to_vec(), "the P1 tag moved");
+        assert_eq!(p1.mode.header_v2(), b"P1/2".to_vec(), "the v2 P1 tag moved");
 
         // (1) the tamper legs, under P3
         for tm in [TamperV3::FlipX(3), TamperV3::FlipW(5), TamperV3::RemainderOutOfRange(9), TamperV3::WrongTableEntry(5), TamperV3::WrongRequant(7), TamperV3::WrongZ(4), TamperV3::OutOfRangeInt16(2)] {

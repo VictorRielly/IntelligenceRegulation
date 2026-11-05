@@ -399,7 +399,7 @@ fn the_declared_sixty_byte_pair_is_separated_at_the_positions_the_record_names()
 
 /// **M26 (2026-11-01): the SECOND instance of stage 32's class, at the W16
 /// rung.** The opt-in, unregistered W16 rung profile
-/// `hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1` is 51 bytes, so its
+/// `hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/2` is 51 bytes, so its
 /// constructor input is 63 bytes — exactly an absorb of the 7-byte label
 /// `pb-slot` with 8 bytes of data (`32 + 8 + 7 + 8 + 8`), both under the
 /// transcript key. s25's W-2 census found the pair when it began measuring the
@@ -409,7 +409,7 @@ fn the_declared_sixty_byte_pair_is_separated_at_the_positions_the_record_names()
 /// and shows the separation on real bytes with an adversarial state.
 ///
 /// **W16R2 review F5 (a) (2026-11-02): the THIRD instance**, at the W16R2
-/// rung. `hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1` has its W16
+/// rung. `hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2` has its W16
 /// sibling's 51 bytes, so it makes the same 63-byte pair; the same row covers
 /// it, and this test pins both rungs.
 #[test]
@@ -513,7 +513,7 @@ fn no_registered_shape_reaches_the_first_arm_of_a_groups() {
 #[test]
 fn a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name() {
     // the toy's axes at 256 tokens: `t_pad = 2^8`, the row width
-    let r = Shape::new("S-33 probe: the toy at a token count that reaches the row width", "hashline-zk-mr1/private-block-s33-probe/1", 256, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None);
+    let r = Shape::new("S-33 probe: the toy at a token count that reaches the row width", "hashline-zk-mr1/private-block-s33-probe/2", 256, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None);
     let e = match r {
         Ok(sh) => panic!(
             "a shape whose padded token count reaches the row width was ACCEPTED: t_pad = {}, Dom::T at 2^{} against a row width of 2^{}, a_groups() = {} out of the FIRST arm",
@@ -530,12 +530,12 @@ fn a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name() {
     // THE CONTROL: the same axes at half the tokens construct, and the shape
     // that results takes the second arm — so the refusal reacts to the token
     // count alone and the boundary is where it is said to be
-    let ok = Shape::new("S-33 probe control: half the tokens", "hashline-zk-mr1/private-block-s33-probe/1", 128, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None)
+    let ok = Shape::new("S-33 probe control: half the tokens", "hashline-zk-mr1/private-block-s33-probe/2", 128, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None)
         .expect("the control at half the tokens is well formed");
     assert!(ok.natural_log(Dom::T) < ok.log_cols, "the control is in the refused family after all");
     // the refusal is about the PADDED count, so one token above the control's
     // power of two is already refused
-    let e2 = Shape::new("S-33 probe: one token above the control", "hashline-zk-mr1/private-block-s33-probe/1", 129, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None)
+    let e2 = Shape::new("S-33 probe: one token above the control", "hashline-zk-mr1/private-block-s33-probe/2", 129, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None)
         .expect_err("129 tokens pad to 256 and must be refused");
     assert!(e2.contains("ruling S-6"), "the padded count is not what the refusal reads: {e2}");
     // **WHERE THE REFUSAL SITS IN THE ORDER, and the one test it moved.**
@@ -544,7 +544,7 @@ fn a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name() {
     // probe's row width to 2^21 and left its `Dom::S` alone. The geometry it
     // had until today is refused here, by ruling S-6 and not by ruling C-4,
     // which is the order: S-6 is checked before the mask budget.
-    let old = Shape::new("S-33: stage 24's mask probe as it used to be", "hashline-zk-mr1/private-block-s33-probe/1", (1 << 20) - 1, 16_384, 16_384, 2_048, 8, 1, 14, 4, 9, 37, None, None, None, None)
+    let old = Shape::new("S-33: stage 24's mask probe as it used to be", "hashline-zk-mr1/private-block-s33-probe/2", (1 << 20) - 1, 16_384, 16_384, 2_048, 8, 1, 14, 4, 9, 37, None, None, None, None)
         .expect_err("stage 24's old mask-budget geometry is in the refused family");
     assert!(old.contains("ruling S-6"), "the old mask-budget geometry is refused by something else: {old}");
     eprintln!("S33 S-6 refusal: 256 tokens at a row width of 2^8 is refused by name, 129 too (it pads to 256), 128 constructs; stage 24's old mask probe is refused by S-6 before C-4");
@@ -562,7 +562,7 @@ fn the_s6_refusal_is_exactly_the_padded_token_counts_at_or_above_the_row_width()
     // statement about ruling S-6 alone.
     let toy = Shape::toy();
     for tokens in [32usize, 64, 128, 129, 192, 256, 257, 512, 4096] {
-        let r = Shape::new("S-33 sweep", "hashline-zk-mr1/private-block-s33-sweep/1", tokens, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None);
+        let r = Shape::new("S-33 sweep", "hashline-zk-mr1/private-block-s33-sweep/2", tokens, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None);
         let padded_reaches = tokens.next_power_of_two() >= 1usize << 8;
         match (padded_reaches, r) {
             (true, Ok(sh)) => panic!("{tokens} tokens (t_pad {}) was accepted at a row width of 2^8", sh.t_pad),

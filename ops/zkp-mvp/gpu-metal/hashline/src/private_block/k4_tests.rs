@@ -144,11 +144,11 @@ fn the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims() {
     assert!(sh.endpoint_general, "rung-K4 must ride the GENERALISED endpoint");
     assert!(sh.carries_pad_rule(), "rung-K4 must carry the pad rule");
     // D17: its own profile, its own key set, and the toy untouched
-    assert_eq!(sh.profile, "hashline-zk-mr1/private-block-rung-k4-t24-dev/1");
+    assert_eq!(sh.profile, "hashline-zk-mr1/private-block-rung-k4-t24-dev/2");
     assert_ne!(sh.profile, g.profile, "two shapes share a profile");
     assert!(!sh.hashes_under_the_legacy_rule(), "rung-K4 must be TAGGED");
     assert_ne!(sh.hash_tag(), g.hash_tag(), "rung-K4 and rung-G share a hash-tag key set");
-    assert_eq!(run::RUN_PROFILE_RUNG_K4, "hashline-zk-mr1/private-run-rung-k4-t24-dev/1");
+    assert_eq!(run::RUN_PROFILE_RUNG_K4, "hashline-zk-mr1/private-run-rung-k4-t24-dev/2");
     assert_ne!(run::RUN_PROFILE_RUNG_K4, run::RUN_PROFILE_RUNG_G, "two runs share a profile");
     // the counted receipt, and the two bilinear slots that carry the repair
     assert_eq!(sh.receipt_bytes().total, K4_FRAME_BYTES, "the counted rung-K4 receipt is not the model's");

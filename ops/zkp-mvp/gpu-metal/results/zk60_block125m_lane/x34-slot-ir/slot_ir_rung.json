@@ -1,7 +1,7 @@
 {
  "schema":"zk60-slot-ir/1",
  "shape":"rung",
- "profile":"hashline-zk-mr1/private-block-rung-t24-dev/1",
+ "profile":"hashline-zk-mr1/private-block-rung-t24-dev/2",
  "slot_count":23,
  "tables":234,
  "tables_base_field":134,

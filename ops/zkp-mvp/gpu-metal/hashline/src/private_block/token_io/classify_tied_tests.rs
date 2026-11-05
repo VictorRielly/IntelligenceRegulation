@@ -285,7 +285,7 @@ fn rc2_a_margin_word_beyond_int16_is_refused_never_clamped() {
 #[test]
 fn rc2_min_bits_below_the_profile_floor_is_refused() {
     assert_eq!(min_bits_floor(super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC), 93);
-    assert_eq!(min_bits_floor("hashline-zk-mr1/private-classify-run-shieldstral-3b-t128/1"), 95, "production profiles: 95 (D27)");
+    assert_eq!(min_bits_floor("hashline-zk-mr1/private-classify-run-shieldstral-3b-t128/2"), 95, "production profiles: 95 (D27)");
     let cc = Cc::new("rc2-bits");
     let out = cc.root.join("run");
     assert_eq!(cc.prove(&out, &cc.tables), 0);

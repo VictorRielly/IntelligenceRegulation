@@ -49,30 +49,30 @@ use zkp_core::hashtag::HashTag;
 /// (site 0) and block `k + 1`'s slot 21 (site 1).
 pub(crate) const BOUNDARY_SITES: usize = 2;
 
-pub(crate) const RUN_PROFILE_RUNG_G: &str = "hashline-zk-mr1/private-run-rung-g-t24-dev/1";
+pub(crate) const RUN_PROFILE_RUNG_G: &str = "hashline-zk-mr1/private-run-rung-g-t24-dev/2";
 /// **STAGE 22.** The run profile of the four-key-value-head development
 /// shape. One profile per shape (D17), so a run over `Shape::rung_k4` gets
 /// its own transcript and its own hash-tag key set and no existing run
 /// profile moves.
-pub(crate) const RUN_PROFILE_RUNG_K4: &str = "hashline-zk-mr1/private-run-rung-k4-t24-dev/1";
+pub(crate) const RUN_PROFILE_RUNG_K4: &str = "hashline-zk-mr1/private-run-rung-k4-t24-dev/2";
 /// **STAGE 30.** The run profile of the both-pad-branches development shape
 /// (`Shape::rung_p2`), by the same rule: one profile per shape (D17).
-pub(crate) const RUN_PROFILE_RUNG_P2: &str = "hashline-zk-mr1/private-run-rung-p2-t32-dev/1";
+pub(crate) const RUN_PROFILE_RUNG_P2: &str = "hashline-zk-mr1/private-run-rung-p2-t32-dev/2";
 /// **STAGE 31.** The run profile of the full-top-byte development shape
 /// (`Shape::rung_c6`), by the same rule: one profile per shape (D17).
-pub(crate) const RUN_PROFILE_RUNG_C6: &str = "hashline-zk-mr1/private-run-rung-c6-t32-dev/1";
+pub(crate) const RUN_PROFILE_RUNG_C6: &str = "hashline-zk-mr1/private-run-rung-c6-t32-dev/2";
 /// **STAGE 32.** The run profile of the 125M-row-width development shape
 /// (`Shape::rung_w14`), by the same rule: one profile per shape (D17).
-pub(crate) const RUN_PROFILE_RUNG_W14: &str = "hashline-zk-mr1/private-run-rung-w14-t64-dev/1";
+pub(crate) const RUN_PROFILE_RUNG_W14: &str = "hashline-zk-mr1/private-run-rung-w14-t64-dev/2";
 /// **STAGE 33.** The run profile of the 32-data-row-endpoint development
 /// shape (`Shape::rung_e32`), by the same rule: one profile per shape (D17).
-pub(crate) const RUN_PROFILE_RUNG_E32: &str = "hashline-zk-mr1/private-run-rung-e32-t32-dev/1";
-pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
+pub(crate) const RUN_PROFILE_RUNG_E32: &str = "hashline-zk-mr1/private-run-rung-e32-t32-dev/2";
+pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/2";
 /// LANE C SCRATCH (not in the main tree): the run profile of the TinyLlama
 /// geometry's development shape, by the same rule: one profile per shape (D17).
 /// NATIVE LANE: unregistered, like its block profile (outside the registry).
 #[cfg(test)]
-pub(crate) const RUN_PROFILE_TINYLLAMA_T32_DEV: &str = "unregistered-dev-twin/private-run-tinyllama-1.1b-t32-w32-dev/1";
+pub(crate) const RUN_PROFILE_TINYLLAMA_T32_DEV: &str = "unregistered-dev-twin/private-run-tinyllama-1.1b-t32-w32-dev/2";
 /// NATIVE LANE: the run profile of the TRAINED-calibration TinyLlama shape. A
 /// run at it is constructible only bound to a trained-model statement
 /// (`RunStatement::new` refuses it by name).
@@ -81,24 +81,24 @@ pub(crate) const RUN_PROFILE_TINYLLAMA_T32_DEV: &str = "unregistered-dev-twin/pr
 /// transcript constructor at 68 bytes, the same length as the `pb-run-stage`
 /// absorb in the same keyed function (`s25_tests`' census refused it). At 66
 /// bytes the constructor is 78, with no hash input kind at 77, 78 or 79.
-pub(crate) const RUN_PROFILE_TINYLLAMA_T32_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1";
+pub(crate) const RUN_PROFILE_TINYLLAMA_T32_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/2";
 /// ROUND 3 (R3-2): the run profiles of the trained TinyLlama shapes at T64
 /// and T128 (one per shape, D17), named like T32's.
-pub(crate) const RUN_PROFILE_TINYLLAMA_T64_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t64-trained-statement/1";
-pub(crate) const RUN_PROFILE_TINYLLAMA_T128_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1";
+pub(crate) const RUN_PROFILE_TINYLLAMA_T64_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t64-trained-statement/2";
+pub(crate) const RUN_PROFILE_TINYLLAMA_T128_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/2";
 /// ROUND 4 (R4-1): the run profile of the trained Llama-3-8B shape at T32.
-pub(crate) const RUN_PROFILE_LLAMA3_8B_T32_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/1";
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T32_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/2";
 /// task 3 (2026-10-17 evening): the run profiles of the trained Llama-3-8B
 /// shapes at T64 and T128 (one per shape, D17). PENDING REVIEW.
-pub(crate) const RUN_PROFILE_LLAMA3_8B_T64_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t64-trained-statement/1";
-pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/1";
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T64_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t64-trained-statement/2";
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/2";
 /// NATIVE LANE: the run profile of the trained-calibration development rung.
-pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
+pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/2";
 /// TOKEN I/O R1 LANE (2026-10-17): the token-I/O run over the trained-
 /// calibration development rung (DESIGN v3 rung R1: public-row variant, mode
 /// (i), stage IN + L blocks + stage OUT). A NEW profile string under D17 — its
 /// own transcript; a run under it is built by `token_io::run` only.
-pub(crate) const RUN_PROFILE_TOKEN_IO_RUNG_TC: &str = "hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1";
+pub(crate) const RUN_PROFILE_TOKEN_IO_RUNG_TC: &str = "hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/2";
 /// TOKEN I/O R2 (2026-10-17): the token-I/O run over the trained TinyLlama-
 /// 1.1B T32 blocks (DESIGN v3 rung R2: public-row variant, mode (i), V =
 /// 32,000 padded to 2^15, multi-row stage planes). A NEW profile string under
@@ -107,13 +107,13 @@ pub(crate) const RUN_PROFILE_TOKEN_IO_RUNG_TC: &str = "hashline-zk-mr1/private-t
 /// equals the length of no other hash-input kind of the run and is not one
 /// byte from any: stage 25's W-2 census; the first choice, 76 characters,
 /// gave an 88-byte constructor equal to the `schedule` absorb.)
-pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32: &str = "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1";
+pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32: &str = "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/2";
 /// TOKEN I/O R3 (2026-10-18): the token-I/O run over the trained Llama-3-8B
 /// T32 blocks (DESIGN v3 rung R3: public-row variant, mode (i), V = 128,256
 /// padded to 2^17, d = 4,096, BOS 128,000). A NEW profile string under D17;
 /// its transcript-constructor input (94 bytes) equals the length of no other
 /// hash-input kind and is one byte from none (stage 25's W-2 census).
-pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1";
+pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/2";
 /// TOKEN I/O ROUND 8 (2026-10-19): the token-I/O run over the trained
 /// TinyLlama-1.1B T128 blocks (DESIGN v3's first geometry: T <= 128, the
 /// input endpoint ONE 256-word row; public-row variant, mode (i)). A NEW
@@ -121,12 +121,12 @@ pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32: &str = "hashline-zk-mr1/pri
 /// "...-tinyllama-1.1b-t128-...": that 87-character string gives a 99-byte
 /// transcript constructor, the length of another hash-input kind of the
 /// TinyLlama run (stage 25's W-2 census); this one's is 94 bytes.)
-pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128: &str = "hashline-zk-mr1/private-token-io-run-tinyllama-t128-trained-statement-public-row/1";
+pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128: &str = "hashline-zk-mr1/private-token-io-run-tinyllama-t128-trained-statement-public-row/2";
 /// TOKEN I/O ROUND 8 (2026-10-19): the token-I/O run over the trained
 /// Llama-3-8B T128 blocks (DESIGN v3's first geometry, as above; V =
 /// 128,256 padded to 2^17, d = 4,096, BOS 128,000). A NEW profile string under
 /// D17; its transcript constructor is 95 bytes (stage 25's W-2 census).
-pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t128-trained-statement-public-row/1";
+pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t128-trained-statement-public-row/2";
 /// every token-I/O run profile this build registers (a blocks-only run may
 /// carry none of them)
 pub(crate) const TOKEN_IO_RUN_PROFILES: [&str; 5] = [RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128];
@@ -138,7 +138,7 @@ pub(crate) const TOKEN_IO_RUN_PROFILES: [&str; 5] = [RUN_PROFILE_TOKEN_IO_RUNG_T
 /// under it is built by `token_io::classify_run` only. Same length as the
 /// token rung's string (65 characters), whose transcript constructor the W-2
 /// census already admits.
-pub(crate) const RUN_PROFILE_CLASSIFY_RUNG_TC: &str = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1";
+pub(crate) const RUN_PROFILE_CLASSIFY_RUNG_TC: &str = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2";
 /// **TOKEN I/O ROUND 16 (2026-10-29): the CLASSIFIER run over the native R13
 /// Shieldstral-1.0-3B LOW + h24 blocks** (REVIEW_R13 §10: block profiles
 /// `R13_SHIELD_T128_H24` / `R13_SHIELD_T256_H24`, export schema v2, each
@@ -150,8 +150,8 @@ pub(crate) const RUN_PROFILE_CLASSIFY_RUNG_TC: &str = "hashline-zk-mr1/private-c
 /// 88 bytes equal the `schedule` absorb). Non-DD only (the classifier CLI
 /// carries no `--dd` switch); T256 is registered for larger hosts and is not
 /// proved on the 8 GB laptop (its modelled peak exceeds the budget).
-pub(crate) const RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1";
-pub(crate) const RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1";
+pub(crate) const RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2";
+pub(crate) const RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2";
 /// TOKEN I/O ROUND 16: each R13 classifier run profile and the ONE R13 block
 /// profile it names (CS-7), as native R13's `ACCURACY_RUN_PROFILES`
 pub(crate) const ACCURACY_CLASSIFY_RUN_PROFILES: [(&str, &str); 2] = [
@@ -170,7 +170,7 @@ pub(crate) fn accuracy_classify_run_profile(block: &str) -> Option<&'static str>
 /// check) proves and verifies in seconds on public synthetic fixtures. No
 /// production build has it.
 #[cfg(test)]
-pub(crate) const RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: &str = "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1";
+pub(crate) const RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: &str = "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/2";
 /// whether `p` is a classifier run profile of this build (test builds also
 /// admit [`RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST`])
 pub(crate) fn is_classify_run_profile(p: &str) -> bool {
@@ -190,32 +190,32 @@ fn is_r13_classify_run_profile(p: &str) -> bool {
 }
 /// **NATIVE R9 (D30): the run profiles of the three DD block profiles** (one
 /// per shape, D17), at the lengths of their non-DD twins' (67 / 63 / 45)
-pub(crate) const RUN_PROFILE_TINYLLAMA_T128_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1";
-pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-ddict32-statement/1";
-pub(crate) const RUN_PROFILE_RUNG_DD: &str = "hashline-zk-mr1/private-run-rung-dd-t32-dev/1";
+pub(crate) const RUN_PROFILE_TINYLLAMA_T128_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/2";
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-ddict32-statement/2";
+pub(crate) const RUN_PROFILE_RUNG_DD: &str = "hashline-zk-mr1/private-run-rung-dd-t32-dev/2";
 /// **NATIVE R12 (D38): the run profiles of the Shieldstral block profiles**
 /// (one per shape, D17), each 67 bytes as the TinyLlama T128 run profiles,
 /// and the decoupled-head development rung's (45 bytes, as the other rungs')
-pub(crate) const RUN_PROFILE_SHIELDSTRAL_T128_TRAINED: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-trained-statement/1";
-pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_TRAINED: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-trained-statement/1";
-pub(crate) const RUN_PROFILE_SHIELDSTRAL_T128_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-ddict32-statement/1";
-pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/1";
-pub(crate) const RUN_PROFILE_RUNG_HD: &str = "hashline-zk-mr1/private-run-rung-hd-t32-dev/1";
+pub(crate) const RUN_PROFILE_SHIELDSTRAL_T128_TRAINED: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-trained-statement/2";
+pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_TRAINED: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-trained-statement/2";
+pub(crate) const RUN_PROFILE_SHIELDSTRAL_T128_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-ddict32-statement/2";
+pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/2";
+pub(crate) const RUN_PROFILE_RUNG_HD: &str = "hashline-zk-mr1/private-run-rung-hd-t32-dev/2";
 
 
 // R13: one new run identity for each new arithmetic/geometry profile.
-pub(crate) const RUN_PROFILE_R13_TINY_T128_LOW: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1";
-pub(crate) const RUN_PROFILE_R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1";
-pub(crate) const RUN_PROFILE_R13_8B_T128_H24: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1";
-pub(crate) const RUN_PROFILE_R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-dd-statement/1";
-pub(crate) const RUN_PROFILE_R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1";
-pub(crate) const RUN_PROFILE_R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1";
-pub(crate) const RUN_PROFILE_R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1";
-pub(crate) const RUN_PROFILE_R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1";
-pub(crate) const RUN_PROFILE_R13_RUNG_LOW: &str = "hashline-zk-mr1/private-run-rung-lo-t32-dev/1";
-pub(crate) const RUN_PROFILE_R13_RUNG_H24: &str = "hashline-zk-mr1/private-run-rung-lh-t32-dev/1";
-pub(crate) const RUN_PROFILE_R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/private-run-rung-ld-t32-dev/1";
-pub(crate) const RUN_PROFILE_R13_RUNG_H24_DD: &str = "hashline-zk-mr1/private-run-rung-hh-t32-dev/1";
+pub(crate) const RUN_PROFILE_R13_TINY_T128_LOW: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/2";
+pub(crate) const RUN_PROFILE_R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/2";
+pub(crate) const RUN_PROFILE_R13_8B_T128_H24: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/2";
+pub(crate) const RUN_PROFILE_R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-dd-statement/2";
+pub(crate) const RUN_PROFILE_R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/2";
+pub(crate) const RUN_PROFILE_R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/2";
+pub(crate) const RUN_PROFILE_R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/2";
+pub(crate) const RUN_PROFILE_R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/2";
+pub(crate) const RUN_PROFILE_R13_RUNG_LOW: &str = "hashline-zk-mr1/private-run-rung-lo-t32-dev/2";
+pub(crate) const RUN_PROFILE_R13_RUNG_H24: &str = "hashline-zk-mr1/private-run-rung-lh-t32-dev/2";
+pub(crate) const RUN_PROFILE_R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/private-run-rung-ld-t32-dev/2";
+pub(crate) const RUN_PROFILE_R13_RUNG_H24_DD: &str = "hashline-zk-mr1/private-run-rung-hh-t32-dev/2";
 pub(crate) const ACCURACY_RUN_PROFILES:[(&str,&str);12]=[
     (RUN_PROFILE_R13_TINY_T128_LOW,super::shape::R13_TINY_T128_LOW),
     (RUN_PROFILE_R13_TINY_T128_LOW_DD,super::shape::R13_TINY_T128_LOW_DD),
@@ -251,18 +251,18 @@ pub(crate) fn accuracy_run_profile(block:&str)->Option<&'static str> {
 // run can never carry one of these strings: CS-7's [`registered_block_shape`]
 // names none of them, and `ForkRun::new` refuses one it would admit.
 pub(crate) const D55_REGISTERED_MARKER: &str = "d55-commit-fork-join-run/registered-opt-in-d60/v1/";
-pub(crate) const RUN_PROFILE_D55_R13_TINY_T128_LOW: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1";
-pub(crate) const RUN_PROFILE_D55_R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1";
-pub(crate) const RUN_PROFILE_D55_R13_8B_T128_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-v1-statement/1";
-pub(crate) const RUN_PROFILE_D55_R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-dd-statement/1";
-pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1";
-pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1";
-pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1";
-pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1";
-pub(crate) const RUN_PROFILE_D55_R13_RUNG_LOW: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lo-t32-dev/1";
-pub(crate) const RUN_PROFILE_D55_R13_RUNG_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1";
-pub(crate) const RUN_PROFILE_D55_R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-ld-t32-dev/1";
-pub(crate) const RUN_PROFILE_D55_R13_RUNG_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-hh-t32-dev/1";
+pub(crate) const RUN_PROFILE_D55_R13_TINY_T128_LOW: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/2";
+pub(crate) const RUN_PROFILE_D55_R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/2";
+pub(crate) const RUN_PROFILE_D55_R13_8B_T128_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-v1-statement/2";
+pub(crate) const RUN_PROFILE_D55_R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-dd-statement/2";
+pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-blocks-run/2";
+pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/2";
+pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-blocks-run/2";
+pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/2";
+pub(crate) const RUN_PROFILE_D55_R13_RUNG_LOW: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lo-t32-dev/2";
+pub(crate) const RUN_PROFILE_D55_R13_RUNG_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/2";
+pub(crate) const RUN_PROFILE_D55_R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-ld-t32-dev/2";
+pub(crate) const RUN_PROFILE_D55_R13_RUNG_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-hh-t32-dev/2";
 /// D60: each registered D55 run profile and the ONE base run profile it forks
 /// (CS-7's rule for a fork run: the D55 string names exactly one base, and
 /// the base names exactly one block shape)
@@ -377,6 +377,13 @@ impl RunShape {
     pub(crate) fn new(sh: Shape, l: usize, profile: &'static str) -> Result<RunShape, String> {
         if l == 0 {
             return Err("private run: a run has at least one block".into());
+        }
+        // D65(1), finding F12: a pre-F12 version of a registered run profile is refused by name
+        // (`shape::pre_f12_successor`), before the registry is read
+        if let Some(succ) = super::shape::pre_f12_successor(profile) {
+            if registered_block_shape(&succ, &sh).is_some() {
+                return Err(format!("private run: ruling CS-7 — {}", super::shape::pre_f12_refusal(profile, &succ)));
+            }
         }
         match registered_block_shape(profile, &sh) {
             None => return Err(format!("private run: ruling CS-7 — {profile:?} is not a run profile this build registers, so it names no block shape ({:?} was given)", sh.name)),

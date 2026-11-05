@@ -97,14 +97,14 @@ fn a_non_dd_profile_has_no_24th_slot_and_its_strings_are_unchanged() {
         Shape::llama3_8b_trained(128, &l8, 9).unwrap(),
     ];
     let strings = [
-        "hashline-zk-mr1/private-block-t32-poc/1",
-        "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
-        "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
-        "hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/1",
-        "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1",
-        "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1",
-        "hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1",
-        "hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1",
+        "hashline-zk-mr1/private-block-t32-poc/2",
+        "hashline-zk-mr1/private-block-rung-tc-t32-dev/2",
+        "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/2",
+        "hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/2",
+        "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/2",
+        "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/2",
+        "hashline-zk-mr1/private-block-llama-3-8b-t64-trained/2",
+        "hashline-zk-mr1/private-block-llama-3-8b-t128-trained/2",
     ];
     for (s, want) in plain.iter().zip(strings) {
         assert_eq!(s.profile, want, "a profile string moved");

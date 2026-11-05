@@ -851,8 +851,8 @@ pub(super) fn tame_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, Vec<i
 /// one: nothing wraps, the prover simply cannot prove its own honest value.
 #[test]
 fn the_norm_window_of_the_toy_refuses_an_honest_rung_witness() {
-    let narrow = window_shape("rung geometry at the TOY norm window", "hashline-zk-mr1/private-block-rung-norm29/1", 9, None, Some(29));
-    let honest = window_shape("rung geometry at its own norm window", "hashline-zk-mr1/private-block-rung-norm31/1", 9, None, None);
+    let narrow = window_shape("rung geometry at the TOY norm window", "hashline-zk-mr1/private-block-rung-norm29/2", 9, None, Some(29));
+    let honest = window_shape("rung geometry at its own norm window", "hashline-zk-mr1/private-block-rung-norm31/2", 9, None, None);
     assert_eq!(narrow.norm_wrho, 29);
     assert_eq!(honest.norm_wrho, 31, "the rung's own norm window is 31 = tn + 1 + bits(D_max)");
     // by counting, before any witness is built: 29 cannot hold den - 1
@@ -885,7 +885,7 @@ fn the_norm_window_of_the_toy_refuses_an_honest_rung_witness() {
 /// the window from the shape too — accepts the same case at 17.
 #[test]
 fn the_softmax_window_of_the_toy_refuses_an_honest_rung_witness() {
-    let narrow = window_shape("rung geometry, F_E 12 at the TOY softmax window", "hashline-zk-mr1/private-block-rung-fe12-w14/1", 12, Some(14), None);
+    let narrow = window_shape("rung geometry, F_E 12 at the TOY softmax window", "hashline-zk-mr1/private-block-rung-fe12-w14/2", 12, Some(14), None);
     assert_eq!(narrow.limbs_sigma_s(), 2, "two limbs, so the pinned plane table still holds");
     // by counting: Sum can reach 98,304, which does not fit 2^14
     let sum_max = (narrow.tokens as i128) << narrow.f_e;
@@ -913,7 +913,7 @@ fn the_softmax_window_of_the_toy_refuses_an_honest_rung_witness() {
 /// boundaries that remain still refuse by name.
 #[test]
 fn the_plane_id_map_expresses_a_third_sigma_s_limb() {
-    let two_limb = window_shape("rung geometry at the toy softmax window", "hashline-zk-mr1/private-block-rung-t24-parity/1", 9, None, None);
+    let two_limb = window_shape("rung geometry at the toy softmax window", "hashline-zk-mr1/private-block-rung-t24-parity/2", 9, None, None);
     // EVERY named shape now has a map, and it agrees with the shape's own
     // plane list plane for plane (two independent statements of the list)
     for s in [Shape::toy(), two_limb.clone(), Shape::rung(), Shape::m125()] {
@@ -957,7 +957,7 @@ fn the_plane_id_map_expresses_a_third_sigma_s_limb() {
     // THE TWO BOUNDARIES THAT REMAIN, each refused by name.
     // (1) a softmax window narrower than the toy's has FEWER planes, which
     // the map cannot express (it maps a toy id onto a plane that is not there)
-    let narrow = window_shape("a one-limb softmax window", "hashline-zk-mr1/private-block-ls1/1", 9, Some(8), None);
+    let narrow = window_shape("a one-limb softmax window", "hashline-zk-mr1/private-block-ls1/2", 9, Some(8), None);
     assert_eq!(narrow.limbs_sigma_s(), 1);
     assert_eq!(
         Ids::new(&narrow).err(),
@@ -966,7 +966,7 @@ fn the_plane_id_map_expresses_a_third_sigma_s_limb() {
     );
     // (2) a fifth norm limb would move `A_X2`, which `Witness::output` reads
     // as a literal (finding S8-F3)
-    let five = window_shape("a five-limb norm window", "hashline-zk-mr1/private-block-ln5/1", 9, None, Some(33));
+    let five = window_shape("a five-limb norm window", "hashline-zk-mr1/private-block-ln5/2", 9, None, Some(33));
     assert_eq!(five.limbs_norm(), 5);
     let (public, ff, input) = tame_case(&five);
     let refused = match super::witness::build_shaped(&five, &public, &ff, &input) {
@@ -1499,7 +1499,7 @@ fn a_shape_wider_than_the_ntt_tables_is_refused_by_name() {
     let m = Shape::m125();
     assert_eq!(m.log_cols + m.inv_rate.trailing_zeros() as usize, 16, "125M's A / H encoding domain");
     assert_eq!(m.endpoint_log_n + m.endpoint_inv_rate.trailing_zeros() as usize, 16, "125M's endpoint encoding domain");
-    let wide = Shape::new("a shape past the prototype ceiling", "hashline-zk-mr1/private-block-too-wide-dev/1", 512, 768, 2048, 12, 64, 4, 19, 4, 9, 37, None, None, None, None);
+    let wide = Shape::new("a shape past the prototype ceiling", "hashline-zk-mr1/private-block-too-wide-dev/2", 512, 768, 2048, 12, 64, 4, 19, 4, 9, 37, None, None, None, None);
     match wide {
         Err(e) => eprintln!("a 2^21 shape is refused at construction: {e}"),
         Ok(s) => {

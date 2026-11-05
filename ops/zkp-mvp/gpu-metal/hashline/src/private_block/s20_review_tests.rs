@@ -338,7 +338,7 @@ fn build(sh: &Shape, seed: u64, degenerate: bool) -> Built {
 fn kv4() -> Shape {
     Shape::new(
         "review: synthetic 4-KV-head geometry (T6 / d96 / f24, 12 heads of 8 over 4 KV heads)",
-        "hashline-zk-mr1/private-block-s20-review-kv4/1",
+        "hashline-zk-mr1/private-block-s20-review-kv4/2",
         6,
         96,
         24,

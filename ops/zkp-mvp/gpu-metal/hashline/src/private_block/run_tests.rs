@@ -788,9 +788,13 @@ fn r5_fixed_statement(l: usize, scales: &[(i32, i32)]) -> Result<RunStatement, S
 }
 
 /// the rung-G `L = 3` run binding at the approved scales, captured before the
-/// R-5 refusal existed (`u3-s21-r5-pin.log`)
+/// R-5 refusal existed (`u3-s21-r5-pin.log`). D65(1), finding F12: re-pinned
+/// under the `/2` run profile (the binding is the run header's transcript
+/// state, whose domain is the run profile string; the boundary digests below
+/// did not move). It was `[161, 7, 121, 146, …]` under `/1`
+/// (`results/zk60_f12_fix_20261104/REPIN.md`).
 const R5_RUNG_G_L3_BINDING: [u8; 32] = [
-    161, 7, 121, 146, 199, 166, 87, 15, 139, 122, 99, 225, 216, 105, 193, 132, 236, 40, 177, 39, 105, 8, 163, 160, 180, 109, 150, 228, 120, 158, 27, 105,
+    236, 113, 40, 11, 252, 209, 161, 91, 85, 24, 88, 2, 95, 96, 225, 198, 152, 14, 133, 168, 222, 13, 222, 69, 230, 38, 118, 216, 120, 195, 152, 174,
 ];
 /// the two internal boundary digests of the same run, same capture
 const R5_RUNG_G_L3_BOUNDARIES: [[u8; 32]; 2] = [
@@ -802,6 +806,7 @@ const R5_RUNG_G_L3_BOUNDARIES: [[u8; 32]; 2] = [
 fn the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5() {
     let st = r5_fixed_statement(3, &[(0, 0); 3]).expect("the approved statement constructs");
     let h = st.capture_header().expect("the capture header");
+    eprintln!("R5-PIN binding {:?} boundaries {:?} {:?}", st.binding().expect("the binding"), h.boundaries[0].digest, h.boundaries[1].digest);
     assert_eq!(st.binding().expect("the binding"), R5_RUNG_G_L3_BINDING, "the run binding moved: R-5 must add NO absorb");
     assert_eq!([h.boundaries[0].digest, h.boundaries[1].digest], R5_RUNG_G_L3_BOUNDARIES, "a boundary digest moved");
     assert_eq!(h.boundary_scales, vec![0, 0], "the interior scales are the approved calibration's");
@@ -1930,7 +1935,10 @@ fn the_retained_125m_statements_still_regenerate_their_public_weights() {
         let j = run_statement_file::json::parse(&bytes).expect("the retained statement parses");
         let recipe = j.get("public_weights").expect("public_weights").get("recipe").expect("recipe").str().expect("a string").to_string();
         assert_eq!(recipe, expect_legacy, "{file}: the retained statement's recipe string is not the pre-stage-22 one this test is about");
-        assert_eq!(j.get("block_profile").expect("block_profile").str().expect("a string"), sh.profile, "{file}: not a 125M statement");
+        // D65(1), finding F12: both files predate F12, so they name the RETIRED `/1` 125M profile (no run
+        // under it verifies any more); what is checked here is only that their public weights regenerate
+        let named = j.get("block_profile").expect("block_profile").str().expect("a string").to_string();
+        assert_eq!(super::shape::pre_f12_successor(&named).as_deref(), Some(sh.profile), "{file}: not a (pre-F12) 125M statement: {named}");
         let blk = run_statement_file::recipe_block(&recipe, &sh).unwrap_or_else(|e| panic!("{file}: this build cannot read the retained recipe name: {e}"));
         let digests = j.get("block_digests").expect("block_digests").arr().expect("an array");
         assert_eq!(digests.len(), 12, "{file}: {} block digests", digests.len());

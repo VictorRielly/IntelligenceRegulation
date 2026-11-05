@@ -15,7 +15,7 @@ fn tagged_column_hashes_and_full_commitment_match_cpu() {
     }
     let p = PcsParams { log_cols: 8, inv_rate: 4, num_col_checks: 2 };
     let ntt = NttTables::new(10);
-    let tag = HashTag::for_profile("hashline-zk-mr1/private-block-m125/1");
+    let tag = HashTag::for_profile("hashline-zk-mr1/private-block-m125/2");
     let key = tag.column_key().unwrap();
     let n = p.cols();
     let nn = p.enc_cols();

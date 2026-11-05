@@ -338,10 +338,10 @@ fn the_new_shape_is_rung_p2_with_the_head_dimension_moved() {
     assert_eq!((c6.endpoint_rows, c6.endpoint_log_n, c6.endpoint_inv_rate), (21, 10, 4), "rung-C6's endpoint");
     assert_eq!(c6.t_pad * c6.d_pad >> c6.endpoint_log_n, 16, "the endpoint's data rows");
     // D17: its own profile, its own key set
-    assert_eq!(c6.profile, "hashline-zk-mr1/private-block-rung-c6-t32-dev/1");
+    assert_eq!(c6.profile, "hashline-zk-mr1/private-block-rung-c6-t32-dev/2");
     assert!(!c6.hashes_under_the_legacy_rule(), "rung-C6 must be TAGGED");
     assert_ne!(c6.hash_tag(), p2.hash_tag(), "rung-C6 and rung-P2 share a hash-tag key set");
-    assert_eq!(run::RUN_PROFILE_RUNG_C6, "hashline-zk-mr1/private-run-rung-c6-t32-dev/1");
+    assert_eq!(run::RUN_PROFILE_RUNG_C6, "hashline-zk-mr1/private-run-rung-c6-t32-dev/2");
     // and the counted receipt, from the independent model
     assert_eq!(c6.receipt_bytes().total, C6_FRAME_BYTES, "the counted rung-C6 receipt is not the model's");
     assert_eq!(p2.receipt_bytes().total, super::p2_tests::P2_FRAME_BYTES, "rung-P2's counted receipt moved");

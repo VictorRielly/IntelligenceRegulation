@@ -314,8 +314,11 @@ fn w16r2_rung_core_proves_and_verifies_and_its_golden_digest_is_pinned() {
 }
 
 /// the first eight hex digits of the W16R2 rung's seeded CPU digest (at
-/// `Q = 280` since F2's ruling; `334e168f` at `Q = 260`)
-const W16R2_RUNG_GOLDEN: &str = "c6d5c2d8";
+/// `Q = 280` since F2's ruling; `334e168f` at `Q = 260`). D65(1), finding F12:
+/// `96e4f0b6` under the `/2` profile and `M` from theta^1; it was `c6d5c2d8`
+/// under the `/1` profile and theta^0 (theta^1 alone, still under `/1`, gave
+/// `553137f1`: `results/zk60_f12_fix_20261104/REPIN.md`)
+const W16R2_RUNG_GOLDEN: &str = "96e4f0b6";
 
 /// **CPU = Metal at the W16R2 rung, and both equal the golden.** Toggles
 /// `HL_GPU` in-process, so it is ignored and run alone by name.

@@ -1,6 +1,6 @@
 //! EXPERIMENTAL: the private BLOCK at ONE fixed geometry (T32 / d16 / 2 heads
 //! / 1 KV head / head_dim 8 / F16), profile
-//! `hashline-zk-mr1/private-block-t32-poc/1`.
+//! `hashline-zk-mr1/private-block-t32-poc/2`.
 //!
 //! STATE (read this first). This module is a copy of the accepted private
 //! attention component (`crate::private_attention`, untouched) grown into a
@@ -73,6 +73,10 @@ mod range16_tests;
 // controls, goldens and the accounting inputs, test builds only
 #[cfg(test)]
 mod w16r2_tests;
+// D65(1), finding F12: the receipt-level version checks (the post-F12 `/2`
+// profiles against the retired `/1` ones), test builds only
+#[cfg(test)]
+mod f12_version_tests;
 mod accuracy_fold;
 mod accuracy_act;
 mod accuracy_precision;
@@ -426,7 +430,7 @@ use zkp_core::hashtag::HashTag;
 // from its shape (`t_pad`, `d_pad`) instead of the toy's two literals.
 use layout::{DH, F_E, F_RO, T};
 
-pub const PROFILE: &[u8] = b"hashline-zk-mr1/private-block-t32-poc/1";
+pub const PROFILE: &[u8] = b"hashline-zk-mr1/private-block-t32-poc/2";
 pub use wire::MAX_WIRE_BYTES;
 pub const EXPECTED_BYTES: usize = 8 + 32 + 4 + 4 + 2 * 32;
 
