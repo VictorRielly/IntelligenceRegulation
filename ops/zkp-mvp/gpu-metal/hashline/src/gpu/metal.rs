@@ -54,8 +54,8 @@ const TILE_LOG: u32 = 11;
 
 struct Ctx {
     device: Device,
-    /// the process-wide queue (`HL_METAL_QUEUES=shared`; [A7] `thread` gives each
-    /// thread its own, `OWN_QUEUE`)
+    /// the process-wide queue (the default, `HL_METAL_QUEUES=shared`; [A7] the
+    /// opt-in `thread` gives each thread its own, `OWN_QUEUE`)
     queue: CommandQueue,
     pipes: HashMap<&'static str, ComputePipelineState>,
     /// (forward, inverse) twiddle buffers per NttTables::max_log
@@ -609,9 +609,9 @@ fn run_tagged(c: &Ctx, tag: &'static str, encode: impl FnOnce(&metal::ComputeCom
 // (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A7; H121;
 // `results/zk60_effplan_20261105/a7/README.md`.)
 //
-// QUEUES. `HL_METAL_QUEUES=shared` keeps the one process-wide queue every proof
-// thread shared before A7; `thread` (the default since A7) gives every thread its
-// own queue, made at its first command buffer and released when the thread ends (a
+// QUEUES. `HL_METAL_QUEUES=shared` (the default) keeps the one process-wide queue
+// every proof thread shares; `thread` (opt-in, [`DEFAULT_QUEUES`] says why) gives
+// every thread its own queue, made at its first command buffer and released when the thread ends (a
 // fork run's workers are fresh threads, so each fork worker has a queue of its
 // own; the witness products keep their own queue, A4). No byte can
 // move: every command buffer is still waited for by the thread that made it
@@ -629,13 +629,15 @@ fn run_tagged(c: &Ctx, tag: &'static str, encode: impl FnOnce(&metal::ComputeCom
 /// [A7] queue modes: one shared queue, or one queue per thread
 const Q_SHARED: usize = 1;
 const Q_THREAD: usize = 2;
-/// [A7] the mode when `HL_METAL_QUEUES` is unset: one queue per thread. W16R2 8B
-/// T128, 32 blocks, N = 6 forks, three interleaved passes in one process: the fork
-/// run 5.238 s mean on the shared queue, 4.928 s on per-thread queues (every pass
-/// faster). On the shared queue at most three command buffers ran at once and a
-/// finished one was seen complete 1.7 ms late on average (in order behind the
-/// others); per thread, up to six at once and 0.2 ms (`results/zk60_effplan_20261105/a7/`).
-const DEFAULT_QUEUES: usize = Q_THREAD;
+/// [A7] the mode when `HL_METAL_QUEUES` is unset: the one shared queue, as before
+/// A7. Per-thread queues change the GPU's picture (W16R2 8B T128, 32 blocks, N = 6:
+/// up to six command buffers at once instead of three, a finished one seen complete
+/// 0.2 ms late instead of 1.7) but not the D55 wall. Interleaved in one process with
+/// the arm order run both ways (the second arm of a pass ran about 4.5% faster
+/// either way): the proof-only fork run about +1.4%, the 4-request stream's steady
+/// state about -2.7% (`results/zk60_effplan_20261105/a7/README.md`). So they stay
+/// an opt-in (`HL_METAL_QUEUES=thread`).
+const DEFAULT_QUEUES: usize = Q_SHARED;
 /// 0 until read from the environment (or set by a test)
 static QUEUES: AtomicUsize = AtomicUsize::new(0);
 

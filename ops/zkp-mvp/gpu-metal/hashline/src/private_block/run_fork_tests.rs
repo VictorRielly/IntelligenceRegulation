@@ -2347,8 +2347,16 @@ fn d55_ab_one_request_serial_against_forks() {
     // process (the first pass verified); the process's own policy is restored after
     let gpu_ab: Vec<GpuArm> = std::env::var("HL_D55_GPU_AB").unwrap_or_default().split(',').filter(|s| !s.trim().is_empty()).map(|s| gpu_arm(s).unwrap_or_else(|| panic!("HL_D55_GPU_AB: an unknown arm {s:?}"))).collect();
     let ab_passes: usize = env_or("HL_D55_AB_PASSES", passes).max(1);
+    // and per arm and pass, `HL_D55_AB_SEALED=1`: one request from its input; and
+    // `HL_D55_AB_PIPE=R`: a stream of R requests, every receipt verified after its clock
+    let ab_sealed: bool = env_or("HL_D55_AB_SEALED", 0usize) == 1;
+    let ab_pipe: usize = env_or("HL_D55_AB_PIPE", 0usize);
     #[allow(unused_mut)]
     let mut queue_table: Vec<(String, Vec<f64>)> = Vec::new();
+    #[allow(unused_mut)]
+    let mut ab_sealed_table: Vec<(String, Vec<f64>)> = Vec::new();
+    #[allow(unused_mut)]
+    let mut ab_pipe_table: Vec<(String, Vec<(f64, f64)>)> = Vec::new();
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
     if !gpu_ab.is_empty() {
         let own_q = crate::gpu::metal_set_queues_for_test(false);
@@ -2356,6 +2364,8 @@ fn d55_ab_one_request_serial_against_forks() {
         crate::gpu::metal_set_queues_for_test(own_q);
         crate::gpu::metal_set_wait_for_test(own_w);
         queue_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("forks N={n} {}", a.label), Vec::new()))).collect();
+        ab_sealed_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("forks N={n} SEALED {}", a.label), Vec::new()))).collect();
+        ab_pipe_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("PIPE {ab_pipe} N={n} {}", a.label), Vec::new()))).collect();
         for p in 0..ab_passes {
             for (ai, a) in gpu_ab.iter().enumerate() {
                 crate::gpu::metal_set_queues_for_test(a.per_thread.unwrap_or(own_q));
@@ -2376,6 +2386,34 @@ fn d55_ab_one_request_serial_against_forks() {
                     );
                     queue_table[ai * workers.len() + i].1.push(wall);
                 }
+                if ab_sealed {
+                    for (i, &n) in workers.iter().enumerate() {
+                        let (wall, seal, bytes) = forked_sealed(ctx, n, p == 0);
+                        ctx = ctx.wrapping_add(1);
+                        eprintln!("D55-AB GPU-AB {name} L{l} T{} forks N{n} [{}] SEALED pass {p}: wall {wall:.3} s = {:.2} proved tok/s FROM THE RUN'S INPUT (sealing pass {seal:.3} s on the clock); receipt {bytes} B", sh.tokens, a.label, tok(wall));
+                        ab_sealed_table[ai * workers.len() + i].1.push(wall);
+                    }
+                }
+                if ab_pipe > 0 {
+                    for (i, &n) in workers.iter().enumerate() {
+                        let (wall, done, lat, rcs) = piped(ctx, n, ab_pipe);
+                        ctx = ctx.wrapping_add(ab_pipe as u8);
+                        let amortized = (ab_pipe * sh.tokens) as f64 / wall;
+                        let steady = if ab_pipe > 1 { ((ab_pipe - 1) * sh.tokens) as f64 / (done[ab_pipe - 1] - done[0]) } else { f64::NAN };
+                        for (st, rc) in &rcs {
+                            let fr = ForkRun::new(st, D55OptIn::unreviewed_prototype()).unwrap();
+                            verify_run_with_forks(&fr, &rep, rc, 6).expect("a streamed request's receipt verifies (GPU-policy A/B)");
+                        }
+                        eprintln!(
+                            "D55-AB GPU-AB PIPE {name} L{l} T{} forks N{n} [{}] pass {p}: {ab_pipe} requests in {wall:.3} s; amortized {amortized:.2} proved tok/s; steady state {steady:.2} tok/s (completions {}); per-request latency {}; all {ab_pipe} receipts verified after the clock",
+                            sh.tokens,
+                            a.label,
+                            done.iter().map(|d| format!("{d:.2}")).collect::<Vec<_>>().join(", "),
+                            lat.iter().map(|d| format!("{d:.2}")).collect::<Vec<_>>().join(", ")
+                        );
+                        ab_pipe_table[ai * workers.len() + i].1.push((steady, amortized));
+                    }
+                }
             }
         }
         crate::gpu::metal_set_queues_for_test(own_q);
@@ -2383,7 +2421,7 @@ fn d55_ab_one_request_serial_against_forks() {
         crate::gpu::metal_set_device_fold_for_test(None);
     }
     #[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
-    let _ = (&gpu_ab, ab_passes);
+    let _ = (&gpu_ab, ab_passes, ab_sealed, ab_pipe);
     // D64 / H124d: the stream, once, after the warm passes
     if pipe > 0 {
         for &n in &workers {
@@ -2434,6 +2472,17 @@ fn d55_ab_one_request_serial_against_forks() {
         let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
         let mean = walls.iter().sum::<f64>() / walls.len() as f64;
         eprintln!("D55-AB SUMMARY | {arm:<14} | A7 GPU-policy A/B, interleaved, {} passes | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s", walls.len(), tok(best), tok(mean));
+    }
+    for (arm, walls) in ab_sealed_table.iter().filter(|(_, w)| !w.is_empty()) {
+        let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
+        let mean = walls.iter().sum::<f64>() / walls.len() as f64;
+        eprintln!("D55-AB SUMMARY | {arm:<14} | A7 GPU-policy A/B, one request from its input, interleaved, {} passes | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s", walls.len(), tok(best), tok(mean));
+    }
+    for (arm, v) in ab_pipe_table.iter().filter(|(_, v)| !v.is_empty()) {
+        let k = v.len() as f64;
+        let (steady, amortized) = (v.iter().map(|x| x.0).sum::<f64>() / k, v.iter().map(|x| x.1).sum::<f64>() / k);
+        let best = v.iter().map(|x| x.0).fold(0.0f64, f64::max);
+        eprintln!("D55-AB SUMMARY | {arm:<14} | A7 GPU-policy A/B, stream, interleaved, {} passes | steady state mean {steady:.2} tok/s (best {best:.2}) | amortized mean {amortized:.2} tok/s", v.len());
     }
     for (arm, walls) in jit_table.iter().filter(|(_, w)| !w.is_empty()) {
         let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);

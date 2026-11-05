@@ -1,0 +1,30 @@
+2026-11-05T11:27:03Z start
+2026-11-05T11:35:24Z d55 stream A/B rc=0
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 0: wall 5.169 s = 24.76 proved tok/s; preflight 0.078 s, commit 0.234 s, forks 4.764 s, join 0.094 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 0: 4 requests in 29.942 s; amortized 17.10 proved tok/s; steady state 19.18 tok/s (completions 9.92, 16.76, 23.78, 29.94); per-request latency 9.92, 12.64, 12.62, 11.68; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 0: wall 4.903 s = 26.10 proved tok/s; preflight 0.074 s, commit 0.232 s, forks 4.519 s, join 0.078 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 0: 4 requests in 29.570 s; amortized 17.31 proved tok/s; steady state 19.11 tok/s (completions 9.48, 16.13, 22.80, 29.57); per-request latency 9.48, 12.06, 11.99, 11.90; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 1: wall 5.224 s = 24.50 proved tok/s; preflight 0.079 s, commit 0.238 s, forks 4.831 s, join 0.076 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 1: 4 requests in 29.811 s; amortized 17.17 proved tok/s; steady state 19.25 tok/s (completions 9.86, 16.63, 23.38, 29.81); per-request latency 9.86, 12.38, 12.26, 11.92; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 1: wall 5.055 s = 25.32 proved tok/s; preflight 0.079 s, commit 0.235 s, forks 4.658 s, join 0.083 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 1: 4 requests in 30.024 s; amortized 17.05 proved tok/s; steady state 18.90 tok/s (completions 9.70, 16.13, 22.96, 30.02); per-request latency 9.70, 11.93, 11.87, 12.20; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 2: wall 5.196 s = 24.63 proved tok/s; preflight 0.090 s, commit 0.244 s, forks 4.786 s, join 0.076 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 2: 4 requests in 29.604 s; amortized 17.29 proved tok/s; steady state 19.40 tok/s (completions 9.81, 16.31, 23.11, 29.60); per-request latency 9.81, 12.00, 12.09, 12.04; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 2: wall 5.289 s = 24.20 proved tok/s; preflight 0.078 s, commit 0.238 s, forks 4.884 s, join 0.090 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 2: 4 requests in 29.760 s; amortized 17.20 proved tok/s; steady state 19.44 tok/s (completions 10.01, 16.41, 23.28, 29.76); per-request latency 10.01, 12.13, 12.09, 11.72; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 3: wall 5.252 s = 24.37 proved tok/s; preflight 0.079 s, commit 0.242 s, forks 4.849 s, join 0.081 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 3: 4 requests in 29.326 s; amortized 17.46 proved tok/s; steady state 19.46 tok/s (completions 9.59, 16.36, 23.07, 29.33); per-request latency 9.59, 12.10, 12.00, 11.74; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 3: wall 5.100 s = 25.10 proved tok/s; preflight 0.085 s, commit 0.239 s, forks 4.698 s, join 0.077 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 3: 4 requests in 30.021 s; amortized 17.05 proved tok/s; steady state 18.47 tok/s (completions 9.23, 16.24, 23.26, 30.02); per-request latency 9.23, 12.03, 12.23, 12.14; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 4: wall 5.274 s = 24.27 proved tok/s; preflight 0.087 s, commit 0.239 s, forks 4.861 s, join 0.088 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 4: 4 requests in 30.335 s; amortized 16.88 proved tok/s; steady state 19.25 tok/s (completions 10.39, 17.15, 23.72, 30.34); per-request latency 10.39, 12.64, 12.22, 11.99; all 4 receipts verified after the clock
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 4: wall 5.169 s = 24.77 proved tok/s; preflight 0.086 s, commit 0.243 s, forks 4.758 s, join 0.082 s; receipt 818728672 B
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 4: 4 requests in 30.009 s; amortized 17.06 proved tok/s; steady state 18.71 tok/s (completions 9.49, 16.38, 23.19, 30.01); per-request latency 9.49, 12.17, 12.07, 11.95; all 4 receipts verified after the clock
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.750 s = 11.91 tok/s | mean 10.750 s = 11.91 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.110 s = 25.05 tok/s | mean 5.110 s = 25.05 tok/s | 2.10x serial (best)
+D55-AB SUMMARY | forks N=6 shared+spin | A7 GPU-policy A/B, interleaved, 5 passes | best 5.169 s = 24.76 tok/s | mean 5.223 s = 24.51 tok/s
+D55-AB SUMMARY | forks N=6 thread+spin | A7 GPU-policy A/B, interleaved, 5 passes | best 4.903 s = 26.10 tok/s | mean 5.103 s = 25.08 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 shared+spin | A7 GPU-policy A/B, stream, interleaved, 5 passes | steady state mean 19.31 tok/s (best 19.46) | amortized mean 17.18 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 thread+spin | A7 GPU-policy A/B, stream, interleaved, 5 passes | steady state mean 18.93 tok/s (best 19.44) | amortized mean 17.14 tok/s
+2026-11-05T11:35:24Z all done
