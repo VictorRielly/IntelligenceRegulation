@@ -576,6 +576,12 @@ pub(crate) fn prove(
     let gamma = tr.challenge_fp2();
     let alpha = tr.challenge_fp2();
     let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
+    // D66(3) (L4 finding 2, the D34 term): refuse on the challenges and the public byte table
+    // alone. Every looked value is a byte (refused by class above otherwise), so once this
+    // passes no helper or table denominator below is zero, whatever the hidden content.
+    if (0..U8_LEN as i64).any(|z| alpha.sub(Fp2::from_i64(z).add(g_u8)).is_zero()) {
+        return Err("zero LogUp denominator; discard attempt".into());
+    }
     let mut h_data = vec![Fp::ZERO; lay.h_rows * n];
     let mut ci = 0usize;
     for (first, count) in [(H_LO, 1usize), (H_D0, H_DO_HELPERS)] {

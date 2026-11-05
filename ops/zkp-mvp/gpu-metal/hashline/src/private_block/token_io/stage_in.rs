@@ -366,6 +366,13 @@ pub(crate) fn prove(
     // beta, gamma, alpha, r_emb -- after B_in, A_in, M_in (DESIGN 2.3 (iii))
     let (beta, alpha, g_emb, r_emb, ef) = challenges(tr, tp, tables);
     let tau_tab = tau_table(tp, &ef, beta, g_emb);
+    // D66(3) (L4 finding 2, the D34 term): refuse on the challenges and public tables alone.
+    // Every admissible query is a table tuple, so once this passes no denominator below is
+    // zero, and whether an attempt refuses no longer depends on the hidden token rows (before,
+    // only the queries and the USED table entries were inverted).
+    if tau_tab.iter().any(|t| alpha.sub(*t).is_zero()) {
+        return Err("zero LogUp denominator; discard attempt".into());
+    }
     // H_in
     let e_r = eq_table_msb(&r_emb);
     let mut h_q = vec![Fp2::ZERO; ti_n];

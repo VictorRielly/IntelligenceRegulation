@@ -1,0 +1,16 @@
+2026-11-05T07:45:23Z start
+2026-11-05T07:47:42Z build rc=0
+2026-11-05T07:52:33Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 913 passed; 3 failed; 94 ignored; 0 measured; 0 filtered out; finished in 291.39s
+2026-11-05T07:52:56Z r9/r12 seeded goldens rc=0
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical ... R12-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical ... R12-GOLDEN 8B DD bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_block_is_byte_identical ... R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/2: 23 slots, 69 absorbs, debug text 81759518 B
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical ... R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/2: 24 slots, 72 absorbs, debug text 83304838 B
+test private_block::r9_golden_tests::r9_golden_seeded_llama3_8b_t128_block_is_byte_identical ... R9-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+test private_block::r9_golden_tests::r9_golden_seeded_tinyllama_t128_block_is_byte_identical ... R9-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/2: 23 slots, 69 absorbs, debug text 81759518 B
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 1004 filtered out; finished in 22.08s
+2026-11-05T07:52:56Z all done

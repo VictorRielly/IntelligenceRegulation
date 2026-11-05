@@ -324,7 +324,17 @@ Three new files: `HidingMOpening.lean`, `HidingRefusal.lean` and `HidingBlock.le
      - No receipt byte changes in an honest flow: the W16R2 rung golden and the six pinned trained digests are
        unchanged.
      - Test: `d66_the_dictionary_refusal_is_challenge_only_and_covers_every_admissible_tuple`.
-     - The next-token stages' smaller term (`(T + 256)/|Fp2|`) is not yet treated.
+     - **The next-token stages' smaller term (`(T + 256)/|Fp2|`): done the same night.**
+       - Stages IN, IN-C, OUT and OUT-C now refuse when `α` equals ANY public table tuple: the embedding table's
+         `τ_tab` in IN and IN-C, the 256 byte entries in OUT and OUT-C. This happens before any query or used table
+         entry is inverted.
+       - Before, the refusal depended on the hidden data through the queries and through which table entries had a
+         nonzero multiplicity.
+       - Every admissible query is a table tuple, and OUT refuses a non-byte lookup by class first, so afterwards no
+         denominator is zero.
+       - Full lib suite: 913 / 3 known / 94 (`results/zk60_h124_witness_20261104/d34_full.log`). The six seeded
+         r9 / r12 block goldens, including both DD blocks, are byte-identical at their post-F12 pins
+         (`d34_goldens.log`). The token stages' bytes cannot move: the new checks change nothing unless they fire.
 3. **D30 (4)'s and D34's counts are upper bounds and can be tightened (Info).**
    - D30 (4) counts `2·L·(768 + rows·cap)/p²`, and D34 counts `2·(768L + 32 + 256)/p²`.
    - The public table entries (the `768` per block) cancel: both worlds refuse on them alike.

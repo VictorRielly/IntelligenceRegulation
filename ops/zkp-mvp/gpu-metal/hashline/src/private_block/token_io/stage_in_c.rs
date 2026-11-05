@@ -323,6 +323,12 @@ pub(crate) fn prove(
     tr.absorb(b"M", &mask_root);
     let (beta, alpha, g_emb, r_emb, ef) = challenges(tr, cp, tables);
     let tau_tab = tau_table(cp, &ef, beta, g_emb);
+    // D66(3) (L4 finding 2, the D34 term): refuse on the challenges and public tables alone.
+    // Every admissible query is a table tuple (its control term matches the token's), so
+    // once this passes no denominator below is zero, whatever the hidden content.
+    if tau_tab.iter().any(|t| alpha.sub(*t).is_zero()) {
+        return Err("zero LogUp denominator; discard attempt".into());
+    }
     let b2 = beta.mul(beta);
     let e_r = eq_table_msb(&r_emb);
     let mut h_q = vec![Fp2::ZERO; ti_n];
