@@ -635,6 +635,12 @@ impl RunStatement {
         if context == [0; 32] {
             return Err("private run: a nonempty context is required".into());
         }
+        // D63 L3 finding F16 (docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md, Part 5): the run's context is
+        // never absorbed, so a receipt would verify under any nonzero context. Bind it to the context the
+        // endpoint spec carries, which IS absorbed (`private_block.rs`, the expected-IO absorb).
+        if context != expected.spec.context {
+            return Err("private run: the run's context differs from the context its endpoint spec binds".into());
+        }
         for k in 0..rs.l - 1 {
             if block_scales[k].1 != block_scales[k + 1].0 {
                 return Err(format!(

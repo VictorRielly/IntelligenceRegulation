@@ -2251,3 +2251,16 @@ fn w16r2_ab_w16_against_w16r2_on_one_binary() {
     let (compile, rounds) = crate::gpu::metal_sumcheck_stats();
     eprintln!("W16R2-AB device evidence: Metal kernel compile {compile:.3} s, device sumcheck rounds {rounds:.3} s");
 }
+
+/// **D63 L3 finding F16.** The run's context is never absorbed, so the run statement must bind it to
+/// the context its endpoint spec carries, which is absorbed. A statement whose context differs from
+/// its endpoint spec's is REFUSED; the matching one is built.
+#[test]
+fn f16_a_run_context_that_differs_from_the_endpoint_spec_is_refused() {
+    let r = RungRun::new(shape::W16R2_RUNG_H24, 1);
+    let (expected, _) = prepare_endpoints(IoSpec::new_shaped(&r.sh, [7; 32], 0, 0).unwrap(), &r.input, &r.output).unwrap();
+    let e = r.statement_on(8, expected).err().expect("a run statement with a context other than its endpoint spec's was built");
+    assert!(e.contains("differs from the context its endpoint spec binds"), "{e}");
+    let (expected, _) = prepare_endpoints(IoSpec::new_shaped(&r.sh, [7; 32], 0, 0).unwrap(), &r.input, &r.output).unwrap();
+    r.statement_on(7, expected).expect("the matching context builds");
+}

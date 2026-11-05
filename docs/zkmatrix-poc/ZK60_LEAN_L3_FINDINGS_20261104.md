@@ -1309,3 +1309,15 @@ I checked the header, the commitment order, the sumcheck loop and the PCS order 
   offset, including `ldec_start` for the registered domains.
 - **`KnowledgeSound`** of `Statements.lean`: the extractor of the witness and of the commitment openings, composed
   with the above.
+
+## Fixed, 2026-11-04: F16, the run statement binds its context
+
+`RunStatement::new_with_calibration` (`private_block/run.rs`) now refuses a run context that differs from the context
+its endpoint spec carries (`expected.spec.context`, which the header absorbs). A receipt therefore attests the run's
+context. Before the fix, the run context itself was never absorbed.
+
+Checks:
+- full lib suite 901 passed / 3 failed / 93 ignored, the failures exactly the known three, and the refusal never
+  fired in an honest flow (`results/zk60_h124_witness_20261104/f16_full.log`);
+- the new negative test `w16r2_tests::f16_a_run_context_that_differs_from_the_endpoint_spec_is_refused` passes
+  (`f16_test.log`).
