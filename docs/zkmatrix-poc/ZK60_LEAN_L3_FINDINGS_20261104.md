@@ -225,7 +225,7 @@ For soundness the consequence is worse than "honest proofs fail".
 
 ## 5. What remains for L3
 
-- **The PCS.**
+- **The PCS.** (Part 2 below proves the first two items per opening; its §P6 is the updated list.)
   - Ligero-style proximity at δ/3 (rate 1/4, D15) and at δ/2 (rate 1/2, D59, BCIKS20 Thm 3.1).
   - The column test and the field term.
   - Merkle binding in the random-oracle model, with the q-dependent bound.
@@ -259,3 +259,238 @@ What F1 adds is that it is a SOUNDNESS premise too, not only a privacy one. Stil
 - a Rust-side static test per slot (every public input zero, random private inputs: `poly` must vanish);
 - the corrected `argument.rs` header comment;
 - the premise proved per slot in the Lean instance (L2/L3).
+
+# Part 2 (2026-11-04): the polynomial commitment's column test and proximity test
+
+New files under `formal/ZK60Formal/`: `SoundColumnTest.lean`, `SoundProximity.lean`, `SoundProximityRS.lean`,
+`SoundOpening.lean`, and `ThirdParty/FlashProve/` (15 files adapted from FlashProve, see §P5).
+- `lake -d formal build` succeeds with no warnings (3381 jobs). No file uses `sorry`, `axiom`, `admit`,
+  `native_decide` or a `maxHeartbeats` option.
+- `#print axioms` was run on all 41 new theorems and on 11 ported FlashProve theorems they rest on (`caOn_rsCode`,
+  `caOn_rsCode_tight`, `mca_rsCode`, `minDist_rsCode`, `lines_tight`, `cnt_close_le`, `mca_third`, `CAOn.of_one_row`,
+  `MCAOn.of_one_row`, `MinDist.extendCode`, `MinDist.decode_unique`). Each depends on `propext`, `Classical.choice`
+  and `Quot.sound` only.
+- No new lake dependency.
+
+**Scope.** As in part 1: interactive, challenges exactly uniform and independent, the prover arbitrary. In addition
+the committed matrix `U` is FIXED before the challenges: that the opened columns are columns of one `U` is Merkle
+binding, a separate random-oracle step not done here.
+
+## P1. What is proved
+
+Notation (FlashProve's, ported):
+- a code is a subspace `D` of `ι → E`; `MinDist D d`: every nonzero codeword has at least `d` nonzero symbols;
+- `Close D e f` for `f : R → ι → E`: on one common set of all but at most `e` columns every row agrees with a codeword
+  (one word `w`: `Close D e (fun _ : Unit => w)`);
+- `CAOn Unit D e A`: two words that are not close together have at most `A` values `z` with `f₀ + z·f₁` close;
+- `comb U r = Σ_i r_i • U i`; `rsCode dom K`: the polynomials of degree `≤ K` at the distinct points `dom : ι ↪ L`.
+
+**Task 1, the column test** (`SoundColumnTest.lean`). `Q` indices drawn uniformly WITH replacement (the code's
+`challenge_indices`: a masked `u64` per draw, `N` a power of two):
+```lean
+theorem column_miss_prob (D : Finset ι) (Q : ℕ) :
+    (PMF.uniformOfFintype (Fin Q → ι)).toOuterMeasure {J | ∀ k, J k ∉ D}
+      = (((Fintype.card ι - D.card : ℕ) : ℝ≥0∞) / Fintype.card ι) ^ Q
+theorem column_test_sound {F : Type} [DecidableEq F] (w v : ι → F) {e : ℕ}
+    (h : e + 1 ≤ (univ.filter (fun j => w j ≠ v j)).card) (Q : ℕ) :
+    (PMF.uniformOfFintype (Fin Q → ι)).toOuterMeasure {J | ∀ k, w (J k) = v (J k)}
+      ≤ (((Fintype.card ι - (e + 1) : ℕ) : ℝ≥0∞) / Fintype.card ι) ^ Q
+theorem third_column_le {N K e : ℕ} (hN : 0 < N) (he : N - K ≤ 3 * (e + 1)) (Q : ℕ) :
+    (((N - (e + 1) : ℕ) : ℝ≥0∞) / N) ^ Q ≤ (((2 * N + K : ℕ) : ℝ≥0∞) / (3 * N : ℕ)) ^ Q
+```
+- `column_test_sound` is `count.py`'s exact integer form, `Q_(nn − e − 1, nn) ** q`. The law is exact
+  (`column_miss_prob` is an equality), and `card_miss` is the count `(N − |D|)^Q` itself.
+- `third_column_le`: the rate-1/4 count prices the column term as `((2N + K)/(3N))^Q = (1 − δ/3)^Q` while it uses
+  the radius `e = ⌊(N − K)/3⌋`. Since `3(e + 1) > N − K`, the proved term is never larger: the count is conservative.
+
+**Task 2, the proximity lemma, for any linear code** (`SoundProximity.lean`).
+```lean
+theorem comb_close_prob [Fintype E] [DecidableEq κ] {D : Submodule E (ι → E)} {d e A : ℕ}
+    (hd : MinDist D d) (h2 : 2 * e < d) (hA : e + 1 ≤ A) (hca : CAOn Unit D e A)
+    (U : κ → ι → E) (hfar : ¬ Close D e U) :
+    (PMF.uniformOfFintype (κ → E)).toOuterMeasure {r | Close D e (fun _ : Unit => comb U r)}
+      ≤ (A : ℝ≥0∞) / Fintype.card E
+theorem proximity_third [Fintype E] [DecidableEq κ] {D : Submodule E (ι → E)} {d e : ℕ}
+    (hd : MinDist D d) (h3 : 3 * e < d) (U : κ → ι → E) (hfar : ¬ Close D e U) :
+    (PMF.uniformOfFintype (κ → E)).toOuterMeasure {r | Close D e (fun _ : Unit => comb U r)}
+      ≤ ((e + 1 : ℕ) : ℝ≥0∞) / Fintype.card E
+```
+- `comb_close_prob` is the step from a line theorem to independent uniform weights on any number of rows, WITH NO
+  LOSS: the error for `m` rows is the line error `A/|E|`. This is the form of BCIKS20 Thm 1.7 and Thm 3.1, here for
+  every linear code with `2e < d`. The proof has two cases.
+  - Some combination `Σ b_i U_i` is far (`comb_close_cnt_of_far_dir`). Then along every line `a + z·b` of weights at
+    most `A` points are close, and those lines cover the weight space.
+  - Every combination is close (`all_close_absurd`). Then every pair of combinations is close together (the whole
+    line is close and `|E| > A`), so unique decoding is linear, `v(r) = Σ r_i V_i`. If `U` and `V` differed in
+    `e + 1` columns, some weight vector would be nonzero on all of them, since `(e + 1)·|E|^(m−1) < |E|^m`, and its
+    combination would be `(e + 1)`-far from its own decoding. So `|E| ≤ e + 1 ≤ A`, and the bound is trivial.
+- `proximity_third` is the δ/3 lemma (Ligero, AHIV Lemma 4.2 style). The line bound `e + 1` for `3e < d` is the
+  Roth–Zémor argument, FlashProve's `cnt_close_le` (ported). The result is exactly `(e + 1)/|E|`, the count's δ/3 field
+  term without its carried ceiling.
+- `affine_proximity_third` (and `affine_close_prob`): the mask commitment's AFFINE form `u + Σ r_i·U_i` (see F6),
+  `(e + 1)/(|E| − 1)`, by homogenizing.
+
+**Task 2, the Reed–Solomon instance, and task 3, δ/2** (`SoundProximityRS.lean`). The code of `pcs.rs` is
+`RS[D, K']` with `K' = n + q_pad` message symbols on `N` distinct points (the lemma check §1). Here that is
+`rsCode dom (K' − 1)`, of distance `N − K' + 1` (`minDist_rsCode`; `d = N − n + 1` in the task's notation).
+```lean
+theorem rs_proximity_third [Fintype L] [DecidableEq κ] (dom : ι ↪ L) {e K : ℕ}
+    (hn : 3 * e + K + 1 ≤ Fintype.card ι) (U : κ → ι → L) (hfar : ¬ Close (rsCode dom K) e U) :
+    (PMF.uniformOfFintype (κ → L)).toOuterMeasure {r | Close (rsCode dom K) e (fun _ : Unit => comb U r)}
+      ≤ ((e + 1 : ℕ) : ℝ≥0∞) / Fintype.card L
+theorem rs_proximity_half [Fintype L] [DecidableEq κ] (dom : ι ↪ L) {e K : ℕ}
+    (hn : 2 * e + K + 1 ≤ Fintype.card ι) (U : κ → ι → L) (hfar : ¬ Close (rsCode dom K) e U) :
+    (PMF.uniformOfFintype (κ → L)).toOuterMeasure {r | Close (rsCode dom K) e (fun _ : Unit => comb U r)}
+      ≤ (Fintype.card ι : ℝ≥0∞) / Fintype.card L
+theorem rs_proximity_half_ext [Fintype L] [DecidableEq κ] (dom : ι ↪ F) {e K : ℕ}
+    (hn : 2 * e + K + 1 ≤ Fintype.card ι) (U : κ → ι → F) (hfar : ¬ Close (rsCode dom K) e U) :
+    (PMF.uniformOfFintype (κ → L)).toOuterMeasure
+        {r | Close (rsCode (liftDom L dom) K) e (fun _ : Unit => comb (fun i => liftWord L (U i)) r)}
+      ≤ (Fintype.card ι : ℝ≥0∞) / Fintype.card L
+```
+- `rs_proximity_half` is BCIKS20 Thm 3.1 at the unique-decoding radius (`2e + K' ≤ N`): `N/|L|`. Its line case is
+  FlashProve's proof of BCIKS20 Thm 4.1 (`caOn_rsCode`: Berlekamp–Welch over `F[Z]` and Polishchuk–Spielman, ported).
+- `rs_proximity_half_ext` and `rs_proximity_third_ext` handle the code's field split: rows over `F` (`F_p`), weights
+  over `L` (`F_p²`).
+  - `close_of_close_lift`: if the rows read in `L` are `e`-close to the RS code over `L` at the same points, the rows
+    are `e`-close over `F`. The proof applies an `F`-linear form `φ` with `φ 1 = 1` to the coefficients of the decoded
+    polynomials.
+  - So an `F_p` matrix that is far over `F_p` is far over `F_p²`, and the `F_p²` bound applies.
+
+**Task 4, one opening** (`SoundOpening.lean`). The model is one claim group of `pcs::verify_zk_tagged`:
+- `U` is fixed;
+- the claim is a predicate `ok` on the re-encoded group vector (the verifier re-encodes, so the vectors are
+  codewords; its encoder is injective, so a predicate on the clear vector is one on its codeword);
+- `ρ` is uniform; the prover's group vector `g ρ` and proximity vector `w ρ` are any functions of `ρ`;
+- the `Q` indices are drawn after the vectors.
+```lean
+theorem opening_sound [Fintype E] [DecidableEq E] [Fintype ι] [DecidableEq ι] [Nonempty ι] [Fintype κ]
+    [DecidableEq κ] {D : Submodule E (ι → E)} {d e A : ℕ} (hd : MinDist D d) (h2 : 2 * e < d)
+    (hA : e + 1 ≤ A) (hca : CAOn Unit D e A) (U : κ → ι → E) (a : κ → E) (ok : (ι → E) → Prop)
+    (g w : (κ → E) → ι → E) (hg : ∀ ρ, g ρ ∈ D) (hw : ∀ ρ, w ρ ∈ D) (Q : ℕ) :
+    (PMF.uniformOfFintype ((κ → E) × (Fin Q → ι))).toOuterMeasure
+        {ω | OpeningAccepts U a ok g w ω.1 ω.2 ∧ ¬ OpeningGood D e U a ok}
+      ≤ (A : ℝ≥0∞) / Fintype.card E
+        + (((Fintype.card ι - (e + 1) : ℕ) : ℝ≥0∞) / Fintype.card ι) ^ Q
+```
+- `OpeningAccepts`: `ok (g ρ)`, and at every sampled column `g ρ = Σ a_i U_i` and `w ρ = Σ ρ_i U_i`.
+- `OpeningGood`: `U` agrees outside at most `e` columns with codeword rows `V` (unique, `Close.unique`), and the claim
+  holds of `Σ a_i V_i`. That is, the extracted data satisfies the claim.
+- `U` decides between the far and close cases before any challenge, so their terms do not add (the lemma check's
+  refinement 1).
+  - Far: `A/|E|` for a close combination; otherwise `≥ e + 1` disagreeing columns.
+  - Close with a false claim: `g ρ ≠ Σ a_i V_i` are two codewords, so `≥ d − e ≥ e + 1` disagreeing columns, for
+    every `ρ`.
+- Instances:
+  - `opening_sound_rs_third`: `(e + 1)/|E| + col`;
+  - `opening_sound_rs_half`: `N/|E| + col`;
+  - `opening_sound_rs_third_counted`: the rate-1/4 bound in `count.py`'s own terms,
+    `((2N + K')/(3N))^Q + (e + 1 + 4096)/|E|`.
+
+## P2. How the bounds compare with the count
+
+Per opening, `|E| = p²`, against `results/zk60_w16r2_q280_20261103/recount_q280.out.txt` (exact rationals, `log2`):
+
+| Opening | Count: column, field, both | Lean: column, field, both | Status |
+|---|---|---|---|
+| W16R2 regular (rate 1/2, δ/2; n 2^14, N 2^15, Q 280, K' 16,664, e 8,052) | −113.932, −112.830 (`(N + 4096)/p²`), −112.278 | −113.932, −113.000 (`N/p²`), −112.392 | **Column: the same formula and figure.** Field: the count's term is the proved one plus the 4096 ceiling. `opening_sound_rs_half` |
+| W16 regular (rate 1/4, δ/3; N 2^16, Q 256, K' 16,640, e 16,298) | −105.609 (`(1 − δ/3)^Q`), −113.684 (`(e + 1 + 4096)/p²`), −105.604 | −105.611 (`(1 − (e + 1)/N)^Q`), −114.008 (`(e + 1)/p²`), −105.607 | The count is slightly conservative on both terms. `opening_sound_rs_third_counted` proves the counted form itself |
+| M (RS(1024, 4096), MASK_Q 256, e 1,024, affine) | −106.250 (`(3/4)^256`), −115.678 (`(2·512 + 1 + 4096)/p²`), −106.248 | proximity half only: −106.370, −117.999 (`(e + 1)/(p² − 1)`) | The proximity half is covered (F6). M's product-form claim test is not modelled |
+
+- **The δ/2 count is now a theorem per opening, in the model of P1.**
+  - `2e + K' ≤ N` holds with EQUALITY at the W16R2 point (2·8,052 + 16,664 = 32,768). The theorem's hypothesis is
+    inclusive, so the edge is allowed.
+  - REVIEW_W16R2's F1 attack attains the column term, so the Lean bound is also tight.
+- **The δ/3 count** is dominated term by term by what is proved.
+- **No case was found where the count uses a bound stronger than the proved one, or applies a theorem outside its
+  hypotheses, for the per-opening PCS terms.** The carried 4096 is pure slack per opening. The regular openings do
+  not need it; for M it covers the `|E|/(|E| − 1)` factor many times over.
+
+## P3. What the model assumes, and how it meets the code
+
+1. **`U` is fixed before `ρ`.** The Merkle root precedes the claims, `λ` and `ρ`. That every opened column is a column
+   of one `U` is Merkle binding (the RO model, with the tagged verifier's path-length check). It is not yet
+   formalized.
+2. **The weights are independent and uniform over `F_p²`** (`challenge_fp2_vec(rows)`, every row, mask rows
+   included). Powers of one challenge would need BCIKS20 Thm 1.6, with a factor `m − 1`. That is not formalized, and
+   it is not what the code does. The challenge bias `(1 + p/2^128)^(2m)` is part 1's §3.7 item.
+3. **The code is the full RS code.** `rsCode dom (K' − 1)` is ALL polynomials of degree `< K'`, and the verifier's
+   encoder is a bijection onto it (lemma check §1, `pcs.rs:557-569`). The domain only needs `N` distinct points, and
+   `7·G_N` qualifies.
+4. **The claim check.** `ok` is any predicate on the group vector's codeword. The instance must define it as
+   `⟨Dec(c)[..n], c_weights⟩ = Σ λ·value`, with `Dec` the inverse of the verifier's encoder (L2/instance work).
+5. **One claim group, fixed row weights `a`.**
+   - Several groups: each group's vector is checked at the same columns, and the close-case argument applies to each.
+   - The `λ` batching of a group's claims: a false member survives it with probability `≤ 1/|E|` (`batch_prob`). This
+     happens in the close case only, so the total is `max(N, 1)/|E|` (the lemma check's refinement 1).
+   - Neither is a Lean statement yet.
+
+## P4. Findings
+
+**F5 (Info: the count's per-opening PCS terms are proved).** See P2.
+- Both regimes are covered, with the code's sampling (with replacement), its weights (independent uniform `F_p²`), its
+  field split (`F_p` rows) and its exact integer radius `e`.
+- The rate-1/2 field term needs no ceiling; the 4096 can be kept as slack or dropped.
+
+**F6 (Low: the mask commitment's proximity combination is affine, and its claim test is not a linear one).**
+`zk::mask_verify_tagged` combines the rows as `u + Σ r_i·row_i` (`zk.rs:594-600`, `:688-690`). The proximity mask
+`u = u_re + i·u_im` has the fixed coefficient 1; only the `2·specs + 2` other rows get uniform weights.
+- BCIKS20 Thm 3.1 / Thm 1.7 and Ligero's Lemma 4.2 are stated for LINEAR combinations.
+  - The affine form is proved here with `(e + 1)/(|E| − 1)` (`affine_proximity_third`), not `(e + 1)/|E|`.
+  - The count's M field term is covered only because it carries the 4096 ceiling: `2·512 + 1` alone would be short
+    by the factor `p²/(p² − 1)`.
+- Reading `u` over `F_p` (two committed rows with the fixed coefficients `1, i`) needs `{1, i}` to be an `F_p`-basis
+  of `F_p²`. That is an instance obligation, not proved.
+- M's functionals are checked by a PRODUCT-form test (`q' = Σ p_{a_s}·p_{W_s} + p_b`, `zk.rs:355-370`), not by a
+  linear group vector. Its close case is a different argument and has no Lean statement yet.
+
+**F7 (Info: the field split is sound).**
+- The count applies Thm 3.1 over `F_p²` to an `F_p` matrix.
+- Proved (`close_of_close_lift`): far over `F_p` implies far over `F_p²` at the same points, and the decoded rows are
+  over `F_p`.
+- This is BCIKS20 Remark 1.5 as the lemma check used it.
+
+**F8 (Info: no loss from lines to independent weights).**
+- FlashProve's own lines-to-weights lemma (`MCAFor.cnt_close_comb_mul`, in its `Code/Derived.lean`, not ported) gives
+  `bad/(|E| − 1)`.
+- `comb_close_prob` gives `A/|E|` for every code with `2e < d` and `A ≥ e + 1`. That is what the count (and BCIKS20
+  Thm 1.7) uses.
+
+## P5. FlashProve: what was reused, and how
+
+- **What it proves.** FlashProve's Lean library (`github.com/anthropics/FlashProve`, `lean/`, version 0.16.0, commit
+  9e2bdd8f, Apache-2.0) has, among much else:
+  - BCIKS20 Thm 4.1, correlated agreement on lines at the unique-decoding radius with at most `n` exceptional values,
+    for Reed–Solomon codes over any finite field (`Code/Half.lean`, `caOn_rsCode`, proved in the nine files of
+    `Code/Lines/`);
+  - its mutual form for interleaved words (`mca_rsCode`);
+  - Roth–Zémor up to a third of the distance, for every linear code (`Code/Third.lean`).
+  - It was cloned read-only into the session scratchpad.
+- **Ported**, into `formal/ZK60Formal/ThirdParty/FlashProve/`: those files and their small dependencies (`Prob/Cnt`,
+  `Prob/Count` cut to its counting part, `Code/Agree`, `Code/Mutual`), 15 files.
+- **Version gap.** FlashProve builds with Lean 4.29.1 and an older Mathlib; we use 4.34.1 / v4.34.1. Four one-line
+  fixes were needed:
+  - a deprecated name (`finset_sum_coeff`);
+  - a `simpa` that no longer closes the goal up to unfolding (`degZ`);
+  - a `convert` that leaves an `Iff.rfl` goal;
+  - a `haveI` that the style linter rejects.
+  - In addition, `Code/Third.lean` and `Code/Half.lean` lose the declarations that need unported files
+    (`Code/Iface.lean`, `Code/RS.lean`).
+- **Attribution.** Every ported file keeps its header and says what was changed. The repository's `NOTICE` has the
+  attribution: FlashProve, and ArkLib as FlashProve's credits list it for eleven of the files. `formal/README.md`
+  lists the files.
+
+## P6. What remains for L3 (the PCS part)
+
+- **Merkle binding** in the random-oracle model, with the `q`-dependent bound, and the extractor that reads `U` from
+  the query log. That turns "U fixed" into a theorem.
+- **The opening as the code runs it**: several groups, the `λ` batching (`batch_prob` composed), and `ok` defined
+  through the encoder's inverse (the multilinear claim on the first `n` message symbols).
+- **M**: the product-form linear test, and the `F_p` reading of `u` (F6).
+- **Composition**:
+  - the `3L + 1` regular and `L` mask openings of a run;
+  - the reduction from "terminal values opened" to "they are the multilinear extensions at the point" (part 1's §3.2);
+  - the union with the IOP terms of part 1.
+- **Fiat–Shamir** with the challenge bias, as in part 1.
+- **The instance**: the domain `7·G_N` as `ι ↪ F_p`, `K' = n + q_pad`, and the profile's `ColumnRegime` choosing δ/2
+  only for the rate-1/2 regular openings.

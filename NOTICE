@@ -7,3 +7,25 @@ Third-party components included in this repository (for example, vendored crates
 research/ experiments) remain under their own licences, which are kept with them. Model weights are not included
 in this repository; the scripts fetch them pinned by revision and hash, and they are used under their own licences
 (Meta Llama 3, TinyLlama, Mistral / Shieldstral).
+
+FlashProve (https://github.com/anthropics/FlashProve)
+
+The 15 Lean files under formal/ZK60Formal/ThirdParty/FlashProve/ (Prob/Cnt.lean, Prob/Count.lean, Code/Agree.lean,
+Code/Third.lean, Code/Mutual.lean, Code/Half.lean and the nine files of Code/Lines/) are adapted from FlashProve's
+Lean library (directory lean/, version 0.16.0, commit 9e2bdd8ff5bf9c62f18263d7dac189b0400b260c), under the Apache
+License, Version 2.0 (the same text as this repository's LICENSE). Each file keeps its copyright and licence header
+and says below it what was changed (module paths renamed; Prob/Count.lean, Code/Third.lean and Code/Half.lean cut to
+the declarations used; small fixes for Lean 4.34.1 and Mathlib v4.34.1). FlashProve's NOTICE reads, in its part that
+pertains to these files:
+
+    FlashProve
+    Copyright 2026 Anthropic PBC
+
+    This product includes software developed at Anthropic PBC (https://www.anthropic.com/).
+
+FlashProve's credits (lean/CREDITS.md, section 3; lean/CREDITS-FILES.tsv) list ArkLib
+(https://github.com/Verified-zkEVM/ArkLib; "Copyright (c) 2026 ArkLib Contributors. All rights reserved.",
+"Copyright (c) 2024-2026 ArkLib Contributors. All rights reserved."; Apache License, Version 2.0) for eleven of
+these files (Code/Half.lean, Code/Third.lean and the nine files of Code/Lines/): their comments speak of ArkLib,
+which formalizes the same theorems, and some of them take the same route of proof as ArkLib's in places, as each
+file's head says. No ArkLib file is included.
