@@ -981,6 +981,28 @@ theorem mopening_sound [Fintype E] [DecidableEq E] [Fintype ι] [DecidableEq ι]
     version, on stage OUT with `A_X` shifted by `δ`.
   - Until it is fixed, no soundness claim should be made for the token-I/O stages, and the count's `M` term bounds
     only the offset-aware event.
+- **Fixed, 2026-11-04 (ruling D65(1)): suggestion (a), with new profile versions.**
+  - `combined_weights` starts at `θ¹` for the prover and the verifier alike, on one code path. A thread-local hook,
+    only in test builds, makes pre-F12 openings for the cross-version tests.
+  - Every profile whose receipts carry an `M` opening has a new version string:
+    - 130 strings go from `/1` to `/2`, and the D55 run strings follow their bases;
+    - the `--zk` headers become `P1/2`, `P1-v3/2` and `HL-ZK/2`;
+    - fresh IO goes to `/3`, and the seam magic to `HLSEAM02`.
+  - The old strings are refused by name (`shape::pre_f12_refusal`; CS-7, CS-8 and CS-9).
+  - Suggestion (c), at the `M` level, is done. The forgery (δ = 5) is now REJECTED at the sum check, while the
+    pre-F12 hook still accepts it. An `M` opening and a rung receipt made under one version are refused by the
+    other, both ways. The end-to-end OUT-stage negative test is not written.
+  - Every pinned value that moved is explained by `M`'s opening or a profile string. The map, the old → new values
+    and the logs are in `results/zk60_f12_fix_20261104/` (`README.md`, `REPIN.md`, `profile_versions.tsv`).
+  - Invalidated, to redo:
+    - the D55 privacy-gate records;
+    - every capture made under `/1`;
+    - the `--zk` round-13/14 byte gates.
+  - Still to update:
+    - `apps/proven-media` (another lane) needs the `/2` Shieldstral string;
+    - the Python capture tools pin the old strings;
+    - `scripts/zk60_io_opening_translation.py` recomputes the combination from `θ⁰` and must start at `θ` for new
+      captures.
 
 **F13 (Info: `M`'s a-rows are degree-tested only at `< 2m`).** The proximity vector has `2m = 1024` coefficients. So
 the a-rows, honestly of degree `< 512`, are only known to have degree `< 1024`.

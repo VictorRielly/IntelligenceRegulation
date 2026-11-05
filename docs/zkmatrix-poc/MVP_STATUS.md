@@ -17,7 +17,7 @@
     - **The tree version was proved the same night:** D55's per-query rate is 2^-102.92 for any number of forks,
       the same as a D12a run, given its hand-off premises and the M assumption (Part 8 of the L3 findings).
   - **Victor's rulings (D65, D66):**
-    - F12 is fixed now, under new profile versions (in progress).
+    - F12 is fixed, under new profile versions (see the top).
     - One constant external refusal: done.
     - The DD dictionary's refusal is challenge-only: done, no receipt byte moved.
     - F25 is to be closed by a path-wise proof (in progress).
@@ -36,6 +36,12 @@
   - **A stream of 4 requests** (the next one sealed while this one proves; D64 allows batching): 13.8 tok/s
     amortized, **15.9 tok/s steady state**, 13 to 15 s latency per request [MEASURED, all 4 receipts verified]. The
     two stages share the Mac's CPU. D64's target is ≥ 110.
+
+**2026-11-04 (late night): F12 FIXED (D65(1)).** M now combines its claims with powers of θ starting at θ¹, for
+the prover and the verifier alike. Every profile that uses M has a new version string (`/1` → `/2`), and the old ones
+are refused by name. The forgery below is now rejected. Every moved golden and digest is accounted for in
+`results/zk60_f12_fix_20261104/REPIN.md`. The D55 privacy-gate records and all `/1` captures are invalidated and must
+be redone before any real-content switch. That switch was closed anyway: it waits on GPU-made bundles and on D63.
 
 **2026-11-04 (evening): a soundness defect found by the Lean work, confirmed in Rust (F12, High).**
 - The mask commitment M certifies its first claimed value only up to an offset the prover picks when it commits:
