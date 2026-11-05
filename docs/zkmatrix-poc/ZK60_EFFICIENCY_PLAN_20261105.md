@@ -97,8 +97,21 @@ are redone once, not per change.
   62% system time. An 8-thread pool gave one request −11.5% and the stream +19.6% (harness, 2 passes) [MEASURED].
 - **A14 done:** lazy sums (the default; proof only −2.8%, the stream −1.8%, re-checked in A15). The lane XOF and the
   parallel absorb are opt-in.
-- **A15 (running): the sealing pass on its own rayon pool,** in production and in the harness: the cause of the system
-  time, a witness-plane byte test, and a 6-pass A/B for the pool size.
+- **A15 done: the sealing pass's witness builds run in their own pool** of `(cores/4).clamp(1, 8)` threads, 8 here
+  (`HL_SEAL_POOL`; 0 restores the global pool).
+  - On the 32-thread global pool, 25 of the pass's 40 CPU-seconds were rayon's sleep-lock waits and `yield_now` spins.
+  - Independent A/B on the merged tree against production's previous form (4 passes, both orders, every pair): one
+    request −10.5%, stream steady +16.1%, amortized +14.9%, the sealing pass −20.6%; proof only unchanged.
+  - The Mac is now at 17.5 tok/s for one request, 29.1 for the stream steady (24.4 amortized) and 30.1–32.6 proof
+    only [MEASURED]. **Phase A's expected result below is met.**
+  - The lazy sums were re-checked on top of it: the stream is unchanged, so they stay on.
+  - The stream is now balanced (about 4.4 s of proof per request against about 4.6 s of sealing beside the forks), so
+    both sides must get faster.
+- **A16 (running): the sealing builder's serial work** (`witness_accuracy.rs`, `witness.rs`, the duplicate public
+  check in the sealing pass), about 1.6 of the pass's 2.9 s [INFERRED, A15]; then the pool size re-swept.
+- **A17 (running): the forks' host work in `protocol.rs`** (A14's ranking): the A/H zero-fill (first touch by the
+  parallel writers), the lookups and histograms, the helper inverses, the witness planes, and the per-block public
+  checks cached per resident model (fail-closed).
 - Earlier plan text, kept for the record:
   - **A13, before-challenge work during the sealing pass.** A fork's work before its first transcript use (A's rows,
     A's commitment, the mask commitment) needs only its own block's witness. That is about 22% of a block [MEASURED,
@@ -119,6 +132,16 @@ are redone once, not per change.
 - **B5** joins only if its two gates pass by the freeze.
 - **B6:** the study starts now; it joins W16R3 only if ready at the freeze.
 - **Handoff:** `W16R3_HANDOFF_20261105.md` (Sol: the B1–B3 design note, then the build; Astra: the B6 study).
+- **Sol's B1–B3 note is reviewed and accepted** (`W16R3_DESIGN_B1_B3_20261105.md`; the review is in the handoff).
+  - **The modeled gain is smaller than the 2026-11-01 figure:**
+    - the forks phase ×1.08–1.19 [MODEL], 8.6–18 ms of GPU service per block [ESTIMATE];
+    - about 2–8% off one request;
+    - the receipt 819 → about 767 MB;
+    - the soundness rate 2^-103.02.
+    The old ×1.44–1.64 counted rate 1/2, which W16R2 already has.
+  - **Build order:** B1 (most of the saving, and B6's prerequisite), then B2, then B3, each behind its falsifier and an
+    N = 6 A/B. If B2 or B3 measures no gain, Victor decides whether it stays in W16R3.
+  - **The base for Sol's build** is posted in the handoff.
 - **The B6 study is done** (`W16R3_DESIGN_B6_20261105.md`, by a Claude agent while Astra is out of compute).
   **Recommendation: not in W16R3; the next profile, in two steps.**
   - **Where today's 819 MB goes:** clear vectors 52%, opened column data 45%, Merkle paths 2% [MODEL, reproduced from
@@ -146,9 +169,11 @@ Each item first gets a design note and a census. Measurements come before code.
 | B7 | **Cross-request batching inside one proof** | amortizes the per-proof fixed costs; size it from A1's census | Decide after A1 shows what is fixed per proof |
 
 **Bundle expectation:**
-- B1–B3 alone model at ×1.44–1.64 on the GPU work per block [MODEL, 2026-11-01]. B4–B5 could add as much again, but
-  that is unmeasured.
-- On the Mac, the W16R3 stream would be about 35–45 tok/s [ESTIMATE].
+- ~~B1–B3 alone model at ×1.44–1.64 on the GPU work per block [MODEL, 2026-11-01]. B4–B5 could add as much again, but
+  that is unmeasured.~~ **Superseded 2026-11-05** by Sol's note: ×1.12–1.27 on the GPU service, ×1.08–1.19 on the
+  forks phase [MODEL]. The old figure included rate 1/2, which W16R2 already has.
+- ~~On the Mac, the W16R3 stream would be about 35–45 tok/s [ESTIMATE].~~ Superseded: the stream is now balanced
+  between sealing and proving, so W16R3's forks saving alone moves it little.
 
 ### Phase C: the RTX 5090 (when the box is up; Victor's step)
 

@@ -547,3 +547,73 @@ Full write-up: `a14/README.md`. Merged into perf; acceptance and an independent 
 - the per-block public checks, which repeat preflight's and could be cached per resident model;
 - `define`'s public int8 weight folds, which would need a device fold;
 - salts drawn one by one in `pcs.rs`.
+
+## A15: the sealing pass's witness builds in their own rayon pool, done (the default)
+
+Full write-up: `a15/README.md`. Merged into perf (910c2ac4); acceptance and an independent A/B on the merged tree:
+`check_a15merge.sh`, `a15merge.progress`, `a15merge_pairs.md`, `a15merge_seal_pairs.md`.
+
+**The cause** [MEASURED, the sealing pass alone, macOS `sample`]:
+- On the 32-thread global pool the sealing pass took about 4.0 s and 15 user + 25 system CPU-seconds, for about 6.3
+  CPU-s of real work.
+- The system time is rayon's own: workers block on its sleep lock (20.8 thread-s), and idle workers spin on
+  `yield_now` (17.3 thread-s). Each build is a run of many short parallel regions (about 70–90 per block, ESTIMATE),
+  and each one wakes a wide pool.
+- The pool's width is the cause. System CPU is 0.9 / 2.1 / 7.2 / 25.7 s at 4 / 8 / 16 / 32 threads, and a dedicated
+  32-thread pool costs the same as the global one.
+
+**What changed** (`trained_block.rs` only in production; byte-preserving):
+- Each layer's witness build runs in a dedicated pool, `SealPool`, in `seal_and_record` (production `stack-prove`, D12a
+  and D55) and in `StackSource::witness_of` (rebuilds). The next layer's load stays on the global pool.
+- The switch is `HL_SEAL_POOL=<threads|0|auto>`; 0 restores the global pool.
+- The default rule is `(cores/4).clamp(1, 8)`, 8 on the M3 Ultra. It is capped at 8 because 16 measured worse. On
+  other machines the rule is an extrapolation; the RTX 5090 box should re-measure it.
+- Harness arm words `sp<t>`, `spauto`, `spg` (the global pool entered on one of its own workers, production's form
+  before A15).
+
+**Byte evidence:**
+- A 32-block 8B chain gives one digest of every witness plane in pools of 1–32 threads and on the global pool.
+- At 8B, with CPU and with device products, the digest is `5808a1cd` everywhere; the rung chain's planes are equal at
+  11 settings.
+- The synthetic block reaches a fixed point, so the 8B chains repeat one build.
+
+**Acceptance on the merged tree** [MEASURED, one guarded job]:
+- build rc 0; no-feature `cargo check --tests` rc 0;
+- full lib suite: 926 passed, exactly the known three failed, 107 ignored; zkp-core lib 81 passed;
+- the A15 8B chain in every pool, and the A14, A8, A12, A11 and A7 byte tests, pass;
+- the W16R2 rung golden `96e4f0b6` (CPU = Metal) and all six post-F12 digests pass;
+- D55 default:
+  - one request from its input, best 7.323 s = 17.48 tok/s;
+  - the stream 29.12 tok/s steady, 24.36 amortized, per-request latency 7.8–8.9 s;
+  - proof only, best 4.252 s = 30.10 tok/s (see the note below);
+  - every receipt verified: fork receipts 818,728,672 B, D12a 818,728,480 B. The four stream receipts verified after
+    the clock in 9.9 s.
+
+**The independent A/B** [MEASURED, `a15merge_pairs.md`, `a15merge_seal_pairs.md`]:
+- The arms: `spg` (production before A15) against `spauto`, 4 passes, alternating.
+- This differs from the agent's A/B, which ran against `sp0`, the harness thread.
+
+| metric | order bias removed | pairs favouring the pool | means before / after |
+|---|---:|---:|---:|
+| one request from its input | **−10.5%** | 4 of 4 | 8.487 / 7.595 s |
+| stream, steady | **+16.1%** | 4 of 4 | 24.04 / 27.92 tok/s |
+| stream, amortized | **+14.9%** | 4 of 4 | 20.55 / 23.61 tok/s |
+| sealing pass, one request | **−20.6%** | 4 of 4 | 4.32 / 3.44 s |
+| sealing pass beside the forks (stream) | −13.7% | 4 of 4 | 5.46 / 4.71 s |
+| sealing user / system CPU | −50.7% / −89.6% | 4 of 4 | — |
+| proof only (the control) | +0.6% | 1 of 4 | 4.158 / 4.175 s |
+
+- **The agent's own A/B** (6 passes against `sp0`): one request −12.7%, the stream steady +18.9%. Its size sweep against
+  `spg`: −10.5% and +19.3%.
+- **Proof only:** this run's best (4.25 s) is slower than A14's acceptance (3.98 s). The in-process control shows no
+  change from A15 (+0.6%, noise), so this is run-to-run variance on the shared Mac, not a regression.
+- **The lazy sums re-checked on top of the pool** (agent, 6 passes): the stream steady +0.6% (noise), one request
+  −0.9% (6 of 6 pairs), user CPU −2.6%. The earlier stream loss does not reappear; they stay on.
+- **The stream is now balanced:** about 4.4 s of proof per request against about 4.6 s of sealing beside the forks
+  [MEASURED, agent]. Further stream gains need both sides faster (A16: the sealing builder; A17: the forks' host
+  work).
+
+**For the privacy gate:**
+- The only production digest that moved is `private_block/trained_block.rs`.
+- No new timing dependence on hidden data; the pool size depends on the machine only.
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.

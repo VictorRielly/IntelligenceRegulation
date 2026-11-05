@@ -2,18 +2,22 @@
 
 **2026-11-05: efficiency first (Victor). Plan: `ZK60_EFFICIENCY_PLAN_20261105.md`. Phase A results so far
 (byte-preserving, measured on the Mac, every receipt verified; `results/zk60_effplan_20261105/`):**
+These timings use synthetic diagonal public weights at the true 8B geometry, so dense-weight work is not yet measured
+here. The rates count proving and witness work. Verification time is recorded separately, as
+`ZK60_THROUGHPUT_TARGET.md` asks: about 2.3 s per receipt, from four stream receipts verified in 9.3–9.9 s.
 
 | One W16R2 8B T128 request, 32 blocks, forks N = 6 | before (2026-11-04 night) | now |
 |---|---:|---:|
 | preflight (A2) | 0.35 s | 0.08 s |
-| the sealing pass, the serial forward chain (A4: weight products on the GPU, exact) | 5.45 s | 3.55 s |
+| the sealing pass, the serial forward chain (A4: weight products on the GPU, exact; A15: its own 8-thread pool) | 5.45 s | 3.3–3.4 s |
 | the fork run's host work (A11: one rayon pool per fork, not one shared pool) | about 0.5 s per block | stream +19%, proof only −9.5% (A/B, both orders) |
 | the device slots' tables, 1.32 GB per block (A12: built on the GPU, not the CPU) | about 47 ms per block per fork | stream +5%, proof only −6.5% (A/B, both orders) |
 | the openings' store folds (A8: row-sparse, prefetched, 16-bit lanes) | A 24.6 ms, H 31.5 ms per fold | stream +2.2%, proof only −2.9% (A/B, both orders) |
-| the forks' host sums (A14: summed exactly, reduced once) | — | proof only −2.8%, the stream −1.8% (A/B, both orders; under review) |
-| **one request from its input, all witness work on the clock** | 11.1 tok/s | **15.5 tok/s** |
-| **a stream of 4 requests, steady** | 15.9 tok/s | **24.3 tok/s** (amortized 20.6–20.9; latency 8.6–10.0 s) |
-| proof only | 22.7 tok/s | **32.2–32.6 tok/s** |
+| the forks' host sums (A14: summed exactly, reduced once) | — | proof only −2.8%; the stream unchanged when re-checked on top of A15 (A/B, both orders) |
+| the sealing pass's thread pool (A15: 8 threads, not the 32-thread global pool) | sealing 4.3 s | one request −10.5%, stream +16.1% (A/B, both orders, every pair) |
+| **one request from its input, all witness work on the clock** | 11.1 tok/s | **17.5 tok/s** (best 7.32 s) |
+| **a stream of 4 requests, steady** | 15.9 tok/s | **29.1 tok/s** (amortized 24.4; latency 7.8–8.9 s) |
+| proof only | 22.7 tok/s | **30.1–32.6 tok/s** (best per run; it varies from run to run on the shared Mac) |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -37,16 +41,22 @@
   the hidden words are 16-bit.
 - **A13 did not pay, and A14 helped proof only but not the stream** [MEASURED]:
   - A13, doing each block's before-challenge work during the sealing pass: what the forks saved, the sealing pass lost.
-  - A14's lazy sums: proof only −2.8%, the stream −1.8%.
-- **A13 found a large lever: the sealing pass wastes its cores.** About 10 of 32 are busy, and 62% of its CPU is system
-  time. A harness probe with an 8-thread pool gave one request −11.5% (16.9 tok/s) and the stream +19.6% (28.1 tok/s)
-  [MEASURED, 2 passes].
+  - A14's lazy sums: proof only −2.8%, the stream −1.8%. Re-checked on top of A15, the stream is unchanged; they stay on.
+- **A15: the sealing pass now runs in its own 8-thread pool** [MEASURED].
+  - On the 32-thread global pool, 25 of its 40 CPU-seconds were rayon's own waits and spins.
+  - Independent A/B on the merged tree against production's previous form, every pair: one request −10.5%, the stream
+    steady +16.1%. Byte-identical.
+  - Phase A's expected Mac result (16–18 tok/s for one request, 22–25 for the stream) is now met.
+  - The stream is now balanced: about 4.4 s of proof per request against about 4.6 s of sealing beside the forks.
+- **W16R3 is worth less than first modeled** (Sol's B1–B3 note, reviewed and accepted, 2026-11-05):
+  - the forks phase ×1.08–1.19 [MODEL], against ×1.44–1.64 on 2026-11-01. The old figure counted the rate change that
+    W16R2 already made, and the batching saves less than assumed.
+  - about 2–8% off one request, and the receipt 819 → about 767 MB [MODEL].
+  - The soundness rate improves slightly (2^-102.93 → 2^-103.02). B1 carries most of the saving, and B6 needs it.
 - **D64's target is ≥ 110.** Next:
-  - A15: the sealing pass on its own thread pool, in production, with a witness byte test and a 6-pass A/B (running);
-  - the protocol bundle W16R3, ruled 2026-11-05 (D67):
-    - it is B1 + B2 + B3;
-    - no B4, so statement 1 stays exactly as approved;
-    - the B6 study starts (Astra), and Sol writes the B1–B3 design note first (`W16R3_HANDOFF_20261105.md`);
+  - A16 (the sealing builder's serial work) and A17 (the forks' host work in `protocol.rs`), running;
+  - the protocol bundle W16R3, ruled 2026-11-05 (D67): B1 + B2 + B3, no B4. Sol builds B1 first, then B2 and B3, each
+    after a measured gain (`W16R3_HANDOFF_20261105.md`). B6 goes to the next profile;
   - the RTX 5090 (date pending, Victor).
 
 **2026-11-04 (night): Lean, Fiat–Shamir part 6 merged; the soundness target needs one more theorem (F20, Medium).**
@@ -69,9 +79,12 @@
     - F12 is fixed, under new profile versions (see the top).
     - One constant external refusal: done.
     - The DD dictionary's refusal is challenge-only: done, no receipt byte moved.
-    - **F25 closed by the path-wise proof (2026-11-05, Part 9):** the run meets the approved target
-      q·2^-100 + 2^-100 for every q ≤ 2^75. The query-free part is ≤ 2^-101.85 and the per-query rate is 2^-102.92.
-      This holds given the hand-off premises and M (both still to prove). The wider-field fallback is not needed.
+    - **F25 closed by the path-wise proof (2026-11-05, Part 9), for a D12a run:** a D12a run meets the approved
+      target q·2^-100 + 2^-100 for every q ≤ 2^75. The query-free part is ≤ 2^-101.85 and the per-query rate is
+      2^-102.92. This holds given the hand-off premises and M (both still to prove). The wider-field fallback is not
+      needed.
+      - **For D55,** the per-query rate is Part 8's tree theorem. Its query-free part, Part 9's zones composed over the
+        fork tree, is not yet proved (L3 findings, W5; noted by Sol, 2026-11-05).
 - Fixed today: F16, a run receipt now attests its context. F23: `autoImplicit` is off in `formal/`, so a mistyped
   name in a statement can no longer compile silently.
 - Fixed today: L4 finding 3. The mask schedule audit now checks that each pair's actual row weights are independent,
