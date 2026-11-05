@@ -1,0 +1,148 @@
+2026-11-05T18:42:40Z start
+2026-11-05T18:45:10Z build rc=0
+2026-11-05T18:45:14Z a13 split core golden (CPU) rc=0
+test private_block::w16r2_tests::a13_w16r2_rung_golden_with_the_core_split_across_threads ... A13-SPLIT W16R2_RUNG_H24: whole 96e4f0b6; split pool 1: 96e4f0b6, pool 2: 96e4f0b6, pool 6: 96e4f0b6; another shape's rest: private block: the before-challenge state was made for another shape or layout
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 4.09s
+2026-11-05T18:45:16Z a13 split core golden (Metal) rc=0
+test private_block::w16r2_tests::a13_w16r2_rung_golden_with_the_core_split_across_threads_on_the_device ... A13-SPLIT W16R2_RUNG_H24 (Metal): whole 96e4f0b6; split ["96e4f0b6", "96e4f0b6", "96e4f0b6"] (device sumcheck rounds 0.1591 s; table builds [20, 480, 140, 0, 0, 40, 20, 0])
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 1.25s
+2026-11-05T18:47:08Z a13 fork byte test (CPU) rc=0
+test private_block::run::fork::a13_tests::a13_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung ... A13-BYTES W16R2_RUNG_H24 L4: all 4 forks parked (parts / finish pools 1/1, 2/3, 6/2) equal the whole forks byte for byte (57032864 B of fork frames)
+A13-BYTES W16R2_RUNG_H24 L4 N1 whole: 61301184 B, verified; its interior forks parked equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 sealing window 1 side (1, 0): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 1 side (1, 0): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 sealing window 1 side (2, 3): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 1 side (2, 3): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 sealing window 9 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 9 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 sealing window 9 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 9 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 whole: 61301184 B, verified; its interior forks parked equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 sealing window 1 side (1, 0): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 1 side (1, 0): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 sealing window 1 side (2, 3): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 1 side (2, 3): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 sealing window 9 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 9 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 sealing window 9 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 9 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 112.33s
+2026-11-05T18:47:58Z a13 fork byte test (Metal) rc=0
+test private_block::run::fork::a13_tests::a13_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung_on_the_device ... A13-BYTES (Metal) W16R2_RUNG_H24 L4: all 4 forks parked (parts / finish pools 1/1, 2/3, 6/2) equal the whole forks byte for byte (57032864 B of fork frames)
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 whole: 61301184 B, verified; its interior forks parked equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 whole: 61301184 B, verified; its interior forks parked equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 whole: 61301184 B, verified; its interior forks parked equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal) W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A13-BYTES (Metal): device sumcheck rounds 7.704 s; table builds [1250, 30000, 8750, 0, 0, 2500, 1250, 0]
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 49.45s
+2026-11-05T18:48:33Z s25 census rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1014 filtered out; finished in 35.64s
+2026-11-05T18:48:33Z hash-domain scans rc=0
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1034 filtered out; finished in 0.00s
+2026-11-05T18:50:27Z every non-ignored D55 test rc=0
+test result: ok. 25 passed; 0 failed; 8 ignored; 0 measured; 1001 filtered out; finished in 113.98s
+2026-11-05T18:59:49Z d55 exploration rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.547 s = 13.41 tok/s | mean 9.547 s = 13.41 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.211 s = 30.40 tok/s | mean 4.211 s = 30.40 tok/s | 2.27x serial (best)
+D55-AB SUMMARY | forks N=6 noahead | A7 GPU-policy A/B, interleaved, 2 passes | best 4.217 s = 30.35 tok/s | mean 4.224 s = 30.30 tok/s
+D55-AB SUMMARY | forks N=6 ahead32 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.056 s = 31.56 tok/s | mean 4.075 s = 31.41 tok/s
+D55-AB SUMMARY | forks N=6 ahead16 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.111 s = 31.14 tok/s | mean 4.157 s = 30.79 tok/s
+D55-AB SUMMARY | forks N=6 ahead32+aw1 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.146 s = 30.87 tok/s | mean 4.162 s = 30.75 tok/s
+D55-AB SUMMARY | forks N=6 ahead32+aw3+ap4 | A7 GPU-policy A/B, interleaved, 2 passes | best 4.198 s = 30.49 tok/s | mean 4.315 s = 29.67 tok/s
+D55-AB SUMMARY | forks N=6 SEALED noahead | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.303 s = 15.42 tok/s | mean 8.423 s = 15.20 tok/s
+D55-AB SUMMARY | forks N=6 SEALED ahead32 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.502 s = 15.06 tok/s | mean 8.514 s = 15.03 tok/s
+D55-AB SUMMARY | forks N=6 SEALED ahead16 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.557 s = 14.96 tok/s | mean 8.591 s = 14.90 tok/s
+D55-AB SUMMARY | forks N=6 SEALED ahead32+aw1 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.436 s = 15.17 tok/s | mean 8.484 s = 15.09 tok/s
+D55-AB SUMMARY | forks N=6 SEALED ahead32+aw3+ap4 | A7 GPU-policy A/B, one request from its input, interleaved, 2 passes | best 8.371 s = 15.29 tok/s | mean 8.561 s = 14.95 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 noahead | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 23.91 tok/s (best 23.97) | amortized mean 20.33 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 ahead32 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 22.17 tok/s (best 22.25) | amortized mean 19.20 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 ahead16 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 23.67 tok/s (best 23.81) | amortized mean 20.21 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 ahead32+aw1 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 22.60 tok/s (best 22.66) | amortized mean 19.51 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 ahead32+aw3+ap4 | A7 GPU-policy A/B, stream, interleaved, 2 passes | steady state mean 21.90 tok/s (best 22.15) | amortized mean 19.22 tok/s
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [noahead]: wall 8.303 s; sealing pass 4.135 s (10.1 cores busy, 41.6 CPU-s); prove call 4.153 s: preflight 0.081, commit 0.200, forks 3.796, join 0.076 s; 0/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean NaN ms (sum -0.00 s), in a fork mean 144.8 ms (sum 4.63 s); footprint start 23.0 GiB, peak 34.9 GiB, end 22.6 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32]: wall 8.502 s; sealing pass 4.565 s (12.2 cores busy, 55.9 CPU-s); prove call 3.937 s: preflight 0.122, commit 0.217, forks 3.510, join 0.087 s; 32/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean 116.0 ms (sum 3.71 s), in a fork mean NaN ms (sum -0.00 s); footprint start 23.7 GiB, peak 72.1 GiB, end 48.5 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead16]: wall 8.557 s; sealing pass 4.552 s (10.6 cores busy, 48.2 CPU-s); prove call 4.005 s: preflight 0.112, commit 0.233, forks 3.527, join 0.132 s; 16/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean 102.4 ms (sum 1.64 s), in a fork mean 119.7 ms (sum 1.91 s); footprint start 51.6 GiB, peak 70.5 GiB, end 52.9 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+aw1]: wall 8.436 s; sealing pass 4.654 s (12.1 cores busy, 56.1 CPU-s); prove call 3.782 s: preflight 0.122, commit 0.199, forks 3.386, join 0.075 s; 32/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean 109.5 ms (sum 3.51 s), in a fork mean NaN ms (sum -0.00 s); footprint start 51.7 GiB, peak 79.4 GiB, end 53.0 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+aw3+ap4]: wall 8.750 s; sealing pass 4.869 s (10.9 cores busy, 52.9 CPU-s); prove call 3.882 s: preflight 0.103, commit 0.238, forks 3.435, join 0.106 s; 32/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean 124.7 ms (sum 3.99 s), in a fork mean NaN ms (sum -0.00 s); footprint start 51.8 GiB, peak 79.5 GiB, end 53.1 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+aw3+ap4]: wall 8.371 s; sealing pass 4.570 s (11.9 cores busy, 54.4 CPU-s); prove call 3.801 s: preflight 0.102, commit 0.239, forks 3.386, join 0.074 s; 32/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean 123.8 ms (sum 3.96 s), in a fork mean NaN ms (sum -0.00 s); footprint start 51.6 GiB, peak 79.7 GiB, end 53.2 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32+aw1]: wall 8.532 s; sealing pass 4.674 s (11.9 cores busy, 55.7 CPU-s); prove call 3.858 s: preflight 0.123, commit 0.205, forks 3.441, join 0.088 s; 32/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean 111.0 ms (sum 3.55 s), in a fork mean NaN ms (sum -0.00 s); footprint start 51.6 GiB, peak 80.1 GiB, end 53.2 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead16]: wall 8.626 s; sealing pass 4.604 s (10.9 cores busy, 50.2 CPU-s); prove call 4.022 s: preflight 0.087, commit 0.210, forks 3.648, join 0.076 s; 16/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean 109.9 ms (sum 1.76 s), in a fork mean 118.8 ms (sum 1.90 s); footprint start 51.7 GiB, peak 71.3 GiB, end 53.2 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [ahead32]: wall 8.527 s; sealing pass 4.699 s (11.8 cores busy, 55.6 CPU-s); prove call 3.827 s: preflight 0.115, commit 0.215, forks 3.390, join 0.107 s; 32/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean 110.5 ms (sum 3.54 s), in a fork mean NaN ms (sum -0.00 s); footprint start 51.7 GiB, peak 80.2 GiB, end 53.3 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [noahead]: wall 8.543 s; sealing pass 4.352 s (10.2 cores busy, 44.2 CPU-s); prove call 4.191 s: preflight 0.080, commit 0.210, forks 3.822, join 0.078 s; 0/32 forks parked, feeder waited 0.000 s; before-challenge parts: parked mean NaN ms (sum -0.00 s), in a fork mean 140.1 ms (sum 4.48 s); footprint start 51.7 GiB, peak 64.2 GiB, end 53.3 GiB
+D55-AB A13 PIPE-SEAL L32 N6 request 0: sealing pass with its parts 4.705 s; 32 parts parked, holding 28.64 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 1: sealing pass with its parts 6.139 s; 32 parts parked, holding 28.64 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 2: sealing pass with its parts 6.004 s; 32 parts parked, holding 28.64 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 3: sealing pass with its parts 5.895 s; 32 parts parked, holding 28.64 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 0: sealing pass with its parts 4.503 s; 16 parts parked, holding 14.32 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 1: sealing pass with its parts 5.604 s; 16 parts parked, holding 14.32 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 2: sealing pass with its parts 5.695 s; 16 parts parked, holding 14.32 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 3: sealing pass with its parts 5.676 s; 16 parts parked, holding 14.32 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 0: sealing pass with its parts 4.718 s; 32 parts parked, holding 28.64 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 1: sealing pass with its parts 5.944 s; 32 parts parked, holding 28.64 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 2: sealing pass with its parts 5.821 s; 32 parts parked, holding 28.64 GB on the host
+D55-AB A13 PIPE-SEAL L32 N6 request 3: sealing pass with its parts 5.954 s; 32 parts parked, holding 28.64 GB on the host
+--- ahead32
+| proof wall s | -3.8% (1, 1) | -3.2% (1, 1) | **-3.5%** | 4.224 / 4.075 |
+| sealed wall s | +2.4% (1, 0) | -0.2% (1, 1) | **+1.1%** | 8.423 / 8.514 |
+| stream steady tok/s | -7.2% (1, 0) | -7.4% (1, 0) | **-7.3%** | 23.910 / 22.165 |
+| stream amortized tok/s | -4.5% (1, 0) | -6.5% (1, 0) | **-5.5%** | 20.325 / 19.200 |
+--- ahead16
+| proof wall s | -2.5% (1, 1) | -0.6% (1, 1) | **-1.6%** | 4.224 / 4.157 |
+| sealed wall s | +3.1% (1, 0) | +1.0% (1, 0) | **+2.0%** | 8.423 / 8.591 |
+| stream steady tok/s | -1.9% (1, 0) | -0.2% (1, 0) | **-1.0%** | 23.910 / 23.665 |
+| stream amortized tok/s | -0.4% (1, 0) | -0.7% (1, 0) | **-0.5%** | 20.325 / 20.215 |
+--- ahead32+aw1
+| proof wall s | -1.7% (1, 1) | -1.3% (1, 1) | **-1.5%** | 4.224 / 4.162 |
+| sealed wall s | +1.6% (1, 0) | -0.1% (1, 1) | **+0.7%** | 8.423 / 8.484 |
+| stream steady tok/s | -5.5% (1, 0) | -5.5% (1, 0) | **-5.5%** | 23.910 / 22.600 |
+| stream amortized tok/s | -3.0% (1, 0) | -5.1% (1, 0) | **-4.0%** | 20.325 / 19.505 |
+--- ahead32+aw3+ap4
+| proof wall s | +5.1% (1, 0) | -0.8% (1, 1) | **+2.1%** | 4.224 / 4.315 |
+| sealed wall s | +5.4% (1, 0) | -2.0% (1, 1) | **+1.7%** | 8.423 / 8.561 |
+| stream steady tok/s | -9.7% (1, 0) | -7.1% (1, 0) | **-8.4%** | 23.910 / 21.900 |
+| stream amortized tok/s | -5.5% (1, 0) | -5.3% (1, 0) | **-5.4%** | 20.325 / 19.225 |
+2026-11-05T18:59:49Z all done
