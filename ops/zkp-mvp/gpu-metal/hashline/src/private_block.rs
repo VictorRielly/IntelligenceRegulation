@@ -860,9 +860,11 @@ impl BlockPublic {
         if data.folds().gate.shift!=sh.accuracy_gate_shift {
             return Err("R13 public folded gate denominator differs from the stage shape".into());
         }
+        // H122 (efficiency plan A2): about 218 MB of weights per 8B block, scanned in parallel
+        // chunks (the same boolean as one `contains`)
         if [&self.attention.wq,&self.attention.wk,&self.attention.wv,&self.attention.wo,&self.attention.gamma_a,
             &self.feed_forward.gamma_m,&self.feed_forward.wg_t,&self.feed_forward.wu_t,&self.feed_forward.wd_t]
-            .into_iter().any(|words|words.contains(&i8::MIN)) {
+            .into_iter().any(|words|{use rayon::prelude::*; words.par_chunks(1<<20).any(|c|c.contains(&i8::MIN))}) {
             return Err("R13 public weights/gains must be symmetric int8".into());
         }
         if sh.dd_cap>0 {self.attention.dd_e_column(sh.dd_cap)?;}

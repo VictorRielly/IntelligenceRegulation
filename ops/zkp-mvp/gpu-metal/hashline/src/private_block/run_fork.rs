@@ -957,17 +957,29 @@ impl BlockSource for RepeatBlock<'_> {
 /// RULINGS CS-1, CS-4 and CS-6 before anything is absorbed, as
 /// [`super::prove_run_with`] and the D12a verifier's start make them
 fn preflight(st: &RunStatement, blocks: &dyn ForkBlocks, check_digests: bool) -> Result<(), String> {
+    use rayon::prelude::*;
     let sh = &st.rs.sh;
     as_many_blocks_as_the_statement(st, blocks.count())?;
     protocol::fits_the_ntt_tables(sh)?;
-    for k in 0..st.rs.l {
-        let ssh = if sh.accuracy_stack() == super::super::accuracy_precision::Stack::Legacy { sh.clone() } else { st.stage_shape(k)? };
-        blocks.get(k)?.check_for_shape(&ssh).map_err(|e| format!("private run: block {k}: {e}"))?;
+    // H122 (efficiency plan A2, byte-preserving): the per-block checks scan every block's
+    // public weights, about 7 GB at 8B, and ran on one thread, 0.35-0.98 s per request.
+    // They now run one block per rayon task. The refusal is the serial loop's: results are
+    // read back in block order and the first error is returned.
+    let per_block: Vec<Result<(), String>> = (0..st.rs.l)
+        .into_par_iter()
+        .map(|k| {
+            let ssh = if sh.accuracy_stack() == super::super::accuracy_precision::Stack::Legacy { sh.clone() } else { st.stage_shape(k)? };
+            blocks.get(k)?.check_for_shape(&ssh).map_err(|e| format!("private run: block {k}: {e}"))
+        })
+        .collect();
+    for r in per_block {
+        r?;
     }
     policy_fits_the_shape(&st.expected, sh)?;
     if check_digests {
-        for k in 0..st.rs.l {
-            digest_is_the_statements(k, &blocks.digest_of(k)?, &st.block_digests[k])?;
+        let digests: Vec<Result<(), String>> = (0..st.rs.l).into_par_iter().map(|k| digest_is_the_statements(k, &blocks.digest_of(k)?, &st.block_digests[k])).collect();
+        for r in digests {
+            r?;
         }
     }
     st.expected.spec.validate()
