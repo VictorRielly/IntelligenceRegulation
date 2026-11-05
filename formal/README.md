@@ -121,6 +121,34 @@ The plain-words version, the modelling choices and the open decisions are in
   - What these lemmas assume and what L3 still needs (Merkle binding, the λ batching inside a group, `M`'s
     product-form test, composition over openings, slots and blocks, Fiat–Shamir) are in the findings document's
     second part.
+- Proved so far (step L3, the Merkle layer in the random-oracle model, with `Statements.lean`'s `OC` and `prH`; the
+  challenges still interactive; same build and axiom checks):
+  - `SoundRO.lean`: the random oracle. A point the event names but has not yet fixed lands in a set of `m` values
+    with probability `≤ m/|D|` (`prob_fresh_mem_le`); along an adaptive run, a first-time query lands in a set of
+    `m t` values computed from the log before it with probability `≤ Σ_{t<T} m t/|D|` (`freshHit_prob_le`). Hence
+    collision resistance: a `q`-query computation's queries collide with probability `≤ q(q − 1)/2 / |D|`
+    (`collision_prob_le`), it OUTPUTS a collision with probability `≤ (q + 2)(q + 1)/2 / |D|`
+    (`collision_out_prob_le`); a fixed target is hit with probability `≤ q/|D|` (`preimage_query_prob_le`); an
+    output preimage at a point never asked has probability `≤ 1/|D|` (`preimage_out_prob_le`). Also the log lemmas the
+    other files use (`runLog_bind`, `runLog_take_agree`, `runLog_eq_of_agree`, `replay`).
+  - `SoundMerkle.lean`: the tree as `merkle.rs` / `pcs.rs` build and verify it (column digest, salted leaf, inner
+    nodes, the position's low bit choosing left or right, the path-length check). Two openings of one root at one
+    position with different columns contain a collision among the verifier's queries (`opens_collision`), so a
+    `q`-query adversary produces them with probability `≤ collBound (q + 2(h + 2))` (`merkle_binding`). Only the
+    injectivity of each of the three input encodings is assumed, no separation between them. Without the path-length
+    check binding fails for EVERY encoding, keyed or not (`mixed_depth_opens`).
+  - `SoundExtract.lean`: the straight-line extractor. It reads only the commit phase's log and descends from the
+    root (`descend`, `extractCol`). An opening that verifies equals the extracted column unless a verifier's query
+    collides with a logged one or a never-logged query hits one of the at most `3q₁ + 1` digests named in the log
+    (`extract_of_opens`); so with a commit phase of `q₁` queries and a later phase of `q₂` that opens `n` columns, some
+    verifying opening differs from the extraction with probability `≤ collBound T + T(3q₁ + 1)/|D|`,
+    `T = q₁ + q₂ + n(h + 2)` (`extract_sound`).
+  - `SoundOpeningRO.lean`: `opening_sound` with the matrix EXTRACTED from the commit log instead of fixed: a
+    three-phase prover (commit; answer the weights; open the sampled columns) against a random oracle, the
+    challenges uniform and drawn after the root; the error is the field term + the column term + the extraction
+    error (`opening_sound_extracted`).
+  - The comparison with the count, what the model assumes and the findings are in Part 3 of
+    `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).

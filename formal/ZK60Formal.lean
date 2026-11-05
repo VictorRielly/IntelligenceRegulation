@@ -17,3 +17,7 @@ import ZK60Formal.SoundColumnTest
 import ZK60Formal.SoundProximity
 import ZK60Formal.SoundProximityRS
 import ZK60Formal.SoundOpening
+import ZK60Formal.SoundRO
+import ZK60Formal.SoundMerkle
+import ZK60Formal.SoundExtract
+import ZK60Formal.SoundOpeningRO
