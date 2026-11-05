@@ -26,3 +26,8 @@ import ZK60Formal.SoundExtract
 import ZK60Formal.SoundOpeningRO
 import ZK60Formal.SoundGroups
 import ZK60Formal.SoundMProduct
+import ZK60Formal.FSRbr
+import ZK60Formal.FSChallenge
+import ZK60Formal.FSSumcheck
+import ZK60Formal.FSChain
+import ZK60Formal.FSChainRbr
