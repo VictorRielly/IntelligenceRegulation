@@ -1,0 +1,44 @@
+2026-11-05T17:43:56Z start
+2026-11-05T17:46:29Z build rc=0
+2026-11-05T17:50:34Z d55 measure rc=0
+  window 10.1411 s: 576 command buffers; GPU busy (>= 1 executing) 3.2459 s = 32.0%, idle 6.8951 s = 68.0%; summed command-buffer GPU time 3.2459 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  window 10.1430 s: 576 command buffers; GPU busy (>= 1 executing) 3.2545 s = 32.1%, idle 6.8885 s = 67.9%; summed command-buffer GPU time 3.2545 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  window 9.5587 s: 576 command buffers; GPU busy (>= 1 executing) 3.2629 s = 34.1%, idle 6.2958 s = 65.9%; summed command-buffer GPU time 3.2629 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  window 9.1906 s: 512 command buffers; GPU busy (>= 1 executing) 3.2471 s = 35.3%, idle 5.9435 s = 64.7%; summed command-buffer GPU time 3.2471 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  window 4.2330 s: 581 command buffers; GPU busy (>= 1 executing) 2.7417 s = 64.8%, idle 1.4914 s = 35.2%; summed command-buffer GPU time 6.2882 s (mean 2.29 at once while busy); >= 2 at once 2.2120 s = 80.7% of busy
+  window 3.8941 s: 517 command buffers; GPU busy (>= 1 executing) 2.7274 s = 70.0%, idle 1.1667 s = 30.0%; summed command-buffer GPU time 6.2740 s (mean 2.30 at once while busy); >= 2 at once 2.2120 s = 81.1% of busy
+D55-AB A13 SEAL W16R2_8B_T128_H24 L32 N1 []: sealing pass 4.301 s, user 15.2 s + sys 26.5 s = 9.7 cores busy on average (of 32)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N1 (queues shared): the whole call, 4.301 s
+  window 4.3009 s: 224 command buffers; GPU busy (>= 1 executing) 0.4439 s = 10.3%, idle 3.8570 s = 89.7%; summed command-buffer GPU time 0.4439 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  tag wprod     224 cbs: GPU 0.4439 s (mean 1.982 ms); commit -> GPU start 0.2641 s (mean 1.179 ms); GPU end -> seen 0.0267 s; encode 0.0025 s
+D55-AB A13 SEAL W16R2_8B_T128_H24 L32 N6 []: sealing pass 4.012 s, user 15.1 s + sys 25.9 s = 10.2 cores busy on average (of 32)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 A13 sealing pass N6 (queues shared): the whole call, 4.012 s
+  window 4.0121 s: 224 command buffers; GPU busy (>= 1 executing) 0.4115 s = 10.3%, idle 3.6007 s = 89.7%; summed command-buffer GPU time 0.4115 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  tag wprod     224 cbs: GPU 0.4115 s (mean 1.837 ms); commit -> GPU start 0.1945 s (mean 0.869 ms); GPU end -> seen 0.0266 s; encode 0.0023 s
+  window 9.9134 s: 577 command buffers; GPU busy (>= 1 executing) 3.2674 s = 33.0%, idle 6.6460 s = 67.0%; summed command-buffer GPU time 3.2674 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  window 9.5538 s: 513 command buffers; GPU busy (>= 1 executing) 3.2514 s = 34.0%, idle 6.3025 s = 66.0%; summed command-buffer GPU time 3.2514 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  window 4.0572 s: 578 command buffers; GPU busy (>= 1 executing) 2.7255 s = 67.2%, idle 1.3317 s = 32.8%; summed command-buffer GPU time 6.6446 s (mean 2.44 at once while busy); >= 2 at once 2.3779 s = 87.2% of busy
+  window 3.7094 s: 514 command buffers; GPU busy (>= 1 executing) 2.7124 s = 73.1%, idle 0.9970 s = 26.9%; summed command-buffer GPU time 6.6316 s (mean 2.44 at once while busy); >= 2 at once 2.3779 s = 87.7% of busy
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.143 s = 12.62 tok/s | mean 10.143 s = 12.62 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=1      | best 9.559 s = 13.39 tok/s | mean 9.559 s = 13.39 tok/s | 1.06x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.233 s = 30.24 tok/s | mean 4.233 s = 30.24 tok/s | 2.40x serial (best)
+D55-AB SUMMARY | forks N=1 SEALED | one request end to end from its input, measured | best 14.187 s = 9.02 tok/s | mean 14.187 s = 9.02 tok/s
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 8.037 s = 15.93 tok/s | mean 8.037 s = 15.93 tok/s
+D55-AB SUMMARY | forks N=1 phases | A7 GPU-policy A/B, interleaved, 1 passes | best 9.913 s = 12.91 tok/s | mean 9.913 s = 12.91 tok/s
+D55-AB SUMMARY | forks N=6 phases | A7 GPU-policy A/B, interleaved, 1 passes | best 4.057 s = 31.55 tok/s | mean 4.057 s = 31.55 tok/s
+D55-AB A11 PHASE N1 [phases] | A: allocate + witness planes -> committed rows                   |    0.555 s summed over 32 forks |    17.35 ms per block |   5.9%
+D55-AB A11 PHASE N1 [phases] | A: lookup values + the byte histogram                            |    0.398 s summed over 32 forks |    12.45 ms per block |   4.2%
+D55-AB A11 PHASE N1 [phases] | A: exp/act indices + their two histograms                        |    0.060 s summed over 32 forks |     1.89 ms per block |   0.6%
+D55-AB A11 PHASE N1 [phases] | A: mask + proximity rows (fresh randomness)                      |    0.101 s summed over 32 forks |     3.15 ms per block |   1.1%
+D55-AB A11 PHASE N1 [phases] | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)        |    0.764 s summed over 32 forks |    23.88 ms per block |   8.1%
+D55-AB A11 PHASE N1 [phases] | M: mask commit (zk::mask_commit, ONE call)                       |    0.151 s summed over 32 forks |     4.72 ms per block |   1.6%
+D55-AB A11 PHASE N1 [phases] | ALL PHASES                                                       |    9.450 s summed over 32 forks |   295.32 ms per block (prove_core 295.56 ms)
+D55-AB A11 PHASE N6 [phases] | A: allocate + witness planes -> committed rows                   |    0.962 s summed over 32 forks |    30.07 ms per block |   4.6%
+D55-AB A11 PHASE N6 [phases] | A: lookup values + the byte histogram                            |    1.044 s summed over 32 forks |    32.61 ms per block |   5.0%
+D55-AB A11 PHASE N6 [phases] | A: exp/act indices + their two histograms                        |    0.094 s summed over 32 forks |     2.94 ms per block |   0.5%
+D55-AB A11 PHASE N6 [phases] | A: mask + proximity rows (fresh randomness)                      |    0.342 s summed over 32 forks |    10.68 ms per block |   1.6%
+D55-AB A11 PHASE N6 [phases] | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)        |    1.911 s summed over 32 forks |    59.72 ms per block |   9.2%
+D55-AB A11 PHASE N6 [phases] | M: mask commit (zk::mask_commit, ONE call)                       |    0.122 s summed over 32 forks |     3.82 ms per block |   0.6%
+D55-AB A11 PHASE N6 [phases] | ALL PHASES                                                       |   20.764 s summed over 32 forks |   648.86 ms per block (prove_core 649.15 ms)
+2026-11-05T17:50:34Z all done
