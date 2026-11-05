@@ -9,9 +9,10 @@
 | the sealing pass, the serial forward chain (A4: weight products on the GPU, exact) | 5.45 s | 3.55 s |
 | the fork run's host work (A11: one rayon pool per fork, not one shared pool) | about 0.5 s per block | stream +19%, proof only −9.5% (A/B, both orders) |
 | the device slots' tables, 1.32 GB per block (A12: built on the GPU, not the CPU) | about 47 ms per block per fork | stream +5%, proof only −6.5% (A/B, both orders) |
-| **one request from its input, all witness work on the clock** | 11.1 tok/s | **15.3 tok/s** |
-| **a stream of 4 requests, steady** | 15.9 tok/s | **23.6–24.4 tok/s** (amortized 20.3–20.7; latency 8.9–10.4 s) |
-| proof only | 22.7 tok/s | **30.1 tok/s** |
+| the openings' store folds (A8: row-sparse, prefetched, 16-bit lanes) | A 24.6 ms, H 31.5 ms per fold | stream +2.2%, proof only −2.9% (A/B, both orders) |
+| **one request from its input, all witness work on the clock** | 11.1 tok/s | **15.5 tok/s** |
+| **a stream of 4 requests, steady** | 15.9 tok/s | **24.2 tok/s** (amortized 20.9; latency 8.6–10.0 s) |
+| proof only | 22.7 tok/s | **32.6 tok/s** |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -29,9 +30,14 @@
 - **A12: the device slots' tables are now built on the GPU** [MEASURED]. Every table word is checked equal to the CPU's;
   the A/B was repeated independently on the merged tree. The forks phase is now about 3.9–4.0 s, against about 2.75 s
   of GPU work.
+- **A8: the store folds are 2–2.5× faster** [MEASURED]. There was no Gram folding to do (each opening already reads its
+  rows once); the fold was waiting on memory. The independent A/B gain is smaller than the agent's (−2.9% against
+  −5.1% proof only). One note for the privacy gate: its fast path makes the prover's time depend slightly on whether
+  the hidden words are 16-bit.
 - **D64's target is ≥ 110.** Next:
-  - the remaining host work in the forks: Gram folding of the store folds (A8, in final acceptance), the private
-    slots' tables, the A/H zero-fills and the randomness fill;
+  - A13: the work in each block before its first challenge (A's rows, A's commitment, the mask commitment), about 22%
+    of a block, done during the sealing pass instead of after it;
+  - A14: the forks' remaining host work (the private slots' tables, the transcript absorb, the randomness fill);
   - the protocol bundle W16R3 (awaiting Victor);
   - the RTX 5090.
 

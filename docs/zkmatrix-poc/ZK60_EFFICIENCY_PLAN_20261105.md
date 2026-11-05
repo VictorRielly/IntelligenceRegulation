@@ -74,7 +74,6 @@ are redone once, not per change.
 | A7 | Per-fork command queues and GPU timestamps (H121), so the true GPU-busy time is measured, not inferred | ×1.0–1.25 [MODEL] | 1–3 d |
 | A8 | **Gram-matrix folding** (FlashProve `fold.cuh`) for the store folds, then the zero-check rounds if it pays. Same round values | store folds 17 ms → a few ms; zero-check rounds unknown [ESTIMATE] | 2–4 d |
 | A9 | Boundary commits in parallel (H123) | ×1.03 [MODEL] | 1–2 d |
-
 | A11 | **The forks' host path** (added 2026-11-05 after A7). A7's timestamps showed the fork run is not GPU-bound: the GPU is busy 53–59% of the forks phase, and a fork's host work per block grows from 0.22 s alone to 0.47–0.62 s with six forks, with only about 20 of 32 cores busy. First a host profile of the forks phase (N = 1 against N = 6), then the largest cause: a shared rayon pool, allocation, locks, memory bandwidth, or the spinning waits | up to the GPU-busy bound: the forks phase from about 5 s toward 2.8 s [MEASURED bound, gain ESTIMATE] | 2–5 d |
 | A12 | **The device slots' tables on the GPU** (added 2026-11-05 after A11). Slots 14–19, 21 and 22 build 168 tables per block (1.32 GB, 95% of all table words) on the host, about 47 ms per block per fork at N = 6. Device kernels for the eq tables and the committed-plane gathers, reading the commitments' resident rows | about −7% on the proof-only fork run [MEASURED: −6.5% to −6.9%] | 1–2 d |
 | A10 | **Register W16R2 for real content.** The registered profile is R13, whose blocks commit about 1.8× W16R2's rows (census: A 4,577 against 2,501; H 4,390 against 2,602). Astra measured a trained 26-block Shieldstral R13 stack at 9.9 s of proof, against 5.1 s for the synthetic 32-block W16R2 stack (`results/zk60_astra_20261026/flashprove_effplan_runtime_20261105/REPORT.md`) | about ×1.8–2.4 per block on real models [INFERRED from those two runs, which differ in width and weights] | the W16R2 privacy gate on GPU-made bundles, the D60 conditions, then a ruling by Victor |
@@ -89,8 +88,18 @@ are redone once, not per change.
 - A12 done: the device slots' tables are built on the GPU, every word checked equal to the host's. Independent A/B on
   the merged tree, both orders: proof only −6.5%, one request −4.0%, stream steady +5.0%. The Mac is now at 15.3
   tok/s for one request, 23.6–24.4 for the stream steady and 30.1 proof only [MEASURED].
-- A8 (Gram folding of the store folds) is in final acceptance. A9 and A10 are open. Left on the host after A8: the
-  private slots' tables, the A/H zero-fills and the randomness fill.
+- A8 done: no Gram folding was possible (each opening already reads its rows once; the vectors are distinct maps). A
+  faster store fold instead (row-sparse, prefetched, 16-bit NEON lanes, pads in the same pass): 2–2.5× on the fold.
+  Independent A/B on the merged tree: proof only −2.9%, stream steady +2.2%. The Mac is now at 15.5 tok/s for one
+  request, 24.2 for the stream steady and 32.6 proof only [MEASURED].
+- Next, both byte-preserving:
+  - **A13, before-challenge work during the sealing pass.** A fork's work before its first transcript use (A's rows,
+    A's commitment, the mask commitment) needs only its own block's witness. That is about 22% of a block [MEASURED,
+    A1]. Done during the sealing pass, it could take up to about 0.8 s off one request [ESTIMATE]. Memory is the limit.
+    A9 (boundary commits in parallel) goes with it.
+  - **A14, the forks' remaining host work:** the private slots' tables, the transcript absorb of A's clear vectors, and
+    the randomness fill.
+- A10 is open.
 
 **Phase A's expected result on the Mac:** one request about 7–8 s (16–18 tok/s), a stream about 22–25 tok/s
 [ESTIMATE]. Every step is accepted only if the goldens, the six pinned digests and plane-for-plane equality hold.

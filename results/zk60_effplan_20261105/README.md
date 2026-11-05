@@ -338,8 +338,93 @@ and +4.8%.
 
 **Still on the host:**
 - the private slots 00–13's tables and the public-table copies (about 10 ms per block per fork at N = 6);
-- the openings' store folds (**A8, in final acceptance**);
+- the openings' store folds (**A8, done below**);
 - the A/H zero-fills;
 - the randomness fill.
 
 The forks phase is now about 3.9–4.0 s, against the GPU-busy bound of about 2.75 s.
+
+## A8: the openings' store folds, done (no Gram folding to do; a faster fold)
+
+Full write-up: `a8/README.md`. Merged into perf on top of A12; acceptance and an independent repeat of the A/B on the
+merged tree: `check_a8merge.sh`, `a8merge.progress`, `a8merge_pairs.md`.
+
+**What the agent found** [MEASURED]:
+- **There was no Gram folding to do.** Each opening already reads its committed rows once, and the coefficient vectors
+  are already combined per group. A's 37 vectors and H's 10 are different linear maps, and each goes in the receipt, so
+  the arithmetic is fixed. Only the constant factor could improve.
+- **The fold waited on memory, not arithmetic.** Each row's slice of a chunk starts 128 KB after the previous row's; one
+  row of software prefetch was the largest single gain [the latency reading is INFERRED from the sweep].
+- **A's rows are mostly small words:** 37 vectors, but only 2.26 rows' worth of nonzero coefficients, and 85% of its
+  updates fall on 16-bit signed words. H has almost none.
+- **The pads (q = 280 columns) were folded afterwards on one thread:** 2.4 ms for A, 3.3 ms for H.
+
+**What changed** (byte-preserving; the default, `HL_METAL_A8_FOLD=m11` restores the old forms):
+- **A new store fold** in `gpu/metal.rs`:
+  - each row's nonzero coefficients are listed once and summed exactly in u128, then reduced once per output;
+  - 256-column chunks, with the next row's slice prefetched;
+  - 16-bit words are summed in NEON u64 lanes with an offset of 2^15, which is taken back out exactly;
+  - the pads are folded in the same parallel pass.
+- **The fold alone, in a 6-thread pool:** A 24.6 → 10.1 ms, H 31.5 → 19.3 ms.
+- **A new defaulted method** `EncodedStore::fold_rows_with_pads` in zkp-core. The CPU, CUDA and `NoExternal` stores
+  decline it and keep the old path.
+- **Measured and dropped:**
+  - an allocator-zeroed A/H made the fork run +5.6% slower;
+  - skipping the prover's unused column-weight tables had no effect.
+
+**My review of the arithmetic:** the arithmetic is exact.
+- **u128 path:** every product is below 2^128, and overflows are counted and reduced through 2^128 mod p.
+- **Small-word path:** each lane gains under 2^48 per row, and the path is used only below 2^16 rows, so no lane
+  overflows. Then Σ r(x + 2^15) − 2^15 Σ r = Σ r·x over the same rows, with x ≡ the word mod p.
+- **Prefetch:** every address is inside the source slice, as the segment assertion requires.
+
+**Byte evidence:**
+- 765 fold forms equal the per-term fold, word for word (a suite test).
+- The rung golden `96e4f0b6` holds under the old, row-sparse and small-word forms, with every captured fold re-folded
+  by 90 forms.
+- The 8B block's core proof gives the same digest under every form.
+
+**Acceptance on the merged tree** [MEASURED, one guarded job]:
+- build rc 0; no-feature `cargo check --tests` rc 0;
+- full lib suite: 924 passed, exactly the known three failed, 103 ignored; zkp-core lib 78 passed;
+- the A8 rung test, the A12 census and rung-mode tests, the A11 pool tests, the A7 queue test, the W16R2 rung golden and
+  all six post-F12 digests pass;
+- D55 default:
+  - proof only, best 3.932 s = **32.55 tok/s**;
+  - one request from its input, best 8.255 s = **15.51 tok/s**;
+  - the 4-request stream **24.17 tok/s steady** (20.93 amortized; per-request latency 8.6–10.0 s);
+  - every receipt verified; fork receipts 818,728,672 B, unchanged.
+
+**The independent A/B** [MEASURED, `a8merge_pairs.md`]: the A8 fold against the old forms, 4 passes, arm order
+alternating.
+
+| metric | order bias removed | means old / A8 |
+|---|---:|---:|
+| proof-only wall | **−2.9%** | 4.24 / 4.12 s |
+| forks phase | **−3.1%** | 3.88 / 3.76 s |
+| one request from its input | **−1.7%** | 8.45 / 8.31 s |
+| stream, steady | **+2.2%** | 23.9 / 24.5 tok/s |
+| user CPU | **−9.2%** | 47.1 / 42.7 s |
+
+- **Smaller than the agent's figure.** The agent's own 6-pass A/B on the merged tree gave −5.1%, −3.2% and +2.6%.
+- **Pairs:** on the proof-only and forks clocks, one test-first pair did not favour A8 (3 of 4 pairs favour it). Every
+  other clock favours it in every pair.
+- **Why it stays the default:** it is byte-preserving and every mean favours it.
+
+**For the privacy gate:**
+- **Digests that moved:** `gpu/metal.rs`, `gpu/mod.rs` and zkp-core's `pcs.rs` and `pcs/backend.rs`.
+- **A timing dependence on the hidden data.** The small-word path tests whether a row chunk's words are all 16-bit
+  signed integers, so the prover's running time depends slightly on the witness.
+  - It is probably fixed by the layout: A's rows are mostly 16-bit activations, and H's helpers are full-width words.
+    That has not been shown.
+  - The two Lean production statements cover what the proof reveals, not timing.
+  - The gate should decide whether this matters for a served prover. `HL_METAL_A8_FOLD=m11` removes it.
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+**Not done:**
+- Gram folding of the zero-check rounds (device kernels);
+- re-measuring the device fold (`HL_METAL_DEVICE_FOLD=1`);
+- the transcript absorb of A's clear vectors (about 9.9 MB of BLAKE3 per block on one thread; `update_rayon` gives the
+  same digest);
+- the unexplained small rise in system CPU (flat on the merged tree);
+- an in-process A/B at N = 1.
