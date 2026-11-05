@@ -730,3 +730,13 @@ and its 8-row columns whose column input is also 64 bytes.
   - A `MerkleEnc` for keyed BLAKE3 (`Q` = key × bounded-length bytes, finite).
   - The column decoder (canonical `Fp` bytes, `rows` entries).
   - `val` reading a column's `F_p` entries into `F_p²` (the field split of Part 2).
+
+## Fixed, 2026-11-04: F9, the M verifier checks its own path length
+
+`zk::mask_verify_tagged` now refuses a Merkle path whose length is not the tree's depth (`MASK_LOG_DOM` = 12) before it
+verifies the path. It no longer relies on every caller running `mask_paths_are_the_tree_depth` (T-4) first.
+- The callers are the private block, the four token-I/O stages and the capture verifier.
+- Full lib suite: 899 passed / 3 failed / 93 ignored, the failures exactly the known three
+  (`results/zk60_h124_witness_20261104/f9_full.log`). The new refusal never fired.
+- Still owed for F9: correct the D19 disposition's sentence ("or when leaves and nodes are hashed under different
+  keys") and the comments in `pcs.rs` (`verify_zk_tagged`) and `merkle.rs` (`verify_path_keyed`).

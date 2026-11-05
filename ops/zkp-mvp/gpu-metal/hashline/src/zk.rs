@@ -677,6 +677,10 @@ pub fn mask_verify_tagged(root: &Digest, specs: &[(usize, usize)], functionals: 
     for ((j, col, salt, path), &want_j) in op.columns.iter().zip(idx.iter()) {
         if *j != want_j { return Err("mask: column index".into()); }
         if col.len() != n_base { return Err("mask: column length".into()); }
+        // D63 L3 finding F9 (formal/ZK60Formal/SoundMerkle.lean, `mixed_depth_opens`): key separation alone does not
+        // make the tree binding; the path length must be the tree's depth. Callers already check it (T-4); this
+        // makes the check part of the verifier itself.
+        if path.len() != MASK_LOG_DOM as usize { return Err(format!("mask: Merkle path for column {j} has {} entries; the tree is {MASK_LOG_DOM} deep", path.len())); }
         let leaf = pcs::salt_leaf_keyed(&pcs_hash_column_keyed(col, tag.column_key()), salt, tag.leaf_key());
         if !MerkleTree::verify_path_keyed(root, *j, &leaf, path, tag.node_key()) { return Err(format!("mask: Merkle path for column {j} fails")); }
         let mut acc = Fp2::new(col[2 * specs.len()], col[2 * specs.len() + 1]);
