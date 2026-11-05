@@ -2117,3 +2117,692 @@ impl TailedRounds<'_> {
         (masked, challenges, finals)
     }
 }
+
+// ============================================================================
+// [A4, 2026-11-05] THE WITNESS WEIGHT PRODUCTS ON THE DEVICE, EXACTLY
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A4;
+// `results/zk60_effplan_20261105/a4/README.md`).
+//
+// WHAT. `out[t, j] = sum_i x[t, i] w(i, j)` for the private block's seven weight
+// products (`private_block/witness.rs`: `matmul`, `matmul_in_out`), with int16
+// activations `x` and int8 weights `w` stored (output, input) or (input, output).
+// The CPU path (`tiled16` there) stays the reference and the default: the builder
+// calls here only under `gpu::enabled()`, for a product large enough to pay,
+// and the activations must fit i16 (otherwise `Ok(None)`: the CPU path, silently).
+// Every output is an exact integer, so the device must return the same words.
+//
+// PRIVACY. `x` and `out` are private witness values. They stay on this machine
+// (unified memory, the local GPU); nothing here prints, hashes or keeps them: the
+// packed activations go back to the buffer pool (stale contents are never read,
+// see `PBuf`), the result plane is the caller's own `Vec`, and an error names a
+// shape or a device state, never a value.
+//
+// TWO EXACT ROUTES (`HL_GPU_WITNESS_ROUTE`; (b) at the 2 x 4 layout is the
+// default, the fastest measured on the GPU's clock, see the README):
+//
+// (b) `simd4x2` / `simd2x4`, `k_wprod_sg<FM, FN>` (two simdgroup layouts of the
+// same arithmetic): FlashProve's byte decomposition (`products.cuh`,
+// pinned in `results/zk60_astra_20261026/flashprove_comparison_20261104/`) on
+// the float matrix units (`simdgroup_float8x8`), which Metal has instead of INT8
+// tensor cores. THE BOUND, proved:
+// * x in [-32768, 32767] splits as x = 256 hi + lo, lo = x & 255 in [0, 255] and
+//   hi = (x - lo) / 256 in [-128, 127] (an exact division). w is in [-128, 127].
+//   Every operand is an integer of magnitude <= 255, a binary32 value.
+// * |lo w| <= 255 * 128 = 32,640 and |hi w| <= 128 * 128 = 16,384.
+// * A SLAB is 512 consecutive terms (16 tiles of 32, `WP_SLAB_TILES`). Whatever
+//   order or fusion the matrix hardware uses, each value it forms inside a slab is
+//   a sum of a subset of the slab's products, so its magnitude is at most
+//   512 * 32,640 = 16,711,680 < 2^24 = 16,777,216. Every integer of magnitude
+//   <= 2^24 is a binary32 value, and a multiply or add whose exact result is
+//   representable returns it unchanged (correct or faithful rounding alike).
+//   So every slab sum is the exact integer.
+// * Each slab sum converts to int32 exactly and is added to an int32 total:
+//   |sum lo w| <= K * 32,640 < 2^31 for K <= 65,536 terms (`WP_MAX_K`, checked
+//   before any device work); the same for hi. The output is then
+//   256 * hi_total + lo_total in int64 = sum x w, exactly.
+// * The library is compiled with fast math OFF, and a start-up self-check runs
+//   every route at these bounds against the host's i64 sums; any difference turns
+//   the device path off for the process (every call declines).
+//
+// (a) `int`, `k_wprod_int`: plain int32 multiply-adds in a tiled kernel.
+// |x w| <= 32,768 * 128 = 2^22, so an int32 partial over 256 terms
+// (`WP_INT_TILES` tiles of 32) is at most 2^30 < 2^31; partials are widened to
+// int64 between them. Exact by construction.
+//
+// Every kernel tiles 64 tokens x 64 outputs x 32 terms on 256 threads. The
+// activations are packed into a pooled int16 buffer. With `HL_GPU_WITNESS_VIEW`
+// unset (the default) the weights reach the device as a read-only no-copy view of
+// the pages that hold them, and the kernel writes the int64 result plane in place
+// through a view of that `Vec`'s own pages when its allocation is page-aligned;
+// otherwise (or with `HL_GPU_WITNESS_VIEW=0`) the weights are copied into a pooled
+// buffer and the outputs written compactly there, then scattered at the caller's
+// row stride. The products run on their own command queue, so a sealing pass never
+// waits behind a fork prover's command buffers in the shared queue.
+// ============================================================================
+
+const WPROD_SRC: &str = r##"
+#include <metal_stdlib>
+#include <metal_simdgroup_matrix>
+using namespace metal;
+
+// [A4] the witness weight products, exactly (see metal.rs for the bounds)
+struct WProdArgs {
+    uint t;       // output rows (true tokens)
+    uint k;       // terms per output (the inner width)
+    uint n;       // output columns (the outer width)
+    uint kp;      // row stride of the packed activations, a multiple of WP_BK
+    uint in_out;  // 1: w[i * n + j]; 0: w[j * k + i]
+    uint os;      // row stride of the output
+    ulong w_off;  // byte offset of w in its buffer
+};
+
+#define WP_BM 64
+#define WP_BN 64
+#define WP_BK 32
+// (b): 16 tiles of 32 = 512 terms per exact float slab
+#define WP_SLAB_TILES 16
+// (a): 8 tiles of 32 = 256 terms per int32 partial
+#define WP_INT_TILES 8
+
+// one tile of 32 terms x 64 outputs of the weights into threadgroup memory as
+// [term][output], converted exactly (int8 -> T), zero outside the matrix
+template <typename T>
+inline void wp_weights(threadgroup T *b, device const char *w, constant WProdArgs &a, uint k0, uint n0, uint tid) {
+    if (a.in_out != 0) {
+        const uint r = tid >> 3, c = (tid & 7) * 8, i = k0 + r;
+        for (uint e = 0; e < 8; e++) {
+            const uint j = n0 + c + e;
+            b[r * WP_BN + c + e] = (i < a.k && j < a.n) ? T(w[(ulong)i * a.n + j]) : T(0);
+        }
+    } else {
+        const uint c = tid >> 2, r = (tid & 3) * 8, j = n0 + c;
+        for (uint e = 0; e < 8; e++) {
+            const uint i = k0 + r + e;
+            b[(r + e) * WP_BN + c] = (i < a.k && j < a.n) ? T(w[(ulong)j * a.k + i]) : T(0);
+        }
+    }
+}
+
+// (b) byte-split activations on simdgroup_float8x8. 8 simdgroups tile the 64 x 64
+// output tile, each FM x FN fragments of 8 x 8 (FM * FN = 8), with a low-byte and
+// a high-byte accumulator per fragment, flushed to int32 every slab.
+template <uint FM, uint FN>
+kernel void k_wprod_sg(device const short *x [[buffer(0)]],
+                       device const char *wbuf [[buffer(1)]],
+                       device long *out [[buffer(2)]],
+                       constant WProdArgs &a [[buffer(3)]],
+                       uint2 tg [[threadgroup_position_in_grid]],
+                       uint tid [[thread_index_in_threadgroup]],
+                       uint sg [[simdgroup_index_in_threadgroup]],
+                       uint lane [[thread_index_in_simdgroup]]) {
+    threadgroup float xlo[WP_BM * WP_BK];
+    threadgroup float xhi[WP_BM * WP_BK];
+    threadgroup float wt[WP_BK * WP_BN];
+    threadgroup float scr[8 * 64];
+    device const char *w = wbuf + a.w_off;
+    const uint m0 = tg.y * WP_BM, n0 = tg.x * WP_BN;
+    // simdgroups along the outputs, and this one's place: rows r0.., columns c0..
+    const uint sgn = WP_BN / (8 * FN);
+    const uint r0 = (sg / sgn) * 8 * FM, c0 = (sg % sgn) * 8 * FN;
+    simdgroup_float8x8 clo[FM][FN], chi[FM][FN];
+    int2 ilo[FM][FN], ihi[FM][FN];
+    for (uint i = 0; i < FM; i++) {
+        for (uint j = 0; j < FN; j++) {
+            clo[i][j] = make_filled_simdgroup_matrix<float, 8, 8>(0.0f);
+            chi[i][j] = make_filled_simdgroup_matrix<float, 8, 8>(0.0f);
+            ilo[i][j] = int2(0);
+            ihi[i][j] = int2(0);
+        }
+    }
+    threadgroup float *sc = scr + sg * 64;
+    const uint nkt = (a.k + WP_BK - 1) / WP_BK;
+    for (uint kt = 0; kt < nkt; kt++) {
+        const uint k0 = kt * WP_BK;
+        {
+            // 64 rows x 32 terms of the packed (zero-padded) activations, 8 per thread
+            const uint r = tid >> 2, c = (tid & 3) * 8;
+            device const short *src = x + (ulong)(m0 + r) * a.kp + k0 + c;
+            for (uint e = 0; e < 8; e++) {
+                const int v = int(src[e]);
+                const int lo = v & 255;
+                xlo[r * WP_BK + c + e] = float(lo);
+                xhi[r * WP_BK + c + e] = float((v - lo) / 256);
+            }
+        }
+        wp_weights(wt, w, a, k0, n0, tid);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint kk = 0; kk < WP_BK; kk += 8) {
+            simdgroup_float8x8 b[FN];
+            for (uint j = 0; j < FN; j++) {
+                simdgroup_load(b[j], wt + kk * WP_BN + c0 + j * 8, WP_BN);
+            }
+            for (uint i = 0; i < FM; i++) {
+                simdgroup_float8x8 al, ah;
+                simdgroup_load(al, xlo + (r0 + i * 8) * WP_BK + kk, WP_BK);
+                simdgroup_load(ah, xhi + (r0 + i * 8) * WP_BK + kk, WP_BK);
+                for (uint j = 0; j < FN; j++) {
+                    simdgroup_multiply_accumulate(clo[i][j], al, b[j], clo[i][j]);
+                    simdgroup_multiply_accumulate(chi[i][j], ah, b[j], chi[i][j]);
+                }
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if ((kt + 1) % WP_SLAB_TILES == 0 || kt + 1 == nkt) {
+            // the slab is complete: its sums are exact integers below 2^24; move
+            // them into the int32 totals through this simdgroup's own scratch
+            // (lane l reads positions 2l and 2l + 1 of the row-major 8 x 8)
+            for (uint i = 0; i < FM; i++) {
+                for (uint j = 0; j < FN; j++) {
+                    simdgroup_store(clo[i][j], sc, 8);
+                    simdgroup_barrier(mem_flags::mem_threadgroup);
+                    ilo[i][j] += int2(int(sc[2 * lane]), int(sc[2 * lane + 1]));
+                    simdgroup_barrier(mem_flags::mem_threadgroup);
+                    simdgroup_store(chi[i][j], sc, 8);
+                    simdgroup_barrier(mem_flags::mem_threadgroup);
+                    ihi[i][j] += int2(int(sc[2 * lane]), int(sc[2 * lane + 1]));
+                    simdgroup_barrier(mem_flags::mem_threadgroup);
+                    clo[i][j] = make_filled_simdgroup_matrix<float, 8, 8>(0.0f);
+                    chi[i][j] = make_filled_simdgroup_matrix<float, 8, 8>(0.0f);
+                }
+            }
+        }
+    }
+    for (uint i = 0; i < FM; i++) {
+        for (uint j = 0; j < FN; j++) {
+            const uint row = m0 + r0 + i * 8 + (lane >> 2);
+            const uint col = n0 + c0 + j * 8 + 2 * (lane & 3);
+            if (row < a.t) {
+                device long *o = out + (ulong)row * a.os;
+                if (col < a.n) {
+                    o[col] = long(ihi[i][j].x) * 256 + long(ilo[i][j].x);
+                }
+                if (col + 1 < a.n) {
+                    o[col + 1] = long(ihi[i][j].y) * 256 + long(ilo[i][j].y);
+                }
+            }
+        }
+    }
+}
+
+#define WP_SG_INSTANCE(NAME, FM, FN) \
+template [[host_name(NAME)]] [[kernel]] void k_wprod_sg<FM, FN>( \
+    device const short *x [[buffer(0)]], device const char *wbuf [[buffer(1)]], device long *out [[buffer(2)]], \
+    constant WProdArgs &a [[buffer(3)]], uint2 tg [[threadgroup_position_in_grid]], uint tid [[thread_index_in_threadgroup]], \
+    uint sg [[simdgroup_index_in_threadgroup]], uint lane [[thread_index_in_simdgroup]]);
+// 32 tokens x 16 outputs per simdgroup, and 16 tokens x 32 outputs
+WP_SG_INSTANCE("k_wprod_sg_4x2", 4, 2)
+WP_SG_INSTANCE("k_wprod_sg_2x4", 2, 4)
+
+// (a) int32 multiply-adds: 16 x 16 threads, 4 tokens x 4 outputs each
+kernel void k_wprod_int(device const short *x [[buffer(0)]],
+                        device const char *wbuf [[buffer(1)]],
+                        device long *out [[buffer(2)]],
+                        constant WProdArgs &a [[buffer(3)]],
+                        uint2 tg [[threadgroup_position_in_grid]],
+                        uint tid [[thread_index_in_threadgroup]]) {
+    threadgroup int4 xt4[WP_BK * WP_BM / 4];
+    threadgroup int4 wt4[WP_BK * WP_BN / 4];
+    threadgroup int *xt = (threadgroup int *)xt4;
+    threadgroup int *wt = (threadgroup int *)wt4;
+    device const char *w = wbuf + a.w_off;
+    const uint m0 = tg.y * WP_BM, n0 = tg.x * WP_BN;
+    const uint tr = tid >> 4, tc = tid & 15;
+    int4 acc[4];
+    long tot[4][4];
+    for (uint i = 0; i < 4; i++) {
+        acc[i] = int4(0);
+        for (uint j = 0; j < 4; j++) {
+            tot[i][j] = 0;
+        }
+    }
+    const uint nkt = (a.k + WP_BK - 1) / WP_BK;
+    for (uint kt = 0; kt < nkt; kt++) {
+        const uint k0 = kt * WP_BK;
+        {
+            // [term][token]
+            const uint r = tid >> 2, c = (tid & 3) * 8;
+            device const short *src = x + (ulong)(m0 + r) * a.kp + k0 + c;
+            for (uint e = 0; e < 8; e++) {
+                xt[(c + e) * WP_BM + r] = int(src[e]);
+            }
+        }
+        wp_weights(wt, w, a, k0, n0, tid);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint kk = 0; kk < WP_BK; kk++) {
+            const int4 av = xt4[kk * (WP_BM / 4) + tr];
+            const int4 bv = wt4[kk * (WP_BN / 4) + tc];
+            acc[0] += av.x * bv;
+            acc[1] += av.y * bv;
+            acc[2] += av.z * bv;
+            acc[3] += av.w * bv;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if ((kt + 1) % WP_INT_TILES == 0 || kt + 1 == nkt) {
+            for (uint i = 0; i < 4; i++) {
+                tot[i][0] += long(acc[i].x);
+                tot[i][1] += long(acc[i].y);
+                tot[i][2] += long(acc[i].z);
+                tot[i][3] += long(acc[i].w);
+                acc[i] = int4(0);
+            }
+        }
+    }
+    for (uint i = 0; i < 4; i++) {
+        const uint row = m0 + tr * 4 + i;
+        if (row < a.t) {
+            for (uint j = 0; j < 4; j++) {
+                const uint col = n0 + tc * 4 + j;
+                if (col < a.n) {
+                    out[(ulong)row * a.os + col] = tot[i][j];
+                }
+            }
+        }
+    }
+}
+"##;
+
+/// `#[repr(C)]` mirror of the MSL `WProdArgs`
+#[repr(C)]
+struct WProdArgs {
+    t: u32,
+    k: u32,
+    n: u32,
+    kp: u32,
+    in_out: u32,
+    os: u32,
+    w_off: u64,
+}
+
+/// the tile both kernels use (tokens, outputs, terms) and its thread count
+const WP_BM: usize = 64;
+const WP_BN: usize = 64;
+const WP_BK: usize = 32;
+const WP_THREADS: u64 = 256;
+/// the most terms per output the float route's int32 totals hold: K * 32,640 < 2^31
+const WP_MAX_K: usize = 1 << 16;
+
+/// [A4] which exact route computes the witness products (see the section comment)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum WProdRoute {
+    /// (b) byte-split activations on the float matrix units, exact slabs of 512
+    /// terms; each simdgroup 32 tokens x 16 outputs
+    Simd4x2,
+    /// (b), each simdgroup 16 tokens x 32 outputs
+    Simd2x4,
+    /// (a) int32 multiply-adds, partials of 256 terms widened to int64
+    Int,
+}
+
+/// every route, for the self-check and the tests
+pub const WP_ROUTES: [WProdRoute; 3] = [WProdRoute::Simd4x2, WProdRoute::Simd2x4, WProdRoute::Int];
+/// the route a product takes unless `HL_GPU_WITNESS_ROUTE` names another
+/// (the fastest measured, `results/zk60_effplan_20261105/a4/README.md`)
+const WP_DEFAULT_ROUTE: WProdRoute = WProdRoute::Simd2x4;
+
+#[cfg(test)]
+thread_local! {
+    /// tests: this thread's (route, weight view) instead of the environment's
+    static WP_TEST_OPTS: std::cell::Cell<Option<(WProdRoute, bool)>> = const { std::cell::Cell::new(None) };
+}
+
+/// tests: run `f` with this thread's device products on `route`, the weights as a
+/// page view (`view`) or a copy
+#[cfg(test)]
+pub fn with_witness_options<R>(route: WProdRoute, view: bool, f: impl FnOnce() -> R) -> R {
+    let before = WP_TEST_OPTS.with(|o| o.replace(Some((route, view))));
+    let r = f();
+    WP_TEST_OPTS.with(|o| o.set(before));
+    r
+}
+
+/// the route and the transfers: `HL_GPU_WITNESS_ROUTE` = `int` (a), `simd2x4` or
+/// `simd4x2` (b), unset [`WP_DEFAULT_ROUTE`]; `HL_GPU_WITNESS_VIEW=0` copies the
+/// weights in and the outputs out, anything else maps their pages
+fn witness_options() -> (WProdRoute, bool) {
+    #[cfg(test)]
+    if let Some(o) = WP_TEST_OPTS.with(|o| o.get()) {
+        return o;
+    }
+    let route = match std::env::var("HL_GPU_WITNESS_ROUTE").as_deref() {
+        Ok("int") => WProdRoute::Int,
+        Ok("simd2x4") => WProdRoute::Simd2x4,
+        Ok("simd4x2") => WProdRoute::Simd4x2,
+        _ => WP_DEFAULT_ROUTE,
+    };
+    let view = std::env::var("HL_GPU_WITNESS_VIEW").map(|v| v != "0").unwrap_or(true);
+    (route, view)
+}
+
+/// the compiled witness-product kernels and their own command queue
+struct WCtx {
+    sg42: ComputePipelineState,
+    sg24: ComputePipelineState,
+    int: ComputePipelineState,
+    queue: CommandQueue,
+}
+
+impl WCtx {
+    fn pipe(&self, route: WProdRoute) -> &ComputePipelineState {
+        match route {
+            WProdRoute::Simd4x2 => &self.sg42,
+            WProdRoute::Simd2x4 => &self.sg24,
+            WProdRoute::Int => &self.int,
+        }
+    }
+}
+
+static WCTX: OnceLock<Result<WCtx, String>> = OnceLock::new();
+
+/// the device context and the witness kernels, compiled (fast math off) and
+/// self-checked once per process; a failure is kept and every call declines
+fn wctx() -> Result<(&'static Ctx, &'static WCtx), String> {
+    let c = ctx()?;
+    let w = WCTX
+        .get_or_init(|| {
+            let w = objc::rc::autoreleasepool(|| -> Result<WCtx, String> {
+                let opts = CompileOptions::new();
+                opts.set_fast_math_enabled(false);
+                let lib = c.device.new_library_with_source(WPROD_SRC, &opts).map_err(|e| format!("metal witness-product compile: {e}"))?;
+                let pipe = |name: &str| -> Result<ComputePipelineState, String> {
+                    let f = lib.get_function(name, None).map_err(|e| format!("metal function {name}: {e}"))?;
+                    let p = c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal pipeline {name}: {e}"))?;
+                    if p.max_total_threads_per_threadgroup() < WP_THREADS || p.thread_execution_width() != 32 {
+                        return Err(format!("metal pipeline {name}: {} threads per threadgroup, SIMD width {} (needs {WP_THREADS} and 32)", p.max_total_threads_per_threadgroup(), p.thread_execution_width()));
+                    }
+                    Ok(p)
+                };
+                Ok(WCtx { sg42: pipe("k_wprod_sg_4x2")?, sg24: pipe("k_wprod_sg_2x4")?, int: pipe("k_wprod_int")?, queue: c.device.new_command_queue() })
+            })?;
+            wprod_self_check(c, &w)?;
+            Ok(w)
+        })
+        .as_ref()
+        .map_err(|e| e.clone())?;
+    Ok((c, w))
+}
+
+/// **The exactness self-check.** Every route and both weight layouts, at 65 tokens
+/// x 1,100 terms x 70 outputs (three slabs, the last partial; partial tiles in every
+/// dimension), on two public patterns: every product at the float route's slab
+/// bound (x = 32,767, whose low byte is 255 and high byte 127, times w = -128), and
+/// mixed extremes. Each must equal the host's i64 sums.
+fn wprod_self_check(c: &Ctx, w: &WCtx) -> Result<(), String> {
+    let (t, k, n) = (65usize, 1100usize, 70usize);
+    const XS: [i64; 8] = [-32768, 32767, -1, 255, 0, -256, 12345, -129];
+    const WS: [i8; 6] = [-128, 127, -127, 1, 0, -1];
+    for pattern in 0..2 {
+        let x: Vec<i64> = (0..t * k).map(|i| if pattern == 0 { 32767 } else { XS[(i * 5 + i / 7) % 8] }).collect();
+        let wt: Vec<i8> = (0..k * n).map(|i| if pattern == 0 { -128 } else { WS[(i * 7 + i / 11) % 6] }).collect();
+        for in_out in [false, true] {
+            let want: Vec<i64> = (0..t * n)
+                .map(|o| {
+                    let (r, j) = (o / n, o % n);
+                    (0..k).map(|i| x[r * k + i] * i64::from(if in_out { wt[i * n + j] } else { wt[j * k + i] })).sum()
+                })
+                .collect();
+            for route in WP_ROUTES {
+                for view in [false, true] {
+                    let got = objc::rc::autoreleasepool(|| wprod_run(c, w, route, view, t, &x, k, &wt, k, n, n, t * n, in_out))?;
+                    if got.as_deref() != Some(&want[..]) {
+                        return Err(format!("the {route:?} route's exactness self-check failed (pattern {pattern}, in_out {in_out}, view {view}): the device path is off"));
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+static WP_CALLS: AtomicU64 = AtomicU64::new(0);
+/// of which wrote their result plane in place
+static WP_IN_PLACE: AtomicU64 = AtomicU64::new(0);
+/// summed nanoseconds per phase, see [`WP_PHASES`]
+static WP_NS: [AtomicU64; 7] = [const { AtomicU64::new(0) }; 7];
+/// the phases of one device product, in order
+#[cfg(test)]
+pub const WP_PHASES: [&str; 7] = ["activation buffer", "pack", "weights", "output plane + encode", "command buffer", "of which on the GPU", "scatter"];
+
+/// tests: (device products made, how many wrote their result in place, and their
+/// summed seconds per phase of [`WP_PHASES`])
+#[cfg(test)]
+pub fn witness_product_stats() -> (u64, u64, [f64; 7]) {
+    (WP_CALLS.load(Ordering::Relaxed), WP_IN_PLACE.load(Ordering::Relaxed), std::array::from_fn(|i| WP_NS[i].load(Ordering::Relaxed) as f64 * 1e-9))
+}
+
+/// **[A4] One witness weight product on the device**: `out[t * os + j] =
+/// sum_i x[t * xs + i] * w(i, j)` for `t < t_rows`, `j < outer` (`w[j * inner + i]`,
+/// or `w[i * outer + j]` when `in_out`), every other word of the `out_len` plane
+/// zero: exactly `witness::matmul_reference`. `Ok(None)` when the CPU must take it
+/// (an activation outside i16, or a shape outside the kernels' bounds; the CPU
+/// path then runs exactly as before); `Err` on a device failure (the caller
+/// declines).
+#[allow(clippy::too_many_arguments)]
+pub fn witness_product(t_rows: usize, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Result<Option<Vec<i64>>, String> {
+    let (route, view) = witness_options();
+    witness_product_with(route, view, t_rows, x, xs, w, inner, outer, os, out_len, in_out)
+}
+
+/// [`witness_product`] on a given route and weight transfer
+#[allow(clippy::too_many_arguments)]
+pub fn witness_product_with(route: WProdRoute, view: bool, t_rows: usize, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Result<Option<Vec<i64>>, String> {
+    let rows_end = |stride: usize, width: usize| t_rows.checked_sub(1).and_then(|r| r.checked_mul(stride)).and_then(|v| v.checked_add(width));
+    let fits = t_rows >= 1
+        && inner >= 1
+        && outer >= 1
+        && inner <= WP_MAX_K
+        && t_rows < 1 << 30
+        && outer < 1 << 30
+        && xs >= inner
+        && os >= outer
+        && os <= u32::MAX as usize
+        && rows_end(xs, inner).is_some_and(|e| e <= x.len())
+        && rows_end(os, outer).is_some_and(|e| e <= out_len)
+        && inner.checked_mul(outer).is_some_and(|e| e <= w.len());
+    if !fits {
+        return Ok(None);
+    }
+    let (c, wc) = wctx()?;
+    objc::rc::autoreleasepool(|| wprod_run(c, wc, route, view, t_rows, x, xs, w, inner, outer, os, out_len, in_out))
+}
+
+/// the weights as the kernels read them: a no-copy view of their pages, or a copy
+enum WeightBuf {
+    View(Buffer),
+    Copy(PBuf),
+}
+
+impl WeightBuf {
+    fn buffer(&self) -> &metal::BufferRef {
+        match self {
+            WeightBuf::View(b) => b,
+            WeightBuf::Copy(b) => b,
+        }
+    }
+}
+
+extern "C" {
+    fn getpagesize() -> std::os::raw::c_int;
+}
+
+/// the VM page size (a power of two), or `None`
+fn page_size() -> Option<usize> {
+    // SAFETY: getpagesize has no preconditions
+    usize::try_from(unsafe { getpagesize() }).ok().filter(|p| p.is_power_of_two())
+}
+
+/// **A no-copy device buffer over the whole pages `[base, base + len)`.** The caller
+/// guarantees `base` is page-aligned, `len` a positive multiple of the page size,
+/// every page mapped, and that the memory outlives the buffer (it drops the buffer
+/// once its command buffer completes, while it still owns or borrows the memory);
+/// a nil deallocator leaves the memory to its owner. `None` if Metal refuses.
+unsafe fn pages_view(c: &Ctx, base: usize, len: usize) -> Option<Buffer> {
+    use metal::foreign_types::ForeignType;
+    use objc::Message;
+    if len == 0 || len as u64 > c.device.max_buffer_length() {
+        return None;
+    }
+    let device: &metal::DeviceRef = &c.device;
+    let sel = objc::runtime::Sel::register("newBufferWithBytesNoCopy:length:options:deallocator:");
+    let args = (base as *mut c_void, len as u64, MTLResourceOptions::StorageModeShared, std::ptr::null_mut::<c_void>());
+    let raw: *mut objc::runtime::Object = device.send_message(sel, args).ok()?;
+    if raw.is_null() {
+        return None;
+    }
+    // SAFETY: a non-nil MTLBuffer from a `new` method (+1), now owned by the Buffer
+    Some(Buffer::from_ptr(raw as *mut metal::MTLBuffer))
+}
+
+/// **A read-only device view of the whole pages holding `w`**, and `w`'s offset in
+/// it. Those pages are mapped and readable (each holds at least one byte of `w`);
+/// the kernels only read, and only inside `w` (`w_off`, `k * n` bytes).
+fn page_view(c: &Ctx, w: &[i8]) -> Option<(Buffer, u64)> {
+    let page = page_size()?;
+    let p = w.as_ptr() as usize;
+    let base = p & !(page - 1);
+    let end = p.checked_add(w.len())?.checked_add(page - 1)? & !(page - 1);
+    // SAFETY: whole mapped pages (above); the caller drops the view while `w` is borrowed
+    let b = unsafe { pages_view(c, base, end - base) }?;
+    Some((b, (p - base) as u64))
+}
+
+/// the weights for one product: a page view (when `view` and Metal accepts it) or a pooled copy
+fn weight_buffer(c: &Ctx, w: &[i8], view: bool) -> Result<(WeightBuf, u64), String> {
+    if view {
+        if let Some((b, off)) = page_view(c, w) {
+            return Ok((WeightBuf::View(b), off));
+        }
+    }
+    let b = shared_buffer(c, w.len() as u64)?;
+    // SAFETY: w.len() bytes of shared memory owned here, not in use by the GPU
+    let d = unsafe { std::slice::from_raw_parts_mut(b.contents() as *mut i8, w.len()) };
+    const CHUNK: usize = 1 << 20;
+    if w.len() <= CHUNK {
+        d.copy_from_slice(w);
+    } else {
+        d.par_chunks_mut(CHUNK).zip(w.par_chunks(CHUNK)).for_each(|(d, s)| d.copy_from_slice(s));
+    }
+    Ok((WeightBuf::Copy(b), 0))
+}
+
+/// **The result plane, written in place when it can be**: a zeroed `Vec` of
+/// `out_len` words whose allocation starts on a page and spans whole pages of its
+/// own (its capacity is rounded up to a page), with a writable device view of
+/// exactly those pages. The kernels write only `row * os + col` for `row < t`,
+/// `col < n`, inside the first `out_len` words. `None` for the view when the
+/// allocator gave an unaligned block or Metal refuses: the caller then writes a
+/// pooled buffer and scatters it.
+fn result_plane(c: &Ctx, out_len: usize, view: bool) -> (Vec<i64>, Option<Buffer>) {
+    let page = match page_size() {
+        Some(p) if view && p % 8 == 0 => p,
+        _ => return (vec![0i64; out_len], None),
+    };
+    let cap = (out_len * 8).div_ceil(page) * page / 8;
+    let mut v = vec![0i64; cap];
+    let base = v.as_mut_ptr() as usize;
+    // SAFETY: [base, base + cap * 8) is whole pages of `v`'s own allocation (aligned
+    // start, a page multiple long), all of it `v`'s zeroed words; `v` outlives the
+    // view (the caller drops the view after the command buffer completes)
+    let b = if base % page == 0 { unsafe { pages_view(c, base, cap * 8) } } else { None };
+    v.truncate(out_len);
+    (v, b)
+}
+
+/// pack, present, run, write back (shapes already checked)
+#[allow(clippy::too_many_arguments)]
+fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i64], xs: usize, w: &[i8], k: usize, n: usize, os: usize, out_len: usize, in_out: bool) -> Result<Option<Vec<i64>>, String> {
+    use objc::Message;
+    let now = std::time::Instant::now;
+    let mut at = [now(); 7];
+    let (tp, kp) = (t.div_ceil(WP_BM) * WP_BM, k.div_ceil(WP_BK) * WP_BK);
+    let xb = shared_buffer(c, (tp * kp * 2) as u64)?;
+    at[1] = now();
+    // SAFETY: tp * kp i16 of shared memory owned here, not in use by the GPU
+    let xd = unsafe { std::slice::from_raw_parts_mut(xb.contents() as *mut i16, tp * kp) };
+    // every word is written (the pad as zeros): a pooled buffer's old contents are
+    // never read. Eight rows per task.
+    const ROWS: usize = 8;
+    let fits = xd
+        .par_chunks_mut(kp * ROWS)
+        .enumerate()
+        .map(|(b, rows)| {
+            let mut ok = true;
+            for (dr, row) in rows.chunks_mut(kp).enumerate() {
+                let r = b * ROWS + dr;
+                if r >= t {
+                    row.fill(0);
+                    continue;
+                }
+                for (d, &v) in row[..k].iter_mut().zip(&x[r * xs..r * xs + k]) {
+                    *d = v as i16;
+                    ok &= i64::from(*d) == v;
+                }
+                row[k..].fill(0);
+            }
+            ok
+        })
+        .reduce(|| true, |a, b| a && b);
+    if !fits {
+        return Ok(None);
+    }
+    at[2] = now();
+    let (wb, w_off) = weight_buffer(c, &w[..k * n], view)?;
+    at[3] = now();
+    // the output: in place at the caller's stride, or compact in a pooled buffer
+    let (mut out, in_place) = result_plane(c, out_len, view);
+    let pooled = match in_place {
+        Some(_) => None,
+        None => Some(shared_buffer(c, (t * n * 8) as u64)?),
+    };
+    let ob: &metal::BufferRef = match (&in_place, &pooled) {
+        (Some(b), _) => b,
+        (None, Some(b)) => b,
+        (None, None) => unreachable!("one output buffer"),
+    };
+    let ostride = if in_place.is_some() { os } else { n };
+    let wrote_in_place = in_place.is_some();
+    let args = WProdArgs { t: t as u32, k: k as u32, n: n as u32, kp: kp as u32, in_out: in_out as u32, os: ostride as u32, w_off };
+    // one command buffer on the witness queue (`run`'s shape, with the GPU's own clock)
+    let cb = wc.queue.new_command_buffer();
+    let enc = cb.new_compute_command_encoder();
+    enc.set_compute_pipeline_state(wc.pipe(route));
+    enc.set_buffer(0, Some(&xb), 0);
+    enc.set_buffer(1, Some(wb.buffer()), 0);
+    enc.set_buffer(2, Some(ob), 0);
+    set_args(enc, 3, &args);
+    enc.dispatch_thread_groups(MTLSize::new(n.div_ceil(WP_BN) as u64, (tp / WP_BM) as u64, 1), MTLSize::new(WP_THREADS, 1, 1));
+    enc.end_encoding();
+    at[4] = now();
+    cb.commit();
+    wait_done(cb);
+    if !matches!(cb.status(), MTLCommandBufferStatus::Completed) {
+        return Err(format!("metal witness product: command buffer ended {:?}", cb.status()));
+    }
+    // SAFETY: GPUStartTime / GPUEndTime of a completed command buffer (CFTimeInterval
+    // seconds); a failed message counts as zero
+    let gpu_s = unsafe {
+        let t0: f64 = cb.send_message(objc::runtime::Sel::register("GPUStartTime"), ()).unwrap_or(0.0);
+        let t1: f64 = cb.send_message(objc::runtime::Sel::register("GPUEndTime"), ()).unwrap_or(0.0);
+        (t1 - t0).max(0.0)
+    };
+    drop(wb);
+    drop(in_place);
+    at[5] = now();
+    if let Some(pb) = &pooled {
+        // SAFETY: t * n words, every one written by the completed command buffer (the
+        // grid covers every row below tp >= t and every column below a multiple of 64 >= n)
+        let dev = unsafe { std::slice::from_raw_parts(pb.contents() as *const i64, t * n) };
+        out.par_chunks_mut(os).zip(dev.par_chunks(n)).for_each(|(o, d)| o[..n].copy_from_slice(d));
+    }
+    at[6] = now();
+    WP_CALLS.fetch_add(1, Ordering::Relaxed);
+    if wrote_in_place {
+        WP_IN_PLACE.fetch_add(1, Ordering::Relaxed);
+    }
+    let ns = |a: std::time::Instant, b: std::time::Instant| (b - a).as_nanos() as u64;
+    for i in 0..5 {
+        WP_NS[i].fetch_add(ns(at[i], at[i + 1]), Ordering::Relaxed);
+    }
+    WP_NS[5].fetch_add((gpu_s * 1e9) as u64, Ordering::Relaxed);
+    WP_NS[6].fetch_add(ns(at[5], at[6]), Ordering::Relaxed);
+    Ok(Some(out))
+}

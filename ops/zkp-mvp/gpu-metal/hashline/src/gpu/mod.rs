@@ -36,6 +36,20 @@ pub use metal::mul_bench_for_test as metal_mul_bench_for_test;
 pub use metal::src_bench_for_test as metal_src_bench_for_test;
 #[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
 pub use metal::{fold_rows_host_for_test as metal_fold_rows_host_for_test, fold_rows_host_lazy as metal_fold_rows_host_lazy};
+// [A4] the witness weight products on the device (exact; the CPU stays the
+// reference and the default, `private_block/witness.rs`)
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::witness_product;
+#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::{with_witness_options, witness_product_stats, witness_product_with, WProdRoute, WP_PHASES as WITNESS_PRODUCT_PHASES, WP_ROUTES as WITNESS_ROUTES};
+
+/// [A4] Without the Metal backend no witness product runs on a device: `Ok(None)`
+/// sends every caller to its CPU path.
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+#[allow(clippy::too_many_arguments)]
+pub fn witness_product(_t_rows: usize, _x: &[i64], _xs: usize, _w: &[i8], _inner: usize, _outer: usize, _os: usize, _out_len: usize, _in_out: bool) -> Result<Option<Vec<i64>>, String> {
+    Ok(None)
+}
 
 /// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
 /// point declines and the prover would silently take the CPU body reports

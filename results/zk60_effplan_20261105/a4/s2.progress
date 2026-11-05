@@ -1,0 +1,16 @@
+2026-11-05T09:37:43Z start
+2026-11-05T09:40:03Z build rc=0 (29 warning lines)
+2026-11-05T09:44:57Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 918 passed; 3 failed; 95 ignored; 0 measured; 0 filtered out; finished in 293.60s
+2026-11-05T09:44:58Z w16r2 rung golden rc=0
+2026-11-05T09:45:24Z trained digests rc=0
+2026-11-05T09:45:24Z digest 5a6193d3 present
+2026-11-05T09:45:24Z digest f590b01f present
+2026-11-05T09:45:24Z digest 79f987ef present
+2026-11-05T09:45:24Z digest a8258241 present
+2026-11-05T09:45:24Z digest 0e88d84f present
+2026-11-05T09:45:24Z digest 90003b76 present
+2026-11-05T09:45:24Z all done

@@ -2321,5 +2321,17 @@ fn d55_ab_one_request_serial_against_forks() {
         let (compile, rounds) = crate::gpu::metal_sumcheck_stats();
         eprintln!("D55-AB device evidence: HL_GPU={:?}, Metal kernel compile {compile:.3} s, device sumcheck rounds {rounds:.3} s", std::env::var("HL_GPU").ok());
     }
+    // A4: how many witness weight products ran on the device, and where their time went
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    {
+        let (n, in_place, s) = crate::gpu::witness_product_stats();
+        let phases: Vec<String> = crate::gpu::WITNESS_PRODUCT_PHASES.iter().zip(s).map(|(p, s)| format!("{p} {s:.3} s")).collect();
+        eprintln!(
+            "D55-AB A4 witness products on the device: {n}, {in_place} written in place (HL_GPU_WITNESS={:?}, route {:?}); summed {}",
+            std::env::var("HL_GPU_WITNESS").ok(),
+            std::env::var("HL_GPU_WITNESS_ROUTE").ok(),
+            phases.join(", ")
+        );
+    }
     eprintln!("D55-AB {name} L{l}: total {:.1} s", t0.elapsed().as_secs_f64());
 }

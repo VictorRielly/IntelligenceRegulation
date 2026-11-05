@@ -1,0 +1,15 @@
+2026-11-05T09:45:24Z start
+2026-11-05T09:47:48Z d55 A/B (CPU products) rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 5.450 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 5.444 s = 23.51 proved tok/s; 6 workers; preflight 0.082 s, commit 0.238 s, forks 5.046 s, join 0.079 s; fork prove_core min 0.393 median 0.880 max 1.261 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 10.919 s = 11.72 proved tok/s FROM THE RUN'S INPUT (sealing pass 5.891 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 1 (serial first): wall 5.337 s = 23.98 proved tok/s; 6 workers; preflight 0.087 s, commit 0.223 s, forks 4.950 s, join 0.076 s; fork prove_core min 0.459 median 0.931 max 1.000 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 11.038 s = 11.60 proved tok/s FROM THE RUN'S INPUT (sealing pass 5.913 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 36.178 s; amortized 14.15 proved tok/s (all witness work on the clock); steady state 15.98 tok/s (completions 12.15, 20.64, 28.78, 36.18); per-request latency 12.15, 14.73, 14.51, 13.51
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 9.1 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.832 s = 11.82 tok/s | mean 10.862 s = 11.78 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.337 s = 23.98 tok/s | mean 5.391 s = 23.74 tok/s | 2.03x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 10.919 s = 11.72 tok/s | mean 10.978 s = 11.66 tok/s
+D55-AB A4 witness products on the device: 0, 0 written in place (HL_GPU_WITNESS=Some("0"), route None); summed activation buffer 0.000 s, pack 0.000 s, weights 0.000 s, output plane + encode 0.000 s, command buffer 0.000 s, of which on the GPU 0.000 s, scatter 0.000 s
+2026-11-05T09:47:48Z all done

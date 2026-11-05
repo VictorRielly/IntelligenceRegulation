@@ -1,0 +1,19 @@
+2026-11-05T09:33:14Z start
+2026-11-05T09:35:33Z build rc=0 (29 warning lines)
+2026-11-05T09:35:49Z witness_speed_tests rc=0 test result: ok. 8 passed; 0 failed; 5 ignored; 0 measured; 1003 filtered out; finished in 14.80s
+2026-11-05T09:36:01Z plane equality rc=0
+A4 R13_TINY_T128_LOW: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+A4 R13_8B_T128_H24_DD: 0 admissible inputs equal on every plane on all 3 device routes, 4 refused identically
+A4 R13_RUNG_H24: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+A4 W16R2_RUNG_H24: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+A4 W16_SHIELD_T256_H24: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+A4 W16R2_8B_T128_H24: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+2026-11-05T09:36:08Z A4 timer rc=0
+A4 W16R2_8B_T128_H24 on 32 threads, best of 5: CPU products: whole witness 0.1621 s, the seven products alone 0.0854 s (27.92 G MACs), the rest 0.0767 s
+A4 W16R2_8B_T128_H24 device Simd4x2, weights and outputs mapped: whole witness 0.0991 s (1.64x the CPU's), the seven products alone 0.0143 s (6.0x, 1957 G MACs/s; 42 of 42 written in place); per block of seven: activation buffer 0.00 ms, pack 2.54 ms, weights 0.11 ms, output plane + encode 0.32 ms, command buffer 16.52 ms, of which on the GPU 12.13 ms, scatter 0.00 ms
+A4 W16R2_8B_T128_H24 device Simd4x2, weights and outputs copied: whole witness 0.1125 s (1.44x the CPU's), the seven products alone 0.0300 s (2.8x, 931 G MACs/s; 0 of 42 written in place); per block of seven: activation buffer 0.00 ms, pack 2.42 ms, weights 5.09 ms, output plane + encode 0.29 ms, command buffer 17.49 ms, of which on the GPU 13.99 ms, scatter 6.05 ms
+A4 W16R2_8B_T128_H24 device Simd2x4, weights and outputs mapped: whole witness 0.1030 s (1.57x the CPU's), the seven products alone 0.0141 s (6.1x, 1986 G MACs/s; 42 of 42 written in place); per block of seven: activation buffer 0.00 ms, pack 2.56 ms, weights 0.10 ms, output plane + encode 0.31 ms, command buffer 14.16 ms, of which on the GPU 9.89 ms, scatter 0.00 ms
+A4 W16R2_8B_T128_H24 device Simd2x4, weights and outputs copied: whole witness 0.1100 s (1.47x the CPU's), the seven products alone 0.0228 s (3.7x, 1224 G MACs/s; 0 of 42 written in place); per block of seven: activation buffer 0.00 ms, pack 2.43 ms, weights 4.76 ms, output plane + encode 0.30 ms, command buffer 11.45 ms, of which on the GPU 8.44 ms, scatter 5.82 ms
+A4 W16R2_8B_T128_H24 device Int, weights and outputs mapped: whole witness 0.1022 s (1.59x the CPU's), the seven products alone 0.0250 s (3.4x, 1115 G MACs/s; 42 of 42 written in place); per block of seven: activation buffer 0.00 ms, pack 2.58 ms, weights 0.10 ms, output plane + encode 0.31 ms, command buffer 23.18 ms, of which on the GPU 19.46 ms, scatter 0.00 ms
+A4 W16R2_8B_T128_H24 device Int, weights and outputs copied: whole witness 0.1159 s (1.40x the CPU's), the seven products alone 0.0287 s (3.0x, 971 G MACs/s; 0 of 42 written in place); per block of seven: activation buffer 0.00 ms, pack 2.27 ms, weights 4.82 ms, output plane + encode 0.29 ms, command buffer 18.12 ms, of which on the GPU 14.33 ms, scatter 5.85 ms
+2026-11-05T09:36:08Z all done
