@@ -300,6 +300,83 @@ fn acc_par_on() -> bool {
     *ON.get_or_init(|| std::env::var("HL_TABLE_ACC_PAR").map(|v| v != "0").unwrap_or(true))
 }
 
+/// [A14] 0 until read from the environment (or set by a test): 1 the lazy
+/// sums below are off, 2 on
+static A14_LAZY: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
+/// **[A14]** the host's two `Fp2 x Fp` dot products (an accumulating private
+/// table's entries, a table's reserved mask pair at its claim tail) summed
+/// exactly in 128-bit integers with ONE reduction per component
+/// ([`LazyDot`]), instead of a field multiply and add per term. The same
+/// field element, so the same word. `HL_ARG_LAZY=0` restores the per-term
+/// form (the tree before A14).
+fn lazy_on() -> bool {
+    use std::sync::atomic::Ordering::Relaxed;
+    match A14_LAZY.load(Relaxed) {
+        0 => {
+            let m = if std::env::var("HL_ARG_LAZY").map(|v| v == "0").unwrap_or(false) { 1 } else { 2 };
+            A14_LAZY.store(m, Relaxed);
+            m == 2
+        }
+        m => m == 2,
+    }
+}
+
+/// TEST ONLY ([A14] A/B and the word-for-word tests): the lazy sums on or off,
+/// or (`None`) as the environment says. Process-wide; changes no byte.
+#[cfg(test)]
+pub(crate) fn set_lazy_for_test(on: Option<bool>) {
+    A14_LAZY.store(match on { None => 0, Some(false) => 1, Some(true) => 2 }, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [A14] 2^128 mod p (p = 2^64 - 2^32 + 1: 2^64 = 2^32 - 1, so 2^128 =
+/// (2^32 - 1)^2 = 2^64 - 2^33 + 1 = -2^32 mod p)
+const TWO_128_MOD_P: Fp = Fp(0xFFFF_FFFE_0000_0001);
+
+/// **[A14] An exact `sum_i e_i * x_i` over `Fp2 x Fp`.** Each component's
+/// products `e.c * x` (canonical words, so each below 2^128) are added into a
+/// 128-bit integer, and every wrap past 2^128 is counted, so the integer sum
+/// is `lo + wraps * 2^128` exactly; it is reduced once at the end
+/// (`Fp::from_u128` is exact for every 128-bit input). The per-term form
+/// reduces every product and every partial sum instead; both are the residue
+/// of the same integer, so the words are equal. No branch depends on a value.
+#[derive(Clone, Copy, Default)]
+struct LazyDot {
+    lo0: u128,
+    lo1: u128,
+    wraps0: u64,
+    wraps1: u64,
+}
+
+impl LazyDot {
+    #[inline(always)]
+    fn add(&mut self, e: Fp2, x: Fp) {
+        let (s0, c0) = self.lo0.overflowing_add(e.c0.0 as u128 * x.0 as u128);
+        let (s1, c1) = self.lo1.overflowing_add(e.c1.0 as u128 * x.0 as u128);
+        self.lo0 = s0;
+        self.lo1 = s1;
+        self.wraps0 += c0 as u64;
+        self.wraps1 += c1 as u64;
+    }
+
+    #[inline(always)]
+    fn value(self) -> Fp2 {
+        let r = |lo: u128, wraps: u64| Fp::from_u128(lo).add(Fp::new(wraps).mul(TWO_128_MOD_P));
+        Fp2::new(r(self.lo0, self.wraps0), r(self.lo1, self.wraps1))
+    }
+}
+
+/// TEST ONLY ([A14]): `sum_i eq_i * xs_i` by [`LazyDot`] and by the per-term
+/// fold (`mask_eval_eq`'s form before A14), for the word-for-word test
+#[cfg(test)]
+pub(super) fn a14_dot_forms(eq: &[Fp2], xs: &[Fp]) -> (Fp2, Fp2) {
+    let mut acc = LazyDot::default();
+    for (x, e) in xs.iter().zip(eq.iter()) {
+        acc.add(*e, *x);
+    }
+    (acc.value(), xs.iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x))))
+}
+
 fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed: bool, par_min: usize) {
     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
     let eqf = eq_table_msb(&fixed);
@@ -432,6 +509,22 @@ fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed
         let lo_m = (1usize << xlo) - 1;
         // chunks scale with the output so a small table still splits
         let ch_len = (out.len() / 256).clamp(16, 1 << 12);
+        // [A14] one plain slice: each entry's terms `eqf[z] * v` summed exactly
+        // and reduced once ([`LazyDot`]); the same word as the loop below
+        if let (Some(off), true) = (one_slice, lazy_on()) {
+            out.par_chunks_mut(ch_len).enumerate().for_each(|(ci, ch)| {
+                for (i, o) in ch.iter_mut().enumerate() {
+                    let x = (ci * ch_len) + i;
+                    let im = inv_hi[x >> xlo] | inv_lo[x & lo_m];
+                    let mut acc = LazyDot::default();
+                    for (z, &zb) in zbits.iter().enumerate() {
+                        acc.add(eqf[z], data[off + (im | zb)]);
+                    }
+                    *o = acc.value();
+                }
+            });
+            return;
+        }
         out.par_chunks_mut(ch_len).enumerate().for_each(|(ci, ch)| {
             for (i, o) in ch.iter_mut().enumerate() {
                 let x = (ci * ch_len) + i;
@@ -914,8 +1007,18 @@ fn mask_tail(sh: &Shape, p: &Priv, point: &[Fp2]) -> Vec<Fp2> {
 fn mask_eval_eq(sh: &Shape, p: &Priv, data: &[Fp], eq: &[Fp2]) -> Fp2 {
     let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));
     let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
+    // [A14] summed exactly and reduced once ([`LazyDot`]): the same word
+    let lazy = lazy_on();
     let row = |r: usize| {
-        data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
+        let xs = &data[r * n + c0..r * n + c0 + eq.len()];
+        if lazy {
+            let mut acc = LazyDot::default();
+            for (x, e) in xs.iter().zip(eq.iter()) {
+                acc.add(*e, *x);
+            }
+            return acc.value();
+        }
+        xs.iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
     };
     row(p.mask_row).add(Fp2::U.mul(row(p.mask_row + 1)))
 }

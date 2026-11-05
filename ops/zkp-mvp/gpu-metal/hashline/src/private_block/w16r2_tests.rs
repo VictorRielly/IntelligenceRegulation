@@ -2833,3 +2833,121 @@ fn a8_store_fold_census_and_bench_on_the_8b_block() {
     }
     std::env::remove_var("HL_GPU");
 }
+
+// ------------------------------------------------------------ [A14] the forks' remaining host work
+
+/// [A14] the six settings of A14's three forms: (label, the generator's XOF,
+/// a long absorb in parallel, the lazy sums). `a14old` is the tree before A14,
+/// `a14new` every form on, `a14def` the default (the parallel absorb is opt-in).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+const A14_SETTINGS: [(&str, zkp_core::rng::XofForm, bool, bool); 6] = [
+    ("a14old", zkp_core::rng::XofForm::Blake3, false, false),
+    ("xof8 only", zkp_core::rng::XofForm::Lanes8, false, false),
+    ("trpar only", zkp_core::rng::XofForm::Blake3, true, false),
+    ("lazy1 only", zkp_core::rng::XofForm::Blake3, false, true),
+    ("a14new", zkp_core::rng::XofForm::Lanes8, true, true),
+    ("a14def", zkp_core::rng::XofForm::Lanes8, false, true),
+];
+
+/// [A14] put one setting in force for the process, or (`None`) the environment's
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+fn a14_set(s: Option<(zkp_core::rng::XofForm, bool, bool)>) {
+    zkp_core::rng::set_xof_form(s.map(|s| s.0));
+    crate::transcript::set_absorb_parallel(s.map(|s| s.1));
+    super::argument::set_lazy_for_test(s.map(|s| s.2));
+}
+
+/// **[A14] the W16R2 rung's golden under every setting of A14's forms.** The
+/// seeded rung proof on the CPU under the tree before A14, every form on and
+/// the A14 default, then on the device under all six settings (each form
+/// alone, all off, all on, the default): every digest is the CPU's, which is
+/// the golden `96e4f0b6`.
+/// Toggles `HL_GPU` and the forms in-process, so it is ignored and run alone
+/// by name (`HL_GPU_REQUIRED=1`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A14: toggles HL_GPU and the A14 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn a14_w16r2_rung_golden_under_every_a14_setting() {
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let mut cpu: Option<String> = None;
+    for (label, x, p, l) in [A14_SETTINGS[0], A14_SETTINGS[4], A14_SETTINGS[5]] {
+        a14_set(Some((x, p, l)));
+        let d = seeded_digest(&sh, &blk, copy(&w));
+        a14_set(None);
+        assert!(d.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's CPU digest under {label} moved: {}", &d[..8]);
+        eprintln!("A14-RUNG {} CPU [{label}]: digest {} (the golden)", sh.name, &d[..8]);
+        cpu.get_or_insert(d);
+    }
+    let cpu = cpu.unwrap();
+    std::env::set_var("HL_GPU", "1");
+    for (label, x, p, l) in A14_SETTINGS {
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        a14_set(Some((x, p, l)));
+        let d = seeded_digest(&sh, &blk, copy(&w));
+        a14_set(None);
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        assert_eq!(d, cpu, "the Metal W16R2 rung proof under {label} differs from the CPU's");
+        assert!(ran > 0.0, "no sumcheck round ran on the device under {label}");
+        eprintln!("A14-RUNG {} Metal [{label}]: digest {} (the golden)", sh.name, &d[..8]);
+    }
+    std::env::remove_var("HL_GPU");
+}
+
+/// **[A14, ignored] one W16R2 8B T128 block's core proof under every setting
+/// of A14's forms** (the 8B block's digest unchanged): a8's census recipe (the
+/// trained calibration, a seeded generator, the tagged header), proved on the
+/// device under each of the six settings, the digest of the whole core proof
+/// and the transcript's final state equal in every one. At 8B every A14 form
+/// is on the path: `fill_fp`'s parallel chunks, the openings' long absorbs and
+/// the matmul planes' accumulating tables. Heavy; run alone by name with
+/// `HL_PB_ORACLE=0`.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A14: heavy (one 8B T128 block on Metal, thirteen times), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0"]
+fn a14_the_8b_block_proves_the_same_under_every_a14_setting() {
+    use crate::private_block::shape::NormCalibration;
+    let spec = shape::W16R2_PROFILES.iter().find(|s| s.name == "W16R2_8B_T128_H24").expect("the W16R2 8B profile");
+    let cal = NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+    let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
+    let (sh, data, public, ff) = super::range16_tests::case(original, 3);
+    let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+    let mut seed = 0usize;
+    let input = loop {
+        let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + seed) % (41 + 20 * (seed % 3))) as i16 - 20).collect();
+        match super::witness::build_accuracy(&sh, &public, &ff, &data, &input) {
+            Ok(_) => break input,
+            Err(_) if seed < 6 => seed += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let lay = Layout::for_shape(&sh).unwrap();
+    std::env::set_var("HL_GPU", "1");
+    let prove_once = |s: (zkp_core::rng::XofForm, bool, bool)| -> (f64, String) {
+        let w = super::witness::build_accuracy(&sh, &public, &ff, &data, &input).unwrap();
+        let (ein, eout) = io_planes(&sh, &w);
+        let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+        let mut rng = ZkRng::new(20261105, b"zk60 A14 core");
+        let mut tr = header(&sh, &lay);
+        let mut ph = super::timing::Phases::start();
+        let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+        a14_set(Some(s));
+        let t = std::time::Instant::now();
+        let core = protocol::prove_core(&sh, &lay, &blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("the A14 core proof");
+        let secs = t.elapsed().as_secs_f64();
+        a14_set(None);
+        let text = format!(
+            "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
+            core.a_root, core.h_root, core.mask_root, core.slots, core.mask_open, core.a_open, core.h_open, core.io_claims, core.order, core.lookups, tr.state()
+        );
+        (secs, blake3::hash(text.as_bytes()).to_hex().to_string())
+    };
+    let (s0, d0) = prove_once((A14_SETTINGS[0].1, A14_SETTINGS[0].2, A14_SETTINGS[0].3));
+    eprintln!("A14-8B cold pass [a14old] prove core {s0:.3} s, digest {}", &d0[..16]);
+    for (label, x, p, l) in A14_SETTINGS.iter().chain(A14_SETTINGS.iter()) {
+        let (s, d) = prove_once((*x, *p, *l));
+        assert_eq!(d, d0, "the 8B block's core proof under {label} differs");
+        eprintln!("A14-8B prove core [{label}] {s:.3} s, digest {} (equal)", &d[..16]);
+    }
+    std::env::remove_var("HL_GPU");
+}

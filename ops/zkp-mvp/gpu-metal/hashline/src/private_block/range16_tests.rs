@@ -997,3 +997,137 @@ fn a12_census_and_the_device_tables_equal_the_host_tables_word_for_word() {
         );
     }
 }
+
+// ------------------------------------------------------- [A14] the lazy sums
+
+/// [A14] dense committed data of the slot builders' sizes (`A`, `H`, the two
+/// endpoints), every word a canonical `Fp` drawn over the WHOLE field, a tenth
+/// of them `p - 1` (the largest products, so the 128-bit sums wrap often)
+fn a14_data(sh: &Shape, lay: &Layout) -> [Vec<crate::field::Fp>; 4] {
+    use crate::field::{Fp, P};
+    let n = lay.n();
+    let mut z = 0xA14A_14A1_4A14_A14Au64 ^ (sh.tokens as u64) << 20 ^ sh.width as u64;
+    let mut next = move || {
+        z ^= z << 13;
+        z ^= z >> 7;
+        z ^= z << 17;
+        if z % 10 == 0 {
+            Fp::new(P - 1)
+        } else {
+            Fp::new(z % P)
+        }
+    };
+    let io = ((1usize << sh.log(Dom::D)) + 8 * n).max(sh.endpoint_rows << sh.endpoint_log_n);
+    [(0..lay.a_rows * n).map(|_| next()).collect(), (0..lay.h_rows * n).map(|_| next()).collect(), (0..io).map(|_| next()).collect(), (0..io).map(|_| next()).collect()]
+}
+
+/// [A14] a copy of a slot's table descriptor (the descriptors are not `Clone`)
+fn a14_copy_tab(t: &super::argument::Tab) -> super::argument::Tab {
+    use super::argument::{Priv, Tab};
+    match t {
+        Tab::Eq { point, start } => Tab::Eq { point: point.clone(), start: *start },
+        Tab::Pub(v) => Tab::Pub(v.clone()),
+        Tab::Priv(p) => Tab::Priv(Priv { cm: p.cm, slices: p.slices.clone(), log: p.log, coords: p.coords.clone(), mask_row: p.mask_row, ext_round: p.ext_round }),
+    }
+}
+
+/// [A14] every slot's tables at `profile` with the lazy sums off and on, at the
+/// production threshold and with every table forced onto its parallel form
+/// (`par_min = 1`, so every accumulating private table takes the M9 path the
+/// lazy sum replaces), compared word for word; `private_only` compares only the
+/// private slots (the 8B test). Returns (tables compared, words, accumulating
+/// one-slice planes: the tables the lazy sum builds).
+fn a14_tables_equal_under_both_sums(profile: &'static str, private_only: bool) -> (usize, usize, usize) {
+    use super::argument::{build_tables_at, define, set_lazy_for_test, Coord, Ctx, Points, ProverData, Tab, TABLES_PAR_MIN};
+    use crate::field::Fp2;
+    use crate::transcript::Transcript;
+    let k = |v: i64| Fp2::from_i64(v);
+    let (sh, data, public, ff) = case(built(profile), 3);
+    let lay = Layout::for_shape(&sh).unwrap();
+    let d = a14_data(&sh, &lay);
+    let masks = Vec::new();
+    let pd = ProverData { data: [&d[0], &d[1], &d[2], &d[3]], masks: &masks };
+    let ctx = Ctx { accuracy: Some(&data), lay: &lay, public: &public, ff: &ff, alpha: k(7).add(Fp2::U), beta: k(11), g_u8: k(13), g_exp: k(17), g_act: k(19), g_dd: k(23) };
+    let mut pts = Points::default();
+    let mut tr = Transcript::new(sh.profile.as_bytes());
+    let (mut tables, mut words, mut lazy_tables) = (0usize, 0usize, 0usize);
+    for slot in 0..sh.n_slots() {
+        let def = define(slot, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("{profile} slot {slot}: {e}"));
+        if private_only && SLOT_KINDS[slot] != SlotKind::Private {
+            continue;
+        }
+        let n = sh.slots()[slot].0;
+        lazy_tables += def.tabs.iter().filter(|t| matches!(t, Tab::Priv(p) if p.coords.iter().any(|c| matches!(c, Coord::Fixed(_))) && p.slices.len() == 1 && p.slices[0].1 == Fp2::ONE)).count();
+        for par_min in [1usize, TABLES_PAR_MIN] {
+            let copy = || def.tabs.iter().map(a14_copy_tab).collect::<Vec<Tab>>();
+            set_lazy_for_test(Some(false));
+            let old = build_tables_at(&mut copy(), n, &pd, par_min);
+            set_lazy_for_test(Some(true));
+            let new = build_tables_at(&mut copy(), n, &pd, par_min);
+            set_lazy_for_test(None);
+            assert_eq!(old.len(), new.len(), "{profile} slot {slot}: table counts differ");
+            for (t, (a, b)) in old.iter().zip(new.iter()).enumerate() {
+                let bad = a.iter().zip(b.iter()).position(|(x, y)| x != y);
+                assert!(a.len() == b.len() && bad.is_none(), "{profile} slot {slot} table {t} (par_min {par_min}): the lazy sum differs from the per-term sum at word {}", bad.unwrap_or(0));
+                tables += 1;
+                words += a.len();
+            }
+        }
+    }
+    (tables, words, lazy_tables)
+}
+
+/// **[A14] the lazy sums equal the per-term sums, word for word (CPU).**
+/// (1) `LazyDot` against the per-term fold on random vectors over the whole
+/// field, all-`(p - 1)` vectors (the most wraps a 128-bit sum can take) and
+/// lengths around 2^16; (2) every table of every slot of the W16R2 rung with
+/// the lazy sums off and on, at the production threshold and with every
+/// table forced onto its parallel (M9) form, on dense full-field data.
+#[test]
+fn a14_the_lazy_sums_equal_the_per_term_sums_word_for_word() {
+    use crate::field::{Fp, Fp2, P};
+    let mut z = 0x5EED_A14Du64;
+    let mut next = move || {
+        z ^= z << 13;
+        z ^= z >> 7;
+        z ^= z << 17;
+        z
+    };
+    let mut dots = 0usize;
+    for len in [0usize, 1, 2, 3, 7, 100, 4097, 1 << 14, (1 << 16) - 1, 1 << 16, (1 << 16) + 3] {
+        for kind in 0..3 {
+            let f = |v: u64| match kind {
+                0 => Fp::new(v % P),
+                1 => Fp::new(P - 1),
+                _ => {
+                    if v % 3 == 0 {
+                        Fp::new(P - 1)
+                    } else {
+                        Fp::new(v % 65_536)
+                    }
+                }
+            };
+            let eq: Vec<Fp2> = (0..len).map(|_| Fp2::new(f(next()), f(next()))).collect();
+            let xs: Vec<Fp> = (0..len).map(|_| f(next())).collect();
+            let (lazy, per_term) = super::argument::a14_dot_forms(&eq, &xs);
+            assert_eq!(lazy, per_term, "len {len} kind {kind}: the lazy dot product differs");
+            assert!(lazy.c0.0 < P && lazy.c1.0 < P, "a non-canonical word");
+            dots += 1;
+        }
+    }
+    let (tables, words, lazy_tables) = a14_tables_equal_under_both_sums(shape::W16R2_RUNG_H24, false);
+    assert!(lazy_tables > 0, "no table of the rung takes the lazy sum");
+    eprintln!("A14-LAZY: {dots} dot products equal; W16R2 rung: {tables} tables ({words} words) equal with the lazy sums off and on ({lazy_tables} accumulating one-slice planes among them)");
+}
+
+/// **[A14, ignored] the same at W16R2 8B T128, the private slots** (whose
+/// matmul planes take the lazy sum at the production threshold): every table
+/// with the lazy sums off and on, word for word. Heavy (the 8B block's `A`
+/// and `H` data, about 1.3 GB); run alone by name.
+#[test]
+#[ignore = "A14: the 8B private slots' tables under both sums; about 1.3 GB, run alone by name"]
+fn a14_the_8b_private_slots_tables_equal_under_both_sums() {
+    let (tables, words, lazy_tables) = a14_tables_equal_under_both_sums(shape::W16R2_8B_T128_H24, true);
+    assert!(lazy_tables > 0, "no 8B private table takes the lazy sum");
+    eprintln!("A14-LAZY-8B: {tables} tables ({words} words) of the private slots equal with the lazy sums off and on ({lazy_tables} accumulating one-slice planes)");
+}

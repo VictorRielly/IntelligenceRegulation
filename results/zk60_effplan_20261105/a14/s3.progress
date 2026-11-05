@@ -1,0 +1,88 @@
+2026-11-05T18:05:24Z start
+2026-11-05T18:05:24Z build rc=0
+2026-11-05T18:09:48Z d55 A/B, each form alone, proof only rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.276 s = 12.46 tok/s | mean 10.276 s = 12.46 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.289 s = 29.85 tok/s | mean 4.289 s = 29.85 tok/s | 2.40x serial (best)
+D55-AB SUMMARY | forks N=6 a14old | A7 GPU-policy A/B, interleaved, 8 passes | best 4.001 s = 31.99 tok/s | mean 4.160 s = 30.77 tok/s
+D55-AB SUMMARY | forks N=6 a14old+xof8 | A7 GPU-policy A/B, interleaved, 8 passes | best 4.013 s = 31.90 tok/s | mean 4.115 s = 31.11 tok/s
+D55-AB SUMMARY | forks N=6 a14old+trpar | A7 GPU-policy A/B, interleaved, 8 passes | best 4.088 s = 31.31 tok/s | mean 4.194 s = 30.52 tok/s
+D55-AB SUMMARY | forks N=6 a14old+lazy1 | A7 GPU-policy A/B, interleaved, 8 passes | best 3.952 s = 32.39 tok/s | mean 4.012 s = 31.90 tok/s
+D55-AB SUMMARY | forks N=6 a14new | A7 GPU-policy A/B, interleaved, 8 passes | best 4.000 s = 32.00 tok/s | mean 4.098 s = 31.23 tok/s
+# A11 pairs: [a14old+xof8] against [a14old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9838ab349101784d/results/zk60_effplan_20261105/a14/raw/s3_singles_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -1.1% (4, 2) | -0.8% (4, 2) | **-1.0%** | 4.160 / 4.115 |
+| forks phase s | -0.8% (4, 2) | -0.5% (4, 3) | **-0.7%** | 3.780 / 3.752 |
+| user CPU s | -3.4% (4, 4) | -4.7% (4, 4) | **-4.1%** | 42.312 / 40.587 |
+| sys CPU s | +11.8% (4, 0) | +2.7% (4, 1) | **+7.3%** | 6.425 / 6.888 |
+| minor faults | +0.1% (4, 2) | -4.4% (4, 2) | **-2.2%** | 1,171,100 / 1,144,073 |
+# A11 pairs: [a14old+trpar] against [a14old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9838ab349101784d/results/zk60_effplan_20261105/a14/raw/s3_singles_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +2.6% (4, 1) | -0.6% (4, 3) | **+1.0%** | 4.160 / 4.194 |
+| forks phase s | +0.1% (4, 2) | -1.6% (4, 3) | **-0.7%** | 3.780 / 3.748 |
+| user CPU s | +1.8% (4, 0) | +0.5% (4, 1) | **+1.1%** | 42.312 / 42.788 |
+| sys CPU s | +18.9% (4, 0) | +11.6% (4, 0) | **+15.2%** | 6.425 / 7.388 |
+| minor faults | -1.8% (4, 3) | -0.0% (4, 2) | **-0.9%** | 1,171,100 / 1,159,343 |
+# A11 pairs: [a14old+lazy1] against [a14old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9838ab349101784d/results/zk60_effplan_20261105/a14/raw/s3_singles_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -3.5% (4, 4) | -3.4% (4, 4) | **-3.5%** | 4.160 / 4.012 |
+| forks phase s | -3.2% (4, 4) | -3.1% (4, 4) | **-3.2%** | 3.780 / 3.658 |
+| user CPU s | -2.9% (4, 4) | -4.1% (4, 4) | **-3.5%** | 42.312 / 40.825 |
+| sys CPU s | +1.8% (4, 2) | -2.8% (4, 4) | **-0.5%** | 6.425 / 6.388 |
+| minor faults | +0.8% (4, 2) | -5.9% (4, 3) | **-2.5%** | 1,171,100 / 1,139,107 |
+# A11 pairs: [a14new] against [a14old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9838ab349101784d/results/zk60_effplan_20261105/a14/raw/s3_singles_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -0.0% (4, 2) | -2.7% (4, 4) | **-1.4%** | 4.160 / 4.098 |
+| forks phase s | -1.1% (4, 2) | -3.7% (4, 4) | **-2.4%** | 3.780 / 3.688 |
+| user CPU s | -5.2% (4, 4) | -7.0% (4, 4) | **-6.1%** | 42.312 / 39.712 |
+| sys CPU s | +16.3% (4, 0) | +17.4% (4, 0) | **+16.9%** | 6.425 / 7.500 |
+| minor faults | +2.3% (4, 2) | -2.3% (4, 2) | **+0.0%** | 1,171,100 / 1,168,074 |
+2026-11-05T18:20:14Z d55 A/B a14old against a14new, sealed + stream rc=0
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 5.43 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.62 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.22 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14old] pass 0: 4 requests in 24.252 s; amortized 21.11 proved tok/s; steady state 24.91 tok/s (completions 8.83, 13.99, 19.16, 24.25); per-request latency 8.83, 9.
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.64 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14new] pass 0: 4 requests in 23.977 s; amortized 21.35 proved tok/s; steady state 24.92 tok/s (completions 8.57, 13.87, 19.00, 23.98); per-request latency 8.57, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14new] pass 1: 4 requests in 23.974 s; amortized 21.36 proved tok/s; steady state 25.04 tok/s (completions 8.64, 13.86, 19.08, 23.97); per-request latency 8.64, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14old] pass 1: 4 requests in 24.459 s; amortized 20.93 proved tok/s; steady state 24.42 tok/s (completions 8.73, 13.91, 19.34, 24.46); per-request latency 8.73, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14old] pass 2: 4 requests in 24.439 s; amortized 20.95 proved tok/s; steady state 24.62 tok/s (completions 8.84, 14.06, 19.31, 24.44); per-request latency 8.84, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14new] pass 2: 4 requests in 24.173 s; amortized 21.18 proved tok/s; steady state 25.08 tok/s (completions 8.87, 14.04, 19.29, 24.17); per-request latency 8.87, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14new] pass 3: 4 requests in 24.232 s; amortized 21.13 proved tok/s; steady state 24.85 tok/s (completions 8.78, 14.15, 19.47, 24.23); per-request latency 8.78, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14old] pass 3: 4 requests in 24.642 s; amortized 20.78 proved tok/s; steady state 24.25 tok/s (completions 8.81, 14.22, 19.65, 24.64); per-request latency 8.81, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14old] pass 4: 4 requests in 24.566 s; amortized 20.84 proved tok/s; steady state 24.20 tok/s (completions 8.70, 14.48, 19.66, 24.57); per-request latency 8.70, 10
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14new] pass 4: 4 requests in 24.566 s; amortized 20.84 proved tok/s; steady state 24.51 tok/s (completions 8.90, 14.12, 19.67, 24.57); per-request latency 8.90, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14new] pass 5: 4 requests in 24.303 s; amortized 21.07 proved tok/s; steady state 24.84 tok/s (completions 8.84, 14.18, 19.52, 24.30); per-request latency 8.84, 9.
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [a14old] pass 5: 4 requests in 24.276 s; amortized 21.09 proved tok/s; steady state 24.79 tok/s (completions 8.78, 14.08, 19.38, 24.28); per-request latency 8.78, 9.
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.149 s = 12.61 tok/s | mean 10.149 s = 12.61 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.172 s = 30.68 tok/s | mean 4.172 s = 30.68 tok/s | 2.43x serial (best)
+D55-AB SUMMARY | forks N=6 a14old | A7 GPU-policy A/B, interleaved, 6 passes | best 3.983 s = 32.14 tok/s | mean 4.059 s = 31.54 tok/s
+D55-AB SUMMARY | forks N=6 a14new | A7 GPU-policy A/B, interleaved, 6 passes | best 3.989 s = 32.09 tok/s | mean 4.096 s = 31.25 tok/s
+D55-AB SUMMARY | forks N=6 SEALED a14old | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.168 s = 15.67 tok/s | mean 8.414 s = 15.21 tok/s
+D55-AB SUMMARY | forks N=6 SEALED a14new | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.305 s = 15.41 tok/s | mean 8.399 s = 15.24 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 a14old | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 24.53 tok/s (best 24.91) | amortized mean 20.95 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 a14new | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 24.87 tok/s (best 25.08) | amortized mean 21.15 tok/s
+# A11 pairs: [a14new] against [a14old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9838ab349101784d/results/zk60_effplan_20261105/a14/raw/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +2.6% (3, 0) | -0.7% (3, 2) | **+0.9%** | 4.059 / 4.096 |
+| forks phase s | +1.1% (3, 1) | -1.8% (3, 2) | **-0.4%** | 3.696 / 3.683 |
+| sealed wall s | +0.5% (3, 1) | -0.8% (3, 2) | **-0.1%** | 8.414 / 8.399 |
+| stream steady tok/s | +1.1% (3, 3) | +1.7% (3, 3) | **+1.4%** | 24.532 / 24.873 |
+| stream amortized tok/s | +0.7% (3, 2) | +1.2% (3, 2) | **+1.0%** | 20.950 / 21.155 |
+| user CPU s | -5.0% (3, 3) | -6.4% (3, 3) | **-5.7%** | 42.300 / 39.867 |
+| sys CPU s | +14.5% (3, 0) | +9.7% (3, 0) | **+12.1%** | 6.850 / 7.667 |
+| minor faults | -2.1% (3, 2) | -7.6% (3, 3) | **-4.8%** | 1,156,505 / 1,101,928 |
+2026-11-05T18:20:14Z all done

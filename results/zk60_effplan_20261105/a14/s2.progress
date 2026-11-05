@@ -1,0 +1,47 @@
+2026-11-05T18:02:02Z start
+2026-11-05T18:02:20Z zkp-core lib tests rc=0
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:14:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:14:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:18:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:20:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:15:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:16:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:16:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:14:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:18:5:
+thread 'pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference' (12444624) panicked at src/pcs/encode_buffer.rs:17:5:
+thread 'sumcheck::rounds::tests::wrong_round_length_is_rejected' (12444662) panicked at src/sumcheck/rounds.rs:40:9:
+A14-XOF: 13824000 bytes of 4000 blocks equal block_bytes in both forms (lanes on this target: true)
+A14-ABSORB: 330 parallel absorbs equal the serial digest; transcripts equal in pools of 1, 2, 6 threads and the global pool
+test result: ok. 81 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.30s
+2026-11-05T18:02:32Z no-feature cargo check --tests rc=0
+2026-11-05T18:04:58Z build rc=0
+2026-11-05T18:04:59Z a14 lazy sums word for word (CPU, rung) rc=0
+test private_block::range16_tests::a14_the_lazy_sums_equal_the_per_term_sums_word_for_word ... A14-LAZY: 33 dot products equal; W16R2 rung: 476 tables (7462976 words) equal with the lazy sums off and on (11 accumulating one-slice planes among them)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 0.09s
+2026-11-05T18:05:00Z a14 lazy sums word for word (8B private slots) rc=0
+test private_block::range16_tests::a14_the_8b_private_slots_tables_equal_under_both_sums ... A14-LAZY-8B: 56 tables (8564736 words) of the private slots equal with the lazy sums off and on (11 accumulating one-slice planes)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 0.44s
+2026-11-05T18:05:03Z a14 rung golden under every setting rc=0
+test private_block::w16r2_tests::a14_w16r2_rung_golden_under_every_a14_setting ... A14-RUNG W16R2_RUNG_H24 CPU [a14old]: digest 96e4f0b6 (the golden)
+A14-RUNG W16R2_RUNG_H24 CPU [a14new]: digest 96e4f0b6 (the golden)
+A14-RUNG W16R2_RUNG_H24 Metal [a14old]: digest 96e4f0b6 (the golden)
+A14-RUNG W16R2_RUNG_H24 Metal [xof8 only]: digest 96e4f0b6 (the golden)
+A14-RUNG W16R2_RUNG_H24 Metal [trpar only]: digest 96e4f0b6 (the golden)
+A14-RUNG W16R2_RUNG_H24 Metal [lazy1 only]: digest 96e4f0b6 (the golden)
+A14-RUNG W16R2_RUNG_H24 Metal [a14new]: digest 96e4f0b6 (the golden)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 3.28s
+2026-11-05T18:05:09Z a14 8B block under every setting rc=0
+test private_block::w16r2_tests::a14_the_8b_block_proves_the_same_under_every_a14_setting ... A14-8B cold pass [a14old] prove core 0.441 s, digest a32cb0dd0fc2ec46
+A14-8B prove core [a14old] 0.323 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8 only] 0.281 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [trpar only] 0.302 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [lazy1 only] 0.277 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14new] 0.297 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14old] 0.290 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8 only] 0.277 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [trpar only] 0.302 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [lazy1 only] 0.275 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14new] 0.301 s, digest a32cb0dd0fc2ec46 (equal)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 6.46s
+2026-11-05T18:05:09Z all done

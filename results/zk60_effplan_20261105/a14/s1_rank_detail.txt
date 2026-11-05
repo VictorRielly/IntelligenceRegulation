@@ -1,0 +1,226 @@
+## bucket: A/H zero-fill
+main line (samples, the last four project frames)
+    1376 run::fork::ForkCtx::prove_one > protocol::prove_core
+      67 run::fork::ForkCtx::prove_one > protocol::prove_core > accuracy_act::denominators
+      55 argument::argument > argument::define > argument::accuracy::fzc_w16 > accuracy_act::group_column
+      19 protocol::prove_core > argument::argument > argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+      14 argument::B::supp > pad::indicator_table > pad::closed_form_indicator > pad::closed_form_indicator
+      10 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::pcs::open_zk > zc::pcs::group_zclaims
+      10 protocol::prove_core > zc::pcs::open_zk > zc::pcs::group_zclaims > zc::pcs::zpart_weights
+       8 argument::argument > argument::define > argument::accuracy::qzc_w16 > argument::rope_tables_at
+       6 run::fork::ForkCtx::prove_one > protocol::prove_core > argument::argument > argument::run_slot
+       5 protocol::prove_core > zc::pcs::open_zk > hashline::gpu::metal::fold_segments_a8_opts > hashline::gpu::metal::fold_segments_a8_opts
+pool busy
+      43 argument::priv_table_at > argument::build_tables_at
+      25 hashline::gpu::metal::fold_segments_a8_opts
+       4 zc::pcs::hash_columns_keyed
+       2 protocol::w16_histograms::_$u7b$$u7b$closure$u7d$$u7d$ > protocol::w16_histograms
+       2 protocol::w16_histograms
+       1 protocol::exp_histogram
+
+## bucket: openings
+main line (samples, the last four project frames)
+    1289 protocol::prove_core > zc::pcs::open_zk > hashline::gpu::metal::fold_segments_a8_opts > hashline::gpu::metal::fold_segments_a8_opts
+      73 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::pcs::open_zk > zc::pcs::group_zclaims
+      18 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::pcs::open_zk > hashline::gpu::seam::_$LT$impl$u20$zkp_core..pcs..backend..E
+      13 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::pcs::open_zk > zc::pcs::zk_rhos
+      11 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::pcs::open_zk > hashline::gpu::metal::fold_segments_a8_opts
+       9 protocol::prove_core > zc::pcs::open_zk > zc::pcs::group_zclaims > zc::pcs::zpart_weights
+       8 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::check_opening
+       7 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::zk::mask_open
+       6 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::pcs::open_zk
+       4 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::zk::mask_open > hashline::zk::poly_mul_512
+pool busy
+    6515 hashline::gpu::metal::fold_segments_a8_opts
+
+## bucket: lookup
+main line (samples, the last four project frames)
+     434 protocol::prove_core > protocol::lookup_values_at > protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$ > protocol::lookup_values_at
+     416 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::w16_histograms > protocol::w16_histograms
+     153 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::lookup_values_at > protocol::lookup_values_at
+      40 run::fork::ForkCtx::prove_one > protocol::prove_core > accuracy_act::histogram > accuracy_act::histogram
+      39 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::exp_deltas
+      30 protocol::prove_core > protocol::w16_histograms > protocol::w16_histograms::_$u7b$$u7b$closure$u7d$$u7d$ > protocol::w16_histograms
+      16 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::exp_histogram > protocol::exp_histogram
+       1 protocol::prove_core > protocol::lookup_values_at > layout::lookups_at > accuracy_layout::AccuracyIds::lookups_w16
+       1 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::lookup_values_at
+pool busy
+    2058 protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$ > protocol::lookup_values_at
+    2006 protocol::w16_histograms
+     333 protocol::lookup_values_at
+     157 accuracy_act::histogram
+     146 protocol::w16_histograms::_$u7b$$u7b$closure$u7d$$u7d$ > protocol::w16_histograms
+      51 protocol::exp_histogram
+
+## bucket: public weight
+main line (samples, the last four project frames)
+     418 argument::define > accuracy_fold::fold > zc::mle::fold_cols_i8 > zc::mle::fold_cols_i8
+     125 argument::define > accuracy_fold::fold > zc::mle::fold_rows_i8 > zc::mle::fold_rows_i8
+     106 argument::argument > argument::define > accuracy_fold::fold > accuracy_fold::fold
+     106 argument::argument > argument::define > argument::accuracy::fzc_w16 > argument::B::supp
+      98 argument::accuracy::fzc_w16 > argument::B::supp > pad::indicator_table > pad::closed_form_indicator
+      75 argument::argument > argument::define > argument::accuracy::qzc_w16 > argument::rope_tables_at
+      35 protocol::prove_core > argument::argument > argument::define > argument::accuracy::dzc_w16
+      33 argument::argument > argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::define::_$u7b$$u7b$closure$u7d$$u7d$
+      25 argument::argument > argument::define > argument::accuracy::fzc_w16 > accuracy_act::group_column
+      24 argument::argument > argument::define > argument::accuracy::szc_w16 > argument::causal_mask_at
+pool busy
+    1978 zc::mle::fold_cols_i8
+     425 zc::mle::fold_rows_i8
+     402 accuracy_fold::fold
+
+## bucket: LogUp
+main line (samples, the last four project frames)
+     328 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::write_helpers_w16 > protocol::write_helpers_w16
+     311 protocol::prove_core > protocol::inverses > zc::field::batch_inverse2 > protocol::inverses
+     157 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::inverses > zc::field::batch_inverse2
+      87 run::fork::ForkCtx::prove_one > protocol::prove_core > range16::denominator_inverses
+      78 run::fork::ForkCtx::prove_one > protocol::prove_core > accuracy_act::denominators > accuracy_act::denominators
+      43 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::write_h > protocol::write_h
+      37 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::inverses > protocol::inverses
+       6 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::write_h
+       2 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::inverses
+       2 run::fork::ForkCtx::prove_one > protocol::prove_core > accuracy_act::denominators
+pool busy
+    1596 protocol::write_helpers_w16
+    1475 zc::field::batch_inverse2 > protocol::inverses
+     354 accuracy_act::denominators
+     160 protocol::write_h
+     144 protocol::inverses
+       1 zc::field::batch_inverse2 > zc::field::Fp2::inv > protocol::inverses
+
+## bucket: randomness
+main line (samples, the last four project frames)
+     571 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::rng::ZkRng::fill_fp > zc::rng::ZkRng::fill_fp
+     189 hashline::pcs::commit_zk_owned_tagged > zc::rng::ZkRng::fp_vec > zc::rng::ZkRng::fill_fp > zc::rng::ZkRng::fill_fp
+      65 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::pcs::commit_zk_owned_tagged > zc::rng::ZkRng::next_u64
+      14 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::pcs::commit_zk_owned_tagged > zc::rng::ZkRng::fp_vec
+      14 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::rng::ZkRng::fill_fp > zc::rng::ZkRng::next_u64
+      10 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::zk::mask_commit_tagged > zc::rng::ZkRng::next_u64
+       6 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::rng::ZkRng::next_u64
+       3 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::rng::ZkRng::fill_fp
+pool busy
+    3617 zc::rng::ZkRng::fill_fp
+       2 run::fork::ForkCtx::prove_one > zc::rng::ZkRng::from_os
+
+## bucket: commit host
+main line (samples, the last four project frames)
+     305 hashline::pcs::commit_zk_owned_tagged > hashline::gpu::metal::commit_impl > hashline::gpu::metal::upload > hashline::gpu::metal::upload
+      89 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::zk::mask_commit_tagged > zc::ntt::NttTables::transform
+      63 protocol::prove_core > hashline::zk::mask_open > hashline::zk::poly_mul_512 > zc::ntt::NttTables::transform
+      49 protocol::prove_core > hashline::pcs::commit_zk_owned_tagged > zc::merkle::MerkleTree::build_keyed > zc::merkle::MerkleTree::build_keyed
+      33 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::pcs::commit_zk_owned_tagged > hashline::pcs::commit_zk_owned_tagged
+      32 hashline::zk::mask_open > hashline::zk::poly_mul_512 > zc::ntt::NttTables::inverse > zc::ntt::NttTables::transform
+      22 protocol::prove_core > hashline::zk::mask_commit_tagged > zc::pcs::hash_columns_keyed > zc::pcs::hash_columns_keyed
+      17 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::pcs::commit_zk_owned_tagged > zc::pcs::coset_powers
+      15 run::fork::ForkCtx::prove_one > protocol::prove_core > hashline::zk::mask_commit_tagged > zc::merkle::MerkleTree::build_keyed
+       9 protocol::prove_core > hashline::pcs::commit_zk_owned_tagged > hashline::gpu::metal::commit_impl > hashline::gpu::metal::upload
+pool busy
+    1435 hashline::gpu::metal::upload
+     680 hashline::pcs::commit_zk_owned_tagged
+     171 zc::merkle::MerkleTree::build_keyed
+     103 zc::pcs::salt_leaf_keyed > hashline::pcs::commit_zk_owned_tagged
+      16 hashline::zk::mask_commit_tagged
+       5 zc::pcs::salt_leaf_keyed > hashline::zk::mask_commit_tagged
+
+## bucket: private slots
+main line (samples, the last four project frames)
+     463 argument::build_tables_at > argument::priv_table_at > argument::priv_table_fill > argument::priv_table_fill
+      52 argument::build_tables_at > argument::table_of_taking > argument::eq_cube_at > argument::eq_cube_at
+      14 argument::argument > argument::run_slot > argument::build_tables_at > argument::build_tables_at
+      12 argument::argument > argument::run_slot > argument::build_tables_at > argument::priv_table_fill
+      11 argument::build_tables_at > argument::table_of_taking > argument::eq_cube_at > argument::priv_table_fill
+      10 argument::run_slot > argument::build_tables_at > argument::priv_table_at > argument::priv_table_fill
+       2 argument::run_slot > argument::build_tables_at > argument::table_of_taking > zc::mle::eq_table_msb
+       2 argument::run_slot > argument::build_tables_at > argument::table_of_taking > argument::eq_cube_at
+       1 argument::build_tables_at > argument::priv_table_at > argument::priv_table_fill > zc::mle::eq_table_msb
+pool busy
+    2049 argument::priv_table_fill
+      55 argument::priv_table_at > argument::priv_table_fill > argument::priv_table_fill
+       6 argument::build_tables_at
+       2 argument::priv_table_at > argument::priv_table_fill > argument::build_tables_at
+       1 argument::priv_table_at > argument::build_tables_at
+
+## bucket: per-block
+main line (samples, the last four project frames)
+     135 run::fork::ForkCtx::prove_one > protocol::prove_core > BlockPublic::check_accuracy_for_shape > BlockPublic::check_accuracy_for_shape
+     109 FeedForwardPublic::check_for_shape > FeedForwardPublic::check_words > weights_vanish_off_support > weights_vanish_off_support
+      68 accuracy_public::AccuracyPublic::check_for_registry > accuracy_public::AccuracyPublic::new_with_registry > accuracy_aligned::derive_aligned_for > accuracy_groups::group_folds_for
+      41 accuracy_public::AccuracyPublic::check_for_registry > accuracy_public::AccuracyPublic::new_with_registry > accuracy_aligned::derive_aligned_for > accuracy_tables::silu_table
+      37 argument::define > accuracy_public::AccuracyPublic::check_for_registry > accuracy_public::AccuracyPublic::new_with_registry > accuracy_tables::silu_table
+      19 argument::define > accuracy_public::AccuracyPublic::check_for_registry > accuracy_public::AccuracyPublic::new_with_registry > accuracy_aligned::derive_aligned_for
+      17 protocol::prove_core > argument::argument > argument::define > accuracy_public::AccuracyPublic::check_for_registry
+      11 argument::argument > argument::define > accuracy_public::AccuracyPublic::check_for_registry > accuracy_public::AccuracyPublic::new_with_registry
+      10 AttentionPublic::check_for_shape > AttentionPublic::check_words > weights_vanish_off_support > weights_vanish_off_support
+       2 protocol::prove_core > BlockPublic::check_accuracy_for_shape > accuracy_public::AccuracyPublic::check_for_registry > accuracy_public::AccuracyPublic::new_with_registry
+pool busy
+    1109 BlockPublic::check_accuracy_for_shape
+     847 weights_vanish_off_support
+     517 BlockPublic::check_accuracy_for_shape > BlockPublic::check_accuracy_for_shape
+     482 FeedForwardPublic::check_for_shape > FeedForwardPublic::check_words > weights_vanish_off_support > weights_vanish_off_support
+     289 AttentionPublic::check_for_shape > AttentionPublic::check_words > weights_vanish_off_support > weights_vanish_off_support
+     237 FeedForwardPublic::check_for_shape > FeedForwardPublic::check_words > weights_vanish_off_support > BlockPublic::check_accuracy_for_shape
+     126 BlockPublic::check_accuracy_for_shape > weights_vanish_off_support
+     117 AttentionPublic::check_for_shape > AttentionPublic::check_words > weights_vanish_off_support > BlockPublic::check_accuracy_for_shape
+      76 AttentionPublic::check_words > weights_vanish_off_support > BlockPublic::check_accuracy_for_shape > BlockPublic::check_accuracy_for_shape
+      20 AttentionPublic::check_words > weights_vanish_off_support > BlockPublic::check_accuracy_for_shape > weights_vanish_off_support
+
+## bucket: witness planes
+main line (samples, the last four project frames)
+     448 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::write_planes > protocol::write_planes
+       1 run::fork::ForkCtx::prove_one > protocol::prove_core > protocol::write_planes
+pool busy
+    2210 protocol::write_planes
+
+## bucket: extension
+main line (samples, the last four project frames)
+     163 protocol::prove_core > zc::pcs::open_zk > zc::pcs::group_zclaims > zc::mle::eq_table_msb
+     149 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::mask_eval_eq::_$u7b$$u7b$closure$u7d$$u7d$ > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+     106 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > zc::mle::eq_table_msb > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+       8 protocol::prove_core > argument::argument > argument::define > zc::mle::eq_table_msb
+       3 zc::pcs::open_zk > zc::pcs::group_zclaims > zc::pcs::zpart_weights > zc::mle::eq_table_msb
+       1 protocol::check_opening > protocol::audit_claims > hashline::pcs::zpart_row_weight > zc::mle::eq_table_msb
+pool busy
+     378 argument::mask_eval_eq::_$u7b$$u7b$closure$u7d$$u7d$ > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+     148 argument::eq_cube_at
+       9 zc::mle::eq_table_msb > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+
+## bucket: claimed
+main line (samples, the last four project frames)
+     202 argument::total_at > argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$ > argument::define::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at
+      48 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at > argument::total_at
+      46 argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at > argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at
+      14 argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at > argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$ > argument::define::_$u7b$$u7b$closure$u7d$$u7d$
+       7 argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at > argument::define::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at
+       2 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at > argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$
+pool busy
+     974 argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$ > argument::define::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at
+     165 argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at
+     145 argument::total_at
+      49 argument::define::_$u7b$$u7b$closure$u7d$$u7d$ > argument::total_at
+
+## bucket: transcript
+main line (samples, the last four project frames)
+     237 protocol::prove_core > zc::pcs::open_zk > zc::transcript::Transcript::absorb_fp2 > zc::transcript::Transcript::absorb
+      33 run::fork::ForkCtx::prove_one > protocol::prove_core > zc::pcs::open_zk > zc::transcript::Transcript::absorb_fp2
+      11 protocol::prove_core > zc::pcs::open_zk > zc::pcs::zk_rhos > zc::transcript::Transcript::challenge_fp2_vec
+       9 hashline::gpu::metal::TailedRounds::masked_prove > zc::transcript::Transcript::absorb_fp2 > zc::sumcheck::CfsMask::round > zc::sumcheck::CfsMask::u
+       7 zc::pcs::open_zk > zc::pcs::zk_rhos > zc::transcript::Transcript::challenge_fp2_vec > zc::transcript::Transcript::squeeze_bytes
+       3 argument::argument > slot_ir::build_slot_ir > zc::transcript::Transcript::challenge_fp2_vec > zc::transcript::Transcript::squeeze_bytes
+       2 protocol::prove_core > hashline::zk::mask_open > zc::transcript::Transcript::absorb_fp2 > zc::transcript::Transcript::absorb
+       2 argument::argument > argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > zc::transcript::Transcript::absorb_fp2
+       2 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > hashline::gpu::metal::TailedRounds::masked_prove > zc::transcript::Transcript::absorb_fp2
+       1 argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > hashline::gpu::metal::TailedRounds::masked_prove > zc::transcript::Transcript::absorb_fp2 > zc::sumcheck::CfsMask::round
+pool busy
+
+## bucket: device slots
+main line (samples, the last four project frames)
+     174 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::build_tables_device > argument::build_tables_device
+      23 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::build_tables_device > argument::plane_plan
+      14 argument::argument > argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::build_tables_device
+       5 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::build_tables_device > zc::mle::eq_table_msb
+       2 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::build_tables_device > hashline::gpu::metal::shared_buffer
+       1 argument::argument > argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::plane_plan
+       1 argument::run_slot > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ > argument::build_tables_device
+pool busy
+     149 argument::build_tables_device
