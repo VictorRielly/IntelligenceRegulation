@@ -535,10 +535,85 @@ fn tiled16(t_rows: usize, x16: &[i16], xs: usize, w: &[i8], inner: usize, outer:
     out
 }
 
+// **A4 (2026-11-05): the weight products on the Metal GPU, exactly.** Under
+// `gpu::enabled()` (a gpu-metal build with HL_GPU=1), a product of at least
+// `HL_GPU_WITNESS_MIN_MACS` multiply-adds (default [`DEVICE_MIN_MACS`]) whose
+// activations fit i16 runs on the device (`gpu::witness_product`: exact integer
+// arithmetic there too, with its bounds proved in `gpu/metal.rs`), so every word
+// is the integer the CPU path computes. The CPU path below stays the reference and
+// the default; `HL_GPU_WITNESS=0` keeps every product on it. A device failure is
+// a decline (`gpu::declined`: the CPU path, or a panic under HL_GPU_REQUIRED=1).
+// The products never refuse; every refusal is still the CPU builder's own.
+
+/// below this many multiply-adds a product stays on the CPU (where it costs less
+/// than a millisecond); every 8B product is above it
+const DEVICE_MIN_MACS: usize = 1 << 28;
+
+#[cfg(test)]
+thread_local! {
+    /// tests: `Some(true)` sends this thread's products to the device at any size
+    /// and whatever `HL_GPU` says; `Some(false)` keeps them on the CPU
+    static DEVICE: std::cell::Cell<Option<bool>> = const { std::cell::Cell::new(None) };
+    /// tests: how many products this thread has had made on the device
+    static DEVICE_MADE: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+/// run `f` with this thread's weight products forced onto the device (`true`) or
+/// onto the CPU (`false`)
+#[cfg(test)]
+pub(crate) fn with_device_products<R>(on: bool, f: impl FnOnce() -> R) -> R {
+    let before = DEVICE.with(|d| d.replace(Some(on)));
+    let r = f();
+    DEVICE.with(|d| d.set(before));
+    r
+}
+
+/// tests: the number of products made on the device by this thread so far
+#[cfg(test)]
+pub(crate) fn device_products_made() -> usize {
+    DEVICE_MADE.with(|c| c.get())
+}
+
+fn device_wanted(macs: usize) -> bool {
+    #[cfg(test)]
+    if let Some(on) = DEVICE.with(|d| d.get()) {
+        return on;
+    }
+    if std::env::var("HL_GPU_WITNESS").map(|v| v == "0").unwrap_or(false) {
+        return false;
+    }
+    let min = std::env::var("HL_GPU_WITNESS_MIN_MACS").ok().and_then(|v| v.parse().ok()).unwrap_or(DEVICE_MIN_MACS);
+    macs >= min && crate::gpu::enabled()
+}
+
+/// the product on the device, or `None` for the CPU path
+#[allow(clippy::too_many_arguments)]
+fn on_device(t_rows: usize, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Option<Vec<i64>> {
+    if !device_wanted(t_rows.saturating_mul(inner).saturating_mul(outer)) {
+        return None;
+    }
+    match crate::gpu::witness_product(t_rows, x, xs, w, inner, outer, os, out_len, in_out) {
+        Ok(out) => {
+            #[cfg(test)]
+            if out.is_some() {
+                DEVICE_MADE.with(|c| c.set(c.get() + 1));
+            }
+            out
+        }
+        Err(e) => {
+            crate::gpu::declined("[A4] witness weight product", &e);
+            None
+        }
+    }
+}
+
 /// `out[t, j] = sum_i x[t, i] * w[j, i]`, `w` stored (output, input), reading
 /// `x` at stride `xs` and writing at stride `os` on a plane of `out_len`.
 fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
     use rayon::prelude::*;
+    if let Some(out) = on_device(g.t, x, xs, w, inner, outer, os, out_len, false) {
+        return out;
+    }
     if let Some(x16) = narrow16(x) {
         return tiled16(g.t, &x16, xs, w, inner, outer, os, out_len, false);
     }
@@ -569,6 +644,9 @@ fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, 
 /// sequential form walked `w` at stride `outer`).
 fn matmul_in_out(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
     use rayon::prelude::*;
+    if let Some(out) = on_device(g.t, x, xs, w, inner, outer, os, out_len, true) {
+        return out;
+    }
     if let Some(x16) = narrow16(x) {
         return tiled16(g.t, &x16, xs, w, inner, outer, os, out_len, true);
     }

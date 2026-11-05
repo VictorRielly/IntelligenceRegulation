@@ -258,3 +258,257 @@ fn h124_witness_time_per_block_at_w16r2_8b_t128() {
         32.0 * one
     );
 }
+
+// ---------------------------------------------------------------------------
+// A4 (2026-11-05): the weight products on the Metal GPU, word for word
+// ---------------------------------------------------------------------------
+
+/// **A4, every build: forcing the products onto the device never changes one.**
+/// On a gpu-metal build this is the device; on any other build the request
+/// falls back to the CPU (`gpu::witness_product` is `Ok(None)` there). Either way
+/// the plane equals the sequential reference, and the count of device products
+/// made says which ran.
+#[test]
+fn a4_forcing_the_device_never_changes_a_product() {
+    let sh = Shape::rung_c6();
+    let mut r = Rng(0xa4a4_0000);
+    let (dp, fp) = (sh.d_pad, sh.f_pad);
+    let x: Vec<i64> = (0..sh.t_pad * dp).map(|_| r.range(-32768, 32767)).collect();
+    let w: Vec<i8> = (0..dp * fp).map(|_| r.range(-128, 127) as i8).collect();
+    let made = witness::device_products_made();
+    for in_out in [false, true] {
+        let want = witness::matmul_reference(sh.tokens, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out);
+        let got = witness::with_device_products(true, || witness::matmul_parallel(&sh, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out));
+        assert!(got == want, "in_out {in_out}: a product forced onto the device differs from the sequential one");
+    }
+    let on_device = witness::device_products_made() - made;
+    assert_eq!(on_device, if cfg!(all(feature = "gpu-metal", not(feature = "gpu-cuda"))) { 2 } else { 0 }, "device products made");
+}
+
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+mod a4 {
+    use super::super::shape::Shape;
+    use super::super::witness;
+    use super::Rng;
+    use crate::gpu::{with_witness_options, witness_product_stats, witness_product_with, WITNESS_ROUTES as ROUTES};
+
+    /// one product: the sequential reference, the builder's CPU path (at a real
+    /// shape, whose token count is `t`), and the device on every route with the
+    /// weights and the result plane both mapped and copied: all the same words
+    #[allow(clippy::too_many_arguments)]
+    fn agree(what: &str, sh: Option<&Shape>, t: usize, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) {
+        let want = witness::matmul_reference(t, x, xs, w, inner, outer, os, out_len, in_out);
+        if let Some(sh) = sh {
+            assert_eq!(sh.tokens, t);
+            let cpu = witness::with_device_products(false, || witness::matmul_parallel(sh, x, xs, w, inner, outer, os, out_len, in_out));
+            assert!(cpu == want, "{what}: the CPU product differs from the sequential one");
+        }
+        for route in ROUTES {
+            for view in [true, false] {
+                let got = witness_product_with(route, view, t, x, xs, w, inner, outer, os, out_len, in_out).expect("the device product runs").expect("the activations fit i16");
+                assert!(got == want, "{what}: the {route:?} device product ({}) differs from the CPU's: {inner} -> {outer}, {t} rows, in_out {in_out}", if view { "mapped" } else { "copied" });
+            }
+        }
+    }
+
+    /// **A4: the device products equal the CPU's on every input class.** On every route, random words
+    /// of each class the builder can pass (int8; i16 at ±32767; the full i16 range
+    /// with -32768; with and without a sprinkling of zeros; all zeros) times random
+    /// int8 weights in [-128, 127], both weight layouts, at sizes with partial tiles
+    /// in every dimension and several float slabs (512 terms) and int partials (256),
+    /// the last one partial; row strides wider than the rows, and weights at an odd
+    /// offset inside a longer buffer (the page view's offset). Then every product the
+    /// builder makes at the two rung shapes, through its own CPU path too.
+    #[test]
+    fn a4_the_device_products_equal_the_cpu_ones_on_every_input_class() {
+        let mut r = Rng(0xa4a4_0001);
+        let dims = [(1usize, 1usize, 1usize), (5, 7, 3), (64, 32, 64), (65, 33, 65), (128, 256, 64), (128, 513, 70), (100, 1000, 300), (128, 1537, 129), (7, 2049, 8)];
+        // (lo, hi, one in `zeros` is zero; 0 = no forced zeros)
+        let classes: [(i64, i64, u64); 6] = [(-127, 127, 7), (-32767, 32767, 7), (-32768, 32767, 7), (-32768, 32767, 0), (-32768, -32768, 3), (0, 0, 1)];
+        for &(t, inner, outer) in &dims {
+            for &(lo, hi, zeros) in &classes {
+                for in_out in [false, true] {
+                    let (xs, os) = (inner + 3, outer + 5);
+                    let x: Vec<i64> = (0..t * xs).map(|_| if zeros > 0 && r.next() % zeros == 0 { 0 } else { r.range(lo, hi) }).collect();
+                    let wbig: Vec<i8> = (0..inner * outer + 18).map(|_| r.range(-128, 127) as i8).collect();
+                    agree(&format!("class [{lo}, {hi}]"), None, t, &x, xs, &wbig[13..13 + inner * outer], inner, outer, os, t * os, in_out);
+                }
+            }
+        }
+        let rung_tc = Shape::rung_tc(&super::super::trained_calib_tests::rung_tc_calibration()).unwrap();
+        for sh in [Shape::rung_c6(), rung_tc] {
+            let (dp, fp, kvw) = (sh.d_pad, sh.f_pad, sh.kv_heads * sh.head_dim);
+            for (lo, hi) in [(-127i64, 127i64), (-32767, 32767), (-32768, 32767)] {
+                for (xs, inner, outer, in_out) in [(dp, dp, dp, false), (dp, dp, kvw, false), (dp, dp, fp, true), (fp, fp, dp, true)] {
+                    let x: Vec<i64> = (0..sh.t_pad * xs).map(|i| if i / xs >= sh.tokens || i % 7 == 0 { 0 } else { r.range(lo, hi) }).collect();
+                    let w: Vec<i8> = (0..inner * outer).map(|_| r.range(-128, 127) as i8).collect();
+                    agree(&format!("{} [{lo}, {hi}]", sh.name), Some(&sh), sh.tokens, &x, xs, &w, inner, outer, outer, sh.t_pad * outer, in_out);
+                }
+            }
+        }
+    }
+
+    /// **A4: the device products are exact at their extremes.** Every product at
+    /// its largest magnitude and one sign throughout, so each float slab sum sits
+    /// at its bound (x = 32,767 or -1: low byte 255; x = -32,768: high byte -128;
+    /// w = -128), and the int64 recombination is exercised far above 2^31 (2,049
+    /// terms of 32,767 x -128 is -8,593,883,136).
+    #[test]
+    fn a4_the_device_products_are_exact_at_their_extremes() {
+        for &(xv, wv) in &[(32767i64, -128i8), (-1, -128), (255, -128), (-32768, -128), (-32768, 127), (32767, 127), (-32767, -127), (-32768, -127)] {
+            for &(t, inner, outer) in &[(65usize, 512usize, 7usize), (128, 1100, 65), (64, 2049, 64)] {
+                for in_out in [false, true] {
+                    let x = vec![xv; t * inner];
+                    let w = vec![wv; inner * outer];
+                    agree(&format!("x = {xv}, w = {wv}"), None, t, &x, inner, &w, inner, outer, outer, t * outer, in_out);
+                }
+            }
+        }
+    }
+
+    /// **A4: what the device does not take stays on the CPU, unchanged.** An
+    /// activation outside i16 (one word of 32,768, -32,769 or 2^40) makes the device
+    /// return `None` on every route, before any device work, and the builder's
+    /// product, though forced onto the device, is the CPU's: the sequential sums.
+    #[test]
+    fn a4_activations_outside_i16_stay_on_the_cpu() {
+        let sh = Shape::rung_c6();
+        let mut r = Rng(0xa4a4_0003);
+        let (dp, fp) = (sh.d_pad, sh.f_pad);
+        for bad in [32768i64, -32769, 1 << 40] {
+            let mut x: Vec<i64> = (0..sh.t_pad * dp).map(|_| r.range(-32768, 32767)).collect();
+            x[(sh.tokens - 1) * dp + 5] = bad;
+            let w: Vec<i8> = (0..dp * fp).map(|_| r.range(-128, 127) as i8).collect();
+            for in_out in [false, true] {
+                for route in ROUTES {
+                    assert!(witness_product_with(route, true, sh.tokens, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out).expect("no device failure").is_none(), "{route:?}: an activation of {bad} went to the device");
+                }
+                let made = witness::device_products_made();
+                let want = witness::matmul_reference(sh.tokens, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out);
+                let got = witness::with_device_products(true, || witness::matmul_parallel(&sh, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out));
+                assert!(got == want, "an activation of {bad}: the CPU product differs from the sequential one");
+                assert_eq!(witness::device_products_made(), made, "an activation of {bad} was counted as a device product");
+            }
+        }
+    }
+
+    /// **A4 acceptance: the builder with its products on the device equals the CPU
+    /// builder on every plane, and refuses exactly as it does.** The six profiles of
+    /// the H124c test (R13 byte limbs and W16 16-bit planes, the DD dictionary branch,
+    /// the rungs, T128 and T256, and the W16R2 8B T128 block the clock is measured
+    /// on), every device route, every product of every build forced onto the device
+    /// (all seven, counted). The inadmissible inputs (all four at the DD profile)
+    /// must return the same error.
+    #[test]
+    fn a4_the_device_builder_equals_the_cpu_one_on_every_plane() {
+        use super::super::range16_tests::{built, case};
+        use super::super::shape::{ACCURACY_PROFILES, W16R2_PROFILES, W16_PROFILES};
+        for name in ["R13_TINY_T128_LOW", "R13_8B_T128_H24_DD", "R13_RUNG_H24", "W16R2_RUNG_H24", "W16_SHIELD_T256_H24", "W16R2_8B_T128_H24"] {
+            let spec = ACCURACY_PROFILES.iter().chain(W16_PROFILES.iter()).chain(W16R2_PROFILES.iter()).find(|s| s.name == name).expect("a listed profile");
+            let (sh, data, public, ff) = case(built(spec.profile), 3);
+            let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+            let (mut admissible, mut refused) = (0usize, 0usize);
+            for s in 0..4usize {
+                let x: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+                let cpu = witness::with_device_products(false, || build(&x));
+                for route in ROUTES {
+                    let made = witness::device_products_made();
+                    let dev = with_witness_options(route, true, || witness::with_device_products(true, || build(&x)));
+                    let made = witness::device_products_made() - made;
+                    match (&cpu, &dev) {
+                        (Ok(a), Ok(b)) => {
+                            assert_eq!(made, 7, "{name} input {s} {route:?}: the device made {made} of the seven products");
+                            assert_eq!(a.planes.len(), b.planes.len(), "{name} input {s}: plane count");
+                            for (k, (pa, pb)) in a.planes.iter().zip(b.planes.iter()).enumerate() {
+                                assert!(pa == pb, "{name} input {s} {route:?}: plane {k} differs between the device and CPU products");
+                            }
+                            assert_eq!(a.output_plane, b.output_plane, "{name} input {s}: output plane");
+                        }
+                        (Err(a), Err(b)) => assert_eq!(a, b, "{name} input {s} {route:?}: the device and CPU builders refuse differently"),
+                        (a, b) => panic!("{name} input {s} {route:?}: CPU {:?} against device {:?}", a.as_ref().err(), b.as_ref().err()),
+                    }
+                }
+                if cpu.is_ok() {
+                    admissible += 1;
+                } else {
+                    refused += 1;
+                }
+            }
+            assert!(admissible > 0 || name.ends_with("_DD"), "{name}: no admissible input among the four");
+            eprintln!("A4 {name}: {admissible} admissible inputs equal on every plane on all {} device routes, {refused} refused identically", ROUTES.len());
+        }
+    }
+
+    /// **A4: one block's witness time, CPU products against device products, end to
+    /// end** (W16R2 8B T128, the D55 fixture's block and admissible input, as H124).
+    /// Each arm is the whole `build_accuracy` (packing, transfers and scatters
+    /// included), best of 5 after a warm-up; then the seven products alone at the
+    /// same sizes; and the device time split into packing the activations,
+    /// presenting the weights, the command buffer and scattering the outputs.
+    /// Release; read the numbers as a shared-box estimate.
+    #[test]
+    #[ignore = "release timing (A4): the W16R2 8B T128 witness with CPU and device products"]
+    fn a4_witness_time_per_block_cpu_against_the_device() {
+        use super::super::range16_tests::{built, case};
+        let (sh, data, public, ff) = case(built(super::super::shape::W16R2_8B_T128_H24), 3);
+        let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+        let mut s = 0usize;
+        let input = loop {
+            let x: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+            match build(&x) {
+                Ok(_) => break x,
+                Err(_) if s < 6 => s += 1,
+                Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+            }
+        };
+        let reps: usize = std::env::var("HL_A4_REPS").ok().and_then(|v| v.parse().ok()).unwrap_or(5);
+        let best = |f: &dyn Fn()| {
+            f();
+            let mut b = f64::MAX;
+            for _ in 0..reps {
+                let t0 = std::time::Instant::now();
+                f();
+                b = b.min(t0.elapsed().as_secs_f64());
+            }
+            b
+        };
+        let (t, d, qw, kv, h) = (sh.tokens, sh.width, sh.q_width(), sh.kv_heads * sh.head_dim, sh.hidden);
+        let mut r = Rng(0x9e37_79b9_7f4a_7c15);
+        let shapes = [(d, qw, false), (d, kv, false), (d, kv, false), (qw, d, false), (d, h, true), (d, h, true), (h, d, true)];
+        // dense words at the CPU's i16 fast path (|x| < 2^15; -32768 would send the CPU to its i32 path)
+        let operands: Vec<(Vec<i64>, Vec<i8>, usize, usize, bool)> =
+            shapes.iter().map(|&(inner, outer, in_out)| ((0..t * inner).map(|_| r.range(-32767, 32767)).collect(), (0..inner * outer).map(|_| r.range(-127, 127) as i8).collect(), inner, outer, in_out)).collect();
+        let products = || {
+            for (x, w, inner, outer, in_out) in &operands {
+                drop(witness::matmul_parallel(&sh, x, *inner, w, *inner, *outer, *outer, t * *outer, *in_out));
+            }
+        };
+        let macs: usize = shapes.iter().map(|&(i, o, _)| t * i * o).sum();
+        let threads = rayon::current_num_threads();
+        let cpu_all = witness::with_device_products(false, || best(&|| drop(build(&input).unwrap())));
+        let cpu_prod = witness::with_device_products(false, || best(&products));
+        eprintln!("A4 {} on {threads} threads, best of {reps}: CPU products: whole witness {cpu_all:.4} s, the seven products alone {cpu_prod:.4} s ({:.2} G MACs), the rest {:.4} s", sh.name, macs as f64 / 1e9, cpu_all - cpu_prod);
+        for (route, view) in ROUTES.iter().flat_map(|&r| [(r, true), (r, false)]) {
+            let (all, prod, (in_place, calls), split) = with_witness_options(route, view, || {
+                witness::with_device_products(true, || {
+                    let all = best(&|| drop(build(&input).unwrap()));
+                    let (n0, p0, s0) = witness_product_stats();
+                    let prod = best(&products);
+                    let (n1, p1, s1) = witness_product_stats();
+                    let calls = (n1 - n0) as f64 / 7.0;
+                    (all, prod, (p1 - p0, n1 - n0), std::array::from_fn::<f64, 7, _>(|i| (s1[i] - s0[i]) / calls))
+                })
+            });
+            let phases: Vec<String> = crate::gpu::WITNESS_PRODUCT_PHASES.iter().zip(split).map(|(p, s)| format!("{p} {:.2} ms", s * 1e3)).collect();
+            eprintln!(
+                "A4 {} device {route:?}, {}: whole witness {all:.4} s ({:.2}x the CPU's), the seven products alone {prod:.4} s ({:.1}x, {:.0} G MACs/s; {in_place} of {calls} written in place); per block of seven: {}",
+                sh.name,
+                if view { "weights and outputs mapped" } else { "weights and outputs copied" },
+                cpu_all / all,
+                cpu_prod / prod,
+                macs as f64 / prod / 1e9,
+                phases.join(", ")
+            );
+        }
+    }
+}
