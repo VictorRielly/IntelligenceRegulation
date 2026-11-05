@@ -126,3 +126,54 @@ matrix each time), so they were memory-bound. Vectorizing alone (step 1) therefo
 | receipt | 790,844,032 B | 818,728,672 B (+3.5%, as Q = 280 predicted) |
 
 Both figures are inferred by the same subtraction; the box is shared.
+
+## H124c: the witness ON the clock, measured (2026-11-04, night)
+
+**Correction to the row above.** "One request on the target's clock … 15.3 tok/s" adds the parallel build of the 32
+witnesses from KNOWN block inputs. A real request does not know them: block `k + 1`'s input is block `k`'s output, so
+the forward chain (the sealing pass) is serial, and it was outside every clock so far. Measured here, it is the
+largest single cost.
+
+**What was added (test code only, no byte moves).** The harness `d55_ab_one_request_serial_against_forks` now:
+- times the sealing pass (the 32 serial full witness builds of its setup);
+- takes `HL_D55_JIT=builders:ahead,...`, one extra fork arm per pair. In that arm every witness is built ON the
+  clock, just in time: builder threads run at most `ahead` blocks beyond the fork prover's feeder (`Jit`,
+  `jit_builder` in `run_fork_tests.rs`). The fork prover already pulls witnesses one by one (`run_fork.rs`, phase 2),
+  so building overlaps proving with no prover change.
+
+**Command:** guarded (class gpu), `HL_GPU=1 HL_PB_ORACLE=0 HL_METAL_TIMING=0 HL_D55_PROFILE=W16R2_8B_T128_H24
+HL_D55_L=32 HL_D55_WORKERS=6 HL_D55_PASSES=2 HL_D55_JIT=2:4,4:6,8:8` (`check_jit.sh`, log `d55_ab_jit.log`). Every arm's
+receipt verified (D55 verifier, 6 threads, about 2.6 s).
+
+**One W16R2 8B T128 request, 32 blocks** [MEASURED, best of 2 warm passes, shared box]:
+
+| | wall | proved tok/s |
+|---|---:|---:|
+| D12a serial, witnesses prebuilt | 11.084 s | 11.55 |
+| D55 forks N = 6, witnesses prebuilt (proof only) | 5.629 s | 22.74 |
+| D55 forks N = 6, every witness built on the clock, 2 builders, 4 ahead | 7.345 s | 17.43 |
+| same, 4 builders, 6 ahead | 7.508 s | 17.05 |
+| same, 8 builders, 8 ahead | 7.889 s | 16.22 |
+| **the sealing pass: the forward chain, 32 serial full builds** | **8.223 s** | — |
+| **one request end to end: sealing pass + the best on-the-clock fork run** | **15.568 s** | **8.22** |
+| one request end to end, if the sealing pass KEEPS its 32 witnesses (9.6 GB) and the forks use them [INFERRED: 8.223 + 5.629] | 13.85 s | 9.24 |
+
+**What it says.**
+- Building on the clock costs the forks about 1.7 s (5.0 to 6.4 s for the forks phase). The builders and the fork
+  provers share the CPU, and more builders make it worse, so the Mac's fork run is not purely GPU-bound.
+- **The serial forward chain is the critical path: 0.257 s per block.** The weight products are 0.085 s of that;
+  the rest of the builder (norms, RoPE, attention, lookups, limbs) scales poorly across threads.
+- **Keeping the sealing pass's witnesses beats rebuilding them** for one request (9.24 against 8.22 tok/s). Memory
+  is not a constraint here (0.30 GB per witness).
+- For a stream of requests (D64 allows batching), the next request's sealing pass can run while this one's forks
+  prove. The rate is then bounded by the larger of the two stages and by the CPU they share: about 7.3 to 8.2 s per
+  request, roughly 16 to 17 tok/s on the Mac [INFERRED, not measured].
+
+**Next, in order.**
+1. Parallelize the builder's remainder. This shortens the critical path directly: at 0.12 s per block the chain is
+   about 3.8 s, so one request is about 9.4 s, about 13.6 tok/s [INFERRED].
+2. A production D55 source that keeps the sealing pass's witnesses (the CLI's `StackSource` serves D12a only; it
+   builds every witness twice).
+3. A multi-request pipelined harness, to measure the batched rate D64 is stated in.
+4. GPU products (H124b) on the 5090. The Mac's CPU is shared by builders and provers, so moving the products off it
+   helps both.

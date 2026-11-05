@@ -80,6 +80,72 @@ impl RunWitnessSource for Chain {
     }
 }
 
+/// **D64 / H124c: the witness ON the clock.** The fork prover's feeder pulls
+/// block `k`'s witness just in time (`run_fork.rs`, phase 2). Builder threads
+/// (`jit_builder`) fill `built` from the chain's block inputs, at most `ahead`
+/// blocks beyond the last one taken, so building overlaps the forks' proving.
+/// The sealing pass that fixes the block inputs and boundary planes is timed
+/// separately.
+struct JitState {
+    built: Vec<Option<Result<Witness, String>>>,
+    given: Vec<bool>,
+    taken: usize,
+    stop: bool,
+}
+
+struct Jit<'a> {
+    state: &'a std::sync::Mutex<JitState>,
+    cv: &'a std::sync::Condvar,
+    planes: &'a [Vec<i16>],
+}
+
+impl RunWitnessSource for Jit<'_> {
+    fn witness(&mut self, k: usize) -> Result<Witness, String> {
+        let mut g = self.state.lock().map_err(|_| "jit: the state lock is poisoned".to_string())?;
+        if k >= g.built.len() || g.given[k] {
+            return Err(format!("jit: witness {k} does not exist or was consumed"));
+        }
+        loop {
+            if let Some(r) = g.built[k].take() {
+                g.given[k] = true;
+                g.taken = g.taken.max(k + 1);
+                self.cv.notify_all();
+                return r;
+            }
+            g = self.cv.wait(g).map_err(|_| "jit: the state lock is poisoned".to_string())?;
+        }
+    }
+    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+        self.planes.get(k).cloned().ok_or_else(|| format!("no boundary {k}"))
+    }
+}
+
+/// one builder thread of [`Jit`]: takes the next block, waits until it is
+/// within `ahead` of the feeder, builds it, stores it; stops when told or out
+/// of blocks. The feeder's block `taken` is never made to wait (`ahead >= 1`).
+fn jit_builder(state: &std::sync::Mutex<JitState>, cv: &std::sync::Condvar, next: &std::sync::atomic::AtomicUsize, ahead: usize, build: &(dyn Fn(usize) -> Result<Witness, String> + Sync)) {
+    loop {
+        let k = next.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        {
+            let Ok(mut g) = state.lock() else { return };
+            if k >= g.built.len() {
+                return;
+            }
+            while !g.stop && k >= g.taken + ahead.max(1) {
+                let Ok(n) = cv.wait(g) else { return };
+                g = n;
+            }
+            if g.stop {
+                return;
+            }
+        }
+        let w = build(k);
+        let Ok(mut g) = state.lock() else { return };
+        g.built[k] = Some(w);
+        cv.notify_all();
+    }
+}
+
 /// a padded `[t_pad, d_pad]` plane's true `[T, width]` words
 fn unpad(sh: &crate::private_block::shape::Shape, plane: &[i16]) -> Vec<i16> {
     (0..sh.tokens).flat_map(|t| (0..sh.width).map(move |i| (t, i))).map(|(t, i)| plane[t * sh.d_pad + i]).collect()
@@ -1876,6 +1942,16 @@ fn d55_ab_one_request_serial_against_forks() {
     let workers: Vec<usize> = std::env::var("HL_D55_WORKERS").unwrap_or_else(|_| "1,2,4,6".into()).split(',').filter_map(|v| v.trim().parse().ok()).collect();
     let passes: usize = env_or("HL_D55_PASSES", 2usize).max(1);
     let builders: usize = env_or("HL_D55_BUILDERS", 8usize).max(1);
+    // D64 / H124c: `HL_D55_JIT` = `builders:ahead` pairs (e.g. `4:6,8:8`), one
+    // extra fork arm each with every witness built ON the clock ([`Jit`])
+    let jit: Vec<(usize, usize)> = std::env::var("HL_D55_JIT")
+        .unwrap_or_default()
+        .split(',')
+        .filter_map(|p| {
+            let (b, a) = p.trim().split_once(':')?;
+            Some((b.parse::<usize>().ok()?.max(1), a.parse::<usize>().ok()?.max(1)))
+        })
+        .collect();
     let t0 = Instant::now();
     let original = crate::private_block::range16_tests::built(spec.profile);
     let (sh, data, public, ff) = crate::private_block::range16_tests::case(original, 3);
@@ -1894,6 +1970,8 @@ fn d55_ab_one_request_serial_against_forks() {
     let ids = Ids::new(&sh).unwrap();
     let (mut xs, mut planes) = (vec![x0], Vec::with_capacity(l));
     let (mut input, mut output, mut witness_bytes) = (Vec::new(), Vec::new(), 0usize);
+    // the sealing pass: the forward chain, one full witness build per block, serial
+    let t_seal = Instant::now();
     for k in 0..l {
         let w = build(&xs[k]).unwrap_or_else(|e| panic!("{}: layer {k} of the synthetic chain is not admissible: {e}", sh.name));
         if k == 0 {
@@ -1908,6 +1986,8 @@ fn d55_ab_one_request_serial_against_forks() {
             output = out;
         }
     }
+    let seal_s = t_seal.elapsed().as_secs_f64();
+    eprintln!("D55-AB {name} L{l} T{}: the sealing pass (the forward chain as {l} serial full witness builds) {seal_s:.3} s", sh.tokens);
     let digest = blk.digest();
     let run_profile = run::accuracy_run_profile(sh.profile)
         .or_else(|| crate::private_block::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().find(|(_, b)| *b == sh.profile).map(|(r, _)| *r))
@@ -1997,6 +2077,39 @@ fn d55_ab_one_request_serial_against_forks() {
         }
         (wall, rc.bytes(), stats)
     };
+    // D64 / H124c: the fork arm with every witness built ON the clock by `b`
+    // builder threads, at most `ahead` blocks beyond the feeder
+    let forked_jit = |ctx: u8, n: usize, b: usize, ahead: usize, verify: bool| -> (f64, usize, ForkStats) {
+        let (st, owners) = statement(ctx);
+        let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        let state = std::sync::Mutex::new(JitState { built: (0..l).map(|_| None).collect(), given: vec![false; l], taken: 0, stop: false });
+        let cv = std::sync::Condvar::new();
+        let next = std::sync::atomic::AtomicUsize::new(0);
+        let bk = |k: usize| build(&xs[k]);
+        let t = Instant::now();
+        let proved = std::thread::scope(|sc| {
+            for _ in 0..b.min(l) {
+                let (state, cv, next, bk) = (&state, &cv, &next, &bk);
+                sc.spawn(move || jit_builder(state, cv, next, ahead, bk));
+            }
+            let mut src = Jit { state: &state, cv: &cv, planes: &planes };
+            let r = prove_run_with_forks(&fr, &rep, &mut src, owners, n);
+            if let Ok(mut g) = state.lock() {
+                g.stop = true;
+            }
+            cv.notify_all();
+            r
+        });
+        let wall = t.elapsed().as_secs_f64();
+        let (rc, stats) = proved.expect("the D55 fork run proves (witness on the clock)");
+        if verify {
+            let tv = Instant::now();
+            verify_run_with_forks(&fr, &rep, &rc, 6).expect("the D55 fork run verifies (witness on the clock)");
+            eprintln!("D55-AB {name} L{l} forks N{n} JIT {b}:{ahead}: verified (D55 verifier, 6 threads) in {:.2} s", tv.elapsed().as_secs_f64());
+        }
+        (wall, rc.bytes(), stats)
+    };
+    let mut jit_table: Vec<(String, Vec<f64>)> = jit.iter().flat_map(|&(b, a)| workers.iter().map(move |n| (format!("forks N={n} JIT {b}:{a}"), Vec::new()))).collect();
     let (cold, _) = serial(1, false);
     eprintln!("D55-AB {name} L{l} serial cold (kernel compiles): wall {cold:.3} s = {:.2} proved tok/s", tok(cold));
     let mut table: Vec<(String, Vec<f64>)> = std::iter::once(("serial (D12a)".to_string(), Vec::new())).chain(workers.iter().map(|n| (format!("forks N={n}"), Vec::new()))).collect();
@@ -2040,6 +2153,22 @@ fn d55_ab_one_request_serial_against_forks() {
                 table[i + 1].1.push(wall);
                 by_order.push((forks_first, i + 1, wall));
             }
+            for (j, &(b, a)) in jit.iter().enumerate() {
+                for (i, &n) in workers.iter().enumerate() {
+                    let (wall, bytes, st) = forked_jit(ctx, n, b, a, p == 0);
+                    ctx += 1;
+                    eprintln!(
+                        "D55-AB {name} L{l} T{} forks N{n} JIT {b}:{a} pass {p}: wall {wall:.3} s = {:.2} proved tok/s WITH every witness built on the clock; preflight {:.3} s, commit {:.3} s, forks {:.3} s, join {:.3} s; receipt {bytes} B",
+                        sh.tokens,
+                        tok(wall),
+                        st.preflight_s,
+                        st.commit_s,
+                        st.forks_s,
+                        st.join_s
+                    );
+                    jit_table[j * workers.len() + i].1.push(wall);
+                }
+            }
         }
     }
     // D60: the same table split by order
@@ -2061,6 +2190,17 @@ fn d55_ab_one_request_serial_against_forks() {
         let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
         let mean = walls.iter().sum::<f64>() / walls.len() as f64;
         eprintln!("D55-AB SUMMARY | {arm:<14} | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s | {:.2}x serial (best)", tok(best), tok(mean), base / best);
+    }
+    for (arm, walls) in jit_table.iter().filter(|(_, w)| !w.is_empty()) {
+        let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
+        let mean = walls.iter().sum::<f64>() / walls.len() as f64;
+        eprintln!(
+            "D55-AB SUMMARY | {arm:<14} | witness on the clock | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s | with the sealing pass ({seal_s:.3} s) one request end to end {:.3} s = {:.2} tok/s",
+            tok(best),
+            tok(mean),
+            best + seal_s,
+            tok(best + seal_s)
+        );
     }
     #[cfg(feature = "gpu-metal")]
     {

@@ -1,0 +1,28 @@
+2026-11-05T04:24:07Z start
+2026-11-05T04:26:26Z build rc=0
+2026-11-05T04:31:17Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 904 passed; 3 failed; 93 ignored; 0 measured; 0 filtered out; finished in 289.51s
+2026-11-05T04:31:17Z review fixture test rc=0
+2026-11-05T04:33:29Z d55 A/B with JIT arms rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 8.223 s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 5.21 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.57 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 JIT 2:4: verified (D55 verifier, 6 threads) in 2.59 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 JIT 2:4 pass 0: wall 7.687 s = 16.65 proved tok/s WITH every witness built on the clock; preflight 0.734 s, commit 0.263 s, forks 6.610 s, join 0.080 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6 JIT 4:6: verified (D55 verifier, 6 threads) in 2.60 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 JIT 4:6 pass 0: wall 8.133 s = 15.74 proved tok/s WITH every witness built on the clock; preflight 0.763 s, commit 0.273 s, forks 6.967 s, join 0.130 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6 JIT 8:8: verified (D55 verifier, 6 threads) in 2.77 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 JIT 8:8 pass 0: wall 7.889 s = 16.22 proved tok/s WITH every witness built on the clock; preflight 0.942 s, commit 0.235 s, forks 6.633 s, join 0.080 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 JIT 2:4 pass 1: wall 7.345 s = 17.43 proved tok/s WITH every witness built on the clock; preflight 0.585 s, commit 0.289 s, forks 6.394 s, join 0.077 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 JIT 4:6 pass 1: wall 7.508 s = 17.05 proved tok/s WITH every witness built on the clock; preflight 0.796 s, commit 0.262 s, forks 6.374 s, join 0.076 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 JIT 8:8 pass 1: wall 7.954 s = 16.09 proved tok/s WITH every witness built on the clock; preflight 0.976 s, commit 0.240 s, forks 6.660 s, join 0.078 s; receipt 818728672 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 11.084 s = 11.55 tok/s | mean 11.223 s = 11.41 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.629 s = 22.74 tok/s | mean 5.843 s = 21.91 tok/s | 1.97x serial (best)
+D55-AB SUMMARY | forks N=6 JIT 2:4 | witness on the clock | best 7.345 s = 17.43 tok/s | mean 7.516 s = 17.03 tok/s | with the sealing pass (8.223 s) one request end to end 15.568 s = 8.22 tok/s
+D55-AB SUMMARY | forks N=6 JIT 4:6 | witness on the clock | best 7.508 s = 17.05 tok/s | mean 7.821 s = 16.37 tok/s | with the sealing pass (8.223 s) one request end to end 15.731 s = 8.14 tok/s
+D55-AB SUMMARY | forks N=6 JIT 8:8 | witness on the clock | best 7.889 s = 16.22 tok/s | mean 7.922 s = 16.16 tok/s | with the sealing pass (8.223 s) one request end to end 16.112 s = 7.94 tok/s
+2026-11-05T04:33:29Z all done

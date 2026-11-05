@@ -9,6 +9,11 @@
   ruling on the target (Victor's).
 - Fixed today: F16, a run receipt now attests its context. F23: `autoImplicit` is off in `formal/`, so a mistyped
   name in a statement can no longer compile silently.
+- Fixed today: L4 finding 3. The mask schedule audit now checks that each pair's actual row weights are independent,
+  which hiding needs; before, it checked only that the coefficients were nonzero. It caught a leaking test fixture.
+  The full suite is 904 / 3 known / 93.
+- **Speed correction (H124c):** with the serial forward chain on the clock, one request on the Mac is measured at
+  8.2 tok/s, not the 15.3 inferred earlier today (details below).
 
 **2026-11-04 (evening): a soundness defect found by the Lean work, confirmed in Rust (F12, High).**
 - The mask commitment M certifies its first claimed value only up to an offset the prover picks when it commits:
@@ -43,10 +48,15 @@
     matrix. Tiling them by output columns and summing i16 inputs exactly in i32 blocks cut one 8B block's products
     from 0.361 to 0.085 s, and its witness from 0.438 to 0.249 s (5.94 to 1.38 CPU s).
   - Goldens and all six pinned trained digests are unchanged.
-  - **One request on the target's clock (proof + witness) is now about 15.3 tok/s, up from about 9** [INFERRED,
-    the D55 A/B harness]: witness about 3.1 s plus 5.28 s of proving.
-  - Proof-only is 24.25 tok/s at Q = 280.
-  - Next: the builder's poorly parallel remainder, overlapping the witness with proving, then GPU products.
+  - ~~One request on the target's clock (proof + witness) is now about 15.3 tok/s~~ **Corrected the same night
+    (H124c):** that figure built the 32 witnesses in parallel from block inputs a real request does not know yet. The
+    forward chain is serial, and it was outside every clock so far. **Measured with it on the clock, one request is
+    15.57 s = 8.2 tok/s** (sealing pass 8.22 s, then forks with every witness built just in time 7.35 s). Keeping
+    the sealing pass's witnesses would give about 13.9 s = 9.2 tok/s [INFERRED]. The critical path is the serial
+    chain, 0.257 s per block (`results/zk60_h124_witness_20261104/README.md`, H124c).
+  - Proof-only is 22.7 to 24.25 tok/s at Q = 280.
+  - Next: the builder's poorly parallel remainder (it shortens the serial chain), a fork-run source that keeps the
+    sealing pass's witnesses, a multi-request pipelined measurement, then GPU products.
   - The new target is ≥ 110 (D64).
 - **The repository is public, and all work is open source (D62)**, under Apache-2.0 (`LICENSE`, `NOTICE`,
   `SECURITY.md`). The Lean statements (D63) were approved by Victor on 2026-11-04.

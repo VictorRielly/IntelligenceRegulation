@@ -13,6 +13,23 @@
   case against ≥ 110, with request batching.
 - Details: `results/zk60_h124_witness_20261104/README.md`.
 
+**2026-11-04 (night, coordinator), H124c measured; it corrects the 15.3 above.**
+- The 15.3 built the 32 witnesses in parallel from known block inputs. A real request's forward chain is serial, and
+  it was outside every clock.
+- Measured on the clock (one W16R2 8B T128 request, forks N = 6):
+  - the sealing pass (32 serial full builds) 8.22 s;
+  - forks with every witness built just in time 7.35 s (prebuilt: 5.63 s);
+  - **one request end to end 15.57 s = 8.2 tok/s.** Keeping the sealing pass's witnesses would give about 9.2
+    [INFERRED].
+- **The critical path is the serial chain, 0.257 s per block.** Building and proving compete for the CPU: on-the-clock
+  builds cost the forks 1.7 s.
+- **For the researcher:** the H124 entry's "target clock ×2" is spent. The levers now:
+  - the builder's remainder (it shortens the chain);
+  - keeping the sealing pass's witnesses;
+  - pipelining requests (one's chain during the previous one's forks);
+  - GPU products (H124b).
+  Any 5090 re-projection for D64 must carry the serial chain per request.
+
 ## 2026-11-03: Claude researcher cycle (D50): the RTX 5090 projection and the levers re-ranked
 
 **COMPLETE.** **No measured proving improvement.** Only `research/zkp-efficiency/` was written. There was no build,
