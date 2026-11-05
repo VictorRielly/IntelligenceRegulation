@@ -4,9 +4,16 @@
 - Proved: the wide-digest lemma, LogUp and one commitment opening under Fiat–Shamir (with the extractor), and the
   code's challenge derivations. 83 theorems, no `sorry`, standard axioms only.
 - **F20.** Combining the separately proved pieces by a union bound gives 2^-97.79 per hash query for a 32-block run.
-  That is 2.21 bits short of the approved 2^-100. Composing the whole run as one round-by-round protocol would give
-  2^-102.93. That composition is the next proof, in progress. If it stalls, the options are a profile change or a
-  ruling on the target (Victor's).
+  That is 2.21 bits short of the approved 2^-100.
+  - **Later that night, the one-chain composition was proved:** the rate is the maximum over rounds, 2^-102.92 per
+    hash query for a block and for a 32-block D12a run (Part 7 of the L3 findings).
+  - This assumes M's opening at ≤ 2^-106 per round (its proof waits on F12), and the hand-off premises (proved for
+    the zero-check, premises elsewhere).
+- **Two new Medium findings (Victor's decisions):**
+  - **F25:** the approved target's query-free part (2^-100) is not met, because the protocol's own interactive
+    soundness is about 2^-97.8.
+  - **F26:** a D55 fork run is a tree of transcripts. Only a union over its 32 forks is proved (2^-97.93); a tree
+    version of the chain theorem is needed.
 - Fixed today: F16, a run receipt now attests its context. F23: `autoImplicit` is off in `formal/`, so a mistyped
   name in a statement can no longer compile silently.
 - Fixed today: L4 finding 3. The mask schedule audit now checks that each pair's actual row weights are independent,
