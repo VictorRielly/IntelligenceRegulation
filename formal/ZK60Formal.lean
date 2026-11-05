@@ -38,3 +38,6 @@ import ZK60Formal.FSOpening
 import ZK60Formal.FSCompose
 import ZK60Formal.FSComposeBlock
 import ZK60Formal.FSComposeZeroCheck
+import ZK60Formal.FSTree
+import ZK60Formal.FSTreeRbr
+import ZK60Formal.FSTreeD55

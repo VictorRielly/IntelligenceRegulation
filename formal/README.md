@@ -257,11 +257,30 @@ The plain-words version, the modelling choices and the open decisions are in
   - `FSComposeZeroCheck.lean`: a worked instance with every premise proved: the zero-check's `τ` handing its claim to
     the sumcheck of `eq(τ, ·)·R` (`zc_handover`, `fs_zerocheck_chain_sound`); per query the maximum of the two errors,
     where the interactive `zerocheck_sound` adds them.
+  - `FSTree.lean`: a TREE of chains (finding F26, the D55 fork-join: forks rebuilt from the common state `S0`, a join
+    that absorbs their end states). A query's state digest traces back to ONE path, so each hash query attacks one
+    round of one branch. Because D55's branches all start their squeeze counters at `S0`'s, one counter starts steps of
+    different widths in different branches; the wide-digest lemma is restated with widths read off the log
+    (`WideHitP`, `wideHitP_prob_le`). `flip_subset` and `tree_sound_wide`: for ANY family of chains that a verifier
+    hashes (the family may depend on the oracle, as the join's head does), the probability that some chain of the
+    family flips is at most `T·ε + collBound T + collBound (T + 1)`, `T = q + v`, `v` the verifier's query budget: one
+    union over the queries, not one per chain. `chainsOC` hashes several chains in turn.
+  - `FSTreeRbr.lean`: round-by-round protocols laid out on the tree: a trunk item, then per branch a head item and the
+    branch's rounds (`Tree`, `liftT`, `liftT_round`, the verifier `Tree.verOC`, `Tree.Accepts`). `fs_tree_sound`: with
+    every branch `RbrWide` at error `ε`, a false statement is accepted with probability at most
+    `(q + ℓT)·ε + collBound (q + ℓT) + collBound (q + ℓT + 1)`, given that a false statement dooms some fork, that a
+    fork ending doomed and accepted dooms the join's start, and that the join rejects when it ends doomed;
+    `fs_tree_sound_sched` with each branch a schedule of `SubProt`s.
+  - `FSTreeD55.lean`: the D55 instance (`D55Head`, `d55JoinOf`: the join's head carries each fork's index, end state,
+    squeeze counter and claims, as `absorb_join` does). With every sub-protocol of every branch a `Kind8B` (`M` ASSUMED
+    at `2^-106`): `fs_d55_sound_8B`, per hash query `135/2^110 ≈ 2^-102.92` for any number of forks (the union over 32
+    forks was `2^-97.93`); `fs_d55_sound_8B_target`, `εsTarget (max q ℓT)`.
   - The comparison with the interactive bounds and the target, the code's transcript order (what is absorbed before
     each challenge), the findings (F16–F19) and what remained are in Part 5 of
     `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`; the vector challenges, LogUp, the opening, the whole-block
     figure per hash query and the findings F20–F23 are in its Part 6; the composition, the block and run figures, the
-    code check and the findings F24–F27 are in its Part 7.
+    code check and the findings F24–F27 are in its Part 7; the tree of chains, the D55 figure, its code check and the
+    findings F28–F31 are in its Part 8.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).
