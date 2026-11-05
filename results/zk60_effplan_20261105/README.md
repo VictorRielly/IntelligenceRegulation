@@ -617,3 +617,87 @@ Full write-up: `a15/README.md`. Merged into perf (910c2ac4); acceptance and an i
 - The only production digest that moved is `private_block/trained_block.rs`.
 - No new timing dependence on hidden data; the pool size depends on the machine only.
 - `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+## A17: the forks' host work in `protocol.rs`, done (both forms on by default)
+
+Full write-up: `a17/README.md`. Merged into perf; acceptance and an independent A/B on the merged tree:
+`check_a17merge.sh`, `a17merge.progress`, `a17merge_pairs.md`, `a17merge_seal_pairs.md`.
+
+**The profile first** [MEASURED, agent, macOS `sample`, N = 6, the post-A15 tree], shares of a fork's main-line host
+time:
+- A/H zero-fill and free 14.5%;
+- the openings' store fold 12.8%;
+- lookups 10.9%;
+- public weight folds 9.9%;
+- LogUp helper inverses 9.6%;
+- randomness 8.5%;
+- the per-block public checks 4.0%;
+- the witness planes 4.0%.
+
+**What changed** (`private_block/protocol.rs`, `private_block/run_fork.rs`; byte-preserving; each form has a switch,
+and `0` restores the old code):
+- **`HL_A17_LOOKED` (on): one-term lookups read straight from their witness planes.**
+  - At a W16 profile every lookup but `word24`'s low limb is `cst + c * plane[x]`. Each used to be copied into its own
+    column first, about 220 MB of fresh pages per block [INFERRED from the faults removed].
+  - `LookedCol` reads it a 1,024-word sub-block at a time. It is used in `prove_core` and in `check_lookup_misses`, so
+    production's sealing pass also does slightly less work (not measured).
+- **`HL_A17_CHECKED` (on): the preflight's record stands in for each fork's CS-1/CS-4 re-check.**
+  - The record is `CheckedPublic`. It holds the checked block by reference, so the block cannot change, move or be freed
+    while the record lives.
+  - Its only constructor runs the check, and it covers only that same block object (`ptr::eq`) at an equal shape.
+  - Every other caller goes through `prove_core` and checks as before. A fork handed a different block is refused.
+  - On its own it is within noise; it is kept because it only removes work and fails closed.
+- **Dropped: each fork worker keeping its A and H between blocks.** Bytes matched, but it was +3.6% slower. That is
+  the third zero-fill form to lose, after A11's pool and A8's calloc.
+
+**Byte evidence:**
+- The W16R2 rung golden `96e4f0b6` holds under all four A17 settings, on CPU and Metal, through both entry points.
+- One 8B T128 block's seeded core proof is `90003b760eb7ad80` under every setting.
+- A modified block proved beside the honest block's record is refused with CS-1/CS-4's own message.
+
+**Acceptance on the merged tree** [MEASURED, one guarded job, the GPU quiet throughout (no `ds4-bench`)]:
+- build rc 0; no-feature `cargo check --tests` rc 0;
+- full lib suite: 929 passed, exactly the known three failed, 109 ignored; zkp-core lib 81 passed;
+- the A17 rung golden under every setting, the A17 8B block under every setting, and the A15, A14, A8, A12, A11 and A7
+  byte tests, all pass;
+- the W16R2 rung golden `96e4f0b6` (CPU = Metal) and all six post-F12 digests pass;
+- D55 default:
+  - proof only, best 3.745 s = 34.18 tok/s;
+  - one request from its input, best 7.145 s = 17.92 tok/s;
+  - the stream 30.58 tok/s steady, 25.66 amortized, per-request latency 7.40–8.31 s;
+  - every receipt verified: fork receipts 818,728,672 B, D12a 818,728,480 B. The four stream receipts verified after
+    the clock in 9.4 s.
+
+**The independent A/B** [MEASURED, `a17merge_pairs.md`, `a17merge_seal_pairs.md`]: `a17old` (the code before A17)
+against `a17new` (the default), 4 passes, alternating.
+
+| metric | order bias removed | pairs favouring A17 | means before / after |
+|---|---:|---:|---:|
+| proof only | **−3.6%** | 4 of 4 | 4.088 / 3.942 s |
+| forks phase | −3.4% | 4 of 4 | 3.702 / 3.577 s |
+| one request from its input | −0.9% | 3 of 4 | 7.301 / 7.235 s |
+| stream, steady | **+2.6%** | 4 of 4 | 29.45 / 30.23 tok/s |
+| stream, amortized | +2.0% | 4 of 4 | 24.69 / 25.19 tok/s |
+| user / system CPU | −3.3% / −37.9% | 4 of 4 | — |
+| minor faults | −41.6% | 4 of 4 | 1.15 M / 0.67 M |
+| sealing pass, one request | +0.4% (noise) | 2 of 4 | 3.283 / 3.295 s |
+
+- **The agent's own A/B** (6 passes): proof only −2.7%, one request −2.0%, the stream steady +2.4%. They agree.
+- **The stream is now sealing-bound:** about 3.9 s of proof per request against about 4.4 s of sealing beside the
+  forks. A16's sealing work sets the next stream gain.
+- **Left** (the profile after, agent): a fork's main-line host time −10% (1.268 → 1.141 s per fork per call).
+  Remaining:
+  - the A/H zero-fill and the store fold, 14% each;
+  - the helper inverses, 11%. The range families' 2^16-entry inverse tables are built twice;
+  - the public weight folds in `define`, 11%;
+  - randomness, 10%;
+  - `define`'s per-slot registry re-check in `argument_accuracy.rs`, 0.019 s per fork per call, which the same record
+    could cover;
+  - the bulk salt draw (zkp-core `pcs.rs`), left for Sol's W16R3 work.
+
+**For the privacy gate:**
+- The production digests that moved are `protocol.rs` (a `SHARED_SOURCE_FILES` pin) and `run_fork.rs` (pinned by the
+  D55 capture).
+- No branch reads a hidden value. What is borrowed follows the public layout. Whether a fork re-checks follows the
+  block's address and the public shape.
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.

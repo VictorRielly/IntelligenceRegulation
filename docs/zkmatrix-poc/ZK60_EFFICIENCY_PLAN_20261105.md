@@ -109,9 +109,25 @@ are redone once, not per change.
     both sides must get faster.
 - **A16 (running): the sealing builder's serial work** (`witness_accuracy.rs`, `witness.rs`, the duplicate public
   check in the sealing pass), about 1.6 of the pass's 2.9 s [INFERRED, A15]; then the pool size re-swept.
-- **A17 (running): the forks' host work in `protocol.rs`** (A14's ranking): the A/H zero-fill (first touch by the
-  parallel writers), the lookups and histograms, the helper inverses, the witness planes, and the per-block public
-  checks cached per resident model (fail-closed).
+- **A17 done: the forks' host work in `protocol.rs`** (byte-preserving; `results/zk60_effplan_20261105/a17/`).
+  - At a W16 profile, one-term lookups are read straight from their witness planes (`HL_A17_LOOKED`). The preflight's
+    record of each block's public checks stands in for the fork's re-check of that very block object
+    (`HL_A17_CHECKED`, fail-closed). Both are on by default; `0` restores the old code.
+  - Independent A/B on the merged tree (4 passes, both orders, a quiet GPU): proof only −3.6% (4 of 4 pairs), the
+    stream steady +2.6%, amortized +2.0%, one request −0.9%, system CPU −38%, page faults −42%.
+  - Keeping each fork's A and H between blocks lost (+3.6%). That is the third zero-fill form to lose.
+  - The Mac is now at 17.9 tok/s for one request (best 7.15 s), 30.6 for the stream steady (25.7 amortized) and 34.2
+    proof only (best 3.75 s) [MEASURED].
+  - **The stream is now sealing-bound:** about 3.9 s of proof per request against about 4.4 s of sealing beside the
+    forks. A16 is next in line.
+  - Left, largest first:
+    - the A/H zero-fill, 14% of a fork's host time;
+    - the store fold, 14%;
+    - the helper inverses, 11%. The 2^16-entry range inverse tables are built twice;
+    - the public weight folds in `define`, 11%;
+    - randomness, 10%;
+    - `define`'s per-slot registry re-check, which the same record could cover;
+    - the bulk salt draw, which waits for Sol's `pcs.rs` work.
 - Earlier plan text, kept for the record:
   - **A13, before-challenge work during the sealing pass.** A fork's work before its first transcript use (A's rows,
     A's commitment, the mask commitment) needs only its own block's witness. That is about 22% of a block [MEASURED,

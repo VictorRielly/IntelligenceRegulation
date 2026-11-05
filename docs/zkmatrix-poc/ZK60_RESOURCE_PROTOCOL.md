@@ -210,3 +210,34 @@ its `target/` directories; say in the coordination file before any job that will
 write more than 10 GB; the coordinator prunes regenerable build output when `DISKLOW`
 fires. `C:\Users\victo\.wslconfig` sets `autoMemoryReclaim=gradual` (active after the
 next `wsl --shutdown`).
+
+## Sharing the Mac with another project's GPU agent (2026-11-05)
+
+**Why.** Victor runs a parallel research agent on the same Mac: a Codex session in
+`/Users/victorrielly/frugal-lm`, the Mac MoE streaming challenge
+(`docs/MAC_MOE_STREAMING_CHALLENGE.md`, `scripts/mac_moe_e3.py`). Each of its cases is one
+`ds4-bench*` run: DeepSeek-V4.1-Flash decode, streaming its experts from the SSD into a cache of
+115–202 GB, on the GPU. It started outside this guard: case `c60_p1` began at 22:58Z beside
+A16's guarded timing job (`ds4-bench-frugal` at 175 GB RSS, 36 GiB left). The two sets of clocks
+pollute each other (GPU, memory bandwidth, page cache), and together they come close to the RAM
+ceiling.
+
+**The rules:**
+- **Our side.**
+  - Every zk60 job still goes through the guard. The guard admits a job only while live
+    MemAvailable covers its `--need-gib`, so our heavy jobs wait while a large case holds the
+    RAM.
+  - Every timing stage also waits for a quiet GPU, which covers a case started outside the guard:
+    `while pgrep -f ds4-bench > /dev/null; do sleep 30; done`, capped at about 4 h. After each clock
+    it records whether `ds4-bench` was seen. `results/zk60_effplan_20261105/check_a17merge.sh`
+    (`quiet` / `seen`) is the pattern.
+  - A clock taken beside a `ds4-bench` run is labelled POLLUTED and is not used for a merge
+    decision. Byte and correctness results stand.
+- **The research agent's side** (asked through Victor; this repository cannot instruct it):
+  - Run each case's leaf command through this guard:
+    `python3 /Users/victorrielly/IntelligenceRegulation/scripts/zk60_resource_guard.py run --class gpu --need-gib <case need_gb> --cap-gib 250 --wait-secs 14400 --label mac-moe-<case> --log <file> --done <file> -- <ds4 command>`.
+  - Then a case and a zk60 timing job never overlap, and each side waits its turn at the heavy
+    lock.
+  - Its own free-RAM skip stays as it is (Victor's policy: free RAM only).
+- **Priority** between the two projects is Victor's call. Until he says otherwise, the lock is
+  first come, first served, one job at a time.
