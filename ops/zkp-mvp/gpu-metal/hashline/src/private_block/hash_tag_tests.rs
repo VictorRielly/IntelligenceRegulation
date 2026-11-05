@@ -65,8 +65,12 @@ fn rung_g_proof() -> (Shape, BlockPublic, ExpectedIo, Receipt) {
 /// (ruling T-2 as amended).
 ///
 /// The eight hex literals are the same numbers the Python tools must
-/// re-derive; they are pinned in `zkp_core::hashtag`'s own tests too, and
-/// this test is the one that ties them to the SHAPES.
+/// re-derive, and this test is the one that ties them to the SHAPES.
+/// D65(1) (finding F12) moved both profiles to version `/2`, so their keys
+/// moved with the string (re-pinned from this test's own output,
+/// `results/zk60_f12_fix_20261104/REPIN.md`); `zkp_core::hashtag`'s own tests
+/// still pin the keys of the retired `/1` strings, as fixed test vectors of
+/// the derivation, which did not change.
 #[test]
 fn the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged() {
     for sh in [Shape::toy(), Shape::rung()] {
@@ -78,12 +82,17 @@ fn the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged() {
     }
     let g = Shape::rung_g();
     assert!(!g.hashes_under_the_legacy_rule(), "rung-G must be tagged");
+    for s in [Shape::rung_g(), Shape::m125()] {
+        let t = s.hash_tag();
+        let k = |x: Option<&[u8; 32]>| x.map(hex).unwrap_or_default();
+        eprintln!("HASH-TAG {} transcript {} column {} leaf {} node {}", s.profile, k(t.transcript_key()), k(t.column_key()), k(t.leaf_key()), k(t.node_key()));
+    }
     let t = g.hash_tag();
     assert_eq!(t.rule_name(), "blake3-keyed/1");
-    assert_eq!(hex(t.transcript_key().expect("keyed")), "51b7d0b0171d54b5bb45fd42c3f9369cad87894b625e0569b89fac0036d20dbe");
-    assert_eq!(hex(t.column_key().expect("keyed")), "2295498fd6fd5e41320da717e9da89462e5c90a5b3b2d72ac496bcc157c2cd2c");
-    assert_eq!(hex(t.leaf_key().expect("keyed")), "fe211417895c73c4a70430cb9bfb7081289ec7532f2716d2a86f609b0de54032");
-    assert_eq!(hex(t.node_key().expect("keyed")), "8c4d2cfe7b8528d350f20dece1250c8d81596eb25d26bffda1247238f0f71fcc");
+    assert_eq!(hex(t.transcript_key().expect("keyed")), "af9f98d9a9788bd5f1133dc47617c3dee3dc01db636daa06e45c1b6e665c6137");
+    assert_eq!(hex(t.column_key().expect("keyed")), "4f10e589280b46dab8f2b827dc6ab7cd04bcbf2da80fed85afd4de9788424710");
+    assert_eq!(hex(t.leaf_key().expect("keyed")), "156ba7b7fec5a686b56ea21159874a8231a27575f83300ed804ea33d823b4c1a");
+    assert_eq!(hex(t.node_key().expect("keyed")), "8ae134a0fa508099b54f5b0f380560f1fa1f8acb975bf5006fc7a12baf6c350e");
     // **STAGE 22.** The four-key-value-head development shape is a NEW
     // profile (D17) and is therefore TAGGED, with a key set of its own that
     // shares nothing with rung-G's although the two shapes differ only in
@@ -97,10 +106,10 @@ fn the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged() {
     let m = Shape::m125();
     assert!(!m.hashes_under_the_legacy_rule(), "125M must be tagged");
     let t = m.hash_tag();
-    assert_eq!(hex(t.transcript_key().expect("keyed")), "125f9b4d44ac3c46712a35419cdeda6c1428db443ccaf58da67f35b15b37291c");
-    assert_eq!(hex(t.column_key().expect("keyed")), "d5fc391cc58eed85631b4c3dabc7d377477eb1a0a725aeccaec0f4d10061b135");
-    assert_eq!(hex(t.leaf_key().expect("keyed")), "1dc6f7146ad501ede6d90b3071da2f3251d38137303ffcc0a6a48b7f89effe83");
-    assert_eq!(hex(t.node_key().expect("keyed")), "798eb64ff187f6f3e8e889ac4c4742607ac71a71fa09e2944a0ecc5e8a42026b");
+    assert_eq!(hex(t.transcript_key().expect("keyed")), "e6c8bbcad37f235f51b570d589a5b44434ac80ce8f93d07ecd5e973fe4bacadb");
+    assert_eq!(hex(t.column_key().expect("keyed")), "b340b2d66358fde90ee3def6782e8f615d9f374d069b2508cf39af52f6d9b4cc");
+    assert_eq!(hex(t.leaf_key().expect("keyed")), "6b72d4c162d2215928906e80395fa8f7f3a973b16f0590914be06a32b067276f");
+    assert_eq!(hex(t.node_key().expect("keyed")), "fd7aa4d6411246dd40edece1b2b96e588ffe8708336dedf026b29440f535ca7b");
     // the tag is a function of the PROFILE STRING and of nothing else, so a
     // new shape cannot exist without a new key set (the memo's option D)
     assert_eq!(g.hash_tag(), HashTag::for_profile(g.profile));

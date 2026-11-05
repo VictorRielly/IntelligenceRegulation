@@ -700,7 +700,7 @@ fn the_s3_refusal_also_separates_the_two_rotary_claims_of_slots_15_and_16() {
     // the `log2(head_dim) <= log_cols` slots 15 and 16 need: both the
     // boundary case and everything above it are refused by name.
     for (name, width, head_dim) in [("at the row width", 256usize, 256usize), ("above the row width", 512, 512)] {
-        let e = Shape::new("S-24 probe: the rotary claims' column keys", "hashline-zk-mr1/private-block-s24-probe/1", 16, width, 256, 1, head_dim, 1, 8, 4, 9, 21, None, None, None, None)
+        let e = Shape::new("S-24 probe: the rotary claims' column keys", "hashline-zk-mr1/private-block-s24-probe/2", 16, width, 256, 1, head_dim, 1, 8, 4, 9, 21, None, None, None, None)
             .expect_err("a head dimension that merges the rotary claims' column keys was accepted");
         assert!(e.contains("ruling S-3"), "{name}: the refusal does not name the ruling: {e}");
     }
@@ -851,7 +851,7 @@ fn a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name() {
     // `(51 + 1)·5 + 2 = 262`. The row width is 2^21, one bit above the padded
     // token count, so ruling S-6 does not fire at either the probe or the
     // control (stage 33).
-    let probe = |tokens: usize| Shape::new("S-24 probe: the mask budget", "hashline-zk-mr1/private-block-s24-probe/1", tokens, 16_384, 16_384, 2_048, 8, 1, 21, 4, 9, 37, None, None, None, None);
+    let probe = |tokens: usize| Shape::new("S-24 probe: the mask budget", "hashline-zk-mr1/private-block-s24-probe/2", tokens, 16_384, 16_384, 2_048, 8, 1, 21, 4, 9, 37, None, None, None, None);
     let e = probe((1 << 20) - 1).expect_err("a shape whose mask leaves no room for the masking pads was accepted");
     assert!(e.contains("ruling C-4"), "the refusal does not name the ruling: {e}");
     assert!(e.contains("masking commitment"), "the refusal does not name what is short: {e}");

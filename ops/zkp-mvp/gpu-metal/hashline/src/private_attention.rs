@@ -1,6 +1,6 @@
 //! EXPERIMENTAL native private attention at ONE fixed geometry
 //! (T32 / d16 / 2 heads / 1 KV head / head_dim 8), profile
-//! `hashline-zk-mr1/private-attention-t32-poc/1`.
+//! `hashline-zk-mr1/private-attention-t32-poc/2`.
 //!
 //! WHAT IT IS. A custom prover and verifier for the attention half of the
 //! fixed ZK60 block with the exact integer semantics of `private-block-kernel`
@@ -56,7 +56,7 @@ use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
 use crate::zk::MaskOpening;
 use layout::{D, DH, F_E, F_RO, HALF, KV, T};
 
-pub const PROFILE: &[u8] = b"hashline-zk-mr1/private-attention-t32-poc/1";
+pub const PROFILE: &[u8] = b"hashline-zk-mr1/private-attention-t32-poc/2";
 pub use wire::MAX_WIRE_BYTES;
 pub const EXPECTED_BYTES: usize = 8 + 32 + 4 + 4 + 2 * 32;
 

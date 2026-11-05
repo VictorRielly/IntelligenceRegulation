@@ -693,16 +693,20 @@ fn export_dir() -> std::path::PathBuf {
 /// no iteration order — so its SHA-256 is a constant of this lane, and a
 /// change to the IR that the oracle tests happen not to see still moves one
 /// of these.
+///
+/// D65(1), finding F12: every export names its shape's profile string, which moved from `/1` to `/2`, so all
+/// nine digests moved and no length did (re-pinned from this test's own output; the old values are in
+/// `results/zk60_f12_fix_20261104/REPIN.md`).
 const EXPORT_DIGESTS: [(&str, &str, usize); 9] = [
-    ("toy", "12e7ed013f6ca106232e2f3be87ecce6a82e7382df75c45aabe0a13f358f6bfc", 99_232),
-    ("rung", "506d06db2158a16952975a29e5b36d7213761b2ce7fce28ba260d24e8bf774ad", 109_631),
-    ("rung_g", "5cb8323a2a6607f38860e6c79ec1ee9b2f37fb4468cd7cf053fb77838f17d496", 109_635),
-    ("rung_k4", "e40501335cd10bfe75c04cf49d5b184426472e420658c8c7ade794a17a7f0401", 109_637),
-    ("rung_p2", "fa11ed91ecf9662d446d123ee3c7b9ef190e099a8b40b3656ff92ab4ae80d677", 107_276),
-    ("rung_c6", "120b116474c7265ebe75bbb122b87e2d5c1db10f068f5c951de2d133d2b4a9ba", 105_384),
-    ("rung_w14", "d207b45cae6a43a950cb641c75ad2f8c1c8d3698a4255bc61c973d0a6aa9d3ad", 105_395),
-    ("rung_e32", "500aefdcf6655f4c40aeb8a36d9651b51992f8427bd6aa6981eb0bbc031c04a7", 105_393),
-    ("m125", "2e8cdb877d4938a63d92dc8f4b054e59ff296456c56063f61c1ad8e39e948d39", 105_382),
+    ("toy", "2e524e80bd306c561cbbc14f4888d3c026478f708b77f22209ed60b260a6b46f", 99_232),
+    ("rung", "8a73235757d270acee29f4a3cfdb1a20077831e4c0337853ec63bdccb600f7e2", 109_631),
+    ("rung_g", "00f976f0769e457a4d353309a6c58cf19977c615c476167a67e3505d6cd4a1f9", 109_635),
+    ("rung_k4", "8a1146da35d7e078efb7a986752fca4f791a52cbe257ed837add5f1ac8256086", 109_637),
+    ("rung_p2", "457a366137f595c0f233defc4a7028513d761065a02fea375189df4c3b94425e", 107_276),
+    ("rung_c6", "50cbc83736715ce7e0de89282398c69289679f1260af585327b5988345f842c4", 105_384),
+    ("rung_w14", "846e67e0768cd76d16210bb3992f024583c0cf912a49d0035b964a2a19e2b937", 105_395),
+    ("rung_e32", "42fba6721b9b38008eec7a945b6a0d8e9a6388c5c1681ea0d38a13c2983a2ba8", 105_393),
+    ("m125", "75dc94d91e9cd50c4e1ac65303c5def5f16444326b17f77b0d10f0fa2ddc80dd", 105_382),
 ];
 
 fn sha256_hex(bytes: &[u8]) -> String {

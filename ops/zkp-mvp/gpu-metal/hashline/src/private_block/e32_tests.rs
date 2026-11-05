@@ -149,7 +149,7 @@ fn the_new_shape_is_125ms_endpoint_row_count_at_a_ten_log_endpoint() {
     // `Dom::S = h_pad · t_pad² = 2^14` is still above it, but `Dom::T` at 2^5
     // and the endpoint would no longer give 32 data rows. What the test
     // reproduces is the pair of refusals that bracket the token count.
-    let fewer = Shape::new("a smaller rung-E32", "hashline-zk-mr1/private-block-e32-probe/1", 16, 768, 1024, 12, 64, 4, 10, 4, 12, 37, None, None, None, None);
+    let fewer = Shape::new("a smaller rung-E32", "hashline-zk-mr1/private-block-e32-probe/2", 16, 768, 1024, 12, 64, 4, 10, 4, 12, 37, None, None, None, None);
     match fewer {
         Ok(s) => assert_ne!(std::cmp::max(1, (s.t_pad * s.d_pad) >> s.endpoint_log_n), 32, "16 tokens cannot give 32 endpoint data rows"),
         Err(m) => eprintln!("S33: 16 tokens at this geometry is refused outright: {m}"),

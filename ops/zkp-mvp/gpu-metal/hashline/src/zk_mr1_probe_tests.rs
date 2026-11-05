@@ -79,7 +79,7 @@ fn the_repaired_entry_proves_and_its_verifier_accepts() {
     let out = prove_layer_zk_v3_mr1(&w, 2, &params, &ntt, &cfg, &mut Transcript::new(b"mr1-probe-test")).expect("repaired proof");
     verify_layer_zk_v3_mr1(&st, &out.proof, &params, &ntt, &mut Transcript::new(b"mr1-probe-test"), &cfg.mode).expect("repaired verify");
     // the repaired schedule reports its own layout, not the legacy one
-    assert!(out.sites.iter().any(|s| s.starts_with("ffn-v3-mr1-fresh-poc/1")), "the repaired layout did not report itself: {:?}", out.sites.first());
+    assert!(out.sites.iter().any(|s| s.starts_with("ffn-v3-mr1-fresh-poc/2")), "the repaired layout did not report itself: {:?}", out.sites.first());
     assert_eq!(out.proof.size_breakdown().unwrap().total_bytes(), out.proof.to_bytes().len());
 }
 

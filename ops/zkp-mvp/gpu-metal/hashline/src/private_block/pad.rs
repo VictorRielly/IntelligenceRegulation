@@ -706,7 +706,7 @@ mod tests {
             assert!(s.carries_pad_rule(), "{} is a new profile and carries the rule", s.name);
         }
         let toy_geometry_new_profile =
-            Shape::new("the toy geometry under a NEW profile", "hashline-zk-mr1/private-block-t32-padgate/1", 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("well formed");
+            Shape::new("the toy geometry under a NEW profile", "hashline-zk-mr1/private-block-t32-padgate/2", 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("well formed");
         assert!(toy_geometry_new_profile.carries_pad_rule(), "the gate is the PROFILE, not the geometry");
         assert!(toy_geometry_new_profile.pads(Dom::L), "and that profile's Dom::L pads exactly as the toy's does");
         // the toy's slot degrees therefore do not move, and neither do the

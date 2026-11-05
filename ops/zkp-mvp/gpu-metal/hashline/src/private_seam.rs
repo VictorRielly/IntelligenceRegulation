@@ -24,7 +24,7 @@ use crate::transcript::Transcript;
 use crate::zk::{self, MaskFunctional, MaskOpening, ZkRng};
 
 const DOMAIN: &[u8] = b"experimental-private-seam/v1";
-const MAGIC: &[u8; 8] = b"HLSEAM01";
+const MAGIC: &[u8; 8] = b"HLSEAM02"; // D65(1), F12: M's theta powers start at theta^1 (was HLSEAM01)
 const LOG_COLS: u32 = 8;
 const CHECKS: usize = 256;
 const INV_RATE: usize = 8;

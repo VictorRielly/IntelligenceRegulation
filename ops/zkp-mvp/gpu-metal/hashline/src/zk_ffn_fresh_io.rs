@@ -9,7 +9,7 @@ use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
 #[path = "zk_ffn_fresh_io_tests.rs"]
 mod tests;
 
-pub const PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/2";
+pub const PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/3";
 const MAGIC: &[u8; 8] = b"HFFNIO\0\x02";
 const FIRST_IO_SLOT: usize = 6;
 const ENDPOINT_OPEN_BYTES: usize = 2 * 512 * 16 + 256 * (8 + 7 * 8 + 32 + 11 * 32);

@@ -1,0 +1,126 @@
+2026-11-05T07:16:55Z start
+2026-11-05T07:24:02Z full lib suite rc=101 (expect: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 911 passed; 3 failed; 94 ignored; 0 measured; 0 filtered out; finished in 288.66s
+2026-11-05T07:24:04Z w16r2 rung golden (CPU = Metal = 96e4f0b6) rc=0
+2026-11-05T07:24:31Z trained digests rc=0
+2026-11-05T07:24:31Z digest R13_SHIELD_T128_H24 5a6193d3 present on CPU and Metal (2 passes)
+2026-11-05T07:24:31Z digest R13_8B_T128_H24 f590b01f present on CPU and Metal (2 passes)
+2026-11-05T07:24:31Z digest W16_SHIELD_T128_H24 79f987ef present on CPU and Metal (2 passes)
+2026-11-05T07:24:31Z digest W16_8B_T128_H24 a8258241 present on CPU and Metal (2 passes)
+2026-11-05T07:24:31Z digest W16R2_SHIELD_T128_H24 0e88d84f present on CPU and Metal (2 passes)
+2026-11-05T07:24:31Z digest W16R2_8B_T128_H24 90003b76 present on CPU and Metal (2 passes)
+2026-11-05T07:24:44Z r9/r12 goldens and statement identities rc=0
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 1001 filtered out; finished in 12.35s
+2026-11-05T07:25:42Z integration tests reaching M rc=0
+     Running tests/zk60_fable_cfs_channel.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/zk60_fable_cfs_channel-344c44dd1a5a307c)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/zk60_mask_rank.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/zk60_mask_rank-8649f57433d51135)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/zk60_private_attention.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/zk60_private_attention-983c02c0a3682429)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.93s
+     Running tests/zk60_private_block.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/zk60_private_block-e81342f194b50535)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.64s
+     Running tests/zk60_private_seam.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/zk60_private_seam-68cb5eec5729bd49)
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+     Running tests/zk60_proof_size.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/zk60_proof_size-d4b19a68721f514c)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/zk60_tagged_gpu_commit.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/zk60_tagged_gpu_commit-0964e26b6f97e350)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-05T07:25:55Z release CLI build (bin hashline and every example) rc=0
+   1 warning: `hashline` (example "zk60_repaired_mask_probe") generated 1 warning
+   1 warning: `hashline` (lib) generated 99 warnings (run `cargo fix --lib -p hashline` to apply 17 suggestions)
+   1 warning: associated function `llama3_1` is never used
+   2 warning: associated function `new` is never used
+   1 warning: associated function `of` is never used
+   1 warning: associated function `recipe` is never used
+   1 warning: associated function `toy` is never used
+   1 warning: associated functions `rung_g`, `rung_k4`, `rung_c6`, `rung_w14`, `rung_e32`, and `tinyllama_t32_trained` are never used
+   1 warning: associated items `new`, `check_for`, `registry`, and `base` are never used
+   1 warning: associated items `new`, `index`, and `scale` are never used
+   1 warning: associated items `to_bytes_at` and `from_bytes_at` are never used
+   1 warning: constant `A_PL1` is never used
+   1 warning: constant `A_SR1` is never used
+   1 warning: constant `D` is never used
+   1 warning: constant `EXPORT_SCHEMA` is never used
+   1 warning: constant `F` is never used
+   1 warning: constant `H_GACT` is never used
+   1 warning: constant `H_GEXP` is never used
+   1 warning: constant `H_GU8` is never used
+   1 warning: constant `H_U` is never used
+   1 warning: constant `H` is never used
+   1 warning: constant `HALF` is never used
+   1 warning: constant `KV` is never used
+   1 warning: constant `M_ROWS` is never used
+   1 warning: constant `NORM_WRHO` is never used
+   1 warning: constant `SEED_USE_BOUNDARY` is never used
+   1 warning: constant `SH_G` is never used
+   1 warning: constant `SH_H_PROD` is never used
+   1 warning: constant `SH_Z` is never used
+   1 warning: constant `WRHO_S` is never used
+   1 warning: field `label` is never read
+   1 warning: field `note` is never read
+   1 warning: field `sha256` is never read
+   1 warning: fields `kind` and `label` are never read
+   1 warning: fields `kind`, `main_rounds`, `extension_rounds`, `degree`, `pad_on`, and `group_bits` are never read
+   1 warning: function `at_shape` is never used
+   1 warning: function `boundary_seed_domain` is never used
+   1 warning: function `boundary_seed_input_len` is never used
+   1 warning: function `causal_mask` is never used
+   1 warning: function `constants_of` is never used
+   1 warning: function `cpu_slots` is never used
+   1 warning: function `derive_aligned` is never used
+   1 warning: function `encoded_len` is never used
+   1 warning: function `export_shape` is never used
+   1 warning: function `full_at_shape` is never used
+   1 warning: function `group_folds` is never used
+   1 warning: function `h_is_table` is never used
+   1 warning: function `helpers` is never used
+   1 warning: function `is_multiplicity` is never used
+   1 warning: function `json_coef` is never used
+   1 warning: function `json_factor` is never used
+   1 warning: function `json_str` is never used
+   1 warning: function `kind_label` is never used
+   1 warning: function `load` is never used
+   1 warning: function `lookups` is never used
+   1 warning: function `mask_specs` is never used
+   1 warning: function `no_commitment_has_a_node_shaped_column` is never used
+   1 warning: function `pcs_params` is never used
+   1 warning: function `priv_table_into_at` is never used
+   1 warning: function `product` is never used
+   1 warning: function `prov_label` is never used
+   1 warning: function `query_values` is never used
+   1 warning: function `rope_tables` is never used
+   1 warning: function `rows_of` is never used
+   1 warning: function `slot_terms` is never used
+   1 warning: function `table_keys_of` is never used
+   1 warning: function `table_kind_report` is never used
+   1 warning: function `tied_of` is never used
+   1 warning: function `timed` is never used
+   1 warning: function `verify_bytes_at` is never used
+   1 warning: method `commitment` is never used
+   1 warning: method `is_dd` is never used
+   1 warning: method `label` is never used
+   1 warning: method `pd` is never used
+   1 warning: method `segments` is never used
+   1 warning: method `slot` is never used
+   1 warning: method `to_json` is never used
+   1 warning: method `value_is_public` is never used
+   1 warning: methods `value_is_public` and `label` are never used
+   2 warning: multiple associated items are never used
+   1 warning: struct `MemorySink` is never constructed
+   1 warning: struct `Totals` is never constructed
+   1 warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+   1 warning: unused import: `eval_mle_ext`
+   1 warning: unused variable: `cube`
+   1 warning: unused variable: `g_exp`
+   1 warning: unused variable: `low`
+   1 warning: unused variable: `lp`
+   1 warning: unused variable: `ls`
+   2 warning: unused variable: `n_pad`
+   1 warning: unused variable: `precision`
+   1 warning: value assigned to `t_verify` is never read
+   8 warning: variable does not need to be mutable
+2026-11-05T07:25:56Z all done

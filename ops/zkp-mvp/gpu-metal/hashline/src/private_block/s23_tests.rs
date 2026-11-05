@@ -77,7 +77,7 @@ fn the_lookup_table_domain_sits_at_exactly_the_row_width_at_every_shape() {
 #[test]
 fn a_row_width_below_the_lookup_tables_natural_size_is_refused_by_name() {
     // the toy's axes, at a row width of 2^7 instead of 2^8
-    let e = Shape::new("S-23 probe: the toy at a row width below the table", "hashline-zk-mr1/private-block-s23-probe/1", 32, 16, 16, 2, 8, 1, 7, 8, 9, 7, None, None, None, None)
+    let e = Shape::new("S-23 probe: the toy at a row width below the table", "hashline-zk-mr1/private-block-s23-probe/2", 32, 16, 16, 2, 8, 1, 7, 8, 9, 7, None, None, None, None)
         .expect_err("a shape whose row width is below the lookup table's natural size was accepted");
     assert!(e.contains("ruling S-1"), "the refusal does not name the ruling: {e}");
     assert!(e.contains("lookup-table domain"), "the refusal does not name the domain: {e}");
@@ -85,7 +85,7 @@ fn a_row_width_below_the_lookup_tables_natural_size_is_refused_by_name() {
     // the probe really is otherwise well formed: the SAME axes at the toy's
     // own row width construct, so `log_cols` is the only thing the refusal
     // reacts to
-    Shape::new("S-23 probe control: the toy's own row width", "hashline-zk-mr1/private-block-s23-probe/1", 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None)
+    Shape::new("S-23 probe control: the toy's own row width", "hashline-zk-mr1/private-block-s23-probe/2", 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None)
         .expect("the control at the toy's row width is well formed");
 }
 
@@ -100,7 +100,7 @@ fn the_lookup_table_refusal_is_exactly_the_row_widths_below_the_tables_log() {
     // by P-3). What is asserted per row width is therefore which refusal
     // OWNS it, not that the shape constructs.
     for log_cols in 2..=11usize {
-        let r = Shape::new("S-23 sweep", "hashline-zk-mr1/private-block-s23-sweep/1", 32, 16, 16, 2, 8, 1, log_cols, 8, 9, 7, None, None, None, None);
+        let r = Shape::new("S-23 sweep", "hashline-zk-mr1/private-block-s23-sweep/2", 32, 16, 16, 2, 8, 1, log_cols, 8, 9, 7, None, None, None, None);
         match (log_cols.cmp(&clog2(U8_LEN)), r) {
             (std::cmp::Ordering::Less, Ok(sh)) => panic!("row width 2^{log_cols} was accepted: Dom::Tab at {}", sh.log(Dom::Tab)),
             (std::cmp::Ordering::Less, Err(e)) => assert!(e.contains("ruling S-1"), "row width 2^{log_cols} is refused by something else: {e}"),
@@ -166,19 +166,19 @@ fn a_head_dimension_at_or_above_the_row_width_is_refused_by_name() {
     // 16 tokens, width 256, one head of 256 over one key-value head, at a row
     // width of 2^8: `Dom::S = h_pad * t_pad^2 = 2^8` exactly, `Dom::Q` and
     // `Dom::Kv` are `2^12`, `Dom::Tab` is `2^8`.
-    let e = Shape::new("S-23 probe: a head dimension at the row width", "hashline-zk-mr1/private-block-s23-probe/1", 16, 256, 256, 1, 256, 1, 8, 4, 9, 21, None, None, None, None)
+    let e = Shape::new("S-23 probe: a head dimension at the row width", "hashline-zk-mr1/private-block-s23-probe/2", 16, 256, 256, 1, 256, 1, 8, 4, 9, 21, None, None, None, None)
         .expect_err("a shape whose head dimension reaches the row width was accepted");
     assert!(e.contains("ruling S-3"), "the refusal does not name the ruling: {e}");
     assert!(e.contains("head dimension"), "the refusal does not name the axis: {e}");
     assert!(e.contains("column keys"), "the refusal does not say what collides: {e}");
     // strictly above it too
-    let e2 = Shape::new("S-23 probe: a head dimension above the row width", "hashline-zk-mr1/private-block-s23-probe/1", 16, 512, 256, 1, 512, 1, 8, 4, 9, 21, None, None, None, None)
+    let e2 = Shape::new("S-23 probe: a head dimension above the row width", "hashline-zk-mr1/private-block-s23-probe/2", 16, 512, 256, 1, 512, 1, 8, 4, 9, 21, None, None, None, None)
         .expect_err("a shape whose head dimension exceeds the row width was accepted");
     assert!(e2.contains("ruling S-3"), "{e2}");
     // THE CONTROL: the same geometry with the head dimension one bit below the
     // row width constructs, so the refusal reacts to the head dimension and
     // not to anything else about this probe.
-    let ok = Shape::new("S-23 probe control: a head dimension below the row width", "hashline-zk-mr1/private-block-s23-probe/1", 16, 128, 256, 1, 128, 1, 8, 4, 9, 21, None, None, None, None)
+    let ok = Shape::new("S-23 probe control: a head dimension below the row width", "hashline-zk-mr1/private-block-s23-probe/2", 16, 128, 256, 1, 128, 1, 8, 4, 9, 21, None, None, None, None)
         .expect("the control one bit below the row width is well formed");
     assert_eq!(ok.head_dim, 128);
     assert!(ok.head_dim < 1usize << ok.log_cols);

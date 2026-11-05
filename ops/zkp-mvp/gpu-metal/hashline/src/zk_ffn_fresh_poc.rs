@@ -14,7 +14,7 @@ pub use wire::{encoded_len, verify_bytes, MAX_CONTEXT_BYTES, MAX_WIRE_BYTES};
 #[path = "zk_ffn_fresh_io.rs"]
 pub mod io;
 
-pub const PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1";
+pub const PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-fresh-poc/2";
 
 /// The verifier chooses the weight claim independently of the producer.
 #[derive(Clone, Copy, Debug)]

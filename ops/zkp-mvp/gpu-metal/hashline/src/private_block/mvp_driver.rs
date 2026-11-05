@@ -1254,7 +1254,7 @@ mod tests {
         for (from, to) in [
             ("blocks=3", "blocks=4"),
             ("shape=rung-p2", "shape=m125"),
-            ("run_profile=hashline-zk-mr1/private-run-rung-p2-t32-dev/1", "run_profile=hashline-zk-mr1/private-run-m125/1"),
+            ("run_profile=hashline-zk-mr1/private-run-rung-p2-t32-dev/2", "run_profile=hashline-zk-mr1/private-run-m125/2"),
             ("input_scale=0", "input_scale=1"),
             ("recipe=zk60-mvp/dense-run/1", "recipe=zk60-mvp/dense-run-varied/1"),
             ("context_label=zk60-mvp-diagnostic", "context_label=another-label"),

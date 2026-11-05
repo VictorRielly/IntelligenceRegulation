@@ -33,7 +33,7 @@ mod plan;
 use plan::{Row, POLICIES};
 
 const BATCH_SCHEMA: &str = "zk60-classify-prove-batch/1";
-const BATCH_PROFILE: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1";
+const BATCH_PROFILE: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2";
 const MAX_BATCH_BYTES: u64 = 64 << 10;
 const MAX_CONTENT: usize = 336;
 const BATCH_FLAGS: [&str; 5] = ["--export", "--tables", "--content-file", "--batch-file", "--label"];
