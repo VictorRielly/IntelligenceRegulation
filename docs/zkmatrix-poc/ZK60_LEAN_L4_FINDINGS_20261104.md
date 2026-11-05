@@ -192,3 +192,150 @@ asserts `s_k(1) = poly(ext) = 0` before masking and absorbing the round.
   - the W16R2 rung golden and the six pinned trained digests are unchanged.
 - The first suite run (`ext_full.log`, 32 failures) lacked `HL_R13_LOADER_FIXTURES`. It was rerun with the variable set,
   as earlier suites were.
+
+## Third batch, 2026-11-04: M's whole opening view, the refusal bit, one block composed
+
+Three new files: `HidingMOpening.lean`, `HidingRefusal.lean` and `HidingBlock.lean`.
+- `lake -d formal build` succeeds with no warnings, and no file uses `sorry`, `axiom`, `admit` or `native_decide`.
+- `#print axioms` was run on every declaration of the three files (64 of them). Each depends only on `propext`,
+  `Classical.choice` and `Quot.sound`, or on fewer.
+
+### Proved (honest verifier, fixed challenges)
+
+- **M's whole opening view** (`HidingMOpening.lean`).
+  - What the verifier sees, from `zk.rs` (`mask_commit_tagged`, `mask_open`, `mask_verify_tagged`):
+    - `q' = Σ_s p_{a_s}·p_{W_s} + p_b`, as 1024 Fp2 coefficients. The code computes it in components:
+      `q_re = b_re + Σ (a_re·w_re + 7·a_im·w_im)` and `q_im = b_im + Σ (a_re·w_im + a_im·w_re)`;
+    - `prox = u + Σ_rows r_row·row`, as 1024 Fp2 coefficients, over the a-rows and `b_re`, `b_im`;
+    - at each of the 256 sampled columns, the value of every base row: the a-rows, `b_re`, `b_im`, `u_re`, `u_im`.
+  - `mOpenView_law_eq`: the joint law of all of it, over the pads, `b` and `u`, depends on the CFS mask coefficients
+    **only through the functional value `V`** (both components). The verifier computes `V` itself, from the `g(ρ)`'s
+    and the scalars, so `M` adds nothing. A simulator runs the honest opening with ANY coefficients of value `V`.
+  - The proof is the coin shift (`mOpenView_shift`):
+    - the a-row pads absorb the coefficients' opened values (`mPad_reach`, from `mPadBlock_surjective`);
+    - `b` absorbs the change of `Σ p_a·p_W`. The change has zero sum over `G_512` exactly because `V` is unchanged
+      (`sum_eval_nodes`, `rootsOfUnity_powSum`), so the shifted `b` keeps the code's constraint `b_512 = −b_0`;
+    - `u` absorbs the change of the proximity vector;
+    - every shift vanishes at the sampled points.
+  - `mOpenView_joint_law_eq` is the joint form with the rest of the view. `mask_open_law_eq` is the statement on the
+    code's layout (`mRowMsg`, pads at `L_s + l`, weights only on `0..L_s`, `G_512` in natural order, `7·G_4096`,
+    samples with replacement).
+  - The Fp2 reading. A code pair `(c0, c1)` is `c0 + U·c1` in an extension `K` with `U² = 7`:
+    - `fp2_mul` is the code's multiplication rule (`Fp2::mul`), and `fp2_mul_base` is `mul_base`;
+    - `fp2_bijective`: `{1, U}` is an `F`-basis of `K` when `[K : F] = 2` and `7` is not a square in `F`;
+    - `adjoinRoot_finrank`: `F[u]/(u² − κ)` is such a `K` for any non-square `κ`;
+    - `fp2_uniform`: a pair of uniform base-field values is a uniform Fp2 value (the `u = u_re + U·u_im` reading);
+    - `mOpenView_law_eq_fp2`: the hypothesis stated as an equality of `V` in `K`.
+- **The refusal bit** (`HidingRefusal.lean`). Every prover-side refusal falls in one of five classes:
+
+  | class | sites (code) | data-independent? | Lean |
+  |---|---|---|---|
+  | (A) public | shape, layout and block checks (CS-1/4/6/7/8), "witness shape", the slot schedule and table shape, `audit_claims`' structural failures, the group count, the endpoint geometry and claim, the NTT ceiling, the trained door's `cap`, the run statement, the wire and file checks | yes: functions of public data | simulated exactly |
+  | (B) input admissibility | `witness::build`: "fixed oracle range refusal: <site>" (12 reachable sites); CS-3: a lookup miss, naming the table family; the dictionary miss | NO: deterministic functions of the hidden input | `refusal_output_must_be_leaked` |
+  | (C) challenge-only | "zero CFS mask challenge" (`c = 0`); "degenerate terminal mask challenge" (`e ∈ {0, 1}`); "zero batching challenge"; "zero terminal mask coefficient" (`cm = e·∏(1 − e')`); "zero group member coefficient" and "dependent proximity mask coefficients" (`check_opening_challenges`, for `A`, `H` and the endpoints); the `zk.rs` asserts on `c` (unreachable from the private block); `assert_mask_sites` (pre-empted); the OS entropy failure | yes | `attempt_law_eq`, `prob_mem_finset` |
+  | (D) structural assertion | `zk::extension`'s "the extension round is not an identity" | yes: it never fires while every slot monomial has a public or `eq` factor (NL-1 S1) | a special case of (C) |
+  | (E) LogUp denominators, public tables | "zero LogUp denominator" for the byte, exp, activation, W16 range and R13 ACT tables | yes: every table entry is inverted on every attempt (S28-F1), and after CS-3 every looked tuple is a table tuple | `logup_refusal_iff_table` |
+  | (E) LogUp denominators, private values | the same refusal for the DD dictionary (D30) and the next-token stages IN and OUT (D34) | NO: the inverted values include private ones | `logup_attempt_prob_le` |
+
+  - `attempt_law_eq`: a refusal that is a function of the challenges alone, composed with any view whose law at each
+    challenge value is data-independent, gives a law of (refused or served, challenges, transcript) that is the same
+    for all data.
+  - `attempt_prob_le`: a data-dependent refusal moves every probability by at most the chance that the two refusal
+    predicates differ.
+  - `logup_attempt_prob_le`: with at most `N` and `N'` data-dependent inverted values, that chance is at most
+    `(N + N')/|K|`, and the public table entries cancel.
+  - `refusal_output_must_be_leaked` is a theorem about the approved `ZeroKnowledge` itself. Take two inputs with the
+    same public output part and the same declared leakage. If the prover gives them two different fixed outputs (a
+    class (B) refusal), then every simulator has advantage at least `1/2` against one proof request with no hash
+    query.
+  - **Answer to the statement's question.** The served bit is needed, because class (B) is a function of the hidden
+    input. For admissible inputs, classes (A), (C) and (D) are data-independent. Class (E) is data-dependent only at
+    the DD and next-token profiles, by at most `N/|Fp2|` per block or token stage. That belongs in `εzk`, not in the
+    leakage. But the bit is not enough as the code stands (finding 1).
+- **One block composed** (`HidingBlock.lean`).
+  - `block_view_law_eq`: suppose the openings' view has a data-independent law, the slots' view is simulated from it,
+    and `M`'s view is simulated from both. Then the whole block view has the same law for every data as for zero
+    data. The simulator runs the openings on zero data, then the slot simulator, then `M`'s.
+  - `block_view_law_eq_slot_M`: the same with the slot layer and the `M` layer instantiated by the proved lemmas
+    (`cfsViewMasked_joint_law_eq`, `mOpenView_joint_law_eq`). What remains as hypotheses:
+    - the opening layer, proved separately for `A` and `H`;
+    - the two links of the instance: the slot's defects are a function of the opening view (its masked terminals are
+      claim values), and `M`'s functional value is a function of the slot's view.
+
+### What the proofs showed about the code
+
+1. **A class (B) refusal returns more than "refused" (Medium for T2 as worded).**
+   - `private_block::prove` returns `witness::build`'s "fixed oracle range refusal: <site>". The site is one of 12, so
+     it says where the hidden input left the integer class.
+   - CS-3 names the table family that missed. Ruling K-2 keeps the count out, but the family is still a function of
+     the hidden input.
+   - The declared leakage in `Statements.lean` (`Leak`: "whether it is served") does not determine these messages. By
+     `refusal_output_must_be_leaked`, `ZeroKnowledge` then fails, with advantage at least 1/2, against a
+     distinguisher that submits two inputs refused at different sites.
+   - **Fix, one of:**
+     - the external refusal is one constant ("refused"), and the site and family go to a private log only;
+     - or Victor widens the declared leakage to "the refusal class". That changes the approved statement's wording,
+       so it needs his ruling.
+2. **At the DD profiles, the data-dependent LogUp refusal exceeds the proposed per-request `εzk` term (Medium for the
+   error target).**
+   - The tight one-sided term (the real prover against a simulator that refuses on the public values only) is
+     `|Dd|/|Fp2|` per block. `|Dd| = q_heads·T·cap` is `2^17` at the T128 DD profiles (TinyLlama, Llama-3-8B and the
+     R13 DD variants) and `2^18` at Shieldstral T256 DD.
+   - That is about `2^-111` per block, and `2^-106` for a 32-block run.
+   - The proposed target is `εzk = q·2^-128 + R·2^-120`. The expected sources listed in
+     `ZK60_LEAN_PRODUCTION_STATEMENTS.md` §4 do not include this term.
+   - The next-token stages (D34): `(T + 256)/|Fp2|` per run by the tight count, about `2^-119.8` at `T = 32`, just
+     above `2^-120`.
+   - **Decision for Victor:** a profile-dependent per-request term (about `2^-100` covers every DD profile), or a
+     design change that makes the dictionary refusal challenge-only.
+3. **D30 (4)'s and D34's counts are upper bounds and can be tightened (Info).**
+   - D30 (4) counts `2·L·(768 + rows·cap)/p²`, and D34 counts `2·(768L + 32 + 256)/p²`.
+   - The public table entries (the `768` per block) cancel: both worlds refuse on them alike.
+   - The factor 2 is not needed against a simulator that refuses on the public values only.
+4. **The `zk.rs` header's plan for `M` holds (Info).** "`q'` is uniform given `V`; `b` and `u` are determined" is
+   proved in the form "the view's law depends on the coefficients only through `V`". Two code facts carry the proof
+   and must stay:
+   - `combined_weights` writes weights only on the coefficient positions `0..L_s`, so the pads (at
+     `L_s..L_s + 256`) never enter `V`;
+   - `b_512 = −b_0`, the constraint the shift preserves.
+
+   `b` and `u` need no pads: they have 1024 free coefficients each, and their shifts vanish at the sampled points by
+   construction. Only the a-rows need "distinct samples ≤ pads".
+5. **Two refusals are panics, not errors (Low).**
+   - `zk::extension`'s identity assert and the `zk.rs` asserts on `c` panic instead of returning `Err`.
+   - Neither depends on the data: the first never fires, and the second is unreachable from the private block.
+   - A panic in a long-lived prover is an observable abort with its own message. Returning the same `Err` as the
+     other refusals would make the output uniform.
+6. **Under P3 (weights hidden), re-check class (E).** The exp and activation tables are public under P1. If P3 makes
+   them private, the public-table argument no longer applies, and they join the dictionary's case.
+
+### Hypotheses the new theorems take from the code
+
+- **M:**
+  - `512 ≠ 0` in `F`;
+  - `G_512` in natural order, and `7^4096 ≠ 1`;
+  - at most 256 distinct sampled columns;
+  - weights zero at the pad positions;
+  - `b_512 := −b_0`;
+  - `7` a non-square (checked numerically 2026-11-04, not proved in Lean);
+  - one opening.
+- **Refusal:**
+  - challenges uniform and independent of the data (honest verifier, before Fiat–Shamir);
+  - CS-3 runs before the LogUp inversions;
+  - every public table entry is inverted on every attempt;
+  - no retry on the same transcript.
+- **Composition:**
+  - independent coins for the openings, the masks and `M`;
+  - the two links, stated as hypotheses.
+
+### Still open for L4 (replaces the list above)
+
+- Fiat–Shamir: the challenges, the sampled columns and the opened set depend on the transcript and the roots.
+- The links for the registered layouts:
+  - which claim value is which masked terminal;
+  - which `M` functional is which `g(ρ)` or `Γ` (a host slot's scalar combines other slots' totals);
+  - the code's `CfsMask` coefficient layout as `M`'s a-row messages.
+- Several slots at once (`Ω₂` a product), several blocks, the D12a/D55 run structure and R receipts.
+- Finding 1 (class (B)'s refusal output) and finding 2 (the `εzk` target at the DD profiles). Both need a ruling or a
+  code change before `ZeroKnowledge` can be proved as worded.
+- The instance that connects all of this to `ZeroKnowledge` in `Statements.lean`.

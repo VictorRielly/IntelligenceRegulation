@@ -55,10 +55,33 @@ The plain-words version, the modelling choices and the open decisions are in
     leaves are told apart with advantage at most `2·n·(n + q)/|S|` (`saltedLeaves_hiding`). The tree: any `t`-query
     view of the leaves costs `t` more queries (`saltedLeaves_view_hiding`), and the whole tree over `N = 2^h` leaves,
     every root and path, costs `N − 1` (`merkleLevels_bounded`, `merkle_hiding`).
-  - What these lemmas assume, and what L4 still needs (the joint law of `M`'s whole opening view with its clear
-    product polynomial and proximity vector, Fiat–Shamir, the refusal bit, composition over commitments, slots and
-    receipts, and the instance that connects them to `ZeroKnowledge`), is in each file's header and in
-    `docs/zkmatrix-poc/ZK60_LEAN_L4_FINDINGS_20261104.md`.
+  - `HidingMOpening.lean`: `M`'s WHOLE opening view, as `mask_open` sends it: the clear product polynomial `q'`
+    (masked by the zero-sum blinding row `b`), the proximity vector (masked by `u`), and every opened column of every
+    row (the a-rows, `b_re`, `b_im`, `u_re`, `u_im`). Its joint law over the pads, `b` and `u` depends on the CFS mask
+    coefficients ONLY through the functional value `V` that the verifier computes itself (`mOpenView_shift`,
+    `mOpenView_law_eq`; the joint form with the rest of the view, `mOpenView_joint_law_eq`; on the code's layout,
+    `G_512` and the coset `7·G_4096`, `mask_open_law_eq`). The proof is a coin shift: the a-row pads absorb the
+    coefficients' opened values, `b` absorbs the change of `Σ p_a·p_W` and keeps its zero sum exactly because `V` is
+    unchanged (`sum_eval_nodes`, `rootsOfUnity_powSum`), and `u` absorbs the change of the proximity vector. The Fp2
+    reading: a code pair `(c0, c1)` is `c0 + U·c1` with `U² = 7` (`fp2_mul`); `{1, U}` is a basis when `[K : F] = 2`
+    and `7` is a non-square (`fp2_bijective`; `adjoinRoot_finrank` for `F[u]/(u² − κ)`); a uniform pair is a uniform
+    Fp2 value (`fp2_uniform`); the hypothesis stated in Fp2 (`mOpenView_law_eq_fp2`).
+  - `HidingRefusal.lean`: the refusal bit. Every refusal site of the private-block prover, classified (header): public,
+    input admissibility, challenge-only, a structural assertion, and the data-dependent LogUp denominators. A refusal
+    that is a function of the challenges alone leaks nothing, jointly with the served transcript (`attempt_law_eq`);
+    a data-dependent one moves every probability by at most the chance that the two refusal predicates differ
+    (`attempt_prob_le`); with public tables the LogUp refusal is challenge-only (`logup_refusal_iff_table`), and with
+    `N` and `N'` data-dependent denominators it costs at most `(N + N')/|K|` (`logup_attempt_prob_le`). About the
+    approved `ZeroKnowledge`: two inputs with the same public part and leakage but different deterministic refusals
+    force an advantage of at least `1/2` (`refusal_output_must_be_leaked`), so the declared leakage must determine the
+    refusal OUTPUT.
+  - `HidingBlock.lean`: the composition of one block's layers (openings, a private slot, `M`): if each layer is
+    simulated from the one below, the whole view has the same law for every data as for zero data
+    (`map_pair_eq_bind`, `block_view_law_eq`); with the slot and `M` layers instantiated by the proved lemmas and the
+    two links of the instance as hypotheses (`block_view_law_eq_slot_M`).
+  - What these lemmas assume, and what L4 still needs (Fiat–Shamir, the links of the registered layouts, several slots
+    and blocks, the run structure and receipts, and the instance that connects them to `ZeroKnowledge`), is in each
+    file's header and in `docs/zkmatrix-poc/ZK60_LEAN_L4_FINDINGS_20261104.md`.
   - A sanity check: the trivial arithmetization satisfies `CircuitIff`.
 - Proved so far (step L3, soundness of the IOP, foundations; interactive, with uniform independent challenges, no
   Fiat–Shamir yet; same build and axiom checks as above):
