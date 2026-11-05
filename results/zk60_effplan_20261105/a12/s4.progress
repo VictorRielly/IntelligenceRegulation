@@ -1,0 +1,59 @@
+2026-11-05T16:01:44Z start
+2026-11-05T16:04:14Z build rc=0
+2026-11-05T16:04:15Z no-feature cargo check --tests rc=0
+2026-11-05T16:08:32Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 923 passed; 3 failed; 101 ignored; 0 measured; 0 filtered out; finished in 255.87s
+test private_block::range16_tests::a12_the_device_table_formula_equals_the_host_builders_at_every_slot_of_the_w16r2_rung ... ok
+2026-11-05T16:08:34Z a12 census + word-for-word (Metal) rc=0
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: every word of 228 tables (87.0 M words) equal, and of every slot's deferred build (23 slots deferred); without resident rows the prover's form left 23 slots to the host; the device slots' tables: host 18.0 ms (global pool), 36.1 ms (pool of 6); device 67.3 ms, 47.6 ms (pool of 6); builds so
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2: every word of 238 tables (3.7 M words) equal, and of every slot's deferred build (23 slots deferred); without resident rows the prover's form left 22 slots to the host; the device slots' tables: host 3.6 ms (global pool), 1.8 ms (pool of 6); device 6.2 ms, 4.4 ms (pool of 6); builds so far [230,
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 2.06s
+2026-11-05T16:08:37Z a12 rung golden in every table mode rc=0
+test private_block::w16r2_tests::a12_w16r2_rung_golden_with_the_slot_tables_built_on_the_host_and_on_the_device ... A12-TABLES W16R2_RUNG_H24 tables on the host: alone 96e4f0b6, three concurrent ["96e4f0b6", "96e4f0b6", "96e4f0b6"]; device builds (builds, device tables, host tables, views, copies, r
+A12-TABLES W16R2_RUNG_H24 tables on the device (ahead of the first round): alone 96e4f0b6, three concurrent ["96e4f0b6", "96e4f0b6", "96e4f0b6"]; device builds (builds, device tables, host tables, views, copies, resident, deferred, left to the host) [20, 480, 140, 0, 0, 40, 20, 0]
+A12-TABLES W16R2_RUNG_H24 tables on the device (own command buffer): alone 96e4f0b6, three concurrent ["96e4f0b6", "96e4f0b6", "96e4f0b6"]; device builds (builds, device tables, host tables, views, copies, resident, deferred, left to the host) [20, 480, 140, 0, 0, 40, 0, 0]
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 2.98s
+2026-11-05T16:08:40Z a11 CPU pool byte test rc=0
+test private_block::w16r2_tests::a11_w16r2_rung_golden_inside_small_rayon_pools ... A11-POOLS W16R2_RUNG_H24: rayon pool Some(1): 96e4f0b6f3
+A11-POOLS W16R2_RUNG_H24: rayon pool Some(2): 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0
+A11-POOLS W16R2_RUNG_H24: rayon pool Some(3): 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0
+A11-POOLS W16R2_RUNG_H24: rayon pool None: 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0
+2026-11-05T16:08:42Z a11 Metal pool byte test rc=0
+test private_block::w16r2_tests::a11_w16r2_rung_digests_in_per_fork_pools_on_the_device ... A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, eac
+A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, each in its own pool of 2: ["96e4f0b6", "96e4f0b6", "96e4f0b6"] (device sumcheck rounds 0.0827 
+A11-POOLS W16R2_RUNG_H24 on the device: three concurrent proofs, each in its own pool of 6: ["96e4f0b6", "96e4f0b6", "96e4f0b6"] (device sumcheck rounds 0.1080 
+2026-11-05T16:08:44Z a7 queue byte test rc=0
+test private_block::w16r2_tests::a7_w16r2_rung_digests_on_six_threads_at_one_and_at_six_queues ... A7-QUEUES W16R2_RUNG_H24 queues shared: six concurrent seeded proofs in 0.39 s (device sumcheck rounds 0.1970 s); digests
+A7-QUEUES W16R2_RUNG_H24 queues thread: six concurrent seeded proofs in 0.38 s (device sumcheck rounds 0.1550 s); digests ["96e4f0b6", "96e4f0b6", "96e4f0b6", "96e4f0b6", "96e4f0b6", "96e4f0b6"]
+2026-11-05T16:08:45Z w16r2 rung golden rc=0
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0 metal 96e4f0b6f34f78762df36c5fc
+2026-11-05T16:09:10Z trained digests rc=0
+2026-11-05T16:09:10Z digest 5a6193d3 present
+2026-11-05T16:09:10Z digest f590b01f present
+2026-11-05T16:09:10Z digest 79f987ef present
+2026-11-05T16:09:10Z digest a8258241 present
+2026-11-05T16:09:11Z digest 0e88d84f present
+2026-11-05T16:09:11Z digest 90003b76 present
+2026-11-05T16:11:00Z d55 final default rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 3.621 s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.46 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 9.937 s = 12.88 proved tok/s; receipt 818728480 B
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 []: table builds 19.30 ms per block (summed over the forks) | s00 0.89 ms (0/32 dev), s01 0.38 ms (0/32 dev), s03 0.25 ms (0/32 dev), s04 0.66 ms (0/32 dev), s05 0.84 ms (0/32 dev), s06 0.80 ms (0/32 dev), s07 0
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.23 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 4.462 s = 28.69 proved tok/s; 6 workers; preflight 0.084 s, commit 0.198 s, forks 4.095 s, join 0.084 s; fork prove_core min 0.435 median 0.712 max 0.896 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 8.356 s = 15.32 proved tok/s FROM THE RUN'S INPUT (sealing pass 4.110 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 1 (serial first): wall 10.273 s = 12.46 proved tok/s; receipt 818728480 B
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 []: table builds 18.01 ms per block (summed over the forks) | s00 0.86 ms (0/32 dev), s01 0.48 ms (0/32 dev), s03 0.25 ms (0/32 dev), s04 0.82 ms (0/32 dev), s05 0.91 ms (0/32 dev), s06 0.82 ms (0/32 dev), s07 0
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 1 (serial first): wall 4.248 s = 30.13 proved tok/s; 6 workers; preflight 0.080 s, commit 0.210 s, forks 3.879 s, join 0.079 s; fork prove_core min 0.436 median 0.669 max 0.842 s; receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 8.843 s = 14.47 proved tok/s FROM THE RUN'S INPUT (sealing pass 4.487 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 24.938 s; amortized 20.53 proved tok/s (all witness work on the clock); steady state 23.95 tok/s (completions 8.91, 14.39, 19.91, 24.94); per-request latency 8.91, 10.21, 10.24, 9.81
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 9.2 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.937 s = 12.88 tok/s | mean 10.105 s = 12.67 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.248 s = 30.13 tok/s | mean 4.355 s = 29.39 tok/s | 2.34x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 8.356 s = 15.32 tok/s | mean 8.600 s = 14.88 tok/s
+2026-11-05T16:11:00Z all done

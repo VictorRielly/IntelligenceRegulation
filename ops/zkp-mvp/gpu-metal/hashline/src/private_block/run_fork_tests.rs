@@ -1996,6 +1996,21 @@ fn usage_now() -> Usage {
     }
 }
 
+/// A12: one fork call's table builds, per slot: the time a fork spent building
+/// the slot's tables (summed over the forks, per block of the call's `l`), and
+/// how many of those builds ran on the device. Read and reset by the call.
+fn a12_report(name: &str, l: usize, n: usize, arm: &str) {
+    let rows = crate::private_block::argument::a12_take_table_times();
+    let blocks = l.max(1) as f64;
+    let total: u64 = rows.iter().map(|r| r.1).sum();
+    let parts: Vec<String> = rows.iter().filter(|r| r.1 as f64 / blocks >= 5e4).map(|(s, ns, b, d)| format!("s{s:02} {:.2} ms ({d}/{b} dev)", *ns as f64 * 1e-6 / blocks)).collect();
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    let dev = format!(" | device builds so far {:?}", crate::gpu::MetalTables::build_stats());
+    #[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+    let dev = String::new();
+    eprintln!("D55-AB A12 TABLES {name} L{l} forks N{n} [{arm}]: table builds {:.2} ms per block (summed over the forks) | {}{dev}", total as f64 * 1e-6 / blocks, parts.join(", "));
+}
+
 /// A11: one fork call's diagnostic lines: the process's usage over the call,
 /// the fork workers' own thread CPU against their `prove_core` walls, and,
 /// when the phase clock was on, every phase summed over the forks
@@ -2053,10 +2068,14 @@ struct GpuArm {
     /// the default rule (ceil(cores / workers)); `global`: the one global pool;
     /// unnamed: as the environment says
     fork_pool: Option<usize>,
+    /// A12: `devtab`: a device slot's tables built on the device, ahead of its
+    /// first round; `devtabsync`: on the device in a command buffer of their
+    /// own; `hosttab`: on the host; unnamed: as the environment says
+    device_tables: Option<u8>,
 }
 
 fn gpu_arm(spec: &str) -> Option<GpuArm> {
-    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None };
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None };
     for w in spec.split('+').map(str::trim) {
         if let Some(t) = w.strip_prefix("fp").and_then(|t| t.parse::<usize>().ok()) {
             a.fork_pool = Some(t);
@@ -2072,6 +2091,12 @@ fn gpu_arm(spec: &str) -> Option<GpuArm> {
             "hostfold" => a.devfold = false,
             "devfold" => a.devfold = true,
             "phases" => a.phases = true,
+            #[cfg(feature = "gpu-metal")]
+            "devtab" => a.device_tables = Some(crate::private_block::argument::DT_DEVICE),
+            #[cfg(feature = "gpu-metal")]
+            "devtabsync" => a.device_tables = Some(crate::private_block::argument::DT_SYNC),
+            #[cfg(feature = "gpu-metal")]
+            "hosttab" => a.device_tables = Some(crate::private_block::argument::DT_HOST),
             _ => a.wait = Some(w.strip_prefix("spin")?.parse().ok()?),
         }
     }
@@ -2268,6 +2293,7 @@ fn d55_ab_one_request_serial_against_forks() {
         let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
         let h0 = tl_start();
         let u0 = usage_now();
+        let _ = crate::private_block::argument::a12_take_table_times();
         let t = Instant::now();
         let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves");
         let wall = t.elapsed().as_secs_f64();
@@ -2275,6 +2301,7 @@ fn d55_ab_one_request_serial_against_forks() {
         let cpu = u.user + u.sys;
         eprintln!("D55-AB A7 CPU {name} L{l} forks N{n}: {cpu:.1} CPU-seconds (user + system, the whole process) over the {wall:.3} s call = {:.1} cores busy on average", cpu / wall);
         a11_report(&name, l, n, &a11_arm_label(), wall, u, &stats);
+        a12_report(&name, l, n, &a11_arm_label());
         tl_report(&format!("forks N{n}"), h0, wall, Some((stats.preflight_s + stats.commit_s, stats.forks_s)));
         if verify {
             let tv = Instant::now();
@@ -2501,6 +2528,7 @@ fn d55_ab_one_request_serial_against_forks() {
                 crate::gpu::metal_set_queues_for_test(a.per_thread.unwrap_or(own_q));
                 crate::gpu::metal_set_wait_for_test(a.wait);
                 crate::gpu::metal_set_device_fold_for_test(Some(a.devfold));
+                crate::private_block::argument::set_device_tables_for_test(a.device_tables);
                 a11_set_arm(&a.label);
                 if a.fork_pool == Some(usize::MAX) {
                     set_fork_pool_auto_for_test();
@@ -2559,6 +2587,7 @@ fn d55_ab_one_request_serial_against_forks() {
         crate::gpu::metal_set_queues_for_test(own_q);
         crate::gpu::metal_set_wait_for_test(own_w);
         crate::gpu::metal_set_device_fold_for_test(None);
+        crate::private_block::argument::set_device_tables_for_test(None);
         a11_set_arm("");
         set_fork_pool_for_test(None);
     }

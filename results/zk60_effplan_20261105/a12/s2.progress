@@ -1,0 +1,64 @@
+2026-11-05T15:22:57Z start
+2026-11-05T15:25:20Z build rc=0
+2026-11-05T15:25:23Z no-feature cargo check --tests rc=0
+2026-11-05T15:25:23Z a12 formula test (CPU) rc=0
+test private_block::range16_tests::a12_the_device_table_formula_equals_the_host_builders_at_every_slot_of_the_w16r2_rung ... A12-FORMULA W16R2_RUNG_H24: 189 tables (2973216 words) equal by the device formula, 49 left to the host (public tab
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 0.37s
+2026-11-05T15:25:26Z a12 census + word-for-word (Metal) rc=0
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: every word of 228 tables (87.0 M words) equal, and of every slot's deferred build (23 slots deferred); the device slots' tables: host 19.7 ms (global pool), 35.1 ms (pool of 6); device 68.0 ms, 48.9 ms (pool of 6); builds so far [115, 920, 220, 160, 0, 0, 23]
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2: every word of 238 tables (3.7 M words) equal, and of every slot's deferred build (23 slots deferred); the device slots' tables: host 3.9 ms (global pool), 1.8 ms (pool of 6); device 7.0 ms, 4.8 ms (pool of 6); builds so far [230, 1865, 465, 320, 0, 0, 46]
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 2.02s
+2026-11-05T15:25:28Z a12 rung golden, tables on host and device (both forms) rc=0
+test private_block::w16r2_tests::a12_w16r2_rung_golden_with_the_slot_tables_built_on_the_host_and_on_the_device ... A12-TABLES W16R2_RUNG_H24 tables on the host: alone 96e4f0b6, three concurrent ["96e4f0b6", "96e4f0b6", "96e4f0b6"]; device builds (builds, device tables, host tables, views, copies, r
+A12-TABLES W16R2_RUNG_H24 tables on the device (ahead of the first round): alone 96e4f0b6, three concurrent ["96e4f0b6", "96e4f0b6", "96e4f0b6"]; device builds (builds, device tables, host tables, views, copies, resident, deferred) [20, 480, 140, 0, 0, 40, 20]
+A12-TABLES W16R2_RUNG_H24 tables on the device (own command buffer): alone 96e4f0b6, three concurrent ["96e4f0b6", "96e4f0b6", "96e4f0b6"]; device builds (builds, device tables, host tables, views, copies, resident, deferred) [20, 480, 140, 0, 0, 40, 0]
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 2.88s
+2026-11-05T15:28:20Z d55 map rc=0
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N1 [hosttab] pass 0: wall 10.596 s = 12.08 proved tok/s; preflight 0.073 s, commit 0.192 s, forks 10.252 s, join 0.080 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [hosttab] pass 0: wall 4.589 s = 27.89 proved tok/s; preflight 0.080 s, commit 0.195 s, forks 4.235 s, join 0.080 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N1 [devtab] pass 0: wall 10.068 s = 12.71 proved tok/s; preflight 0.079 s, commit 0.191 s, forks 9.721 s, join 0.077 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [devtab] pass 0: wall 4.358 s = 29.37 proved tok/s; preflight 0.082 s, commit 0.197 s, forks 4.001 s, join 0.078 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N1 [devtabsync] pass 0: wall 10.250 s = 12.49 proved tok/s; preflight 0.085 s, commit 0.199 s, forks 9.885 s, join 0.081 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [devtabsync] pass 0: wall 4.482 s = 28.56 proved tok/s; preflight 0.091 s, commit 0.195 s, forks 4.116 s, join 0.080 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N1 [devtabsync] pass 1: wall 10.236 s = 12.51 proved tok/s; preflight 0.093 s, commit 0.197 s, forks 9.868 s, join 0.078 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [devtabsync] pass 1: wall 4.150 s = 30.84 proved tok/s; preflight 0.079 s, commit 0.193 s, forks 3.796 s, join 0.082 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N1 [devtab] pass 1: wall 10.129 s = 12.64 proved tok/s; preflight 0.067 s, commit 0.191 s, forks 9.793 s, join 0.078 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [devtab] pass 1: wall 4.140 s = 30.92 proved tok/s; preflight 0.089 s, commit 0.192 s, forks 3.780 s, join 0.078 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N1 [hosttab] pass 1: wall 11.000 s = 11.64 proved tok/s; preflight 0.094 s, commit 0.192 s, forks 10.631 s, join 0.083 s; receipt 818728672 B
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [hosttab] pass 1: wall 4.444 s = 28.80 proved tok/s; preflight 0.080 s, commit 0.188 s, forks 4.091 s, join 0.085 s; receipt 818728672 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.519 s = 12.17 tok/s | mean 10.519 s = 12.17 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=1      | best 10.365 s = 12.35 tok/s | mean 10.365 s = 12.35 tok/s | 1.01x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.822 s = 26.54 tok/s | mean 4.822 s = 26.54 tok/s | 2.18x serial (best)
+D55-AB SUMMARY | forks N=1 hosttab | A7 GPU-policy A/B, interleaved, 2 passes | best 10.596 s = 12.08 tok/s | mean 10.798 s = 11.85 tok/s
+D55-AB SUMMARY | forks N=6 hosttab | A7 GPU-policy A/B, interleaved, 2 passes | best 4.444 s = 28.80 tok/s | mean 4.517 s = 28.34 tok/s
+D55-AB SUMMARY | forks N=1 devtab | A7 GPU-policy A/B, interleaved, 2 passes | best 10.068 s = 12.71 tok/s | mean 10.099 s = 12.67 tok/s
+D55-AB SUMMARY | forks N=6 devtab | A7 GPU-policy A/B, interleaved, 2 passes | best 4.140 s = 30.92 tok/s | mean 4.249 s = 30.12 tok/s
+D55-AB SUMMARY | forks N=1 devtabsync | A7 GPU-policy A/B, interleaved, 2 passes | best 10.236 s = 12.51 tok/s | mean 10.243 s = 12.50 tok/s
+D55-AB SUMMARY | forks N=6 devtabsync | A7 GPU-policy A/B, interleaved, 2 passes | best 4.150 s = 30.84 tok/s | mean 4.316 s = 29.66 tok/s
+# A12 summary of /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79e5d1184b3df41f/results/zk60_effplan_20261105/a12/s2_d55_map.log
+
+| arm | N | pass | wall s | forks s | table builds ms/block | GPU busy in forks s | tables cbs: GPU s, commit->start s | slot 18 / 14 / 17 ms per block |
+|---|---:|---:|---:|---:|---:|---:|---|---|
+| hosttab | 1 | 0 | 10.596 | 10.252 | 34.21 | 3.165 | — | 6.3 / 3.6 / 2.3 |
+| hosttab | 6 | 0 | 4.589 | 4.235 | 58.06 | 2.803 | — | 22.8 / 9.6 / 5.5 |
+| devtab | 1 | 0 | 10.068 | 9.721 | 21.15 | 3.251 | — | 2.1 / 0.7 / 0.4 |
+| devtab | 6 | 0 | 4.358 | 4.001 | 18.99 | 2.757 | — | 2.9 / 0.8 / 0.5 |
+| devtabsync | 1 | 0 | 10.250 | 9.885 | 29.41 | 3.256 | 256: 0.123, 0.107 | 4.7 / 2.6 / 1.4 |
+| devtabsync | 6 | 0 | 4.482 | 4.116 | 121.21 | 2.982 | 256: 0.405, 1.739 | 27.9 / 12.6 / 13.2 |
+| devtabsync | 1 | 1 | 10.236 | 9.868 | 29.86 | 3.249 | 256: 0.123, 0.099 | 4.7 / 2.6 / 1.2 |
+| devtabsync | 6 | 1 | 4.150 | 3.796 | 112.91 | 2.928 | 256: 0.533, 0.716 | 22.3 / 16.9 / 7.0 |
+| devtab | 1 | 1 | 10.129 | 9.793 | 21.21 | 3.250 | — | 2.0 / 0.7 / 0.4 |
+| devtab | 6 | 1 | 4.140 | 3.780 | 18.38 | 2.731 | — | 3.0 / 0.8 / 0.5 |
+| hosttab | 1 | 1 | 11.000 | 10.631 | 36.57 | 3.171 | — | 7.0 / 3.8 / 2.5 |
+| hosttab | 6 | 1 | 4.444 | 4.091 | 61.74 | 2.845 | — | 22.7 / 9.5 / 6.5 |
+
+| arm | N | calls | mean wall s | mean forks s | mean table builds ms/block | mean GPU busy in forks s |
+|---|---:|---:|---:|---:|---:|---:|
+| devtab | 1 | 2 | 10.098 | 9.757 | 21.18 | 3.250 |
+| devtabsync | 1 | 2 | 10.243 | 9.877 | 29.63 | 3.252 |
+| hosttab | 1 | 2 | 10.798 | 10.442 | 35.39 | 3.168 |
+| devtab | 6 | 2 | 4.249 | 3.891 | 18.68 | 2.744 |
+| devtabsync | 6 | 2 | 4.316 | 3.956 | 117.06 | 2.955 |
+| hosttab | 6 | 2 | 4.517 | 4.163 | 59.90 | 2.824 |
+2026-11-05T15:28:20Z all done

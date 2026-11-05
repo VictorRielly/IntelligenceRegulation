@@ -392,6 +392,58 @@ fn a11_w16r2_rung_digests_in_per_fork_pools_on_the_device() {
     std::env::remove_var("HL_GPU");
 }
 
+/// **[A12] the device-built slot tables change no byte.** The seeded W16R2 rung
+/// proof on the device with a device slot's tables built on the HOST
+/// (`HL_METAL_DEVICE_TABLES=0`'s path) and on the DEVICE (`=1`'s), alone and as
+/// three concurrent proofs each in its own rayon pool (1, 2 and 6 threads, as
+/// fork workers run them): every digest is the CPU's, which is the golden, and
+/// the device arm really built tables on the device. Toggles `HL_GPU`
+/// in-process, so it is ignored and run alone by name (`HL_GPU_REQUIRED=1`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A12: toggles HL_GPU in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn a12_w16r2_rung_golden_with_the_slot_tables_built_on_the_host_and_on_the_device() {
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu = seeded_digest(&sh, &blk, copy(&w));
+    assert!(cpu.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's digest moved");
+    std::env::set_var("HL_GPU", "1");
+    use super::argument::{DT_DEVICE, DT_HOST, DT_SYNC};
+    for (on, mode) in [("host", DT_HOST), ("device (ahead of the first round)", DT_DEVICE), ("device (own command buffer)", DT_SYNC)] {
+        super::argument::set_device_tables_for_test(Some(mode));
+        let b0 = crate::gpu::MetalTables::build_stats();
+        let alone = seeded_digest(&sh, &blk, copy(&w));
+        let got: Vec<String> = std::thread::scope(|s| {
+            let hs: Vec<_> = [1usize, 2, 6]
+                .into_iter()
+                .map(|t| {
+                    let (sh, blk, w) = (&sh, &blk, copy(&w));
+                    s.spawn(move || rayon::ThreadPoolBuilder::new().num_threads(t).build().expect("a rayon pool").install(|| seeded_digest(sh, blk, w)))
+                })
+                .collect();
+            hs.into_iter().map(|h| h.join().expect("a proof thread")).collect()
+        });
+        let b1 = crate::gpu::MetalTables::build_stats();
+        let builds: Vec<u64> = b1.iter().zip(b0.iter()).map(|(a, b)| a - b).collect();
+        eprintln!("A12-TABLES {} tables on the {on}: alone {}, three concurrent {:?}; device builds (builds, device tables, host tables, views, copies, resident, deferred, left to the host) {builds:?}", sh.name, &alone[..8], got.iter().map(|d| &d[..8]).collect::<Vec<_>>());
+        assert_eq!(alone, cpu, "a Metal W16R2 rung proof with the tables on the {on} differs from the CPU's");
+        for d in &got {
+            assert_eq!(d, &cpu, "a concurrent Metal W16R2 rung proof with the tables on the {on} differs from the CPU's");
+        }
+        match mode {
+            DT_HOST => assert_eq!(builds[0], 0, "the host arm built tables on the device: {builds:?}"),
+            _ => {
+                // four proofs, several device slots each, every one reading the
+                // committed rows from the commitments' resident copies
+                assert!(builds[0] >= 4 * 4 && builds[1] > 0 && builds[5] > 0 && builds[3] == 0 && builds[4] == 0 && builds[7] == 0, "the device arm's builds: {builds:?}");
+                assert_eq!(builds[6] > 0, mode == DT_DEVICE, "the deferred builds: {builds:?}");
+            }
+        }
+    }
+    super::argument::set_device_tables_for_test(None);
+    std::env::remove_var("HL_GPU");
+}
+
 /// **[A7] the queues change no byte, under concurrency.** The seeded W16R2 rung
 /// proof on six threads at once, as six fork workers would run: first with every
 /// thread's command buffers on the one shared queue, then on six queues (one per

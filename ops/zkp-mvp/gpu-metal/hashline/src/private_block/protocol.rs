@@ -1997,7 +1997,14 @@ pub(crate) fn prove_core(
     let ctx = Ctx { accuracy:blk.accuracy(), lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
     let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), io_data[0], io_data[1]], masks: &mc.masks };
     let mut side = Side::Prove { pd, out: Vec::new() };
-    let acc = argument(&mut side, &ctx, tr, ph)?;
+    let acc = {
+        // [A12] the device slots' table kernels read A's and H's rows from the
+        // commitments' own device copies while the slots run (no byte changes:
+        // the same words, `argument::resident_rows`)
+        #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+        let _resident = super::argument::resident_rows(&a, &h);
+        argument(&mut side, &ctx, tr, ph)?
+    };
     let slots = match side {
         Side::Prove { out, .. } => out,
         Side::Verify { .. } => unreachable!(),

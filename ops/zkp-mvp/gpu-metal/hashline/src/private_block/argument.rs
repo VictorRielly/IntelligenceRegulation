@@ -669,6 +669,197 @@ pub(super) fn build_tables_into(tabs: &[Tab], n_vars: usize, pd: &ProverData, ou
     tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| table_into(t, n_vars, pd, o));
 }
 
+// -------------------------------------- [A12] the device slots' tables, on the device
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A12;
+// `results/zk60_effplan_20261105/a12/README.md`.) A device slot's tables are
+// written by device kernels (`gpu/metal.rs`, `MetalTables::build_planned`)
+// instead of [`build_tables_into`]: each eq cube from its point's two half
+// tables, each committed plane's table gathered from the committed rows through
+// the bit maps below, the same maps [`priv_table_fill`] builds; public tables,
+// and a plane whose challenge index repeats, are written by the host beside
+// them. The same words (the field is exact; `a12_` tests compare every word).
+
+/// [A12] `HL_METAL_DEVICE_TABLES` modes: on the host (as before A12)
+#[cfg(feature = "gpu-metal")]
+pub(crate) const DT_HOST: u8 = 1;
+/// [A12] on the device, the build encoded ahead of the slot's first round
+/// (`1`): no command buffer of its own
+#[cfg(feature = "gpu-metal")]
+pub(crate) const DT_DEVICE: u8 = 2;
+/// [A12] on the device, in a command buffer of its own, waited for before the
+/// rounds (`sync`; the first form measured, kept for the A/B)
+#[cfg(feature = "gpu-metal")]
+pub(crate) const DT_SYNC: u8 = 3;
+
+/// **[A12]** the mode when `HL_METAL_DEVICE_TABLES` is unset (`0` host, `1`
+/// device, `sync`): the device, ahead of the first round. Measured in one
+/// process, W16R2 8B T128, 32 blocks, N = 6, 6 passes with the arm order
+/// reversed in every odd pass, every pair favouring it in both orders: the
+/// proof-only fork run -6.9% (4.596 -> 4.279 s), one request from its input
+/// -3.5%, the 4-request stream's steady state +6.4% (22.9 -> 24.3 tok/s)
+/// (`results/zk60_effplan_20261105/a12/README.md`). `0` restores the host build.
+#[cfg(feature = "gpu-metal")]
+const DEVICE_TABLES_DEFAULT: u8 = DT_DEVICE;
+
+/// 0 until read from the environment (or set by a test)
+#[cfg(feature = "gpu-metal")]
+static DEVICE_TABLES: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
+/// [A12] where a device slot's tables are built ([`DT_HOST`], [`DT_DEVICE`], [`DT_SYNC`])
+#[cfg(feature = "gpu-metal")]
+fn device_tables_mode() -> u8 {
+    use std::sync::atomic::Ordering::Relaxed;
+    match DEVICE_TABLES.load(Relaxed) {
+        0 => {
+            let m = match std::env::var("HL_METAL_DEVICE_TABLES").as_deref() {
+                Ok("1") => DT_DEVICE,
+                Ok("0") => DT_HOST,
+                Ok("sync") => DT_SYNC,
+                _ => DEVICE_TABLES_DEFAULT,
+            };
+            DEVICE_TABLES.store(m, Relaxed);
+            m
+        }
+        m => m,
+    }
+}
+
+/// TEST ONLY ([A12] A/B): the mode ([`DT_HOST`], [`DT_DEVICE`], [`DT_SYNC`]),
+/// or (`None`) as the environment says. Process-wide, as the fork workers must
+/// see it. Changes no byte.
+#[cfg(all(test, feature = "gpu-metal"))]
+pub(crate) fn set_device_tables_for_test(mode: Option<u8>) {
+    DEVICE_TABLES.store(mode.unwrap_or(0), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// The parts of a committed plane's table the device needs, `(used, xlo,
+/// inv_lo, inv_hi, zbits, eqf)`: built exactly as [`priv_table_fill`] builds
+/// them. `used` the cube variables the plane reads; `inv_lo` / `inv_hi` the
+/// inverse of its `idx -> x` bit map over the low `xlo = n / 2` and the high
+/// cube bits (a coordinate's index bit `log - 1 - j` from its cube bit `n - 1
+/// - k`, flipped for `Flip`); `zbits[z]` the index bits of the fixed
+/// coordinates' point `z`, the first fixed coordinate the most significant
+/// (`eq_table_msb`'s order); `eqf` their eq table (empty when none is fixed: a
+/// plain store). Then entry `x` is `sum_z eqf[z] * v(inv(x & used) | zbits[z])`,
+/// the terms `priv_table_fill` adds into `out[x & used]` and broadcasts.
+/// `None` (the host builds the table) when a challenge index repeats, where the
+/// host's loop ADDS two indices into one `x`, or a coordinate is outside the cube.
+#[cfg(feature = "gpu-metal")]
+#[allow(clippy::type_complexity)]
+pub(super) fn plane_plan(p: &Priv, n_vars: usize) -> Option<(usize, usize, Vec<u32>, Vec<u32>, Vec<u32>, Vec<Fp2>)> {
+    if p.log >= 32 || p.coords.len() != p.log || n_vars == 0 || n_vars >= usize::BITS as usize {
+        return None;
+    }
+    let mut used = 0usize;
+    let mut bit_of: Vec<Option<(usize, usize)>> = vec![None; n_vars];
+    let (mut fixed, mut fpos): (Vec<Fp2>, Vec<usize>) = (Vec::new(), Vec::new());
+    for (j, c) in p.coords.iter().enumerate() {
+        match c {
+            Coord::Rho(k) | Coord::Flip(k) => {
+                if *k >= n_vars {
+                    return None;
+                }
+                let bit = n_vars - 1 - *k;
+                if used & (1usize << bit) != 0 {
+                    return None;
+                }
+                used |= 1usize << bit;
+                bit_of[bit] = Some((p.log - 1 - j, usize::from(matches!(c, Coord::Flip(_)))));
+            }
+            Coord::Fixed(f) => {
+                fixed.push(*f);
+                fpos.push(p.log - 1 - j);
+            }
+        }
+    }
+    let nf = fpos.len();
+    let zbits: Vec<u32> = (0..1usize << nf).map(|z| (0..nf).fold(0usize, |a, t| a | (((z >> (nf - 1 - t)) & 1) << fpos[t])) as u32).collect();
+    let eqf = if nf == 0 { Vec::new() } else { eq_table_msb(&fixed) };
+    let (xlo, xhi) = (n_vars / 2, n_vars - n_vars / 2);
+    let inverse_half = |shift: usize, bits: usize| -> Vec<u32> {
+        (0..1usize << bits)
+            .map(|v| {
+                let mut idx = 0usize;
+                for b in 0..bits {
+                    if let Some((ib, flip)) = bit_of[shift + b] {
+                        idx |= (((v >> b) & 1) ^ flip) << ib;
+                    }
+                }
+                idx as u32
+            })
+            .collect()
+    };
+    Some((used, xlo, inverse_half(0, xlo), inverse_half(xlo, xhi), zbits, eqf))
+}
+
+/// **[A12] [`build_tables_into`] on the device**: every eq table and every
+/// committed plane's table of the slot planned for the device kernels, the
+/// public tables (and any plane [`plane_plan`] leaves to the host) written by
+/// [`table_into`] on the host first; `base` the round-0 kernel's base-field
+/// flags, checked as the tables are written. With `defer` the device build is
+/// encoded ahead of the slot's first round (`MetalTables::build_planned`);
+/// with `views` a large committed slice that is not resident may be mapped
+/// (tests: the prover never maps one, it leaves such a slot to the host).
+/// The same words as [`build_tables_into`]. `Ok(false)`: the device did not
+/// take it (nothing written); `Err`: a device failure. Either way the caller
+/// builds every table on the host instead.
+#[cfg(feature = "gpu-metal")]
+pub(super) fn build_tables_device(tabs: &[Tab], n_vars: usize, pd: &ProverData, mt: &mut crate::gpu::MetalTables, base: &[bool], defer: bool, views: bool) -> Result<bool, String> {
+    for (t, tab) in tabs.iter().enumerate() {
+        match tab {
+            // (a violated eq precondition stays with the host builder, which refuses it)
+            Tab::Eq { point, start } if start + point.len() <= n_vars => {
+                let p = point.len();
+                let p_lo = p / 2;
+                mt.plan_eq(t, eq_table_msb(&point[..p - p_lo]), eq_table_msb(&point[p - p_lo..]), n_vars - start - p, p);
+            }
+            Tab::Priv(p) => {
+                if let Some((used, xlo, inv_lo, inv_hi, zbits, eqf)) = plane_plan(p, n_vars) {
+                    mt.plan_plane(t, p.cm as usize, p.log, p.slices.clone(), used, xlo, inv_lo, inv_hi, zbits, eqf);
+                }
+            }
+            _ => {}
+        }
+    }
+    mt.build_planned(pd.data, base, defer, views, |host| {
+        use rayon::prelude::*;
+        host.into_par_iter().for_each(|(t, o)| table_into(&tabs[t], n_vars, pd, o));
+    })
+}
+
+/// **[A12]** while the returned value lives (`protocol::prove_core`'s slots),
+/// the table kernels read `A`'s and `H`'s rows from their commitments' own
+/// resident device copies (`MetalCommit::resident_rows`) instead of mapping
+/// the host pages for every slot. Each slice is paired with the commitment
+/// made of it; a host-path commitment (no device store) registers nothing.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub(super) fn resident_rows<'a>(a: &'a crate::pcs::CommittedZk, h: &'a crate::pcs::CommittedZk) -> impl Sized + 'a {
+    let mut pairs: Vec<(&'a [Fp], &'a crate::gpu::MetalCommit)> = Vec::with_capacity(2);
+    for c in [a, h] {
+        if let crate::pcs::Store::Device(mc) = &c.cm.store {
+            pairs.push((c.data.as_slice(), mc));
+        }
+    }
+    crate::gpu::MetalCommit::resident_rows(&pairs)
+}
+
+/// TEST ONLY ([A12]): per slot, the nanoseconds the prover spent building its
+/// tables, the builds, and how many of them were on the device (process-wide;
+/// the D55 harness takes them per call)
+#[cfg(test)]
+pub(crate) static A12_TABLE_NS: [[std::sync::atomic::AtomicU64; 3]; MAX_SLOTS] = [const { [const { std::sync::atomic::AtomicU64::new(0) }; 3] }; MAX_SLOTS];
+
+/// TEST ONLY ([A12]): `(slot, ns, builds, device builds)` since the last take, and reset
+#[cfg(test)]
+pub(crate) fn a12_take_table_times() -> Vec<(usize, u64, u64, u64)> {
+    use std::sync::atomic::Ordering::Relaxed;
+    (0..MAX_SLOTS)
+        .map(|s| (s, A12_TABLE_NS[s][0].swap(0, Relaxed), A12_TABLE_NS[s][1].swap(0, Relaxed), A12_TABLE_NS[s][2].swap(0, Relaxed)))
+        .filter(|r| r.2 > 0)
+        .collect()
+}
+
 /// DIAGNOSTIC ONLY: per-kind table build counters (eq, public, plane, folded plane)
 pub(super) static TABLE_KIND_NS: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
 pub(super) static TABLE_KIND_N: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
@@ -897,17 +1088,49 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             let mut dev_tables: Option<crate::gpu::MetalTables> = None;
             #[cfg(feature = "gpu-metal")]
             let direct = def.metal.is_some() && kind != SlotKind::Private && (def.tabs.len() << n) > METAL_DIRECT_MIN && !super::timing::census_on(s);
+            #[cfg(test)]
+            #[allow(unused_mut)]
+            let (t_tables, mut on_device) = (std::time::Instant::now(), false);
             let mut tables: Vec<Vec<Fp2>> = super::timing::slot_step(s, "tables: build (argument.rs)", (def.tabs.len() << n) as u64, || {
                 #[cfg(feature = "gpu-metal")]
                 if direct {
                     if let Ok(mut mt) = crate::gpu::MetalTables::new(def.tabs.len(), 1usize << n) {
-                        build_tables_into(&def.tabs, n, pd, mt.tables_mut());
+                        // [A12] on the device when the switch says so and the
+                        // committed rows are resident (`protocol::prove_core`);
+                        // otherwise, or on a decline, every table on the host
+                        // (the same words)
+                        let mode = device_tables_mode();
+                        let dev = mode != DT_HOST && {
+                            let base = &def.metal.as_ref().expect("a direct device build has the slot's kernels").2;
+                            match build_tables_device(&def.tabs, n, pd, &mut mt, base, mode == DT_DEVICE, false) {
+                                Ok(taken) => taken,
+                                Err(e) => {
+                                    crate::gpu::declined("[ZK60-METAL A12] slot tables on the device", &e);
+                                    false
+                                }
+                            }
+                        };
+                        if !dev {
+                            build_tables_into(&def.tabs, n, pd, mt.tables_mut());
+                        }
+                        #[cfg(test)]
+                        {
+                            on_device = dev;
+                        }
                         dev_tables = Some(mt);
                         return Vec::new();
                     }
                 }
                 build_tables_at(&mut def.tabs, n, pd, TABLES_PAR_MIN)
             });
+            #[cfg(test)]
+            {
+                use std::sync::atomic::Ordering::Relaxed;
+                let r = &A12_TABLE_NS[s.min(MAX_SLOTS - 1)];
+                r[0].fetch_add(t_tables.elapsed().as_nanos() as u64, Relaxed);
+                r[1].fetch_add(1, Relaxed);
+                r[2].fetch_add(u64::from(on_device), Relaxed);
+            }
             if tables.iter().any(|t| t.len() != 1usize << n) {
                 return Err(format!("private block: slot {s} table length"));
             }
