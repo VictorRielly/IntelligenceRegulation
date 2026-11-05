@@ -1,0 +1,42 @@
+{
+ "ts_end": "2026-11-05T20:02:12Z",
+ "run_id": "4c12e8adbc11",
+ "label": "a15-s1",
+ "class": "gpu",
+ "cmd": [
+  "/bin/bash",
+  "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87fcd65642aceb6b/results/zk60_effplan_20261105/a15/s1.sh"
+ ],
+ "need_gib": 64.0,
+ "cap_gib": 140.0,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 388.01988220214844,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 80912,
+ "boot_id": "42BF5F64-F14C-467C-B343-44946D8FFC3F",
+ "pid_ns": null,
+ "guard_starttime_ticks": 1793908544,
+ "lock_ids": {
+  "heavy": "16777233:54418473",
+  "build": "16777233:54490092"
+ },
+ "enforcement": "watchdog-only",
+ "waited_s": 0.1,
+ "guard_wall_s": 388.1,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": null,
+ "scope_adopted": null,
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 9.85,
+ "peak_cgroup_gib": null,
+ "peak_vram_mib": 2743,
+ "min_mem_available_gib": 218.98,
+ "vram_drain_s": 0.0,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

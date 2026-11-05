@@ -1,0 +1,64 @@
+# A15 sealing-pass sample summary: a15 s1 [sp0], 2 sealing passes
+interval 2 ms; threads with samples: main 1, other 6, rayon 32
+
+## samples by role and state (thread-seconds = samples x interval)
+| role | run | yield | wake | mutex | vm | sleep | total |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| main | 3.57 | 0.00 | 0.00 | 0.00 | 0.02 | 3.21 | 6.80 |
+| rayon | 32.46 | 17.29 | 1.60 | 20.76 | 0.02 | 174.34 | 246.46 |
+| other | 0.35 | 0.00 | 0.00 | 0.00 | 0.08 | 23.77 | 24.19 |
+
+## the main line (the build's own thread), by what it does
+     1595 =   3.19 s   46.9%  region-wait [sleep]
+     1221 =   2.44 s   35.9%  own work [run]
+      563 =   1.13 s   16.6%  gpu-wait [run]
+       12 =   0.02 s    0.4%  own work [vm]
+        8 =   0.02 s    0.2%  own work [sleep]
+
+### the main line's own running work by deepest project frame, top 15
+      369 =   0.74 s  hashline::private_block::witness::accuracy::quantized
+      211 =   0.42 s  hashline::private_block::witness::Geom::support
+      204 =   0.41 s  hashline::private_block::witness::accuracy::assign::_$u7b$$u7b$closure$u7d$$u7d$
+      181 =   0.36 s  hashline::private_block::witness::accuracy::build
+      170 =   0.34 s  hashline::private_block::witness::accuracy::normalized
+       33 =   0.07 s  hashline::private_block::witness::accuracy::residual
+       22 =   0.04 s  hashline::gpu::metal::wprod_run
+        9 =   0.02 s  hashline::private_block::witness::accuracy::assign
+        7 =   0.01 s  hashline::private_block::accuracy_tables::silu_table
+        7 =   0.01 s  hashline::private_block::witness::rotate
+        3 =   0.01 s  hashline::private_block::accuracy_groups::group_folds_for
+        2 =   0.00 s  hashline::private_block::weights_vanish_off_support
+        1 =   0.00 s  hashline::private_block::witness::matmul_in_out
+        1 =   0.00 s  hashline::private_block::witness::build_accuracy
+        1 =   0.00 s  hashline::private_block::accuracy_public::AccuracyPublic::check_for_registry
+
+### rayon workers' running samples by deepest project frame, top 15
+    11371 =  22.74 s  rayon::iter::plumbing::bridge_producer_consumer::helper
+      600 =   1.20 s  (idle, not yielding: crossbeam_deque::deque::Stealer$LT$T$GT$::steal)
+      521 =   1.04 s  (idle, not yielding: crossbeam_epoch::default::with_handle)
+      516 =   1.03 s  hashline::private_block::witness::accuracy::assign::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$
+      449 =   0.90 s  (idle, not yielding: rayon_core::registry::WorkerThread::wait_until_cold)
+      447 =   0.89 s  hashline::private_block::accuracy::requant
+      414 =   0.83 s  hashline::private_block::witness::accuracy::quantized::_$u7b$$u7b$closure$u7d$$u7d$
+      260 =   0.52 s  (idle, not yielding: crossbeam_epoch::internal::Global::try_advance)
+      208 =   0.42 s  rayon_core::registry::WorkerThread::wait_until_cold
+      193 =   0.39 s  (idle, not yielding: _tlv_get_addr)
+      175 =   0.35 s  crossbeam_deque::deque::Stealer$LT$T$GT$::steal
+      147 =   0.29 s  crossbeam_epoch::default::with_handle
+      105 =   0.21 s  _platform_memmove
+       96 =   0.19 s  (idle, not yielding: _pthread_mutex_droplock)
+       92 =   0.18 s  crossbeam_epoch::internal::Global::try_advance
+
+### the yield samples' chains (leaf first), top 6
+     6271  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$ <- _RNvNvMs0_NtNtNtCsgL88BVMLsDE_3std3sys6thread4unixNtB7_6Thread3new12th
+     1236  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+     1116  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core.
+       21  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core. <- rayon_core::registry::WorkerThread::wait_until_cold
+
+### the wake samples' chains (leaf first), top 6
+      344  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- rayon_core::sleep::Sleep::wake_any_threads <- rayon_core::registry::WorkerThread::wait_until_cold <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+      273  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- rayon_core::sleep::Sleep::wake_any_threads <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper
+      111  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- rayon_core::sleep::Sleep::wake_any_threads <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+       18  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core. <- rayon_core::registry::WorkerThread::wait_until_cold <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+       13  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core. <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper
+        9  __psynch_cvbroad <- pthread_cond_broadcast <- _$LT$rayon_core..latch..LockLatch$u20$as$u20$rayon_core..latch..Latch$ <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core. <- rayon_core::registry::WorkerThread::wait_until_cold <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$

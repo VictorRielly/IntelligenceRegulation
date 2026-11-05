@@ -2952,3 +2952,167 @@ fn a14_the_8b_block_proves_the_same_under_every_a14_setting() {
     }
     std::env::remove_var("HL_GPU");
 }
+
+// ---- [A15] the sealing pool: every witness plane, in every pool (efficiency plan A15) ----
+
+/// [A15] where one witness of a chain is built: on the calling thread (the global
+/// pool), inside a rayon pool, or in the trained stack's sealing pool
+#[derive(Clone, Copy)]
+enum A15At<'p> {
+    Caller,
+    Pool(&'p rayon::ThreadPool),
+    Seal(&'p super::trained_block::SealPool),
+}
+
+/// [A15] a chain of up to `l` witnesses at `sh` from `x0` through the trained stack's
+/// builder (`witness::build_for_block`, what `seal_and_record` and the stack source's
+/// rebuild call), each built at `at`; block k + 1's input is block k's output, and a
+/// refusal ends the chain (it is compared too)
+fn a15_chain(at: A15At, sh: &Shape, blk: &BlockPublic, x0: &[i16], l: usize) -> Vec<Result<Witness, String>> {
+    let mut out = Vec::with_capacity(l);
+    let mut x = x0.to_vec();
+    for _ in 0..l {
+        let f = || super::witness::build_for_block(sh, blk, &x);
+        let r = match at {
+            A15At::Caller => f(),
+            A15At::Pool(p) => p.install(f),
+            A15At::Seal(s) => s.run(f),
+        };
+        let next = r.as_ref().ok().and_then(|w| w.output().ok()).map(|o| unpad(sh, &o));
+        out.push(r);
+        match next {
+            Some(n) => x = n,
+            None => break,
+        }
+    }
+    out
+}
+
+/// [A15] one witness's digest: its output plane index, then every plane's length and words
+fn a15_witness_digest(w: &Witness) -> String {
+    let mut h = blake3::Hasher::new();
+    h.update(&(w.output_plane as u64).to_le_bytes());
+    let mut buf: Vec<u8> = Vec::with_capacity(1 << 16);
+    for p in &w.planes {
+        h.update(&(p.len() as u64).to_le_bytes());
+        for c in p.chunks(1 << 13) {
+            buf.clear();
+            for v in c {
+                buf.extend_from_slice(&v.to_le_bytes());
+            }
+            h.update(&buf);
+        }
+    }
+    h.finalize().to_hex().to_string()
+}
+
+/// [A15] a chain as comparable text: per block, the digest of every plane or the refusal
+fn a15_chain_digests(c: &[Result<Witness, String>]) -> Vec<Result<String, String>> {
+    c.iter().map(|r| r.as_ref().map(a15_witness_digest).map_err(|e| e.clone())).collect()
+}
+
+/// [A15] the places to build at: the calling thread, rayon pools of 1, 4, 8 and 16
+/// threads, and the trained stack's sealing pool set to 0 (the global pool), 1, 4, 8, 16
+/// threads and its default rule; each with its label. `f` builds one chain at each.
+fn a15_every_place(mut f: impl FnMut(&str, A15At)) {
+    use super::trained_block::{set_seal_pool_auto_for_test, set_seal_pool_for_test, SealPool};
+    f("the calling thread (global pool)", A15At::Caller);
+    for t in [1usize, 4, 8, 16] {
+        let p = rayon::ThreadPoolBuilder::new().num_threads(t).build().expect("a rayon pool");
+        f(&format!("a rayon pool of {t}"), A15At::Pool(&p));
+    }
+    for t in [Some(0usize), Some(1), Some(4), Some(8), Some(16), None] {
+        match t {
+            Some(t) => set_seal_pool_for_test(Some(t)),
+            None => set_seal_pool_auto_for_test(),
+        }
+        let sp = SealPool::get().expect("the sealing pool");
+        set_seal_pool_for_test(None);
+        if let Some(t) = t {
+            assert_eq!(sp.threads(), t, "HL_SEAL_POOL's test override {t} gave a pool of {}", sp.threads());
+        }
+        f(&format!("the sealing pool, setting {t:?} ({} threads)", sp.threads()), A15At::Seal(&sp));
+    }
+}
+
+/// **[A15] the sealing pool's size rule, and the pool a witness is built in changes no
+/// word (CPU).** The default is a quarter of the logical CPUs, at least 1 and at most 8
+/// (8 on the 32-core M3 Ultra); `0` is the global pool. At the W16R2 rung, a chain of
+/// three witnesses through the trained stack's builder is built on the calling thread,
+/// in rayon pools of 1, 4, 8 and 16 threads, and in the sealing pool at 0, 1, 4, 8, 16
+/// threads and the default: every plane of every witness (or the refusal that ends the
+/// chain) is the same everywhere, and the first witness is `rung_case`'s.
+#[test]
+fn a15_the_seal_pool_rule_and_the_rung_witness_planes_in_every_pool() {
+    use super::trained_block::default_seal_pool_threads_for_test as rule;
+    assert_eq!((rule(1), rule(4), rule(8), rule(16), rule(32), rule(64), rule(128)), (1, 1, 2, 4, 8, 8, 8));
+    let (sh, blk, w0) = rung_case(shape::W16R2_RUNG_H24);
+    let x0: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11) % 201) as i16 - 100).collect();
+    let base = a15_chain(A15At::Caller, &sh, &blk, &x0, 3);
+    match &base[0] {
+        Ok(w) => assert!(w.planes == w0.planes && w.output_plane == w0.output_plane, "the trained builder's first witness is not rung_case's"),
+        Err(e) => panic!("the rung's first witness refused: {e}"),
+    }
+    let want = a15_chain_digests(&base);
+    let ok = want.iter().filter(|d| d.is_ok()).count();
+    a15_every_place(|label, at| {
+        let got = a15_chain(at, &sh, &blk, &x0, 3);
+        assert_eq!(got.len(), base.len(), "{label}: the chain's length moved");
+        for (k, (g, b)) in got.iter().zip(&base).enumerate() {
+            match (g, b) {
+                (Ok(g), Ok(b)) => assert!(g.planes == b.planes && g.output_plane == b.output_plane, "{label}: a plane of witness {k} differs"),
+                (Err(g), Err(b)) => assert_eq!(g, b, "{label}: block {k}'s refusal differs"),
+                _ => panic!("{label}: block {k} built in one place and refused in the other"),
+            }
+        }
+        eprintln!("A15-RUNG {} {label}: {ok} witnesses ({} blocks), every plane equal", sh.name, got.len());
+    });
+}
+
+/// **[A15, ignored] the same at the W16R2 8B T128 block, CPU and device products.**
+/// A14's 8B recipe (`range16_tests::case`, the first admissible synthetic input), a
+/// chain of three witnesses through the trained stack's builder, built at every place
+/// of [`a15_every_place`] with `HL_GPU` unset (CPU products) and with `HL_GPU=1` (the A4
+/// device products): one digest of every plane of every witness, equal everywhere.
+/// Heavy; toggles `HL_GPU`; run alone by name (`HL_GPU_REQUIRED=1`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A15: heavy (a three-block W16R2 8B T128 chain built 22 times), toggles HL_GPU; run alone by name, HL_GPU_REQUIRED=1"]
+fn a15_the_8b_witness_planes_in_every_sealing_pool() {
+    use crate::private_block::shape::NormCalibration;
+    let spec = shape::W16R2_PROFILES.iter().find(|s| s.name == "W16R2_8B_T128_H24").expect("the W16R2 8B profile");
+    let cal = NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+    let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
+    let (sh, data, public, ff) = super::range16_tests::case(original, 3);
+    let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+    std::env::remove_var("HL_GPU");
+    let mut seed = 0usize;
+    let x0 = loop {
+        let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + seed) % (41 + 20 * (seed % 3))) as i16 - 20).collect();
+        match super::witness::build_accuracy(&sh, &public, &ff, &data, &input) {
+            Ok(_) => break input,
+            Err(_) if seed < 6 => seed += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let want = a15_chain_digests(&a15_chain(A15At::Caller, &sh, &blk, &x0, 3));
+    assert!(want.iter().all(|d| d.is_ok()), "the 8B chain refused: {want:?}");
+    for gpu in [false, true] {
+        if gpu {
+            std::env::set_var("HL_GPU", "1");
+        } else {
+            std::env::remove_var("HL_GPU");
+        }
+        a15_every_place(|label, at| {
+            let made = crate::gpu::witness_product_stats().0;
+            let t = std::time::Instant::now();
+            let got = a15_chain_digests(&a15_chain(at, &sh, &blk, &x0, 3));
+            let secs = t.elapsed().as_secs_f64();
+            let on_device = crate::gpu::witness_product_stats().0 - made;
+            assert_eq!(got, want, "{label} ({}): a plane of the 8B chain's witnesses differs", if gpu { "device products" } else { "CPU products" });
+            assert!(!gpu || on_device > 0, "{label}: no product ran on the device");
+            eprintln!("A15-8B {} {label} [{}]: 3 witnesses in {secs:.2} s, {on_device} device products, every plane equal (digests {:?})", sh.name, if gpu { "device products" } else { "CPU products" }, got.iter().map(|d| d.as_ref().map(|s| s[..8].to_string()).unwrap_or_default()).collect::<Vec<_>>());
+        });
+    }
+    std::env::remove_var("HL_GPU");
+}

@@ -2078,6 +2078,9 @@ struct GpuArm {
     /// A14: the generator's XOF form, the transcript's absorb form and the lazy
     /// sums (see [`A14Arm`])
     a14: A14Arm,
+    /// A15: where the sealing pass builds its witnesses (see [`A15Seal`]); unnamed:
+    /// as the environment says
+    seal: Option<A15Seal>,
 }
 
 // ---- [A14] the A/B words of efficiency plan A14 (the forks' remaining host work) ----
@@ -2126,8 +2129,135 @@ fn a14_apply(a: &A14Arm) {
 
 // ---- end of [A14] ----
 
+// ---- [A15] the sealing pass's pool (efficiency plan A15) ----
+
+use crate::private_block::trained_block::SealPool;
+
+/// **[A15]** where the harness's sealing pass builds its witnesses: `sp<t>` in
+/// production's sealing pool of `t` threads ([`SealPool`]; `sp0` the global pool,
+/// called from the harness thread: the harness before A15); `spauto` production's
+/// default rule; `spg` the global pool entered on one of its own workers (as
+/// `trained_block::seal_and_record`'s `rayon::join` ran each build before A15)
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum A15Seal {
+    Pool(usize),
+    Auto,
+    GlobalWarm,
+}
+
+/// [A15] one `+`-joined word of an arm, if it is A15's (`spin...` stays A7's)
+fn a15_word(w: &str) -> Option<A15Seal> {
+    match w {
+        "spauto" => Some(A15Seal::Auto),
+        "spg" => Some(A15Seal::GlobalWarm),
+        _ => w.strip_prefix("sp").and_then(|t| t.parse::<usize>().ok()).map(A15Seal::Pool),
+    }
+}
+
+/// [A15] `spg` in force (the sealing thread of a stream reads it too)
+static A15_WARM: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// [A15] put an arm's sealing form in force for the whole process; `None` restores
+/// the environment's
+fn a15_apply(s: Option<A15Seal>) {
+    use crate::private_block::trained_block::{set_seal_pool_auto_for_test, set_seal_pool_for_test};
+    A15_WARM.store(s == Some(A15Seal::GlobalWarm), std::sync::atomic::Ordering::Relaxed);
+    match s {
+        None => set_seal_pool_for_test(None),
+        Some(A15Seal::Pool(t)) => set_seal_pool_for_test(Some(t)),
+        Some(A15Seal::Auto) => set_seal_pool_auto_for_test(),
+        Some(A15Seal::GlobalWarm) => set_seal_pool_for_test(Some(0)),
+    }
+}
+
+/// [A15] one sealing pass's builder: the pool in force, or (`spg`) the global pool
+/// entered on one of its workers
+struct A15Sealer {
+    warm: bool,
+    pool: SealPool,
+}
+
+impl A15Sealer {
+    fn now() -> A15Sealer {
+        A15Sealer { warm: A15_WARM.load(std::sync::atomic::Ordering::Relaxed), pool: SealPool::get().expect("the sealing pool") }
+    }
+    /// one witness build (the same words wherever it runs)
+    fn run<R: Send>(&self, f: impl FnOnce() -> R + Send) -> R {
+        if self.warm {
+            rayon::join(f, || ()).0
+        } else {
+            self.pool.run(f)
+        }
+    }
+    fn label(&self) -> String {
+        match (self.warm, self.pool.threads()) {
+            (true, _) => format!("the global pool of {}, entered on a worker", rayon::current_num_threads()),
+            (false, 0) => format!("the global pool of {}, from the calling thread", rayon::current_num_threads()),
+            (false, t) => format!("a sealing pool of {t}"),
+        }
+    }
+}
+
+/// [A15] one digest of every plane of every witness of a chain (each witness hashed
+/// on its own rayon task, off the clock): its output plane index, then each plane's
+/// length and words
+fn a15_digest(ws: &[Witness]) -> String {
+    use rayon::prelude::*;
+    let parts: Vec<[u8; 32]> = ws
+        .par_iter()
+        .map(|w| {
+            let mut h = blake3::Hasher::new();
+            h.update(&(w.output_plane as u64).to_le_bytes());
+            let mut buf: Vec<u8> = Vec::with_capacity(1 << 16);
+            for p in &w.planes {
+                h.update(&(p.len() as u64).to_le_bytes());
+                for c in p.chunks(1 << 13) {
+                    buf.clear();
+                    for v in c {
+                        buf.extend_from_slice(&v.to_le_bytes());
+                    }
+                    h.update(&buf);
+                }
+            }
+            *h.finalize().as_bytes()
+        })
+        .collect();
+    let mut h = blake3::Hasher::new();
+    for d in &parts {
+        h.update(d);
+    }
+    h.finalize().to_hex().to_string()
+}
+
+/// [A15] one request from its input: A13's SEALED line (for `a13/seal_pairs.py`; no
+/// before-challenge parts here) and the sealing pass's own CPU
+#[allow(clippy::too_many_arguments)]
+fn a15_sealed_report(name: &str, l: usize, n: usize, arm: &str, wall: f64, seal: f64, u: Usage, st: &ForkStats, pool: &str) {
+    let cpu = u.user + u.sys;
+    eprintln!(
+        "D55-AB A13 SEALED {name} L{l} N{n} [{arm}]: wall {wall:.3} s; sealing pass {seal:.3} s ({:.1} cores busy, {cpu:.1} CPU-s); prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3} s; 0/{l} forks parked (A15: no before-challenge parts)",
+        cpu / seal.max(1e-9),
+        st.total_s,
+        st.preflight_s,
+        st.commit_s,
+        st.forks_s,
+        st.join_s
+    );
+    eprintln!(
+        "D55-AB A15 SEALED {name} L{l} N{n} [{arm}]: sealing pass {seal:.3} s in {pool}: user {:.2} s + sys {:.2} s = {:.1} cores; csw voluntary {}, involuntary {}; minor faults {}",
+        u.user,
+        u.sys,
+        cpu / seal.max(1e-9),
+        u.nvcsw,
+        u.nivcsw,
+        u.minflt
+    );
+}
+
+// ---- end of [A15] ----
+
 fn gpu_arm(spec: &str) -> Option<GpuArm> {
-    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default() };
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default(), seal: None };
     for w in spec.split('+').map(str::trim) {
         if let Some(t) = w.strip_prefix("fp").and_then(|t| t.parse::<usize>().ok()) {
             a.fork_pool = Some(t);
@@ -2135,6 +2265,11 @@ fn gpu_arm(spec: &str) -> Option<GpuArm> {
         }
         // [A14]
         if a14_word(&mut a.a14, w) {
+            continue;
+        }
+        // [A15]
+        if let Some(sp) = a15_word(w) {
+            a.seal = Some(sp);
             continue;
         }
         match w {
@@ -2409,11 +2544,14 @@ fn d55_ab_one_request_serial_against_forks() {
     let forked_sealed = |ctx: u8, n: usize, verify: bool| -> (f64, f64, usize) {
         let (st, owners) = statement(ctx);
         let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        // [A15] the sealing pass in the pool the arm (or the environment) names, and its CPU
+        let sealer = A15Sealer::now();
+        let (u0, h0) = (usage_now(), tl_start());
         let t = Instant::now();
         let (mut ws, mut pls) = (Vec::with_capacity(l), Vec::with_capacity(l));
         let mut x = xs[0].clone();
         for k in 0..l {
-            let w = build(&x).expect("the chain was admissible");
+            let w = sealer.run(|| build(&x)).expect("the chain was admissible");
             let out = w.output().unwrap();
             x = unpad(&sh, &out);
             if k + 1 < l {
@@ -2422,9 +2560,12 @@ fn d55_ab_one_request_serial_against_forks() {
             ws.push(Some(w));
         }
         let seal = t.elapsed().as_secs_f64();
+        let us = usage_now().since(u0);
+        tl_report(&format!("A15 sealing pass N{n} [{}]", a11_arm_label()), h0, seal, None);
         let mut src = Chain { witnesses: ws, planes: pls, tamper: None };
-        let (rc, _stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves (sealing pass on the clock)");
+        let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves (sealing pass on the clock)");
         let wall = t.elapsed().as_secs_f64();
+        a15_sealed_report(&name, l, n, &a11_arm_label(), wall, seal, us, &stats, &sealer.label());
         if verify {
             verify_run_with_forks(&fr, &rep, &rc, 6).expect("the D55 fork run verifies (sealing pass on the clock)");
             eprintln!("D55-AB {name} L{l} forks N{n} SEALED: verified (D55 verifier, 6 threads)");
@@ -2444,13 +2585,17 @@ fn d55_ab_one_request_serial_against_forks() {
         let (mut done, mut lat, mut rcs) = (Vec::new(), Vec::new(), Vec::new());
         std::thread::scope(|sc| {
             let (xs, build, sh) = (&xs, &build, &sh);
+            // [A15] the arm's label for the sealing thread's lines
+            let (name, arm) = (&name, a11_arm_label());
             sc.spawn(move || {
                 for q in 0..r {
                     let t_in = t.elapsed().as_secs_f64();
+                    // [A15] the sealing pass in the pool in force (beside the forks' own pools)
+                    let sealer = A15Sealer::now();
                     let (mut ws, mut pls) = (Vec::with_capacity(l), Vec::with_capacity(l));
                     let mut x = xs[0].clone();
                     for k in 0..l {
-                        let w = build(&x).expect("the chain was admissible");
+                        let w = sealer.run(|| build(&x)).expect("the chain was admissible");
                         let out = w.output().unwrap();
                         x = unpad(sh, &out);
                         if k + 1 < l {
@@ -2458,6 +2603,7 @@ fn d55_ab_one_request_serial_against_forks() {
                         }
                         ws.push(Some(w));
                     }
+                    eprintln!("D55-AB A15 PIPE-SEAL {name} L{l} N{n} [{arm}] request {q}: sealing pass {:.3} s in {}", t.elapsed().as_secs_f64() - t_in, sealer.label());
                     if tx.send((q, ws, pls, t_in)).is_err() {
                         break;
                     }
@@ -2482,6 +2628,99 @@ fn d55_ab_one_request_serial_against_forks() {
         });
         (t.elapsed().as_secs_f64(), done, lat, rcs)
     };
+    // [A15] `HL_A15_SEAL_AB=<arms>` (A15's words `sp<t>`, `spauto`, `spg`): the sealing pass
+    // ALONE, `HL_A15_SEAL_PASSES` passes (default 3), each arm once per pass (reversed in
+    // odd passes with `HL_D55_AB_ALTERNATE=1`): its wall and the process's usage over it.
+    // In each arm's first pass, one digest of every plane of every witness of the chain
+    // (off the clock), which must be the first arm's. Then `HL_A15_SAMPLE=K`: for each arm
+    // of `HL_A15_SAMPLE_ARMS` (default `sp0,spauto`), K sealing passes between two
+    // handshakes with an outside sampler (`A15-SAMPLE READY <arm> pid <pid>`, the files
+    // `$HL_A15_SAMPLE_DIR/go.<arm>` and `next.<arm>`). `HL_A15_ONLY=1` ends the test there.
+    let a15_alone = |check: bool| -> (f64, Usage, String, String) {
+        let sealer = A15Sealer::now();
+        let u0 = usage_now();
+        let t = Instant::now();
+        let mut ws: Vec<Witness> = Vec::with_capacity(l);
+        let mut x = xs[0].clone();
+        for _ in 0..l {
+            let w = sealer.run(|| build(&x)).expect("the chain was admissible");
+            x = unpad(&sh, &w.output().unwrap());
+            ws.push(w);
+        }
+        let wall = t.elapsed().as_secs_f64();
+        let u = usage_now().since(u0);
+        assert_eq!(ws[l - 1].output().unwrap(), output, "A15: the chain's last output moved");
+        let digest = if check { a15_digest(&ws) } else { String::new() };
+        drop(ws);
+        (wall, u, sealer.label(), digest)
+    };
+    let a15_arms: Vec<(String, A15Seal)> = std::env::var("HL_A15_SEAL_AB")
+        .unwrap_or_default()
+        .split(',')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(|s| (s.to_string(), a15_word(s).unwrap_or_else(|| panic!("HL_A15_SEAL_AB: an unknown arm {s:?}"))))
+        .collect();
+    if !a15_arms.is_empty() {
+        let a15_passes: usize = env_or("HL_A15_SEAL_PASSES", 3usize).max(1);
+        let alternate: bool = env_or("HL_D55_AB_ALTERNATE", 0usize) == 1;
+        let mut first: Option<(String, String)> = None;
+        for p in 0..a15_passes {
+            let order: Vec<usize> = if alternate && p % 2 == 1 { (0..a15_arms.len()).rev().collect() } else { (0..a15_arms.len()).collect() };
+            for ai in order {
+                let (label, s) = &a15_arms[ai];
+                a15_apply(Some(*s));
+                let (wall, u, pool, digest) = a15_alone(p == 0);
+                a15_apply(None);
+                let mut same = String::new();
+                if p == 0 {
+                    match &first {
+                        None => first = Some((label.clone(), digest.clone())),
+                        Some((l0, d0)) => assert_eq!(&digest, d0, "A15: a plane of the chain's witnesses differs between [{l0}] and [{label}]"),
+                    }
+                    same = format!("; every plane of every witness: digest {} (equal to the first arm's, [{}])", &digest[..16], first.as_ref().map(|(l0, _)| l0.as_str()).unwrap_or("-"));
+                }
+                eprintln!(
+                    "D55-AB A15 SEALONLY {name} L{l} [{label}] pass {p}: wall {wall:.3} s in {pool}; user {:.2} s + sys {:.2} s = {:.1} cores; csw voluntary {}, involuntary {}; minor faults {}{same}",
+                    u.user,
+                    u.sys,
+                    (u.user + u.sys) / wall,
+                    u.nvcsw,
+                    u.nivcsw,
+                    u.minflt
+                );
+            }
+        }
+    }
+    let a15_sample: usize = env_or("HL_A15_SAMPLE", 0usize);
+    if a15_sample > 0 {
+        let dir = PathBuf::from(std::env::var("HL_A15_SAMPLE_DIR").expect("HL_A15_SAMPLE_DIR names the handshake directory"));
+        let wait_for = |f: &std::path::Path, secs: u64| {
+            let t = Instant::now();
+            while !f.exists() {
+                assert!(t.elapsed().as_secs() < secs, "A15-SAMPLE: no {} after {secs} s", f.display());
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+        };
+        let arms: Vec<String> = std::env::var("HL_A15_SAMPLE_ARMS").unwrap_or_else(|_| "sp0,spauto".into()).split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+        for label in &arms {
+            a15_apply(Some(a15_word(label).unwrap_or_else(|| panic!("HL_A15_SAMPLE_ARMS: an unknown arm {label:?}"))));
+            eprintln!("A15-SAMPLE READY {label} pid {}", std::process::id());
+            wait_for(&dir.join(format!("go.{label}")), 600);
+            let t = Instant::now();
+            for i in 0..a15_sample {
+                let (wall, u, pool, _) = a15_alone(false);
+                eprintln!("A15-SAMPLE {label} pass {i}: wall {wall:.3} s in {pool}; user {:.2} s + sys {:.2} s; csw voluntary {}, involuntary {}; minor faults {}", u.user, u.sys, u.nvcsw, u.nivcsw, u.minflt);
+            }
+            eprintln!("A15-SAMPLE DONE {label} after {:.3} s", t.elapsed().as_secs_f64());
+            wait_for(&dir.join(format!("next.{label}")), 600);
+            a15_apply(None);
+        }
+    }
+    if env_or("HL_A15_ONLY", 0usize) == 1 {
+        eprintln!("D55-AB A15: HL_A15_ONLY=1, the test ends after the sealing passes");
+        return;
+    }
     let (cold, _) = serial(1, false);
     eprintln!("D55-AB {name} L{l} serial cold (kernel compiles): wall {cold:.3} s = {:.2} proved tok/s", tok(cold));
     let mut table: Vec<(String, Vec<f64>)> = std::iter::once(("serial (D12a)".to_string(), Vec::new())).chain(workers.iter().map(|n| (format!("forks N={n}"), Vec::new()))).collect();
@@ -2600,6 +2839,8 @@ fn d55_ab_one_request_serial_against_forks() {
                 a11_set_arm(&a.label);
                 // [A14]
                 a14_apply(&a.a14);
+                // [A15]
+                a15_apply(a.seal);
                 if a.fork_pool == Some(usize::MAX) {
                     set_fork_pool_auto_for_test();
                 } else {
@@ -2661,6 +2902,8 @@ fn d55_ab_one_request_serial_against_forks() {
         crate::gpu::metal_set_a8_fold_for_test(own_form);
         // [A14]
         a14_apply(&A14Arm::default());
+        // [A15]
+        a15_apply(None);
         a11_set_arm("");
         set_fork_pool_for_test(None);
     }

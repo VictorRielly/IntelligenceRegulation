@@ -2136,6 +2136,8 @@ struct StackSource<'a> {
     lie_at: Option<usize>,
     /// seconds spent REBUILDING witnesses in the proving pass
     busy_s: f64,
+    /// [A15] the pool a rebuild runs in (the sealing pass's)
+    pool: SealPool,
 }
 
 /// **R5b (privacy review P-1, ruling H-1): THE SEALED CHAIN.** Built by the
@@ -2274,7 +2276,7 @@ impl<'a> StackSource<'a> {
         if chain.outs.len() != n || chain.kept.len() != n {
             return Err("trained stack: the sealed chain is not this run's".into());
         }
-        Ok(StackSource { sh, blocks, n, ids: Ids::new(sh)?, chain, lie_at, busy_s: 0.0 })
+        Ok(StackSource { sh, blocks, n, ids: Ids::new(sh)?, chain, lie_at, busy_s: 0.0, pool: SealPool::get()? })
     }
     /// block k's witness: the one kept from the sealing pass, or a rebuild
     /// from the sealed input whose output must be the sealed output
@@ -2288,7 +2290,9 @@ impl<'a> StackSource<'a> {
         let t = Instant::now();
         let x = if k == 0 { self.chain.x_in0.clone() } else { true_words(self.sh, &self.chain.outs[k - 1]) };
         let blk = self.blocks.borrow_mut().get(k)?;
-        let w = witness_for_block(&self.chain.shapes[k],&blk,&x)?;
+        // [A15] a rebuild in the sealing pass's pool (on the fork feeder, beside the forks' own pools)
+        let ssh = &self.chain.shapes[k];
+        let w = self.pool.run(|| witness_for_block(ssh,&blk,&x))?;
         drop(blk);
         if padded_plane(&w, self.ids.at(A_X2))? != self.chain.outs[k] {
             return Err(format!("trained stack: the rebuilt witness of block {k} is not the sealed one (the builder is not deterministic?); the run is abandoned"));
@@ -2412,7 +2416,124 @@ struct SealTimes {
     wall_s: f64,
     load_s: f64,
     witness_s: f64,
+    /// [A15] the threads of the pool the witnesses were built in (0: the global pool)
+    pool_threads: usize,
 }
+
+// ---------------------------------------- [A15] the sealing pass's own rayon pool
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A15;
+// `results/zk60_effplan_20261105/a15/README.md`.) The sealing pass is a chain of
+// serial witness builds, each a run of many short parallel regions (the limb
+// planes, the requantizations, the softmax heads, the weight scans: some 70 to 90
+// per 8B block, an estimate from the code). On the 32-thread global pool each region
+// wakes workers through rayon's sleep lock, and when it ends every idle worker
+// spins on `yield_now` (a system call on macOS) before it sleeps again: the W16R2
+// 8B pass alone took 4.0 s and 15 + 25 CPU-seconds (user + system), in a pool of 8
+// threads 2.9 s and 7 + 2 (A15 stage 1, measured). Each build now runs inside a
+// dedicated pool of `seal_pool_threads()` threads, every region inside it on that
+// pool only; in a stream, the next request's sealing pass no longer shares the
+// global pool with the current request's work. `HL_SEAL_POOL=0` restores the
+// global pool.
+//
+// **Why no byte can move.** Which threads run the builder's parallel regions, and
+// how many, changes no word: every one is an indexed write or an exact integer
+// sum read back in order, with the sequential loop's first error (H124c); the
+// products' split follows `current_num_threads` but each output word is one exact
+// sum. `w16r2_tests::a15_*` compares every plane of a chain's witnesses built in
+// pools of 1, 4, 8 and 16 threads and on the global pool, at the W16R2 rung and the
+// 8B block. Test builds: thread-local builder switches do not cross into the pool
+// (`seal_and_record`'s `rayon::join` already moved the build off the caller).
+
+/// `HL_SEAL_POOL`: unset, empty or `auto`, the default ([`default_seal_pool_threads`]);
+/// `0`, the global pool (the path before A15); `t`, a pool of `t` threads. As a test
+/// override: `usize::MAX` none, [`SEAL_POOL_AUTO`] the default.
+static SEAL_POOL_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+const SEAL_POOL_AUTO: usize = usize::MAX - 1;
+
+/// [A15] the default size of the sealing pool on a machine of `cores` logical CPUs: a
+/// quarter of them, at least 1 and at most 8. Measured on the 32-CPU M3 Ultra (A15
+/// stage 2, in-process at N = 6, both orders, every pair): 8 threads gave one request
+/// -11.0% and the 4-request stream's steady state +19.2% against the global pool; 12
+/// gave -11.3% / +19.0% at 35% more sealing CPU, 16 -9.6% / +16.0%, 6 -11.3% / +16.0%,
+/// 4 -5.4% / +8.7%. The builder's parallel work stops paying beyond about 8 threads
+/// (the sealing pass alone: 2.94 s at 8, 3.05 at 12, 3.15 at 16), hence the cap.
+fn default_seal_pool_threads(cores: usize) -> usize {
+    (cores / 4).clamp(1, 8)
+}
+
+/// [A15] the threads of the sealing pass's pool (0: the global pool)
+pub(crate) fn seal_pool_threads() -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    let t = match SEAL_POOL_TEST.load(std::sync::atomic::Ordering::Relaxed) {
+        usize::MAX => *ENV.get_or_init(|| match std::env::var("HL_SEAL_POOL").as_deref() {
+            Err(_) | Ok("auto") | Ok("") => SEAL_POOL_AUTO,
+            Ok(v) => v.parse::<usize>().map(|t| t.min(1024)).unwrap_or(SEAL_POOL_AUTO),
+        }),
+        t => t,
+    };
+    if t != SEAL_POOL_AUTO {
+        return t;
+    }
+    default_seal_pool_threads(std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1))
+}
+
+/// tests: the sealing pool of `t` threads (`Some(0)`: the global pool; `None`: as the
+/// environment says). Changes no byte (see above).
+#[cfg(test)]
+pub(crate) fn set_seal_pool_for_test(threads: Option<usize>) {
+    SEAL_POOL_TEST.store(threads.map(|t| t.min(1024)).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// tests: the default rule
+#[cfg(test)]
+pub(crate) fn set_seal_pool_auto_for_test() {
+    SEAL_POOL_TEST.store(SEAL_POOL_AUTO, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// tests: the default rule's size at `cores` logical CPUs
+#[cfg(test)]
+pub(crate) fn default_seal_pool_threads_for_test(cores: usize) -> usize {
+    default_seal_pool_threads(cores)
+}
+
+/// **[A15] the sealing pass's pool** (`None`: the global pool), made once per size
+/// and kept for the process (an idle rayon thread sleeps)
+#[derive(Clone)]
+pub(crate) struct SealPool(Option<std::sync::Arc<rayon::ThreadPool>>);
+
+impl SealPool {
+    /// the pool `seal_pool_threads()` names
+    pub(crate) fn get() -> Result<SealPool, String> {
+        let t = seal_pool_threads();
+        if t == 0 {
+            return Ok(SealPool(None));
+        }
+        static POOLS: std::sync::Mutex<Vec<(usize, std::sync::Arc<rayon::ThreadPool>)>> = std::sync::Mutex::new(Vec::new());
+        let mut g = POOLS.lock().map_err(|_| "the sealing pools' lock is poisoned".to_string())?;
+        if let Some((_, p)) = g.iter().find(|(n, _)| *n == t) {
+            return Ok(SealPool(Some(p.clone())));
+        }
+        let p = rayon::ThreadPoolBuilder::new().num_threads(t).thread_name(move |i| format!("hl-seal{t}-{i}")).build().map_err(|e| format!("the sealing pool of {t} threads: {e}"))?;
+        let p = std::sync::Arc::new(p);
+        g.push((t, p.clone()));
+        Ok(SealPool(Some(p)))
+    }
+    /// the pool's threads (0: the global pool)
+    pub(crate) fn threads(&self) -> usize {
+        self.0.as_ref().map_or(0, |p| p.current_num_threads())
+    }
+    /// `f` (one witness build) on a thread of this pool, its parallel regions on this
+    /// pool's threads only; on the caller's own pool when this is the global one
+    pub(crate) fn run<R: Send>(&self, f: impl FnOnce() -> R + Send) -> R {
+        match &self.0 {
+            Some(p) => p.install(f),
+            None => f(),
+        }
+    }
+}
+
+// ---------------------------------------- [A15] end
 
 /// **R5b (privacy review P-1, ruling H-1): THE DIGEST PASS AND THE SEALING
 /// PASS IN ONE, BEFORE THE RUN HEADER.** For each layer in order: the layer
@@ -2433,6 +2554,8 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
     let sh = ex.shape_for(&c)?;
     let ids = Ids::new(&sh)?;
     let l = layers.len();
+    // [A15] the witness builds in the sealing pass's own pool
+    let pool = SealPool::get()?;
     let (x_in0, _) = seq.load(ex, &sh, layers[0])?;
     if x_in0.len() != sh.tokens * sh.width {
         return Err("trained stack: the first input is not tokens x width".into());
@@ -2463,7 +2586,8 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
         let ((wres, ws), nxt) = rayon::join(
             || {
                 let t = Instant::now();
-                let r = witness_for_block(&ssh,&cur.blk,&x);
+                // [A15] on the sealing pool (the next layer's load stays on the global pool)
+                let r = pool.run(|| witness_for_block(&ssh,&cur.blk,&x));
                 (r, t.elapsed().as_secs_f64())
             },
             || if k + 1 < l { Some(timed_load(k + 1)) } else { None },
@@ -2512,7 +2636,7 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
     let last = outs[l - 1].clone();
     let st = ex.statement_of_records(&sh, &c, metas.iter().map(|m| m.record.clone()).collect())?;
     let chain = SealedChain { x_in0, shapes, outs, kept, kept_bytes, first, last, rebuilt: 0 };
-    Ok((c, sh, metas, digests, st, chain, SealTimes { wall_s: t0.elapsed().as_secs_f64(), load_s, witness_s }))
+    Ok((c, sh, metas, digests, st, chain, SealTimes { wall_s: t0.elapsed().as_secs_f64(), load_s, witness_s, pool_threads: pool.threads() }))
 }
 
 /// **R5b (P-1): a run that did not complete is removed, and a removal that
@@ -3120,13 +3244,14 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     );
     let (kept_n, kept_bytes) = (chain.kept.iter().filter(|w| w.is_some()).count(), chain.kept_bytes);
     println!(
-        "{{\"event\":\"sealed\",\"from\":\"the witness builder's own pass over layers {}..{} (parity bit-exact at every layer, before the run header: ruling H-1)\",\"seconds\":{:.3},\"of_which_load_seconds\":{:.3},\"of_which_witness_seconds\":{:.3},\"kept_witnesses\":{kept_n},\"kept_witness_bytes\":{kept_bytes},\"rayon_threads\":{}}}",
+        "{{\"event\":\"sealed\",\"from\":\"the witness builder's own pass over layers {}..{} (parity bit-exact at every layer, before the run header: ruling H-1)\",\"seconds\":{:.3},\"of_which_load_seconds\":{:.3},\"of_which_witness_seconds\":{:.3},\"kept_witnesses\":{kept_n},\"kept_witness_bytes\":{kept_bytes},\"rayon_threads\":{},\"seal_pool_threads\":{}}}",
         layers[0],
         layers[l - 1] + 1,
         seal.wall_s,
         seal.load_s,
         seal.witness_s,
-        rayon::current_num_threads()
+        rayon::current_num_threads(),
+        seal.pool_threads
     );
     println!("{{\"event\":\"parity\",\"result\":\"bit-exact at every layer\",\"layers\":{l},\"words_per_layer\":{},\"checked_before_the_run_header\":true}}", sh.tokens * sh.width);
     // ---- (2) the endpoints (the builder's own planes) and the bound run statement
