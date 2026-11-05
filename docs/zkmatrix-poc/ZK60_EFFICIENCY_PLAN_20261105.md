@@ -106,6 +106,13 @@ are redone once, not per change.
 
 ### Phase B: the protocol changes, designed together, shipped as W16R3 (design 1–2 weeks, build 3–5 weeks)
 
+**Ruled 2026-11-05 (D67):**
+- W16R3 = **B1 + B2 + B3**, shipped together.
+- **B4 is out.** The exact W16 word checks stay, and statement 1 stays as approved.
+- **B5** joins only if its two gates pass by the freeze.
+- **B6:** the study starts now; it joins W16R3 only if ready at the freeze.
+- **Handoff:** `W16R3_HANDOFF_20261105.md` (Sol: the B1–B3 design note, then the build; Astra: the B6 study).
+
 Each item first gets a design note and a census. Measurements come before code.
 
 | # | Item | Expected | Notes |
@@ -158,6 +165,8 @@ Each item first gets a design note and a census. Measurements come before code.
 | Agents, as needed | parallel lanes in their own worktrees, under the guard |
 
 ## 6. Decisions for Victor
+
+**Answered 2026-11-05 (D67):** (1) yes; (3) B4 no, B6 study yes; (2) the RTX 5090 date is still pending.
 
 1. Approve the principle: byte-preserving work first, and every protocol change shipped together as one profile
    version (W16R3), with one re-proof and one re-gate.

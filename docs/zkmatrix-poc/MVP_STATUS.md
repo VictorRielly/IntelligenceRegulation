@@ -38,8 +38,11 @@
   - A13: the work in each block before its first challenge (A's rows, A's commitment, the mask commitment), about 22%
     of a block, done during the sealing pass instead of after it;
   - A14: the forks' remaining host work (the private slots' tables, the transcript absorb, the randomness fill);
-  - the protocol bundle W16R3 (awaiting Victor);
-  - the RTX 5090.
+  - the protocol bundle W16R3, ruled 2026-11-05 (D67):
+    - it is B1 + B2 + B3;
+    - no B4, so statement 1 stays exactly as approved;
+    - the B6 study starts (Astra), and Sol writes the B1–B3 design note first (`W16R3_HANDOFF_20261105.md`);
+  - the RTX 5090 (date pending, Victor).
 
 **2026-11-04 (night): Lean, Fiat–Shamir part 6 merged; the soundness target needs one more theorem (F20, Medium).**
 - Proved: the wide-digest lemma, LogUp and one commitment opening under Fiat–Shamir (with the extractor), and the
