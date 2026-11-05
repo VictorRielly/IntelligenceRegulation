@@ -31,3 +31,7 @@ import ZK60Formal.FSChallenge
 import ZK60Formal.FSSumcheck
 import ZK60Formal.FSChain
 import ZK60Formal.FSChainRbr
+import ZK60Formal.FSWide
+import ZK60Formal.FSWideRbr
+import ZK60Formal.FSLogUp
+import ZK60Formal.FSOpening

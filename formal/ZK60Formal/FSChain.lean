@@ -50,7 +50,7 @@ at most `e·K` (`FSRbr.lean`, `FSChallenge.lean`). What this file assumes of the
   20–26 are `"squeeze"` with total length 35;
 * a challenge read from SEVERAL squeezes (`challenge_fp2_vec`, more than four `challenge_indices`) is several squeeze
   items here; the joint escape of such a vector is not bounded item by item, so for those rounds this file's `k` is not
-  the round's interactive error. That case is still open (see the findings document).
+  the round's interactive error. That case is `FSWide.lean`'s: a step of back-to-back squeezes is one wide digest.
 -/
 import ZK60Formal.FSRbr
 import ZK60Formal.SoundExtract

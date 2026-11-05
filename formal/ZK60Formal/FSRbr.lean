@@ -49,7 +49,8 @@ Fiat–Shamir" attacks).
   hash only up to collisions and out-of-order guesses: that reduction is `FSChain.lean`, and `FSChainRbr.lean` runs
   an RBR-sound protocol on it.
 * A challenge drawn as several squeezes (`challenge_fp2_vec`, `challenge_indices` beyond four indices) is one challenge
-  of this model only if the squeezes are read as one wide digest; that reading is not proved here either.
+  of this model only if the squeezes are read as one wide digest; that reading is not proved here. It is proved on
+  the code's chain in `FSWide.lean` (the wide-digest lemma).
 * The protocol's messages are values here. In the receipts the large messages are Merkle roots, and the statement the
   state function speaks about is the committed data: that is the extractor's job (`SoundExtract.lean`), composed with
   this file in a later step (the log cut at the query that absorbs the root).
