@@ -494,3 +494,239 @@ Per opening, `|E| = p²`, against `results/zk60_w16r2_q280_20261103/recount_q280
 - **Fiat–Shamir** with the challenge bias, as in part 1.
 - **The instance**: the domain `7·G_N` as `ι ↪ F_p`, `K' = n + q_pad`, and the profile's `ColumnRegime` choosing δ/2
   only for the rate-1/2 regular openings.
+
+# Part 3 (2026-11-04): Merkle binding and the extractor for `U`, in the random-oracle model
+
+New files under `formal/ZK60Formal/`: `SoundRO.lean`, `SoundMerkle.lean`, `SoundExtract.lean`, `SoundOpeningRO.lean`.
+- `lake -d formal build` succeeds with no warnings. No file uses `sorry`, `axiom`, `admit`, `native_decide` or a
+  `maxHeartbeats` option.
+- `#print axioms` was run on all 56 new theorems. Each depends on `propext`, `Classical.choice` and `Quot.sound`
+  only, or on fewer.
+- No new lake dependency. Nothing was copied from FlashProve (its `Rom/` and `Hash/` folders were not needed).
+
+**Scope.** The model is `Statements.lean`'s: the hash is one uniformly random function `H : Q → D`; an adversary is
+a deterministic oracle computation `OC Q D α` whose budget `OC.Bounded q` counts queries on every path; probabilities
+are `prH`. The four keyed BLAKE3 functions of a tagged profile and the unkeyed one are one random function on the
+disjoint union of their inputs, so one `H` loses nothing. The PCS challenges stay INTERACTIVE: `ρ` and `J` are exactly
+uniform and independent of `H`, drawn after the root (`P₁` outputs the root before either is drawn; `P₂` sees `ρ`;
+`P₃` sees `J`). Fiat–Shamir is not modelled.
+
+This removes the "`U` is fixed" assumption of Part 2: the committed matrix is now READ OFF THE COMMITTER'S HASH LOG.
+
+## Q1. What is proved
+
+**Task 1, the random oracle** (`SoundRO.lean`). The one probabilistic fact is `prob_fresh_mem_le`. Suppose the event
+names, for each oracle, at most one point `y` that it has not yet fixed (changing `H` at `y` changes neither the event
+nor a set `T` of at most `m` digests). Then `H y ∈ T` has probability at most `m/|D|`. The proof swaps `H y` with a
+fresh value, an involution of `(Q → D) × D`. Applied position by position to an adaptive run:
+```lean
+theorem freshHit_prob_le {α : Type} (A : OC Q D α) (T : ℕ) (hA : A.Bounded T)
+    (F : List (Q × D) → Finset D) (m : ℕ → ℕ) (hF : ∀ P, (F P).card ≤ m P.length) :
+    prH (fun H => FreshHit F (A.runLog H).2)
+      ≤ ((∑ t ∈ range T, m t : ℕ) : ℝ≥0∞) / Fintype.card D
+theorem collision_prob_le {α : Type} (A : OC Q D α) (q : ℕ) (hA : A.Bounded q) :
+    prH (fun H => ∃ a ∈ OC.queries H A, ∃ b ∈ OC.queries H A, a ≠ b ∧ H a = H b)
+      ≤ ((q * (q - 1) / 2 : ℕ) : ℝ≥0∞) / Fintype.card D
+theorem collision_out_prob_le (A : OC Q D (Q × Q)) (q : ℕ) (hA : A.Bounded q) :
+    prH (fun H => (A.run H).1 ≠ (A.run H).2 ∧ H (A.run H).1 = H (A.run H).2)
+      ≤ (((q + 2) * (q + 1) / 2 : ℕ) : ℝ≥0∞) / Fintype.card D
+theorem preimage_query_prob_le {α : Type} (A : OC Q D α) (q : ℕ) (hA : A.Bounded q) (t₀ : D) :
+    prH (fun H => ∃ y ∈ OC.queries H A, H y = t₀) ≤ (q : ℝ≥0∞) / Fintype.card D
+theorem preimage_out_prob_le {α : Type} (A : OC Q D (Q × D × α)) :
+    prH (fun H => H (A.run H).1 = (A.run H).2.1 ∧ (A.run H).1 ∉ OC.queries H A) ≤ 1 / Fintype.card D
+```
+- `FreshHit F L`: some entry asks a question no earlier entry asked, and its answer lies in `F` of the entries before
+  it.
+- `collBound q D` names the bound `q(q − 1)/2 / |D|`.
+- The query-free preimage bound `1/|D|` needs no budget: the answer at a point never asked is still uniform.
+- The log lemmas the other files use are here too: `runLog_bind`, `runLog_take_agree` (a prefix of the log depends
+  only on the answers in it), `runLog_eq_of_agree`, and `replay` with `replay_runLog_append`.
+
+**The model of the tree** (`SoundMerkle.lean`). `MerkleEnc Q D S Col` holds the three hash inputs, each with a left
+inverse:
+- `colQ c`: the column's little-endian bytes under the column key;
+- `leafQ x s`: `x ‖ s` under the leaf key;
+- `nodeQ l r`: `l ‖ r` under the node key.
+
+The climb follows `verify_path_keyed`: at each level the running digest is the left child when the current low bit of
+the position is 0, then the position is halved. `Opens H h root j o` is the tagged verifier's acceptance: the path has
+exactly `h` entries and the climb from `H_leaf(H_col(col) ‖ salt)` reaches the root. **No separation between the three
+kinds of input is assumed**, only that each one is injective.
+
+**Task 2, Merkle binding.**
+```lean
+theorem opens_collision (H : Q → D) {h : ℕ} {root : D} {j : ℕ} {o₁ o₂ : MerkleOpening D S Col}
+    (hc : o₁.col ≠ o₂.col) (h₁ : M.Opens H h root j o₁) (h₂ : M.Opens H h root j o₂) :
+    ∃ a ∈ M.openQs H j o₁, ∃ b ∈ M.openQs H j o₂, a ≠ b ∧ H a = H b
+theorem merkle_binding (h q : ℕ) (A : OC Q D (D × ℕ × MerkleOpening D S Col × MerkleOpening D S Col))
+    (hA : A.Bounded q) :
+    prH (fun H => (A.run H).2.2.1.col ≠ (A.run H).2.2.2.col
+        ∧ M.Opens H h (A.run H).1 (A.run H).2.1 (A.run H).2.2.1
+        ∧ M.Opens H h (A.run H).1 (A.run H).2.1 (A.run H).2.2.2)
+      ≤ collBound (q + 2 * (h + 2)) D
+```
+- Both paths have the same length `h`. So the two climbs compare a node query with a node query at the same level,
+  then the salted leaf with the salted leaf, then the column digest with the column digest. Each comparison either
+  finds a collision or passes the equality down.
+- `mixed_depth_opens` (see F9) shows that without the length check the statement is false for every encoding.
+
+**Task 3, the straight-line extractor** (`SoundExtract.lean`). `extractCol L h j root` reads only the commit phase's
+log `L`. Starting from the root, it repeats `h` times: take the first logged question whose answer is the current
+digest, decode it as a node, and follow the child that the position's bit names (the climb's bit). At the leaf level
+it decodes the logged question as `(x, salt)`, then decodes the logged question whose answer is `x` as a column.
+Nothing is rewound or guessed.
+```lean
+theorem extract_of_opens [DecidableEq Q] (H : Q → D) (L : List (Q × D)) (hL : ∀ e ∈ L, e.2 = H e.1) (root : D)
+    {h j : ℕ} {o : MerkleOpening D S Col} (ho : M.Opens H h root j o) :
+    M.extractCol L h j root = some o.col ∨ ExtBad H L (M.targets L root) (M.openQs H j o)
+theorem extract_sound (h : ℕ) {St : Type} (q₁ q₂ n : ℕ) (A₁ : OC Q D (D × St)) (hA₁ : A₁.Bounded q₁)
+    (B : St → OC Q D (Fin n → ℕ × MerkleOpening D S Col)) (hB : ∀ st, (B st).Bounded q₂) :
+    prH (fun H => ∃ k, M.Opens H h (A₁.runLog H).1.1 (((B (A₁.runLog H).1.2).run H) k).1
+          (((B (A₁.runLog H).1.2).run H) k).2
+        ∧ M.extractCol (A₁.runLog H).2 h (((B (A₁.runLog H).1.2).run H) k).1 (A₁.runLog H).1.1
+            ≠ some (((B (A₁.runLog H).1.2).run H) k).2.col)
+      ≤ collBound (q₁ + q₂ + n * (h + 2)) D + extGuess (q₁ + q₂ + n * (h + 2)) q₁ D
+```
+- `ExtBad`: a verifier's query collides with a logged question, or a verifier's query that was never logged has its
+  answer in `targets L root`.
+- `targets L root` is the root plus the digests that logged questions name as node children or as leaf contents:
+  at most `3|L| + 1` of them (`targets_card`).
+- `extGuess T q₁ D = T(3q₁ + 1)/|D|`. This is the unqueried path guess: the commit phase leaves a hole (a digest with
+  no logged preimage) and a query asked for the first time AFTER the commit phase must land on one of those digests to
+  fill it.
+- The collision term covers every query of the run: the commit phase's, the later phase's and the verifier's.
+
+**Task 4, one opening with `U` extracted** (`SoundOpeningRO.lean`). `ROAccepts` is the verifier of one claim group of
+`verify_zk_tagged`. It checks the claim on the group vector's codeword, and at each sampled index it checks the Merkle
+opening against the root and the opened column against both vectors. The prover runs in three phases (commit; answer
+`ρ`; open `J`).
+```lean
+theorem opening_sound_extracted (M : MerkleEnc Q D S Col) (val : Col → κ → E) (c₀ : Col) {h : ℕ}
+    {C : Submodule E (Fin (2 ^ h) → E)} {d e A : ℕ} (hd : MinDist C d) (h2 : 2 * e < d) (hA : e + 1 ≤ A)
+    (hca : CAOn Unit C e A) (a : κ → E) (ok : (Fin (2 ^ h) → E) → Prop) (nQ : ℕ) {St₁ St₂ : Type}
+    (q₁ q₂ q₃ : ℕ) (P₁ : OC Q D (D × St₁)) (hP₁ : P₁.Bounded q₁)
+    (P₂ : St₁ → (κ → E) → OC Q D (St₂ × C × C)) (hP₂ : ∀ st ρ, (P₂ st ρ).Bounded q₂)
+    (P₃ : St₂ → (Fin nQ → Fin (2 ^ h)) → OC Q D (Fin nQ → MerkleOpening D S Col))
+    (hP₃ : ∀ st J, (P₃ st J).Bounded q₃) :
+    (PMF.uniformOfFintype ((Q → D) × ((κ → E) × (Fin nQ → Fin (2 ^ h))))).toOuterMeasure
+        {x | ROAccepts M val a ok P₁ P₂ P₃ x
+          ∧ ¬ OpeningGood C e (extractU M val c₀ (P₁.runLog x.1).2 h (P₁.runLog x.1).1.1) a ok}
+      ≤ (A : ℝ≥0∞) / Fintype.card E
+        + (((Fintype.card (Fin (2 ^ h)) - (e + 1) : ℕ) : ℝ≥0∞) / Fintype.card (Fin (2 ^ h))) ^ nQ
+        + (collBound (q₁ + (q₂ + q₃) + nQ * (h + 2)) D + extGuess (q₁ + (q₂ + q₃) + nQ * (h + 2)) q₁ D)
+```
+- `extractU` is the extracted matrix: entry `(i, j)` is entry `i` of `extractCol` at `j`, with a default column `c₀`
+  where extraction fails. It is a function of `P₁`'s log alone, so it is fixed before `ρ` and `J`. That is exactly
+  what `opening_sound` needs.
+- The proof splits the event in two. In one part every opening equals its extracted column; then it is
+  `opening_sound`'s event for `extractU`, for each `H` (`prob_prod_le_of_forall_fst`). In the other part some opening
+  differs from its extracted column; that is `extract_sound`'s event, for each `(ρ, J)` (`prob_prod_le_of_forall_snd`).
+- `opening_sound_extracted_rs_half` is the rate-1/2 (δ/2) instance: `N/|E| + col + Merkle`.
+
+## Q2. What the model assumes, and how it meets the code
+
+1. **The three encodings are injective, with fixed-length fields.**
+   - `colQ`: the column has exactly `rows` entries. `verify_zk_tagged` refuses another length, and `wire.rs` reads
+     `rows` field elements. `Fp::to_bytes` is the canonical `u64`, because `Fp::new` reduces.
+   - `leafQ` and `nodeQ` are both 32 + 32 bytes.
+   - Under the tagged profiles the inputs also carry the key. Under the legacy rule `leafQ = nodeQ` as functions.
+     The model allows that, because no separation is assumed.
+2. **The path has exactly `h = log2 N` entries.** This is the assumption binding rests on (F9).
+   - `verify_zk_tagged` checks it (`pcs.rs:1199–1204`).
+   - The private block checks it for every commitment before the core verifiers run: `hash_domain.rs`
+     `paths_are_the_tree_depth` / `mask_paths_are_the_tree_depth`, called at `protocol.rs:2000–2002`, `run.rs:1390` and
+     `run_fork.rs:1273–1275`.
+   - `wire.rs` reads the path count from the layout, never from the receipt.
+3. **The position.** The column index must equal the sampled index, and `challenge_indices` masks it below `N` (a power
+   of two). The climb uses exactly the low `h` bits, as the model does.
+4. **`N` is a power of two, so there is no padding.** `MerkleTree::build_keyed` asserts it. The PCS has
+   `N = 2^log_cols · inv_rate`; the mask commitment has `N = 2^MASK_LOG_DOM`. Nothing in the binding or extraction
+   argument depends on how a non-power-of-two width would be padded, because no such width occurs.
+5. **The salt** sits after the column digest in the leaf input (`salt_leaf_keyed(digest, salt)`). Binding is about the
+   column, so the two openings may carry different salts.
+6. **The order.** The root precedes `ρ`. The private block's verifier absorbs every root first (`protocol.rs:2003–2011`;
+   `absorb_root` also absorbs `rows` and `log_cols`), and `zk_rhos` draws `λ` and `ρ` from that transcript later. The
+   vectors precede `J` (`pcs-vec`, `pcs-prox`, then `challenge_indices`). The interactive model draws `ρ` and `J`
+   uniformly at those points.
+7. **What is not modelled.** Fiat–Shamir (the challenges as hash outputs), several claim groups and the `λ` batching,
+   `M`'s product-form test, and the composition of the 129 commitments of a run that share one oracle.
+
+## Q3. How the bounds compare with the count
+
+The count (`results/zk60_w16r2_q280_20261103/recount_q280.out.txt`) is an interactive union bound. It has **no hash
+term at all**. The Merkle terms proved here are new terms, and they belong to the `q`-dependent `εs q` of
+`Statements.lean`. Per commitment, with `|D| = 2^256` (BLAKE3), `q₁ = q`, and `T = q + nQ(h + 2)`:
+
+| Commitment | Verifier's queries `nQ(h + 2)` | `q = 2^40` | `q = 2^64` | `q = 2^80` |
+|---|---|---|---|---|
+| W16R2 regular (N 2^15, Q 280) | 4,760 | 2^-174.19 | 2^-126.19 | 2^-94.19 |
+| M (N 2^12, MASK_Q 256) | 3,584 | 2^-174.19 | 2^-126.19 | 2^-94.19 |
+
+- Each entry is `collBound T + T(3q + 1)/2^256`. The guess term dominates by about `2^2.4`. The verifier's own
+  queries are negligible: at `q = 0` the collision term is `2^-232.6`.
+- **Against the per-opening figures** (W16R2 −112.278, W16 −105.604, M −106.248), the Merkle term is invisible for
+  any `q ≤ 2^64`.
+- **Against the whole run.** Charged once per commitment (97 regular + 32 M openings), it adds at most
+  `129 × 2^-126.19 = 2^-119.18` at `q = 2^64`. The counted −97.779 does not move.
+- **Against the proposed target `εs q = q·2^-100 + 2^-100`.** The bound is quadratic, about `3.5·q²/2^256`, so it is
+  at most `q·2^-100` for every `q ≤ 2^154.2`. Its absolute value reaches `2^-100` at `q ≈ 2^77.1`, where the target is
+  `2^-23`.
+- **Shape.** The guess term is `T(3q₁ + 1)/|D|`, not `q/|D|`, for two reasons. The commit phase can name up to
+  `3q₁ + 1` digests, and a later query may aim at any of them. A per-position version would charge only the
+  `n(h + 2)` digests on the extracted paths of the sampled positions, and gives `T·n(h + 2)/|D|`. It is not proved;
+  the proved form is enough for every `q` that matters.
+
+## Q4. Findings
+
+**F9 (Low, latent; a documented rationale is wrong). The path-length check is the ONLY protection of binding against
+a tree of mixed depth. The D19 keys do not give it.** `mixed_depth_opens` proves this for every oracle and every
+encoding, including perfectly separated leaf and node inputs.
+- **The construction.** Put column 1's salted leaf `ℓ₁` at depth 1 with sibling `R = H_node(ℓ₂ ‖ X)`, and column 2's
+  salted leaf `ℓ₂` at depth 2 under `R`. The root is `H_node(ℓ₁ ‖ R)`.
+- **The two openings.** Position 2 opens to column 1 with the path `[R]`, and to column 2 with the path `[X, ℓ₁]`.
+  Both climbs reach the root (bit 0 of 2 is 0, bit 1 is 1). No collision is used.
+- **What the docs say.**
+  - The D19 disposition (§1) says the depth gap "disappears with a one-line check … **or** when leaves and nodes are
+    hashed under different keys". The second half is wrong. The keys stop an inner node from being presented as a
+    salted leaf, which was the attack the disposition analysed. They do not stop genuine leaves sitting at two depths.
+  - The comments repeat this: `pcs.rs` `verify_zk_tagged` ("the length check is the second line") and `merkle.rs`
+    `verify_path_keyed` ("needs a key it does not have").
+- **Why nothing breaks today.** Every tagged verifier path in the private block is length-checked: `verify_zk_tagged`
+  itself; `M` through `mask_paths_are_the_tree_depth` (`protocol.rs:2002`, before `mask_verify_tagged` at `:2023`);
+  and the `wire.rs` layout counts.
+- **The gap.** `zk::mask_verify_tagged` has no length check of its own, so on its own it is not binding.
+- **The legacy verifiers.** `pcs::verify_zk` and the plain `verify` have no length check and no leaf/node separation.
+  They are binding only where the wire format fixes the path count.
+- **Suggested:**
+  - move the check into `mask_verify_tagged`, as `verify_zk_tagged` has it;
+  - correct the D19 sentence and the two comments: the length check is the first line, not the second;
+  - keep the T-4 tests.
+
+**F10 (Info: binding and extraction need no domain separation).** At a fixed depth, statement 1's Merkle steps use
+only that each of the three encodings is injective. That includes the legacy rule's identical leaf and node inputs,
+and its 8-row columns whose column input is also 64 bytes.
+- This is unlike hiding: `HidingMerkle.lean` needs the column and salted-leaf inputs separated, and excludes the
+  legacy 8-row case.
+- The T-1 keys are therefore not load-bearing for soundness of the Merkle layer. They remain so for hiding, and
+  possibly for Fiat–Shamir programmability; that is not examined here.
+
+**F11 (Info: the extractor is straight-line and reads only the commit phase).** No rewinding is needed.
+- This is the form `KnowledgeSound` asks for: an extractor reading the prover's hash-query log.
+- Under Fiat–Shamir the commit phase is not a separate computation. The natural extractor reads the log up to the
+  transcript query that absorbs the root. Queries asked after that point and landing on a target are exactly this
+  file's fresh hits.
+- That composition is part of the Fiat–Shamir step, and is not done here.
+
+## Q5. What remains (the Merkle part)
+
+- **Fiat–Shamir.** `ρ` and `J` become transcript outputs, the extractor's log ends at the root's absorption, and the
+  challenge bias of part 1's §3.7 enters.
+- **The 129 commitments of a run sharing one oracle.** There is one collision term for the whole run, and a guess term
+  per commitment, or one guess term over the union of their targets.
+- **The extractor for `KnowledgeSound`.** Decode the extracted `U` to its unique codeword rows (`Close.unique`), read
+  the witness off them, and extract the input and output commitments' openings (`opensIn`, `opensOut`) in the same
+  way.
+- **The instance.**
+  - A `MerkleEnc` for keyed BLAKE3 (`Q` = key × bounded-length bytes, finite).
+  - The column decoder (canonical `Fp` bytes, `rows` entries).
+  - `val` reading a column's `F_p` entries into `F_p²` (the field split of Part 2).
