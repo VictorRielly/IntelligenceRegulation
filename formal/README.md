@@ -15,7 +15,7 @@ The plain-words version, the modelling choices and the open decisions are in
 **Status:**
 - `Statements.lean` holds STATEMENTS. None of `ProductionReady`, `ZeroKnowledge`, `SemanticHiding` or
   `KnowledgeSound` is proved for our protocol yet; the lemmas below are ingredients of `ZeroKnowledge` (step L4) and of
-  `KnowledgeSound` (step L3), proved about models of our commitment and of our IOP.
+  `KnowledgeSound` (step L3), proved about models of our commitment and of our IOP, and its Fiat–Shamir step.
 - Proved so far (step L4, zero knowledge; every file builds with no `sorry` and no warnings, and `#print axioms`
   shows only `propext`, `Classical.choice`, `Quot.sound`):
   - `Hiding.lean`: the opened columns of a masked row are EXACTLY uniform for every message
@@ -171,6 +171,37 @@ The plain-words version, the modelling choices and the open decisions are in
     challenges uniform and drawn after the root; the error is the field term + the column term + the extraction
     error (`opening_sound_extracted`).
   - The comparison with the count, what the model assumes and the findings are in Part 3 of
+    `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
+- Proved so far (step L3, Fiat–Shamir in the random-oracle model, with `Statements.lean`'s `OC` and `prH`; the
+  challenges are hash outputs and the prover chooses the statement; same build and axiom checks):
+  - `FSRbr.lean`: round-by-round soundness (`RbrSound`, Canetti et al.: a state function, at most `e` escaping
+    challenges per round) and the Fiat–Shamir compilation with each challenge `chal (H (statement, transcript so far,
+    message))`. A prover making at most `q` hash queries makes the verifier accept a false statement with probability
+    at most `(q + n)·e·K/|D|` (`fs_sound_of_rbr`), `K` the digests per challenge value. Written as the interactive
+    per-round error times the derivation's bias factor `K·|Ch|/|D|`: `(q + n)·e/|Ch|·bias` (`fs_sound_of_rbr_bias`,
+    `fs_sound_uniform`). The step is `freshHitQ_prob_le`, `SoundRO.lean`'s fresh-hit lemma with the bad set named
+    by the query.
+  - `FSChallenge.lean`: the code's `challenge_fp2` (two 128-bit halves, each reduced mod `p`) has at most
+    `(⌊2^128/p⌋ + 1)²` digests per `Fp2` value (`card_fp2Field_fiber_le`). Its bias factor is at most
+    `(1 + p/2^128)²` (`biasFactor_fp2_le`), at most `(1 + 2^-64)²` for `p ≤ 2^64` (`bias_le_two_pow_64`).
+    `challenge_indices` (a masked `u64`) is exactly uniform (`biasFactor_idx_eq_one`).
+  - `FSSumcheck.lean`: the sumcheck verifier on a transcript list (`scAccept`; it is `SoundSumcheck.lean`'s `Accepts`,
+    `scAccept_proverTr`) is RBR sound with `d` escapes per round and the state "every check passed and the current
+    claim is true" (`sumcheck_rbr`). Under Fiat–Shamir the error is `(q + n)·d/|F|` with uniform challenges
+    (`fs_sumcheck_sound_uniform`), against the interactive `n·d/|F|`, and `(q + n)·d/|F|·(1 + 2^-64)²` with the
+    code's derivation (`fs_sumcheck_sound_goldilocks`).
+  - `FSChain.lean`: the code's transcript is a hash CHAIN (each absorb or squeeze hashes the previous 32-byte state
+    with one item), not a prefix hash. `ChainEnc` models it. A trace-back recovers the chain behind a digest from the
+    log before a query (`traceBack_chain`), in order unless a guess occurs (`chain_ordered`). For any state function
+    on chains with `k` escaping digests per item, the error is `T·k/|D| + collBound T + collBound (T + 1)`,
+    `T = q + ℓ + 1` (`chain_sound`): the prefix bound plus about `T²/2^256`.
+  - `FSChainRbr.lean`: an RBR-sound protocol run on the chain the code hashes (the statement, then per round the
+    message and a counter squeeze): `fs_chain_sound_of_rbr`. The sumcheck as the code hashes it, with the code's
+    `challenge_fp2`: `T·d/|F|·(1 + p/2^128)² + collBound T + collBound (T + 1)`, `T = q + 2n + 2`
+    (`fs_sumcheck_chain_sound_code`).
+  - The comparison with the interactive bounds and the target, the code's transcript order (what is absorbed before
+    each challenge), the findings (F12–F15) and what remains (vector challenges drawn by several squeezes, the
+    extractor cut at the root's absorption, composition on one chain) are in Part 4 of
     `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),

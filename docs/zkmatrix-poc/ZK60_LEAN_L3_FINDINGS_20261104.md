@@ -740,3 +740,289 @@ verifies the path. It no longer relies on every caller running `mask_paths_are_t
   (`results/zk60_h124_witness_20261104/f9_full.log`). The new refusal never fired.
 - Still owed for F9: correct the D19 disposition's sentence ("or when leaves and nodes are hashed under different
   keys") and the comments in `pcs.rs` (`verify_zk_tagged`) and `merkle.rs` (`verify_path_keyed`).
+
+# Part 4 (2026-11-04): Fiat–Shamir in the random-oracle model
+
+New files under `formal/ZK60Formal/`: `FSRbr.lean`, `FSChallenge.lean`, `FSSumcheck.lean`, `FSChain.lean`,
+`FSChainRbr.lean`.
+- `lake -d formal build` succeeds with no warnings (3393 jobs). No file uses `sorry`, `axiom`, `admit`,
+  `native_decide` or a `maxHeartbeats` option.
+- `#print axioms` was run on all 65 theorems of the five files. Each depends on `propext`, `Classical.choice` and
+  `Quot.sound` only, or on fewer.
+- No new lake dependency, and nothing was copied from FlashProve.
+  - Its `Iop/Rbr.lean` (`Doomed`, a count of escaping challenges per round) states the same round-by-round notion.
+  - Its `Rom/` folder compiles Fiat–Shamir in its own oracle model (`OComp`, typed oracle families). That model does
+    not match `Statements.lean`'s `OC`, so it was not ported.
+
+**Scope.**
+- The model is `Statements.lean`'s:
+  - one uniformly random `H : Q → D`;
+  - the prover is a deterministic oracle computation `OC Q D _` making at most `q` hash queries on every path;
+  - probabilities are `prH`.
+- The prover CHOOSES the statement after seeing hash values (adaptive soundness).
+- The challenges are now hash outputs, not uniform draws.
+
+## R1. What is proved
+
+**Round-by-round soundness** (`FSRbr.lean`; Canetti et al. 2019, Def. 5.3). A state function `St x τ` on partial
+transcripts (false means doomed), with at most `e` escaping challenges per round:
+```lean
+structure RbrSound (n : ℕ) (L : X → Prop) (accept : X → List (M × Ch) → Mf → Prop)
+    (St : X → List (M × Ch) → Prop) (e : ℕ) : Prop where
+  start : ∀ x, ¬ L x → ¬ St x []
+  round : ∀ x τ m, τ.length < n → ¬ St x τ → EscapesWithin (fun c => St x (τ ++ [(m, c)])) e
+  final : ∀ x τ mf, τ.length = n → ¬ St x τ → ¬ accept x τ mf
+```
+`EscapesWithin S e` means the `c` with `S c` lie in a set of at most `e` values. The per-round error is `e/|Ch|`
+(`RbrSound.round_prob`).
+
+**Fiat–Shamir with a prefix hash** (`FSRbr.lean`).
+- The challenge of round `i` is `chal (H (enc x τ_i m_i))`.
+- `enc` (`FSEnc`, with its left inverse) is an injective encoding of the statement, the transcript so far (messages
+  AND challenges) and the round's message.
+- `fsAccepts` recomputes the challenges and runs `accept`.
+```lean
+theorem fs_sound_of_rbr [DecidableEq Ch] {n e : ℕ} {L : X → Prop} {accept : X → List (M × Ch) → Mf → Prop}
+    {St : X → List (M × Ch) → Prop} (hR : RbrSound n L accept St e) (E : FSEnc X M Ch Q) (chal : D → Ch) (K : ℕ)
+    (hK : ∀ c, (univ.filter (fun dg : D => chal dg = c)).card ≤ K)
+    (q : ℕ) (A : OC Q D (X × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ L (A.run H).1 ∧ fsAccepts n accept E chal H (A.run H).1 (A.run H).2.1 (A.run H).2.2)
+      ≤ (((q + n) * (e * K) : ℕ) : ℝ≥0∞) / Fintype.card D
+theorem fs_sound_of_rbr_bias ... :
+    prH (...) ≤ (((q + n) * e : ℕ) : ℝ≥0∞) / Fintype.card Ch * biasFactor K Ch D
+```
+- `biasFactor K Ch D = K·|Ch|/|D|` is the derivation's bias factor. `fs_sound_uniform` (`chal = id`) gives
+  `(q + n)·e/|Ch|`.
+- The proof:
+  - the bad set of a query is decoded from the query itself (`FreshHitQ`; `freshHitQ_prob_le` is `SoundRO.lean`'s
+    fresh-hit lemma with the set named by the query);
+  - the round where a false statement escapes doom (`fs_flip`) is a verifier's query whose first-time answer lands
+    in its own escape set.
+- The `n` counts the verifier's own `n` queries.
+
+**The challenges as the code derives them** (`FSChallenge.lean`).
+- A digest is two 128-bit halves: `Fin N × Fin N`, `N = 2^128`.
+- `fp2Chal` reduces each half mod `p` (`Fp::from_u128`).
+- `fp2Field` reads the pair through any bijection `ι : ZMod p × ZMod p ≃ F`; for `Fp2` that is `c0 + U·c1`.
+```lean
+theorem card_fp2Field_fiber_le {F : Type} [DecidableEq F] (N p : ℕ) [NeZero p] (ι : ZMod p × ZMod p ≃ F) (c : F) :
+    (univ.filter (fun v : Fin N × Fin N => fp2Field p N ι v = c)).card ≤ (N / p + 1) ^ 2
+theorem biasFactor_fp2_le {F : Type} [Fintype F] (N p : ℕ) [NeZero N] (hF : Fintype.card F = p ^ 2) :
+    biasFactor ((N / p + 1) ^ 2) F (Fin N × Fin N) ≤ (1 + (p : ℝ≥0∞) / N) ^ 2
+theorem bias_le_two_pow_64 (p : ℕ) (hp : p ≤ 2 ^ 64) :
+    (1 + (p : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ 2 ≤ (1 + (2⁻¹ : ℝ≥0∞) ^ 64) ^ 2
+theorem biasFactor_idx_eq_one {h : ℕ} (hh : h ≤ 64) :
+    biasFactor (2 ^ 64 / 2 ^ h) (Fin (2 ^ h)) (Fin (2 ^ 64)) = 1
+```
+- Part 1 §3.7's factor `(1 + 2^-64)^(2k)` is now a theorem, in the form the Fiat–Shamir bound uses. It is a
+  multiplicative factor `(1 + p/2^128)²` on the per-query error, paid once per hash query and not once per
+  challenge.
+- `prob_fp2Field_mem_le`: a set `S` of `Fp2` values is hit with probability `≤ |S|/|F| · (1 + p/N)²`.
+- `challenge_indices` (a `u64` masked by `2^h − 1`; `idxChal`, `idxChal_eq`) has bias factor exactly `1`.
+
+**The sumcheck** (`FSSumcheck.lean`).
+- `scAccept` is the verifier on a transcript list. `scAccept_proverTr` shows it is `SoundSumcheck.lean`'s `Accepts`
+  on a strategy's transcript.
+- The state function `scState` is "every check so far passed and the current claim is TRUE". A round's step is
+  `sumcheck_one_round`.
+```lean
+theorem sumcheck_rbr {X : Type} {n : ℕ} (hd : d < ringChar F) (stmt : X → ((Fin n → F) → F) × F) :
+    RbrSound n (fun x => ¬ IndDegLE d (stmt x).1 ∨ (stmt x).2 = cubeSum (stmt x).1)
+      (fun x (τ : List ((Fin (d + 1) → F) × F)) (_ : Unit) => scAccept τ n (stmt x).1 (stmt x).2)
+      (fun x (τ : List ((Fin (d + 1) → F) × F)) => ¬ IndDegLE d (stmt x).1 ∨ scState τ n (stmt x).1 (stmt x).2)
+      d
+theorem fs_sumcheck_sound_goldilocks {n p : ℕ} [NeZero p] (hp : p ≤ 2 ^ 64) (hd : d < ringChar F)
+    (ι : ZMod p × ZMod p ≃ F) (stmt : X → ((Fin n → F) → F) × F) (E : FSEnc X (Fin (d + 1) → F) F Q) (q : ℕ)
+    (A : OC Q (Fin (2 ^ 128) × Fin (2 ^ 128)) (X × List (Fin (d + 1) → F) × Unit)) (hA : A.Bounded q) :
+    prH (fun H => IndDegLE d (stmt (A.run H).1).1 ∧ (stmt (A.run H).1).2 ≠ cubeSum (stmt (A.run H).1).1
+        ∧ scAccept (fsTr E (fp2Field p (2 ^ 128) ι) H (A.run H).1 [] (A.run H).2.1) n (stmt (A.run H).1).1
+            (stmt (A.run H).1).2)
+      ≤ (((q + n) * d : ℕ) : ℝ≥0∞) / Fintype.card F * (1 + (2⁻¹ : ℝ≥0∞) ^ 64) ^ 2
+```
+The same file also proves:
+- `fs_sumcheck_sound`: any derivation, `(q + n)·d·K/|D|`;
+- `fs_sumcheck_sound_uniform`: `(q + n)·d/|F|`;
+- `fs_sumcheck_sound_code`: `(q + n)·d/|F| · (1 + p/2^128)²`.
+
+**The code's transcript is a hash chain** (`FSChain.lean`).
+- `zkp_core::transcript` does not hash the prefix. It keeps a 32-byte state:
+  - `new` sets it to `H("hashline-v1/" ‖ domain)`;
+  - each absorb sets it to `H(state ‖ le64|label| ‖ label ‖ le64|data| ‖ data)`;
+  - each squeeze sets it to `H(state ‖ "squeeze" ‖ le64 counter)`, whose bytes are the challenge.
+- `ChainEnc` models exactly this: a start query, and an injective `link` of a state digest with one item, with its
+  left inverse. The start query decodes as no link.
+- `traceBack` reads the log before a query and recovers the chain behind the digest the query names, like
+  `SoundExtract.lean`'s extractor. `traceBack_chain`: it returns the true chain when the chain's queries are logged
+  and no two logged questions collide.
+- `chain_ordered`: every query of a chain is logged before the next one's first occurrence, unless a GUESS occurs. A
+  guess is a first-time answer that lands on a digest an earlier query (or the query itself) already named
+  (`chainTargets`, at most `t + 1` digests at position `t`).
+```lean
+theorem chain_sound (C : ChainEnc It Q D) (St : List (It × D) → Prop) (s k : ℕ)
+    (hround : ∀ τ it, s ≤ τ.length → ¬ St τ → EscapesWithin (fun d : D => St (τ ++ [(it, d)])) k)
+    {α : Type} (q ℓ : ℕ) (A : OC Q D (List It × α)) (hA : A.Bounded q) :
+    prH (fun H => ¬ St (C.chainFrom H [] (((A.run H).1.take ℓ).take s))
+        ∧ St (C.chainFrom H [] ((A.run H).1.take ℓ)))
+      ≤ (((q + ℓ + 1) * k : ℕ) : ℝ≥0∞) / Fintype.card D + collBound (q + ℓ + 1) D
+        + collBound (q + ℓ + 1 + 1) D
+```
+The bound is the prefix-hash term plus a collision term and a guess term; the last two together are about `T²/|D|`,
+`T = q + ℓ + 1`.
+
+**A protocol on the chain** (`FSChainRbr.lean`).
+- The items are the ones the code's verifiers hash: the statement, then per round the message and one squeeze with
+  its counter (`pItems`). `sumcheck::verify` absorbs `"sc-round"`, then calls `challenge_fp2`.
+- `rDecode` reads a chain back as a protocol transcript. `rDecode_rounds`: on the verifier's chain it returns the `n`
+  messages.
+- `liftSt` is the protocol's state on chains. `liftSt_round`: a message item never escapes, and a squeeze item is the
+  protocol round, with `e·K` escaping digests.
+```lean
+theorem fs_chain_sound_of_rbr ... (hR : RbrSound n L accept St e) (C : ChainEnc (PItem X M) Q D) (chal : D → Ch)
+    (K : ℕ) (hK : ∀ c, (univ.filter (fun dg : D => chal dg = c)).card ≤ K)
+    (q : ℕ) (A : OC Q D (X × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ L (A.run H).1 ∧ chainAccepts n accept C chal H (A.run H).1 (A.run H).2.1 (A.run H).2.2)
+      ≤ (((q + (2 * n + 1) + 1) * (e * K) : ℕ) : ℝ≥0∞) / Fintype.card D + collBound (q + (2 * n + 1) + 1) D
+        + collBound (q + (2 * n + 1) + 1 + 1) D
+```
+`fs_sumcheck_chain_sound_code` is the sumcheck as the code hashes it, with the code's `challenge_fp2`:
+`T·d/|F| · (1 + p/2^128)² + collBound T + collBound (T + 1)` over `|D| = 2^256`, `T = q + 2n + 2`.
+
+## R2. The bounds compared
+
+`|F| = p²` and `log2 |F| ≈ 128`. With `d = 5` the per-round error is `d/|F| = 2^-125.678`. The bias factor
+`(1 + p/2^128)²` is `1 + 2^-63`, invisible at this precision.
+
+| One sumcheck slot, `d = 5`, `n ≈ 24` rounds | `q = 2^40` | `q = 2^64` | `q = 2^80` |
+|---|---|---|---|
+| Interactive, `sumcheck_sound`: `n·d/|F|` (no `q`) | 2^-121.1 | 2^-121.1 | 2^-121.1 |
+| Fiat–Shamir, prefix hash: `(q + n)·d/|F|·bias` | 2^-85.68 | 2^-61.68 | 2^-45.68 |
+| Chain: the added collision and guess terms, `≈ T²/2^256` | 2^-176 | 2^-128 | 2^-96 |
+| Proposed target `εs q = q·2^-100 + 2^-100` | 2^-60 | 2^-36 | 2^-20 |
+
+- **Every Fiat–Shamir bound is linear in `q`, the target's own shape.** Per hash query the sumcheck costs
+  `2^-125.68`, 25.7 bits under the target's `2^-100` per query.
+- The chain's extra terms are quadratic in `T`. They stay below `2^-100` while `T ≤ 2^78`; there the target is
+  `2^-22`.
+- **The count is an interactive union bound over all rounds.**
+  - Round by round, the Fiat–Shamir error is `q · max_round(error)`, not `q · Σ_round(error)`: an attack must win
+    some single round, and each query attacks one round.
+  - Indicatively (these RBR instances are not proved yet), the largest per-round error in the count is LogUp's `α`:
+    `(N_lk + 2·T_d − 1)/p² = 2^-102.93`, or `2^-102.92` with `β, γ, α` read as one draw (F15).
+  - That would give `εs(q) ≈ q·2^-102.9` for the whole run, plus `≈ T²/2^256`.
+  - Reading the count's whole-run `2^-97.78` as a per-attempt rate (ACCOUNTING A2) is the more conservative figure.
+
+## R3. What the model assumes, and how it meets the code
+
+1. **The statement is bound before any challenge** (verified in the code).
+   - The block header `protocol::transcript` (`protocol.rs:113-127`) absorbs these, after the profile's domain:
+     - `expected-IO`: the context digest, both scales, the input and output endpoint roots;
+     - `public-statement`: the weights and tables digest;
+     - `parameters`, `calibration` and `schedule`.
+   - Then come the `A` root (with rows and log-cols) and the `M` root, before `β, γ, α` (`protocol.rs:2003-2007`).
+   - The run headers (`run.rs:844-861`, `run_fork.rs:749-763`) absorb the same, plus `run-shape`.
+   - Stage and fork indices are absorbed before each stage (audit, not re-read).
+   - The exception is F12.
+2. **Each round's message is absorbed before its challenge.**
+   - `sumcheck::verify` absorbs `"sc-round"` then calls `challenge_fp2` (`sumcheck.rs:159-160`).
+   - `pcs::verify_zk_tagged` absorbs every `"pcs-vec"` and `"pcs-prox"` before `challenge_indices`
+     (`pcs.rs:1220-1227`).
+   - The sumcheck does not absorb the claimed sum itself. The sum is fixed by `s_0(0) + s_0(1)` and by the earlier
+     `"pb-scalar"` absorb.
+3. **The link encoding is injective.**
+   - An absorb input carries both lengths. A squeeze input has exactly 47 bytes, and an absorb input at least 48.
+   - That is all the chain theorem needs. No round index and no label is needed for soundness, because the chain binds
+     the prefix through the previous state.
+   - Under the legacy rule the transcript, column, leaf and node hashes are one unkeyed BLAKE3, and some absorb
+     inputs are 64 bytes, like a Merkle node (the `"log-cols"` absorb). The single-oracle model already covers this:
+     every prover query counts in `q`, and a Merkle query equal to a link query IS that link query.
+4. **The start query decodes as no link.**
+   - To decode as an absorb, `"hashline-v1/" ‖ domain` would have to carry a little-endian length in bytes 32–39,
+     and ASCII text there gives at least `2^56`. To decode as a squeeze it would have to be 47 bytes with `"squeeze"`
+     in bytes 32–38.
+   - The registered domain strings meet this. It is an assumption of `ChainEnc`, not a checked instance.
+5. **Challenges.**
+   - `challenge_fp2` reads the low 16 bytes as `c0` and the high 16 as `c1`, each mod `p`.
+   - The squeeze's 32 bytes become the state, so the chain links through the challenge digest itself.
+   - `challenge_indices` masks 8-byte chunks, four per squeeze. It is exact on a 64-bit `usize`.
+6. **The statement as one item, the counter as `j`.**
+   - The code absorbs the header as six items.
+   - Its squeeze counter is the transcript's total squeeze count, so it differs from `j` by an offset.
+   - Both change only `T` and the decoder's offset, but neither is formalized.
+7. **What is not modelled.**
+   - Vector challenges drawn by several squeezes (F15).
+   - Several protocols composed on one chain (slots, blocks, the PCS).
+   - The extractor's log cut at the root's absorption (task 4).
+   - The refusals of zero draws (they only add rejection).
+
+## R4. Findings
+
+**F12 (Low: a statement field of D12a/D55 runs is not bound).** `RunStatement` has its own `context` field
+(`run.rs:514`).
+- The constructor only refuses zero (`run.rs:635-637`). It never compares `context` with `expected.spec.context`,
+  which IS absorbed through the `expected-IO` bytes (`private_block.rs:1122-1131`).
+- No header absorbs it (`run.rs:844-861`, `run_fork.rs:749-763`), and neither `parameter_line` nor `schedule_digest`
+  contains it.
+- Its only uses:
+  - `boundary_spec` (`run.rs:730`). `BoundarySpec::digest()` is never absorbed (`run.rs:655-656` says so). It is used
+    prover-side only: the boundary seed domain (`boundary.rs:396`) and `PreparedBoundary`'s spec check
+    (`boundary.rs:276`).
+  - The test-only capture (`run.rs:908`).
+- **Effect.** A D12a or D55 run receipt verifies under ANY nonzero run context, so the receipt does not attest it.
+  - The verifier's decision does not depend on it. No equation is at risk, and this is not a Fiat–Shamir soundness
+    break.
+  - It is a statement word that a reader may take as attested, and it is not.
+  - The token-I/O run is not affected: its context enters `expected_bytes` (`token_io/run.rs:375-383`, per the audit,
+    not re-read).
+- **Suggested:** refuse `context != expected.spec.context` in `RunStatement::new_with_calibration`, or drop the field
+  and derive it from `expected`. A refusal changes no proof byte.
+
+**F13 (Info: nothing a challenge depends on is absorbed after it).** A read-only audit covered the private-block
+verifier: the block, the D12a run, the D55 fork–join and the token-I/O stages. Every root and message is absorbed
+before the challenges that depend on it:
+- the header first; `A` and `M` before `β, γ, α`; `H` after them, because it is built from them;
+- per slot: its own challenges, `"pb-slot"`, `c`, `"pb-scalar"`, the rounds, `"pb-term"`;
+- `M`'s opening: `θ`, `"mask-q"`, the `r`s, `"mask-prox"`, the indices;
+- the PCS openings: `λ`, `ρ`, `"pcs-vec"`, `"pcs-prox"`, the indices.
+
+The `clone_state` transcripts do one of two things, neither of which reaches the proof:
+- they refuse degenerate draws;
+- they squeeze position tags that are compared and never adopted.
+
+I checked the header, the commitment order, the sumcheck loop and the PCS order myself (cited in §R3). The slot
+`define` arms were read only through their challenge draws.
+
+**F14 (Info: under Fiat–Shamir the error is per query, the maximum over rounds).** See §R2.
+- The count's interactive union bound is not the Fiat–Shamir figure.
+- Round-by-round soundness of the whole IOP, with the per-round errors the count already itemizes, gives `q·max`
+  instead. The chain adds `≈ T²/2^256`.
+- When the IOP's RBR instances are proved, `εs q` can be stated from them directly.
+
+**F15 (Info: vector challenges are drawn by several squeezes).**
+- **Where.** `challenge_fp2_vec` (`λ`, `ρ`, the `M` weights, the batching vectors) and `challenge_indices` beyond four
+  indices squeeze several times with no absorb between.
+- **What that means.** The whole vector is a deterministic function of the state before the first squeeze. To a
+  prover it is ONE wide challenge, which is what the interactive bounds assume (`ρ` jointly uniform, `J` jointly
+  uniform).
+- **The gap in the proofs.** The proved theorems take one challenge per squeeze. A squeeze-by-squeeze state function
+  cannot carry a joint bound such as `A/|E|` for `ρ`; it would pay roughly the line bound once per coordinate.
+- **What closes it.** A "wide digest" lemma: once the first query of a squeeze run is fresh, the run's digests are
+  jointly uniform unless a guess occurs (the chain's guess term again). This is a gap in the proofs, not in the code.
+- LogUp's `β, γ, α` are the same case (`protocol.rs:2005-2007`, no absorb between them). Treated as three rounds
+  instead, the fold costs 3 escapes per table tuple instead of 2: `(N + 5M − 1)/p² = 2^-102.917` against
+  `2^-102.922`.
+
+## R5. What remains
+
+- **The wide-digest lemma** (F15). Then the RBR instances of LogUp (`β, γ, α` as one round, `logup_block_bound`) and
+  of the opening (`ρ`: the field term; `J`: the column term).
+- **The opening under Fiat–Shamir with the extractor.**
+  - Its state function depends on the matrix extracted from the log, cut at the query that absorbs the root
+    (`absorb_root(A)`, `protocol.rs:2003`).
+  - That is round-by-round KNOWLEDGE soundness: the extraction error of `SoundExtract.lean` composed with
+    `chain_sound`.
+- **Composition on one chain.** The 23 slots, `A`/`H`/`M`, and the blocks and forks of a run, as one RBR protocol.
+  The per-round errors are the count's items, and the bound is `q·max + T²/2^256`.
+- **The code-level instance.** A `ChainEnc` for keyed BLAKE3 byte strings, the header's six absorbs and the counter
+  offset, including `ldec_start` for the registered domains.
+- **`KnowledgeSound`** of `Statements.lean`: the extractor of the witness and of the commitment openings, composed
+  with the above.
