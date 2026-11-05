@@ -7,6 +7,9 @@ import ZK60Formal.HidingSumcheck
 import ZK60Formal.HidingM
 import ZK60Formal.HidingSumcheckJoint
 import ZK60Formal.HidingMerkle
+import ZK60Formal.HidingMOpening
+import ZK60Formal.HidingRefusal
+import ZK60Formal.HidingBlock
 import ZK60Formal.SoundSchwartzZippel
 import ZK60Formal.SoundSumcheck
 import ZK60Formal.SoundLogUp
