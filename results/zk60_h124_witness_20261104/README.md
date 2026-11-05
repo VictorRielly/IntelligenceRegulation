@@ -230,3 +230,33 @@ products. About 174 ms was on ONE thread:
 
 **Next:** `assign`'s limb loops (about 30 ms per block, still serial), the norms, and the shape checks. Then a
 fork-run source that keeps the sealing pass's witnesses, and the multi-request pipelined measurement.
+
+## H124c step 4: parallel limb planes, and one request measured end to end from its input (2026-11-04, night)
+
+**Changes.**
+- `assign`'s limb planes are filled in parallel over whole token-row chunks (head-slot chunks for S): `ChunkPlan`
+  and `fill_planes` in `witness_accuracy.rs`, no unsafe code. Every refusal inside these loops is one fixed string
+  per role, so the error is unchanged.
+- The D55 harness gains `HL_D55_SEALED=1`. That arm runs what a single request really does, all on one clock: the
+  sealing pass from the run's input (the forward chain, one full build per block), KEEPING its witnesses and
+  boundary planes, then the fork run on them. The receipt verifies.
+
+**Acceptance** (`check_par2.sh`): equality on every plane for the six profiles, as in step 3
+(`par2_equality.log`); the full lib suite is 905 / 3 known / 94 (`par2_full.log`); the W16R2 rung golden is
+unchanged; all six pinned trained digests are present.
+
+**Time** [MEASURED, shared box, best of 2]:
+- One witness: 0.164 s on 32 threads (step 3: 0.167). The limb loops were only about 3 ms of real cost. The
+  remaining 0.078 s outside the products is spread thinly; the products (0.086 s) are now the largest single piece.
+- **One W16R2 8B T128 request end to end from its input, sealed: 11.504 s = 11.13 proved tok/s.** It is the
+  sealing pass (5.93 s on the clock) plus the fork run on the kept witnesses. This is the first fully measured
+  single-request figure with all witness work on the clock (`d55_ab_par2.log`).
+- For comparison in the same run: the JIT 2:4 arm with its separate sealing pass took 13.01 s = 9.84 tok/s, and
+  the proof alone (witnesses prebuilt) 5.468 s = 23.41 tok/s.
+
+**What is left for one request on the Mac:**
+- the serial chain, 32 × 0.164 s; its products would move to the GPU, which is idle during the sealing pass (H124b);
+- the fork run, about 5.5 s.
+
+For a stream of requests (D64 allows batching), the next request's sealing pass can overlap this one's fork run.
+That is the next measurement.

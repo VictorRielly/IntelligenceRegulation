@@ -1,0 +1,58 @@
+2026-11-05T05:10:52Z start
+2026-11-05T05:13:10Z build rc=0
+   1 warning: `hashline` (lib test) generated 27 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+   1 warning: associated function `of` is never used
+   1 warning: field `boundaries` is never read
+   1 warning: function `constants_of` is never used
+   1 warning: function `table_keys_of` is never used
+   1 warning: method `is_dd` is never used
+   1 warning: method `pd` is never used
+   1 warning: method `slot` is never used
+   1 warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+   1 warning: unused doc comment
+   1 warning: unused import: `Dom`
+   1 warning: unused import: `eval_mle_ext`
+   1 warning: unused import: `verify_inner_at`
+   1 warning: unused variable: `cube`
+   1 warning: unused variable: `g_exp`
+   1 warning: unused variable: `hp`
+   1 warning: unused variable: `low`
+   1 warning: unused variable: `lp`
+   1 warning: unused variable: `ls`
+   2 warning: unused variable: `n_pad`
+   1 warning: unused variable: `precision`
+   1 warning: value assigned to `cached` is never read
+   6 warning: variable does not need to be mutable
+2026-11-05T05:13:20Z equality rc=0
+H124c R13_TINY_T128_LOW: 4 admissible inputs equal on every plane, 0 refused identically
+H124c R13_8B_T128_H24_DD: 0 admissible inputs equal on every plane, 4 refused identically
+H124c R13_RUNG_H24: 4 admissible inputs equal on every plane, 0 refused identically
+H124c W16R2_RUNG_H24: 4 admissible inputs equal on every plane, 0 refused identically
+H124c W16_SHIELD_T256_H24: 4 admissible inputs equal on every plane, 0 refused identically
+H124c W16R2_8B_T128_H24: 4 admissible inputs equal on every plane, 0 refused identically
+test private_block::witness_speed_tests::h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1001 filtered out; finished in 9.25s
+2026-11-05T05:13:30Z per-block timing rc=0
+2026-11-05T05:18:26Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 905 passed; 3 failed; 94 ignored; 0 measured; 0 filtered out; finished in 296.15s
+2026-11-05T05:18:27Z w16r2 rung golden rc=0
+2026-11-05T05:18:54Z trained digests rc=0
+2026-11-05T05:18:54Z digest 2b0d04bb present
+2026-11-05T05:18:54Z digest 678953f6 present
+2026-11-05T05:18:54Z digest 01a6d51d present
+2026-11-05T05:18:54Z digest c5e0bdac present
+2026-11-05T05:18:54Z digest 4e189ccc present
+2026-11-05T05:18:54Z digest a9a19ee5 present
+2026-11-05T05:20:53Z d55 A/B rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 5.355 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 11.563 s = 11.07 proved tok/s FROM THE RUN'S INPUT (sealing pass 5.916 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 11.504 s = 11.13 proved tok/s FROM THE RUN'S INPUT (sealing pass 5.934 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 11.053 s = 11.58 tok/s | mean 11.197 s = 11.43 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.468 s = 23.41 tok/s | mean 5.630 s = 22.74 tok/s | 2.02x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 11.504 s = 11.13 tok/s | mean 11.533 s = 11.10 tok/s
+D55-AB SUMMARY | forks N=6 JIT 2:4 | witness on the clock | best 7.658 s = 16.71 tok/s | mean 7.717 s = 16.59 tok/s | with the sealing pass (5.355 s) one request end to end 13.013 s = 9.84 tok/s
+2026-11-05T05:20:53Z all done

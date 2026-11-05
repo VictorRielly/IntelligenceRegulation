@@ -17,6 +17,8 @@
   - The builder's single-threaded remainder was then parallelized, byte-identically (goldens and the six pinned
     digests unchanged). The witness per block went from 0.249 to 0.167 s.
   - **One request end to end is now 12.54 s = 10.2 tok/s** [MEASURED].
+  - **With the sealing pass's witnesses kept, one request from its input is 11.50 s = 11.1 tok/s** [MEASURED, all
+    witness work on the clock, the receipt verified]: the serial chain 5.9 s, then the fork run.
 
 **2026-11-04 (evening): a soundness defect found by the Lean work, confirmed in Rust (F12, High).**
 - The mask commitment M certifies its first claimed value only up to an offset the prover picks when it commits:

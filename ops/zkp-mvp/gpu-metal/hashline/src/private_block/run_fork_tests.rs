@@ -2110,6 +2110,36 @@ fn d55_ab_one_request_serial_against_forks() {
         (wall, rc.bytes(), stats)
     };
     let mut jit_table: Vec<(String, Vec<f64>)> = jit.iter().flat_map(|&(b, a)| workers.iter().map(move |n| (format!("forks N={n} JIT {b}:{a}"), Vec::new()))).collect();
+    // H124c: `HL_D55_SEALED=1` adds the arm a single request would really run: the sealing
+    // pass ON the clock (the forward chain, one full build per block, from the run's input),
+    // KEEPING its witnesses and boundary planes, then the fork run on them
+    let sealed_on: bool = env_or("HL_D55_SEALED", 0usize) == 1;
+    let forked_sealed = |ctx: u8, n: usize, verify: bool| -> (f64, f64, usize) {
+        let (st, owners) = statement(ctx);
+        let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        let t = Instant::now();
+        let (mut ws, mut pls) = (Vec::with_capacity(l), Vec::with_capacity(l));
+        let mut x = xs[0].clone();
+        for k in 0..l {
+            let w = build(&x).expect("the chain was admissible");
+            let out = w.output().unwrap();
+            x = unpad(&sh, &out);
+            if k + 1 < l {
+                pls.push(out);
+            }
+            ws.push(Some(w));
+        }
+        let seal = t.elapsed().as_secs_f64();
+        let mut src = Chain { witnesses: ws, planes: pls, tamper: None };
+        let (rc, _stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves (sealing pass on the clock)");
+        let wall = t.elapsed().as_secs_f64();
+        if verify {
+            verify_run_with_forks(&fr, &rep, &rc, 6).expect("the D55 fork run verifies (sealing pass on the clock)");
+            eprintln!("D55-AB {name} L{l} forks N{n} SEALED: verified (D55 verifier, 6 threads)");
+        }
+        (wall, seal, rc.bytes())
+    };
+    let mut sealed_table: Vec<(String, Vec<f64>)> = if sealed_on { workers.iter().map(|n| (format!("forks N={n} SEALED"), Vec::new())).collect() } else { Vec::new() };
     let (cold, _) = serial(1, false);
     eprintln!("D55-AB {name} L{l} serial cold (kernel compiles): wall {cold:.3} s = {:.2} proved tok/s", tok(cold));
     let mut table: Vec<(String, Vec<f64>)> = std::iter::once(("serial (D12a)".to_string(), Vec::new())).chain(workers.iter().map(|n| (format!("forks N={n}"), Vec::new()))).collect();
@@ -2169,6 +2199,14 @@ fn d55_ab_one_request_serial_against_forks() {
                     jit_table[j * workers.len() + i].1.push(wall);
                 }
             }
+            if sealed_on {
+                for (i, &n) in workers.iter().enumerate() {
+                    let (wall, seal, bytes) = forked_sealed(ctx, n, p == 0);
+                    ctx += 1;
+                    eprintln!("D55-AB {name} L{l} T{} forks N{n} SEALED pass {p}: wall {wall:.3} s = {:.2} proved tok/s FROM THE RUN'S INPUT (sealing pass {seal:.3} s on the clock, its witnesses kept); receipt {bytes} B", sh.tokens, tok(wall));
+                    sealed_table[i].1.push(wall);
+                }
+            }
         }
     }
     // D60: the same table split by order
@@ -2190,6 +2228,11 @@ fn d55_ab_one_request_serial_against_forks() {
         let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
         let mean = walls.iter().sum::<f64>() / walls.len() as f64;
         eprintln!("D55-AB SUMMARY | {arm:<14} | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s | {:.2}x serial (best)", tok(best), tok(mean), base / best);
+    }
+    for (arm, walls) in sealed_table.iter().filter(|(_, w)| !w.is_empty()) {
+        let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
+        let mean = walls.iter().sum::<f64>() / walls.len() as f64;
+        eprintln!("D55-AB SUMMARY | {arm:<14} | one request end to end from its input, measured | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s", tok(best), tok(mean));
     }
     for (arm, walls) in jit_table.iter().filter(|(_, w)| !w.is_empty()) {
         let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);

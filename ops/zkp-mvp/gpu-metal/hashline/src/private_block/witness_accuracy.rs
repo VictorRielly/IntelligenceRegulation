@@ -37,6 +37,61 @@ pub(crate) fn with_sequential<R>(f: impl FnOnce() -> R) -> R {
 const PAR_MIN: usize = 1 << 14;
 const PAR_CHUNK: usize = 1 << 13;
 
+/// A domain's support split by whole chunks of its plane: `groups[c]` holds the support
+/// positions in `[c * stride, (c + 1) * stride)`. The chunks are token rows (D, Q, Kv, F),
+/// head slots (S) or plain blocks (Dd).
+struct ChunkPlan {
+    stride: usize,
+    groups: Vec<Vec<usize>>,
+}
+
+fn chunk_plan(g: &Geom, dom: Dom, support: &[usize]) -> Option<ChunkPlan> {
+    let stride = match dom {
+        Dom::D => g.d_pad,
+        Dom::Q => g.q_pad,
+        Dom::Kv => g.kvw,
+        Dom::F => g.f_pad,
+        Dom::S => g.t_pad * g.t_pad,
+        Dom::Dd => 1 << 12,
+        _ => return None,
+    };
+    let len = g.len(dom);
+    if stride == 0 || len % stride != 0 || support.len() < PAR_MIN {
+        return None;
+    }
+    let mut groups = vec![Vec::new(); len / stride];
+    for &i in support {
+        groups.get_mut(i / stride)?.push(i);
+    }
+    Some(ChunkPlan { stride, groups })
+}
+
+/// H124c: fill the planes `targets[k]` at every support position, each plane over its
+/// chunks in parallel; `cell(i, k)` checks position `i` and gives the plane-`k` word.
+/// Every refusal `cell` can return is one fixed string per role, so the error is the
+/// sequential loop's. A plane whose length does not match the plan is refused to the
+/// caller, which then takes the sequential path.
+fn fill_planes(planes: &mut [Vec<i64>], targets: &[usize], plan: &ChunkPlan, cell: &(dyn Fn(usize, usize) -> Result<i64, String> + Sync)) -> Option<Result<(), String>> {
+    use rayon::prelude::*;
+    if targets.iter().any(|&p| planes[p].len() != plan.groups.len() * plan.stride) {
+        return None;
+    }
+    for (k, &p) in targets.iter().enumerate() {
+        let mut plane = std::mem::take(&mut planes[p]);
+        let r = plane.par_chunks_mut(plan.stride).zip(plan.groups.par_iter()).enumerate().try_for_each(|(c, (ch, pos))| -> Result<(), String> {
+            for &i in pos {
+                ch[i - c * plan.stride] = cell(i, k)?;
+            }
+            Ok(())
+        });
+        planes[p] = plane;
+        if r.is_err() {
+            return Some(r);
+        }
+    }
+    Some(Ok(()))
+}
+
 /// the logical head of every padded head slot (`None` for a padding slot), or `None` when
 /// the slots do not fit `nslots`
 fn slot_heads(g: &Geom, nslots: usize) -> Option<Vec<Option<usize>>> {
@@ -695,6 +750,12 @@ pub(super) fn assign(
         if let Some((_,v))=supports.borrow().iter().find(|(d,_)| *d==dom) {return v.clone();}
         let v=std::rc::Rc::new(g.support(dom)); supports.borrow_mut().push((dom,v.clone())); v
     };
+    // H124c: and each domain's chunk plan once, for the parallel limb fills
+    let plans:std::cell::RefCell<Vec<(Dom,std::rc::Rc<Option<ChunkPlan>>)>>=std::cell::RefCell::new(Vec::new());
+    let plan=|dom:Dom| -> std::rc::Rc<Option<ChunkPlan>> {
+        if let Some((_,v))=plans.borrow().iter().find(|(d,_)| *d==dom) {return v.clone();}
+        let v=std::rc::Rc::new(if sequential() {None} else {chunk_plan(&g,dom,&support(dom))}); plans.borrow_mut().push((dom,v.clone())); v
+    };
     let decompose16=|planes:&mut Vec<Vec<i64>>,role:L,values:&[i64],bias:i64| -> Result<(),String> {
         let (count,dom)=(ids.count(role),role_dom(role));
         if values.len()!=g.len(dom) {return Err("W16 witness: limb source shape mismatch".into());}
@@ -702,6 +763,15 @@ pub(super) fn assign(
         // a word or one-limb remainder is 16 bits; a two-limb remainder and
         // the product word are 24 (the lookups then pin each limb's width)
         let width=if top_only || count==2 {24} else {16};
+        if let Some(pl)=plan(dom).as_ref() {
+            let targets:Vec<usize>=if top_only {vec![ids.limb(role,0)]} else {(0..count).map(|k| ids.limb(role,k)).collect()};
+            let cell=|i:usize,k:usize| -> Result<i64,String> {
+                let value=values[i].checked_add(bias).filter(|&v| v>=0 && v<(1i64<<width))
+                    .ok_or_else(||range("W16 limb decomposition"))?;
+                Ok(if top_only {crate::private_block::range16::word24_top(values[i],bias)} else {(value>>(16*k))&0xffff})
+            };
+            if let Some(r)=fill_planes(planes,&targets,pl,&cell) {return r;}
+        }
         for &i in support(dom).iter() {
             let value=values[i].checked_add(bias).filter(|&v| v>=0 && v<(1i64<<width))
                 .ok_or_else(||range("W16 limb decomposition"))?;
@@ -714,6 +784,15 @@ pub(super) fn assign(
         if w16 {return decompose16(planes,role,values,bias);}
         let count=ids.count(role); let dom=ids.doms[ids.limb(role,0)];
         if values.len()!=g.len(dom) {return Err("R13 witness: limb source shape mismatch".into());}
+        if let Some(pl)=plan(dom).as_ref() {
+            let targets:Vec<usize>=(0..count).map(|k| ids.limb(role,k)).collect();
+            let cell=|i:usize,k:usize| -> Result<i64,String> {
+                let value=values[i].checked_add(bias).filter(|&v| v>=0 && v<(1i64<<(8*count)))
+                    .ok_or_else(||range("R13 limb decomposition"))?;
+                Ok((value>>(8*k))&255)
+            };
+            if let Some(r)=fill_planes(planes,&targets,pl,&cell) {return r;}
+        }
         for &i in support(dom).iter() {
             let value=values[i].checked_add(bias).filter(|&v| v>=0 && v<(1i64<<(8*count)))
                 .ok_or_else(||range("R13 limb decomposition"))?;
