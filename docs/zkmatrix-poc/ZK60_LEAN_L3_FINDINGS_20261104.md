@@ -740,3 +740,253 @@ verifies the path. It no longer relies on every caller running `mask_paths_are_t
   (`results/zk60_h124_witness_20261104/f9_full.log`). The new refusal never fired.
 - Still owed for F9: correct the D19 disposition's sentence ("or when leaves and nodes are hashed under different
   keys") and the comments in `pcs.rs` (`verify_zk_tagged`) and `merkle.rs` (`verify_path_keyed`).
+
+# Part 4 (2026-11-04): the openings as the code runs them, and `M`'s product-form test
+
+New files under `formal/ZK60Formal/`: `SoundGroups.lean` and `SoundMProduct.lean`.
+- `lake -d formal build` succeeds with no warnings (3390 jobs). No file uses `sorry`, `axiom`, `admit`,
+  `native_decide` or a `maxHeartbeats` option.
+- `#print axioms` was run on all 38 new theorems. Each depends on `propext`, `Classical.choice` and `Quot.sound` only.
+- No new lake dependency. Nothing was copied from FlashProve. `SoundMProduct.lean` reuses three lemmas of
+  `HidingMOpening.lean` (`sum_eval_nodes`, `rootsOfUnity_powSum`, `natDegree_interpolate_lt`).
+
+**Scope.** As in Parts 2 and 3: interactive, the challenges exactly uniform and independent, the prover arbitrary,
+the committed rows fixed. Part 3's extracted matrix can be substituted; `groups_sound_extracted` does so.
+
+**The main result is a finding, F12 (§R4): `M`'s check certifies its first functional only up to a constant that the
+prover chooses when it commits `M`.** Read from the code, this looks exploitable in the token-I/O stages. It has NOT
+been run against the Rust verifier.
+
+## R1. What is proved
+
+**Task 1, several claim groups with the `λ` batching** (`SoundGroups.lean`). The model follows `group_zclaims`,
+`zk_rhos` and `verify_zk_tagged` (`pcs.rs:926-1279`):
+- a claim `c` is row weights `rw_c`, a claimed value `val_c` and a group `grp c`; the group's column weights `cw_g` are
+  shared by its claims;
+- the encoder is any injective linear map `enc : (μ → E) → (ι → E)` from clear vectors (message, then pads) to words;
+  the code is its range;
+- a claim is a linear functional of the committed MESSAGE: on message rows `X` its value is
+  `claimValue = Σ_i rw_c(i)·⟨X_i, cw_{grp c}⟩`;
+- the verifier draws one INDEPENDENT uniform `λ_c` per claim (`challenge_fp2_vec(members.len())` per group, not
+  powers) and the proximity weights `ρ`, all before any vector; group `g`'s row weights are `Σ_{c ∈ g} λ_c·rw_c`;
+- the prover answers, as any functions of `(λ, ρ)`, one clear vector per group and the clear proximity vector; the
+  verifier checks every group's claim, re-encodes, and checks every group and the proximity vector at `Q` uniform
+  columns (`GroupsAccept`).
+
+`ok` is now defined through the decoder:
+- `decodeWord enc = Function.invFun enc`, the inverse of the encoder on the code (`decodeWord_enc`, `enc_decodeWord`);
+- `closeTable` is the table of codewords a close matrix agrees with; `decodeRows` decodes it row by row;
+- `GroupsGood`: `U` is close, and every claim holds of `decodeRows enc e U`;
+- `groupsGood_iff`: that is the same as "some message rows `X`, encoded, agree with `U` outside `e` columns and
+  satisfy every claim" (unique decoding, `Close.unique`). So the decoded data is the extracted data.
+
+```lean
+theorem groups_sound [Fintype E] [DecidableEq E] [Fintype ι] [DecidableEq ι] [Nonempty ι] [Fintype κ]
+    [DecidableEq κ] [Fintype μ] [Fintype Cl] [DecidableEq Cl] [DecidableEq G]
+    (enc : (μ → E) →ₗ[E] (ι → E)) (henc : Function.Injective enc) {d e A : ℕ}
+    (hd : MinDist (LinearMap.range enc) d) (h2 : 2 * e < d) (hA : e + 1 ≤ A)
+    (hca : CAOn Unit (LinearMap.range enc) e A)
+    (U : κ → ι → E) (rw : Cl → κ → E) (cw : G → μ → E) (grp : Cl → G) (val : Cl → E)
+    (v : G → (Cl → E) → (κ → E) → μ → E) (w : (Cl → E) → (κ → E) → μ → E) (Q : ℕ) :
+    (PMF.uniformOfFintype (((Cl → E) × (κ → E)) × (Fin Q → ι))).toOuterMeasure
+        {x | GroupsAccept enc U rw cw grp val v w x.1.1 x.1.2 x.2 ∧ ¬ GroupsGood enc e U rw cw grp val}
+      ≤ (A : ℝ≥0∞) / Fintype.card E
+        + (((Fintype.card ι - (e + 1) : ℕ) : ℝ≥0∞) / Fintype.card ι) ^ Q
+```
+- **The bound is the one-group bound of `opening_sound`.** `U` decides the case before any challenge.
+  - Far: the proximity vector, as before.
+  - Close, with a false claim `c₀`: either the `λ`-combination of the errors of `c₀`'s group vanishes (`≤ 1/|E|`,
+    `batch_prob`; the algebra is `batch_identity`), or the group's combined claim is false of the decoded rows, and
+    then the group vector differs from `Σ_i a_{g,i}·U_i` in `≥ d − e ≥ e + 1` columns (`le_card_ne_add`).
+  - `1/|E| ≤ A/|E|`, so the batching term is absorbed. The requested additive form, the batching term plus the
+    one-group bound, is `groups_sound_add` (`≤ 1/|E| + (A/|E| + col)`).
+- Several groups cost nothing more: the close case uses only the group of one false claim.
+- Instances: `groups_sound_rs_half` (`N/|E| + col`) and `groups_sound_rs_third` (`(e + 1)/|E| + col`), with the
+  hypothesis `LinearMap.range enc = rsCode dom K`.
+- **With the Merkle layer** (`groups_sound_extracted`): a three-phase prover against the random oracle (`P₁` commits;
+  `P₂` sees `(λ, ρ)`; `P₃` opens), and `GroupsGood` of the matrix extracted from `P₁`'s log. The bound is
+  `A/|E| + ((N − (e + 1))/N)^nQ + collBound T D + extGuess T q₁ D`, `T = q₁ + (q₂ + q₃) + nQ(h + 2)`. The proof is
+  Part 3's split, with `groups_sound` in place of `opening_sound`.
+- **Powers of one challenge** would cost `(k − 1)/|E|` for `k` claims. The PCS does not use powers; `M` does (task 2).
+
+**Task 2, `M`'s product-form test** (`SoundMProduct.lean`). The model is `mask_verify_tagged` (`zk.rs:657-698`) over
+one field `E`:
+- one `θ`; the combined weights `W_s(θ) = Σ_i θ^(i + o)·w_{i,s}` and value `V(θ) = Σ_i θ^(i + o)·value_i` (`mW`,
+  `mV`). The code has `o = 0` (`combined_weights`: `th` starts at `Fp2::ONE`);
+- the prover sends `q'` (degree `< 2m`, any function of `θ`); the sum check is `m·(q'_0 + q'_m) = V(θ)`; at each of
+  `Q` uniform columns the verifier checks `b_j + Σ_s a_{s,j}·p_{W_s}(η_j) = q'(η_j)` (`MProdAccept`), where `p_W`
+  interpolates `W` on `G_m = {ω^j}` (`mInterp`);
+- the rows agree outside `e` columns with decoded polynomials `Ah_s`, `Bh` of degree `≤ K` (the proximity part);
+- the decoded message of a row is its values on `G_m`; the true values are `tru_i = Σ_s Σ_j w_{i,s,j}·Ah_s(ω^j)`
+  (`mTrue`); the offset is `off = Σ_{x ∈ G_m} Bh(x) = m·(Bh_0 + Bh_m)` (`mOff`, `mOff_eq`);
+- the residual is `Σ_i (value_i − tru_i)·X^(i + o) − off` (`mResidual`).
+
+What the checks say:
+- `sum_mPts_eval`: `Σ_{x ∈ G_m} p(x) = m·(p_0 + p_m)` for degree `< 2m`. So the sum check reads the sum over `G_m`.
+- `mResidual_root`: if `q'` IS the product polynomial `Bh + Σ_s Ah_s·p_{W_s}`, the sum check says exactly that `θ` is a
+  root of the residual.
+- `mprod_columns_prob`: otherwise the column checks pass only off the agreement set or at a root of `P − q'`, that is
+  on at most `e + dd` columns (`dd ≥ K + m − 1` and `dd ≥ 2m − 1`): probability `≤ ((e + dd)/N)^Q`.
+
+```lean
+theorem mproduct_sound [Fintype E] [DecidableEq E] [Fintype ι] [DecidableEq ι] [Nonempty ι] [Fintype σ]
+    {k m Q e K dd : ℕ} (hm : 0 < m) {ω : E} (hω : IsPrimitiveRoot ω m) (η : ι → E) (hη : Function.Injective η)
+    (o : ℕ) (wt : Fin k → σ → Fin m → E) (val : Fin k → E) (a : σ → ι → E) (b : ι → E)
+    (Ah : σ → E[X]) (Bh : E[X]) (hAh : ∀ s, (Ah s).natDegree ≤ K) (hB : Bh.natDegree ≤ K)
+    (S : Finset ι) (hS : Fintype.card ι ≤ S.card + e)
+    (haS : ∀ j ∈ S, ∀ s, a s j = (Ah s).eval (η j)) (hbS : ∀ j ∈ S, b j = Bh.eval (η j))
+    (hdd : K + (m - 1) ≤ dd) (hdq : 2 * m - 1 ≤ dd)
+    (hres : mResidual o val (mTrue ω wt Ah) (mOff m ω Bh) ≠ 0)
+    (q : E → E[X]) (hq : ∀ θ, (q θ).natDegree < 2 * m) :
+    (PMF.uniformOfFintype (E × (Fin Q → ι))).toOuterMeasure
+        {x | MProdAccept η ω o wt val a b q x.1 x.2}
+      ≤ ((k - 1 + o : ℕ) : ℝ≥0∞) / Fintype.card E + (((e + dd : ℕ) : ℝ≥0∞) / Fintype.card ι) ^ Q
+```
+- `mproduct_sound_code` (`o = 0`, the code): if some `value_i ≠ tru_i + [i = 0]·off`, the probability is
+  `≤ (k − 1)/|E| + ((e + dd)/N)^Q`. **This is the most the code's check gives**: it says nothing about a functional 0
+  that is too large by exactly `off`.
+- `mproduct_offset_accepts`, the attack: for any `Ah_s` of degree `< m` and any `Bh` of degree `< 2m`, with the rows
+  their exact evaluations, `value_0 = tru_0 + off` and the other values true, the prover that sends the product
+  polynomial passes the product test for EVERY `θ` and every column sample. `mproduct_offset_false`: functional 0 is
+  then false whenever `off ≠ 0`.
+- `mproduct_sound_shift` (`o = 1`, the fix): if ANY functional is false, whatever `b` is, the probability is
+  `≤ k/|E| + ((e + dd)/N)^Q`.
+
+**`M`'s whole opening** (`mopening_sound`).
+- The committed rows are `Ub` (the code's `2·masks + 2` base rows) and the proximity mask `u`.
+- The product test reads fixed combinations `a_s = Σ_κ La_{s,κ}·Ub_κ` and `b = Σ_κ Lb_κ·Ub_κ` (the code:
+  `a_{s,re} + i·a_{s,im}` and `b_re + i·b_im`).
+- At every sampled column the verifier also checks `u + Σ_κ r_κ·Ub_κ = prox` (`MAccept`).
+- `MGood`: `(u, Ub)` is close to polynomials of degree `≤ K`, and the decoded data's residual vanishes. Those
+  polynomials are unique (`mDecoded_unique`), so this is a statement about THE decoded data.
+```lean
+theorem mopening_sound [Fintype E] [DecidableEq E] [Fintype ι] [DecidableEq ι] [Nonempty ι] [Fintype σ]
+    [Fintype κ] [DecidableEq κ] {k m Q e K dd : ℕ} (hm : 0 < m) {ω : E} (hω : IsPrimitiveRoot ω m)
+    (dom : ι ↪ E) (h3 : 3 * e < Fintype.card ι - K) (hdd : K + (m - 1) ≤ dd) (hdq : 2 * m - 1 ≤ dd)
+    (o : ℕ) (wt : Fin k → σ → Fin m → E) (val : Fin k → E) (Ub : κ → ι → E) (u : ι → E) (La : σ → κ → E)
+    (Lb : κ → E) (q : E → E[X]) (hq : ∀ θ, (q θ).natDegree < 2 * m) (prox : E → (κ → E) → E[X])
+    (hprox : ∀ θ r, (prox θ r).natDegree ≤ K) :
+    (PMF.uniformOfFintype ((E × (κ → E)) × (Fin Q → ι))).toOuterMeasure
+        {x | MAccept dom ω o wt val Ub u La Lb q prox x.1.1 x.1.2 x.2
+          ∧ ¬ MGood dom ω o e K wt val Ub u La Lb}
+      ≤ max (((e + 1 : ℕ) : ℝ≥0∞) / (Fintype.card E - 1 : ℕ)
+              + (((Fintype.card ι - (e + 1) : ℕ) : ℝ≥0∞) / Fintype.card ι) ^ Q)
+            (((k - 1 + o : ℕ) : ℝ≥0∞) / Fintype.card E + (((e + dd : ℕ) : ℝ≥0∞) / Fintype.card ι) ^ Q)
+```
+- Far: `affine_proximity_third` (F6), then the column test against the proximity vector.
+- Close: `mproduct_sound` on the decoded rows.
+- `mopening_sound_absorbed`: when `k − 1 + o ≤ e + 1` and `e + dd ≤ N − (e + 1)`, the bound is the proximity-only
+  `(e + 1)/(|E| − 1) + ((N − (e + 1))/N)^Q`.
+
+## R2. How the bounds compare with the count
+
+| Opening | Count | Lean | Status |
+|---|---|---|---|
+| Regular, several groups (W16R2: N 2^15, Q 280) | −112.278 per opening; groups and `λ` not itemized | `groups_sound_rs_half`: `N/p² + col`, −112.392 | **The per-opening term covers several groups and the `λ` batching**: neither adds a term |
+| `M` (RS(1024, 4096), Q 256, e 1024) | −106.248: `(3/4)^256 + (2·512 + 1 + 4096)/p²` | far: `1025/(p² − 1)` = 2^−117.999 and `(3071/4096)^256` = 2^−106.370; close: `33/p²` = 2^−122.956 (34 functionals) and `(2558/4096)^256` = 2^−173.875 (`dd = 1534`) | **Covered, but only for the offset-aware event.** `mopening_sound_absorbed` applies (`33 ≤ 1025`, `2558 ≤ 3071`), so the product test adds nothing to −106.370. What is bounded is "a functional false beyond the offset on functional 0", not "a functional false" (F12) |
+
+- `M`'s `θ` batching is by POWERS. It costs `(k − 1)/|E|` per opening: `33/p²` for the 34 functionals of a block
+  (`N_FUNCTIONALS`). The count does not itemize it (as F3 for `ζ`); the max form absorbs it.
+- The product test's column term uses the degree `K + m − 1 = 1534`, not `1022`, because the a-rows are
+  degree-tested only at `< 2m` (F13). It is still 2^−173.9.
+- With the fix of F12 (`o = 1`) the close case's field term is `34/p²` = 2^−122.913. Nothing else moves.
+
+## R3. What the model assumes, and how it meets the code
+
+1. **The `λ` draws are independent and uniform, one per claim.** `zk_rhos` calls `challenge_fp2_vec(members.len())`
+   per group, then draws `ρ`, before any group vector is absorbed. The model lets every vector depend on all of
+   `(λ, ρ)`.
+2. **The encoder** is any injective linear map with the code as its range. The instance obligation: `encode_row_zk`
+   (`f_data + Z_n·g_pad` on the coset) is a bijection onto `RS[n + Q]` there (lemma check §1), and the re/im split is
+   its `F_p²`-linear extension. Not proved here.
+3. **The claim as a functional.** `claimValue` is the bilinear form of `(rw, cw)`. That `zpart_weights` (with
+   `eq_table_msb`) turns a `ZClaim`'s MLE evaluation into exactly this form is part 1 §3.2's reduction. Not done.
+4. **One field.** The committed rows are `E`-rows; `F_p` rows are a special case. Closeness over `F_p²` implies it over
+   `F_p` (`close_of_close_lift`), so nothing is lost.
+5. **`M`'s layout.**
+   - The product rows are fixed `E`-combinations of the committed rows (`La`, `Lb`).
+   - How `u` is built from `u_re`, `u_im` does not matter for soundness: it is the affine offset.
+   - The message points are `ω^j` in natural order. The NTT's order is a fixed bijection, which only relabels the
+     weights, and `weight_polys` uses the same NTT.
+6. **The degrees are wire lengths.** `q'` and the proximity vector have `2m` coefficients each (`op.q.len()`,
+   `op.prox.len()`); hence `hq` and `hprox`.
+7. **The order.** `M`'s root precedes every challenge. All functional values are fixed before `θ`: they are assembled
+   before `mask_verify_tagged` draws it. `q'` precedes `r`, and the proximity vector precedes the indices.
+
+## R4. Findings
+
+**F12 (High, needs a code check: `M` certifies its first functional only up to a constant the prover chooses).**
+- **What the code does.**
+  - `combined_weights` (`zk.rs:530-547`) starts the powers at `θ^0 = 1`.
+  - The verifier checks `512·(q'_0 + q'_512) = V`. If `q'` is the product polynomial of the committed rows, the left
+    side is `Σ_i θ^i·tru_i + Σ_{x ∈ G_512} b(x)` (`mResidual_root`).
+  - The honest prover sets `b_512 = −b_0` so that the last sum is zero (`mask_commit_tagged`, `zk.rs:512-515`).
+  - **Nothing checks it.** The proximity test only bounds `b`'s degree, and `b` is in no functional.
+- **The consequence.** A prover commits `M` with `Σ_{G_512} b = δ` (for example `b_re[512] = −b_re[0] + δ/512`) and
+  claims `value_0 = tru_0 + δ`, every other value true. It passes `mask_verify_tagged` with probability 1
+  (`mproduct_offset_accepts`; the Merkle and proximity parts are honest). `δ` is fixed before any challenge; the
+  prover only has to make functional 0 come out `δ` too large.
+- **Where it bites depends on what functional 0 is.** Read from the code, not run:
+  - **Private block, private attention, the ZK layer** (`argument.rs`, `private_attention/argument.rs`,
+    `verify_layer_zk`).
+    - Slot 0 is a `Private` slot (`SLOT_KINDS[0]`), or the layer's `g_gu(ρ)`. So functional 0 is an EVALUATION
+      value, `g_val = (fin − poly(vals))/c_0`.
+    - The shift then enters the slot's terminal multiplied by `c_0`. The private slot's scalar moves by
+      `2^(n + ext)·c_0·δ`, and its host's relation must absorb that. `c_0` is drawn after `M` and the witness are
+      committed, so this is a `≲ deg/|F|` event, not an exploit.
+    - But no current argument charges it. `sumcheck_sound_masked` assumes that `G` and `g(ρ)` come from the same
+      committed `g` (part 1, §3.3), and that is exactly what fails here.
+  - **Token-I/O stages** (`stage_in.rs`, `stage_in_c.rs`, `stage_out.rs`, `stage_out_c.rs`).
+    - Slot 0 is the `Standalone` IO-in slot. So functional 0 is its `Γ = c·G_0`, whose value is the scalar the prover
+      SENDS (`pb-scalar`), and the slot's claimed sum is that scalar.
+    - The shift moves the claim itself: the zero claim `Σ_x eq(τ, x)·R(x) = 0` becomes `= δ`. Since
+      `Σ_x eq(τ, x) = 1`, a relation with `R ≡ δ` on the whole cube passes for every `τ`.
+    - **OUT-00** (`stage_out.rs:355-365`). `R(x) = A_X(x) − B_out(T − 1, x)` over the whole `d_pad` plane
+      (`d_pad = h_pad·head_dim = d` for 8B: no pad positions). `A_X` is the stage's private copy of the final hidden
+      state. As far as this read shows, only this slot ties it to `B_out`. A prover that commits `M` with offset `δ`
+      and sets `A_X = B_out(T − 1) + δ·1` can run every other slot honestly on the shifted vector, and by the Lean
+      model every check of `M` passes. The result would be an accepted next-token receipt computed from a shifted
+      final hidden state, with `δ` free to choose offline. `stage_out_c.rs` (OUTC-00) has the same shape.
+    - **IN-00** (`stage_in.rs:200-211`). `R = end − supp·tok`. With an endpoint whose pads are zero and whose
+      position 0 is BOS (the QZC clause forces `tok(0) = BOS`), `R(0) = 0 ≠ δ`, so the shift is caught. It is open
+      only if the prover chooses the endpoint plane.
+  - **The experimental seam** (`private_seam.rs`): functional 0 is the `Γ` of `Σ_x eq(τ, x)·(A − B)(x) = 0`, so
+    `A = B + δ` would be accepted as equal.
+  - `zk_ffn_fresh_io.rs` appends its IO functionals after the FFN's own (from slot 6). Its functional 0 is an
+    evaluation value, as in the block.
+- **Why the tests pass.** The honest prover's `b` has zero sum, and no negative test commits a `b` with a nonzero sum.
+- **Suggested.**
+  - (a) Start the powers at `θ`: `let mut th = theta;` in `combined_weights`, which the prover and the verifier share.
+    Then a `b` offset or any false functional makes the residual `Σ_i δ_i·θ^(i+1) − off` nonzero, and the test is
+    sound for every functional (`mproduct_sound_shift`, `k/|E|`). Completeness and hiding are unaffected: the honest
+    `b` still has zero sum, and `q'` is still uniform given `V`. It changes `q'`, so it needs a new profile version.
+  - (b) Or constrain `b` itself: for example, commit it as `x·r(x) + (x^512 − 1)·t(x)` with `r` and `t` degree-tested
+    separately. That is more code than (a).
+  - (c) A Rust negative test. Commit `M` with `b_re[512] = −b_re[0] + δ/512` and add `δ` to functional 0's value. Today's
+    `mask_verify_tagged` should ACCEPT it, which reproduces F12; after the fix it should reject it. Then the end-to-end
+    version, on stage OUT with `A_X` shifted by `δ`.
+  - Until it is fixed, no soundness claim should be made for the token-I/O stages, and the count's `M` term bounds
+    only the offset-aware event.
+
+**F13 (Info: `M`'s a-rows are degree-tested only at `< 2m`).** The proximity vector has `2m = 1024` coefficients. So
+the a-rows, honestly of degree `< 512`, are only known to have degree `< 1024`.
+- Nothing is lost: the decoded a-row's message is read as its values on `G_512`, which is exactly what the sum check
+  reads (`sum_mProduct`).
+- The cost is in the product polynomial's degree bound, `1534` instead of `1022`, inside the column term:
+  `(2558/4096)^256` = 2^−173.9.
+
+**F14 (Info: the batching terms).**
+- The PCS `λ` are independent, one per claim: `1/|E|`, and only in the close case, where it is absorbed
+  (`groups_sound`). No term.
+- `M`'s `θ` are powers: `(k − 1)/|E|`, `33/p²` per block opening. The count does not itemize it; the max with the far
+  case absorbs it (`mopening_sound_absorbed`).
+
+## R5. What remains
+
+- **F12**: the fix, or a per-profile proof that functional 0 is an evaluation value with the `c_0`-scaled shift
+  charged in the composition; the negative test; the end-to-end check on the token-I/O stages.
+- **The instance**: `encode_row_zk` as an injective linear map onto `rsCode` on the coset; `zpart_weights` and
+  `eq_table_msb` as `claimValue`; `M`'s `La`, `Lb` with `U² = 7`; the NTT order.
+- **Task 3 (optional, not done)**: one block's `3 + 1` openings as one union bound over a shared oracle, with one
+  collision term and a guess term per commitment.
+- **Composition and Fiat–Shamir**, as in Parts 1–3.

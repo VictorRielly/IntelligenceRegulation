@@ -24,3 +24,5 @@ import ZK60Formal.SoundRO
 import ZK60Formal.SoundMerkle
 import ZK60Formal.SoundExtract
 import ZK60Formal.SoundOpeningRO
+import ZK60Formal.SoundGroups
+import ZK60Formal.SoundMProduct

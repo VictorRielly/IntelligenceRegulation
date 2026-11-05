@@ -172,6 +172,24 @@ The plain-words version, the modelling choices and the open decisions are in
     error (`opening_sound_extracted`).
   - The comparison with the count, what the model assumes and the findings are in Part 3 of
     `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
+- Proved so far (step L3, the openings as the code runs them; interactive challenges; same build and axiom checks):
+  - `SoundGroups.lean`: one opening of `verify_zk_tagged` with SEVERAL claim groups and the `λ` batching (one
+    independent draw per claim, as `zk_rhos` draws them). Claims are linear functionals of the committed MESSAGE,
+    read through the inverse of the encoder (`decodeWord`, `closeTable`, `decodeRows`; `groupsGood_iff`: the decoded
+    data is the extracted data). Some claim false of the decoded message, accepted: probability
+    `≤ A/|E| + (1 − (e + 1)/N)^Q`, the one-group bound; the batching's `1/|E|` arises only in the close case and is
+    absorbed (`groups_sound`; the additive form `groups_sound_add`; `groups_sound_rs_half`, `groups_sound_rs_third`).
+    With the Merkle layer and the matrix extracted from the commit log: `groups_sound_extracted`.
+  - `SoundMProduct.lean`: the mask commitment `M`'s product-form test as `mask_verify_tagged` runs it (`θ` powers,
+    the sum check `m·(q'_0 + q'_m) = V`, the column check `b + Σ_s a_s·p_{W_s} = q'`). If `q'` is the decoded rows'
+    product polynomial the sum check is a root of the residual `Σ_i (value_i − tru_i)·θ^i − off` (`mResidual_root`),
+    where `off` is the decoded `b`'s sum over `G_m`, which the verifier never checks. So the test certifies the
+    functionals only up to that constant on the FIRST functional (`mproduct_sound_code`; the attack
+    `mproduct_offset_accepts`; finding F12); with powers from `θ^1` every false functional is caught
+    (`mproduct_sound_shift`, `k/|E|`). `M`'s whole opening, the affine proximity test with the product test:
+    `mopening_sound`, `mopening_sound_absorbed`; the decoded rows are unique (`mDecoded_unique`).
+  - The comparison with the count, the model and the findings (F12: High, needs a code check) are in Part 4 of
+    `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).
