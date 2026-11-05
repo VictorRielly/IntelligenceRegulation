@@ -2140,6 +2140,56 @@ fn d55_ab_one_request_serial_against_forks() {
         (wall, seal, rc.bytes())
     };
     let mut sealed_table: Vec<(String, Vec<f64>)> = if sealed_on { workers.iter().map(|n| (format!("forks N={n} SEALED"), Vec::new())).collect() } else { Vec::new() };
+    // D64 / H124d: `HL_D55_PIPE=R` streams R requests. A sealing thread runs request
+    // r + 1's sealing pass (from its input, witnesses kept) while the prover runs request
+    // r's fork run; at most one sealed request waits. Returns the total wall, each
+    // request's completion time and its latency (from the start of its sealing pass),
+    // and the receipts with their contexts, verified by the caller after the clock.
+    let pipe: usize = env_or("HL_D55_PIPE", 0usize);
+    let piped = |ctx0: u8, n: usize, r: usize| -> (f64, Vec<f64>, Vec<f64>, Vec<(RunStatement, ForkReceipt)>) {
+        let t = Instant::now();
+        let (tx, rx) = std::sync::mpsc::sync_channel::<(usize, Vec<Option<Witness>>, Vec<Vec<i16>>, f64)>(1);
+        let (mut done, mut lat, mut rcs) = (Vec::new(), Vec::new(), Vec::new());
+        std::thread::scope(|sc| {
+            let (xs, build, sh) = (&xs, &build, &sh);
+            sc.spawn(move || {
+                for q in 0..r {
+                    let t_in = t.elapsed().as_secs_f64();
+                    let (mut ws, mut pls) = (Vec::with_capacity(l), Vec::with_capacity(l));
+                    let mut x = xs[0].clone();
+                    for k in 0..l {
+                        let w = build(&x).expect("the chain was admissible");
+                        let out = w.output().unwrap();
+                        x = unpad(sh, &out);
+                        if k + 1 < l {
+                            pls.push(out);
+                        }
+                        ws.push(Some(w));
+                    }
+                    if tx.send((q, ws, pls, t_in)).is_err() {
+                        break;
+                    }
+                }
+            });
+            for _ in 0..r {
+                let (q, ws, pls, t_in) = rx.recv().expect("a sealed request");
+                let ctx = ctx0.wrapping_add(q as u8);
+                // the statement is kept with its receipt: `statement` draws fresh endpoint
+                // commitments on every call, so a rebuilt one would be another run
+                let (st, owners) = statement(ctx);
+                let rc = {
+                    let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+                    let mut src = Chain { witnesses: ws, planes: pls, tamper: None };
+                    prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves (stream)").0
+                };
+                let now = t.elapsed().as_secs_f64();
+                done.push(now);
+                lat.push(now - t_in);
+                rcs.push((st, rc));
+            }
+        });
+        (t.elapsed().as_secs_f64(), done, lat, rcs)
+    };
     let (cold, _) = serial(1, false);
     eprintln!("D55-AB {name} L{l} serial cold (kernel compiles): wall {cold:.3} s = {:.2} proved tok/s", tok(cold));
     let mut table: Vec<(String, Vec<f64>)> = std::iter::once(("serial (D12a)".to_string(), Vec::new())).chain(workers.iter().map(|n| (format!("forks N={n}"), Vec::new()))).collect();
@@ -2207,6 +2257,27 @@ fn d55_ab_one_request_serial_against_forks() {
                     sealed_table[i].1.push(wall);
                 }
             }
+        }
+    }
+    // D64 / H124d: the stream, once, after the warm passes
+    if pipe > 0 {
+        for &n in &workers {
+            let (wall, done, lat, rcs) = piped(ctx, n, pipe);
+            ctx = ctx.wrapping_add(pipe as u8);
+            let amortized = (pipe * sh.tokens) as f64 / wall;
+            let steady = if pipe > 1 { ((pipe - 1) * sh.tokens) as f64 / (done[pipe - 1] - done[0]) } else { f64::NAN };
+            eprintln!(
+                "D55-AB PIPE {name} L{l} T{} forks N{n}: {pipe} requests in {wall:.3} s; amortized {amortized:.2} proved tok/s (all witness work on the clock); steady state {steady:.2} tok/s (completions {}); per-request latency {}",
+                sh.tokens,
+                done.iter().map(|d| format!("{d:.2}")).collect::<Vec<_>>().join(", "),
+                lat.iter().map(|d| format!("{d:.2}")).collect::<Vec<_>>().join(", ")
+            );
+            let tv = Instant::now();
+            for (st, rc) in &rcs {
+                let fr = ForkRun::new(st, D55OptIn::unreviewed_prototype()).unwrap();
+                verify_run_with_forks(&fr, &rep, rc, 6).expect("a streamed request's receipt verifies");
+            }
+            eprintln!("D55-AB PIPE {name} L{l} forks N{n}: all {pipe} receipts verified after the clock in {:.1} s", tv.elapsed().as_secs_f64());
         }
     }
     // D60: the same table split by order

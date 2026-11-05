@@ -1,0 +1,6 @@
+2026-11-05T05:23:15Z start
+2026-11-05T05:25:32Z build rc=0
+2026-11-05T05:27:16Z d55 A/B stream rc=101
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 5.333 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 11.333 s = 11.29 proved tok/s FROM THE RUN'S INPUT (sealing pass 5.933 s on the clock, its witnesses kept); receipt 818728672 B
+2026-11-05T05:27:16Z all done

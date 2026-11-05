@@ -260,3 +260,31 @@ unchanged; all six pinned trained digests are present.
 
 For a stream of requests (D64 allows batching), the next request's sealing pass can overlap this one's fork run.
 That is the next measurement.
+
+## H124d: a stream of requests, all witness work on the clock (D64's form, 2026-11-04, night)
+
+**The arm.** `HL_D55_PIPE=R` streams R requests through two threads:
+- a sealing thread runs request `r + 1`'s sealing pass from its input, keeping the witnesses;
+- the prover runs request `r`'s fork run in the meantime.
+
+At most one sealed request waits. Each receipt is kept with its own statement and verified after the clock.
+`check_pipe2.sh`, log `d55_ab_pipe2.log`. The first attempt's verification rebuilt the statements, which draw fresh
+endpoint commitments, so it compared against another run. That was a harness error, now fixed; the receipts were
+not at fault.
+
+**Four W16R2 8B T128 requests, forks N = 6** [MEASURED, shared box, one run]:
+
+| | |
+|---|---:|
+| total wall, 4 requests | 37.192 s |
+| **amortized** (4 × 128 tokens / total wall) | **13.77 proved tok/s** |
+| **steady state** (between the first and last completion) | **15.94 proved tok/s**, one request about every 8.0 s |
+| completions | 13.10, 21.13, 29.64, 37.19 s |
+| per-request latency (from the start of its sealing pass) | 13.10, 15.19, 15.19, 14.18 s |
+| receipts | all 4 verified (10.6 s, after the clock) |
+| for comparison, one request alone in the same run (SEALED) | 11.900 s = 10.76 tok/s |
+
+**What it says.** The overlap helps (15.9 against 10.8 tok/s), but each request costs about 8 s instead of the larger
+stage's 5.9 s. The sealing pass and the forks share the Mac's CPU, so the Mac's stream rate is CPU-bound. On the RTX
+5090 box, putting the products on the GPU (H124b) takes the bulk of the sealing pass off the CPU. A CPU with more
+cores per request takes the rest. Against D64's ≥ 110 tok/s, the Mac stands at 15.9 steady.

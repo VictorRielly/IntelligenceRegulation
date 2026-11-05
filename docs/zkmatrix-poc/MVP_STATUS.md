@@ -19,6 +19,9 @@
   - **One request end to end is now 12.54 s = 10.2 tok/s** [MEASURED].
   - **With the sealing pass's witnesses kept, one request from its input is 11.50 s = 11.1 tok/s** [MEASURED, all
     witness work on the clock, the receipt verified]: the serial chain 5.9 s, then the fork run.
+  - **A stream of 4 requests** (the next one sealed while this one proves; D64 allows batching): 13.8 tok/s
+    amortized, **15.9 tok/s steady state**, 13 to 15 s latency per request [MEASURED, all 4 receipts verified]. The
+    two stages share the Mac's CPU. D64's target is ≥ 110.
 
 **2026-11-04 (evening): a soundness defect found by the Lean work, confirmed in Rust (F12, High).**
 - The mask commitment M certifies its first claimed value only up to an offset the prover picks when it commits:
