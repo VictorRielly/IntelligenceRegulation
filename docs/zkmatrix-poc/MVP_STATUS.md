@@ -14,6 +14,13 @@
     soundness is about 2^-97.8.
   - **F26:** a D55 fork run is a tree of transcripts. Only a union over its 32 forks is proved (2^-97.93); a tree
     version of the chain theorem is needed.
+    - **The tree version was proved the same night:** D55's per-query rate is 2^-102.92 for any number of forks,
+      the same as a D12a run, given its hand-off premises and the M assumption (Part 8 of the L3 findings).
+  - **Victor's rulings (D65, D66):**
+    - F12 is fixed now, under new profile versions (in progress).
+    - One constant external refusal: done.
+    - The DD dictionary's refusal is challenge-only: done, no receipt byte moved.
+    - F25 is to be closed by a path-wise proof (in progress).
 - Fixed today: F16, a run receipt now attests its context. F23: `autoImplicit` is off in `formal/`, so a mistyped
   name in a statement can no longer compile silently.
 - Fixed today: L4 finding 3. The mask schedule audit now checks that each pair's actual row weights are independent,

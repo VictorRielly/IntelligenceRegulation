@@ -333,6 +333,38 @@ fn the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows() {
     assert!(audit_claims(&[claim(0, 4), claim(1, 6), unmasked], N, 10, &sites, None, 8).is_err(), "an unmasked claim");
 }
 
+/// **D66(3), L4 finding 2: the dictionary refusal is challenge-only and covers every
+/// admissible tuple.** The check refuses whenever `alpha` equals an admissible tuple
+/// `g_dd + Sum + beta e + beta^2 P`, including at the bounds and at `e = 0`. It passes a
+/// thousand pseudo-random `alpha`. Its inputs are the challenges and public data alone.
+#[test]
+fn d66_the_dictionary_refusal_is_challenge_only_and_covers_every_admissible_tuple() {
+    use super::protocol::{dd_challenge_refusal, DD_P_MAX};
+    use crate::field::Fp;
+    let beta = Fp2::new(Fp::new(123_456_789), Fp::new(987_654_321));
+    let g_dd = Fp2::new(Fp::new(55), Fp::new(77));
+    let ecol = vec![0i64, 3, 17, 4096, 65535];
+    let s_max = 1u64 << 24;
+    let tuple = |s: i64, e: i64, p: i64| g_dd.add(Fp2::from_i64(s)).add(beta.mul(Fp2::from_i64(e))).add(beta.mul(beta).mul(Fp2::from_i64(p)));
+    for (s, e, p) in [(1i64, 0i64, 0i64), (2_000_000, 17, 512), (s_max as i64, 65535, DD_P_MAX as i64), (0, 3, 0)] {
+        assert!(dd_challenge_refusal(tuple(s, e, p), beta, g_dd, &ecol, s_max, DD_P_MAX).is_err(), "alpha on the admissible tuple ({s}, {e}, {p}) was not refused");
+    }
+    // a tuple outside the bounds, or with an e not in the column, is not a reason to refuse
+    assert!(dd_challenge_refusal(tuple(s_max as i64 + 1, 17, 3), beta, g_dd, &ecol, s_max, DD_P_MAX).is_ok());
+    assert!(dd_challenge_refusal(tuple(5, 18, 3), beta, g_dd, &ecol, s_max, DD_P_MAX).is_ok());
+    let mut z = 0x5EED_D66_u64;
+    let mut next = move || {
+        z ^= z << 13;
+        z ^= z >> 7;
+        z ^= z << 17;
+        Fp::new(z)
+    };
+    for _ in 0..1000 {
+        let alpha = Fp2::new(next(), next());
+        assert!(dd_challenge_refusal(alpha, beta, g_dd, &ecol, s_max, DD_P_MAX).is_ok(), "a random alpha was refused");
+    }
+}
+
 /// **D63 L4 finding 3.** Nonzero pair coefficients are not enough. The audit refuses a
 /// pair whose INDUCED row weights are dependent over the base field, whether:
 /// - the coefficients themselves are dependent, as in (c, c) or (1, 2); or

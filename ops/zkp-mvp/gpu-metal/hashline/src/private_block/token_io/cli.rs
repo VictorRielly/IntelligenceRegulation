@@ -417,7 +417,8 @@ pub fn token_prove_command(args: &[String]) -> i32 {
     };
     match prove_inner(&f) {
         Ok(()) => 0,
-        Err(e) => refused("prove", &e),
+        // D65(2): one constant external refusal; the detail goes to the owner's private log
+        Err(e) => crate::private_block::trained_block::refusal::refuse("prove", &e),
     }
 }
 

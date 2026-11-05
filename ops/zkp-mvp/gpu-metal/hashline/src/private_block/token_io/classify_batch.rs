@@ -150,7 +150,8 @@ fn batch_command(args: &[String], spec: &Spec) -> i32 {
     }
     match batch_inner(&f, spec) {
         Ok(_) => 0,
-        Err(e) => refused("classify-prove-batch", &e),
+        // D65(2): one constant external refusal; the detail goes to the owner's private log
+        Err(e) => crate::private_block::trained_block::refusal::refuse("classify-prove-batch", &e),
     }
 }
 

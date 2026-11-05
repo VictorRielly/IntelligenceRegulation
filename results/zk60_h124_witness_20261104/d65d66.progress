@@ -1,0 +1,22 @@
+2026-11-05T06:32:43Z start
+2026-11-05T06:35:03Z build rc=0
+2026-11-05T06:35:04Z d65 test rc=0
+2026-11-05T06:35:04Z d66 test rc=0
+2026-11-05T06:39:52Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+    private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on
+    private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified
+    private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system
+    private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 903 passed; 8 failed; 94 ignored; 0 measured; 0 filtered out; finished in 287.59s
+2026-11-05T06:39:53Z w16r2 rung golden rc=0
+2026-11-05T06:40:21Z trained digests rc=0
+2026-11-05T06:40:21Z digest 2b0d04bb present
+2026-11-05T06:40:21Z digest 678953f6 present
+2026-11-05T06:40:21Z digest 01a6d51d present
+2026-11-05T06:40:21Z digest c5e0bdac present
+2026-11-05T06:40:21Z digest 4e189ccc present
+2026-11-05T06:40:21Z digest a9a19ee5 present
+2026-11-05T06:40:21Z all done

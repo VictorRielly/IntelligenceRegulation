@@ -1047,6 +1047,57 @@ pub(super) fn write_planes(dst: &mut [Fp], jobs: &[(usize, &[i64])]) {
 /// cannot drift from [`inverses`].
 const ZERO_DENOMINATOR: &str = "zero LogUp denominator; discard attempt";
 
+/// the largest dictionary quotient `P` this check admits: every builder refuses `P > 2^F_P`
+/// (`witness.rs`'s and `witness_accuracy.rs`'s "dictionary quotient/remainder"), and
+/// `F_P = f_p = 9` in every profile today, so `P <= 512`
+pub(crate) const DD_P_MAX: u64 = 1 << 16;
+
+/// the largest softmax row total `Sum` a dictionary tuple can carry: `t_pad` entries of the
+/// public exp table at most (saturating)
+pub(crate) fn dd_sum_bound(t_pad: usize, exp: &[i64]) -> u64 {
+    let top = exp.iter().copied().max().unwrap_or(0).max(0) as u64;
+    (t_pad as u64).saturating_mul(top)
+}
+
+/// **D66(3) (L4 finding 2): the dictionary's LogUp refusal, made challenge-only.**
+///
+/// A dictionary tuple is `g_dd + Sum + β·e + β²·P`, with `e` from the public column
+/// and `Sum`, `P` private non-negative integers. Refusing only when `α` hits a tuple
+/// actually used made the refusal a function of the hidden data, about `2^-111` per
+/// block (`formal/ZK60Formal/HidingRefusal.lean`, `logup_attempt_prob_le`).
+///
+/// This refuses whenever `α` equals ANY tuple with `e` in `ecol`, `Sum <= s_max` and
+/// `P <= p_max`. Write `c = α − g_dd − β·e = Sum + β²·P`. Since `Sum` and `P` are base
+/// field values and `β² = b0 + b1·u`, this is `c1 = P·b1` and `c0 = Sum + P·b0`: at
+/// most one `(Sum, P)` per `e`, read off directly, so the check costs a few
+/// multiplications per column entry.
+///
+/// The rule is a function of `(α, β, γ)` and public data alone (class (C)), so a
+/// simulator applies it identically. It refuses whenever the old rule did, so once it
+/// passes no dictionary denominator is zero. With these bounds (`P <= 2^16`, `Sum` about
+/// 2^24 at T128) it refuses with probability about `cap·2^-88` per attempt, and an
+/// attempt that refuses is redrawn.
+pub(crate) fn dd_challenge_refusal(alpha: Fp2, beta: Fp2, g_dd: Fp2, ecol: &[i64], s_max: u64, p_max: u64) -> Result<(), String> {
+    let b2 = beta.mul(beta);
+    if b2.c1.is_zero() {
+        // then many (Sum, P) could match: refuse; a challenge-only event of probability ~1/p
+        return Err(ZERO_DENOMINATOR.to_string());
+    }
+    let inv_b1 = b2.c1.inv();
+    for &e in ecol {
+        let c = alpha.sub(g_dd).sub(beta.mul(Fp2::from_i64(e)));
+        let p = c.c1.mul(inv_b1);
+        if Fp::new(p.0).0 > p_max {
+            continue;
+        }
+        let s = c.c0.sub(p.mul(b2.c0));
+        if Fp::new(s.0).0 <= s_max {
+            return Err(ZERO_DENOMINATOR.to_string());
+        }
+    }
+    Ok(())
+}
+
 /// **STAGE 28 (performance, no byte moves).** The `U8_LEN` denominators
 /// `alpha - (v + g_u8)` of the BYTE TABLE, inverted once per proof.
 ///
@@ -1810,7 +1861,21 @@ pub(crate) fn prove_core(
     // depends on the hidden data only through the set of table values.
     if sh.dd_cap > 0 {
         let g_dd = gamma.mul_base(Fp::new(TAG_DD));
-        let (tq, tt) = dd_tuples(lay, &wit, &public.dd_e_column(sh.dd_cap)?, beta, g_dd);
+        let ecol = public.dd_e_column(sh.dd_cap)?;
+        // D66(3): refuse on the challenges alone, before any private tuple is inverted.
+        // The bounds the check assumes hold for every admissible witness (the builders
+        // refuse P > 2^F_P; Sum is at most t_pad exp-table entries), and are re-checked
+        // here defensively.
+        let s_max = dd_sum_bound(sh.t_pad, &public.exp);
+        {
+            let (sum, p, pd) = (&wit.planes[ids.at(A_SUM)], &wit.planes[ids.at(A_P)], &wit.planes[ids.pdict()]);
+            let outside = |v: &i64, max: u64| *v < 0 || *v as u64 > max;
+            if sum.iter().any(|v| outside(v, s_max)) || p.iter().chain(pd.iter()).any(|v| outside(v, DD_P_MAX)) {
+                return Err("private block: a dictionary tuple lies outside its public bounds".into());
+            }
+        }
+        dd_challenge_refusal(alpha, beta, g_dd, &ecol, s_max, DD_P_MAX)?;
+        let (tq, tt) = dd_tuples(lay, &wit, &ecol, beta, g_dd);
         write_h(&mut h_data, lay.h_off[hids.stuple()], &inverses(tq.iter().map(|q| alpha.sub(*q)).collect())?);
         let inv = inverses(tt.iter().map(|q| alpha.sub(*q)).collect())?;
         #[allow(unused_mut)]

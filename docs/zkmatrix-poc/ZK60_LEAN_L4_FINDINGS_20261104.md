@@ -290,6 +290,17 @@ Three new files: `HidingMOpening.lean`, `HidingRefusal.lean` and `HidingBlock.le
      - the external refusal is one constant ("refused"), and the site and family go to a private log only;
      - or Victor widens the declared leakage to "the refusal class". That changes the approved statement's wording,
        so it needs his ruling.
+   - **Done, 2026-11-04 (ruling D65(2)): the constant external refusal.**
+     - Every prove command prints the same event when it refuses after its arguments parsed:
+       `{"event":"refused","command":<the command>,"error":"refused","detail":"owner-private"}`. The commands are
+       token I/O `prove`, `classify-prove`, `classify-prove-batch`, `trained-prove` and `stack-prove`.
+     - The detail goes only to the owner's private log, `$HOME/zk60-owner-private/refusals.log` (or
+       `$HL_OWNER_PRIVATE_DIR`): directory 0700, file 0600, appended, never printed.
+     - Argument errors (exit 2, before anything is read) and verifier refusals (public receipts) keep their text.
+     - Not covered: the MVP diagnostic driver, whose scope makes no privacy claim.
+     - Code: `trained_block.rs`, `mod refusal`. Test: `d65_the_external_refusal_is_constant_and_the_detail_stays_private`.
+     - The app (`apps/proven-media`, another lane) reads only whether a `refused` event occurred, so it needs no
+       change, but its displayed refusal text is now constant.
 2. **At the DD profiles, the data-dependent LogUp refusal exceeds the proposed per-request `εzk` term (Medium for the
    error target).**
    - The tight one-sided term (the real prover against a simulator that refuses on the public values only) is
@@ -302,6 +313,18 @@ Three new files: `HidingMOpening.lean`, `HidingRefusal.lean` and `HidingBlock.le
      above `2^-120`.
    - **Decision for Victor:** a profile-dependent per-request term (about `2^-100` covers every DD profile), or a
      design change that makes the dictionary refusal challenge-only.
+   - **Done, 2026-11-04 (ruling D66(3)): the dictionary refusal is challenge-only.**
+     - Before any private tuple is inverted, the prover refuses when `α` equals ANY tuple
+       `g_dd + Sum + β·e + β²·P` with `e` in the public column, `Sum ≤ t_pad·max(exp)` and `P ≤ 2^16`. Every builder
+       refuses `P > 2^9`, and the bounds are re-checked on the witness, defensively.
+     - The check solves `c1 = P·b1`, `c0 = Sum + P·b0` (`β² = b0 + b1·u`): at most one `(Sum, P)` per column entry,
+       a few multiplications each (`protocol.rs`, `dd_challenge_refusal`).
+     - It refuses whenever the old rule did, so afterwards no dictionary denominator is zero. It depends on the
+       challenges and public data only (class (C)). Its refusal probability is about `cap·2^-88` per attempt.
+     - No receipt byte changes in an honest flow: the W16R2 rung golden and the six pinned trained digests are
+       unchanged.
+     - Test: `d66_the_dictionary_refusal_is_challenge_only_and_covers_every_admissible_tuple`.
+     - The next-token stages' smaller term (`(T + 256)/|Fp2|`) is not yet treated.
 3. **D30 (4)'s and D34's counts are upper bounds and can be tightened (Info).**
    - D30 (4) counts `2·L·(768 + rows·cap)/p²`, and D34 counts `2·(768L + 32 + 256)/p²`.
    - The public table entries (the `768` per block) cancel: both worlds refuse on them alike.

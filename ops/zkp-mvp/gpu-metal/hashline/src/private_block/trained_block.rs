@@ -1787,10 +1787,8 @@ pub fn trained_prove_command(args: &[String]) -> i32 {
     };
     match prove_inner(&f) {
         Ok(()) => 0,
-        Err(e) => {
-            println!("{{\"event\":\"refused\",\"error\":{}}}", js(&e));
-            1
-        }
+        // D65(2): one constant external refusal; the detail goes to the owner's private log
+        Err(e) => refusal::refuse("trained-prove", &e),
     }
 }
 
@@ -3018,10 +3016,8 @@ pub fn trained_stack_prove_command(args: &[String]) -> i32 {
     };
     match stack_prove_inner(&f) {
         Ok(()) => 0,
-        Err(e) => {
-            println!("{{\"event\":\"refused\",\"error\":{}}}", js(&e));
-            1
-        }
+        // D65(2): one constant external refusal; the detail goes to the owner's private log
+        Err(e) => refusal::refuse("stack-prove", &e),
     }
 }
 
@@ -3592,4 +3588,110 @@ fn stack_controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layers: &[u32]
     run::verify_run_with(&rst, &mut CacheBlocks(cache_for(&ident)), &segs)?;
     println!("{{\"event\":\"stack-controls\",\"refused\":{n},\"honest_still_verifies\":true}}");
     Ok(())
+}
+
+/// **D65(2) (Victor, 2026-11-04): one constant external refusal.**
+///
+/// A refusal's text can be a function of the hidden input: the witness builder's
+/// "fixed oracle range refusal: <site>" names one of 12 sites, CS-3 names the table
+/// family that missed, and the dictionary checks say which tuple failed. By
+/// `formal/ZK60Formal/HidingRefusal.lean`, `refusal_output_must_be_leaked`, any such
+/// detail in the prover's external output breaks the approved ZeroKnowledge, whose
+/// declared leakage is only "whether it is served" (L4 finding 1).
+///
+/// So every prove command (token I/O, classify, classify batch, trained block, trained
+/// stack) prints the same event when it refuses after its arguments parsed:
+/// `{"event":"refused","command":<the command>,"error":"refused","detail":"owner-private"}`.
+/// The command name is public. Argument errors (exit 2, before anything is read) and
+/// verifier refusals (about public receipts) keep their text.
+///
+/// The detail goes ONLY to the owner's private log: `refusals.log` in
+/// `$HL_OWNER_PRIVATE_DIR`, or by default `$HOME/zk60-owner-private`. That is outside
+/// every run directory; the directory is created 0700 and the file 0600, and the log is
+/// appended, never printed. If the log cannot be written, the detail is dropped and the
+/// external line is unchanged.
+///
+/// Not covered, on purpose: the MVP diagnostic driver (`mvp_driver.rs`), whose scope
+/// string says it proves a synthetic input with no privacy claim made or implied.
+pub(crate) mod refusal {
+    use std::io::Write;
+    use std::path::{Path, PathBuf};
+
+    /// the one external refusal text
+    pub(crate) const EXTERNAL_REFUSAL: &str = "refused";
+
+    /// where the owner's private refusal log lives (`None`: no `$HOME` and no override)
+    pub(crate) fn private_log_dir() -> Option<PathBuf> {
+        if let Some(d) = std::env::var_os("HL_OWNER_PRIVATE_DIR") {
+            return Some(PathBuf::from(d));
+        }
+        // tests never write into the real owner directory
+        if cfg!(test) {
+            return Some(std::env::temp_dir().join("zk60-test-owner-private"));
+        }
+        std::env::var_os("HOME").map(|h| PathBuf::from(h).join("zk60-owner-private"))
+    }
+
+    /// Append `{command, detail}` to `<dir>/refusals.log` (directory 0700, file 0600).
+    pub(crate) fn log_private_at(dir: &Path, command: &str, detail: &str) -> Result<PathBuf, String> {
+        use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt, PermissionsExt};
+        std::fs::DirBuilder::new().recursive(true).mode(0o700).create(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        let path = dir.join("refusals.log");
+        let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
+        let line = format!(
+            "{{\"unix_s\":{stamp},\"pid\":{},\"command\":{},\"detail\":{}}}\n",
+            std::process::id(),
+            super::js(command),
+            super::js(detail)
+        );
+        let mut f = std::fs::OpenOptions::new().create(true).append(true).mode(0o600).open(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        // an existing file keeps its mode; make sure it is the owner's alone
+        let _ = std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600));
+        f.write_all(line.as_bytes()).and_then(|_| f.sync_all()).map_err(|e| format!("{}: {e}", path.display()))?;
+        Ok(path)
+    }
+
+    /// the external event line for a refused `command`: identical for every detail
+    pub(crate) fn external_event(command: &str) -> String {
+        format!("{{\"event\":\"refused\",\"command\":{},\"error\":{},\"detail\":\"owner-private\"}}", super::js(command), super::js(EXTERNAL_REFUSAL))
+    }
+
+    /// Refuse `command` externally: log `detail` privately and print the constant event.
+    /// Returns the exit code, 1.
+    pub(crate) fn refuse(command: &str, detail: &str) -> i32 {
+        if let Some(dir) = private_log_dir() {
+            let _ = log_private_at(&dir, command, detail);
+        }
+        println!("{}", external_event(command));
+        1
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        /// The external line does not depend on the detail; the detail reaches only the
+        /// private log, which is the owner's alone.
+        #[test]
+        fn d65_the_external_refusal_is_constant_and_the_detail_stays_private() {
+            let a = "fixed oracle range refusal: score";
+            let b = "CS-3: a lookup missed the exp table family";
+            assert_eq!(external_event("prove"), external_event("prove"));
+            let line = external_event("prove");
+            for d in [a, b] {
+                assert!(!line.contains(d), "the external line carries the detail");
+            }
+            assert!(line.contains("\"error\":\"refused\""));
+            let dir = std::env::temp_dir().join(format!("zk60-d65-refusal-test-{}", std::process::id()));
+            let _ = std::fs::remove_dir_all(&dir);
+            let p = log_private_at(&dir, "prove", a).unwrap();
+            log_private_at(&dir, "prove", b).unwrap();
+            let text = std::fs::read_to_string(&p).unwrap();
+            assert!(text.contains(a) && text.contains(b), "the private log lost a detail");
+            use std::os::unix::fs::PermissionsExt;
+            assert_eq!(std::fs::metadata(&p).unwrap().permissions().mode() & 0o777, 0o600, "the log is not 0600");
+            assert_eq!(std::fs::metadata(&dir).unwrap().permissions().mode() & 0o777, 0o700, "the log directory is not 0700");
+            let _ = std::fs::remove_dir_all(&dir);
+        }
+    }
 }
