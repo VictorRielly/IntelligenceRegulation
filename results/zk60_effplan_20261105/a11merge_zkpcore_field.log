@@ -1,0 +1,14 @@
+   Compiling zkp-core v0.1.0 (/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/zkp-core)
+    Finished `release` profile [optimized] target(s) in 14.19s
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/zkp_core-68bf4449a8e0df65)
+
+running 6 tests
+test field::tests::two_adic_roots ... ok
+test field::tests::inverse_and_batch ... ok
+test field::tests::add_sub_match_reference ... ok
+test field::tests::from_u128_is_the_canonical_residue_of_the_division ... ok
+test field::tests::mul_matches_u128_reference ... ok
+test field::tests::ext_arith ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 74 filtered out; finished in 0.00s
+

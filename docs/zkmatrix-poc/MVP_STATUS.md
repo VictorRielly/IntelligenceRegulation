@@ -7,9 +7,10 @@
 |---|---:|---:|
 | preflight (A2) | 0.35 s | 0.08 s |
 | the sealing pass, the serial forward chain (A4: weight products on the GPU, exact) | 5.45 s | 3.55 s |
-| **one request from its input, all witness work on the clock** | 11.1 tok/s | **13.8 tok/s** |
-| **a stream of 4 requests, steady** | 15.9 tok/s | **20.4 tok/s** (amortized 18.0; latency about 11.5 s) |
-| proof only | 22.7 tok/s | 25.1 tok/s |
+| the fork run's host work (A11: one rayon pool per fork, not one shared pool) | about 0.5 s per block | stream +19%, proof only −9.5% (A/B, both orders) |
+| **one request from its input, all witness work on the clock** | 11.1 tok/s | **14.5 tok/s** |
+| **a stream of 4 requests, steady** | 15.9 tok/s | **24.0 tok/s** (amortized 20.2; latency about 10.3 s) |
+| proof only | 22.7 tok/s | **29.5 tok/s** |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -21,9 +22,12 @@
   - Per-thread GPU queues did not help once the A/B ran in both orders (+1.4% proof only, −2.7% stream). They stay
     opt-in.
   - The zero-check kernel work (A6) is deferred, since kernels are not the limit.
+- **A11 found and fixed the cause** [MEASURED]: the six forks shared one rayon thread pool, so each fork's parallel
+  steps waited behind the other forks' work. Each fork now has its own pool. Byte-identical; the A/B was repeated
+  independently on the merged tree.
 - **D64's target is ≥ 110.** Next:
-  - the forks' host path: first a profile of why host work slows under six forks, then Gram folding of the store folds
-    (A8);
+  - the remaining host work in the forks: the slot tables built on the GPU (A12, running) and Gram folding of the
+    store folds (A8, running);
   - the protocol bundle W16R3 (awaiting Victor);
   - the RTX 5090.
 

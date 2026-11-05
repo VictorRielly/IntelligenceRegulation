@@ -82,7 +82,11 @@ are redone once, not per change.
 - A1–A5 done (A5 stopped after its first step).
 - A7 done: the shared queue stays; per-thread queues are opt-in (`results/zk60_effplan_20261105/a7/README.md`).
 - A6 deferred: kernels are not the limit. Its census found a cheap exact cut (slot 18's top point), for later.
-- A11 is next, then A8. A9 and A10 are open.
+- A11 done: one rayon pool per fork worker. Independent A/B on the merged tree, both orders: stream steady +19%,
+  proof only −9.5%. The Mac is now at 14.5 tok/s for one request, 24.0 for the stream steady and 29.5 proof only
+  [MEASURED].
+- A12 (the device slots' tables built on the GPU, the largest host region left) and A8 (Gram folding of the store
+  folds) are running. A9 and A10 are open.
 
 **Phase A's expected result on the Mac:** one request about 7–8 s (16–18 tok/s), a stream about 22–25 tok/s
 [ESTIMATE]. Every step is accepted only if the goldens, the six pinned digests and plane-for-plane equality hold.

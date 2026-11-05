@@ -206,3 +206,61 @@ must be re-read at their new digests with A4's files before any GPU-made bundle 
   (A8, Gram folding), and the opening's host fold.
 
 A host profile of the forks phase comes first.
+
+## A11: the forks' host path, done: one rayon pool per fork worker
+
+Full write-up: `a11/README.md`. Merged into perf; acceptance and an independent repeat of the A/B on the merged tree:
+`check_a11merge.sh`, `a11merge.progress`, `a11merge_pairs.md`.
+
+**What the profile found** [MEASURED, macOS `sample`, N = 1 against N = 6]:
+- Six forks do the same CPU work as one; it just takes longer.
+- The cause is the one global rayon pool the six forks shared. A pool worker waiting inside one fork's parallel step
+  picks up queued work, often another fork's, and the first fork cannot go on until that work ends.
+  - At N = 6, 69% of the pool's running samples were such nested jobs (41% at N = 1).
+  - Each fork waited about 3.5× longer on its own parallel steps, while the pool was about half asleep.
+  - About a quarter of all CPU was system time, mostly the pool's threads sleeping and waking.
+
+**What changed** (both byte-preserving):
+- **Each fork worker runs its proofs on its own rayon pool** of ⌈cores / workers⌉ threads (6 at N = 6). This is the
+  default; `HL_D55_FORK_POOL=0` restores the global pool.
+- `Fp::from_u128` uses the Goldilocks reduction that `mul` already uses, instead of a software 128-bit division. It is
+  tested against `v % p` on 400,000 random words and the edge cases.
+- A reuse pool for the big A/H matrices was measured, did not pay, and was dropped.
+
+**Byte evidence:** the seeded W16R2 rung inside pools of 1, 2, 3 and 6 threads, CPU and Metal, always gives the golden
+`96e4f0b6`.
+
+**Acceptance on the merged tree** [MEASURED, one guarded job]:
+- build rc 0; no-feature `cargo check --tests` rc 0;
+- full lib suite: 922 passed, exactly the known three failed, 99 ignored; zkp-core field tests 6/6;
+- the A11 pool tests (CPU and Metal), the A7 queue test, the W16R2 rung golden and all six post-F12 digests pass;
+- D55 default:
+  - proof only, best 4.334 s = **29.53 tok/s**;
+  - one request from its input, best 8.848 s = **14.47 tok/s**;
+  - the 4-request stream **23.96 tok/s steady** (20.18 amortized; per-request latency about 10.3 s);
+  - every receipt verified; fork receipts 818,728,672 B, unchanged.
+
+**The independent A/B** [MEASURED, `a11merge_pairs.md`]: per-fork pools against the global pool, 4 passes, arm order
+alternating.
+
+| metric | mean change over 4 pairs | means global / per-fork |
+|---|---:|---:|
+| proof-only wall | **−9.5%** | 4.94 / 4.47 s |
+| one request from its input | **−7.1%** | 9.42 / 8.75 s |
+| stream, steady | **+19.0%** | 19.6 / 23.3 tok/s |
+| stream, amortized | **+13.4%** | 17.5 / 19.8 tok/s |
+
+Every pair, in both orders, favours the per-fork pools. This agrees with the agent's own 6-pass A/B (−10.6%, −4.5%,
++16.9%, +11.8%).
+
+**For the privacy gate:** the production digests that moved are `private_block/run_fork.rs` and zkp-core's
+`field.rs`. `gpu/metal.rs`, `gpu/mod.rs`, `protocol.rs` and `metal_kernels.metal` are unchanged by A11.
+`D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+**What is left on the host** (the A11 profile after the fix):
+- the device slots' table builds, about 1.3 GB per block written from the CPU (**A12, running**);
+- the openings' store folds, about a fifth of a fork's host samples (**A8, running**);
+- the A/H zero-fills;
+- the randomness fill.
+
+The forks phase is about 4.0–4.3 s, against A7's GPU-busy bound of about 2.8 s.
