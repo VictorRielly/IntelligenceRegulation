@@ -1,5 +1,21 @@
 # Where the MVP stands, in plain words
 
+**2026-11-05: efficiency first (Victor). Plan: `ZK60_EFFICIENCY_PLAN_20261105.md`. Phase A results so far
+(byte-preserving, measured on the Mac, every receipt verified; `results/zk60_effplan_20261105/`):**
+
+| One W16R2 8B T128 request, 32 blocks, forks N = 6 | before (2026-11-04 night) | now |
+|---|---:|---:|
+| preflight (A2) | 0.35 s | 0.08 s |
+| the sealing pass, the serial forward chain (A4: weight products on the GPU, exact) | 5.45 s | 3.55 s |
+| **one request from its input, all witness work on the clock** | 11.1 tok/s | **13.8 tok/s** |
+| **a stream of 4 requests, steady** | 15.9 tok/s | **20.4 tok/s** (amortized 18.0; latency about 11.5 s) |
+| proof only | 22.7 tok/s | 25.1 tok/s |
+
+- The CLI's witness cache is now sized to the machine (A3).
+- A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
+- **D64's target is ≥ 110.** Next: the zero-check kernels, the remaining serial builder work, per-fork queues, the
+  protocol bundle W16R3 (awaiting Victor), and the RTX 5090.
+
 **2026-11-04 (night): Lean, Fiat–Shamir part 6 merged; the soundness target needs one more theorem (F20, Medium).**
 - Proved: the wide-digest lemma, LogUp and one commitment opening under Fiat–Shamir (with the extractor), and the
   code's challenge derivations. 83 theorems, no `sorry`, standard axioms only.

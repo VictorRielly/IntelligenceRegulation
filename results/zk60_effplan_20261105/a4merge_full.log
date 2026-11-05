@@ -1,0 +1,1318 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:162:12
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:165:9
+    |
+165 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:345:9
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:345:33
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:346:25
+    |
+346 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:350:9
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:350:39
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 27 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.02s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 2`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7)
+
+running 1018 tests
+test attention::chain_tests::norm_round_matches_the_relation ... ok
+test chain::tests::floor_requant_is_euclidean ... ok
+test chain::tests::witness_i8_matmul_zero_columns_still_rejects - should panic ... ok
+test export_v3::tests::witness_i64_matmul_zero_columns_still_rejects - should panic ... ok
+test export_v3::tests::matmul_i64_small ... ok
+test chain::tests::matmul_small ... ok
+test attention::chain_tests::requant_round_is_balanced ... ok
+test field::verifier_hardening_tests::hardening_checked_batch_matches_legacy_and_individual_inverses ... ok
+test field::verifier_hardening_tests::hardening_checked_batch_rejects_zero_without_mutation ... ok
+test gpu::planes::tests::a_shape_that_does_not_tile_is_declined ... ok
+test export_v3::tests::witness_i64_matmul_scalar_oracle_signed_extremes_and_tails ... ok
+test chain::tests::witness_i8_matmul_scalar_oracle_signed_extremes_and_tails ... ok
+test gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination ... ok
+test chain::tests::witness_i8_matmul_preserves_prefix_overflow_behavior ... ok
+test gpu::planes::tests::overflowing_tiling_products_are_declined_without_large_allocations ... ok
+test norm::tests::window_rule_examples ... ok
+test norm::tests::gadget_facts_hold_on_random_rows ... ok
+test gpu::planes::tests::fill_fp_is_the_layer_buffer ... ok
+test pcs_compact::tests::mobius_matches_multilinear_evaluation ... ok
+test pcs_compact::tests::ntt_dif_is_bitreversed_evaluation ... ok
+test pcs_compact::tests::pieces_and_queries ... ok
+test phase_profile::tests::disabled_profiling_preserves_result_and_records_nothing ... ok
+test phase_profile::tests::nested_profile_costs_are_exclusive ... ok
+test phase_profile::tests::profile_capture_cleans_up_after_unwind ... ok
+test export_v3::tests::requant_round_is_the_prescaled_floor ... ok
+test private_attention::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_attention::layout::tests::declared_counts_are_self_consistent ... ok
+test pcs_compact::tests::compact_batch_of_three_commitments ... ok
+test private_attention::tests::cached_u8_inverses_equal_reference_for_real_lookups_and_invalid_values ... ok
+test gpu::planes::tests::fill_bytes_is_the_packed_image_over_every_range ... ok
+test pcs_compact::tests::compact_commit_open_verify_and_tampers ... ok
+test private_attention::tests::l4_f3_the_schedule_audit_refuses_a_pair_with_dependent_induced_weights ... ok
+test field::verifier_hardening_tests::cpu::hardening_v2_production_verifier_refuses_collision_after_honest_prefix ... ok
+test private_attention::tests::opening_refusals_are_functions_of_the_challenges_only ... ok
+test private_attention::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_attention::tests::the_declared_schedule_is_stable_and_bound ... ok
+test private_attention::tests::the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows ... ok
+test private_attention::tests::no_published_word_is_a_small_integer ... ok
+test private_attention::tests::an_endpoint_committed_to_other_values_is_refused ... ok
+test private_block::accuracy::tests::group_scale_precedes_product_rounding ... ok
+test private_block::accuracy::tests::grouped_products_match_independent_rational_vectors ... ok
+test private_block::accuracy::tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test private_block::accuracy::tests::negative_half_ties_round_toward_positive_infinity ... ok
+test private_block::accuracy::tests::requantization_matches_independent_rational_vectors ... ok
+test private_block::accuracy_act::tests::every_three_coordinate_row_matches_its_generated_scaled_table ... ok
+test private_block::accuracy_act::tests::group_coordinate_separates_colliding_gate_zero_outputs ... ok
+test private_block::accuracy_act::tests::histogram_and_compressed_queries_count_real_and_padded_groups_without_aliasing ... ok
+test private_block::accuracy_act::tests::m15_fused_denominators_equal_alpha_minus_the_queries ... ok
+test private_block::accuracy_act::tests::m15_parallel_histogram_equals_the_sequential_count ... ok
+test private_block::accuracy_act::tests::query_group_padding_is_the_valid_zero_gate_zero_output_group_zero_row ... ok
+test private_block::accuracy_act::tests::signed_endpoints_are_exact_and_invalid_queries_are_counted_without_panics ... ok
+test private_attention::tests::witness_equals_the_independent_fixed_causal_oracle ... ok
+test field::verifier_hardening_tests::cpu::hardening_v3_production_verifier_refuses_collision_and_propagates ... ok
+test private_block::accuracy_aligned::shieldstral_tests::shieldstral_actual_l25_four_groups_fit_and_standard_refuses_them ... ok
+test private_block::accuracy_aligned::shieldstral_tests::zero_direct_shift_preserves_negative_values_exactly ... ok
+test private_block::accuracy_aligned::tests::every_registry_combination_respects_the_derived_31_bit_bound ... ok
+test private_block::accuracy_aligned::tests::tables_scale_the_quantized_words_without_another_rounding ... ok
+test private_block::accuracy_aligned::tests::the_legacy_profile_cannot_select_this_construction ... ok
+test private_attention::tests::wire_frames_are_exact_canonical_and_bounded ... ok
+test private_block::accuracy_aligned::tests::both_stacks_match_every_independent_rational_product_vector ... ok
+test private_block::accuracy_fold::tests::all_seven_native_matrix_folds_equal_an_independent_scaled_coefficient_sum ... ok
+test private_block::accuracy_fold::tests::every_axis_uses_exact_channel_coefficients_and_query_head_permutation ... ok
+test private_block::accuracy_fold::tests::multiplying_interpolants_after_folding_is_rejected_by_the_differential_case ... ok
+test private_block::accuracy_groups::tests::common_denominators_preserve_every_rounding_and_remainder ... ok
+test private_block::accuracy_groups::tests::folding_matches_the_independent_block_fixture_constants ... ok
+test private_block::accuracy_groups::tests::malformed_and_noncanonical_group_data_is_refused ... ok
+test private_block::accuracy_groups::tests::the_product_window_grows_when_exact_group_scaling_needs_it ... ok
+test private_block::accuracy_layout::tests::every_allocated_role_and_lookup_count_matches_the_independent_inventory ... ok
+test private_block::accuracy_layout::tests::every_remainder_top_pin_enforces_its_exact_window_including_full_bytes ... ok
+test private_block::accuracy_layout::tests::malformed_lookup_context_is_refused_before_any_lookup_is_used ... ok
+test private_block::accuracy_layout::tests::removed_norm_limbs_are_absent_and_every_other_legacy_role_is_unique ... ok
+test private_block::accuracy_precision::low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... ok
+test private_block::accuracy_precision::low_tests::low_keeps_h16_and_its_downstream_scale ... ok
+test private_block::accuracy_precision::tests::invalid_base_or_derived_windows_are_refused ... ok
+test private_block::accuracy_precision::tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test private_block::accuracy_precision::tests::low_h24_matches_the_received_build_spec ... ok
+test private_block::accuracy_binding_tests::the_accuracy_data_is_attached_and_changes_the_actual_block_digest ... ok
+test private_block::accuracy_binding_tests::a_legacy_profile_refuses_accuracy_data_instead_of_ignoring_it ... ok
+test private_block::accuracy_profile_tests::accuracy_native_legacy_comparison_census ... ok
+test private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts ... ok
+test private_block::accuracy_proof_tests::accuracy_actual_shieldstral_v2_all_public_weights_and_layer_contexts_import ... ignored, authenticated full Shieldstral public export via HL_R13_SHIELDSTRAL_EXPORT; guarded separately
+test private_block::accuracy_proof_tests::accuracy_all_new_limb_and_unused_dictionary_mutations_reach_verification ... ignored, separate guarded R13 new limb and FP12 dictionary attacks
+test private_block::accuracy_proof_tests::accuracy_dense_low_and_h24_dd_and_non_dd_prove_and_verify ... ignored, separate guarded full R13 proof gate; public synthetic only
+test private_block::accuracy_proof_tests::accuracy_every_table_support_tail_rejects_a_moved_multiplicity ... ignored, separate guarded R13 byte/exp/ACT3 support-tail attacks
+test private_block::accuracy_profile_tests::accuracy_native_layout_census_for_review ... ok
+test private_block::accuracy_proof_tests::accuracy_new_norm_high_byte_mutation_reaches_native_proof_and_is_rejected ... ignored, separate guarded native relation mutation; no builder-only refusal
+test private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies ... ignored, guarded two-stage R13 private boundary with distinct public gate denominators
+test private_block::accuracy_proof_tests::accuracy_wrong_group_table_is_rejected_after_both_honest_contexts_verify ... ignored, guarded ACT3 wrong-group witness with otherwise self-consistent arithmetic
+test private_block::accuracy_public::tests::a_tampered_table_or_derived_cache_is_refused_on_recheck ... ok
+test private_block::accuracy_public::tests::each_public_change_moves_the_binding ... ok
+test private_block::accuracy_public::tests::every_multiplier_axis_has_its_exact_shape_and_narrow_class ... ok
+test private_block::accuracy_public::tests::honest_data_has_a_canonical_binding_and_exact_context ... ok
+test private_block::accuracy_aligned::shieldstral_tests::both_shieldstral_stacks_match_2016_independent_fraction_vectors ... ok
+test private_block::accuracy_public::tests::registry_is_bound_even_when_every_public_table_word_is_identical ... ok
+test private_block::accuracy_public::tests::the_coarse_member_requires_the_shieldstral_registry_and_exact_geometry ... ok
+test private_block::accuracy_public::tests::the_export_stack_changes_the_binding_and_is_rechecked ... ok
+test private_block::accuracy_tables::shieldstral_tests::shieldstral_member_matches_all_4096_independent_words_without_clipping ... ok
+test private_block::accuracy_tables::shieldstral_tests::standard_registry_and_unknown_members_remain_refused ... ok
+test private_block::accuracy_tables::shieldstral_tests::every_existing_member_is_byte_identical_in_both_registries ... ok
+test private_block::accuracy_tables::tests::unsupported_members_and_precisions_are_refused ... ok
+test private_block::accuracy_tables::tests::every_int12_silu_word_matches_the_independent_reference ... ok
+test private_block::accuracy_tables::tests::zero_and_signed_index_are_unambiguous ... ok
+test private_block::accuracy_public::tests::every_stack_registry_and_group_count_matches_its_actual_encoded_length ... ok
+test field::verifier_hardening_tests::cpu::hardening_attention_production_verifier_refuses_collision_and_preserves_bytes ... ok
+test private_block::argument::accuracy::tests::accuracy_native_polynomials_obey_declared_degree_and_extension_zero_property ... ok
+test private_block::boundary::tests::a_boundary_opening_on_a_shared_pair_is_refused ... ok
+test private_block::boundary::tests::a_node_shaped_boundary_column_is_refused ... ok
+test private_block::boundary::tests::a_prepared_boundary_commits_the_words_and_declares_its_reserved_rows ... ok
+test private_block::boundary::tests::a_prepared_boundary_refuses_a_different_statement ... ok
+test private_block::boundary::tests::every_row_count_but_the_derived_one_is_refused_by_name ... ok
+test private_block::accuracy_profile_tests::the_common_gate_shift_is_constructor_checked_reconstructed_and_schedule_bound ... ok
+test private_block::boundary::tests::the_declared_geometry_is_what_the_spec_derives ... ok
+test private_block::boundary::tests::the_digest_is_its_own_and_moves_with_every_parameter ... ok
+test private_block::boundary::tests::the_malformed_statements_are_refused_by_name ... ok
+test private_block::boundary::tests::the_prepare_refusals_fire ... ok
+test private_block::boundary::tests::one_opening_carries_two_claims_at_two_points_and_verifies ... ok
+test private_block::boundary::tests::two_boundary_claims_at_one_point_trip_the_declared_group_count ... ok
+test private_attention::tests::receipt_field_tampers_and_statement_mismatches_are_refused ... ok
+test private_block::argument::accuracy::tests::accuracy_public_context_checks_stack_denominator_presence_and_symmetric_words ... ok
+test private_block::argument::accuracy::tests::accuracy_native_definitions_match_claim_schedules_for_both_stacks_dd_and_all_group_counts ... ok
+test private_block::argument::accuracy::tests::accuracy_honest_full_word_witness_satisfies_native_host_relations_and_new_limb_mutation_fails ... ok
+test private_block::c6_tests::only_the_125m_shape_and_the_new_one_reach_correction_c_6 ... ok
+test private_attention::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+test private_block::c6_tests::the_lookup_c6_drops_is_a_duplicate_of_one_that_stays ... ok
+test private_attention::capture::native_capture_roundtrip_and_refusals ... ok
+test private_block::c6_tests::the_new_shape_is_rung_p2_with_the_head_dimension_moved ... ok
+test private_block::c6_tests::a_frame_with_the_dropped_helper_claims_is_refused_before_any_draw_at_the_rung_c6 ... ok
+test private_block::c6_tests::the_pinned_rung_c6_chain_band_is_the_first_admissible_one ... ok
+test private_block::c6_tests::the_rows_and_lookups_c6_drops_are_absent_here_and_present_at_rung_k4 ... ok
+test private_block::c6_tests::a_tampered_round_message_of_slot_14_is_rejected_at_the_rung_c6 ... ok
+test private_block::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_block::c6_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_c6 ... ok
+test private_block::cs_port_tests::cs1_and_s38_f1a_the_feed_forward_statement_is_checked_against_the_shape_it_is_proved_at ... ok
+test private_block::cs_port_tests::cs4_an_attention_half_or_a_policy_from_another_shape_is_refused ... ok
+test private_block::cs_port_tests::cs3_a_lookup_miss_is_refused_by_the_honest_prover_and_rejected_by_the_verifier ... ok
+test private_block::cs_port_tests::cs7_a_run_profile_names_exactly_one_block_shape ... ok
+test private_block::cs_port_tests::cs8_written_fields_are_refused_at_the_entries ... ok
+test private_block::cs_port_tests::cs9_a_block_profile_string_names_exactly_one_shape ... ok
+test private_block::c6_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_c6 ... ok
+test private_block::cs_port_tests::cs6_the_run_prover_and_verifiers_refuse_blocks_that_are_not_the_statements ... ok
+test private_block::c6_tests::the_norm_range_tamper_rejects_at_the_same_slot_on_both_arms ... ok
+test private_block::capture::native_capture_roundtrip_and_refusals ... ok
+test private_block::dense_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g ... ok
+test private_block::dense_tests::an_honest_dense_feed_forward_block_proves_and_verifies_from_bytes_at_the_rung_g ... ok
+test private_block::c6_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_c6 ... ok
+test private_block::dense_tests::s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_accepted ... ok
+test private_block::dense_tests::exchanging_the_two_key_value_groups_keys_is_rejected_at_the_rung_g ... ok
+test private_block::dense_tests::a_shared_kv_head_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g ... ok
+test private_block::dense_tests::the_dense_feed_forward_witness_is_admissible_and_non_trivial_at_the_rung_g ... ok
+test private_block::dense_tests::the_dense_public_statements_construct_at_125m ... ok
+test private_block::dense_tests::the_dense_recipe_is_dense_deterministic_and_reaches_the_upper_hidden_half ... ok
+test private_block::c6_tests::a_norm_top_limb_outside_its_byte_range_is_rejected_at_the_rung_c6 ... ok
+test private_block::dense_tests::the_dense_recipes_public_stream_is_consumed_entirely_by_public_words ... ok
+test private_block::dense_tests::the_dense_witness_is_admissible_and_non_trivial_at_the_rung_g ... ok
+test private_block::dense_tests::the_recipe_strings_this_build_writes_describe_public_weights_only ... ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_at_a_synthetic_four_key_value_head_geometry ... ok
+test private_block::dense_tests::a_perturbation_in_the_second_key_value_group_of_the_dense_witness_is_rejected_at_the_rung_g ... ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_g ... ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_k4 ... ok
+test private_block::dense_tests::the_dense_recipes_are_admissible_and_non_trivial_at_125m ... ok
+test private_block::c6_tests::the_named_tampers_are_rejected_at_their_own_slots_at_the_rung_c6 ... ok
+test private_block::e32_tests::a_verifier_statement_with_a_moved_word_in_a_high_endpoint_row_is_refused_at_the_rung_e32 ... ok
+test private_block::e32_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_e32 ... ok
+test private_block::e32_tests::only_the_125m_shape_and_the_new_one_reach_the_thirty_two_row_endpoint ... ok
+test private_block::e32_tests::a_tamper_in_a_high_endpoint_row_is_rejected_at_its_own_slot_at_the_rung_e32 ... ok
+test private_block::e32_tests::the_endpoint_geometry_is_125ms_row_count_over_a_narrower_row ... ok
+test private_block::e32_tests::the_new_shape_is_125ms_endpoint_row_count_at_a_ten_log_endpoint ... ok
+test private_block::endpoint_g::tests::a_node_shaped_endpoint_column_is_unreachable_and_still_refused ... ok
+test private_block::endpoint_g::tests::a_prepared_plane_commits_the_words_and_declares_the_frozen_mask_rows ... ok
+test private_block::endpoint_g::tests::a_prepared_plane_refuses_a_different_statement ... ok
+test private_block::endpoint_g::tests::one_changed_word_changes_the_root ... ok
+test private_block::endpoint_g::tests::the_declared_geometry_is_what_the_spec_derives ... ok
+test private_block::endpoint_g::tests::the_digest_is_its_own_and_moves_with_every_parameter ... ok
+test private_block::endpoint_g::tests::the_frozen_seam_refuses_a_plane_past_its_ceiling_and_this_module_does_not ... ok
+test private_block::endpoint_g::tests::the_malformed_statements_are_refused_by_name ... ok
+test private_block::endpoint_g::tests::the_prepare_refusals_fire ... ok
+test private_block::dense_tests::stage19_bisect_the_head_axis ... ok
+test private_block::f12_version_tests::f12_a_receipt_under_the_new_version_does_not_verify_under_the_old_one ... ok
+test private_block::f12_version_tests::f12_every_pre_f12_block_and_run_string_is_refused_and_its_successor_admitted ... ok
+test private_block::grow_tests::a_shape_wider_than_the_ntt_tables_is_refused_by_name ... ok
+test private_block::grow_tests::an_inexpressible_shape_is_refused_at_construction_by_name ... ok
+test private_block::grow_tests::an_out_of_class_lookup_value_falls_into_bucket_zero ... ok
+test private_block::e32_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_e32 ... ok
+test private_block::grow_tests::every_shape_has_its_own_profile_id ... ok
+test private_block::grow_tests::no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input ... ok
+test private_block::grow_tests::the_125m_receipt_is_reproduced_part_by_part ... ok
+test private_block::grow_tests::the_125m_shape_constructs_and_what_still_refuses_says_so_by_name ... ok
+test private_block::grow_tests::every_opened_column_of_an_honest_receipt_carries_its_own_salt ... ok
+test private_block::grow_tests::the_codec_length_is_the_models_at_every_shape ... ok
+test private_block::grow_tests::the_h_plane_ids_are_the_toys_at_the_toy_and_each_shapes_elsewhere ... ok
+test private_block::grow_tests::the_integer_windows_come_from_the_shape ... ok
+test private_block::grow_tests::the_layout_is_built_from_a_shape_and_the_toy_is_one_instance ... ok
+test private_block::grow_tests::the_lift_is_a_no_op_at_the_toy ... ok
+test private_block::grow_tests::the_byte_table_length_is_split_from_the_row_width ... ok
+test private_block::grow_tests::the_logup_sum_claim_has_one_column_weight_key_at_the_rung ... ok
+test private_block::grow_tests::the_lifted_u8_table_proves_exactly_256_values ... ok
+test private_block::grow_tests::the_pad_count_is_at_least_the_number_of_opened_columns ... ok
+test private_block::grow_tests::the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_columns ... ok
+test private_block::grow_tests::the_plane_id_map_expresses_a_third_sigma_s_limb ... ok
+test private_block::grow_tests::the_reconstructed_sum_claim_equals_the_modules_own_at_the_toy ... ok
+test private_block::grow_tests::the_repaired_bilinear_schedule_agrees_with_the_independent_model_at_every_shape ... ok
+test private_block::grow_tests::the_rung_at_its_own_calibration_has_an_honest_witness ... ok
+test private_block::grow_tests::the_rung_g_profile_is_the_rung_with_a_different_endpoint ... ok
+test private_block::grow_tests::the_shape_driven_layout_matches_the_python_model_at_the_rung_and_at_125m ... ok
+test private_block::grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly ... ok
+test private_block::grow_tests::the_shape_driven_lookup_list_matches_the_counted_one ... ok
+test private_block::grow_tests::the_slot_definitions_are_built_from_the_shape ... ok
+test private_block::grow_tests::the_softmax_window_of_the_toy_refuses_an_honest_rung_witness ... ok
+test private_block::grow_tests::the_toy_parameter_line_is_the_frozen_literal ... ok
+test private_block::grow_tests::the_toy_schedule_digest_is_frozen ... ok
+test private_block::grow_tests::the_unlifted_rung_sum_claim_raises_three_keys_and_is_refused ... ok
+test private_block::grow_tests::the_norm_window_of_the_toy_refuses_an_honest_rung_witness ... ok
+test private_block::hash_domain::tests::a_frame_one_path_entry_short_is_refused_at_decode ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_core_verifier_by_name ... ok
+test private_block::f12_version_tests::f12_a_receipt_under_the_old_version_does_not_verify_under_the_new_one ... ok
+test private_block::hash_domain::tests::every_dangerous_row_count_is_refused_by_name_at_every_shape ... ok
+test private_block::hash_domain::tests::no_commitment_of_any_shape_collides_and_the_toy_is_clear ... ok
+test private_block::hash_domain::tests::the_completed_guard_refuses_geometries_the_constructions_can_actually_reach ... ok
+test private_block::hash_domain::tests::the_computed_length_set_is_pinned_at_every_shape ... ok
+test private_block::hash_domain::tests::the_constructors_guard_is_unchanged_under_the_legacy_rule ... ok
+test private_block::hash_domain::tests::the_constructors_guard_refuses_every_shape_free_dangerous_count ... ok
+test private_block::hash_domain::tests::the_length_formulas_are_still_the_ones_zkp_core_hashes ... ok
+test private_block::hash_domain::tests::the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors ... ok
+test private_block::hash_domain::tests::the_runs_own_parameter_line_enters_the_length_set ... ok
+test private_block::hash_domain::tests::the_shape_free_dangerous_row_counts_are_the_memos_eight ... ok
+test private_block::hash_domain::tests::the_tree_depth_is_the_wire_formats_own_number ... ok
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+test private_block::hash_tag_tests::the_test_hook_can_only_force_the_legacy_rule ... ok
+test private_block::hash_tag_tests::the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_whole_verifier_by_name ... ok
+test private_block::e32_tests::an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_e32 ... ok
+test private_block::e32_tests::a_moved_word_in_a_high_boundary_row_is_refused_in_a_two_block_run_at_the_rung_e32 ... ok
+test private_block::dense_tests::stage19_bisect_the_hidden_input ... ok
+test private_block::k4_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_k4 ... ok
+test private_block::dense_tests::every_upper_hidden_half_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g ... ok
+test private_block::k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims ... ok
+test private_block::ladder8b_tests::native_ladder8b_generic_block_proves_verifies_and_every_control_refuses ... ignored, native lane heavy: one width-4096 Llama-3-8B-geometry block proof at T64/T128 (release, guarded)
+test private_block::ladder8b_tests::native_ladder8b_verify_the_saved_segment_in_a_fresh_process ... ignored, native lane heavy: verifies a saved width-4096 T64/T128 segment in a fresh process
+test private_block::ladder8b_tests::the_llama3_8b_t64_and_t128_counted_layouts ... ok
+test private_block::ladder8b_tests::the_t_dependent_nowrap_clauses_hold_at_the_8b_t64_and_t128_shapes ... ok
+test private_block::k4_tests::the_pinned_rung_k4_chain_band_is_the_first_admissible_one ... ok
+test private_block::lane_c_tinyllama_tests::every_statement_field_moves_the_identity_and_an_unused_constant_is_refused ... ok
+test private_block::lane_c_tinyllama_tests::lane_c_one_dense_block_proves_and_verifies_at_the_tinyllama_dev_shape ... ignored, lane C heavy: one width-2048 block proof
+test private_block::lane_c_tinyllama_tests::lane_c_the_dense_recipe_is_admissible_at_the_tinyllama_dev_shape ... ignored, lane C heavy: builds a width-2048 witness
+test private_block::lane_c_tinyllama_tests::the_development_shape_has_four_norm_limbs_and_its_own_counts ... ok
+test private_block::lane_c_tinyllama_tests::the_frozen_toy_the_calibration_literal_and_125m_do_not_move ... ok
+test private_block::lane_c_tinyllama_tests::the_tinyllama_source_record_is_the_pinned_one_and_is_checked ... ok
+test private_block::lane_c_tinyllama_tests::the_true_geometry_has_a_layout_but_no_witness ... ok
+test private_block::lane_c_tinyllama_tests::the_true_geometry_reproduces_the_retained_sol_layout_counts ... ok
+test private_block::layout::tests::declared_counts_are_self_consistent ... ok
+test private_block::layout::tests::planes_are_row_aligned_and_contiguous_per_domain ... ok
+test private_block::mvp_driver::tests::a_policy_round_trips_and_every_alteration_is_refused ... ok
+{"event":"prove_start","scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","shape":"rung-p2","blocks":2,"recipe":"zk60-mvp/dense-run/1","context_label":"zk60-mvp-diagnostic","artifact_dir":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art","policy_out":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/policy.txt","hl_gpu_env":"unset"}
+{"event":"phase","name":"model_setup","seconds":0.006464}
+{"event":"phase","name":"chain_prepass","seconds":0.019747}
+{"event":"phase","name":"endpoint_prep","seconds":0.005711}
+{"event":"phase","name":"statement","seconds":0.012230}
+test private_block::k4_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_k4 ... ok
+test private_block::mvp_driver::tests::the_copied_recipe_is_the_dense_run_recipe_at_both_shapes ... ok
+test private_block::mvp_driver::tests::the_varied_recipe_starts_at_the_same_block_and_then_differs ... ok
+test private_block::norm_alias::native_the_half_p_alias_is_refused_end_to_end_at_the_trained_tinyllama_profile ... ignored, native lane heavy: five width-2048 TinyLlama proofs
+test private_block::norm_alias::the_alias_satisfies_every_norm_relation_in_the_field ... ok
+test private_block::norm_alias::the_alias_still_breaks_exactly_r2_on_a_rung_witness ... ok
+test private_block::norm_alias::the_denominator_range_fact_excludes_the_alias_at_every_expressible_width ... ok
+test private_block::hash_tag_tests::a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions ... ok
+test private_block::dense_tests::stage19_bisect_the_dense_failure ... ok
+test private_block::k4_tests::exchanging_the_keys_of_key_value_groups_two_and_three_is_rejected_at_the_rung_k4 ... ok
+test private_block::norm_alias::the_limb_count_the_widened_geometry_needs ... ok
+test private_block::norm_alias::the_trained_norm_window_does_not_re_open_the_alias ... ok
+test private_block::norm_alias::the_widened_norm_window_does_not_re_open_the_alias ... ok
+{"event":"segment_staged","index":0,"bytes":4574904,"sha256":"386a0a6c2b6cf0ff9f63ebd6611bcbce4d5251686a91e41197d8d6c722448d91","published":false}
+test private_block::norm_alias::the_half_p_isqrt_alias_is_refused_by_the_byte_limb_pin_on_the_denominator ... ok
+test private_block::norm_alias::the_half_p_isqrt_alias_with_reconstructing_limbs_is_refused_by_the_u8_table ... ok
+test private_block::p2_tests::a_padded_style_round_message_at_an_unpadded_slot_is_refused_by_the_frame_check_at_the_rung_p2 ... ok
+{"event":"segment_staged","index":1,"bytes":4765336,"sha256":"5e839d63baa9a58a2d68df029489a61ed641c838934fc43011baa4fcf186af61","published":false}
+{"event":"phase","name":"witness_build_recurring","seconds":0.012605}
+{"event":"phase","name":"prove_and_serialize_excluding_witness_io","seconds":1.474471}
+{"event":"phase","name":"stage_io","seconds":0.038122}
+{"event":"phase","name":"verify_setup_inprocess","seconds":0.025434}
+test private_block::k4_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_k4 ... ok
+{"event":"phase","name":"verify_inprocess","seconds":0.140867}
+{"event":"phase","name":"publish","seconds":0.014434}
+{"event":"prove_result","status":"accepted_in_process_and_published","scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","synthetic":true,"trained_model":false,"trained_8b_proof":false,"privacy_acceptance":false,"shape":"rung-p2","shape_name":"development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)","block_profile":"hashline-zk-mr1/private-block-rung-p2-t32-dev/2","run_profile":"hashline-zk-mr1/private-run-rung-p2-t32-dev/2","one_transcript":true,"layers":2,"tokens":32,"tokens_counted_once":32,"block_token_evaluations":64,"dims":{"width":96,"hidden":256,"q_heads":12,"kv_heads":4,"head_dim":8},"receipt_bytes":9340240,"segments":[{"file":"segment-000.bin","bytes":4574904,"sha256":"386a0a6c2b6cf0ff9f63ebd6611bcbce4d5251686a91e41197d8d6c722448d91"},{"file":"segment-001.bin","bytes":4765336,"sha256":"5e839d63baa9a58a2d68df029489a61ed641c838934fc43011baa4fcf186af61"}],"source":{"kind":"synthetic-public-recipe","recipe":"zk60-mvp/dense-run/1","model_digest":"34af21625a4200f2413b01da2665e5cbb97c7735905021599173ddeef7ec2ebe","input":"synthetic hidden input, default seed, not logged"},"calibration":{"identity":"1f23aeca58f7878c0397c52db919ba0a42073c1869eae4a0598c7e2bc9d498ff","scales":[0,0],"origin":"the approved fixed calibration built into this binary"},"context_label":"zk60-mvp-diagnostic","input_root":"1220f66e46b9f581c81eb4e7eb44d9670dd8f1c2a555ab6112ea346899f076f0","output_root":"b1a8c1ab499d74dd212e5e0f376b80183077d1df859ad6e1c36d41e499f35ab9","artifact_dir":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art","policy_file":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/policy.txt","policy_sha256":"32491e75ed6ead2ae28a04453e94eca1f3be1fe21f43a55b5d3c708085539ed1","independent_verification":{"available":true,"performed_in_this_process":false,"in_process_check":"passed","command":"zk60_private_stack verify --artifact /private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art --policy /private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/policy.txt --policy-sha256 32491e75ed6ead2ae28a04453e94eca1f3be1fe21f43a55b5d3c708085539ed1"},"witness_builds":{"sealing_pass":2,"proving_pass":2},"timing_s":{"model_setup":0.006464,"chain_prepass":0.019747,"endpoint_prep":0.005711,"statement":0.012230,"witness_build_recurring":0.012605,"prove_and_serialize_excluding_witness_io":1.474471,"stage_io":0.038122,"verify_setup_inprocess":0.025434,"verify_inprocess":0.140867,"publish":0.014434},"driver_wall_s":1.750463,"driver_wall_note":"wall time of this command from argument parsing to result; excludes process start-up and exit; the root adds process-level totals","tokens_per_s_over_driver_wall":18.280880,"peak_rss_mib":null}
+test private_block::p2_tests::a_tampered_round_message_of_an_unpadded_zero_check_is_rejected_at_the_rung_p2 ... ok
+test private_block::p2_tests::only_the_125m_shape_and_the_new_one_reach_the_unpadded_arm_of_the_pad_rule ... ok
+{"event":"verify_result","status":"accepted","fresh_process":true,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","synthetic":true,"trained_model":false,"trained_8b_proof":false,"privacy_acceptance":false,"shape":"rung-p2","block_profile":"hashline-zk-mr1/private-block-rung-p2-t32-dev/2","run_profile":"hashline-zk-mr1/private-run-rung-p2-t32-dev/2","recipe":"zk60-mvp/dense-run/1","layers":2,"tokens":32,"receipt_bytes":9340240,"policy_sha256":"32491e75ed6ead2ae28a04453e94eca1f3be1fe21f43a55b5d3c708085539ed1","trusted_inputs":"caller policy file and pins only; nothing adopted from the artifact","timing_s":{"policy_load":0.000062,"model_setup":0.039099,"artifact_scan":0.022424,"verify_run":0.184746},"driver_wall_s":0.246338,"peak_rss_mib":null}
+{"event":"verify_result","status":"refused","accepted":false,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","reason":"pin --expect-blocks disagrees with the trusted policy","driver_wall_s":0.000092}
+{"event":"verify_result","status":"refused","accepted":false,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","reason":"pin --expect-shape disagrees with the trusted policy","driver_wall_s":0.000034}
+{"event":"verify_result","status":"refused","accepted":false,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","reason":"pin --expect-input-root disagrees with the trusted policy","driver_wall_s":0.000036}
+{"event":"verify_result","status":"refused","accepted":false,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","reason":"artifact: the manifest is not the one these segments and this policy give","driver_wall_s":0.038966}
+{"event":"verify_result","status":"refused","accepted":false,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","reason":"artifact: the manifest is not the one these segments and this policy give","driver_wall_s":0.034727}
+{"event":"verify_result","status":"refused","accepted":false,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","reason":"private run: the run directory /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art holds extra.bin, which is not one of this run's 2 segments","driver_wall_s":0.023947}
+{"event":"verify_result","status":"refused","accepted":false,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","reason":"private run: the run directory /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art is missing segment-001.bin","driver_wall_s":0.018666}
+{"event":"verify_result","status":"accepted","fresh_process":true,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","synthetic":true,"trained_model":false,"trained_8b_proof":false,"privacy_acceptance":false,"shape":"rung-p2","block_profile":"hashline-zk-mr1/private-block-rung-p2-t32-dev/2","run_profile":"hashline-zk-mr1/private-run-rung-p2-t32-dev/2","recipe":"zk60-mvp/dense-run/1","layers":2,"tokens":32,"receipt_bytes":9340240,"policy_sha256":"32491e75ed6ead2ae28a04453e94eca1f3be1fe21f43a55b5d3c708085539ed1","trusted_inputs":"caller policy file and pins only; nothing adopted from the artifact","timing_s":{"policy_load":0.000043,"model_setup":0.011451,"artifact_scan":0.022078,"verify_run":0.169167},"driver_wall_s":0.202744,"peak_rss_mib":null}
+{"event":"prove_start","scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","shape":"rung-p2","blocks":2,"recipe":"zk60-mvp/dense-run/1","context_label":"zk60-mvp-diagnostic","artifact_dir":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art2","policy_out":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/policy2.txt","hl_gpu_env":"unset"}
+{"event":"phase","name":"model_setup","seconds":0.003604}
+{"event":"phase","name":"chain_prepass","seconds":0.042589}
+{"event":"phase","name":"endpoint_prep","seconds":0.012499}
+{"event":"phase","name":"statement","seconds":0.012762}
+test private_block::p2_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_p2 ... ok
+test private_block::p2_tests::the_draw_census_is_the_rules_count_and_differs_from_rung_k4_only_where_the_pad_rule_does ... ok
+test private_block::p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move ... ok
+test private_block::lane_c_tinyllama_tests::a_run_bound_to_its_statement_verifies_and_is_rejected_under_any_other ... ok
+test private_block::p2_tests::the_pinned_rung_p2_chain_band_is_the_first_admissible_one ... ok
+test private_block::pad::tests::a_weight_nonzero_off_its_support_is_refused_at_construction ... ok
+test private_block::pad::tests::every_slot_fits_the_mask_budget_with_the_indicator ... ok
+test private_block::pad::tests::every_support_indicator_has_the_true_sizes_weight ... ok
+test private_block::pad::tests::pz1_a_lone_nonzero_pad_value_is_rejected ... ok
+test private_block::pad::tests::pz2_a_consistently_adjusted_pad_is_rejected ... ok
+test private_block::pad::tests::the_builders_head_layout_is_the_memos ... ok
+test private_block::pad::tests::the_closed_forms_equal_the_tables ... ok
+test private_block::pad::tests::the_declared_degrees_are_inside_the_declared_range ... ok
+test private_block::pad::tests::the_folded_weight_vectors_vanish_off_support ... ok
+test private_block::pad::tests::the_honest_rung_witness_passes_every_checkable_relation ... ok
+test private_block::pad::tests::the_pad_rule_table_reproduces_the_memos_counts ... ok
+test private_block::pad::tests::the_padded_head_slots_are_one_per_key_value_group ... ok
+test private_block::pad::tests::the_toy_already_pads_one_domain_and_must_not_gain_the_term ... ok
+test private_block::pad::tests::the_toy_profiles_padded_planes_and_what_constrains_them ... ok
+test private_block::p2_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_p2 ... ok
+test private_block::parity::the_case_generator_is_deterministic_and_covers_its_grid ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_c6 ... ok
+test private_block::parity::a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_g ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_e32 ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_k4 ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_p2 ... ok
+test private_block::parity::the_key_value_rope_table_is_laid_out_over_the_key_value_heads ... ok
+test private_block::parity::the_memo_section_three_bounds_hold_at_the_rung ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_calibration_exactly ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_primitives_exactly ... ok
+{"event":"segment_staged","index":0,"bytes":4574904,"sha256":"9cb14f5cbc6a5c2944205e85935af1fdbac711608612318284e0b3b4b4929d15","published":false}
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_w14 ... ok
+{"event":"segment_staged","index":1,"bytes":4765336,"sha256":"b7379850c0610ed3bf038d1488ec92b134c40b58ef5a8ff9207cc7c7c0706edd","published":false}
+{"event":"phase","name":"witness_build_recurring","seconds":0.036465}
+{"event":"phase","name":"prove_and_serialize_excluding_witness_io","seconds":1.325125}
+{"event":"phase","name":"stage_io","seconds":0.035189}
+{"event":"phase","name":"verify_setup_inprocess","seconds":0.008290}
+test private_block::p2_tests::the_verifiers_own_draw_census_at_the_rung_p2_is_the_provers ... ok
+{"event":"phase","name":"verify_inprocess","seconds":0.171584}
+{"event":"phase","name":"publish","seconds":0.013521}
+{"event":"prove_result","status":"accepted_in_process_and_published","scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","synthetic":true,"trained_model":false,"trained_8b_proof":false,"privacy_acceptance":false,"shape":"rung-p2","shape_name":"development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)","block_profile":"hashline-zk-mr1/private-block-rung-p2-t32-dev/2","run_profile":"hashline-zk-mr1/private-run-rung-p2-t32-dev/2","one_transcript":true,"layers":2,"tokens":32,"tokens_counted_once":32,"block_token_evaluations":64,"dims":{"width":96,"hidden":256,"q_heads":12,"kv_heads":4,"head_dim":8},"receipt_bytes":9340240,"segments":[{"file":"segment-000.bin","bytes":4574904,"sha256":"9cb14f5cbc6a5c2944205e85935af1fdbac711608612318284e0b3b4b4929d15"},{"file":"segment-001.bin","bytes":4765336,"sha256":"b7379850c0610ed3bf038d1488ec92b134c40b58ef5a8ff9207cc7c7c0706edd"}],"source":{"kind":"synthetic-public-recipe","recipe":"zk60-mvp/dense-run/1","model_digest":"34af21625a4200f2413b01da2665e5cbb97c7735905021599173ddeef7ec2ebe","input":"synthetic hidden input, default seed, not logged"},"calibration":{"identity":"1f23aeca58f7878c0397c52db919ba0a42073c1869eae4a0598c7e2bc9d498ff","scales":[0,0],"origin":"the approved fixed calibration built into this binary"},"context_label":"zk60-mvp-diagnostic","input_root":"6648947b1da51c598577d9ffffee1388ee684c58591f2d6e2e164dc5ef8c01cb","output_root":"1710bba2100ba1eacc8594359dbcdb4a97ecd9bd579397b0387b78cfe65862c4","artifact_dir":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art2","policy_file":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/policy2.txt","policy_sha256":"d7af0024c541acd7b2e46d897a059d28cea0a776bc4e21d848e4e6ed77fb07fa","independent_verification":{"available":true,"performed_in_this_process":false,"in_process_check":"passed","command":"zk60_private_stack verify --artifact /private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art2 --policy /private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/policy2.txt --policy-sha256 d7af0024c541acd7b2e46d897a059d28cea0a776bc4e21d848e4e6ed77fb07fa"},"witness_builds":{"sealing_pass":2,"proving_pass":2},"timing_s":{"model_setup":0.003604,"chain_prepass":0.042589,"endpoint_prep":0.012499,"statement":0.012762,"witness_build_recurring":0.036465,"prove_and_serialize_excluding_witness_io":1.325125,"stage_io":0.035189,"verify_setup_inprocess":0.008290,"verify_inprocess":0.171584,"publish":0.013521},"driver_wall_s":1.661968,"driver_wall_note":"wall time of this command from argument parsing to result; excludes process start-up and exit; the root adds process-level totals","tokens_per_s_over_driver_wall":19.254283,"peak_rss_mib":null}
+test private_block::p2_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_p2 ... ok
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical ... ignored, native lane heavy: seeded Llama-3-8B T128 block proof (byte identity across R9 -> R12)
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical ... ignored, native lane heavy: seeded Llama-3-8B T128 DD block proof (byte identity across R9 -> R12)
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_block_is_byte_identical ... ignored, native lane heavy: seeded TinyLlama T128 block proof (byte identity across R9 -> R12)
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical ... ignored, native lane heavy: seeded TinyLlama T128 DD block proof (byte identity across R9 -> R12)
+test private_block::r12_golden_tests::r12_golden_statement_identities ... ignored, native lane: run with the goldens (cheap)
+test private_block::r12_tests::counted_soundness_floors ... ok
+test private_block::r12_tests::f1_an_attention_factor_other_than_one_is_refused_by_name ... ok
+test private_block::r12_tests::f1_llama3_tables_equal_the_transformers_reference ... ok
+test private_block::r12_tests::f1_the_profiles_pin_their_transforms ... ok
+test private_block::r12_tests::f1_the_statement_binds_the_transform ... ok
+test private_block::r12_tests::f1_the_unscaled_case_is_the_frozen_generator ... ok
+test private_block::r12_tests::f1_yarn_tables_equal_the_prep_lanes_reference_to_2048_positions ... ok
+test private_block::r12_tests::f1_yarn_tables_equal_the_transformers_reference ... ok
+test private_block::r12_tests::f2_a_generic_dense_shieldstral_t128_block_proves_and_matches_the_kernel ... ignored, native lane heavy: a Shieldstral T128 block (width 3072, query 4096) proves and verifies, witness == kernel
+test private_block::r12_tests::f2_a_generic_dense_shieldstral_t128_dd_block_proves_and_matches_the_kernel ... ignored, native lane heavy: a Shieldstral T128 DD block proves and verifies, witness == kernel
+test private_block::r12_tests::f2_saved_shieldstral_t128_dd_receipt_verifies_in_a_fresh_process ... ignored, native lane: fresh-process verification of the saved Shieldstral T128 DD dense receipt
+test private_block::r12_tests::f2_saved_shieldstral_t128_receipt_verifies_in_a_fresh_process ... ignored, native lane: fresh-process verification of the saved Shieldstral T128 dense receipt
+{"event":"verify_result","status":"refused","accepted":false,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","reason":"artifact: the manifest is not the one these segments and this policy give","driver_wall_s":0.034895}
+test private_block::parity::the_shaped_kernel_equals_the_frozen_kernel_at_the_toy ... ok
+test private_block::r12_tests::f2_the_shieldstral_shapes_build_and_lay_out ... ok
+test private_block::r12_tests::f2_the_true_weight_shapes ... ok
+{"event":"verify_result","status":"accepted","fresh_process":true,"scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","synthetic":true,"trained_model":false,"trained_8b_proof":false,"privacy_acceptance":false,"shape":"rung-p2","block_profile":"hashline-zk-mr1/private-block-rung-p2-t32-dev/2","run_profile":"hashline-zk-mr1/private-run-rung-p2-t32-dev/2","recipe":"zk60-mvp/dense-run/1","layers":2,"tokens":32,"receipt_bytes":9340240,"policy_sha256":"d7af0024c541acd7b2e46d897a059d28cea0a776bc4e21d848e4e6ed77fb07fa","trusted_inputs":"caller policy file and pins only; nothing adopted from the artifact","timing_s":{"policy_load":0.000046,"model_setup":0.003873,"artifact_scan":0.021779,"verify_run":0.136059},"driver_wall_s":0.161764,"peak_rss_mib":null}
+{"event":"usage_error","error":"/private/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60_stack_test_55869_1793872672149977000/art already exists; this driver never overwrites","scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied"}
+test private_block::mvp_driver::tests::a_two_block_p2_stack_proves_publishes_and_verifies_and_refusals_hold ... ok
+test private_block::r12_tests::f3_the_loader_reads_a_tied_export ... ok
+test private_block::r12_tests::n_col_against_the_dd_cap_at_head_dim_128 ... ok
+test private_block::r12_tests::the_shieldstral_profiles_carry_their_pins ... ok
+test private_block::r12_tests::the_shieldstral_row_widths_are_the_smallest_counted_receipts ... ok
+test private_block::r12b_tests::every_token_calibration_field_is_bound_by_the_trained_statement ... ok
+test private_block::r12b_tests::pinned_tied_tables_accept_honest_and_refuse_rehashed_forgery ... ignored, full pinned checkpoint/table reads; run guarded with ZK60_R12B_TIED_FIXTURE
+test private_block::r12b_tests::transformed_profile_refuses_export_rope_before_any_layer_read ... ok
+test private_block::r4_tests::native_r4_2_generic_llama3_8b_block_proves_verifies_and_every_control_refuses ... ignored, native lane heavy: one width-4096 Llama-3-8B-geometry block proof (release, guarded)
+test private_block::r4_tests::native_r4_2_verify_the_saved_8b_segment_in_a_fresh_process ... ignored, native lane heavy: verifies a saved width-4096 segment in a fresh process
+test private_block::r4_tests::the_8b_table_generators_match_the_calibration_lanes_digests ... ok
+test private_block::r4_tests::the_llama3_8b_counted_layouts ... ok
+test private_block::r4_tests::the_rope_base_and_the_checkpoint_are_pinned_per_profile ... ok
+test private_block::r4_tests::the_validator_derives_tn_9_at_width_4096 ... ok
+test private_block::r6_tests::a_runs_stage_shape_follows_its_layers_own_shift ... ok
+test private_block::r12_tests::f2_the_decoupled_rung_proves_and_matches_the_kernel ... ok
+test private_block::r6_tests::the_score_requant_no_wrap_holds_over_the_class_at_8b_t128 ... ok
+test private_block::r6_tests::the_sealing_pass_lookup_miss_check_refuses_by_the_cs3_name ... ok
+test private_block::r6_tests::the_statement_records_a_layers_own_shift_canonically_and_binds_it ... ok
+test private_block::r6_tests::with_score_shift_admits_the_window_at_trained_shapes_only ... ok
+test private_block::k4_tests::a_perturbation_in_the_third_or_fourth_key_value_group_is_rejected_at_the_rung_k4 ... ok
+test private_block::r8_tests::the_no_wrap_clauses_hold_over_each_class_at_all_six_trained_profiles ... ok
+test private_block::r8_tests::the_statement_records_each_own_constant_canonically_and_binds_it ... ok
+test private_block::r8_tests::with_layer_calibration_admits_each_class_and_refuses_outside_it ... ok
+test private_block::r9_golden_tests::r9_golden_seeded_llama3_8b_t128_block_is_byte_identical ... ignored, native lane heavy: seeded Llama-3-8B T128 block proof (byte identity across R8 -> R9)
+test private_block::r9_golden_tests::r9_golden_seeded_tinyllama_t128_block_is_byte_identical ... ignored, native lane heavy: seeded TinyLlama T128 block proof (byte identity across R8 -> R9)
+test private_block::r9_tests::a_dd_shape_that_pads_is_refused_by_name ... ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel ... ok
+test private_block::r9_tests::a_non_dd_profile_has_no_24th_slot_and_its_strings_are_unchanged ... ok
+test private_block::r9_tests::an_over_cap_block_is_refused_before_any_header ... ok
+test private_block::norm_alias::the_half_p_alias_is_refused_end_to_end_at_the_trained_calibration_rung ... ok
+test private_block::p2_tests::a_tamper_inside_an_unpadded_domain_is_rejected_at_that_domains_zero_check_at_the_rung_p2 ... ok
+test private_block::r9_tests::a_generic_honest_witness_proves_and_verifies_under_dd ... ok
+test private_block::r9_tests::the_cap_admits_32_and_refuses_33_by_name ... ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel_at_the_rung ... ok
+test private_block::r9_tests::the_t128_dd_shapes_build_and_lay_out ... ok
+test private_block::range16::tests::denominator_inverses_invert_every_nonzero_entry ... ok
+test private_block::range16::tests::families_fill_whole_rows_and_small_widths_pad_by_repetition ... ok
+test private_block::range16::tests::the_range_tags_are_distinct_from_every_other_family ... ok
+test private_block::r12_tests::f3_a_tied_statement_binds_both_tables_to_the_one_tensor ... ok
+test private_block::range16_tests::effplan_census_of_the_committed_rows_by_domain ... ignored, census (efficiency plan B4/B5): prints the committed rows of a block by domain
+test private_block::r8_tests::a_two_block_run_with_block_1_fully_its_own_proves_verifies_and_is_bound ... ok
+test private_block::range16_tests::the_w16_ir_evaluates_to_the_w16_closure_at_every_slot ... ok
+test private_block::range16_tests::the_w16_signed_top_limb_keeps_a_padded_position_inside_both_tables ... ok
+test private_block::range16_tests::f1_every_slot_polynomial_vanishes_at_each_extension_round ... ok
+test private_block::r9_tests::d3_an_unconstrained_slot_is_caught ... ok
+test private_block::r9_tests::d4_a_dropped_row_key_is_caught ... ok
+test private_block::r9_tests::d8_multiplicities_after_alpha_are_caught ... ok
+test private_block::range16_tests::w16_layouts_build_and_cut_the_committed_words_against_r13 ... ok
+test private_block::r9_tests::the_dictionary_helpers_out_of_the_sum_claim_is_caught ... ok
+test private_block::refusals::every_reachable_refusal_site_is_forced_and_matches_the_kernel ... ok
+test private_block::refusals::the_softmax_weights_of_a_row_sum_to_at_most_one ... ok
+test private_block::refusals::the_unreachable_refusal_sites_have_their_premises ... ok
+test private_block::review_d24_tests::review_a_the_trained_door_admits_f_e_9_to_16_and_nothing_else ... ok
+test private_block::review_d24_tests::review_b_an_unbound_run_at_a_trained_shape_is_refused ... ok
+test private_block::review_d24_tests::review_c_new_bound_refuses_a_frozen_profile_and_the_trained_profile_takes_the_pin_only ... ok
+test private_block::review_d24_tests::review_d_the_statement_identity_does_not_depend_on_the_directory_name ... ok
+test private_block::review_d24_tests::review_e_the_f_e_50_forgery_is_refused_at_the_door_on_both_sides ... ok
+test private_block::r6_tests::a_two_block_run_with_block_1_at_its_own_shift_proves_verifies_and_is_bound ... ok
+test private_block::review_d24_tests::review_f_the_naive_quotient_forgery_is_rejected_at_slot_17_at_the_trained_tinyllama_profile ... ignored, heavy: one TinyLlama-geometry witness and one bound one-block proof (release)
+test private_block::range16_tests::w16_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier ... ok
+test private_block::review_d24_tests::review_h_layout_re_checks_the_whole_class_of_a_trained_shape ... ok
+test private_block::review_d24_tests::review_r2_1_a_non_door_shape_under_a_trained_profile_string_is_refused ... ok
+test private_block::review_d24_tests::review_r2_b_the_pinned_checkpoint_rule_is_enforced_in_test_builds ... ok
+test private_block::review_d24_tests::the_reader_maps_t_to_the_registered_tinyllama_profiles ... ok
+test private_block::review_d24_tests::w16_review_f1_a_non_door_shape_under_a_w16_profile_string_is_refused ... ok
+test private_block::review_d24_tests::review_f_the_naive_quotient_forgery_is_rejected_at_slot_17_at_the_rung ... ok
+test private_block::range16_tests::w16_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier ... ok
+test private_block::review_tests::a_receipt_does_not_verify_under_another_shape_at_the_rung ... ok
+test private_block::review_tests::a_query_head_reading_the_other_key_value_head_is_rejected_at_the_rung ... ok
+test private_block::review_tests::a_toy_receipt_made_before_f12_is_refused ... FAILED
+test private_block::range16_tests::a_w16_rung_block_core_proves_and_verifies_and_a_changed_root_is_refused ... ok
+test private_block::review_tests::an_endpoint_with_a_nonzero_pad_is_rejected_at_the_rung ... ok
+test private_block::range16_tests::w16_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold ... ok
+test private_block::review_tests::a_corrupted_rung_frame_is_refused_and_never_panics ... ok
+test private_block::review_tests::the_exempt_pads_entries_are_outside_the_softmax_row_sum_at_the_rung ... ok
+test private_block::review_tests::a_remainder_above_its_window_is_rejected_at_the_rung ... ok
+test private_block::review_tests::the_key_value_group_is_the_high_bits_of_the_head_slot_at_every_shape ... ok
+test private_block::review_tests::the_mask_schedule_audit_still_refuses_every_case_at_the_rungs_row_width ... ok
+test private_block::review_tests::the_pad_terms_unstated_invariants_hold_at_every_shape ... ok
+test private_block::review_tests::the_tame_rung_fixture_cannot_tell_the_two_key_value_heads_apart ... ok
+test private_block::review_tests::the_exempt_planes_pad_is_still_pinned_to_its_table_row_at_the_rung ... ok
+test private_block::rulings_tests::a_non_tiling_indicator_is_refused_and_not_merely_debug_asserted ... ok
+test private_block::rulings_tests::every_new_profile_states_its_endpoint_parameters_in_the_parameter_line ... ok
+test private_block::rulings_tests::private_block_125m_one_block ... ignored, the 125M run: about 11 GiB peak resident and minutes of wall clock. Launch it detached under ruling P-6's conditions with the command line in ZK60_BLOCK125M_LANE_PROGRESS.md; never from a session that is also building.
+test private_block::rulings_tests::sc_tabs_pad_zero_group_is_checked_against_the_declared_lists ... ok
+test private_block::rulings_tests::the_125m_layout_constructs_and_its_indicators_agree_with_the_definition ... ok
+test private_block::rulings_tests::the_endpoint_binds_the_padded_cube_at_both_rung_profiles ... ok
+test private_block::review_d24_tests::review_g_the_class_corner_proves_and_its_neighbours_refuse ... ok
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... ignored, heavy: W16 8B T128 32-block runs; guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+test private_block::review_tests::pz2_at_the_second_norm_and_as_a_free_field_element_is_rejected_at_the_rung ... ok
+test private_block::rulings_tests::a_multiplicity_moved_into_the_padded_copy_of_its_row_is_rejected_at_the_rung ... ok
+test private_block::rulings_tests::two_query_heads_of_different_key_value_groups_exchanged_is_rejected_at_the_rung ... ok
+test private_block::range16_tests::w16_limbs_out_of_their_range_are_rejected_by_the_verifier ... ok
+test private_block::run::fork::tests::d55_control_a_boundary_root_absorbed_after_a_fork_is_rejected ... ok
+test private_block::range16_tests::w16_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected ... ok
+test private_block::run::fork::tests::d55_control_a_fork_index_swap_is_rejected ... ok
+test private_block::run::fork::tests::d55_control_a_claim_raised_on_a_fork_but_not_joined_is_rejected ... ok
+test private_block::run::fork::tests::d55_control_a_stale_fork_state_is_rejected ... ok
+test private_block::run::fork::tests::d55_swapped_fork_frames_are_rejected ... ok
+test private_block::run::fork::tests::d60_close_cli_in_the_test_binary ... ignored, D60 F2 cross-binary: HL_D60_CLI_ARGS, HL_D60_CLI_WANT
+test private_block::run::fork::tests::d60_close_f5_resident_bytes_of_one_public_block ... ignored, D60 F5: the resident bytes of one public block per profile
+test private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export ... ignored, D60 F2 tooling: HL_D60_EXPORT_DIR (new), HL_D60_EXPORT_L, HL_D60_EXPORT_UP_TO
+test private_block::run::fork::tests::d60_every_registered_d55_profile_is_the_marker_and_its_base ... ok
+test private_block::run::fork::tests::d55_control_a_same_block_fork_swap_is_caught_only_by_the_index ... ok
+test private_block::run::fork::tests::d55_the_headline_negative_test_a_block_on_another_input_is_rejected_through_the_fork_path ... ok
+test private_block::run::fork::tests::d60_f4_a_fifo_or_symlink_swapped_in_after_the_check_is_refused_without_hanging ... ok
+test private_block::run::fork::tests::d60_f1_the_fork_verifier_refuses_blocks_that_are_not_the_statements ... ok
+test private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes ... ok
+test private_block::run::fork::tests::d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross ... ok
+test private_block::run::fork::tests::d60_f7_a_one_block_fork_run_verifies_and_a_changed_byte_is_refused ... ok
+test private_block::run::fork::tests::d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang ... ok
+test private_block::run::fork::tests::d60_fresh_process_verify_test_receipts ... ignored, D60 fresh-process receipts: run after d60_fresh_process_write_test_receipts, in another process
+test private_block::run::fork::tests::d60_fresh_process_write_test_receipts ... ignored, D60 fresh-process receipts: run with HL_D60_RECEIPT_DIR, then the verify test in another process
+test private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles ... ignored, writes registered D55 R13 fork-run capture bundles; set HL_D60PG_CAPTURE_DIR
+test private_block::run::fork::tests::d60_f7_a_foreign_fork_frame_from_a_second_run_is_rejected_by_the_tag_and_then_by_the_chain ... ok
+test private_block::run::fork::tests::d60_f7_the_on_disk_reader_checks_each_header_before_it_reads_the_next_frame ... ok
+test private_block::run::fork::tests::d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one ... ok
+test private_block::run::fork::tests::d60_the_registered_door_refuses_a_base_with_no_registered_d55_profile ... ok
+test private_block::run_capture_tests::a_capture_directory_inside_the_repository_is_refused ... ok
+test private_block::run::fork::tests::d55_honest_fork_runs_verify_at_every_worker_count ... ok
+test private_block::run_capture_tests::a_tampered_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::run::fork::tests::d60_the_headline_negative_test_is_rejected_under_the_registered_profile ... ok
+test private_block::run_capture_tests::capture_a_125m_run ... ignored, captures a 125M run; heavy. set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::run_capture_tests::a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::review_tests::every_committed_plane_is_constrained_on_its_true_support_at_the_rung has been running for over 60 seconds
+test private_block::run::fork::tests::d60_f7_a_receipt_under_another_profile_and_a_rewrapped_d12a_body_are_rejected_by_the_chain ... ok
+test private_block::run_capture_tests::every_plane_a_slot_references_is_in_the_plane_index ... ok
+test private_block::review_tests::every_zero_rule_plane_has_its_pad_proved_zero_at_the_rung has been running for over 60 seconds
+test private_block::run_capture_tests::each_slots_terminal_vector_is_as_long_as_its_plane_list ... ok
+test private_block::run_capture_tests::the_bundle_pins_every_source_file_that_decides_its_contents ... ok
+test private_block::run_capture_tests::every_key_of_a_bundle_is_on_the_allow_list ... ok
+test private_block::run_capture_tests::a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent ... ok
+test private_block::run_capture_tests::the_plane_index_tiles_the_a_and_h_commitments_of_the_rung_layout ... ok
+test private_block::run_capture_tests::the_array_store_and_the_classic_encoding_carry_the_same_values ... ok
+test private_block::run_capture_tests::the_heavy_captures_code_path_works_at_a_development_shape ... ok
+test private_block::run_capture_tests::the_refusal_replay_evaluates_in_the_order_the_openings_challenges_are_drawn ... ok
+test private_block::run_capture_tests::write_the_c6_gate_bundles ... ignored, writes the stage-31 rung-C6 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_e32_gate_bundles ... ignored, writes the stage-33 rung-E32 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_gate_bundles ... ignored, writes the gate bundles; set HL_RUN_CAPTURE_DIR
+test private_block::run_capture_tests::write_the_k4_gate_bundles ... ignored, writes the stage-22 rung-K4 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_p2_gate_bundles ... ignored, writes the stage-30 rung-P2 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_s20_gate_bundles ... ignored, writes the stage-21 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_tagged_gate_bundles ... ignored, writes the tagged gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_w14_gate_bundles ... ignored, writes the stage-32 rung-W14 gate bundles (about 130 MB each, so OUTSIDE the repository); set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::the_replay_refuses_a_header_that_is_not_the_verifiers ... ok
+test private_block::run_capture_tests::the_plane_index_is_the_same_in_two_independent_bundles ... ok
+test private_block::run_capture_tests::the_run_file_names_the_hash_rule_and_the_rebuilt_header_matched_under_it ... ok
+test private_block::run_tests::a_boundary_scale_disagreement_does_not_construct_and_a_foreign_calibration_is_rejected ... ok
+test private_block::run::fork::tests::d55_every_single_block_tamper_family_is_rejected_on_an_interior_fork ... ok
+test private_block::run_tests::a_failed_run_leaves_no_statement_file ... ok
+test private_block::run_tests::a_dropped_reordered_duplicated_or_foreign_segment_is_rejected ... ok
+test private_block::run_tests::a_run_verified_with_the_wrong_l_is_rejected ... ok
+test private_block::run_tests::a_missing_truncated_swapped_duplicated_or_foreign_segment_file_is_rejected ... ok
+test private_block::run_tests::a_run_is_rebuilt_from_its_statement_file_alone_and_verifies_in_a_fresh_verifier ... ok
+test private_block::run_tests::a_retained_run_statement_regenerates_the_public_weights_and_names_no_hidden_input ... ok
+test private_block::run_tests::a_statement_file_with_one_byte_changed_is_refused ... ok
+test private_block::run_tests::a_three_block_run_proves_and_verifies_under_the_tag ... ok
+test private_block::run_tests::a_tagged_run_is_refused_by_a_legacy_rule_run_verifier ... ok
+test private_block::run_tests::an_interior_boundary_scale_other_than_the_approved_calibrations_is_refused ... ok
+test private_block::run_tests::an_honest_three_block_dense_run_verifies_from_its_segments ... ok
+test private_block::run_tests::an_honest_two_block_run_verifies_from_its_segments ... ok
+test private_block::run_tests::private_run_125m_twelve_blocks ... ignored
+test private_block::run_tests::private_run_125m_two_blocks ... ignored
+test private_block::run_tests::every_key_of_a_run_statement_is_on_the_allow_list ... ok
+test private_block::run_tests::review_r4_b_the_bounded_file_reader_refuses_before_opening_or_reading ... ok
+test private_block::run_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments ... ok
+test private_block::run_tests::the_boundary_derives_its_row_count_and_refuses_the_37_row_geometry_by_name ... ok
+test private_block::run_tests::the_claim_audit_accepts_two_boundary_claims_on_disjoint_pairs ... ok
+test private_block::run_tests::the_claim_audit_is_not_what_enforces_the_hiding_geometry ... ok
+test private_block::run_tests::the_claim_audit_refusals_fire_at_the_boundary_geometry ... ok
+test private_block::run_tests::the_claim_audit_refuses_two_boundary_claims_that_share_a_pair ... ok
+test private_block::run_tests::the_directory_sink_refuses_a_directory_that_is_missing_or_not_empty ... ok
+test private_block::run_tests::the_first_admissible_fully_dense_run_band_at_125m ... ignored, builds up to twelve 125M witnesses (about 11 s and 725 MiB each); it proves nothing and is not a gate
+test private_block::run_tests::the_fully_dense_twelve_block_recipe_is_admissible_and_non_trivial_at_125m ... ignored, builds twelve 125M witnesses (about 11 s and 725 MiB each); it proves nothing
+test private_block::run_tests::review_r3_6_a_symlink_fifo_or_overlong_segment_file_is_refused_before_it_is_read ... ok
+test private_block::run_tests::the_retained_125m_statements_still_regenerate_their_public_weights ... ok
+test private_block::run_tests::the_all_zero_hidden_input_proves_and_verifies_as_a_run ... ok
+test private_block::run_tests::the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5 ... ok
+test private_block::run_tests::the_headline_negative_test_a_second_block_on_another_input_is_rejected_by_the_verifier ... ok
+test private_block::run_tests::the_statement_files_json_reader_is_strict ... ok
+test private_block::run_tests::the_twelve_block_125m_receipt_is_the_counted_figure ... ok
+test private_block::run_tests::the_run_directory_allows_the_statement_directory_and_nothing_else ... ok
+test private_block::rung_tests::a_proof_made_with_the_phase_clock_on_verifies_with_it_off ... ok
+test private_block::rung_tests::every_rung_lookup_is_a_genuine_table_row ... ok
+test private_block::run_tests::a_twelve_block_run_written_to_a_directory_verifies_by_streaming ... ok
+test private_block::run::fork::tests::d60_the_r13_limb_tamper_families_on_an_interior_fork_are_rejected_under_the_registered_profile ... ok
+test private_block::rung_tests::pz1_end_to_end_a_lone_nonzero_pad_value_is_rejected_by_the_verifier ... ok
+test private_block::rung_tests::pz1_end_to_end_at_the_rung_g_profile ... ok
+test private_block::rung_tests::pz2_end_to_end_a_consistently_adjusted_pad_is_rejected_by_the_verifier ... ok
+test private_block::rung_tests::pz2_end_to_end_at_the_rung_g_profile ... ok
+test private_block::rung_tests::the_all_zero_hidden_input_proves_and_verifies_at_the_rung ... ok
+test private_block::rung_tests::an_endpoint_that_seals_a_different_plane_is_rejected ... ok
+test private_block::rung_tests::the_all_zero_hidden_input_proves_and_verifies_at_the_rung_g ... ok
+test private_block::rung_tests::the_honest_rung_g_proof_verifies_from_bytes ... ok
+test private_block::rung_tests::the_honest_rung_proof_verifies_from_bytes ... ok
+test private_block::run_tests::the_run_ladder_at_the_rung_three_blocks_then_twelve ... ok
+test private_block::rung_tests::the_norm_range_alias_is_rejected_end_to_end_at_the_rung ... ok
+test private_block::rung_tests::the_norm_range_alias_is_rejected_end_to_end_at_the_rung_g ... ok
+test private_block::s20_review_tests::the_bilinear_schedule_and_the_mask_budget_are_what_the_axes_say ... ok
+test private_block::s20_review_tests::the_bilinear_slot_definitions_sum_to_the_hosts_extension ... ok
+test private_block::s20_review_tests::the_group_eq_carries_the_head_challenges_own_group_bits ... ok
+test private_block::s20_review_tests::the_pre_stage_20_formula_disagrees_exactly_where_the_defect_was ... ok
+test private_block::s23_tests::a_head_dimension_at_or_above_the_row_width_is_refused_by_name ... ok
+test private_block::s23_tests::a_row_width_below_the_lookup_tables_natural_size_is_refused_by_name ... ok
+test private_block::s23_tests::check_openings_three_checks_fire_in_the_audit_count_challenges_order ... ok
+test private_block::s23_tests::the_head_dimension_is_below_the_row_width_at_every_shape ... ok
+test private_block::s23_tests::the_lookup_table_domain_sits_at_exactly_the_row_width_at_every_shape ... ok
+test private_block::s23_tests::the_lookup_table_refusal_is_exactly_the_row_widths_below_the_tables_log ... ok
+test private_block::s23_tests::the_source_token_axis_and_the_feed_forward_slots_carry_no_such_trap ... ok
+test private_block::s24_tests::a_segments_end_tag_is_the_next_segments_start_tag_in_a_rung_k4_run ... ok
+test private_block::s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name ... ok
+test private_block::review_tests::every_committed_plane_is_constrained_on_its_true_support_at_the_rung ... ok
+test private_block::s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct ... ok
+test private_block::s24_tests::every_slot_hosts_exactly_what_the_host_table_says_at_every_shape ... ok
+test private_block::s24_tests::no_registered_profiles_constructor_input_has_the_squeeze_length ... ok
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... ok
+test private_block::s24_tests::the_closure_vanishes_on_every_extension_round_vector_at_every_shape ... ok
+test private_block::s24_tests::the_mask_budget_holds_at_every_shape ... ok
+test private_block::s24_tests::the_s3_refusal_also_separates_the_two_rotary_claims_of_slots_15_and_16 ... ok
+test private_block::s20_review_tests::mass_in_a_padded_head_slot_or_across_a_key_value_group_is_rejected ... ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... ok
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... ok
+test private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines ... ok
+test private_block::s25_tests::r18_the_path_child_reader_finds_production_children_and_skips_test_ones ... ok
+test private_block::s25_tests::r19_the_module_follower_fails_on_every_module_line_it_cannot_classify ... ok
+test private_block::s25_tests::r19_the_module_follower_finds_every_module_line_shape ... ok
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test private_block::s25_tests::r19b_the_module_follower_refuses_include_outside_test_code ... ok
+test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... ok
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... ok
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor ... ok
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... ok
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... ok
+test private_block::s24_tests::an_inadmissible_chain_is_refused_before_the_run_directory_exists ... ok
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... ok
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... ok
+test private_block::s26_tests::every_production_generator_is_seeded_from_a_domain_builder ... ok
+test private_block::s26_tests::every_seed_derivation_input_length_is_printed_and_clear_of_the_node_refill_and_squeeze ... ok
+test private_block::s20_review_tests::no_honest_case_is_rejected_by_the_verifier_at_the_rung_g ... ok
+test private_block::s26_tests::the_domains_are_built_from_public_fields_and_nothing_else ... ok
+test private_block::s26_tests::the_four_honest_generic_proofs_this_stage_must_not_break_are_where_the_ledger_says ... ok
+test private_block::s26_tests::the_legacy_length_guards_refused_row_counts_are_unmoved ... ok
+test private_block::s26_tests::the_two_endpoint_generators_of_one_statement_derive_their_keys_from_different_inputs ... ok
+test private_block::s26_tests::the_two_frozen_profiles_keep_the_domains_they_have ... ok
+test private_block::s28_review_tests::a_run_directory_written_before_stage_28_verifies_under_the_stage_28_verifier ... ignored, S28 review: needs HL_PB_S28_REVIEW_RUN_DIR and about 10 minutes
+test private_block::s28_review_tests::an_out_of_table_value_whose_denominator_is_zero_is_refused_by_both_paths ... ok
+test private_block::s26_tests::no_two_generators_of_one_proof_share_a_derivation_input ... ok
+test private_block::s28_review_tests::every_helper_path_gives_the_same_words_and_the_same_refusal_under_one_two_and_eight_threads ... ok
+test private_block::s28_review_tests::the_census_of_which_shape_crosses_which_stage_28_parallel_threshold ... ok
+test private_block::s28_review_tests::field_addition_is_associative_commutative_and_canonical_so_a_chunked_sum_is_the_same_word ... ok
+test private_block::s28_review_tests::the_eq_cube_agrees_with_79f0726_at_every_width_including_the_degenerate_ones ... ok
+test private_block::s28_review_tests::the_private_table_builder_agrees_with_79f0726_on_randomised_descriptors ... ok
+test private_block::s28_review_tests::whether_an_attempt_is_refused_still_depends_on_the_hidden_input_for_off_table_values ... ok
+test private_block::s28_tests::a_zero_denominator_at_a_value_no_column_carries_is_refused_by_neither_path ... ok
+test private_block::s28_tests::a_zero_denominator_at_a_value_the_column_carries_is_refused_by_both_paths ... ok
+test private_block::s28_tests::a_zero_u8_denominator_refuses_through_the_table_helpers_even_when_no_column_carries_that_value ... ok
+test private_block::s28_tests::the_eq_cube_builder_is_the_gathered_one_entry_for_entry ... ok
+test private_block::s28_review_tests::the_looked_columns_are_the_serial_maps_under_every_thread_count ... ok
+test private_block::s28_tests::the_helper_column_is_the_same_vector_whatever_the_thread_count_is ... ok
+test private_block::s28_tests::the_paired_helper_column_is_the_two_columns_inverted_and_added ... ok
+test private_block::s28_tests::the_private_table_builder_is_the_walked_one_entry_for_entry ... ok
+test private_block::s28_tests::the_lookup_columns_are_the_serial_per_index_maps_they_were ... ok
+test private_block::s28_tests::the_table_path_agrees_on_columns_that_carry_values_outside_the_byte_table ... ok
+test private_block::s29_tests::a_violated_eq_cube_precondition_panics_by_name - should panic ... ok
+test private_block::s29_tests::an_eq_point_wider_than_the_cube_panics_by_name - should panic ... ok
+test private_block::s28_tests::the_table_path_and_the_batch_inversion_agree_word_for_word_on_byte_columns ... ok
+test private_block::s29_tests::the_byte_histogram_is_the_79f0726_serial_count_through_both_branches ... ok
+test private_block::s29_tests::the_eq_cube_agrees_with_the_79f0726_gather_on_every_admitted_triple ... ok
+test private_block::s29_tests::the_five_thresholds_are_the_constants_the_production_path_passes ... ok
+test private_block::s29_tests::the_claimed_sum_is_the_79f0726_fold_through_both_branches_of_its_threshold ... ok
+test private_block::s29_tests::the_helper_columns_are_the_same_words_through_both_branches_of_their_threshold ... ok
+test private_block::s29_tests::the_looked_columns_are_the_79f0726_serial_maps_through_both_branches ... ok
+test private_block::s33_tests::a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name ... ok
+test private_block::s33_tests::every_registered_profile_context_and_label_is_printable_ascii_with_no_nul ... ok
+test private_block::s33_tests::no_registered_shape_reaches_the_first_arm_of_a_groups ... ok
+test private_block::s33_tests::no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length ... ok
+test private_block::s33_tests::the_ascii_premise_check_rejects_a_profile_with_a_nul_or_a_non_ascii_byte ... ok
+test private_block::s33_tests::the_declared_sixty_byte_pair_is_separated_at_the_positions_the_record_names ... ok
+test private_block::s33_tests::the_declared_sixty_three_byte_w16_rung_pair_is_separated_at_the_positions_the_record_names ... ok
+test private_block::s33_tests::the_refused_arm_and_the_live_arm_agree_wherever_both_are_defined ... ok
+test private_block::s33_tests::the_s6_refusal_is_exactly_the_padded_token_counts_at_or_above_the_row_width ... ok
+test private_block::s33_tests::the_separation_lemma_collapses_on_a_deliberately_bad_profile ... ok
+test private_block::s35_tests::multiplying_by_a_constant_with_no_imaginary_part_is_exactly_mul_base ... ok
+test private_block::s35_tests::the_rewrite_removes_the_counted_multiplications_at_every_registered_shape ... ok
+test private_block::s29_tests::the_slot_table_set_is_the_79f0726_one_through_both_branches_of_its_threshold ... ok
+test private_block::s35_tests::the_table_list_the_order_and_the_declared_degree_of_the_two_slots_are_where_they_were ... ok
+test private_block::s35_tests::the_two_rewritten_closures_equal_the_stage_34_ir_at_every_registered_shape ... ok
+test private_block::slot_ir::accuracy::tests::m10_concurrent_block_proofs_throughput ... ignored
+test private_block::slot_ir::accuracy::tests::m11_bench_goldilocks_multiply_variants ... ignored
+test private_block::slot_ir::accuracy::tests::m11_lazy_row_fold_equals_the_per_term_fold ... ok
+test private_block::slot_ir::accuracy::tests::m18_bench_field_choice_on_the_gpu ... ignored
+test private_block::slot_ir::accuracy::tests::m4_accuracy_block_proofs_are_byte_identical_on_the_cpu_and_on_metal ... ignored, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times ... ignored, heavy, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::slot_ir::accuracy::tests::m4c_direct_helper_write_equals_the_reference_columns ... ok
+test private_block::slot_ir::accuracy::tests::m4d_batched_helper_write_equals_the_job_by_job_loop ... ok
+test private_block::slot_ir::accuracy::tests::m4h_parallel_inverses_and_h_writes_equal_the_sequential_forms ... ok
+test private_block::slot_ir::accuracy::tests::m4i_in_place_tables_and_plane_writes_equal_the_host_forms ... ok
+test private_block::s35_tests::the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape ... ok
+test private_block::slot_ir::accuracy::tests::m5c_split_eq_cube_equals_the_full_table_broadcast ... ok
+test private_block::slot_ir::accuracy::tests::m4j_parallel_table_builders_equal_the_sequential_ones ... ok
+test private_block::slot_ir::accuracy::tests::m6_probe_dispatch_overhead ... ignored
+test private_block::slot_ir::accuracy::tests::m6_device_fiat_shamir_step_equals_the_transcript ... ok
+test private_block::slot_ir::accuracy::tests::the_accuracy_ir_evaluates_to_the_r13_closure_at_every_development_shape_group_count_and_slot ... ok
+test private_block::slot_ir_tests::the_bilinear_slots_carry_the_shapes_key_value_group_bits_and_no_other_slot_does ... ok
+test private_block::slot_ir_tests::every_table_the_ir_calls_base_field_is_base_field_in_the_tables_the_prover_builds ... ok
+test private_block::slot_ir_tests::the_field_kind_oracle_rejects_the_memos_own_classification_of_the_twelve_tables ... ok
+test private_block::slot_ir_tests::the_declared_degree_bounds_the_closures_actual_degree_and_the_ir_computes_it_exactly ... ok
+test private_block::slot_ir_tests::the_slot_ir_evaluates_to_the_closure_at_every_registered_shape_and_slot ... ok
+test private_block::slot_ir_tests::the_honest_round_polynomial_satisfies_s0_plus_s1_equals_the_running_claim_at_every_round ... ok
+test private_block::slot_ir_tests::the_slot_ir_is_thread_count_independent_because_nothing_in_it_is_parallel ... ok
+test private_block::slot_ir_tests::the_slot_irs_counts_agree_with_the_drafters_inventory_except_where_the_arm_says_otherwise ... ok
+test private_block::slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape ... ok
+test private_block::tamper::a_gate_output_not_derived_from_nm_is_rejected ... ok
+test private_block::tamper::a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim ... ok
+test private_block::tamper::a_limb_outside_its_byte_range_is_rejected_by_the_lookups ... ok
+test private_block::tamper::a_norm_m_output_not_derived_from_xres1_is_rejected ... ok
+test private_block::tamper::a_norm_m_limb_outside_its_byte_range_is_rejected_by_the_lookups ... ok
+test private_block::tamper::a_product_output_not_equal_to_a16_times_u16_is_rejected ... ok
+test private_block::tamper::a_z16_outside_int16_cannot_reach_the_output_endpoint ... ok
+test private_block::tamper::an_activation_value_at_a_zero_up_output_is_rejected_by_the_pair_lookup ... ok
+test private_block::tamper::an_activation_value_off_its_table_row_is_rejected ... ok
+test private_block::tamper::an_up_output_not_derived_from_nm_is_rejected ... ok
+test private_block::tamper::block_output_cannot_be_chosen ... ok
+test private_block::tamper::an_output_endpoint_committing_xres1_is_refused ... ok
+test private_block::tamper::the_norm_m_denominator_is_pinned_by_its_isqrt_witness ... ok
+test private_block::tamper::every_biased_remainder_is_pinned_by_its_requantization_identity ... ok
+test private_block::tamper::the_norm_m_quotient_is_pinned_by_its_remainder_windows ... ok
+test private_block::tests::d66_the_dictionary_refusal_is_challenge_only_and_covers_every_admissible_tuple ... ok
+test private_block::tests::an_endpoint_committed_to_other_values_is_refused ... ok
+test private_block::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_block::tests::l4_f3_the_schedule_audit_refuses_a_pair_with_dependent_induced_weights ... ok
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ... ok
+test private_block::tests::opening_refusals_are_functions_of_the_challenges_only ... ok
+test private_block::tests::no_published_word_is_a_small_integer ... ok
+test private_block::tests::requant_is_the_identity_at_shift_zero_and_the_kernels_rounding_above_it ... ok
+test private_block::tests::the_declared_schedule_is_stable_and_bound ... ok
+test private_block::tests::the_endpoint_scales_and_calibration_are_the_approved_ones ... ok
+test private_block::tests::the_real_claim_list_is_refused_when_a_reserved_pair_is_shared_or_unconsumed ... ok
+test private_block::tests::the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows ... ok
+test private_block::tests::wire_frames_are_exact_canonical_and_bounded ... ok
+test private_block::tests::witness_equals_the_independent_fixed_causal_oracle ... ok
+test private_block::tied_tables::derive::tests::calibrated_norm_class_and_classifier_window_are_explicit ... ok
+test private_block::tied_tables::derive::tests::python_rotated_quantization_reference_and_negative_ties ... ok
+test private_block::tied_tables::derive::tests::r19_a_declared_checkpoint_file_keeps_precedence_over_the_default ... ok
+test private_block::tied_tables::derive::tests::r19_the_default_checkpoint_is_under_zk60_models_when_set_else_under_home_models ... ok
+test private_block::tied_tables::derive::tests::r19_with_zk60_models_unset_on_this_box_the_default_is_round_18s_path ... ok
+test private_block::tests::receipt_field_tampers_and_statement_mismatches_are_refused ... ok
+test private_block::tied_tables::derive::tests::r19b_checkpoint_open_refuses_a_symlinked_checkpoint_file ... ok
+test private_block::tied_tables::derive::tests::safetensors_extents_refuse_wrong_dtype_shape_and_bounds ... ok
+test private_block::tied_tables::tests::bounded_hash_rejects_wrong_sizes_and_special_files ... ok
+test private_block::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+test private_block::rung_tests::every_toy_tamper_family_is_rejected_at_the_rung ... ok
+test private_block::token_io::capture_tests::capture_a_llama3_8b_token_run ... ignored, writes a Llama-3-8B token-run capture; heavy; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::capture_tests::capture_a_tinyllama_token_run ... ignored, writes a TinyLlama token-run capture; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::capture_tests::capture_the_cli_verify_path_at_tinyllama_t32_l2 ... ignored, writes a capture of the CLI's verify path; set HL_PB_CAPTURE_DIR and HL_PB_CLI_WORK (both outside the repo), HL_RUN_CAPTURE_PUBLIC_TABLES and optionally HL_PB_CLI_BIN / HL_PB_CLI_BIN_SHA256
+test private_block::rung_tests::every_toy_tamper_family_is_rejected_at_the_rung_g_profile ... ok
+test private_block::token_io::capture_tests::a_tampered_token_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::token_io::classify_capture_tests::capture_a_classify_rung_run ... ignored, writes a classifier rung capture; set HL_PB_CAPTURE_DIR (outside the repo), HL_PB_CLASSIFY_VERDICT and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::capture_a_short_item_through_the_classify_cli ... ignored, writes the classifier CLI-path capture of a SHORT item; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256, HL_RUN_CAPTURE_PUBLIC_TABLES (and HL_PB_CLI_SHORT_N)
+test private_block::token_io::classify_capture_tests::capture_the_classify_cli_verify_path ... ignored, writes the classifier CLI-path capture; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256 and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::gate19::gate19_capture_a_real_classify_cli_run ... ignored, gate round 19 (H19-2): records the verification of a REAL classifier run directory; set HL_PB_CAPTURE_DIR, HL_PB_REAL_* , HL_PB_CLI_BIN(_SHA256) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::gate19::gate19_capture_an_r13_rung_classify_run ... ignored, gate round 19 (H19-1): writes an R13-rung classifier capture; set HL_PB_CAPTURE_DIR, HL_PB_CLASSIFY_VERDICT, HL_RUN_CAPTURE_PUBLIC_TABLES and HL_R13_LOADER_FIXTURES
+test private_block::token_io::capture_tests::r15_a_token_run_files_slot_list_has_exactly_n_slots_triples ... ok
+test private_block::token_io::capture_tests::a_token_run_is_captured_and_its_bundle_is_self_consistent ... ok
+test private_block::token_io::capture_tests::the_hooks_are_inert_on_the_prover_and_a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_the_plane_index_builds_at_an_r13_shape_from_the_accuracy_layout ... ok
+test private_block::token_io::classify_capture_tests::r12_a_classify_chunk_at_the_tie_is_captured ... ok
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_an_r13_capture_with_table_values_records_every_statement_table_and_replays_it_against_the_export ... ok
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_an_r13_rung_classify_run_is_recorded_under_the_classifier_schema ... ok
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_a_recorded_table_that_disagrees_with_the_export_is_refused_by_the_replay ... ok
+test private_block::token_io::classify_capture_tests::r12_a_tampered_or_reverdicted_classify_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::token_io::classify_capture_tests::r12_a_classify_run_is_captured_and_its_bundle_is_self_consistent ... ok
+test private_block::token_io::classify_capture_tests::r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor ... ok
+test private_block::token_io::classify_capture_tests::r14_a_capture_of_relation_test_tables_is_refused_by_the_replay ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::complete_plan_creates_nothing ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::dangling_symlink_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::distinct_names_required ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::dotdot_path_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::existing_receipt_and_sidecar_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::missing_category_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::output_in_model_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::output_sidecar_alias_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::owner_under_other_receipt_parent_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::prefix_subset_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::reordered_plan_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::repeated_chunk_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::symlink_parent_alias_refused ... ok
+test private_block::token_io::classify_cli::batch::r18::gcl_rung_single_prove_digests_under_fixed_entropy ... ignored
+test private_block::token_io::classify_capture_tests::r12_the_classify_hooks_are_inert_on_the_prover_and_a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::token_io::classify_capture_tests::r14_a_short_item_is_captured ... ok
+test private_block::token_io::classify_cli::batch::r18::r18_a_second_post_or_any_repeated_flag_is_refused_before_anything_is_read ... ok
+test private_block::token_io::classify_cli::batch::r18::r18_a_failed_batch_leaves_no_receipt_statement_or_decommitment_behind ... ok
+test private_block::token_io::classify_cli::batch::r18::r18_rung_batch_receipts_equal_single_proves_under_fixed_entropy ... ignored
+test private_block::token_io::classify_cli::batch::r18::r18_the_production_batch_command_refuses_a_rung_post_and_creates_nothing ... ok
+test private_block::token_io::classify_cli::batch::r18::r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking ... ok
+test private_block::token_io::classify_capture_tests::r15_a_classify_run_files_slot_list_has_exactly_n_slots_triples ... ok
+test private_block::token_io::classify_cli::batch::r18::r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_other_tables_a_consistently_flipped_verdict_or_a_tampered_segment_are_refused ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_tables_loader_refuses_a_changed_margin_vector ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_label_is_the_or_over_every_chunk_exactly_once ... ok
+test private_block::token_io::classify_cli::batch::r18::r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels ... ok
+test private_block::run_tests::every_single_block_tamper_family_is_still_rejected_inside_a_run ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_prover_refuses_content_on_the_command_line_an_unknown_policy_and_a_control_id ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_item_proves_and_verifies_through_the_named_binary_in_fresh_processes ... ignored, runs the named zk60_classify binary; set HL_PB_CLI_BIN
+test private_block::token_io::classify_r14_tests::r14_a_library_call_with_doctored_tables_and_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_r14_tests::r14_only_the_tied_derivation_constructs_bound_tables ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_chunks_prove_verify_owner_check_and_label_fail_closed ... ok
+test private_block::token_io::classify_r14_tests::r14_tables_bound_to_another_trained_statement_are_refused_at_every_entry_point ... ok
+test private_block::token_io::classify_r15_tests::r15_label_expect_total_through_the_named_binary_in_fresh_processes ... ignored, runs the named zk60_classify binary; set HL_PB_CLI_BIN
+test private_block::token_io::classify_r14_tests::r14_the_block_and_run_profiles_must_name_one_tied_source ... ok
+test private_block::token_io::classify_r15_tests::r15_receipts_cross_verify_between_two_named_binaries ... ignored, runs two named zk60_classify binaries; set HL_PB_CLI_BIN and HL_PB_CLI_BIN_OTHER
+test private_block::token_io::classify_r15_tests::r15_the_library_label_checks_the_posts_total_and_every_range ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_items_statement_read_under_another_length_is_refused ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_proves_at_both_verdicts_the_verifier_publishes_and_the_owner_checks ... ok
+test private_block::token_io::classify_r16_tests::r16_a_t256_export_statement_with_a_t128_profile_is_refused ... ok
+test private_block::tied_tables::derive::tests::r19b_checkpoint_open_refuses_a_same_size_file_that_is_not_the_pinned_checkpoint ... ok
+test private_block::token_io::classify_r16_tests::r16_the_loaders_tied_derivation_is_reused_only_with_the_bound_margin_parameters ... ok
+test private_block::token_io::classify_r16_tests::r16_the_r13_shieldstral_classifier_profiles_are_registered_at_their_block_shapes ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length ... ok
+test private_block::token_io::classify_r16_tests::r16_write_item_activations ... ignored, real Shieldstral export via HL_R16_EXPORT / HL_R16_ITEMS; streams the checkpoint once; guarded
+test private_block::token_io::classify_r16_tests::r16_a_block_at_another_stage_shape_and_the_run_seed_shape_are_refused ... ok
+test private_block::token_io::classify_r16_tests::r16_a_doctored_per_layer_gate_shift_is_refused_before_any_header ... ok
+test private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies ... ok
+test private_block::token_io::classify_tests::r12_a_changed_template_position_is_refused_at_the_template_clause ... ok
+test private_block::token_io::classify_tests::r12_a_chunk_receipt_is_bound_to_its_index_and_total ... ok
+test private_block::token_io::classify_tests::r12_a_content_control_id_is_refused_by_the_ctl_column ... ok
+test private_block::token_io::classify_r15_tests::r15_label_refuses_a_truncated_proof_set_against_the_posts_own_total ... ok
+test private_block::token_io::classify_tests::r12_a_flipped_verdict_with_field_limbs_is_refused_at_the_byte_lookups ... ok
+test private_block::token_io::classify_tests::r12_a_nonzero_limb_pad_is_refused ... ok
+test private_block::token_io::classify_tests::r12_chunk_ranges_cover_the_content_consecutively_with_the_overlap_and_end_align ... ok
+test private_block::token_io::classify_tests::r12_a_receipt_does_not_verify_under_the_other_verdict ... ok
+test private_block::token_io::classify_tests::r12_byte_limbs_that_break_the_margin_identity_are_refused ... ok
+test private_block::token_io::classify_tests::r12_the_ruling_switches_are_in_the_profile_text ... ok
+test private_block::token_io::classify_r16_tests::r16_the_r13_whole_run_figure_charges_the_degree_two_tables_and_clears_95 ... ok
+test private_block::token_io::classify_tests::r12_the_door_refuses_an_unregistered_policy_and_reads_the_margin_vector_itself ... ok
+test private_block::token_io::classify_tests::r12_the_tie_is_not_flagged_and_proves ... ok
+test private_block::token_io::classify_tests::r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused ... ok
+test private_block::token_io::classify_tied_tests::r14_the_post_derivation_profile_digest_check_refuses_a_derivation_that_read_another_profile ... ok
+test private_block::token_io::classify_tests::r12_honest_runs_prove_and_verify_at_both_verdicts_and_the_owner_check_holds ... ok
+test private_block::token_io::classify_tests::r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_margin_word_beyond_int16_is_refused_never_clamped ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_shieldstral_export_tables_are_recomputed_through_native_r12b ... ignored, streams the pinned 7.7 GB Shieldstral checkpoint through native R12b; run guarded with ZK60_RC2_SHIELDSTRAL_EXPORT
+test private_block::token_io::classify_tied_tests::rc2_the_margin_parameters_come_only_from_the_bound_profile ... ok
+test private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused ... ok
+test private_block::token_io::cli_tests::pr4_15_leftovers_are_refused_by_name_and_removals_are_reported ... ok
+test private_block::token_io::cli_tests::pr4_16_the_default_owner_base_is_outside_the_artifacts_tree ... ok
+test private_block::token_io::classify_tests::r14_a_doctored_pad_position_is_refused ... ok
+test private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token ... ok
+test private_block::token_io::cli_tests::pr4_4_a_parity_mismatch_is_refused_before_the_header ... ok
+test private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file ... ok
+test private_block::token_io::cli_tests::pr4_4_the_cli_sealing_pass_runs_cs3_and_takes_the_token_from_the_builder ... ok
+test private_block::token_io::cli_tests::r15_the_next_token_fixtures_default_off_tmp_when_tmpdir_is_unset ... ok
+test private_block::token_io::cli_tests::pr4_4_an_extreme_input_is_refused_before_the_header ... ok
+test private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published ... ok
+test private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line ... ok
+test private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent ... ok
+test private_block::token_io::cli_tests::tr5_1_the_default_owner_directory_is_keyed_by_the_runs_path ... ok
+test private_block::token_io::cli_tests::tr5_3_a_an_explicit_owner_dir_inside_a_git_working_tree_is_refused ... ok
+test private_block::token_io::cli_tests::tr5_3_b_the_default_owner_dir_is_accepted_for_a_run_directly_under_home ... ok
+test private_block::token_io::cli_tests::tr6_3_the_default_owner_directory_is_checked_for_a_git_working_tree ... ok
+test private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin ... ok
+test private_block::token_io::cli_tests::tr7_7_a_looser_pre_existing_owner_base_is_tightened_to_0700 ... ok
+test private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create ... ok
+test private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run ... ok
+test private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying ... ok
+test private_block::review_tests::every_zero_rule_plane_has_its_pad_proved_zero_at_the_rung ... ok
+test private_block::token_io::r2_tests::r2_multirow_an_honest_run_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::r2_tests::token_io_r2_prove_to_dir ... ignored
+test private_block::token_io::r2_tests::token_io_r2_verify_from_dir ... ignored
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... ok
+test private_block::token_io::r3_tests::r3_a_refused_stage_out_witness_emits_no_segment ... ok
+test private_block::token_io::r2_tests::r2_d20_the_final_norm_int8_overflow_is_a_live_refusal_at_the_calibrated_cn ... ok
+test private_block::token_io::r2_tests::r2_the_counted_layout_is_the_counters ... ok
+test private_block::token_io::r3_tests::r3_the_parallel_folds_equal_the_serial_folds ... ok
+test private_block::token_io::r3_tests::r3_the_table_loader_round_trips_and_refuses_a_table_that_is_not_the_recorded_one ... ok
+test private_block::token_io::r3_tests::r3_streamed_blocks_prove_and_verify_and_another_block_at_a_stage_is_refused ... ok
+test private_block::token_io::r3_tests::r3_v_pad_2_17_is_the_doors_edge ... ok
+test private_block::token_io::r3_tests::r3_a_layer_with_its_own_score_shift_is_proved_at_its_stage_shape ... ok
+test private_block::token_io::r3_tests::r7_a_layer_with_its_own_norm_and_shift_constants_is_proved_at_its_stage_shape ... ok
+test private_block::token_io::r3_tests::token_io_r3_prove_to_dir ... ignored
+test private_block::token_io::r3_tests::token_io_r3_verify_from_dir ... ignored
+test private_block::token_io::r3_tests::tr3_1_a_wrong_block_at_a_later_stage_is_refused_before_any_segment ... ok
+test private_block::token_io::r3_tests::tr3_2_a_truncated_manifest_is_refused_by_name ... ok
+test private_block::token_io::r9_tests::r9_a_block_lookup_miss_is_refused_before_the_header ... ok
+test private_block::token_io::r9_tests::r9_a_stage_in_lookup_miss_is_refused_before_the_header ... ok
+test private_block::token_io::r9_tests::r9_a_stage_out_lookup_miss_is_refused_before_the_header ... ok
+test private_block::token_io::classify_r16_tests::r16b::r16b_each_r13_shieldstral_profile_admits_exactly_the_three_moderate_policies_and_refuses_the_card_by_name ... ok
+test private_block::token_io::r9_tests::r9_an_endpoint_that_is_not_the_witnesss_is_refused_before_the_header ... ok
+test private_block::token_io::r9_tests::r9_the_honest_run_still_proves_with_one_header ... ok
+test private_block::token_io::r3_tests::r3_vpad17_an_honest_run_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::r9v_tests::r9v_a_stage_in_lookup_miss_that_a_prover_finishes_is_rejected_by_the_verifier ... ok
+test private_block::token_io::r2_tests::r2_multirow_controls_are_refused_where_predicted ... ok
+test private_block::token_io::r9v_tests::r9v_an_endpoint_over_another_prompt_or_token_that_a_prover_finishes_is_rejected_by_the_verifier ... ok
+test private_block::token_io::tests::a_norm_output_outside_int8_is_refused_by_the_sym_lookups ... ok
+test private_block::token_io::tests::an_honest_generic_run_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::tests::a_tie_broken_toward_the_higher_id_is_refused ... ok
+test private_block::token_io::tests::the_counted_layout_is_the_counters ... ok
+test private_block::token_io::tests::the_d16_rule_5_audit_of_the_new_layouts ... ok
+test private_block::token_io::tests::an_honest_run_of_r0s_model_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::tests::the_run_level_controls_and_the_door_refuse ... ok
+test private_block::token_io::tests::the_final_norm_controls_are_refused_where_the_design_predicts ... ok
+test private_block::token_io::t128_tests::t128_a_dense_tinyllama_run_proves_and_t32_and_t128_are_not_interchangeable ... ok
+test private_block::token_io::tests::token_io_r1_prove_to_dir ... ignored
+test private_block::token_io::tests::token_io_r1_verify_from_dir ... ignored
+test private_block::token_io::tests::tr1_the_tier_door_refuses_every_tier_below_b1_and_every_unregistered_tier ... ok
+test private_block::token_io::tests::tr1_the_verifier_refuses_a_statement_below_its_minimum_whole_run_figure ... ok
+test private_block::token_io::tests::tr2_the_mask_opening_is_sized_by_zk_mask_q_not_by_the_tier ... ok
+test private_block::token_io::tests::tr3_unbuilt_variants_are_refused_by_the_statement_the_endpoints_and_the_verifier ... ok
+test private_block::token_io::tests::the_stage_in_controls_are_refused_where_the_design_predicts ... ok
+test private_block::token_io::tests::tr5_a_head_word_of_minus_128_is_refused_at_the_door ... ok
+test private_block::trained_block::a3_tests::a3_the_default_witness_cache_is_sized_to_the_machine ... ok
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... FAILED
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_loader_imports_both_stacks_and_reconstructs_dd_records ... ok
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_model_stack_selection_has_no_global_fallback ... ok
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_schema_stack_and_fp12_are_checked_before_layer_payloads ... ok
+test private_block::trained_block::accuracy::tests::all_26_actual_shieldstral_layers_pass_the_native_public_array_loader ... ignored, requires the authenticated 26-layer public-array adapter via HL_R13_SHIELDSTRAL_ARRAYS
+test private_block::trained_block::accuracy::tests::bad_table_shape_is_refused_before_the_missing_payload_is_read ... ok
+test private_block::trained_block::accuracy::tests::both_export_stacks_load_verified_arrays_and_recompute_their_tables ... ok
+test private_block::trained_block::accuracy::tests::changed_payloads_fail_hash_checks_and_narrow_ranges_fail_after_rehash ... ok
+test private_block::trained_block::accuracy::tests::rehashed_fake_tables_and_supplied_derived_arrays_are_refused ... ok
+test private_block::trained_block::accuracy::tests::shieldstral_four_group_arrays_are_verified_and_cannot_enter_the_standard_registry ... ok
+test private_block::trained_block::accuracy::tests::the_shieldstral_geometry_gate_runs_before_any_array_file_is_opened ... ok
+test private_block::trained_block::refusal::tests::d65_the_external_refusal_is_constant_and_the_detail_stays_private ... ok
+test private_block::token_io::r3_tests::r3_the_counted_layout_is_the_counters ... ok
+test private_block::trained_block_tests::native_t5_a_real_exports_layers_load_and_its_trained_weights_prove ... ignored, native lane heavy: reads a real export (env ZK60_NATIVE_EXPORT_DIR)
+test private_block::trained_block_tests::parity_refuses_a_mismatch_without_a_count_a_position_or_a_value ... ok
+test private_block::trained_block_tests::review_r4_a_an_oversized_or_misdeclared_array_is_refused_before_it_is_read ... ok
+test private_block::trained_block_tests::every_malformed_export_is_refused_by_name ... ok
+test private_block::trained_block_tests::the_reader_round_trips_a_tiny_export_and_binds_its_digests ... ok
+test private_block::token_io::tests::tr4_the_owner_checks_take_the_verified_statement_and_check_the_plane_rules ... ok
+test private_block::trained_calib_tests::a_bound_run_at_the_trained_rung_binds_its_constants ... ok
+test private_block::trained_calib_tests::every_committed_value_under_a_non_unit_coefficient_is_range_proved_at_the_trained_shapes ... ok
+test private_block::trained_calib_tests::every_trained_constant_moves_the_schedule_digest ... ok
+test private_block::trained_calib_tests::native_probe_the_trained_dense_bands ... ignored, native lane probe: many width-2048 witnesses
+test private_block::trained_calib_tests::native_t3_generic_trained_tinyllama_block_proves_and_verifies ... ignored, native lane heavy: one width-2048 TinyLlama block proof
+test private_block::trained_calib_tests::native_t3_verify_the_saved_receipt_in_a_fresh_process ... ignored, native lane heavy: verifies a saved width-2048 receipt in a fresh process
+test private_block::trained_calib_tests::the_frozen_profiles_print_the_frozen_calibration_line ... ok
+test private_block::trained_calib_tests::the_trained_door_refuses_every_frozen_profile ... ok
+test private_block::trained_calib_tests::the_trained_tinyllama_counted_layout_ladder ... ok
+test private_block::trained_calib_tests::the_trained_tinyllama_shape_has_the_derived_window_and_the_dev_counts ... ok
+test private_block::trained_calib_tests::the_validator_computes_tn_from_the_width_and_refuses_outside_the_class ... ok
+test private_block::token_io::t128_tests::t128_profiles_exist_and_their_whole_run_floor_reaches_95_bits ... ok
+test private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control ... ok
+test private_block::trained_calib_tests::a_generic_trained_rung_block_proves_verifies_and_every_control_refuses ... ok
+test private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound ... ok
+test private_block::token_io::classify_r16_tests::r16b::r16b_the_r13_shieldstral_whole_run_floors_and_terms_are_pinned_exactly ... ok
+test private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name ... FAILED
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_calibration_describes_fp12_three_byte_norm_remainders_and_up_shift12 ... ok
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_layer_records_require_exactly_one_class_checked_gate_scalar ... ok
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_profiles_keep_their_legacy_model_and_tied_tensor_pins ... ok
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_same_calibration_layers_reconstruct_distinct_bound_stage_denominators ... ok
+test private_block::w14_tests::a_moved_score_word_in_the_fourth_group_is_rejected_at_its_host_slot_at_the_rung_w14 ... ok
+test private_block::token_io::r11_tests::r11_the_clis_stage_shape_is_the_librarys_at_every_registered_profile ... ok
+test private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound ... ok
+test private_block::token_io::r3_tests::r3_vpad17_controls_are_refused_where_predicted ... ok
+test private_block::w14_tests::a_verifier_statement_with_one_moved_endpoint_word_is_refused_at_the_rung_w14 ... ok
+test private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names ... ok
+test private_block::w14_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14 ... ok
+test private_block::w14_tests::only_the_125m_shape_and_the_new_one_reach_the_125m_row_width ... ok
+test private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified ... ok
+test private_block::w14_tests::the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count ... ok
+test private_block::w14_tests::the_pinned_rung_w14_chain_band_is_the_first_admissible_one ... ok
+test private_block::w14_tests::the_row_geometry_is_125ms_and_every_derived_quantity_follows_it ... ok
+test private_block::w14_tests::exchanging_the_keys_of_key_value_groups_two_and_three_is_rejected_at_the_rung_w14 ... ok
+test private_block::token_io::tests::the_stage_out_controls_are_refused_where_the_design_predicts ... ok
+test private_block::w16_privacy_gate_tests::d55_privacy_gate_write_the_fork_bundles ... ignored, writes D55 fork-run capture bundles; set HL_W16PG_CAPTURE_DIR
+test private_block::w14_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_w14 ... ok
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_trained_t128_shapes ... ignored, heavy: full W16 T128 runs captured on the CPU; run by name, guarded
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_on_the_metal_path ... ignored, toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_write_the_w16_bundles ... ignored, writes the W16 gate bundles; set HL_W16PG_CAPTURE_DIR
+test private_block::w14_tests::a_multiplicity_moved_into_a_far_lifted_table_row_is_rejected_at_the_rung_w14 ... ok
+test private_block::w16_privacy_gate_tests::w16r2_privacy_gate_on_the_metal_path ... ignored, toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded
+test private_block::w16r2_tests::f16_a_run_context_that_differs_from_the_endpoint_spec_is_refused ... ok
+test private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses ... ok
+test private_block::w16r2_tests::w16r2_ab_w16_against_w16r2_on_one_binary ... ignored, heavy: 8B T128 blocks on Metal, toggles HL_GPU in-process; run alone by name with HL_PB_ORACLE=0
+test private_block::w16r2_tests::w16r2_accounting_inputs_are_printed_from_the_code ... ok
+test private_block::w16r2_tests::w16r2_at_q_280_the_pad_block_is_full_rank_on_any_q_distinct_opened_points ... ok
+test private_block::w14_tests::an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_w14 ... ok
+test private_block::w16r2_tests::w16r2_a_shape_at_another_rate_or_q_under_a_w16r2_string_is_refused ... ok
+test private_block::w16r2_tests::w16r2_control_c_a_column_set_chosen_before_the_challenge_is_rejected ... ok
+test private_block::w16r2_tests::w16r2_control_b_a_wrong_opened_column_is_rejected ... ok
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_development_rung ... ok
+test private_block::w16_privacy_gate_tests::w16r2_privacy_gate_at_the_development_rung ... ok
+test private_block::w16r2_tests::w16r2_control_g_a_replay_at_the_same_geometry_under_another_profiles_keys_is_rejected ... ok
+test private_block::w16_privacy_gate_tests::d55_fork_run_capture_passes_the_w16_gate_checks_at_the_development_rung ... ok
+test private_block::w16r2_tests::w16r2_f3_an_endpoint_policy_committed_at_rate_one_quarter_is_refused_by_cs4 ... ok
+test private_block::w14_tests::a_tamper_in_the_last_column_block_of_a_row_is_rejected_at_its_own_slot_at_the_rung_w14 ... ok
+test private_block::w16r2_tests::w16r2_control_e_a_receipt_at_another_rate_or_q_is_rejected ... ok
+test private_block::w16r2_tests::w16r2_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier ... ok
+test private_block::w16_privacy_gate_tests::d55_fork_run_capture_passes_the_w16_gate_checks_at_the_w16r2_rung ... ok
+test private_block::w16r2_tests::w16r2_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier ... ok
+test private_block::w16r2_tests::w16r2_f6_the_whole_run_counters_price_each_block_opening_under_its_profiles_regime ... ok
+test private_block::w16r2_tests::w16r2_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold ... ok
+test private_block::w16r2_tests::w16r2_profiles_fix_rate_one_half_and_q_280_and_change_nothing_else ... ok
+test private_block::w16r2_tests::w16r2_f3_run_level_controls_under_the_d55_fork_verifier ... ok
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... ignored, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::w16r2_tests::w16r2_the_codec_length_is_the_count_at_every_w16r2_shape ... ok
+test private_block::w16r2_tests::w16r2_the_lemmas_load_bearing_invariants_are_pinned ... ok
+test private_block::witness::accuracy::tests::amended_int16_endpoints_and_rope_accumulators_do_not_wrap ... ok
+test private_block::witness::accuracy::tests::both_accuracy_stacks_assign_all_words_to_distinct_native_planes_and_recover_the_output ... ok
+test private_block::witness::accuracy::tests::both_export_stacks_match_the_independent_full_block_oracle ... ok
+test private_block::witness::accuracy::tests::dictionary_assignment_uses_fp12_on_every_slot_including_repeated_padding_zeros ... ok
+test private_block::witness::accuracy::tests::future_scores_are_range_checked_before_the_causal_mask ... ok
+test private_block::witness::accuracy::tests::new_execution_rejects_public_negative_128_weights ... ok
+test private_block::witness_speed_tests::a4::a4_activations_outside_i16_stay_on_the_cpu ... ok
+test private_block::w16r2_tests::w16r2_rung_core_proves_and_verifies_and_its_golden_digest_is_pinned ... ok
+test private_block::witness_speed_tests::a4::a4_the_device_products_are_exact_at_their_extremes ... ok
+test private_block::witness_speed_tests::a4::a4_the_device_products_equal_the_cpu_ones_on_every_input_class ... ok
+test private_block::witness_speed_tests::a4::a4_witness_time_per_block_cpu_against_the_device ... ignored, release timing (A4): the W16R2 8B T128 witness with CPU and device products
+test private_block::witness_speed_tests::a4_forcing_the_device_never_changes_a_product ... ok
+test private_block::witness_speed_tests::h124_witness_time_per_block_at_w16r2_8b_t128 ... ignored, release timing (H124): the W16R2 8B T128 witness, all threads and one thread, and the weight products alone
+test private_block::w16r2_tests::w16r2_limbs_out_of_their_range_are_rejected_by_the_verifier ... ok
+test private_block::witness_speed_tests::h124c_witness_build_loop_for_sampling ... ignored, profiling load (H124c): W16R2 8B T128 witness builds in a loop
+test private_block::witness_speed_tests::native_witness_time_per_block_at_the_trained_tinyllama_shapes ... ignored, release timing: TinyLlama witnesses at T32, T64 and T128
+test private_block::witness_speed_tests::the_i16_products_are_exact_at_their_extremes ... ok
+test private_block::witness_speed_tests::the_parallel_products_equal_the_sequential_ones_at_the_tinyllama_dimensions ... ignored, release: the sequential reference at TinyLlama's dimensions
+test private_block::w16r2_tests::w16r2_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected ... ok
+test private_block::witness_speed_tests::the_parallel_products_equal_the_sequential_ones_at_the_trained_rung ... ok
+test private_block::zero_witness_tests::the_all_zero_hidden_input_is_admitted_at_the_toy_and_both_rungs ... ok
+test private_block::zero_witness_tests::the_all_zero_hidden_input_proves_and_its_receipt_verifies_from_bytes ... ok
+test private_block::zero_witness_tests::the_zero_witness_pins_the_two_constants_and_the_two_range_boundaries ... ok
+test private_block::zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length ... ok
+test private_block::zero_witness_tests::two_zero_witness_proofs_differ_in_their_bytes_and_both_verify ... ok
+test silu::tests::frozen_members_regenerate_to_their_pins ... ok
+test stable_weight_slots::tests::binding_geometry_refuses_invalid_budgets_domains_and_aliases ... ok
+test stable_weight_slots::tests::corrupt_torn_reordered_and_over_budget_records_fail_closed ... ok
+test stable_weight_slots::tests::dropping_owner_unlocks_descriptors_inherited_during_process_startup ... ok
+test stable_weight_slots::tests::every_public_binding_field_is_checked_on_reopening ... ok
+test stable_weight_slots::tests::existing_missing_and_busy_stores_never_reset_the_counter ... ok
+test stable_weight_slots::tests::failed_sync_poisoning_never_reissues_a_written_slot ... ok
+test stable_weight_slots::tests::spent_slots_survive_reopening_drop_unwind_and_exhaustion ... ok
+test stable_weight_slots::tests::unexpected_file_length_poisoning_precedes_slot_exposure ... ok
+test tables_attn::tests::exp_members_match_the_python_generator ... ok
+test tables_attn::tests::rope_members_match_the_python_pins ... ok
+test wcache::atomic_tests::concurrent_processes_publish_without_lost_saves_or_partial_reads ... ok
+test wcache::atomic_tests::concurrent_same_key_saves_all_publish_complete_entries ... ok
+test wcache::atomic_tests::readers_keep_complete_entries_while_other_writers_are_partial ... ok
+test wcache::atomic_tests::unfinished_and_failed_publications_clean_up_only_their_own_files ... ok
+test wcache::tests::a_prepared_key_cannot_be_reused_with_a_different_data_length - should panic ... ok
+test wcache::tests::prepared_key_is_lazy_and_hashes_once_across_plane_decline_and_cache_hit ... ok
+test wcache::tests::tree_roundtrip_and_every_corruption_rejected ... ok
+test zk::cfs_safety_tests::complete_extension_matches_the_masked_round_and_terminal_identity ... ok
+test zk::cfs_safety_tests::malformed_extension_refuses_before_changing_transcript_or_output ... ok
+test zk::cfs_safety_tests::zero_mask_challenge_aborts_without_resampling ... ok
+test zk::f12_tests::f12_an_opening_under_one_version_does_not_verify_under_the_other ... ok
+test zk::f12_tests::f12_control_an_honest_commitment_rejects_a_shifted_first_functional ... ok
+test zk::f12_tests::f12_the_first_functional_is_certified_only_up_to_the_blinding_sum ... ok
+test zk::f12_tests::f12_the_pre_f12_start_accepts_the_forgery ... ok
+test private_block::zero_witness_tests::the_all_zero_hidden_input_is_admitted_by_the_witness_builder_at_125m ... ok
+test zk::fresh_poc::io::tests::bound_ffn_consumes_mismatched_owner_and_checks_slot ... ok
+test zk::fresh_poc::io::tests::bound_ffn_adversarial_receipt_and_relabelled_policy ... ok
+test zk::fresh_poc::io::tests::bound_ffn_policy_and_endpoint_preflight ... ok
+test private_block::w16r2_tests::w16r2_f3_run_level_controls_under_the_d12a_run_verifier ... ok
+test zk::fresh_poc::io::tests::bound_ffn_refuses_recommitted_wrong_input ... ok
+test zk::fresh_poc::wire::tests::fixed_wire_bounds_cover_all_allowed_table_sizes ... ok
+test zk::fresh_poc::io::tests::bound_ffn_refuses_recommitted_wrong_output ... ok
+test zk::fresh_poc::io::tests::bound_ffn_honest_p1_p3_and_fresh_owners ... ok
+test zk::mask_diagnostic::actual_ffn_seeded_singleton_rows_are_recovered_in_p1_and_p3 ... ok
+test zk::mask_diagnostic::capture_guard_resets_on_unwind_and_rejects_nested_capture ... ok
+test zk::mask_diagnostic::diagnostic_refuses_degenerate_and_paired_mask_controls ... ok
+test zk::mask_diagnostic::actual_ffn_fresh_os_singleton_rows_are_recovered_without_resampling ... ok
+test zk::mask_diagnostic::actual_ffn_t32_recovers_one_functional_per_column_of_two_row_planes ... ok
+test zk::mask_diagnostic::fresh_poc_tests::repaired_layout_and_degenerate_mask_controls ... ok
+test zk::mask_diagnostic::fresh_poc_tests::repaired_fresh_poc_verifies_twice_and_blocks_single_mask_recovery ... ok
+test zk::mask_diagnostic::fresh_poc_tests::repaired_fresh_poc_rejects_tampering_and_legacy_profiles ... ok
+test zk::mask_diagnostic::fresh_poc_tests::repaired_wire_roundtrip_and_adversarial_frames ... ok
+test zk::mr1_probe_tests::the_legacy_entry_is_unchanged ... ok
+test zk::mr1_probe_tests::the_repaired_entry_refuses_a_deterministic_seed ... ok
+test zk::mr1_probe_tests::the_repaired_layout_is_the_legacy_layout_plus_the_counted_rows ... ok
+test zk::mr1_probe_tests::the_repaired_entry_proves_and_its_verifier_accepts ... ok
+test zk::rounds_tests::additive_masked_wrapper_matches_legacy_at_each_extension_count ... ok
+test zk::rounds_tests::evaluator_wrapper_refuses_zero_mask_before_touching_transcript ... ok
+test zk::rounds_tests::evaluator_wrapper_rejects_mask_shape_before_touching_transcript ... ok
+test zk::tests::cloned_default_configs_never_reuse_a_mask_stream ... ok
+test zk::tests::explicit_zero_seed_keeps_legacy_stream_across_refills ... ok
+test zk::mr1_probe_tests::the_two_profiles_are_not_confusable ... ok
+test private_block::witness_speed_tests::h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane ... ok
+test zk::tests_v3::fresh_os_proofs_verify_for_both_privacy_modes_with_reused_config ... ok
+test zk::mr1_probe_tests::every_tamper_leg_is_rejected_through_the_repaired_entry ... ok
+test zk::zkhostbuf::tests::pooled_tail_is_cleared_when_geometry_changes ... ok
+test private_block::witness_speed_tests::a4::a4_the_device_builder_equals_the_cpu_one_on_every_plane ... ok
+test private_block::w16r2_tests::w16r2_control_f_the_lemmas_close_case_is_accepted_at_exactly_the_counted_rate ... ok
+test zk::tests_v3::zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim ... ok
+test zk::tests_v3::zk_v3_function2_binary_predicate_is_a_separate_statement ... ok
+test zk::tests_v3::zk_v3_layer_roundtrip_tampers_and_uniform_openings ... ok
+test private_block::w16r2_tests::w16r2_control_a_a_far_matrix_is_rejected_at_the_column_test has been running for over 60 seconds
+test private_block::w16r2_tests::w16r2_control_d_a_forged_pad_half_is_rejected has been running for over 60 seconds
+test private_block::w16r2_tests::w16r2_control_a_a_far_matrix_is_rejected_at_the_column_test ... ok
+test private_block::w16r2_tests::w16r2_control_d_a_forged_pad_half_is_rejected ... ok
+
+failures:
+
+---- private_block::review_tests::a_toy_receipt_made_before_f12_is_refused stdout ----
+PRE-LANE /../results/zk60_rowfold_20260919/integration/native-block-0: absent, skipped
+PRE-LANE /../results/zk60_rowfold_20260919/integration/native-block-1: absent, skipped
+PRE-LANE /../results/zk60_private_block_evidence/owner_run1: absent, skipped
+PRE-LANE /../results/zk60_attention_integration_20260919/block_public: absent, skipped
+
+thread 'private_block::review_tests::a_toy_receipt_made_before_f12_is_refused' (11506029) panicked at src/private_block/review_tests.rs:738:5:
+no pre-lane toy receipt was found: this check did not run
+
+---- private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces stdout ----
+
+thread 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces' (11511185) panicked at src/private_block/trained_accuracy.rs:515:96:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+---- private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name stdout ----
+{"event":"prover_start","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","hl_gpu_required":false}
+{"event":"loaded","variant":"stale","layers":"0..2","blocks":2,"statement_identity":"7166f8f0e41695eb5e2692b50fe693c14ff9e62e41823c52028512711f8eca9f","seconds":0.057,"hl_gpu":"unset","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the witness builder's own pass over layers 0..2 (parity bit-exact at every layer, before the run header: ruling H-1)","seconds":0.057,"of_which_load_seconds":0.024,"of_which_witness_seconds":0.026,"kept_witnesses":0,"kept_witness_bytes":0,"rayon_threads":32}
+{"event":"parity","result":"bit-exact at every layer","layers":2,"words_per_layer":12288,"checked_before_the_run_header":true}
+{"event":"segment","index":0,"layer":0,"bytes":7398936,"elapsed_seconds":0.810,"vmhwm_mib":NaN}
+{"event":"segment","index":1,"layer":1,"bytes":7613944,"elapsed_seconds":1.857,"vmhwm_mib":NaN}
+{"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":2,"receipt_bytes":15012880,"prove_run_seconds":1.857,"of_which_witness_seconds":0.065,"rebuilt_witnesses":2,"witness_seconds_per_block":0.045,"of_which_block_load_seconds":0.037,"block_loads":2,"rayon_threads":32,"in_process_verified":false,"in_process_verify_seconds":0.000,"sealing_pass_seconds":0.057,"sealing_witness_seconds":0.026,"load_seconds":0.024,"total_seconds":1.945,"vmhwm_mib":NaN,"statement_identity":"7166f8f0e41695eb5e2692b50fe693c14ff9e62e41823c52028512711f8eca9f","statement_dir":"/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-55869-1793872861660986000/n-r6-b/run.unverified-statement","out":"/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-55869-1793872861660986000/n-r6-b/run"}
+{"event":"stale-statement-writing-removed","path":"/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-55869-1793872861660986000/n-r6-b/run/statement.writing-55869","pid":55869,"why":"left by a verifier that is no longer running (review N-r6-b)"}
+
+thread 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name' (11511409) panicked at src/private_block/trained_stack_tests.rs:553:44:
+a live pid's writing directory was removed: ["/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-55869-1793872861660986000/n-r6-b/run/statement.writing-55869"]
+
+
+failures:
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+
+test result: FAILED. 919 passed; 3 failed; 96 ignored; 0 measured; 0 filtered out; finished in 298.93s
+
+error: test failed, to rerun pass `--lib`

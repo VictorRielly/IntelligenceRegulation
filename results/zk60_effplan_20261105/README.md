@@ -86,3 +86,41 @@ the block's time, the helper inverses at 5%, and the helper tables inside slots 
 
 These are the two largest structural levers. Both need their design studies, decision 3 of the plan, before any
 estimate.
+
+## A4: the witness weight products on the Metal GPU, exactly, done
+
+Full write-up: `a4/README.md`.
+
+**Change** (`gpu/metal.rs` `[A4]`, `gpu/mod.rs`, the dispatch in `witness.rs`). FlashProve's byte-slab idea, on Apple
+`simdgroup_matrix<float>`:
+- each i16 activation is split into an unsigned low byte and a signed high byte;
+- products with int8 weights are summed exactly in fp32 over 512-term slabs. Every partial sum is at most
+  512·32,640 < 2^24, so every operation is exact; fast math is off.
+- slab totals go to int32 (|Σ| < 2^31, K ≤ 65,536 checked first), and `256·hi + lo` is recombined in int64.
+
+The safety nets:
+- a start-up self-check at the slab bound turns the device path off on any mismatch;
+- the CPU path stays the reference and the default without `HL_GPU=1`;
+- activations outside i16 stay on the CPU.
+
+The route was chosen on GPU time: `simd2x4` 9.9 ms per block, against 12.1 ms for `simd4x2` and 19.5 ms for int32
+multiply-adds.
+
+**Exactness tests** (`witness_speed_tests.rs`): the device equals the CPU on every input class, route, layout and
+transfer mode, at the slab extremes, and on every witness plane for six profiles (the DD refusals identical).
+
+**Time** [MEASURED, one run per arm, shared box; `a4/`]:
+
+| | CPU products | device products |
+|---|---:|---:|
+| one W16R2 8B T128 witness (32 threads) | 0.162 s | **0.103 s** (the products 0.085 → 0.014 s) |
+| the sealing pass, 32 blocks | 5.450 s | **3.615 s** |
+| one request from its input (sealed) | 10.919 s = 11.72 tok/s | **9.237 s = 13.86 tok/s** |
+| a stream of 4 requests, steady | 15.98 tok/s | **20.73 tok/s** (amortized 18.20) |
+| per-request latency in the stream | about 14.5 s | about 11.6 s |
+| proof only | 5.34 s | 5.17 s (noise) |
+
+**For the privacy gate.** No new file or pin, but three pinned files changed digest and must be re-read at the full
+digest before any GPU-made bundle counts: `gpu/metal.rs`, `gpu/mod.rs` and `private_block/witness.rs`. The details are
+in `a4/README.md`, "What the privacy gate will need to read". The device handles private activations on the local GPU.
+`D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
