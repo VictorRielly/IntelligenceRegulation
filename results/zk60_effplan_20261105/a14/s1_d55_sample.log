@@ -1,0 +1,27 @@
+D55-AB W16R2_8B_T128_H24 L32 T128: setup 4.5 s (one witness 0.30 GB; 32 alive per call)
+D55-AB W16R2_8B_T128_H24 L32 serial cold (kernel compiles): wall 10.050 s = 12.74 proved tok/s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.70 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 9.616 s = 13.31 proved tok/s; receipt 818728480 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 51.8 CPU-seconds (user + system, the whole process) over the 4.270 s call = 12.1 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 4.270 s, forks 3.811 s | process user 42.5 s + sys 9.3 s = 12.1 cores | minor faults 1517364 (355321/s), major 0 | csw voluntary 0, involuntary 128520 | fork workers: prove_core 21.47 s summed, their own thread CPU 20.80 s (97%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 []: table builds 19.86 ms per block (summed over the forks) | s00 0.83 ms (0/32 dev), s01 0.39 ms (0/32 dev), s03 0.25 ms (0/32 dev), s04 0.91 ms (0/32 dev), s05 0.89 ms (0/32 dev), s06 0.80 ms (0/32 dev), s07 0.81 ms (0/32 dev), s08 1.14 ms (0/32 dev), s09 0.84 ms (0/32 dev), s10 0.76 ms (0/32 dev), s11 0.90 ms (0/32 dev), s12 0.88 ms (0/32 dev), s13 3.91 ms (0/32 dev), s14 0.98 ms (32/32 dev), s15 0.66 ms (32/32 dev), s16 0.23 ms (32/32 dev), s17 0.59 ms (32/32 dev), s18 3.66 ms (32/32 dev), s19 0.21 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.06 ms (32/32 dev) | device builds so far [768, 12864, 3264, 192, 0, 1344, 768, 0]
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.56 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 4.270 s = 29.97 proved tok/s; 6 workers; preflight 0.076 s, commit 0.296 s, forks 3.811 s, join 0.087 s; fork prove_core min 0.394 median 0.644 max 0.899 s; receipt 818728672 B
+A11-SAMPLE READY N6 pid 14281
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.851 s, forks 4.359 s | process user 39.8 s + sys 8.0 s = 9.9 cores | minor faults 1125775 (232053/s), major 0 | csw voluntary 0, involuntary 157837 | fork workers: prove_core 24.45 s summed, their own thread CPU 17.55 s (72%)
+A11-SAMPLE N6 call 0: started 0.000 s into the window, wall 4.851 s, forks 4.359 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.660 s, forks 4.186 s | process user 40.2 s + sys 6.4 s = 10.0 cores | minor faults 1020053 (218891/s), major 0 | csw voluntary 0, involuntary 131448 | fork workers: prove_core 23.58 s summed, their own thread CPU 17.85 s (76%)
+A11-SAMPLE N6 call 1: started 4.852 s into the window, wall 4.660 s, forks 4.186 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.413 s, forks 3.930 s | process user 38.6 s + sys 5.3 s = 10.0 cores | minor faults 991277 (224608/s), major 0 | csw voluntary 0, involuntary 148354 | fork workers: prove_core 22.54 s summed, their own thread CPU 16.50 s (73%)
+A11-SAMPLE N6 call 2: started 9.512 s into the window, wall 4.413 s, forks 3.930 s
+A11-SAMPLE DONE N6 after 13.926 s
+D55-AB ORDER serial-first | serial (D12a)  | 1 passes | best 9.616 s = 13.31 tok/s | mean 9.616 s = 13.31 tok/s
+D55-AB ORDER serial-first | forks N=6      | 1 passes | best 4.270 s = 29.97 tok/s | mean 4.270 s = 29.97 tok/s
+D55-AB W16R2_8B_T128_H24 L32: the fork run's profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/2 (registered: false)
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.616 s = 13.31 tok/s | mean 9.616 s = 13.31 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.270 s = 29.97 tok/s | mean 4.270 s = 29.97 tok/s | 2.25x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.004 s, device sumcheck rounds 35.241 s
+D55-AB A4 witness products on the device: 1599, 1587 written in place (HL_GPU_WITNESS=None, route None); summed activation buffer 0.006 s, pack 1.783 s, weights 0.092 s, output plane + encode 0.299 s, command buffer 5.948 s, of which on the GPU 3.208 s, scatter 0.009 s
+D55-AB W16R2_8B_T128_H24 L32: total 60.9 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1029 filtered out; finished in 60.91s

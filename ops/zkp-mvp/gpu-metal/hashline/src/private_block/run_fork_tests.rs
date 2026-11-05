@@ -2075,13 +2075,65 @@ struct GpuArm {
     /// A8: the openings' host store fold, `m11` (0, the forms before A8), `sparse`
     /// (1) or `small` (2); unnamed: as the environment says
     a8_form: Option<u8>,
+    /// A14: the generator's XOF form, the transcript's absorb form and the lazy
+    /// sums (see [`A14Arm`])
+    a14: A14Arm,
 }
 
+// ---- [A14] the A/B words of efficiency plan A14 (the forks' remaining host work) ----
+
+/// **[A14]** the three byte-preserving forms of A14, each `None` as the
+/// environment says: `xofb3` / `xof8` (`fill_fp`'s blocks from blake3's XOF, or
+/// eight NEON lanes), `trser` / `trpar` (a long transcript absorb serial, or
+/// BLAKE3's tree on rayon), `lazy0` / `lazy1` (the host's `Fp2 x Fp` dot products
+/// per term, or summed exactly and reduced once); `a14old` / `a14new` set all
+/// three off / on (the tree before A14 / every A14 form), `a14def` the A14
+/// default (`xof8+trser+lazy1`: the parallel absorb did not pay and is opt-in)
+#[derive(Clone, Copy, Debug, Default)]
+struct A14Arm {
+    xof: Option<zkp_core::rng::XofForm>,
+    absorb_par: Option<bool>,
+    lazy: Option<bool>,
+}
+
+/// [A14] one `+`-joined word of an arm, if it is A14's
+fn a14_word(a: &mut A14Arm, w: &str) -> bool {
+    use zkp_core::rng::XofForm;
+    match w {
+        "xofb3" => a.xof = Some(XofForm::Blake3),
+        "xof8" => a.xof = Some(XofForm::Lanes8),
+        "trser" => a.absorb_par = Some(false),
+        "trpar" => a.absorb_par = Some(true),
+        "lazy0" => a.lazy = Some(false),
+        "lazy1" => a.lazy = Some(true),
+        "a14old" => *a = A14Arm { xof: Some(XofForm::Blake3), absorb_par: Some(false), lazy: Some(false) },
+        "a14new" => *a = A14Arm { xof: Some(XofForm::Lanes8), absorb_par: Some(true), lazy: Some(true) },
+        "a14def" => *a = A14Arm { xof: Some(XofForm::Lanes8), absorb_par: Some(false), lazy: Some(true) },
+        _ => return false,
+    }
+    true
+}
+
+/// [A14] put an arm's forms in force for the whole process (the fork workers
+/// read them); `A14Arm::default()` restores the environment's
+#[cfg_attr(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))), allow(dead_code))]
+fn a14_apply(a: &A14Arm) {
+    zkp_core::rng::set_xof_form(a.xof);
+    crate::transcript::set_absorb_parallel(a.absorb_par);
+    crate::private_block::argument::set_lazy_for_test(a.lazy);
+}
+
+// ---- end of [A14] ----
+
 fn gpu_arm(spec: &str) -> Option<GpuArm> {
-    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None };
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default() };
     for w in spec.split('+').map(str::trim) {
         if let Some(t) = w.strip_prefix("fp").and_then(|t| t.parse::<usize>().ok()) {
             a.fork_pool = Some(t);
+            continue;
+        }
+        // [A14]
+        if a14_word(&mut a.a14, w) {
             continue;
         }
         match w {
@@ -2545,6 +2597,8 @@ fn d55_ab_one_request_serial_against_forks() {
                     None => own_form,
                 });
                 a11_set_arm(&a.label);
+                // [A14]
+                a14_apply(&a.a14);
                 if a.fork_pool == Some(usize::MAX) {
                     set_fork_pool_auto_for_test();
                 } else {
@@ -2604,6 +2658,8 @@ fn d55_ab_one_request_serial_against_forks() {
         crate::gpu::metal_set_device_fold_for_test(None);
         crate::private_block::argument::set_device_tables_for_test(None);
         crate::gpu::metal_set_a8_fold_for_test(own_form);
+        // [A14]
+        a14_apply(&A14Arm::default());
         a11_set_arm("");
         set_fork_pool_for_test(None);
     }
