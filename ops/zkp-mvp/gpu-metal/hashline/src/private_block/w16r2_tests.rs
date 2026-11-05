@@ -340,6 +340,67 @@ fn w16r2_rung_cpu_and_metal_digests_equal_the_golden() {
     assert!(ran > 0.0, "no sumcheck round ran on the device");
 }
 
+/// **[A7] the queues change no byte, under concurrency.** The seeded W16R2 rung
+/// proof on six threads at once, as six fork workers would run: first with every
+/// thread's command buffers on the one shared queue, then on six queues (one per
+/// thread). Every thread's digest must equal the CPU's and the golden. The second
+/// arm also records the GPU timeline and checks its clock against the host's: each
+/// command buffer begins, is committed, starts and ends on the GPU, and is seen
+/// complete in that order (to 1 ms), and the six threads used six queues.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A7: toggles HL_GPU and the queue count in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn a7_w16r2_rung_digests_on_six_threads_at_one_and_at_six_queues() {
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu = seeded_digest(&sh, &blk, copy(&w));
+    assert!(cpu.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's digest moved");
+    std::env::set_var("HL_GPU", "1");
+    let own = crate::gpu::metal_set_queues_for_test(false);
+    for (q, per_thread) in [("shared", false), ("thread", true)] {
+        crate::gpu::metal_set_queues_for_test(per_thread);
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        let h0 = if per_thread { Some(crate::gpu::gpu_timeline_start()) } else { None };
+        let t = std::time::Instant::now();
+        let got: Vec<String> = std::thread::scope(|s| {
+            let hs: Vec<_> = (0..6)
+                .map(|_| {
+                    let (sh, blk, w) = (&sh, &blk, copy(&w));
+                    s.spawn(move || seeded_digest(sh, blk, w))
+                })
+                .collect();
+            hs.into_iter().map(|h| h.join().expect("a proof thread")).collect()
+        });
+        let wall = t.elapsed().as_secs_f64();
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        eprintln!("A7-QUEUES {} queues {q}: six concurrent seeded proofs in {wall:.2} s (device sumcheck rounds {ran:.4} s); digests {:?}", sh.name, got.iter().map(|d| &d[..8]).collect::<Vec<_>>());
+        for d in &got {
+            assert_eq!(d, &cpu, "a concurrent Metal W16R2 rung proof at {q} queues differs from the CPU's");
+        }
+        assert!(ran > 0.0, "no sumcheck round ran on the device");
+        if let Some(h0) = h0 {
+            let spans = crate::gpu::gpu_timeline_take();
+            eprintln!("A7-QUEUES timeline at {q} queues:\n{}", crate::gpu::gpu_timeline_report(&spans, h0, h0 + wall));
+            assert!(spans.len() > 6, "the timeline recorded {} command buffers", spans.len());
+            let eps = 1e-3;
+            for s in &spans {
+                assert!(s.begin <= s.committed + eps && s.committed <= s.gpu_start + eps && s.gpu_start <= s.gpu_end && s.gpu_end <= s.done + eps, "a command buffer's times are out of order: {s:?}");
+                assert!(s.begin >= h0 - eps && s.done <= h0 + wall + eps, "a command buffer outside the window: {s:?}");
+            }
+            // every thread on its own queue, and the six proof threads on six
+            let mut pairs: Vec<(u32, u32)> = spans.iter().filter(|s| s.tag != "wprod").map(|s| (s.thread, s.queue)).collect();
+            pairs.sort();
+            pairs.dedup();
+            let mut queues: Vec<u32> = pairs.iter().map(|p| p.1).collect();
+            queues.dedup();
+            assert!(pairs.iter().all(|&(t, q)| q == t + 1), "a thread's command buffers were not on its own queue: {pairs:?}");
+            assert!(queues.len() >= 6, "six proof threads used the queues {queues:?}");
+        }
+    }
+    crate::gpu::metal_set_queues_for_test(own);
+    std::env::remove_var("HL_GPU");
+}
+
 // ------------------------------------------------- the PCS-level control rig
 
 /// One commitment at a given PCS geometry, under a profile's hash tag, with

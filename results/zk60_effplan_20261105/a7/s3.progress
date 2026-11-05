@@ -1,0 +1,48 @@
+2026-11-05T10:54:34Z start
+2026-11-05T10:56:55Z build rc=0
+2026-11-05T10:57:07Z no-feature cargo check --tests rc=0
+2026-11-05T11:02:06Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 919 passed; 3 failed; 98 ignored; 0 measured; 0 filtered out; finished in 298.09s
+2026-11-05T11:02:08Z a7 queue byte test rc=0
+2026-11-05T11:02:09Z w16r2 rung golden rc=0
+2026-11-05T11:02:35Z trained digests rc=0
+2026-11-05T11:02:35Z digest 5a6193d3 present
+2026-11-05T11:02:35Z digest f590b01f present
+2026-11-05T11:02:35Z digest 79f987ef present
+2026-11-05T11:02:35Z digest a8258241 present
+2026-11-05T11:02:35Z digest 0e88d84f present
+2026-11-05T11:02:35Z digest 90003b76 present
+2026-11-05T11:04:38Z d55 BEFORE (HL_METAL_QUEUES=shared) rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 4.287 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 9.551 s = 13.40 proved tok/s FROM THE RUN'S INPUT (sealing pass 4.126 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 9.589 s = 13.35 proved tok/s FROM THE RUN'S INPUT (sealing pass 4.267 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 29.474 s; amortized 17.37 proved tok/s (all witness work on the clock); steady state 19.32 tok/s (completions 9.60, 16.32, 23.10, 29.47); per-request latency 9.60, 12.07, 12.21, 12.03
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 9.2 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.676 s = 11.99 tok/s | mean 11.019 s = 11.62 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.056 s = 25.32 tok/s | mean 5.135 s = 24.93 tok/s | 2.11x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 9.551 s = 13.40 tok/s | mean 9.570 s = 13.38 tok/s
+2026-11-05T11:06:41Z d55 AFTER (per-thread queues, the default) rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 3.668 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 9.423 s = 13.58 proved tok/s FROM THE RUN'S INPUT (sealing pass 4.340 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 9.518 s = 13.45 proved tok/s FROM THE RUN'S INPUT (sealing pass 4.374 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 30.371 s; amortized 16.86 proved tok/s (all witness work on the clock); steady state 18.47 tok/s (completions 9.58, 16.66, 23.63, 30.37); per-request latency 9.58, 12.42, 12.36, 12.03
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 9.1 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.763 s = 11.89 tok/s | mean 10.987 s = 11.65 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.061 s = 25.29 tok/s | mean 5.316 s = 24.08 tok/s | 2.13x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 9.423 s = 13.58 tok/s | mean 9.471 s = 13.52 tok/s
+2026-11-05T11:08:42Z d55 per-thread queues + HL_METAL_SPIN_US=200 rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 3.601 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 9.448 s = 13.55 proved tok/s FROM THE RUN'S INPUT (sealing pass 4.113 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 9.125 s = 14.03 proved tok/s FROM THE RUN'S INPUT (sealing pass 4.228 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 29.738 s; amortized 17.22 proved tok/s (all witness work on the clock); steady state 19.28 tok/s (completions 9.82, 16.17, 23.25, 29.74); per-request latency 9.82, 11.99, 12.10, 11.86
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 9.3 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.873 s = 11.77 tok/s | mean 10.985 s = 11.65 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.909 s = 26.07 tok/s | mean 5.023 s = 25.48 tok/s | 2.21x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 9.125 s = 14.03 tok/s | mean 9.286 s = 13.78 tok/s
+2026-11-05T11:08:42Z all done

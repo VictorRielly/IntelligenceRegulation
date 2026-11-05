@@ -1,0 +1,81 @@
+2026-11-05T10:33:00Z start
+2026-11-05T10:35:22Z build rc=0
+2026-11-05T10:35:23Z a6 census rc=0
+2026-11-05T10:39:40Z d55 GPU-policy A/B rc=0
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 109.3 CPU-seconds (user + system, the whole process) over the 5.374 s call = 20.3 cores busy on average
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 100.8 CPU-seconds (user + system, the whole process) over the 4.637 s call = 21.7 cores busy on average
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 101.5 CPU-seconds (user + system, the whole process) over the 5.304 s call = 19.1 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 0: wall 5.304 s = 24.13 proved tok/s; preflight 0.069 s, commit 0.233 s, forks 4.922 s, join 0.079 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 102.5 CPU-seconds (user + system, the whole process) over the 4.782 s call = 21.4 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [shared+spin] pass 0: wall 4.782 s = 26.77 proved tok/s; preflight 0.084 s, commit 0.229 s, forks 4.386 s, join 0.083 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 98.1 CPU-seconds (user + system, the whole process) over the 4.836 s call = 20.3 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 0: wall 4.836 s = 26.47 proved tok/s; preflight 0.074 s, commit 0.232 s, forks 4.444 s, join 0.085 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 101.9 CPU-seconds (user + system, the whole process) over the 4.725 s call = 21.6 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin] pass 0: wall 4.725 s = 27.09 proved tok/s; preflight 0.076 s, commit 0.232 s, forks 4.335 s, join 0.081 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.0 CPU-seconds (user + system, the whole process) over the 4.938 s call = 18.2 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+block] pass 0: wall 4.938 s = 25.92 proved tok/s; preflight 0.080 s, commit 0.228 s, forks 4.551 s, join 0.079 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 89.8 CPU-seconds (user + system, the whole process) over the 4.874 s call = 18.4 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+block] pass 0: wall 4.874 s = 26.26 proved tok/s; preflight 0.077 s, commit 0.230 s, forks 4.476 s, join 0.091 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.3 CPU-seconds (user + system, the whole process) over the 4.583 s call = 19.7 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin200] pass 0: wall 4.583 s = 27.93 proved tok/s; preflight 0.084 s, commit 0.232 s, forks 4.182 s, join 0.084 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 92.0 CPU-seconds (user + system, the whole process) over the 4.875 s call = 18.9 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin200] pass 0: wall 4.875 s = 26.26 proved tok/s; preflight 0.098 s, commit 0.233 s, forks 4.460 s, join 0.083 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 92.0 CPU-seconds (user + system, the whole process) over the 4.999 s call = 18.4 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin+devfold] pass 0: wall 4.999 s = 25.61 proved tok/s; preflight 0.084 s, commit 0.225 s, forks 4.638 s, join 0.051 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 93.6 CPU-seconds (user + system, the whole process) over the 5.139 s call = 18.2 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin+devfold] pass 0: wall 5.139 s = 24.91 proved tok/s; preflight 0.093 s, commit 0.412 s, forks 4.577 s, join 0.056 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 98.6 CPU-seconds (user + system, the whole process) over the 5.353 s call = 18.4 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 1: wall 5.353 s = 23.91 proved tok/s; preflight 0.086 s, commit 0.226 s, forks 4.962 s, join 0.080 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 97.0 CPU-seconds (user + system, the whole process) over the 4.644 s call = 20.9 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [shared+spin] pass 1: wall 4.644 s = 27.56 proved tok/s; preflight 0.090 s, commit 0.231 s, forks 4.232 s, join 0.092 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 96.2 CPU-seconds (user + system, the whole process) over the 5.124 s call = 18.8 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 1: wall 5.124 s = 24.98 proved tok/s; preflight 0.101 s, commit 0.279 s, forks 4.658 s, join 0.085 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 99.2 CPU-seconds (user + system, the whole process) over the 4.714 s call = 21.0 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin] pass 1: wall 4.714 s = 27.15 proved tok/s; preflight 0.101 s, commit 0.275 s, forks 4.261 s, join 0.078 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.8 CPU-seconds (user + system, the whole process) over the 4.891 s call = 18.6 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+block] pass 1: wall 4.891 s = 26.17 proved tok/s; preflight 0.119 s, commit 0.265 s, forks 4.418 s, join 0.088 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 88.9 CPU-seconds (user + system, the whole process) over the 4.772 s call = 18.6 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+block] pass 1: wall 4.772 s = 26.82 proved tok/s; preflight 0.087 s, commit 0.230 s, forks 4.371 s, join 0.085 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 89.5 CPU-seconds (user + system, the whole process) over the 4.788 s call = 18.7 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin200] pass 1: wall 4.788 s = 26.74 proved tok/s; preflight 0.088 s, commit 0.234 s, forks 4.371 s, join 0.095 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 89.0 CPU-seconds (user + system, the whole process) over the 4.757 s call = 18.7 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin200] pass 1: wall 4.757 s = 26.91 proved tok/s; preflight 0.086 s, commit 0.238 s, forks 4.348 s, join 0.085 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.5 CPU-seconds (user + system, the whole process) over the 5.042 s call = 18.0 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin+devfold] pass 1: wall 5.042 s = 25.39 proved tok/s; preflight 0.083 s, commit 0.236 s, forks 4.660 s, join 0.062 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 93.1 CPU-seconds (user + system, the whole process) over the 4.772 s call = 19.5 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin+devfold] pass 1: wall 4.772 s = 26.82 proved tok/s; preflight 0.072 s, commit 0.232 s, forks 4.418 s, join 0.050 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 99.6 CPU-seconds (user + system, the whole process) over the 5.058 s call = 19.7 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 2: wall 5.058 s = 25.31 proved tok/s; preflight 0.085 s, commit 0.231 s, forks 4.661 s, join 0.080 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 100.8 CPU-seconds (user + system, the whole process) over the 4.897 s call = 20.6 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [shared+spin] pass 2: wall 4.897 s = 26.14 proved tok/s; preflight 0.079 s, commit 0.239 s, forks 4.491 s, join 0.088 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 98.6 CPU-seconds (user + system, the whole process) over the 4.823 s call = 20.4 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 2: wall 4.823 s = 26.54 proved tok/s; preflight 0.093 s, commit 0.228 s, forks 4.421 s, join 0.082 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 100.4 CPU-seconds (user + system, the whole process) over the 4.685 s call = 21.4 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin] pass 2: wall 4.685 s = 27.32 proved tok/s; preflight 0.093 s, commit 0.236 s, forks 4.266 s, join 0.090 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 89.9 CPU-seconds (user + system, the whole process) over the 4.644 s call = 19.4 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+block] pass 2: wall 4.644 s = 27.56 proved tok/s; preflight 0.090 s, commit 0.239 s, forks 4.238 s, join 0.078 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 89.5 CPU-seconds (user + system, the whole process) over the 4.671 s call = 19.2 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+block] pass 2: wall 4.671 s = 27.41 proved tok/s; preflight 0.083 s, commit 0.239 s, forks 4.250 s, join 0.099 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 91.3 CPU-seconds (user + system, the whole process) over the 5.120 s call = 17.8 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin200] pass 2: wall 5.120 s = 25.00 proved tok/s; preflight 0.084 s, commit 0.238 s, forks 4.723 s, join 0.075 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 92.7 CPU-seconds (user + system, the whole process) over the 4.859 s call = 19.1 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin200] pass 2: wall 4.859 s = 26.34 proved tok/s; preflight 0.086 s, commit 0.238 s, forks 4.454 s, join 0.081 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.8 CPU-seconds (user + system, the whole process) over the 5.179 s call = 17.5 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin+devfold] pass 2: wall 5.179 s = 24.72 proved tok/s; preflight 0.086 s, commit 0.238 s, forks 4.806 s, join 0.049 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 93.2 CPU-seconds (user + system, the whole process) over the 4.890 s call = 19.1 cores busy on average
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin+devfold] pass 2: wall 4.890 s = 26.18 proved tok/s; preflight 0.090 s, commit 0.234 s, forks 4.510 s, join 0.055 s; receipt 818728672 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 11.189 s = 11.44 tok/s | mean 11.189 s = 11.44 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.374 s = 23.82 tok/s | mean 5.374 s = 23.82 tok/s | 2.08x serial (best)
+D55-AB SUMMARY | forks N=8      | best 4.637 s = 27.60 tok/s | mean 4.637 s = 27.60 tok/s | 2.41x serial (best)
+D55-AB SUMMARY | forks N=6 shared+spin | A7 GPU-policy A/B, interleaved, 3 passes | best 5.058 s = 25.31 tok/s | mean 5.238 s = 24.44 tok/s
+D55-AB SUMMARY | forks N=8 shared+spin | A7 GPU-policy A/B, interleaved, 3 passes | best 4.644 s = 27.56 tok/s | mean 4.774 s = 26.81 tok/s
+D55-AB SUMMARY | forks N=6 thread+spin | A7 GPU-policy A/B, interleaved, 3 passes | best 4.823 s = 26.54 tok/s | mean 4.928 s = 25.98 tok/s
+D55-AB SUMMARY | forks N=8 thread+spin | A7 GPU-policy A/B, interleaved, 3 passes | best 4.685 s = 27.32 tok/s | mean 4.708 s = 27.19 tok/s
+D55-AB SUMMARY | forks N=6 thread+block | A7 GPU-policy A/B, interleaved, 3 passes | best 4.644 s = 27.56 tok/s | mean 4.824 s = 26.53 tok/s
+D55-AB SUMMARY | forks N=8 thread+block | A7 GPU-policy A/B, interleaved, 3 passes | best 4.671 s = 27.41 tok/s | mean 4.772 s = 26.82 tok/s
+D55-AB SUMMARY | forks N=6 thread+spin200 | A7 GPU-policy A/B, interleaved, 3 passes | best 4.583 s = 27.93 tok/s | mean 4.830 s = 26.50 tok/s
+D55-AB SUMMARY | forks N=8 thread+spin200 | A7 GPU-policy A/B, interleaved, 3 passes | best 4.757 s = 26.91 tok/s | mean 4.830 s = 26.50 tok/s
+D55-AB SUMMARY | forks N=6 thread+spin+devfold | A7 GPU-policy A/B, interleaved, 3 passes | best 4.999 s = 25.61 tok/s | mean 5.073 s = 25.23 tok/s
+D55-AB SUMMARY | forks N=8 thread+spin+devfold | A7 GPU-policy A/B, interleaved, 3 passes | best 4.772 s = 26.82 tok/s | mean 4.934 s = 25.94 tok/s
+2026-11-05T10:39:40Z all done

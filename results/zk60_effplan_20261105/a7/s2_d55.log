@@ -1,0 +1,1307 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:162:12
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:165:9
+    |
+165 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:345:9
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:345:33
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:346:25
+    |
+346 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:350:9
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:350:39
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 27 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.02s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a334f0b0fd45e9be)
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 3.679 s
+D55-AB W16R2_8B_T128_H24 L32 T128: setup 4.6 s (one witness 0.30 GB; 32 alive per call)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 serial (D12a) (queues shared): the whole call, 11.393 s
+  window 11.3931 s: 577 command buffers; GPU busy (>= 1 executing) 3.1843 s = 27.9%, idle 8.2088 s = 72.1%; summed command-buffer GPU time 3.1843 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  time at k executing: 0: 8.2088 s, 1: 3.1843 s, 2: 0.0000 s, 3: 0.0000 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 578 totalling 8.2088 s, longest 267.20 ms; < 20 us 0 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 0 (0.0000 s), 0.2-1 ms 0 (0.0000 s), 1-5 ms 218 (0.7233 s), >= 5 ms 360 (7.4854 s)
+  tag batch     385 cbs: GPU 2.1878 s (mean 5.683 ms); commit -> GPU start 0.2057 s (mean 0.534 ms); GPU end -> seen 0.0424 s; encode 0.0101 s
+  tag commit     95 cbs: GPU 0.9898 s (mean 10.419 ms); commit -> GPU start 0.0978 s (mean 1.030 ms); GPU end -> seen 0.0111 s; encode 0.0023 s
+  tag gather     97 cbs: GPU 0.0067 s (mean 0.069 ms); commit -> GPU start 0.0547 s (mean 0.564 ms); GPU end -> seen 0.0112 s; encode 0.0018 s
+  per thread: t0 q[0] 577 cbs, active 11.124 s: in run 3.621 s (GPU 3.184, commit -> start 0.358), host between 7.503 s
+  queue 0: 577 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 serial cold (kernel compiles): wall 11.393 s = 11.23 proved tok/s
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 serial (D12a) (queues shared): the whole call, 11.189 s
+  window 11.1888 s: 576 command buffers; GPU busy (>= 1 executing) 3.1758 s = 28.4%, idle 8.0130 s = 71.6%; summed command-buffer GPU time 3.1758 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  time at k executing: 0: 8.0130 s, 1: 3.1758 s, 2: 0.0000 s, 3: 0.0000 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 577 totalling 8.0130 s, longest 317.43 ms; < 20 us 0 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 0 (0.0000 s), 0.2-1 ms 0 (0.0000 s), 1-5 ms 218 (0.7172 s), >= 5 ms 359 (7.2958 s)
+  tag batch     384 cbs: GPU 2.1869 s (mean 5.695 ms); commit -> GPU start 0.1971 s (mean 0.513 ms); GPU end -> seen 0.0436 s; encode 0.0100 s
+  tag commit     95 cbs: GPU 0.9822 s (mean 10.339 ms); commit -> GPU start 0.0734 s (mean 0.773 ms); GPU end -> seen 0.0114 s; encode 0.0023 s
+  tag gather     97 cbs: GPU 0.0066 s (mean 0.069 ms); commit -> GPU start 0.0530 s (mean 0.547 ms); GPU end -> seen 0.0114 s; encode 0.0017 s
+  per thread: t0 q[0] 576 cbs, active 10.870 s: in run 3.580 s (GPU 3.176, commit -> start 0.324), host between 7.290 s
+  queue 0: 576 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.83 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 11.189 s = 11.44 proved tok/s; receipt 818728480 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 109.3 CPU-seconds (user + system, the whole process) over the 5.374 s call = 20.3 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the whole call, 5.374 s
+  window 5.3743 s: 580 command buffers; GPU busy (>= 1 executing) 2.8593 s = 53.2%, idle 2.5150 s = 46.8%; summed command-buffer GPU time 5.8668 s (mean 2.05 at once while busy); >= 2 at once 2.0035 s = 70.1% of busy
+  time at k executing: 0: 2.5150 s, 1: 0.8558 s, 2: 0.9996 s, 3: 1.0039 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 274 totalling 2.5150 s, longest 142.34 ms; < 20 us 22 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 3 (0.0004 s), 0.2-1 ms 20 (0.0124 s), 1-5 ms 86 (0.2241 s), >= 5 ms 141 (2.2780 s)
+  tag batch     388 cbs: GPU 4.3015 s (mean 11.086 ms); commit -> GPU start 1.9202 s (mean 4.949 ms); GPU end -> seen 0.6403 s; encode 0.0106 s
+  tag commit     95 cbs: GPU 1.5416 s (mean 16.227 ms); commit -> GPU start 0.4868 s (mean 5.124 ms); GPU end -> seen 0.0755 s; encode 0.0019 s
+  tag gather     97 cbs: GPU 0.0237 s (mean 0.244 ms); commit -> GPU start 0.4473 s (mean 4.612 ms); GPU end -> seen 0.2559 s; encode 0.0015 s
+  per thread: t0 q[0] 64 cbs, active 5.285 s: in run 0.056 s (GPU 0.015, commit -> start 0.034), host between 5.229 s; t1 q[0] 81 cbs, active 4.645 s: in run 1.578 s (GPU 0.909, commit -> start 0.551), host between 3.067 s; t2 q[0] 98 cbs, active 4.688 s: in run 1.639 s (GPU 0.988, commit -> start 0.422), host between 3.049 s; t3 q[0] 80 cbs, active 4.544 s: in run 1.591 s (GPU 0.990, commit -> start 0.462), host between 2.953 s; t4 q[0] 97 cbs, active 4.733 s: in run 1.729 s (GPU 1.030, commit -> start 0.490), host between 3.004 s; t5 q[0] 80 cbs, active 4.538 s: in run 1.674 s (GPU 0.995, commit -> start 0.548), host between 2.863 s; t6 q[0] 80 cbs, active 4.488 s: in run 1.440 s (GPU 0.939, commit -> start 0.347), host between 3.048 s
+  queue 0: 580 cbs, 306 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the forks phase, 4.972 s
+  window 4.9723 s: 516 command buffers; GPU busy (>= 1 executing) 2.8446 s = 57.2%, idle 2.1277 s = 42.8%; summed command-buffer GPU time 5.8520 s (mean 2.06 at once while busy); >= 2 at once 2.0035 s = 70.4% of busy
+  time at k executing: 0: 2.1277 s, 1: 0.8411 s, 2: 0.9996 s, 3: 1.0039 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 210 totalling 2.1277 s, longest 140.52 ms; < 20 us 22 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 3 (0.0004 s), 0.2-1 ms 20 (0.0124 s), 1-5 ms 55 (0.1527 s), >= 5 ms 108 (1.9622 s)
+  tag batch     388 cbs: GPU 4.3015 s (mean 11.086 ms); commit -> GPU start 1.9202 s (mean 4.949 ms); GPU end -> seen 0.6403 s; encode 0.0106 s
+  tag commit     64 cbs: GPU 1.5271 s (mean 23.861 ms); commit -> GPU start 0.4664 s (mean 7.288 ms); GPU end -> seen 0.0717 s; encode 0.0017 s
+  tag gather     64 cbs: GPU 0.0234 s (mean 0.365 ms); commit -> GPU start 0.4342 s (mean 6.784 ms); GPU end -> seen 0.2529 s; encode 0.0013 s
+  per thread: t1 q[0] 81 cbs, active 4.645 s: in run 1.578 s (GPU 0.909, commit -> start 0.551), host between 3.067 s; t2 q[0] 98 cbs, active 4.688 s: in run 1.639 s (GPU 0.988, commit -> start 0.422), host between 3.049 s; t3 q[0] 80 cbs, active 4.544 s: in run 1.591 s (GPU 0.990, commit -> start 0.462), host between 2.953 s; t4 q[0] 97 cbs, active 4.733 s: in run 1.729 s (GPU 1.030, commit -> start 0.490), host between 3.004 s; t5 q[0] 80 cbs, active 4.538 s: in run 1.674 s (GPU 0.995, commit -> start 0.548), host between 2.863 s; t6 q[0] 80 cbs, active 4.488 s: in run 1.440 s (GPU 0.939, commit -> start 0.347), host between 3.048 s
+  queue 0: 516 cbs, 306 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.39 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 5.374 s = 23.82 proved tok/s; 6 workers; preflight 0.081 s, commit 0.236 s, forks 4.972 s, join 0.084 s; fork prove_core min 0.486 median 0.852 max 1.262 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 100.8 CPU-seconds (user + system, the whole process) over the 4.637 s call = 21.7 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues shared): the whole call, 4.637 s
+  window 4.6369 s: 580 command buffers; GPU busy (>= 1 executing) 2.7882 s = 60.1%, idle 1.8487 s = 39.9%; summed command-buffer GPU time 6.3063 s (mean 2.26 at once while busy); >= 2 at once 2.1036 s = 75.4% of busy
+  time at k executing: 0: 1.8487 s, 1: 0.6846 s, 2: 0.6890 s, 3: 1.4145 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 251 totalling 1.8487 s, longest 220.50 ms; < 20 us 31 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 6 (0.0006 s), 0.2-1 ms 19 (0.0117 s), 1-5 ms 90 (0.2199 s), >= 5 ms 104 (1.6165 s)
+  tag batch     388 cbs: GPU 4.4955 s (mean 11.586 ms); commit -> GPU start 3.0609 s (mean 7.889 ms); GPU end -> seen 0.9145 s; encode 0.0111 s
+  tag commit     95 cbs: GPU 1.7971 s (mean 18.916 ms); commit -> GPU start 0.8481 s (mean 8.927 ms); GPU end -> seen 0.1662 s; encode 0.0018 s
+  tag gather     97 cbs: GPU 0.0138 s (mean 0.142 ms); commit -> GPU start 0.4867 s (mean 5.018 ms); GPU end -> seen 0.1889 s; encode 0.0013 s
+  per thread: t0 q[0] 64 cbs, active 4.549 s: in run 0.052 s (GPU 0.016, commit -> start 0.029), host between 4.497 s; t7 q[0] 65 cbs, active 3.281 s: in run 1.339 s (GPU 0.694, commit -> start 0.453), host between 1.942 s; t8 q[0] 64 cbs, active 3.475 s: in run 1.216 s (GPU 0.637, commit -> start 0.445), host between 2.259 s; t9 q[0] 64 cbs, active 3.961 s: in run 1.559 s (GPU 0.830, commit -> start 0.532), host between 2.402 s; t10 q[0] 65 cbs, active 3.925 s: in run 1.649 s (GPU 0.904, commit -> start 0.579), host between 2.275 s; t11 q[0] 64 cbs, active 3.996 s: in run 1.534 s (GPU 0.705, commit -> start 0.672), host between 2.462 s; t12 q[0] 64 cbs, active 3.947 s: in run 1.542 s (GPU 0.847, commit -> start 0.600), host between 2.405 s; t13 q[0] 65 cbs, active 3.915 s: in run 1.579 s (GPU 0.791, commit -> start 0.555), host between 2.336 s; t14 q[0] 65 cbs, active 3.947 s: in run 1.515 s (GPU 0.883, commit -> start 0.531), host between 2.432 s
+  queue 0: 580 cbs, 329 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues shared): the forks phase, 4.248 s
+  window 4.2485 s: 516 command buffers; GPU busy (>= 1 executing) 2.7720 s = 65.2%, idle 1.4765 s = 34.8%; summed command-buffer GPU time 6.2901 s (mean 2.27 at once while busy); >= 2 at once 2.1036 s = 75.9% of busy
+  time at k executing: 0: 1.4765 s, 1: 0.6684 s, 2: 0.6890 s, 3: 1.4145 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 187 totalling 1.4765 s, longest 218.89 ms; < 20 us 31 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 6 (0.0006 s), 0.2-1 ms 19 (0.0117 s), 1-5 ms 58 (0.1446 s), >= 5 ms 72 (1.3196 s)
+  tag batch     388 cbs: GPU 4.4955 s (mean 11.586 ms); commit -> GPU start 3.0609 s (mean 7.889 ms); GPU end -> seen 0.9145 s; encode 0.0111 s
+  tag commit     64 cbs: GPU 1.7812 s (mean 27.831 ms); commit -> GPU start 0.8272 s (mean 12.926 ms); GPU end -> seen 0.1628 s; encode 0.0015 s
+  tag gather     64 cbs: GPU 0.0135 s (mean 0.210 ms); commit -> GPU start 0.4785 s (mean 7.477 ms); GPU end -> seen 0.1856 s; encode 0.0011 s
+  per thread: t7 q[0] 65 cbs, active 3.281 s: in run 1.339 s (GPU 0.694, commit -> start 0.453), host between 1.942 s; t8 q[0] 64 cbs, active 3.475 s: in run 1.216 s (GPU 0.637, commit -> start 0.445), host between 2.259 s; t9 q[0] 64 cbs, active 3.961 s: in run 1.559 s (GPU 0.830, commit -> start 0.532), host between 2.402 s; t10 q[0] 65 cbs, active 3.925 s: in run 1.649 s (GPU 0.904, commit -> start 0.579), host between 2.275 s; t11 q[0] 64 cbs, active 3.996 s: in run 1.534 s (GPU 0.705, commit -> start 0.672), host between 2.462 s; t12 q[0] 64 cbs, active 3.947 s: in run 1.542 s (GPU 0.847, commit -> start 0.600), host between 2.405 s; t13 q[0] 65 cbs, active 3.915 s: in run 1.579 s (GPU 0.791, commit -> start 0.555), host between 2.336 s; t14 q[0] 65 cbs, active 3.947 s: in run 1.515 s (GPU 0.883, commit -> start 0.531), host between 2.432 s
+  queue 0: 516 cbs, 329 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N8: verified (D55 verifier, 6 threads) in 2.37 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N8 pass 0 (serial first): wall 4.637 s = 27.60 proved tok/s; 8 workers; preflight 0.079 s, commit 0.229 s, forks 4.248 s, join 0.081 s; fork prove_core min 0.789 median 1.029 max 1.201 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 101.5 CPU-seconds (user + system, the whole process) over the 5.304 s call = 19.1 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the whole call, 5.304 s
+  window 5.3037 s: 581 command buffers; GPU busy (>= 1 executing) 2.8489 s = 53.7%, idle 2.4548 s = 46.3%; summed command-buffer GPU time 6.2285 s (mean 2.19 at once while busy); >= 2 at once 2.0618 s = 72.4% of busy
+  time at k executing: 0: 2.4548 s, 1: 0.7871 s, 2: 0.7441 s, 3: 1.3177 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 256 totalling 2.4548 s, longest 149.90 ms; < 20 us 11 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 0 (0.0000 s), 0.2-1 ms 17 (0.0099 s), 1-5 ms 88 (0.2470 s), >= 5 ms 139 (2.1978 s)
+  tag batch     389 cbs: GPU 4.5728 s (mean 11.755 ms); commit -> GPU start 2.7014 s (mean 6.944 ms); GPU end -> seen 0.7237 s; encode 0.0098 s
+  tag commit     95 cbs: GPU 1.6363 s (mean 17.225 ms); commit -> GPU start 0.4189 s (mean 4.409 ms); GPU end -> seen 0.0245 s; encode 0.0019 s
+  tag gather     97 cbs: GPU 0.0194 s (mean 0.200 ms); commit -> GPU start 0.2758 s (mean 2.843 ms); GPU end -> seen 0.0841 s; encode 0.0013 s
+  per thread: t0 q[0] 64 cbs, active 5.226 s: in run 0.050 s (GPU 0.016, commit -> start 0.027), host between 5.176 s; t15 q[0] 80 cbs, active 4.429 s: in run 1.700 s (GPU 0.933, commit -> start 0.585), host between 2.728 s; t16 q[0] 97 cbs, active 4.763 s: in run 1.880 s (GPU 1.074, commit -> start 0.654), host between 2.883 s; t17 q[0] 98 cbs, active 4.664 s: in run 1.882 s (GPU 1.215, commit -> start 0.510), host between 2.782 s; t18 q[0] 80 cbs, active 4.312 s: in run 1.678 s (GPU 1.072, commit -> start 0.502), host between 2.634 s; t19 q[0] 82 cbs, active 4.301 s: in run 1.737 s (GPU 1.028, commit -> start 0.603), host between 2.564 s; t20 q[0] 80 cbs, active 4.350 s: in run 1.542 s (GPU 0.891, commit -> start 0.514), host between 2.807 s
+  queue 0: 581 cbs, 321 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the forks phase, 4.922 s
+  window 4.9218 s: 517 command buffers; GPU busy (>= 1 executing) 2.8326 s = 57.6%, idle 2.0892 s = 42.4%; summed command-buffer GPU time 6.2122 s (mean 2.19 at once while busy); >= 2 at once 2.0618 s = 72.8% of busy
+  time at k executing: 0: 2.0892 s, 1: 0.7708 s, 2: 0.7441 s, 3: 1.3177 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 192 totalling 2.0892 s, longest 147.46 ms; < 20 us 11 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 0 (0.0000 s), 0.2-1 ms 17 (0.0099 s), 1-5 ms 56 (0.1737 s), >= 5 ms 107 (1.9055 s)
+  tag batch     389 cbs: GPU 4.5728 s (mean 11.755 ms); commit -> GPU start 2.7014 s (mean 6.944 ms); GPU end -> seen 0.7237 s; encode 0.0098 s
+  tag commit     64 cbs: GPU 1.6204 s (mean 25.318 ms); commit -> GPU start 0.3989 s (mean 6.233 ms); GPU end -> seen 0.0210 s; encode 0.0016 s
+  tag gather     64 cbs: GPU 0.0191 s (mean 0.298 ms); commit -> GPU start 0.2686 s (mean 4.197 ms); GPU end -> seen 0.0812 s; encode 0.0010 s
+  per thread: t15 q[0] 80 cbs, active 4.429 s: in run 1.700 s (GPU 0.933, commit -> start 0.585), host between 2.728 s; t16 q[0] 97 cbs, active 4.763 s: in run 1.880 s (GPU 1.074, commit -> start 0.654), host between 2.883 s; t17 q[0] 98 cbs, active 4.664 s: in run 1.882 s (GPU 1.215, commit -> start 0.510), host between 2.782 s; t18 q[0] 80 cbs, active 4.312 s: in run 1.678 s (GPU 1.072, commit -> start 0.502), host between 2.634 s; t19 q[0] 82 cbs, active 4.301 s: in run 1.737 s (GPU 1.028, commit -> start 0.603), host between 2.564 s; t20 q[0] 80 cbs, active 4.350 s: in run 1.542 s (GPU 0.891, commit -> start 0.514), host between 2.807 s
+  queue 0: 517 cbs, 321 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.38 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 0: wall 5.304 s = 24.13 proved tok/s; preflight 0.069 s, commit 0.233 s, forks 4.922 s, join 0.079 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 102.5 CPU-seconds (user + system, the whole process) over the 4.782 s call = 21.4 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues shared): the whole call, 4.782 s
+  window 4.7822 s: 579 command buffers; GPU busy (>= 1 executing) 2.7986 s = 58.5%, idle 1.9836 s = 41.5%; summed command-buffer GPU time 6.4889 s (mean 2.32 at once while busy); >= 2 at once 2.3710 s = 84.7% of busy
+  time at k executing: 0: 1.9836 s, 1: 0.4276 s, 2: 1.0518 s, 3: 1.3192 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 208 totalling 1.9836 s, longest 199.01 ms; < 20 us 23 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 9 (0.0009 s), 0.2-1 ms 19 (0.0116 s), 1-5 ms 62 (0.1508 s), >= 5 ms 95 (1.8203 s)
+  tag batch     387 cbs: GPU 4.6915 s (mean 12.123 ms); commit -> GPU start 4.2955 s (mean 11.100 ms); GPU end -> seen 1.0841 s; encode 0.0106 s
+  tag commit     95 cbs: GPU 1.7877 s (mean 18.818 ms); commit -> GPU start 0.7166 s (mean 7.543 ms); GPU end -> seen 0.0809 s; encode 0.0020 s
+  tag gather     97 cbs: GPU 0.0097 s (mean 0.100 ms); commit -> GPU start 0.2363 s (mean 2.436 ms); GPU end -> seen 0.1601 s; encode 0.0012 s
+  per thread: t0 q[0] 64 cbs, active 4.689 s: in run 0.050 s (GPU 0.016, commit -> start 0.027), host between 4.639 s; t21 q[0] 64 cbs, active 4.155 s: in run 1.665 s (GPU 0.861, commit -> start 0.591), host between 2.490 s; t22 q[0] 64 cbs, active 4.192 s: in run 1.734 s (GPU 0.843, commit -> start 0.809), host between 2.458 s; t23 q[0] 64 cbs, active 4.100 s: in run 1.634 s (GPU 0.772, commit -> start 0.598), host between 2.466 s; t24 q[0] 64 cbs, active 4.109 s: in run 1.751 s (GPU 0.887, commit -> start 0.749), host between 2.357 s; t25 q[0] 64 cbs, active 3.768 s: in run 1.564 s (GPU 0.737, commit -> start 0.644), host between 2.204 s; t26 q[0] 65 cbs, active 4.070 s: in run 1.504 s (GPU 0.731, commit -> start 0.593), host between 2.566 s; t27 q[0] 65 cbs, active 4.089 s: in run 1.628 s (GPU 0.872, commit -> start 0.564), host between 2.462 s; t28 q[0] 65 cbs, active 4.052 s: in run 1.546 s (GPU 0.769, commit -> start 0.675), host between 2.505 s
+  queue 0: 579 cbs, 368 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues shared): the forks phase, 4.386 s
+  window 4.3857 s: 515 command buffers; GPU busy (>= 1 executing) 2.7825 s = 63.4%, idle 1.6033 s = 36.6%; summed command-buffer GPU time 6.4727 s (mean 2.33 at once while busy); >= 2 at once 2.3710 s = 85.2% of busy
+  time at k executing: 0: 1.6033 s, 1: 0.4115 s, 2: 1.0518 s, 3: 1.3192 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 144 totalling 1.6033 s, longest 197.33 ms; < 20 us 23 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 9 (0.0009 s), 0.2-1 ms 19 (0.0116 s), 1-5 ms 30 (0.0734 s), >= 5 ms 63 (1.5174 s)
+  tag batch     387 cbs: GPU 4.6915 s (mean 12.123 ms); commit -> GPU start 4.2955 s (mean 11.100 ms); GPU end -> seen 1.0841 s; encode 0.0106 s
+  tag commit     64 cbs: GPU 1.7719 s (mean 27.686 ms); commit -> GPU start 0.6965 s (mean 10.883 ms); GPU end -> seen 0.0773 s; encode 0.0018 s
+  tag gather     64 cbs: GPU 0.0094 s (mean 0.147 ms); commit -> GPU start 0.2296 s (mean 3.587 ms); GPU end -> seen 0.1573 s; encode 0.0010 s
+  per thread: t21 q[0] 64 cbs, active 4.155 s: in run 1.665 s (GPU 0.861, commit -> start 0.591), host between 2.490 s; t22 q[0] 64 cbs, active 4.192 s: in run 1.734 s (GPU 0.843, commit -> start 0.809), host between 2.458 s; t23 q[0] 64 cbs, active 4.100 s: in run 1.634 s (GPU 0.772, commit -> start 0.598), host between 2.466 s; t24 q[0] 64 cbs, active 4.109 s: in run 1.751 s (GPU 0.887, commit -> start 0.749), host between 2.357 s; t25 q[0] 64 cbs, active 3.768 s: in run 1.564 s (GPU 0.737, commit -> start 0.644), host between 2.204 s; t26 q[0] 65 cbs, active 4.070 s: in run 1.504 s (GPU 0.731, commit -> start 0.593), host between 2.566 s; t27 q[0] 65 cbs, active 4.089 s: in run 1.628 s (GPU 0.872, commit -> start 0.564), host between 2.462 s; t28 q[0] 65 cbs, active 4.052 s: in run 1.546 s (GPU 0.769, commit -> start 0.675), host between 2.505 s
+  queue 0: 515 cbs, 368 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N8: verified (D55 verifier, 6 threads) in 2.40 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [shared+spin] pass 0: wall 4.782 s = 26.77 proved tok/s; preflight 0.084 s, commit 0.229 s, forks 4.386 s, join 0.083 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 98.1 CPU-seconds (user + system, the whole process) over the 4.836 s call = 20.3 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.836 s
+  window 4.8356 s: 586 command buffers; GPU busy (>= 1 executing) 2.8513 s = 59.0%, idle 1.9843 s = 41.0%; summed command-buffer GPU time 6.5518 s (mean 2.30 at once while busy); >= 2 at once 2.0697 s = 72.6% of busy
+  time at k executing: 0: 1.9843 s, 1: 0.7816 s, 2: 0.8619 s, 3: 0.8673 s, 4: 0.2590 s, 5: 0.0804 s, 6: 0.0011 s, 7+: 0.0000 s
+  idle gaps: 260 totalling 1.9843 s, longest 183.67 ms; < 20 us 16 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 6 (0.0006 s), 0.2-1 ms 13 (0.0061 s), 1-5 ms 96 (0.2498 s), >= 5 ms 128 (1.7277 s)
+  tag batch     394 cbs: GPU 4.9440 s (mean 12.548 ms); commit -> GPU start 1.7285 s (mean 4.387 ms); GPU end -> seen 0.0739 s; encode 0.0113 s
+  tag commit     95 cbs: GPU 1.5860 s (mean 16.695 ms); commit -> GPU start 0.5968 s (mean 6.282 ms); GPU end -> seen 0.0179 s; encode 0.0031 s
+  tag gather     97 cbs: GPU 0.0219 s (mean 0.226 ms); commit -> GPU start 0.3786 s (mean 3.903 ms); GPU end -> seen 0.0116 s; encode 0.0014 s
+  per thread: t0 q[1] 64 cbs, active 4.753 s: in run 0.055 s (GPU 0.016, commit -> start 0.032), host between 4.699 s; t29 q[30] 83 cbs, active 4.071 s: in run 1.601 s (GPU 1.123, commit -> start 0.461), host between 2.470 s; t30 q[31] 98 cbs, active 4.257 s: in run 1.594 s (GPU 1.129, commit -> start 0.445), host between 2.663 s; t31 q[32] 80 cbs, active 4.061 s: in run 1.592 s (GPU 1.193, commit -> start 0.382), host between 2.469 s; t32 q[33] 98 cbs, active 4.237 s: in run 1.574 s (GPU 1.010, commit -> start 0.543), host between 2.663 s; t33 q[34] 83 cbs, active 3.962 s: in run 1.384 s (GPU 1.039, commit -> start 0.324), host between 2.578 s; t34 q[35] 80 cbs, active 3.956 s: in run 1.575 s (GPU 1.043, commit -> start 0.518), host between 2.381 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 30: 83 cbs, 0 started before the queue's earlier ones had all ended
+  queue 31: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 32: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 33: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 34: 83 cbs, 0 started before the queue's earlier ones had all ended
+  queue 35: 80 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.444 s
+  window 4.4438 s: 522 command buffers; GPU busy (>= 1 executing) 2.8350 s = 63.8%, idle 1.6088 s = 36.2%; summed command-buffer GPU time 6.5356 s (mean 2.31 at once while busy); >= 2 at once 2.0697 s = 73.0% of busy
+  time at k executing: 0: 1.6088 s, 1: 0.7654 s, 2: 0.8619 s, 3: 0.8673 s, 4: 0.2590 s, 5: 0.0804 s, 6: 0.0011 s, 7+: 0.0000 s
+  idle gaps: 196 totalling 1.6088 s, longest 181.99 ms; < 20 us 16 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 6 (0.0006 s), 0.2-1 ms 13 (0.0061 s), 1-5 ms 64 (0.1725 s), >= 5 ms 96 (1.4295 s)
+  tag batch     394 cbs: GPU 4.9440 s (mean 12.548 ms); commit -> GPU start 1.7285 s (mean 4.387 ms); GPU end -> seen 0.0739 s; encode 0.0113 s
+  tag commit     64 cbs: GPU 1.5700 s (mean 24.531 ms); commit -> GPU start 0.5759 s (mean 8.998 ms); GPU end -> seen 0.0145 s; encode 0.0029 s
+  tag gather     64 cbs: GPU 0.0216 s (mean 0.338 ms); commit -> GPU start 0.3678 s (mean 5.748 ms); GPU end -> seen 0.0088 s; encode 0.0011 s
+  per thread: t29 q[30] 83 cbs, active 4.071 s: in run 1.601 s (GPU 1.123, commit -> start 0.461), host between 2.470 s; t30 q[31] 98 cbs, active 4.257 s: in run 1.594 s (GPU 1.129, commit -> start 0.445), host between 2.663 s; t31 q[32] 80 cbs, active 4.061 s: in run 1.592 s (GPU 1.193, commit -> start 0.382), host between 2.469 s; t32 q[33] 98 cbs, active 4.237 s: in run 1.574 s (GPU 1.010, commit -> start 0.543), host between 2.663 s; t33 q[34] 83 cbs, active 3.962 s: in run 1.384 s (GPU 1.039, commit -> start 0.324), host between 2.578 s; t34 q[35] 80 cbs, active 3.956 s: in run 1.575 s (GPU 1.043, commit -> start 0.518), host between 2.381 s
+  queue 30: 83 cbs, 0 started before the queue's earlier ones had all ended
+  queue 31: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 32: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 33: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 34: 83 cbs, 0 started before the queue's earlier ones had all ended
+  queue 35: 80 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.37 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 0: wall 4.836 s = 26.47 proved tok/s; preflight 0.074 s, commit 0.232 s, forks 4.444 s, join 0.085 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 101.9 CPU-seconds (user + system, the whole process) over the 4.725 s call = 21.6 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.725 s
+  window 4.7253 s: 582 command buffers; GPU busy (>= 1 executing) 2.8733 s = 60.8%, idle 1.8520 s = 39.2%; summed command-buffer GPU time 7.6660 s (mean 2.67 at once while busy); >= 2 at once 2.2313 s = 77.7% of busy
+  time at k executing: 0: 1.8520 s, 1: 0.6420 s, 2: 0.7104 s, 3: 0.8890 s, 4: 0.3100 s, 5: 0.2408 s, 6: 0.0757 s, 7+: 0.0054 s
+  idle gaps: 234 totalling 1.8520 s, longest 201.65 ms; < 20 us 12 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 7 (0.0008 s), 0.2-1 ms 22 (0.0133 s), 1-5 ms 92 (0.2146 s), >= 5 ms 99 (1.6231 s)
+  tag batch     390 cbs: GPU 5.8913 s (mean 15.106 ms); commit -> GPU start 3.1266 s (mean 8.017 ms); GPU end -> seen 0.0859 s; encode 0.0114 s
+  tag commit     95 cbs: GPU 1.7585 s (mean 18.511 ms); commit -> GPU start 0.8379 s (mean 8.820 ms); GPU end -> seen 0.0162 s; encode 0.0038 s
+  tag gather     97 cbs: GPU 0.0161 s (mean 0.166 ms); commit -> GPU start 0.2783 s (mean 2.869 ms); GPU end -> seen 0.0139 s; encode 0.0016 s
+  per thread: t0 q[1] 64 cbs, active 4.640 s: in run 0.050 s (GPU 0.016, commit -> start 0.026), host between 4.590 s; t35 q[36] 65 cbs, active 3.352 s: in run 1.324 s (GPU 0.844, commit -> start 0.467), host between 2.028 s; t36 q[37] 65 cbs, active 3.843 s: in run 1.455 s (GPU 0.926, commit -> start 0.513), host between 2.388 s; t37 q[38] 64 cbs, active 4.012 s: in run 1.505 s (GPU 0.978, commit -> start 0.514), host between 2.507 s; t38 q[39] 65 cbs, active 3.945 s: in run 1.453 s (GPU 0.844, commit -> start 0.585), host between 2.491 s; t39 q[40] 65 cbs, active 4.069 s: in run 1.599 s (GPU 1.084, commit -> start 0.498), host between 2.470 s; t40 q[41] 64 cbs, active 4.029 s: in run 1.568 s (GPU 0.944, commit -> start 0.611), host between 2.461 s; t41 q[42] 65 cbs, active 3.980 s: in run 1.533 s (GPU 1.012, commit -> start 0.509), host between 2.446 s; t42 q[43] 65 cbs, active 3.875 s: in run 1.554 s (GPU 1.019, commit -> start 0.520), host between 2.321 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 36: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 37: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 38: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 39: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 40: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 41: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 42: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 43: 65 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.335 s
+  window 4.3354 s: 518 command buffers; GPU busy (>= 1 executing) 2.8571 s = 65.9%, idle 1.4783 s = 34.1%; summed command-buffer GPU time 7.6498 s (mean 2.68 at once while busy); >= 2 at once 2.2313 s = 78.1% of busy
+  time at k executing: 0: 1.4783 s, 1: 0.6258 s, 2: 0.7104 s, 3: 0.8890 s, 4: 0.3100 s, 5: 0.2408 s, 6: 0.0757 s, 7+: 0.0054 s
+  idle gaps: 170 totalling 1.4783 s, longest 199.99 ms; < 20 us 12 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 7 (0.0008 s), 0.2-1 ms 22 (0.0133 s), 1-5 ms 60 (0.1388 s), >= 5 ms 67 (1.3252 s)
+  tag batch     390 cbs: GPU 5.8913 s (mean 15.106 ms); commit -> GPU start 3.1266 s (mean 8.017 ms); GPU end -> seen 0.0859 s; encode 0.0114 s
+  tag commit     64 cbs: GPU 1.7426 s (mean 27.228 ms); commit -> GPU start 0.8176 s (mean 12.774 ms); GPU end -> seen 0.0126 s; encode 0.0035 s
+  tag gather     64 cbs: GPU 0.0159 s (mean 0.248 ms); commit -> GPU start 0.2724 s (mean 4.256 ms); GPU end -> seen 0.0106 s; encode 0.0013 s
+  per thread: t35 q[36] 65 cbs, active 3.352 s: in run 1.324 s (GPU 0.844, commit -> start 0.467), host between 2.028 s; t36 q[37] 65 cbs, active 3.843 s: in run 1.455 s (GPU 0.926, commit -> start 0.513), host between 2.388 s; t37 q[38] 64 cbs, active 4.012 s: in run 1.505 s (GPU 0.978, commit -> start 0.514), host between 2.507 s; t38 q[39] 65 cbs, active 3.945 s: in run 1.453 s (GPU 0.844, commit -> start 0.585), host between 2.491 s; t39 q[40] 65 cbs, active 4.069 s: in run 1.599 s (GPU 1.084, commit -> start 0.498), host between 2.470 s; t40 q[41] 64 cbs, active 4.029 s: in run 1.568 s (GPU 0.944, commit -> start 0.611), host between 2.461 s; t41 q[42] 65 cbs, active 3.980 s: in run 1.533 s (GPU 1.012, commit -> start 0.509), host between 2.446 s; t42 q[43] 65 cbs, active 3.875 s: in run 1.554 s (GPU 1.019, commit -> start 0.520), host between 2.321 s
+  queue 36: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 37: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 38: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 39: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 40: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 41: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 42: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 43: 65 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N8: verified (D55 verifier, 6 threads) in 2.35 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin] pass 0: wall 4.725 s = 27.09 proved tok/s; preflight 0.076 s, commit 0.232 s, forks 4.335 s, join 0.081 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.0 CPU-seconds (user + system, the whole process) over the 4.938 s call = 18.2 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.938 s
+  window 4.9378 s: 581 command buffers; GPU busy (>= 1 executing) 2.8477 s = 57.7%, idle 2.0901 s = 42.3%; summed command-buffer GPU time 6.9566 s (mean 2.44 at once while busy); >= 2 at once 2.2404 s = 78.7% of busy
+  time at k executing: 0: 2.0901 s, 1: 0.6072 s, 2: 0.8757 s, 3: 0.9467 s, 4: 0.3414 s, 5: 0.0676 s, 6: 0.0090 s, 7+: 0.0000 s
+  idle gaps: 250 totalling 2.0901 s, longest 158.56 ms; < 20 us 6 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 5 (0.0005 s), 0.2-1 ms 12 (0.0066 s), 1-5 ms 102 (0.2610 s), >= 5 ms 124 (1.8220 s)
+  tag batch     389 cbs: GPU 5.3666 s (mean 13.796 ms); commit -> GPU start 1.8749 s (mean 4.820 ms); GPU end -> seen 0.1426 s; encode 0.0107 s
+  tag commit     95 cbs: GPU 1.5726 s (mean 16.554 ms); commit -> GPU start 0.7216 s (mean 7.596 ms); GPU end -> seen 0.0332 s; encode 0.0026 s
+  tag gather     97 cbs: GPU 0.0174 s (mean 0.179 ms); commit -> GPU start 0.1604 s (mean 1.654 ms); GPU end -> seen 0.0194 s; encode 0.0013 s
+  per thread: t0 q[1] 64 cbs, active 4.848 s: in run 0.048 s (GPU 0.015, commit -> start 0.025), host between 4.800 s; t43 q[44] 96 cbs, active 4.406 s: in run 1.734 s (GPU 1.255, commit -> start 0.448), host between 2.673 s; t44 q[45] 98 cbs, active 4.351 s: in run 1.741 s (GPU 1.259, commit -> start 0.445), host between 2.610 s; t45 q[46] 80 cbs, active 4.059 s: in run 1.577 s (GPU 1.172, commit -> start 0.385), host between 2.482 s; t46 q[47] 81 cbs, active 4.059 s: in run 1.583 s (GPU 1.062, commit -> start 0.490), host between 2.476 s; t47 q[48] 81 cbs, active 4.076 s: in run 1.612 s (GPU 1.074, commit -> start 0.498), host between 2.464 s; t48 q[49] 81 cbs, active 4.012 s: in run 1.629 s (GPU 1.120, commit -> start 0.466), host between 2.383 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 44: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 45: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 46: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 47: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 48: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 49: 81 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.551 s
+  window 4.5506 s: 517 command buffers; GPU busy (>= 1 executing) 2.8327 s = 62.2%, idle 1.7179 s = 37.8%; summed command-buffer GPU time 6.9416 s (mean 2.45 at once while busy); >= 2 at once 2.2404 s = 79.1% of busy
+  time at k executing: 0: 1.7179 s, 1: 0.5922 s, 2: 0.8757 s, 3: 0.9467 s, 4: 0.3414 s, 5: 0.0676 s, 6: 0.0090 s, 7+: 0.0000 s
+  idle gaps: 186 totalling 1.7179 s, longest 156.80 ms; < 20 us 6 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 5 (0.0005 s), 0.2-1 ms 12 (0.0066 s), 1-5 ms 71 (0.1937 s), >= 5 ms 91 (1.5171 s)
+  tag batch     389 cbs: GPU 5.3666 s (mean 13.796 ms); commit -> GPU start 1.8749 s (mean 4.820 ms); GPU end -> seen 0.1426 s; encode 0.0107 s
+  tag commit     64 cbs: GPU 1.5579 s (mean 24.342 ms); commit -> GPU start 0.7026 s (mean 10.979 ms); GPU end -> seen 0.0289 s; encode 0.0024 s
+  tag gather     64 cbs: GPU 0.0171 s (mean 0.267 ms); commit -> GPU start 0.1548 s (mean 2.419 ms); GPU end -> seen 0.0162 s; encode 0.0010 s
+  per thread: t43 q[44] 96 cbs, active 4.406 s: in run 1.734 s (GPU 1.255, commit -> start 0.448), host between 2.673 s; t44 q[45] 98 cbs, active 4.351 s: in run 1.741 s (GPU 1.259, commit -> start 0.445), host between 2.610 s; t45 q[46] 80 cbs, active 4.059 s: in run 1.577 s (GPU 1.172, commit -> start 0.385), host between 2.482 s; t46 q[47] 81 cbs, active 4.059 s: in run 1.583 s (GPU 1.062, commit -> start 0.490), host between 2.476 s; t47 q[48] 81 cbs, active 4.076 s: in run 1.612 s (GPU 1.074, commit -> start 0.498), host between 2.464 s; t48 q[49] 81 cbs, active 4.012 s: in run 1.629 s (GPU 1.120, commit -> start 0.466), host between 2.383 s
+  queue 44: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 45: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 46: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 47: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 48: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 49: 81 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.39 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+block] pass 0: wall 4.938 s = 25.92 proved tok/s; preflight 0.080 s, commit 0.228 s, forks 4.551 s, join 0.079 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 89.8 CPU-seconds (user + system, the whole process) over the 4.874 s call = 18.4 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.874 s
+  window 4.8739 s: 581 command buffers; GPU busy (>= 1 executing) 2.8671 s = 58.8%, idle 2.0067 s = 41.2%; summed command-buffer GPU time 8.3554 s (mean 2.91 at once while busy); >= 2 at once 2.4239 s = 84.5% of busy
+  time at k executing: 0: 2.0067 s, 1: 0.4432 s, 2: 0.5214 s, 3: 1.0835 s, 4: 0.5278 s, 5: 0.2416 s, 6: 0.0484 s, 7+: 0.0015 s
+  idle gaps: 205 totalling 2.0067 s, longest 256.57 ms; < 20 us 6 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 9 (0.0009 s), 0.2-1 ms 23 (0.0114 s), 1-5 ms 77 (0.1987 s), >= 5 ms 90 (1.7957 s)
+  tag batch     389 cbs: GPU 6.4675 s (mean 16.626 ms); commit -> GPU start 3.9413 s (mean 10.132 ms); GPU end -> seen 0.1035 s; encode 0.0111 s
+  tag commit     95 cbs: GPU 1.8623 s (mean 19.603 ms); commit -> GPU start 1.0098 s (mean 10.630 ms); GPU end -> seen 0.0281 s; encode 0.0088 s
+  tag gather     97 cbs: GPU 0.0256 s (mean 0.264 ms); commit -> GPU start 0.1674 s (mean 1.726 ms); GPU end -> seen 0.0349 s; encode 0.0012 s
+  per thread: t0 q[1] 64 cbs, active 4.789 s: in run 0.058 s (GPU 0.017, commit -> start 0.033), host between 4.731 s; t49 q[50] 64 cbs, active 4.252 s: in run 1.817 s (GPU 0.957, commit -> start 0.837), host between 2.435 s; t50 q[51] 65 cbs, active 4.251 s: in run 1.693 s (GPU 1.011, commit -> start 0.659), host between 2.557 s; t51 q[52] 65 cbs, active 3.696 s: in run 1.636 s (GPU 1.146, commit -> start 0.460), host between 2.059 s; t52 q[53] 64 cbs, active 4.215 s: in run 1.694 s (GPU 1.042, commit -> start 0.630), host between 2.521 s; t53 q[54] 66 cbs, active 3.716 s: in run 1.554 s (GPU 0.925, commit -> start 0.606), host between 2.162 s; t54 q[55] 64 cbs, active 4.203 s: in run 1.737 s (GPU 1.138, commit -> start 0.573), host between 2.467 s; t55 q[56] 65 cbs, active 4.203 s: in run 1.719 s (GPU 1.086, commit -> start 0.616), host between 2.485 s; t56 q[57] 64 cbs, active 4.189 s: in run 1.755 s (GPU 1.034, commit -> start 0.703), host between 2.435 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 50: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 51: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 52: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 53: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 54: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 55: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 56: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 57: 64 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.476 s
+  window 4.4760 s: 517 command buffers; GPU busy (>= 1 executing) 2.8506 s = 63.7%, idle 1.6254 s = 36.3%; summed command-buffer GPU time 8.3389 s (mean 2.93 at once while busy); >= 2 at once 2.4239 s = 85.0% of busy
+  time at k executing: 0: 1.6254 s, 1: 0.4267 s, 2: 0.5214 s, 3: 1.0835 s, 4: 0.5278 s, 5: 0.2416 s, 6: 0.0484 s, 7+: 0.0015 s
+  idle gaps: 141 totalling 1.6254 s, longest 254.87 ms; < 20 us 6 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 9 (0.0009 s), 0.2-1 ms 23 (0.0114 s), 1-5 ms 44 (0.1112 s), >= 5 ms 59 (1.5019 s)
+  tag batch     389 cbs: GPU 6.4675 s (mean 16.626 ms); commit -> GPU start 3.9413 s (mean 10.132 ms); GPU end -> seen 0.1035 s; encode 0.0111 s
+  tag commit     64 cbs: GPU 1.8461 s (mean 28.846 ms); commit -> GPU start 0.9889 s (mean 15.451 ms); GPU end -> seen 0.0243 s; encode 0.0086 s
+  tag gather     64 cbs: GPU 0.0253 s (mean 0.395 ms); commit -> GPU start 0.1553 s (mean 2.426 ms); GPU end -> seen 0.0309 s; encode 0.0010 s
+  per thread: t49 q[50] 64 cbs, active 4.252 s: in run 1.817 s (GPU 0.957, commit -> start 0.837), host between 2.435 s; t50 q[51] 65 cbs, active 4.251 s: in run 1.693 s (GPU 1.011, commit -> start 0.659), host between 2.557 s; t51 q[52] 65 cbs, active 3.696 s: in run 1.636 s (GPU 1.146, commit -> start 0.460), host between 2.059 s; t52 q[53] 64 cbs, active 4.215 s: in run 1.694 s (GPU 1.042, commit -> start 0.630), host between 2.521 s; t53 q[54] 66 cbs, active 3.716 s: in run 1.554 s (GPU 0.925, commit -> start 0.606), host between 2.162 s; t54 q[55] 64 cbs, active 4.203 s: in run 1.737 s (GPU 1.138, commit -> start 0.573), host between 2.467 s; t55 q[56] 65 cbs, active 4.203 s: in run 1.719 s (GPU 1.086, commit -> start 0.616), host between 2.485 s; t56 q[57] 64 cbs, active 4.189 s: in run 1.755 s (GPU 1.034, commit -> start 0.703), host between 2.435 s
+  queue 50: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 51: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 52: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 53: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 54: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 55: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 56: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 57: 64 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N8: verified (D55 verifier, 6 threads) in 2.40 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+block] pass 0: wall 4.874 s = 26.26 proved tok/s; preflight 0.077 s, commit 0.230 s, forks 4.476 s, join 0.091 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.3 CPU-seconds (user + system, the whole process) over the 4.583 s call = 19.7 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.583 s
+  window 4.5829 s: 583 command buffers; GPU busy (>= 1 executing) 2.7727 s = 60.5%, idle 1.8102 s = 39.5%; summed command-buffer GPU time 6.4946 s (mean 2.34 at once while busy); >= 2 at once 2.1423 s = 77.3% of busy
+  time at k executing: 0: 1.8102 s, 1: 0.6303 s, 2: 0.9427 s, 3: 0.8846 s, 4: 0.2548 s, 5: 0.0559 s, 6: 0.0044 s, 7+: 0.0000 s
+  idle gaps: 240 totalling 1.8102 s, longest 164.54 ms; < 20 us 10 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 6 (0.0007 s), 0.2-1 ms 17 (0.0095 s), 1-5 ms 101 (0.2649 s), >= 5 ms 106 (1.5351 s)
+  tag batch     391 cbs: GPU 4.8544 s (mean 12.415 ms); commit -> GPU start 1.2066 s (mean 3.086 ms); GPU end -> seen 0.1236 s; encode 0.0109 s
+  tag commit     95 cbs: GPU 1.6150 s (mean 17.000 ms); commit -> GPU start 0.4052 s (mean 4.265 ms); GPU end -> seen 0.0268 s; encode 0.0028 s
+  tag gather     97 cbs: GPU 0.0251 s (mean 0.259 ms); commit -> GPU start 0.2925 s (mean 3.016 ms); GPU end -> seen 0.0178 s; encode 0.0011 s
+  per thread: t0 q[1] 64 cbs, active 4.491 s: in run 0.054 s (GPU 0.015, commit -> start 0.031), host between 4.437 s; t57 q[58] 96 cbs, active 3.950 s: in run 1.466 s (GPU 1.080, commit -> start 0.339), host between 2.484 s; t58 q[59] 83 cbs, active 3.830 s: in run 1.534 s (GPU 1.202, commit -> start 0.305), host between 2.296 s; t59 q[60] 97 cbs, active 3.987 s: in run 1.485 s (GPU 1.159, commit -> start 0.303), host between 2.503 s; t60 q[61] 82 cbs, active 3.583 s: in run 1.346 s (GPU 0.970, commit -> start 0.349), host between 2.237 s; t61 q[62] 81 cbs, active 3.870 s: in run 1.347 s (GPU 1.013, commit -> start 0.310), host between 2.522 s; t62 q[63] 80 cbs, active 3.763 s: in run 1.350 s (GPU 1.055, commit -> start 0.268), host between 2.413 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 58: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 59: 83 cbs, 0 started before the queue's earlier ones had all ended
+  queue 60: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 61: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 62: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 63: 80 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.182 s
+  window 4.1824 s: 519 command buffers; GPU busy (>= 1 executing) 2.7576 s = 65.9%, idle 1.4248 s = 34.1%; summed command-buffer GPU time 6.4795 s (mean 2.35 at once while busy); >= 2 at once 2.1423 s = 77.7% of busy
+  time at k executing: 0: 1.4248 s, 1: 0.6153 s, 2: 0.9427 s, 3: 0.8846 s, 4: 0.2548 s, 5: 0.0559 s, 6: 0.0044 s, 7+: 0.0000 s
+  idle gaps: 176 totalling 1.4248 s, longest 162.97 ms; < 20 us 10 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 6 (0.0007 s), 0.2-1 ms 17 (0.0095 s), 1-5 ms 70 (0.1936 s), >= 5 ms 73 (1.2210 s)
+  tag batch     391 cbs: GPU 4.8544 s (mean 12.415 ms); commit -> GPU start 1.2066 s (mean 3.086 ms); GPU end -> seen 0.1236 s; encode 0.0109 s
+  tag commit     64 cbs: GPU 1.6002 s (mean 25.004 ms); commit -> GPU start 0.3855 s (mean 6.024 ms); GPU end -> seen 0.0228 s; encode 0.0026 s
+  tag gather     64 cbs: GPU 0.0248 s (mean 0.388 ms); commit -> GPU start 0.2808 s (mean 4.387 ms); GPU end -> seen 0.0147 s; encode 0.0009 s
+  per thread: t57 q[58] 96 cbs, active 3.950 s: in run 1.466 s (GPU 1.080, commit -> start 0.339), host between 2.484 s; t58 q[59] 83 cbs, active 3.830 s: in run 1.534 s (GPU 1.202, commit -> start 0.305), host between 2.296 s; t59 q[60] 97 cbs, active 3.987 s: in run 1.485 s (GPU 1.159, commit -> start 0.303), host between 2.503 s; t60 q[61] 82 cbs, active 3.583 s: in run 1.346 s (GPU 0.970, commit -> start 0.349), host between 2.237 s; t61 q[62] 81 cbs, active 3.870 s: in run 1.347 s (GPU 1.013, commit -> start 0.310), host between 2.522 s; t62 q[63] 80 cbs, active 3.763 s: in run 1.350 s (GPU 1.055, commit -> start 0.268), host between 2.413 s
+  queue 58: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 59: 83 cbs, 0 started before the queue's earlier ones had all ended
+  queue 60: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 61: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 62: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 63: 80 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.35 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin200] pass 0: wall 4.583 s = 27.93 proved tok/s; preflight 0.084 s, commit 0.232 s, forks 4.182 s, join 0.084 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 92.0 CPU-seconds (user + system, the whole process) over the 4.875 s call = 18.9 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.875 s
+  window 4.8747 s: 579 command buffers; GPU busy (>= 1 executing) 2.8895 s = 59.3%, idle 1.9852 s = 40.7%; summed command-buffer GPU time 8.3031 s (mean 2.87 at once while busy); >= 2 at once 2.4718 s = 85.5% of busy
+  time at k executing: 0: 1.9852 s, 1: 0.4177 s, 2: 0.8628 s, 3: 0.7326 s, 4: 0.4660 s, 5: 0.3660 s, 6: 0.0430 s, 7+: 0.0014 s
+  idle gaps: 191 totalling 1.9852 s, longest 231.27 ms; < 20 us 11 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 7 (0.0006 s), 0.2-1 ms 14 (0.0083 s), 1-5 ms 69 (0.1651 s), >= 5 ms 90 (1.8112 s)
+  tag batch     387 cbs: GPU 6.3780 s (mean 16.481 ms); commit -> GPU start 4.6106 s (mean 11.914 ms); GPU end -> seen 0.0869 s; encode 0.0100 s
+  tag commit     95 cbs: GPU 1.9165 s (mean 20.174 ms); commit -> GPU start 0.7358 s (mean 7.746 ms); GPU end -> seen 0.0271 s; encode 0.0031 s
+  tag gather     97 cbs: GPU 0.0086 s (mean 0.089 ms); commit -> GPU start 0.3077 s (mean 3.172 ms); GPU end -> seen 0.0213 s; encode 0.0012 s
+  per thread: t0 q[1] 64 cbs, active 4.768 s: in run 0.051 s (GPU 0.016, commit -> start 0.027), host between 4.717 s; t63 q[64] 64 cbs, active 4.029 s: in run 1.765 s (GPU 1.080, commit -> start 0.669), host between 2.263 s; t64 q[65] 64 cbs, active 4.214 s: in run 1.795 s (GPU 1.191, commit -> start 0.588), host between 2.419 s; t65 q[66] 64 cbs, active 4.213 s: in run 1.769 s (GPU 1.027, commit -> start 0.724), host between 2.445 s; t66 q[67] 65 cbs, active 4.023 s: in run 1.770 s (GPU 1.021, commit -> start 0.727), host between 2.253 s; t67 q[68] 66 cbs, active 4.187 s: in run 1.919 s (GPU 1.019, commit -> start 0.884), host between 2.268 s; t68 q[69] 64 cbs, active 4.184 s: in run 1.786 s (GPU 1.112, commit -> start 0.662), host between 2.398 s; t69 q[70] 64 cbs, active 4.148 s: in run 1.643 s (GPU 0.845, commit -> start 0.780), host between 2.505 s; t70 q[71] 64 cbs, active 4.136 s: in run 1.609 s (GPU 0.991, commit -> start 0.594), host between 2.527 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 64: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 65: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 66: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 67: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 68: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 69: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 70: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 71: 64 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.460 s
+  window 4.4600 s: 515 command buffers; GPU busy (>= 1 executing) 2.8733 s = 64.4%, idle 1.5867 s = 35.6%; summed command-buffer GPU time 8.2869 s (mean 2.88 at once while busy); >= 2 at once 2.4718 s = 86.0% of busy
+  time at k executing: 0: 1.5867 s, 1: 0.4014 s, 2: 0.8628 s, 3: 0.7326 s, 4: 0.4660 s, 5: 0.3660 s, 6: 0.0430 s, 7+: 0.0014 s
+  idle gaps: 127 totalling 1.5867 s, longest 229.43 ms; < 20 us 11 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 7 (0.0006 s), 0.2-1 ms 14 (0.0083 s), 1-5 ms 37 (0.0879 s), >= 5 ms 58 (1.4900 s)
+  tag batch     387 cbs: GPU 6.3780 s (mean 16.481 ms); commit -> GPU start 4.6106 s (mean 11.914 ms); GPU end -> seen 0.0869 s; encode 0.0100 s
+  tag commit     64 cbs: GPU 1.9006 s (mean 29.696 ms); commit -> GPU start 0.7152 s (mean 11.176 ms); GPU end -> seen 0.0228 s; encode 0.0029 s
+  tag gather     64 cbs: GPU 0.0083 s (mean 0.130 ms); commit -> GPU start 0.3015 s (mean 4.710 ms); GPU end -> seen 0.0182 s; encode 0.0009 s
+  per thread: t63 q[64] 64 cbs, active 4.029 s: in run 1.765 s (GPU 1.080, commit -> start 0.669), host between 2.263 s; t64 q[65] 64 cbs, active 4.214 s: in run 1.795 s (GPU 1.191, commit -> start 0.588), host between 2.419 s; t65 q[66] 64 cbs, active 4.213 s: in run 1.769 s (GPU 1.027, commit -> start 0.724), host between 2.445 s; t66 q[67] 65 cbs, active 4.023 s: in run 1.770 s (GPU 1.021, commit -> start 0.727), host between 2.253 s; t67 q[68] 66 cbs, active 4.187 s: in run 1.919 s (GPU 1.019, commit -> start 0.884), host between 2.268 s; t68 q[69] 64 cbs, active 4.184 s: in run 1.786 s (GPU 1.112, commit -> start 0.662), host between 2.398 s; t69 q[70] 64 cbs, active 4.148 s: in run 1.643 s (GPU 0.845, commit -> start 0.780), host between 2.505 s; t70 q[71] 64 cbs, active 4.136 s: in run 1.609 s (GPU 0.991, commit -> start 0.594), host between 2.527 s
+  queue 64: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 65: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 66: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 67: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 68: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 69: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 70: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 71: 64 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N8: verified (D55 verifier, 6 threads) in 2.59 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin200] pass 0: wall 4.875 s = 26.26 proved tok/s; preflight 0.098 s, commit 0.233 s, forks 4.460 s, join 0.083 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 92.0 CPU-seconds (user + system, the whole process) over the 4.999 s call = 18.4 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.999 s
+  window 4.9986 s: 844 command buffers; GPU busy (>= 1 executing) 3.6180 s = 72.4%, idle 1.3806 s = 27.6%; summed command-buffer GPU time 9.0864 s (mean 2.51 at once while busy); >= 2 at once 2.9268 s = 80.9% of busy
+  time at k executing: 0: 1.3806 s, 1: 0.6911 s, 2: 1.0625 s, 3: 1.3187 s, 4: 0.4362 s, 5: 0.0872 s, 6: 0.0222 s, 7+: 0.0000 s
+  idle gaps: 284 totalling 1.3806 s, longest 150.56 ms; < 20 us 12 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 3 (0.0003 s), 0.2-1 ms 101 (0.0624 s), 1-5 ms 81 (0.2119 s), >= 5 ms 86 (1.1059 s)
+  tag batch     395 cbs: GPU 5.9115 s (mean 14.966 ms); commit -> GPU start 1.7254 s (mean 4.368 ms); GPU end -> seen 0.0887 s; encode 0.0103 s
+  tag commit     95 cbs: GPU 1.7210 s (mean 18.116 ms); commit -> GPU start 0.4919 s (mean 5.178 ms); GPU end -> seen 0.0175 s; encode 0.0086 s
+  tag devfold   257 cbs: GPU 1.4294 s (mean 5.562 ms); commit -> GPU start 1.2268 s (mean 4.774 ms); GPU end -> seen 0.0386 s; encode 0.0033 s
+  tag gather     97 cbs: GPU 0.0244 s (mean 0.252 ms); commit -> GPU start 0.2491 s (mean 2.568 ms); GPU end -> seen 0.0133 s; encode 0.0008 s
+  per thread: t0 q[1] 97 cbs, active 4.906 s: in run 0.054 s (GPU 0.017, commit -> start 0.028), host between 4.852 s; t71 q[72] 140 cbs, active 4.498 s: in run 2.260 s (GPU 1.640, commit -> start 0.589), host between 2.238 s; t72 q[73] 117 cbs, active 4.278 s: in run 2.145 s (GPU 1.424, commit -> start 0.696), host between 2.132 s; t73 q[74] 116 cbs, active 4.370 s: in run 2.128 s (GPU 1.515, commit -> start 0.590), host between 2.242 s; t74 q[75] 116 cbs, active 4.318 s: in run 2.279 s (GPU 1.528, commit -> start 0.722), host between 2.039 s; t75 q[76] 141 cbs, active 4.294 s: in run 2.132 s (GPU 1.600, commit -> start 0.499), host between 2.161 s; t76 q[77] 117 cbs, active 3.951 s: in run 1.962 s (GPU 1.363, commit -> start 0.570), host between 1.989 s
+  queue 1: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 72: 140 cbs, 0 started before the queue's earlier ones had all ended
+  queue 73: 117 cbs, 0 started before the queue's earlier ones had all ended
+  queue 74: 116 cbs, 0 started before the queue's earlier ones had all ended
+  queue 75: 116 cbs, 0 started before the queue's earlier ones had all ended
+  queue 76: 141 cbs, 0 started before the queue's earlier ones had all ended
+  queue 77: 117 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.638 s
+  window 4.6379 s: 747 command buffers; GPU busy (>= 1 executing) 3.6015 s = 77.7%, idle 1.0364 s = 22.3%; summed command-buffer GPU time 9.0699 s (mean 2.52 at once while busy); >= 2 at once 2.9268 s = 81.3% of busy
+  time at k executing: 0: 1.0364 s, 1: 0.6746 s, 2: 1.0625 s, 3: 1.3187 s, 4: 0.4362 s, 5: 0.0872 s, 6: 0.0222 s, 7+: 0.0000 s
+  idle gaps: 187 totalling 1.0364 s, longest 148.79 ms; < 20 us 12 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 3 (0.0003 s), 0.2-1 ms 37 (0.0200 s), 1-5 ms 79 (0.2057 s), >= 5 ms 55 (0.8104 s)
+  tag batch     395 cbs: GPU 5.9115 s (mean 14.966 ms); commit -> GPU start 1.7254 s (mean 4.368 ms); GPU end -> seen 0.0887 s; encode 0.0103 s
+  tag commit     64 cbs: GPU 1.7070 s (mean 26.672 ms); commit -> GPU start 0.4741 s (mean 7.408 ms); GPU end -> seen 0.0139 s; encode 0.0083 s
+  tag devfold   224 cbs: GPU 1.4271 s (mean 6.371 ms); commit -> GPU start 1.2220 s (mean 5.456 ms); GPU end -> seen 0.0355 s; encode 0.0031 s
+  tag gather     64 cbs: GPU 0.0242 s (mean 0.378 ms); commit -> GPU start 0.2436 s (mean 3.806 ms); GPU end -> seen 0.0106 s; encode 0.0007 s
+  per thread: t71 q[72] 140 cbs, active 4.498 s: in run 2.260 s (GPU 1.640, commit -> start 0.589), host between 2.238 s; t72 q[73] 117 cbs, active 4.278 s: in run 2.145 s (GPU 1.424, commit -> start 0.696), host between 2.132 s; t73 q[74] 116 cbs, active 4.370 s: in run 2.128 s (GPU 1.515, commit -> start 0.590), host between 2.242 s; t74 q[75] 116 cbs, active 4.318 s: in run 2.279 s (GPU 1.528, commit -> start 0.722), host between 2.039 s; t75 q[76] 141 cbs, active 4.294 s: in run 2.132 s (GPU 1.600, commit -> start 0.499), host between 2.161 s; t76 q[77] 117 cbs, active 3.951 s: in run 1.962 s (GPU 1.363, commit -> start 0.570), host between 1.989 s
+  queue 72: 140 cbs, 0 started before the queue's earlier ones had all ended
+  queue 73: 117 cbs, 0 started before the queue's earlier ones had all ended
+  queue 74: 116 cbs, 0 started before the queue's earlier ones had all ended
+  queue 75: 116 cbs, 0 started before the queue's earlier ones had all ended
+  queue 76: 141 cbs, 0 started before the queue's earlier ones had all ended
+  queue 77: 117 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.44 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin+devfold] pass 0: wall 4.999 s = 25.61 proved tok/s; preflight 0.084 s, commit 0.225 s, forks 4.638 s, join 0.051 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 93.6 CPU-seconds (user + system, the whole process) over the 5.139 s call = 18.2 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 5.139 s
+  window 5.1390 s: 840 command buffers; GPU busy (>= 1 executing) 3.6059 s = 70.2%, idle 1.5331 s = 29.8%; summed command-buffer GPU time 10.2446 s (mean 2.84 at once while busy); >= 2 at once 3.1111 s = 86.3% of busy
+  time at k executing: 0: 1.5331 s, 1: 0.4948 s, 2: 0.8996 s, 3: 1.2805 s, 4: 0.6380 s, 5: 0.2096 s, 6: 0.0746 s, 7+: 0.0087 s
+  idle gaps: 223 totalling 1.5331 s, longest 321.39 ms; < 20 us 12 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 5 (0.0006 s), 0.2-1 ms 82 (0.0519 s), 1-5 ms 46 (0.1138 s), >= 5 ms 76 (1.3667 s)
+  tag batch     391 cbs: GPU 6.9580 s (mean 17.795 ms); commit -> GPU start 3.3497 s (mean 8.567 ms); GPU end -> seen 0.0822 s; encode 0.0102 s
+  tag commit     95 cbs: GPU 1.8074 s (mean 19.025 ms); commit -> GPU start 0.9901 s (mean 10.422 ms); GPU end -> seen 0.0206 s; encode 0.0037 s
+  tag devfold   257 cbs: GPU 1.4345 s (mean 5.582 ms); commit -> GPU start 1.6775 s (mean 6.527 ms); GPU end -> seen 0.0504 s; encode 0.0046 s
+  tag gather     97 cbs: GPU 0.0447 s (mean 0.461 ms); commit -> GPU start 0.5427 s (mean 5.595 ms); GPU end -> seen 0.0137 s; encode 0.0011 s
+  per thread: t0 q[1] 97 cbs, active 5.036 s: in run 0.059 s (GPU 0.018, commit -> start 0.030), host between 4.977 s; t77 q[78] 94 cbs, active 3.827 s: in run 2.074 s (GPU 1.297, commit -> start 0.755), host between 1.753 s; t78 q[79] 93 cbs, active 3.620 s: in run 1.943 s (GPU 1.219, commit -> start 0.703), host between 1.678 s; t79 q[80] 94 cbs, active 3.732 s: in run 1.981 s (GPU 1.174, commit -> start 0.780), host between 1.751 s; t80 q[81] 92 cbs, active 4.150 s: in run 2.192 s (GPU 1.290, commit -> start 0.880), host between 1.957 s; t81 q[82] 93 cbs, active 3.860 s: in run 2.096 s (GPU 1.242, commit -> start 0.837), host between 1.764 s; t82 q[83] 93 cbs, active 4.127 s: in run 2.292 s (GPU 1.471, commit -> start 0.799), host between 1.835 s; t83 q[84] 92 cbs, active 4.128 s: in run 2.206 s (GPU 1.395, commit -> start 0.788), host between 1.922 s; t84 q[85] 92 cbs, active 4.017 s: in run 2.150 s (GPU 1.138, commit -> start 0.989), host between 1.867 s
+  queue 1: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 78: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 79: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 80: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 81: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 82: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 83: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 84: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 85: 92 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.577 s
+  window 4.5770 s: 743 command buffers; GPU busy (>= 1 executing) 3.5875 s = 78.4%, idle 0.9895 s = 21.6%; summed command-buffer GPU time 10.2262 s (mean 2.85 at once while busy); >= 2 at once 3.1111 s = 86.7% of busy
+  time at k executing: 0: 0.9895 s, 1: 0.4765 s, 2: 0.8996 s, 3: 1.2805 s, 4: 0.6380 s, 5: 0.2096 s, 6: 0.0746 s, 7+: 0.0087 s
+  idle gaps: 126 totalling 0.9895 s, longest 298.93 ms; < 20 us 12 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 5 (0.0006 s), 0.2-1 ms 21 (0.0113 s), 1-5 ms 41 (0.1004 s), >= 5 ms 45 (0.8771 s)
+  tag batch     391 cbs: GPU 6.9580 s (mean 17.795 ms); commit -> GPU start 3.3497 s (mean 8.567 ms); GPU end -> seen 0.0822 s; encode 0.0102 s
+  tag commit     64 cbs: GPU 1.7915 s (mean 27.992 ms); commit -> GPU start 0.9696 s (mean 15.150 ms); GPU end -> seen 0.0173 s; encode 0.0032 s
+  tag devfold   224 cbs: GPU 1.4323 s (mean 6.394 ms); commit -> GPU start 1.6729 s (mean 7.468 ms); GPU end -> seen 0.0471 s; encode 0.0045 s
+  tag gather     64 cbs: GPU 0.0445 s (mean 0.695 ms); commit -> GPU start 0.5374 s (mean 8.396 ms); GPU end -> seen 0.0110 s; encode 0.0010 s
+  per thread: t77 q[78] 94 cbs, active 3.827 s: in run 2.074 s (GPU 1.297, commit -> start 0.755), host between 1.753 s; t78 q[79] 93 cbs, active 3.620 s: in run 1.943 s (GPU 1.219, commit -> start 0.703), host between 1.678 s; t79 q[80] 94 cbs, active 3.732 s: in run 1.981 s (GPU 1.174, commit -> start 0.780), host between 1.751 s; t80 q[81] 92 cbs, active 4.150 s: in run 2.192 s (GPU 1.290, commit -> start 0.880), host between 1.957 s; t81 q[82] 93 cbs, active 3.860 s: in run 2.096 s (GPU 1.242, commit -> start 0.837), host between 1.764 s; t82 q[83] 93 cbs, active 4.127 s: in run 2.292 s (GPU 1.471, commit -> start 0.799), host between 1.835 s; t83 q[84] 92 cbs, active 4.128 s: in run 2.206 s (GPU 1.395, commit -> start 0.788), host between 1.922 s; t84 q[85] 92 cbs, active 4.017 s: in run 2.150 s (GPU 1.138, commit -> start 0.989), host between 1.867 s
+  queue 78: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 79: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 80: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 81: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 82: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 83: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 84: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 85: 92 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB W16R2_8B_T128_H24 L32 forks N8: verified (D55 verifier, 6 threads) in 2.45 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin+devfold] pass 0: wall 5.139 s = 24.91 proved tok/s; preflight 0.093 s, commit 0.412 s, forks 4.577 s, join 0.056 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 98.6 CPU-seconds (user + system, the whole process) over the 5.353 s call = 18.4 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the whole call, 5.353 s
+  window 5.3534 s: 580 command buffers; GPU busy (>= 1 executing) 2.7735 s = 51.8%, idle 2.5799 s = 48.2%; summed command-buffer GPU time 5.8851 s (mean 2.12 at once while busy); >= 2 at once 1.9839 s = 71.5% of busy
+  time at k executing: 0: 2.5799 s, 1: 0.7896 s, 2: 0.8563 s, 3: 1.1276 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 264 totalling 2.5799 s, longest 185.64 ms; < 20 us 16 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 1 (0.0002 s), 0.2-1 ms 20 (0.0100 s), 1-5 ms 90 (0.2381 s), >= 5 ms 137 (2.3316 s)
+  tag batch     388 cbs: GPU 4.2783 s (mean 11.027 ms); commit -> GPU start 1.9563 s (mean 5.042 ms); GPU end -> seen 0.6236 s; encode 0.0103 s
+  tag commit     95 cbs: GPU 1.5916 s (mean 16.753 ms); commit -> GPU start 0.3147 s (mean 3.312 ms); GPU end -> seen 0.0519 s; encode 0.0018 s
+  tag gather     97 cbs: GPU 0.0152 s (mean 0.156 ms); commit -> GPU start 0.2857 s (mean 2.945 ms); GPU end -> seen 0.1518 s; encode 0.0014 s
+  per thread: t0 q[0] 64 cbs, active 5.259 s: in run 0.053 s (GPU 0.015, commit -> start 0.030), host between 5.206 s; t85 q[0] 80 cbs, active 4.065 s: in run 1.494 s (GPU 1.041, commit -> start 0.320), host between 2.570 s; t86 q[0] 81 cbs, active 4.058 s: in run 1.503 s (GPU 0.901, commit -> start 0.459), host between 2.554 s; t87 q[0] 80 cbs, active 4.110 s: in run 1.543 s (GPU 0.948, commit -> start 0.493), host between 2.566 s; t88 q[0] 81 cbs, active 4.023 s: in run 1.380 s (GPU 0.831, commit -> start 0.458), host between 2.644 s; t89 q[0] 97 cbs, active 4.489 s: in run 1.609 s (GPU 1.002, commit -> start 0.477), host between 2.880 s; t90 q[0] 97 cbs, active 4.731 s: in run 1.700 s (GPU 1.147, commit -> start 0.319), host between 3.031 s
+  queue 0: 580 cbs, 315 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the forks phase, 4.962 s
+  window 4.9616 s: 516 command buffers; GPU busy (>= 1 executing) 2.7581 s = 55.6%, idle 2.2035 s = 44.4%; summed command-buffer GPU time 5.8697 s (mean 2.13 at once while busy); >= 2 at once 1.9839 s = 71.9% of busy
+  time at k executing: 0: 2.2035 s, 1: 0.7742 s, 2: 0.8563 s, 3: 1.1276 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 200 totalling 2.2035 s, longest 184.02 ms; < 20 us 16 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 1 (0.0002 s), 0.2-1 ms 20 (0.0100 s), 1-5 ms 58 (0.1639 s), >= 5 ms 105 (2.0294 s)
+  tag batch     388 cbs: GPU 4.2783 s (mean 11.027 ms); commit -> GPU start 1.9563 s (mean 5.042 ms); GPU end -> seen 0.6236 s; encode 0.0103 s
+  tag commit     64 cbs: GPU 1.5765 s (mean 24.633 ms); commit -> GPU start 0.2956 s (mean 4.618 ms); GPU end -> seen 0.0483 s; encode 0.0015 s
+  tag gather     64 cbs: GPU 0.0148 s (mean 0.231 ms); commit -> GPU start 0.2744 s (mean 4.287 ms); GPU end -> seen 0.1487 s; encode 0.0011 s
+  per thread: t85 q[0] 80 cbs, active 4.065 s: in run 1.494 s (GPU 1.041, commit -> start 0.320), host between 2.570 s; t86 q[0] 81 cbs, active 4.058 s: in run 1.503 s (GPU 0.901, commit -> start 0.459), host between 2.554 s; t87 q[0] 80 cbs, active 4.110 s: in run 1.543 s (GPU 0.948, commit -> start 0.493), host between 2.566 s; t88 q[0] 81 cbs, active 4.023 s: in run 1.380 s (GPU 0.831, commit -> start 0.458), host between 2.644 s; t89 q[0] 97 cbs, active 4.489 s: in run 1.609 s (GPU 1.002, commit -> start 0.477), host between 2.880 s; t90 q[0] 97 cbs, active 4.731 s: in run 1.700 s (GPU 1.147, commit -> start 0.319), host between 3.031 s
+  queue 0: 516 cbs, 315 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 1: wall 5.353 s = 23.91 proved tok/s; preflight 0.086 s, commit 0.226 s, forks 4.962 s, join 0.080 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 97.0 CPU-seconds (user + system, the whole process) over the 4.644 s call = 20.9 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues shared): the whole call, 4.644 s
+  window 4.6444 s: 585 command buffers; GPU busy (>= 1 executing) 2.7672 s = 59.6%, idle 1.8772 s = 40.4%; summed command-buffer GPU time 6.1816 s (mean 2.23 at once while busy); >= 2 at once 2.1304 s = 77.0% of busy
+  time at k executing: 0: 1.8772 s, 1: 0.6367 s, 2: 0.8464 s, 3: 1.2840 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 238 totalling 1.8772 s, longest 197.59 ms; < 20 us 30 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 6 (0.0006 s), 0.2-1 ms 17 (0.0084 s), 1-5 ms 73 (0.2026 s), >= 5 ms 111 (1.6655 s)
+  tag batch     393 cbs: GPU 4.4411 s (mean 11.301 ms); commit -> GPU start 2.7551 s (mean 7.011 ms); GPU end -> seen 1.0162 s; encode 0.0121 s
+  tag commit     95 cbs: GPU 1.7237 s (mean 18.144 ms); commit -> GPU start 0.8445 s (mean 8.890 ms); GPU end -> seen 0.1243 s; encode 0.0020 s
+  tag gather     97 cbs: GPU 0.0168 s (mean 0.173 ms); commit -> GPU start 0.4156 s (mean 4.284 ms); GPU end -> seen 0.3164 s; encode 0.0017 s
+  per thread: t0 q[0] 64 cbs, active 4.545 s: in run 0.054 s (GPU 0.016, commit -> start 0.032), host between 4.490 s; t91 q[0] 64 cbs, active 3.637 s: in run 1.416 s (GPU 0.741, commit -> start 0.465), host between 2.220 s; t92 q[0] 65 cbs, active 3.983 s: in run 1.497 s (GPU 0.786, commit -> start 0.517), host between 2.485 s; t93 q[0] 64 cbs, active 4.028 s: in run 1.439 s (GPU 0.863, commit -> start 0.386), host between 2.589 s; t94 q[0] 67 cbs, active 3.953 s: in run 1.487 s (GPU 0.796, commit -> start 0.551), host between 2.466 s; t95 q[0] 66 cbs, active 3.952 s: in run 1.538 s (GPU 0.764, commit -> start 0.580), host between 2.415 s; t96 q[0] 65 cbs, active 3.958 s: in run 1.545 s (GPU 0.869, commit -> start 0.485), host between 2.413 s; t97 q[0] 65 cbs, active 3.730 s: in run 1.323 s (GPU 0.658, commit -> start 0.522), host between 2.407 s; t98 q[0] 65 cbs, active 3.716 s: in run 1.371 s (GPU 0.688, commit -> start 0.478), host between 2.345 s
+  queue 0: 585 cbs, 347 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues shared): the forks phase, 4.232 s
+  window 4.2316 s: 521 command buffers; GPU busy (>= 1 executing) 2.7512 s = 65.0%, idle 1.4804 s = 35.0%; summed command-buffer GPU time 6.1656 s (mean 2.24 at once while busy); >= 2 at once 2.1304 s = 77.4% of busy
+  time at k executing: 0: 1.4804 s, 1: 0.6207 s, 2: 0.8464 s, 3: 1.2840 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 174 totalling 1.4804 s, longest 195.87 ms; < 20 us 30 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 6 (0.0006 s), 0.2-1 ms 17 (0.0084 s), 1-5 ms 43 (0.1286 s), >= 5 ms 77 (1.3427 s)
+  tag batch     393 cbs: GPU 4.4411 s (mean 11.301 ms); commit -> GPU start 2.7551 s (mean 7.011 ms); GPU end -> seen 1.0162 s; encode 0.0121 s
+  tag commit     64 cbs: GPU 1.7080 s (mean 26.687 ms); commit -> GPU start 0.8245 s (mean 12.883 ms); GPU end -> seen 0.1208 s; encode 0.0018 s
+  tag gather     64 cbs: GPU 0.0165 s (mean 0.258 ms); commit -> GPU start 0.4038 s (mean 6.310 ms); GPU end -> seen 0.3137 s; encode 0.0013 s
+  per thread: t91 q[0] 64 cbs, active 3.637 s: in run 1.416 s (GPU 0.741, commit -> start 0.465), host between 2.220 s; t92 q[0] 65 cbs, active 3.983 s: in run 1.497 s (GPU 0.786, commit -> start 0.517), host between 2.485 s; t93 q[0] 64 cbs, active 4.028 s: in run 1.439 s (GPU 0.863, commit -> start 0.386), host between 2.589 s; t94 q[0] 67 cbs, active 3.953 s: in run 1.487 s (GPU 0.796, commit -> start 0.551), host between 2.466 s; t95 q[0] 66 cbs, active 3.952 s: in run 1.538 s (GPU 0.764, commit -> start 0.580), host between 2.415 s; t96 q[0] 65 cbs, active 3.958 s: in run 1.545 s (GPU 0.869, commit -> start 0.485), host between 2.413 s; t97 q[0] 65 cbs, active 3.730 s: in run 1.323 s (GPU 0.658, commit -> start 0.522), host between 2.407 s; t98 q[0] 65 cbs, active 3.716 s: in run 1.371 s (GPU 0.688, commit -> start 0.478), host between 2.345 s
+  queue 0: 521 cbs, 347 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [shared+spin] pass 1: wall 4.644 s = 27.56 proved tok/s; preflight 0.090 s, commit 0.231 s, forks 4.232 s, join 0.092 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 96.2 CPU-seconds (user + system, the whole process) over the 5.124 s call = 18.8 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 5.124 s
+  window 5.1240 s: 585 command buffers; GPU busy (>= 1 executing) 2.8577 s = 55.8%, idle 2.2663 s = 44.2%; summed command-buffer GPU time 6.4962 s (mean 2.27 at once while busy); >= 2 at once 2.0969 s = 73.4% of busy
+  time at k executing: 0: 2.2663 s, 1: 0.7608 s, 2: 0.9121 s, 3: 0.8659 s, 4: 0.2810 s, 5: 0.0378 s, 6: 0.0001 s, 7+: 0.0000 s
+  idle gaps: 266 totalling 2.2663 s, longest 149.26 ms; < 20 us 8 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 4 (0.0003 s), 0.2-1 ms 25 (0.0118 s), 1-5 ms 96 (0.2485 s), >= 5 ms 133 (2.0056 s)
+  tag batch     393 cbs: GPU 4.8299 s (mean 12.290 ms); commit -> GPU start 1.4063 s (mean 3.578 ms); GPU end -> seen 0.1162 s; encode 0.0144 s
+  tag commit     95 cbs: GPU 1.6403 s (mean 17.266 ms); commit -> GPU start 0.5485 s (mean 5.774 ms); GPU end -> seen 0.0254 s; encode 0.0036 s
+  tag gather     97 cbs: GPU 0.0260 s (mean 0.268 ms); commit -> GPU start 0.2642 s (mean 2.723 ms); GPU end -> seen 0.0147 s; encode 0.0019 s
+  per thread: t0 q[1] 64 cbs, active 5.014 s: in run 0.051 s (GPU 0.015, commit -> start 0.029), host between 4.963 s; t99 q[100] 96 cbs, active 4.518 s: in run 1.477 s (GPU 1.133, commit -> start 0.302), host between 3.041 s; t100 q[101] 98 cbs, active 4.502 s: in run 1.457 s (GPU 1.052, commit -> start 0.378), host between 3.045 s; t101 q[102] 81 cbs, active 4.223 s: in run 1.581 s (GPU 1.084, commit -> start 0.469), host between 2.642 s; t102 q[103] 81 cbs, active 4.156 s: in run 1.407 s (GPU 1.051, commit -> start 0.323), host between 2.749 s; t103 q[104] 82 cbs, active 4.286 s: in run 1.469 s (GPU 1.135, commit -> start 0.315), host between 2.817 s; t104 q[105] 83 cbs, active 3.910 s: in run 1.449 s (GPU 1.025, commit -> start 0.402), host between 2.461 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 100: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 101: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 102: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 103: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 104: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 105: 83 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.658 s
+  window 4.6581 s: 521 command buffers; GPU busy (>= 1 executing) 2.8424 s = 61.0%, idle 1.8157 s = 39.0%; summed command-buffer GPU time 6.4809 s (mean 2.28 at once while busy); >= 2 at once 2.0969 s = 73.8% of busy
+  time at k executing: 0: 1.8157 s, 1: 0.7455 s, 2: 0.9121 s, 3: 0.8659 s, 4: 0.2810 s, 5: 0.0378 s, 6: 0.0001 s, 7+: 0.0000 s
+  idle gaps: 202 totalling 1.8157 s, longest 146.75 ms; < 20 us 8 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 4 (0.0003 s), 0.2-1 ms 25 (0.0118 s), 1-5 ms 65 (0.1753 s), >= 5 ms 100 (1.6283 s)
+  tag batch     393 cbs: GPU 4.8299 s (mean 12.290 ms); commit -> GPU start 1.4063 s (mean 3.578 ms); GPU end -> seen 0.1162 s; encode 0.0144 s
+  tag commit     64 cbs: GPU 1.6253 s (mean 25.395 ms); commit -> GPU start 0.5279 s (mean 8.248 ms); GPU end -> seen 0.0224 s; encode 0.0031 s
+  tag gather     64 cbs: GPU 0.0257 s (mean 0.402 ms); commit -> GPU start 0.2553 s (mean 3.989 ms); GPU end -> seen 0.0120 s; encode 0.0015 s
+  per thread: t99 q[100] 96 cbs, active 4.518 s: in run 1.477 s (GPU 1.133, commit -> start 0.302), host between 3.041 s; t100 q[101] 98 cbs, active 4.502 s: in run 1.457 s (GPU 1.052, commit -> start 0.378), host between 3.045 s; t101 q[102] 81 cbs, active 4.223 s: in run 1.581 s (GPU 1.084, commit -> start 0.469), host between 2.642 s; t102 q[103] 81 cbs, active 4.156 s: in run 1.407 s (GPU 1.051, commit -> start 0.323), host between 2.749 s; t103 q[104] 82 cbs, active 4.286 s: in run 1.469 s (GPU 1.135, commit -> start 0.315), host between 2.817 s; t104 q[105] 83 cbs, active 3.910 s: in run 1.449 s (GPU 1.025, commit -> start 0.402), host between 2.461 s
+  queue 100: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 101: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 102: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 103: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 104: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 105: 83 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 1: wall 5.124 s = 24.98 proved tok/s; preflight 0.101 s, commit 0.279 s, forks 4.658 s, join 0.085 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 99.2 CPU-seconds (user + system, the whole process) over the 4.714 s call = 21.0 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.714 s
+  window 4.7141 s: 584 command buffers; GPU busy (>= 1 executing) 2.8231 s = 59.9%, idle 1.8911 s = 40.1%; summed command-buffer GPU time 7.7598 s (mean 2.75 at once while busy); >= 2 at once 2.3459 s = 83.1% of busy
+  time at k executing: 0: 1.8911 s, 1: 0.4772 s, 2: 0.7173 s, 3: 0.9936 s, 4: 0.3458 s, 5: 0.2509 s, 6: 0.0382 s, 7+: 0.0000 s
+  idle gaps: 216 totalling 1.8911 s, longest 264.39 ms; < 20 us 8 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 4 (0.0005 s), 0.2-1 ms 20 (0.0120 s), 1-5 ms 89 (0.2284 s), >= 5 ms 94 (1.6501 s)
+  tag batch     392 cbs: GPU 5.8677 s (mean 14.969 ms); commit -> GPU start 2.7692 s (mean 7.064 ms); GPU end -> seen 0.1178 s; encode 0.0115 s
+  tag commit     95 cbs: GPU 1.8515 s (mean 19.490 ms); commit -> GPU start 1.0343 s (mean 10.888 ms); GPU end -> seen 0.0135 s; encode 0.0411 s
+  tag gather     97 cbs: GPU 0.0405 s (mean 0.418 ms); commit -> GPU start 0.5035 s (mean 5.191 ms); GPU end -> seen 0.0128 s; encode 0.0017 s
+  per thread: t0 q[1] 64 cbs, active 4.605 s: in run 0.049 s (GPU 0.016, commit -> start 0.026), host between 4.556 s; t105 q[106] 67 cbs, active 3.762 s: in run 1.552 s (GPU 0.988, commit -> start 0.545), host between 2.211 s; t106 q[107] 65 cbs, active 3.956 s: in run 1.539 s (GPU 1.013, commit -> start 0.506), host between 2.417 s; t107 q[108] 64 cbs, active 4.051 s: in run 1.684 s (GPU 1.014, commit -> start 0.644), host between 2.367 s; t108 q[109] 65 cbs, active 4.050 s: in run 1.429 s (GPU 0.960, commit -> start 0.441), host between 2.621 s; t109 q[110] 66 cbs, active 3.304 s: in run 1.355 s (GPU 0.815, commit -> start 0.506), host between 1.949 s; t110 q[111] 64 cbs, active 4.036 s: in run 1.586 s (GPU 1.094, commit -> start 0.473), host between 2.450 s; t111 q[112] 64 cbs, active 3.894 s: in run 1.565 s (GPU 0.934, commit -> start 0.609), host between 2.329 s; t112 q[113] 65 cbs, active 3.887 s: in run 1.507 s (GPU 0.926, commit -> start 0.557), host between 2.380 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 106: 67 cbs, 0 started before the queue's earlier ones had all ended
+  queue 107: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 108: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 109: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 110: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 111: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 112: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 113: 65 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.261 s
+  window 4.2605 s: 520 command buffers; GPU busy (>= 1 executing) 2.8070 s = 65.9%, idle 1.4535 s = 34.1%; summed command-buffer GPU time 7.7437 s (mean 2.76 at once while busy); >= 2 at once 2.3459 s = 83.6% of busy
+  time at k executing: 0: 1.4535 s, 1: 0.4612 s, 2: 0.7173 s, 3: 0.9936 s, 4: 0.3458 s, 5: 0.2509 s, 6: 0.0382 s, 7+: 0.0000 s
+  idle gaps: 152 totalling 1.4535 s, longest 261.56 ms; < 20 us 8 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 4 (0.0005 s), 0.2-1 ms 20 (0.0120 s), 1-5 ms 57 (0.1561 s), >= 5 ms 62 (1.2848 s)
+  tag batch     392 cbs: GPU 5.8677 s (mean 14.969 ms); commit -> GPU start 2.7692 s (mean 7.064 ms); GPU end -> seen 0.1178 s; encode 0.0115 s
+  tag commit     64 cbs: GPU 1.8357 s (mean 28.683 ms); commit -> GPU start 1.0134 s (mean 15.834 ms); GPU end -> seen 0.0103 s; encode 0.0406 s
+  tag gather     64 cbs: GPU 0.0403 s (mean 0.629 ms); commit -> GPU start 0.4982 s (mean 7.784 ms); GPU end -> seen 0.0101 s; encode 0.0015 s
+  per thread: t105 q[106] 67 cbs, active 3.762 s: in run 1.552 s (GPU 0.988, commit -> start 0.545), host between 2.211 s; t106 q[107] 65 cbs, active 3.956 s: in run 1.539 s (GPU 1.013, commit -> start 0.506), host between 2.417 s; t107 q[108] 64 cbs, active 4.051 s: in run 1.684 s (GPU 1.014, commit -> start 0.644), host between 2.367 s; t108 q[109] 65 cbs, active 4.050 s: in run 1.429 s (GPU 0.960, commit -> start 0.441), host between 2.621 s; t109 q[110] 66 cbs, active 3.304 s: in run 1.355 s (GPU 0.815, commit -> start 0.506), host between 1.949 s; t110 q[111] 64 cbs, active 4.036 s: in run 1.586 s (GPU 1.094, commit -> start 0.473), host between 2.450 s; t111 q[112] 64 cbs, active 3.894 s: in run 1.565 s (GPU 0.934, commit -> start 0.609), host between 2.329 s; t112 q[113] 65 cbs, active 3.887 s: in run 1.507 s (GPU 0.926, commit -> start 0.557), host between 2.380 s
+  queue 106: 67 cbs, 0 started before the queue's earlier ones had all ended
+  queue 107: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 108: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 109: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 110: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 111: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 112: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 113: 65 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin] pass 1: wall 4.714 s = 27.15 proved tok/s; preflight 0.101 s, commit 0.275 s, forks 4.261 s, join 0.078 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.8 CPU-seconds (user + system, the whole process) over the 4.891 s call = 18.6 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.891 s
+  window 4.8905 s: 583 command buffers; GPU busy (>= 1 executing) 2.8091 s = 57.4%, idle 2.0814 s = 42.6%; summed command-buffer GPU time 6.4943 s (mean 2.31 at once while busy); >= 2 at once 2.0036 s = 71.3% of busy
+  time at k executing: 0: 2.0814 s, 1: 0.8055 s, 2: 0.7467 s, 3: 0.9058 s, 4: 0.2814 s, 5: 0.0658 s, 6: 0.0039 s, 7+: 0.0000 s
+  idle gaps: 254 totalling 2.0814 s, longest 155.27 ms; < 20 us 6 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 3 (0.0002 s), 0.2-1 ms 12 (0.0061 s), 1-5 ms 102 (0.2760 s), >= 5 ms 131 (1.7990 s)
+  tag batch     391 cbs: GPU 4.9552 s (mean 12.673 ms); commit -> GPU start 0.9812 s (mean 2.510 ms); GPU end -> seen 0.1408 s; encode 0.0117 s
+  tag commit     95 cbs: GPU 1.5098 s (mean 15.892 ms); commit -> GPU start 0.7003 s (mean 7.372 ms); GPU end -> seen 0.0296 s; encode 0.0077 s
+  tag gather     97 cbs: GPU 0.0294 s (mean 0.303 ms); commit -> GPU start 0.2200 s (mean 2.268 ms); GPU end -> seen 0.0223 s; encode 0.0015 s
+  per thread: t0 q[1] 64 cbs, active 4.762 s: in run 0.054 s (GPU 0.015, commit -> start 0.032), host between 4.707 s; t113 q[114] 96 cbs, active 4.254 s: in run 1.456 s (GPU 1.114, commit -> start 0.305), host between 2.798 s; t114 q[115] 81 cbs, active 4.150 s: in run 1.498 s (GPU 1.025, commit -> start 0.449), host between 2.652 s; t115 q[116] 82 cbs, active 3.899 s: in run 1.397 s (GPU 1.082, commit -> start 0.289), host between 2.502 s; t116 q[117] 82 cbs, active 3.911 s: in run 1.326 s (GPU 1.015, commit -> start 0.279), host between 2.585 s; t117 q[118] 96 cbs, active 4.236 s: in run 1.472 s (GPU 1.118, commit -> start 0.301), host between 2.764 s; t118 q[119] 82 cbs, active 4.000 s: in run 1.405 s (GPU 1.126, commit -> start 0.247), host between 2.595 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 114: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 115: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 116: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 117: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 118: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 119: 82 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.418 s
+  window 4.4180 s: 519 command buffers; GPU busy (>= 1 executing) 2.7937 s = 63.2%, idle 1.6243 s = 36.8%; summed command-buffer GPU time 6.4789 s (mean 2.32 at once while busy); >= 2 at once 2.0036 s = 71.7% of busy
+  time at k executing: 0: 1.6243 s, 1: 0.7901 s, 2: 0.7467 s, 3: 0.9058 s, 4: 0.2814 s, 5: 0.0658 s, 6: 0.0039 s, 7+: 0.0000 s
+  idle gaps: 190 totalling 1.6243 s, longest 153.54 ms; < 20 us 6 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 3 (0.0002 s), 0.2-1 ms 12 (0.0061 s), 1-5 ms 71 (0.2027 s), >= 5 ms 98 (1.4152 s)
+  tag batch     391 cbs: GPU 4.9552 s (mean 12.673 ms); commit -> GPU start 0.9812 s (mean 2.510 ms); GPU end -> seen 0.1408 s; encode 0.0117 s
+  tag commit     64 cbs: GPU 1.4946 s (mean 23.354 ms); commit -> GPU start 0.6810 s (mean 10.641 ms); GPU end -> seen 0.0258 s; encode 0.0074 s
+  tag gather     64 cbs: GPU 0.0291 s (mean 0.455 ms); commit -> GPU start 0.2076 s (mean 3.244 ms); GPU end -> seen 0.0193 s; encode 0.0012 s
+  per thread: t113 q[114] 96 cbs, active 4.254 s: in run 1.456 s (GPU 1.114, commit -> start 0.305), host between 2.798 s; t114 q[115] 81 cbs, active 4.150 s: in run 1.498 s (GPU 1.025, commit -> start 0.449), host between 2.652 s; t115 q[116] 82 cbs, active 3.899 s: in run 1.397 s (GPU 1.082, commit -> start 0.289), host between 2.502 s; t116 q[117] 82 cbs, active 3.911 s: in run 1.326 s (GPU 1.015, commit -> start 0.279), host between 2.585 s; t117 q[118] 96 cbs, active 4.236 s: in run 1.472 s (GPU 1.118, commit -> start 0.301), host between 2.764 s; t118 q[119] 82 cbs, active 4.000 s: in run 1.405 s (GPU 1.126, commit -> start 0.247), host between 2.595 s
+  queue 114: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 115: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 116: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 117: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 118: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 119: 82 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+block] pass 1: wall 4.891 s = 26.17 proved tok/s; preflight 0.119 s, commit 0.265 s, forks 4.418 s, join 0.088 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 88.9 CPU-seconds (user + system, the whole process) over the 4.772 s call = 18.6 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.772 s
+  window 4.7724 s: 584 command buffers; GPU busy (>= 1 executing) 2.8281 s = 59.3%, idle 1.9443 s = 40.7%; summed command-buffer GPU time 8.1988 s (mean 2.90 at once while busy); >= 2 at once 2.3909 s = 84.5% of busy
+  time at k executing: 0: 1.9443 s, 1: 0.4371 s, 2: 0.7244 s, 3: 0.9043 s, 4: 0.3533 s, 5: 0.2807 s, 6: 0.1142 s, 7+: 0.0140 s
+  idle gaps: 204 totalling 1.9443 s, longest 163.06 ms; < 20 us 6 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 5 (0.0007 s), 0.2-1 ms 14 (0.0086 s), 1-5 ms 80 (0.2044 s), >= 5 ms 97 (1.7306 s)
+  tag batch     392 cbs: GPU 6.3596 s (mean 16.224 ms); commit -> GPU start 3.6355 s (mean 9.274 ms); GPU end -> seen 0.1208 s; encode 0.0114 s
+  tag commit     95 cbs: GPU 1.8168 s (mean 19.124 ms); commit -> GPU start 0.7873 s (mean 8.288 ms); GPU end -> seen 0.0257 s; encode 0.0032 s
+  tag gather     97 cbs: GPU 0.0223 s (mean 0.230 ms); commit -> GPU start 0.2830 s (mean 2.918 ms); GPU end -> seen 0.0205 s; encode 0.0013 s
+  per thread: t0 q[1] 64 cbs, active 4.676 s: in run 0.047 s (GPU 0.014, commit -> start 0.025), host between 4.629 s; t119 q[120] 66 cbs, active 4.221 s: in run 1.750 s (GPU 1.159, commit -> start 0.560), host between 2.471 s; t120 q[121] 64 cbs, active 3.965 s: in run 1.663 s (GPU 1.078, commit -> start 0.572), host between 2.301 s; t121 q[122] 67 cbs, active 3.748 s: in run 1.510 s (GPU 1.009, commit -> start 0.479), host between 2.238 s; t122 q[123] 64 cbs, active 4.067 s: in run 1.609 s (GPU 1.002, commit -> start 0.582), host between 2.458 s; t123 q[124] 66 cbs, active 4.098 s: in run 1.635 s (GPU 0.929, commit -> start 0.681), host between 2.462 s; t124 q[125] 64 cbs, active 4.097 s: in run 1.681 s (GPU 1.100, commit -> start 0.560), host between 2.416 s; t125 q[126] 64 cbs, active 3.736 s: in run 1.557 s (GPU 0.946, commit -> start 0.592), host between 2.180 s; t126 q[127] 65 cbs, active 3.961 s: in run 1.636 s (GPU 0.962, commit -> start 0.655), host between 2.324 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 120: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 121: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 122: 67 cbs, 0 started before the queue's earlier ones had all ended
+  queue 123: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 124: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 125: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 126: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 127: 65 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.371 s
+  window 4.3708 s: 520 command buffers; GPU busy (>= 1 executing) 2.8144 s = 64.4%, idle 1.5564 s = 35.6%; summed command-buffer GPU time 8.1851 s (mean 2.91 at once while busy); >= 2 at once 2.3909 s = 85.0% of busy
+  time at k executing: 0: 1.5564 s, 1: 0.4235 s, 2: 0.7244 s, 3: 0.9043 s, 4: 0.3533 s, 5: 0.2807 s, 6: 0.1142 s, 7+: 0.0140 s
+  idle gaps: 140 totalling 1.5564 s, longest 160.48 ms; < 20 us 6 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 5 (0.0007 s), 0.2-1 ms 14 (0.0086 s), 1-5 ms 48 (0.1253 s), >= 5 ms 65 (1.4218 s)
+  tag batch     392 cbs: GPU 6.3596 s (mean 16.224 ms); commit -> GPU start 3.6355 s (mean 9.274 ms); GPU end -> seen 0.1208 s; encode 0.0114 s
+  tag commit     64 cbs: GPU 1.8034 s (mean 28.178 ms); commit -> GPU start 0.7682 s (mean 12.003 ms); GPU end -> seen 0.0215 s; encode 0.0029 s
+  tag gather     64 cbs: GPU 0.0221 s (mean 0.345 ms); commit -> GPU start 0.2767 s (mean 4.324 ms); GPU end -> seen 0.0172 s; encode 0.0011 s
+  per thread: t119 q[120] 66 cbs, active 4.221 s: in run 1.750 s (GPU 1.159, commit -> start 0.560), host between 2.471 s; t120 q[121] 64 cbs, active 3.965 s: in run 1.663 s (GPU 1.078, commit -> start 0.572), host between 2.301 s; t121 q[122] 67 cbs, active 3.748 s: in run 1.510 s (GPU 1.009, commit -> start 0.479), host between 2.238 s; t122 q[123] 64 cbs, active 4.067 s: in run 1.609 s (GPU 1.002, commit -> start 0.582), host between 2.458 s; t123 q[124] 66 cbs, active 4.098 s: in run 1.635 s (GPU 0.929, commit -> start 0.681), host between 2.462 s; t124 q[125] 64 cbs, active 4.097 s: in run 1.681 s (GPU 1.100, commit -> start 0.560), host between 2.416 s; t125 q[126] 64 cbs, active 3.736 s: in run 1.557 s (GPU 0.946, commit -> start 0.592), host between 2.180 s; t126 q[127] 65 cbs, active 3.961 s: in run 1.636 s (GPU 0.962, commit -> start 0.655), host between 2.324 s
+  queue 120: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 121: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 122: 67 cbs, 0 started before the queue's earlier ones had all ended
+  queue 123: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 124: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 125: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 126: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 127: 65 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+block] pass 1: wall 4.772 s = 26.82 proved tok/s; preflight 0.087 s, commit 0.230 s, forks 4.371 s, join 0.085 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 89.5 CPU-seconds (user + system, the whole process) over the 4.788 s call = 18.7 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.788 s
+  window 4.7875 s: 579 command buffers; GPU busy (>= 1 executing) 2.8269 s = 59.0%, idle 1.9606 s = 41.0%; summed command-buffer GPU time 6.5142 s (mean 2.30 at once while busy); >= 2 at once 2.0526 s = 72.6% of busy
+  time at k executing: 0: 1.9606 s, 1: 0.7743 s, 2: 0.8602 s, 3: 0.8325 s, 4: 0.2807 s, 5: 0.0761 s, 6: 0.0031 s, 7+: 0.0000 s
+  idle gaps: 253 totalling 1.9606 s, longest 152.11 ms; < 20 us 9 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 2 (0.0001 s), 0.2-1 ms 28 (0.0187 s), 1-5 ms 82 (0.2218 s), >= 5 ms 131 (1.7198 s)
+  tag batch     387 cbs: GPU 4.9379 s (mean 12.759 ms); commit -> GPU start 1.7589 s (mean 4.545 ms); GPU end -> seen 0.1068 s; encode 0.0101 s
+  tag commit     95 cbs: GPU 1.5470 s (mean 16.284 ms); commit -> GPU start 0.6770 s (mean 7.126 ms); GPU end -> seen 0.0166 s; encode 0.0025 s
+  tag gather     97 cbs: GPU 0.0293 s (mean 0.302 ms); commit -> GPU start 0.2245 s (mean 2.315 ms); GPU end -> seen 0.0183 s; encode 0.0013 s
+  per thread: t0 q[1] 64 cbs, active 4.690 s: in run 0.065 s (GPU 0.016, commit -> start 0.041), host between 4.626 s; t127 q[128] 98 cbs, active 4.177 s: in run 1.589 s (GPU 1.056, commit -> start 0.511), host between 2.588 s; t128 q[129] 80 cbs, active 3.875 s: in run 1.493 s (GPU 1.019, commit -> start 0.449), host between 2.383 s; t129 q[130] 81 cbs, active 4.026 s: in run 1.567 s (GPU 1.183, commit -> start 0.363), host between 2.459 s; t130 q[131] 96 cbs, active 4.190 s: in run 1.584 s (GPU 1.098, commit -> start 0.455), host between 2.606 s; t131 q[132] 80 cbs, active 4.039 s: in run 1.536 s (GPU 1.146, commit -> start 0.371), host between 2.503 s; t132 q[133] 80 cbs, active 3.952 s: in run 1.496 s (GPU 0.998, commit -> start 0.470), host between 2.456 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 128: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 129: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 130: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 131: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 132: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 133: 80 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.371 s
+  window 4.3710 s: 515 command buffers; GPU busy (>= 1 executing) 2.8112 s = 64.3%, idle 1.5598 s = 35.7%; summed command-buffer GPU time 6.4984 s (mean 2.31 at once while busy); >= 2 at once 2.0526 s = 73.0% of busy
+  time at k executing: 0: 1.5598 s, 1: 0.7586 s, 2: 0.8602 s, 3: 0.8325 s, 4: 0.2807 s, 5: 0.0761 s, 6: 0.0031 s, 7+: 0.0000 s
+  idle gaps: 189 totalling 1.5598 s, longest 150.19 ms; < 20 us 9 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 2 (0.0001 s), 0.2-1 ms 28 (0.0187 s), 1-5 ms 51 (0.1495 s), >= 5 ms 98 (1.3913 s)
+  tag batch     387 cbs: GPU 4.9379 s (mean 12.759 ms); commit -> GPU start 1.7589 s (mean 4.545 ms); GPU end -> seen 0.1068 s; encode 0.0101 s
+  tag commit     64 cbs: GPU 1.5315 s (mean 23.929 ms); commit -> GPU start 0.6564 s (mean 10.257 ms); GPU end -> seen 0.0126 s; encode 0.0022 s
+  tag gather     64 cbs: GPU 0.0290 s (mean 0.454 ms); commit -> GPU start 0.2039 s (mean 3.185 ms); GPU end -> seen 0.0151 s; encode 0.0011 s
+  per thread: t127 q[128] 98 cbs, active 4.177 s: in run 1.589 s (GPU 1.056, commit -> start 0.511), host between 2.588 s; t128 q[129] 80 cbs, active 3.875 s: in run 1.493 s (GPU 1.019, commit -> start 0.449), host between 2.383 s; t129 q[130] 81 cbs, active 4.026 s: in run 1.567 s (GPU 1.183, commit -> start 0.363), host between 2.459 s; t130 q[131] 96 cbs, active 4.190 s: in run 1.584 s (GPU 1.098, commit -> start 0.455), host between 2.606 s; t131 q[132] 80 cbs, active 4.039 s: in run 1.536 s (GPU 1.146, commit -> start 0.371), host between 2.503 s; t132 q[133] 80 cbs, active 3.952 s: in run 1.496 s (GPU 0.998, commit -> start 0.470), host between 2.456 s
+  queue 128: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 129: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 130: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 131: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 132: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 133: 80 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin200] pass 1: wall 4.788 s = 26.74 proved tok/s; preflight 0.088 s, commit 0.234 s, forks 4.371 s, join 0.095 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 89.0 CPU-seconds (user + system, the whole process) over the 4.757 s call = 18.7 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.757 s
+  window 4.7568 s: 580 command buffers; GPU busy (>= 1 executing) 2.9101 s = 61.2%, idle 1.8466 s = 38.8%; summed command-buffer GPU time 7.7549 s (mean 2.66 at once while busy); >= 2 at once 2.2873 s = 78.6% of busy
+  time at k executing: 0: 1.8466 s, 1: 0.6228 s, 2: 0.6893 s, 3: 0.9779 s, 4: 0.3541 s, 5: 0.1952 s, 6: 0.0685 s, 7+: 0.0024 s
+  idle gaps: 224 totalling 1.8466 s, longest 145.22 ms; < 20 us 12 (0.0000 s), 20-50 us 3 (0.0001 s), 50-200 us 9 (0.0010 s), 0.2-1 ms 16 (0.0088 s), 1-5 ms 82 (0.2215 s), >= 5 ms 102 (1.6152 s)
+  tag batch     388 cbs: GPU 6.0441 s (mean 15.578 ms); commit -> GPU start 3.8799 s (mean 10.000 ms); GPU end -> seen 0.1256 s; encode 0.0106 s
+  tag commit     95 cbs: GPU 1.6948 s (mean 17.840 ms); commit -> GPU start 0.7514 s (mean 7.909 ms); GPU end -> seen 0.0247 s; encode 0.0033 s
+  tag gather     97 cbs: GPU 0.0160 s (mean 0.165 ms); commit -> GPU start 0.4163 s (mean 4.291 ms); GPU end -> seen 0.0273 s; encode 0.0014 s
+  per thread: t0 q[1] 64 cbs, active 4.662 s: in run 0.058 s (GPU 0.016, commit -> start 0.034), host between 4.604 s; t133 q[134] 64 cbs, active 3.487 s: in run 1.398 s (GPU 0.718, commit -> start 0.664), host between 2.089 s; t134 q[135] 64 cbs, active 4.079 s: in run 1.637 s (GPU 1.028, commit -> start 0.585), host between 2.442 s; t135 q[136] 65 cbs, active 4.110 s: in run 1.743 s (GPU 1.039, commit -> start 0.684), host between 2.367 s; t136 q[137] 65 cbs, active 4.106 s: in run 1.665 s (GPU 1.027, commit -> start 0.609), host between 2.441 s; t137 q[138] 65 cbs, active 3.578 s: in run 1.444 s (GPU 0.836, commit -> start 0.586), host between 2.134 s; t138 q[139] 64 cbs, active 4.073 s: in run 1.761 s (GPU 0.995, commit -> start 0.735), host between 2.312 s; t139 q[140] 65 cbs, active 4.073 s: in run 1.634 s (GPU 1.099, commit -> start 0.508), host between 2.438 s; t140 q[141] 64 cbs, active 4.108 s: in run 1.656 s (GPU 0.997, commit -> start 0.642), host between 2.452 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 134: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 135: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 136: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 137: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 138: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 139: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 140: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 141: 64 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.348 s
+  window 4.3476 s: 516 command buffers; GPU busy (>= 1 executing) 2.8937 s = 66.6%, idle 1.4538 s = 33.4%; summed command-buffer GPU time 7.7385 s (mean 2.67 at once while busy); >= 2 at once 2.2873 s = 79.0% of busy
+  time at k executing: 0: 1.4538 s, 1: 0.6064 s, 2: 0.6893 s, 3: 0.9779 s, 4: 0.3541 s, 5: 0.1952 s, 6: 0.0685 s, 7+: 0.0024 s
+  idle gaps: 160 totalling 1.4538 s, longest 143.19 ms; < 20 us 12 (0.0000 s), 20-50 us 3 (0.0001 s), 50-200 us 9 (0.0010 s), 0.2-1 ms 16 (0.0088 s), 1-5 ms 50 (0.1432 s), >= 5 ms 70 (1.3007 s)
+  tag batch     388 cbs: GPU 6.0441 s (mean 15.578 ms); commit -> GPU start 3.8799 s (mean 10.000 ms); GPU end -> seen 0.1256 s; encode 0.0106 s
+  tag commit     64 cbs: GPU 1.6786 s (mean 26.229 ms); commit -> GPU start 0.7256 s (mean 11.338 ms); GPU end -> seen 0.0208 s; encode 0.0031 s
+  tag gather     64 cbs: GPU 0.0158 s (mean 0.246 ms); commit -> GPU start 0.4084 s (mean 6.381 ms); GPU end -> seen 0.0239 s; encode 0.0011 s
+  per thread: t133 q[134] 64 cbs, active 3.487 s: in run 1.398 s (GPU 0.718, commit -> start 0.664), host between 2.089 s; t134 q[135] 64 cbs, active 4.079 s: in run 1.637 s (GPU 1.028, commit -> start 0.585), host between 2.442 s; t135 q[136] 65 cbs, active 4.110 s: in run 1.743 s (GPU 1.039, commit -> start 0.684), host between 2.367 s; t136 q[137] 65 cbs, active 4.106 s: in run 1.665 s (GPU 1.027, commit -> start 0.609), host between 2.441 s; t137 q[138] 65 cbs, active 3.578 s: in run 1.444 s (GPU 0.836, commit -> start 0.586), host between 2.134 s; t138 q[139] 64 cbs, active 4.073 s: in run 1.761 s (GPU 0.995, commit -> start 0.735), host between 2.312 s; t139 q[140] 65 cbs, active 4.073 s: in run 1.634 s (GPU 1.099, commit -> start 0.508), host between 2.438 s; t140 q[141] 64 cbs, active 4.108 s: in run 1.656 s (GPU 0.997, commit -> start 0.642), host between 2.452 s
+  queue 134: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 135: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 136: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 137: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 138: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 139: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 140: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 141: 64 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin200] pass 1: wall 4.757 s = 26.91 proved tok/s; preflight 0.086 s, commit 0.238 s, forks 4.348 s, join 0.085 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.5 CPU-seconds (user + system, the whole process) over the 5.042 s call = 18.0 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 5.042 s
+  window 5.0420 s: 838 command buffers; GPU busy (>= 1 executing) 3.6581 s = 72.6%, idle 1.3838 s = 27.4%; summed command-buffer GPU time 9.1631 s (mean 2.50 at once while busy); >= 2 at once 3.0205 s = 82.6% of busy
+  time at k executing: 0: 1.3838 s, 1: 0.6376 s, 2: 1.1645 s, 3: 1.3374 s, 4: 0.4188 s, 5: 0.0899 s, 6: 0.0099 s, 7+: 0.0000 s
+  idle gaps: 281 totalling 1.3838 s, longest 131.94 ms; < 20 us 11 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 6 (0.0006 s), 0.2-1 ms 103 (0.0638 s), 1-5 ms 74 (0.2124 s), >= 5 ms 85 (1.1069 s)
+  tag batch     389 cbs: GPU 5.9203 s (mean 15.219 ms); commit -> GPU start 2.1605 s (mean 5.554 ms); GPU end -> seen 0.0735 s; encode 0.0097 s
+  tag commit     95 cbs: GPU 1.8194 s (mean 19.151 ms); commit -> GPU start 0.6457 s (mean 6.797 ms); GPU end -> seen 0.0142 s; encode 0.0028 s
+  tag devfold   257 cbs: GPU 1.3895 s (mean 5.406 ms); commit -> GPU start 1.1671 s (mean 4.541 ms); GPU end -> seen 0.0510 s; encode 0.0036 s
+  tag gather     97 cbs: GPU 0.0339 s (mean 0.350 ms); commit -> GPU start 0.2893 s (mean 2.982 ms); GPU end -> seen 0.0115 s; encode 0.0009 s
+  per thread: t0 q[1] 97 cbs, active 4.949 s: in run 0.071 s (GPU 0.018, commit -> start 0.043), host between 4.878 s; t141 q[142] 140 cbs, active 4.488 s: in run 2.405 s (GPU 1.689, commit -> start 0.687), host between 2.083 s; t142 q[143] 138 cbs, active 4.520 s: in run 2.338 s (GPU 1.602, commit -> start 0.705), host between 2.182 s; t143 q[144] 117 cbs, active 4.344 s: in run 2.233 s (GPU 1.601, commit -> start 0.599), host between 2.110 s; t144 q[145] 115 cbs, active 4.198 s: in run 2.219 s (GPU 1.448, commit -> start 0.748), host between 1.979 s; t145 q[146] 115 cbs, active 4.269 s: in run 2.197 s (GPU 1.465, commit -> start 0.710), host between 2.072 s; t146 q[147] 116 cbs, active 4.263 s: in run 2.130 s (GPU 1.340, commit -> start 0.770), host between 2.133 s
+  queue 1: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 142: 140 cbs, 0 started before the queue's earlier ones had all ended
+  queue 143: 138 cbs, 0 started before the queue's earlier ones had all ended
+  queue 144: 117 cbs, 0 started before the queue's earlier ones had all ended
+  queue 145: 115 cbs, 0 started before the queue's earlier ones had all ended
+  queue 146: 115 cbs, 0 started before the queue's earlier ones had all ended
+  queue 147: 116 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.660 s
+  window 4.6600 s: 741 command buffers; GPU busy (>= 1 executing) 3.6397 s = 78.1%, idle 1.0203 s = 21.9%; summed command-buffer GPU time 9.1447 s (mean 2.51 at once while busy); >= 2 at once 3.0205 s = 83.0% of busy
+  time at k executing: 0: 1.0203 s, 1: 0.6192 s, 2: 1.1645 s, 3: 1.3374 s, 4: 0.4188 s, 5: 0.0899 s, 6: 0.0099 s, 7+: 0.0000 s
+  idle gaps: 184 totalling 1.0203 s, longest 129.43 ms; < 20 us 11 (0.0000 s), 20-50 us 2 (0.0001 s), 50-200 us 6 (0.0006 s), 0.2-1 ms 39 (0.0222 s), 1-5 ms 73 (0.2070 s), >= 5 ms 53 (0.7905 s)
+  tag batch     389 cbs: GPU 5.9203 s (mean 15.219 ms); commit -> GPU start 2.1605 s (mean 5.554 ms); GPU end -> seen 0.0735 s; encode 0.0097 s
+  tag commit     64 cbs: GPU 1.8035 s (mean 28.180 ms); commit -> GPU start 0.6249 s (mean 9.764 ms); GPU end -> seen 0.0108 s; encode 0.0025 s
+  tag devfold   224 cbs: GPU 1.3872 s (mean 6.193 ms); commit -> GPU start 1.1502 s (mean 5.135 ms); GPU end -> seen 0.0479 s; encode 0.0035 s
+  tag gather     64 cbs: GPU 0.0336 s (mean 0.526 ms); commit -> GPU start 0.2838 s (mean 4.435 ms); GPU end -> seen 0.0090 s; encode 0.0008 s
+  per thread: t141 q[142] 140 cbs, active 4.488 s: in run 2.405 s (GPU 1.689, commit -> start 0.687), host between 2.083 s; t142 q[143] 138 cbs, active 4.520 s: in run 2.338 s (GPU 1.602, commit -> start 0.705), host between 2.182 s; t143 q[144] 117 cbs, active 4.344 s: in run 2.233 s (GPU 1.601, commit -> start 0.599), host between 2.110 s; t144 q[145] 115 cbs, active 4.198 s: in run 2.219 s (GPU 1.448, commit -> start 0.748), host between 1.979 s; t145 q[146] 115 cbs, active 4.269 s: in run 2.197 s (GPU 1.465, commit -> start 0.710), host between 2.072 s; t146 q[147] 116 cbs, active 4.263 s: in run 2.130 s (GPU 1.340, commit -> start 0.770), host between 2.133 s
+  queue 142: 140 cbs, 0 started before the queue's earlier ones had all ended
+  queue 143: 138 cbs, 0 started before the queue's earlier ones had all ended
+  queue 144: 117 cbs, 0 started before the queue's earlier ones had all ended
+  queue 145: 115 cbs, 0 started before the queue's earlier ones had all ended
+  queue 146: 115 cbs, 0 started before the queue's earlier ones had all ended
+  queue 147: 116 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin+devfold] pass 1: wall 5.042 s = 25.39 proved tok/s; preflight 0.083 s, commit 0.236 s, forks 4.660 s, join 0.062 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 93.1 CPU-seconds (user + system, the whole process) over the 4.772 s call = 19.5 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.772 s
+  window 4.7723 s: 840 command buffers; GPU busy (>= 1 executing) 3.6002 s = 75.4%, idle 1.1721 s = 24.6%; summed command-buffer GPU time 10.1530 s (mean 2.82 at once while busy); >= 2 at once 3.1103 s = 86.4% of busy
+  time at k executing: 0: 1.1721 s, 1: 0.4899 s, 2: 0.9957 s, 3: 1.2891 s, 4: 0.4408 s, 5: 0.2745 s, 6: 0.1022 s, 7+: 0.0079 s
+  idle gaps: 237 totalling 1.1721 s, longest 158.03 ms; < 20 us 10 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 0 (0.0000 s), 0.2-1 ms 90 (0.0537 s), 1-5 ms 60 (0.1817 s), >= 5 ms 76 (0.9367 s)
+  tag batch     391 cbs: GPU 6.8310 s (mean 17.471 ms); commit -> GPU start 3.0982 s (mean 7.924 ms); GPU end -> seen 0.0836 s; encode 0.0103 s
+  tag commit     95 cbs: GPU 1.7502 s (mean 18.423 ms); commit -> GPU start 0.7088 s (mean 7.461 ms); GPU end -> seen 0.0201 s; encode 0.0039 s
+  tag devfold   257 cbs: GPU 1.5378 s (mean 5.984 ms); commit -> GPU start 2.3054 s (mean 8.970 ms); GPU end -> seen 0.0471 s; encode 0.0032 s
+  tag gather     97 cbs: GPU 0.0340 s (mean 0.350 ms); commit -> GPU start 0.4522 s (mean 4.662 ms); GPU end -> seen 0.0103 s; encode 0.0010 s
+  per thread: t0 q[1] 97 cbs, active 4.691 s: in run 0.056 s (GPU 0.018, commit -> start 0.028), host between 4.635 s; t147 q[148] 92 cbs, active 3.712 s: in run 2.012 s (GPU 1.211, commit -> start 0.779), host between 1.700 s; t148 q[149] 94 cbs, active 3.536 s: in run 1.912 s (GPU 1.219, commit -> start 0.666), host between 1.624 s; t149 q[150] 92 cbs, active 4.208 s: in run 2.122 s (GPU 1.366, commit -> start 0.736), host between 2.086 s; t150 q[151] 93 cbs, active 3.967 s: in run 2.143 s (GPU 1.219, commit -> start 0.903), host between 1.825 s; t151 q[152] 93 cbs, active 4.192 s: in run 2.160 s (GPU 1.443, commit -> start 0.695), host between 2.032 s; t152 q[153] 93 cbs, active 4.120 s: in run 2.110 s (GPU 1.220, commit -> start 0.869), host between 2.010 s; t153 q[154] 94 cbs, active 4.109 s: in run 2.141 s (GPU 1.250, commit -> start 0.871), host between 1.968 s; t154 q[155] 92 cbs, active 4.062 s: in run 2.241 s (GPU 1.207, commit -> start 1.017), host between 1.820 s
+  queue 1: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 148: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 149: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 150: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 151: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 152: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 153: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 154: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 155: 92 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.418 s
+  window 4.4177 s: 743 command buffers; GPU busy (>= 1 executing) 3.5824 s = 81.1%, idle 0.8353 s = 18.9%; summed command-buffer GPU time 10.1351 s (mean 2.83 at once while busy); >= 2 at once 3.1103 s = 86.8% of busy
+  time at k executing: 0: 0.8353 s, 1: 0.4721 s, 2: 0.9957 s, 3: 1.2891 s, 4: 0.4408 s, 5: 0.2745 s, 6: 0.1022 s, 7+: 0.0079 s
+  idle gaps: 140 totalling 0.8353 s, longest 156.27 ms; < 20 us 10 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 0 (0.0000 s), 0.2-1 ms 25 (0.0110 s), 1-5 ms 59 (0.1763 s), >= 5 ms 45 (0.6479 s)
+  tag batch     391 cbs: GPU 6.8310 s (mean 17.471 ms); commit -> GPU start 3.0982 s (mean 7.924 ms); GPU end -> seen 0.0836 s; encode 0.0103 s
+  tag commit     64 cbs: GPU 1.7349 s (mean 27.107 ms); commit -> GPU start 0.6906 s (mean 10.791 ms); GPU end -> seen 0.0166 s; encode 0.0037 s
+  tag devfold   224 cbs: GPU 1.5355 s (mean 6.855 ms); commit -> GPU start 2.3007 s (mean 10.271 ms); GPU end -> seen 0.0440 s; encode 0.0031 s
+  tag gather     64 cbs: GPU 0.0337 s (mean 0.527 ms); commit -> GPU start 0.4469 s (mean 6.983 ms); GPU end -> seen 0.0076 s; encode 0.0009 s
+  per thread: t147 q[148] 92 cbs, active 3.712 s: in run 2.012 s (GPU 1.211, commit -> start 0.779), host between 1.700 s; t148 q[149] 94 cbs, active 3.536 s: in run 1.912 s (GPU 1.219, commit -> start 0.666), host between 1.624 s; t149 q[150] 92 cbs, active 4.208 s: in run 2.122 s (GPU 1.366, commit -> start 0.736), host between 2.086 s; t150 q[151] 93 cbs, active 3.967 s: in run 2.143 s (GPU 1.219, commit -> start 0.903), host between 1.825 s; t151 q[152] 93 cbs, active 4.192 s: in run 2.160 s (GPU 1.443, commit -> start 0.695), host between 2.032 s; t152 q[153] 93 cbs, active 4.120 s: in run 2.110 s (GPU 1.220, commit -> start 0.869), host between 2.010 s; t153 q[154] 94 cbs, active 4.109 s: in run 2.141 s (GPU 1.250, commit -> start 0.871), host between 1.968 s; t154 q[155] 92 cbs, active 4.062 s: in run 2.241 s (GPU 1.207, commit -> start 1.017), host between 1.820 s
+  queue 148: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 149: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 150: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 151: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 152: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 153: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 154: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 155: 92 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin+devfold] pass 1: wall 4.772 s = 26.82 proved tok/s; preflight 0.072 s, commit 0.232 s, forks 4.418 s, join 0.050 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 99.6 CPU-seconds (user + system, the whole process) over the 5.058 s call = 19.7 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the whole call, 5.058 s
+  window 5.0575 s: 581 command buffers; GPU busy (>= 1 executing) 2.7843 s = 55.1%, idle 2.2732 s = 44.9%; summed command-buffer GPU time 5.9439 s (mean 2.13 at once while busy); >= 2 at once 2.0257 s = 72.8% of busy
+  time at k executing: 0: 2.2732 s, 1: 0.7586 s, 2: 0.8919 s, 3: 1.1339 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 251 totalling 2.2732 s, longest 151.85 ms; < 20 us 17 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 5 (0.0005 s), 0.2-1 ms 17 (0.0107 s), 1-5 ms 88 (0.2360 s), >= 5 ms 123 (2.0260 s)
+  tag batch     389 cbs: GPU 4.2206 s (mean 10.850 ms); commit -> GPU start 2.0285 s (mean 5.215 ms); GPU end -> seen 0.4415 s; encode 0.0093 s
+  tag commit     95 cbs: GPU 1.6979 s (mean 17.873 ms); commit -> GPU start 0.7747 s (mean 8.155 ms); GPU end -> seen 0.0315 s; encode 0.0017 s
+  tag gather     97 cbs: GPU 0.0254 s (mean 0.261 ms); commit -> GPU start 0.3707 s (mean 3.821 ms); GPU end -> seen 0.2182 s; encode 0.0013 s
+  per thread: t0 q[0] 64 cbs, active 4.963 s: in run 0.050 s (GPU 0.016, commit -> start 0.026), host between 4.913 s; t155 q[0] 80 cbs, active 4.268 s: in run 1.670 s (GPU 1.042, commit -> start 0.537), host between 2.598 s; t156 q[0] 82 cbs, active 4.259 s: in run 1.539 s (GPU 0.957, commit -> start 0.497), host between 2.720 s; t157 q[0] 81 cbs, active 4.137 s: in run 1.502 s (GPU 0.907, commit -> start 0.517), host between 2.634 s; t158 q[0] 97 cbs, active 4.436 s: in run 1.763 s (GPU 1.085, commit -> start 0.476), host between 2.673 s; t159 q[0] 81 cbs, active 4.108 s: in run 1.622 s (GPU 0.907, commit -> start 0.579), host between 2.486 s; t160 q[0] 96 cbs, active 4.469 s: in run 1.675 s (GPU 1.030, commit -> start 0.542), host between 2.794 s
+  queue 0: 581 cbs, 328 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the forks phase, 4.661 s
+  window 4.6614 s: 517 command buffers; GPU busy (>= 1 executing) 2.7681 s = 59.4%, idle 1.8933 s = 40.6%; summed command-buffer GPU time 5.9277 s (mean 2.14 at once while busy); >= 2 at once 2.0257 s = 73.2% of busy
+  time at k executing: 0: 1.8933 s, 1: 0.7424 s, 2: 0.8919 s, 3: 1.1339 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 187 totalling 1.8933 s, longest 150.22 ms; < 20 us 17 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 5 (0.0005 s), 0.2-1 ms 17 (0.0107 s), 1-5 ms 56 (0.1613 s), >= 5 ms 91 (1.7208 s)
+  tag batch     389 cbs: GPU 4.2206 s (mean 10.850 ms); commit -> GPU start 2.0285 s (mean 5.215 ms); GPU end -> seen 0.4415 s; encode 0.0093 s
+  tag commit     64 cbs: GPU 1.6820 s (mean 26.281 ms); commit -> GPU start 0.7554 s (mean 11.804 ms); GPU end -> seen 0.0278 s; encode 0.0015 s
+  tag gather     64 cbs: GPU 0.0251 s (mean 0.392 ms); commit -> GPU start 0.3636 s (mean 5.681 ms); GPU end -> seen 0.2151 s; encode 0.0010 s
+  per thread: t155 q[0] 80 cbs, active 4.268 s: in run 1.670 s (GPU 1.042, commit -> start 0.537), host between 2.598 s; t156 q[0] 82 cbs, active 4.259 s: in run 1.539 s (GPU 0.957, commit -> start 0.497), host between 2.720 s; t157 q[0] 81 cbs, active 4.137 s: in run 1.502 s (GPU 0.907, commit -> start 0.517), host between 2.634 s; t158 q[0] 97 cbs, active 4.436 s: in run 1.763 s (GPU 1.085, commit -> start 0.476), host between 2.673 s; t159 q[0] 81 cbs, active 4.108 s: in run 1.622 s (GPU 0.907, commit -> start 0.579), host between 2.486 s; t160 q[0] 96 cbs, active 4.469 s: in run 1.675 s (GPU 1.030, commit -> start 0.542), host between 2.794 s
+  queue 0: 517 cbs, 328 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [shared+spin] pass 2: wall 5.058 s = 25.31 proved tok/s; preflight 0.085 s, commit 0.231 s, forks 4.661 s, join 0.080 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 100.8 CPU-seconds (user + system, the whole process) over the 4.897 s call = 20.6 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues shared): the whole call, 4.897 s
+  window 4.8967 s: 580 command buffers; GPU busy (>= 1 executing) 2.7298 s = 55.7%, idle 2.1670 s = 44.3%; summed command-buffer GPU time 6.2855 s (mean 2.30 at once while busy); >= 2 at once 2.1347 s = 78.2% of busy
+  time at k executing: 0: 2.1670 s, 1: 0.5951 s, 2: 0.7136 s, 3: 1.4211 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 216 totalling 2.1670 s, longest 195.03 ms; < 20 us 20 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 4 (0.0004 s), 0.2-1 ms 13 (0.0071 s), 1-5 ms 77 (0.2099 s), >= 5 ms 101 (1.9495 s)
+  tag batch     388 cbs: GPU 4.5246 s (mean 11.661 ms); commit -> GPU start 4.0279 s (mean 10.381 ms); GPU end -> seen 0.6780 s; encode 0.0103 s
+  tag commit     95 cbs: GPU 1.7430 s (mean 18.347 ms); commit -> GPU start 0.9587 s (mean 10.091 ms); GPU end -> seen 0.0881 s; encode 0.0019 s
+  tag gather     97 cbs: GPU 0.0179 s (mean 0.185 ms); commit -> GPU start 0.3713 s (mean 3.828 ms); GPU end -> seen 0.2574 s; encode 0.0013 s
+  per thread: t0 q[0] 64 cbs, active 4.809 s: in run 0.051 s (GPU 0.016, commit -> start 0.028), host between 4.759 s; t161 q[0] 64 cbs, active 4.349 s: in run 1.528 s (GPU 0.743, commit -> start 0.648), host between 2.821 s; t162 q[0] 65 cbs, active 4.267 s: in run 1.630 s (GPU 0.878, commit -> start 0.667), host between 2.637 s; t163 q[0] 64 cbs, active 4.240 s: in run 1.599 s (GPU 0.782, commit -> start 0.678), host between 2.641 s; t164 q[0] 65 cbs, active 4.226 s: in run 1.621 s (GPU 0.740, commit -> start 0.744), host between 2.605 s; t165 q[0] 64 cbs, active 3.731 s: in run 1.487 s (GPU 0.726, commit -> start 0.642), host between 2.244 s; t166 q[0] 66 cbs, active 4.093 s: in run 1.742 s (GPU 0.854, commit -> start 0.749), host between 2.352 s; t167 q[0] 64 cbs, active 4.123 s: in run 1.597 s (GPU 0.795, commit -> start 0.617), host between 2.525 s; t168 q[0] 64 cbs, active 4.177 s: in run 1.425 s (GPU 0.751, commit -> start 0.585), host between 2.752 s
+  queue 0: 580 cbs, 357 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues shared): the forks phase, 4.491 s
+  window 4.4909 s: 516 command buffers; GPU busy (>= 1 executing) 2.7136 s = 60.4%, idle 1.7773 s = 39.6%; summed command-buffer GPU time 6.2694 s (mean 2.31 at once while busy); >= 2 at once 2.1347 s = 78.7% of busy
+  time at k executing: 0: 1.7773 s, 1: 0.5790 s, 2: 0.7136 s, 3: 1.4211 s, 4: 0.0000 s, 5: 0.0000 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 152 totalling 1.7773 s, longest 195.03 ms; < 20 us 20 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 4 (0.0004 s), 0.2-1 ms 13 (0.0071 s), 1-5 ms 45 (0.1283 s), >= 5 ms 69 (1.6415 s)
+  tag batch     388 cbs: GPU 4.5246 s (mean 11.661 ms); commit -> GPU start 4.0279 s (mean 10.381 ms); GPU end -> seen 0.6780 s; encode 0.0103 s
+  tag commit     64 cbs: GPU 1.7272 s (mean 26.988 ms); commit -> GPU start 0.9390 s (mean 14.671 ms); GPU end -> seen 0.0847 s; encode 0.0017 s
+  tag gather     64 cbs: GPU 0.0176 s (mean 0.275 ms); commit -> GPU start 0.3634 s (mean 5.679 ms); GPU end -> seen 0.2544 s; encode 0.0011 s
+  per thread: t161 q[0] 64 cbs, active 4.349 s: in run 1.528 s (GPU 0.743, commit -> start 0.648), host between 2.821 s; t162 q[0] 65 cbs, active 4.267 s: in run 1.630 s (GPU 0.878, commit -> start 0.667), host between 2.637 s; t163 q[0] 64 cbs, active 4.240 s: in run 1.599 s (GPU 0.782, commit -> start 0.678), host between 2.641 s; t164 q[0] 65 cbs, active 4.226 s: in run 1.621 s (GPU 0.740, commit -> start 0.744), host between 2.605 s; t165 q[0] 64 cbs, active 3.731 s: in run 1.487 s (GPU 0.726, commit -> start 0.642), host between 2.244 s; t166 q[0] 66 cbs, active 4.093 s: in run 1.742 s (GPU 0.854, commit -> start 0.749), host between 2.352 s; t167 q[0] 64 cbs, active 4.123 s: in run 1.597 s (GPU 0.795, commit -> start 0.617), host between 2.525 s; t168 q[0] 64 cbs, active 4.177 s: in run 1.425 s (GPU 0.751, commit -> start 0.585), host between 2.752 s
+  queue 0: 516 cbs, 357 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [shared+spin] pass 2: wall 4.897 s = 26.14 proved tok/s; preflight 0.079 s, commit 0.239 s, forks 4.491 s, join 0.088 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 98.6 CPU-seconds (user + system, the whole process) over the 4.823 s call = 20.4 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.823 s
+  window 4.8233 s: 584 command buffers; GPU busy (>= 1 executing) 2.8279 s = 58.6%, idle 1.9954 s = 41.4%; summed command-buffer GPU time 6.6343 s (mean 2.35 at once while busy); >= 2 at once 2.0633 s = 73.0% of busy
+  time at k executing: 0: 1.9954 s, 1: 0.7646 s, 2: 0.8500 s, 3: 0.7942 s, 4: 0.3142 s, 5: 0.0987 s, 6: 0.0061 s, 7+: 0.0000 s
+  idle gaps: 245 totalling 1.9954 s, longest 135.75 ms; < 20 us 8 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 2 (0.0002 s), 0.2-1 ms 19 (0.0100 s), 1-5 ms 92 (0.2308 s), >= 5 ms 124 (1.7543 s)
+  tag batch     392 cbs: GPU 5.0853 s (mean 12.973 ms); commit -> GPU start 1.4341 s (mean 3.659 ms); GPU end -> seen 0.0751 s; encode 0.0102 s
+  tag commit     95 cbs: GPU 1.5092 s (mean 15.887 ms); commit -> GPU start 0.4276 s (mean 4.501 ms); GPU end -> seen 0.0207 s; encode 0.0028 s
+  tag gather     97 cbs: GPU 0.0397 s (mean 0.410 ms); commit -> GPU start 0.6194 s (mean 6.385 ms); GPU end -> seen 0.0155 s; encode 0.0013 s
+  per thread: t0 q[1] 64 cbs, active 4.722 s: in run 0.045 s (GPU 0.015, commit -> start 0.024), host between 4.677 s; t169 q[170] 96 cbs, active 4.233 s: in run 1.628 s (GPU 1.153, commit -> start 0.453), host between 2.605 s; t170 q[171] 98 cbs, active 4.254 s: in run 1.598 s (GPU 1.107, commit -> start 0.465), host between 2.656 s; t171 q[172] 82 cbs, active 3.842 s: in run 1.483 s (GPU 0.943, commit -> start 0.521), host between 2.359 s; t172 q[173] 82 cbs, active 4.036 s: in run 1.430 s (GPU 1.050, commit -> start 0.364), host between 2.605 s; t173 q[174] 82 cbs, active 3.938 s: in run 1.507 s (GPU 1.256, commit -> start 0.231), host between 2.431 s; t174 q[175] 80 cbs, active 4.025 s: in run 1.551 s (GPU 1.111, commit -> start 0.423), host between 2.474 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 170: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 171: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 172: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 173: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 174: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 175: 80 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.421 s
+  window 4.4206 s: 520 command buffers; GPU busy (>= 1 executing) 2.8133 s = 63.6%, idle 1.6073 s = 36.4%; summed command-buffer GPU time 6.6197 s (mean 2.35 at once while busy); >= 2 at once 2.0633 s = 73.3% of busy
+  time at k executing: 0: 1.6073 s, 1: 0.7500 s, 2: 0.8500 s, 3: 0.7942 s, 4: 0.3142 s, 5: 0.0987 s, 6: 0.0061 s, 7+: 0.0000 s
+  idle gaps: 181 totalling 1.6073 s, longest 134.11 ms; < 20 us 8 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 2 (0.0002 s), 0.2-1 ms 19 (0.0100 s), 1-5 ms 60 (0.1550 s), >= 5 ms 92 (1.4421 s)
+  tag batch     392 cbs: GPU 5.0853 s (mean 12.973 ms); commit -> GPU start 1.4341 s (mean 3.659 ms); GPU end -> seen 0.0751 s; encode 0.0102 s
+  tag commit     64 cbs: GPU 1.4949 s (mean 23.358 ms); commit -> GPU start 0.4096 s (mean 6.400 ms); GPU end -> seen 0.0172 s; encode 0.0026 s
+  tag gather     64 cbs: GPU 0.0395 s (mean 0.617 ms); commit -> GPU start 0.6138 s (mean 9.591 ms); GPU end -> seen 0.0125 s; encode 0.0010 s
+  per thread: t169 q[170] 96 cbs, active 4.233 s: in run 1.628 s (GPU 1.153, commit -> start 0.453), host between 2.605 s; t170 q[171] 98 cbs, active 4.254 s: in run 1.598 s (GPU 1.107, commit -> start 0.465), host between 2.656 s; t171 q[172] 82 cbs, active 3.842 s: in run 1.483 s (GPU 0.943, commit -> start 0.521), host between 2.359 s; t172 q[173] 82 cbs, active 4.036 s: in run 1.430 s (GPU 1.050, commit -> start 0.364), host between 2.605 s; t173 q[174] 82 cbs, active 3.938 s: in run 1.507 s (GPU 1.256, commit -> start 0.231), host between 2.431 s; t174 q[175] 80 cbs, active 4.025 s: in run 1.551 s (GPU 1.111, commit -> start 0.423), host between 2.474 s
+  queue 170: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 171: 98 cbs, 0 started before the queue's earlier ones had all ended
+  queue 172: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 173: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 174: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 175: 80 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin] pass 2: wall 4.823 s = 26.54 proved tok/s; preflight 0.093 s, commit 0.228 s, forks 4.421 s, join 0.082 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 100.4 CPU-seconds (user + system, the whole process) over the 4.685 s call = 21.4 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.685 s
+  window 4.6853 s: 578 command buffers; GPU busy (>= 1 executing) 2.8278 s = 60.4%, idle 1.8575 s = 39.6%; summed command-buffer GPU time 7.8976 s (mean 2.79 at once while busy); >= 2 at once 2.2426 s = 79.3% of busy
+  time at k executing: 0: 1.8575 s, 1: 0.5851 s, 2: 0.6339 s, 3: 0.7685 s, 4: 0.5050 s, 5: 0.2922 s, 6: 0.0430 s, 7+: 0.0000 s
+  idle gaps: 220 totalling 1.8575 s, longest 178.99 ms; < 20 us 10 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 3 (0.0003 s), 0.2-1 ms 20 (0.0129 s), 1-5 ms 88 (0.2376 s), >= 5 ms 99 (1.6066 s)
+  tag batch     386 cbs: GPU 6.1519 s (mean 15.938 ms); commit -> GPU start 2.6668 s (mean 6.909 ms); GPU end -> seen 0.0785 s; encode 0.0105 s
+  tag commit     95 cbs: GPU 1.7272 s (mean 18.181 ms); commit -> GPU start 1.1663 s (mean 12.277 ms); GPU end -> seen 0.0178 s; encode 0.0252 s
+  tag gather     97 cbs: GPU 0.0184 s (mean 0.189 ms); commit -> GPU start 0.3723 s (mean 3.838 ms); GPU end -> seen 0.0167 s; encode 0.0013 s
+  per thread: t0 q[1] 64 cbs, active 4.583 s: in run 0.051 s (GPU 0.016, commit -> start 0.027), host between 4.533 s; t175 q[176] 64 cbs, active 3.692 s: in run 1.325 s (GPU 0.873, commit -> start 0.438), host between 2.368 s; t176 q[177] 64 cbs, active 3.511 s: in run 1.427 s (GPU 0.839, commit -> start 0.573), host between 2.084 s; t177 q[178] 65 cbs, active 3.994 s: in run 1.611 s (GPU 1.182, commit -> start 0.414), host between 2.383 s; t178 q[179] 65 cbs, active 3.994 s: in run 1.580 s (GPU 0.952, commit -> start 0.610), host between 2.414 s; t179 q[180] 64 cbs, active 4.006 s: in run 1.634 s (GPU 1.088, commit -> start 0.517), host between 2.372 s; t180 q[181] 64 cbs, active 3.882 s: in run 1.421 s (GPU 0.819, commit -> start 0.577), host between 2.462 s; t181 q[182] 64 cbs, active 3.861 s: in run 1.657 s (GPU 1.084, commit -> start 0.561), host between 2.203 s; t182 q[183] 64 cbs, active 3.987 s: in run 1.547 s (GPU 1.046, commit -> start 0.488), host between 2.441 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 176: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 177: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 178: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 179: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 180: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 181: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 182: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 183: 64 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.266 s
+  window 4.2663 s: 514 command buffers; GPU busy (>= 1 executing) 2.8117 s = 65.9%, idle 1.4546 s = 34.1%; summed command-buffer GPU time 7.8815 s (mean 2.80 at once while busy); >= 2 at once 2.2426 s = 79.8% of busy
+  time at k executing: 0: 1.4546 s, 1: 0.5690 s, 2: 0.6339 s, 3: 0.7685 s, 4: 0.5050 s, 5: 0.2922 s, 6: 0.0430 s, 7+: 0.0000 s
+  idle gaps: 156 totalling 1.4546 s, longest 177.28 ms; < 20 us 10 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 3 (0.0003 s), 0.2-1 ms 20 (0.0129 s), 1-5 ms 56 (0.1534 s), >= 5 ms 67 (1.2879 s)
+  tag batch     386 cbs: GPU 6.1519 s (mean 15.938 ms); commit -> GPU start 2.6668 s (mean 6.909 ms); GPU end -> seen 0.0785 s; encode 0.0105 s
+  tag commit     64 cbs: GPU 1.7114 s (mean 26.741 ms); commit -> GPU start 1.1463 s (mean 17.911 ms); GPU end -> seen 0.0144 s; encode 0.0250 s
+  tag gather     64 cbs: GPU 0.0181 s (mean 0.283 ms); commit -> GPU start 0.3648 s (mean 5.701 ms); GPU end -> seen 0.0134 s; encode 0.0011 s
+  per thread: t175 q[176] 64 cbs, active 3.692 s: in run 1.325 s (GPU 0.873, commit -> start 0.438), host between 2.368 s; t176 q[177] 64 cbs, active 3.511 s: in run 1.427 s (GPU 0.839, commit -> start 0.573), host between 2.084 s; t177 q[178] 65 cbs, active 3.994 s: in run 1.611 s (GPU 1.182, commit -> start 0.414), host between 2.383 s; t178 q[179] 65 cbs, active 3.994 s: in run 1.580 s (GPU 0.952, commit -> start 0.610), host between 2.414 s; t179 q[180] 64 cbs, active 4.006 s: in run 1.634 s (GPU 1.088, commit -> start 0.517), host between 2.372 s; t180 q[181] 64 cbs, active 3.882 s: in run 1.421 s (GPU 0.819, commit -> start 0.577), host between 2.462 s; t181 q[182] 64 cbs, active 3.861 s: in run 1.657 s (GPU 1.084, commit -> start 0.561), host between 2.203 s; t182 q[183] 64 cbs, active 3.987 s: in run 1.547 s (GPU 1.046, commit -> start 0.488), host between 2.441 s
+  queue 176: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 177: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 178: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 179: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 180: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 181: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 182: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 183: 64 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin] pass 2: wall 4.685 s = 27.32 proved tok/s; preflight 0.093 s, commit 0.236 s, forks 4.266 s, join 0.090 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 89.9 CPU-seconds (user + system, the whole process) over the 4.644 s call = 19.4 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.644 s
+  window 4.6440 s: 580 command buffers; GPU busy (>= 1 executing) 2.7992 s = 60.3%, idle 1.8449 s = 39.7%; summed command-buffer GPU time 6.4450 s (mean 2.30 at once while busy); >= 2 at once 2.0958 s = 74.9% of busy
+  time at k executing: 0: 1.8449 s, 1: 0.7033 s, 2: 0.7984 s, 3: 1.0743 s, 4: 0.1937 s, 5: 0.0295 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 260 totalling 1.8449 s, longest 157.29 ms; < 20 us 4 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 4 (0.0003 s), 0.2-1 ms 26 (0.0149 s), 1-5 ms 107 (0.2747 s), >= 5 ms 119 (1.5550 s)
+  tag batch     388 cbs: GPU 4.7962 s (mean 12.361 ms); commit -> GPU start 1.0210 s (mean 2.631 ms); GPU end -> seen 0.1300 s; encode 0.0111 s
+  tag commit     95 cbs: GPU 1.6238 s (mean 17.092 ms); commit -> GPU start 0.6020 s (mean 6.336 ms); GPU end -> seen 0.0204 s; encode 0.0033 s
+  tag gather     97 cbs: GPU 0.0250 s (mean 0.258 ms); commit -> GPU start 0.2881 s (mean 2.970 ms); GPU end -> seen 0.0177 s; encode 0.0013 s
+  per thread: t0 q[1] 64 cbs, active 4.546 s: in run 0.052 s (GPU 0.016, commit -> start 0.028), host between 4.494 s; t183 q[184] 97 cbs, active 4.113 s: in run 1.484 s (GPU 1.163, commit -> start 0.288), host between 2.629 s; t184 q[185] 80 cbs, active 3.565 s: in run 1.214 s (GPU 0.922, commit -> start 0.268), host between 2.351 s; t185 q[186] 96 cbs, active 4.049 s: in run 1.474 s (GPU 1.141, commit -> start 0.304), host between 2.574 s; t186 q[187] 80 cbs, active 3.833 s: in run 1.480 s (GPU 1.098, commit -> start 0.349), host between 2.353 s; t187 q[188] 81 cbs, active 3.680 s: in run 1.425 s (GPU 0.982, commit -> start 0.419), host between 2.255 s; t188 q[189] 82 cbs, active 3.858 s: in run 1.410 s (GPU 1.122, commit -> start 0.255), host between 2.448 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 184: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 185: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 186: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 187: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 188: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 189: 82 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.238 s
+  window 4.2383 s: 516 command buffers; GPU busy (>= 1 executing) 2.7827 s = 65.7%, idle 1.4556 s = 34.3%; summed command-buffer GPU time 6.4285 s (mean 2.31 at once while busy); >= 2 at once 2.0958 s = 75.3% of busy
+  time at k executing: 0: 1.4556 s, 1: 0.6869 s, 2: 0.7984 s, 3: 1.0743 s, 4: 0.1937 s, 5: 0.0295 s, 6: 0.0000 s, 7+: 0.0000 s
+  idle gaps: 196 totalling 1.4556 s, longest 155.34 ms; < 20 us 4 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 4 (0.0003 s), 0.2-1 ms 26 (0.0149 s), 1-5 ms 75 (0.2027 s), >= 5 ms 87 (1.2377 s)
+  tag batch     388 cbs: GPU 4.7962 s (mean 12.361 ms); commit -> GPU start 1.0210 s (mean 2.631 ms); GPU end -> seen 0.1300 s; encode 0.0111 s
+  tag commit     64 cbs: GPU 1.6076 s (mean 25.118 ms); commit -> GPU start 0.5796 s (mean 9.056 ms); GPU end -> seen 0.0169 s; encode 0.0031 s
+  tag gather     64 cbs: GPU 0.0248 s (mean 0.387 ms); commit -> GPU start 0.2823 s (mean 4.411 ms); GPU end -> seen 0.0144 s; encode 0.0010 s
+  per thread: t183 q[184] 97 cbs, active 4.113 s: in run 1.484 s (GPU 1.163, commit -> start 0.288), host between 2.629 s; t184 q[185] 80 cbs, active 3.565 s: in run 1.214 s (GPU 0.922, commit -> start 0.268), host between 2.351 s; t185 q[186] 96 cbs, active 4.049 s: in run 1.474 s (GPU 1.141, commit -> start 0.304), host between 2.574 s; t186 q[187] 80 cbs, active 3.833 s: in run 1.480 s (GPU 1.098, commit -> start 0.349), host between 2.353 s; t187 q[188] 81 cbs, active 3.680 s: in run 1.425 s (GPU 0.982, commit -> start 0.419), host between 2.255 s; t188 q[189] 82 cbs, active 3.858 s: in run 1.410 s (GPU 1.122, commit -> start 0.255), host between 2.448 s
+  queue 184: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 185: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 186: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 187: 80 cbs, 0 started before the queue's earlier ones had all ended
+  queue 188: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 189: 82 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+block] pass 2: wall 4.644 s = 27.56 proved tok/s; preflight 0.090 s, commit 0.239 s, forks 4.238 s, join 0.078 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 89.5 CPU-seconds (user + system, the whole process) over the 4.671 s call = 19.2 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.671 s
+  window 4.6706 s: 589 command buffers; GPU busy (>= 1 executing) 2.8438 s = 60.9%, idle 1.8269 s = 39.1%; summed command-buffer GPU time 7.6751 s (mean 2.70 at once while busy); >= 2 at once 2.2526 s = 79.2% of busy
+  time at k executing: 0: 1.8269 s, 1: 0.5912 s, 2: 0.6403 s, 3: 0.9099 s, 4: 0.4867 s, 5: 0.1708 s, 6: 0.0411 s, 7+: 0.0037 s
+  idle gaps: 219 totalling 1.8269 s, longest 182.85 ms; < 20 us 10 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 5 (0.0005 s), 0.2-1 ms 18 (0.0094 s), 1-5 ms 88 (0.2373 s), >= 5 ms 97 (1.5796 s)
+  tag batch     397 cbs: GPU 6.0415 s (mean 15.218 ms); commit -> GPU start 3.5164 s (mean 8.857 ms); GPU end -> seen 0.1459 s; encode 0.0114 s
+  tag commit     95 cbs: GPU 1.6160 s (mean 17.011 ms); commit -> GPU start 0.7995 s (mean 8.416 ms); GPU end -> seen 0.0308 s; encode 0.0031 s
+  tag gather     97 cbs: GPU 0.0176 s (mean 0.181 ms); commit -> GPU start 0.2802 s (mean 2.888 ms); GPU end -> seen 0.0221 s; encode 0.0014 s
+  per thread: t0 q[1] 64 cbs, active 4.579 s: in run 0.066 s (GPU 0.016, commit -> start 0.042), host between 4.513 s; t189 q[190] 65 cbs, active 3.609 s: in run 1.492 s (GPU 0.901, commit -> start 0.558), host between 2.118 s; t190 q[191] 66 cbs, active 3.190 s: in run 1.260 s (GPU 0.774, commit -> start 0.454), host between 1.930 s; t191 q[192] 65 cbs, active 4.073 s: in run 1.793 s (GPU 1.174, commit -> start 0.594), host between 2.279 s; t192 q[193] 66 cbs, active 3.587 s: in run 1.394 s (GPU 0.751, commit -> start 0.626), host between 2.193 s; t193 q[194] 66 cbs, active 4.017 s: in run 1.657 s (GPU 1.147, commit -> start 0.490), host between 2.360 s; t194 q[195] 67 cbs, active 4.011 s: in run 1.688 s (GPU 1.038, commit -> start 0.622), host between 2.324 s; t195 q[196] 65 cbs, active 4.006 s: in run 1.559 s (GPU 0.918, commit -> start 0.613), host between 2.446 s; t196 q[197] 65 cbs, active 3.982 s: in run 1.577 s (GPU 0.956, commit -> start 0.599), host between 2.405 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 190: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 191: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 192: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 193: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 194: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 195: 67 cbs, 0 started before the queue's earlier ones had all ended
+  queue 196: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 197: 65 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.250 s
+  window 4.2500 s: 525 command buffers; GPU busy (>= 1 executing) 2.8273 s = 66.5%, idle 1.4226 s = 33.5%; summed command-buffer GPU time 7.6587 s (mean 2.71 at once while busy); >= 2 at once 2.2526 s = 79.7% of busy
+  time at k executing: 0: 1.4226 s, 1: 0.5748 s, 2: 0.6403 s, 3: 0.9099 s, 4: 0.4867 s, 5: 0.1708 s, 6: 0.0411 s, 7+: 0.0037 s
+  idle gaps: 155 totalling 1.4226 s, longest 181.15 ms; < 20 us 10 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 5 (0.0005 s), 0.2-1 ms 18 (0.0094 s), 1-5 ms 57 (0.1612 s), >= 5 ms 64 (1.2514 s)
+  tag batch     397 cbs: GPU 6.0415 s (mean 15.218 ms); commit -> GPU start 3.5164 s (mean 8.857 ms); GPU end -> seen 0.1459 s; encode 0.0114 s
+  tag commit     64 cbs: GPU 1.5999 s (mean 24.998 ms); commit -> GPU start 0.7793 s (mean 12.177 ms); GPU end -> seen 0.0267 s; encode 0.0029 s
+  tag gather     64 cbs: GPU 0.0173 s (mean 0.270 ms); commit -> GPU start 0.2586 s (mean 4.040 ms); GPU end -> seen 0.0190 s; encode 0.0012 s
+  per thread: t189 q[190] 65 cbs, active 3.609 s: in run 1.492 s (GPU 0.901, commit -> start 0.558), host between 2.118 s; t190 q[191] 66 cbs, active 3.190 s: in run 1.260 s (GPU 0.774, commit -> start 0.454), host between 1.930 s; t191 q[192] 65 cbs, active 4.073 s: in run 1.793 s (GPU 1.174, commit -> start 0.594), host between 2.279 s; t192 q[193] 66 cbs, active 3.587 s: in run 1.394 s (GPU 0.751, commit -> start 0.626), host between 2.193 s; t193 q[194] 66 cbs, active 4.017 s: in run 1.657 s (GPU 1.147, commit -> start 0.490), host between 2.360 s; t194 q[195] 67 cbs, active 4.011 s: in run 1.688 s (GPU 1.038, commit -> start 0.622), host between 2.324 s; t195 q[196] 65 cbs, active 4.006 s: in run 1.559 s (GPU 0.918, commit -> start 0.613), host between 2.446 s; t196 q[197] 65 cbs, active 3.982 s: in run 1.577 s (GPU 0.956, commit -> start 0.599), host between 2.405 s
+  queue 190: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 191: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 192: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 193: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 194: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 195: 67 cbs, 0 started before the queue's earlier ones had all ended
+  queue 196: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 197: 65 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+block] pass 2: wall 4.671 s = 27.41 proved tok/s; preflight 0.083 s, commit 0.239 s, forks 4.250 s, join 0.099 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 91.3 CPU-seconds (user + system, the whole process) over the 5.120 s call = 17.8 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 5.120 s
+  window 5.1199 s: 584 command buffers; GPU busy (>= 1 executing) 2.8198 s = 55.1%, idle 2.3001 s = 44.9%; summed command-buffer GPU time 7.0284 s (mean 2.49 at once while busy); >= 2 at once 2.0707 s = 73.4% of busy
+  time at k executing: 0: 2.3001 s, 1: 0.7491 s, 2: 0.6992 s, 3: 0.7900 s, 4: 0.4032 s, 5: 0.1718 s, 6: 0.0065 s, 7+: 0.0000 s
+  idle gaps: 250 totalling 2.3001 s, longest 163.93 ms; < 20 us 7 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 5 (0.0007 s), 0.2-1 ms 22 (0.0120 s), 1-5 ms 99 (0.2666 s), >= 5 ms 116 (2.0208 s)
+  tag batch     392 cbs: GPU 5.3599 s (mean 13.673 ms); commit -> GPU start 1.8105 s (mean 4.619 ms); GPU end -> seen 0.0931 s; encode 0.0109 s
+  tag commit     95 cbs: GPU 1.6458 s (mean 17.325 ms); commit -> GPU start 0.5886 s (mean 6.196 ms); GPU end -> seen 0.0253 s; encode 0.0038 s
+  tag gather     97 cbs: GPU 0.0226 s (mean 0.233 ms); commit -> GPU start 0.3075 s (mean 3.170 ms); GPU end -> seen 0.0171 s; encode 0.0014 s
+  per thread: t0 q[1] 64 cbs, active 5.028 s: in run 0.050 s (GPU 0.016, commit -> start 0.027), host between 4.978 s; t197 q[198] 96 cbs, active 4.570 s: in run 1.923 s (GPU 1.349, commit -> start 0.551), host between 2.647 s; t198 q[199] 82 cbs, active 4.146 s: in run 1.560 s (GPU 1.158, commit -> start 0.372), host between 2.585 s; t199 q[200] 82 cbs, active 4.205 s: in run 1.529 s (GPU 1.043, commit -> start 0.464), host between 2.676 s; t200 q[201] 97 cbs, active 4.414 s: in run 1.648 s (GPU 1.177, commit -> start 0.448), host between 2.766 s; t201 q[202] 81 cbs, active 4.168 s: in run 1.568 s (GPU 1.100, commit -> start 0.445), host between 2.600 s; t202 q[203] 82 cbs, active 4.124 s: in run 1.608 s (GPU 1.185, commit -> start 0.400), host between 2.516 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 198: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 199: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 200: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 201: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 202: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 203: 82 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.723 s
+  window 4.7230 s: 520 command buffers; GPU busy (>= 1 executing) 2.8042 s = 59.4%, idle 1.9188 s = 40.6%; summed command-buffer GPU time 7.0128 s (mean 2.50 at once while busy); >= 2 at once 2.0707 s = 73.8% of busy
+  time at k executing: 0: 1.9188 s, 1: 0.7335 s, 2: 0.6992 s, 3: 0.7900 s, 4: 0.4032 s, 5: 0.1718 s, 6: 0.0065 s, 7+: 0.0000 s
+  idle gaps: 186 totalling 1.9188 s, longest 162.25 ms; < 20 us 7 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 5 (0.0007 s), 0.2-1 ms 22 (0.0120 s), 1-5 ms 67 (0.1984 s), >= 5 ms 84 (1.7077 s)
+  tag batch     392 cbs: GPU 5.3599 s (mean 13.673 ms); commit -> GPU start 1.8105 s (mean 4.619 ms); GPU end -> seen 0.0931 s; encode 0.0109 s
+  tag commit     64 cbs: GPU 1.6305 s (mean 25.477 ms); commit -> GPU start 0.5686 s (mean 8.885 ms); GPU end -> seen 0.0214 s; encode 0.0036 s
+  tag gather     64 cbs: GPU 0.0224 s (mean 0.350 ms); commit -> GPU start 0.3008 s (mean 4.700 ms); GPU end -> seen 0.0140 s; encode 0.0011 s
+  per thread: t197 q[198] 96 cbs, active 4.570 s: in run 1.923 s (GPU 1.349, commit -> start 0.551), host between 2.647 s; t198 q[199] 82 cbs, active 4.146 s: in run 1.560 s (GPU 1.158, commit -> start 0.372), host between 2.585 s; t199 q[200] 82 cbs, active 4.205 s: in run 1.529 s (GPU 1.043, commit -> start 0.464), host between 2.676 s; t200 q[201] 97 cbs, active 4.414 s: in run 1.648 s (GPU 1.177, commit -> start 0.448), host between 2.766 s; t201 q[202] 81 cbs, active 4.168 s: in run 1.568 s (GPU 1.100, commit -> start 0.445), host between 2.600 s; t202 q[203] 82 cbs, active 4.124 s: in run 1.608 s (GPU 1.185, commit -> start 0.400), host between 2.516 s
+  queue 198: 96 cbs, 0 started before the queue's earlier ones had all ended
+  queue 199: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 200: 82 cbs, 0 started before the queue's earlier ones had all ended
+  queue 201: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 202: 81 cbs, 0 started before the queue's earlier ones had all ended
+  queue 203: 82 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin200] pass 2: wall 5.120 s = 25.00 proved tok/s; preflight 0.084 s, commit 0.238 s, forks 4.723 s, join 0.075 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 92.7 CPU-seconds (user + system, the whole process) over the 4.859 s call = 19.1 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.859 s
+  window 4.8589 s: 586 command buffers; GPU busy (>= 1 executing) 2.8223 s = 58.1%, idle 2.0366 s = 41.9%; summed command-buffer GPU time 8.2647 s (mean 2.93 at once while busy); >= 2 at once 2.4103 s = 85.4% of busy
+  time at k executing: 0: 2.0366 s, 1: 0.4120 s, 2: 0.7261 s, 3: 0.8111 s, 4: 0.4682 s, 5: 0.3431 s, 6: 0.0536 s, 7+: 0.0081 s
+  idle gaps: 201 totalling 2.0366 s, longest 184.57 ms; < 20 us 7 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 3 (0.0002 s), 0.2-1 ms 20 (0.0089 s), 1-5 ms 80 (0.1890 s), >= 5 ms 91 (1.8384 s)
+  tag batch     394 cbs: GPU 6.3162 s (mean 16.031 ms); commit -> GPU start 3.9409 s (mean 10.002 ms); GPU end -> seen 0.1271 s; encode 0.0104 s
+  tag commit     95 cbs: GPU 1.9316 s (mean 20.332 ms); commit -> GPU start 0.9113 s (mean 9.593 ms); GPU end -> seen 0.0296 s; encode 0.0059 s
+  tag gather     97 cbs: GPU 0.0170 s (mean 0.175 ms); commit -> GPU start 0.3133 s (mean 3.230 ms); GPU end -> seen 0.0185 s; encode 0.0012 s
+  per thread: t0 q[1] 64 cbs, active 4.763 s: in run 0.050 s (GPU 0.016, commit -> start 0.026), host between 4.713 s; t203 q[204] 66 cbs, active 4.087 s: in run 1.698 s (GPU 1.047, commit -> start 0.630), host between 2.390 s; t204 q[205] 64 cbs, active 4.033 s: in run 1.780 s (GPU 1.197, commit -> start 0.565), host between 2.254 s; t205 q[206] 64 cbs, active 4.227 s: in run 1.548 s (GPU 0.919, commit -> start 0.609), host between 2.679 s; t206 q[207] 64 cbs, active 4.134 s: in run 1.626 s (GPU 1.064, commit -> start 0.542), host between 2.508 s; t207 q[208] 67 cbs, active 4.133 s: in run 1.756 s (GPU 1.091, commit -> start 0.631), host between 2.377 s; t208 q[209] 65 cbs, active 4.172 s: in run 1.730 s (GPU 1.008, commit -> start 0.702), host between 2.441 s; t209 q[210] 64 cbs, active 4.206 s: in run 1.727 s (GPU 0.954, commit -> start 0.754), host between 2.479 s; t210 q[211] 68 cbs, active 4.201 s: in run 1.709 s (GPU 0.970, commit -> start 0.707), host between 2.492 s
+  queue 1: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 204: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 205: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 206: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 207: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 208: 67 cbs, 0 started before the queue's earlier ones had all ended
+  queue 209: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 210: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 211: 68 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.454 s
+  window 4.4545 s: 522 command buffers; GPU busy (>= 1 executing) 2.8059 s = 63.0%, idle 1.6485 s = 37.0%; summed command-buffer GPU time 8.2484 s (mean 2.94 at once while busy); >= 2 at once 2.4103 s = 85.9% of busy
+  time at k executing: 0: 1.6485 s, 1: 0.3956 s, 2: 0.7261 s, 3: 0.8111 s, 4: 0.4682 s, 5: 0.3431 s, 6: 0.0536 s, 7+: 0.0081 s
+  idle gaps: 137 totalling 1.6485 s, longest 182.80 ms; < 20 us 7 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 3 (0.0002 s), 0.2-1 ms 20 (0.0089 s), 1-5 ms 48 (0.1140 s), >= 5 ms 59 (1.5253 s)
+  tag batch     394 cbs: GPU 6.3162 s (mean 16.031 ms); commit -> GPU start 3.9409 s (mean 10.002 ms); GPU end -> seen 0.1271 s; encode 0.0104 s
+  tag commit     64 cbs: GPU 1.9155 s (mean 29.929 ms); commit -> GPU start 0.8912 s (mean 13.924 ms); GPU end -> seen 0.0255 s; encode 0.0057 s
+  tag gather     64 cbs: GPU 0.0167 s (mean 0.261 ms); commit -> GPU start 0.3076 s (mean 4.806 ms); GPU end -> seen 0.0154 s; encode 0.0009 s
+  per thread: t203 q[204] 66 cbs, active 4.087 s: in run 1.698 s (GPU 1.047, commit -> start 0.630), host between 2.390 s; t204 q[205] 64 cbs, active 4.033 s: in run 1.780 s (GPU 1.197, commit -> start 0.565), host between 2.254 s; t205 q[206] 64 cbs, active 4.227 s: in run 1.548 s (GPU 0.919, commit -> start 0.609), host between 2.679 s; t206 q[207] 64 cbs, active 4.134 s: in run 1.626 s (GPU 1.064, commit -> start 0.542), host between 2.508 s; t207 q[208] 67 cbs, active 4.133 s: in run 1.756 s (GPU 1.091, commit -> start 0.631), host between 2.377 s; t208 q[209] 65 cbs, active 4.172 s: in run 1.730 s (GPU 1.008, commit -> start 0.702), host between 2.441 s; t209 q[210] 64 cbs, active 4.206 s: in run 1.727 s (GPU 0.954, commit -> start 0.754), host between 2.479 s; t210 q[211] 68 cbs, active 4.201 s: in run 1.709 s (GPU 0.970, commit -> start 0.707), host between 2.492 s
+  queue 204: 66 cbs, 0 started before the queue's earlier ones had all ended
+  queue 205: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 206: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 207: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 208: 67 cbs, 0 started before the queue's earlier ones had all ended
+  queue 209: 65 cbs, 0 started before the queue's earlier ones had all ended
+  queue 210: 64 cbs, 0 started before the queue's earlier ones had all ended
+  queue 211: 68 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin200] pass 2: wall 4.859 s = 26.34 proved tok/s; preflight 0.086 s, commit 0.238 s, forks 4.454 s, join 0.081 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 90.8 CPU-seconds (user + system, the whole process) over the 5.179 s call = 17.5 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 5.179 s
+  window 5.1788 s: 839 command buffers; GPU busy (>= 1 executing) 3.7275 s = 72.0%, idle 1.4513 s = 28.0%; summed command-buffer GPU time 9.2481 s (mean 2.48 at once while busy); >= 2 at once 3.0074 s = 80.7% of busy
+  time at k executing: 0: 1.4513 s, 1: 0.7200 s, 2: 1.1066 s, 3: 1.4103 s, 4: 0.3710 s, 5: 0.1170 s, 6: 0.0025 s, 7+: 0.0000 s
+  idle gaps: 286 totalling 1.4513 s, longest 142.88 ms; < 20 us 15 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 9 (0.0010 s), 0.2-1 ms 102 (0.0588 s), 1-5 ms 64 (0.1751 s), >= 5 ms 96 (1.2162 s)
+  tag batch     390 cbs: GPU 6.0552 s (mean 15.526 ms); commit -> GPU start 2.3646 s (mean 6.063 ms); GPU end -> seen 0.0759 s; encode 0.0099 s
+  tag commit     95 cbs: GPU 1.8198 s (mean 19.155 ms); commit -> GPU start 0.5026 s (mean 5.290 ms); GPU end -> seen 0.0183 s; encode 0.0029 s
+  tag devfold   257 cbs: GPU 1.3340 s (mean 5.191 ms); commit -> GPU start 1.3691 s (mean 5.327 ms); GPU end -> seen 0.0390 s; encode 0.0031 s
+  tag gather     97 cbs: GPU 0.0391 s (mean 0.403 ms); commit -> GPU start 0.2140 s (mean 2.206 ms); GPU end -> seen 0.0121 s; encode 0.0011 s
+  per thread: t0 q[1] 97 cbs, active 5.085 s: in run 0.058 s (GPU 0.018, commit -> start 0.030), host between 5.027 s; t211 q[212] 140 cbs, active 4.458 s: in run 2.410 s (GPU 1.633, commit -> start 0.748), host between 2.048 s; t212 q[213] 140 cbs, active 4.656 s: in run 2.312 s (GPU 1.702, commit -> start 0.584), host between 2.344 s; t213 q[214] 115 cbs, active 4.267 s: in run 2.295 s (GPU 1.439, commit -> start 0.835), host between 1.972 s; t214 q[215] 116 cbs, active 4.267 s: in run 2.222 s (GPU 1.631, commit -> start 0.567), host between 2.046 s; t215 q[216] 115 cbs, active 4.243 s: in run 2.309 s (GPU 1.353, commit -> start 0.928), host between 1.934 s; t216 q[217] 116 cbs, active 4.239 s: in run 2.256 s (GPU 1.471, commit -> start 0.759), host between 1.983 s
+  queue 1: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 212: 140 cbs, 0 started before the queue's earlier ones had all ended
+  queue 213: 140 cbs, 0 started before the queue's earlier ones had all ended
+  queue 214: 115 cbs, 0 started before the queue's earlier ones had all ended
+  queue 215: 116 cbs, 0 started before the queue's earlier ones had all ended
+  queue 216: 115 cbs, 0 started before the queue's earlier ones had all ended
+  queue 217: 116 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.806 s
+  window 4.8062 s: 742 command buffers; GPU busy (>= 1 executing) 3.7090 s = 77.2%, idle 1.0972 s = 22.8%; summed command-buffer GPU time 9.2297 s (mean 2.49 at once while busy); >= 2 at once 3.0074 s = 81.1% of busy
+  time at k executing: 0: 1.0972 s, 1: 0.7016 s, 2: 1.1066 s, 3: 1.4103 s, 4: 0.3710 s, 5: 0.1170 s, 6: 0.0025 s, 7+: 0.0000 s
+  idle gaps: 189 totalling 1.0972 s, longest 141.14 ms; < 20 us 15 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 9 (0.0010 s), 0.2-1 ms 37 (0.0166 s), 1-5 ms 63 (0.1707 s), >= 5 ms 65 (0.9088 s)
+  tag batch     390 cbs: GPU 6.0552 s (mean 15.526 ms); commit -> GPU start 2.3646 s (mean 6.063 ms); GPU end -> seen 0.0759 s; encode 0.0099 s
+  tag commit     64 cbs: GPU 1.8038 s (mean 28.185 ms); commit -> GPU start 0.4832 s (mean 7.550 ms); GPU end -> seen 0.0149 s; encode 0.0027 s
+  tag devfold   224 cbs: GPU 1.3317 s (mean 5.945 ms); commit -> GPU start 1.3644 s (mean 6.091 ms); GPU end -> seen 0.0360 s; encode 0.0030 s
+  tag gather     64 cbs: GPU 0.0389 s (mean 0.607 ms); commit -> GPU start 0.2086 s (mean 3.259 ms); GPU end -> seen 0.0095 s; encode 0.0010 s
+  per thread: t211 q[212] 140 cbs, active 4.458 s: in run 2.410 s (GPU 1.633, commit -> start 0.748), host between 2.048 s; t212 q[213] 140 cbs, active 4.656 s: in run 2.312 s (GPU 1.702, commit -> start 0.584), host between 2.344 s; t213 q[214] 115 cbs, active 4.267 s: in run 2.295 s (GPU 1.439, commit -> start 0.835), host between 1.972 s; t214 q[215] 116 cbs, active 4.267 s: in run 2.222 s (GPU 1.631, commit -> start 0.567), host between 2.046 s; t215 q[216] 115 cbs, active 4.243 s: in run 2.309 s (GPU 1.353, commit -> start 0.928), host between 1.934 s; t216 q[217] 116 cbs, active 4.239 s: in run 2.256 s (GPU 1.471, commit -> start 0.759), host between 1.983 s
+  queue 212: 140 cbs, 0 started before the queue's earlier ones had all ended
+  queue 213: 140 cbs, 0 started before the queue's earlier ones had all ended
+  queue 214: 115 cbs, 0 started before the queue's earlier ones had all ended
+  queue 215: 116 cbs, 0 started before the queue's earlier ones had all ended
+  queue 216: 115 cbs, 0 started before the queue's earlier ones had all ended
+  queue 217: 116 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [thread+spin+devfold] pass 2: wall 5.179 s = 24.72 proved tok/s; preflight 0.086 s, commit 0.238 s, forks 4.806 s, join 0.049 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N8: 93.2 CPU-seconds (user + system, the whole process) over the 4.890 s call = 19.1 cores busy on average
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the whole call, 4.890 s
+  window 4.8895 s: 839 command buffers; GPU busy (>= 1 executing) 3.6324 s = 74.3%, idle 1.2571 s = 25.7%; summed command-buffer GPU time 10.1088 s (mean 2.78 at once while busy); >= 2 at once 3.0825 s = 84.9% of busy
+  time at k executing: 0: 1.2571 s, 1: 0.5499 s, 2: 0.9475 s, 3: 1.2690 s, 4: 0.4988 s, 5: 0.3442 s, 6: 0.0208 s, 7+: 0.0023 s
+  idle gaps: 228 totalling 1.2571 s, longest 181.95 ms; < 20 us 12 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 2 (0.0002 s), 0.2-1 ms 87 (0.0564 s), 1-5 ms 50 (0.1362 s), >= 5 ms 77 (1.0643 s)
+  tag batch     390 cbs: GPU 6.8075 s (mean 17.455 ms); commit -> GPU start 3.6140 s (mean 9.267 ms); GPU end -> seen 0.0861 s; encode 0.0096 s
+  tag commit     95 cbs: GPU 1.7509 s (mean 18.430 ms); commit -> GPU start 0.9090 s (mean 9.569 ms); GPU end -> seen 0.0194 s; encode 0.0055 s
+  tag devfold   257 cbs: GPU 1.5240 s (mean 5.930 ms); commit -> GPU start 2.2350 s (mean 8.697 ms); GPU end -> seen 0.0389 s; encode 0.0033 s
+  tag gather     97 cbs: GPU 0.0264 s (mean 0.272 ms); commit -> GPU start 0.4383 s (mean 4.518 ms); GPU end -> seen 0.0098 s; encode 0.0010 s
+  per thread: t0 q[1] 97 cbs, active 4.790 s: in run 0.057 s (GPU 0.018, commit -> start 0.029), host between 4.733 s; t217 q[218] 92 cbs, active 3.659 s: in run 2.040 s (GPU 1.116, commit -> start 0.898), host between 1.619 s; t218 q[219] 94 cbs, active 4.297 s: in run 2.174 s (GPU 1.300, commit -> start 0.857), host between 2.124 s; t219 q[220] 92 cbs, active 4.305 s: in run 2.321 s (GPU 1.456, commit -> start 0.851), host between 1.984 s; t220 q[221] 92 cbs, active 4.221 s: in run 2.148 s (GPU 1.187, commit -> start 0.945), host between 2.072 s; t221 q[222] 92 cbs, active 4.184 s: in run 2.187 s (GPU 1.354, commit -> start 0.812), host between 1.997 s; t222 q[223] 93 cbs, active 4.248 s: in run 2.295 s (GPU 1.400, commit -> start 0.866), host between 1.953 s; t223 q[224] 93 cbs, active 3.773 s: in run 1.992 s (GPU 1.093, commit -> start 0.878), host between 1.781 s; t224 q[225] 94 cbs, active 4.232 s: in run 2.264 s (GPU 1.186, commit -> start 1.061), host between 1.968 s
+  queue 1: 97 cbs, 0 started before the queue's earlier ones had all ended
+  queue 218: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 219: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 220: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 221: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 222: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 223: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 224: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 225: 94 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N8 (queues thread): the forks phase, 4.510 s
+  window 4.5098 s: 742 command buffers; GPU busy (>= 1 executing) 3.6148 s = 80.2%, idle 0.8950 s = 19.8%; summed command-buffer GPU time 10.0911 s (mean 2.79 at once while busy); >= 2 at once 3.0825 s = 85.3% of busy
+  time at k executing: 0: 0.8950 s, 1: 0.5323 s, 2: 0.9475 s, 3: 1.2690 s, 4: 0.4988 s, 5: 0.3442 s, 6: 0.0208 s, 7+: 0.0023 s
+  idle gaps: 131 totalling 0.8950 s, longest 180.20 ms; < 20 us 12 (0.0000 s), 20-50 us 0 (0.0000 s), 50-200 us 2 (0.0002 s), 0.2-1 ms 24 (0.0139 s), 1-5 ms 47 (0.1263 s), >= 5 ms 46 (0.7547 s)
+  tag batch     390 cbs: GPU 6.8075 s (mean 17.455 ms); commit -> GPU start 3.6140 s (mean 9.267 ms); GPU end -> seen 0.0861 s; encode 0.0096 s
+  tag commit     64 cbs: GPU 1.7357 s (mean 27.121 ms); commit -> GPU start 0.8899 s (mean 13.905 ms); GPU end -> seen 0.0159 s; encode 0.0053 s
+  tag devfold   224 cbs: GPU 1.5218 s (mean 6.794 ms); commit -> GPU start 2.2304 s (mean 9.957 ms); GPU end -> seen 0.0357 s; encode 0.0031 s
+  tag gather     64 cbs: GPU 0.0261 s (mean 0.409 ms); commit -> GPU start 0.4325 s (mean 6.758 ms); GPU end -> seen 0.0072 s; encode 0.0009 s
+  per thread: t217 q[218] 92 cbs, active 3.659 s: in run 2.040 s (GPU 1.116, commit -> start 0.898), host between 1.619 s; t218 q[219] 94 cbs, active 4.297 s: in run 2.174 s (GPU 1.300, commit -> start 0.857), host between 2.124 s; t219 q[220] 92 cbs, active 4.305 s: in run 2.321 s (GPU 1.456, commit -> start 0.851), host between 1.984 s; t220 q[221] 92 cbs, active 4.221 s: in run 2.148 s (GPU 1.187, commit -> start 0.945), host between 2.072 s; t221 q[222] 92 cbs, active 4.184 s: in run 2.187 s (GPU 1.354, commit -> start 0.812), host between 1.997 s; t222 q[223] 93 cbs, active 4.248 s: in run 2.295 s (GPU 1.400, commit -> start 0.866), host between 1.953 s; t223 q[224] 93 cbs, active 3.773 s: in run 1.992 s (GPU 1.093, commit -> start 0.878), host between 1.781 s; t224 q[225] 94 cbs, active 4.232 s: in run 2.264 s (GPU 1.186, commit -> start 1.061), host between 1.968 s
+  queue 218: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 219: 94 cbs, 0 started before the queue's earlier ones had all ended
+  queue 220: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 221: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 222: 92 cbs, 0 started before the queue's earlier ones had all ended
+  queue 223: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 224: 93 cbs, 0 started before the queue's earlier ones had all ended
+  queue 225: 94 cbs, 0 started before the queue's earlier ones had all ended
+
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N8 [thread+spin+devfold] pass 2: wall 4.890 s = 26.18 proved tok/s; preflight 0.090 s, commit 0.234 s, forks 4.510 s, join 0.055 s; receipt 818728672 B
+D55-AB ORDER serial-first | serial (D12a)  | 1 passes | best 11.189 s = 11.44 tok/s | mean 11.189 s = 11.44 tok/s
+D55-AB ORDER serial-first | forks N=6      | 1 passes | best 5.374 s = 23.82 tok/s | mean 5.374 s = 23.82 tok/s
+D55-AB ORDER serial-first | forks N=8      | 1 passes | best 4.637 s = 27.60 tok/s | mean 4.637 s = 27.60 tok/s
+D55-AB W16R2_8B_T128_H24 L32: the fork run's profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/2 (registered: false)
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 11.189 s = 11.44 tok/s | mean 11.189 s = 11.44 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.374 s = 23.82 tok/s | mean 5.374 s = 23.82 tok/s | 2.08x serial (best)
+D55-AB SUMMARY | forks N=8      | best 4.637 s = 27.60 tok/s | mean 4.637 s = 27.60 tok/s | 2.41x serial (best)
+D55-AB SUMMARY | forks N=6 shared+spin | A7 GPU-policy A/B, interleaved, 3 passes | best 5.058 s = 25.31 tok/s | mean 5.238 s = 24.44 tok/s
+D55-AB SUMMARY | forks N=8 shared+spin | A7 GPU-policy A/B, interleaved, 3 passes | best 4.644 s = 27.56 tok/s | mean 4.774 s = 26.81 tok/s
+D55-AB SUMMARY | forks N=6 thread+spin | A7 GPU-policy A/B, interleaved, 3 passes | best 4.823 s = 26.54 tok/s | mean 4.928 s = 25.98 tok/s
+D55-AB SUMMARY | forks N=8 thread+spin | A7 GPU-policy A/B, interleaved, 3 passes | best 4.685 s = 27.32 tok/s | mean 4.708 s = 27.19 tok/s
+D55-AB SUMMARY | forks N=6 thread+block | A7 GPU-policy A/B, interleaved, 3 passes | best 4.644 s = 27.56 tok/s | mean 4.824 s = 26.53 tok/s
+D55-AB SUMMARY | forks N=8 thread+block | A7 GPU-policy A/B, interleaved, 3 passes | best 4.671 s = 27.41 tok/s | mean 4.772 s = 26.82 tok/s
+D55-AB SUMMARY | forks N=6 thread+spin200 | A7 GPU-policy A/B, interleaved, 3 passes | best 4.583 s = 27.93 tok/s | mean 4.830 s = 26.50 tok/s
+D55-AB SUMMARY | forks N=8 thread+spin200 | A7 GPU-policy A/B, interleaved, 3 passes | best 4.757 s = 26.91 tok/s | mean 4.830 s = 26.50 tok/s
+D55-AB SUMMARY | forks N=6 thread+spin+devfold | A7 GPU-policy A/B, interleaved, 3 passes | best 4.999 s = 25.61 tok/s | mean 5.073 s = 25.23 tok/s
+D55-AB SUMMARY | forks N=8 thread+spin+devfold | A7 GPU-policy A/B, interleaved, 3 passes | best 4.772 s = 26.82 tok/s | mean 4.934 s = 25.94 tok/s
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.076 s, device sumcheck rounds 273.059 s
+D55-AB A4 witness products on the device: 7871, 7859 written in place (HL_GPU_WITNESS=None, route None); summed activation buffer 0.046 s, pack 10.039 s, weights 0.514 s, output plane + encode 1.575 s, command buffer 33.824 s, of which on the GPU 14.847 s, scatter 0.009 s
+D55-AB W16R2_8B_T128_H24 L32: total 257.8 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1019 filtered out; finished in 257.77s
+

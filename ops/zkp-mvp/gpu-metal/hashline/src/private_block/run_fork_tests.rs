@@ -1916,6 +1916,59 @@ fn env_or<T: std::str::FromStr>(name: &str, default: T) -> T {
     std::env::var(name).ok().and_then(|v| v.parse().ok()).unwrap_or(default)
 }
 
+/// A7: this process's user + system CPU seconds so far (`getrusage(RUSAGE_SELF)`;
+/// NaN if the call fails)
+fn cpu_seconds() -> f64 {
+    #[repr(C)]
+    struct Timeval {
+        sec: i64,
+        usec: i32,
+    }
+    #[repr(C)]
+    struct Rusage {
+        utime: Timeval,
+        stime: Timeval,
+        rest: [i64; 14],
+    }
+    extern "C" {
+        fn getrusage(who: i32, usage: *mut Rusage) -> i32;
+    }
+    let mut r = Rusage { utime: Timeval { sec: 0, usec: 0 }, stime: Timeval { sec: 0, usec: 0 }, rest: [0; 14] };
+    // SAFETY: RUSAGE_SELF (0) fills the caller's struct, whose layout is the C one
+    if unsafe { getrusage(0, &mut r) } != 0 {
+        return f64::NAN;
+    }
+    r.utime.sec as f64 + r.utime.usec as f64 * 1e-6 + r.stime.sec as f64 + r.stime.usec as f64 * 1e-6
+}
+
+/// A7: one arm of the in-process GPU-policy A/B (`HL_D55_GPU_AB`), from `+`-joined
+/// words: `shared` / `thread` (the queues), `spin` / `block` / `spin<us>` (the wait),
+/// `hostfold` / `devfold` (the opening's row fold). Unnamed parts keep the defaults
+/// (spin, host fold; the process's queue mode).
+#[derive(Clone, Debug)]
+struct GpuArm {
+    label: String,
+    per_thread: Option<bool>,
+    wait: Option<u64>,
+    devfold: bool,
+}
+
+fn gpu_arm(spec: &str) -> Option<GpuArm> {
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false };
+    for w in spec.split('+').map(str::trim) {
+        match w {
+            "shared" => a.per_thread = Some(false),
+            "thread" => a.per_thread = Some(true),
+            "spin" => a.wait = None,
+            "block" => a.wait = Some(0),
+            "hostfold" => a.devfold = false,
+            "devfold" => a.devfold = true,
+            _ => a.wait = Some(w.strip_prefix("spin")?.parse().ok()?),
+        }
+    }
+    Some(a)
+}
+
 /// **THE D55 A/B ON ONE REQUEST** (`#[ignore]`d; run guarded, alone): a W16
 /// 8B T128 stack of `HL_D55_L` layers (default 32) at its true geometry, ONE
 /// public synthetic block (M10's recipe: `range16_tests::case`, diagonal
@@ -2039,6 +2092,28 @@ fn d55_ab_one_request_serial_against_forks() {
         (st, owners)
     };
     let tok = |wall: f64| sh.tokens as f64 / wall;
+    // A7: `HL_D55_TIMELINE=1` records every command buffer's GPU timestamps over
+    // each timed call and prints what the GPU did (diagnostic; no byte changes)
+    let timeline: bool = env_or("HL_D55_TIMELINE", 0usize) == 1;
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    let tl_start = || if timeline { Some(crate::gpu::gpu_timeline_start()) } else { None };
+    #[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+    let tl_start = || -> Option<f64> {
+        let _ = timeline;
+        None
+    };
+    // the timeline over `[h0, h0 + wall]` and, when given, the window `(from, len)` in it
+    let tl_report = |arm: &str, h0: Option<f64>, wall: f64, window: Option<(f64, f64)>| {
+        #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+        if let Some(h0) = h0 {
+            let spans = crate::gpu::gpu_timeline_take();
+            eprintln!("D55-AB A7 TIMELINE {name} L{l} {arm} (queues {}): the whole call, {wall:.3} s\n{}", crate::gpu::metal_queues_for_test(), crate::gpu::gpu_timeline_report(&spans, h0, h0 + wall));
+            if let Some((from, len)) = window {
+                eprintln!("D55-AB A7 TIMELINE {name} L{l} {arm} (queues {}): the forks phase, {len:.3} s\n{}", crate::gpu::metal_queues_for_test(), crate::gpu::gpu_timeline_report(&spans, h0 + from, h0 + from + len));
+            }
+        }
+        let _ = (arm, h0, wall, window);
+    };
     // arm 0 = D12a serial, arm n = forks on n workers
     let serial = |ctx: u8, verify: bool| -> (f64, usize) {
         let mut src = witnesses();
@@ -2046,6 +2121,7 @@ fn d55_ab_one_request_serial_against_forks() {
         let mut rep_d12a = RepeatBlock::new(&blk, l);
         let mut segs: Vec<Vec<u8>> = Vec::new();
         let mut bytes = 0usize;
+        let h0 = tl_start();
         let t = Instant::now();
         run::prove_run_with(&st, &mut rep_d12a, &mut src, owners, &mut |_, b| {
             bytes += b.len();
@@ -2056,6 +2132,7 @@ fn d55_ab_one_request_serial_against_forks() {
         })
         .expect("the D12a serial run proves");
         let wall = t.elapsed().as_secs_f64();
+        tl_report("serial (D12a)", h0, wall, None);
         if verify {
             let tv = Instant::now();
             run::verify_run_with(&st, &mut rep_d12a, &segs).expect("the D12a serial run verifies");
@@ -2067,9 +2144,14 @@ fn d55_ab_one_request_serial_against_forks() {
         let mut src = witnesses();
         let (st, owners) = statement(ctx);
         let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        let h0 = tl_start();
+        let cpu0 = cpu_seconds();
         let t = Instant::now();
         let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves");
         let wall = t.elapsed().as_secs_f64();
+        let cpu = cpu_seconds() - cpu0;
+        eprintln!("D55-AB A7 CPU {name} L{l} forks N{n}: {cpu:.1} CPU-seconds (user + system, the whole process) over the {wall:.3} s call = {:.1} cores busy on average", cpu / wall);
+        tl_report(&format!("forks N{n}"), h0, wall, Some((stats.preflight_s + stats.commit_s, stats.forks_s)));
         if verify {
             let tv = Instant::now();
             verify_run_with_forks(&fr, &rep, &rc, 6).expect("the D55 fork run verifies");
@@ -2259,6 +2341,87 @@ fn d55_ab_one_request_serial_against_forks() {
             }
         }
     }
+    // A7: `HL_D55_GPU_AB=shared+spin,thread+spin,thread+block,...` (see [`GpuArm`]):
+    // after the warm passes, the fork arm at every worker count once per GPU policy
+    // per pass (`HL_D55_AB_PASSES`, default `HL_D55_PASSES`), interleaved, in this
+    // process (the first pass verified); the process's own policy is restored after
+    let gpu_ab: Vec<GpuArm> = std::env::var("HL_D55_GPU_AB").unwrap_or_default().split(',').filter(|s| !s.trim().is_empty()).map(|s| gpu_arm(s).unwrap_or_else(|| panic!("HL_D55_GPU_AB: an unknown arm {s:?}"))).collect();
+    let ab_passes: usize = env_or("HL_D55_AB_PASSES", passes).max(1);
+    // and per arm and pass, `HL_D55_AB_SEALED=1`: one request from its input; and
+    // `HL_D55_AB_PIPE=R`: a stream of R requests, every receipt verified after its clock
+    let ab_sealed: bool = env_or("HL_D55_AB_SEALED", 0usize) == 1;
+    let ab_pipe: usize = env_or("HL_D55_AB_PIPE", 0usize);
+    #[allow(unused_mut)]
+    let mut queue_table: Vec<(String, Vec<f64>)> = Vec::new();
+    #[allow(unused_mut)]
+    let mut ab_sealed_table: Vec<(String, Vec<f64>)> = Vec::new();
+    #[allow(unused_mut)]
+    let mut ab_pipe_table: Vec<(String, Vec<(f64, f64)>)> = Vec::new();
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    if !gpu_ab.is_empty() {
+        let own_q = crate::gpu::metal_set_queues_for_test(false);
+        let own_w = crate::gpu::metal_set_wait_for_test(None);
+        crate::gpu::metal_set_queues_for_test(own_q);
+        crate::gpu::metal_set_wait_for_test(own_w);
+        queue_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("forks N={n} {}", a.label), Vec::new()))).collect();
+        ab_sealed_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("forks N={n} SEALED {}", a.label), Vec::new()))).collect();
+        ab_pipe_table = gpu_ab.iter().flat_map(|a| workers.iter().map(move |n| (format!("PIPE {ab_pipe} N={n} {}", a.label), Vec::new()))).collect();
+        for p in 0..ab_passes {
+            for (ai, a) in gpu_ab.iter().enumerate() {
+                crate::gpu::metal_set_queues_for_test(a.per_thread.unwrap_or(own_q));
+                crate::gpu::metal_set_wait_for_test(a.wait);
+                crate::gpu::metal_set_device_fold_for_test(Some(a.devfold));
+                for (i, &n) in workers.iter().enumerate() {
+                    let (wall, bytes, st) = forked(ctx, n, p == 0);
+                    ctx = ctx.wrapping_add(1);
+                    eprintln!(
+                        "D55-AB GPU-AB {name} L{l} T{} forks N{n} [{}] pass {p}: wall {wall:.3} s = {:.2} proved tok/s; preflight {:.3} s, commit {:.3} s, forks {:.3} s, join {:.3} s; receipt {bytes} B",
+                        sh.tokens,
+                        a.label,
+                        tok(wall),
+                        st.preflight_s,
+                        st.commit_s,
+                        st.forks_s,
+                        st.join_s
+                    );
+                    queue_table[ai * workers.len() + i].1.push(wall);
+                }
+                if ab_sealed {
+                    for (i, &n) in workers.iter().enumerate() {
+                        let (wall, seal, bytes) = forked_sealed(ctx, n, p == 0);
+                        ctx = ctx.wrapping_add(1);
+                        eprintln!("D55-AB GPU-AB {name} L{l} T{} forks N{n} [{}] SEALED pass {p}: wall {wall:.3} s = {:.2} proved tok/s FROM THE RUN'S INPUT (sealing pass {seal:.3} s on the clock); receipt {bytes} B", sh.tokens, a.label, tok(wall));
+                        ab_sealed_table[ai * workers.len() + i].1.push(wall);
+                    }
+                }
+                if ab_pipe > 0 {
+                    for (i, &n) in workers.iter().enumerate() {
+                        let (wall, done, lat, rcs) = piped(ctx, n, ab_pipe);
+                        ctx = ctx.wrapping_add(ab_pipe as u8);
+                        let amortized = (ab_pipe * sh.tokens) as f64 / wall;
+                        let steady = if ab_pipe > 1 { ((ab_pipe - 1) * sh.tokens) as f64 / (done[ab_pipe - 1] - done[0]) } else { f64::NAN };
+                        for (st, rc) in &rcs {
+                            let fr = ForkRun::new(st, D55OptIn::unreviewed_prototype()).unwrap();
+                            verify_run_with_forks(&fr, &rep, rc, 6).expect("a streamed request's receipt verifies (GPU-policy A/B)");
+                        }
+                        eprintln!(
+                            "D55-AB GPU-AB PIPE {name} L{l} T{} forks N{n} [{}] pass {p}: {ab_pipe} requests in {wall:.3} s; amortized {amortized:.2} proved tok/s; steady state {steady:.2} tok/s (completions {}); per-request latency {}; all {ab_pipe} receipts verified after the clock",
+                            sh.tokens,
+                            a.label,
+                            done.iter().map(|d| format!("{d:.2}")).collect::<Vec<_>>().join(", "),
+                            lat.iter().map(|d| format!("{d:.2}")).collect::<Vec<_>>().join(", ")
+                        );
+                        ab_pipe_table[ai * workers.len() + i].1.push((steady, amortized));
+                    }
+                }
+            }
+        }
+        crate::gpu::metal_set_queues_for_test(own_q);
+        crate::gpu::metal_set_wait_for_test(own_w);
+        crate::gpu::metal_set_device_fold_for_test(None);
+    }
+    #[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+    let _ = (&gpu_ab, ab_passes, ab_sealed, ab_pipe);
     // D64 / H124d: the stream, once, after the warm passes
     if pipe > 0 {
         for &n in &workers {
@@ -2304,6 +2467,22 @@ fn d55_ab_one_request_serial_against_forks() {
         let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
         let mean = walls.iter().sum::<f64>() / walls.len() as f64;
         eprintln!("D55-AB SUMMARY | {arm:<14} | one request end to end from its input, measured | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s", tok(best), tok(mean));
+    }
+    for (arm, walls) in queue_table.iter().filter(|(_, w)| !w.is_empty()) {
+        let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
+        let mean = walls.iter().sum::<f64>() / walls.len() as f64;
+        eprintln!("D55-AB SUMMARY | {arm:<14} | A7 GPU-policy A/B, interleaved, {} passes | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s", walls.len(), tok(best), tok(mean));
+    }
+    for (arm, walls) in ab_sealed_table.iter().filter(|(_, w)| !w.is_empty()) {
+        let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
+        let mean = walls.iter().sum::<f64>() / walls.len() as f64;
+        eprintln!("D55-AB SUMMARY | {arm:<14} | A7 GPU-policy A/B, one request from its input, interleaved, {} passes | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s", walls.len(), tok(best), tok(mean));
+    }
+    for (arm, v) in ab_pipe_table.iter().filter(|(_, v)| !v.is_empty()) {
+        let k = v.len() as f64;
+        let (steady, amortized) = (v.iter().map(|x| x.0).sum::<f64>() / k, v.iter().map(|x| x.1).sum::<f64>() / k);
+        let best = v.iter().map(|x| x.0).fold(0.0f64, f64::max);
+        eprintln!("D55-AB SUMMARY | {arm:<14} | A7 GPU-policy A/B, stream, interleaved, {} passes | steady state mean {steady:.2} tok/s (best {best:.2}) | amortized mean {amortized:.2} tok/s", v.len());
     }
     for (arm, walls) in jit_table.iter().filter(|(_, w)| !w.is_empty()) {
         let best = walls.iter().cloned().fold(f64::INFINITY, f64::min);
