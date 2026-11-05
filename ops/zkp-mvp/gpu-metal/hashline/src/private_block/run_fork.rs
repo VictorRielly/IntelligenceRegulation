@@ -961,8 +961,10 @@ impl BlockSource for RepeatBlock<'_> {
 }
 
 /// RULINGS CS-1, CS-4 and CS-6 before anything is absorbed, as
-/// [`super::prove_run_with`] and the D12a verifier's start make them
-fn preflight(st: &RunStatement, blocks: &dyn ForkBlocks, check_digests: bool) -> Result<(), String> {
+/// [`super::prove_run_with`] and the D12a verifier's start make them.
+/// [A17]: on success, each block's record of its passed CS-1 / CS-4 check
+/// (`protocol::CheckedPublic`: that block object at that shape), in block order
+fn preflight<'b>(st: &RunStatement, blocks: &'b dyn ForkBlocks, check_digests: bool) -> Result<Vec<protocol::CheckedPublic<'b>>, String> {
     use rayon::prelude::*;
     let sh = &st.rs.sh;
     as_many_blocks_as_the_statement(st, blocks.count())?;
@@ -971,15 +973,16 @@ fn preflight(st: &RunStatement, blocks: &dyn ForkBlocks, check_digests: bool) ->
     // public weights, about 7 GB at 8B, and ran on one thread, 0.35-0.98 s per request.
     // They now run one block per rayon task. The refusal is the serial loop's: results are
     // read back in block order and the first error is returned.
-    let per_block: Vec<Result<(), String>> = (0..st.rs.l)
+    let per_block: Vec<Result<protocol::CheckedPublic<'b>, String>> = (0..st.rs.l)
         .into_par_iter()
         .map(|k| {
             let ssh = if sh.accuracy_stack() == super::super::accuracy_precision::Stack::Legacy { sh.clone() } else { st.stage_shape(k)? };
-            blocks.get(k)?.check_for_shape(&ssh).map_err(|e| format!("private run: block {k}: {e}"))
+            protocol::CheckedPublic::check(blocks.get(k)?, &ssh).map_err(|e| format!("private run: block {k}: {e}"))
         })
         .collect();
+    let mut checked = Vec::with_capacity(per_block.len());
     for r in per_block {
-        r?;
+        checked.push(r?);
     }
     policy_fits_the_shape(&st.expected, sh)?;
     if check_digests {
@@ -988,7 +991,8 @@ fn preflight(st: &RunStatement, blocks: &dyn ForkBlocks, check_digests: bool) ->
             r?;
         }
     }
-    st.expected.spec.validate()
+    st.expected.spec.validate()?;
+    Ok(checked)
 }
 
 // ---------------------------------------------- [A11] one rayon pool per fork worker
@@ -1138,6 +1142,8 @@ pub(crate) fn thread_cpu_s() -> f64 {
 struct ForkCtx<'c> {
     fr: &'c ForkRun<'c>,
     blocks: &'c dyn ForkBlocks,
+    /// [A17] the preflight's record of each block's passed public checks
+    checked: &'c [protocol::CheckedPublic<'c>],
     roots: &'c [Digest],
     in_data: Vec<&'c [Fp]>,
     out_data: Vec<&'c [Fp]>,
@@ -1171,8 +1177,11 @@ impl ForkCtx<'_> {
         let (mut phases, mut tick) = (Vec::new(), Instant::now());
         #[cfg(test)]
         let cpu0 = thread_cpu_s();
+        // [A17] the preflight's record for block `k`, used only if it is for this
+        // very block object at this shape
+        let hints = protocol::CoreHints { checked: self.checked.get(k) };
         let t = Instant::now();
-        let core = protocol::prove_core(&ssh, &lay, blk, wit, [self.in_data[k], self.out_data[k]], self.ntt, &mut rng, &mut f, &mut ph, &mut phases, &mut tick)?;
+        let core = protocol::prove_core_with(&ssh, &lay, blk, wit, [self.in_data[k], self.out_data[k]], self.ntt, &mut rng, &mut f, &mut ph, &mut phases, &mut tick, hints)?;
         let core_s = t.elapsed().as_secs_f64();
         #[cfg(test)]
         let thread_cpu_s = thread_cpu_s() - cpu0;
@@ -1231,7 +1240,8 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let honest_checks = !protocol::cheating_prover_is_on();
     #[cfg(not(test))]
     let honest_checks = true;
-    preflight(st, blocks, honest_checks)?;
+    // [A17] each block's record of its passed public checks, for its fork
+    let checked = preflight(st, blocks, honest_checks)?;
     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
     let tag = sh.hash_tag();
     let ntt = NttTables::new(st.rs.ntt_log());
@@ -1267,7 +1277,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let mut outs: Vec<ForkOut> = {
         let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { &ein.data[..] } else { bounds[k - 1].1.data() }).collect();
         let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].1.data() }).collect();
-        let ctx = ForkCtx { fr, blocks, roots: &roots, in_data, out_data, ntt: &ntt, binding, cheat };
+        let ctx = ForkCtx { fr, blocks, checked: &checked, roots: &roots, in_data, out_data, ntt: &ntt, binding, cheat };
         let (tx, rx) = mpsc::sync_channel::<(usize, Witness)>(0);
         let rx = Mutex::new(rx);
         // [A11] each worker's own rayon pool, or the global one (the default)

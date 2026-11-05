@@ -1,0 +1,99 @@
+2026-11-05T22:15:12Z start
+2026-11-05T22:17:45Z build rc=0
+2026-11-05T22:17:57Z a17 suite tests rc=0
+test private_block::run::fork::tests::a17_a_fork_refuses_a_block_its_preflight_did_not_check ... A17 | turncoat blocks, record true: refused at the fork: D55: fork 0: R13 profile is missing its public accuracy data
+A17 | turncoat blocks, record false: refused at the fork: D55: fork 0: R13 profile is missing its public accuracy data
+test private_block::w16r2_tests::a17_a_record_covers_only_its_own_block_and_a_modified_block_is_refused ... A17-RECORD W16R2_RUNG_H24: the block without its accuracy data is refused beside the honest block's record: R13 profile is missing its public accuracy d
+A17-RECORD W16R2_RUNG_H24: the block with one weight at i8::MIN is refused beside the honest block's record: R13 public weights/gains must be symmetric int8
+test private_block::w16r2_tests::a17_the_8b_block_proves_the_same_under_every_a17_setting ... ignored, A17: heavy (one 8B T128 block on Metal, 17 times), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0
+test private_block::w16r2_tests::a17_the_rung_digests_under_a17_forms ... A17-RUNG W16R2_RUNG_H24 CPU [a17old]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the code before A17's)
+A17-RUNG W16R2_RUNG_H24 CPU [a17new]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the code before A17's)
+A17-RUNG R13_RUNG_H24 CPU [a17old]: digest ddd29ae0 through prove_core and through prove_core_with beside the record (the code before A17's)
+A17-RUNG R13_RUNG_H24 CPU [a17new]: digest ddd29ae0 through prove_core and through prove_core_with beside the record (the code before A17's)
+test private_block::w16r2_tests::a17_w16r2_rung_golden_under_every_a17_setting ... ignored, A17: toggles HL_GPU and the A17 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1
+test result: ok. 3 passed; 0 failed; 2 ignored; 0 measured; 1036 filtered out; finished in 11.02s
+2026-11-05T22:27:28Z d55 A/B default: a17old against a17new rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.698 s = 13.20 tok/s | mean 9.698 s = 13.20 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.165 s = 30.73 tok/s | mean 4.165 s = 30.73 tok/s | 2.33x serial (best)
+D55-AB SUMMARY | forks N=6 a17old | A7 GPU-policy A/B, interleaved, 6 passes | best 4.068 s = 31.47 tok/s | mean 4.101 s = 31.21 tok/s
+D55-AB SUMMARY | forks N=6 a17new | A7 GPU-policy A/B, interleaved, 6 passes | best 3.944 s = 32.46 tok/s | mean 3.990 s = 32.08 tok/s
+D55-AB SUMMARY | forks N=6 SEALED a17old | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.432 s = 17.22 tok/s | mean 7.488 s = 17.09 tok/s
+D55-AB SUMMARY | forks N=6 SEALED a17new | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.198 s = 17.78 tok/s | mean 7.339 s = 17.44 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 a17old | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 28.64 tok/s (best 29.15) | amortized mean 24.08 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 a17new | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 29.31 tok/s (best 29.70) | amortized mean 24.64 tok/s
+# A11 pairs: [a17new] against [a17old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a712d6f342b57b528/results/zk60_effplan_20261105/a17/raw/s5_default_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -3.5% (3, 3) | -1.9% (3, 3) | **-2.7%** | 4.101 / 3.990 |
+| forks phase s | -4.3% (3, 3) | -2.0% (3, 3) | **-3.2%** | 3.730 / 3.611 |
+| sealed wall s | -2.4% (3, 3) | -1.7% (3, 2) | **-2.0%** | 7.488 / 7.338 |
+| stream steady tok/s | +2.3% (3, 3) | +2.4% (3, 2) | **+2.4%** | 28.640 / 29.315 |
+| stream amortized tok/s | +1.9% (3, 3) | +2.7% (3, 3) | **+2.3%** | 24.077 / 24.637 |
+| user CPU s | -4.7% (3, 3) | -2.7% (3, 3) | **-3.7%** | 41.333 / 39.783 |
+| sys CPU s | -30.8% (3, 3) | -35.8% (3, 3) | **-33.3%** | 7.783 / 5.183 |
+| minor faults | -40.4% (3, 3) | -40.6% (3, 3) | **-40.5%** | 1,130,233 / 672,670 |
+# A13 one-request clocks: [a17new] against [a17old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a712d6f342b57b528/results/zk60_effplan_20261105/a17/raw/s5_default_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request wall s | -2.4% (3, 3) | -1.7% (3, 2) | **-2.0%** | 7.488 / 7.338 |
+| sealing pass s | -0.2% (3, 2) | +1.1% (3, 2) | **+0.4%** | 3.365 / 3.380 |
+| sealing CPU-s | +0.3% (3, 1) | -0.3% (3, 2) | **+0.0%** | 10.617 / 10.617 |
+| prove call s | -4.1% (3, 3) | -3.9% (3, 3) | **-4.0%** | 4.123 / 3.959 |
+| forks phase (of the request) s | -4.2% (3, 3) | -4.2% (3, 3) | **-4.2%** | 3.743 / 3.586 |
+| preflight + commit s | -0.0% (3, 1) | -2.5% (3, 2) | **-1.3%** | 0.297 / 0.293 |
+# A15 sealing-pass clocks: [a17new] against [a17old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a712d6f342b57b528/results/zk60_effplan_20261105/a17/raw/s5_default_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request: sealing pass s | -0.2% (3, 2) | +1.1% (3, 2) | **+0.4%** | 3.365 / 3.380 |
+| one request: sealing user CPU s | +0.1% (3, 2) | -0.3% (3, 2) | **-0.1%** | 7.662 / 7.655 |
+| one request: sealing sys CPU s | +1.1% (3, 1) | +0.3% (3, 1) | **+0.7%** | 2.958 / 2.978 |
+| one request: sealing involuntary csw | +0.2% (3, 1) | +1.0% (3, 1) | **+0.6%** | 41691.500 / 41956.000 |
+| stream: request 0's sealing pass s (alone) | +1.8% (3, 1) | +0.4% (3, 1) | **+1.1%** | 3.358 / 3.393 |
+| stream: requests 1.. sealing pass s (beside the forks) | -1.8% (3, 3) | -2.5% (3, 3) | **-2.1%** | 4.623 / 4.523 |
+2026-11-05T22:36:52Z d55 A/B checked: looked1 against looked1+checked1 rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.855 s = 12.99 tok/s | mean 9.855 s = 12.99 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.084 s = 31.34 tok/s | mean 4.084 s = 31.34 tok/s | 2.41x serial (best)
+D55-AB SUMMARY | forks N=6 looked1 | A7 GPU-policy A/B, interleaved, 6 passes | best 3.910 s = 32.73 tok/s | mean 4.011 s = 31.92 tok/s
+D55-AB SUMMARY | forks N=6 looked1+checked1 | A7 GPU-policy A/B, interleaved, 6 passes | best 3.833 s = 33.39 tok/s | mean 3.936 s = 32.52 tok/s
+D55-AB SUMMARY | forks N=6 SEALED looked1 | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.199 s = 17.78 tok/s | mean 7.283 s = 17.57 tok/s
+D55-AB SUMMARY | forks N=6 SEALED looked1+checked1 | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.220 s = 17.73 tok/s | mean 7.342 s = 17.43 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 looked1 | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 29.06 tok/s (best 29.52) | amortized mean 24.57 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 looked1+checked1 | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 29.60 tok/s (best 30.13) | amortized mean 24.79 tok/s
+# A11 pairs: [looked1+checked1] against [looked1], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a712d6f342b57b528/results/zk60_effplan_20261105/a17/raw/s5_checked_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -1.1% (3, 1) | -2.5% (3, 2) | **-1.8%** | 4.011 / 3.936 |
+| forks phase s | -0.3% (3, 1) | -2.8% (3, 2) | **-1.5%** | 3.616 / 3.559 |
+| sealed wall s | +0.2% (3, 1) | +1.5% (3, 1) | **+0.8%** | 7.283 / 7.342 |
+| stream steady tok/s | +2.6% (3, 2) | +1.2% (3, 3) | **+1.9%** | 29.058 / 29.605 |
+| stream amortized tok/s | +1.0% (3, 2) | +0.8% (3, 2) | **+0.9%** | 24.573 / 24.788 |
+| user CPU s | +0.3% (3, 1) | -1.0% (3, 2) | **-0.4%** | 39.933 / 39.783 |
+| sys CPU s | -11.9% (3, 3) | +6.5% (3, 0) | **-2.7%** | 5.500 / 5.300 |
+| minor faults | +3.4% (3, 0) | -7.8% (3, 3) | **-2.2%** | 685,996 / 667,742 |
+# A13 one-request clocks: [looked1+checked1] against [looked1], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a712d6f342b57b528/results/zk60_effplan_20261105/a17/raw/s5_checked_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request wall s | +0.2% (3, 1) | +1.5% (3, 1) | **+0.8%** | 7.283 / 7.342 |
+| sealing pass s | +0.9% (3, 0) | +1.0% (3, 0) | **+0.9%** | 3.352 / 3.383 |
+| sealing CPU-s | +0.6% (3, 0) | +0.6% (3, 0) | **+0.6%** | 10.600 / 10.667 |
+| prove call s | -0.4% (3, 2) | +1.9% (3, 1) | **+0.7%** | 3.931 / 3.959 |
+| forks phase (of the request) s | +0.3% (3, 1) | +2.2% (3, 1) | **+1.3%** | 3.543 / 3.587 |
+| preflight + commit s | -6.8% (3, 2) | +0.0% (3, 1) | **-3.4%** | 0.306 / 0.294 |
+# A15 sealing-pass clocks: [looked1+checked1] against [looked1], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a712d6f342b57b528/results/zk60_effplan_20261105/a17/raw/s5_checked_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request: sealing pass s | +0.9% (3, 0) | +1.0% (3, 0) | **+0.9%** | 3.352 / 3.383 |
+| one request: sealing user CPU s | +0.6% (3, 1) | +0.3% (3, 0) | **+0.5%** | 7.692 / 7.727 |
+| one request: sealing sys CPU s | +1.1% (3, 1) | +0.6% (3, 0) | **+0.8%** | 2.923 / 2.947 |
+| one request: sealing involuntary csw | -1.3% (3, 2) | +0.8% (3, 1) | **-0.3%** | 40683.833 / 40552.000 |
+| stream: request 0's sealing pass s (alone) | +1.0% (3, 1) | -0.4% (3, 2) | **+0.3%** | 3.376 / 3.386 |
+| stream: requests 1.. sealing pass s (beside the forks) | -2.5% (3, 2) | -1.3% (3, 3) | **-1.9%** | 4.536 / 4.450 |
+2026-11-05T22:36:52Z all done
