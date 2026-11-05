@@ -12,8 +12,8 @@ verifier answers with a challenge `c_i : Ch`; then the prover sends a final mess
 `accept x τ mf` from the statement `x`, the transcript `τ = [(m_0, c_0), …, (m_{n−1}, c_{n−1})]` and `mf`.
 
 **Round-by-round soundness** (`RbrSound`; R. Canetti, Y. Chen, J. Holmgren, A. Lombardi, G. Rothblum, R. Rothblum,
-L. Reyzin, "Fiat–Shamir: from practice to theory", STOC 2019, ePrint 2018/1004, Def. 5.3; also A. Chiesa and E. Yogev,
-"Building Cryptographic Proofs from Hash Functions", Ch. 11–12). A state function `St x τ` on partial transcripts
+D. Wichs, "Fiat–Shamir: from practice to theory", STOC 2019, ePrint 2018/1004, Def. 5.3; also A. Chiesa and E. Yogev,
+"Building Cryptographic Proofs from Hash Functions"). A state function `St x τ` on partial transcripts
 (`St` true: the prover may still win; false: it is DOOMED) such that
 * a false statement starts doomed (`start`);
 * from a doomed partial transcript, whatever the next message, at most `e` challenges lead to a state that is not
