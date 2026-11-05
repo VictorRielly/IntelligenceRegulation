@@ -41,3 +41,8 @@ import ZK60Formal.FSComposeZeroCheck
 import ZK60Formal.FSTree
 import ZK60Formal.FSTreeRbr
 import ZK60Formal.FSTreeD55
+import ZK60Formal.FSPathWide
+import ZK60Formal.FSPathRbr
+import ZK60Formal.FSPath
+import ZK60Formal.FSPathSched
+import ZK60Formal.FSPathBlock

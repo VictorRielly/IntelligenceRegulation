@@ -275,12 +275,34 @@ The plain-words version, the modelling choices and the open decisions are in
     squeeze counter and claims, as `absorb_join` does). With every sub-protocol of every branch a `Kind8B` (`M` ASSUMED
     at `2^-106`): `fs_d55_sound_8B`, per hash query `135/2^110 ≈ 2^-102.92` for any number of forks (the union over 32
     forks was `2^-97.93`); `fs_d55_sound_8B_target`, `εsTarget (max q ℓT)`.
+  - `FSPathWide.lean`: the SHARPER count (finding F25). The wide-digest lemma with a position-dependent bound
+    (`wideHit_prob_le_pos`), and `chain_sound_wide_seq`: a prover's position is charged the largest error, each of the
+    verifier's positions the error of its own step from its own chain (read back from its log after replaying the
+    prover), so the bound is `q·εmax + B + collision terms`, `B` the verifier's charge.
+  - `FSPathRbr.lean`: protocols whose rounds have their own errors, which may depend on the statement, the transcript
+    and the round's message (`RbrWideT`), on the chain: `fs_chain_sound_of_rbrWideT`, the query-free part being the
+    largest transcript sum of the round errors.
+  - `FSPath.lean`: the PATH-WISE bound. The proof follows one doom inside a zone that a round's message may move
+    (`ZComposed`, with each sub-protocol's state after the message, `pre`); a round is charged only when its owner is
+    in the zone (`ZComposed.rbrWideT`). If along every transcript the charged rounds are those of one hand-off path,
+    the query-free part is that path's round-error sum (`fs_chain_sound_of_zpath`). For `FSCompose.lean`'s
+    compositions, the sharper count gives `q·εmax + Σ_i er_i` (`fs_chain_sound_of_composed_sum`,
+    `fs_chain_sound_sched_sum`).
+  - `FSPathSched.lean`: schedules of sub-protocols with per-round errors and message-aware states (`SubProtP`,
+    `schedP_zcomposed`, `sumErOfP_zone`, `fs_chain_sound_schedP_path`).
+  - `FSPathBlock.lean`: the 8B T128 W16R2 run. LogUp with its fold and `α` errors, its lookups read off its first
+    message as a D12a stage absorbs them (`logupP`); the openings with their field and column terms (`openingP`); the
+    slots' kinds; `M` ASSUMED at a total `≤ 2^-106`. A block zone (one LogUp, one `M`, four regular openings, small
+    numerators `≤ 2^16`) totals at most `155/2^110 ≈ 2^-102.72` (`zone_budget_le`), and the run meets the approved
+    `εsTarget q = q·2^-100 + 2^-100` for every `q ≤ 2^75` (`fs_path_run_8B_target`), given the zone premises. A worked
+    instance of the sharper count with every premise proved: `fs_zerocheck_chain_sound_sum`.
   - The comparison with the interactive bounds and the target, the code's transcript order (what is absorbed before
     each challenge), the findings (F16–F19) and what remained are in Part 5 of
     `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`; the vector challenges, LogUp, the opening, the whole-block
     figure per hash query and the findings F20–F23 are in its Part 6; the composition, the block and run figures, the
     code check and the findings F24–F27 are in its Part 7; the tree of chains, the D55 figure, its code check and the
-    findings F28–F31 are in its Part 8.
+    findings F28–F31 are in its Part 8; the query-free part path by path, the run's code check and the findings
+    F40–F44 are in its Part 9.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).

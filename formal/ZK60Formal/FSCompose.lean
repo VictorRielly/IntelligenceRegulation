@@ -39,7 +39,9 @@ at the start. The rounds belong to the sub-protocols (`own`). `Composed` asks tw
 
 **What this does not cover.** The `frame`, start and final conditions of a concrete composition are premises: they
 say how the claims of the sub-protocols fit together (the arithmetization and the extraction), which is not
-formalized for the block. `FSComposeBlock.lean` instantiates the per-round errors with the proved lemmas.
+formalized for the block. `FSComposeBlock.lean` instantiates the per-round errors with the proved lemmas. A claim
+fixed by a round's OWN message (a D12a stage's commitments, finding F41), per-round errors and the query-free part
+path by path are `FSPath.lean`'s (`ZComposed`, `fs_chain_sound_of_zpath`).
 -/
 import ZK60Formal.FSWideRbr
 
