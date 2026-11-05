@@ -2260,14 +2260,14 @@ fn a15_sealed_report(name: &str, l: usize, n: usize, arm: &str, wall: f64, seal:
 
 // ---- [A17] the forks' host work (efficiency plan A17) ----
 
-/// **[A17]** the three forms of `protocol.rs`'s `[A17]` block, each `None` as
-/// the environment says: `looked0` / `looked1` (a W16 profile's one-term looked
+/// **[A17]** the two forms of `protocol.rs`'s `[A17]` block, each `None` as the
+/// environment says: `looked0` / `looked1` (a W16 profile's one-term looked
 /// columns copied out first, or read from their planes), `checked0` /
 /// `checked1` (each fork re-checks its block's public data, or the preflight's
-/// record of that very block stands in), `reuse0` / `reuse1` (a new zeroed `A`
-/// and `H` per block, or each fork worker's kept pair, every word rewritten);
-/// `a17old` / `a17new` all three off / on
-type A17Arm = (Option<bool>, Option<bool>, Option<bool>);
+/// record of that very block stands in); `a17old` / `a17new` both off / on.
+/// (Stage 3 also measured a third form, each fork worker's kept `A` and `H`, as
+/// the word `reuse1` of the work-in-progress commit; it lost and was removed.)
+type A17Arm = (Option<bool>, Option<bool>);
 
 /// [A17] one `+`-joined word of an arm, if it is A17's
 fn a17_word(a: &mut A17Arm, w: &str) -> bool {
@@ -2276,20 +2276,18 @@ fn a17_word(a: &mut A17Arm, w: &str) -> bool {
         "looked1" => a.0 = Some(true),
         "checked0" => a.1 = Some(false),
         "checked1" => a.1 = Some(true),
-        "reuse0" => a.2 = Some(false),
-        "reuse1" => a.2 = Some(true),
-        "a17old" => *a = (Some(false), Some(false), Some(false)),
-        "a17new" => *a = (Some(true), Some(true), Some(true)),
+        "a17old" => *a = (Some(false), Some(false)),
+        "a17new" => *a = (Some(true), Some(true)),
         _ => return false,
     }
     true
 }
 
 /// [A17] put an arm's forms in force for the whole process (the fork workers
-/// read them); `(None, None, None)` restores the environment's
+/// read them); `(None, None)` restores the environment's
 #[cfg_attr(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))), allow(dead_code))]
 fn a17_apply(a: A17Arm) {
-    crate::private_block::protocol::set_a17_for_test(a.0, a.1, a.2);
+    crate::private_block::protocol::set_a17_for_test(a.0, a.1);
 }
 
 /// [A17] a fork run's blocks that are NOT the same twice: the first `get` of each
@@ -2316,23 +2314,22 @@ impl ForkBlocks for A17Turncoat<'_> {
 
 /// **[A17] the preflight's record never lets a fork prove a block it did not
 /// check.** At the R13 rung (`L = 3`, two workers), with the record in force:
-/// (1) the honest run proves and verifies, every worker's kept matrices
-/// rewritten (two of three blocks on a kept pair); (2) a block source that
-/// hands each fork a DIFFERENT block than the preflight checked (the honest
-/// block without its public accuracy data, which CS-1 / CS-4 refuse) is refused
-/// at the fork by that check's own words, so the run fails closed; (3) the
-/// same with the record switched off. A block object cannot change while its
-/// record lives (the record borrows it), so "a modified block" is always
-/// another object, which is case (2).
+/// (1) the honest run proves (every fork's record covering its block) and
+/// verifies; (2) a block source that hands each fork a DIFFERENT block than
+/// the preflight checked (the honest block without its public accuracy data,
+/// which CS-1 / CS-4 refuse) is refused at the fork by that check's own words,
+/// so the run fails closed; (3) the same with the record switched off. A block
+/// object cannot change while its record lives (the record borrows it), so "a
+/// modified block" is always another object, which is case (2).
 #[test]
 fn a17_a_fork_refuses_a_block_its_preflight_did_not_check() {
     use crate::private_block::protocol::set_a17_for_test;
     let mut r = rung(3, 171);
-    set_a17_for_test(None, Some(true), Some(true));
+    set_a17_for_test(None, Some(true));
     let (rc, _) = prove_forks(&mut r, 2);
     let fr = ForkRun::new(&r.st, D55OptIn::unreviewed_prototype()).unwrap();
     let ok = verify_run_with_forks(&fr, &r.blocks, &rc, 3);
-    set_a17_for_test(None, None, None);
+    set_a17_for_test(None, None);
     ok.expect("the honest D55 fork run with the preflight's records verifies");
     let other = BlockPublic::new(r.blocks[1].attention().clone(), r.blocks[1].feed_forward().clone());
     let want = other.check_for_shape(&r.st.stage_shape(1).unwrap()).expect_err("the block without its accuracy data is refused by CS-1 / CS-4");
@@ -2340,9 +2337,9 @@ fn a17_a_fork_refuses_a_block_its_preflight_did_not_check() {
         let mut r = rung(3, 172 + checked as u8);
         let turncoat = A17Turncoat { honest: &r.blocks, other: &other, asked: (0..3).map(|_| std::sync::atomic::AtomicUsize::new(0)).collect() };
         let fr = ForkRun::new(&r.st, D55OptIn::unreviewed_prototype()).unwrap();
-        set_a17_for_test(None, Some(checked), None);
+        set_a17_for_test(None, Some(checked));
         let got = prove_run_with_forks(&fr, &turncoat, &mut r.src, r.owners.take().unwrap(), 2);
-        set_a17_for_test(None, None, None);
+        set_a17_for_test(None, None);
         let e = got.err().unwrap_or_else(|| panic!("A FORK PROVED A BLOCK ITS PREFLIGHT DID NOT CHECK (record {checked})"));
         assert!(e.contains(&want), "the refusal is not CS-1 / CS-4's own (record {checked}): {e}");
         assert!(turncoat.asked.iter().all(|n| n.load(std::sync::atomic::Ordering::SeqCst) >= 1), "the preflight did not ask for every block");
@@ -2353,7 +2350,7 @@ fn a17_a_fork_refuses_a_block_its_preflight_did_not_check() {
 // ---- end of [A17] ----
 
 fn gpu_arm(spec: &str) -> Option<GpuArm> {
-    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default(), seal: None, a17: (None, None, None) };
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default(), seal: None, a17: (None, None) };
     for w in spec.split('+').map(str::trim) {
         if let Some(t) = w.strip_prefix("fp").and_then(|t| t.parse::<usize>().ok()) {
             a.fork_pool = Some(t);
@@ -3007,7 +3004,7 @@ fn d55_ab_one_request_serial_against_forks() {
         // [A15]
         a15_apply(None);
         // [A17]
-        a17_apply((None, None, None));
+        a17_apply((None, None));
         a11_set_arm("");
         set_fork_pool_for_test(None);
     }

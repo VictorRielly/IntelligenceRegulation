@@ -1153,8 +1153,7 @@ struct ForkCtx<'c> {
 }
 
 impl ForkCtx<'_> {
-    /// one fork; `mats` is the worker's kept `A` and `H` ([A17], `protocol::HostMats`)
-    fn prove_one(&self, k: usize, wit: Witness, mats: &mut protocol::HostMats) -> Result<ForkOut, String> {
+    fn prove_one(&self, k: usize, wit: Witness) -> Result<ForkOut, String> {
         // D60 review F8 (b), test builds only: the every-fork-panics switch
         #[cfg(test)]
         if PANIC_IN_FORK.with(|c| c.get()) {
@@ -1178,9 +1177,9 @@ impl ForkCtx<'_> {
         let (mut phases, mut tick) = (Vec::new(), Instant::now());
         #[cfg(test)]
         let cpu0 = thread_cpu_s();
-        // [A17] the preflight's record for block `k` (used only if it is for this
-        // very block object at this shape) and the worker's kept matrices
-        let hints = protocol::CoreHints { checked: self.checked.get(k), mats: Some(mats) };
+        // [A17] the preflight's record for block `k`, used only if it is for this
+        // very block object at this shape
+        let hints = protocol::CoreHints { checked: self.checked.get(k) };
         let t = Instant::now();
         let core = protocol::prove_core_with(&ssh, &lay, blk, wit, [self.in_data[k], self.out_data[k]], self.ntt, &mut rng, &mut f, &mut ph, &mut phases, &mut tick, hints)?;
         let core_s = t.elapsed().as_secs_f64();
@@ -1294,19 +1293,16 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                         // one: `install` runs it on a pool thread (which then takes
                         // this worker's test switches too) and every parallel region
                         // inside it on that pool's threads only
-                        let prove = |k: usize, wit: Witness, mats: &mut protocol::HostMats| -> Result<ForkOut, String> {
+                        let prove = |k: usize, wit: Witness| -> Result<ForkOut, String> {
                             match &pool {
                                 Some(p) => p.install(|| {
                                     #[cfg(test)]
                                     let _hooks = hooks.install();
-                                    ctx.prove_one(k, wit, mats)
+                                    ctx.prove_one(k, wit)
                                 }),
-                                None => ctx.prove_one(k, wit, mats),
+                                None => ctx.prove_one(k, wit),
                             }
                         };
-                        // [A17] this worker's `A` and `H`, kept from one of its
-                        // blocks to the next and freed when it ends
-                        let mut mats = protocol::HostMats::default();
                         let mut mine = Vec::new();
                         loop {
                             let job = rx.lock().map_err(|_| "D55: the job queue's lock is poisoned".to_string()).and_then(|q| q.recv().map_err(|_| String::new()));
@@ -1319,7 +1315,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                                 // panicked). A release build has `panic =
                                 // "abort"`: there a panic ends the process
                                 // (F8 (a)). Both fail closed.
-                                Ok((k, wit)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| prove(k, wit, &mut mats))) {
+                                Ok((k, wit)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| prove(k, wit))) {
                                     Ok(r) => r.map_err(|e| format!("D55: fork {k}: {e}")),
                                     Err(p) => Err(format!("D55: fork {k}: its worker panicked: {}", p.downcast_ref::<String>().map(String::as_str).or_else(|| p.downcast_ref::<&str>().copied()).unwrap_or("(no message)"))),
                                 }),
