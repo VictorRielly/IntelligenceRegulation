@@ -75,6 +75,8 @@ are redone once, not per change.
 | A8 | **Gram-matrix folding** (FlashProve `fold.cuh`) for the store folds, then the zero-check rounds if it pays. Same round values | store folds 17 ms → a few ms; zero-check rounds unknown [ESTIMATE] | 2–4 d |
 | A9 | Boundary commits in parallel (H123) | ×1.03 [MODEL] | 1–2 d |
 
+| A10 | **Register W16R2 for real content.** The registered profile is R13, whose blocks commit about 1.8× W16R2's rows (census: A 4,577 against 2,501; H 4,390 against 2,602). Astra measured a trained 26-block Shieldstral R13 stack at 9.9 s of proof, against 5.1 s for the synthetic 32-block W16R2 stack (`results/zk60_astra_20261026/flashprove_effplan_runtime_20261105/REPORT.md`) | about ×1.8–2.4 per block on real models [INFERRED from those two runs, which differ in width and weights] | the W16R2 privacy gate on GPU-made bundles, the D60 conditions, then a ruling by Victor |
+
 **Phase A's expected result on the Mac:** one request about 7–8 s (16–18 tok/s), a stream about 22–25 tok/s
 [ESTIMATE]. Every step is accepted only if the goldens, the six pinned digests and plane-for-plane equality hold.
 
