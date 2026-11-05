@@ -32,7 +32,7 @@ chain is `FSChainRbr.lean`'s `fs_sumcheck_chain_sound`); the polynomial
 `f` is a value of the statement here, while in a receipt it is the committed tables (the extractor's job). The CFS
 mask and the last-round extension turn a false claim into a false statement for this theorem deterministically, for
 every `c` (`sumcheck_sound_masked`, `sumcheck_sound_extended`); drawing `c` and running the sumcheck on ONE chain is
-the composition of two protocols, which is not stated yet.
+the composition of two protocols (`FSCompose.lean`; `c` is `FSComposeBlock.lean`'s `freeSP`).
 -/
 import ZK60Formal.FSChallenge
 import ZK60Formal.SoundSumcheck

@@ -1624,3 +1624,274 @@ them all. Per hash query, it is the SUM of the sub-protocols' per-query errors:
 - **The code-level instance.** `ChainEnc` for keyed BLAKE3 byte strings, the header's absorbs, the counter offset,
   and `rootAbs` for `absorb_root`.
 - **`KnowledgeSound`** of `Statements.lean`, from the above.
+
+# Part 7 (2026-11-04): one chain, round by round: the composition of the sub-protocols (F20)
+
+New files under `formal/ZK60Formal/`: `FSCompose.lean`, `FSComposeBlock.lean`, `FSComposeZeroCheck.lean`.
+- `lake -d formal build` succeeds with no warnings (3402 jobs, 55 modules). Each new module was also built alone, through the
+  resource guard. No file uses `sorry`, `axiom`, `admit`, `native_decide`, `implemented_by` or a `maxHeartbeats`
+  option.
+- `#print axioms` was run on all 58 theorems of the three files. Each depends on `propext`, `Classical.choice` and
+  `Quot.sound` only, or on fewer (`goldP_eq`: `propext` alone).
+- No new lake dependency. No third-party code was read or adapted for this part; the proof shape is Part 5's
+  round-by-round one (Canetti et al. 2019).
+- Five comments that said the composition was not stated now point to these files (`FSWideRbr.lean`,
+  `FSChainRbr.lean`, `FSSumcheck.lean`, `FSLogUp.lean`, `FSOpening.lean`). No statement changed.
+
+## V1. What is proved
+
+**The composition** (`FSCompose.lean`).
+- Sub-protocols indexed by a linear order `J` share one schedule of rounds. `J` is the order in which claims flow.
+  Round `i` belongs to the sub-protocol `own i`. Sub-protocol `j` has a state `S j` on the composed transcript.
+- The combined state is "every sub-protocol is still alive" (`AllAlive`).
+```lean
+structure Composed [LT J] (n : ℕ) (w : ℕ → ℕ) (own : ℕ → J) (S : J → X → List (M × List D) → Prop)
+    (er : ℕ → ℝ≥0∞) : Prop where
+  own_round : ∀ x τ m, τ.length < n → ¬ S (own τ.length) x τ →
+    (PMF.uniformOfFintype (Fin (w τ.length) → D)).toOuterMeasure
+      {b | S (own τ.length) x (τ ++ [(m, List.ofFn b)])} ≤ er τ.length
+  frame : ∀ j x τ m (b : Fin (w τ.length) → D), τ.length < n → own τ.length ≠ j → ¬ S j x τ →
+    S j x (τ ++ [(m, List.ofFn b)]) → ∃ j', j < j' ∧ ¬ S j' x τ
+theorem Composed.rbrWide [LinearOrder J] {n : ℕ} {w : ℕ → ℕ} {own : ℕ → J}
+    {S : J → X → List (M × List D) → Prop} {er : ℕ → ℝ≥0∞} (h : Composed n w own S er)
+    (B : Finset J) (hB : ∀ j x τ, ¬ S j x τ → j ∈ B) (ε : ℝ≥0∞) (hε : ∀ i, i < n → er i ≤ ε) :
+    RbrWide n w (AllAlive S) ε
+```
+- `frame` is F20's condition, "a round can revive only the sub-protocol it belongs to", with one relaxation that
+  reductions need. Another sub-protocol's round may release `j` if a LATER sub-protocol is already doomed.
+  - Example: a finished sumcheck slot has handed its evaluation claims to an opening that runs later.
+  - That opening is doomed whenever the slot ended doomed, so the slot's state may become `True` after its window.
+  - A state that is fixed outside its own rounds meets `frame` trivially.
+- **The proof.** From a doomed transcript, take the LARGEST doomed sub-protocol `j₀`.
+  - If `j₀` owns the round, its own bound applies.
+  - If not, `frame` and the maximality of `j₀` say that no digest revives `j₀`, so the combined state cannot escape.
+  - So a round's error is that of its owner, and the combined error is the maximum.
+- `Composed.rbrWide_sup`: with `ε = max_{i<n} er i`.
+- `fs_chain_sound_of_composed` and `fs_chain_sound_of_composed_sup`, on the code's chain:
+  `(q + ℓW + 1)·ε + collBound T + collBound (T + 1)`, `T = q + ℓW + 1`.
+- `fs_chain_wide_flip_composed`: the same for states that read the log (knowledge soundness: claims about data
+  extracted from the prover's log), stable once the statement's link is logged.
+
+**Schedules** (`FSCompose.lean`).
+- `SubProt`: a sub-protocol with its own rounds, widths, messages, error and `RbrWide`.
+  - Its state reads the composed statement with the transcript BEFORE its window, so the claim it checks may be fixed
+    by earlier rounds.
+  - It also has a state before its window (`pend`, the part of its claim fixed so far) and after it (`post`).
+- `nOf`, `offs`, `ownOf`, `wOf`, `msgOf`, `winSt`, `SOf` run the sub-protocols one after the other.
+- `window_round` and `sched_composed`: every `own_round` condition comes from the sub-protocol's own `RbrWide`. The
+  `frame` condition is a premise.
+```lean
+theorem fs_chain_sound_sched (cs : List (SubProt X M D)) (hwpos : ∀ c ∈ cs, ∀ i, 0 < c.w i) {m₀ : M}
+    (C : ChainEnc (PItem X M) Q D) {Mf : Type} {L : X → Prop} {accept : X → List (M × List D) → Mf → Prop}
+    (ε : ℝ≥0∞) (hε : ∀ c ∈ cs, c.ε ≤ ε)
+    (hframe : ∀ k x τ m (b : Fin (wOf cs τ.length) → D), τ.length < nOf cs → ownOf cs τ.length ≠ k →
+      ¬ SOf cs k x τ → SOf cs k x (τ ++ [(m, List.ofFn b)]) → ∃ k', k < k' ∧ ¬ SOf cs k' x τ)
+    (hstart : ∀ x, ¬ L x → ∃ k, ¬ SOf cs k x [])
+    (hfinal : ∀ x τ mf, τ.length = nOf cs → (∃ k, ¬ SOf cs k x τ) → ¬ accept x τ mf)
+    (q : ℕ) (A : OC Q D (X × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ L (A.run H).1
+        ∧ chainAcceptsW (nOf cs) (wOf cs) (wOf_pos cs hwpos) (msgOf cs) m₀ accept C H (A.run H).1 (A.run H).2.1
+          (A.run H).2.2)
+      ≤ ((q + ℓW (nOf cs) (wOf cs) + 1 : ℕ) : ℝ≥0∞) * ε + collBound (q + ℓW (nOf cs) (wOf cs) + 1) D
+        + collBound (q + ℓW (nOf cs) (wOf cs) + 1 + 1) D
+```
+
+**The block's sub-protocols on digests** (`FSComposeBlock.lean`).
+- `rbrWide_of_rbrSound` carries a one-challenge-per-round protocol to digests: width 1, error `e·K/|D|`.
+  `sumcheck_rbrWide_code` is the sumcheck with the code's `challenge_fp2`: `d/|F|·(1 + p/2^128)²`.
+- `mle_rbrWide`: an evaluation point drawn by `challenge_fp2_vec`, error `ℓ/|F|·(1 + p/2^128)^(2ℓ)`. It covers a
+  zero-check's `τ`, and any point at which two tables' extensions are compared.
+- `batch_rbrWide`: a batching vector (`μ`, `ν`), error `1/|F|·(1 + p/2^128)^(2k)`.
+- `free_rbrWide`: a challenge the state does not depend on, error `0`. This is the CFS coefficient `c`: the masked
+  claim `S + c·G` is false exactly when `S` is, for every `c`, once `G` is `M`'s claim.
+- Schedule components: `logupSP`, `sumcheckSP`, `mleSP`, `batchSP`, `freeSP`, `openingSP`. The regular openings
+  enter with their soundness rounds, for the matrix the statement names.
+- `Kind8B` holds these at the 8B T128 W16R2 parameters, and `M`'s opening as `mask`: ANY sub-protocol whose error is
+  at most `2^-106` (ASSUMED).
+- `Kind8B.eps_le`: each has error at most `εRate8B = 135/2^110 = 2^-102.923`.
+  - `luEps_8B_le` (`35,153,255·(2^128 + p)^4·2^110 ≤ 135·p²·2^512`);
+  - `opening_eps_W16R2_le` and `col_W16R2_nat` (`24715^280·2^110 ≤ 135·32768^280`);
+  - `small_eps_le` and `mask_eps_le`;
+  - the bias bound `fp2_bias_pow_le_two`, `(1 + p/2^128)^k ≤ 2` for `k ≤ 2^62`, from `one_add_pow_le`.
+- `fs_block_sound_8B` is one block (`blockSched` lists its pieces in the code's order); `fs_run_sound_8B` is a run of
+  blocks on one chain:
+```lean
+theorem fs_run_sound_8B (blocks : List (List (SubProt X M Dg))) (hk : ∀ b ∈ blocks, ∀ c ∈ b, Kind8B c) {m₀ : M}
+    (C : ChainEnc (PItem X M) Q Dg) {Mf : Type} {L : X → Prop} {accept : X → List (M × List Dg) → Mf → Prop}
+    (hframe : …) (hstart : ∀ x, ¬ L x → ∃ k, ¬ SOf blocks.flatten k x [])
+    (hfinal : ∀ x τ mf, τ.length = nOf blocks.flatten → (∃ k, ¬ SOf blocks.flatten k x τ) → ¬ accept x τ mf)
+    (q : ℕ) (A : OC Q Dg (X × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ L (A.run H).1 ∧ chainAcceptsW (nOf blocks.flatten) (wOf blocks.flatten) _ (msgOf blocks.flatten)
+        m₀ accept C H (A.run H).1 (A.run H).2.1 (A.run H).2.2)
+      ≤ ((q + ℓW (nOf blocks.flatten) (wOf blocks.flatten) + 1 : ℕ) : ℝ≥0∞) * εRate8B
+        + collBound (q + ℓW (nOf blocks.flatten) (wOf blocks.flatten) + 1) Dg
+        + collBound (q + ℓW (nOf blocks.flatten) (wOf blocks.flatten) + 1 + 1) Dg
+```
+- In the approved target's form (`sound_le_target`, `sound_le_target_max`, `fs_run_sound_8B_target`):
+  - the bound is at most `εsTarget (max q (ℓW + 1))` for `q ≤ 2^76` and `ℓW + 1 ≤ 2^76`;
+  - so it is at most `εsTarget q` whenever `q ≥ ℓW + 1`.
+
+**A worked instance with every premise proved** (`FSComposeZeroCheck.lean`).
+- `zcSched`: the zero-check's `τ` round hands its claim to the sumcheck of `eq(τ, ·)·R`.
+- `zc_handover` (by `cubeSum_eq_mul`), `zc_frame`, `zc_start` and `zc_final` discharge the three premises.
+- `fs_zerocheck_chain_sound`:
+  `T·max(n/|F|·(1 + p/2^128)^(2n), (d + 1)/|F|·(1 + p/2^128)²) + collBound T + collBound (T + 1)`.
+  - The interactive `zerocheck_sound` is `(n + n·(d + 1))/|F|`: per query, the sum becomes the maximum.
+- This shows that the `frame` condition has the right shape: a real reduction meets it, with its hand-off as a lemma.
+
+## V2. The figures
+
+Per hash query; `|F| = p²`; 8B T128, W16R2, `Q = 280` (Part 6 §U2/§U4).
+
+| Round | Error per round | Status |
+|---|---|---|
+| LogUp `α` | `(N_lk + 2T_d − 1)/p²·(1 + p/2^128)^4` = **2^-102.933** | proved (Part 6); the maximum |
+| LogUp `(β, γ)` | `2T_d/p²·(1 + p/2^128)^4` = 2^-110.04 | proved |
+| `M`'s opening | at most 2^-106 (the count's whole `M` term is 2^-106.248) | ASSUMED (waits on F12) |
+| Regular opening, field term | `N/p²·(1 + p/2^128)^(2w0)`: 2^-113.000, at most 2^-112 for `w0 ≤ 2^40` | proved |
+| Regular opening, column term | `((N − (e + 1))/N)^Q` = 2^-113.932 | proved |
+| Evaluation point (`τ`, `ℓ ≤ 25`) | `ℓ/p²·(1 + p/2^128)^(2ℓ)`: at most 2^-123.36 | proved (generic) |
+| Sumcheck round (`d = 5`) | 2^-125.678 | proved |
+| Batching (`μ`, `ν`) | `1/p²·(1 + p/2^128)^(2k)`: about 2^-128 | proved (generic) |
+| CFS `c` | 0 | proved (generic) |
+| **One block, composed** | **2^-102.933** (Lean bound `135/2^110` = 2^-102.923) | proved, given `M` and the premises |
+| **32-block D12a run, composed** | **the same** | the same |
+| 32-block run, union (Part 6 §U4, F20) | 2^-97.791 | for comparison |
+
+- **The rate is 2.92 bits under the approved 2^-100** (2.93 for the exact figure). F20's rate gap is closed, under the
+  premises listed in V3.
+- **The q-free part** is `(ℓW + 1)·ε + collBound T + collBound (T + 1)`.
+  - `ℓW n w = 1 + Σ_i (1 + w i)` is the verifier's chain length: one item per round, plus every squeeze.
+  - For the 32-block run it is of order 2^16 to 2^18. That is an estimate from the code's squeeze counts, not
+    computed in Lean.
+  - So the q-free part is about 2^-87 to 2^-85 (F25).
+
+## V3. What is assumed, and what the code check found
+
+**Assumed** (premises of `fs_block_sound_8B` and `fs_run_sound_8B`).
+1. **`M`'s opening**: any sub-protocol with error at most 2^-106 per round. Its Fiat–Shamir proof waits on F12's fix,
+   which changes `combined_weights`.
+2. **`hframe`, `hstart`, `hfinal`**: how the sub-protocols' claims fit together. For the block they say:
+   - the statement is false only if some sub-protocol starts doomed (the arithmetization, `CircuitIff`, step L2);
+   - LogUp's end state hands its claim to the helper relations that the slots check on `H`;
+   - each slot's sumcheck end state hands its evaluation claims to `M`, `A`, `H` and the endpoint openings;
+   - a hosted slot hands its hidden value to its host, and the host to `M`;
+   - a block's endpoint claims go to the run's boundary openings;
+   - a sub-protocol's `pend` state (its claims fixed so far) never revives;
+   - the verifier rejects when an opening, or `M`, ends doomed.
+3. **The committed data.** The states here are soundness states of data the statement names (`Ux`, `lu`, the slot
+   polynomials). In a receipt that data is EXTRACTED from the prover's log. `fs_chain_wide_flip_composed` is the
+   composition for log-reading states, but the extraction of every table is not composed.
+4. **The regular openings** are their soundness rounds for the named matrix. The knowledge version is Part 6's
+   `fs_opening_knowledge`; it is not composed here.
+5. **The slots' challenges.** Each slot's `define` squeezes are classified as evaluation points (`τ`, the
+   matrix-product points `r_*`, `p_*`), batching vectors (`μ`, `ν`, `ζ`) or free challenges (`c`). The classification
+   comes from reading the code; it is not checked per slot in Lean.
+6. **The run's boundary openings.** In a D12a run the openings of the boundary roots `B_k` (with `oc_k` and
+   `ic_{k+1}`, `run.rs:1427-1441`) and of the two endpoints are further regular openings in the run's list. They are
+   taken at the W16R2 opening's parameters (`N = 2^15`). If a boundary commitment has another column count,
+   `Kind8B.opening` needs that `N`; the numbers would move little, since the field term is `N/p²`.
+
+**The code check** (task 4; read only).
+- Files: `hashline/src/private_block/protocol.rs`, `zkp-core/src/pcs.rs`, `hashline/src/zk.rs`,
+  `private_block/run.rs`, `private_block/run_fork.rs`, `private_block/argument.rs`. A read-only audit pass listed every
+  transcript operation; I re-read `protocol.rs:2000-2066` and `run_fork.rs:795-803, 1278-1290, 1386-1400` myself.
+- **One block's verifier order** (`verify_core`):
+  - the header; the `A` root; the `M` root; `β, γ, α`; the `H` root (`protocol.rs:2003-2011`);
+  - the slots (`argument`);
+  - `M`'s opening (`2023`), then `A` (`2031/2036`), then `H` (`2061/2066`);
+  - for a single block, the endpoints `In` and `Out` (`2142-2150`).
+- **Every claim an opening checks is fixed before its first challenge.** `acc.claims` and `acc.fs` come out of
+  `argument` (`protocol.rs:2016`), before `M`'s `θ` (`2023`). The openings' claims `[ac, hc, ic, oc]` are computed
+  from `acc.claims` alone (`finish_claims`, `2029`), before `A`'s `λ`. `logup_sum_claim` depends only on the layout
+  (audit).
+- **No place was found where a sub-protocol's state depends on a challenge drawn in a later round of another
+  sub-protocol.** Every hand-off goes forward:
+  - LogUp → the slots on `H`;
+  - hosted slot → host → `M` (F27);
+  - slots → `M`, `A`, `H` and the endpoints;
+  - a block's `oc_k` → the run's opening of `B_k`, together with `ic_{k+1}` (`run.rs:1427-1441`).
+- **Shared challenges are read forward only.**
+  - `β, γ, α` are read by slots 3, 14-19 and 23, and by `H`'s helper rows.
+  - `define` points are reused by later slots (`r_t`, `r_q`, the `p_*`).
+  - Each slot's `ρ`, `es` and `c` are read by `M`, `A` and `H`.
+  - In the composition these are values of the transcript BEFORE the reader's window, which `SubProt.St` may read.
+- Squeezes on `clone_state` transcripts (refusal replays, position tags) never reach the main chain.
+- **The D12a run is one chain** (`RunVerifier.tr`, `run.rs:1345`) and fits `fs_run_sound_8B`. The D55 fork-join does
+  not (F26).
+
+## V4. Findings
+
+**F24 (Info: F20's rate gap is closed in the proofs, with stated premises).**
+- Composed on one chain, the per-query rate of a block and of a D12a run is the maximum over rounds: LogUp's `α`,
+  2^-102.933 (Lean bound 2^-102.923), 2.92 bits under the approved 2^-100. The union was 2^-97.79.
+- **Proved:** the composition (`Composed.rbrWide`, `fs_chain_sound_sched`), every per-round error except `M`'s, and
+  the numbers.
+- **Assumed:** `M`'s per-round error at most 2^-106, and the premises `hframe`, `hstart`, `hfinal` for the block.
+- `FSComposeZeroCheck.lean` proves all three premises for the zero-check and its sumcheck. That shows the form is
+  dischargeable; it is not the block's proof.
+
+**F25 (Medium: the approved target's q-free part, `λ₀ ≥ 100`, is not met for provers that make few hash queries).**
+- **Why.** The proved bound charges every position of the joint run, the prover's `q` queries and the verifier's
+  `ℓW + 1`, as one attempt at the maximal error. So its q-free part is `(ℓW + 1)·ε`: about 2^-87 to 2^-85 for the
+  32-block run (V2), above the target's 2^-100.
+- **In the target's form** (`fs_run_sound_8B_target`):
+  - `εs` holds with `q` replaced by `max(q, ℓW + 1)`;
+  - it holds as approved for every prover with `ℓW + 1 ≤ q ≤ 2^76`.
+- **A sharper count does not close it on its own.** Charging each verifier query its own round's error leaves the
+  interactive union `Σ_rounds ε_i`, 2^-97.78 for the run (the count's figure), still above 2^-100. That is the error of
+  a prover that hashes nothing and hopes, IF one doom could be revived in any round of the run.
+- **What could.** A doom can be revived only in the rounds of the sub-protocols on its hand-off path.
+  - For a cheat whose hand-offs stay inside one block, that is the block's sum, 2^-102.79.
+  - Across blocks the endpoint claims chain the blocks, so a path can be long.
+  - This needs a path-wise round-by-round bound. That is not standard, and it was not attempted.
+- **Options** (Victor's decision):
+  - (a) a sharper Fiat–Shamir theorem (verifier queries at their own round's error) plus the path-wise bound;
+  - (b) a ruling that `λ₀` applies to provers with `q ≥ ℓW + 1`, since any real attack hashes more than one
+    verification does;
+  - (c) a lower `λ₀`;
+  - (d) a larger challenge field for LogUp's `α`, which lowers the largest term.
+
+**F26 (Medium: the D55 fork-join is a tree of transcripts, not one chain, so F20's gap remains for D55).**
+- **What the code does.**
+  - Each fork's transcript is rebuilt from the common state `S0` (`fork`, `run_fork.rs:797-801`) and runs
+    `verify_core` on its own (`1284`).
+  - The main chain then absorbs each fork's end state, squeeze counter and endpoint claims (`absorb_join`,
+    `1391-1393`), then `pb-fork-s1` (`close_join`), and then the boundary openings.
+- **The gap.** The one-chain theorem does not cover a tree: the forks' chains share their start and diverge at
+  `pb-run-fork k`. What is proved gives only the union over the `L` forks, `L·2^-102.93` per query: 2^-97.93 at
+  `L = 32`, above the target.
+- **The expected shape.**
+  - Each hash query lies on one fork's chain, or on the trunk. So each query still attacks one round of one fork,
+    and the rate should stay the maximum, 2^-102.93.
+  - The q-free part adds every fork's `ℓW`.
+- **What it needs.** `chain_sound_wide` for a tree of chains with a common prefix (the trace-back and ordering lemmas
+  per branch), and a join item that absorbs a branch's end state. Not done.
+
+**F27 (Info: the code's schedule fits the composition; three details for the code-level instance).**
+- **(a) Host batching.** A host's batching `ν` is drawn after the hosted slots' rounds (`argument.rs:1731, 2043,
+  2169, 2238, 2306, 2368`; audit, not re-read). It is used only in the host's claimed sum (`1108`) and in `M`'s host
+  functional (`1154-1156`). Every host has a higher index than the slots it hosts (`layout.rs:977-999`). The hand-off,
+  hosted → host → `M`, is forward, as `frame` needs.
+- **(b) The slot label.** A slot's `define` squeezes come before its `"pb-slot"` label (`argument.rs:2678`, before
+  `871`). In the model the slot's first round has no message, and the label is part of the next round's message.
+- **(c) The S1 tag.** In D55 the S1 position tag (`run_fork.rs:1400`) is squeezed on a clone at the state and counter
+  of the next live squeeze, so it equals a live challenge (B_0's opening's first `λ`).
+  - It is public and computed by the verifier, so it is harmless for soundness.
+  - It is noted because every other tag is taken where the next operation is an absorb.
+  - This is the audit's inference from `transcript.rs:101-111, 170-176`; not re-read.
+
+## V5. What remains
+
+- **The premises for the block.**
+  - The slots' arithmetization (`CircuitIff`, L2), and each hand-off as a lemma like `zc_handover`, per slot kind;
+  - LogUp → `H`;
+  - the openings' claims as the slots' terminal values.
+- **The knowledge version.**
+  - `fs_chain_wide_flip_composed` with the extracted `A`, `H` and `M` (Part 6's cut, `cut_proverLog_stable`);
+  - each opening's extraction failure term (`opening_extract_fail`).
+- **`M`'s opening under Fiat–Shamir**, after F12's fix. Then `Kind8B.mask` becomes a proved kind.
+- **The q-free part (F25)**, and **D55 (F26)**.
+- **The code-level instance** (unchanged from Part 6): `ChainEnc` for keyed BLAKE3, the header's absorbs, the counter
+  offset, and the registered profile's `ℓW`.
+- **`KnowledgeSound`** of `Statements.lean`.

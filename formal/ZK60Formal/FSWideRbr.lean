@@ -35,7 +35,7 @@ and final conditions are as in `FSRbr.lean`'s `RbrSound`.
 
 **What this does not cover.** The statement is one item (the code's header is several absorbs: only `T` changes).
 The counter of round `0` is `0` here; in a block it is the number of squeezes drawn before (a fixed offset, the same
-argument). Several protocols composed on one chain are not stated.
+argument). Several protocols composed on one chain: `FSCompose.lean`.
 -/
 import ZK60Formal.FSWide
 

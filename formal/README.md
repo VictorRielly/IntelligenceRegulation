@@ -240,10 +240,28 @@ The plain-words version, the modelling choices and the open decisions are in
     `cut_proverLog_stable`); the Merkle extraction failure in the whole run (`opening_extract_fail`,
     `collBound T' + 2T'²/|D|`); `fs_opening_knowledge`, and `fs_opening_knowledge_code` with the code's derivations
     (`challenge_fp2_vec`: `(1 + p/2^128)^(2·w0)`; `challenge_indices`: exactly uniform, `chunkEquiv`, `idxCode`).
+  - `FSCompose.lean`: sub-protocols COMPOSED on one chain, round by round (finding F20). The combined state is "every
+    sub-protocol alive" (`AllAlive`); a round revives only the sub-protocol it belongs to, unless a later one is already
+    doomed (a reduction hands its claim forward) (`Composed`). Then the combined protocol is `RbrWide` with the MAXIMUM
+    of the rounds' errors (`Composed.rbrWide`, `_sup`), and on the chain the per-query rate is that maximum
+    (`fs_chain_sound_of_composed`; with log-reading states, `fs_chain_wide_flip_composed`). Schedules of sub-protocols
+    one after the other, each with its own `RbrWide` and its claim fixed by earlier rounds (`SubProt`, `SOf`,
+    `sched_composed`, `fs_chain_sound_sched`).
+  - `FSComposeBlock.lean`: the block's sub-protocols on digests with the code's derivations (LogUp; the sumcheck,
+    `rbrWide_of_rbrSound`; evaluation points, `mle_rbrWide`; batching, `batch_rbrWide`; free challenges such as the CFS
+    `c`; the regular openings), at the 8B T128 W16R2 parameters (`Kind8B`), with `M`'s opening ASSUMED at error
+    `≤ 2^-106` (its proof waits on F12). Each error is at most `135/2^110 ≈ 2^-102.92` (`Kind8B.eps_le`; LogUp's `α`
+    is the largest). One block and a D12a run of blocks on one chain (`fs_block_sound_8B`, `fs_run_sound_8B`), and in
+    the approved target's form `εsTarget (max q (ℓW + 1))` (`fs_run_sound_8B_target`). The hand-offs between the
+    sub-protocols are premises.
+  - `FSComposeZeroCheck.lean`: a worked instance with every premise proved: the zero-check's `τ` handing its claim to
+    the sumcheck of `eq(τ, ·)·R` (`zc_handover`, `fs_zerocheck_chain_sound`); per query the maximum of the two errors,
+    where the interactive `zerocheck_sound` adds them.
   - The comparison with the interactive bounds and the target, the code's transcript order (what is absorbed before
     each challenge), the findings (F16–F19) and what remained are in Part 5 of
     `docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`; the vector challenges, LogUp, the opening, the whole-block
-    figure per hash query and the findings F20–F23 are in its Part 6.
+    figure per hash query and the findings F20–F23 are in its Part 6; the composition, the block and run figures, the
+    code check and the findings F24–F27 are in its Part 7.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).
