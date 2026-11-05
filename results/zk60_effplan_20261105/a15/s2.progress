@@ -1,0 +1,141 @@
+2026-11-05T20:04:38Z start
+2026-11-05T20:07:06Z build rc=0
+2026-11-05T20:29:37Z d55 size sweep rc=0
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.63 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.41 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.42 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp0] pass 0: 4 requests in 24.221 s; amortized 21.14 proved tok/s; steady state 24.68 tok/s (completions 8.67, 14.08, 19.40, 24.22); per-request latency 8.67, 9.88, 9.79, 9.30; all 4 r
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 3.09 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spg] pass 0: 4 requests in 24.764 s; amortized 20.67 proved tok/s; steady state 23.65 tok/s (completions 8.53, 13.97, 19.51, 24.76); per-request latency 8.53, 9.87, 10.04, 9.66; all 4 
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.75 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp4] pass 0: 4 requests in 22.784 s; amortized 22.47 proved tok/s; steady state 26.46 tok/s (completions 8.27, 13.05, 18.22, 22.78); per-request latency 8.27, 9.37, 9.52, 9.04; all 4 r
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.44 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp6] pass 0: 4 requests in 21.161 s; amortized 24.19 proved tok/s; steady state 28.50 tok/s (completions 7.69, 12.34, 16.79, 21.16); per-request latency 7.69, 9.04, 8.88, 8.56; all 4 r
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.40 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp8] pass 0: 4 requests in 21.144 s; amortized 24.22 proved tok/s; steady state 28.48 tok/s (completions 7.66, 12.22, 16.85, 21.14); per-request latency 7.66, 9.05, 9.01, 8.65; all 4 r
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.39 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp12] pass 0: 4 requests in 21.053 s; amortized 24.32 proved tok/s; steady state 29.14 tok/s (completions 7.88, 12.24, 17.01, 21.05); per-request latency 7.88, 8.94, 9.04, 8.44; all 4 
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.40 s
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp16] pass 0: 4 requests in 21.718 s; amortized 23.58 proved tok/s; steady state 27.79 tok/s (completions 7.90, 12.70, 17.32, 21.72); per-request latency 7.90, 9.22, 9.02, 8.67; all 4 
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp16] pass 1: 4 requests in 21.545 s; amortized 23.76 proved tok/s; steady state 28.32 tok/s (completions 7.99, 12.48, 17.32, 21.54); per-request latency 7.99, 9.02, 9.12, 8.56; all 4 
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp12] pass 1: 4 requests in 21.730 s; amortized 23.56 proved tok/s; steady state 27.83 tok/s (completions 7.93, 12.61, 17.33, 21.73); per-request latency 7.93, 9.26, 9.11, 8.74; all 4 
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp8] pass 1: 4 requests in 21.152 s; amortized 24.21 proved tok/s; steady state 29.01 tok/s (completions 7.91, 12.37, 16.86, 21.15); per-request latency 7.91, 9.03, 8.85, 8.64; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp6] pass 1: 4 requests in 21.898 s; amortized 23.38 proved tok/s; steady state 27.49 tok/s (completions 7.93, 12.52, 17.39, 21.90); per-request latency 7.93, 9.02, 9.19, 8.95; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp4] pass 1: 4 requests in 23.157 s; amortized 22.11 proved tok/s; steady state 26.01 tok/s (completions 8.40, 13.39, 18.48, 23.16); per-request latency 8.40, 9.48, 9.51, 8.97; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spg] pass 1: 4 requests in 24.917 s; amortized 20.55 proved tok/s; steady state 23.93 tok/s (completions 8.87, 14.25, 19.99, 24.92); per-request latency 8.87, 9.90, 10.27, 9.76; all 4 
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp0] pass 1: 4 requests in 24.611 s; amortized 20.80 proved tok/s; steady state 24.31 tok/s (completions 8.81, 14.17, 19.52, 24.61); per-request latency 8.81, 9.78, 9.90, 9.64; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp0] pass 2: 4 requests in 24.751 s; amortized 20.69 proved tok/s; steady state 24.09 tok/s (completions 8.81, 14.26, 19.71, 24.75); per-request latency 8.81, 9.84, 9.97, 9.59; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spg] pass 2: 4 requests in 24.588 s; amortized 20.82 proved tok/s; steady state 24.53 tok/s (completions 8.93, 14.16, 19.56, 24.59); per-request latency 8.93, 9.80, 9.84, 9.46; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp4] pass 2: 4 requests in 22.897 s; amortized 22.36 proved tok/s; steady state 26.00 tok/s (completions 8.13, 12.95, 17.97, 22.90); per-request latency 8.13, 9.08, 9.28, 9.24; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp6] pass 2: 4 requests in 21.646 s; amortized 23.65 proved tok/s; steady state 28.12 tok/s (completions 7.99, 12.58, 17.37, 21.65); per-request latency 7.99, 9.09, 9.10, 8.73; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp8] pass 2: 4 requests in 20.863 s; amortized 24.54 proved tok/s; steady state 29.51 tok/s (completions 7.85, 12.17, 16.63, 20.86); per-request latency 7.85, 8.76, 8.56, 8.43; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp12] pass 2: 4 requests in 21.181 s; amortized 24.17 proved tok/s; steady state 28.87 tok/s (completions 7.88, 12.44, 16.98, 21.18); per-request latency 7.88, 9.04, 8.83, 8.55; all 4 
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp16] pass 2: 4 requests in 21.859 s; amortized 23.42 proved tok/s; steady state 27.87 tok/s (completions 8.08, 12.64, 17.33, 21.86); per-request latency 8.08, 9.08, 8.98, 8.93; all 4 
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp16] pass 3: 4 requests in 21.438 s; amortized 23.88 proved tok/s; steady state 28.63 tok/s (completions 8.02, 12.48, 17.16, 21.44); per-request latency 8.02, 8.87, 8.97, 8.58; all 4 
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp12] pass 3: 4 requests in 20.974 s; amortized 24.41 proved tok/s; steady state 29.65 tok/s (completions 8.02, 12.41, 16.85, 20.97); per-request latency 8.02, 8.95, 8.76, 8.40; all 4 
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp8] pass 3: 4 requests in 21.192 s; amortized 24.16 proved tok/s; steady state 28.73 tok/s (completions 7.83, 12.37, 17.03, 21.19); per-request latency 7.83, 8.98, 8.97, 8.57; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp6] pass 3: 4 requests in 21.454 s; amortized 23.86 proved tok/s; steady state 28.47 tok/s (completions 7.97, 12.57, 17.28, 21.45); per-request latency 7.97, 9.06, 8.92, 8.56; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp4] pass 3: 4 requests in 22.514 s; amortized 22.74 proved tok/s; steady state 27.04 tok/s (completions 8.31, 13.12, 17.89, 22.51); per-request latency 8.31, 9.24, 9.06, 8.74; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spg] pass 3: 4 requests in 24.170 s; amortized 21.18 proved tok/s; steady state 24.92 tok/s (completions 8.76, 14.03, 19.33, 24.17); per-request latency 8.76, 9.69, 9.81, 9.42; all 4 r
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [sp0] pass 3: 4 requests in 24.881 s; amortized 20.58 proved tok/s; steady state 24.00 tok/s (completions 8.88, 14.30, 19.77, 24.88); per-request latency 8.88, 9.86, 9.77, 9.54; all 4 r
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.447 s = 13.55 tok/s | mean 9.447 s = 13.55 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.044 s = 31.65 tok/s | mean 4.044 s = 31.65 tok/s | 2.34x serial (best)
+D55-AB SUMMARY | forks N=6 sp0  | A7 GPU-policy A/B, interleaved, 4 passes | best 4.008 s = 31.94 tok/s | mean 4.085 s = 31.34 tok/s
+D55-AB SUMMARY | forks N=6 spg  | A7 GPU-policy A/B, interleaved, 4 passes | best 4.013 s = 31.90 tok/s | mean 4.078 s = 31.39 tok/s
+D55-AB SUMMARY | forks N=6 sp4  | A7 GPU-policy A/B, interleaved, 4 passes | best 4.089 s = 31.30 tok/s | mean 4.100 s = 31.22 tok/s
+D55-AB SUMMARY | forks N=6 sp6  | A7 GPU-policy A/B, interleaved, 4 passes | best 4.023 s = 31.82 tok/s | mean 4.116 s = 31.10 tok/s
+D55-AB SUMMARY | forks N=6 sp8  | A7 GPU-policy A/B, interleaved, 4 passes | best 4.040 s = 31.68 tok/s | mean 4.095 s = 31.25 tok/s
+D55-AB SUMMARY | forks N=6 sp12 | A7 GPU-policy A/B, interleaved, 4 passes | best 4.074 s = 31.42 tok/s | mean 4.111 s = 31.14 tok/s
+D55-AB SUMMARY | forks N=6 sp16 | A7 GPU-policy A/B, interleaved, 4 passes | best 4.094 s = 31.27 tok/s | mean 4.113 s = 31.12 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp0 | A7 GPU-policy A/B, one request from its input, interleaved, 4 passes | best 8.368 s = 15.30 tok/s | mean 8.441 s = 15.16 tok/s
+D55-AB SUMMARY | forks N=6 SEALED spg | A7 GPU-policy A/B, one request from its input, interleaved, 4 passes | best 8.257 s = 15.50 tok/s | mean 8.387 s = 15.26 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp4 | A7 GPU-policy A/B, one request from its input, interleaved, 4 passes | best 7.928 s = 16.14 tok/s | mean 7.987 s = 16.03 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp6 | A7 GPU-policy A/B, one request from its input, interleaved, 4 passes | best 7.306 s = 17.52 tok/s | mean 7.488 s = 17.09 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp8 | A7 GPU-policy A/B, one request from its input, interleaved, 4 passes | best 7.294 s = 17.55 tok/s | mean 7.509 s = 17.05 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp12 | A7 GPU-policy A/B, one request from its input, interleaved, 4 passes | best 7.442 s = 17.20 tok/s | mean 7.485 s = 17.10 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp16 | A7 GPU-policy A/B, one request from its input, interleaved, 4 passes | best 7.560 s = 16.93 tok/s | mean 7.627 s = 16.78 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp0 | A7 GPU-policy A/B, stream, interleaved, 4 passes | steady state mean 24.27 tok/s (best 24.68) | amortized mean 20.80 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 spg | A7 GPU-policy A/B, stream, interleaved, 4 passes | steady state mean 24.26 tok/s (best 24.92) | amortized mean 20.81 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp4 | A7 GPU-policy A/B, stream, interleaved, 4 passes | steady state mean 26.38 tok/s (best 27.04) | amortized mean 22.42 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp6 | A7 GPU-policy A/B, stream, interleaved, 4 passes | steady state mean 28.15 tok/s (best 28.50) | amortized mean 23.77 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp8 | A7 GPU-policy A/B, stream, interleaved, 4 passes | steady state mean 28.93 tok/s (best 29.51) | amortized mean 24.28 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp12 | A7 GPU-policy A/B, stream, interleaved, 4 passes | steady state mean 28.87 tok/s (best 29.65) | amortized mean 24.12 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp16 | A7 GPU-policy A/B, stream, interleaved, 4 passes | steady state mean 28.15 tok/s (best 28.63) | amortized mean 23.66 tok/s
+--- spg against sp0
+| proof wall s | -1.5% (2, 2) | +1.2% (2, 1) | **-0.1%** | 4.085 / 4.078 |
+| sealed wall s | -0.3% (2, 1) | -1.0% (2, 1) | **-0.6%** | 8.441 / 8.387 |
+| stream steady tok/s | -1.2% (2, 1) | +1.1% (2, 1) | **-0.0%** | 24.270 / 24.258 |
+| stream amortized tok/s | -0.8% (2, 1) | +0.9% (2, 1) | **+0.0%** | 20.803 / 20.805 |
+| user CPU s | -1.9% (2, 2) | +0.6% (2, 1) | **-0.7%** | 41.375 / 41.100 |
+| sys CPU s | -4.3% (2, 1) | -1.6% (2, 1) | **-2.9%** | 7.025 / 6.775 |
+| sealing pass s | -1.4% (2, 1) | -1.0% (2, 1) | **-1.2%** | 4.355 / 4.303 |
+| sealing CPU-s | -3.0% (2, 2) | -2.5% (2, 2) | **-2.8%** | 43.975 / 42.775 |
+--- sp4 against sp0
+| proof wall s | -0.7% (2, 2) | +1.5% (2, 0) | **+0.4%** | 4.085 / 4.100 |
+| sealed wall s | -5.1% (2, 2) | -5.7% (2, 2) | **-5.4%** | 8.441 / 7.988 |
+| stream steady tok/s | +7.6% (2, 2) | +9.8% (2, 2) | **+8.7%** | 24.270 / 26.378 |
+| stream amortized tok/s | +7.2% (2, 2) | +8.4% (2, 2) | **+7.8%** | 20.803 / 22.420 |
+| user CPU s | -0.5% (2, 1) | +0.2% (2, 0) | **-0.1%** | 41.375 / 41.325 |
+| sys CPU s | +7.5% (2, 1) | +0.7% (2, 0) | **+4.1%** | 7.025 / 7.275 |
+| sealing pass s | -12.5% (2, 2) | -12.0% (2, 2) | **-12.2%** | 4.355 / 3.823 |
+| sealing CPU-s | -80.7% (2, 2) | -80.4% (2, 2) | **-80.6%** | 43.975 / 8.550 |
+--- sp6 against sp0
+| proof wall s | -0.9% (2, 1) | +2.5% (2, 0) | **+0.8%** | 4.085 / 4.115 |
+| sealed wall s | -11.6% (2, 2) | -10.9% (2, 2) | **-11.3%** | 8.441 / 7.488 |
+| stream steady tok/s | +16.1% (2, 2) | +15.9% (2, 2) | **+16.0%** | 24.270 / 28.145 |
+| stream amortized tok/s | +14.4% (2, 2) | +14.2% (2, 2) | **+14.3%** | 20.803 / 23.770 |
+| user CPU s | -0.1% (2, 1) | +1.3% (2, 0) | **+0.6%** | 41.375 / 41.625 |
+| sys CPU s | +4.2% (2, 0) | +6.1% (2, 1) | **+5.1%** | 7.025 / 7.350 |
+| sealing pass s | -19.9% (2, 2) | -19.5% (2, 2) | **-19.7%** | 4.355 / 3.498 |
+| sealing CPU-s | -79.0% (2, 2) | -78.9% (2, 2) | **-79.0%** | 43.975 / 9.250 |
+--- sp8 against sp0
+| proof wall s | -1.4% (2, 2) | +2.0% (2, 0) | **+0.3%** | 4.085 / 4.095 |
+| sealed wall s | -10.8% (2, 2) | -11.3% (2, 2) | **-11.0%** | 8.441 / 7.509 |
+| stream steady tok/s | +18.9% (2, 2) | +19.5% (2, 2) | **+19.2%** | 24.270 / 28.933 |
+| stream amortized tok/s | +16.6% (2, 2) | +16.9% (2, 2) | **+16.7%** | 20.803 / 24.282 |
+| user CPU s | -1.2% (2, 2) | +1.1% (2, 0) | **-0.1%** | 41.375 / 41.350 |
+| sys CPU s | +0.2% (2, 1) | +1.1% (2, 1) | **+0.6%** | 7.025 / 7.025 |
+| sealing pass s | -20.3% (2, 2) | -23.7% (2, 2) | **-22.0%** | 4.355 / 3.397 |
+| sealing CPU-s | -76.0% (2, 2) | -76.0% (2, 2) | **-76.0%** | 43.975 / 10.550 |
+--- sp12 against sp0
+| proof wall s | -0.1% (2, 1) | +1.4% (2, 0) | **+0.7%** | 4.085 / 4.111 |
+| sealed wall s | -11.1% (2, 2) | -11.6% (2, 2) | **-11.3%** | 8.441 / 7.485 |
+| stream steady tok/s | +19.0% (2, 2) | +19.0% (2, 2) | **+19.0%** | 24.270 / 28.872 |
+| stream amortized tok/s | +15.9% (2, 2) | +15.9% (2, 2) | **+15.9%** | 20.803 / 24.115 |
+| user CPU s | -1.0% (2, 2) | -0.2% (2, 1) | **-0.6%** | 41.375 / 41.125 |
+| sys CPU s | +4.0% (2, 1) | +11.4% (2, 0) | **+7.7%** | 7.025 / 7.525 |
+| sealing pass s | -21.3% (2, 2) | -22.3% (2, 2) | **-21.8%** | 4.355 / 3.406 |
+| sealing CPU-s | -67.4% (2, 2) | -67.8% (2, 2) | **-67.6%** | 43.975 / 14.250 |
+--- sp16 against sp0
+| proof wall s | -0.2% (2, 1) | +1.6% (2, 0) | **+0.7%** | 4.085 / 4.113 |
+| sealed wall s | -8.9% (2, 2) | -10.4% (2, 2) | **-9.6%** | 8.441 / 7.627 |
+| stream steady tok/s | +14.1% (2, 2) | +17.9% (2, 2) | **+16.0%** | 24.270 / 28.152 |
+| stream amortized tok/s | +12.4% (2, 2) | +15.1% (2, 2) | **+13.8%** | 20.803 / 23.660 |
+| user CPU s | +0.1% (2, 0) | +1.1% (2, 0) | **+0.6%** | 41.375 / 41.625 |
+| sys CPU s | +1.4% (2, 1) | +4.3% (2, 0) | **+2.9%** | 7.025 / 7.200 |
+| sealing pass s | -18.3% (2, 2) | -19.6% (2, 2) | **-19.0%** | 4.355 / 3.529 |
+| sealing CPU-s | -56.9% (2, 2) | -57.4% (2, 2) | **-57.2%** | 43.975 / 18.825 |
+--- sp4 against spg
+| sealed wall s | -4.7% (2, 2) | -4.8% (2, 2) | **-4.8%** | 8.387 / 7.988 |
+| stream steady tok/s | +8.9% (2, 2) | +8.6% (2, 2) | **+8.8%** | 24.258 / 26.378 |
+--- sp6 against spg
+| sealed wall s | -11.4% (2, 2) | -10.1% (2, 2) | **-10.7%** | 8.387 / 7.488 |
+| stream steady tok/s | +17.6% (2, 2) | +14.6% (2, 2) | **+16.1%** | 24.258 / 28.145 |
+--- sp8 against spg
+| sealed wall s | -10.5% (2, 2) | -10.4% (2, 2) | **-10.5%** | 8.387 / 7.509 |
+| stream steady tok/s | +20.4% (2, 2) | +18.3% (2, 2) | **+19.3%** | 24.258 / 28.933 |
+--- sp12 against spg
+| sealed wall s | -10.8% (2, 2) | -10.7% (2, 2) | **-10.7%** | 8.387 / 7.485 |
+| stream steady tok/s | +20.5% (2, 2) | +17.6% (2, 2) | **+19.0%** | 24.258 / 28.872 |
+--- sp16 against spg
+| sealed wall s | -8.6% (2, 2) | -9.5% (2, 2) | **-9.0%** | 8.387 / 7.627 |
+| stream steady tok/s | +15.6% (2, 2) | +16.6% (2, 2) | **+16.1%** | 24.258 / 28.152 |
+2026-11-05T20:29:37Z all done

@@ -1,0 +1,87 @@
+2026-11-05T20:31:10Z start
+2026-11-05T20:33:37Z build rc=0
+2026-11-05T20:43:33Z d55 A/B default: sp0 against spauto rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.456 s = 13.54 tok/s | mean 9.456 s = 13.54 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.174 s = 30.66 tok/s | mean 4.174 s = 30.66 tok/s | 2.27x serial (best)
+D55-AB SUMMARY | forks N=6 sp0  | A7 GPU-policy A/B, interleaved, 6 passes | best 3.956 s = 32.36 tok/s | mean 4.028 s = 31.77 tok/s
+D55-AB SUMMARY | forks N=6 spauto | A7 GPU-policy A/B, interleaved, 6 passes | best 3.988 s = 32.10 tok/s | mean 4.061 s = 31.52 tok/s
+D55-AB SUMMARY | forks N=6 SEALED sp0 | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.255 s = 15.51 tok/s | mean 8.419 s = 15.20 tok/s
+D55-AB SUMMARY | forks N=6 SEALED spauto | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.191 s = 17.80 tok/s | mean 7.346 s = 17.43 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 sp0 | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 24.41 tok/s (best 24.92) | amortized mean 20.80 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 spauto | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 29.02 tok/s (best 29.86) | amortized mean 24.44 tok/s
+# A11 pairs: [spauto] against [sp0], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87fcd65642aceb6b/results/zk60_effplan_20261105/a15/raw/s3_default_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +0.9% (3, 1) | +0.7% (3, 1) | **+0.8%** | 4.029 / 4.061 |
+| forks phase s | +0.9% (3, 1) | +0.0% (3, 1) | **+0.4%** | 3.662 / 3.677 |
+| sealed wall s | -13.2% (3, 3) | -12.3% (3, 3) | **-12.7%** | 8.419 / 7.346 |
+| stream steady tok/s | +19.7% (3, 3) | +18.1% (3, 3) | **+18.9%** | 24.408 / 29.018 |
+| stream amortized tok/s | +18.0% (3, 3) | +17.0% (3, 3) | **+17.5%** | 20.800 / 24.442 |
+| user CPU s | +0.7% (3, 0) | +0.1% (3, 1) | **+0.4%** | 41.050 / 41.217 |
+| sys CPU s | +3.2% (3, 2) | +4.4% (3, 0) | **+3.8%** | 6.950 / 7.200 |
+| minor faults | -0.5% (3, 1) | +1.4% (3, 1) | **+0.4%** | 1,155,572 / 1,159,452 |
+# A13 one-request clocks: [spauto] against [sp0], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87fcd65642aceb6b/results/zk60_effplan_20261105/a15/raw/s3_default_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request wall s | -13.2% (3, 3) | -12.3% (3, 3) | **-12.7%** | 8.419 / 7.346 |
+| sealing pass s | -23.8% (3, 3) | -23.4% (3, 3) | **-23.6%** | 4.368 / 3.336 |
+| sealing CPU-s | -76.4% (3, 3) | -76.5% (3, 3) | **-76.4%** | 44.400 / 10.467 |
+| prove call s | -1.7% (3, 3) | -0.3% (3, 2) | **-1.0%** | 4.051 / 4.009 |
+| forks phase (of the request) s | -1.5% (3, 3) | -0.5% (3, 3) | **-1.0%** | 3.666 / 3.630 |
+| preflight + commit s | -3.1% (3, 1) | +2.9% (3, 1) | **-0.1%** | 0.302 / 0.300 |
+# A15 sealing-pass clocks: [spauto] against [sp0], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87fcd65642aceb6b/results/zk60_effplan_20261105/a15/raw/s3_default_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request: sealing pass s | -23.8% (3, 3) | -23.4% (3, 3) | **-23.6%** | 4.368 / 3.336 |
+| one request: sealing user CPU s | -51.6% (3, 3) | -51.6% (3, 3) | **-51.6%** | 15.698 / 7.600 |
+| one request: sealing sys CPU s | -90.0% (3, 3) | -90.0% (3, 3) | **-90.0%** | 28.710 / 2.878 |
+| one request: sealing involuntary csw | -93.8% (3, 3) | -93.8% (3, 3) | **-93.8%** | 656069.167 / 40556.500 |
+| stream: request 0's sealing pass s (alone) | -23.9% (3, 3) | -24.4% (3, 3) | **-24.1%** | 4.375 / 3.318 |
+| stream: requests 1.. sealing pass s (beside the forks) | -16.1% (3, 3) | -15.5% (3, 3) | **-15.8%** | 5.382 / 4.530 |
+2026-11-05T20:53:07Z d55 A/B lazy: spauto against spauto+lazy0 rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.940 s = 12.88 tok/s | mean 9.940 s = 12.88 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.158 s = 30.78 tok/s | mean 4.158 s = 30.78 tok/s | 2.39x serial (best)
+D55-AB SUMMARY | forks N=6 spauto | A7 GPU-policy A/B, interleaved, 6 passes | best 4.004 s = 31.97 tok/s | mean 4.107 s = 31.16 tok/s
+D55-AB SUMMARY | forks N=6 spauto+lazy0 | A7 GPU-policy A/B, interleaved, 6 passes | best 4.037 s = 31.71 tok/s | mean 4.089 s = 31.30 tok/s
+D55-AB SUMMARY | forks N=6 SEALED spauto | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.354 s = 17.40 tok/s | mean 7.426 s = 17.24 tok/s
+D55-AB SUMMARY | forks N=6 SEALED spauto+lazy0 | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.433 s = 17.22 tok/s | mean 7.491 s = 17.09 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 spauto | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 29.10 tok/s (best 29.93) | amortized mean 24.34 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 spauto+lazy0 | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 28.91 tok/s (best 29.35) | amortized mean 24.23 tok/s
+# A11 pairs: [spauto+lazy0] against [spauto], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87fcd65642aceb6b/results/zk60_effplan_20261105/a15/raw/s3_lazy_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -0.2% (3, 2) | -0.6% (3, 1) | **-0.4%** | 4.107 / 4.089 |
+| forks phase s | -0.1% (3, 2) | -0.9% (3, 1) | **-0.5%** | 3.731 / 3.712 |
+| sealed wall s | +0.9% (3, 0) | +0.9% (3, 0) | **+0.9%** | 7.425 / 7.491 |
+| stream steady tok/s | -1.8% (3, 1) | +0.5% (3, 2) | **-0.6%** | 29.100 / 28.905 |
+| stream amortized tok/s | -0.7% (3, 1) | -0.1% (3, 0) | **-0.4%** | 24.342 / 24.237 |
+| user CPU s | +3.2% (3, 0) | +2.2% (3, 0) | **+2.7%** | 41.417 / 42.533 |
+| sys CPU s | -8.7% (3, 2) | +5.7% (3, 2) | **-1.5%** | 7.250 / 7.050 |
+| minor faults | -3.1% (3, 2) | +1.7% (3, 1) | **-0.7%** | 1,165,940 / 1,157,063 |
+# A13 one-request clocks: [spauto+lazy0] against [spauto], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87fcd65642aceb6b/results/zk60_effplan_20261105/a15/raw/s3_lazy_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request wall s | +0.9% (3, 0) | +0.9% (3, 0) | **+0.9%** | 7.425 / 7.491 |
+| sealing pass s | +0.6% (3, 1) | +0.9% (3, 0) | **+0.8%** | 3.355 / 3.381 |
+| sealing CPU-s | +0.6% (3, 0) | +0.6% (3, 0) | **+0.6%** | 10.583 / 10.650 |
+| prove call s | +1.1% (3, 1) | +0.9% (3, 0) | **+1.0%** | 4.071 / 4.110 |
+| forks phase (of the request) s | +1.4% (3, 1) | +0.6% (3, 1) | **+1.0%** | 3.698 / 3.735 |
+| preflight + commit s | -3.5% (3, 2) | +4.4% (3, 1) | **+0.5%** | 0.296 / 0.297 |
+# A15 sealing-pass clocks: [spauto+lazy0] against [spauto], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87fcd65642aceb6b/results/zk60_effplan_20261105/a15/raw/s3_lazy_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request: sealing pass s | +0.6% (3, 1) | +0.9% (3, 0) | **+0.8%** | 3.355 / 3.381 |
+| one request: sealing user CPU s | +0.1% (3, 1) | +0.3% (3, 0) | **+0.2%** | 7.702 / 7.718 |
+| one request: sealing sys CPU s | +1.4% (3, 0) | +0.7% (3, 0) | **+1.1%** | 2.897 / 2.927 |
+| one request: sealing involuntary csw | +3.0% (3, 1) | +0.6% (3, 1) | **+1.8%** | 39985.167 / 40681.333 |
+| stream: request 0's sealing pass s (alone) | -1.8% (3, 1) | +0.4% (3, 1) | **-0.7%** | 3.407 / 3.381 |
+| stream: requests 1.. sealing pass s (beside the forks) | +1.6% (3, 1) | -0.1% (3, 2) | **+0.8%** | 4.542 / 4.576 |
+2026-11-05T20:53:07Z all done

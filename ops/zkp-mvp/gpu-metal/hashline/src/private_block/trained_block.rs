@@ -2425,14 +2425,16 @@ struct SealTimes {
 // (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A15;
 // `results/zk60_effplan_20261105/a15/README.md`.) The sealing pass is a chain of
 // serial witness builds, each a run of many short parallel regions (the limb
-// planes, the requantizations, the softmax heads, the weight scans: about 70 per
-// 8B block). On the 32-thread global pool every region wakes the pool and every
-// idle worker then spins on `yield_now` (a system call on macOS) before it sleeps
-// again, so most of the pass's CPU was system time (A13: 26 of 42 CPU-seconds,
-// with about 10 of 32 cores busy). Each build now runs inside a dedicated pool of
-// `seal_pool_threads()` threads, and every region inside it on that pool only;
-// in a stream, the next request's sealing pass no longer shares the global pool
-// with the current request's work. `HL_SEAL_POOL=0` restores the global pool.
+// planes, the requantizations, the softmax heads, the weight scans: some 70 to 90
+// per 8B block, an estimate from the code). On the 32-thread global pool each region
+// wakes workers through rayon's sleep lock, and when it ends every idle worker
+// spins on `yield_now` (a system call on macOS) before it sleeps again: the W16R2
+// 8B pass alone took 4.0 s and 15 + 25 CPU-seconds (user + system), in a pool of 8
+// threads 2.9 s and 7 + 2 (A15 stage 1, measured). Each build now runs inside a
+// dedicated pool of `seal_pool_threads()` threads, every region inside it on that
+// pool only; in a stream, the next request's sealing pass no longer shares the
+// global pool with the current request's work. `HL_SEAL_POOL=0` restores the
+// global pool.
 //
 // **Why no byte can move.** Which threads run the builder's parallel regions, and
 // how many, changes no word: every one is an indexed write or an exact integer
@@ -2449,9 +2451,15 @@ struct SealTimes {
 static SEAL_POOL_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
 const SEAL_POOL_AUTO: usize = usize::MAX - 1;
 
-/// [A15] the default size of the sealing pool on a machine of `cores` logical CPUs
+/// [A15] the default size of the sealing pool on a machine of `cores` logical CPUs: a
+/// quarter of them, at least 1 and at most 8. Measured on the 32-CPU M3 Ultra (A15
+/// stage 2, in-process at N = 6, both orders, every pair): 8 threads gave one request
+/// -11.0% and the 4-request stream's steady state +19.2% against the global pool; 12
+/// gave -11.3% / +19.0% at 35% more sealing CPU, 16 -9.6% / +16.0%, 6 -11.3% / +16.0%,
+/// 4 -5.4% / +8.7%. The builder's parallel work stops paying beyond about 8 threads
+/// (the sealing pass alone: 2.94 s at 8, 3.05 at 12, 3.15 at 16), hence the cap.
 fn default_seal_pool_threads(cores: usize) -> usize {
-    (cores / 4).clamp(1, 16)
+    (cores / 4).clamp(1, 8)
 }
 
 /// [A15] the threads of the sealing pass's pool (0: the global pool)

@@ -3036,7 +3036,7 @@ fn a15_every_place(mut f: impl FnMut(&str, A15At)) {
 }
 
 /// **[A15] the sealing pool's size rule, and the pool a witness is built in changes no
-/// word (CPU).** The default is a quarter of the logical CPUs, at least 1 and at most 16
+/// word (CPU).** The default is a quarter of the logical CPUs, at least 1 and at most 8
 /// (8 on the 32-core M3 Ultra); `0` is the global pool. At the W16R2 rung, a chain of
 /// three witnesses through the trained stack's builder is built on the calling thread,
 /// in rayon pools of 1, 4, 8 and 16 threads, and in the sealing pool at 0, 1, 4, 8, 16
@@ -3045,7 +3045,7 @@ fn a15_every_place(mut f: impl FnMut(&str, A15At)) {
 #[test]
 fn a15_the_seal_pool_rule_and_the_rung_witness_planes_in_every_pool() {
     use super::trained_block::default_seal_pool_threads_for_test as rule;
-    assert_eq!((rule(1), rule(4), rule(8), rule(16), rule(32), rule(64), rule(128)), (1, 1, 2, 4, 8, 16, 16));
+    assert_eq!((rule(1), rule(4), rule(8), rule(16), rule(32), rule(64), rule(128)), (1, 1, 2, 4, 8, 8, 8));
     let (sh, blk, w0) = rung_case(shape::W16R2_RUNG_H24);
     let x0: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11) % 201) as i16 - 100).collect();
     let base = a15_chain(A15At::Caller, &sh, &blk, &x0, 3);

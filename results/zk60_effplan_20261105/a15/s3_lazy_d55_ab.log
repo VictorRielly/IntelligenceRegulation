@@ -1,0 +1,400 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:162:12
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:165:9
+    |
+165 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:345:9
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:345:33
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:346:25
+    |
+346 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:350:9
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:350:39
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1940:4
+     |
+1940 | fn cpu_seconds() -> f64 {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 28 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.02s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-ce5c84d8d87bf08e)
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 3.939 s
+D55-AB W16R2_8B_T128_H24 L32 T128: setup 4.9 s (one witness 0.30 GB; 32 alive per call)
+D55-AB W16R2_8B_T128_H24 L32 serial cold (kernel compiles): wall 9.824 s = 13.03 proved tok/s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 5.45 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 9.940 s = 12.88 proved tok/s; receipt 818728480 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 48.5 CPU-seconds (user + system, the whole process) over the 4.158 s call = 11.7 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 4.158 s, forks 3.764 s | process user 40.1 s + sys 8.4 s = 11.7 cores | minor faults 1514159 (364146/s), major 0 | csw voluntary 0, involuntary 131659 | fork workers: prove_core 20.98 s summed, their own thread CPU 19.96 s (95%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 []: table builds 12.07 ms per block (summed over the forks) | s00 0.72 ms (0/32 dev), s01 0.41 ms (0/32 dev), s03 0.26 ms (0/32 dev), s04 0.74 ms (0/32 dev), s05 0.29 ms (0/32 dev), s06 0.28 ms (0/32 dev), s07 0.30 ms (0/32 dev), s08 0.41 ms (0/32 dev), s09 0.37 ms (0/32 dev), s10 0.32 ms (0/32 dev), s11 0.34 ms (0/32 dev), s12 0.28 ms (0/32 dev), s13 1.50 ms (0/32 dev), s14 1.05 ms (32/32 dev), s15 0.66 ms (32/32 dev), s16 0.23 ms (32/32 dev), s17 0.60 ms (32/32 dev), s18 2.84 ms (32/32 dev), s19 0.21 ms (32/32 dev), s20 0.08 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [768, 12864, 3264, 192, 0, 1344, 768, 0]
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.41 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 4.158 s = 30.78 proved tok/s; 6 workers; preflight 0.094 s, commit 0.212 s, forks 3.764 s, join 0.089 s; fork prove_core min 0.383 median 0.631 max 0.847 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 48.6 CPU-seconds (user + system, the whole process) over the 4.157 s call = 11.7 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto]: wall 4.157 s, forks 3.791 s | process user 40.8 s + sys 7.8 s = 11.7 cores | minor faults 1204759 (289794/s), major 0 | csw voluntary 0, involuntary 118780 | fork workers: prove_core 21.01 s summed, their own thread CPU 20.10 s (96%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto]: table builds 11.38 ms per block (summed over the forks) | s00 0.78 ms (0/32 dev), s01 0.37 ms (0/32 dev), s03 0.27 ms (0/32 dev), s04 0.81 ms (0/32 dev), s05 0.29 ms (0/32 dev), s06 0.31 ms (0/32 dev), s07 0.26 ms (0/32 dev), s08 0.43 ms (0/32 dev), s09 0.36 ms (0/32 dev), s10 0.32 ms (0/32 dev), s11 0.27 ms (0/32 dev), s12 0.25 ms (0/32 dev), s13 1.96 ms (0/32 dev), s14 0.87 ms (32/32 dev), s15 0.61 ms (32/32 dev), s16 0.23 ms (32/32 dev), s17 0.55 ms (32/32 dev), s18 2.01 ms (32/32 dev), s19 0.20 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [1024, 17152, 4352, 256, 0, 1792, 1024, 0]
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.48 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 0: wall 4.157 s = 30.79 proved tok/s; preflight 0.079 s, commit 0.208 s, forks 3.791 s, join 0.079 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: wall 7.393 s; sealing pass 3.323 s (3.1 cores busy, 10.4 CPU-s); prove call 4.070 s: preflight 0.082, commit 0.213, forks 3.697, join 0.078 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: sealing pass 3.323 s in a sealing pool of 8: user 7.63 s + sys 2.75 s = 3.1 cores; csw voluntary 0, involuntary 41040; minor faults 552239
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] SEALED pass 0: wall 7.393 s = 17.31 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.323 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 0: sealing pass 3.295 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 1: sealing pass 4.621 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 2: sealing pass 4.483 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 3: sealing pass 4.500 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 0: 4 requests in 20.868 s; amortized 24.53 proved tok/s; steady state 29.46 tok/s (completions 7.83, 12.16, 16.60, 20.87); per-request latency 7.83, 8.87, 8.68, 8.47; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 50.1 CPU-seconds (user + system, the whole process) over the 4.139 s call = 12.1 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: wall 4.139 s, forks 3.760 s | process user 42.6 s + sys 7.5 s = 12.1 cores | minor faults 1150483 (277942/s), major 0 | csw voluntary 0, involuntary 118161 | fork workers: prove_core 21.00 s summed, their own thread CPU 20.45 s (97%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: table builds 17.24 ms per block (summed over the forks) | s00 0.74 ms (0/32 dev), s01 0.43 ms (0/32 dev), s03 0.27 ms (0/32 dev), s04 0.81 ms (0/32 dev), s05 0.92 ms (0/32 dev), s06 0.82 ms (0/32 dev), s07 0.81 ms (0/32 dev), s08 1.06 ms (0/32 dev), s09 0.81 ms (0/32 dev), s10 0.76 ms (0/32 dev), s11 0.90 ms (0/32 dev), s12 0.82 ms (0/32 dev), s13 2.80 ms (0/32 dev), s14 0.85 ms (32/32 dev), s15 0.63 ms (32/32 dev), s16 0.24 ms (32/32 dev), s17 0.49 ms (32/32 dev), s18 2.62 ms (32/32 dev), s19 0.21 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.10 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [2560, 42880, 10880, 640, 0, 4480, 2560, 0]
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.42 s
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 0: wall 4.139 s = 30.92 proved tok/s; preflight 0.091 s, commit 0.205 s, forks 3.760 s, join 0.083 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: wall 7.480 s; sealing pass 3.319 s (3.1 cores busy, 10.4 CPU-s); prove call 4.161 s: preflight 0.093, commit 0.203, forks 3.787, join 0.078 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: sealing pass 3.319 s in a sealing pool of 8: user 7.59 s + sys 2.82 s = 3.1 cores; csw voluntary 0, involuntary 41018; minor faults 551936
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] SEALED pass 0: wall 7.480 s = 17.11 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.319 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 0: sealing pass 3.310 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 1: sealing pass 4.488 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 2: sealing pass 4.651 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 3: sealing pass 4.592 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 0: 4 requests in 21.026 s; amortized 24.35 proved tok/s; steady state 28.89 tok/s (completions 7.73, 12.07, 16.82, 21.03); per-request latency 7.73, 8.76, 9.02, 8.58; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 50.4 CPU-seconds (user + system, the whole process) over the 4.080 s call = 12.3 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: wall 4.080 s, forks 3.701 s | process user 42.4 s + sys 8.0 s = 12.3 cores | minor faults 1228033 (300981/s), major 0 | csw voluntary 0, involuntary 121624 | fork workers: prove_core 20.76 s summed, their own thread CPU 20.26 s (98%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: table builds 17.77 ms per block (summed over the forks) | s00 0.79 ms (0/32 dev), s01 0.41 ms (0/32 dev), s03 0.27 ms (0/32 dev), s04 0.80 ms (0/32 dev), s05 0.99 ms (0/32 dev), s06 0.89 ms (0/32 dev), s07 0.80 ms (0/32 dev), s08 1.11 ms (0/32 dev), s09 0.89 ms (0/32 dev), s10 0.81 ms (0/32 dev), s11 0.89 ms (0/32 dev), s12 0.83 ms (0/32 dev), s13 3.34 ms (0/32 dev), s14 0.85 ms (32/32 dev), s15 0.58 ms (32/32 dev), s16 0.23 ms (32/32 dev), s17 0.55 ms (32/32 dev), s18 2.28 ms (32/32 dev), s19 0.22 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [4096, 68608, 17408, 1024, 0, 7168, 4096, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 1: wall 4.080 s = 31.37 proved tok/s; preflight 0.093 s, commit 0.202 s, forks 3.701 s, join 0.083 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: wall 7.472 s; sealing pass 3.384 s (3.1 cores busy, 10.7 CPU-s); prove call 4.088 s: preflight 0.122, commit 0.207, forks 3.680, join 0.078 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: sealing pass 3.384 s in a sealing pool of 8: user 7.73 s + sys 2.93 s = 3.1 cores; csw voluntary 0, involuntary 39584; minor faults 544512
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] SEALED pass 1: wall 7.472 s = 17.13 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.384 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 0: sealing pass 3.411 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 1: sealing pass 4.491 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 2: sealing pass 4.565 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 3: sealing pass 4.610 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 1: 4 requests in 21.003 s; amortized 24.38 proved tok/s; steady state 29.28 tok/s (completions 7.89, 12.27, 16.98, 21.00); per-request latency 7.89, 8.86, 9.08, 8.53; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 48.1 CPU-seconds (user + system, the whole process) over the 4.070 s call = 11.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto]: wall 4.070 s, forks 3.700 s | process user 41.8 s + sys 6.3 s = 11.8 cores | minor faults 1130052 (277623/s), major 0 | csw voluntary 0, involuntary 107173 | fork workers: prove_core 20.83 s summed, their own thread CPU 20.42 s (98%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto]: table builds 11.96 ms per block (summed over the forks) | s00 0.73 ms (0/32 dev), s01 0.33 ms (0/32 dev), s03 0.26 ms (0/32 dev), s04 0.80 ms (0/32 dev), s05 0.30 ms (0/32 dev), s06 0.32 ms (0/32 dev), s07 0.26 ms (0/32 dev), s08 0.37 ms (0/32 dev), s09 0.35 ms (0/32 dev), s10 0.28 ms (0/32 dev), s11 0.29 ms (0/32 dev), s12 0.27 ms (0/32 dev), s13 2.19 ms (0/32 dev), s14 0.86 ms (32/32 dev), s15 0.60 ms (32/32 dev), s16 0.24 ms (32/32 dev), s17 0.52 ms (32/32 dev), s18 2.52 ms (32/32 dev), s19 0.21 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.09 ms (32/32 dev), s22 0.08 ms (32/32 dev) | device builds so far [5632, 94336, 23936, 1408, 0, 9856, 5632, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 1: wall 4.070 s = 31.45 proved tok/s; preflight 0.085 s, commit 0.207 s, forks 3.700 s, join 0.078 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: wall 7.454 s; sealing pass 3.373 s (3.2 cores busy, 10.6 CPU-s); prove call 4.081 s: preflight 0.087, commit 0.204, forks 3.715, join 0.075 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: sealing pass 3.373 s in a sealing pool of 8: user 7.72 s + sys 2.91 s = 3.2 cores; csw voluntary 0, involuntary 40904; minor faults 547328
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] SEALED pass 1: wall 7.454 s = 17.17 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.373 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 0: sealing pass 3.362 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 1: sealing pass 4.565 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 2: sealing pass 4.406 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 3: sealing pass 4.507 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 1: 4 requests in 20.993 s; amortized 24.39 proved tok/s; steady state 29.01 tok/s (completions 7.76, 12.27, 16.56, 20.99); per-request latency 7.76, 8.90, 8.63, 8.66; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 47.7 CPU-seconds (user + system, the whole process) over the 4.004 s call = 11.9 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto]: wall 4.004 s, forks 3.615 s | process user 40.8 s + sys 6.9 s = 11.9 cores | minor faults 1166884 (291435/s), major 0 | csw voluntary 0, involuntary 122594 | fork workers: prove_core 20.22 s summed, their own thread CPU 19.70 s (97%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto]: table builds 11.89 ms per block (summed over the forks) | s00 0.60 ms (0/32 dev), s01 0.43 ms (0/32 dev), s03 0.26 ms (0/32 dev), s04 0.72 ms (0/32 dev), s05 0.29 ms (0/32 dev), s06 0.28 ms (0/32 dev), s07 0.27 ms (0/32 dev), s08 0.39 ms (0/32 dev), s09 0.37 ms (0/32 dev), s10 0.28 ms (0/32 dev), s11 0.30 ms (0/32 dev), s12 0.32 ms (0/32 dev), s13 2.11 ms (0/32 dev), s14 0.86 ms (32/32 dev), s15 0.64 ms (32/32 dev), s16 0.26 ms (32/32 dev), s17 0.52 ms (32/32 dev), s18 2.56 ms (32/32 dev), s19 0.19 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [7168, 120064, 30464, 1792, 0, 12544, 7168, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 2: wall 4.004 s = 31.97 proved tok/s; preflight 0.101 s, commit 0.208 s, forks 3.615 s, join 0.080 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: wall 7.459 s; sealing pass 3.372 s (3.2 cores busy, 10.6 CPU-s); prove call 4.087 s: preflight 0.105, commit 0.204, forks 3.703, join 0.075 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: sealing pass 3.372 s in a sealing pool of 8: user 7.72 s + sys 2.92 s = 3.2 cores; csw voluntary 0, involuntary 40366; minor faults 544512
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] SEALED pass 2: wall 7.459 s = 17.16 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.372 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 0: sealing pass 3.666 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 1: sealing pass 4.499 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 2: sealing pass 4.557 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 3: sealing pass 4.750 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 2: 4 requests in 21.602 s; amortized 23.70 proved tok/s; steady state 28.40 tok/s (completions 8.08, 12.53, 17.09, 21.60); per-request latency 8.08, 8.86, 8.93, 8.88; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 49.4 CPU-seconds (user + system, the whole process) over the 4.087 s call = 12.1 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: wall 4.087 s, forks 3.720 s | process user 42.3 s + sys 7.1 s = 12.1 cores | minor faults 1085257 (265530/s), major 0 | csw voluntary 0, involuntary 114423 | fork workers: prove_core 20.96 s summed, their own thread CPU 20.35 s (97%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: table builds 18.28 ms per block (summed over the forks) | s00 0.73 ms (0/32 dev), s01 0.35 ms (0/32 dev), s03 0.28 ms (0/32 dev), s04 0.91 ms (0/32 dev), s05 0.88 ms (0/32 dev), s06 0.84 ms (0/32 dev), s07 0.80 ms (0/32 dev), s08 1.04 ms (0/32 dev), s09 0.82 ms (0/32 dev), s10 0.83 ms (0/32 dev), s11 0.91 ms (0/32 dev), s12 0.88 ms (0/32 dev), s13 3.95 ms (0/32 dev), s14 0.86 ms (32/32 dev), s15 0.63 ms (32/32 dev), s16 0.25 ms (32/32 dev), s17 0.55 ms (32/32 dev), s18 2.32 ms (32/32 dev), s19 0.21 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [8704, 145792, 36992, 2176, 0, 15232, 8704, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 2: wall 4.087 s = 31.32 proved tok/s; preflight 0.086 s, commit 0.204 s, forks 3.720 s, join 0.077 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: wall 7.563 s; sealing pass 3.387 s (3.2 cores busy, 10.7 CPU-s); prove call 4.176 s: preflight 0.086, commit 0.205, forks 3.807, join 0.077 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: sealing pass 3.387 s in a sealing pool of 8: user 7.74 s + sys 2.95 s = 3.2 cores; csw voluntary 0, involuntary 40668; minor faults 541568
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] SEALED pass 2: wall 7.563 s = 16.92 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.387 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 0: sealing pass 3.399 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 1: sealing pass 4.519 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 2: sealing pass 4.435 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 3: sealing pass 4.693 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 2: 4 requests in 21.082 s; amortized 24.29 proved tok/s; steady state 29.09 tok/s (completions 7.88, 12.10, 16.59, 21.08); per-request latency 7.88, 8.70, 8.67, 8.73; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 50.0 CPU-seconds (user + system, the whole process) over the 4.130 s call = 12.1 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: wall 4.130 s, forks 3.750 s | process user 43.1 s + sys 6.8 s = 12.1 cores | minor faults 1111430 (269119/s), major 0 | csw voluntary 0, involuntary 123200 | fork workers: prove_core 21.11 s summed, their own thread CPU 20.62 s (98%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: table builds 18.40 ms per block (summed over the forks) | s00 0.78 ms (0/32 dev), s01 0.42 ms (0/32 dev), s03 0.25 ms (0/32 dev), s04 0.69 ms (0/32 dev), s05 0.88 ms (0/32 dev), s06 0.81 ms (0/32 dev), s07 0.81 ms (0/32 dev), s08 1.10 ms (0/32 dev), s09 0.82 ms (0/32 dev), s10 0.86 ms (0/32 dev), s11 0.95 ms (0/32 dev), s12 0.91 ms (0/32 dev), s13 4.03 ms (0/32 dev), s14 0.90 ms (32/32 dev), s15 0.58 ms (32/32 dev), s16 0.21 ms (32/32 dev), s17 0.54 ms (32/32 dev), s18 2.38 ms (32/32 dev), s19 0.22 ms (32/32 dev), s20 0.08 ms (0/32 dev), s21 0.09 ms (32/32 dev), s22 0.08 ms (32/32 dev) | device builds so far [10240, 171520, 43520, 2560, 0, 17920, 10240, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 3: wall 4.130 s = 30.99 proved tok/s; preflight 0.095 s, commit 0.206 s, forks 3.750 s, join 0.078 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: wall 7.497 s; sealing pass 3.414 s (3.1 cores busy, 10.7 CPU-s); prove call 4.083 s: preflight 0.087, commit 0.204, forks 3.716, join 0.076 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: sealing pass 3.414 s in a sealing pool of 8: user 7.77 s + sys 2.96 s = 3.1 cores; csw voluntary 0, involuntary 40350; minor faults 547328
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] SEALED pass 3: wall 7.497 s = 17.07 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.414 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 0: sealing pass 3.396 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 1: sealing pass 4.653 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 2: sealing pass 4.573 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 3: sealing pass 4.614 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 3: 4 requests in 21.328 s; amortized 24.01 proved tok/s; steady state 28.64 tok/s (completions 7.92, 12.40, 17.06, 21.33); per-request latency 7.92, 9.01, 9.01, 8.70; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 48.7 CPU-seconds (user + system, the whole process) over the 4.109 s call = 11.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto]: wall 4.109 s, forks 3.736 s | process user 41.6 s + sys 7.1 s = 11.8 cores | minor faults 1160468 (282392/s), major 0 | csw voluntary 0, involuntary 116411 | fork workers: prove_core 20.91 s summed, their own thread CPU 20.41 s (98%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto]: table builds 13.18 ms per block (summed over the forks) | s00 0.77 ms (0/32 dev), s01 0.40 ms (0/32 dev), s03 0.25 ms (0/32 dev), s04 0.66 ms (0/32 dev), s05 0.30 ms (0/32 dev), s06 0.30 ms (0/32 dev), s07 0.28 ms (0/32 dev), s08 0.43 ms (0/32 dev), s09 0.39 ms (0/32 dev), s10 0.29 ms (0/32 dev), s11 0.28 ms (0/32 dev), s12 0.26 ms (0/32 dev), s13 2.91 ms (0/32 dev), s14 0.91 ms (32/32 dev), s15 0.60 ms (32/32 dev), s16 0.24 ms (32/32 dev), s17 0.57 ms (32/32 dev), s18 2.85 ms (32/32 dev), s19 0.22 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.09 ms (32/32 dev), s22 0.08 ms (32/32 dev) | device builds so far [11776, 197248, 50048, 2944, 0, 20608, 11776, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 3: wall 4.109 s = 31.15 proved tok/s; preflight 0.088 s, commit 0.206 s, forks 3.736 s, join 0.079 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: wall 7.397 s; sealing pass 3.393 s (3.2 cores busy, 10.7 CPU-s); prove call 4.003 s: preflight 0.081, commit 0.203, forks 3.645, join 0.074 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: sealing pass 3.393 s in a sealing pool of 8: user 7.77 s + sys 2.93 s = 3.2 cores; csw voluntary 0, involuntary 38576; minor faults 546438
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] SEALED pass 3: wall 7.397 s = 17.31 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.393 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 0: sealing pass 3.393 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 1: sealing pass 4.775 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 2: sealing pass 4.599 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 3: sealing pass 4.580 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 3: 4 requests in 21.292 s; amortized 24.05 proved tok/s; steady state 28.69 tok/s (completions 7.91, 12.49, 17.05, 21.29); per-request latency 7.91, 9.10, 8.88, 8.53; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 50.3 CPU-seconds (user + system, the whole process) over the 4.157 s call = 12.1 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto]: wall 4.157 s, forks 3.770 s | process user 42.0 s + sys 8.3 s = 12.1 cores | minor faults 1140910 (274478/s), major 0 | csw voluntary 0, involuntary 116852 | fork workers: prove_core 21.21 s summed, their own thread CPU 20.78 s (98%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto]: table builds 12.90 ms per block (summed over the forks) | s00 0.83 ms (0/32 dev), s01 0.35 ms (0/32 dev), s03 0.27 ms (0/32 dev), s04 0.74 ms (0/32 dev), s05 0.31 ms (0/32 dev), s06 0.31 ms (0/32 dev), s07 0.27 ms (0/32 dev), s08 0.40 ms (0/32 dev), s09 0.50 ms (0/32 dev), s10 0.31 ms (0/32 dev), s11 0.27 ms (0/32 dev), s12 0.26 ms (0/32 dev), s13 2.64 ms (0/32 dev), s14 0.86 ms (32/32 dev), s15 0.65 ms (32/32 dev), s16 0.23 ms (32/32 dev), s17 0.54 ms (32/32 dev), s18 2.69 ms (32/32 dev), s19 0.19 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.09 ms (32/32 dev), s22 0.08 ms (32/32 dev) | device builds so far [13312, 222976, 56576, 3328, 0, 23296, 13312, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 4: wall 4.157 s = 30.79 proved tok/s; preflight 0.100 s, commit 0.207 s, forks 3.770 s, join 0.080 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: wall 7.496 s; sealing pass 3.338 s (3.2 cores busy, 10.6 CPU-s); prove call 4.159 s: preflight 0.094, commit 0.210, forks 3.779, join 0.076 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: sealing pass 3.338 s in a sealing pool of 8: user 7.70 s + sys 2.93 s = 3.2 cores; csw voluntary 0, involuntary 38552; minor faults 547328
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] SEALED pass 4: wall 7.496 s = 17.08 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.338 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 0: sealing pass 3.360 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 1: sealing pass 4.549 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 2: sealing pass 4.422 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 3: sealing pass 4.401 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 4: 4 requests in 20.625 s; amortized 24.82 proved tok/s; steady state 29.93 tok/s (completions 7.80, 12.20, 16.55, 20.62); per-request latency 7.80, 8.84, 8.64, 8.29; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 48.8 CPU-seconds (user + system, the whole process) over the 4.060 s call = 12.0 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: wall 4.060 s, forks 3.681 s | process user 42.6 s + sys 6.2 s = 12.0 cores | minor faults 1166521 (287342/s), major 0 | csw voluntary 0, involuntary 114136 | fork workers: prove_core 20.60 s summed, their own thread CPU 20.13 s (98%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: table builds 18.50 ms per block (summed over the forks) | s00 0.74 ms (0/32 dev), s01 0.41 ms (0/32 dev), s03 0.28 ms (0/32 dev), s04 0.71 ms (0/32 dev), s05 0.93 ms (0/32 dev), s06 0.87 ms (0/32 dev), s07 0.81 ms (0/32 dev), s08 1.13 ms (0/32 dev), s09 0.80 ms (0/32 dev), s10 0.74 ms (0/32 dev), s11 0.93 ms (0/32 dev), s12 0.93 ms (0/32 dev), s13 3.93 ms (0/32 dev), s14 0.89 ms (32/32 dev), s15 0.62 ms (32/32 dev), s16 0.24 ms (32/32 dev), s17 0.56 ms (32/32 dev), s18 2.54 ms (32/32 dev), s19 0.19 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [14848, 248704, 63104, 3712, 0, 25984, 14848, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 4: wall 4.060 s = 31.53 proved tok/s; preflight 0.084 s, commit 0.208 s, forks 3.681 s, join 0.086 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: wall 7.503 s; sealing pass 3.392 s (3.2 cores busy, 10.7 CPU-s); prove call 4.111 s: preflight 0.087, commit 0.202, forks 3.740, join 0.081 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: sealing pass 3.392 s in a sealing pool of 8: user 7.74 s + sys 2.95 s = 3.2 cores; csw voluntary 0, involuntary 41772; minor faults 547328
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] SEALED pass 4: wall 7.503 s = 17.06 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.392 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 0: sealing pass 3.408 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 1: sealing pass 4.631 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 2: sealing pass 4.723 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 3: sealing pass 4.709 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 4: 4 requests in 21.457 s; amortized 23.86 proved tok/s; steady state 28.18 tok/s (completions 7.83, 12.49, 17.18, 21.46); per-request latency 7.83, 9.09, 9.14, 8.69; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 48.9 CPU-seconds (user + system, the whole process) over the 4.037 s call = 12.1 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: wall 4.037 s, forks 3.658 s | process user 42.2 s + sys 6.7 s = 12.1 cores | minor faults 1200653 (297423/s), major 0 | csw voluntary 0, involuntary 116590 | fork workers: prove_core 20.36 s summed, their own thread CPU 19.90 s (98%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto+lazy0]: table builds 17.92 ms per block (summed over the forks) | s00 0.73 ms (0/32 dev), s01 0.34 ms (0/32 dev), s03 0.28 ms (0/32 dev), s04 0.76 ms (0/32 dev), s05 0.87 ms (0/32 dev), s06 0.80 ms (0/32 dev), s07 0.82 ms (0/32 dev), s08 1.03 ms (0/32 dev), s09 0.82 ms (0/32 dev), s10 0.75 ms (0/32 dev), s11 0.87 ms (0/32 dev), s12 0.81 ms (0/32 dev), s13 4.14 ms (0/32 dev), s14 0.90 ms (32/32 dev), s15 0.66 ms (32/32 dev), s16 0.24 ms (32/32 dev), s17 0.55 ms (32/32 dev), s18 2.14 ms (32/32 dev), s19 0.19 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [16384, 274432, 69632, 4096, 0, 28672, 16384, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 5: wall 4.037 s = 31.71 proved tok/s; preflight 0.093 s, commit 0.205 s, forks 3.658 s, join 0.080 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: wall 7.433 s; sealing pass 3.392 s (3.1 cores busy, 10.7 CPU-s); prove call 4.041 s: preflight 0.079, commit 0.210, forks 3.677, join 0.075 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto+lazy0]: sealing pass 3.392 s in a sealing pool of 8: user 7.74 s + sys 2.95 s = 3.1 cores; csw voluntary 0, involuntary 40696; minor faults 543616
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] SEALED pass 5: wall 7.433 s = 17.22 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.392 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 0: sealing pass 3.359 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 1: sealing pass 4.542 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 2: sealing pass 4.428 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto+lazy0] request 3: sealing pass 4.449 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto+lazy0] pass 5: 4 requests in 20.875 s; amortized 24.53 proved tok/s; steady state 29.35 tok/s (completions 7.79, 12.16, 16.58, 20.88); per-request latency 7.79, 8.80, 8.68, 8.55; all 4 receipts verified after the clock
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 48.6 CPU-seconds (user + system, the whole process) over the 4.147 s call = 11.7 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [spauto]: wall 4.147 s, forks 3.772 s | process user 41.5 s + sys 7.1 s = 11.7 cores | minor faults 1192567 (287599/s), major 0 | csw voluntary 0, involuntary 118939 | fork workers: prove_core 21.00 s summed, their own thread CPU 20.47 s (97%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [spauto]: table builds 12.25 ms per block (summed over the forks) | s00 0.69 ms (0/32 dev), s01 0.32 ms (0/32 dev), s03 0.27 ms (0/32 dev), s04 0.88 ms (0/32 dev), s05 0.34 ms (0/32 dev), s06 0.30 ms (0/32 dev), s07 0.27 ms (0/32 dev), s08 0.45 ms (0/32 dev), s09 0.40 ms (0/32 dev), s10 0.31 ms (0/32 dev), s11 0.30 ms (0/32 dev), s12 0.33 ms (0/32 dev), s13 2.36 ms (0/32 dev), s14 0.84 ms (32/32 dev), s15 0.61 ms (32/32 dev), s16 0.26 ms (32/32 dev), s17 0.52 ms (32/32 dev), s18 2.32 ms (32/32 dev), s19 0.23 ms (32/32 dev), s20 0.07 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [17920, 300160, 76160, 4480, 0, 31360, 17920, 0]
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 5: wall 4.147 s = 30.87 proved tok/s; preflight 0.092 s, commit 0.203 s, forks 3.772 s, join 0.079 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: wall 7.354 s; sealing pass 3.330 s (3.2 cores busy, 10.6 CPU-s); prove call 4.024 s: preflight 0.088, commit 0.208, forks 3.652, join 0.076 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 [spauto]: sealing pass 3.330 s in a sealing pool of 8: user 7.67 s + sys 2.94 s = 3.2 cores; csw voluntary 0, involuntary 40473; minor faults 547328
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] SEALED pass 5: wall 7.354 s = 17.40 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.330 s on the clock); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 0: sealing pass 3.366 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 1: sealing pass 4.439 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 2: sealing pass 4.516 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [spauto] request 3: sealing pass 4.580 s in a sealing pool of 8
+D55-AB GPU-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6 [spauto] pass 5: 4 requests in 20.847 s; amortized 24.56 proved tok/s; steady state 29.11 tok/s (completions 7.65, 12.12, 16.55, 20.85); per-request latency 7.65, 8.75, 8.75, 8.53; all 4 receipts verified after the clock
+D55-AB ORDER serial-first | serial (D12a)  | 1 passes | best 9.940 s = 12.88 tok/s | mean 9.940 s = 12.88 tok/s
+D55-AB ORDER serial-first | forks N=6      | 1 passes | best 4.158 s = 30.78 tok/s | mean 4.158 s = 30.78 tok/s
+D55-AB W16R2_8B_T128_H24 L32: the fork run's profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/2 (registered: false)
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.940 s = 12.88 tok/s | mean 9.940 s = 12.88 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.158 s = 30.78 tok/s | mean 4.158 s = 30.78 tok/s | 2.39x serial (best)
+D55-AB SUMMARY | forks N=6 spauto | A7 GPU-policy A/B, interleaved, 6 passes | best 4.004 s = 31.97 tok/s | mean 4.107 s = 31.16 tok/s
+D55-AB SUMMARY | forks N=6 spauto+lazy0 | A7 GPU-policy A/B, interleaved, 6 passes | best 4.037 s = 31.71 tok/s | mean 4.089 s = 31.30 tok/s
+D55-AB SUMMARY | forks N=6 SEALED spauto | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.354 s = 17.40 tok/s | mean 7.426 s = 17.24 tok/s
+D55-AB SUMMARY | forks N=6 SEALED spauto+lazy0 | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 7.433 s = 17.22 tok/s | mean 7.491 s = 17.09 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 spauto | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 29.10 tok/s (best 29.93) | amortized mean 24.34 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 spauto+lazy0 | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 28.91 tok/s (best 29.35) | amortized mean 24.23 tok/s
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.007 s, device sumcheck rounds 629.935 s
+D55-AB A4 witness products on the device: 17055, 17043 written in place (HL_GPU_WITNESS=None, route None); summed activation buffer 0.101 s, pack 6.280 s, weights 0.762 s, output plane + encode 1.967 s, command buffer 89.917 s, of which on the GPU 34.296 s, scatter 0.009 s
+D55-AB W16R2_8B_T128_H24 L32: total 573.3 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1035 filtered out; finished in 573.34s
+
