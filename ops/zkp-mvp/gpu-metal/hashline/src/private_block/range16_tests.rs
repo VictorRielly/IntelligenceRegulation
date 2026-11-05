@@ -147,6 +147,74 @@ fn the_w16_ir_evaluates_to_the_w16_closure_at_every_slot() {
     assert_eq!(transcribed, 4 * 6, "the five W16 zero-checks and the table slot at every group count");
 }
 
+/// **D63 L3 finding F1: the extension premise, checked statically.** The masked
+/// sumcheck's extension round `m` publishes `s_m(1) = poly(ext)`. There, every
+/// private table of round `m` holds its mask value and every other table is zero:
+/// the public ones, and the other family's private ones in the bilinear slots
+/// (`zk::extension`, `sumcheck::extension_round`). Soundness needs `poly(ext) = 0`
+/// identically (`formal/ZK60Formal/SoundSumcheck.lean`, `extension_halves`). A
+/// monomial with no public factor would let a cheating prover pick mask rows that
+/// make a false claim true.
+///
+/// The prover already refuses a nonzero `poly(ext)` at run time (333c4ba5). This test
+/// checks the premise without a proof, for every slot at five shapes: the W16 rung at
+/// one and four groups, the W16R2 rung, the R13 rung DD and the 8B W16R2 block. For each
+/// slot and each extension round, the polynomial is evaluated at six random points with
+/// that round's private tables random and every other table zero.
+#[test]
+fn f1_every_slot_polynomial_vanishes_at_each_extension_round() {
+    use super::argument::{define, Ctx, Points, Tab};
+    use crate::field::{Fp, Fp2};
+    use crate::transcript::Transcript;
+    let k = |v: i64| Fp2::from_i64(v);
+    let mut z = 0xF1F1_0000_9E37_79B9u64;
+    let mut next = move || {
+        z ^= z << 13;
+        z ^= z >> 7;
+        z ^= z << 17;
+        Fp::new(z)
+    };
+    let (mut rounds_checked, mut slots_checked) = (0usize, 0usize);
+    let mut skipped: Vec<String> = Vec::new();
+    for (profile, ng) in [(shape::W16_RUNG_H24, 1usize), (shape::W16_RUNG_H24, 4), (shape::W16R2_RUNG_H24, 3), (shape::R13_RUNG_H24, 3), (shape::R13_RUNG_H24_DD, 3), (shape::W16R2_8B_T128_H24, 3)] {
+        let (sh, data, public, ff) = case(built(profile), ng);
+        let lay = Layout::for_shape(&sh).unwrap();
+        let ctx = Ctx { accuracy: Some(&data), lay: &lay, public: &public, ff: &ff, alpha: k(7).add(Fp2::U), beta: k(11), g_u8: k(13), g_exp: k(17), g_act: k(19), g_dd: k(23) };
+        let mut pts = Points::default();
+        let mut tr = Transcript::new(sh.profile.as_bytes());
+        for slot in 0..sh.n_slots() {
+            let def = match define(slot, &ctx, &mut pts, &mut tr) {
+                Ok(d) => d,
+                // the synthetic fixture's exp table overflows the DD dictionary's cap at the
+                // rung; the slot is refused by name, so its premise is not checked here
+                Err(e) if sh.dd_cap > 0 && e.contains("D30 / B-8") => {
+                    skipped.push(format!("{} slot {slot}", sh.name));
+                    continue;
+                }
+                Err(e) => panic!("{} ng{ng} slot {slot}: {e}", sh.name),
+            };
+            let rounds = def.tabs.iter().filter_map(|t| match t {
+                Tab::Priv(p) => Some(p.ext_round + 1),
+                _ => None,
+            }).max().unwrap_or(0);
+            for m in 0..rounds {
+                for _ in 0..6 {
+                    let v: Vec<Fp2> = def.tabs.iter().map(|t| match t {
+                        Tab::Priv(p) if p.ext_round == m => Fp2::new(next(), next()),
+                        _ => Fp2::ZERO,
+                    }).collect();
+                    assert!((def.poly)(&v).is_zero(), "{} ng{ng} slot {slot}: extension round {m} is not an identity (a monomial without a public factor or a zero extension)", sh.name);
+                }
+                rounds_checked += 1;
+            }
+            slots_checked += 1;
+        }
+    }
+    eprintln!("F1: {slots_checked} slot polynomials, {rounds_checked} extension rounds, each zero at six random extension points; skipped (refused by the fixture): {skipped:?}");
+    assert!(rounds_checked > 0);
+    assert!(skipped.len() <= 1, "more than the DD fixture's one refused slot was skipped: {skipped:?}");
+}
+
 #[test]
 fn the_w16_signed_top_limb_keeps_a_padded_position_inside_both_tables() {
     // at a padded position the pad rule holds the word and its top at zero

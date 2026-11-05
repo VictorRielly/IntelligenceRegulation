@@ -195,6 +195,16 @@ For soundness the consequence is worse than "honest proofs fail".
   - Honest round trips would expose a violation with high probability (random `R`, by Schwartz–Zippel).
   - The prover now asserts `poly(ext) = 0` (commit 333c4ba5).
 - **The gap.** No verifier-side or static check exists, and the premise is load-bearing for soundness.
+- **Static check added, 2026-11-04.** The test `range16_tests::f1_every_slot_polynomial_vanishes_at_each_extension_round`
+  rebuilds every slot's `define` at six shapes: the W16 rung at one and four groups, the W16R2 rung, the R13 rung,
+  the R13 rung DD, and the 8B W16R2 block. For each extension round `m`, it evaluates the slot polynomial at six
+  random points, with round `m`'s private tables random and every other table zero (exactly what
+  `sumcheck::extension_round` evaluates at 1).
+  - Result: 138 slot polynomials and 150 extension rounds, all identically zero (`results/zk60_h124_witness_20261104/f1_test2.log`).
+  - One slot was not checked: the DD rung's slot 23. The synthetic fixture's exp table needs 59 dictionary slots
+    against the cap of 32, so `define` refuses it by name.
+  - It is a test, not a verifier check. A new slot term without a public factor now fails the suite, besides the
+    prover's run-time refusal.
 - **Suggested:**
   - (a) correct the comment;
   - (b) add a cheap static test: for each of the 23 slots, evaluate `poly` with every public input zero at random
