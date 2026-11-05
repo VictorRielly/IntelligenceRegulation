@@ -714,3 +714,286 @@ pub(super) fn f3_d_a_direct_quotient_of_2_13_at(profile: &str) {
     honest_prover_refuses(&sh, &blk, &w, &what);
     verifier_rejects(&sh, &blk, w, &what, AT_THE_LOGUP_SUM);
 }
+
+// ------------------------------------------------------- [A12] the device tables
+
+/// [A12] dense nonzero committed data of the slot builders' sizes (`A`, `H`,
+/// the two endpoints), from a fixed-seed stream: every word a canonical
+/// nonzero `Fp`, so no table can hide a wrong word behind a zero
+#[cfg(feature = "gpu-metal")]
+fn a12_data(sh: &Shape, lay: &Layout) -> [Vec<crate::field::Fp>; 4] {
+    use crate::field::{Fp, P};
+    let n = lay.n();
+    let mut z = 0xA12A_12A1_2A12_A12Au64 ^ (sh.tokens as u64) << 20 ^ sh.width as u64;
+    let mut next = move || {
+        z ^= z << 13;
+        z ^= z >> 7;
+        z ^= z << 17;
+        Fp::new(1 + z % (P - 1))
+    };
+    let io = ((1usize << sh.log(Dom::D)) + 8 * n).max(sh.endpoint_rows << sh.endpoint_log_n);
+    [(0..lay.a_rows * n).map(|_| next()).collect(), (0..lay.h_rows * n).map(|_| next()).collect(), (0..io).map(|_| next()).collect(), (0..io).map(|_| next()).collect()]
+}
+
+/// [A12] a table as the device kernels compute it (`gpu/metal.rs`, `TAB_SRC`),
+/// evaluated on the HOST from the same plan: an eq cube as `hi * lo`, a plane
+/// as `sum_z eqf[z] v(inv(x & used) | zbits[z])`; `None` for what the host
+/// writes beside the device (public tables, a plane `plane_plan` declines)
+#[cfg(feature = "gpu-metal")]
+fn a12_kernel_formula(tab: &super::argument::Tab, n: usize, data: &[Vec<crate::field::Fp>; 4]) -> Option<Vec<crate::field::Fp2>> {
+    use super::argument::{plane_plan, Tab};
+    use crate::field::Fp2;
+    use crate::mle::eq_table_msb;
+    use rayon::prelude::*;
+    match tab {
+        Tab::Eq { point, start } => {
+            let p = point.len();
+            let p_lo = p / 2;
+            let (hi, lo) = (eq_table_msb(&point[..p - p_lo]), eq_table_msb(&point[p - p_lo..]));
+            let (shift, mask) = (n - start - p, (1usize << p) - 1);
+            Some(
+                (0..1usize << n)
+                    .into_par_iter()
+                    .map(|x| {
+                        let y = (x >> shift) & mask;
+                        hi[y >> p_lo].mul(lo[y & ((1usize << p_lo) - 1)])
+                    })
+                    .collect(),
+            )
+        }
+        Tab::Pub(_) => None,
+        Tab::Priv(pv) => {
+            let (used, xlo, il, ih, zb, eqf) = plane_plan(pv, n)?;
+            let d = &data[pv.cm as usize];
+            let val = |idx: usize| -> Fp2 {
+                if pv.slices.len() == 1 && pv.slices[0].1 == Fp2::ONE {
+                    return Fp2::from_base(d[pv.slices[0].0 + idx]);
+                }
+                pv.slices.iter().fold(Fp2::ZERO, |a, (off, c)| a.add(c.mul_base(d[off + idx])))
+            };
+            Some(
+                (0..1usize << n)
+                    .into_par_iter()
+                    .map(|x| {
+                        let xu = x & used;
+                        let im = ih[xu >> xlo] as usize | il[xu & ((1usize << xlo) - 1)] as usize;
+                        if eqf.is_empty() {
+                            val(im)
+                        } else {
+                            (0..eqf.len()).fold(Fp2::ZERO, |a, z| a.add(eqf[z].mul(val(im | zb[z] as usize))))
+                        }
+                    })
+                    .collect(),
+            )
+        }
+    }
+}
+
+/// [A12] a one-line label of a table, for the census (schedule facts only:
+/// kind, sizes, slice and fixed-coordinate counts; never a value)
+#[cfg(feature = "gpu-metal")]
+fn a12_label(tab: &super::argument::Tab, n: usize) -> String {
+    use super::argument::{plane_plan, Coord, Tab};
+    match tab {
+        Tab::Eq { point, start } => format!("eq(p{} @{start})", point.len()),
+        Tab::Pub(_) => "pub".to_string(),
+        Tab::Priv(p) => {
+            let nf = p.coords.iter().filter(|c| matches!(c, Coord::Fixed(_))).count();
+            let plan = plane_plan(p, n);
+            let bcast = plan.as_ref().map(|pl| pl.0 != (1usize << n) - 1).unwrap_or(false);
+            let slices = if p.slices.len() > 1 { format!("x{}", p.slices.len()) } else { String::new() };
+            let fix = if nf > 0 { format!(" fix{nf}") } else { String::new() };
+            format!("{:?}{slices}{fix}{}{}", p.cm, if bcast { " bcast" } else { "" }, if plan.is_none() { " HOST" } else { "" })
+        }
+    }
+}
+
+/// **[A12] the device kernels' formula equals the host builders, word for
+/// word, at every slot of the W16R2 rung (CPU).** For every table of every
+/// slot, the plan the device is given (`plane_plan` and the eq halves),
+/// evaluated on the host as the kernels evaluate it, against the vectors the
+/// prover builds (`build_tables_at`, the host path, and `build_tables_into`,
+/// the direct path's host builder). Dense nonzero committed data, so a wrong
+/// gather cannot hide behind a zero. Also counts what the host still writes.
+#[cfg(feature = "gpu-metal")]
+#[test]
+fn a12_the_device_table_formula_equals_the_host_builders_at_every_slot_of_the_w16r2_rung() {
+    use super::argument::{build_tables_at, build_tables_into, define, Ctx, Points, ProverData, TABLES_PAR_MIN};
+    use crate::field::Fp2;
+    use crate::transcript::Transcript;
+    let k = |v: i64| Fp2::from_i64(v);
+    let (sh, data, public, ff) = case(built(shape::W16R2_RUNG_H24), 3);
+    let lay = Layout::for_shape(&sh).unwrap();
+    let d = a12_data(&sh, &lay);
+    let masks = Vec::new();
+    let pd = ProverData { data: [&d[0], &d[1], &d[2], &d[3]], masks: &masks };
+    let ctx = Ctx { accuracy: Some(&data), lay: &lay, public: &public, ff: &ff, alpha: k(7).add(Fp2::U), beta: k(11), g_u8: k(13), g_exp: k(17), g_act: k(19), g_dd: k(23) };
+    let mut pts = Points::default();
+    let mut tr = Transcript::new(sh.profile.as_bytes());
+    let (mut by_formula, mut by_host, mut words) = (0usize, 0usize, 0usize);
+    for slot in 0..sh.n_slots() {
+        let mut def = define(slot, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("slot {slot}: {e}"));
+        let n = sh.slots()[slot].0;
+        let formula: Vec<Option<Vec<Fp2>>> = def.tabs.iter().map(|t| a12_kernel_formula(t, n, &d)).collect();
+        let stale = Fp2::new(crate::field::Fp::new(5), crate::field::Fp::new(9));
+        let mut direct: Vec<Vec<Fp2>> = vec![vec![stale; 1usize << n]; def.tabs.len()];
+        build_tables_into(&def.tabs, n, &pd, direct.iter_mut().map(|v| v.as_mut_slice()).collect());
+        let host = build_tables_at(&mut def.tabs, n, &pd, TABLES_PAR_MIN);
+        assert_eq!(host, direct, "slot {slot}: the two host builders differ");
+        for (t, f) in formula.iter().enumerate() {
+            match f {
+                Some(f) => {
+                    let bad = f.iter().zip(host[t].iter()).position(|(a, b)| a != b);
+                    assert!(bad.is_none(), "slot {slot} table {t}: the device formula differs from the host at word {}", bad.unwrap_or(0));
+                    by_formula += 1;
+                    words += f.len();
+                }
+                None => by_host += 1,
+            }
+        }
+    }
+    eprintln!("A12-FORMULA {}: {by_formula} tables ({words} words) equal by the device formula, {by_host} left to the host (public tables)", sh.name);
+    assert!(by_formula > 100, "the formula covered only {by_formula} tables");
+}
+
+/// **[A12] the census, and the device tables word for word (Metal).** At W16R2
+/// 8B T128 and the W16R2 rung, for EVERY slot (not only the device slots, so
+/// every table shape the schedule has is built): the tables built on the
+/// device (`build_tables_device`) against the host's (`build_tables_at`),
+/// every word; the device's base check against the host's; a control that
+/// flags every table base and must be refused where an extension word exists.
+/// Prints each slot's tables by kind and the time of both builds, on the
+/// global pool and in a pool of six (a fork worker's size at N = 6).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A12: builds every slot's tables on the device at W16R2 8B and the rung; run alone by name on a Mac"]
+fn a12_census_and_the_device_tables_equal_the_host_tables_word_for_word() {
+    use super::argument::{build_tables_at, build_tables_device, build_tables_into, define, Ctx, Points, ProverData, Tab, TABLES_PAR_MIN};
+    use super::slot_ir::{build_slot_ir, IrPoints};
+    use crate::field::Fp2;
+    use crate::gpu::MetalTables;
+    use crate::transcript::Transcript;
+    let k = |v: i64| Fp2::from_i64(v);
+    let six = rayon::ThreadPoolBuilder::new().num_threads(6).build().expect("a pool of six");
+    for profile in [shape::W16R2_8B_T128_H24, shape::W16R2_RUNG_H24] {
+        let (sh, data, public, ff) = case(built(profile), 3);
+        let lay = Layout::for_shape(&sh).unwrap();
+        let d = a12_data(&sh, &lay);
+        let masks = Vec::new();
+        let pd = ProverData { data: [&d[0], &d[1], &d[2], &d[3]], masks: &masks };
+        let ctx = Ctx { accuracy: Some(&data), lay: &lay, public: &public, ff: &ff, alpha: k(7).add(Fp2::U), beta: k(11), g_u8: k(13), g_exp: k(17), g_act: k(19), g_dd: k(23) };
+        let (mut pts, mut ipts) = (Points::default(), IrPoints::default());
+        let mut tr = Transcript::new(sh.profile.as_bytes());
+        let (mut sums, mut tables_checked, mut words_checked, mut deferred_slots, mut declined_slots) = ([0f64; 4], 0usize, 0usize, 0usize, 0usize);
+        for slot in 0..sh.n_slots() {
+            let mut twin = Transcript::clone_state(&tr);
+            let ir = build_slot_ir(slot, &ctx, &mut ipts, &mut twin);
+            let mut def = define(slot, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("{profile} slot {slot}: {e}"));
+            let n = sh.slots()[slot].0;
+            let kt = def.tabs.len();
+            let base: Vec<bool> = match &ir {
+                Ok(ir) if ir.tables.len() == kt => super::metal_slot::msl_round_kernels(ir).3,
+                _ => vec![false; kt],
+            };
+            let direct = ir.is_ok() && SLOT_KINDS[slot] != SlotKind::Private && (kt << n) > 1 << 18;
+            // the device build (best of two: the first compiles the kernels)
+            let mut dev_s = f64::INFINITY;
+            let mut dev = None;
+            for _ in 0..2 {
+                let mut mt = MetalTables::new(kt, 1usize << n).expect("device tables");
+                let t = std::time::Instant::now();
+                assert!(build_tables_device(&def.tabs, n, &pd, &mut mt, &base, false, true).unwrap_or_else(|e| panic!("{profile} slot {slot}: the device build: {e}")), "{profile} slot {slot}: the device did not take the build");
+                dev_s = dev_s.min(t.elapsed().as_secs_f64());
+                dev = Some(mt);
+            }
+            let mt = dev.expect("a device build");
+            let time_host = |pool: Option<&rayon::ThreadPool>| -> f64 {
+                let mut best = f64::INFINITY;
+                for _ in 0..2 {
+                    let mut ht = MetalTables::new(kt, 1usize << n).expect("host tables");
+                    let t = std::time::Instant::now();
+                    match pool {
+                        Some(p) => p.install(|| build_tables_into(&def.tabs, n, &pd, ht.tables_mut())),
+                        None => build_tables_into(&def.tabs, n, &pd, ht.tables_mut()),
+                    }
+                    best = best.min(t.elapsed().as_secs_f64());
+                }
+                best
+            };
+            let (host_s, host6_s) = (time_host(None), time_host(Some(&six)));
+            let mut t6 = MetalTables::new(kt, 1usize << n).expect("device tables");
+            let t = std::time::Instant::now();
+            assert!(six.install(|| build_tables_device(&def.tabs, n, &pd, &mut t6, &base, false, true)).expect("the device build in a pool of six"));
+            let dev6_s = t.elapsed().as_secs_f64();
+            // the control (before `build_tables_at`, which moves the public tables out)
+            let mut ctl = MetalTables::new(kt, 1usize << n).expect("device tables");
+            assert!(build_tables_device(&def.tabs, n, &pd, &mut ctl, &vec![true; kt], false, true).expect("the control build"));
+            // the deferred form (as the prover runs it), run alone by `flush`
+            let mut dfr = MetalTables::new(kt, 1usize << n).expect("device tables");
+            assert!(build_tables_device(&def.tabs, n, &pd, &mut dfr, &base, true, true).expect("the deferred build"));
+            // the prover's own rule: a 330 MB slice not resident is not mapped, the host builds
+            if def.tabs.iter().any(|t| matches!(t, Tab::Priv(p) if d[p.cm as usize].len() > 1 << 22)) {
+                let mut no = MetalTables::new(kt, 1usize << n).expect("device tables");
+                let taken = build_tables_device(&def.tabs, n, &pd, &mut no, &base, true, false).expect("the prover's form");
+                assert!(!taken && !no.deferred() && no.base_checked().is_none(), "{profile} slot {slot}: the device took a build over large rows that are not resident");
+                declined_slots += 1;
+            }
+            let deferred = dfr.deferred();
+            dfr.flush().expect("the deferred build, flushed");
+            let pubs = def.tabs.iter().filter(|t| matches!(t, Tab::Pub(_))).count();
+            let host = build_tables_at(&mut def.tabs, n, &pd, TABLES_PAR_MIN);
+            let got = mt.to_vecs();
+            for (t, (g, h)) in got.iter().zip(host.iter()).enumerate() {
+                let bad = g.iter().zip(h.iter()).position(|(a, b)| a != b);
+                assert!(bad.is_none(), "{profile} slot {slot} table {t}: the device table differs from the host's at word {}", bad.unwrap_or(0));
+                words_checked += g.len();
+            }
+            assert!(t6.to_vecs() == host, "{profile} slot {slot}: the device build in a pool of six differs");
+            tables_checked += kt;
+            // the base check: the device's answer is the host's
+            let host_typed = host.iter().zip(base.iter()).all(|(t, &b)| !b || t.iter().all(|v| v.c1.is_zero()));
+            assert_eq!(mt.base_checked(), Some(host_typed), "{profile} slot {slot}: the device's base check differs from the host's");
+            // the control: every table flagged base is refused wherever an extension word exists
+            let any_ext = host.iter().any(|t| t.iter().any(|v| !v.c1.is_zero()));
+            assert_eq!(ctl.base_checked(), Some(!any_ext), "{profile} slot {slot}: the all-base control");
+            assert!(ctl.to_vecs() == host, "{profile} slot {slot}: the control build's words differ");
+            assert!(dfr.to_vecs() == host, "{profile} slot {slot}: the deferred build's words differ");
+            assert_eq!(dfr.base_checked(), Some(host_typed), "{profile} slot {slot}: the deferred build's base check");
+            deferred_slots += usize::from(deferred);
+            if direct {
+                sums[0] += host_s;
+                sums[1] += host6_s;
+                sums[2] += dev_s;
+                sums[3] += dev6_s;
+            }
+            let mut hist: Vec<(String, usize)> = Vec::new();
+            for kd in def.tabs.iter().map(|t| a12_label(t, n)) {
+                match hist.iter_mut().find(|(k, _)| *k == kd) {
+                    Some(e) => e.1 += 1,
+                    None => hist.push((kd, 1)),
+                }
+            }
+            eprintln!(
+                "A12-CENSUS {profile} slot {slot:02} [{}]{}: 2^{n} x {kt} tables = {:.2} M words ({:.0} MB), {pubs} public | host {:.2} ms (global pool), {:.2} ms (pool of 6) | device {:.2} ms, {:.2} ms (pool of 6) | {}",
+                SLOT_NAMES[slot],
+                if direct { " DEVICE SLOT" } else { "" },
+                (kt << n) as f64 * 1e-6,
+                (kt << n) as f64 * 16e-6,
+                host_s * 1e3,
+                host6_s * 1e3,
+                dev_s * 1e3,
+                dev6_s * 1e3,
+                hist.iter().map(|(k, c)| format!("{c} {k}")).collect::<Vec<_>>().join(", ")
+            );
+        }
+        eprintln!(
+            "A12-CENSUS {profile}: every word of {tables_checked} tables ({:.1} M words) equal, and of every slot's deferred build ({deferred_slots} slots deferred); without resident rows the prover's form left {declined_slots} slots to the host; the device slots' tables: host {:.1} ms (global pool), {:.1} ms (pool of 6); device {:.1} ms, {:.1} ms (pool of 6); builds so far {:?}",
+            words_checked as f64 * 1e-6,
+            sums[0] * 1e3,
+            sums[1] * 1e3,
+            sums[2] * 1e3,
+            sums[3] * 1e3,
+            MetalTables::build_stats()
+        );
+    }
+}

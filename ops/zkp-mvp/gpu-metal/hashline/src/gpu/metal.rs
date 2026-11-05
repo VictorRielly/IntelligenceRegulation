@@ -1689,6 +1689,10 @@ pub struct MetalRounds {
     /// the next round's command buffer, ahead of that round; the last fold
     /// runs at once, since the final tables are read after it.
     fold_r: Option<(usize, Fp2)>,
+    /// [A12] the slot's tables' device build, not yet run: encoded ahead of
+    /// the first command buffer that reads the tables (round 0's, the batch's)
+    /// or run alone before the host reads them ([`MetalRounds::into_host`])
+    prelude: Option<TabBuild>,
 }
 
 /// threads of a round over `half` pairs (the per-thread pair count and the cap)
@@ -1794,6 +1798,7 @@ fn assemble_rounds(tabs: PBuf, k: usize, cap: usize, degree: usize, pipe0: Compu
         tg: p.tg,
         part: p.part,
         fold_r: None,
+        prelude: None,
     }
 }
 
@@ -1809,6 +1814,17 @@ pub struct MetalTables {
     buf: PBuf,
     k: usize,
     cap: usize,
+    /// [A12] `Some(ok)` once a device build ([`MetalTables::build_planned`])
+    /// has checked every table round 0 keeps as a base-field word (`ok`: all
+    /// their words have `c1 = 0`); `None`: [`metal_rounds_owned`] checks on
+    /// the host, as before
+    typed: Option<bool>,
+    /// [A12] the tables the device is to build, by table index
+    plan: Vec<TabJob>,
+    /// [A12] a device build planned and prepared but not yet run: it runs
+    /// ahead of the slot's first round ([`metal_rounds_owned`] hands it to the
+    /// rounds) or alone ([`MetalTables::flush`]) before anything reads a table
+    pending: Option<TabBuild>,
 }
 
 impl MetalTables {
@@ -1821,11 +1837,16 @@ impl MetalTables {
         }
         let c = ctx()?;
         let buf = objc::rc::autoreleasepool(|| shared_buffer(c, (k * cap * 16) as u64))?;
-        Ok(MetalTables { buf, k, cap })
+        Ok(MetalTables { buf, k, cap, typed: None, plan: Vec::new(), pending: None })
     }
 
-    /// the `k` tables as disjoint mutable slices of `cap` elements each
+    /// the `k` tables as disjoint mutable slices of `cap` elements each ([A12]
+    /// a host write of every table: any device build's plan, pending build and
+    /// base check are dropped)
     pub fn tables_mut(&mut self) -> Vec<&mut [Fp2]> {
+        self.typed = None;
+        self.plan.clear();
+        self.pending = None;
         // SAFETY: `k * cap * 16` bytes of shared, CPU-visible memory owned by
         // `self` (page-aligned, so aligned for `Fp2`; the layout was checked in
         // `new`) and not in use by the GPU; any two words are an `Fp2` value,
@@ -1836,6 +1857,7 @@ impl MetalTables {
 
     /// host copies of the tables (the CPU path when the device declines)
     pub fn to_vecs(&self) -> Vec<Vec<Fp2>> {
+        assert!(self.pending.is_none(), "[ZK60-METAL A12] the tables were read before their deferred device build ran");
         // SAFETY: as in `tables_mut`, read-only, after the builder wrote them
         let all = unsafe { std::slice::from_raw_parts(self.buf.contents() as *const Fp2, self.k * self.cap) };
         all.chunks(self.cap).map(|t| t.to_vec()).collect()
@@ -1847,36 +1869,676 @@ impl MetalTables {
 /// nonzero imaginary part (the typed kernel does not apply; the CPU runs);
 /// `Err((tables, Some(e)))`: a device error. Either way the tables come back.
 pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs: &[Fp2], base: &[bool]) -> Result<MetalRounds, (MetalTables, Option<String>)> {
+    // [A12] a decline hands the tables to the host: a deferred device build
+    // runs first (a failure there leaves no tables to hand: the attempt is refused)
+    let fail = |mut t: MetalTables, why: Option<String>| -> Result<MetalRounds, (MetalTables, Option<String>)> {
+        if let Err(e) = t.flush() {
+            panic!("[ZK60-METAL A12] a deferred table build failed before a decline ({e}): the attempt is refused");
+        }
+        Err((t, why))
+    };
     let c = match ctx() {
         Ok(c) => c,
-        Err(e) => return Err((t, Some(e))),
+        Err(e) => return fail(t, Some(e)),
     };
     if degree == 0 || base.len() != t.k {
-        return Err((t, Some("metal sumcheck: degree 0 or base flags".into())));
+        return fail(t, Some("metal sumcheck: degree 0 or base flags".into()));
     }
     let (pipe0, pipe) = match sc_pipelines(c, kernel_src, t.k, degree) {
         Ok(p) => p,
-        Err(e) => return Err((t, Some(e))),
+        Err(e) => return fail(t, Some(e)),
     };
     let t_setup = std::time::Instant::now();
     let (k, cap) = (t.k, t.cap);
-    // the base-typing check the copy made, on the tables in place
-    let typed_ok = {
-        // SAFETY: as in `MetalTables::to_vecs`
-        let all = unsafe { std::slice::from_raw_parts(t.buf.contents() as *const Fp2, k * cap) };
-        all.par_chunks(cap).zip(base.par_iter()).all(|(tab, &b)| !b || tab.iter().all(|v| v.c1.0 == 0))
+    // the base-typing check the copy made, on the tables in place ([A12] or
+    // its answer from the device build, which checked the same words)
+    let typed_ok = match t.typed {
+        Some(ok) => ok,
+        None => {
+            // SAFETY: as in `MetalTables::to_vecs`
+            let all = unsafe { std::slice::from_raw_parts(t.buf.contents() as *const Fp2, k * cap) };
+            all.par_chunks(cap).zip(base.par_iter()).all(|(tab, &b)| !b || tab.iter().all(|v| v.c1.0 == 0))
+        }
     };
     if !typed_ok {
-        return Err((t, None));
+        return fail(t, None);
     }
     if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
         eprintln!("[ZK60-METAL] sumcheck setup (tables in place): {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
     }
     let parts = match objc::rc::autoreleasepool(|| rounds_parts(c, cap, degree, coefs)) {
         Ok(p) => p,
-        Err(e) => return Err((t, Some(e))),
+        Err(e) => return fail(t, Some(e)),
     };
-    Ok(assemble_rounds(t.buf, k, cap, degree, pipe0, pipe, parts))
+    let MetalTables { buf, pending, .. } = t;
+    let mut r = assemble_rounds(buf, k, cap, degree, pipe0, pipe, parts);
+    // [A12] the deferred build runs ahead of the first round
+    r.prelude = pending;
+    Ok(r)
+}
+
+// ------------------------------------ [A12] the device slots' tables, built on the device
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A12;
+// `results/zk60_effplan_20261105/a12/README.md`.)
+//
+// WHAT. A device slot's tables (`private_block/argument.rs`, `build_tables_device`)
+// written by two kernels instead of the host builder (`build_tables_into`):
+// * an eq cube as the product of its point's two half tables, entry `x` being
+//   `hi[y >> p_lo] * lo[y & (2^p_lo - 1)]` with `y = (x >> shift) & (2^p - 1)`
+//   (the host's `eq_cube_split_into`, with the host's own half tables);
+// * a committed plane's table, gathered from the committed rows through the
+//   inverse bit map the host builder precomputes, `out[x] = sum_z eqf[z] *
+//   v(inv(x & used) | zbits[z])` with `v(idx) = sum_s coef_s * data[off_s + idx]`
+//   (the host's `priv_table_fill`; a plain store, `v(inv(x & used))`, when no
+//   coordinate is fixed).
+// The rows are read where they already are: `A`'s and `H`'s from their
+// commitments' own device copies (`MetalCommit::resident_rows`, registered by
+// `prove_core` for its slots), anything else through a no-copy view of the host
+// slice's pages (or a pooled copy if Metal refuses the view). Mapping a fresh
+// view of a 330 MB matrix for every slot cost about 2.2 ms of residency each
+// (`results/zk60_effplan_20261105/a12/README.md`). Public tables, and any table
+// the plan leaves out, are written by the host first (disjoint words; the
+// device reads none of them). The build is then encoded AHEAD OF THE SLOT'S
+// FIRST ROUND, in its own encoder of that round's (or batch's) command buffer
+// (`MetalRounds::prelude`), so it costs no command buffer and no queue wait of
+// its own; or, `HL_METAL_DEVICE_TABLES=sync`, in a command buffer of its own.
+//
+// WHY NO BYTE CAN MOVE. Every word is the canonical Goldilocks representative
+// of the same field element the host builder writes: the same formula over the
+// same inputs (the half tables, the bit maps, the eq weights and the slice
+// coefficients are the host builder's own, made on the host), the same exact
+// field operations (`gl_header` and `SC_PRELUDE`, the commit and round kernels'
+// own), only the order of exact additions may differ. The resident copy is the
+// copy the commitment encoded and its openings fold, of the same slice, and
+// the slice cannot change while it is registered (it is borrowed). The base
+// check `metal_rounds_owned` makes on the host is made by construction for the
+// device's tables (a deferred build) or by the device (its own command
+// buffer), and by the host for the host's; a deferred table the device then
+// flags refuses the attempt. Nothing reads a table before the command buffer
+// that built it completed. The tests compare every word of every table of every
+// slot with the host builders (W16R2 8B, the W16R2 rung), in both forms, and
+// prove the rung golden in every mode.
+
+const TAB_SRC: &str = r#"
+// [A12] the device slots' tables (gpu/metal.rs, TAB_SRC)
+struct TabEqArgs {
+    ulong out_off;   // the table's first word in `tabs`
+    ulong cap;       // its length, elements
+    ulong mask;      // 2^p - 1
+    uint shift;      // n - start - p
+    uint p_lo;       // the bottom half of the point
+    uint hi_off;     // the top half's eq table in `aux64`, words
+    uint lo_off;     // the bottom half's, words
+    uint check;      // a table round 0 keeps as a base-field word
+    uint pad0;
+};
+kernel void k_tab_eq(device ulong *tabs [[buffer(0)]],
+                     device const ulong *aux64 [[buffer(1)]],
+                     device atomic_uint *flag [[buffer(2)]],
+                     constant TabEqArgs &a [[buffer(3)]],
+                     uint gid [[thread_position_in_grid]]) {
+    ulong x = ulong(gid);
+    if (x >= a.cap) { return; }
+    ulong y = (x >> a.shift) & a.mask;
+    ulong h = ulong(a.hi_off) + 2UL * (y >> a.p_lo);
+    ulong l = ulong(a.lo_off) + 2UL * (y & ((1UL << a.p_lo) - 1UL));
+    fp2 v = f2_mul(f2(aux64[h], aux64[h + 1UL]), f2(aux64[l], aux64[l + 1UL]));
+    ulong o = a.out_off + 2UL * x;
+    tabs[o] = v.c0;
+    tabs[o + 1UL] = v.c1;
+    if (a.check != 0u && v.c1 != 0UL) { atomic_fetch_or_explicit(flag, 1u, memory_order_relaxed); }
+}
+
+struct TabPlaneArgs {
+    ulong out_off;   // the table's first word in `tabs`
+    ulong cap;       // its length, elements
+    ulong used;      // the cube variables the plane reads
+    ulong base;      // the committed data's first word in its view
+    uint xlo;        // the low half of a cube index, bits
+    uint nz;         // 2^(fixed coordinates); 0: a plain store, no eq weight
+    uint ns;         // slices
+    uint one;        // one slice, coefficient 1
+    uint inv_lo;     // the inverse bit map's low half in `aux32`
+    uint inv_hi;     // its high half
+    uint zb;         // the fixed coordinates' index bits in `aux32`
+    uint sl;         // the slices in `aux64`: (offset, c0, c1) each
+    uint eqf;        // the fixed coordinates' eq table in `aux64`, words
+    uint check;      // a table round 0 keeps as a base-field word
+};
+// sum over the slices of coef * data[off + idx], from zero (`priv_table_fill`'s fold)
+inline fp2 tab_val(device const ulong *data, device const ulong *aux64, constant TabPlaneArgs &a, ulong idx) {
+    if (a.one != 0u) { return f2(data[a.base + aux64[a.sl] + idx], 0UL); }
+    fp2 v = f2(0UL, 0UL);
+    for (uint s = 0u; s < a.ns; s++) {
+        ulong w = ulong(a.sl) + 3UL * ulong(s);
+        v = f2_add(v, f2_mulb(f2(aux64[w + 1UL], aux64[w + 2UL]), data[a.base + aux64[w] + idx]));
+    }
+    return v;
+}
+kernel void k_tab_plane(device ulong *tabs [[buffer(0)]],
+                        device const ulong *data [[buffer(1)]],
+                        device const uint *aux32 [[buffer(2)]],
+                        device const ulong *aux64 [[buffer(3)]],
+                        device atomic_uint *flag [[buffer(4)]],
+                        constant TabPlaneArgs &a [[buffer(5)]],
+                        uint gid [[thread_position_in_grid]]) {
+    ulong x = ulong(gid);
+    if (x >= a.cap) { return; }
+    ulong xu = x & a.used;
+    ulong im = ulong(aux32[a.inv_hi + uint(xu >> a.xlo)]) | ulong(aux32[a.inv_lo + uint(xu & ((1UL << a.xlo) - 1UL))]);
+    fp2 v;
+    if (a.nz == 0u) {
+        v = tab_val(data, aux64, a, im);
+    } else {
+        v = f2(0UL, 0UL);
+        for (uint z = 0u; z < a.nz; z++) {
+            ulong e = ulong(a.eqf) + 2UL * ulong(z);
+            v = f2_add(v, f2_mul(f2(aux64[e], aux64[e + 1UL]), tab_val(data, aux64, a, im | ulong(aux32[a.zb + z]))));
+        }
+    }
+    ulong o = a.out_off + 2UL * x;
+    tabs[o] = v.c0;
+    tabs[o + 1UL] = v.c1;
+    if (a.check != 0u && v.c1 != 0UL) { atomic_fetch_or_explicit(flag, 1u, memory_order_relaxed); }
+}
+"#;
+
+#[repr(C)]
+struct TabEqArgs {
+    out_off: u64,
+    cap: u64,
+    mask: u64,
+    shift: u32,
+    p_lo: u32,
+    hi_off: u32,
+    lo_off: u32,
+    check: u32,
+    pad0: u32,
+}
+
+#[repr(C)]
+struct TabPlaneArgs {
+    out_off: u64,
+    cap: u64,
+    used: u64,
+    base: u64,
+    xlo: u32,
+    nz: u32,
+    ns: u32,
+    one: u32,
+    inv_lo: u32,
+    inv_hi: u32,
+    zb: u32,
+    sl: u32,
+    eqf: u32,
+    check: u32,
+}
+
+/// [A12] one table of a slot the device builds ([`MetalTables::plan_eq`],
+/// [`MetalTables::plan_plane`])
+enum TabJob {
+    Eq { t: usize, hi: Vec<Fp2>, lo: Vec<Fp2>, shift: u32, p: u32 },
+    Plane { t: usize, src: usize, log: u32, slices: Vec<(usize, Fp2)>, used: u64, xlo: u32, inv_lo: Vec<u32>, inv_hi: Vec<u32>, zbits: Vec<u32>, eqf: Vec<Fp2> },
+}
+
+impl TabJob {
+    fn table(&self) -> usize {
+        match self {
+            TabJob::Eq { t, .. } | TabJob::Plane { t, .. } => *t,
+        }
+    }
+}
+
+struct TabPipes {
+    eq: ComputePipelineState,
+    plane: ComputePipelineState,
+}
+
+static TAB_PIPES: OnceLock<Result<TabPipes, String>> = OnceLock::new();
+
+/// [A12] the two table kernels, compiled once (the field code of the commit
+/// and round kernels: `gl_header`, `SC_PRELUDE`)
+fn tab_pipes(c: &Ctx) -> Result<&'static TabPipes, String> {
+    TAB_PIPES
+        .get_or_init(|| {
+            objc::rc::autoreleasepool(|| {
+                let src = format!("{}{SC_PRELUDE}\n{TAB_SRC}", gl_header());
+                let lib = c.device.new_library_with_source(&src, &CompileOptions::new()).map_err(|e| format!("metal table kernels compile: {e}"))?;
+                let mk = |name: &str| -> Result<ComputePipelineState, String> {
+                    let f = lib.get_function(name, None).map_err(|e| format!("metal table function {name}: {e}"))?;
+                    c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal table pipeline {name}: {e}"))
+                };
+                Ok(TabPipes { eq: mk("k_tab_eq")?, plane: mk("k_tab_plane")? })
+            })
+        })
+        .as_ref()
+        .map_err(|e| e.clone())
+}
+
+/// [A12] a pooled shared buffer holding `words` (a small auxiliary table)
+fn upload_words<T: Copy>(c: &Ctx, words: &[T]) -> Result<PBuf, String> {
+    let bytes = std::mem::size_of_val(words).max(16);
+    let buf = shared_buffer(c, bytes as u64)?;
+    // SAFETY: at least `size_of_val(words)` bytes of shared memory owned here,
+    // not in use by the GPU; `T` is a plain integer type
+    unsafe { std::ptr::copy_nonoverlapping(words.as_ptr() as *const u8, buf.contents() as *mut u8, std::mem::size_of_val(words)) };
+    Ok(buf)
+}
+
+thread_local! {
+    /// [A12] the committed rows this thread's block proof has registered as
+    /// resident on the device ([`MetalCommit::resident_rows`]): (an id, the
+    /// host slice's first word, its length in words, the commitment's own
+    /// device copy of exactly those words)
+    static RESIDENT: std::cell::RefCell<Vec<(u64, usize, usize, Buffer)>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// [A12] the registration of [`MetalCommit::resident_rows`]: its entries leave
+/// this thread's list when it drops. It borrows the host rows and their
+/// commitments, so it cannot outlive them, and the rows cannot change while it
+/// lives.
+struct ResidentRows<'a> {
+    ids: Vec<u64>,
+    _rows: std::marker::PhantomData<&'a [Fp]>,
+    /// not `Send`: the entries are this thread's and leave with its drop
+    _here: std::marker::PhantomData<*const ()>,
+}
+
+impl Drop for ResidentRows<'_> {
+    fn drop(&mut self) {
+        let _ = RESIDENT.try_with(|r| r.borrow_mut().retain(|e| !self.ids.contains(&e.0)));
+    }
+}
+
+impl MetalCommit {
+    /// **[A12] While the returned value lives, the table kernels read each
+    /// `rows` slice from its commitment's own device copy** (the hiding
+    /// form's message rows, uploaded once for the commit and read by its
+    /// openings) instead of mapping the host pages anew for every slot. A
+    /// pair is registered only when the commitment holds that copy and it is
+    /// exactly the slice's length; the kernels find it by the slice's address
+    /// and length, on this thread only. The caller pairs each slice with the
+    /// commitment made of it (`CommittedZk::data` and its store); the borrow
+    /// keeps both alive and the rows unchanged for as long as it is held.
+    pub fn resident_rows<'a>(pairs: &[(&'a [Fp], &'a MetalCommit)]) -> impl Sized + 'a {
+        static NEXT: AtomicU64 = AtomicU64::new(1);
+        let mut ids = Vec::new();
+        RESIDENT.with(|r| {
+            let mut r = r.borrow_mut();
+            for (rows, mc) in pairs {
+                if let Some(d) = &mc.data {
+                    if !rows.is_empty() && mc.rows * mc.n == rows.len() && d.length() >= std::mem::size_of_val(*rows) as u64 {
+                        let id = NEXT.fetch_add(1, Ordering::Relaxed);
+                        r.push((id, rows.as_ptr() as usize, rows.len(), (**d).clone()));
+                        ids.push(id);
+                    }
+                }
+            }
+        });
+        ResidentRows { ids, _rows: std::marker::PhantomData, _here: std::marker::PhantomData }
+    }
+}
+
+/// [A12] the commitment's resident copy of exactly `d`, if this thread registered one
+fn resident(d: &[Fp]) -> Option<Buffer> {
+    RESIDENT.with(|r| r.borrow().iter().find(|e| e.1 == d.as_ptr() as usize && e.2 == d.len()).map(|e| e.3.clone()))
+}
+
+/// **[A12] the largest committed slice the table kernels map anew** (words):
+/// above it a slice is read only from a resident copy, and a build that would
+/// need a larger view is left to the host. A fresh view of a block's 330 MB
+/// matrix cost about 2.2 ms of residency per slot, more than the host build
+/// (`results/zk60_effplan_20261105/a12/README.md`); the endpoints' 5 MB are cheap.
+const TAB_VIEW_MAX_WORDS: usize = 1 << 22;
+
+/// [A12] the committed data as the table kernel reads it, and `d`'s first
+/// word in it: the commitment's resident copy when this thread registered one
+/// for exactly `d` (word 0), else a read-only no-copy view of the whole pages
+/// holding `d`, else a pooled copy (word 0). The caller keeps it until its
+/// command buffer completed, while `d` is still borrowed.
+fn data_buffer(c: &Ctx, d: &[Fp]) -> Result<(WeightBuf, u64), String> {
+    if let Some(b) = resident(d) {
+        TAB_BUILDS[5].fetch_add(1, Ordering::Relaxed);
+        return Ok((WeightBuf::View(b), 0));
+    }
+    // SAFETY: `d`'s own bytes, read only
+    let bytes = unsafe { std::slice::from_raw_parts(d.as_ptr() as *const i8, std::mem::size_of_val(d)) };
+    if let Some((b, off)) = page_view(c, bytes) {
+        if off % 8 == 0 {
+            TAB_BUILDS[3].fetch_add(1, Ordering::Relaxed);
+            return Ok((WeightBuf::View(b), off / 8));
+        }
+    }
+    TAB_BUILDS[4].fetch_add(1, Ordering::Relaxed);
+    Ok((WeightBuf::Copy(upload(c, d)?), 0))
+}
+
+/// [A12] how a slot's tables were built, for the A/B and the tests
+/// (diagnostics): device builds, tables built on the device, tables the host
+/// wrote beside them, no-copy data views, data copies, resident data, builds
+/// deferred into the slot's first round command buffer, builds left to the
+/// host (a large slice not resident)
+static TAB_BUILDS: [AtomicU64; 8] = [const { AtomicU64::new(0) }; 8];
+
+/// [A12] one table kernel's dispatch
+enum TabArg {
+    Eq(TabEqArgs),
+    /// (the data source, the args with its base word filled in)
+    Plane(usize, TabPlaneArgs),
+}
+
+/// **[A12] A device table build, ready to encode**: the dispatches, their
+/// auxiliary tables, the committed data they read (kept alive until the
+/// command buffer that ran them completed) and the base-check flag. Encoded in
+/// a command buffer of its own ([`MetalTables::build_planned`] with
+/// `defer = false`) or ahead of the slot's first round
+/// ([`MetalRounds`]' `prelude`), in an encoder of its own: its dispatches run
+/// concurrently (each writes only its own table), and the rounds' encoder after
+/// it sees its writes (the buffers are hazard-tracked).
+struct TabBuild {
+    args: Vec<TabArg>,
+    a32: PBuf,
+    a64: PBuf,
+    flag: PBuf,
+    data: [Option<(WeightBuf, u64)>; 4],
+    cap: u64,
+}
+
+impl TabBuild {
+    fn encode(&self, c: &Ctx, cb: &metal::CommandBufferRef, tabs: &metal::BufferRef) -> Result<(), String> {
+        let pipes = tab_pipes(c)?;
+        let enc = cb.compute_command_encoder_with_dispatch_type(metal::MTLDispatchType::Concurrent);
+        for a in &self.args {
+            match a {
+                TabArg::Eq(ea) => {
+                    enc.set_compute_pipeline_state(&pipes.eq);
+                    enc.set_buffer(0, Some(tabs), 0);
+                    enc.set_buffer(1, Some(&self.a64), 0);
+                    enc.set_buffer(2, Some(&self.flag), 0);
+                    set_args(enc, 3, ea);
+                    let tg = pipes.eq.max_total_threads_per_threadgroup().min(256).min(self.cap);
+                    enc.dispatch_threads(MTLSize::new(self.cap, 1, 1), MTLSize::new(tg, 1, 1));
+                }
+                TabArg::Plane(src, pa) => {
+                    let Some((vb, _)) = self.data[*src].as_ref() else {
+                        enc.end_encoding();
+                        return Err("metal tables: a plane without its data".into());
+                    };
+                    enc.set_compute_pipeline_state(&pipes.plane);
+                    enc.set_buffer(0, Some(tabs), 0);
+                    enc.set_buffer(1, Some(vb.buffer()), 0);
+                    enc.set_buffer(2, Some(&self.a32), 0);
+                    enc.set_buffer(3, Some(&self.a64), 0);
+                    enc.set_buffer(4, Some(&self.flag), 0);
+                    set_args(enc, 5, pa);
+                    let tg = pipes.plane.max_total_threads_per_threadgroup().min(256).min(self.cap);
+                    enc.dispatch_threads(MTLSize::new(self.cap, 1, 1), MTLSize::new(tg, 1, 1));
+                }
+            }
+        }
+        enc.end_encoding();
+        Ok(())
+    }
+
+    /// whether a device table flagged base-field had a nonzero `c1` (read only
+    /// after the command buffer that ran this build completed)
+    fn flagged(&self) -> bool {
+        // SAFETY: four bytes of shared memory the completed command buffer may have written
+        unsafe { *(self.flag.contents() as *const u32) != 0 }
+    }
+}
+
+/// **[A12] [`run_tagged`] with a table build encoded first**, in its own
+/// encoder of the same command buffer (`pre`; none: exactly `run_tagged`).
+fn run_tagged_pre(c: &Ctx, tag: &'static str, pre: Option<(&TabBuild, &metal::BufferRef)>, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<(), String>) -> Result<(), String> {
+    let Some((tb, tabs)) = pre else { return run_tagged(c, tag, encode) };
+    let tl = TL_ON.load(Ordering::Relaxed);
+    let begin = if tl { host_time_s() } else { 0.0 };
+    c.with_queue(|queue, qi| {
+        let cb = queue.new_command_buffer();
+        tb.encode(c, cb, tabs)?;
+        let enc = cb.new_compute_command_encoder();
+        let r = encode(enc);
+        enc.end_encoding();
+        r?;
+        let committed = if tl { host_time_s() } else { 0.0 };
+        cb.commit();
+        wait_done(cb);
+        let status = cb.status();
+        if tl {
+            tl_record(cb, tag, qi, begin, committed);
+        }
+        match status {
+            MTLCommandBufferStatus::Completed => Ok(()),
+            s => Err(format!("metal: command buffer ended {s:?}")),
+        }
+    })
+}
+
+impl MetalTables {
+    /// [A12] (device builds, device tables, host tables beside them, no-copy
+    /// data views, data copies, resident data, deferred builds, builds left to
+    /// the host) since the process started (diagnostics)
+    pub fn build_stats() -> [u64; 8] {
+        std::array::from_fn(|i| TAB_BUILDS[i].load(Ordering::Relaxed))
+    }
+
+    /// **[A12]** plan table `t` as the eq cube of a point split in two
+    /// halves: `hi` the eq table of its first `p - p / 2` coordinates, `lo` of
+    /// its last `p / 2`, `shift = n - start - p`
+    pub fn plan_eq(&mut self, t: usize, hi: Vec<Fp2>, lo: Vec<Fp2>, shift: usize, p: usize) {
+        self.plan.push(TabJob::Eq { t, hi, lo, shift: shift as u32, p: p as u32 });
+    }
+
+    /// **[A12]** plan table `t` as a committed plane's table over data source
+    /// `src` (`ProverData::data`'s index): `log` the plane's index bits,
+    /// `slices` its (offset, coefficient) parts, `used` the cube variables it
+    /// reads, `inv_lo` / `inv_hi` the inverse bit map's halves (split at
+    /// `xlo` bits), `zbits` the fixed coordinates' index bits and `eqf` their
+    /// eq table (empty for a plain store, `zbits` then `[0]`)
+    #[allow(clippy::too_many_arguments)]
+    pub fn plan_plane(&mut self, t: usize, src: usize, log: usize, slices: Vec<(usize, Fp2)>, used: usize, xlo: usize, inv_lo: Vec<u32>, inv_hi: Vec<u32>, zbits: Vec<u32>, eqf: Vec<Fp2>) {
+        self.plan.push(TabJob::Plane { t, src, log: log as u32, slices, used: used as u64, xlo: xlo as u32, inv_lo, inv_hi, zbits, eqf });
+    }
+
+    /// the number of tables planned so far
+    pub fn planned(&self) -> usize {
+        self.plan.len()
+    }
+
+    /// [A12] the device build's base check (`None`: no device build since the
+    /// last host write)
+    pub fn base_checked(&self) -> Option<bool> {
+        self.typed
+    }
+
+    /// [A12] whether a device build is still to run (deferred into the slot's
+    /// first round command buffer)
+    pub fn deferred(&self) -> bool {
+        self.pending.is_some()
+    }
+
+    /// **[A12] Run a deferred device build now**, in a command buffer of its
+    /// own (a slot that leaves the device after its tables were planned: the
+    /// host then reads them). `Err`: the command buffer failed or the device
+    /// found a base-flagged word with `c1 != 0`; the tables are then not the
+    /// planned ones.
+    pub fn flush(&mut self) -> Result<(), String> {
+        let Some(tb) = self.pending.take() else { return Ok(()) };
+        let c = ctx()?;
+        let tabs: &metal::BufferRef = &self.buf;
+        objc::rc::autoreleasepool(|| run_tagged_pre(c, "tables", Some((&tb, tabs)), |_| Ok(())))?;
+        if tb.flagged() {
+            return Err("metal tables: a base-field table has an extension word".into());
+        }
+        Ok(())
+    }
+
+    /// **[A12] Build the planned tables on the device**, and every other table
+    /// with `host` (given `(table index, its elements)`, on this thread, before
+    /// the device runs). `data` is the slot's committed data (`ProverData`'s
+    /// four), `base` the round-0 kernel's base-field flags. Every planned table
+    /// is checked against its data's bounds first.
+    ///
+    /// The base check (kept for [`metal_rounds_owned`]): the host checks the
+    /// host's tables; a device table flagged base must be base-field BY
+    /// CONSTRUCTION (an eq cube whose half tables are base-field; a plane whose
+    /// slice coefficients and fixed-point weights are), and the device checks
+    /// its words as well. With `defer` and every flagged device table base by
+    /// construction, the build is not run here but encoded ahead of the slot's
+    /// first round ([`MetalRounds`]; [`MetalTables::flush`] if the tables are
+    /// read first), and a word the device then flags refuses the attempt
+    /// (it cannot happen: the construction makes those words base-field).
+    /// Otherwise it runs now, in a command buffer of its own, and the device's
+    /// flag is part of the answer.
+    ///
+    /// `Ok(false)`: the device does not take this build, and nothing was
+    /// written: a slice above [`TAB_VIEW_MAX_WORDS`] words is not resident on
+    /// this thread and `views` does not allow mapping it (the caller builds on
+    /// the host, as without A12). `Err`: nothing usable was built; the caller
+    /// rebuilds every table on the host. The plan is consumed either way.
+    pub fn build_planned(&mut self, data: [&[Fp]; 4], base: &[bool], defer: bool, views: bool, host: impl FnOnce(Vec<(usize, &mut [Fp2])>)) -> Result<bool, String> {
+        let plan = std::mem::take(&mut self.plan);
+        self.typed = None;
+        self.pending = None;
+        let (k, cap) = (self.k, self.cap);
+        let n = cap.trailing_zeros();
+        if base.len() != k {
+            return Err("metal tables: base flags".into());
+        }
+        if !views {
+            for j in &plan {
+                if let TabJob::Plane { src, .. } = j {
+                    let d = data.get(*src).copied().unwrap_or(&[]);
+                    if d.len() > TAB_VIEW_MAX_WORDS && resident(d).is_none() {
+                        TAB_BUILDS[7].fetch_add(1, Ordering::Relaxed);
+                        return Ok(false);
+                    }
+                }
+            }
+        }
+        let mut planned = vec![false; k];
+        // whether every device table flagged base is base-field by construction
+        let mut base_by_construction = true;
+        let is_base = |v: &[Fp2]| v.iter().all(|e| e.c1.0 == 0);
+        for j in &plan {
+            let t = j.table();
+            if t >= k || planned[t] {
+                return Err(format!("metal tables: table {t} planned twice or out of range"));
+            }
+            planned[t] = true;
+            let ok = match j {
+                TabJob::Eq { hi, lo, shift, p, .. } => {
+                    let p_lo = p / 2;
+                    if base[t] && !(is_base(hi) && is_base(lo)) {
+                        base_by_construction = false;
+                    }
+                    *p < 32 && hi.len() == 1usize << (p - p_lo) && lo.len() == 1usize << p_lo && shift + p <= n
+                }
+                TabJob::Plane { src, log, slices, used, xlo, inv_lo, inv_hi, zbits, eqf, .. } => {
+                    if base[t] && !(slices.iter().all(|(_, cf)| cf.c1.0 == 0) && is_base(eqf)) {
+                        base_by_construction = false;
+                    }
+                    let lim = if *log < 32 { 1u64 << log } else { 0 };
+                    let fits = |v: &u32| u64::from(*v) < lim;
+                    *src < 4
+                        && *log < 32
+                        && !slices.is_empty()
+                        && *xlo <= n
+                        && used >> n == 0
+                        && inv_lo.len() == 1usize << xlo
+                        && inv_hi.len() == 1usize << (n - xlo)
+                        && (if eqf.is_empty() { zbits.len() == 1 } else { zbits.len() == eqf.len() })
+                        && inv_lo.iter().chain(inv_hi.iter()).chain(zbits.iter()).all(fits)
+                        && slices.iter().all(|(off, _)| off.checked_add(1usize << log).is_some_and(|e| e <= data[*src].len()))
+                }
+            };
+            if !ok {
+                return Err(format!("metal tables: table {t}'s plan does not fit its slot or its data"));
+            }
+        }
+        let c = ctx()?;
+        tab_pipes(c)?;
+        objc::rc::autoreleasepool(|| {
+            // the small tables, packed: u32 index maps, u64 field words
+            let (mut aux32, mut aux64): (Vec<u32>, Vec<u64>) = (Vec::new(), Vec::new());
+            let off32 = |aux32: &mut Vec<u32>, v: &[u32]| -> u32 {
+                let o = aux32.len() as u32;
+                aux32.extend_from_slice(v);
+                o
+            };
+            let off64 = |aux64: &mut Vec<u64>, v: &[Fp2]| -> u32 {
+                let o = aux64.len() as u32;
+                aux64.extend(v.iter().flat_map(|e| [e.c0.0, e.c1.0]));
+                o
+            };
+            // the committed data, in place (resident, or a view, or a copy)
+            let mut views: [Option<(WeightBuf, u64)>; 4] = [None, None, None, None];
+            for j in &plan {
+                if let TabJob::Plane { src, .. } = j {
+                    if views[*src].is_none() {
+                        views[*src] = Some(data_buffer(c, data[*src])?);
+                    }
+                }
+            }
+            let mut args: Vec<TabArg> = Vec::with_capacity(plan.len());
+            for j in &plan {
+                let out_off = (j.table() * cap * 2) as u64;
+                let check = u32::from(base[j.table()]);
+                match j {
+                    TabJob::Eq { hi, lo, shift, p, .. } => {
+                        let (hi_off, lo_off) = (off64(&mut aux64, hi), off64(&mut aux64, lo));
+                        let mask = if *p == 0 { 0 } else { (1u64 << p) - 1 };
+                        args.push(TabArg::Eq(TabEqArgs { out_off, cap: cap as u64, mask, shift: *shift, p_lo: p / 2, hi_off, lo_off, check, pad0: 0 }));
+                    }
+                    TabJob::Plane { src, slices, used, xlo, inv_lo, inv_hi, zbits, eqf, .. } => {
+                        let (il, ih, zb) = (off32(&mut aux32, inv_lo), off32(&mut aux32, inv_hi), off32(&mut aux32, zbits));
+                        let sl = aux64.len() as u32;
+                        for (o, cf) in slices {
+                            aux64.extend_from_slice(&[*o as u64, cf.c0.0, cf.c1.0]);
+                        }
+                        let ef = off64(&mut aux64, eqf);
+                        let one = u32::from(slices.len() == 1 && slices[0].1 == Fp2::ONE);
+                        let base_word = views[*src].as_ref().map(|v| v.1).unwrap_or(0);
+                        let a = TabPlaneArgs { out_off, cap: cap as u64, used: *used, base: base_word, xlo: *xlo, nz: eqf.len() as u32, ns: slices.len() as u32, one, inv_lo: il, inv_hi: ih, zb, sl, eqf: ef, check };
+                        args.push(TabArg::Plane(*src, a));
+                    }
+                }
+            }
+            if aux32.len() > u32::MAX as usize / 2 || aux64.len() > u32::MAX as usize / 2 {
+                return Err("metal tables: auxiliary tables too large".into());
+            }
+            let tb = TabBuild { args, a32: upload_words(c, &aux32)?, a64: upload_words(c, &aux64)?, flag: upload_words(c, &[0u32; 4])?, data: views, cap: cap as u64 };
+            // the host's tables (the ones the plan leaves out), before any
+            // device work: slices of those tables only, never of a planned one
+            let at = self.buf.contents() as usize;
+            let host_tables: Vec<usize> = (0..k).filter(|&t| !planned[t]).collect();
+            // SAFETY: table `t` is the `cap` elements at `t * cap` of the
+            // `k * cap` elements of shared memory `self` owns (the layout was
+            // checked in `new`), not in use by the GPU; each slice is its own table's
+            let tabs: Vec<(usize, &mut [Fp2])> = host_tables.iter().map(|&t| (t, unsafe { std::slice::from_raw_parts_mut((at as *mut Fp2).add(t * cap), cap) })).collect();
+            host(tabs);
+            let host_ok = host_tables.par_iter().filter(|&&t| base[t]).all(|&t| {
+                // SAFETY: as above, read after `host` wrote it
+                let tab = unsafe { std::slice::from_raw_parts((at as *const Fp2).add(t * cap), cap) };
+                tab.iter().all(|v| v.c1.0 == 0)
+            });
+            TAB_BUILDS[0].fetch_add(1, Ordering::Relaxed);
+            TAB_BUILDS[1].fetch_add(plan.len() as u64, Ordering::Relaxed);
+            TAB_BUILDS[2].fetch_add(host_tables.len() as u64, Ordering::Relaxed);
+            if defer && base_by_construction {
+                TAB_BUILDS[6].fetch_add(1, Ordering::Relaxed);
+                self.typed = Some(host_ok);
+                self.pending = Some(tb);
+                return Ok(true);
+            }
+            let tabs: &metal::BufferRef = &self.buf;
+            run_tagged_pre(c, "tables", Some((&tb, tabs)), |_| Ok(()))?;
+            self.typed = Some(host_ok && !tb.flagged());
+            Ok(true)
+        })
+    }
 }
 
 impl MetalRounds {
@@ -1896,6 +2558,7 @@ impl MetalRounds {
 
     fn finals_inner(&self) -> Vec<Fp2> {
         assert!(self.fold_r.is_none(), "metal sumcheck: a fold is still deferred");
+        assert!(self.prelude.is_none(), "[ZK60-METAL A12] the tables were read before their deferred device build ran");
         let raw = as_u64s(&self.tabs, self.k * self.cap * 2);
         (0..self.k).map(|t| Fp2::new(Fp(raw[t * self.cap * 2]), Fp(raw[t * self.cap * 2 + 1]))).collect()
     }
@@ -1921,9 +2584,12 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let nthreads = sc_threads(half, self.per, self.cap_log);
         let d1 = self.degree + 1;
         let fold = self.fold_r.take();
+        // [A12] the tables' deferred device build, ahead of the first round
+        let pre = self.prelude.take();
         let sums = objc::rc::autoreleasepool(|| {
             let pipe = if j == 0 { &self.pipe0 } else { &self.pipe };
-            run_tagged(c, "round", |enc| {
+            let tabs: &metal::BufferRef = &self.tabs;
+            run_tagged_pre(c, "round", pre.as_ref().map(|p| (p, tabs)), |enc| {
                 // [M4e] the previous round's fold, in this command buffer: the
                 // encoder runs its dispatches in order (as the NTT stages do)
                 if let Some((fh, r)) = fold {
@@ -1945,6 +2611,9 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                 Ok(())
             })
             .expect("metal sumcheck round");
+            // [A12] the deferred build's base-field tables were base by
+            // construction; a word the device flags is a device fault
+            assert!(!pre.as_ref().is_some_and(|p| p.flagged()), "[ZK60-METAL A12] a base-field table built on the device has an extension word: the attempt is refused");
             // [M4e] small rounds on this thread (a rayon region costs about
             // half a millisecond here), large ones in parallel; field addition
             // is exact, so the grouping does not change the sums. [M4g] Point
@@ -2096,6 +2765,13 @@ impl MetalRounds {
     /// [M4k] the current tables (`len` entries each) as host vectors, any
     /// deferred fold run first, and the claim-recovery state
     fn into_host(mut self) -> (Vec<Vec<Fp2>>, bool, Option<Fp2>) {
+        // [A12] a deferred table build not yet run (the host takes the first round)
+        if let Some(pre) = self.prelude.take() {
+            let c = ctx().expect("metal context");
+            let tabs: &metal::BufferRef = &self.tabs;
+            objc::rc::autoreleasepool(|| run_tagged_pre(c, "tables", Some((&pre, tabs)), |_| Ok(()))).expect("[ZK60-METAL A12] the deferred table build");
+            assert!(!pre.flagged(), "[ZK60-METAL A12] a base-field table built on the device has an extension word: the attempt is refused");
+        }
         if let Some((fh, r)) = self.fold_r.take() {
             self.run_fold_now(fh, r);
         }
@@ -2367,13 +3043,16 @@ impl MetalRounds {
         let tg_max = fs_pipe.max_total_threads_per_threadgroup().min(256);
         let tgw = 1u64 << (63 - tg_max.leading_zeros());
         let t0 = std::time::Instant::now();
+        // [A12] the tables' deferred device build, ahead of the batch's rounds
+        let pre = self.prelude.take();
         let (sums, rs) = objc::rc::autoreleasepool(|| -> Result<(Vec<Vec<Fp2>>, Vec<Fp2>), String> {
             let mkb = upload(cx, &mk.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
             let fsb = upload(cx, &fs.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
             let out = shared_buffer(cx, (nd * rec * 8) as u64)?;
             let part2 = shared_buffer(cx, (PART_RED_WIDTH * d1 * 16) as u64)?;
             let mut claim_known = self.recover_one && self.unmasked_claim.is_some();
-            run_tagged(cx, "batch", |enc| {
+            let tabs: &metal::BufferRef = &self.tabs;
+            run_tagged_pre(cx, "batch", pre.as_ref().map(|p| (p, tabs)), |enc| {
                 for j in 0..=nd {
                     if j > 0 {
                         // the fold of round j - 1 by the device's challenge
@@ -2420,6 +3099,9 @@ impl MetalRounds {
                 }
                 Ok(())
             })?;
+            // [A12] the deferred build's base-field tables were base by
+            // construction; a word the device flags is a device fault
+            assert!(!pre.as_ref().is_some_and(|p| p.flagged()), "[ZK60-METAL A12] a base-field table built on the device has an extension word: the attempt is refused");
             let o = as_u64s(&out, nd * rec);
             let at = |w: usize| Fp2::new(Fp(o[w]), Fp(o[w + 1]));
             let sums = (0..nd).map(|j| (0..d1).map(|x| at(j * rec + 2 * x)).collect()).collect();

@@ -1,0 +1,31 @@
+2026-11-05T15:31:26Z start
+2026-11-05T15:33:48Z build rc=0
+2026-11-05T15:44:27Z d55 A/B rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.596 s = 12.08 tok/s | mean 10.596 s = 12.08 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.555 s = 28.10 tok/s | mean 4.555 s = 28.10 tok/s | 2.33x serial (best)
+D55-AB SUMMARY | forks N=6 hosttab | A7 GPU-policy A/B, interleaved, 6 passes | best 4.537 s = 28.21 tok/s | mean 4.596 s = 27.85 tok/s
+D55-AB SUMMARY | forks N=6 devtab | A7 GPU-policy A/B, interleaved, 6 passes | best 4.120 s = 31.07 tok/s | mean 4.279 s = 29.92 tok/s
+D55-AB SUMMARY | forks N=6 SEALED hosttab | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.564 s = 14.95 tok/s | mean 8.778 s = 14.58 tok/s
+D55-AB SUMMARY | forks N=6 SEALED devtab | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.358 s = 15.31 tok/s | mean 8.471 s = 15.11 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 hosttab | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 22.87 tok/s (best 23.22) | amortized mean 19.71 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 devtab | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 24.31 tok/s (best 24.53) | amortized mean 20.65 tok/s
+# A11 pairs: [devtab] against [hosttab], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79e5d1184b3df41f/results/zk60_effplan_20261105/a12/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -7.0% (3, 3) | -6.8% (3, 3) | **-6.9%** | 4.596 / 4.279 |
+| forks phase s | -7.5% (3, 3) | -7.1% (3, 3) | **-7.3%** | 4.226 / 3.917 |
+| sealed wall s | -3.8% (3, 3) | -3.1% (3, 3) | **-3.5%** | 8.778 / 8.470 |
+| stream steady tok/s | +4.4% (3, 3) | +8.3% (3, 3) | **+6.4%** | 22.867 / 24.313 |
+| stream amortized tok/s | +3.3% (3, 3) | +6.3% (3, 3) | **+4.8%** | 19.708 / 20.653 |
+| user CPU s | -15.5% (3, 3) | -15.3% (3, 3) | **-15.4%** | 55.967 / 47.367 |
+| sys CPU s | -13.9% (3, 3) | -17.7% (3, 3) | **-15.8%** | 7.583 / 6.333 |
+| minor faults | -4.7% (3, 2) | -0.7% (3, 1) | **-2.7%** | 1,154,308 / 1,117,994 |
+| hosttab | 6 | 5 | 4.553 | 4.176 | 68.69 | — | — | 28.5 / 11.3 / 6.8 |
+
+| arm | N | calls | mean wall s | mean forks s | mean table builds ms/block | mean GPU busy in forks s |
+|---|---:|---:|---:|---:|---:|---:|
+| devtab | 6 | 6 | 4.279 | 3.917 | 18.61 | nan |
+| hosttab | 6 | 6 | 4.596 | 4.226 | 62.10 | nan |
+2026-11-05T15:44:27Z all done
