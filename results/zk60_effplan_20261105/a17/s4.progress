@@ -1,0 +1,105 @@
+2026-11-05T22:44:02Z start
+2026-11-05T22:44:02Z build rc=0
+2026-11-05T22:44:10Z no-feature cargo check --tests rc=0
+2026-11-05T22:48:17Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 929 passed; 3 failed; 109 ignored; 0 measured; 0 filtered out; finished in 247.11s
+test private_block::range16_tests::a14_the_lazy_sums_equal_the_per_term_sums_word_for_word ... ok
+test private_block::range16_tests::a12_the_device_table_formula_equals_the_host_builders_at_every_slot_of_the_w16r2_rung ... ok
+test private_block::run::fork::tests::a17_a_fork_refuses_a_block_its_preflight_did_not_check ... ok
+test private_block::w16r2_tests::a17_a_record_covers_only_its_own_block_and_a_modified_block_is_refused ... ok
+test private_block::w16r2_tests::a17_the_8b_block_proves_the_same_under_every_a17_setting ... ignored, A17: heavy (one 8B T128 block on Metal, 17 times), toggles HL_GPU; run alone by name with HL_PB_O
+test private_block::w16r2_tests::a15_the_seal_pool_rule_and_the_rung_witness_planes_in_every_pool ... ok
+test private_block::w16r2_tests::a17_w16r2_rung_golden_under_every_a17_setting ... ignored, A17: toggles HL_GPU and the A17 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1
+test private_block::w16r2_tests::a8_store_fold_forms_equal_the_per_term_fold_word_for_word ... ok
+test private_block::w16r2_tests::a17_the_rung_digests_under_a17_forms ... ok
+2026-11-05T22:48:35Z zkp-core lib tests rc=0
+test result: ok. 81 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.29s
+2026-11-05T22:48:45Z a17 rung golden under every setting (CPU and Metal) rc=0
+test private_block::w16r2_tests::a17_w16r2_rung_golden_under_every_a17_setting ... A17-RUNG W16R2_RUNG_H24 CPU [a17old]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 CPU [looked1 only]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 CPU [checked1 only]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 CPU [a17new]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 Metal [a17old]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 Metal [looked1 only]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 Metal [checked1 only]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 Metal [a17new]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 9.12s
+2026-11-05T22:48:53Z a17 8B block under every setting rc=0
+test private_block::w16r2_tests::a17_the_8b_block_proves_the_same_under_every_a17_setting ... A17-8B [a17old through prove_core] 0.647 s (cold), digest 90003b760eb7ad80
+A17-8B [a17old] two proofs in 0.923 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [looked1 only] two proofs in 0.852 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [checked1 only] two proofs in 0.856 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [a17new] two proofs in 0.857 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [a17old] two proofs in 0.877 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [looked1 only] two proofs in 0.877 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [checked1 only] two proofs in 0.906 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [a17new] two proofs in 0.884 s, digest 90003b760eb7ad80 each (equal)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 8.25s
+2026-11-05T22:49:24Z a15 8B chain in every pool (CPU and device products) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 30.83s
+2026-11-05T22:49:24Z a14 8B private tables under both sums rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 0.44s
+2026-11-05T22:49:29Z a14 rung golden under every setting rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 4.44s
+2026-11-05T22:49:37Z a14 8B block under every setting rc=0
+test private_block::w16r2_tests::a14_the_8b_block_proves_the_same_under_every_a14_setting ... A14-8B cold pass [a14old] prove core 0.462 s, digest a32cb0dd0fc2ec46
+A14-8B prove core [a14old] 0.338 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8 only] 0.293 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [trpar only] 0.307 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [lazy1 only] 0.275 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14new] 0.299 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8+lazy1] 0.273 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14old] 0.280 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8 only] 0.281 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [trpar only] 0.305 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [lazy1 only] 0.275 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14new] 0.286 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8+lazy1] 0.273 s, digest a32cb0dd0fc2ec46 (equal)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 7.74s
+2026-11-05T22:49:39Z a8 rung golden under every form rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 2.41s
+2026-11-05T22:49:41Z a12 census + word-for-word (Metal) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 2.00s
+2026-11-05T22:49:44Z a12 rung golden in every table mode rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1040 filtered out; finished in 2.86s
+2026-11-05T22:49:47Z a11 CPU pool byte test rc=0
+2026-11-05T22:49:49Z a11 Metal pool byte test rc=0
+2026-11-05T22:49:51Z a7 queue byte test rc=0
+2026-11-05T22:49:52Z w16r2 rung golden rc=0
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0 metal 96e4f0b6f34f78762df36c5fc
+2026-11-05T22:50:17Z trained digests rc=0
+2026-11-05T22:50:17Z digest 5a6193d3 present
+2026-11-05T22:50:17Z digest f590b01f present
+2026-11-05T22:50:17Z digest 79f987ef present
+2026-11-05T22:50:17Z digest a8258241 present
+2026-11-05T22:50:17Z digest 0e88d84f present
+2026-11-05T22:50:17Z digest 90003b76 present
+2026-11-05T22:52:02Z d55 default rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 3.628 s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 5.42 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 9.300 s = 13.76 proved tok/s; receipt 818728480 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.39 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 4.082 s = 31.35 proved tok/s; 6 workers; preflight 0.078 s, commit 0.204 s, forks 3.700 s, join 0.100 s; fork prove_core min 0.424 median 0.619 max 0.871 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 []: wall 7.174 s; sealing pass 3.140 s (3.2 cores busy, 10.1 CPU-s); prove call 4.034 s: preflight 0.083, commit 0.205, forks 3.667, join 0.080 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 []: sealing pass 3.140 s in a sealing pool of 8: user 7.29 s + sys 2.79 s = 3.2 cores; csw voluntary 0, involuntary 42187; minor faults 551054
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 7.174 s = 17.84 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.140 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 1 (serial first): wall 9.628 s = 13.29 proved tok/s; receipt 818728480 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 1 (serial first): wall 3.784 s = 33.83 proved tok/s; 6 workers; preflight 0.072 s, commit 0.203 s, forks 3.431 s, join 0.078 s; fork prove_core min 0.360 median 0.599 max 0.743 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 []: wall 7.077 s; sealing pass 3.236 s (3.2 cores busy, 10.3 CPU-s); prove call 3.842 s: preflight 0.073, commit 0.199, forks 3.498, join 0.071 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 []: sealing pass 3.236 s in a sealing pool of 8: user 7.37 s + sys 2.90 s = 3.2 cores; csw voluntary 0, involuntary 41018; minor faults 546433
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 7.077 s = 18.09 proved tok/s FROM THE RUN'S INPUT (sealing pass 3.236 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [] request 0: sealing pass 3.187 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [] request 1: sealing pass 4.585 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [] request 2: sealing pass 4.509 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [] request 3: sealing pass 4.572 s in a sealing pool of 8
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 20.834 s; amortized 24.57 proved tok/s (all witness work on the clock); steady state 28.65 tok/s (completions 7.43, 11.97, 16.47, 20.83); per-request latency 7.43, 8.78, 8.69, 8.55
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 10.9 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.300 s = 13.76 tok/s | mean 9.464 s = 13.52 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 3.784 s = 33.83 tok/s | mean 3.933 s = 32.54 tok/s | 2.46x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 7.077 s = 18.09 tok/s | mean 7.126 s = 17.96 tok/s
+2026-11-05T22:52:02Z all done
