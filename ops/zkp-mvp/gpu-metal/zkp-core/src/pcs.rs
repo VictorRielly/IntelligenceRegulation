@@ -1171,9 +1171,12 @@ pub fn verify_zk(
 /// path must have exactly `log2(enc_cols)` entries. It rejects no honest
 /// proof — an honest path is `tree.path(j)`, whose length is the tree's depth
 /// — and it is what stops an inner node being presented as a salted leaf
-/// under a short path. Under a tag the two are different functions anyway;
-/// the length check is the second line and the only line a legacy caller of
-/// this function would have.
+/// under a short path. **It is the FIRST line, under a tag too** (D63 L3
+/// finding F9): separate leaf and node keys stop a node posing as a salted
+/// leaf, but not genuine salted leaves sitting at two depths of one tree,
+/// which opens one position to two columns with no collision
+/// (`formal/ZK60Formal/SoundMerkle.lean`, `mixed_depth_opens`). Without the
+/// length check this function would not be binding.
 pub fn verify_zk_tagged(
     params: &PcsParams,
     zk: &ZkOpts,

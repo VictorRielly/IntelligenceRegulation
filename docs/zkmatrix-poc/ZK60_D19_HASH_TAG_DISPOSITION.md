@@ -51,8 +51,16 @@ myself.
   planted node makes another position unopenable, and I get at most about
   (2/3)^256 against the accounted (3/4)^256) — **but nobody has analysed it,
   and it is a binding gap in principle.** It disappears with a one-line check
-  (`path.len() == log_cols`, which rejects no honest proof and moves no byte)
-  or when leaves and nodes are hashed under different keys.
+  (`path.len() == log_cols`, which rejects no honest proof and moves no byte).
+  ~~or when leaves and nodes are hashed under different keys.~~
+  **Correction, 2026-11-04 (D63 L3 finding F9):** the second way is wrong.
+  Separate leaf and node keys stop an inner node from being presented as a
+  salted leaf, which is the attack analysed above. They do not stop genuine
+  salted leaves sitting at two depths of one tree. `formal/ZK60Formal/SoundMerkle.lean`,
+  `mixed_depth_opens`, opens one position to two columns under any oracle and
+  any encoding, with no collision. The path-length check is the protection,
+  and every tagged verifier now has it (`verify_zk_tagged`; `zk::mask_verify_tagged`
+  since d5844e94).
 
 ## 2. Rulings
 

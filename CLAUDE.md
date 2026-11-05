@@ -14,7 +14,7 @@ every pushed branch is world-readable, history included. Before any commit (Clau
 
 Stage named paths, never `git add -A` / `git add .` in the main checkout. **Production rule (D63):** no ZKP goes
 into production before its two Lean statements are proved
-(`docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md`, proposed, awaiting Victor's approval). The
+(`docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md`, approved by Victor 2026-11-04). The
 latency work does not wait for it.
 
 **Machine change, 2026-10-31 (Victor): work continues on the M3 Ultra Mac

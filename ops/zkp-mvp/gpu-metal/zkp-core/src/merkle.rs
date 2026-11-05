@@ -111,10 +111,12 @@ impl MerkleTree {
     /// [ZK60 D19, ruling T-1] `verify_path` under a tagged profile's NODE
     /// key. `verify_path` above keeps its own body. It still folds however
     /// many siblings it is handed — the LENGTH is the caller's check
-    /// (`verify_zk_tagged` in `pcs.rs` makes it one) — but under a tagged
-    /// profile a node and a salted leaf are no longer the same function, so
-    /// the depth confusion the disposition describes needs a key it does not
-    /// have.
+    /// (`verify_zk_tagged` in `pcs.rs` and `zk::mask_verify_tagged` make it
+    /// one). Under a tagged profile a node and a salted leaf are different
+    /// functions, which stops a node posing as a leaf. It does NOT stop
+    /// genuine salted leaves at two depths of one tree (D63 L3 finding F9,
+    /// `formal/ZK60Formal/SoundMerkle.lean`, `mixed_depth_opens`), so without
+    /// the caller's length check this path is not binding.
     pub fn verify_path_keyed(root: &Digest, mut idx: usize, leaf: &Digest, path: &[Digest], key: Option<&[u8; 32]>) -> bool {
         let mut cur = *leaf;
         for sib in path {

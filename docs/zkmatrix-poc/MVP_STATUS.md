@@ -1,5 +1,15 @@
 # Where the MVP stands, in plain words
 
+**2026-11-04 (night): Lean, Fiat–Shamir part 6 merged; the soundness target needs one more theorem (F20, Medium).**
+- Proved: the wide-digest lemma, LogUp and one commitment opening under Fiat–Shamir (with the extractor), and the
+  code's challenge derivations. 83 theorems, no `sorry`, standard axioms only.
+- **F20.** Combining the separately proved pieces by a union bound gives 2^-97.79 per hash query for a 32-block run.
+  That is 2.21 bits short of the approved 2^-100. Composing the whole run as one round-by-round protocol would give
+  2^-102.93. That composition is the next proof, in progress. If it stalls, the options are a profile change or a
+  ruling on the target (Victor's).
+- Fixed today: F16, a run receipt now attests its context. F23: `autoImplicit` is off in `formal/`, so a mistyped
+  name in a statement can no longer compile silently.
+
 **2026-11-04 (evening): a soundness defect found by the Lean work, confirmed in Rust (F12, High).**
 - The mask commitment M certifies its first claimed value only up to an offset the prover picks when it commits:
   the sum of its blinding polynomial, which nothing verifies.
@@ -26,7 +36,7 @@
     tok/s proof-only on one request, about 9 counting witness building (Mac, 8B dense, no batching).
 - **Production rule (D63):** before production, every ZKP needs two Lean theorems. (1) The proof is accepted exactly
   when the output is the discretized model's output. (2) The receipts reveal nothing useful about the hidden data.
-  Proposed statements: `ZK60_LEAN_PRODUCTION_STATEMENTS.md` (awaiting Victor's approval). The latency work continues
+  The statements: `ZK60_LEAN_PRODUCTION_STATEMENTS.md` (approved by Victor, 2026-11-04). The latency work continues
   in parallel.
 - **The witness (H124): measured, then made about 2.8× faster, byte-identically** (`results/zk60_h124_witness_20261104/`):
   - The weight products were 95% of the witness CPU time and memory-bound: every token re-read the whole weight
