@@ -1,5 +1,15 @@
 # Where the MVP stands, in plain words
 
+**2026-11-04 (evening): a soundness defect found by the Lean work, confirmed in Rust (F12, High).**
+- The mask commitment M certifies its first claimed value only up to an offset the prover picks when it commits:
+  the sum of its blinding polynomial, which nothing verifies.
+- The forgery is reproduced against `mask_verify` (`hashline/src/zk_f12_tests.rs`).
+- In the token-I/O OUT stages (next-token and classifier verdict), this would let a receipt from a shifted final
+  hidden state verify. That end-to-end case is not yet reproduced.
+- **Until fixed, no soundness claim is made for token-I/O or classifier receipts.** Nothing is in production.
+- The fix (θ powers starting at θ¹) is proved correct in Lean. It changes every receipt's bytes, so it needs new
+  profile versions (`docs/zkmatrix-poc/ZK60_LEAN_L3_FINDINGS_20261104.md`).
+
 **2026-11-04: the D55 privacy gate is complete, the repository is public, and production now needs Lean proofs.**
 - **Gate:** the merged 18-part gate ran on all 12 registered R13 D55 bundles: 12/12 D55-PASS, re-scored with the fixed
   rules (18/18 parts, pins 75/75), the only open item being the accepted G_k residual. Also: the fixed tools'

@@ -649,6 +649,10 @@ pub fn mask_verify(root: &Digest, specs: &[(usize, usize)], functionals: &[MaskF
     Ok(())
 }
 
+#[cfg(test)]
+#[path = "zk_f12_tests.rs"]
+mod f12_tests;
+
 /// [ZK60 D19, rulings T-1 and T-7] `mask_verify` under a
 /// [`zkp_core::hashtag::HashTag`]. `mask_verify` above keeps its own body.
 ///

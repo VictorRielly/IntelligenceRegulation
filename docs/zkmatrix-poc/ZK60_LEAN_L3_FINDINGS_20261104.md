@@ -990,3 +990,31 @@ the a-rows, honestly of degree `< 512`, are only known to have degree `< 1024`.
 - **Task 3 (optional, not done)**: one block's `3 + 1` openings as one union bound over a shared oracle, with one
   collision term and a guess term per commitment.
 - **Composition and Fiat–Shamir**, as in Parts 1–3.
+
+## F12 CONFIRMED against the Rust verifier (coordinator, 2026-11-04)
+
+`hashline/src/zk_f12_tests.rs` (`results/zk60_h124_witness_20261104/f12_test.log`) commits `M` with a blinding
+polynomial whose sum over G_512 is δ = 5, by setting `b_re[512] = −b_re[0] + δ/512`, and opens it with functional 0
+claimed as `true + δ`. **`mask_verify` returns `Ok(())`.**
+
+Controls, each behaving as F12 predicts:
+- the true values are rejected against this commitment;
+- the same shift on functional 1 (θ¹) is rejected;
+- an honest commitment rejects a shifted functional 0.
+
+**What this means:**
+- The mask-level forgery is real.
+- Whether it gives an end-to-end forgery depends on what functional 0 is in each stage. The Lean agent's code
+  reading:
+  - **token-I/O OUT / OUT-C:** functional 0 is the standalone IO-in slot's Γ, so a receipt from a shifted final
+    hidden state would be accepted;
+  - **the private block:** the shift is scaled by a later challenge, so it is small but uncharged.
+- That end-to-end consequence is NOT yet reproduced. **Until it is fixed, no soundness claim should be made for
+  token-I/O or classifier (OUT-C) receipts.** Nothing is in production (D63).
+
+**The fix:**
+- Start the θ powers at θ¹ in `combined_weights`, shared by prover and verifier. `mproduct_sound_shift` proves this
+  catches every false functional with probability at least 1 − k/|F|.
+- It changes every `M` opening, so every receipt's bytes, every golden and every registered digest. It therefore
+  needs new profile versions, re-registration and a new gate run. That rollout is Victor's decision.
+- The reproduction test then flips to expect a rejection.
