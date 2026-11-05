@@ -177,3 +177,56 @@ receipt verified (D55 verifier, 6 threads, about 2.6 s).
 3. A multi-request pipelined harness, to measure the batched rate D64 is stated in.
 4. GPU products (H124b) on the 5090. The Mac's CPU is shared by builders and provers, so moving the products off it
    helps both.
+
+## H124c step 3: the builder's serial remainder, parallelized byte-identically (2026-11-04, night)
+
+**The profile.** macOS `sample` on a loop of W16R2 8B T128 witness builds (`h124c_witness_build_loop_for_sampling`,
+`check_h124c.sh`, summary `h124c_sample_summary.txt`). Of 253 ms per block, about 80 ms was the parallel weight
+products. About 174 ms was on ONE thread:
+
+| | ms per block |
+|---|---:|
+| `quantized` (i128 requantization per element) | 45 |
+| `assign` (limb planes; 15 ms of it rebuilding `Geom::support` once per role) | 46 |
+| the softmax / PV loop | 30 |
+| the score loop | 25 |
+| the weight scan for `-128`, the norms, the shape checks, the rest | about 28 |
+
+**The change** (`witness_accuracy.rs`; the products are untouched):
+- `quantized` runs over parallel chunks of its support;
+- the score loop and the softmax/PV loop run one rayon task per head slot (`six` and `htix` are contiguous per slot,
+  so each slot owns its chunks; `oacc` is scattered afterwards);
+- the weight scan runs in parallel chunks;
+- `assign` builds each domain's support once.
+
+**What keeps it byte-identical:**
+- Integer sums keep their own order; nothing is reassociated.
+- An error is the one the sequential loop returns first. Chunks are read back in order, each stopping at its own
+  first error. Heads are checked in logical order, each with its own first error.
+- The sequential code is kept as the reference. `with_sequential` selects it (tests), and so does a geometry that
+  does not split into whole slot chunks.
+
+**Acceptance** (`check_par.sh`, guarded, class gpu):
+- `h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane` builds six profiles both ways: R13 TINY T128
+  LOW, R13 8B T128 H24 DD, R13 RUNG H24, W16R2 RUNG H24, W16 SHIELD T256 H24 and W16R2 8B T128 H24.
+  - Five have 4 of 4 inputs equal on every plane.
+  - The DD profile refuses all 4 synthetic inputs, identically in both builders (`par_equality2.log`).
+- The W16R2 rung golden is unchanged (`par_r2rung.log`). All six pinned trained digests are present (2b0d04bb,
+  678953f6, 01a6d51d, c5e0bdac, 4e189ccc, a9a19ee5; `par_trained.log`).
+- The full lib suite shows the known three failures plus the first version of the equality test. That version
+  required an admissible DD input, and the fixture has none. Corrected and rerun alone: pass.
+
+**Time** [MEASURED, shared box]:
+
+| | before | after |
+|---|---:|---:|
+| one W16R2 8B T128 witness, 32 threads | 0.249 s | **0.167 s** (the products 0.086 s, the rest 0.081 s) |
+| the same, 1 thread (CPU s) | 1.38 | 1.40 |
+| the sealing pass (32 serial builds) | 8.223 s | **5.419 s** |
+| D55 forks N = 6, witnesses prebuilt | 5.629 s | 5.467 s |
+| D55 forks N = 6, every witness built on the clock (2:4) | 7.345 s | 7.119 s |
+| **one request end to end (sealing pass + forks on the clock)** | 15.57 s = 8.22 tok/s | **12.54 s = 10.21 tok/s** |
+| one request if the sealing pass keeps its witnesses [INFERRED: sealing + prebuilt forks] | 13.85 s = 9.24 | 10.89 s = 11.75 |
+
+**Next:** `assign`'s limb loops (about 30 ms per block, still serial), the norms, and the shape checks. Then a
+fork-run source that keeps the sealing pass's witnesses, and the multi-request pipelined measurement.

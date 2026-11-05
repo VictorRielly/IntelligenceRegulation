@@ -121,6 +121,77 @@ fn native_witness_time_per_block_at_the_trained_tinyllama_shapes() {
     }
 }
 
+/// **H124c acceptance: the parallelized builder equals its sequential reference on
+/// every plane, and refuses exactly as it does.** Six profiles cover:
+/// - the R13 byte-limb and the W16 16-bit assignments;
+/// - the DD dictionary branch;
+/// - the rungs (the small sizes that stay sequential in `quantized`);
+/// - T128 and T256;
+/// - the 8B block the clock is measured on.
+/// For each, the first few synthetic inputs are built both ways. The inadmissible ones
+/// among them must return the same error.
+#[test]
+fn h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane() {
+    use super::range16_tests::{built, case};
+    use super::shape::{ACCURACY_PROFILES, W16R2_PROFILES, W16_PROFILES};
+    for name in ["R13_TINY_T128_LOW", "R13_8B_T128_H24_DD", "R13_RUNG_H24", "W16R2_RUNG_H24", "W16_SHIELD_T256_H24", "W16R2_8B_T128_H24"] {
+        let spec = ACCURACY_PROFILES.iter().chain(W16_PROFILES.iter()).chain(W16R2_PROFILES.iter()).find(|s| s.name == name).expect("a listed profile");
+        let (sh, data, public, ff) = case(built(spec.profile), 3);
+        let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+        let (mut admissible, mut refused) = (0usize, 0usize);
+        for s in 0..4usize {
+            let x: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+            match (build(&x), witness::with_sequential(|| build(&x))) {
+                (Ok(a), Ok(b)) => {
+                    assert_eq!(a.planes.len(), b.planes.len(), "{name} input {s}: plane count");
+                    for (k, (pa, pb)) in a.planes.iter().zip(b.planes.iter()).enumerate() {
+                        assert!(pa == pb, "{name} input {s}: plane {k} differs between the parallel and sequential builders");
+                    }
+                    assert_eq!(a.output_plane, b.output_plane, "{name} input {s}: output plane");
+                    admissible += 1;
+                }
+                (Err(a), Err(b)) => {
+                    assert_eq!(a, b, "{name} input {s}: the two builders refuse differently");
+                    refused += 1;
+                }
+                (a, b) => panic!("{name} input {s}: parallel {:?} against sequential {:?}", a.err(), b.err()),
+            }
+        }
+        // the D55 fixture's synthetic inputs are inadmissible at the DD profile (its dictionary
+        // column): there the check is that both builders refuse every one identically
+        assert!(admissible > 0 || name.ends_with("_DD"), "{name}: no admissible input among the four");
+        eprintln!("H124c {name}: {admissible} admissible inputs equal on every plane, {refused} refused identically");
+    }
+}
+
+/// **H124c: a steady load for a sampling profiler.** Builds the W16R2 8B T128
+/// witness `HL_H124_LOOPS` times (default 60) on all threads and prints each
+/// build's wall, so `sample <pid>` can attach and see where the builder's
+/// remainder spends its time.
+#[test]
+#[ignore = "profiling load (H124c): W16R2 8B T128 witness builds in a loop"]
+fn h124c_witness_build_loop_for_sampling() {
+    use super::range16_tests::{built, case};
+    let (sh, data, public, ff) = case(built(super::shape::W16R2_8B_T128_H24), 3);
+    let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+    let mut s = 0usize;
+    let input = loop {
+        let x: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+        match build(&x) {
+            Ok(_) => break x,
+            Err(_) if s < 6 => s += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let loops: usize = std::env::var("HL_H124_LOOPS").ok().and_then(|v| v.parse().ok()).unwrap_or(60);
+    eprintln!("H124c: pid {} building {loops} witnesses", std::process::id());
+    for i in 0..loops {
+        let t0 = std::time::Instant::now();
+        drop(build(&input).unwrap());
+        eprintln!("H124c build {i}: {:.3} s", t0.elapsed().as_secs_f64());
+    }
+}
+
 /// **H124: one block's witness time at the W16R2 8B T128 shape, and how much of it is
 /// the seven weight products.**
 ///

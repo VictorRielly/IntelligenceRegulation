@@ -41,6 +41,9 @@ use super::{AttentionPublic, FeedForwardPublic};
 // R13 execution is tested independently before any proof profile activates it.
 #[path = "witness_accuracy.rs"]
 mod accuracy;
+/// H124c: the builder's sequential reference paths, for the equality tests
+#[cfg(test)]
+pub(crate) use accuracy::with_sequential;
 
 /// R13 component construction. The shared prover/verifier validation still
 /// controls whether a profile can produce or accept a proof.

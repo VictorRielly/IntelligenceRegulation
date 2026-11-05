@@ -14,6 +14,9 @@
   The full suite is 904 / 3 known / 93.
 - **Speed correction (H124c):** with the serial forward chain on the clock, one request on the Mac is measured at
   8.2 tok/s, not the 15.3 inferred earlier today (details below).
+  - The builder's single-threaded remainder was then parallelized, byte-identically (goldens and the six pinned
+    digests unchanged). The witness per block went from 0.249 to 0.167 s.
+  - **One request end to end is now 12.54 s = 10.2 tok/s** [MEASURED].
 
 **2026-11-04 (evening): a soundness defect found by the Lean work, confirmed in Rust (F12, High).**
 - The mask commitment M certifies its first claimed value only up to an offset the prover picks when it commits:

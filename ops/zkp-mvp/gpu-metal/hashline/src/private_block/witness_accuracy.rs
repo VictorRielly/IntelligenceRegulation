@@ -6,6 +6,51 @@ use super::*;
 use crate::private_block::accuracy_precision::BaseShifts;
 use crate::private_block::accuracy_public::{AccuracyPublic, Geometry};
 
+// **H124c (2026-11-04): the builder's serial remainder, parallelized byte-identically.**
+// A sampling profile of one W16R2 8B T128 block showed about 174 ms of its 253 ms outside
+// the weight products, all on one thread: `quantized`, the score and softmax/PV loops,
+// `assign`'s repeated supports. Each is element-wise or independent per head, so it now runs
+// on rayon. The rules that keep it byte-identical:
+// - integer sums keep their own order, and nothing is reassociated;
+// - an error is the one the sequential loop would return first (chunks checked in order;
+//   heads checked in logical order, each head's own first error);
+// - the sequential code stays as the reference, chosen by `with_sequential` (tests) or when
+//   the geometry does not split into whole per-slot chunks.
+thread_local! {
+    static SEQUENTIAL: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+fn sequential() -> bool {
+    SEQUENTIAL.with(|s| s.get())
+}
+
+/// run `f` with this thread's builder on its sequential reference paths
+#[cfg(test)]
+pub(crate) fn with_sequential<R>(f: impl FnOnce() -> R) -> R {
+    SEQUENTIAL.with(|s| s.set(true));
+    let r = f();
+    SEQUENTIAL.with(|s| s.set(false));
+    r
+}
+
+/// below this many positions a parallel split costs more than it saves
+const PAR_MIN: usize = 1 << 14;
+const PAR_CHUNK: usize = 1 << 13;
+
+/// the logical head of every padded head slot (`None` for a padding slot), or `None` when
+/// the slots do not fit `nslots`
+fn slot_heads(g: &Geom, nslots: usize) -> Option<Vec<Option<usize>>> {
+    let mut inv = vec![None; nslots];
+    for h in 0..g.hq {
+        let s = g.slot(h);
+        if s >= nslots || inv[s].is_some() {
+            return None;
+        }
+        inv[s] = Some(h);
+    }
+    Some(inv)
+}
+
 #[derive(Debug)]
 pub(super) struct Quantized {
     pub words: Vec<i64>,
@@ -61,15 +106,33 @@ fn quantized(
     hi: i64,
     site: &'static str,
 ) -> Result<Quantized, String> {
-    let mut words = vec![0; acc.len()];
-    let mut rho = vec![0; acc.len()];
-    for &i in support {
+    // one position, its checks in the sequential order
+    let one = |i: usize| -> Result<(i64, i64), String> {
         let r = crate::private_block::accuracy::requant(acc[i] as i128, mult[i % stride], shift)?;
         if !(lo..=hi).contains(&r.word) {
             return Err(range(site));
         }
-        words[i] = r.word;
-        rho[i] = i64::try_from(r.remainder).map_err(|_| range(site))?;
+        Ok((r.word, i64::try_from(r.remainder).map_err(|_| range(site))?))
+    };
+    let mut words = vec![0; acc.len()];
+    let mut rho = vec![0; acc.len()];
+    if sequential() || support.len() < PAR_MIN {
+        for &i in support {
+            let (w, r) = one(i)?;
+            words[i] = w;
+            rho[i] = r;
+        }
+    } else {
+        use rayon::prelude::*;
+        // H124c: chunks in parallel; each stops at its own first error, and the chunks are
+        // read back in order, so the error returned is the sequential loop's first
+        let parts: Vec<Result<Vec<(i64, i64)>, String>> = support.par_chunks(PAR_CHUNK).map(|ch| ch.iter().map(|&i| one(i)).collect()).collect();
+        for (ch, part) in support.chunks(PAR_CHUNK).zip(parts) {
+            for (&i, (w, r)) in ch.iter().zip(part?) {
+                words[i] = w;
+                rho[i] = r;
+            }
+        }
     }
     Ok(Quantized { words, rho })
 }
@@ -151,7 +214,11 @@ pub(super) fn build(
         &ff.gamma_m,
     ]
     .into_iter()
-    .any(|words| words.contains(&i8::MIN))
+    .any(|words| {
+        // H124c: about 243 MB of weights per 8B block, scanned in parallel chunks
+        use rayon::prelude::*;
+        words.par_chunks(1 << 20).any(|c| c.contains(&i8::MIN))
+    })
     {
         return Err("R13 public weights/gains must be symmetric int8".into());
     }
@@ -302,12 +369,31 @@ pub(super) fn build(
         "KR",
     )?;
     let mut sacc = vec![0; g.len(Dom::S)];
-    for h in 0..g.hq {
-        for t in 0..g.t {
-            for j in 0..g.t {
-                sacc[g.six(g.slot(h), t, j)] = (0..g.dh)
-                    .map(|i| qr.words[g.qix(t, g.slot(h), i)] * kr.words[g.kvix(j, h / g.group, i)])
-                    .sum();
+    // H124c: `six` is contiguous per head slot, so each slot's scores are one task
+    let tt = g.t_pad * g.t_pad;
+    let heads_of_slots = if sacc.len() % tt == 0 { slot_heads(&g, sacc.len() / tt) } else { None };
+    match heads_of_slots {
+        Some(inv) if !sequential() => {
+            use rayon::prelude::*;
+            let (qw, kw) = (&qr.words, &kr.words);
+            sacc.par_chunks_mut(tt).enumerate().for_each(|(hs, ch)| {
+                let Some(h) = inv[hs] else { return };
+                for t in 0..g.t {
+                    for j in 0..g.t {
+                        ch[t * g.t_pad + j] = (0..g.dh).map(|i| qw[g.qix(t, hs, i)] * kw[g.kvix(j, h / g.group, i)]).sum();
+                    }
+                }
+            });
+        }
+        _ => {
+            for h in 0..g.hq {
+                for t in 0..g.t {
+                    for j in 0..g.t {
+                        sacc[g.six(g.slot(h), t, j)] = (0..g.dh)
+                            .map(|i| qr.words[g.qix(t, g.slot(h), i)] * kr.words[g.kvix(j, h / g.group, i)])
+                            .sum();
+                    }
+                }
             }
         }
     }
@@ -321,6 +407,77 @@ pub(super) fn build(
     let mut sr = zsel.clone();
     let mut sg = zsel.clone();
     let mut oacc = vec![0; g.len(Dom::Q)];
+    // H124c: per head slot in parallel when the S and Ht planes split into the same
+    // number of whole slot chunks; otherwise the sequential loop below
+    let nslots = zsel.len() / tt;
+    let par_heads = if !sequential() && zsel.len() == nslots * tt && mx.len() == nslots * g.t_pad { slot_heads(&g, nslots) } else { None };
+    if let Some(inv) = par_heads {
+        use rayon::prelude::*;
+        let (sw, vw, exp, wrho_s, f_p) = (&s.words, &v.words, &public.exp, sh.wrho_s, p.f_p);
+        let outs: Vec<Result<Vec<i64>, String>> = zsel
+            .par_chunks_mut(tt)
+            .zip(e.par_chunks_mut(tt))
+            .zip(probability.par_chunks_mut(tt))
+            .zip(sr.par_chunks_mut(tt))
+            .zip(sg.par_chunks_mut(tt))
+            .zip(mx.par_chunks_mut(g.t_pad))
+            .zip(sum.par_chunks_mut(g.t_pad))
+            .enumerate()
+            .map(|(hs, ((((((zsel, e), probability), sr), sg), mx), sum))| -> Result<Vec<i64>, String> {
+                let Some(h) = inv[hs] else { return Ok(Vec::new()) };
+                // a slot's own coordinates: six(hs, t, j) - hs * tt and htix(hs, t) - hs * t_pad
+                let at = |t: usize, j: usize| t * g.t_pad + j;
+                let mut o = vec![0i64; g.t * g.dh];
+                for t in 0..g.t {
+                    let best = (0..=t).map(|j| sw[g.six(hs, t, j)]).max().unwrap();
+                    let arg = (0..=t).find(|&j| sw[g.six(hs, t, j)] == best).unwrap();
+                    mx[t] = best;
+                    zsel[at(t, arg)] = 1;
+                    let total: i64 = (0..=t).map(|j| exp[(best - sw[g.six(hs, t, j)]) as usize]).sum();
+                    if total <= 0 {
+                        return Err(range("softmax"));
+                    }
+                    sum[t] = total;
+                    for j in 0..g.t {
+                        let index = at(t, j);
+                        let masked = if j <= t { sw[g.six(hs, t, j)] } else { MASK_SCORE };
+                        let delta = best - masked;
+                        if !(0..256).contains(&delta) {
+                            return Err(range("exp difference"));
+                        }
+                        e[index] = exp[delta as usize];
+                        let numerator = if j <= t { e[index] << f_p } else { 0 };
+                        probability[index] = numerator / total;
+                        sr[index] = numerator % total;
+                        sg[index] = total - 1 - sr[index];
+                        if sg[index] >= 1 << wrho_s {
+                            return Err(range("softmax"));
+                        }
+                    }
+                    for i in 0..g.dh {
+                        o[t * g.dh + i] = (0..=t).map(|j| probability[at(t, j)] * vw[g.kvix(j, h / g.group, i)]).sum();
+                    }
+                }
+                Ok(o)
+            })
+            .collect();
+        // the sequential loop's error: heads in logical order, each head's own first error
+        for h in 0..g.hq {
+            if let Err(err) = &outs[g.slot(h)] {
+                return Err(err.clone());
+            }
+        }
+        for h in 0..g.hq {
+            let hs = g.slot(h);
+            if let Ok(o) = &outs[hs] {
+                for t in 0..g.t {
+                    for i in 0..g.dh {
+                        oacc[g.qix(t, hs, i)] = o[t * g.dh + i];
+                    }
+                }
+            }
+        }
+    } else {
     for h in 0..g.hq {
         for t in 0..g.t {
             let hs = g.slot(h);
@@ -357,6 +514,7 @@ pub(super) fn build(
                     .sum();
             }
         }
+    }
     }
     // The ungated exp lookup also covers padded score coordinates.
     for index in 0..e.len() {
@@ -531,6 +689,12 @@ pub(super) fn assign(
             L::Rg|L::Up|L::Ru|L::H|L::Rh=>Dom::F,
         }
     };
+    // H124c: each domain's support is built once, not once per role (about 15 ms per 8B block)
+    let supports:std::cell::RefCell<Vec<(Dom,std::rc::Rc<Vec<usize>>)>>=std::cell::RefCell::new(Vec::new());
+    let support=|dom:Dom| -> std::rc::Rc<Vec<usize>> {
+        if let Some((_,v))=supports.borrow().iter().find(|(d,_)| *d==dom) {return v.clone();}
+        let v=std::rc::Rc::new(g.support(dom)); supports.borrow_mut().push((dom,v.clone())); v
+    };
     let decompose16=|planes:&mut Vec<Vec<i64>>,role:L,values:&[i64],bias:i64| -> Result<(),String> {
         let (count,dom)=(ids.count(role),role_dom(role));
         if values.len()!=g.len(dom) {return Err("W16 witness: limb source shape mismatch".into());}
@@ -538,7 +702,7 @@ pub(super) fn assign(
         // a word or one-limb remainder is 16 bits; a two-limb remainder and
         // the product word are 24 (the lookups then pin each limb's width)
         let width=if top_only || count==2 {24} else {16};
-        for i in g.support(dom) {
+        for &i in support(dom).iter() {
             let value=values[i].checked_add(bias).filter(|&v| v>=0 && v<(1i64<<width))
                 .ok_or_else(||range("W16 limb decomposition"))?;
             if top_only {planes[ids.limb(role,0)][i]=crate::private_block::range16::word24_top(values[i],bias); continue;}
@@ -550,7 +714,7 @@ pub(super) fn assign(
         if w16 {return decompose16(planes,role,values,bias);}
         let count=ids.count(role); let dom=ids.doms[ids.limb(role,0)];
         if values.len()!=g.len(dom) {return Err("R13 witness: limb source shape mismatch".into());}
-        for i in g.support(dom) {
+        for &i in support(dom).iter() {
             let value=values[i].checked_add(bias).filter(|&v| v>=0 && v<(1i64<<(8*count)))
                 .ok_or_else(||range("R13 limb decomposition"))?;
             for k in 0..count {planes[ids.limb(role,k)][i]=(value>>(8*k))&255;}

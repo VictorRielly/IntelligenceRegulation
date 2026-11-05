@@ -1,0 +1,53 @@
+2026-11-05T04:54:33Z start
+2026-11-05T04:56:50Z build rc=0
+   1 warning: `hashline` (lib test) generated 27 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+   1 warning: associated function `of` is never used
+   1 warning: field `boundaries` is never read
+   1 warning: function `constants_of` is never used
+   1 warning: function `table_keys_of` is never used
+   1 warning: method `is_dd` is never used
+   1 warning: method `pd` is never used
+   1 warning: method `slot` is never used
+   1 warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+   1 warning: unused doc comment
+   1 warning: unused import: `Dom`
+   1 warning: unused import: `eval_mle_ext`
+   1 warning: unused import: `verify_inner_at`
+   1 warning: unused variable: `cube`
+   1 warning: unused variable: `g_exp`
+   1 warning: unused variable: `hp`
+   1 warning: unused variable: `low`
+   1 warning: unused variable: `lp`
+   1 warning: unused variable: `ls`
+   2 warning: unused variable: `n_pad`
+   1 warning: unused variable: `precision`
+   1 warning: value assigned to `cached` is never read
+   6 warning: variable does not need to be mutable
+2026-11-05T04:56:54Z equality rc=101
+H124c R13_TINY_T128_LOW: 4 admissible inputs equal on every plane, 0 refused identically
+thread 'private_block::witness_speed_tests::h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane' (10956072) panicked at src/private_block/witness_speed_tests.rs:160:9:
+test private_block::witness_speed_tests::h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane ... FAILED
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1001 filtered out; finished in 3.07s
+2026-11-05T04:57:04Z per-block timing rc=0
+2026-11-05T05:01:59Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+    private_block::witness_speed_tests::h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane
+test result: FAILED. 904 passed; 4 failed; 94 ignored; 0 measured; 0 filtered out; finished in 295.19s
+2026-11-05T05:02:00Z w16r2 rung golden rc=0
+2026-11-05T05:02:27Z trained digests rc=0
+2026-11-05T05:02:27Z digest 2b0d04bb present
+2026-11-05T05:02:27Z digest 678953f6 present
+2026-11-05T05:02:27Z digest 01a6d51d present
+2026-11-05T05:02:27Z digest c5e0bdac present
+2026-11-05T05:02:27Z digest 4e189ccc present
+2026-11-05T05:02:27Z digest a9a19ee5 present
+2026-11-05T05:04:14Z d55 A/B rc=0
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 5.419 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 11.017 s = 11.62 tok/s | mean 11.066 s = 11.57 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.467 s = 23.41 tok/s | mean 5.554 s = 23.05 tok/s | 2.02x serial (best)
+D55-AB SUMMARY | forks N=6 JIT 2:4 | witness on the clock | best 7.119 s = 17.98 tok/s | mean 7.133 s = 17.94 tok/s | with the sealing pass (5.419 s) one request end to end 12.538 s = 10.21 tok/s
+D55-AB SUMMARY | forks N=6 JIT 4:6 | witness on the clock | best 7.270 s = 17.61 tok/s | mean 7.419 s = 17.25 tok/s | with the sealing pass (5.419 s) one request end to end 12.689 s = 10.09 tok/s
+2026-11-05T05:04:14Z all done
