@@ -2432,3 +2432,404 @@ fn f16_a_run_context_that_differs_from_the_endpoint_spec_is_refused() {
     let (expected, _) = prepare_endpoints(IoSpec::new_shaped(&r.sh, [7; 32], 0, 0).unwrap(), &r.input, &r.output).unwrap();
     r.statement_on(7, expected).expect("the matching context builds");
 }
+
+// ------------------------------------------- A8: the openings' store folds
+
+/// splitmix64, for the A8 fold tests' words and coefficients
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+fn a8_mix(x: &mut u64) -> u64 {
+    *x = x.wrapping_add(0x9E37_79B9_7F4A_7C15);
+    let mut z = *x;
+    z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+    z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+    z ^ (z >> 31)
+}
+
+/// the per-term reference (`fold_rows_host`, zkp-core's arithmetic) of
+/// `rho^T [M | pads]`: the message fold, then the pad fold appended, as
+/// `pcs::fold_rows_multi_zk` forms the hiding opening's vectors before A8
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+fn a8_reference(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>], pads: Option<(&[u64], usize)>) -> Vec<Vec<Fp2>> {
+    let mut m = crate::gpu::metal_fold_rows_host_for_test(src, rows, n, nn, ir, rhos);
+    if let Some((p, q)) = pads {
+        let pf = crate::gpu::metal_fold_rows_host_for_test(p, rows, q, q, 1, rhos);
+        for (a, b) in m.iter_mut().zip(pf) {
+            a.extend(b);
+        }
+    }
+    m
+}
+
+/// every A8 form at the chunk widths `widths` (and the rule's), with and
+/// without the small-word path, against the per-term reference; and the M11
+/// forms on the message part. Returns how many forms were compared.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[allow(clippy::too_many_arguments)]
+fn a8_check_forms(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>], pads: Option<(&[u64], usize)>, widths: &[usize], what: &str) -> usize {
+    use crate::gpu::MetalA8Seg as Seg;
+    let want = a8_reference(src, rows, n, nn, ir, rhos, pads);
+    let msg_want: Vec<Vec<Fp2>> = want.iter().map(|v| v[..n].to_vec()).collect();
+    assert!(crate::gpu::metal_fold_rows_host_m11_for_test(src, rows, n, nn, ir, rhos) == msg_want, "{what}: the M11 forms differ from the per-term fold");
+    let mut compared = 1;
+    for small in [false, true] {
+        // the production options (`a8_opts`), then each width without prefetch
+        let prod = crate::gpu::metal_a8_opts(n, small);
+        {
+            let mut segs = vec![Seg { src, n, nn, ir }];
+            if let Some((p, q)) = pads {
+                segs.push(Seg { src: p, n: q, nn: q, ir: 1 });
+            }
+            assert!(crate::gpu::metal_fold_segments_a8_opts(&segs, rows, rhos, prod) == want, "{what}: the A8 fold at the production options ({prod:?}) differs from the per-term fold");
+            assert!(crate::gpu::metal_fold_rows_host_a8(src, rows, n, nn, ir, rhos, prod) == msg_want, "{what}: the A8 message fold at the production options ({prod:?}) differs from the per-term fold");
+            compared += 2;
+        }
+        for &w in widths.iter().chain(std::iter::once(&prod.w)) {
+            let mut segs = vec![Seg { src, n, nn, ir }];
+            if let Some((p, q)) = pads {
+                segs.push(Seg { src: p, n: q, nn: q, ir: 1 });
+            }
+            let got = crate::gpu::metal_fold_segments_a8(&segs, rows, rhos, w, small);
+            assert!(got == want, "{what}: the A8 fold (w {w}, small {small}) differs from the per-term fold");
+            let got1 = crate::gpu::metal_fold_rows_host_a8(src, rows, n, nn, ir, rhos, crate::gpu::MetalA8Opts { w, small, pf: 0, neon: false });
+            assert!(got1 == msg_want, "{what}: the A8 message fold (w {w}, small {small}) differs from the per-term fold");
+            compared += 2;
+            // the prefetch distances and the NEON small lanes
+            for (pf, neon) in [(1usize, false), (2, true), (5, true)] {
+                let opts = crate::gpu::MetalA8Opts { w, small, pf, neon };
+                let got = crate::gpu::metal_fold_segments_a8_opts(&segs, rows, rhos, opts);
+                assert!(got == want, "{what}: the A8 fold ({opts:?}) differs from the per-term fold");
+                compared += 1;
+            }
+        }
+    }
+    compared
+}
+
+/// **[A8] every store fold form is the per-term fold, word for word.** Random
+/// canonical words of every kind (full width, `p - 1`, small signed integers of
+/// both signs, the small path's edges `2^15 - 1`, `2^15`, `p - 2^15`,
+/// `p - 2^15 - 1`), rows that are all small, small but for the odd word, full
+/// or zero; coefficient vectors dense, in blocks, sparse and nearly empty, with
+/// entries `1`, `p - 1`, `p - 2` and random; strided (systematic) and plain
+/// sources; with and without the pad segment (`q` 1, 7, 280); chunk widths
+/// from 1 to wider than the rows; no vectors at all. Then the small path's
+/// overflow edge: `2^16 - 1` rows of the largest small words against
+/// coefficients whose 32-bit halves are both near `2^32`, and `2^16` rows,
+/// where the path must stand aside.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+fn a8_store_fold_forms_equal_the_per_term_fold_word_for_word() {
+    let p = crate::field::P;
+    let h = 1u64 << 15;
+    let small_edges = [0u64, 1, h - 1, p - h, p - 1];
+    let edges = [0u64, 1, h - 1, h, p - h, p - h - 1, 1 << 16, (1 << 16) - 1, p - 1, p - 2];
+    let mut seed = 0xA8A8_2026_1105u64;
+    let mut compared = 0usize;
+    let shapes: [(usize, usize, usize, usize, usize, Option<usize>); 9] = [
+        (1, 1, 1, 1, 1, None),
+        (37, 300, 300, 1, 3, Some(7)),
+        (64, 513, 2052, 4, 2, None),
+        (9, 256, 512, 2, 5, Some(280)),
+        (300, 1024, 1024, 1, 37, Some(280)),
+        (70, 100, 100, 1, 0, None),
+        (40, 64, 64, 1, 10, Some(1)),
+        (5, 33, 33, 1, 17, Some(280)),
+        (128, 96, 96, 1, 1, None),
+    ];
+    for (si, &(rows, n, nn, ir, k, q)) in shapes.iter().enumerate() {
+        let word = |kind: u64, s: &mut u64| -> u64 {
+            let r = a8_mix(s);
+            match kind {
+                // all small: small signed integers of both signs and the small edges
+                0 => match r % 4 {
+                    0 => r % h,
+                    1 => p - 1 - (r >> 8) % h,
+                    2 => small_edges[(r >> 4) as usize % small_edges.len()],
+                    _ => (r >> 9) % 256,
+                },
+                // small but for the odd word (an edge just outside the path)
+                1 => {
+                    if r % 29 == 0 {
+                        edges[(r >> 5) as usize % edges.len()]
+                    } else {
+                        r % h
+                    }
+                }
+                2 => match r % 3 {
+                    0 => r % p,
+                    1 => p - 1 - (r >> 3) % 4,
+                    _ => (r >> 7) % (1 << 32),
+                },
+                _ => 0,
+            }
+        };
+        let kinds: Vec<u64> = (0..rows).map(|i| [0u64, 0, 1, 2, 0, 3, 0, 2][(i + si) % 8]).collect();
+        let src: Vec<u64> = (0..rows * nn).map(|e| word(kinds[e / nn], &mut seed)).collect();
+        let pads: Option<Vec<u64>> = q.map(|q| (0..rows * q).map(|e| if e % 3 == 0 { word(0, &mut seed) } else { word(2, &mut seed) }).collect());
+        let rhos: Vec<Vec<Fp2>> = (0..k)
+            .map(|g| {
+                (0..rows)
+                    .map(|i| {
+                        let on = match g % 4 {
+                            0 => true,
+                            1 => (i / 8) % 3 == g % 3,
+                            2 => a8_mix(&mut seed) % 5 == 0,
+                            _ => g % 8 == 3 && i == rows / 2,
+                        };
+                        if !on {
+                            return Fp2::ZERO;
+                        }
+                        let r = a8_mix(&mut seed);
+                        match r % 6 {
+                            0 => Fp2::new(Fp(p - 1), Fp(p - 2)),
+                            1 => Fp2::new(Fp(1), Fp(0)),
+                            2 => Fp2::new(Fp(0), Fp(p - 1)),
+                            _ => Fp2::new(Fp(a8_mix(&mut seed) % p), Fp(a8_mix(&mut seed) % p)),
+                        }
+                    })
+                    .collect()
+            })
+            .collect();
+        let pads_ref = pads.as_ref().map(|v| (v.as_slice(), q.unwrap()));
+        compared += a8_check_forms(&src, rows, n, nn, ir, &rhos, pads_ref, &[1, 3, 32, 64, 512, 4096], &format!("shape {si} ({rows} x {n}, nn {nn}, ir {ir}, k {k}, q {q:?})"));
+    }
+    // the small path's overflow edge: every lane at its largest sum
+    for rows in [(1usize << 16) - 1, 1 << 16] {
+        let n = 3;
+        let src: Vec<u64> = (0..rows * n).map(|e| [h - 1, h - 1, p - h][e % 3]).collect();
+        let rhos = vec![vec![Fp2::new(Fp(p - 2), Fp(0xFFFF_FFFE_FFFF_FFFE)); rows], (0..rows).map(|i| if i % 2 == 0 { Fp2::new(Fp(0xFFFF_FFFF), Fp(p - 2)) } else { Fp2::ZERO }).collect()];
+        compared += a8_check_forms(&src, rows, n, n, 1, &rhos, None, &[1, 2, 3], &format!("the overflow edge at {rows} rows"));
+    }
+    eprintln!("A8-FOLD-EQUAL: {compared} fold forms equal the per-term fold, word for word");
+}
+
+/// one seeded W16R2 core proof's digest (as [`seeded_digest`]) under a store
+/// fold form, with the folds' inputs captured; restores the form
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+fn a8_digest_under(sh: &Shape, blk: &BlockPublic, w: Witness, form: crate::gpu::MetalA8Form) -> (String, Vec<crate::gpu::MetalFoldCapture>) {
+    let own = crate::gpu::metal_set_a8_fold_for_test(Some(form));
+    crate::gpu::metal_fold_capture_for_test(true);
+    let d = seeded_digest(sh, blk, w);
+    let caps = crate::gpu::metal_fold_capture_for_test(false);
+    crate::gpu::metal_set_a8_fold_for_test(own);
+    (d, caps)
+}
+
+/// **[A8] the W16R2 rung's golden under every store fold form, and every fold
+/// of it word for word.** The seeded rung proof on the device under the M11
+/// forms, the row-sparse form and the small-word form (the default): every
+/// digest is the CPU's, which is the golden. Every fold each proof made is captured and folded
+/// again by every form at several chunk widths, against the per-term fold,
+/// word for word. Toggles `HL_GPU` in-process, so it is ignored and run alone
+/// by name (`HL_GPU_REQUIRED=1`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A8: toggles HL_GPU and the store fold's form in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn a8_w16r2_rung_golden_under_every_store_fold_form() {
+    use crate::gpu::MetalA8Form as F;
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu = seeded_digest(&sh, &blk, copy(&w));
+    assert!(cpu.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's digest moved");
+    std::env::set_var("HL_GPU", "1");
+    for form in [F::M11, F::Sparse, F::Small] {
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        let (d, caps) = a8_digest_under(&sh, &blk, copy(&w), form);
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        assert_eq!(d, cpu, "the Metal W16R2 rung proof under the store fold form {form:?} differs from the CPU's");
+        assert!(ran > 0.0, "no sumcheck round ran on the device");
+        assert!(!caps.is_empty(), "no store fold was captured under {form:?}");
+        let mut compared = 0;
+        for (ci, c) in caps.iter().enumerate() {
+            let pads = c.pads.as_ref().map(|(p, q)| (p.as_slice(), *q));
+            assert_eq!(pads.is_some(), form != F::M11, "the fold under {form:?} took the pads: {}", pads.is_some());
+            compared += a8_check_forms(&c.src, c.rows, c.n, c.nn, c.ir, &c.rhos, pads, &[32, 64, 256], &format!("rung fold {ci} under {form:?}"));
+        }
+        eprintln!(
+            "A8-RUNG {} form {form:?}: digest {} (the golden); {} folds captured ({}); {compared} forms equal the per-term fold word for word",
+            sh.name,
+            &d[..8],
+            caps.len(),
+            caps.iter().map(|c| format!("{} rho x {} rows x {}{}", c.rhos.len(), c.rows, c.n, c.pads.as_ref().map(|(_, q)| format!(" + {q}")).unwrap_or_default())).collect::<Vec<_>>().join(", ")
+        );
+    }
+    std::env::remove_var("HL_GPU");
+}
+
+/// **[A8, census and bench, ignored]** one W16R2 8B T128 block
+/// (`HL_A8_PROFILE`, w16r2_ab's recipe) proved on the device under each store
+/// fold form (the phase clock on; every digest equal), the inputs of its two
+/// store folds captured; then for each fold: its shape, the coefficient
+/// vectors' sparsity, how many of its words are small signed integers, and
+/// every fold form timed in rayon pools of `HL_A8_BENCH_THREADS` (default 6
+/// and 32) threads, `HL_A8_BENCH_REPS` (default 7) times, each checked against
+/// the per-term fold word for word.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A8: heavy (one 8B T128 block on Metal), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0"]
+fn a8_store_fold_census_and_bench_on_the_8b_block() {
+    use crate::gpu::MetalA8Form as F;
+    use crate::gpu::MetalA8Seg as Seg;
+    use crate::private_block::shape::NormCalibration;
+    let name = std::env::var("HL_A8_PROFILE").unwrap_or_else(|_| "W16R2_8B_T128_H24".to_string());
+    let threads: Vec<usize> = std::env::var("HL_A8_BENCH_THREADS").unwrap_or_else(|_| "6,32".to_string()).split(',').map(|t| t.trim().parse().expect("HL_A8_BENCH_THREADS")).collect();
+    let reps: usize = std::env::var("HL_A8_BENCH_REPS").ok().and_then(|v| v.parse().ok()).unwrap_or(7).max(1);
+    let spec = shape::W16_PROFILES.iter().chain(shape::W16R2_PROFILES.iter()).find(|s| s.name == name).unwrap_or_else(|| panic!("{name}: not a W16 or W16R2 profile"));
+    let cal = NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+    let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
+    let (sh, data, public, ff) = super::range16_tests::case(original, 3);
+    let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+    let mut seed = 0usize;
+    let input = loop {
+        let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + seed) % (41 + 20 * (seed % 3))) as i16 - 20).collect();
+        match super::witness::build_accuracy(&sh, &public, &ff, &data, &input) {
+            Ok(_) => break input,
+            Err(_) if seed < 6 => seed += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let lay = Layout::for_shape(&sh).unwrap();
+    eprintln!("A8-CENSUS {} A rows {} H rows {} n {}", sh.name, lay.a_rows, lay.h_rows, lay.n());
+    // the block on the device: a cold pass, then each form with the phase clock
+    std::env::set_var("HL_GPU", "1");
+    let prove_once = |form: F, capture: bool| -> (f64, String, Vec<(String, f64)>, Vec<crate::gpu::MetalFoldCapture>) {
+        let w = super::witness::build_accuracy(&sh, &public, &ff, &data, &input).unwrap();
+        let (ein, eout) = io_planes(&sh, &w);
+        let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+        let mut rng = ZkRng::new(20261101, b"zk60 W16R2 core");
+        let mut tr = header(&sh, &lay);
+        let own = crate::gpu::metal_set_a8_fold_for_test(Some(form));
+        crate::gpu::metal_fold_capture_for_test(capture);
+        super::timing::force(Some(true));
+        let mut ph = super::timing::Phases::start();
+        let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+        let t = std::time::Instant::now();
+        let core = protocol::prove_core(&sh, &lay, &blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("the A8 core proof");
+        let s = t.elapsed().as_secs_f64();
+        super::timing::force(None);
+        let caps = crate::gpu::metal_fold_capture_for_test(false);
+        crate::gpu::metal_set_a8_fold_for_test(own);
+        let text = format!("{:?}|{:?}|{:?}|{:?}|{:?}|{:?}", core.a_root, core.h_root, core.slots, core.a_open, core.h_open, tr.state());
+        (s, blake3::hash(text.as_bytes()).to_hex().to_string(), ph.rows_for_test(), caps)
+    };
+    let (s, d0, _, _) = prove_once(F::M11, false);
+    eprintln!("A8-CENSUS cold pass (M11 forms) prove core {s:.3} s digest {}", &d0[..16]);
+    let mut caps = Vec::new();
+    for (label, form) in [("m11", F::M11), ("sparse", F::Sparse), ("small", F::Small), ("m11", F::M11), ("sparse", F::Sparse), ("small", F::Small)] {
+        let (s, d, rows, c) = prove_once(form, caps.is_empty() && form == F::Sparse);
+        assert_eq!(d, d0, "the 8B block's proof under {label} differs");
+        if !c.is_empty() {
+            caps = c;
+        }
+        let open: Vec<String> = rows.iter().filter(|(l, _)| l.contains("open")).map(|(l, v)| format!("{l} {:.2} ms", v * 1e3)).collect();
+        eprintln!("A8-CENSUS prove core [{label}] {s:.3} s (digest equal) | {}", open.join(" | "));
+    }
+    assert!(!caps.is_empty(), "no store fold was captured");
+    eprintln!("A8-CENSUS {} store folds captured: {}", caps.len(), caps.iter().map(|c| format!("{} rho x {} rows", c.rhos.len(), c.rows)).collect::<Vec<_>>().join(", "));
+    let p = crate::field::P;
+    let half = 1u64 << 15;
+    for (fi, c) in caps.iter().enumerate() {
+        let (rows, n, k) = (c.rows, c.n, c.rhos.len());
+        let (pw, q) = c.pads.as_ref().map(|(p, q)| (p.as_slice(), *q)).expect("the captured fold took the pads");
+        // the coefficient vectors' sparsity
+        let nnz: Vec<usize> = c.rhos.iter().map(|r| r[..rows].iter().filter(|x| !x.is_zero()).count()).collect();
+        let per_row: Vec<usize> = (0..rows).map(|i| c.rhos.iter().filter(|r| !r[i].is_zero()).count()).collect();
+        let total: usize = nnz.iter().sum();
+        // the words: whole rows and 32-column chunks of small signed integers
+        let small = |v: u64| v < half || v >= p - half;
+        let small32 = |v: u64| v < (1 << 31) || v >= p - (1 << 31);
+        let row_small = (0..rows).filter(|&i| c.src[i * n..(i + 1) * n].iter().all(|&v| small(v))).count();
+        let row_small32 = (0..rows).filter(|&i| c.src[i * n..(i + 1) * n].iter().all(|&v| small32(v))).count();
+        let chunk_small: Vec<usize> = (0..rows).map(|i| c.src[i * n..(i + 1) * n].chunks(32).filter(|ch| ch.iter().all(|&v| small(v))).count()).collect();
+        let upd_small: usize = (0..rows).map(|i| per_row[i] * chunk_small[i]).sum();
+        let upd_all: usize = total * n.div_ceil(32);
+        let words_small = c.src.iter().filter(|&&v| small(v)).count();
+        eprintln!(
+            "A8-CENSUS fold {fi}: {k} rho x {rows} rows x ({n} + {q}) cols | nonzero coefficients {total} ({:.2} rows' worth; per vector {:?}) | per row max {}, rows with none {} | small16 rows {row_small} of {rows}, small32 rows {row_small32}; small16 words {:.1}%; small16 32-column chunks, weighted by coefficients, {:.1}% of the updates",
+            total as f64 / rows as f64,
+            nnz,
+            per_row.iter().max().unwrap(),
+            per_row.iter().filter(|&&x| x == 0).count(),
+            100.0 * words_small as f64 / c.src.len() as f64,
+            100.0 * upd_small as f64 / upd_all.max(1) as f64
+        );
+        let want = a8_reference(&c.src, rows, n, n, 1, &c.rhos, Some((pw, q)));
+        // the forms: before A8 (the M11 message fold, then the pads per-term on
+        // one chunk, appended), and the A8 forms over both segments; `true`
+        // compares the whole vectors, `false` the message part
+        type Run<'a> = Box<dyn Fn() -> Vec<Vec<Fp2>> + Sync + 'a>;
+        let mut forms: Vec<(String, bool, Run)> = Vec::new();
+        forms.push((
+            "m11 + pads per-term (before A8)".into(),
+            true,
+            Box::new(|| {
+                let mut m = crate::gpu::metal_fold_rows_host_m11_for_test(&c.src, rows, n, n, 1, &c.rhos);
+                let pf = crate::gpu::metal_fold_rows_host_for_test(pw, rows, q, q, 1, &c.rhos);
+                for (a, b) in m.iter_mut().zip(pf) {
+                    a.extend(b);
+                }
+                m
+            }),
+        ));
+        forms.push(("  of which the m11 message fold".into(), false, Box::new(|| crate::gpu::metal_fold_rows_host_m11_for_test(&c.src, rows, n, n, 1, &c.rhos))));
+        let widths: Vec<usize> = std::env::var("HL_A8_BENCH_W").unwrap_or_else(|_| "128,256,512,1024".to_string()).split(',').map(|t| t.trim().parse().expect("HL_A8_BENCH_W")).collect();
+        let pfs: Vec<usize> = std::env::var("HL_A8_BENCH_PF").unwrap_or_else(|_| "0,1,2".to_string()).split(',').map(|t| t.trim().parse().expect("HL_A8_BENCH_PF")).collect();
+        for small in [false, true] {
+            for &w in &widths {
+                for &pf in &pfs {
+                    for neon in if small { vec![false, true] } else { vec![false] } {
+                        let segs = [Seg { src: &c.src, n, nn: n, ir: 1 }, Seg { src: pw, n: q, nn: q, ir: 1 }];
+                        let opts = crate::gpu::MetalA8Opts { w, small, pf, neon };
+                        forms.push((format!("a8 {} w {w} pf {pf}{}", if small { "small" } else { "sparse" }, if neon { " neon" } else { "" }), true, Box::new(move || crate::gpu::metal_fold_segments_a8_opts(&segs, rows, &c.rhos, opts))));
+                    }
+                }
+            }
+        }
+        // six at once, each in its own pool of six threads (six forks folding together)
+        let six: Vec<rayon::ThreadPool> = (0..6).map(|_| rayon::ThreadPoolBuilder::new().num_threads(6).build().expect("a rayon pool")).collect();
+        for (label, _, f) in &forms {
+            let mut ms = Vec::with_capacity(reps);
+            for _ in 0..reps {
+                let s = std::time::Instant::now();
+                std::thread::scope(|sc| {
+                    for p in &six {
+                        sc.spawn(move || p.install(f).len());
+                    }
+                });
+                ms.push(s.elapsed().as_secs_f64() * 1e3);
+            }
+            ms.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            eprintln!("A8-BENCH fold {fi} ({k} rho x {rows} rows) six x 6: {label:<46} min {:>7.2} ms  median {:>7.2} ms  (six folds at once)", ms[0], ms[ms.len() / 2]);
+        }
+        // the pads alone, per-term: one chunk, so one thread whatever the pool
+        let pads_alone = || crate::gpu::metal_fold_rows_host_for_test(pw, rows, q, q, 1, &c.rhos);
+        for &t in &threads {
+            let pool = rayon::ThreadPoolBuilder::new().num_threads(t).build().expect("a rayon pool");
+            let mut ms_p = Vec::new();
+            for _ in 0..reps {
+                let s = std::time::Instant::now();
+                let got = pool.install(pads_alone);
+                ms_p.push(s.elapsed().as_secs_f64() * 1e3);
+                assert!(got.iter().zip(want.iter()).all(|(a, b)| a[..] == b[n..]), "fold {fi}: the per-term pad fold differs");
+            }
+            ms_p.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            eprintln!("A8-BENCH fold {fi} ({k} rho x {rows} rows) pool {t:>2}: {:<46} min {:>7.2} ms  median {:>7.2} ms  (equal: yes)", "  of which the pads per-term (one chunk)", ms_p[0], ms_p[ms_p.len() / 2]);
+            for (label, whole, f) in &forms {
+                let mut ms = Vec::with_capacity(reps);
+                for _ in 0..reps {
+                    let s = std::time::Instant::now();
+                    let got = pool.install(f);
+                    ms.push(s.elapsed().as_secs_f64() * 1e3);
+                    if *whole {
+                        assert!(got == want, "fold {fi}: {label} differs from the per-term fold");
+                    } else {
+                        assert!(got.len() == want.len() && got.iter().zip(want.iter()).all(|(a, b)| a[..] == b[..n]), "fold {fi}: {label} differs from the per-term fold");
+                    }
+                }
+                ms.sort_by(|a, b| a.partial_cmp(b).unwrap());
+                eprintln!("A8-BENCH fold {fi} ({k} rho x {rows} rows) pool {t:>2}: {label:<46} min {:>7.2} ms  median {:>7.2} ms  (equal: yes)", ms[0], ms[ms.len() / 2]);
+            }
+        }
+    }
+    std::env::remove_var("HL_GPU");
+}

@@ -977,6 +977,14 @@ fn fold_rows_multi_zk<E: EncodedStore>(cmz: &CommittedZk<E>, rhos: &[Vec<Fp2>]) 
     let n = cmz.cm.params.cols();
     let q = cmz.zk.q_pad;
     let rows = cmz.cm.rows;
+    // [A8] a store may form the message and pad folds together (equal values)
+    if let Store::Device(dc) = &cmz.cm.store {
+        if let Some(r) = dc.fold_rows_with_pads(rhos, &cmz.pads, q) {
+            let v = r.expect("pcs: external store row-combination (with pads)");
+            assert!(v.len() == rhos.len() && v.iter().all(|x| x.len() == n + q), "pcs: external store returned vectors of the wrong shape");
+            return v;
+        }
+    }
     let msg: Vec<Vec<Fp2>> = match &cmz.cm.store {
         Store::Host { .. } => fold_rows_host(&cmz.data, rows, n, n, 1, rhos),
         Store::Device(dc) => {

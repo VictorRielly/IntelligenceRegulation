@@ -1,0 +1,85 @@
+2026-11-05T15:14:36Z start
+2026-11-05T15:17:04Z build rc=0
+2026-11-05T15:19:27Z word-for-word fold test rc=0
+test private_block::w16r2_tests::a8_store_fold_forms_equal_the_per_term_fold_word_for_word ... A8-FOLD-EQUAL: 295 fold forms equal the per-term fold, word for word
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 0.21s
+2026-11-05T15:19:30Z rung golden under every form rc=0
+test private_block::w16r2_tests::a8_w16r2_rung_golden_under_every_store_fold_form ... A8-RUNG W16R2_RUNG_H24 form M11 column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384, 10 rho x 202 rows x 16384); 34 forms equal the per-term fold word for word
+A8-RUNG W16R2_RUNG_H24 form M11 column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384, 10 rho x 202 rows x 16384); 34 forms equal the per-term fold word for word
+A8-RUNG W16R2_RUNG_H24 form Sparse column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 34 forms equal the per-term fold word for word
+A8-RUNG W16R2_RUNG_H24 form Sparse column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 34 forms equal the per-term fold word for word
+A8-RUNG W16R2_RUNG_H24 form Small column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 34 forms equal the per-term fold word for word
+A8-RUNG W16R2_RUNG_H24 form Small column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 34 forms equal the per-term fold word for word
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 3.14s
+2026-11-05T15:19:45Z census and bench rc=0
+test private_block::w16r2_tests::a8_store_fold_census_and_bench_on_the_8b_block ... A8-CENSUS W16R2_8B_T128_H24 A rows 2504 H rows 2606 n 16384
+A8-CENSUS cold pass (M11 forms) prove core 0.602 s digest e17a4a5a5ecd3667
+A8-CENSUS prove core [m11+cols] 0.369 s (digest equal) | open M (zk::mask_open, ONE call) 3.06 ms | open A (schedule audit + pcs::open_zk) 21.34 ms | open H (schedule audit + pcs::open_zk) 16.10 ms
+A8-CENSUS prove core [sparse+nocols] 0.412 s (digest equal) | open M (zk::mask_open, ONE call) 3.06 ms | open A (schedule audit + pcs::open_zk) 38.05 ms | open H (schedule audit + pcs::open_zk) 34.94 ms
+A8-CENSUS prove core [small+nocols] 0.334 s (digest equal) | open M (zk::mask_open, ONE call) 3.07 ms | open A (schedule audit + pcs::open_zk) 19.56 ms | open H (schedule audit + pcs::open_zk) 13.84 ms
+A8-CENSUS prove core [m11+cols] 0.461 s (digest equal) | open M (zk::mask_open, ONE call) 3.16 ms | open A (schedule audit + pcs::open_zk) 21.91 ms | open H (schedule audit + pcs::open_zk) 16.31 ms
+A8-CENSUS prove core [sparse+nocols] 0.337 s (digest equal) | open M (zk::mask_open, ONE call) 3.07 ms | open A (schedule audit + pcs::open_zk) 21.46 ms | open H (schedule audit + pcs::open_zk) 16.66 ms
+A8-CENSUS prove core [small+nocols] 0.331 s (digest equal) | open M (zk::mask_open, ONE call) 3.14 ms | open A (schedule audit + pcs::open_zk) 19.11 ms | open H (schedule audit + pcs::open_zk) 13.88 ms
+A8-CENSUS 2 store folds captured: 37 rho x 2504 rows, 10 rho x 2606 rows
+A8-CENSUS fold 0: 37 rho x 2504 rows x (16384 + 280) cols | nonzero coefficients 5658 (2.26 rows' worth; per vector [34, 34, 18, 6, 6, 6, 6, 6, 6, 6, 6, 6, 68, 34, 34, 34, 34, 10, 34, 10, 34, 34, 34, 130, 646, 6, 204, 34, 60, 10, 272, 6, 1170, 48, 34, 34, 2504]) | per row max 11, rows with none 0 | small16 rows 1900 of 2504, small32 rows 2280; small16 words 84.7%; small16 32-column chunks, weighted by coefficients, 8
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6:   of which the pads per-term (one chunk)       min    2.39 ms  median    2.45 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: m11 + pads per-term (before A8)                min   24.24 ms  median   24.43 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6:   of which the m11 message fold                min   21.28 ms  median   21.64 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: lazy256 message (the M11 lazy form at any k)   min   23.35 ms  median   23.65 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 16                                 min   51.56 ms  median   55.22 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 32 (the rule)                      min   47.90 ms  median   52.17 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 64                                 min   38.07 ms  median   42.22 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 128                                min   34.31 ms  median   43.91 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 256                                min   22.16 ms  median   22.64 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 16                                  min   48.86 ms  median   53.74 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 32 (the rule)                       min   43.81 ms  median   44.34 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 64                                  min   28.03 ms  median   28.65 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 128                                 min   24.51 ms  median   25.41 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 256                                 min   20.82 ms  median   21.14 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32:   of which the pads per-term (one chunk)       min    2.40 ms  median    2.42 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: m11 + pads per-term (before A8)                min    9.42 ms  median   10.09 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32:   of which the m11 message fold                min    6.79 ms  median    7.12 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: lazy256 message (the M11 lazy form at any k)   min    8.01 ms  median    8.22 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 16                                 min   14.10 ms  median   14.95 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 32 (the rule)                      min   13.22 ms  median   13.52 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 64                                 min   11.28 ms  median   11.95 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 128                                min   11.56 ms  median   11.89 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 256                                min    7.75 ms  median    8.01 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 16                                  min   15.16 ms  median   16.20 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 32 (the rule)                       min   11.31 ms  median   11.65 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 64                                  min    8.05 ms  median    8.37 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 128                                 min    7.37 ms  median    7.82 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 256                                 min    7.03 ms  median    7.24 ms  (equal: yes)
+A8-CENSUS fold 1: 10 rho x 2606 rows x (16384 + 280) cols | nonzero coefficients 7726 (2.96 rows' worth; per vector [4, 660, 198, 54, 330, 1290, 64, 4, 2516, 2606]) | per row max 3, rows with none 0 | small16 rows 0 of 2606, small32 rows 0; small16 words 1.2%; small16 32-column chunks, weighted by coefficients, 1.0% of the updates
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6:   of which the pads per-term (one chunk)       min    3.10 ms  median    3.11 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: m11 + pads per-term (before A8)                min   30.44 ms  median   32.11 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6:   of which the m11 message fold                min   27.22 ms  median   28.94 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: lazy256 message (the M11 lazy form at any k)   min   27.22 ms  median   28.96 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 16                                 min   55.85 ms  median   59.42 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 32                                 min   55.93 ms  median   60.03 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 64                                 min   43.70 ms  median   47.12 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 128 (the rule)                     min   39.41 ms  median   49.73 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 256                                min   26.38 ms  median   27.07 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 16                                  min   57.48 ms  median   58.50 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 32                                  min   54.07 ms  median   54.60 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 64 (the rule)                       min   37.39 ms  median   37.59 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 128                                 min   34.86 ms  median   35.07 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 256                                 min   29.46 ms  median   29.78 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32:   of which the pads per-term (one chunk)       min    3.09 ms  median    3.13 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: m11 + pads per-term (before A8)                min   11.49 ms  median   11.62 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32:   of which the m11 message fold                min    8.15 ms  median    8.27 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: lazy256 message (the M11 lazy form at any k)   min    8.34 ms  median    8.50 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 16                                 min   14.85 ms  median   15.66 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 32                                 min   14.68 ms  median   15.01 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 64                                 min   12.44 ms  median   12.68 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 128 (the rule)                     min   12.38 ms  median   12.89 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 256                                min    7.65 ms  median    7.87 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 16                                  min   15.90 ms  median   16.18 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 32                                  min   12.92 ms  median   13.24 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 64 (the rule)                       min    9.56 ms  median    9.88 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 128                                 min    9.24 ms  median    9.63 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 256                                 min    8.47 ms  median    8.61 ms  (equal: yes)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 14.25s
+2026-11-05T15:20:02Z zkp-core pcs tests rc=0
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 57 filtered out; finished in 0.15s
+2026-11-05T15:20:02Z all done

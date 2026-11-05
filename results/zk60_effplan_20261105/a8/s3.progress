@@ -1,0 +1,48 @@
+2026-11-05T15:57:55Z start
+2026-11-05T15:57:55Z build rc=0
+2026-11-05T16:01:41Z d55 attribution A/B rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.606 s = 12.07 tok/s | mean 10.606 s = 12.07 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.773 s = 26.82 tok/s | mean 4.773 s = 26.82 tok/s | 2.22x serial (best)
+D55-AB SUMMARY | forks N=6 m11+cols+vecfill+phases | A7 GPU-policy A/B, interleaved, 6 passes | best 4.423 s = 28.94 tok/s | mean 4.601 s = 27.82 tok/s
+D55-AB SUMMARY | forks N=6 small+cols+vecfill+phases | A7 GPU-policy A/B, interleaved, 6 passes | best 4.231 s = 30.25 tok/s | mean 4.392 s = 29.15 tok/s
+D55-AB SUMMARY | forks N=6 m11+nocols+vecfill+phases | A7 GPU-policy A/B, interleaved, 6 passes | best 4.511 s = 28.38 tok/s | mean 4.621 s = 27.70 tok/s
+D55-AB SUMMARY | forks N=6 m11+cols+calloc+phases | A7 GPU-policy A/B, interleaved, 6 passes | best 4.702 s = 27.22 tok/s | mean 4.850 s = 26.39 tok/s
+D55-AB SUMMARY | forks N=6 small+nocols+calloc+phases | A7 GPU-policy A/B, interleaved, 6 passes | best 4.212 s = 30.39 tok/s | mean 4.560 s = 28.07 tok/s
+# A11 pairs: [small+cols+vecfill+phases] against [m11+cols+vecfill+phases], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -4.2% (3, 3) | -4.8% (3, 3) | **-4.5%** | 4.601 / 4.392 |
+| forks phase s | -4.4% (3, 3) | -5.1% (3, 3) | **-4.7%** | 4.230 / 4.029 |
+| user CPU s | -8.6% (3, 3) | -8.4% (3, 3) | **-8.5%** | 55.567 / 50.833 |
+| sys CPU s | +2.5% (3, 1) | +9.0% (3, 0) | **+5.7%** | 7.100 / 7.500 |
+| minor faults | -9.3% (3, 3) | -1.8% (3, 2) | **-5.5%** | 1,205,350 / 1,137,793 |
+# A11 pairs: [m11+nocols+vecfill+phases] against [m11+cols+vecfill+phases], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +3.0% (3, 0) | -2.0% (3, 2) | **+0.5%** | 4.601 / 4.621 |
+| forks phase s | +3.8% (3, 0) | -2.0% (3, 2) | **+0.9%** | 4.230 / 4.264 |
+| user CPU s | +1.1% (3, 0) | -0.9% (3, 3) | **+0.1%** | 55.567 / 55.617 |
+| sys CPU s | +2.3% (3, 1) | +5.7% (3, 0) | **+4.0%** | 7.100 / 7.367 |
+| minor faults | -5.8% (3, 2) | -0.2% (3, 2) | **-3.0%** | 1,205,350 / 1,161,554 |
+# A11 pairs: [m11+cols+calloc+phases] against [m11+cols+vecfill+phases], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +9.6% (3, 0) | +1.5% (3, 1) | **+5.6%** | 4.601 / 4.849 |
+| forks phase s | +10.5% (3, 0) | +1.4% (3, 1) | **+6.0%** | 4.230 / 4.476 |
+| user CPU s | +2.6% (3, 0) | -0.1% (3, 1) | **+1.2%** | 55.567 / 56.250 |
+| sys CPU s | +23.8% (3, 0) | +25.8% (3, 0) | **+24.8%** | 7.100 / 8.850 |
+| minor faults | +1.0% (3, 1) | +4.6% (3, 1) | **+2.8%** | 1,205,350 / 1,234,783 |
+# A11 pairs: [small+nocols+calloc+phases] against [m11+cols+vecfill+phases], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s3_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +0.4% (3, 1) | -2.1% (3, 3) | **-0.8%** | 4.601 / 4.560 |
+| forks phase s | +0.7% (3, 1) | -3.6% (3, 3) | **-1.5%** | 4.230 / 4.165 |
+| user CPU s | -7.5% (3, 3) | -8.1% (3, 3) | **-7.8%** | 55.567 / 51.250 |
+| sys CPU s | +15.4% (3, 0) | +26.4% (3, 0) | **+20.9%** | 7.100 / 8.550 |
+| minor faults | +1.1% (3, 1) | +3.3% (3, 2) | **+2.2%** | 1,205,350 / 1,225,476 |
+2026-11-05T16:01:41Z all done

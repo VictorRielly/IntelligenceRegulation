@@ -1,0 +1,63 @@
+2026-11-05T16:11:05Z start
+2026-11-05T16:13:30Z build rc=0
+2026-11-05T16:13:31Z word-for-word fold test rc=0
+test private_block::w16r2_tests::a8_store_fold_forms_equal_the_per_term_fold_word_for_word ... A8-FOLD-EQUAL: 765 fold forms equal the per-term fold, word for word
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 0.50s
+2026-11-05T16:13:35Z rung golden under every form rc=0
+test private_block::w16r2_tests::a8_w16r2_rung_golden_under_every_store_fold_form ... A8-RUNG W16R2_RUNG_H24 form M11 column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 r
+A8-RUNG W16R2_RUNG_H24 form M11 column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384, 10 rho x 202 rows x 16384); 90 forms equal the per-term fold wor
+A8-RUNG W16R2_RUNG_H24 form Sparse column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 90 forms equal the p
+A8-RUNG W16R2_RUNG_H24 form Sparse column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 90 forms equal the pe
+A8-RUNG W16R2_RUNG_H24 form Small column weights skipped false: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 90 forms equal the pe
+A8-RUNG W16R2_RUNG_H24 form Small column weights skipped true: digest 96e4f0b6 (the golden); 2 folds captured (37 rho x 320 rows x 16384 + 280, 10 rho x 202 rows x 16384 + 280); 90 forms equal the per
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 3.88s
+2026-11-05T16:29:03Z d55 A/B rc=0
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.254 s = 12.48 tok/s | mean 10.254 s = 12.48 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.522 s = 28.31 tok/s | mean 4.522 s = 28.31 tok/s | 2.27x serial (best)
+D55-AB SUMMARY | forks N=6 m11+cols | A7 GPU-policy A/B, interleaved, 6 passes | best 4.434 s = 28.87 tok/s | mean 4.595 s = 27.86 tok/s
+D55-AB SUMMARY | forks N=6 small+cols | A7 GPU-policy A/B, interleaved, 6 passes | best 4.124 s = 31.04 tok/s | mean 4.364 s = 29.33 tok/s
+D55-AB SUMMARY | forks N=6 small+nocols | A7 GPU-policy A/B, interleaved, 6 passes | best 4.270 s = 29.98 tok/s | mean 4.366 s = 29.31 tok/s
+D55-AB SUMMARY | forks N=6 SEALED m11+cols | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.721 s = 14.68 tok/s | mean 8.859 s = 14.45 tok/s
+D55-AB SUMMARY | forks N=6 SEALED small+cols | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.501 s = 15.06 tok/s | mean 8.570 s = 14.94 tok/s
+D55-AB SUMMARY | forks N=6 SEALED small+nocols | A7 GPU-policy A/B, one request from its input, interleaved, 6 passes | best 8.292 s = 15.44 tok/s | mean 8.527 s = 15.01 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 m11+cols | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 23.38 tok/s (best 24.08) | amortized mean 19.87 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 small+cols | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 24.00 tok/s (best 24.28) | amortized mean 20.51 tok/s
+D55-AB SUMMARY | PIPE 4 N=6 small+nocols | A7 GPU-policy A/B, stream, interleaved, 6 passes | steady state mean 23.62 tok/s (best 24.38) | amortized mean 20.31 tok/s
+# A11 pairs: [small+cols] against [m11+cols], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -3.0% (3, 2) | -6.8% (3, 3) | **-4.9%** | 4.595 / 4.364 |
+| forks phase s | -2.4% (3, 2) | -7.3% (3, 3) | **-4.9%** | 4.211 / 4.002 |
+| sealed wall s | -3.3% (3, 3) | -3.2% (3, 3) | **-3.3%** | 8.859 / 8.570 |
+| stream steady tok/s | +1.1% (3, 2) | +4.3% (3, 3) | **+2.7%** | 23.377 / 23.998 |
+| stream amortized tok/s | +2.5% (3, 3) | +4.0% (3, 3) | **+3.3%** | 19.872 / 20.515 |
+| user CPU s | -7.9% (3, 3) | -9.0% (3, 3) | **-8.5%** | 55.717 / 50.983 |
+| sys CPU s | +3.5% (3, 1) | +10.2% (3, 0) | **+6.9%** | 6.717 / 7.150 |
+| minor faults | +1.3% (3, 1) | -3.6% (3, 2) | **-1.2%** | 1,108,763 / 1,094,439 |
+# A11 pairs: [small+nocols] against [m11+cols], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -6.4% (3, 3) | -3.4% (3, 2) | **-4.9%** | 4.595 / 4.367 |
+| forks phase s | -5.7% (3, 3) | -3.5% (3, 2) | **-4.6%** | 4.211 / 4.013 |
+| sealed wall s | -5.1% (3, 3) | -2.4% (3, 2) | **-3.7%** | 8.859 / 8.527 |
+| stream steady tok/s | +1.0% (3, 2) | +1.0% (3, 3) | **+1.0%** | 23.377 / 23.617 |
+| stream amortized tok/s | +2.5% (3, 3) | +1.9% (3, 3) | **+2.2%** | 19.872 / 20.310 |
+| user CPU s | -8.6% (3, 3) | -7.7% (3, 3) | **-8.2%** | 55.717 / 51.167 |
+| sys CPU s | +3.5% (3, 0) | +6.9% (3, 2) | **+5.2%** | 6.717 / 7.017 |
+| minor faults | +4.2% (3, 0) | -1.7% (3, 2) | **+1.3%** | 1,108,763 / 1,120,191 |
+# A11 pairs: [small+nocols] against [small+cols], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6902a0faf57242d4/results/zk60_effplan_20261105/a8/s4_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -3.4% (3, 3) | +3.8% (3, 0) | **+0.2%** | 4.364 / 4.367 |
+| forks phase s | -3.4% (3, 3) | +4.2% (3, 0) | **+0.4%** | 4.002 / 4.013 |
+| sealed wall s | -1.9% (3, 3) | +0.9% (3, 2) | **-0.5%** | 8.570 / 8.527 |
+| stream steady tok/s | -0.1% (3, 2) | -3.1% (3, 1) | **-1.6%** | 23.998 / 23.617 |
+| stream amortized tok/s | +0.0% (3, 2) | -2.0% (3, 0) | **-1.0%** | 20.515 / 20.310 |
+| user CPU s | -0.7% (3, 3) | +1.5% (3, 1) | **+0.4%** | 50.983 / 51.167 |
+| sys CPU s | +0.2% (3, 1) | -3.5% (3, 2) | **-1.6%** | 7.150 / 7.017 |
+| minor faults | +2.9% (3, 1) | +1.9% (3, 2) | **+2.4%** | 1,094,439 / 1,120,191 |
+2026-11-05T16:29:04Z all done

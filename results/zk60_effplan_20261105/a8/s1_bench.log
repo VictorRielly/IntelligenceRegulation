@@ -1,0 +1,1167 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:162:12
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:165:9
+    |
+165 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:345:9
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:345:33
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:346:25
+    |
+346 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:350:9
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:350:39
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1940:4
+     |
+1940 | fn cpu_seconds() -> f64 {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 28 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.02s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-b2214a04082e3802)
+
+running 1 test
+test private_block::w16r2_tests::a8_store_fold_census_and_bench_on_the_8b_block ... A8-CENSUS W16R2_8B_T128_H24 A rows 2504 H rows 2606 n 16384
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.031 s, gpu total 0.042 s (inverse 0.010, init 0.000, forward 0.019, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.030 s, gpu total 0.036 s (inverse 0.011, init 0.000, forward 0.021, hash 0.002)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (W16R2_8B_T128_H24)
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.003 s |      1048576 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] compiled a slot library (2 tables, degree 3, 7341 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0007 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 3), batch + replay 0.0023 s, then 9 host rounds
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.004 s |       524288 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] compiled a slot library (2 tables, degree 3, 7343 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 12 of 19 rounds batched (degree 3), batch + replay 0.0025 s, then 7 host rounds
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         3200 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.000 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] compiled a slot library (5 tables, degree 4, 8754 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0002 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0020 s, then 6 host rounds
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.003 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.003 s |      2097152 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] compiled a slot library (4 tables, degree 3, 7885 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0025 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0027 s, then 8 host rounds
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.006 s |       524288 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.001 s |        32768 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.023 s |     18874368 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] compiled a slot library (36 tables, degree 4, 22917 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 36 tables x 2^19 in 0.0012 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0166 s, then 4 host rounds
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.018 s |       524288 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.012 s |      7864320 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] compiled a slot library (15 tables, degree 4, 12890 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^19 in 0.0006 s
+[ZK60-METAL M6] 14 of 19 rounds batched (degree 4), batch + replay 0.0064 s, then 5 host rounds
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.007 s |       524288 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.001 s |      1966080 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |       131072 |
+[ZK60-METAL] compiled a slot library (15 tables, degree 4, 12894 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^17 in 0.0003 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0032 s, then 5 host rounds
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.004 s |       131072 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.015 s |      9961472 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] compiled a slot library (19 tables, degree 4, 15210 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^19 in 0.0005 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0087 s, then 4 host rounds
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.010 s |       524288 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.047 s |     39845888 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |      2097152 |
+[ZK60-METAL] compiled a slot library (19 tables, degree 5, 15529 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^21 in 0.0017 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0260 s, then 4 host rounds
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.028 s |      2097152 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.001 s |       950272 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] compiled a slot library (58 tables, degree 3, 29999 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 58 tables x 2^14 in 0.0011 s
+[ZK60-METAL M6] 9 of 14 rounds batched (degree 3), batch + replay 0.0067 s, then 5 host rounds
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.009 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.003 s |      1572864 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] compiled a slot library (3 tables, degree 2, 7604 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 2), batch + replay 0.0021 s, then 9 host rounds
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] compiled a slot library (3 tables, degree 2, 7606 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 2), batch + replay 0.0015 s, then 9 host rounds
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+[ZK60-METAL] store fold: 37 rho x 2504 rows x 16384 cols (zk data) in 0.0091 s
+[ZK60-METAL] store columns: 280 x 2504 rows in 0.0012 s
+[ZK60-METAL] store fold: 10 rho x 2606 rows x 16384 cols (zk data) in 0.0087 s
+[ZK60-METAL] store columns: 280 x 2606 rows in 0.0013 s
+A8-CENSUS cold pass (M11 forms) prove core 0.602 s digest e17a4a5a5ecd3667
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.025 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (W16R2_8B_T128_H24)
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.002 s |      1048576 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.002 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 3), batch + replay 0.0022 s, then 9 host rounds
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.002 s |      1048576 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0023 s, then 8 host rounds
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         3200 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.000 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0014 s, then 6 host rounds
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.002 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.001 s |      2097152 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.002 s |       524288 |
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0025 s, then 8 host rounds
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.001 s |        32768 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.003 s |     18874368 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 36 tables x 2^19 in 0.0011 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 4), batch + replay 0.0158 s, then 3 host rounds
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.017 s |       524288 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.002 s |      7864320 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^19 in 0.0005 s
+[ZK60-METAL M6] 14 of 19 rounds batched (degree 4), batch + replay 0.0061 s, then 5 host rounds
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.007 s |       524288 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.001 s |      1966080 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |       131072 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^17 in 0.0003 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0037 s, then 5 host rounds
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.004 s |       131072 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.002 s |      9961472 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^19 in 0.0007 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0081 s, then 4 host rounds
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.009 s |       524288 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.006 s |     39845888 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |      2097152 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^21 in 0.0017 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0260 s, then 4 host rounds
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.028 s |      2097152 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.001 s |       950272 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup (tables in place): 58 tables x 2^14 in 0.0012 s
+[ZK60-METAL M6] 10 of 14 rounds batched (degree 3), batch + replay 0.0057 s, then 4 host rounds
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.007 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0019 s, then 11 host rounds
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0015 s, then 10 host rounds
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+[ZK60-METAL] store fold: 37 rho x 2504 rows x 16384 cols (zk data) in 0.0082 s
+[ZK60-METAL] store columns: 280 x 2504 rows in 0.0011 s
+[ZK60-METAL] store fold: 10 rho x 2606 rows x 16384 cols (zk data) in 0.0083 s
+[ZK60-METAL] store columns: 280 x 2606 rows in 0.0010 s
+A8-CENSUS prove core [m11+cols] 0.369 s (digest equal) | open M (zk::mask_open, ONE call) 3.06 ms | open A (schedule audit + pcs::open_zk) 21.34 ms | open H (schedule audit + pcs::open_zk) 16.10 ms
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (W16R2_8B_T128_H24)
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0023 s, then 8 host rounds
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 3), batch + replay 0.0016 s, then 9 host rounds
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         3200 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.000 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 9 of 14 rounds batched (degree 4), batch + replay 0.0021 s, then 5 host rounds
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.002 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.002 s |      2097152 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0005 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0026 s, then 8 host rounds
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.004 s |       524288 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.001 s |        32768 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.004 s |     18874368 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 36 tables x 2^19 in 0.0011 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 4), batch + replay 0.0159 s, then 3 host rounds
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.017 s |       524288 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.002 s |      7864320 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^19 in 0.0005 s
+[ZK60-METAL M6] 14 of 19 rounds batched (degree 4), batch + replay 0.0061 s, then 5 host rounds
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.007 s |       524288 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.001 s |      1966080 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |       131072 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^17 in 0.0003 s
+[ZK60-METAL M6] 13 of 17 rounds batched (degree 4), batch + replay 0.0034 s, then 4 host rounds
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.004 s |       131072 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.002 s |      9961472 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^19 in 0.0006 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0080 s, then 4 host rounds
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.009 s |       524288 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.046 s |     39845888 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |      2097152 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^21 in 0.0018 s
+[ZK60-METAL M6] 18 of 21 rounds batched (degree 5), batch + replay 0.0262 s, then 3 host rounds
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.028 s |      2097152 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.001 s |       950272 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup (tables in place): 58 tables x 2^14 in 0.0012 s
+[ZK60-METAL M6] 9 of 14 rounds batched (degree 3), batch + replay 0.0052 s, then 5 host rounds
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.006 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+[ZK60-METAL] store fold with pads (Sparse): 37 rho x 2504 rows x (16384 + 280) cols (zk data) in 0.0304 s
+[ZK60-METAL] store columns: 280 x 2504 rows in 0.0011 s
+[ZK60-METAL] store fold with pads (Sparse): 10 rho x 2606 rows x (16384 + 280) cols (zk data) in 0.0310 s
+[ZK60-METAL] store columns: 280 x 2606 rows in 0.0010 s
+A8-CENSUS prove core [sparse+nocols] 0.412 s (digest equal) | open M (zk::mask_open, ONE call) 3.06 ms | open A (schedule audit + pcs::open_zk) 38.05 ms | open H (schedule audit + pcs::open_zk) 34.94 ms
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (W16R2_8B_T128_H24)
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 3), batch + replay 0.0017 s, then 9 host rounds
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0017 s, then 8 host rounds
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         3200 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.000 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0013 s, then 6 host rounds
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.002 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.001 s |      2097152 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0004 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0025 s, then 8 host rounds
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.001 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.001 s |        32768 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.003 s |     18874368 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 36 tables x 2^19 in 0.0012 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0148 s, then 4 host rounds
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.016 s |       524288 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.002 s |      7864320 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^19 in 0.0005 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0062 s, then 4 host rounds
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.007 s |       524288 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.001 s |      1966080 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |       131072 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^17 in 0.0003 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0032 s, then 5 host rounds
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.004 s |       131072 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.002 s |      9961472 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^19 in 0.0005 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0080 s, then 4 host rounds
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.009 s |       524288 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.006 s |     39845888 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |      2097152 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^21 in 0.0017 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0259 s, then 4 host rounds
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.028 s |      2097152 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.001 s |       950272 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup (tables in place): 58 tables x 2^14 in 0.0011 s
+[ZK60-METAL M6] 10 of 14 rounds batched (degree 3), batch + replay 0.0056 s, then 4 host rounds
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.007 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0019 s, then 10 host rounds
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 2), batch + replay 0.0015 s, then 9 host rounds
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+[ZK60-METAL] store fold with pads (Small): 37 rho x 2504 rows x (16384 + 280) cols (zk data) in 0.0118 s
+[ZK60-METAL] store columns: 280 x 2504 rows in 0.0011 s
+[ZK60-METAL] store fold with pads (Small): 10 rho x 2606 rows x (16384 + 280) cols (zk data) in 0.0099 s
+[ZK60-METAL] store columns: 280 x 2606 rows in 0.0011 s
+A8-CENSUS prove core [small+nocols] 0.334 s (digest equal) | open M (zk::mask_open, ONE call) 3.07 ms | open A (schedule audit + pcs::open_zk) 19.56 ms | open H (schedule audit + pcs::open_zk) 13.84 ms
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.002 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.008, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (W16R2_8B_T128_H24)
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.002 s |      1048576 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0023 s, then 8 host rounds
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 3), batch + replay 0.0016 s, then 9 host rounds
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         3200 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.000 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 9 of 14 rounds batched (degree 4), batch + replay 0.0015 s, then 5 host rounds
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.002 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.003 s |      2097152 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0004 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0024 s, then 8 host rounds
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.008 s |         3072 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.001 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.001 s |         3072 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.001 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.002 s |         8192 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.002 s |        32768 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.006 s |     18874368 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 36 tables x 2^19 in 0.0014 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 4), batch + replay 0.0153 s, then 3 host rounds
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.017 s |       524288 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.003 s |      7864320 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^19 in 0.0006 s
+[ZK60-METAL M6] 14 of 19 rounds batched (degree 4), batch + replay 0.0060 s, then 5 host rounds
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.007 s |       524288 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.001 s |      1966080 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |       131072 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^17 in 0.0003 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0037 s, then 5 host rounds
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.004 s |       131072 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.011 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.013 s |      9961472 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^19 in 0.0053 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0080 s, then 4 host rounds
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.014 s |       524288 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.013 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.038 s |     39845888 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |      2097152 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^21 in 0.0021 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0258 s, then 4 host rounds
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.028 s |      2097152 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.001 s |       950272 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup (tables in place): 58 tables x 2^14 in 0.0011 s
+[ZK60-METAL M6] 10 of 14 rounds batched (degree 3), batch + replay 0.0058 s, then 4 host rounds
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.007 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 7 of 19 rounds batched (degree 2), batch + replay 0.0018 s, then 12 host rounds
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0014 s, then 10 host rounds
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+[ZK60-METAL] store fold: 37 rho x 2504 rows x 16384 cols (zk data) in 0.0086 s
+[ZK60-METAL] store columns: 280 x 2504 rows in 0.0010 s
+[ZK60-METAL] store fold: 10 rho x 2606 rows x 16384 cols (zk data) in 0.0083 s
+[ZK60-METAL] store columns: 280 x 2606 rows in 0.0011 s
+A8-CENSUS prove core [m11+cols] 0.461 s (digest equal) | open M (zk::mask_open, ONE call) 3.16 ms | open A (schedule audit + pcs::open_zk) 21.91 ms | open H (schedule audit + pcs::open_zk) 16.31 ms
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.008, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (W16R2_8B_T128_H24)
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.003 s |      1048576 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0018 s, then 8 host rounds
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 3), batch + replay 0.0015 s, then 10 host rounds
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         3200 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.000 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0014 s, then 6 host rounds
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.002 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.001 s |      2097152 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0004 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0025 s, then 8 host rounds
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.000 s |         8192 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.001 s |        32768 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.004 s |     18874368 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 36 tables x 2^19 in 0.0012 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0153 s, then 4 host rounds
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.017 s |       524288 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.002 s |      7864320 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^19 in 0.0004 s
+[ZK60-METAL M6] 14 of 19 rounds batched (degree 4), batch + replay 0.0061 s, then 5 host rounds
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.007 s |       524288 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.001 s |      1966080 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |       131072 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^17 in 0.0003 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0037 s, then 5 host rounds
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.004 s |       131072 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.002 s |      9961472 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^19 in 0.0006 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0083 s, then 4 host rounds
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.009 s |       524288 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.006 s |     39845888 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |      2097152 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^21 in 0.0020 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0259 s, then 4 host rounds
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.028 s |      2097152 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.001 s |       950272 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup (tables in place): 58 tables x 2^14 in 0.0013 s
+[ZK60-METAL M6] 9 of 14 rounds batched (degree 3), batch + replay 0.0051 s, then 5 host rounds
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.007 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0019 s, then 11 host rounds
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+[ZK60-METAL] store fold with pads (Sparse): 37 rho x 2504 rows x (16384 + 280) cols (zk data) in 0.0137 s
+[ZK60-METAL] store columns: 280 x 2504 rows in 0.0011 s
+[ZK60-METAL] store fold with pads (Sparse): 10 rho x 2606 rows x (16384 + 280) cols (zk data) in 0.0127 s
+[ZK60-METAL] store columns: 280 x 2606 rows in 0.0011 s
+A8-CENSUS prove core [sparse+nocols] 0.337 s (digest equal) | open M (zk::mask_open, ONE call) 3.07 ms | open A (schedule audit + pcs::open_zk) 21.46 ms | open H (schedule audit + pcs::open_zk) 16.66 ms
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2606 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (W16R2_8B_T128_H24)
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 3), batch + replay 0.0022 s, then 9 host rounds
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.001 s |      1048576 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0018 s, then 8 host rounds
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         3200 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.000 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0013 s, then 6 host rounds
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.002 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.001 s |      2097152 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |       524288 |
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 10 of 19 rounds batched (degree 3), batch + replay 0.0024 s, then 9 host rounds
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.003 s |       524288 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.002 s |         3072 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.001 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         8192 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.002 s |        32768 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.000 s |        16384 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.004 s |     18874368 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 36 tables x 2^19 in 0.0011 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 4), batch + replay 0.0151 s, then 3 host rounds
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.016 s |       524288 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.002 s |      7864320 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^19 in 0.0006 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0062 s, then 4 host rounds
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.007 s |       524288 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.001 s |      1966080 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |       131072 |
+[ZK60-METAL] sumcheck setup (tables in place): 15 tables x 2^17 in 0.0003 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0038 s, then 5 host rounds
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.004 s |       131072 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.002 s |      9961472 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^19 in 0.0006 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0083 s, then 4 host rounds
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.009 s |       524288 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.006 s |     39845888 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |      2097152 |
+[ZK60-METAL] sumcheck setup (tables in place): 19 tables x 2^21 in 0.0017 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0262 s, then 4 host rounds
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.028 s |      2097152 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.001 s |       950272 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+[ZK60-METAL] sumcheck setup (tables in place): 58 tables x 2^14 in 0.0013 s
+[ZK60-METAL M6] 10 of 14 rounds batched (degree 3), batch + replay 0.0057 s, then 4 host rounds
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.007 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0015 s, then 10 host rounds
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.001 s |      1572864 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0002 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0014 s, then 10 host rounds
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.002 s |       524288 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+[ZK60-METAL] store fold with pads (Small): 37 rho x 2504 rows x (16384 + 280) cols (zk data) in 0.0115 s
+[ZK60-METAL] store columns: 280 x 2504 rows in 0.0010 s
+[ZK60-METAL] store fold with pads (Small): 10 rho x 2606 rows x (16384 + 280) cols (zk data) in 0.0101 s
+[ZK60-METAL] store columns: 280 x 2606 rows in 0.0010 s
+A8-CENSUS prove core [small+nocols] 0.331 s (digest equal) | open M (zk::mask_open, ONE call) 3.14 ms | open A (schedule audit + pcs::open_zk) 19.11 ms | open H (schedule audit + pcs::open_zk) 13.88 ms
+A8-CENSUS 2 store folds captured: 37 rho x 2504 rows, 10 rho x 2606 rows
+A8-CENSUS fold 0: 37 rho x 2504 rows x (16384 + 280) cols | nonzero coefficients 5658 (2.26 rows' worth; per vector [34, 34, 18, 6, 6, 6, 6, 6, 6, 6, 6, 6, 68, 34, 34, 34, 34, 10, 34, 10, 34, 34, 34, 130, 646, 6, 204, 34, 60, 10, 272, 6, 1170, 48, 34, 34, 2504]) | per row max 11, rows with none 0 | small16 rows 1900 of 2504, small32 rows 2280; small16 words 84.7%; small16 32-column chunks, weighted by coefficients, 85.0% of the updates
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6:   of which the pads per-term (one chunk)       min    2.39 ms  median    2.45 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: m11 + pads per-term (before A8)                min   24.24 ms  median   24.43 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6:   of which the m11 message fold                min   21.28 ms  median   21.64 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: lazy256 message (the M11 lazy form at any k)   min   23.35 ms  median   23.65 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 16                                 min   51.56 ms  median   55.22 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 32 (the rule)                      min   47.90 ms  median   52.17 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 64                                 min   38.07 ms  median   42.22 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 128                                min   34.31 ms  median   43.91 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 sparse w 256                                min   22.16 ms  median   22.64 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 16                                  min   48.86 ms  median   53.74 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 32 (the rule)                       min   43.81 ms  median   44.34 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 64                                  min   28.03 ms  median   28.65 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 128                                 min   24.51 ms  median   25.41 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool  6: a8 small w 256                                 min   20.82 ms  median   21.14 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32:   of which the pads per-term (one chunk)       min    2.40 ms  median    2.42 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: m11 + pads per-term (before A8)                min    9.42 ms  median   10.09 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32:   of which the m11 message fold                min    6.79 ms  median    7.12 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: lazy256 message (the M11 lazy form at any k)   min    8.01 ms  median    8.22 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 16                                 min   14.10 ms  median   14.95 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 32 (the rule)                      min   13.22 ms  median   13.52 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 64                                 min   11.28 ms  median   11.95 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 128                                min   11.56 ms  median   11.89 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 sparse w 256                                min    7.75 ms  median    8.01 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 16                                  min   15.16 ms  median   16.20 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 32 (the rule)                       min   11.31 ms  median   11.65 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 64                                  min    8.05 ms  median    8.37 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 128                                 min    7.37 ms  median    7.82 ms  (equal: yes)
+A8-BENCH fold 0 (37 rho x 2504 rows) pool 32: a8 small w 256                                 min    7.03 ms  median    7.24 ms  (equal: yes)
+A8-CENSUS fold 1: 10 rho x 2606 rows x (16384 + 280) cols | nonzero coefficients 7726 (2.96 rows' worth; per vector [4, 660, 198, 54, 330, 1290, 64, 4, 2516, 2606]) | per row max 3, rows with none 0 | small16 rows 0 of 2606, small32 rows 0; small16 words 1.2%; small16 32-column chunks, weighted by coefficients, 1.0% of the updates
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6:   of which the pads per-term (one chunk)       min    3.10 ms  median    3.11 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: m11 + pads per-term (before A8)                min   30.44 ms  median   32.11 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6:   of which the m11 message fold                min   27.22 ms  median   28.94 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: lazy256 message (the M11 lazy form at any k)   min   27.22 ms  median   28.96 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 16                                 min   55.85 ms  median   59.42 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 32                                 min   55.93 ms  median   60.03 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 64                                 min   43.70 ms  median   47.12 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 128 (the rule)                     min   39.41 ms  median   49.73 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 sparse w 256                                min   26.38 ms  median   27.07 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 16                                  min   57.48 ms  median   58.50 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 32                                  min   54.07 ms  median   54.60 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 64 (the rule)                       min   37.39 ms  median   37.59 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 128                                 min   34.86 ms  median   35.07 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool  6: a8 small w 256                                 min   29.46 ms  median   29.78 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32:   of which the pads per-term (one chunk)       min    3.09 ms  median    3.13 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: m11 + pads per-term (before A8)                min   11.49 ms  median   11.62 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32:   of which the m11 message fold                min    8.15 ms  median    8.27 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: lazy256 message (the M11 lazy form at any k)   min    8.34 ms  median    8.50 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 16                                 min   14.85 ms  median   15.66 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 32                                 min   14.68 ms  median   15.01 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 64                                 min   12.44 ms  median   12.68 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 128 (the rule)                     min   12.38 ms  median   12.89 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 sparse w 256                                min    7.65 ms  median    7.87 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 16                                  min   15.90 ms  median   16.18 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 32                                  min   12.92 ms  median   13.24 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 64 (the rule)                       min    9.56 ms  median    9.88 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 128                                 min    9.24 ms  median    9.63 ms  (equal: yes)
+A8-BENCH fold 1 (10 rho x 2606 rows) pool 32: a8 small w 256                                 min    8.47 ms  median    8.61 ms  (equal: yes)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1026 filtered out; finished in 14.25s
+
