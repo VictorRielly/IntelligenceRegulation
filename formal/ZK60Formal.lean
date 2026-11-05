@@ -38,3 +38,8 @@ import ZK60Formal.FSOpening
 import ZK60Formal.FSCompose
 import ZK60Formal.FSComposeBlock
 import ZK60Formal.FSComposeZeroCheck
+import ZK60Formal.FSPathWide
+import ZK60Formal.FSPathRbr
+import ZK60Formal.FSPath
+import ZK60Formal.FSPathSched
+import ZK60Formal.FSPathBlock

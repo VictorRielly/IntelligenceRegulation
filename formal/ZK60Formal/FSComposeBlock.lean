@@ -40,7 +40,9 @@ window, so its claim may be fixed by earlier rounds):
   same rate. More blocks only lengthen `ℓW`.
 * `sound_le_target`, `fs_run_sound_8B_target`: in the approved target's own form, `εsTarget (max q (ℓW + 1))` for
   `q ≤ 2^76` (with `ℓW + 1 ≤ 2^76`). The verifier's own `ℓW + 1` hash queries count as attempts: below that many prover
-  queries the bound is `εsTarget (ℓW + 1)`, not `εsTarget q` (finding F25).
+  queries the bound is `εsTarget (ℓW + 1)`, not `εsTarget q` (finding F25). `FSPathBlock.lean`'s
+  `fs_path_run_8B_target` charges the verifier's positions their own rounds' errors along the doom's path and gets
+  `εsTarget q` for every `q ≤ 2^75` (findings Part 9, F40).
 
 **What is assumed** (premises of `fs_block_sound_8B`, `fs_run_sound_8B`): how the sub-protocols' claims fit together.
 * `hframe`: a round never revives a sub-protocol it does not own, unless a later one is already doomed (claims are

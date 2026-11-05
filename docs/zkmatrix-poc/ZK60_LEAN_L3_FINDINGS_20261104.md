@@ -1905,3 +1905,248 @@ Per hash query; `|F| = p²`; 8B T128, W16R2, `Q = 280` (Part 6 §U2/§U4).
 - **The code-level instance** (unchanged from Part 6): `ChainEnc` for keyed BLAKE3, the header's absorbs, the counter
   offset, and the registered profile's `ℓW`.
 - **`KnowledgeSound`** of `Statements.lean`.
+
+# Part 9 (2026-11-05): the query-free part, path by path (F25; Victor's ruling D66(4), option (a))
+
+New files under `formal/ZK60Formal/`: `FSPathWide.lean`, `FSPathRbr.lean`, `FSPath.lean`, `FSPathSched.lean`,
+`FSPathBlock.lean`.
+- `lake -d formal build` succeeds with no warnings (3407 jobs, 60 modules). Each new module was also built alone,
+  through the resource guard. No file uses `sorry`, `axiom`, `admit`, `native_decide`, `implemented_by` or a
+  `maxHeartbeats` option.
+- `#print axioms` was run on all 71 theorems of the five files. Each depends on `propext`, `Classical.choice` and
+  `Quot.sound` only, or on fewer (eight on `propext` alone, four on `propext` and `Quot.sound`).
+- No new lake dependency. No third-party code was read or adapted. Only comments were added to existing files (none
+  changed a statement).
+- Written in parallel with Part 8 (the D55 fork tree, F26), in separate files.
+
+**Scope.** `Statements.lean`'s model, as in Parts 5–7: one uniformly random `H : Q → D`; the prover is a deterministic
+`OC Q D _` making at most `q` hash queries and choosing the statement; the transcript is the code's hash chain.
+
+## W1. What is proved
+
+**The sharper Fiat–Shamir count (task 1)** (`FSPathWide.lean`, `FSPathRbr.lean`).
+- `wideHit_prob_le_pos`: `FSWide.lean`'s wide-digest lemma with a bound that depends on the position. If the set named
+  at a position (by the log before it and its query) has probability at most `f P y`, a wide fresh hit has probability
+  at most `B` whenever the charges `f` along the run sum to at most `B` for EVERY oracle. The proof is the same swap
+  bijection, summed oracle by oracle instead of bounded by a constant.
+- `chain_sound_wide_seq`: `chain_sound_wide` with per-step errors `e τ it`:
+```lean
+theorem chain_sound_wide_seq (C : ChainEnc It Q D) (S : Steps It) (St : List (Q × D) → List (It × D) → Prop)
+    (s : ℕ) (e : List (It × D) → It → ℝ≥0∞) (εmax : ℝ≥0∞) (he : ∀ τ it, e τ it ≤ εmax)
+    (hround : ∀ P τ it, s ≤ τ.length → (∃ hs : List It, τ.map Prod.fst = hs.flatMap S.items) → ¬ St P τ →
+      (PMF.uniformOfFintype (Fin (S.wd it) → D)).toOuterMeasure {b | St P (τ ++ S.ents it (List.ofFn b))}
+        ≤ e τ it)
+    (hstab : …) {α : Type} (heads : α → List It) (ℓ : ℕ) (hℓ : ∀ o, ((heads o).flatMap S.items).length ≤ ℓ)
+    (B : ℝ≥0∞) (hB : ∀ (H : Q → D) (o : α), C.vSumFrom e H [] ((heads o).flatMap S.items) ≤ B)
+    (q : ℕ) (A : OC Q D α) (hA : A.Bounded q) :
+    prH (fun H => ¬ St ((C.stepRun S heads A).runLog H).2
+          (C.chainFrom H [] (((heads (A.run H)).take s).flatMap S.items))
+        ∧ St ((C.stepRun S heads A).runLog H).2 (C.chainFrom H [] ((heads (A.run H)).flatMap S.items)))
+      ≤ (q : ℝ≥0∞) * εmax + B + collBound (q + ℓ + 1) D + collBound (q + ℓ + 1 + 1) D
+```
+  - A prover's position is charged `εmax`: a prover query may attack any round.
+  - A verifier's position is charged the error of ITS OWN step from ITS OWN chain (`vSumFrom` sums them). The prover is
+    replayed on the log (`OC.replay`) to find where its part ends; the verifier's chain is read back from its own log
+    entries (`vChainOf`, `vChainOf_take`), so the charge is a function of the log before the query.
+  - The named set at a verifier's position is restricted to the case where the traced-back chain IS the verifier's
+    own (`ChainEnc.posBad`). At the escaping step's first occurrence this holds outside the collision and guess
+    events: both chains trace back to themselves and end at the same digest.
+- `RbrWideT`: round-by-round soundness with errors `er x τ m` that may depend on the statement, the transcript so far
+  and the round's MESSAGE. `liftStW_roundT` lifts it to chains (a round's first squeeze is charged its round's error,
+  every other item nothing); `vSumFrom_roundHeads` shows that the verifier's charge along its own chain is the
+  transcript sum `trSumFrom er x [] τ` of the rounds it reads.
+```lean
+theorem fs_chain_sound_of_rbrWideT (hw : ∀ i, 0 < w i) (C : ChainEnc (PItem X M) Q D) {Mf : Type}
+    {L : X → Prop} {accept : X → List (M × List D) → Mf → Prop} {St : X → List (M × List D) → Prop}
+    {er : X → List (M × List D) → M → ℝ≥0∞} (hR : RbrWideT n w St er) (εmax : ℝ≥0∞)
+    (hε : ∀ x τ m, τ.length < n → er x τ m ≤ εmax) (B : ℝ≥0∞)
+    (hB : ∀ x τ, τ.length ≤ n → trSumFrom er x [] τ ≤ B) (hstart : ∀ x, ¬ L x → ¬ St x [])
+    (hfinal : ∀ x τ mf, τ.length = n → ¬ St x τ → ¬ accept x τ mf)
+    (q : ℕ) (A : OC Q D (X × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ L (A.run H).1
+        ∧ chainAcceptsW n w hw hasMsg m₀ accept C H (A.run H).1 (A.run H).2.1 (A.run H).2.2)
+      ≤ (q : ℝ≥0∞) * εmax + B + collBound (q + ℓW n w + 1) D + collBound (q + ℓW n w + 1 + 1) D
+```
+- For `FSCompose.lean`'s compositions (`Composed.toZ`, `fs_chain_sound_of_composed_sum`, `fs_chain_sound_sched_sum`):
+  `q·εmax + Σ_{i<n} er i + collision terms`; on a schedule, `q·ε + Σ_k n_k·ε_k + …`. The query-free part is the
+  interactive union, as F25 predicted.
+- A worked instance with every premise proved (`fs_zerocheck_chain_sound_sum`): the zero-check with its sumcheck on the
+  chain, `q·max(τ term, round term) + (τ term + n·round term) + collision terms`. The query-free part is
+  `SoundZeroCheck.lean`'s interactive `(n + n·(d + 1))/|F|`, times the derivation's bias.
+
+**The path-wise bound (task 2)** (`FSPath.lean`, `FSPathSched.lean`).
+- **Zones.** The proof follows ONE doom. The set of sub-protocols that may hold it is the zone; the zone in force for
+  round `τ.length` is chosen by that round's message (`zone x τ m`), so it can move when a commitment decides where a
+  doom goes. A sub-protocol's state after a round's message is `pre` (a claim fixed by the message is doomed there).
+```lean
+structure ZComposed [LinearOrder J] (n : ℕ) (w : ℕ → ℕ) (own : ℕ → J) (S : J → X → List (M × List D) → Prop)
+    (pre : J → X → List (M × List D) → M → Prop) (er : ℕ → ℝ≥0∞) (zone₀ : X → Finset J)
+    (zone : X → List (M × List D) → M → Finset J) : Prop where
+  own_round : ∀ x τ m, τ.length < n → ¬ pre (own τ.length) x τ m →
+    (PMF.uniformOfFintype (Fin (w τ.length) → D)).toOuterMeasure
+      {b | S (own τ.length) x (τ ++ [(m, List.ofFn b)])} ≤ er τ.length
+  hand : ∀ x τ m, τ.length < n → (∃ j ∈ lastZone zone₀ zone x τ, ¬ S j x τ) → ∃ j ∈ zone x τ m, ¬ pre j x τ m
+  frame : ∀ j x τ m (b : Fin (w τ.length) → D), τ.length < n → own τ.length ≠ j → j ∈ zone x τ m →
+    ¬ pre j x τ m → S j x (τ ++ [(m, List.ofFn b)]) → ∃ j' ∈ zone x τ m, j < j' ∧ ¬ pre j' x τ m
+```
+- `ZComposed.rbrWideT`: the combined state "every sub-protocol of the zone alive" is `RbrWideT`, a round charged its
+  error ONLY when its owner is in the zone its message chose (`zEr`). The proof is `Composed.rbrWide`'s, inside the
+  zone: the largest `pre`-doomed member either owns the round or cannot be revived.
+- `fs_chain_sound_of_zpath`: if along every transcript the charged rounds are owned by the sub-protocols of one set
+  `Zb` whose round errors sum to at most `B`, then **`Pr ≤ q·εmax + B + collision terms`**. With `q = 0` this is the
+  probability of a cheat that hashes nothing: at most the largest path sum `B`, plus `≈ ℓW²/2^256`.
+- `SubProtP` (`FSPathSched.lean`): sub-protocols with PER-ROUND errors and a `pre` state, one after the other on one
+  chain; `schedP_zcomposed` gets `own_round` from each sub-protocol's own `rbr`; `sumErOfP_zone` adds a zone's round
+  errors up to its sub-protocols' totals; `fs_chain_sound_schedP_path` is the schedule form. `SubProt.toP` carries
+  Part 7's sub-protocols over.
+
+**The 8B instance (task 3)** (`FSPathBlock.lean`).
+- Sub-protocols with per-round errors, each tagged with what it contributes to a zone (`Tag8B`, `Kind8BP`):
+  - `logupP` (`lu`): LogUp's fold `2T_d/p²·(1 + p/2^128)^4`, then `α`, `(N_lk + 2T_d − 1)/p²·(1 + p/2^128)^4`; its
+    lookups are read off its first round's MESSAGE (F41). Total `≤ 136/2^110` (`luTot_8B_le`).
+  - `openingP` (`op`): the field term, then the column term (`opening_rbrR`). Total at W16R2 `≤ 4/2^113`
+    (`opTot_W16R2_le`).
+  - `mask`: `M`'s opening, any sub-protocol whose round errors sum to `≤ 2^-106` (ASSUMED).
+  - the slots' sumchecks, evaluation points, batches and free challenges (`small a`, total `≤ 2a/p²`), and `rest`
+    (no rounds).
+- `Kind8BP.er_le`: every round's error is at most `εRate8B = 135/2^110`. `zone_budget_le`: a zone with at most one
+  LogUp, one `M`, four regular openings and small numerators summing to `≤ 2^16` has total at most
+  `εZone8B = 155/2^110`.
+```lean
+theorem fs_path_run_8B_target (cs : List (SubProtP X M Dg)) (tag : ℕ → Tag8B)
+    (hk : ∀ k c, cs[k]? = some c → Kind8BP (tag k) c) {m₀ : M} (C : ChainEnc (PItem X M) Q Dg) {Mf : Type}
+    {L : X → Prop} {accept : X → List (M × List Dg) → Mf → Prop}
+    (zone₀ : X → Finset ℕ) (zone : X → List (M × List Dg) → M → Finset ℕ)
+    (hhand : …) (hframe : …)
+    (hpath : ∀ x (τ : List (M × List Dg)), τ.length ≤ nOfP cs → ∃ Zb : Finset ℕ,
+      (∀ i (hi : i < τ.length), ownOfP cs i ∈ zone x (τ.take i) (τ[i]).1 → ownOfP cs i ∈ Zb)
+      ∧ BlockZone8B tag Zb)
+    (hstart : ∀ x, ¬ L x → ∃ j ∈ zone₀ x, ¬ SOfP cs j x [])
+    (hfinal : ∀ x τ mf, τ.length = nOfP cs → (∃ j ∈ lastZone zone₀ zone x τ, ¬ SOfP cs j x τ) →
+      ¬ accept x τ mf)
+    (hℓ : ℓW (nOfP cs) (wOfP cs) + 1 ≤ 2 ^ 75)
+    (q : ℕ) (hq : q ≤ 2 ^ 75) (A : OC Q Dg (X × List M × Mf)) (hA : A.Bounded q) :
+    prH (fun H => ¬ L (A.run H).1
+        ∧ chainAcceptsW (nOfP cs) (wOfP cs) (wOfP_pos cs (kinds8B_w_pos cs tag hk)) (msgOfP cs) m₀ accept C H
+          (A.run H).1 (A.run H).2.1 (A.run H).2.2)
+      ≤ εsTarget q
+```
+  `fs_path_run_8B` is the same with the bound `q·εRate8B + εZone8B + collBound T + collBound (T + 1)`.
+
+## W2. The figures
+
+Per hash query and query-free part; `|F| = p²`; 8B T128, W16R2, `Q = 280`.
+
+| Term | Value | Status |
+|---|---|---|
+| Per-query rate (the largest round error, LogUp's `α`) | `135/2^110` = 2^-102.92 (exact 2^-102.933) | proved, given `M` (unchanged from Part 7) |
+| LogUp, both rounds | `136/2^110` (exact `(N_lk + 4T_d − 1)/p²·bias` = 2^-102.922) | proved |
+| `M`'s opening, all rounds | `≤ 2^-106` (the count's whole term: 2^-106.248) | ASSUMED |
+| Four regular openings (`A`, `H`, `B_{k−1}`, `B_k`) | `4 × 2^-111` (exact `4 × 2^-112.39` = 2^-110.39) | proved |
+| Slots (numerators `≤ 2^16`) | `≤ 2^17/p²` = 2^-111 | proved, given the numerator premise |
+| **Zone total (the query-free floor)** | **`155/2^110` = 2^-102.72** (exact 2^-102.75; 2^-102.78 with the count's `M`) | proved, given `M` and the zone premises |
+| Collision terms, `T ≤ 2^76` | `≤ 129/2^110` = 2^-103.0; at `T = 2^64`, about 2^-128 | proved |
+| **Query-free part, Lean bound** | **`≤ 284/2^110` = 2^-101.85** | the same |
+| Approved `λ₀` | 2^-100 | |
+| Part 7's query-free part, `(ℓW + 1)·εRate8B` | about 2^-87 to 2^-85 | for comparison |
+| The 32-block union, `Σ_rounds` (the sharper count alone) | 2^-97.78 | for comparison |
+
+- **The approved target `εs(q) = q·2^-100 + 2^-100` holds for EVERY `q ≤ 2^75`** (with `ℓW + 1 ≤ 2^75`), not only for
+  `q ≥ ℓW + 1` as in Part 7. The floor is 2.72 bits under 2^-100 (2.75 for the exact figure), the rate 2.92 bits under.
+- The floor is one block's union plus two boundary openings, as D66 expected (2^-102.8), not the run's 32-block sum.
+
+## W3. What is assumed, and what the code check found
+
+**Assumed** (premises of `fs_path_run_8B_target`).
+1. **`M`'s opening**: its round errors sum to at most 2^-106 (the count's whole `M` term is 2^-106.248). Part 7 assumed
+   the same bound per round; the query-free part needs it for the sum.
+2. **`hhand`, `hframe`, `hstart`, `hfinal`**: how the claims fit together (the arithmetization, step L2), now with
+   message-aware states. For a D12a run they say:
+   - before stage `k`, a doom sits in the pending claim "the rest of the run is right from `B_{k−1}`";
+   - stage `k`'s first message (`B_k`, `A_k`, `M_k`) puts it either into block `k` (block `k`'s relation is false given
+     `B_{k−1}` and `B_k`) or into the next pending claim;
+   - inside block `k` the hand-offs are Part 7's (LogUp → the slots on `H` → `M`, `A`, `H`, `ic_k`, `oc_k`), and
+     `ic_k`, `oc_k` go to the openings of `B_{k−1}` (end of stage `k`) and `B_k` (end of stage `k + 1`).
+3. **`hpath`**, the structural premise "the boundary commitments split the run into block-local paths": along every
+   transcript the charged rounds belong to ONE block zone (block `k`'s sub-protocols and the openings of `B_{k−1}`
+   and `B_k`). With the zones of item 2, the pending claims own no rounds and the zone, once it enters block `k`,
+   stays there (the least false block is fixed by the committed boundaries).
+4. **The slots' numerators** sum to at most `2^16` per block (sumcheck rounds × degree, point lengths, batches). By
+   Part 5's and Part 6's figures (23 slots, about 24 rounds of degree 5, points of about 25 coordinates, a few
+   batches) the sum is about 3,400. An estimate, not checked in Lean (F44).
+5. As in Part 7: the committed data is named by the statement and the transcript (the soundness version, not the
+   extraction); the slots' challenge classification.
+
+**The code check** (task 4; read only: `private_block/run.rs`, `run_fork.rs`, `protocol.rs`, `boundary.rs`).
+- **D12a, one stage** (`RunVerifier::step`, `run.rs:1383-1535`): `pb-run-stage` and `pb-run-block` (1402-1403); the
+  root of `B_k` for `k < L − 1` (1407); then `verify_core`: the `A` root, the `M` root, then `β, γ, α`
+  (`protocol.rs:2023-2027`), the `H` root (2031), the slots, `M`, `A`, `H`. Then `B_{k−1}` is opened ONCE with the
+  pending `oc_{k−1}` and the new `ic_k` (`run.rs:1435-1441`; the external input endpoint at `k = 0`), and `oc_k`
+  becomes pending (1526). The last stage opens the external output endpoint instead. `boundary::check_opening` reads
+  the transcript without changing it (`boundary.rs:287-289`).
+- **So the block-local structure holds.** Block `k`'s claims go only to its own `M`, `A`, `H` openings and to the
+  openings of `B_{k−1}` and `B_k`. The opening of `B_k` takes `oc_k` and `ic_{k+1}` together; a false `oc_k` keeps it
+  doomed whatever block `k + 1` does, and only its own rounds can revive it. No claim of block `k` enters block
+  `k + 1`'s rounds: block `k + 1`'s input is the committed `B_k`, not block `k`'s output claim.
+- **Where it differs from the ruling's wording.** D12a has no up-front commit phase: `B_k` is absorbed at the START OF
+  STAGE `k`, after the challenges of stages `0 … k − 1` (F42). The prover can therefore choose, after seeing earlier
+  challenges, which block a doom enters. This does not cross blocks and does not change the bound: the zone is chosen
+  by the stage's first message, and the charge is per transcript (`hpath`). The proof needs message-aware states for
+  it (F41).
+- **D55** (`run_fork.rs:36-48, 815-822`) has the commit phase D66 describes: every `B_k` root is absorbed before any
+  block challenge (`pb-fork-s0`), and every boundary is opened after the join (`pb-fork-s1`). Its zones are fixed by
+  the commit phase. Its transcript is a tree (F26, Part 8); the path-wise argument per fork is not composed here.
+- No place was found where a doom could cross from one block's zone into another block's rounds.
+
+## W4. Findings
+
+**F40 (Info: F25 is closed in the proofs, with stated premises).**
+- The query-free part is the sum of the round errors along the doom's path, not `(ℓW + 1)·εmax` and not the run's
+  union. At the 8B T128 W16R2 parameters it is at most `155/2^110` = 2^-102.72 plus `≤ 129/2^110` of collision terms,
+  under 2^-100.
+- **The approved `εs(q) = q·2^-100 + 2^-100` holds for every `q ≤ 2^75`** (`fs_path_run_8B_target`).
+- **Proved:** the sharper count (`chain_sound_wide_seq`, `fs_chain_sound_of_rbrWideT`), the zone composition
+  (`ZComposed.rbrWideT`, `fs_chain_sound_of_zpath`), the per-round errors of LogUp and the openings, the numbers.
+- **Assumed:** `M`'s errors (sum `≤ 2^-106`), the zone premises (W3), the slots' numerator bound.
+- Victor's fallback (a wider field for LogUp's `α`, option (d)) is not needed for the target.
+
+**F41 (Low: Part 7's composition cannot express a claim fixed by a round's own message, which a D12a run needs).**
+- **What.** `SubProt`'s state reads the transcript BEFORE its window, and `Composed.frame` lets a sub-protocol be
+  released only when a later one is doomed BEFORE the round. In a D12a run, stage `k`'s commitments (`B_k`, `A_k`,
+  `M_k`) are absorbed after stage `k − 1`'s last squeeze and before `β_k` (`run.rs:1402-1407`,
+  `protocol.rs:2023-2025`): they are the MESSAGE of the round whose challenge is LogUp's `(β, γ)`.
+- **Effect.** For `k ≥ 1`, `logupSP`'s lookups (read from the transcript before LogUp's window) cannot be `A_k`'s, and
+  the pending claim's hand-off to block `k` happens inside that round, where no sub-protocol of block `k` is doomed
+  BEFORE the round. So the premises of `fs_run_sound_8B` do not express a D12a run's actual hand-off at a stage
+  boundary. (For one block, and for stage 0, the roots follow the header with no squeeze between, so they are part of
+  the statement item, as Part 6 assumed.)
+- **What closes it.** `ZComposed` adds a state after the round's message (`pre`), and `logupP` reads its lookups off its
+  first message. The per-query rate of Part 7 is unchanged under it (one fixed zone, `Composed.toZ`).
+- This is a gap in the proofs' model, not in the code.
+
+**F42 (Info: D12a commits its boundaries stage by stage; only D55 has an up-front commit phase).**
+- D66's reasoning ("the run's boundary planes are committed, the commit phase") describes D55 (`run_fork.rs:36-48`).
+  D12a absorbs `B_k` at stage `k` (`run.rs:1407`), after earlier stages' challenges.
+- The block-local structure still holds (W3), and the bound is the same: the doom enters one block, chosen by the
+  stage's first message. The proof covers this case through message-chosen zones.
+
+**F43 (Info: the zone is one block plus two boundary openings; finer paths are possible but not instantiated).**
+- `hpath` charges every round of block `k`'s sub-protocols and of the openings of `B_{k−1}` and `B_k`. Because a zone
+  may depend on the earlier challenges, a zone could instead follow a single hand-off chain (for example LogUp → one
+  slot → `H`'s opening) and charge less. At 8B the block zone is already 2.72 bits under the target, so this was not
+  pursued.
+- LogUp dominates the zone (`136` of the `155/2^110`); `M` is next (`16/2^110`, assumed).
+
+**F44 (Low: the slots' share of the zone rests on a numerator premise).**
+- `BlockZone8B` asks the small sub-protocols of a zone to have numerators summing to at most `2^16` (about 3,400 by
+  Parts 5–6's figures). The slots' schedule, and so this sum, is not built in Lean from `layout.rs`. Even at `2^20` the
+  slots would add only `2^-107` and the floor would stay under 2^-100.
+
+## W5. What remains
+
+- **The premises for the run** (step L2): the zone function for a D12a run (pending claims, the entry at `B_k`), and
+  `hhand`, `hframe`, `hstart`, `hfinal`, `hpath` for it, with each hand-off a lemma like `zc_handover`.
+- **`M`'s opening under Fiat–Shamir**, after F12's fix, with per-round errors; then `Kind8BP.mask` becomes proved.
+- **The slots' schedule from the layout**, which discharges F44's numerator premise.
+- **D55**: Part 8's fork tree with this file's zones per fork.
+- **The knowledge version** and the code-level instance, as listed in Part 7 §V5.
