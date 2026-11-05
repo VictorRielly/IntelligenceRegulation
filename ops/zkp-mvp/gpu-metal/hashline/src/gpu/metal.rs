@@ -24,7 +24,7 @@ use metal::{
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::ffi::c_void;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
@@ -54,6 +54,8 @@ const TILE_LOG: u32 = 11;
 
 struct Ctx {
     device: Device,
+    /// the process-wide queue (`HL_METAL_QUEUES=shared`; [A7] `thread` gives each
+    /// thread its own, `OWN_QUEUE`)
     queue: CommandQueue,
     pipes: HashMap<&'static str, ComputePipelineState>,
     /// (forward, inverse) twiddle buffers per NttTables::max_log
@@ -571,17 +573,381 @@ pub fn src_bench_for_test(src: &str, threads: usize, iters: u32, init: &[u64]) -
 /// One command buffer, one serial compute encoder (each dispatch sees the
 /// previous one's writes); `encode` records the dispatches.
 fn run(c: &Ctx, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<(), String>) -> Result<(), String> {
-    let cb = c.queue.new_command_buffer();
-    let enc = cb.new_compute_command_encoder();
-    let r = encode(enc);
-    enc.end_encoding();
-    r?;
-    cb.commit();
-    wait_done(cb);
-    match cb.status() {
-        MTLCommandBufferStatus::Completed => Ok(()),
-        s => Err(format!("metal: command buffer ended {s:?}")),
+    run_tagged(c, "other", encode)
+}
+
+/// [`run`], with a call-site tag for the [A7] timeline. The command buffer goes
+/// to this thread's queue ([`Ctx::with_queue`]) and is waited for before
+/// the call returns, as before: every later command buffer, on any queue, is
+/// committed after this one completed, so the queue it ran on cannot reorder
+/// any read against any write.
+fn run_tagged(c: &Ctx, tag: &'static str, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<(), String>) -> Result<(), String> {
+    let tl = TL_ON.load(Ordering::Relaxed);
+    let begin = if tl { host_time_s() } else { 0.0 };
+    c.with_queue(|queue, qi| {
+        let cb = queue.new_command_buffer();
+        let enc = cb.new_compute_command_encoder();
+        let r = encode(enc);
+        enc.end_encoding();
+        r?;
+        let committed = if tl { host_time_s() } else { 0.0 };
+        cb.commit();
+        wait_done(cb);
+        let status = cb.status();
+        if tl {
+            tl_record(cb, tag, qi, begin, committed);
+        }
+        match status {
+            MTLCommandBufferStatus::Completed => Ok(()),
+            s => Err(format!("metal: command buffer ended {s:?}")),
+        }
+    })
+}
+
+// ------------------------------------------- [A7] queues and GPU timestamps
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A7; H121;
+// `results/zk60_effplan_20261105/a7/README.md`.)
+//
+// QUEUES. `HL_METAL_QUEUES=shared` keeps the one process-wide queue every proof
+// thread shared before A7; `thread` (the default since A7) gives every thread its
+// own queue, made at its first command buffer and released when the thread ends (a
+// fork run's workers are fresh threads, so each fork worker has a queue of its
+// own; the witness products keep their own queue, A4). No byte can
+// move: every command buffer is still waited for by the thread that made it
+// before that thread goes on (`run_tagged`), so nothing ever runs ahead of a
+// write it reads, whichever queue carries it; the queue only decides which
+// waiting command buffers the GPU may run side by side.
+//
+// TIMESTAMPS. Diagnostic only: while the timeline is on (tests:
+// `gpu_timeline_start` .. `gpu_timeline_take`), each completed command buffer's
+// `GPUStartTime` / `GPUEndTime` (host time, seconds) is kept with its thread,
+// queue, call-site tag and the host times it was begun, committed and seen
+// complete. Reading them after completion changes nothing the GPU computed; off,
+// the cost is one relaxed load per command buffer. No value is read or kept.
+
+/// [A7] queue modes: one shared queue, or one queue per thread
+const Q_SHARED: usize = 1;
+const Q_THREAD: usize = 2;
+/// [A7] the mode when `HL_METAL_QUEUES` is unset: one queue per thread. W16R2 8B
+/// T128, 32 blocks, N = 6 forks, three interleaved passes in one process: the fork
+/// run 5.238 s mean on the shared queue, 4.928 s on per-thread queues (every pass
+/// faster). On the shared queue at most three command buffers ran at once and a
+/// finished one was seen complete 1.7 ms late on average (in order behind the
+/// others); per thread, up to six at once and 0.2 ms (`results/zk60_effplan_20261105/a7/`).
+const DEFAULT_QUEUES: usize = Q_THREAD;
+/// 0 until read from the environment (or set by a test)
+static QUEUES: AtomicUsize = AtomicUsize::new(0);
+
+/// [A7] `HL_METAL_QUEUES`: `shared` (or `1`) or `thread`; anything else, the default
+fn queue_mode() -> usize {
+    match QUEUES.load(Ordering::Relaxed) {
+        0 => {
+            let m = match std::env::var("HL_METAL_QUEUES").as_deref() {
+                Ok("shared") | Ok("1") => Q_SHARED,
+                Ok("thread") => Q_THREAD,
+                _ => DEFAULT_QUEUES,
+            };
+            QUEUES.store(m, Ordering::Relaxed);
+            m
+        }
+        m => m,
     }
+}
+
+/// tests: from now on every thread gets its own queue (`per_thread`) or all share
+/// one; returns whether they had their own before. Changes no byte (see above).
+#[cfg(test)]
+pub fn set_queues_for_test(per_thread: bool) -> bool {
+    let before = queue_mode() == Q_THREAD;
+    QUEUES.store(if per_thread { Q_THREAD } else { Q_SHARED }, Ordering::Relaxed);
+    before
+}
+
+/// tests: the queue mode in force, `shared` or `thread`
+#[cfg(test)]
+pub fn queues_for_test() -> &'static str {
+    if queue_mode() == Q_THREAD {
+        "thread"
+    } else {
+        "shared"
+    }
+}
+
+/// this thread's serial number, from 0 in the order threads first ask
+fn thread_serial() -> u32 {
+    static NEXT: AtomicU32 = AtomicU32::new(0);
+    thread_local! {
+        static ME: u32 = NEXT.fetch_add(1, Ordering::Relaxed);
+    }
+    ME.with(|m| *m)
+}
+
+thread_local! {
+    /// [A7] this thread's own queue (`HL_METAL_QUEUES=thread`), made at its first
+    /// command buffer, released when the thread ends; `None` if Metal gave none
+    /// (the thread then uses the shared queue)
+    static OWN_QUEUE: std::cell::OnceCell<Option<CommandQueue>> = const { std::cell::OnceCell::new() };
+}
+
+impl Ctx {
+    /// run `f` on the queue this thread's command buffers go to, with its number
+    /// for the timeline (0: the shared queue; 1 + the thread's serial: its own)
+    fn with_queue<R>(&self, f: impl FnOnce(&CommandQueue, u32) -> R) -> R {
+        if queue_mode() != Q_THREAD {
+            return f(&self.queue, 0);
+        }
+        OWN_QUEUE.with(|q| {
+            let own = q.get_or_init(|| {
+                use metal::foreign_types::ForeignType;
+                let made = objc::rc::autoreleasepool(|| self.device.new_command_queue());
+                (!made.as_ptr().is_null()).then_some(made)
+            });
+            match own {
+                Some(own) => f(own, thread_serial() + 1),
+                None => f(&self.queue, 0),
+            }
+        })
+    }
+}
+
+/// [A7] the mach host clock in seconds, the clock of a command buffer's
+/// `GPUStartTime` / `GPUEndTime` (`CACurrentMediaTime`'s)
+pub fn host_time_s() -> f64 {
+    #[repr(C)]
+    struct Timebase {
+        numer: u32,
+        denom: u32,
+    }
+    extern "C" {
+        fn mach_absolute_time() -> u64;
+        fn mach_timebase_info(info: *mut Timebase) -> i32;
+    }
+    static SCALE: OnceLock<f64> = OnceLock::new();
+    let s = *SCALE.get_or_init(|| {
+        let mut tb = Timebase { numer: 0, denom: 0 };
+        // SAFETY: writes the two fields of `tb`
+        if unsafe { mach_timebase_info(&mut tb) } == 0 && tb.denom != 0 {
+            tb.numer as f64 / tb.denom as f64 * 1e-9
+        } else {
+            1e-9
+        }
+    });
+    // SAFETY: no preconditions
+    let ticks = unsafe { mach_absolute_time() };
+    ticks as f64 * s
+}
+
+/// a completed command buffer's (GPUStartTime, GPUEndTime), host seconds; a
+/// failed message reads as zero
+fn gpu_times(cb: &metal::CommandBufferRef) -> (f64, f64) {
+    use objc::Message;
+    // SAFETY: two CFTimeInterval (f64) getters of a completed command buffer
+    unsafe {
+        let t0: f64 = cb.send_message(objc::runtime::Sel::register("GPUStartTime"), ()).unwrap_or(0.0);
+        let t1: f64 = cb.send_message(objc::runtime::Sel::register("GPUEndTime"), ()).unwrap_or(0.0);
+        (t0, t1)
+    }
+}
+
+/// [A7] one completed command buffer on the timeline (host seconds throughout)
+#[derive(Clone, Copy, Debug)]
+pub struct CbSpan {
+    /// the call site (`commit`, `batch`, `round`, `fold`, `gather`, `wprod`, ...)
+    pub tag: &'static str,
+    /// [`thread_serial`] of the thread that made and waited for it
+    pub thread: u32,
+    /// 0: the shared queue; 1..: a per-thread queue; 99: the witness queue
+    pub queue: u32,
+    /// the host began encoding it
+    pub begin: f64,
+    /// the host committed it
+    pub committed: f64,
+    pub gpu_start: f64,
+    pub gpu_end: f64,
+    /// the waiting thread saw it complete
+    pub done: f64,
+}
+
+static TL_ON: AtomicBool = AtomicBool::new(false);
+static TL: Mutex<Vec<CbSpan>> = Mutex::new(Vec::new());
+
+fn tl_record(cb: &metal::CommandBufferRef, tag: &'static str, queue: u32, begin: f64, committed: f64) {
+    let done = host_time_s();
+    let (gpu_start, gpu_end) = gpu_times(cb);
+    if let Ok(mut g) = TL.lock() {
+        g.push(CbSpan { tag, thread: thread_serial(), queue, begin, committed, gpu_start, gpu_end, done });
+    }
+}
+
+/// tests: clear the timeline and start recording; returns the host time now
+#[cfg(test)]
+pub fn gpu_timeline_start() -> f64 {
+    if let Ok(mut g) = TL.lock() {
+        g.clear();
+    }
+    TL_ON.store(true, Ordering::SeqCst);
+    host_time_s()
+}
+
+/// tests: stop recording and take what was recorded
+#[cfg(test)]
+pub fn gpu_timeline_take() -> Vec<CbSpan> {
+    TL_ON.store(false, Ordering::SeqCst);
+    TL.lock().map(|mut g| std::mem::take(&mut *g)).unwrap_or_default()
+}
+
+/// **[A7] what the GPU did over the host-time window `[a, b]`**: the time at
+/// least one command buffer was executing (busy) against the window, the idle
+/// gaps between, how many ran at once, and per call site, thread and queue the
+/// command buffers' GPU time, their wait from commit to the GPU's start, and the
+/// host's time between them. Every interval is clipped to the window.
+#[cfg(test)]
+pub fn gpu_timeline_report(spans: &[CbSpan], a: f64, b: f64) -> String {
+    use std::fmt::Write;
+    let wall = (b - a).max(0.0);
+    let inw: Vec<&CbSpan> = spans.iter().filter(|s| s.gpu_end > a && s.gpu_start < b && s.gpu_end >= s.gpu_start && s.gpu_start > 0.0).collect();
+    let clip = |s: &CbSpan| (s.gpu_start.max(a), s.gpu_end.min(b));
+    // sweep: busy (>= 1 executing), time at >= 2, and the idle gaps
+    let mut ev: Vec<(f64, i32)> = inw
+        .iter()
+        .flat_map(|s| {
+            let (x, y) = clip(*s);
+            [(x, 1), (y, -1)]
+        })
+        .collect();
+    ev.sort_by(|p, q| p.0.partial_cmp(&q.0).unwrap().then(q.1.cmp(&p.1)));
+    let (mut busy, mut multi, mut depth, mut last) = (0.0f64, 0.0f64, 0i32, a);
+    let mut gaps: Vec<f64> = Vec::new();
+    let mut depth_time = [0.0f64; 8];
+    for &(t, d) in &ev {
+        let dt = t - last;
+        if depth == 0 {
+            if dt > 0.0 {
+                gaps.push(dt);
+            }
+        } else {
+            busy += dt;
+            if depth >= 2 {
+                multi += dt;
+            }
+        }
+        depth_time[(depth.max(0) as usize).min(7)] += dt;
+        depth += d;
+        last = t;
+    }
+    if b > last {
+        gaps.push(b - last);
+        depth_time[0] += b - last;
+    }
+    let sum_gpu: f64 = inw
+        .iter()
+        .map(|s| {
+            let (x, y) = clip(*s);
+            y - x
+        })
+        .sum();
+    let mut o = String::new();
+    let _ = writeln!(o, "  window {wall:.4} s: {} command buffers; GPU busy (>= 1 executing) {busy:.4} s = {:.1}%, idle {:.4} s = {:.1}%; summed command-buffer GPU time {sum_gpu:.4} s (mean {:.2} at once while busy); >= 2 at once {multi:.4} s = {:.1}% of busy", inw.len(), 100.0 * busy / wall.max(1e-12), wall - busy, 100.0 * (wall - busy) / wall.max(1e-12), sum_gpu / busy.max(1e-12), 100.0 * multi / busy.max(1e-12));
+    let _ = writeln!(o, "  time at k executing: {}", (0..8).map(|k| format!("{k}{}: {:.4} s", if k == 7 { "+" } else { "" }, depth_time[k])).collect::<Vec<_>>().join(", "));
+    let edges = [0.0, 20e-6, 50e-6, 200e-6, 1e-3, 5e-3, f64::INFINITY];
+    let names = ["< 20 us", "20-50 us", "50-200 us", "0.2-1 ms", "1-5 ms", ">= 5 ms"];
+    let hist: Vec<String> = (0..6)
+        .map(|i| {
+            let g: Vec<f64> = gaps.iter().cloned().filter(|&x| x >= edges[i] && x < edges[i + 1]).collect();
+            format!("{} {} ({:.4} s)", names[i], g.len(), g.iter().fold(0.0f64, |s, x| s + x))
+        })
+        .collect();
+    let longest = gaps.iter().cloned().fold(0.0f64, f64::max);
+    let _ = writeln!(o, "  idle gaps: {} totalling {:.4} s, longest {:.2} ms; {}", gaps.len(), gaps.iter().sum::<f64>(), longest * 1e3, hist.join(", "));
+    // per call site
+    let mut tags: Vec<&str> = inw.iter().map(|s| s.tag).collect();
+    tags.sort();
+    tags.dedup();
+    for t in tags {
+        let v: Vec<&&CbSpan> = inw.iter().filter(|s| s.tag == t).collect();
+        let g: f64 = v.iter().map(|s| s.gpu_end - s.gpu_start).sum();
+        let qd: f64 = v.iter().map(|s| (s.gpu_start - s.committed).max(0.0)).sum();
+        let cd: f64 = v.iter().map(|s| (s.done - s.gpu_end).max(0.0)).sum();
+        let en: f64 = v.iter().map(|s| (s.committed - s.begin).max(0.0)).sum();
+        let _ = writeln!(o, "  tag {t:<7} {:>5} cbs: GPU {g:.4} s (mean {:.3} ms); commit -> GPU start {qd:.4} s (mean {:.3} ms); GPU end -> seen {cd:.4} s; encode {en:.4} s", v.len(), 1e3 * g / v.len() as f64, 1e3 * qd / v.len() as f64);
+    }
+    // per thread: time inside run (begin .. done) and the host time between
+    let mut ths: Vec<u32> = inw.iter().map(|s| s.thread).collect();
+    ths.sort();
+    ths.dedup();
+    let mut lines = Vec::new();
+    for th in ths {
+        let mut v: Vec<&CbSpan> = spans.iter().filter(|s| s.thread == th && s.done > a && s.begin < b).collect();
+        v.sort_by(|p, q| p.begin.partial_cmp(&q.begin).unwrap());
+        let inside: f64 = v.iter().map(|s| s.done.min(b) - s.begin.max(a)).sum();
+        let gpu: f64 = v.iter().map(|s| (s.gpu_end.min(b) - s.gpu_start.max(a)).max(0.0)).sum();
+        let qd: f64 = v.iter().map(|s| (s.gpu_start - s.committed).max(0.0)).sum();
+        let first = v.first().map(|s| s.begin.max(a)).unwrap_or(a);
+        let lastd = v.last().map(|s| s.done.min(b)).unwrap_or(a);
+        let qs: Vec<u32> = {
+            let mut q: Vec<u32> = v.iter().map(|s| s.queue).collect();
+            q.sort();
+            q.dedup();
+            q
+        };
+        lines.push(format!("t{th} q{qs:?} {} cbs, active {:.3} s: in run {inside:.3} s (GPU {gpu:.3}, commit -> start {qd:.3}), host between {:.3} s", v.len(), lastd - first, (lastd - first - inside).max(0.0)));
+    }
+    let _ = writeln!(o, "  per thread: {}", lines.join("; "));
+    // per queue: did command buffers of one queue ever execute side by side?
+    let mut qs: Vec<u32> = inw.iter().map(|s| s.queue).collect();
+    qs.sort();
+    qs.dedup();
+    for q in qs {
+        let mut v: Vec<&&CbSpan> = inw.iter().filter(|s| s.queue == q).collect();
+        v.sort_by(|x, y| x.gpu_start.partial_cmp(&y.gpu_start).unwrap());
+        let (mut overlap, mut end) = (0usize, f64::NEG_INFINITY);
+        for s in &v {
+            if s.gpu_start < end {
+                overlap += 1;
+            }
+            end = end.max(s.gpu_end);
+        }
+        let _ = writeln!(o, "  queue {q}: {} cbs, {overlap} started before the queue's earlier ones had all ended", v.len());
+    }
+    o
+}
+
+/// [A7] the wait policy: [`WAIT_SPIN`] spins on the status for as long as it
+/// takes (M5d), 0 blocks in `waitUntilCompleted`, `n` spins `n` microseconds
+/// and then blocks; [`WAIT_UNREAD`] until read from the environment
+const WAIT_UNREAD: u64 = u64::MAX;
+const WAIT_SPIN: u64 = u64::MAX - 1;
+static WAIT: AtomicU64 = AtomicU64::new(WAIT_UNREAD);
+
+/// `HL_METAL_SPIN=0`: block; `HL_METAL_SPIN_US=n`: spin `n` us, then block;
+/// otherwise spin (M5d's default)
+fn wait_mode() -> u64 {
+    match WAIT.load(Ordering::Relaxed) {
+        WAIT_UNREAD => {
+            let m = if std::env::var("HL_METAL_SPIN").map(|v| v == "0").unwrap_or(false) {
+                0
+            } else {
+                std::env::var("HL_METAL_SPIN_US").ok().and_then(|v| v.parse::<u64>().ok()).filter(|&us| us < WAIT_SPIN).unwrap_or(WAIT_SPIN)
+            };
+            WAIT.store(m, Ordering::Relaxed);
+            m
+        }
+        m => m,
+    }
+}
+
+/// tests: the wait policy from now on (`None`: spin until done; `Some(0)`: block;
+/// `Some(n)`: spin `n` us, then block); returns the previous one. Only how the
+/// host waits changes: the same command buffer, the same results.
+#[cfg(test)]
+pub fn set_wait_for_test(spin_us: Option<u64>) -> Option<u64> {
+    let before = match wait_mode() {
+        WAIT_SPIN => None,
+        m => Some(m),
+    };
+    WAIT.store(spin_us.map(|us| us.min(WAIT_SPIN - 1)).unwrap_or(WAIT_SPIN), Ordering::Relaxed);
+    before
 }
 
 /// **[M5d] Wait for a committed command buffer by spinning on its status**
@@ -589,17 +955,27 @@ fn run(c: &Ctx, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<
 /// hundreds of microseconds per call. A block makes about 190 device sumcheck
 /// rounds, each ending in one such wait (researcher H113). Only the waiting
 /// changes: the same command buffer, the same results. `HL_METAL_SPIN=0`
-/// restores the blocking wait.
+/// restores the blocking wait; [A7] `HL_METAL_SPIN_US=n` spins `n` us and then
+/// blocks (a spinning thread holds a core the fork run's host work could use).
 fn wait_done(cb: &metal::CommandBufferRef) {
-    static SPIN: OnceLock<bool> = OnceLock::new();
-    if !*SPIN.get_or_init(|| std::env::var("HL_METAL_SPIN").map(|v| v != "0").unwrap_or(true)) {
+    let m = wait_mode();
+    if m == 0 {
         cb.wait_until_completed();
         return;
     }
+    let t0 = if m == WAIT_SPIN { None } else { Some(std::time::Instant::now()) };
     loop {
         match cb.status() {
             MTLCommandBufferStatus::Completed | MTLCommandBufferStatus::Error => return,
-            _ => std::hint::spin_loop(),
+            _ => {
+                if let Some(t0) = t0 {
+                    if t0.elapsed().as_micros() as u64 >= m {
+                        cb.wait_until_completed();
+                        return;
+                    }
+                }
+                std::hint::spin_loop()
+            }
         }
     }
 }
@@ -684,7 +1060,7 @@ impl MetalCommit {
         // 8B T128 block it beats the device fold, whose per-call overhead the
         // core's chunks of four rho vectors multiply. HL_METAL_DEVICE_FOLD=1
         // selects the device kernels (equal values; kept for larger shapes).
-        if std::env::var("HL_METAL_DEVICE_FOLD").map(|v| v == "1").unwrap_or(false) {
+        if device_fold_on() {
             return fold_rows_device(buf, self.rows, self.n, nn, ir, rhos);
         }
         let t = std::time::Instant::now();
@@ -764,7 +1140,7 @@ fn fold_rows_device(src: &Buffer, rows: usize, n: usize, nn: usize, ir: usize, r
             let pa = FoldPartArgs { rows: rows as u64, n: n as u64, nn: nn as u64, ir: ir as u64, rows_per_block: rpb as u64, k: k as u32, blocks: blocks as u32 };
             let part = shared_buffer(c, (blocks * k * n * 16) as u64)?;
             let _ = FoldArgs { rows: 0, n: 0, nn: 0, ir: 0, k: 0, pad0: 0 }; // the single-pass k_fold_rows stays compiled as a reference
-            run(c, |enc| {
+            run_tagged(c, "devfold", |enc| {
                 enc.set_buffer(0, Some(src), 0);
                 enc.set_buffer(1, Some(&rb), 0);
                 enc.set_buffer(2, Some(&part), 0);
@@ -804,7 +1180,7 @@ fn gather_columns_device(enc: &Buffer, rows: usize, nn: usize, idx: &[usize]) ->
         let ib: Vec<Fp> = idx.iter().map(|&j| Fp(j as u64)).collect();
         let ibuf = upload(c, &ib)?;
         let ob = shared_buffer(c, (idx.len() * rows * 8) as u64)?;
-        run(c, |e| {
+        run_tagged(c, "gather", |e| {
             e.set_buffer(0, Some(enc), 0);
             e.set_buffer(1, Some(&ibuf), 0);
             e.set_buffer(2, Some(&ob), 0);
@@ -815,6 +1191,33 @@ fn gather_columns_device(enc: &Buffer, rows: usize, nn: usize, idx: &[usize]) ->
         let o = as_u64s(&ob, idx.len() * rows);
         Ok(o.chunks_exact(rows).map(|col| col.iter().map(|&v| Fp(v)).collect()).collect())
     })
+}
+
+/// [A7] tests: 0 lets `HL_METAL_DEVICE_FOLD=1` decide (read at each fold, as
+/// before), 1 keeps the host fold, 2 takes the device fold
+static DEVICE_FOLD_TEST: AtomicUsize = AtomicUsize::new(0);
+
+/// whether the opening's row fold runs on the device (equal values either way)
+fn device_fold_on() -> bool {
+    match DEVICE_FOLD_TEST.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => std::env::var("HL_METAL_DEVICE_FOLD").map(|v| v == "1").unwrap_or(false),
+    }
+}
+
+/// tests: the opening's row fold on the device (`Some(true)`), on the host
+/// (`Some(false)`), or as the environment says (`None`)
+#[cfg(test)]
+pub fn set_device_fold_for_test(on: Option<bool>) {
+    DEVICE_FOLD_TEST.store(
+        match on {
+            None => 0,
+            Some(false) => 1,
+            Some(true) => 2,
+        },
+        Ordering::Relaxed,
+    );
 }
 
 /// [M11] the most rho vectors the opening fold takes the lazy form for
@@ -987,7 +1390,7 @@ fn commit_impl(
             }
         }
         let staged = std::env::var("HL_METAL_STAGED").map(|v| v == "1").unwrap_or(false);
-        run(c, |enc| {
+        run_tagged(c, "commit", |enc| {
             if !staged {
                 // M2: two fused passes per transform (see metal_kernels.metal)
                 encode_fused(c, enc, &d, None, None, &t, &tw_i, hw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
@@ -1047,7 +1450,7 @@ fn commit_impl(
             let l2 = shared_buffer(c, (nn * 32) as u64)?;
             let part = |f: &dyn Fn(&metal::ComputeCommandEncoderRef)| -> Result<f64, String> {
                 let s = std::time::Instant::now();
-                run(c, |enc| {
+                run_tagged(c, "diag", |enc| {
                     f(enc);
                     Ok(())
                 })?;
@@ -1518,7 +1921,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let fold = self.fold_r.take();
         let sums = objc::rc::autoreleasepool(|| {
             let pipe = if j == 0 { &self.pipe0 } else { &self.pipe };
-            run(c, |enc| {
+            run_tagged(c, "round", |enc| {
                 // [M4e] the previous round's fold, in this command buffer: the
                 // encoder runs its dispatches in order (as the NTT stages do)
                 if let Some((fh, r)) = fold {
@@ -1596,7 +1999,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
             // the last fold: the final tables are read right after it
             let c = ctx().expect("metal context");
             objc::rc::autoreleasepool(|| {
-                run(c, |enc| {
+                run_tagged(c, "fold", |enc| {
                     enc.set_buffer(0, Some(&self.tabs), 0);
                     set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
                     dispatch_2d(c, enc, "k_fold_tables", half as u64, self.k as u64);
@@ -1678,7 +2081,7 @@ impl MetalRounds {
     fn run_fold_now(&self, half: usize, r: Fp2) {
         let c = ctx().expect("metal context");
         objc::rc::autoreleasepool(|| {
-            run(c, |enc| {
+            run_tagged(c, "fold", |enc| {
                 enc.set_buffer(0, Some(&self.tabs), 0);
                 set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
                 dispatch_2d(c, enc, "k_fold_tables", half as u64, self.k as u64);
@@ -1968,7 +2371,7 @@ impl MetalRounds {
             let out = shared_buffer(cx, (nd * rec * 8) as u64)?;
             let part2 = shared_buffer(cx, (PART_RED_WIDTH * d1 * 16) as u64)?;
             let mut claim_known = self.recover_one && self.unmasked_claim.is_some();
-            run(cx, |enc| {
+            run_tagged(cx, "batch", |enc| {
                 for j in 0..=nd {
                     if j > 0 {
                         // the fold of round j - 1 by the device's challenge
@@ -2710,7 +3113,6 @@ fn result_plane(c: &Ctx, out_len: usize, view: bool) -> (Vec<i64>, Option<Buffer
 /// pack, present, run, write back (shapes already checked)
 #[allow(clippy::too_many_arguments)]
 fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i64], xs: usize, w: &[i8], k: usize, n: usize, os: usize, out_len: usize, in_out: bool) -> Result<Option<Vec<i64>>, String> {
-    use objc::Message;
     let now = std::time::Instant::now;
     let mut at = [now(); 7];
     let (tp, kp) = (t.div_ceil(WP_BM) * WP_BM, k.div_ceil(WP_BK) * WP_BK);
@@ -2762,6 +3164,8 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
     let wrote_in_place = in_place.is_some();
     let args = WProdArgs { t: t as u32, k: k as u32, n: n as u32, kp: kp as u32, in_out: in_out as u32, os: ostride as u32, w_off };
     // one command buffer on the witness queue (`run`'s shape, with the GPU's own clock)
+    let tl = TL_ON.load(Ordering::Relaxed);
+    let begin = if tl { host_time_s() } else { 0.0 };
     let cb = wc.queue.new_command_buffer();
     let enc = cb.new_compute_command_encoder();
     enc.set_compute_pipeline_state(wc.pipe(route));
@@ -2772,16 +3176,18 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
     enc.dispatch_thread_groups(MTLSize::new(n.div_ceil(WP_BN) as u64, (tp / WP_BM) as u64, 1), MTLSize::new(WP_THREADS, 1, 1));
     enc.end_encoding();
     at[4] = now();
+    let committed = if tl { host_time_s() } else { 0.0 };
     cb.commit();
     wait_done(cb);
     if !matches!(cb.status(), MTLCommandBufferStatus::Completed) {
         return Err(format!("metal witness product: command buffer ended {:?}", cb.status()));
     }
-    // SAFETY: GPUStartTime / GPUEndTime of a completed command buffer (CFTimeInterval
-    // seconds); a failed message counts as zero
-    let gpu_s = unsafe {
-        let t0: f64 = cb.send_message(objc::runtime::Sel::register("GPUStartTime"), ()).unwrap_or(0.0);
-        let t1: f64 = cb.send_message(objc::runtime::Sel::register("GPUEndTime"), ()).unwrap_or(0.0);
+    if tl {
+        tl_record(cb, "wprod", 99, begin, committed);
+    }
+    // GPUStartTime / GPUEndTime of the completed command buffer (a failed message counts as zero)
+    let gpu_s = {
+        let (t0, t1) = gpu_times(cb);
         (t1 - t0).max(0.0)
     };
     drop(wb);

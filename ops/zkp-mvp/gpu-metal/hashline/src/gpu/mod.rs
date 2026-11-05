@@ -42,6 +42,10 @@ pub use metal::{fold_rows_host_for_test as metal_fold_rows_host_for_test, fold_r
 pub use metal::witness_product;
 #[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
 pub use metal::{with_witness_options, witness_product_stats, witness_product_with, WProdRoute, WP_PHASES as WITNESS_PRODUCT_PHASES, WP_ROUTES as WITNESS_ROUTES};
+// [A7] tests: the GPU timeline (diagnostic: command-buffer timestamps) and the
+// queue count the proof threads are spread over (neither changes a byte)
+#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::{gpu_timeline_report, gpu_timeline_start, gpu_timeline_take, queues_for_test as metal_queues_for_test, set_device_fold_for_test as metal_set_device_fold_for_test, set_queues_for_test as metal_set_queues_for_test, set_wait_for_test as metal_set_wait_for_test};
 
 /// [A4] Without the Metal backend no witness product runs on a device: `Ok(None)`
 /// sends every caller to its CPU path.

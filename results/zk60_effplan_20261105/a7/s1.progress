@@ -1,0 +1,59 @@
+2026-11-05T10:24:38Z start
+2026-11-05T10:27:06Z build rc=0
+2026-11-05T10:27:08Z a7 queue byte test rc=0
+2026-11-05T10:28:41Z d55 timeline + queue A/B rc=0
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 serial (D12a) (queues shared): the whole call, 11.447 s
+  window 11.4473 s: 576 command buffers; GPU busy (>= 1 executing) 3.1989 s = 27.9%, idle 8.2484 s = 72.1%; summed command-buffer GPU time 3.1989 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  idle gaps: 577 totalling 8.2484 s, longest 271.27 ms; < 20 us 0 (-0.0000 s), 20-50 us 0 (-0.0000 s), 50-200 us 0 (-0.0000 s), 0.2-1 ms 0 (-0.0000 s), 1-5 ms 219 (0.7290 s), >= 5 ms 358 (7.5194 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 serial (D12a) (queues shared): the whole call, 10.863 s
+  window 10.8625 s: 577 command buffers; GPU busy (>= 1 executing) 3.1804 s = 29.3%, idle 7.6821 s = 70.7%; summed command-buffer GPU time 3.1804 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  idle gaps: 578 totalling 7.6821 s, longest 272.98 ms; < 20 us 0 (-0.0000 s), 20-50 us 0 (-0.0000 s), 50-200 us 0 (-0.0000 s), 0.2-1 ms 0 (-0.0000 s), 1-5 ms 237 (0.7970 s), >= 5 ms 341 (6.8851 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the whole call, 5.708 s
+  window 5.7078 s: 579 command buffers; GPU busy (>= 1 executing) 2.8078 s = 49.2%, idle 2.8999 s = 50.8%; summed command-buffer GPU time 5.6670 s (mean 2.02 at once while busy); >= 2 at once 1.8421 s = 65.6% of busy
+  idle gaps: 295 totalling 2.8999 s, longest 167.51 ms; < 20 us 18 (0.0000 s), 20-50 us 0 (-0.0000 s), 50-200 us 4 (0.0004 s), 0.2-1 ms 19 (0.0106 s), 1-5 ms 105 (0.2855 s), >= 5 ms 149 (2.6034 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the forks phase, 5.310 s
+  window 5.3097 s: 515 command buffers; GPU busy (>= 1 executing) 2.7922 s = 52.6%, idle 2.5176 s = 47.4%; summed command-buffer GPU time 5.6513 s (mean 2.02 at once while busy); >= 2 at once 1.8421 s = 66.0% of busy
+  idle gaps: 231 totalling 2.5176 s, longest 165.17 ms; < 20 us 18 (0.0000 s), 20-50 us 0 (-0.0000 s), 50-200 us 4 (0.0004 s), 0.2-1 ms 19 (0.0106 s), 1-5 ms 73 (0.2109 s), >= 5 ms 117 (2.2956 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 serial (D12a) (queues shared): the whole call, 11.099 s
+  window 11.0993 s: 576 command buffers; GPU busy (>= 1 executing) 3.1951 s = 28.8%, idle 7.9043 s = 71.2%; summed command-buffer GPU time 3.1951 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  idle gaps: 577 totalling 7.9043 s, longest 265.00 ms; < 20 us 0 (-0.0000 s), 20-50 us 0 (-0.0000 s), 50-200 us 0 (-0.0000 s), 0.2-1 ms 0 (-0.0000 s), 1-5 ms 220 (0.7290 s), >= 5 ms 357 (7.1753 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the whole call, 5.179 s
+  window 5.1788 s: 580 command buffers; GPU busy (>= 1 executing) 2.8332 s = 54.7%, idle 2.3456 s = 45.3%; summed command-buffer GPU time 6.0669 s (mean 2.14 at once while busy); >= 2 at once 2.0848 s = 73.6% of busy
+  idle gaps: 263 totalling 2.3456 s, longest 177.05 ms; < 20 us 18 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 3 (0.0003 s), 0.2-1 ms 16 (0.0096 s), 1-5 ms 99 (0.2707 s), >= 5 ms 126 (2.0649 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the forks phase, 4.798 s
+  window 4.7976 s: 516 command buffers; GPU busy (>= 1 executing) 2.8189 s = 58.8%, idle 1.9787 s = 41.2%; summed command-buffer GPU time 6.0526 s (mean 2.15 at once while busy); >= 2 at once 2.0848 s = 74.0% of busy
+  idle gaps: 199 totalling 1.9787 s, longest 175.05 ms; < 20 us 18 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 3 (0.0003 s), 0.2-1 ms 16 (0.0096 s), 1-5 ms 67 (0.1989 s), >= 5 ms 94 (1.7699 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the whole call, 5.306 s
+  window 5.3055 s: 579 command buffers; GPU busy (>= 1 executing) 2.8521 s = 53.8%, idle 2.4535 s = 46.2%; summed command-buffer GPU time 6.0558 s (mean 2.12 at once while busy); >= 2 at once 2.0700 s = 72.6% of busy
+  idle gaps: 268 totalling 2.4535 s, longest 218.05 ms; < 20 us 20 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 7 (0.0006 s), 0.2-1 ms 20 (0.0098 s), 1-5 ms 90 (0.2436 s), >= 5 ms 130 (2.1994 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the forks phase, 4.909 s
+  window 4.9090 s: 515 command buffers; GPU busy (>= 1 executing) 2.8370 s = 57.8%, idle 2.0720 s = 42.2%; summed command-buffer GPU time 6.0408 s (mean 2.13 at once while busy); >= 2 at once 2.0700 s = 73.0% of busy
+  idle gaps: 204 totalling 2.0720 s, longest 215.88 ms; < 20 us 20 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 7 (0.0006 s), 0.2-1 ms 20 (0.0098 s), 1-5 ms 58 (0.1674 s), >= 5 ms 98 (1.8941 s)
+D55-AB QUEUES W16R2_8B_T128_H24 L32 T128 forks N6 queues shared pass 0: wall 5.306 s = 24.13 proved tok/s; preflight 0.082 s, commit 0.232 s, forks 4.909 s, join 0.083 s; receipt 818728672 B
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 5.115 s
+  window 5.1146 s: 580 command buffers; GPU busy (>= 1 executing) 2.8908 s = 56.5%, idle 2.2238 s = 43.5%; summed command-buffer GPU time 6.4204 s (mean 2.22 at once while busy); >= 2 at once 2.0665 s = 71.5% of busy
+  idle gaps: 265 totalling 2.2238 s, longest 203.33 ms; < 20 us 9 (0.0000 s), 20-50 us 0 (-0.0000 s), 50-200 us 4 (0.0005 s), 0.2-1 ms 21 (0.0131 s), 1-5 ms 104 (0.2586 s), >= 5 ms 127 (1.9517 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.729 s
+  window 4.7291 s: 516 command buffers; GPU busy (>= 1 executing) 2.8746 s = 60.8%, idle 1.8545 s = 39.2%; summed command-buffer GPU time 6.4041 s (mean 2.23 at once while busy); >= 2 at once 2.0665 s = 71.9% of busy
+  idle gaps: 201 totalling 1.8545 s, longest 201.55 ms; < 20 us 9 (0.0000 s), 20-50 us 0 (-0.0000 s), 50-200 us 4 (0.0005 s), 0.2-1 ms 21 (0.0131 s), 1-5 ms 72 (0.1890 s), >= 5 ms 95 (1.6520 s)
+D55-AB QUEUES W16R2_8B_T128_H24 L32 T128 forks N6 queues thread pass 0: wall 5.115 s = 25.03 proved tok/s; preflight 0.075 s, commit 0.235 s, forks 4.729 s, join 0.075 s; receipt 818728672 B
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the whole call, 5.145 s
+  window 5.1449 s: 578 command buffers; GPU busy (>= 1 executing) 2.8266 s = 54.9%, idle 2.3183 s = 45.1%; summed command-buffer GPU time 6.0011 s (mean 2.12 at once while busy); >= 2 at once 2.1074 s = 74.6% of busy
+  idle gaps: 255 totalling 2.3183 s, longest 198.82 ms; < 20 us 20 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 4 (0.0003 s), 0.2-1 ms 14 (0.0069 s), 1-5 ms 84 (0.2272 s), >= 5 ms 132 (2.0839 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues shared): the forks phase, 4.755 s
+  window 4.7549 s: 514 command buffers; GPU busy (>= 1 executing) 2.8120 s = 59.1%, idle 1.9428 s = 40.9%; summed command-buffer GPU time 5.9865 s (mean 2.13 at once while busy); >= 2 at once 2.1074 s = 74.9% of busy
+  idle gaps: 191 totalling 1.9428 s, longest 195.69 ms; < 20 us 20 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 4 (0.0003 s), 0.2-1 ms 14 (0.0069 s), 1-5 ms 52 (0.1557 s), >= 5 ms 100 (1.7799 s)
+D55-AB QUEUES W16R2_8B_T128_H24 L32 T128 forks N6 queues shared pass 1: wall 5.145 s = 24.88 proved tok/s; preflight 0.077 s, commit 0.235 s, forks 4.755 s, join 0.079 s; receipt 818728672 B
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the whole call, 4.798 s
+  window 4.7979 s: 582 command buffers; GPU busy (>= 1 executing) 2.8282 s = 58.9%, idle 1.9696 s = 41.1%; summed command-buffer GPU time 6.6129 s (mean 2.34 at once while busy); >= 2 at once 2.1156 s = 74.8% of busy
+  idle gaps: 256 totalling 1.9696 s, longest 231.81 ms; < 20 us 10 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 4 (0.0004 s), 0.2-1 ms 28 (0.0151 s), 1-5 ms 90 (0.2464 s), >= 5 ms 123 (1.7077 s)
+D55-AB A7 TIMELINE W16R2_8B_T128_H24 L32 forks N6 (queues thread): the forks phase, 4.413 s
+  window 4.4129 s: 518 command buffers; GPU busy (>= 1 executing) 2.8145 s = 63.8%, idle 1.5984 s = 36.2%; summed command-buffer GPU time 6.5992 s (mean 2.34 at once while busy); >= 2 at once 2.1156 s = 75.2% of busy
+  idle gaps: 192 totalling 1.5984 s, longest 230.00 ms; < 20 us 10 (0.0000 s), 20-50 us 1 (0.0000 s), 50-200 us 4 (0.0004 s), 0.2-1 ms 28 (0.0151 s), 1-5 ms 58 (0.1720 s), >= 5 ms 91 (1.4109 s)
+D55-AB QUEUES W16R2_8B_T128_H24 L32 T128 forks N6 queues thread pass 1: wall 4.798 s = 26.68 proved tok/s; preflight 0.078 s, commit 0.227 s, forks 4.413 s, join 0.080 s; receipt 818728672 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.863 s = 11.78 tok/s | mean 10.981 s = 11.66 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 5.179 s = 24.72 tok/s | mean 5.443 s = 23.52 tok/s | 2.10x serial (best)
+D55-AB SUMMARY | forks N=6 queues shared | A7 queue A/B, interleaved | best 5.145 s = 24.88 tok/s | mean 5.225 s = 24.50 tok/s
+D55-AB SUMMARY | forks N=6 queues thread | A7 queue A/B, interleaved | best 4.798 s = 26.68 tok/s | mean 4.956 s = 25.83 tok/s
+2026-11-05T10:28:41Z all done

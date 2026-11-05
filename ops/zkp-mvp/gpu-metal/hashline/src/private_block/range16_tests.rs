@@ -147,6 +147,65 @@ fn the_w16_ir_evaluates_to_the_w16_closure_at_every_slot() {
     assert_eq!(transcribed, 4 * 6, "the five W16 zero-checks and the table slot at every group count");
 }
 
+/// **Efficiency plan A6 census (2026-11-05): what the device evaluates per point, by slot.**
+/// For each device slot of a shape: the DECLARED degree D (the round message's length),
+/// the degree the IR attains (a slot whose IR stays below D has a round polynomial of
+/// lower degree, so its top point follows from the others: no evaluation needed), the
+/// tables, the term degrees, and the field multiplies of one point of the later-round
+/// kernel as generated (`gl_mul` 1, `f2_mulb` 2, `f2_mul` 3 base products). A census,
+/// not a check: it asserts only that the IR builds and stays within D.
+#[cfg(feature = "gpu-metal")]
+#[test]
+#[ignore = "census (efficiency plan A6): the device slots' degrees and multiplies per point"]
+fn effplan_a6_census_of_the_device_slots() {
+    use super::argument::{define, Ctx, Points};
+    use super::slot_ir::{build_slot_ir, IrPoints};
+    use crate::field::Fp2;
+    use crate::transcript::Transcript;
+    let k = |v: i64| Fp2::from_i64(v);
+    for (profile, ng) in [(shape::W16R2_8B_T128_H24, 3usize), (shape::W16R2_RUNG_H24, 3)] {
+        let (sh, data, public, ff) = case(built(profile), ng);
+        let lay = Layout::for_shape(&sh).unwrap();
+        let ctx = Ctx { accuracy: Some(&data), lay: &lay, public: &public, ff: &ff, alpha: k(7).add(Fp2::U), beta: k(11), g_u8: k(13), g_exp: k(17), g_act: k(19), g_dd: k(23) };
+        let (mut pts, mut ipts) = (Points::default(), IrPoints::default());
+        let mut tr = Transcript::new(sh.profile.as_bytes());
+        for slot in 0..sh.n_slots() {
+            let mut twin = Transcript::clone_state(&tr);
+            let ir = build_slot_ir(slot, &ctx, &mut ipts, &mut twin);
+            let _def = define(slot, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("{profile} slot {slot}: {e}"));
+            let Ok(ir) = ir else {
+                eprintln!("A6-CENSUS {profile} slot {slot:02}: no IR (the CPU evaluates it)");
+                continue;
+            };
+            let declared = sh.slots()[slot].2;
+            let attained = ir.max_term_degree();
+            assert!(attained <= declared, "{profile} slot {slot}: the IR exceeds the declared degree");
+            let degs = ir.recompute_degrees();
+            let mut hist = vec![0usize; declared + 1];
+            for t in &ir.terms {
+                let d = t.wrapper.len() + t.inner.iter().map(|f| match f { super::slot_ir::Factor::Table(_) => 1, super::slot_ir::Factor::Node(n) => degs[*n as usize] }).sum::<usize>();
+                hist[d.min(declared)] += 1;
+            }
+            let (_k0, k1, _cf, base) = super::metal_slot::msl_round_kernels(&ir);
+            let count = |s: &str, pat: &str| s.matches(pat).count();
+            let (f2m, f2b, glm) = (count(&k1, "f2_mul("), count(&k1, "f2_mulb("), count(&k1, "gl_mul("));
+            let muls = 3 * f2m + 2 * f2b + glm;
+            eprintln!(
+                "A6-CENSUS {profile} slot {slot:02} [{}]: 2^{} x {} tables ({} base in round 0), declared degree {declared}, attained {attained}{}; {} nodes ({} affine), {} terms by degree {:?}; one later-round point: {f2m} f2_mul + {f2b} f2_mulb + {glm} gl_mul = {muls} base products",
+                ir.name,
+                ir.main_rounds,
+                ir.tables.len(),
+                base.iter().filter(|b| **b).count(),
+                if attained < declared { " (TOP POINT FOLLOWS FROM THE OTHERS)" } else { "" },
+                ir.nodes.len(),
+                ir.affine_forms(),
+                ir.terms.len(),
+                hist
+            );
+        }
+    }
+}
+
 /// **Efficiency plan B4/B5 census (2026-11-05): what one block commits, by domain.** For each
 /// shape it prints the committed A planes and H planes per domain, with their rows, and the
 /// lookups per position. H holds the LogUp helpers (two words per helper: re, im), which
