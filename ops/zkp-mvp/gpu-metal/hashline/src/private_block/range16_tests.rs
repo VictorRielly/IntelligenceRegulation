@@ -147,6 +147,45 @@ fn the_w16_ir_evaluates_to_the_w16_closure_at_every_slot() {
     assert_eq!(transcribed, 4 * 6, "the five W16 zero-checks and the table slot at every group count");
 }
 
+/// **Efficiency plan B4/B5 census (2026-11-05): what one block commits, by domain.** For each
+/// shape it prints the committed A planes and H planes per domain, with their rows, and the
+/// lookups per position. H holds the LogUp helpers (two words per helper: re, im), which
+/// B5 (LogUp-GKR) would remove. A's limb and remainder planes are what B4 (probabilistic range
+/// checks) would thin. A census, not a check: it asserts only that the per-domain rows add up
+/// to the layout's own totals.
+#[test]
+#[ignore = "census (efficiency plan B4/B5): prints the committed rows of a block by domain"]
+fn effplan_census_of_the_committed_rows_by_domain() {
+    use std::collections::BTreeMap;
+    for profile in [shape::W16R2_8B_T128_H24, shape::R13_8B_T128_H24, shape::W16R2_RUNG_H24] {
+        let sh = built(profile);
+        let lay = Layout::for_shape(&sh).unwrap();
+        let count = |doms: &[layout::Dom]| -> BTreeMap<String, (usize, usize)> {
+            let mut m: BTreeMap<String, (usize, usize)> = BTreeMap::new();
+            for d in doms {
+                let e = m.entry(format!("{d:?}")).or_insert((0, 0));
+                e.0 += 1;
+                e.1 += sh.rows_of(*d);
+            }
+            m
+        };
+        let (a, h) = (count(&sh.a_plane_doms()), count(&sh.h_plane_doms()));
+        let rows = |m: &BTreeMap<String, (usize, usize)>| m.values().map(|v| v.1).sum::<usize>();
+        eprintln!("CENSUS {} (n = 2^{}): A rows {} (data {}), H rows {} (data {})", sh.name, sh.log_cols, lay.a_rows, lay.a_data_rows, lay.h_rows, lay.h_data_rows);
+        for (side, m) in [("A", &a), ("H", &h)] {
+            for (dom, (planes, r)) in m {
+                eprintln!("CENSUS {}   {side} {dom:<4} planes {planes:>4}  rows {r:>6}", sh.name);
+            }
+            eprintln!("CENSUS {}   {side} data rows by domain: {}", sh.name, rows(m));
+        }
+        let lk: Vec<String> = [layout::Dom::L, layout::Dom::D, layout::Dom::Q, layout::Dom::Kv, layout::Dom::F, layout::Dom::S, layout::Dom::Dd]
+            .iter()
+            .map(|d| format!("{d:?}={}", sh.lookups_per_position(*d)))
+            .collect();
+        eprintln!("CENSUS {}   lookups per position: {}", sh.name, lk.join(" "));
+    }
+}
+
 /// **D63 L3 finding F1: the extension premise, checked statically.** The masked
 /// sumcheck's extension round `m` publishes `s_m(1) = poly(ext)`. There, every
 /// private table of round `m` holds its mask value and every other table is zero:

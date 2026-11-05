@@ -50,3 +50,39 @@ the six pinned trained digests and the receipt sizes must stay unchanged.
 - **Concurrency matters:** in the fork run the same blocks take 0.42–1.25 s each, and 32 blocks finish in about 4.7 s
   on 6 workers. That is about 0.15 s of wall per block, so CPU and GPU phases overlap across forks. A7's per-fork
   queues and GPU timestamps will show which resource limits.
+
+## A3: the witness cache sized to the machine, done
+
+**Change** (`trained_block.rs`). Without `--witness-cache-gib`, `stack-prove` keeps the sealing pass's witnesses up to
+an eighth of physical RAM, at least the old 4 GiB and at most 64 (`default_witness_cache_gib`). Test builds keep 4.
+The old fixed 4 GiB kept only about 13 of an 8B run's 32 witnesses (about 0.3 GB each) and rebuilt the other 19
+serially on the fork feeder during proving.
+
+**Acceptance** (`check_a3.sh`, `a3.progress`):
+- the A3 test reports 256 GiB of RAM and a 32 GiB default on this Mac;
+- the trained-stack CLI tests show only the known `review_n_r6_b` failure;
+- the full lib suite is 914 / 3 known / 95.
+
+**The effect is not measured on the Mac**: no trained 8B export is here. It equals the harness's SEALED arm, with all
+32 kept, against the rebuild path [INFERRED].
+
+## Census of what a block commits (for B4 and B5)
+
+`range16_tests::effplan_census_of_the_committed_rows_by_domain` (ignored); log `census.log`.
+
+| W16R2 8B T128 | A (witness words, limbs, remainders, histograms) | H (LogUp helpers, Fp2 = 2 rows each) |
+|---|---:|---:|
+| data rows | 2,279 | 2,514 (1,257 helper planes' rows × 2) |
+| F domain (feed-forward) | 9 planes, 1,152 rows | 5 helpers, 1,280 rows |
+| D domain | 19 planes, 608 rows | 10 helpers, 640 rows |
+| S / Q / Kv | 256 / 192 / 48 rows | 320 / 192 / 48 rows |
+| lookups per position | — | D 19, F 7, S 7, Q 6, Kv 6, L 2 |
+
+**What it says.** 52% of a block's committed data rows are LogUp helpers. The A1 table puts the H commit at 12% of
+the block's time, the helper inverses at 5%, and the helper tables inside slots 14 and 18.
+- **B5, LogUp-GKR,** replaces committed helpers with a GKR proof.
+- **B4, probabilistic range checks,** lowers the lookups per position, mainly D's 19, and so thins both H and A's limb
+  planes.
+
+These are the two largest structural levers. Both need their design studies, decision 3 of the plan, before any
+estimate.

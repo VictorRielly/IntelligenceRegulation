@@ -2980,7 +2980,8 @@ const STACK_SCOPE: &str = "ALL the listed trained blocks of the export's model (
 /// `run::prove_run_with` writes one segment per block into `--out` (a NEW
 /// directory), handing out the sealed boundary planes and the kept witnesses
 /// (rebuilding, and checking, any the `--witness-cache-gib` budget did not
-/// keep; default 4). (4) With `--verify-in-process` the run is verified from
+/// keep; default an eighth of the machine's RAM, at least 4 and at most 64 GiB:
+/// [`default_witness_cache_gib`]). (4) With `--verify-in-process` the run is verified from
 /// the directory and its public statement written to `<out>/statement/`;
 /// WITHOUT it (the default since R5-2) the prover-written statement goes to
 /// `<out>.unverified-statement/` and only `stack-verify`'s fresh-process
@@ -3021,6 +3022,34 @@ pub fn trained_stack_prove_command(args: &[String]) -> i32 {
     }
 }
 
+/// **Efficiency plan A3: the witness cache's default budget, sized to the machine.** An
+/// eighth of physical RAM, at least the old 4 GiB and at most 64 (the flag's ceiling). On the
+/// 256 GB Mac that is 32 GiB, which keeps every witness of a 32-block 8B run (about 0.3 GB
+/// each), so the proving pass rebuilds none. A 16 GB laptop keeps the old 4. A machine whose
+/// RAM cannot be read keeps 4. The budget only decides what is kept or rebuilt; a rebuilt
+/// witness is checked against the sealed output, so the receipt is the same either way.
+fn default_witness_cache_gib() -> f64 {
+    total_ram_gib().map(|g| (g / 8.0).clamp(4.0, 64.0)).unwrap_or(4.0)
+}
+
+/// physical RAM in GiB: `sysctl hw.memsize` on macOS, `MemTotal` on Linux
+fn total_ram_gib() -> Option<f64> {
+    #[cfg(target_os = "macos")]
+    {
+        let out = std::process::Command::new("/usr/sbin/sysctl").args(["-n", "hw.memsize"]).output().ok()?;
+        let bytes: f64 = String::from_utf8(out.stdout).ok()?.trim().parse().ok()?;
+        return Some(bytes / (1u64 << 30) as f64);
+    }
+    #[cfg(target_os = "linux")]
+    {
+        let s = std::fs::read_to_string("/proc/meminfo").ok()?;
+        let kb: f64 = s.lines().find(|l| l.starts_with("MemTotal:"))?.split_whitespace().nth(1)?.parse().ok()?;
+        return Some(kb / (1u64 << 20) as f64);
+    }
+    #[allow(unreachable_code)]
+    None
+}
+
 fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let t_total = Instant::now();
     let export = PathBuf::from(need(f, "--export")?);
@@ -3033,6 +3062,9 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     };
     let budget_gib: f64 = match flag(f, "--witness-cache-gib") {
         Some(v) => v.parse().map_err(|_| "--witness-cache-gib is not a number")?,
+        // efficiency plan A3: sized to the machine (the old fixed 4 GiB kept only about 13 of
+        // an 8B run's 32 witnesses and rebuilt the rest serially on the fork feeder)
+        None if cfg!(not(test)) => default_witness_cache_gib(),
         None => 4.0,
     };
     if !(0.0..=64.0).contains(&budget_gib) {
@@ -3692,6 +3724,25 @@ pub(crate) mod refusal {
             assert_eq!(std::fs::metadata(&p).unwrap().permissions().mode() & 0o777, 0o600, "the log is not 0600");
             assert_eq!(std::fs::metadata(&dir).unwrap().permissions().mode() & 0o777, 0o700, "the log directory is not 0700");
             let _ = std::fs::remove_dir_all(&dir);
+        }
+    }
+}
+
+/// Efficiency plan A3: the default witness-cache budget is sized to the machine, inside the
+/// flag's bounds.
+#[cfg(test)]
+mod a3_tests {
+    #[test]
+    fn a3_the_default_witness_cache_is_sized_to_the_machine() {
+        let g = super::default_witness_cache_gib();
+        assert!((4.0..=64.0).contains(&g), "the default budget {g} GiB is outside 4..=64");
+        match super::total_ram_gib() {
+            Some(r) => {
+                assert!(r > 1.0, "the machine reports {r} GiB of RAM");
+                assert_eq!(g, (r / 8.0).clamp(4.0, 64.0));
+                eprintln!("A3: {r:.0} GiB of RAM, default witness cache {g:.1} GiB");
+            }
+            None => assert_eq!(g, 4.0),
         }
     }
 }

@@ -1,0 +1,10 @@
+2026-11-05T08:48:44Z start
+2026-11-05T08:51:04Z build rc=0
+2026-11-05T08:53:22Z a3 test rc=0 A3: 256 GiB of RAM, default witness cache 32.0 GiB
+2026-11-05T08:53:33Z trained_stack_tests rc=101 test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 1006 filtered out; finished in 10.98s
+2026-11-05T08:58:27Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 914 passed; 3 failed; 95 ignored; 0 measured; 0 filtered out; finished in 293.26s
+2026-11-05T08:58:27Z all done
