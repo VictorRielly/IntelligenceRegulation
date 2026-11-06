@@ -1,0 +1,26 @@
+2026-11-06T15:53:46Z start
+2026-11-06T15:56:29Z test build rc=0
+2026-11-06T16:07:16Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 959 passed; 3 failed; 130 ignored; 0 measured; 0 filtered out; finished in 646.48s
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+test private_block::witness::lean_l1_export_tests::lean_l1_export_the_fixture_trace ... ok
+test private_block::witness::lean_l1_export_tests::lean_l1_export_the_t128_rung_trace ... ok
+2026-11-06T16:07:40Z lake build rc=0
+✔ [3428/3429] Built ZK60Formal (1.7s)
+Build completed successfully (3429 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-06T16:07:45Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+7dae3c9b6607d21ab18452d7ed3f065e07336f27a2cd1c929a6e565f1f1cdfdf  /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/rung/rung_t128_trace.tsv
+2026-11-06T16:08:16Z rung L1 check rc=0
+L1 TOTAL: 760388 checks, 0 failed
+2026-11-06T16:08:18Z axiom audit rc=0
+sorryAx mentions: 0
+  53 axioms: [propext, Classical.choice, Quot.sound]
+   5 axioms: [propext, Quot.sound]
+   5 axioms: [propext]
+theorems with no axioms: 2
+2026-11-06T16:08:18Z all done

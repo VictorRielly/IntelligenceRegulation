@@ -127,8 +127,24 @@ here. The rates count proving and witness work. Verification time is recorded se
   - Peak memory is down from 60 to 46 GiB.
   - One request through the server: 20.2 tok/s.
   - What is left is the prover core: the fork run is 3.64 s of a 3.93 s period.
-- **Running now:**
-  - **Lean L2b:** matmul, RoPE, the products and the SiLU table inside the iff, then the block-level `CircuitIff`.
+- **D63 Lean, the block-level `CircuitIff` proved (second round, 2026-11-06)** [PROVED; MEASURED for L1].
+  - `block_circuitIff : CircuitIff (blockModel S P) (blockArith S P)` is an instance of the approved statement: a W16R2
+    block's constraint system is satisfiable exactly when its output is the integer model's. `run_circuitIff` chains
+    blocks through their boundary planes. Both are at the block's logical positions.
+  - Newly in the iff: the matmul hand-off (every hosted value below 2^58, so the 2^62 premise is proved), RoPE, the
+    products, the exp and SiLU lookups, and the gate with its class.
+  - The full Lean build is green, with no warnings, `sorry`, `native_decide` or new axiom.
+  - L1: the fixture passes 101,956 checks and the T = 128 rung 760,388 checks, 0 failed.
+  - **Premises left:**
+    - what `Satisfies` asserts, which is L3's to discharge: the zero-checks, the hosted sums and the row sums;
+    - the LogUp premise, stated exactly: every looked-up tuple is in the code's table;
+    - the layout map;
+    - the run's boundary link.
+  - Not modelled: the embedding and token stages, DD, and the Low stack's 16-bit product. L1 covers the Low stack.
+  - **Next:** compose with L3, which turns an accepting transcript into `Satisfies`; then the layout map; then
+    `ProductionReady`.
+  - **For Victor, later:** the statement's admissibility cannot see the weights. This is sound under P1, but P3 (hidden
+    weights) will need a statement change.
 - **D63 Lean, L1 and L2 begun (merged acf5c78a; checked on the merged tree)** [PROVED; MEASURED for the L1 check].
   - The integer model is written in executable Lean.
   - The constraint families requantization (with the residuals), RMSNorm and softmax hold exactly when the integer
