@@ -19,9 +19,10 @@ here. The rates count proving and witness work. Verification time is recorded se
 | the sealing builder's serial work (A16: cached layouts, parallel loops, one public check per block) | sealing 3.5 s | **sealing 1.5–1.7 s**; one request −23.8%, stream +12.8% (A/B, both orders, every pair) |
 | the forks' table helpers and registry re-check (A18: inverse tables reused; the preflight's record stands in for `define`'s check) | 4.65 ms per block | 0.78 ms; neutral overall: one request −1.9%, proof only +0.7%, stream +0.3% (A/B, both orders) |
 | production's D55 path proves with the blocks its sealing pass loaded (A19: no second load of all 32 blocks) | 19.3 s per request in production | **15.3 s**; one request −20.9% (A/B through production's function, both orders, every pair) |
-| **one request from its input, all witness work on the clock (the harness: the model already in memory)** | 11.1 tok/s | **23.6–23.9 tok/s** (best 5.35–5.41 s) |
-| **one request through production's `stack-prove` path (each layer loaded and hashed per request; synthetic 8B stack)** | 6.6 tok/s (19.3 s, before A19) | **8.4 tok/s** (best 15.24–15.30 s) |
-| **a stream of 4 requests, steady (the harness)** | 15.9 tok/s | **32.8–33.4 tok/s** (amortized 29.1–29.6; latency 5.8–10.9 s) |
+| production's per-request host work (A20: the loads 4 layers ahead on their own threads, the record's digest beside its SHA-256s, the receipt written by 16 threads) | 16.1 s per request in production | **8.0 s**; one request −50.1% (A/B through production's function, both orders, every pair) |
+| **one request from its input, all witness work on the clock (the harness: the model already in memory)** | 11.1 tok/s | **23.4–23.9 tok/s** (best 5.35–5.47 s) |
+| **one request through production's `stack-prove` path (each layer loaded and hashed per request; synthetic 8B stack)** | 6.6 tok/s (19.3 s, before A19) | **16.3–16.9 tok/s** (best 7.59–7.87 s) |
+| **a stream of 4 requests, steady (the harness)** | 15.9 tok/s | **32.3–33.4 tok/s** (amortized 28.8–29.6; latency 5.8–10.9 s) |
 | proof only | 22.7 tok/s | **32.5–34.2 tok/s** (best 3.75–3.94 s; it varies from run to run on the shared Mac) |
 
 - The CLI's witness cache is now sized to the machine (A3).
@@ -94,6 +95,22 @@ here. The rates count proving and witness work. Verification time is recorded se
       export is measured.
   - The harness rows above are what a server that keeps the model in memory could reach. They are not what today's
     one-request CLI gives.
+- **A20: production's one request halved, 16.1 → 8.0 s (16.3–16.9 tok/s)** [MEASURED, A/B on the merged tree through
+  production's function, every pair; byte-identical; H-1 still holds, D71].
+  - SHA-256 runs in software on this Mac (about 0.5 GB/s). Each layer's record took 252 ms, and the receipt write was
+    mostly frame hashing.
+  - A19's "the loads slow the builds 5×" was a clock artifact: the builds take 40 ms each, and the sealing pass was
+    waiting for its loads. With 4 loads ahead on their own threads, the record's digest beside its SHA-256s and 16
+    receipt writers, the sealing pass fell from 9.7 to 3.3 s and the write from 1.95 to 0.33 s. The prove call (4.3 s)
+    is now more than half of the request.
+- **Running now:**
+  - **A22, the production stream (D70, Victor 2026-11-06: "lets build a 33 toks/s stream").** A long-lived prover:
+    the model loaded and its records made once, request r + 1's sealing pass beside request r's fork run, as the
+    harness's 32.3–33.4 tok/s stream does. Byte-preserving per request, fresh randomness per request, H-1 per request.
+  - **A21:** hardware SHA-256 in-tree (Arm intrinsics, no new crate) and a parallel BLAKE3 block digest.
+  - **Lean L1/L2:** the integer model and `circuit_iff` for the W16R2 slot families, starting with the range checks
+    and lookups (52% of committed rows are LogUp helpers). It also records every constraint or range bound the proofs
+    show to be slack, as optimization candidates (Victor's idea, 2026-11-06).
 - **From 2026-11-05 the Mac's GPU is shared** with a frugal-lm research agent (Victor). Timing runs wait for it to be
   idle, and clocks taken beside it are not used (`ZK60_RESOURCE_PROTOCOL.md`, last section).
 - **W16R3 is worth less than first modeled** (Sol's B1–B3 note, reviewed and accepted, 2026-11-05):
@@ -102,9 +119,8 @@ here. The rates count proving and witness work. Verification time is recorded se
   - about 2–8% off one request, and the receipt 819 → about 767 MB [MODEL].
   - The soundness rate improves slightly (2^-102.93 → 2^-103.02). B1 carries most of the saving, and B6 needs it.
 - **D64's target is ≥ 110.** Next:
-  - production's per-request costs (A20, running): each layer's load and record hashing beside the witness builds,
-    and the receipt write, cut without moving a byte. After that, a production form that keeps the model in memory
-    and serves a stream of requests, which is where the harness's numbers and A13's window apply;
+  - production's stream form (A22, running), which is where the harness's numbers and A13's window apply; and the
+    host hashing (A21, running);
   - the forks' remaining host work (zero-fill, store fold, helper inverses, public weight folds, randomness), since the
     forks now bound the stream;
   - the protocol bundle W16R3, ruled 2026-11-05 (D67): B1 + B2 + B3, no B4. Sol builds B1 first, then B2 and B3, each
