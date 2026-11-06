@@ -2797,8 +2797,12 @@ pub(crate) fn a20_loads() -> usize {
     super::trained_statement::a20_switch(&A20_LOADS_TEST, &ENV, "HL_A20_LOADS", A20_LOADS_DEFAULT).min(8)
 }
 
-/// [A20] the measured default (`results/zk60_effplan_20261105/a20/README.md`)
-const A20_LOADS_DEFAULT: usize = 3;
+/// [A20] the measured default (`results/zk60_effplan_20261105/a20/README.md`, section
+/// 5): at 8B, 32 layers, through production's function, 6 passes, both orders, with
+/// the record's digest beside its SHA-256s and the receipt's 16 writers: 3 loads ahead
+/// against 2 one request -6.1% (6 of 6 pairs), 4 against 3 -2.0% (5 of 6) and its
+/// sealing pass -3.8% (6 of 6); every A20 form against none -48.9% (at 3)
+const A20_LOADS_DEFAULT: usize = 4;
 
 /// tests: `n` loads ahead (`Some(0)`: the path before A20; `None`: as the environment
 /// says). Changes no byte (see above).

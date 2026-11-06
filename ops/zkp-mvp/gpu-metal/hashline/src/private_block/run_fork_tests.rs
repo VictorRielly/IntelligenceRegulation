@@ -4630,14 +4630,16 @@ fn a19_production_d55_ab() {
 // ---- [A20] production's per-request host work: the sealing pass's loads and the receipt write ----
 //
 // (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A20;
-// `results/zk60_effplan_20261105/a20/README.md`.) Four byte-preserving forms, each
-// restored by its switch at 0: `HL_A20_CAST` and `HL_A20_RECPAR` (the layer record's
-// hashing, `trained_statement.rs`), `HL_A20_LOADS` (the sealing pass's loads ahead of
-// its builds, on threads of their own, `trained_block.rs`) and `HL_A20_WRITE` (the
-// receipt's frames written by several threads, `run_fork.rs`). The tests:
+// `results/zk60_effplan_20261105/a20/README.md`.) Three byte-preserving forms, each
+// restored by its switch at 0: `HL_A20_RECPAR` (the layer record's block digest beside
+// its SHA-256s, `trained_statement.rs`), `HL_A20_LOADS` (the sealing pass's loads ahead
+// of its builds, on threads of their own, `trained_block.rs`) and `HL_A20_WRITE` (the
+// receipt's frames written by several threads, `run_fork.rs`). A fourth, the words
+// hashed in place, was measured (stage 2) and removed; its A/B word `cast0` is kept as
+// a no-op so that stage 2's arms still parse. The tests:
 // * **the records** (suite): every layer record, its block digest, its nine word
 //   SHA-256s against an independent hash of each word's bytes, and the statement
-//   identity, under every record setting: the W16R2 rung block, a legacy block and
+//   identity, under both record settings: the W16R2 rung block, a legacy block and
 //   every layer of the R13 export through the loader (the 8B block: ignored);
 // * **the sealing pass** (suite): everything `seal_chain` returns but its clocks, on
 //   the R13 export, under every load and record setting at two budgets; and its
@@ -4653,7 +4655,7 @@ fn a19_production_d55_ab() {
 // * **the 8B synthetic block** (ignored): records, the sealing pass over A19's
 //   synthetic 8B stack, and production's path on Metal, under the forms off and on;
 // * the profile (stage 1) and the A/B words of `a19_production_d55_ab`: `a20old`
-//   (every form off), `cast0/1`, `recpar0/1`, `loads<n>`, `write<n>`.
+//   (every form off), `recpar0/1`, `loads<n>`, `write<n>` (and the no-op `cast0`).
 
 /// [A20] the forms' switches are the whole process's: the suite's tests that SET them
 /// take this lock (a test that only reads them is unaffected: no form moves a byte)
@@ -4665,20 +4667,19 @@ fn a20_knobs() -> std::sync::MutexGuard<'static, ()> {
 /// [A20] one arm's forms (`None`: as the environment says)
 #[derive(Clone, Copy, Debug, Default)]
 struct A20Arm {
-    cast: Option<bool>,
     recpar: Option<bool>,
     loads: Option<usize>,
     write: Option<usize>,
 }
 
-/// [A20] one `+`-joined word of an arm, if it is A20's
+/// [A20] one `+`-joined word of an arm, if it is A20's (`cast0`: the removed form's
+/// off, now the only path, a no-op kept so that stage 2's arms parse)
 fn a20_word(a: &mut A20Arm, w: &str) -> bool {
     match w {
-        "cast0" => a.cast = Some(false),
-        "cast1" => a.cast = Some(true),
+        "cast0" => {}
         "recpar0" => a.recpar = Some(false),
         "recpar1" => a.recpar = Some(true),
-        "a20old" => *a = A20Arm { cast: Some(false), recpar: Some(false), loads: Some(0), write: Some(0) },
+        "a20old" => *a = A20Arm { recpar: Some(false), loads: Some(0), write: Some(0) },
         _ => {
             if let Some(v) = w.strip_prefix("loads").and_then(|t| t.parse::<usize>().ok()) {
                 a.loads = Some(v);
@@ -4696,7 +4697,7 @@ fn a20_word(a: &mut A20Arm, w: &str) -> bool {
 
 /// [A20] an arm in force for the whole process (`A20Arm::default()`: the environment's)
 fn a20_apply(a: &A20Arm) {
-    crate::private_block::trained_statement::set_a20_record_for_test(a.cast, a.recpar);
+    crate::private_block::trained_statement::set_a20_record_for_test(a.recpar);
     crate::private_block::trained_block::set_a20_loads_for_test(a.loads);
     set_a20_writers_for_test(a.write);
 }
@@ -4713,8 +4714,7 @@ fn a20_arm(label: &str) -> A20Arm {
 /// [A20] the forms in force, as one line
 fn a20_settings() -> String {
     format!(
-        "cast {} recpar {} loads {} writers {}",
-        crate::private_block::trained_statement::a20_cast(),
+        "recpar {} loads {} writers {}",
         crate::private_block::trained_statement::a20_recpar(),
         crate::private_block::trained_block::a20_loads(),
         a20_writers()
@@ -4726,10 +4726,10 @@ fn a20_hex8(d: &[u8]) -> String {
     crate::private_block::trained_block::hex(&d[..8])
 }
 
-/// [A20] the four record settings, `(cast, recpar)`, the path before A20 first
-const A20_RECORD_SETTINGS: [(bool, bool); 4] = [(false, false), (true, false), (false, true), (true, true)];
+/// [A20] the record settings (`HL_A20_RECPAR`), the path before A20 first
+const A20_RECORD_SETTINGS: [bool; 2] = [false, true];
 
-/// [A20] `LayerRecord::of_block` of `blk` under every record setting: one record, its
+/// [A20] `LayerRecord::of_block` of `blk` under both record settings: one record, its
 /// block digest `blk.digest()`, each word SHA-256 the SHA-256 of that word's bytes
 /// computed here independently
 fn a20_one_record_under_every_setting(what: &str, blk: &BlockPublic) -> String {
@@ -4737,22 +4737,22 @@ fn a20_one_record_under_every_setting(what: &str, blk: &BlockPublic) -> String {
     let (a, f) = (blk.attention(), blk.feed_forward());
     let words: [&Vec<i8>; 9] = [&a.wq, &a.wk, &a.wv, &a.wo, &a.gamma_a, &f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t];
     let mut first: Option<LayerRecord> = None;
-    for (cast, recpar) in A20_RECORD_SETTINGS {
-        crate::private_block::trained_statement::set_a20_record_for_test(Some(cast), Some(recpar));
+    for recpar in A20_RECORD_SETTINGS {
+        crate::private_block::trained_statement::set_a20_record_for_test(Some(recpar));
         let r = LayerRecord::of_block(7, blk, vec![("b".into(), [2; 32]), ("a".into(), [1; 32])]);
-        assert_eq!(r.block_digest, blk.digest(), "{what}, cast {cast} recpar {recpar}: the record's block digest");
+        assert_eq!(r.block_digest, blk.digest(), "{what}, recpar {recpar}: the record's block digest");
         for (k, w) in words.iter().enumerate() {
             let want: [u8; 32] = sha2::Sha256::digest(w.iter().map(|x| *x as u8).collect::<Vec<u8>>()).into();
-            assert_eq!(r.word_sha256[k], want, "{what}, cast {cast} recpar {recpar}: word {k}'s SHA-256");
+            assert_eq!(r.word_sha256[k], want, "{what}, recpar {recpar}: word {k}'s SHA-256");
         }
         match &first {
             None => first = Some(r),
-            Some(f0) => assert!(*f0 == r, "{what}: the record under cast {cast} recpar {recpar} is not the record of the path before A20"),
+            Some(f0) => assert!(*f0 == r, "{what}: the record under recpar {recpar} is not the record of the path before A20"),
         }
     }
-    crate::private_block::trained_statement::set_a20_record_for_test(None, None);
-    let r = first.expect("four settings");
-    format!("{what}: one record under all four settings (block digest {}, word 0 {}, word 8 {}, act table {})", a20_hex8(&r.block_digest), a20_hex8(&r.word_sha256[0]), a20_hex8(&r.word_sha256[8]), a20_hex8(&r.table_sha256[2]))
+    crate::private_block::trained_statement::set_a20_record_for_test(None);
+    let r = first.expect("two settings");
+    format!("{what}: one record under both settings (block digest {}, word 0 {}, word 8 {}, act table {})", a20_hex8(&r.block_digest), a20_hex8(&r.word_sha256[0]), a20_hex8(&r.word_sha256[8]), a20_hex8(&r.table_sha256[2]))
 }
 
 /// **[A20] the records and the statement identity under every record setting** (in the suite)
@@ -4773,22 +4773,22 @@ fn a20_layer_records_and_the_statement_identity_are_the_same_under_every_record_
     let c = ex.run_constants(&ex.layers).unwrap();
     let sh = ex.shape_for(&c).unwrap();
     let mut base: Option<(Vec<LayerRecord>, Digest)> = None;
-    for (cast, recpar) in A20_RECORD_SETTINGS {
-        crate::private_block::trained_statement::set_a20_record_for_test(Some(cast), Some(recpar));
+    for recpar in A20_RECORD_SETTINGS {
+        crate::private_block::trained_statement::set_a20_record_for_test(Some(recpar));
         let records: Vec<LayerRecord> = ex.layers.iter().map(|&i| ex.load_layer(&sh, &c, i, false).unwrap().record).collect();
         let id = stack_identity_for_tests(&ex_dir).unwrap();
         assert!(records.iter().all(|r| r.block_digest != [0; 32]), "a loaded record without its block digest");
         match &base {
             None => base = Some((records, id)),
             Some((r0, id0)) => {
-                assert!(*r0 == records, "the R13 export's records under cast {cast} recpar {recpar} are not the path before A20's");
-                assert_eq!(*id0, id, "the R13 export's statement identity under cast {cast} recpar {recpar}");
+                assert!(*r0 == records, "the R13 export's records under recpar {recpar} are not the path before A20's");
+                assert_eq!(*id0, id, "the R13 export's statement identity under recpar {recpar}");
             }
         }
     }
-    crate::private_block::trained_statement::set_a20_record_for_test(None, None);
-    let (r0, id0) = base.expect("four settings");
-    lines.push(format!("the R13 export ({l} layers, through the loader): the same records under all four settings (layer 0's block digest {}), the same statement identity {}", a20_hex8(&r0[0].block_digest), a20_hex8(&id0)));
+    crate::private_block::trained_statement::set_a20_record_for_test(None);
+    let (r0, id0) = base.expect("two settings");
+    lines.push(format!("the R13 export ({l} layers, through the loader): the same records under both settings (layer 0's block digest {}), the same statement identity {}", a20_hex8(&r0[0].block_digest), a20_hex8(&id0)));
     std::fs::remove_dir_all(&root).unwrap();
     for line in lines {
         eprintln!("A20-RECORDS {line}");
@@ -4820,7 +4820,7 @@ fn a20_the_sealing_pass_is_the_same_under_every_load_setting_and_refuses_with_th
     assert!(l >= 4, "the R13 export holds {l} layers; the refusal cases need 4");
     let set = |loads: usize, on: bool| {
         set_a20_loads_for_test(Some(loads));
-        set_a20_record_for_test(Some(on), Some(on));
+        set_a20_record_for_test(Some(on));
     };
     let mut lines = Vec::new();
     for budget in [u64::MAX, 0] {
@@ -4873,7 +4873,7 @@ fn a20_the_sealing_pass_is_the_same_under_every_load_setting_and_refuses_with_th
         lines.push(format!("{what}: the same refusal at every setting: {e}"));
     }
     set_a20_loads_for_test(None);
-    set_a20_record_for_test(None, None);
+    set_a20_record_for_test(None);
     std::fs::remove_dir_all(&root).unwrap();
     for line in lines {
         eprintln!("A20-SEAL {line}");
@@ -4988,7 +4988,7 @@ fn a20_check_production(tag: &str, arms: &[&str], a19_arms: &[(usize, usize, boo
 /// **[A20] production's D55 path under the forms off and on, at the R13 rung, on the CPU** (in the suite)
 #[test]
 fn a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung() {
-    for line in a20_check_production("cpu", &["a20old", "cast1+recpar1+loads3+write8"], &[(0, 2, true), (2, 2, true)]) {
+    for line in a20_check_production("cpu", &["a20old", "recpar1+loads3+write8"], &[(0, 2, true), (2, 2, true)]) {
         eprintln!("A20-PROD {line}");
     }
 }
@@ -5001,7 +5001,7 @@ fn a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung() {
 fn a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung_on_the_device() {
     std::env::set_var("HL_GPU", "1");
     let before = crate::gpu::metal_sumcheck_stats().1;
-    let lines = a20_check_production("metal", &["a20old", "cast1+recpar1+loads1+write2", "default", "cast1+recpar1+loads3+write8"], &[(0, 3, true), (0, 3, false), (4, 6, true)]);
+    let lines = a20_check_production("metal", &["a20old", "recpar1+loads1+write2", "default", "recpar1+loads3+write8"], &[(0, 3, true), (0, 3, false), (4, 6, true)]);
     let ran = crate::gpu::metal_sumcheck_stats().1 - before;
     std::env::remove_var("HL_GPU");
     for line in lines {
@@ -5033,7 +5033,7 @@ fn a20_the_8b_records_sealing_pass_and_production_path_under_every_setting() {
         let mut base: Option<String> = None;
         for (loads, on) in A20_SEAL_SETTINGS {
             set_a20_loads_for_test(Some(loads));
-            set_a20_record_for_test(Some(on), Some(on));
+            set_a20_record_for_test(Some(on));
             let (s, ahead) = a20_seal_summary_for_tests(&model, budget).unwrap_or_else(|e| panic!("loads {loads} forms {on}: {e}"));
             assert_eq!(ahead, loads);
             match &base {
@@ -5044,13 +5044,13 @@ fn a20_the_8b_records_sealing_pass_and_production_path_under_every_setting() {
         eprintln!("A20-8B budget {budget}: the same sealing pass at every setting {A20_SEAL_SETTINGS:?}: {}", base.expect("seven settings").chars().take(300).collect::<String>());
     }
     set_a20_loads_for_test(None);
-    set_a20_record_for_test(None, None);
+    set_a20_record_for_test(None);
     // production's path on the device, the forms off and on
     std::env::set_var("HL_GPU", "1");
     let _seeded = SeededForks::on(A18_SEED, a18_seeded);
     let rep = RepeatBlock::new(&fix.blk, l);
     let root = scratch("a20-8b");
-    for (i, arm) in ["a20old", "cast1+recpar1+loads3+write8", "default"].iter().enumerate() {
+    for (i, arm) in ["a20old", "recpar1+loads3+write8", "default"].iter().enumerate() {
         a20_apply(&a20_arm(arm));
         let settings = a20_settings();
         let seen: std::rc::Rc<std::cell::RefCell<Option<usize>>> = Default::default();
@@ -5091,7 +5091,8 @@ fn a20_reps(reps: usize, mut f: impl FnMut()) -> Vec<f64> {
         .collect()
 }
 
-/// [A20] a padded word's bytes in place (the record's `HL_A20_CAST` form)
+/// [A20] a padded word's bytes in place (the in-place form stage 1 profiled and stage 2
+/// measured and removed)
 fn a20_in_place(w: &[i8]) -> &[u8] {
     // SAFETY: `i8` and `u8` have the same size and alignment, every bit pattern is a
     // valid `u8`, and the slice borrows `w`
@@ -5150,7 +5151,7 @@ fn a20_profile_of_the_sealing_pass_loads_and_the_receipt_write() {
     {
         use rayon::prelude::*;
         say("the nine SHA-256s in parallel from copies (of_block before A20)", &a20_reps(reps, || drop(black_box(words.par_iter().map(|(_, w)| sha(&copy(w))).collect::<Vec<_>>()))));
-        say("the nine SHA-256s in parallel in place (HL_A20_CAST)", &a20_reps(reps, || drop(black_box(words.par_iter().map(|(_, w)| sha(a20_in_place(w))).collect::<Vec<_>>()))));
+        say("the nine SHA-256s in parallel in place (the in-place form, removed)", &a20_reps(reps, || drop(black_box(words.par_iter().map(|(_, w)| sha(a20_in_place(w))).collect::<Vec<_>>()))));
     }
     let tables = || {
         let i64b = |vs: &[&[i64]]| vs.iter().flat_map(|v| v.iter().flat_map(|x| x.to_le_bytes())).collect::<Vec<u8>>();
@@ -5159,16 +5160,16 @@ fn a20_profile_of_the_sealing_pass_loads_and_the_receipt_write() {
     };
     say("the three table SHA-256s", &a20_reps(reps, || drop(black_box(tables()))));
     say("BlockPublic::digest (one BLAKE3 pass on one thread, its own copies included)", &a20_reps(reps, || drop(black_box(blk.digest()))));
-    for (cast, recpar) in A20_RECORD_SETTINGS {
-        set_a20_record_for_test(Some(cast), Some(recpar));
-        say(&format!("LayerRecord::of_block, cast {cast} recpar {recpar}"), &a20_reps(reps, || drop(black_box(LayerRecord::of_block(1, blk, vec![])))));
-        say(&format!("the synthetic load (copy + record), cast {cast} recpar {recpar}"), &a20_reps(reps, || drop(black_box((blk.clone(), LayerRecord::of_block(1, blk, vec![]))))));
+    for recpar in A20_RECORD_SETTINGS {
+        set_a20_record_for_test(Some(recpar));
+        say(&format!("LayerRecord::of_block, recpar {recpar}"), &a20_reps(reps, || drop(black_box(LayerRecord::of_block(1, blk, vec![])))));
+        say(&format!("the synthetic load (copy + record), recpar {recpar}"), &a20_reps(reps, || drop(black_box((blk.clone(), LayerRecord::of_block(1, blk, vec![]))))));
     }
     let build = || pool.run(|| witness::build_for_block(&ssh, blk, &x).unwrap());
     say("the witness build alone (the sealing pool)", &a20_reps(reps, || drop(black_box(build()))));
     // (2) the build beside the loads
-    for (cast, recpar) in [(false, false), (true, true)] {
-        set_a20_record_for_test(Some(cast), Some(recpar));
+    for recpar in A20_RECORD_SETTINGS {
+        set_a20_record_for_test(Some(recpar));
         let (mut step, mut closure, mut own, mut load) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
         for _ in 0..reps {
             let t = Instant::now();
@@ -5195,10 +5196,10 @@ fn a20_profile_of_the_sealing_pass_loads_and_the_receipt_write() {
             own.push(o);
             load.push(ls);
         }
-        say(&format!("the sealing pass's step before A20 (rayon::join of the build and the next load), cast {cast} recpar {recpar}: the step"), &step);
-        say(&format!("  ... the build's clock as seal_chain reads it (pool.run returned), cast {cast} recpar {recpar}"), &closure);
-        say(&format!("  ... the build's own end (inside the pool), cast {cast} recpar {recpar}"), &own);
-        say(&format!("  ... the load's clock, cast {cast} recpar {recpar}"), &load);
+        say(&format!("the sealing pass's step before A20 (rayon::join of the build and the next load), recpar {recpar}: the step"), &step);
+        say(&format!("  ... the build's clock as seal_chain reads it (pool.run returned), recpar {recpar}"), &closure);
+        say(&format!("  ... the build's own end (inside the pool), recpar {recpar}"), &own);
+        say(&format!("  ... the load's clock, recpar {recpar}"), &load);
         for n in [1usize, 2, 3] {
             let (mut wall, mut b, mut ld) = (Vec::new(), Vec::new(), Vec::new());
             for _ in 0..reps {
@@ -5222,12 +5223,12 @@ fn a20_profile_of_the_sealing_pass_loads_and_the_receipt_write() {
                 b.push(bs);
                 ld.push(loads.iter().sum::<f64>() / n as f64);
             }
-            say(&format!("the build beside {n} load(s) on threads of their own (as HL_A20_LOADS={n}), cast {cast} recpar {recpar}: the wall"), &wall);
-            say(&format!("  ... the build, beside {n} load(s), cast {cast} recpar {recpar}"), &b);
-            say(&format!("  ... each load, {n} at once beside the build, cast {cast} recpar {recpar}"), &ld);
+            say(&format!("the build beside {n} load(s) on threads of their own (as HL_A20_LOADS={n}), recpar {recpar}: the wall"), &wall);
+            say(&format!("  ... the build, beside {n} load(s), recpar {recpar}"), &b);
+            say(&format!("  ... each load, {n} at once beside the build, recpar {recpar}"), &ld);
         }
     }
-    set_a20_record_for_test(None, None);
+    set_a20_record_for_test(None);
     // (3) the receipt write at the L-block run's frame sizes
     let (st, _) = fix.statement(1);
     let fork = fw::fork_len(&st.stage_layout(0).unwrap());

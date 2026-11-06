@@ -2925,7 +2925,10 @@ fn write_fork_frame(dir: &Path, name: &str, bytes: &[u8]) -> Result<(u64, String
 
 static A20_WRITE_TEST: AtomicUsize = AtomicUsize::new(usize::MAX);
 
-/// [A20] the measured default (`results/zk60_effplan_20261105/a20/README.md`)
+/// [A20] the measured default (`results/zk60_effplan_20261105/a20/README.md`, sections
+/// 2 and 5): the 818 MB 8B receipt's write took 1.94 s, 1.62 s of it the frames'
+/// SHA-256s one after another; with 16 writers 0.33 s, one request -10.2% (6 of 6
+/// pairs, through production's function); 34 writers 0.27 s in the profile
 const A20_WRITE_DEFAULT: usize = 16;
 
 /// [A20] `HL_A20_WRITE`: the threads that write a fork receipt's frames (`0` or `1`:

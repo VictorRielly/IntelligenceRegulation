@@ -503,14 +503,6 @@ fn i8_bytes(v: &[i8]) -> Vec<u8> {
     v.iter().map(|x| *x as u8).collect()
 }
 
-/// [A20] exactly `i8_bytes(v)`'s bytes, without the copy
-fn i8_as_bytes(v: &[i8]) -> &[u8] {
-    // SAFETY: `i8` and `u8` have the same size and alignment and every bit pattern is a
-    // valid `u8`; the slice borrows `v` for its own lifetime. `x as u8` of an `i8` is the
-    // same bits (two's complement), so these are the bytes `i8_bytes(v)` copies out.
-    unsafe { std::slice::from_raw_parts(v.as_ptr().cast::<u8>(), v.len()) }
-}
-
 fn i64_bytes(vs: &[&[i64]]) -> Vec<u8> {
     vs.iter().flat_map(|v| v.iter().flat_map(|x| x.to_le_bytes())).collect()
 }
@@ -521,16 +513,15 @@ fn i64_bytes(vs: &[&[i64]]) -> Vec<u8> {
 // `results/zk60_effplan_20261105/a20/README.md`.) Production's sealing pass loads
 // each layer beside the previous layer's witness build, and every load makes the
 // layer's record ([`LayerRecord::of_block`]): nine SHA-256s of the padded words,
-// three of the tables and the block digest. Two forms, each restored by its switch
-// at `0`:
-// * `HL_A20_CAST`: each padded word is hashed IN PLACE, as the bytes it already is,
-//   instead of as a fresh `i8_bytes` copy (about 218 MB of copies per 8B layer);
-// * `HL_A20_RECPAR`: the block digest (`BlockPublic::digest`, one BLAKE3 pass on one
-//   thread) runs BESIDE the SHA-256s instead of after them.
-// **Why no byte can move.** `x as u8` of an `i8` is its two's-complement bits, so the
-// borrowed slice is the copy's bytes and SHA-256 of it is the same digest. Every
-// field of the record is a pure function of the block, so the order (or the threads)
-// in which they are computed changes no value. Nothing a check reads is skipped.
+// three of the tables and the block digest. At 8B the nine SHA-256s (in parallel)
+// take about 140 ms and the block digest (`BlockPublic::digest`, one BLAKE3 pass on
+// one thread) about 115 ms, one after the other (A20 stage 1, measured).
+// `HL_A20_RECPAR` (default on; `0` restores the order before A20) runs the block
+// digest BESIDE the SHA-256s. **Why no byte can move**: every field of the record is
+// a pure function of the block, so the order (or the threads) in which they are
+// computed changes no value; nothing a check reads is skipped. (A second form, the
+// words hashed in place instead of from their `i8_bytes` copies, was measured and
+// removed: the copies cost about 4 ms per 8B layer and one request moved +0.6%.)
 
 /// [A20] a switch, read once from the environment variable `name` (unset, empty or
 /// not a number: `default`), with a test override (`usize::MAX`: the environment's)
@@ -541,15 +532,7 @@ pub(crate) fn a20_switch(test: &std::sync::atomic::AtomicUsize, env: &std::sync:
     }
 }
 
-static A20_CAST_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
 static A20_RECPAR_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
-
-/// [A20] `HL_A20_CAST` (default on; `0`: each word's `i8_bytes` copy is hashed, the
-/// path before A20)
-pub(crate) fn a20_cast() -> bool {
-    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
-    a20_switch(&A20_CAST_TEST, &ENV, "HL_A20_CAST", 1) != 0
-}
 
 /// [A20] `HL_A20_RECPAR` (default on; `0`: the block digest after the SHA-256s, the
 /// path before A20)
@@ -558,13 +541,11 @@ pub(crate) fn a20_recpar() -> bool {
     a20_switch(&A20_RECPAR_TEST, &ENV, "HL_A20_RECPAR", 1) != 0
 }
 
-/// tests: the two record forms on (`Some(true)`), off (`Some(false)`) or as the
+/// tests: the record form on (`Some(true)`), off (`Some(false)`) or as the
 /// environment says (`None`). Changes no byte (see above).
 #[cfg(test)]
-pub(crate) fn set_a20_record_for_test(cast: Option<bool>, recpar: Option<bool>) {
-    let v = |b: Option<bool>| b.map(usize::from).unwrap_or(usize::MAX);
-    A20_CAST_TEST.store(v(cast), std::sync::atomic::Ordering::Relaxed);
-    A20_RECPAR_TEST.store(v(recpar), std::sync::atomic::Ordering::Relaxed);
+pub(crate) fn set_a20_record_for_test(recpar: Option<bool>) {
+    A20_RECPAR_TEST.store(recpar.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
 }
 
 // ---------------------------------------- [A20] end
@@ -600,12 +581,10 @@ impl LayerRecord {
         // ROUND 5 (R5-2): the nine padded-word SHA-256s IN PARALLEL (the
         // same bytes, the same digests, in the same order)
         let words: [&Vec<i8>; 9] = [&a.wq, &a.wk, &a.wv, &a.wo, &a.gamma_a, &f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t];
-        // [A20] HL_A20_CAST: each word hashed in place (the bytes of its `i8_bytes` copy)
-        let cast = a20_cast();
         let hash_words = || -> [[u8; 32]; 9] {
             let hashed: Vec<[u8; 32]> = {
                 use rayon::prelude::*;
-                words.par_iter().map(|w| if cast { sha(i8_as_bytes(w)) } else { sha(&i8_bytes(w)) }).collect()
+                words.par_iter().map(|w| sha(&i8_bytes(w))).collect()
             };
             hashed.try_into().expect("nine digests")
         };
