@@ -1,0 +1,35 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.20
+   Compiling crossbeam-deque v0.8.7
+   Compiling find-msvc-tools v0.1.11
+   Compiling libc v0.2.189
+   Compiling shlex v2.0.1
+   Compiling cc v1.4.4
+   Compiling rayon-core v1.13.0
+   Compiling blake3 v1.8.7
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling cfg-if v1.0.4
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling either v1.18.0
+   Compiling constant_time_eq v0.4.2
+   Compiling arrayvec v0.7.8
+   Compiling rayon v1.12.0
+   Compiling sha2 v0.10.9
+   Compiling zkp-core v0.1.0 (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/ops/zkp-mvp/gpu-metal/zkp-core)
+    Finished `release` profile [optimized] target(s) in 11.17s
+     Running tests/lean_l6_export.rs (/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/target-l6/release/deps/lean_l6_export-54388b96d77f4082)
+
+running 1 test
+LEAN-L6: 1561 records, 323299 bytes
+LEAN-L6: written to /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/results/zk60_lean_l6_20261106/corpus.txt
+test lean_l6_export_the_agreement_corpus ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+rc 0, 12 s
+-rw-r--r--@ 1 victorrielly  staff  323299 Nov  6 12:08 /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/results/zk60_lean_l6_20261106/corpus.txt

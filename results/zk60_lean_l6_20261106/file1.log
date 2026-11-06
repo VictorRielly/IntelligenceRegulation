@@ -1,0 +1,115 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:103:79: error: Expected type must not contain free variables
+  (fromBase a).c1.Canon
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:236:6: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:294:25: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:296:25: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:357:63: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  9223372036854775808 ≤ a ≤ 18446744069414584321
+where
+ a := ↑vals.length
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:379:2: warning: Try this: 
+  haveI̵
+
+The goal is a proposition, so `have` is preferred over `haveI`.
+The difference between `have` and `haveI` is that `haveI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:431:16: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (?m.45 + ?m.44) / ?m.45
+in the target expression
+  (m + 2 ^ k) / 2 ^ k % 2 = 1
+
+m k : ℕ
+h : m < 2 ^ k
+⊢ (m + 2 ^ k) / 2 ^ k % 2 = 1
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:438:42: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (?m * ?x + ?y) % ?m
+in the target expression
+  (2 ^ (k - i - 1) * 2 + m / 2 ^ i) % 2 = m / 2 ^ i % 2
+
+m k i : ℕ
+hi : i < k
+e : 2 ^ k = 2 ^ i * (2 ^ (k - i - 1) * 2)
+⊢ (2 ^ (k - i - 1) * 2 + m / 2 ^ i) % 2 = m / 2 ^ i % 2
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:441:54: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:461:0: warning: automatically included section variable(s) unused in theorem `ZK60.Exec.eqPoly_factor_bit`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:510:8: error: Tactic `rewrite` failed: motive is not type correct:
+  fun _a =>
+    (eqTableAux rs (2 ^ k * 2) _a).length = 2 ^ r.length ∧
+      ∀ (idx : ℕ) (h : idx < (eqTableAux rs (2 ^ k * 2) _a).length),
+        Fp2.toK U (eqTableAux rs (2 ^ k * 2) _a)[idx] =
+          ∏ i ∈ range r.length, eqSel (Fp2.toK U (r.getD i Fp2.zero)) (decide (idx / 2 ^ i % 2 = 1))
+Error: Application type mismatch: The argument
+  h
+has type
+  idx < (eqTableAux rs (2 ^ k * 2) _a).length
+but is expected to have type
+  (fun as i => i < as.length) (eqTableAux (ri :: rs) (2 ^ k) (P ++ List.replicate (2 ^ r.length - 2 ^ k) Fp2.one)) idx
+in the application
+  @Eq.ndrec ℕ idx
+    (fun i =>
+      (fun as i => i < as.length) (eqTableAux (ri :: rs) (2 ^ k) (P ++ List.replicate (2 ^ r.length - 2 ^ k) Fp2.one))
+        i)
+    h
+
+Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.
+
+Possible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+r : List Fp2
+hr : ∀ a ∈ r, a.Canon
+ri : Fp2
+rs : List Fp2
+k : ℕ
+P : List Fp2
+hd : List.drop k r = ri :: rs
+hk : k + (rs.length + 1) = r.length
+hP : P.length = 2 ^ k
+hent :
+  ∀ (idx : ℕ) (h : idx < P.length),
+    Fp2.toK U P[idx] = ∏ i ∈ range k, eqSel (Fp2.toK U (r.getD i Fp2.zero)) (decide (idx / 2 ^ i % 2 = 1))
+hget : r.getD k Fp2.zero = ri
+hri : ri.Canon
+hpow : 2 ^ (k + 1) ≤ 2 ^ r.length
+hpow' : 2 ^ k * 2 ≤ 2 ^ r.length
+⊢ (eqTableAux rs (2 ^ k * 2) (eqStep (2 ^ k) ri (P ++ List.replicate (2 ^ r.length - 2 ^ k) Fp2.one))).length =
+      2 ^ r.length ∧
+    ∀ (idx : ℕ)
+      (h :
+        idx <
+          (eqTableAux rs (2 ^ k * 2) (eqStep (2 ^ k) ri (P ++ List.replicate (2 ^ r.length - 2 ^ k) Fp2.one))).length),
+      Fp2.toK U
+          (eqTableAux rs (2 ^ k * 2) (eqStep (2 ^ k) ri (P ++ List.replicate (2 ^ r.length - 2 ^ k) Fp2.one)))[idx] =
+        ∏ i ∈ range r.length, eqSel (Fp2.toK U (r.getD i Fp2.zero)) (decide (idx / 2 ^ i % 2 = 1))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    h
+  has type
+    idx < (eqTableAux rs (2 ^ k * 2) (eqStep (2 ^ k) ri (P ++ List.replicate (2 ^ r.length - 2 ^ k) Fp2.one))).length
+  but is expected to have type
+    (fun as i => i < as.length) (eqTableAux (ri :: rs) (2 ^ k) (P ++ List.replicate (2 ^ r.length - 2 ^ k) Fp2.one)) idx
+  in the application
+    @Eq.ndrec ℕ idx
+      (fun i =>
+        (fun as i => i < as.length) (eqTableAux (ri :: rs) (2 ^ k) (P ++ List.replicate (2 ^ r.length - 2 ^ k) Fp2.one))
+          i)
+      h
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:662:2: error: `dsimp` made no progress
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecMle.lean:680:2: error: `dsimp` made no progress
+rc 1, 16 s

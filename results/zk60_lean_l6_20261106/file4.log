@@ -1,0 +1,102 @@
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:313:109: error: unsolved goals
+rho : List Fp2
+d : ℕ
+⊢ (List.map (fun a => (Cfs.powers a d Fp2.one).length) rho).sum = rho.length * d
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:314:25: warning: This simp argument is unused:
+  flatMap_powers_length
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [Cfs.evalWeights]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:415:4: error: No goals to be solved
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:471:20: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (Fp.new (UInt64.ofNat 2)).toGF
+in the target expression
+  (Fp.new 2).toGF⁻¹ = 2⁻¹
+
+⊢ (Fp.new 2).toGF⁻¹ = 2⁻¹
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:516:43: error(lean.unknownIdentifier): Unknown identifier `toK_fromU64_ofNat`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:501:86: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+n d : ℕ
+hd : 1 ≤ d
+hd64 : d < 2 ^ 64
+hn : n + 1 < 64
+c : List Fp2
+hc0 : (c.getD 0 Fp2.zero).Canon
+j : Fin (n + 1)
+prev : List Fp2
+hp : prev.length = ↑j
+r : Fin (n + 1) → K
+hr : ∀ i < j, r i = Fp2.toK U (prev.getD (↑i) Fp2.zero)
+x : ℕ
+hx : x ≤ d
+hjn : ↑j ≤ n
+hb1c : (Cfs.addPrev c d 0 (c.getD 0 Fp2.zero) prev).Canon
+hb1 :
+  Fp2.toK U (Cfs.addPrev c d 0 (c.getD 0 Fp2.zero) prev) =
+    Fp2.toK U (c.getD 0 Fp2.zero) + ∑ k ∈ range prev.length, Fp2.toK U (Cfs.u c d (0 + k) (prev.getD k Fp2.zero))
+hb2 :
+  Fp2.toK U
+      (List.foldl (fun acc a => acc.add ((Cfs.u c d a Fp2.one).mulBase (Fp.new 2).inv))
+        (Cfs.addPrev c d 0 (c.getD 0 Fp2.zero) prev) (List.range' (↑j + 1) (n + 1 - (↑j + 1)))) =
+    Fp2.toK U (Cfs.addPrev c d 0 (c.getD 0 Fp2.zero) prev) +
+      (List.map (fun a => Fp2.toK U ((Cfs.u c d a Fp2.one).mulBase (Fp.new 2).inv))
+          (List.range' (↑j + 1) (n + 1 - (↑j + 1)))).sum
+hb2c :
+  (List.foldl (fun acc a => acc.add ((Cfs.u c d a Fp2.one).mulBase (Fp.new 2).inv))
+      (Cfs.addPrev c d 0 (c.getD 0 Fp2.zero) prev) (List.range' (↑j + 1) (n + 1 - (↑j + 1)))).Canon
+huj :
+  Fp2.toK U (Cfs.u c d (↑j) (Fp2.fromU64 (UInt64.ofNat x))) =
+    Hiding.cfsU (fun e => Fp2.toK U (c.getD (2 + ↑j * d + ↑e) Fp2.zero)) (Fp2.toK U (Fp2.fromU64 (UInt64.ofNat x)))
+hujc : (Cfs.u c d (↑j) (Fp2.fromU64 (UInt64.ofNat x))).Canon
+⊢ 2 ^ (n - ↑j) *
+        (Fp2.toK U (c.getD 0 Fp2.zero) + ∑ k ∈ range prev.length, Fp2.toK U (Cfs.u c d (0 + k) (prev.getD k Fp2.zero)) +
+            (List.map (fun a => Fp2.toK U ((Cfs.u c d a Fp2.one).mulBase (Fp.new 2).inv))
+                (List.range' (↑j + 1) (n + 1 - (↑j + 1)))).sum +
+          Hiding.cfsU (fun e => Fp2.toK U (c.getD (2 + ↑j * d + ↑e) Fp2.zero))
+            (Fp2.toK U (Fp2.fromU64 (UInt64.ofNat x)))) +
+      Fp2.toK U (c.getD 1 Fp2.zero) * Fp2.toK U (List.foldl (fun a r => a.mul r) Fp2.one prev) *
+        Fp2.toK U (Fp2.fromU64 (UInt64.ofNat x)) =
+    Hiding.cfsScale n j * (Hiding.cfsBase (coeffsK U n d c) r j + Hiding.cfsU ((coeffsK U n d c).2.2 j) ↑x) +
+      (coeffsK U n d c).2.1 * Hiding.cfsPrefix r j * ↑x
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:607:69: error(lean.unknownIdentifier): Unknown identifier `toK_fromU64_ofNat`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:586:79: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+t d : ℕ
+hd64 : d < 2 ^ 64
+P : (Fin t → K) → K
+poly : List Fp2 → Fp2
+hpoly : ∀ (v : List Fp2), v.length = t → (∀ a ∈ v, a.Canon) → Fp2.toK U (poly v) = P (vecK U t v)
+finals exts : List Fp2
+hf : finals.length = t
+he : exts.length = t
+hfc : ∀ a ∈ finals, a.Canon
+hec : ∀ a ∈ exts, a.Canon
+x : ℕ
+hx : x ≤ d
+hx64 : x < 2 ^ 64
+v : List Fp2 := List.map (fun p => p.1.add ((Fp2.fromU64 (UInt64.ofNat x)).mul (p.2.sub p.1))) (finals.zip exts)
+hvl : v.length = t
+hvc : ∀ a ∈ v, a.Canon
+i : Fin t
+hi : ↑i < t
+⊢ Fp2.toK U (finals.getD (↑i) Fp2.zero) +
+      Fp2.toK U (Fp2.fromU64 (UInt64.ofNat x)) *
+        (Fp2.toK U (exts.getD (↑i) Fp2.zero) - Fp2.toK U (finals.getD (↑i) Fp2.zero)) =
+    Fp2.toK U (finals.getD (↑i) Fp2.zero) +
+      ↑x * (Fp2.toK U (exts.getD (↑i) Fp2.zero) - Fp2.toK U (finals.getD (↑i) Fp2.zero))
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean
+rc build 0 files 1, 6 s

@@ -452,6 +452,41 @@ The plain-words version, the modelling choices and the open decisions are in
   - Left for the per-profile verifier (§7.5 of that document): the `Protocol` instance (`Q := QB L`), the receipt
     decoder, the sumcheck, LogUp, opening and `M` verifier arithmetic and the run schedule on top of this foundation,
     each proved to be its L3 model, and a corpus of real W16R3 receipts.
+- Proved and tested so far (step L6, the GENERIC SUMCHECK VERIFIER on that foundation, 2026-11-06, fourth lane: what
+  every block slot calls, which W16R3's batching keeps; same build and axiom checks, 128 theorems audited in
+  `results/zk60_lean_l6_20261106/axioms.log`; §8 of `docs/zkmatrix-poc/ZK60_LEAN_ASSEMBLY_20261106.md`):
+  - `ExecMle.lean`: `mle.rs` executable.
+    - **`interpolate_eval` is `interpEval`** (`toK_interpolateEval`), the value of the round polynomial.
+    - **`eq_point` is `eqPoly`** (`toK_eqPointBody`); entry `idx` of `eq_table_msb(r)` is `eqPoly(r, b)` with variable
+      `j` the bit `n − 1 − j` of `idx` (`toK_eqTableMsb`; `eq_table` with bit `i`, `toK_eqTable`).
+    - **`eval_mle_ext` / `eval_mle_base` are `mleAt`** of the cube values in the code's index order (`toK_mleSumExt`,
+      `toK_mleSumBase`; `msbIndex` a bijection, `msbBits_msbIndex`, `msbIndex_msbBits`).
+  - `ExecSumcheck.lean`: `sumcheck::verify` executable, on L5's transcript.
+    - **For every hash function, `verify` returns `Ok (fin, rs)` with the caller's terminal check `fin = f(rs)` EXACTLY
+      WHEN every round has `d + 1` values, `rs` is the transcript's challenge sequence, and `FSSumcheck.lean`'s
+      `scAccept` holds** (`scVerify_accept_iff`; `1 ≤ d < p`, canonical claim and round values).
+    - The challenges are `challenge_fp2` of the squeeze digests of `FSChain.lean`'s chain of the run's items
+      (`scChal_chain`, with `challengeFp2Of_toGF` each is `fp2Chal`); both together from `new` / `new_tagged`
+      (`scVerify_fs`).
+  - `ExecCfs.lean`: the CFS mask, the masked round, the extension round, the masked terminal.
+    - **`total` is the mask's cube sum, `eval` is `g(ρ)`** (`toK_total`, `cubeSum_cfsEval`, `toK_evalDot`; `N < 64`).
+    - **`round` is the model's mask round** (`toK_roundBody`), and the code's mask rounds pass the verifier's chain
+      checks (`round_chain_zero`, `round_chain_succ`, `round_chain_terminal`).
+    - `masked_terminal` and `extension_round` are `HidingSumcheckJoint.lean`'s (`toK_maskedTerminal`,
+      `toK_extensionRound`) and the last round of `SoundSumcheck.lean`'s `fe` (`extension_fe_round`,
+      `extension_fe_terminal`).
+  - `L6Check.lean`: the agreement check against the corpus of the TEST-ONLY Rust export
+    `ops/zkp-mvp/gpu-metal/zkp-core/tests/lean_l6_export.rs`: interpolations, eq tables, MLE evaluations, CFS weights,
+    masks and rounds, masked terminals, extension rounds, and 171 whole sumcheck runs made by `prove` and checked by
+    `verify` (plain, masked, masked with the extension; honest and tampered), each verdict with its message bytes and
+    the transcript state: **1,206 checks, 0 failed**. A negative control of eight single changes gives exactly 8
+    failures. Run: `lake -d formal env lean --run formal/ZK60Formal/L6Check.lean
+    results/zk60_lean_l6_20261106/corpus.txt` (not imported by the root: it defines `main`).
+  - Findings L6-1 to L6-5 (Info): a degree-0 round panics; the CFS weights need `N < 64`; casts and rayon's
+    reduction; the chain's `u64` counter against `FSChainRbr.lean`'s `ℕ` one; a refusal leaves the transcript
+    advanced.
+  - Left for the per-profile verifier (§8.5 of that document): W16R3's slot items and terminal identities, the item
+    map onto `FSChainRbr.lean`'s chain, `1 ≤ d` and `N < 64` per slot, and the rest of §7.5.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems
@@ -460,8 +495,8 @@ The plain-words version, the modelling choices and the open decisions are in
   - For `Complete`, what is left is per profile: the prover and verifier, the list of checks and their refusal terms.
   - For `ZeroKnowledge`, what is left is the per-receipt hybrid step under Fiat–Shamir, the composition over the run,
     and the profile's simulator (§4.3, §4.5 of that document).
-  - For the `Protocol` instance and its `verify` (step L5), the foundation exists (§7 of that document); the
-    per-profile verifier on top of it is left.
+  - For the `Protocol` instance and its `verify` (steps L5, L6), the foundation and the generic sumcheck verifier
+    exist (§7, §8 of that document); the per-profile verifier on top of them is left.
 
 **Build** (Lean 4.34.1 and Mathlib v4.34.1, pinned in `lean-toolchain` and `lakefile.toml`):
 
