@@ -1780,10 +1780,21 @@ fn d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang() {
 #[test]
 #[ignore = "D60 F2 tooling: HL_D60_EXPORT_DIR (new), HL_D60_EXPORT_L, HL_D60_EXPORT_UP_TO"]
 fn d60_close_write_r13_multi_layer_test_export() {
-    use crate::private_block::trained_block::{hex, sha256};
     let out = PathBuf::from(std::env::var("HL_D60_EXPORT_DIR").expect("HL_D60_EXPORT_DIR names the new export directory"));
     let max_l: usize = env_or("HL_D60_EXPORT_L", 3usize);
     let up_to = std::env::var("HL_D60_EXPORT_UP_TO").is_ok_and(|v| v == "1");
+    write_r13_multi_layer_export(&out, max_l, up_to, None);
+}
+
+/// the writer of [`d60_close_write_r13_multi_layer_test_export`] ([A19]: also
+/// the production-path tests'): an `L`-layer R13 export from the fixture
+/// `r13-h24-wide` into the new directory `out`; with `flip_out_at = Some(k)`,
+/// layer `k`'s reference output `x_out` is off by one word (its manifest
+/// digest the flipped bytes', so only the sealing pass's parity check
+/// refuses it). Returns `L`.
+fn write_r13_multi_layer_export(out: &std::path::Path, max_l: usize, up_to: bool, flip_out_at: Option<usize>) -> usize {
+    use crate::private_block::trained_block::{hex, sha256};
+    let out = out.to_path_buf();
     assert!(!out.exists(), "{} exists; the export is written into a new directory", out.display());
     let src = fixtures().join("r13-h24-wide");
     let p0 = rung_public(1);
@@ -1829,7 +1840,10 @@ fn d60_close_write_r13_multi_layer_test_export() {
         std::fs::write(ldir.join("manifest.json"), &m).unwrap();
         layer_entries.push(format!("    {{\n      \"dir\": \"layer_{k:02}\",\n      \"layer\": {k},\n      \"manifest_sha256\": \"{}\"\n    }}", hex(&sha256(m.as_bytes()))));
         let (xk, yk) = &chain[k];
-        let (xi, xo): (Vec<u8>, Vec<u8>) = (xk.iter().flat_map(|v| v.to_le_bytes()).collect(), yk.iter().flat_map(|v| v.to_le_bytes()).collect());
+        let (xi, mut xo): (Vec<u8>, Vec<u8>) = (xk.iter().flat_map(|v| v.to_le_bytes()).collect(), yk.iter().flat_map(|v| v.to_le_bytes()).collect());
+        if flip_out_at == Some(k) {
+            xo[0] ^= 1;
+        }
         for (name, b) in [(format!("x_in_L{k:02}"), &xi), (format!("x_out_L{k:02}"), &xo)] {
             std::fs::write(seq.join(format!("{name}.bin")), b).unwrap();
             arrays.push(arr(&name, b));
@@ -1847,6 +1861,7 @@ fn d60_close_write_r13_multi_layer_test_export() {
     assert_eq!(ex.layers.len(), l);
     let id = crate::private_block::trained_block::stack_identity_for_tests(&out).unwrap();
     eprintln!("D60 F2 EXPORT | {} | variant {variant} | {l} layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity {} | public synthetic data, not for publication", out.display(), hex(&id));
+    l
 }
 
 /// **D60 REVIEW F2, the cross-binary check (`#[ignore]`d): ONE production
@@ -3747,8 +3762,8 @@ fn a18_check_direct(fix: &A18Fix) -> String {
     let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].data() }).collect();
     let blocks = RepeatBlock::new(&fix.blk, l);
     let checked = preflight(&st, &blocks, true).expect("the preflight passes");
-    let late = ForkCtx { fr: &fr, blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { checked: &checked, roots: &roots, in_data, out_data, binding }) };
-    let early = ForkCtx { fr: &fr, blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
+    let late = ForkCtx { stages: Stages::Run(&fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr: &fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
+    let early = ForkCtx { stages: Stages::Run(&fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
     let whole: Vec<ForkOut> = (0..l).map(|k| a18_whole_out(late.prove_one(k, fix.witness(k)).unwrap())).collect();
     let mut sizes = Vec::new();
     for (parts, finish) in [(1usize, 1usize), (2, 3), (6, 2)] {
@@ -3808,8 +3823,8 @@ fn a18_recompute_interior(fr: &ForkRun, fix: &A18Fix, rc: &ForkReceipt, parked_i
     let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { none } else { bounds[k].data() }).collect();
     let blocks = RepeatBlock::new(&fix.blk, l);
     let checked = preflight(fr.st, &blocks, true).expect("the preflight passes");
-    let late = ForkCtx { fr, blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { checked: &checked, roots: &roots, in_data, out_data, binding }) };
-    let early = ForkCtx { fr, blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
+    let late = ForkCtx { stages: Stages::Run(fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr: fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
+    let early = ForkCtx { stages: Stages::Run(fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
     let p3 = a18_pool(3);
     for k in 1..l - 1 {
         let o = if parked_in_rc {
@@ -3836,6 +3851,8 @@ fn a18_recompute_interior(fr: &ForkRun, fix: &A18Fix, rc: &ForkReceipt, parked_i
 /// **The real paths**, at `n` fork workers, each window and each
 /// `(side workers, side pool threads)`. Returns the summary lines.
 fn a18_check_paths(fix: &A18Fix, ns: &[usize], windows: &[usize], sides: &[(usize, usize)]) -> Vec<String> {
+    // [A19] the window's switches are the process's: one test at a time sets them
+    let _knobs = a19_knobs();
     let _seeded = SeededForks::on(A18_SEED, a18_seeded);
     let hooks = ForkHooks::capture();
     let l = fix.l;
@@ -3945,3 +3962,653 @@ fn a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung_on_the_dev
 }
 
 // ---- end of [A18] ----
+
+// ---- [A19] production's window: A13's parts from a plan, and production's D55 path ----
+//
+// (`results/zk60_effplan_20261105/a19/README.md`.) A19 makes A13's window usable from
+// production's D55 path (`trained_block::d55_seal_and_prove`, `stack-prove
+// --d55-workers`): the parts are made from a [`ForkPlan`] (the run shape's, before the
+// statement exists) and the sealing pass's own blocks ([`SealedBlocks`]). The tests:
+// * **the planned path, at the W16R2 rung** (CPU in the suite, Metal ignored): with the
+//   seeded generators, through `prove_run_with_forks_planned` at several windows and
+//   fork-worker counts, the statement made only after the sealing pass (production's
+//   order): every receipt verifies, the parts handed over are the window's, the head is
+//   the replayed commit phase's and every interior fork equals that fork proved whole;
+// * **the controls**: a chain refused partway through the sealing pass returns the
+//   pass's own refusal, never reaches the continuation and drops every part it made; a
+//   plan under another profile or with another stage's IO rows is refused by the check;
+//   a part finished against another blocks object, or against an equal copy of its
+//   block, is refused; a part's layout with its IO rows swapped is not its stage's;
+// * **production's path itself** (CPU in the suite, Metal ignored): `stack-prove
+//   --d55-workers` on a 4-layer R13 export (the registered D55 profile), the window off
+//   and on and the blocks shared and reloaded: each receipt verifies in a fresh
+//   verifier, the parts parked are the window's, every interior fork equals that fork
+//   proved whole on the run's own statement, and a chain refused at layer 1 is refused
+//   with the same string at every window, creates nothing and drops its parts;
+// * **the A/B** (`a19_production_d55_ab`, ignored): production's `d55_seal_and_prove` on
+//   the D55 harness's synthetic W16R2 8B T128 stack, arms in-process, both orders.
+
+/// [A19] the window's switches (`set_ahead_for_test`) and the blocks' switch
+/// (`set_a19_share_for_test`) are the whole process's, so the suite's tests that SET
+/// them take this lock, one at a time (a test that only reads them is unaffected:
+/// the window moves no byte)
+fn a19_knobs() -> std::sync::MutexGuard<'static, ()> {
+    static KNOBS: Mutex<()> = Mutex::new(());
+    KNOBS.lock().unwrap_or_else(|e| e.into_inner())
+}
+
+/// [A19] the commit phase replayed with the seeded commit generator over `planes`
+/// (A18's `a18_commit_phase`, for any chain)
+fn a19_commit_phase(fr: &ForkRun, planes: &[Vec<i16>], ntt: &NttTables) -> (Vec<PreparedBoundary>, Vec<Digest>, Digest, Vec<u8>) {
+    let st = fr.st;
+    let l = st.rs.l;
+    let tag = st.rs.sh.hash_tag();
+    let mut rng0 = seeded_generator(usize::MAX).expect("a SeededForks guard is live");
+    let bounds: Vec<PreparedBoundary> = (0..l - 1).map(|k| boundary::prepare(&st.boundary_spec(k).unwrap(), &words(&planes[k]), ntt, &mut rng0, &tag).unwrap()).collect();
+    let roots: Vec<Digest> = bounds.iter().map(|p| p.root()).collect();
+    let mut tr = fr.transcript().unwrap();
+    let binding = tr.state();
+    absorb_commit(&mut tr, st, &roots, None).unwrap();
+    let head = fw::encode_head(&binding, l, &roots, &position_tag(&tr)).unwrap();
+    (bounds, roots, binding, head)
+}
+
+/// [A19] `rc`'s head against the replayed commit phase, and each interior fork of
+/// `rc` against that fork proved WHOLE (at once, at the fork run's own stage) with
+/// `witness(k)` and `blocks` on the receipt's own statement. Returns how many forks
+/// were compared.
+fn a19_interior_forks_whole(fr: &ForkRun, blocks: &dyn ForkBlocks, planes: &[Vec<i16>], witness: &dyn Fn(usize) -> Witness, rc: &ForkReceipt) -> usize {
+    let l = fr.st.rs.l;
+    let ntt = NttTables::new(fr.st.rs.ntt_log());
+    let (bounds, roots, binding, head) = a19_commit_phase(fr, planes, &ntt);
+    assert!(head == rc.head, "the replayed commit phase is not the receipt's head");
+    let none: &[Fp] = &[];
+    let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { none } else { bounds[k - 1].data() }).collect();
+    let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { none } else { bounds[k].data() }).collect();
+    let checked = preflight(fr.st, blocks, true).expect("the preflight passes");
+    let late = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
+    for k in 1..l - 1 {
+        let o = a18_whole_out(late.prove_one(k, witness(k)).unwrap());
+        assert!(o.bytes == rc.forks[k], "fork {k} of the receipt is not that fork proved whole");
+    }
+    l.saturating_sub(2)
+}
+
+/// [A19] the shape the sealing pass builds a W16R2 rung witness at (production's:
+/// the layer record's `shape_at`)
+fn a19_stage_shape(fix: &A18Fix) -> crate::private_block::shape::Shape {
+    LayerRecord::of_block(0, &fix.blk, vec![]).shape_at(&fix.sh).expect("the rung block's stage shape")
+}
+
+/// **[A19] the planned path**, at `n` fork workers and each window (2 side workers of
+/// 2 threads): the sealing pass puts each block and hands each witness over; the
+/// statement and the fork run are made in the continuation, as production makes them.
+fn a19_check_planned(fix: &A18Fix, ns: &[usize], windows: &[usize]) -> Vec<String> {
+    let _knobs = a19_knobs();
+    let _seeded = SeededForks::on(A18_SEED, a18_seeded);
+    let l = fix.l;
+    let ssh = a19_stage_shape(fix);
+    let mut ctx = 90u8;
+    let mut lines = Vec::new();
+    for &n in ns {
+        for &w in windows {
+            set_ahead_for_test(Some(w), Some(2), Some(2));
+            ctx = ctx.wrapping_add(1);
+            let c = ctx;
+            let rs = RunShape::new(fix.sh.clone(), l, fix.run_profile).unwrap();
+            let plan = ForkPlan::for_run(&rs, [c; 32], &D55OptIn::unreviewed_prototype()).expect("the plan");
+            let blocks = SealedBlocks::new(l);
+            let (bytes, stats, handed, compared) = prove_run_with_forks_planned(
+                Some(&plan),
+                &blocks,
+                |push| {
+                    let mut kept: Vec<Option<Witness>> = Vec::with_capacity(l);
+                    for k in 0..l {
+                        blocks.put(k, fix.blk.clone())?;
+                        kept.push(push(k, fix.witness(k), &ssh)?);
+                    }
+                    Ok(kept)
+                },
+                |kept, planned| {
+                    let (st, owners) = fix.statement(c);
+                    let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype())?;
+                    planned.check(&fr)?;
+                    let mut src = Chain { witnesses: kept, planes: fix.planes.clone(), tamper: None };
+                    let (rc, stats) = planned.prove(&fr, &blocks, &mut src, owners, n)?;
+                    verify_run_with_forks(&fr, &blocks, &rc, 2)?;
+                    let compared = a19_interior_forks_whole(&fr, &blocks, &fix.planes, &|k| fix.witness(k), &rc);
+                    Ok((rc.bytes(), stats, planned.handed(), compared))
+                },
+            )
+            .unwrap_or_else(|e| panic!("planned N{n} window {w}: {e}"));
+            set_ahead_for_test(None, None, None);
+            let want = w.min(l);
+            assert_eq!(handed, want, "planned N{n} window {w}: witnesses handed to the window");
+            assert_eq!(stats.ahead_parked + stats.ahead_taken_back, want, "planned N{n} window {w}: forks parked (and parts taken back whole)");
+            assert_eq!(stats.generators, l + 1, "planned: L + 1 generators");
+            assert!(stats.fork_hooks.iter().all(|h| h.seeded == Some(A18_SEED)), "planned: a fork did not hold the seeded switch");
+            lines.push(format!("{} L{l} N{n} planned window {w}: {} parked, {} taken back whole, {bytes} B, verified; head = the replayed commit phase; {compared} interior forks = those forks proved whole", fix.sh.name, stats.ahead_parked, stats.ahead_taken_back));
+        }
+    }
+    lines
+}
+
+/// [A19] blocks that hand out `a`'s objects until `flip` is set, then `b`'s (an
+/// equal copy): a part made against one object, its fork finished against another
+struct A19Turncoat<'b> {
+    a: &'b SealedBlocks,
+    b: &'b SealedBlocks,
+    flip: std::sync::atomic::AtomicBool,
+}
+
+impl ForkBlocks for A19Turncoat<'_> {
+    fn count(&self) -> usize {
+        self.a.count()
+    }
+    fn get(&self, k: usize) -> Result<&BlockPublic, String> {
+        if self.flip.load(Ordering::SeqCst) {
+            self.b.get(k)
+        } else {
+            self.a.get(k)
+        }
+    }
+}
+
+/// **[A19] the controls of the planned path** (see the block comment)
+fn a19_controls(fix: &A18Fix) -> Vec<String> {
+    static COUNT: A19Count = A19Count { made: AtomicUsize::new(0), live: AtomicUsize::new(0) };
+    let _knobs = a19_knobs();
+    let _seeded = SeededForks::on(A18_SEED, a18_seeded);
+    let _counting = A19Counting::on(&COUNT);
+    let l = fix.l;
+    let ssh = a19_stage_shape(fix);
+    let rs = RunShape::new(fix.sh.clone(), l, fix.run_profile).unwrap();
+    let plan = || ForkPlan::for_run(&rs, [120; 32], &D55OptIn::unreviewed_prototype()).unwrap();
+    let mut lines = Vec::new();
+    set_ahead_for_test(Some(l), Some(2), Some(2));
+    // (1) a chain refused partway through the sealing pass: two witnesses handed
+    // over and both parts made, then the pass refuses
+    {
+        let blocks = SealedBlocks::new(l);
+        let mut reached = false;
+        let refusal = "layer 2: the sealing pass refuses this chain (the A19 control)";
+        let e = prove_run_with_forks_planned(
+            Some(&plan()),
+            &blocks,
+            |push| -> Result<(), String> {
+                for k in 0..2 {
+                    blocks.put(k, fix.blk.clone())?;
+                    assert!(push(k, fix.witness(k), &ssh)?.is_none(), "a witness inside the window came back");
+                }
+                let t = Instant::now();
+                while COUNT.made.load(Ordering::SeqCst) < 2 && t.elapsed().as_secs() < 120 {
+                    std::thread::sleep(std::time::Duration::from_millis(5));
+                }
+                Err(refusal.to_string())
+            },
+            |_, _| -> Result<(), String> {
+                reached = true;
+                Ok(())
+            },
+        )
+        .expect_err("a refused sealing pass returned Ok");
+        assert_eq!(e, refusal, "the refusal is not the sealing pass's own");
+        assert!(!reached, "the continuation ran after a refused sealing pass");
+        assert_eq!(COUNT.made.load(Ordering::SeqCst), 2, "the two parts were not made");
+        assert_eq!(COUNT.live.load(Ordering::SeqCst), 0, "A REFUSED CHAIN KEPT A PART ALIVE");
+        lines.push(format!("a chain refused partway through the sealing pass: its refusal returned as is, the continuation never ran, {} parts made and 0 alive", COUNT.made.load(Ordering::SeqCst)));
+    }
+    let (st, _owners) = fix.statement(121);
+    let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+    // (2) a plan that is not the fork run's, refused by the check before anything
+    let other_profile = plan().with_profile_for_test("d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/another");
+    for (what, bad, want) in [("another profile", other_profile, "(its profile)"), ("stage 0's IO rows swapped", plan().with_rows_swapped_for_test(0), "(stage 0's IO rows)")] {
+        let blocks = SealedBlocks::new(l);
+        let e = prove_run_with_forks_planned(
+            Some(&bad),
+            &blocks,
+            |push| {
+                for k in 0..l {
+                    blocks.put(k, fix.blk.clone())?;
+                    push(k, fix.witness(k), &ssh)?;
+                }
+                Ok(())
+            },
+            |_, planned| planned.check(&fr),
+        )
+        .expect_err("a plan that is not the fork run's passed the check");
+        assert!(e.contains("the fork plan made before the run statement is not this fork run's") && e.contains(want), "{what}: {e}");
+        lines.push(format!("a plan with {what}: REFUSED by the check: {e}"));
+    }
+    // (3) parts finished against another blocks object, and against an equal copy
+    // of their block behind the same object
+    {
+        let (a, b) = (SealedBlocks::new(l), SealedBlocks::new(l));
+        let e = prove_run_with_forks_planned(
+            Some(&plan()),
+            &a,
+            |push| {
+                let mut kept = Vec::new();
+                for k in 0..l {
+                    a.put(k, fix.blk.clone())?;
+                    b.put(k, fix.blk.clone())?;
+                    kept.push(push(k, fix.witness(k), &ssh)?);
+                }
+                Ok(kept)
+            },
+            |kept, planned| {
+                let (st, owners) = fix.statement(122);
+                let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype())?;
+                planned.prove(&fr, &b, &mut Chain { witnesses: kept, planes: fix.planes.clone(), tamper: None }, owners, 2).map(|_| ())
+            },
+        )
+        .expect_err("parts made against one blocks object were finished against another");
+        assert!(e.contains("the before-challenge parts were made against another blocks object"), "{e}");
+        lines.push(format!("parts finished against another blocks object: REFUSED: {e}"));
+        let (a, b) = (SealedBlocks::new(l), SealedBlocks::new(l));
+        let turncoat = A19Turncoat { a: &a, b: &b, flip: std::sync::atomic::AtomicBool::new(false) };
+        let e = prove_run_with_forks_planned(
+            Some(&plan()),
+            &turncoat,
+            |push| {
+                let mut kept = Vec::new();
+                for k in 0..l {
+                    a.put(k, fix.blk.clone())?;
+                    b.put(k, fix.blk.clone())?;
+                    kept.push(push(k, fix.witness(k), &ssh)?);
+                }
+                Ok(kept)
+            },
+            |kept, planned| {
+                let (st, owners) = fix.statement(123);
+                let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype())?;
+                // every part made (against `a`'s objects) before the forks see `b`'s
+                let t = Instant::now();
+                while planned.parked().0 < l && t.elapsed().as_secs() < 120 {
+                    std::thread::sleep(std::time::Duration::from_millis(5));
+                }
+                turncoat.flip.store(true, Ordering::SeqCst);
+                planned.prove(&fr, &turncoat, &mut Chain { witnesses: kept, planes: fix.planes.clone(), tamper: None }, owners, 2).map(|_| ())
+            },
+        )
+        .expect_err("a part finished against an equal copy of its block");
+        assert!(e.contains("the before-challenge state was made for another block"), "{e}");
+        lines.push(format!("a part finished against an equal copy of its block (the same blocks object): REFUSED by the part: {e}"));
+    }
+    // (4) a part's layout with its IO rows swapped is not its stage's
+    {
+        let k = 1;
+        let ssh = st.stage_shape(k).unwrap();
+        let lay = st.stage_layout(k).unwrap();
+        let swapped = crate::private_block::layout::Layout::for_shape(&ssh).unwrap().with_io_mask_rows([lay.io_mask_row(true), lay.io_mask_row(false)]);
+        fr.is_the_stage(k, &ssh, &lay).expect("the stage's own layout");
+        let e = fr.is_the_stage(k, &ssh, &swapped).expect_err("a layout with its IO rows swapped was the stage's");
+        lines.push(format!("a part whose layout has its IO rows swapped: REFUSED at its finish: {e}"));
+    }
+    set_ahead_for_test(None, None, None);
+    lines
+}
+
+/// **[A19] the planned path and its controls at the W16R2 rung, on the CPU** (in the suite)
+#[test]
+fn a19_planned_parts_equal_whole_forks_and_every_control_refuses_at_the_w16r2_rung() {
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4);
+    for line in a19_check_planned(&fix, &[1, 3], &[0, 1, 2, 4, 9]) {
+        eprintln!("A19-BYTES {line}");
+    }
+    for line in a19_controls(&fix) {
+        eprintln!("A19-CONTROL {line}");
+    }
+}
+
+/// **[A19] the same on the Metal device** (the parts' `A` committed on the device by a
+/// side worker, finished by a fork worker): toggles `HL_GPU` in-process, so it is
+/// ignored and run alone by name
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A19: toggles HL_GPU in-process; run alone by name on a Mac"]
+fn a19_planned_parts_equal_whole_forks_and_every_control_refuses_at_the_w16r2_rung_on_the_device() {
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4);
+    std::env::set_var("HL_GPU", "1");
+    let before = crate::gpu::metal_sumcheck_stats().1;
+    let mut lines = a19_check_planned(&fix, &[1, 3, 6], &[0, 2, 4]);
+    lines.extend(a19_controls(&fix));
+    let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+    std::env::remove_var("HL_GPU");
+    for line in lines {
+        eprintln!("A19-BYTES (Metal) {line}");
+    }
+    assert!(ran > 0.0, "no sumcheck round ran on the device");
+}
+
+/// **[A19] production's D55 path** (`stack-prove --d55-workers`, the registered D55
+/// profile of a 4-layer R13 export written from the fixture), each arm `(window,
+/// fork workers, blocks shared)`, with the seeded generators: the receipt verifies in
+/// a fresh verifier, the parts parked are the window's, its head is the replayed
+/// commit phase's and every interior fork equals that fork proved whole on the run's
+/// own statement; then a chain whose layer-1 output is off by one word is refused at
+/// every window with window 0's string, creates nothing and drops its parts.
+fn a19_check_production(tag: &str, arms: &[(usize, usize, bool)]) -> Vec<String> {
+    use crate::private_block::trained_block::{a19_proved_hook_for_tests, set_a19_share_for_test, stack_prove_inner_for_tests, trained_stack_prove_command, trained_stack_verify_command, D55_TEST_RECEIPT_FLAG};
+    use crate::private_block::trained_block_tests::verifier_copy;
+    let _knobs = a19_knobs();
+    let root = scratch(&format!("a19-{tag}"));
+    let ex_dir = root.join("export");
+    let l = write_r13_multi_layer_export(&ex_dir, 4, true, None);
+    assert!(l >= 3, "the R13 export holds {l} layers; the interior-fork comparison needs 3 or more");
+    let vc = verifier_copy(&ex_dir);
+    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
+    let (exd, vcd) = (ex_dir.display().to_string(), vc.display().to_string());
+    let mut lines = Vec::new();
+    let _seeded = SeededForks::on(A18_SEED, a18_seeded);
+    for (i, &(window, n, share)) in arms.iter().enumerate() {
+        set_ahead_for_test(Some(window), Some(2), Some(2));
+        set_a19_share_for_test(Some(share));
+        let count: &'static A19Count = Box::leak(Box::default());
+        let _counting = A19Counting::on(count);
+        let seen: std::rc::Rc<std::cell::RefCell<Option<(usize, usize, usize, usize)>>> = Default::default();
+        let (seen2, exd2) = (seen.clone(), ex_dir.clone());
+        a19_proved_hook_for_tests(Some(Box::new(move |fr: &ForkRun<'_>, blocks: &dyn ForkBlocks, rc: &ForkReceipt, fs: &ForkStats| {
+            // the run's witnesses, rebuilt from the export's own sequence at the
+            // fork run's stage shapes against the blocks it proved with
+            let ex = TrainedExport::load(&exd2).unwrap();
+            let sh = &fr.st.rs.sh;
+            let (mut x, _) = ex.load_seq(sh, "public", 0).unwrap();
+            let (mut ws, mut planes) = (Vec::new(), Vec::new());
+            for k in 0..fr.st.rs.l {
+                let w = witness::build_for_block(&fr.st.stage_shape(k).unwrap(), blocks.get(k).unwrap(), &x).unwrap();
+                let out = w.output().unwrap();
+                x = unpad(sh, &out);
+                if k + 1 < fr.st.rs.l {
+                    planes.push(out);
+                }
+                ws.push(w);
+            }
+            let compared = a19_interior_forks_whole(fr, blocks, &planes, &|k| ws[k].clone(), rc);
+            assert!(fs.fork_hooks.iter().all(|h| h.seeded == Some(A18_SEED)), "a fork did not hold the seeded switch");
+            *seen2.borrow_mut() = Some((fs.ahead_parked, fs.ahead_taken_back, fs.generators, compared));
+        })));
+        let out = root.join(format!("run-{i}"));
+        let od = out.display().to_string();
+        let ns = n.to_string();
+        let rc = trained_stack_prove_command(&s(&["--export", &exd, "--seq", "public", "--out", &od, "--d55-workers", &ns, D55_TEST_RECEIPT_FLAG]));
+        a19_proved_hook_for_tests(None);
+        set_ahead_for_test(None, None, None);
+        set_a19_share_for_test(None);
+        assert_eq!(rc, 0, "window {window} N{n} shared {share}: stack-prove --d55-workers failed");
+        let (parked, taken_back, generators, compared) = seen.borrow().expect("the proved hook ran");
+        let want = if share { window.min(l) } else { 0 };
+        assert_eq!(parked + taken_back, want, "window {window} N{n} shared {share}: forks parked (and parts taken back whole)");
+        assert_eq!(generators, l + 1);
+        assert_eq!(count.live.load(Ordering::SeqCst), 0, "a part outlived its run");
+        let stmt = std::fs::read_to_string(root.join(format!("run-{i}.unverified-statement")).join("statement.json")).unwrap();
+        let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
+        assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--d55-workers", &ns])), 0, "window {window} N{n} shared {share}: the fresh verifier refused the receipt");
+        lines.push(format!("stack-prove --d55-workers {n}, window {window}, blocks {}: {parked} parked, {taken_back} taken back whole ({} parts made); verified by a fresh stack-verify; head = the replayed commit phase; {compared} interior forks = those forks proved whole", if share { "shared" } else { "reloaded" }, count.made.load(Ordering::SeqCst)));
+    }
+    // the refused chain: layer 1's reference output off by one word
+    let bad = root.join("export-bad");
+    write_r13_multi_layer_export(&bad, l, false, Some(1));
+    let bd = bad.display().to_string();
+    let mut refusal: Option<String> = None;
+    for (j, window) in [0usize, 1, l].into_iter().enumerate() {
+        set_ahead_for_test(Some(window), Some(2), Some(2));
+        let count: &'static A19Count = Box::leak(Box::default());
+        let _counting = A19Counting::on(count);
+        let out = root.join(format!("run-bad-{j}"));
+        let e = stack_prove_inner_for_tests(&s(&["--export", &bd, "--seq", "public", "--out", &out.display().to_string(), "--d55-workers", "2", D55_TEST_RECEIPT_FLAG])).expect_err("A CHAIN WHOSE LAYER-1 PARITY FAILS WAS PROVED");
+        set_ahead_for_test(None, None, None);
+        assert!(e.contains("before the run header; ruling H-1"), "window {window}: not the sealing pass's refusal: {e}");
+        match &refusal {
+            None => refusal = Some(e.clone()),
+            Some(r) => assert_eq!(&e, r, "window {window}: the refusal is not window 0's"),
+        }
+        assert!(!out.exists() && !root.join(format!("run-bad-{j}.unverified-statement")).exists(), "window {window}: a refused chain left a run directory or a statement");
+        assert_eq!(count.live.load(Ordering::SeqCst), 0, "window {window}: A REFUSED CHAIN KEPT A PART ALIVE");
+        lines.push(format!("a chain refused at layer 1, window {window}: the same refusal as window 0's, nothing created, {} parts made and 0 alive: {e}", count.made.load(Ordering::SeqCst)));
+    }
+    std::fs::remove_dir_all(&root).unwrap();
+    lines
+}
+
+/// **[A19] production's D55 path at the R13 rung, on the CPU** (in the suite)
+#[test]
+fn a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung() {
+    for line in a19_check_production("cpu", &[(0, 2, true), (0, 2, false), (2, 2, true), (4, 1, true), (4, 3, true)]) {
+        eprintln!("A19-PROD {line}");
+    }
+}
+
+/// **[A19] the same on the Metal device**: toggles `HL_GPU` in-process, so it is
+/// ignored and run alone by name
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A19: toggles HL_GPU in-process; run alone by name on a Mac"]
+fn a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung_on_the_device() {
+    std::env::set_var("HL_GPU", "1");
+    let before = crate::gpu::metal_sumcheck_stats().1;
+    let lines = a19_check_production("metal", &[(0, 3, true), (0, 3, false), (2, 3, true), (4, 2, true), (4, 6, true)]);
+    let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+    std::env::remove_var("HL_GPU");
+    for line in lines {
+        eprintln!("A19-PROD (Metal) {line}");
+    }
+    assert!(ran > 0.0, "no sumcheck round ran on the device");
+}
+
+/// **[A19] the D55 harness's synthetic stack as production's model**: ONE public
+/// synthetic block (A18's fixture) loaded at every layer as production loads a
+/// layer (a distinct copy each time, its record hashed: `LayerRecord::of_block`'s
+/// SHA-256s and digest; production also reads and hashes the export's files, so this
+/// load is a lower bound of production's), and the fixture's honest chain as the
+/// run's private sequence.
+struct A19Synth<'f> {
+    fix: &'f A18Fix,
+    layers: Vec<u32>,
+    ctx: Digest,
+    /// `HL_A19_SYNTH_LOAD=copy`: each load only copies the block and takes the
+    /// fixture's record (the D55 harness's sealing pass, which loads nothing,
+    /// plus a copy); `hash` (the default) also hashes the record, as production's
+    /// load does
+    hash_load: bool,
+    record0: LayerRecord,
+}
+
+impl crate::private_block::trained_block::StackModel for A19Synth<'_> {
+    fn shape(&self) -> &crate::private_block::shape::Shape {
+        &self.fix.sh
+    }
+    fn layers(&self) -> &[u32] {
+        &self.layers
+    }
+    fn load_layer(&self, k: usize) -> Result<crate::private_block::trained_block::TrainedLayer, String> {
+        let blk = self.fix.blk.clone();
+        let record = if self.hash_load {
+            LayerRecord::of_block(k as u32, &blk, vec![])
+        } else {
+            let mut r = self.record0.clone();
+            r.index = k as u32;
+            r
+        };
+        Ok(crate::private_block::trained_block::TrainedLayer { index: k as u32, manifest_sha256: [0; 32], blk, record, rope_note: String::new() })
+    }
+    fn reload_block(&self, _k: usize) -> Result<BlockPublic, String> {
+        Ok(self.fix.blk.clone())
+    }
+    fn seq(&self, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
+        let k = layer as usize;
+        Ok((self.fix.xs[k].clone(), self.fix.xs[k + 1].clone()))
+    }
+    fn statement_of_records(&self, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+        if records != self.fix.model.layers {
+            return Err("A19 synthetic stack: the records are not the fixture's".into());
+        }
+        Ok(self.fix.model.clone())
+    }
+    fn run_shape(&self) -> Result<RunShape, String> {
+        RunShape::new(self.fix.sh.clone(), self.fix.l, self.fix.run_profile)
+    }
+    fn context(&self) -> Result<Digest, String> {
+        Ok(self.ctx)
+    }
+    fn variant(&self) -> &str {
+        "a19-synthetic"
+    }
+    fn scope(&self) -> &'static str {
+        "the D55 harness's synthetic stack (A19)"
+    }
+}
+
+/// **[A19] THE A/B THROUGH PRODUCTION'S D55 PATH**: `trained_block::d55_seal_and_prove`
+/// (what `stack-prove --d55-workers` runs) on the D55 harness's synthetic stack
+/// (`HL_D55_PROFILE`, default W16R2_8B_T128_H24; `HL_D55_L` layers, default 32), one
+/// request from its input per call: the sealing pass from the first layer's load, the
+/// statement, the fork run, the run directory and the receipt written into it. Arms
+/// `HL_A19_AB` (`+`-joined A18 words `noahead`, `ahead<W>`, `aw<k>`, `ap<t>`, `qos<q>`
+/// and A19's `share0` / `share1`), `HL_A19_AB_PASSES` passes (default 6), reversed in odd
+/// passes with `HL_D55_AB_ALTERNATE=1`, at `HL_D55_WORKERS` (default 6) fork workers and
+/// a witness budget of `HL_A19_BUDGET_GIB` (default 32, the Mac's default). One cold call
+/// first. Each arm's first pass is verified (after its clock) from the run directory;
+/// every directory is removed after its call. Lines: `a11/pairs.py`'s (`SEALED` = the
+/// request, the plain line = its prove call, `A11 USAGE` = the request's CPU) and
+/// `a15/seal_pairs.py`'s (`A15 SEALED` = its sealing pass), and A19's own.
+#[test]
+#[ignore = "heavy: W16R2 8B T128 32-block runs through production's D55 path; guarded, alone, HL_GPU=1 HL_PB_ORACLE=0"]
+fn a19_production_d55_ab() {
+    use crate::private_block::trained_block::{a19_sealed_hook_for_tests, d55_seal_and_prove, set_a19_share_for_test, D55Run};
+    let name: String = env_or("HL_D55_PROFILE", "W16R2_8B_T128_H24".to_string());
+    let spec = crate::private_block::shape::W16R2_PROFILES.iter().chain(crate::private_block::shape::W16_PROFILES.iter()).find(|s| s.name == name).expect("a W16 or W16R2 profile name");
+    let l: usize = env_or("HL_D55_L", 32usize);
+    let n: usize = env_or("HL_D55_WORKERS", 6usize);
+    let passes: usize = env_or("HL_A19_AB_PASSES", 6usize).max(1);
+    let alternate: bool = env_or("HL_D55_AB_ALTERNATE", 0usize) == 1;
+    let budget = (env_or("HL_A19_BUDGET_GIB", 32.0f64) * (1u64 << 30) as f64) as u64;
+    let arms: Vec<String> = std::env::var("HL_A19_AB").unwrap_or_else(|_| "noahead,ahead16".into()).split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+    let parse = |label: &str| -> (A18Arm, Option<bool>) {
+        let mut a = A18Arm::default();
+        let mut share = None;
+        for w in label.split('+') {
+            match w {
+                "share0" => share = Some(false),
+                "share1" => share = Some(true),
+                // the defaults as they stand (the environment's)
+                "default" => {}
+                _ => assert!(a18_word(&mut a, w), "HL_A19_AB: an unknown word {w:?} in {label:?}"),
+            }
+        }
+        (a, share)
+    };
+    for a in &arms {
+        let _ = parse(a);
+    }
+    let t0 = Instant::now();
+    let fix = A18Fix::new(spec.profile, l);
+    let sh = &fix.sh;
+    eprintln!("D55-AB A19 {name} L{l} T{}: the fixture (one synthetic block, the honest chain) in {:.1} s", sh.tokens, t0.elapsed().as_secs_f64());
+    let hash_load = env_or("HL_A19_SYNTH_LOAD", "hash".to_string()) != "copy";
+    let model = A19Synth { fix: &fix, layers: (0..l as u32).collect(), ctx: [19; 32], hash_load, record0: LayerRecord::of_block(0, &fix.blk, vec![]) };
+    eprintln!("D55-AB A19 {name} L{l}: each layer's load {}", if hash_load { "copies the block and hashes its record (production's load, less the export's file reads and array hashes)" } else { "copies the block only (HL_A19_SYNTH_LOAD=copy)" });
+    let root = scratch("a19-ab");
+    let rep = RepeatBlock::new(&fix.blk, l);
+    let tok = |wall: f64| sh.tokens as f64 / wall;
+    let mut call = 0usize;
+    let mut one = |label: &str, p: Option<usize>, verify: bool| {
+        let (arm, share) = parse(label);
+        a18_apply(&arm);
+        set_a19_share_for_test(share);
+        call += 1;
+        let out = root.join(format!("run-{call}"));
+        // the sealing pass's CPU and context switches, from its start to its end
+        let at_seal: std::rc::Rc<std::cell::Cell<Option<Usage>>> = Default::default();
+        let at2 = at_seal.clone();
+        a19_sealed_hook_for_tests(Some(Box::new(move || at2.set(Some(usage_now())))));
+        let mem = A18Mem::start();
+        let u0 = usage_now();
+        let t = Instant::now();
+        let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: n, out: &out, budget, test_receipt: true, events: false }).unwrap_or_else(|e| panic!("[{label}]: production's D55 path: {e}"));
+        let wall = t.elapsed().as_secs_f64();
+        let u = usage_now().since(u0);
+        let (f0, peak, f1) = mem.stop();
+        a19_sealed_hook_for_tests(None);
+        let us = at_seal.get().expect("the sealing pass's hook ran").since(u0);
+        a18_apply(&A18Arm::default());
+        set_a19_share_for_test(None);
+        let tm = proved.times().clone();
+        let fs = &tm.fork;
+        let mean = |v: &[f64]| if v.is_empty() { f64::NAN } else { v.iter().sum::<f64>() / v.len() as f64 };
+        let parked: Vec<f64> = fs.fork_before_s.iter().filter(|(_, p)| *p).map(|(s, _)| *s).collect();
+        let tag = match p {
+            Some(p) => format!("pass {p}"),
+            None => "cold".to_string(),
+        };
+        eprintln!(
+            "D55-AB A19 PROD {name} L{l} N{n} [{label}] {tag}: wall {wall:.3} s = {:.2} proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass {:.3} s (loads {:.3} s beside it, witnesses {:.3} s, pool {}); window {}, {} parts handed ({:.2} GB budgeted), {} witnesses kept ({:.2} GB); blocks {} (reload {:.3} s); prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3} s; {} forks parked (mean {:.1} ms), {} taken back whole, feeder waited {:.3} s; directory to receipt written {:.3} s; receipt {} B; footprint start {f0:.1} GiB, peak {peak:.1} GiB, end {f1:.1} GiB",
+            tok(wall),
+            tm.seal_s,
+            tm.seal_load_s,
+            tm.seal_witness_s,
+            tm.seal_pool_threads,
+            tm.window,
+            tm.handed,
+            tm.part_bytes as f64 / 1e9,
+            tm.kept,
+            tm.kept_bytes as f64 / 1e9,
+            if tm.shared { "shared" } else { "reloaded" },
+            tm.block_load_s,
+            fs.total_s,
+            fs.preflight_s,
+            fs.commit_s,
+            fs.forks_s,
+            fs.join_s,
+            fs.ahead_parked,
+            1e3 * mean(&parked),
+            fs.ahead_taken_back,
+            fs.ahead_wait_s,
+            tm.prove_s,
+            tm.receipt_bytes
+        );
+        if let Some(p) = p {
+            eprintln!("D55-AB A11 USAGE {name} L{l} forks N{n} [{label}]: wall {wall:.3} s; user {:.2} s + sys {:.2} s; csw voluntary {}, involuntary {}; minor faults {}", u.user, u.sys, u.nvcsw, u.nivcsw, u.minflt);
+            eprintln!("D55-AB GPU-AB {name} L{l} T{} forks N{n} [{label}] pass {p}: wall {:.3} s = {:.2} proved tok/s (production's prove call); preflight {:.3} s, commit {:.3} s, forks {:.3} s, join {:.3} s; receipt {} B", sh.tokens, fs.total_s, tok(fs.total_s), fs.preflight_s, fs.commit_s, fs.forks_s, fs.join_s, tm.receipt_bytes);
+            eprintln!("D55-AB GPU-AB {name} L{l} T{} forks N{n} [{label}] SEALED pass {p}: wall {wall:.3} s = {:.2} proved tok/s FROM THE RUN'S INPUT (production's d55_seal_and_prove, sealing pass {:.3} s); receipt {} B", sh.tokens, tok(wall), tm.seal_s, tm.receipt_bytes);
+            eprintln!(
+                "D55-AB A15 SEALED {name} L{l} N{n} [{label}]: sealing pass {:.3} s in a sealing pool of {}: user {:.2} s + sys {:.2} s = {:.1} cores; csw voluntary {}, involuntary {}; minor faults {}",
+                tm.seal_s,
+                tm.seal_pool_threads,
+                us.user,
+                us.sys,
+                (us.user + us.sys) / tm.seal_s.max(1e-9),
+                us.nvcsw,
+                us.nivcsw,
+                us.minflt
+            );
+        }
+        if verify {
+            let tv = Instant::now();
+            let fr = ForkRun::new(proved.statement(), D55OptIn::unreviewed_prototype()).unwrap();
+            verify_run_with_forks_from_dir(&fr, &rep, &out, 6).unwrap_or_else(|e| panic!("[{label}]: the receipt in the run directory does not verify: {e}"));
+            eprintln!("D55-AB A19 PROD {name} L{l} N{n} [{label}] {tag}: the receipt in the run directory verified (D55 verifier, 6 threads) in {:.2} s", tv.elapsed().as_secs_f64());
+        }
+        drop(proved);
+        std::fs::remove_dir_all(&out).unwrap_or_else(|e| panic!("{}: {e}", out.display()));
+        wall
+    };
+    one(&arms[0], None, true);
+    let mut walls: Vec<Vec<f64>> = vec![Vec::new(); arms.len()];
+    for p in 0..passes {
+        let order: Vec<usize> = if alternate && p % 2 == 1 { (0..arms.len()).rev().collect() } else { (0..arms.len()).collect() };
+        for ai in order {
+            let w = one(&arms[ai], Some(p), p == 0);
+            walls[ai].push(w);
+        }
+    }
+    for (a, w) in arms.iter().zip(&walls) {
+        let best = w.iter().cloned().fold(f64::INFINITY, f64::min);
+        let mean = w.iter().sum::<f64>() / w.len() as f64;
+        eprintln!("D55-AB SUMMARY | A19 production one request [{a}] | {} passes | best {best:.3} s = {:.2} tok/s | mean {mean:.3} s = {:.2} tok/s", w.len(), tok(best), tok(mean));
+    }
+    std::fs::remove_dir_all(&root).ok();
+    eprintln!("D55-AB A19 {name} L{l}: total {:.1} s", t0.elapsed().as_secs_f64());
+}
+
+// ---- end of [A19] ----

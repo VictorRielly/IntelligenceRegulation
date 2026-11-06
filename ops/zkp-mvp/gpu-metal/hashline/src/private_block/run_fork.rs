@@ -267,19 +267,23 @@ pub(crate) struct ForkHooks {
     pub panic_in_fork: bool,
     /// [A13] the byte tests' seeded generators ([`SeededForks`])
     pub seeded: Option<u64>,
+    /// [A19] the refused-chain control's count of parts made and alive
+    /// ([`A19Counting`])
+    pub parts: Option<&'static A19Count>,
 }
 
 #[cfg(test)]
 impl ForkHooks {
     pub(crate) fn capture() -> ForkHooks {
-        ForkHooks { block: protocol::ThreadHooks::capture(), drop_fork_index: DROP_FORK_INDEX.with(|c| c.get()), panic_in_fork: PANIC_IN_FORK.with(|c| c.get()), seeded: SEEDED_FORKS.with(|c| c.get()) }
+        ForkHooks { block: protocol::ThreadHooks::capture(), drop_fork_index: DROP_FORK_INDEX.with(|c| c.get()), panic_in_fork: PANIC_IN_FORK.with(|c| c.get()), seeded: SEEDED_FORKS.with(|c| c.get()), parts: A19_COUNTING.with(|c| c.get()) }
     }
     fn install(self) -> ForkHooksGuard {
         let block = self.block.install();
         let was = DROP_FORK_INDEX.with(|c| c.replace(self.drop_fork_index));
         let was_panic = PANIC_IN_FORK.with(|c| c.replace(self.panic_in_fork));
         let was_seeded = SEEDED_FORKS.with(|c| c.replace(self.seeded));
-        ForkHooksGuard { _block: block, was, was_panic, was_seeded }
+        let was_parts = A19_COUNTING.with(|c| c.replace(self.parts));
+        ForkHooksGuard { _block: block, was, was_panic, was_seeded, was_parts }
     }
 }
 
@@ -289,6 +293,7 @@ struct ForkHooksGuard {
     was: bool,
     was_panic: bool,
     was_seeded: Option<u64>,
+    was_parts: Option<&'static A19Count>,
 }
 
 #[cfg(test)]
@@ -297,6 +302,76 @@ impl Drop for ForkHooksGuard {
         DROP_FORK_INDEX.with(|c| c.set(self.was));
         PANIC_IN_FORK.with(|c| c.set(self.was_panic));
         SEEDED_FORKS.with(|c| c.set(self.was_seeded));
+        A19_COUNTING.with(|c| c.set(self.was_parts));
+    }
+}
+
+// **[A19] TEST BUILDS ONLY: a count of the before-challenge parts a test's
+// fork runs make, and of those still alive** (the refused-chain control: a
+// chain refused partway through the sealing pass must drop every part it
+// made). Installed per thread ([`A19Counting`]) and carried into the side
+// workers by [`ForkHooks`], so tests running beside each other do not share it.
+#[cfg(test)]
+#[derive(Debug, Default)]
+pub(crate) struct A19Count {
+    pub made: AtomicUsize,
+    pub live: AtomicUsize,
+}
+
+#[cfg(test)]
+impl PartialEq for A19Count {
+    fn eq(&self, other: &A19Count) -> bool {
+        std::ptr::eq(self, other)
+    }
+}
+
+#[cfg(test)]
+impl Eq for A19Count {}
+
+#[cfg(test)]
+thread_local! {
+    static A19_COUNTING: std::cell::Cell<Option<&'static A19Count>> = const { std::cell::Cell::new(None) };
+}
+
+/// [A19] while alive (test builds only), the parts this thread's fork runs
+/// make are counted in `count`
+#[cfg(test)]
+pub(crate) struct A19Counting {
+    was: Option<&'static A19Count>,
+}
+
+#[cfg(test)]
+impl A19Counting {
+    pub(crate) fn on(count: &'static A19Count) -> A19Counting {
+        A19Counting { was: A19_COUNTING.with(|c| c.replace(Some(count))) }
+    }
+}
+
+#[cfg(test)]
+impl Drop for A19Counting {
+    fn drop(&mut self) {
+        A19_COUNTING.with(|c| c.set(self.was));
+    }
+}
+
+/// [A19] one part, counted while alive (test builds only)
+#[cfg(test)]
+#[derive(Debug)]
+struct A19Live(&'static A19Count);
+
+#[cfg(test)]
+impl A19Live {
+    fn new(c: &'static A19Count) -> A19Live {
+        c.made.fetch_add(1, Ordering::SeqCst);
+        c.live.fetch_add(1, Ordering::SeqCst);
+        A19Live(c)
+    }
+}
+
+#[cfg(test)]
+impl Drop for A19Live {
+    fn drop(&mut self) {
+        self.0.live.fetch_sub(1, Ordering::SeqCst);
     }
 }
 
@@ -393,6 +468,38 @@ fn no_registered_profile(base: &str, opt_in: &D55OptIn) -> Result<(String, bool)
 #[cfg(not(test))]
 fn no_registered_profile(base: &str, _opt_in: &D55OptIn) -> Result<(String, bool), String> {
     Err(format!("D60: the run profile {base} has no registered D55 profile; a D55 fork run is registered over the {} R13 blocks-only run profiles only", D55_RUN_PROFILES.len()))
+}
+
+/// **The D55 profile string of a run over `rs`'s base, and whether it is a
+/// test-only identity** ([`ForkRun::new`]'s derivation, and [A19]
+/// [`ForkPlan::for_run`]'s): a token-I/O or classifier base is refused; a base
+/// with a registered D55 profile (D60) gets it, checked to be the marker and
+/// its base; any other is refused by name (a test build's
+/// `D55OptIn::unreviewed_prototype()` gives it its test-only identity); and the
+/// result must not be a registered D12a run profile (CS-7).
+fn fork_profile(rs: &RunShape, opt_in: &D55OptIn) -> Result<(String, bool), String> {
+    let base = rs.profile;
+    if TOKEN_IO_RUN_PROFILES.contains(&base) || is_classify_run_profile(base) {
+        return Err(format!("D55: {base} is a token-I/O or classifier run profile; a D55 fork run forks blocks-only runs only"));
+    }
+    let (profile, test_only) = match d55_run_profile(base) {
+        Some(p) => {
+            // D60: a registered string is the marker and its base, and
+            // nothing else (a registry entry that drifted is refused here)
+            let tail = base.strip_prefix("hashline-zk-mr1/").ok_or_else(|| format!("D60: the base run profile {base} is not a hashline-zk-mr1 profile"))?;
+            if p != format!("hashline-zk-mr1/{D55_REGISTERED_MARKER}{tail}") {
+                return Err(format!("D60: the registered D55 profile {p:?} is not the D55 marker and its base {base:?}"));
+            }
+            (p.to_string(), false)
+        }
+        None => no_registered_profile(base, opt_in)?,
+    };
+    // CS-7 never admits a D55 string as a D12a run profile: a D12a run
+    // under a fork run's constructor domain would share its transcript
+    if registered_block_shape(&profile, &rs.sh).is_some() {
+        return Err(format!("D55: the fork profile {profile:?} is a registered D12a run profile; a fork run's domain must be its own"));
+    }
+    Ok((profile, test_only))
 }
 
 /// A D12a run statement under its D55 profile: the same geometry, blocks,
@@ -606,29 +713,11 @@ impl<'a> ForkRun<'a> {
     /// `D55OptIn::unreviewed_prototype()` lets a base with no registered D55
     /// profile take its test-only identity instead.
     pub(crate) fn new(st: &'a RunStatement, opt_in: D55OptIn) -> Result<ForkRun<'a>, String> {
-        let base = st.rs.profile;
-        if TOKEN_IO_RUN_PROFILES.contains(&base) || is_classify_run_profile(base) {
-            return Err(format!("D55: {base} is a token-I/O or classifier run profile; a D55 fork run forks blocks-only runs only"));
-        }
-        let (profile, test_only) = match d55_run_profile(base) {
-            Some(p) => {
-                // D60: a registered string is the marker and its base, and
-                // nothing else (a registry entry that drifted is refused here)
-                let tail = base.strip_prefix("hashline-zk-mr1/").ok_or_else(|| format!("D60: the base run profile {base} is not a hashline-zk-mr1 profile"))?;
-                if p != format!("hashline-zk-mr1/{D55_REGISTERED_MARKER}{tail}") {
-                    return Err(format!("D60: the registered D55 profile {p:?} is not the D55 marker and its base {base:?}"));
-                }
-                (p.to_string(), false)
-            }
-            None => no_registered_profile(base, &opt_in)?,
-        };
+        // [A19] the profile's derivation is `fork_profile`'s (shared with
+        // `ForkPlan::for_run`): the same checks, in the same order
+        let (profile, test_only) = fork_profile(&st.rs, &opt_in)?;
         #[cfg(not(test))]
         let _ = test_only;
-        // CS-7 never admits a D55 string as a D12a run profile: a D12a run
-        // under a fork run's constructor domain would share its transcript
-        if registered_block_shape(&profile, &st.rs.sh).is_some() {
-            return Err(format!("D55: the fork profile {profile:?} is a registered D12a run profile; a fork run's domain must be its own"));
-        }
         let fr = ForkRun {
             st,
             profile,
@@ -853,6 +942,18 @@ impl<'a> ForkRun<'a> {
         h.parameter_line = self.parameter_line()?;
         h.schedule_digest = self.schedule_digest()?;
         Ok(h)
+    }
+
+    /// **[A19] whether `(ssh, lay)` is this fork run's stage `k`**: its shape,
+    /// and the reserved pairs its two IO tabs claim at. With CS-8's check in
+    /// the before-challenge part (the layout is `Layout::for_shape` of `ssh`),
+    /// that is `stage_layout(k)` whole. Absorbs and draws nothing.
+    fn is_the_stage(&self, k: usize, ssh: &Shape, lay: &Layout) -> Result<(), String> {
+        let st = self.st;
+        if *ssh != st.stage_shape(k)? || [lay.io_mask_row(false), lay.io_mask_row(true)] != [st.in_site(k)?, st.out_site(k)?] {
+            return Err(format!("D55: fork {k}'s before-challenge part was made for another stage than this fork run's"));
+        }
+        Ok(())
     }
 
     /// `S0` from the public header and the roots (`skip`: a cheating prover
@@ -1207,7 +1308,10 @@ pub(crate) fn thread_cpu_s() -> f64 {
 /// the shared, read-only inputs of the fork workers (no generator: each fork
 /// builds its own inside its worker)
 struct ForkCtx<'c> {
-    fr: &'c ForkRun<'c>,
+    /// [A19] where each fork's stage, and its generator's domain, come from:
+    /// the fork run, or (production's sealing pass) a plan made before the run
+    /// statement exists
+    stages: Stages<'c>,
     blocks: &'c dyn ForkBlocks,
     ntt: &'c NttTables,
     cheat: Cheat,
@@ -1216,8 +1320,52 @@ struct ForkCtx<'c> {
     late: Option<ForkLate<'c>>,
 }
 
+/// **[A19] where a fork's stage (its shape and layout) and its generator's
+/// domain (the D55 profile) come from.** The fork run's statement; or, while
+/// production's sealing pass runs and no statement exists yet, a
+/// [`ForkPlan`] (the profile and each stage's IO rows, from the run shape) and
+/// each stage's shape as the sealing pass handed it with the witness (the
+/// shape that witness was built at). [`Planned::check`] holds the plan against
+/// the fork run before the caller creates anything, and
+/// [`ForkCtx::finish`] holds each part against its fork's own stage.
+#[derive(Clone, Copy)]
+enum Stages<'c> {
+    Run(&'c ForkRun<'c>),
+    #[cfg_attr(not(test), allow(dead_code))]
+    Plan(&'c ForkPlan, &'c Mutex<Vec<Option<Shape>>>),
+}
+
+impl Stages<'_> {
+    /// the D55 profile string, the fork generators' domain
+    fn profile(&self) -> &str {
+        match self {
+            Stages::Run(fr) => &fr.profile,
+            Stages::Plan(p, _) => &p.profile,
+        }
+    }
+    /// stage `k`'s shape and layout (the run's: the layout first, then the
+    /// shape, the order `prove_one` always asked for them)
+    fn stage(&self, k: usize) -> Result<(Shape, Layout), String> {
+        match self {
+            Stages::Run(fr) => {
+                let lay = fr.st.stage_layout(k)?;
+                let ssh = fr.st.stage_shape(k)?;
+                Ok((ssh, lay))
+            }
+            Stages::Plan(p, shapes) => {
+                let ssh = shapes.lock().map_err(|_| "D55: the plan's stage shapes' lock is poisoned".to_string())?.get(k).cloned().flatten().ok_or_else(|| format!("D55: no stage shape was handed over for block {k}"))?;
+                let rows = *p.io_rows.get(k).ok_or_else(|| format!("D55: the fork plan has no stage {k}"))?;
+                let lay = Layout::for_shape(&ssh)?.with_io_mask_rows(rows);
+                Ok((ssh, lay))
+            }
+        }
+    }
+}
+
 /// the fork workers' inputs made by the preflight and the commit phase
 struct ForkLate<'c> {
+    /// [A19] the fork run (its transcript and statement)
+    fr: &'c ForkRun<'c>,
     /// [A17] the preflight's record of each block's passed public checks
     checked: &'c [protocol::CheckedPublic<'c>],
     roots: &'c [Digest],
@@ -1258,6 +1406,10 @@ struct Parked {
     hooks: ForkHooks,
     #[cfg(test)]
     before_cpu_s: f64,
+    /// [A19] test builds only: counted while alive by the calling test's
+    /// [`A19Count`], if it installed one (the refused-chain control)
+    #[cfg(test)]
+    _live: Option<A19Live>,
 }
 
 /// [A13] what [`ForkCtx::prove_one`] hands back: a finished fork, or (while
@@ -1276,10 +1428,10 @@ impl ForkCtx<'_> {
     /// block `k`'s fork transcript `fork(S0, k)` and its start tag
     fn open_fork(&self, late: &ForkLate<'_>, k: usize) -> Result<Opened, String> {
         let (idx, skip, forge) = (self.cheat.fork_index(k), self.cheat.skipped_root(), self.cheat.forge());
-        let f = self.fr.fork(late.roots, idx, skip)?;
+        let f = late.fr.fork(late.roots, idx, skip)?;
         #[cfg(test)]
         let start = (f.state(), f.counter());
-        let start_tag = if forge && (idx != k || skip.is_some()) { position_tag(&self.fr.fork(late.roots, k, None)?) } else { position_tag(&f) };
+        let start_tag = if forge && (idx != k || skip.is_some()) { position_tag(&late.fr.fork(late.roots, k, None)?) } else { position_tag(&f) };
         Ok(Opened {
             f,
             #[cfg(test)]
@@ -1299,14 +1451,15 @@ impl ForkCtx<'_> {
         if PANIC_IN_FORK.with(|c| c.get()) {
             panic!("D60 F8 test switch: fork {k}'s worker panics");
         }
-        let st = self.fr.st;
         let opened = match &self.late {
             Some(late) => Some(self.open_fork(late, k)?),
             None => None,
         };
         // this fork's ONE generator, built here in its worker (F4); [A13] a
-        // parked fork carries it, by value, to the worker that finishes it
-        let mut rng = ZkRng::from_os(&fork_seed_domain(&self.fr.profile, k)).map_err(|e| format!("D55 fork-run randomness: {e}"))?;
+        // parked fork carries it, by value, to the worker that finishes it.
+        // [A19] Its domain is the fork run's profile, or the plan's (which
+        // `Planned::check` holds equal to the fork run's)
+        let mut rng = ZkRng::from_os(&fork_seed_domain(self.stages.profile(), k)).map_err(|e| format!("D55 fork-run randomness: {e}"))?;
         // [A13] test builds only: the byte tests' seeded generator
         #[cfg(test)]
         if let Some(g) = seeded_generator(k) {
@@ -1314,8 +1467,8 @@ impl ForkCtx<'_> {
         }
         #[cfg(test)]
         let hooks = ForkHooks::capture();
-        let lay = st.stage_layout(k)?;
-        let ssh = st.stage_shape(k)?;
+        // [A19] the run's stage, or the plan's (the shape the witness was built at)
+        let (ssh, lay) = self.stages.stage(k)?;
         let blk = self.blocks.get(k)?;
         let mut ph = timing::Phases::start();
         let (mut phases, mut tick) = (Vec::new(), Instant::now());
@@ -1340,6 +1493,8 @@ impl ForkCtx<'_> {
             hooks,
             #[cfg(test)]
             before_cpu_s: thread_cpu_s() - cpu0,
+            #[cfg(test)]
+            _live: if opened.is_none() { hooks.parts.map(A19Live::new) } else { None },
         };
         match opened {
             Some(o) => self.finish(p, o, blk).map(Done::Out),
@@ -1361,7 +1516,14 @@ impl ForkCtx<'_> {
     fn finish(&self, p: Parked, o: Opened, blk: &BlockPublic) -> Result<ForkOut, String> {
         let late = self.late()?;
         let Parked { k, mut rng, ahead, lay, ssh, ph, before_s, sealing, .. } = p;
-        let l = self.fr.st.rs.l;
+        // [A19] a part made during the sealing pass (from a plan, before the run
+        // statement existed) continues only at this fork run's own stage `k`:
+        // its shape, and its layout's two IO rows (the layout is otherwise
+        // `Layout::for_shape` of that shape, CS-8's check in the part)
+        if sealing {
+            late.fr.is_the_stage(k, &ssh, &lay)?;
+        }
+        let l = late.fr.st.rs.l;
         let mut f = o.f;
         // a fork parked during the sealing pass gets a fresh clock for its rest
         // (the rows of both are reported), so no row holds the wait
@@ -1489,7 +1651,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let mut outs: Vec<ForkOut> = {
         let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { &ein.data[..] } else { bounds[k - 1].1.data() }).collect();
         let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].1.data() }).collect();
-        let ctx = ForkCtx { fr, blocks, ntt: &ntt, cheat, late: Some(ForkLate { checked: &checked, roots: &roots, in_data, out_data, binding }) };
+        let ctx = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat, late: Some(ForkLate { fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
         let (tx, rx) = mpsc::sync_channel::<(usize, Job)>(0);
         let rx = Mutex::new(rx);
         // [A11] each worker's own rayon pool, or the global one (the default)
@@ -2050,7 +2212,7 @@ pub(crate) fn seal_ahead<T>(fr: &ForkRun, blocks: &dyn ForkBlocks, seal: impl Fn
     let l = fr.st.rs.l;
     let (window, qos, pools) = ahead_setup(l)?;
     let ntt = NttTables::new(fr.st.rs.ntt_log());
-    let ctx = ForkCtx { fr, blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
+    let ctx = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
     let slots = Slots::new(l, pools.len());
     let hooks = worker_hooks();
     let sealed = std::thread::scope(|s| {
@@ -2099,7 +2261,7 @@ pub(crate) fn prove_run_with_forks_sealing<S: RunWitnessSource>(fr: &ForkRun, bl
     let l = fr.st.rs.l;
     let (window, qos, pools) = ahead_setup(l)?;
     let ntt = NttTables::new(fr.st.rs.ntt_log());
-    let ctx = ForkCtx { fr, blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
+    let ctx = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
     let slots = Slots::new(l, pools.len());
     let hooks = worker_hooks();
     std::thread::scope(|s| {
@@ -2118,6 +2280,265 @@ pub(crate) fn prove_run_with_forks_sealing<S: RunWitnessSource>(fr: &ForkRun, bl
             g.stop = failed;
         });
         let r = sealed.and_then(|mut src| prove_forks_inner(fr, blocks, &mut src, externals, workers, Cheat::default(), Some(&slots)));
+        slots.set(|g| g.stop = true);
+        r
+    })
+}
+
+// ------------------------------------------------------ [A19] production's window
+//
+// **[A19] A13's window from production's D55 path** (efficiency plan A19,
+// 2026-11-05; `results/zk60_effplan_20261105/a19/README.md`). A13's entry points
+// above take a `ForkRun`, which borrows the run statement, and production's
+// statement exists only after the whole sealing pass: its endpoints are the
+// sealed chain's first and last planes (`trained_block.rs`, `stack-prove
+// --d55-workers`). A fork's before-challenge part needs none of the statement:
+// * its stage's SHAPE: the shape the sealing pass built the witness at (handed
+//   over with it);
+// * its stage's LAYOUT: `Layout::for_shape` of that shape with the two IO tabs at
+//   the reserved pairs the run's schedule gives them, a function of the run shape
+//   alone (`RunStatement::in_site` / `out_site`);
+// * its generator's DOMAIN: the D55 profile string, a function of the base run
+//   profile (`fork_profile`, the derivation `ForkRun::new` makes);
+// * its BLOCK: the very object the fork finishes with ([`SealedBlocks`]: the
+//   sealing pass's own loads, shared with the fork run).
+// A [`ForkPlan`] holds the first three, made from the run shape before the
+// sealing pass. [`prove_run_with_forks_planned`] runs the caller's sealing pass
+// with the side workers beside it, then hands its continuation a [`Planned`]:
+// [`Planned::check`] holds the plan against the fork run once the statement
+// exists (before the caller creates anything), and [`Planned::prove`] proves with
+// the parts. Each part is held against its fork's own stage again when it is
+// finished ([`ForkRun::is_the_stage`]), and against its block object
+// (`prove_core_after_with`).
+//
+// **Why no byte can move**: A13's argument (above), with one more equality: a
+// part made from the plan is the part the fork run's own stage would have made,
+// because its shape, layout and generator domain are those of the fork run (the
+// check), and every other input is the same object.
+
+/// **[A19] what a fork's before-challenge part needs of the run, before the
+/// run statement exists** (see above): the D55 profile string (the fork
+/// generators' domain), the block count, the NTT domain and each stage's two IO
+/// rows. Made from the run shape by [`ForkPlan::for_run`]; public words only.
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) struct ForkPlan {
+    profile: String,
+    l: usize,
+    ntt_log: u32,
+    io_rows: Vec<[usize; 2]>,
+}
+
+#[cfg_attr(not(test), allow(dead_code))]
+impl ForkPlan {
+    /// The plan of a fork run over `rs` (its base's D55 profile, by
+    /// [`ForkRun::new`]'s own derivation) under the run's `context`. Each
+    /// stage's IO rows are the reserved pairs [`RunStatement::boundary_spec`]
+    /// gives (a boundary's rows are a function of its geometry; production
+    /// pins every boundary scale to 0). A refusal here is the derivation's or
+    /// the boundary geometry's; a caller that cannot make a plan proves without
+    /// a window and meets the same refusal, if any, at the same place as before.
+    pub(crate) fn for_run(rs: &RunShape, context: Digest, opt_in: &D55OptIn) -> Result<ForkPlan, String> {
+        let (profile, _) = fork_profile(rs, opt_in)?;
+        let (sh, l) = (&rs.sh, rs.l);
+        let tag = sh.hash_tag();
+        let spec = |j: usize| BoundarySpec::new_with_tag(context, sh.t_pad, sh.d_pad, 0, (j + 1) as u64, BOUNDARY_SITES, sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols, sh.endpoint_rows + 1, &tag);
+        let mut io_rows = Vec::with_capacity(l);
+        for k in 0..l {
+            let i = if k == 0 { rs.data_rows() } else { spec(k - 1)?.mask_row(1)? };
+            let o = if k + 1 == l { rs.data_rows() } else { spec(k)?.mask_row(0)? };
+            io_rows.push([i, o]);
+        }
+        Ok(ForkPlan { profile, l, ntt_log: rs.ntt_log(), io_rows })
+    }
+
+    /// TEST BUILDS ONLY: the same plan under another profile string (the
+    /// plan-check control)
+    #[cfg(test)]
+    pub(crate) fn with_profile_for_test(mut self, profile: &str) -> ForkPlan {
+        self.profile = profile.to_string();
+        self
+    }
+
+    /// TEST BUILDS ONLY: the same plan with stage `k`'s IO rows swapped (the
+    /// plan-check control)
+    #[cfg(test)]
+    pub(crate) fn with_rows_swapped_for_test(mut self, k: usize) -> ForkPlan {
+        self.io_rows[k].swap(0, 1);
+        self
+    }
+}
+
+/// **[A19] a fork run's public blocks, each set ONCE by the sealing pass that
+/// loaded and checked it, then read by the before-challenge parts and the
+/// forks**: every part and its fork read the very object the sealing pass
+/// built that block's witness against (a fixed-length vector of cells, so no
+/// object moves while others are read). Production's D55 path also proves with
+/// them instead of loading every block again after the sealing pass.
+pub(crate) struct SealedBlocks {
+    v: Vec<std::sync::OnceLock<BlockPublic>>,
+}
+
+impl SealedBlocks {
+    pub(crate) fn new(l: usize) -> SealedBlocks {
+        SealedBlocks { v: (0..l).map(|_| std::sync::OnceLock::new()).collect() }
+    }
+    /// block `k`, set once
+    pub(crate) fn put(&self, k: usize, blk: BlockPublic) -> Result<(), String> {
+        self.v.get(k).ok_or_else(|| format!("D55: no block {k} in a {}-block run", self.v.len()))?.set(blk).map_err(|_| format!("D55: block {k} was set twice"))
+    }
+}
+
+impl ForkBlocks for SealedBlocks {
+    fn count(&self) -> usize {
+        self.v.len()
+    }
+    fn get(&self, k: usize) -> Result<&BlockPublic, String> {
+        match self.v.get(k) {
+            Some(c) => c.get().ok_or_else(|| format!("D55: block {k} was not loaded by the sealing pass")),
+            None => Err(format!("private run: no public statement for block {k}")),
+        }
+    }
+}
+
+/// **[A19] what a planned sealing pass hands its continuation**
+/// ([`prove_run_with_forks_planned`]): the plan, the blocks the parts were made
+/// against, their slots and the stage shapes handed over.
+pub(crate) struct Planned<'p> {
+    plan: Option<&'p ForkPlan>,
+    blocks: &'p dyn ForkBlocks,
+    slots: &'p Slots,
+    shapes: &'p Mutex<Vec<Option<Shape>>>,
+}
+
+impl Planned<'_> {
+    /// how many witnesses the sealing pass handed to the window
+    pub(crate) fn handed(&self) -> usize {
+        self.shapes.lock().map(|g| g.iter().filter(|s| s.is_some()).count()).unwrap_or(0)
+    }
+
+    /// how many parts are parked now, and the host bytes they hold
+    pub(crate) fn parked(&self) -> (usize, usize) {
+        self.slots.parked()
+    }
+
+    /// **[A19] the plan against the fork run**, before the caller creates
+    /// anything: the profile (the fork generators' domain), the block count,
+    /// the NTT domain and every stage's IO rows must be the fork run's, and
+    /// every stage shape handed over its statement's stage shape. Absorbs and
+    /// draws nothing; with no plan (no window) there is nothing to check. The
+    /// plan and the statement are functions of the same public words, so an
+    /// input cannot make this fail; a build whose two derivations drifted is
+    /// refused here, before the run directory exists.
+    pub(crate) fn check(&self, fr: &ForkRun) -> Result<(), String> {
+        let Some(p) = self.plan else { return Ok(()) };
+        let st = fr.st;
+        let refuse = |what: String| Err(format!("D55: the fork plan made before the run statement is not this fork run's ({what})"));
+        if p.profile != fr.profile {
+            return refuse("its profile".into());
+        }
+        if p.l != st.rs.l || p.io_rows.len() != st.rs.l {
+            return refuse("its block count".into());
+        }
+        if p.ntt_log != st.rs.ntt_log() {
+            return refuse("its NTT domain".into());
+        }
+        for (k, rows) in p.io_rows.iter().enumerate() {
+            if *rows != [st.in_site(k)?, st.out_site(k)?] {
+                return refuse(format!("stage {k}'s IO rows"));
+            }
+        }
+        let shapes = self.shapes.lock().map_err(|_| "D55: the plan's stage shapes' lock is poisoned".to_string())?;
+        for (k, s) in shapes.iter().enumerate() {
+            if let Some(s) = s {
+                if *s != st.stage_shape(k)? {
+                    return refuse(format!("stage {k}'s shape"));
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// **[A19] the D55 fork-run prover, continuing from the parts**: the plan
+    /// checked first; `blocks` must be the object the parts were made against
+    /// whenever any witness was handed over (each part is then also refused
+    /// unless its block is the very object, `prove_core_after_with`). A block
+    /// with no part takes its witness from `src`, as [`prove_run_with_forks`].
+    pub(crate) fn prove(&self, fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
+        self.check(fr)?;
+        if self.handed() > 0 && blocks_addr(blocks) != blocks_addr(self.blocks) {
+            return Err("D55: the before-challenge parts were made against another blocks object".into());
+        }
+        prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), self.plan.map(|_| self.slots))
+    }
+}
+
+/// the hand-over a planned sealing pass calls with each admitted witness, in
+/// increasing block order (a block may be skipped: the caller kept it): inside
+/// the window it is queued for the side workers, with the shape it was built
+/// at (`Ok(None)`); outside it comes back (`Ok(Some)`)
+fn plan_hand_over<'q>(l: usize, window: usize, slots: &'q Slots, shapes: &'q Mutex<Vec<Option<Shape>>>, next: &'q mut usize) -> impl FnMut(usize, Witness, &Shape) -> Result<Option<Witness>, String> + 'q {
+    move |k: usize, w: Witness, ssh: &Shape| {
+        if k < *next || k >= l {
+            return Err(format!("D55: the sealing pass handed over block {k} after block {} (of {l})", next.saturating_sub(1)));
+        }
+        *next = k + 1;
+        if k >= window {
+            return Ok(Some(w));
+        }
+        shapes.lock().map_err(|_| "D55: the plan's stage shapes' lock is poisoned".to_string())?[k] = Some(ssh.clone());
+        slots.put(k, Slot::Queued(w));
+        Ok(None)
+    }
+}
+
+/// **[A19] PRODUCTION'S ONE REQUEST: the sealing pass with each fork's
+/// before-challenge part beside it, then the caller's continuation, in one
+/// scope**, so the parts still being made when the sealing pass ends overlap
+/// the caller's statement, its checks and the commit phase. `seal` is the
+/// caller's sealing pass: it puts each block into `blocks` and hands each
+/// admitted witness over (after every check of that block) with the shape it
+/// was built at; a witness handed back is the caller's to keep. `then` gets
+/// what `seal` returned and a [`Planned`] to check and prove with. Without a
+/// plan, or at [`ahead_window`] 0, nothing is handed to the window, no side
+/// worker starts, and this is `seal` then `then`. A refusal anywhere stops the
+/// side workers; every part and queued witness is dropped with the slots
+/// before this returns.
+pub(crate) fn prove_run_with_forks_planned<S, R>(
+    plan: Option<&ForkPlan>,
+    blocks: &dyn ForkBlocks,
+    seal: impl FnOnce(&mut dyn FnMut(usize, Witness, &Shape) -> Result<Option<Witness>, String>) -> Result<S, String>,
+    then: impl FnOnce(S, &Planned<'_>) -> Result<R, String>,
+) -> Result<R, String> {
+    let l = blocks.count();
+    let plan = plan.filter(|p| p.l == l);
+    let (window, qos, pools) = if plan.is_some() { ahead_setup(l)? } else { (0, 0, Vec::new()) };
+    let plan = plan.filter(|_| window > 0);
+    let ntt = plan.map(|p| NttTables::new(p.ntt_log));
+    let shapes: Mutex<Vec<Option<Shape>>> = Mutex::new(vec![None; l]);
+    let slots = Slots::new(l, if plan.is_some() { pools.len() } else { 0 });
+    let ctx = match (plan, ntt.as_ref()) {
+        (Some(p), Some(ntt)) => Some(ForkCtx { stages: Stages::Plan(p, &shapes), blocks, ntt, cheat: Cheat::default(), late: None }),
+        _ => None,
+    };
+    let hooks = worker_hooks();
+    std::thread::scope(|s| {
+        if let Some(ctx) = ctx.as_ref() {
+            for pool in pools {
+                let slots = &slots;
+                s.spawn(move || ahead_worker(ctx, slots, pool, qos, hooks));
+            }
+        }
+        let mut next = 0usize;
+        let sealed = {
+            let mut push = plan_hand_over(l, window, &slots, &shapes, &mut next);
+            seal(&mut push)
+        };
+        let failed = sealed.is_err();
+        slots.set(|g| {
+            g.sealed = true;
+            g.stop = failed;
+        });
+        let r = sealed.and_then(|v| then(v, &Planned { plan, blocks, slots: &slots, shapes: &shapes }));
         slots.set(|g| g.stop = true);
         r
     })
