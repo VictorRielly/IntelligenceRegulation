@@ -224,7 +224,33 @@ here. The rates count proving and witness work. Verification time is recorded se
     - L6-1: a degree-0 round would make the verifier panic, but no slot has one.
     - L6-2: the mask weights need fewer than 64 variables, a per-profile `decide`.
     - L6-4: the Fiat–Shamir chain model counts with a natural number, while the code uses a u64. Mapping one onto the
-      other is per-profile glue.
+      other is per-profile glue. (Closed by L7, below, with no premise.)
+- **D63 Lean, L7: Fiat–Shamir soundness of the executable sumcheck verifier (2026-11-06)** [PROVED;
+  `ExecSumcheckFS.lean`; `results/zk60_lean_l7_20261106/`].
+  - **Main theorem (`exec_sumcheck_fs_sound`):** take a cheating prover that makes q hash queries and picks any
+    transcript header of s operations, a false claimed sum fixed by that header, and the round messages. The code's own
+    sumcheck verifier, run on the code's transcript after that header with the caller's terminal check, accepts with
+    probability at most T·d/|K|·(1 + p/2^128)² plus two hash-collision terms, where T = q + s + 2n + 1.
+  - At a slot's shape (degree ≤ 4, up to 2^64 hash queries, 30 rounds, a header of up to about a million operations)
+    this is at most 2^-61, a Lean corollary. The exact figure, about 2^-62, is arithmetic done outside Lean.
+  - L6-4 is closed with no premise. The proof reads the protocol's state off the code's own chain and never reads the
+    wrapping u64 squeeze counter; two squeezes with equal counters still hash different inputs unless digests collide,
+    and collisions are already counted.
+  - On the merged tree: the Lean build has 3453 jobs and no warning. All 39 new theorems use at most `propext`,
+    `Classical.choice` and `Quot.sound`. L6Check (1,206), L5Check (5,553) and the L1 check (101,956) still give 0 failed,
+    and both Rust corpora regenerate byte for byte.
+  - Findings (all Info):
+    - L7-2: `sumcheck::verify` does not absorb the claimed sum, so each slot's claim must be fixed by the transcript
+      before its rounds. Today's block code meets this [CODE, read 2026-11-06]: in `private_block/argument.rs`,
+      `token_io.rs` and `private_attention/argument.rs`, the claim is the slot's own scalar, absorbed under
+      `pb-scalar` just before the rounds, plus earlier slots' absorbed scalars times coefficients drawn from the
+      transcript. The per-profile proof must show it again for W16R3's batched slots.
+    - L7-3: the theorem takes a fixed header length per slot.
+    - L7-4: Lean runs away on the literal Goldilocks p and on huge concrete finite types (the first draft hit the
+      guard's 24 GiB cap). Later lanes state such facts for a variable p and then instantiate.
+  - **After L7, the Lean work that W16R3 doesn't change is finished** apart from one generic piece: re-stating the
+    composition files (`FSCompose.lean`, `FSWideRbr.lean`) on this reader, so the whole receipt's chain, including
+    rounds with several squeezes (LogUp's), gets the composed bound. Everything else waits for the freeze.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.
