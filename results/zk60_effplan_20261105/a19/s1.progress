@@ -1,0 +1,62 @@
+2026-11-06T04:28:01Z start
+2026-11-06T04:30:34Z build rc=0
+2026-11-06T04:31:37Z A19 suite tests (CPU) rc=101
+A19-PROD stack-prove --d55-workers 2, window 0, blocks shared: 0 parked, 0 taken back whole (0 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD stack-prove --d55-workers 2, window 0, blocks reloaded: 0 parked, 0 taken back whole (0 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD stack-prove --d55-workers 2, window 2, blocks shared: 2 parked, 0 taken back whole (2 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD stack-prove --d55-workers 1, window 4, blocks shared: 2 parked, 2 taken back whole (2 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD stack-prove --d55-workers 3, window 4, blocks shared: 2 parked, 2 taken back whole (2 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A19-PROD a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A19-PROD a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A19-BYTES W16R2_RUNG_H24 L4 N1 planned window 0: 0 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N1 planned window 1: 1 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N1 planned window 2: 2 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N1 planned window 4: 2 parked, 2 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N1 planned window 9: 2 parked, 2 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N3 planned window 0: 0 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N3 planned window 1: 1 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N3 planned window 2: 2 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N3 planned window 4: 2 parked, 2 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES W16R2_RUNG_H24 L4 N3 planned window 9: 2 parked, 2 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+thread 'private_block::run::fork::tests::a19_planned_parts_equal_whole_forks_and_every_control_refuses_at_the_w16r2_rung' (13889857) panicked at src/private_block/run_fork_tests.rs:4179:10:
+test private_block::run::fork::tests::a19_planned_parts_equal_whole_forks_and_every_control_refuses_at_the_w16r2_rung ... FAILED
+test result: FAILED. 1 passed; 1 failed; 3 ignored; 0 measured; 1055 filtered out; finished in 63.08s
+2026-11-06T04:33:29Z A18 parked forks = whole forks (CPU) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1059 filtered out; finished in 111.64s
+2026-11-06T04:38:49Z the D55 fork-run suite (CPU) rc=0
+test result: ok. 28 passed; 0 failed; 11 ignored; 0 measured; 1021 filtered out; finished in 167.53s
+2026-11-06T04:39:03Z the trained-stack CLI tests rc=101 (expect the one known failure: review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name)
+thread 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name' (13909190) panicked at src/private_block/trained_stack_tests.rs:553:44:
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 13.23s
+2026-11-06T04:39:14Z A19 planned path + controls on the device rc=0
+test private_block::run::fork::tests::a19_planned_parts_equal_whole_forks_and_every_control_refuses_at_the_w16r2_rung_on_the_device ... A19-BYTES (Metal) W16R2_RUNG_H24 L4 N1 planned window 0: 0 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) W16R2_RUNG_H24 L4 N1 planned window 2: 2 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) W16R2_RUNG_H24 L4 N1 planned window 4: 4 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) W16R2_RUNG_H24 L4 N3 planned window 0: 0 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) W16R2_RUNG_H24 L4 N3 planned window 2: 2 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) W16R2_RUNG_H24 L4 N3 planned window 4: 4 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) W16R2_RUNG_H24 L4 N6 planned window 0: 0 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) W16R2_RUNG_H24 L4 N6 planned window 2: 2 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) W16R2_RUNG_H24 L4 N6 planned window 4: 4 parked, 0 taken back whole, 61301184 B, verified; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-BYTES (Metal) a chain refused partway through the sealing pass: its refusal returned as is, the continuation never ran, 2 parts made and 0 alive
+A19-BYTES (Metal) a plan with another profile: REFUSED by the check: D55: the fork plan made before the run statement is not this fork run's (its profile)
+A19-BYTES (Metal) a plan with stage 1's IO rows swapped: REFUSED by the check: D55: the fork plan made before the run statement is not this fork run's (stage 1's IO rows)
+A19-BYTES (Metal) parts finished against another blocks object: REFUSED: D55: the before-challenge parts were made against another blocks object
+A19-BYTES (Metal) a part finished against an equal copy of its block (the same blocks object): REFUSED by the part: D55: fork 0: private block: the before-challenge state was made for another block
+A19-BYTES (Metal) a part whose layout has its IO rows swapped: REFUSED at its finish: D55: fork 1's before-challenge part was made for another stage than this fork run's
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1059 filtered out; finished in 11.80s
+2026-11-06T04:39:25Z A19 production path on the device rc=0
+A19-PROD (Metal) stack-prove --d55-workers 3, window 0, blocks shared: 0 parked, 0 taken back whole (0 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD (Metal) stack-prove --d55-workers 3, window 0, blocks reloaded: 0 parked, 0 taken back whole (0 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD (Metal) stack-prove --d55-workers 3, window 2, blocks shared: 2 parked, 0 taken back whole (2 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD (Metal) stack-prove --d55-workers 2, window 4, blocks shared: 4 parked, 0 taken back whole (4 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD (Metal) stack-prove --d55-workers 6, window 4, blocks shared: 4 parked, 0 taken back whole (4 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A19-PROD (Metal) a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A19-PROD (Metal) a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A19-PROD (Metal) a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1059 filtered out; finished in 10.50s
+2026-11-06T04:41:05Z A18 parked forks = whole forks on the device rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1059 filtered out; finished in 99.43s
+2026-11-06T04:41:05Z all done

@@ -2128,8 +2128,9 @@ fn controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layer: &TrainedLayer
 /// holds block `lie_at`'s output.
 struct StackSource<'a> {
     sh: &'a Shape,
-    /// ROUND 4: the shared one-block cache (and the run's block count)
-    blocks: SharedCache<'a>,
+    /// ROUND 4: the shared one-block cache (and the run's block count);
+    /// [A19] a D55 run's: the sealing pass's own blocks, or the model's reloads
+    blocks: StackBlocks<'a>,
     n: usize,
     ids: Ids,
     chain: SealedChain,
@@ -2138,6 +2139,8 @@ struct StackSource<'a> {
     busy_s: f64,
     /// [A15] the pool a rebuild runs in (the sealing pass's)
     pool: SealPool,
+    /// [A19] the model's reloads for rebuilds (`StackBlocks::Model`) and their seconds
+    reloads: (usize, f64),
 }
 
 /// **R5b (privacy review P-1, ruling H-1): THE SEALED CHAIN.** Built by the
@@ -2161,6 +2164,20 @@ struct SealedChain {
     first: Vec<i16>,
     last: Vec<i16>,
     rebuilt: usize,
+    /// [A19] the witnesses handed to a D55 run's window (each now a fork's
+    /// before-challenge part), and the bytes the budget counted for them
+    handed: usize,
+    part_bytes: u64,
+}
+
+/// **[A19] where a stack source's rebuilds take their block**: D12a's
+/// one-block cache (unchanged), or a D55 run's: the blocks the sealing pass
+/// loaded and keeps for the fork run, or (`HL_A19_SHARE=0`) the model's reload,
+/// refused unless its digest is the statement's (the cache's own check)
+enum StackBlocks<'a> {
+    Cache(SharedCache<'a>),
+    Sealed(&'a run::fork::SealedBlocks),
+    Model(&'a dyn StackModel, &'a [Digest]),
 }
 
 fn witness_bytes(w: &Witness) -> u64 {
@@ -2272,11 +2289,11 @@ impl run::BlockSource for CacheBlocks<'_> {
 }
 
 impl<'a> StackSource<'a> {
-    fn new(sh: &'a Shape, blocks: SharedCache<'a>, n: usize, chain: SealedChain, lie_at: Option<usize>) -> Result<StackSource<'a>, String> {
+    fn new(sh: &'a Shape, blocks: StackBlocks<'a>, n: usize, chain: SealedChain, lie_at: Option<usize>) -> Result<StackSource<'a>, String> {
         if chain.outs.len() != n || chain.kept.len() != n {
             return Err("trained stack: the sealed chain is not this run's".into());
         }
-        Ok(StackSource { sh, blocks, n, ids: Ids::new(sh)?, chain, lie_at, busy_s: 0.0, pool: SealPool::get()? })
+        Ok(StackSource { sh, blocks, n, ids: Ids::new(sh)?, chain, lie_at, busy_s: 0.0, pool: SealPool::get()?, reloads: (0, 0.0) })
     }
     /// block k's witness: the one kept from the sealing pass, or a rebuild
     /// from the sealed input whose output must be the sealed output
@@ -2289,11 +2306,28 @@ impl<'a> StackSource<'a> {
         }
         let t = Instant::now();
         let x = if k == 0 { self.chain.x_in0.clone() } else { true_words(self.sh, &self.chain.outs[k - 1]) };
-        let blk = self.blocks.borrow_mut().get(k)?;
         // [A15] a rebuild in the sealing pass's pool (on the fork feeder, beside the forks' own pools)
         let ssh = &self.chain.shapes[k];
-        let w = self.pool.run(|| witness_for_block(ssh,&blk,&x))?;
-        drop(blk);
+        let w = match &self.blocks {
+            StackBlocks::Cache(cache) => {
+                let blk = cache.borrow_mut().get(k)?;
+                let w = self.pool.run(|| witness_for_block(ssh,&blk,&x))?;
+                drop(blk);
+                w
+            }
+            // [A19] a D55 run's: the block the sealing pass loaded, or the model's reload
+            StackBlocks::Sealed(blocks) => {
+                let blk = run::fork::ForkBlocks::get(*blocks, k)?;
+                self.pool.run(|| witness_for_block(ssh,blk,&x))?
+            }
+            StackBlocks::Model(m, digests) => {
+                let tl = Instant::now();
+                let blk = reload_checked(*m, k, digests)?;
+                self.reloads.0 += 1;
+                self.reloads.1 += tl.elapsed().as_secs_f64();
+                self.pool.run(|| witness_for_block(ssh,&blk,&x))?
+            }
+        };
         if padded_plane(&w, self.ids.at(A_X2))? != self.chain.outs[k] {
             return Err(format!("trained stack: the rebuilt witness of block {k} is not the sealed one (the builder is not deterministic?); the run is abandoned"));
         }
@@ -2550,13 +2584,192 @@ impl SealPool {
 #[allow(clippy::type_complexity)]
 fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, seq: &SeqSource, budget_bytes: u64) -> Result<(Constants, Shape, Vec<LayerMeta>, Vec<Digest>, TrainedModelStatement, SealedChain, SealTimes), String> {
     let t0 = Instant::now();
-    let c = ex.run_constants(layers)?;
-    let sh = ex.shape_for(&c)?;
+    // [A19] the model the pass reads (the export's run constants and shape,
+    // first, as before); the pass itself is `seal_chain`, with nothing handed over
+    let m = ExportStack::new(ex, seq, layers, rope_from_export, "")?;
+    let (metas, digests, chain, mut times) = seal_chain(&m, budget_bytes, &mut NoHand)?;
+    let st = m.statement_of_records(metas.iter().map(|m| m.record.clone()).collect())?;
+    times.wall_s = t0.elapsed().as_secs_f64();
+    let ExportStack { c, sh, .. } = m;
+    Ok((c, sh, metas, digests, st, chain, times))
+}
+
+// ---------------------------------------- [A19] production's D55 path: the window and the shared blocks
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A19;
+// `results/zk60_effplan_20261105/a19/README.md`.) Before A19 a D55 `stack-prove`
+// ran the whole sealing pass, then built the bound statement (its endpoints are the
+// sealed chain's first and last planes), the fork run and the run directory, then
+// LOADED EVERY BLOCK AGAIN (`load_fork_blocks`) and proved. Now its D55 path is
+// [`d55_seal_and_prove`]:
+// * **the blocks are shared** (`HL_A19_SHARE`, default on; `0` restores the
+//   reload): each block the sealing pass loaded, with every check, and built its
+//   witness against is kept in a [`run::fork::SealedBlocks`] and is the object the
+//   fork proves with (its digest is the statement's: the sealing pass's record);
+// * **A13's window** (`HL_D55_AHEAD`, `run_fork.rs`): the first `W` admitted
+//   witnesses are handed, as each block's checks pass, to side workers that make
+//   each fork's before-challenge part during the sealing pass, from a
+//   [`run::fork::ForkPlan`] made from the run shape before the pass; the
+//   continuation builds the statement and the fork run, checks the plan against it
+//   (before the run directory exists) and proves with the parts. The witness cache's
+//   budget counts each part at its estimated host and device bytes.
+// **H-1** (D29) is kept: every refusal of an inadmissible chain is still the sealing
+// pass's (the builder's, CS-3's, the parity check, the first-plane check, the
+// statement's), before anything of the run exists; a part is made only from a
+// witness whose block passed every check, reads no transcript, absorbs nothing and
+// leaves the process only as its fork's frame; a refused chain stops the side
+// workers and drops every part before `stack-prove` returns. The model the pass
+// reads is a [`StackModel`]: production's export ([`ExportStack`]) or, in the
+// tests, the D55 harness's synthetic stack.
+
+/// **[A19] what production's sealing pass, and its D55 proof, read of a
+/// model**: the trained export with the run's private sequence
+/// ([`ExportStack`]), or (tests) a synthetic stack.
+pub(crate) trait StackModel: Sync {
+    /// the run's block shape (its run constants')
+    fn shape(&self) -> &Shape;
+    /// the run's layer indices, in run order
+    fn layers(&self) -> &[u32];
+    /// run position `k`'s layer, loaded with every check (the digest pass's)
+    fn load_layer(&self, k: usize) -> Result<TrainedLayer, String>;
+    /// run position `k`'s public block again, the per-array hashes skipped
+    /// (the proving pass's reload; [`reload_checked`] compares its digest)
+    fn reload_block(&self, k: usize) -> Result<BlockPublic, String>;
+    /// the private input and the reference output of layer `layer`
+    fn seq(&self, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String>;
+    /// the trained-model statement of the run's layer records
+    fn statement_of_records(&self, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String>;
+    /// the run shape (CS-7)
+    fn run_shape(&self) -> Result<RunShape, String>;
+    /// the run's context digest
+    fn context(&self) -> Result<Digest, String>;
+    /// the variant and the scope line the CLI's events print
+    fn variant(&self) -> &str;
+    fn scope(&self) -> &'static str;
+}
+
+/// [A19] production's model: the trained export, the run's private sequence
+/// and its constants and shape (computed first, as the sealing pass always did)
+struct ExportStack<'a> {
+    ex: &'a TrainedExport,
+    seq: &'a SeqSource,
+    layers: &'a [u32],
+    rope: bool,
+    label: &'a str,
+    c: Constants,
+    sh: Shape,
+}
+
+impl<'a> ExportStack<'a> {
+    fn new(ex: &'a TrainedExport, seq: &'a SeqSource, layers: &'a [u32], rope: bool, label: &'a str) -> Result<ExportStack<'a>, String> {
+        let c = ex.run_constants(layers)?;
+        let sh = ex.shape_for(&c)?;
+        Ok(ExportStack { ex, seq, layers, rope, label, c, sh })
+    }
+}
+
+impl StackModel for ExportStack<'_> {
+    fn shape(&self) -> &Shape {
+        &self.sh
+    }
+    fn layers(&self) -> &[u32] {
+        self.layers
+    }
+    fn load_layer(&self, k: usize) -> Result<TrainedLayer, String> {
+        self.ex.load_layer(&self.sh, &self.c, self.layers[k], self.rope)
+    }
+    fn reload_block(&self, k: usize) -> Result<BlockPublic, String> {
+        self.ex.reload_block(&self.sh, &self.c, self.layers[k], self.rope)
+    }
+    fn seq(&self, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
+        self.seq.load(self.ex, &self.sh, layer)
+    }
+    fn statement_of_records(&self, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+        self.ex.statement_of_records(&self.sh, &self.c, records)
+    }
+    fn run_shape(&self) -> Result<RunShape, String> {
+        self.ex.geometry.run_shape(&self.sh, self.layers.len())
+    }
+    fn context(&self) -> Result<Digest, String> {
+        stack_context(&self.ex.variant, self.layers, self.label)
+    }
+    fn variant(&self) -> &str {
+        &self.ex.variant
+    }
+    fn scope(&self) -> &'static str {
+        stack_scope(self.ex.geometry)
+    }
+}
+
+/// [A19] run position `k`'s block reloaded, refused unless its digest is the
+/// statement's (the block cache's and `load_fork_blocks`' check, by name)
+fn reload_checked(m: &dyn StackModel, k: usize, digests: &[Digest]) -> Result<BlockPublic, String> {
+    let blk = m.reload_block(k)?;
+    if digests.get(k) != Some(&blk.digest()) {
+        return Err(format!("trained stack: layer {}'s reloaded public statement is not the one the run statement binds", m.layers()[k]));
+    }
+    Ok(blk)
+}
+
+/// **[A19] what the sealing pass does with each admitted block**, after every
+/// check of that block (the builder's, CS-3's lookup misses, the parity check)
+trait SealHand {
+    /// block `k`'s public block: kept for the fork run, or dropped
+    fn block(&mut self, k: usize, blk: BlockPublic) -> Result<(), String>;
+    /// block `k`'s witness, built at `ssh`: taken (`Ok(None)`: a fork's
+    /// before-challenge part is made from it) or handed back
+    fn witness(&mut self, k: usize, w: Witness, ssh: &Shape) -> Result<Option<Witness>, String>;
+}
+
+/// the sealing pass of D12a (and of a D55 run before A19): every block
+/// dropped, every witness handed back
+struct NoHand;
+
+impl SealHand for NoHand {
+    fn block(&mut self, _k: usize, _blk: BlockPublic) -> Result<(), String> {
+        Ok(())
+    }
+    fn witness(&mut self, _k: usize, w: Witness, _ssh: &Shape) -> Result<Option<Witness>, String> {
+        Ok(Some(w))
+    }
+}
+
+/// [A19] a D55 run's: each block kept for the fork run (when shared), each
+/// witness offered to the window
+struct D55Hand<'h> {
+    blocks: Option<&'h run::fork::SealedBlocks>,
+    push: &'h mut dyn FnMut(usize, Witness, &Shape) -> Result<Option<Witness>, String>,
+}
+
+impl SealHand for D55Hand<'_> {
+    fn block(&mut self, k: usize, blk: BlockPublic) -> Result<(), String> {
+        match self.blocks {
+            Some(b) => b.put(k, blk),
+            None => Ok(()),
+        }
+    }
+    fn witness(&mut self, k: usize, w: Witness, ssh: &Shape) -> Result<Option<Witness>, String> {
+        // a part needs its block in the shared store
+        if self.blocks.is_none() {
+            return Ok(Some(w));
+        }
+        (self.push)(k, w, ssh)
+    }
+}
+
+/// **[A19] THE SEALING PASS** (R5b's, the body `seal_and_record` always had),
+/// over any [`StackModel`], each admitted block and witness offered to `hand`
+/// after every check of that block. The returned times' `wall_s` is the
+/// caller's to set (it ends after the model's statement).
+#[allow(clippy::type_complexity)]
+fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) -> Result<(Vec<LayerMeta>, Vec<Digest>, SealedChain, SealTimes), String> {
+    let sh = m.shape().clone();
+    let layers = m.layers();
     let ids = Ids::new(&sh)?;
     let l = layers.len();
     // [A15] the witness builds in the sealing pass's own pool
     let pool = SealPool::get()?;
-    let (x_in0, _) = seq.load(ex, &sh, layers[0])?;
+    let (x_in0, _) = m.seq(layers[0])?;
     if x_in0.len() != sh.tokens * sh.width {
         return Err("trained stack: the first input is not tokens x width".into());
     }
@@ -2565,13 +2778,15 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
     let mut outs: Vec<Vec<i16>> = Vec::with_capacity(l);
     let mut kept: Vec<Option<Witness>> = Vec::with_capacity(l);
     let (mut kept_bytes, mut load_s, mut witness_s) = (0u64, 0.0f64, 0.0f64);
+    // [A19] the witnesses handed to a D55 run's window, and the bytes counted for them
+    let (mut handed, mut part_bytes) = (0usize, 0u64);
     let mut first: Option<Vec<i16>> = None;
     let mut shapes: Vec<Shape> = Vec::with_capacity(l);
     let mut lays:Vec<(Shape,super::layout::Layout)>=Vec::new();
     let mut x = x_in0.clone();
     let timed_load = |k: usize| -> (Result<TrainedLayer, String>, f64) {
         let t = Instant::now();
-        let r = ex.load_layer(&sh, &c, layers[k], rope_from_export);
+        let r = m.load_layer(k);
         (r, t.elapsed().as_secs_f64())
     };
     let mut next = Some(timed_load(0));
@@ -2607,24 +2822,44 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
             }
         };
         super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w).map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
+        // [A19] what a fork's before-challenge part holds beyond the witness: `A`'s
+        // host rows and its encoding (the device's copy on Metal), an estimate
+        let part_extra = 8 * (lay.a_rows * lay.n()) as u64 * (1 + ssh.inv_rate as u64);
         let out = padded_plane(&w, ids.at(A_X2))?;
         if k == 0 {
             first = Some(padded_plane(&w, ids.at(A_X))?);
         }
         let xt = true_words(&sh, &out);
-        let (_, x_out_ref) = seq.load(ex, &sh, layer)?;
+        let (_, x_out_ref) = m.seq(layer)?;
         if xt != x_out_ref {
             return Err(format!("layer {layer}: {PARITY_REFUSAL} (before the run header; ruling H-1)"));
         }
         x = xt;
         digests.push(cur.record.block_digest);
         metas.push(LayerMeta { index: cur.index, manifest_sha256: cur.manifest_sha256, record: cur.record });
+        // [A19] every check of block `k` has passed: its block is kept for a D55
+        // run's forks (dropped otherwise, as before), and its witness is offered to
+        // the window when the budget holds it as a part
+        hand.block(k, cur.blk)?;
         let wb = witness_bytes(&w);
-        if kept_bytes + wb <= budget_bytes {
-            kept_bytes += wb;
-            kept.push(Some(w));
+        let w = if kept_bytes + part_bytes + wb + part_extra <= budget_bytes {
+            match hand.witness(k, w, &ssh)? {
+                None => {
+                    handed += 1;
+                    part_bytes += wb + part_extra;
+                    None
+                }
+                back => back,
+            }
         } else {
-            kept.push(None);
+            Some(w)
+        };
+        match w {
+            Some(w) if kept_bytes + part_bytes + wb <= budget_bytes => {
+                kept_bytes += wb;
+                kept.push(Some(w));
+            }
+            _ => kept.push(None),
         }
         outs.push(out);
         shapes.push(ssh);
@@ -2634,9 +2869,8 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
         return Err("trained stack: the builder's block-0 input plane is not the export's x_in (before the run header)".into());
     }
     let last = outs[l - 1].clone();
-    let st = ex.statement_of_records(&sh, &c, metas.iter().map(|m| m.record.clone()).collect())?;
-    let chain = SealedChain { x_in0, shapes, outs, kept, kept_bytes, first, last, rebuilt: 0 };
-    Ok((c, sh, metas, digests, st, chain, SealTimes { wall_s: t0.elapsed().as_secs_f64(), load_s, witness_s, pool_threads: pool.threads() }))
+    let chain = SealedChain { x_in0, shapes, outs, kept, kept_bytes, first, last, rebuilt: 0, handed, part_bytes };
+    Ok((metas, digests, chain, SealTimes { wall_s: 0.0, load_s, witness_s, pool_threads: pool.threads() }))
 }
 
 /// **R5b (P-1): a run that did not complete is removed, and a removal that
@@ -2852,6 +3086,364 @@ fn load_fork_blocks(ex: &TrainedExport, sh: &Shape, c: &Constants, layers: &[u32
         v.push(blk);
     }
     Ok((v, t.elapsed().as_secs_f64()))
+}
+
+/// [A19] `load_fork_blocks` over any [`StackModel`] (a D55 run's blocks
+/// reloaded after the sealing pass, `HL_A19_SHARE=0`: the path before A19)
+fn load_fork_blocks_of(m: &dyn StackModel, digests: &[Digest]) -> Result<(Vec<BlockPublic>, f64), String> {
+    let t = Instant::now();
+    let v = (0..m.layers().len()).map(|k| reload_checked(m, k, digests)).collect::<Result<Vec<_>, String>>()?;
+    Ok((v, t.elapsed().as_secs_f64()))
+}
+
+/// `HL_A19_SHARE`: unset or `1`, a D55 run proves with the blocks its sealing
+/// pass loaded (the default); `0`, it loads every block again after the
+/// sealing pass (the path before A19; A13's window then stays off). As a test
+/// override: 0 off, 1 on, `usize::MAX` as the environment says.
+static A19_SHARE_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+
+/// [A19] whether a D55 run proves with the sealing pass's own blocks
+pub(crate) fn a19_share_blocks() -> bool {
+    static ENV: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    match A19_SHARE_TEST.load(std::sync::atomic::Ordering::Relaxed) {
+        0 => false,
+        1 => true,
+        _ => *ENV.get_or_init(|| !matches!(std::env::var("HL_A19_SHARE").as_deref(), Ok("0"))),
+    }
+}
+
+/// tests: the blocks shared (`Some(true)`), reloaded (`Some(false)`) or as the
+/// environment says (`None`). Changes no byte.
+#[cfg(test)]
+pub(crate) fn set_a19_share_for_test(on: Option<bool>) {
+    A19_SHARE_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [A19] how production's D55 proof ran: the CLI prints these, the harness reads them
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) struct D55Times {
+    /// the sealing pass (its model's statement included), as R5b's `sealed` event
+    pub seal_s: f64,
+    pub seal_load_s: f64,
+    pub seal_witness_s: f64,
+    pub seal_pool_threads: usize,
+    /// the window, and the witnesses handed to it with the bytes the budget counted
+    pub window: usize,
+    pub handed: usize,
+    pub part_bytes: u64,
+    pub kept: usize,
+    pub kept_bytes: u64,
+    /// whether the fork run proved with the sealing pass's blocks, and (when it
+    /// did not) the seconds it took to load them again
+    pub shared: bool,
+    pub block_load_s: f64,
+    /// from the run directory's creation to the receipt written
+    pub prove_s: f64,
+    pub rebuilt: usize,
+    pub rebuild_s: f64,
+    pub reloads: usize,
+    pub reload_s: f64,
+    pub receipt_bytes: usize,
+    pub fork: run::fork::ForkStats,
+}
+
+/// [A19] what production's D55 proof leaves for `stack-prove`'s statement
+pub(crate) struct D55Proved {
+    metas: Vec<LayerMeta>,
+    digests: Vec<Digest>,
+    st: TrainedModelStatement,
+    ctx: Digest,
+    expected: ExpectedIo,
+    rst: RunStatement,
+    written: Vec<(u64, String)>,
+    times: D55Times,
+}
+
+#[cfg_attr(not(test), allow(dead_code))]
+impl D55Proved {
+    pub(crate) fn times(&self) -> &D55Times {
+        &self.times
+    }
+    pub(crate) fn statement(&self) -> &RunStatement {
+        &self.rst
+    }
+}
+
+/// [A19] how production's D55 proof is run: the fork workers, the run
+/// directory (new), the witness cache's budget, whether the receipt is a
+/// test receipt (D60 review F3's marker) and whether the CLI's events print
+#[derive(Clone, Copy)]
+pub(crate) struct D55Run<'a> {
+    pub workers: usize,
+    pub out: &'a Path,
+    pub budget: u64,
+    pub test_receipt: bool,
+    pub events: bool,
+}
+
+/// **[A19] PRODUCTION'S D55 PROOF** (`stack-prove --d55-workers N`, from the
+/// sealing pass to the receipt in the run directory): the sealing pass (each
+/// fork's before-challenge part beside it when A13's window is on; each block
+/// kept for the fork run when shared), then the trained-model statement, the
+/// endpoints (the sealed chain's own planes), the bound run statement, the
+/// fork run (D60's door), the plan's check, the run directory, the fork run's
+/// proof and its frames (and D60 review F3's marker). The steps, their
+/// refusals and their events are the D55 path's before A19, in its order; a
+/// failure after the run directory exists removes it.
+pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn, run: &D55Run) -> Result<D55Proved, String> {
+    let t0 = Instant::now();
+    let (sh, layers) = (m.shape(), m.layers());
+    let l = layers.len();
+    let shared = a19_share_blocks();
+    // the plan, before the sealing pass: none when the window is off or the
+    // blocks are not shared; a run that cannot make one proves without it and
+    // meets any refusal where it always did
+    let window = if shared { run::fork::ahead_window().min(l) } else { 0 };
+    let plan = if window > 0 { m.run_shape().ok().zip(m.context().ok()).and_then(|(rs, ctx)| run::fork::ForkPlan::for_run(&rs, ctx, &opt_in).ok()) } else { None };
+    let window = if plan.is_some() { window } else { 0 };
+    let blocks = run::fork::SealedBlocks::new(l);
+    run::fork::prove_run_with_forks_planned(
+        plan.as_ref(),
+        &blocks,
+        // ---- (1) the sealing pass (ruling H-1): every refusal of an inadmissible
+        //      chain happens here, before anything of the run exists
+        |push| {
+            let mut hand = D55Hand { blocks: shared.then_some(&blocks), push };
+            let r = seal_chain(m, run.budget, &mut hand)?;
+            #[cfg(test)]
+            a19_after_the_sealing_pass();
+            Ok(r)
+        },
+        |(metas, digests, chain, mut seal), planned| {
+            let st = m.statement_of_records(metas.iter().map(|m| m.record.clone()).collect())?;
+            seal.wall_s = t0.elapsed().as_secs_f64();
+            let (kept_n, kept_bytes) = (chain.kept.iter().filter(|w| w.is_some()).count(), chain.kept_bytes);
+            let (handed, part_bytes) = (chain.handed, chain.part_bytes);
+            if run.events {
+                println!(
+                    "{{\"event\":\"loaded\",\"variant\":{},\"layers\":\"{}..{}\",\"blocks\":{l},\"statement_identity\":{},\"seconds\":{:.3},\"hl_gpu\":{},\"scope\":{}}}",
+                    js(m.variant()),
+                    layers[0],
+                    layers[l - 1] + 1,
+                    js(&hex(&st.identity())),
+                    seal.wall_s,
+                    js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into())),
+                    js(m.scope())
+                );
+                println!(
+                    "{{\"event\":\"sealed\",\"from\":\"the witness builder's own pass over layers {}..{} (parity bit-exact at every layer, before the run header: ruling H-1)\",\"seconds\":{:.3},\"of_which_load_seconds\":{:.3},\"of_which_witness_seconds\":{:.3},\"kept_witnesses\":{kept_n},\"kept_witness_bytes\":{kept_bytes},\"rayon_threads\":{},\"seal_pool_threads\":{},\"d55_window\":{window},\"d55_parts\":{handed},\"d55_part_bytes\":{part_bytes},\"d55_shared_blocks\":{shared}}}",
+                    layers[0],
+                    layers[l - 1] + 1,
+                    seal.wall_s,
+                    seal.load_s,
+                    seal.witness_s,
+                    rayon::current_num_threads(),
+                    seal.pool_threads
+                );
+                println!("{{\"event\":\"parity\",\"result\":\"bit-exact at every layer\",\"layers\":{l},\"words_per_layer\":{},\"checked_before_the_run_header\":true}}", sh.tokens * sh.width);
+            }
+            // ---- (2) the endpoints (the builder's own planes) and the bound run statement
+            let ctx = m.context()?;
+            let spec = IoSpec::new_shaped(sh, ctx, 0, 0)?;
+            let (expected, owners) = prepare_endpoints(spec, &chain.first, &chain.last)?;
+            let rst = RunStatement::new_bound_from_digests(m.run_shape()?, ctx, expected.clone(), digests.clone(), &vec![(0, 0); l], &st)?;
+            // D60: the fork run's door, BEFORE the run directory exists (an
+            // ineligible base is refused by name here)
+            let fr = run::fork::ForkRun::new(&rst, opt_in)?;
+            if run.events {
+                println!("{{\"event\":\"d55\",\"run_profile\":{},\"base_run_profile\":{},\"workers\":{},\"test_receipt_not_for_publication\":{}}}", js(fr.profile()), js(rst.rs().profile()), run.workers, run.test_receipt);
+            }
+            // [A19] the plan the parts were made under is this fork run's (before
+            // the run directory exists)
+            planned.check(&fr)?;
+            let mut src = StackSource::new(sh, if shared { StackBlocks::Sealed(&blocks) } else { StackBlocks::Model(m, &digests) }, l, chain, None)?;
+            // ---- (3) the proving pass
+            std::fs::create_dir(run.out).map_err(|e| format!("{}: {e}", run.out.display()))?;
+            let t = Instant::now();
+            let proved = (|| -> Result<(Vec<(u64, String)>, usize, run::fork::ForkStats, f64), String> {
+                // the blocks the fork run proves with: the sealing pass's own, or
+                // (`HL_A19_SHARE=0`, the path before A19) every one loaded again
+                let reloaded;
+                let (b, load_s): (&dyn run::fork::ForkBlocks, f64) = if shared {
+                    (&blocks as &dyn run::fork::ForkBlocks, 0.0)
+                } else {
+                    let (v, s) = load_fork_blocks_of(m, &digests)?;
+                    reloaded = v;
+                    (&reloaded as &dyn run::fork::ForkBlocks, s)
+                };
+                let (rc, fs) = planned.prove(&fr, b, &mut src, owners, run.workers)?;
+                #[cfg(test)]
+                a19_after_the_proof(&fr, b, &rc, &fs);
+                let written = run::fork::write_fork_receipt(run.out, &rc)?;
+                // D60 review F3: the not-for-publication marker, after the frames
+                // and before any verification or statement (a run that fails
+                // later is removed with it)
+                if run.test_receipt {
+                    let p = run::fork::write_d55_test_receipt_marker(run.out)?;
+                    if run.events {
+                        println!("{{\"event\":\"d55-test-receipt\",\"not_for_publication\":true,\"marker\":{},\"why\":\"D60 review F3: run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false in this build; the operator passed {D55_TEST_RECEIPT_FLAG}\"}}", js(&p.display().to_string()));
+                    }
+                }
+                if run.events {
+                    let core: Vec<String> = fs.fork_core_s.iter().map(|s| format!("{s:.3}")).collect();
+                    println!(
+                        "{{\"event\":\"d55-proved\",\"workers\":{},\"frames\":{},\"receipt_bytes\":{},\"block_load_seconds\":{load_s:.3},\"preflight_seconds\":{:.3},\"commit_seconds\":{:.3},\"forks_seconds\":{:.3},\"join_seconds\":{:.3},\"total_seconds\":{:.3},\"fork_prove_core_seconds\":[{}],\"generators\":{},\"join_claim_bytes\":{},\"ahead_parked\":{},\"ahead_taken_back\":{},\"vmhwm_mib\":{:.0}}}",
+                        fs.workers,
+                        written.len(),
+                        rc.bytes(),
+                        fs.preflight_s,
+                        fs.commit_s,
+                        fs.forks_s,
+                        fs.join_s,
+                        fs.total_s,
+                        core.join(","),
+                        fs.generators,
+                        fs.join_claim_bytes.iter().map(|c| c[0] + c[1]).sum::<usize>(),
+                        fs.ahead_parked,
+                        fs.ahead_taken_back,
+                        peak_rss_mib()
+                    );
+                }
+                Ok((written, rc.bytes(), fs, load_s))
+            })();
+            let prove_s = t.elapsed().as_secs_f64();
+            let (rebuild_s, rebuilt, reloads) = (src.busy_s, src.chain.rebuilt, src.reloads);
+            drop(src);
+            let (written, receipt_bytes, fork, block_load_s) = proved.map_err(|e| fail_run(run.out, format!("prove_run: {e}")))?;
+            drop(fr);
+            let times = D55Times {
+                seal_s: seal.wall_s,
+                seal_load_s: seal.load_s,
+                seal_witness_s: seal.witness_s,
+                seal_pool_threads: seal.pool_threads,
+                window,
+                handed,
+                part_bytes,
+                kept: kept_n,
+                kept_bytes,
+                shared,
+                block_load_s,
+                prove_s,
+                rebuilt,
+                rebuild_s,
+                reloads: reloads.0,
+                reload_s: reloads.1,
+                receipt_bytes,
+                fork,
+            };
+            Ok(D55Proved { metas, digests, st, ctx, expected, rst, written, times })
+        },
+    )
+}
+
+// [A19] TEST BUILDS ONLY: a hook run on the calling thread right after the
+// sealing pass (the harness's clock and usage of the pass), and one run after
+// the fork run's proof with that fork run, its blocks, receipt and stats (the
+// production-path byte tests)
+#[cfg(test)]
+type A19ProvedHook = Box<dyn FnMut(&run::fork::ForkRun<'_>, &dyn run::fork::ForkBlocks, &run::fork::ForkReceipt, &run::fork::ForkStats)>;
+
+#[cfg(test)]
+thread_local! {
+    static A19_SEALED_HOOK: std::cell::RefCell<Option<Box<dyn FnMut()>>> = const { std::cell::RefCell::new(None) };
+    static A19_PROVED_HOOK: std::cell::RefCell<Option<A19ProvedHook>> = const { std::cell::RefCell::new(None) };
+}
+
+/// tests: the hook run on this thread right after each D55 sealing pass
+#[cfg(test)]
+pub(crate) fn a19_sealed_hook_for_tests(f: Option<Box<dyn FnMut()>>) {
+    A19_SEALED_HOOK.with(|h| *h.borrow_mut() = f);
+}
+
+/// tests: the hook run on this thread after each D55 fork run's proof
+#[cfg(test)]
+pub(crate) fn a19_proved_hook_for_tests(f: Option<A19ProvedHook>) {
+    A19_PROVED_HOOK.with(|h| *h.borrow_mut() = f);
+}
+
+#[cfg(test)]
+fn a19_after_the_sealing_pass() {
+    A19_SEALED_HOOK.with(|h| {
+        if let Some(f) = h.borrow_mut().as_mut() {
+            f()
+        }
+    });
+}
+
+#[cfg(test)]
+fn a19_after_the_proof(fr: &run::fork::ForkRun<'_>, b: &dyn run::fork::ForkBlocks, rc: &run::fork::ForkReceipt, fs: &run::fork::ForkStats) {
+    A19_PROVED_HOOK.with(|h| {
+        if let Some(f) = h.borrow_mut().as_mut() {
+            f(fr, b, rc, fs)
+        }
+    });
+}
+
+/// [A19] `stack-prove --d55-workers N`: [`d55_seal_and_prove`] on the export,
+/// then the D55 run's statement (in-process verification or the unverified
+/// statement beside the run) and its `proved` event, as before A19
+#[allow(clippy::too_many_arguments)]
+fn stack_prove_d55(f: &[(String, String)], ex: &TrainedExport, layers: &[u32], rope: bool, seq: &SeqSource, label: &str, budget: u64, workers: usize, test_receipt: bool, out: &Path, unverified: &Path, t_total: Instant) -> Result<(), String> {
+    let l = layers.len();
+    let m = ExportStack::new(ex, seq, layers, rope, label)?;
+    let p = d55_seal_and_prove(&m, run::fork::D55OptIn::registered_profile(), &D55Run { workers, out, budget, test_receipt, events: true })?;
+    let tm = &p.times;
+    // the fork run again (its door is deterministic: it admitted this statement)
+    let fr = run::fork::ForkRun::new(&p.rst, run::fork::D55OptIn::registered_profile())?;
+    let fork_names = Some((fr.profile(), p.rst.rs().profile()));
+    let hwm = peak_rss_mib();
+    // ---- (4) in-process verification from the directory (a fresh copy of
+    //      every block): OFF by default (R5-2) — then the statement is NOT published here
+    let in_process = flag(f, "--verify-in-process").is_some();
+    let t = Instant::now();
+    let verdict = if in_process { load_fork_blocks(ex, &m.sh, &m.c, layers, &p.digests, rope).and_then(|(b, _)| run::fork::verify_run_with_forks_from_dir(&fr, &b, out, workers)).map(Some) } else { Ok(None) };
+    let verify_s = t.elapsed().as_secs_f64();
+    let verified_seen = match verdict {
+        Err(e) => return Err(fail_run(out, format!("in-process verification of the run directory: {e}"))),
+        Ok(v) => v,
+    };
+    let claims = ProverClaims::of_this_process();
+    // NATIVE R7 (Q-2): the prover writes only the build's constants
+    check_prover_reported(&claims.backend, claims.gpu_declines).map_err(|e| fail_run(out, e))?;
+    let sdir = match verified_seen {
+        Some(seen) => {
+            if seen != p.written {
+                return Err(fail_run(out, "in-process verification: the bytes it verified are not the bytes the prover wrote".into()));
+            }
+            let stmt = render_stack_statement_for(ex, &m.sh, &p.metas, &p.st, &p.ctx, &p.expected, label, StatementWriter::InProcess, &claims, fork_names);
+            publish_statement_dir(out, &[("expected.bin", &p.expected.to_bytes()), ("statement.json", stmt.as_bytes()), ("segments.json", render_fork_frames_json(&seen).as_bytes())]).map_err(|e| fail_run(out, e))?
+        }
+        None => {
+            std::fs::create_dir(unverified).map_err(|e| format!("{}: {e}", unverified.display()))?;
+            write_new(&unverified.join(UNVERIFIED_MARKER), UNVERIFIED_TEXT)?;
+            write_new(&unverified.join("expected.bin"), &p.expected.to_bytes())?;
+            write_new(&unverified.join("statement.json"), render_stack_statement_for(ex, &m.sh, &p.metas, &p.st, &p.ctx, &p.expected, label, StatementWriter::Unverified, &claims, fork_names).as_bytes())?;
+            write_new(&unverified.join("segments.json"), render_fork_frames_json(&p.written).as_bytes())?;
+            unverified.to_path_buf()
+        }
+    };
+    println!(
+        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{:.3},\"of_which_witness_seconds\":{:.3},\"rebuilt_witnesses\":{},\"witness_seconds_per_block\":{:.3},\"of_which_block_load_seconds\":{:.3},\"block_loads\":{},\"rayon_threads\":{},\"in_process_verified\":{in_process},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{:.3},\"sealing_witness_seconds\":{:.3},\"load_seconds\":{:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"statement_dir\":{},\"out\":{}}}",
+        js(&crate::gpu::label()),
+        crate::gpu::declines(),
+        p.written.iter().map(|(n, _)| *n).sum::<u64>(),
+        tm.prove_s,
+        tm.rebuild_s,
+        tm.rebuilt,
+        (tm.seal_witness_s + tm.rebuild_s) / l as f64,
+        tm.reload_s,
+        tm.reloads,
+        rayon::current_num_threads(),
+        tm.seal_s,
+        tm.seal_witness_s,
+        tm.seal_load_s,
+        t_total.elapsed().as_secs_f64(),
+        js(&hex(&p.st.identity())),
+        js(&sdir.display().to_string()),
+        js(&out.display().to_string())
+    );
+    Ok(())
 }
 
 /// the text of the marker inside an unverified statement directory
@@ -3146,6 +3738,15 @@ pub fn trained_stack_prove_command(args: &[String]) -> i32 {
     }
 }
 
+/// TEST BUILDS ONLY: `stack-prove`'s inner result (the refusal's detail, which
+/// the CLI keeps in the owner's private log; D65(2)), for the controls that
+/// compare refusals under two settings
+#[cfg(test)]
+pub(crate) fn stack_prove_inner_for_tests(args: &[String]) -> Result<(), String> {
+    let f = flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib", "--d55-workers"], &["--rope-from-export", "--verify-in-process", "--dd", D55_TEST_RECEIPT_FLAG])?;
+    stack_prove_inner(&f)
+}
+
 /// **Efficiency plan A3: the witness cache's default budget, sized to the machine.** An
 /// eighth of physical RAM, at least the old 4 GiB and at most 64 (the flag's ceiling). On the
 /// 256 GB Mac that is 32 GiB, which keeps every witness of a 32-block 8B run (about 0.3 GB
@@ -3229,6 +3830,12 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
         }
     }
     let rope = flag(f, "--rope-from-export").is_some();
+    // [A19] a D55 fork run (D60) takes production's D55 path: the sealing pass
+    // with each fork's before-challenge part beside it when A13's window is on,
+    // the fork run on the sealing pass's own blocks
+    if let Some(n) = d55_workers {
+        return stack_prove_d55(f, &ex, &layers, rope, &seq, label, (budget_gib * (1u64 << 30) as f64) as u64, n, test_receipt, &out, &unverified, t_total);
+    }
     // ---- (1) the digest and sealing pass (ruling H-1): every refusal of an
     //      inadmissible chain happens here, before anything of the run exists
     let (c, sh, loaded, digests, st, chain, seal) = seal_and_record(&ex, &layers, rope, &seq, (budget_gib * (1u64 << 30) as f64) as u64)?;
@@ -3259,71 +3866,28 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let spec = IoSpec::new_shaped(&sh, ctx, 0, 0)?;
     let (expected, owners) = prepare_endpoints(spec, &chain.first, &chain.last)?;
     let rst = RunStatement::new_bound_from_digests(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), digests.clone(), &vec![(0, 0); l], &st)?;
-    // D60: the fork run's door, BEFORE the run directory exists (an
-    // ineligible base is refused by name here)
-    let fork = match d55_workers {
-        Some(n) => {
-            let fr = run::fork::ForkRun::new(&rst, run::fork::D55OptIn::registered_profile())?;
-            println!("{{\"event\":\"d55\",\"run_profile\":{},\"base_run_profile\":{},\"workers\":{n},\"test_receipt_not_for_publication\":{test_receipt}}}", js(fr.profile()), js(rst.rs().profile()));
-            Some((fr, n))
-        }
-        None => None,
-    };
-    let fork_names = fork.as_ref().map(|(fr, _)| (fr.profile().to_string(), rst.rs().profile().to_string()));
-    let fork_names = fork_names.as_ref().map(|(d, b)| (d.as_str(), b.as_str()));
+    // [A19] (a D55 fork run took `stack_prove_d55` above; this is D12a's path)
     let cache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
-    let mut src = StackSource::new(&sh, cache.clone(), l, chain, lie_at)?;
+    let mut src = StackSource::new(&sh, StackBlocks::Cache(cache.clone()), l, chain, lie_at)?;
     // ---- (3) the proving pass
     std::fs::create_dir(&out).map_err(|e| format!("{}: {e}", out.display()))?;
     let t = Instant::now();
     // the frames written (length, SHA-256), in file order: D12a's segments
-    // or (D60) the fork receipt's frames
-    let proved: Result<Vec<(u64, String)>, String> = match &fork {
-        None => {
-            let mut disk = match super::run_sink::DirSink::create(&out, l) {
-                Ok(d) => d,
-                Err(e) => return Err(fail_run(&out, e)),
+    let proved: Result<Vec<(u64, String)>, String> = {
+        let mut disk = match super::run_sink::DirSink::create(&out, l) {
+            Ok(d) => d,
+            Err(e) => return Err(fail_run(&out, e)),
+        };
+        let stats = {
+            let mut sink = |k: usize, bytes: Vec<u8>| -> Result<(), String> {
+                let n = bytes.len();
+                super::run_sink::SegmentSink::accept(&mut disk, k, bytes)?;
+                println!("{{\"event\":\"segment\",\"index\":{k},\"layer\":{},\"bytes\":{n},\"elapsed_seconds\":{:.3},\"vmhwm_mib\":{:.0}}}", layers[k], t.elapsed().as_secs_f64(), peak_rss_mib());
+                Ok(())
             };
-            let stats = {
-                let mut sink = |k: usize, bytes: Vec<u8>| -> Result<(), String> {
-                    let n = bytes.len();
-                    super::run_sink::SegmentSink::accept(&mut disk, k, bytes)?;
-                    println!("{{\"event\":\"segment\",\"index\":{k},\"layer\":{},\"bytes\":{n},\"elapsed_seconds\":{:.3},\"vmhwm_mib\":{:.0}}}", layers[k], t.elapsed().as_secs_f64(), peak_rss_mib());
-                    Ok(())
-                };
-                run::prove_run_with(&rst, &mut CacheBlocks(cache.clone()), &mut src, owners, &mut sink)
-            };
-            stats.map(|_| (0..l).map(|k| (disk.lengths()[k] as u64, disk.digests()[k].clone())).collect())
-        }
-        Some((fr, workers)) => (|| -> Result<Vec<(u64, String)>, String> {
-            let (blocks, load_s) = load_fork_blocks(&ex, &sh, &c, &layers, &digests, rope)?;
-            let (rc, fs) = run::fork::prove_run_with_forks(fr, &blocks, &mut src, owners, *workers)?;
-            let written = run::fork::write_fork_receipt(&out, &rc)?;
-            // D60 review F3: the not-for-publication marker, after the frames
-            // and before any verification or statement (a run that fails
-            // later is removed with it)
-            if test_receipt {
-                let p = run::fork::write_d55_test_receipt_marker(&out)?;
-                println!("{{\"event\":\"d55-test-receipt\",\"not_for_publication\":true,\"marker\":{},\"why\":\"D60 review F3: run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false in this build; the operator passed {D55_TEST_RECEIPT_FLAG}\"}}", js(&p.display().to_string()));
-            }
-            let core: Vec<String> = fs.fork_core_s.iter().map(|s| format!("{s:.3}")).collect();
-            println!(
-                "{{\"event\":\"d55-proved\",\"workers\":{},\"frames\":{},\"receipt_bytes\":{},\"block_load_seconds\":{load_s:.3},\"preflight_seconds\":{:.3},\"commit_seconds\":{:.3},\"forks_seconds\":{:.3},\"join_seconds\":{:.3},\"total_seconds\":{:.3},\"fork_prove_core_seconds\":[{}],\"generators\":{},\"join_claim_bytes\":{},\"vmhwm_mib\":{:.0}}}",
-                fs.workers,
-                written.len(),
-                rc.bytes(),
-                fs.preflight_s,
-                fs.commit_s,
-                fs.forks_s,
-                fs.join_s,
-                fs.total_s,
-                core.join(","),
-                fs.generators,
-                fs.join_claim_bytes.iter().map(|c| c[0] + c[1]).sum::<usize>(),
-                peak_rss_mib()
-            );
-            Ok(written)
-        })(),
+            run::prove_run_with(&rst, &mut CacheBlocks(cache.clone()), &mut src, owners, &mut sink)
+        };
+        stats.map(|_| (0..l).map(|k| (disk.lengths()[k] as u64, disk.digests()[k].clone())).collect())
     };
     let prove_s = t.elapsed().as_secs_f64();
     let (rebuild_s, rebuilt) = (src.busy_s, src.chain.rebuilt);
@@ -3343,14 +3907,8 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let in_process = flag(f, "--verify-in-process").is_some() || lie_at.is_some();
     let t = Instant::now();
     let verdict = if in_process {
-        match &fork {
-            None => {
-                let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
-                run::verify_run_from_dir_hashed_with(&rst, &mut CacheBlocks(vcache), &out).map(Some)
-            }
-            // D60: a fresh copy of every block, the frames read from the directory
-            Some((fr, workers)) => load_fork_blocks(&ex, &sh, &c, &layers, &digests, rope).and_then(|(b, _)| run::fork::verify_run_with_forks_from_dir(fr, &b, &out, *workers)).map(Some),
-        }
+        let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+        run::verify_run_from_dir_hashed_with(&rst, &mut CacheBlocks(vcache), &out).map(Some)
     } else {
         Ok(None)
     };
@@ -3372,8 +3930,9 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     //      verification (M-9 / D12b(1)); otherwise beside the run, unverified.
     //      NATIVE R6 (review r5_A): an in-process verification's segments.json
     //      is the hashes of the bytes it verified, which must be the sink's
-    // (D60: a fork run's `segments.json` names its frames)
-    let frames_json = |seen: &[(u64, String)]| if fork.is_some() { render_fork_frames_json(seen) } else { render_segments_json(seen) };
+    // ([A19] a D55 fork run's, which names its frames, is `stack_prove_d55`'s)
+    let frames_json = render_segments_json;
+    let fork_names: Option<(&str, &str)> = None;
     let claims = ProverClaims::of_this_process();
     // NATIVE R7 (Q-2): the prover writes only the build's constants
     check_prover_reported(&claims.backend, claims.gpu_declines).map_err(|e| fail_run(&out, e))?;
