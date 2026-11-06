@@ -205,6 +205,26 @@ here. The rates count proving and witness work. Verification time is recorded se
     - the opening's checks (B1 changes the PCS encoder);
     - M's mask check and the D55 run schedule, each proved equal to its model;
     - a corpus from real W16R3 receipts.
+- **D63 Lean, L6: the generic sumcheck verifier in executable Lean (2026-11-06)** [PROVED; MEASURED for the agreement
+  check; `ExecSumcheck.lean`, `ExecMle.lean`, `ExecCfs.lean`; `results/zk60_lean_l6_20261106/`].
+  - Every block slot checks its sumchecks through zkp-core's one generic verifier. That verifier now exists in Lean,
+    together with its interpolation, its eq and multilinear evaluations and its zero-knowledge mask pieces.
+  - **Main theorem (`scVerify_accept_iff`):** the program accepts a sumcheck exactly when the soundness proofs' model
+    does, with the challenges taken from the transcript chain. This holds for every hash function. So the proved
+    Fiat–Shamir soundness of the sumcheck applies to the code itself.
+    - It needs degree ≥ 1 and canonical words. The block decoder enforces canonical words, and every slot has degree
+      ≥ 2.
+    - The caller still checks the terminal identity, the claimed sum and the openings.
+  - The mask's weights give its cube sum and its value at ρ, and its rounds are the model's. The masked terminal and
+    the extension round are the models', so the extended soundness theorem applies to what the code sends.
+  - Agreement with Rust: 1,206 checks, 0 failed. Among them are 171 runs, honest and tampered, whose verdict, error
+    message and transcript state all match. A negative control of eight single changes fails exactly 8.
+  - Sol's W16R3 design keeps this mathematics; B2 only batches slots into one larger sumcheck.
+  - Findings (all Info):
+    - L6-1: a degree-0 round would make the verifier panic, but no slot has one.
+    - L6-2: the mask weights need fewer than 64 variables, a per-profile `decide`.
+    - L6-4: the Fiat–Shamir chain model counts with a natural number, while the code uses a u64. Mapping one onto the
+      other is per-profile glue.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.
