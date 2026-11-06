@@ -250,7 +250,34 @@ here. The rates count proving and witness work. Verification time is recorded se
       guard's 24 GiB cap). Later lanes state such facts for a variable p and then instantiate.
   - **After L7, the Lean work that W16R3 doesn't change is finished** apart from one generic piece: re-stating the
     composition files (`FSCompose.lean`, `FSWideRbr.lean`) on this reader, so the whole receipt's chain, including
-    rounds with several squeezes (LogUp's), gets the composed bound. Everything else waits for the freeze.
+    rounds with several squeezes (LogUp's), gets the composed bound. L8, below, does that.
+- **D63 Lean, L8: Fiat–Shamir composition on the code's own transcript (2026-11-06)** [PROVED; `ExecComposeFS.lean`;
+  `results/zk60_lean_l8_20261106/`].
+  - A receipt checks many sub-protocols one after another on one transcript. L8 proves the combined bound for any such
+    schedule, on the code's own transcript chain.
+    - **`fs_code_chain_sound_sched`** (the general form): the schedule may include rounds without a message and vector
+      challenges of several squeezes. The chance that some sub-protocol starts from a false claim and yet all of them
+      pass is at most T·ε plus two hash-collision terms, where ε is the largest per-round error and T the hash queries
+      plus the receipt's items plus 1.
+    - **`exec_sumchecks_fs_sound`** (on the code): a run of the code's sumcheck slots on one transcript, each slot's
+      claim fixed by the transcript before its rounds. The chance that some slot's claim is false and yet every slot's
+      verifier accepts is at most the bound of ONE slot of the largest degree, with no factor for the number of slots.
+      At a slot's shape this is at most 2^-61, a Lean corollary.
+  - W16R3's batching (B2, B3) only changes the list of slots the theorem is applied to.
+  - On the merged tree: the Lean build has 3454 jobs and no warning. All 64 new theorems use at most `propext`,
+    `Classical.choice` and `Quot.sound`, and L7's 39 still do. L6Check, L5Check and the L1 check still give 0 failed,
+    and both Rust corpora regenerate byte for byte.
+  - Findings (all Info):
+    - L8-4: a slot's terminal claim handed on to an opening needs a "release" step and its proof in the per-profile
+      instance.
+    - L8-5: the existing LogUp and opening round lemmas use a two-halves digest type rather than the code's 32-byte
+      digests. They need a short transfer through a bijection, not yet done.
+  - **With L8, the Lean work that W16R3 doesn't change is finished.** The rest waits for W16R3's freeze:
+    - each slot's claim as a function of its transcript (the arithmetization);
+    - the batching and zero-check rounds as their own sub-protocols;
+    - the extractor (the polynomial is the committed tables');
+    - LogUp, the openings and M, plus the L8-5 transfer;
+    - the receipt decoder, the D55 schedule and the simulator.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.
