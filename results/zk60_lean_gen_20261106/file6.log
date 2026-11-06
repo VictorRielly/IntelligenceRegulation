@@ -1,0 +1,209 @@
+== lake build ZK60Formal.CompleteSub ==
+✔ [3383/3383] Built ZK60Formal.CompleteSub (2.4s)
+Build completed successfully (3383 jobs).
+== lean ZKHybrid.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:80:4: error(lean.dependsOnNoncomputable): failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Exists.choose', which is 'noncomputable'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:282:51: error: Application type mismatch: The argument
+  add_le_add_left hb ?m.164
+has type
+  (PMF.uniformOfFintype (((Q → D) × S) × (Fin k → D))).toOuterMeasure {ω | progBad y A₁ ω} + ?m.164 ≤
+    ↑(k * q₁ * K) / ↑(Fintype.card S) + ?m.164
+but is expected to have type
+  progReal y A₁ A₂ + (PMF.uniformOfFintype (((Q → D) × S) × (Fin k → D))).toOuterMeasure {ω | progBad y A₁ ω} ≤
+    progReal y A₁ A₂ + ↑(k * q₁ * K) / ↑(Fintype.card S)
+in the application
+  LE.le.trans h2 (add_le_add_left hb ?m.164)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:447:8: error: don't know how to synthesize implicit argument `t`
+  @ite_eq_right (cnt < 0) (cnt.decLt 0) (Nat.not_lt_zero cnt) ((D ⊕ P.Stmt × P.Receipt) × ℕ × List (Q × D)) ?m.173
+    (Sum.inr (P.prove (ovr (cnt, []).2 H) W x (rand pos).1), (cnt, []).1 + 1, (cnt, []).2)
+context:
+Q D Coins : Type
+inst✝ : DecidableEq Q
+M : IntModel
+P : Protocol Q D Coins M
+SC : Type
+PS : ProgSim M P SC
+W : M.Weights
+H : Q → D
+rand : ℕ → Coins × SC
+k : D ⊕ P.Stmt × P.Receipt → OC (Q ⊕ M.Input) (D ⊕ P.Stmt × P.Receipt) Bool
+ih :
+  ∀ (a : D ⊕ P.Stmt × P.Receipt) (pos cnt : ℕ),
+    OC.runState (hybStep PS W H 0) rand pos (cnt, []) (k a) =
+      OC.runState (Assembly.realStep P H W) (fun p => (rand p).1) pos () (k a)
+pos cnt : ℕ
+x : M.Input
+⊢ (D ⊕ P.Stmt × P.Receipt) × ℕ × List (Q × D)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:511:22: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  OC.runState ?step ?rand ?pos ?s (OC.ask ?i ?k)
+in the target expression
+  OC.runState (fun s z c => PS.toSim.step s (Sum.map id (fun x => (M.publicPart (M.forward W x), P.leak x)) z) c) rand
+      pos (W, some H, T) (OC.ask i k) =
+    OC.runState (simStep PS W H) (fun p => (rand p).2) (pos + 1) (simStep PS W H T i (rand pos).2).2
+      (k (simStep PS W H T i (rand pos).2).1)
+
+case ask
+Q D Coins : Type
+inst✝⁷ : DecidableEq Q
+M : IntModel
+P : Protocol Q D Coins M
+SC : Type
+inst✝⁶ : Fintype Q
+inst✝⁵ : Fintype D
+inst✝⁴ : Nonempty D
+inst✝³ : Inhabited D
+inst✝² : Fintype SC
+inst✝¹ : Nonempty SC
+inst✝ : Inhabited SC
+PS : ProgSim M P SC
+W : M.Weights
+H : Q → D
+rand : ℕ → (Q → D) × SC
+i : Q ⊕ M.Input
+k : D ⊕ P.Stmt × P.Receipt → OC (Q ⊕ M.Input) (D ⊕ P.Stmt × P.Receipt) Bool
+ih :
+  ∀ (a : D ⊕ P.Stmt × P.Receipt) (pos : ℕ) (T : List (Q × D)),
+    OC.runState (fun s z c => PS.toSim.step s (Sum.map id (fun x => (M.publicPart (M.forward W x), P.leak x)) z) c) rand
+        pos (W, some H, T) (k a) =
+      OC.runState (simStep PS W H) (fun p => (rand p).2) pos T (k a)
+pos : ℕ
+T : List (Q × D)
+⊢ OC.runState (fun s z c => PS.toSim.step s (Sum.map id (fun x => (M.publicPart (M.forward W x), P.leak x)) z) c) rand
+      pos (W, some H, T) (OC.ask i k) =
+    OC.runState (simStep PS W H) (fun p => (rand p).2) (pos + 1) (simStep PS W H T i (rand pos).2).2
+      (k (simStep PS W H T i (rand pos).2).1)
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    rand
+  has type
+    ℕ → (Q → D) × SC
+  but is expected to have type
+    ℕ → PS.toSim.SCoins
+  in the application
+    OC.runState (fun s z c => PS.toSim.step s (Sum.map id (fun x => (M.publicPart (M.forward W x), P.leak x)) z) c) rand
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:525:22: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  OC.runState ?step ?rand ?pos ?s (OC.ask ?i ?k)
+in the target expression
+  OC.runState (fun s z c => PS.toSim.step s (Sum.map id (fun x => (M.publicPart (M.forward W x), P.leak x)) z) c) rand 0
+      (W, none, []) (OC.ask i k) =
+    OC.runState (simStep PS W (rand 0).1) (fun p => (rand p).2) (0 + 1) (simStep PS W (rand 0).1 [] i (rand 0).2).2
+      (k (simStep PS W (rand 0).1 [] i (rand 0).2).1)
+
+case ask
+Q D Coins : Type
+inst✝⁷ : DecidableEq Q
+M : IntModel
+P : Protocol Q D Coins M
+SC : Type
+inst✝⁶ : Fintype Q
+inst✝⁵ : Fintype D
+inst✝⁴ : Nonempty D
+inst✝³ : Inhabited D
+inst✝² : Fintype SC
+inst✝¹ : Nonempty SC
+inst✝ : Inhabited SC
+PS : ProgSim M P SC
+W : M.Weights
+rand : ℕ → (Q → D) × SC
+i : Q ⊕ M.Input
+k : D ⊕ P.Stmt × P.Receipt → OC (Q ⊕ M.Input) (D ⊕ P.Stmt × P.Receipt) Bool
+⊢ OC.runState (fun s z c => PS.toSim.step s (Sum.map id (fun x => (M.publicPart (M.forward W x), P.leak x)) z) c) rand 0
+      (W, none, []) (OC.ask i k) =
+    OC.runState (simStep PS W (rand 0).1) (fun p => (rand p).2) (0 + 1) (simStep PS W (rand 0).1 [] i (rand 0).2).2
+      (k (simStep PS W (rand 0).1 [] i (rand 0).2).1)
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    rand
+  has type
+    ℕ → (Q → D) × SC
+  but is expected to have type
+    ℕ → PS.toSim.SCoins
+  in the application
+    OC.runState (fun s z c => PS.toSim.step s (Sum.map id (fun x => (M.publicPart (M.forward W x), P.leak x)) z) c) rand
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:593:83: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Inhabited PS.toSim.SCoins
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:619:2: warning: Try this: 
+  letI̵
+
+The goal is a proposition, so `let` is preferred over `letI`.
+The difference between `let` and `letI` is that `letI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:652:8: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  min (εzk q R) 1
+in the target expression
+  realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + (fun q R => min (εzk q R) 1) q R ∧
+    idealProb M P S W (q + R) Dist ≤ realProb M P W (q + R) Dist + (fun q R => min (εzk q R) 1) q R
+
+case inl
+Q D Coins : Type
+inst✝⁶ : DecidableEq Q
+M : IntModel
+P : Protocol Q D Coins M
+inst✝⁵ : Fintype Q
+inst✝⁴ : Fintype D
+inst✝³ : Nonempty D
+inst✝² : Fintype Coins
+inst✝¹ : Nonempty Coins
+inst✝ : Inhabited Coins
+εzk : ℕ → ℕ → ℝ≥0∞
+S : Simulator M P
+hS :
+  ∀ (W : M.Weights) (q R : ℕ) (Dist : OC (Q ⊕ M.Input) (D ⊕ P.Stmt × P.Receipt) Bool),
+    Dist.Within q R →
+      realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + εzk q R ∧
+        idealProb M P S W (q + R) Dist ≤ realProb M P W (q + R) Dist + εzk q R
+W : M.Weights
+q R : ℕ
+Dist : OC (Q ⊕ M.Input) (D ⊕ P.Stmt × P.Receipt) Bool
+hD : Dist.Within q R
+h1 : realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + εzk q R
+h2 : idealProb M P S W (q + R) Dist ≤ realProb M P W (q + R) Dist + εzk q R
+hr : realProb M P W (q + R) Dist ≤ 1
+hi : idealProb M P S W (q + R) Dist ≤ 1
+hle : εzk q R ≤ 1
+⊢ realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + (fun q R => min (εzk q R) 1) q R ∧
+    idealProb M P S W (q + R) Dist ≤ realProb M P W (q + R) Dist + (fun q R => min (εzk q R) 1) q R
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:654:8: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  min (εzk q R) 1
+in the target expression
+  realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + (fun q R => min (εzk q R) 1) q R ∧
+    idealProb M P S W (q + R) Dist ≤ realProb M P W (q + R) Dist + (fun q R => min (εzk q R) 1) q R
+
+case inr
+Q D Coins : Type
+inst✝⁶ : DecidableEq Q
+M : IntModel
+P : Protocol Q D Coins M
+inst✝⁵ : Fintype Q
+inst✝⁴ : Fintype D
+inst✝³ : Nonempty D
+inst✝² : Fintype Coins
+inst✝¹ : Nonempty Coins
+inst✝ : Inhabited Coins
+εzk : ℕ → ℕ → ℝ≥0∞
+S : Simulator M P
+hS :
+  ∀ (W : M.Weights) (q R : ℕ) (Dist : OC (Q ⊕ M.Input) (D ⊕ P.Stmt × P.Receipt) Bool),
+    Dist.Within q R →
+      realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + εzk q R ∧
+        idealProb M P S W (q + R) Dist ≤ realProb M P W (q + R) Dist + εzk q R
+W : M.Weights
+q R : ℕ
+Dist : OC (Q ⊕ M.Input) (D ⊕ P.Stmt × P.Receipt) Bool
+hD : Dist.Within q R
+h1 : realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + εzk q R
+h2 : idealProb M P S W (q + R) Dist ≤ realProb M P W (q + R) Dist + εzk q R
+hr : realProb M P W (q + R) Dist ≤ 1
+hi : idealProb M P S W (q + R) Dist ≤ 1
+hle : 1 ≤ εzk q R
+⊢ realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + (fun q R => min (εzk q R) 1) q R ∧
+    idealProb M P S W (q + R) Dist ≤ realProb M P W (q + R) Dist + (fun q R => min (εzk q R) 1) q R
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:672:54: error(lean.unknownIdentifier): Unknown constant `ENNReal.two_ne_top`

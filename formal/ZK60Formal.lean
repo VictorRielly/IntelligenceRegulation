@@ -63,3 +63,5 @@ import ZK60Formal.ModelOut
 import ZK60Formal.CircuitOut
 import ZK60Formal.CircuitTokenRun
 import ZK60Formal.Assembly
+import ZK60Formal.CompleteSub
+import ZK60Formal.ZKHybrid

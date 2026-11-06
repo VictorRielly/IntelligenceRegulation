@@ -396,11 +396,39 @@ The plain-words version, the modelling choices and the open decisions are in
     `ColCommit.binding`, `binding_of_colCommit`.
   - No gap found in the approved statements for these steps (findings §3); `SemanticHiding` and `KnowledgeSound` need no
     per-profile work once `ZeroKnowledge` and `IOPExtract` are proved.
+- Proved so far (GENERIC lemmas for `Complete` and `ZeroKnowledge`, 2026-11-06, second lane: over the existing
+  sub-protocol models and any `IntModel` / `Protocol`; same build and axiom checks, 71 declarations audited in
+  `results/zk60_lean_gen_20261106/axioms.log`; §6 of `docs/zkmatrix-poc/ZK60_LEAN_ASSEMBLY_20261106.md`):
+  - `CompleteSub.lean`: **the honest prover of every sub-protocol model is accepted**.
+    - The sumcheck at EVERY challenge (`sumcheck_complete`; on the list verifier, `sumcheck_complete_list`, so under
+      Fiat–Shamir at every oracle), masked and extended (`sumcheck_complete_masked`, `_extended`), and the CFS chain
+      in the code's coefficient form (`cfs_masked_honest`).
+    - The zero-check (`zerocheck_complete`) and batching.
+    - LogUp: honest multiplicities (`exists_tupleMass`) make the identity hold at every fold and point
+      (`logup_identity_honest`), and the honest helpers pass (`helperRel_honest`). The refusal is `α` among the folded
+      table values (`logupRefuses_iff`), so the honest LogUp is served and passes except with probability `M/|F|`
+      (`logup_block_complete_prob`).
+    - The opening (`opening_complete`), `M`'s product and proximity tests (`mopening_complete`), honest Merkle paths
+      (`climb_treePath`, `opens_honest`) and column-commitment openings (`colCommit_opens_honest`).
+    - **The composition into the approved form** (`complete_of_checks`, `arithComplete_of_checks`:
+      `εc = Σ εᵢ`), with the Fiat–Shamir step (`fresh_point_prob_le`, `prHC_le_of_forall`).
+  - `ZKHybrid.lean`: **the random-oracle programming lemma** and **the `R`-receipt hybrid**.
+    - The programming lemma: programming `k` points derived from a fresh salt costs at most `k·q₁·K/|S|`
+      (`program_coupling`, exact; `progBad_le`; `program_real_ideal`, `program_real_ideal_inj`).
+    - Programming simulators (`ProgSim`) are `Simulator`s (`ProgSim.toSim`).
+    - Hybrid `0` is exactly `realProb` (`hybProb_zero`) and hybrid `R` exactly `idealProb` (`hybProb_ge`).
+    - Per-receipt bounds give `ZeroKnowledge` with their sum (`zeroKnowledge_of_hybrid`, `R·ε₁` when uniform).
+    - The approved target from per-receipt bounds `εhv ≤ 2^-120`, `δ ≤ 2^-248` per query
+      (`zeroKnowledge_target_of_hybrid`). Finding A5: the generic per-query terms are larger, so the target needs a
+      sharper per-profile argument or a ruling.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems
   (`CircuitIff`, `IOPExtract`, `Complete`, `Binding`, `ZeroKnowledge`) and the `Protocol` instance itself; the list,
   mapped to the lemmas that exist, is §4 of `docs/zkmatrix-poc/ZK60_LEAN_ASSEMBLY_20261106.md`.
+  - For `Complete`, what is left is per profile: the prover and verifier, the list of checks and their refusal terms.
+  - For `ZeroKnowledge`, what is left is the per-receipt hybrid step under Fiat–Shamir, the composition over the run,
+    and the profile's simulator (§4.3, §4.5 of that document).
 
 **Build** (Lean 4.34.1 and Mathlib v4.34.1, pinned in `lean-toolchain` and `lakefile.toml`):
 
