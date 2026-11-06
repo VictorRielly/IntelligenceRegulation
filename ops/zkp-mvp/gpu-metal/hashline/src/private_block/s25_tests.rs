@@ -3102,7 +3102,7 @@ fn the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor()
 /// — and the three `cfg(test)` modules that WRITE a retained bundle, because
 /// a retained capture counts as publishing and its digests are call sites
 /// like any other.
-const CALL_SITES: [(&str, &str, usize, &str); 24] = [
+const CALL_SITES: [(&str, &str, usize, &str); 32] = [
     // TOKEN I/O ROUND 12 (rung R-C1): the classifier run's statement digests,
     // unkeyed hashes of PUBLIC words, each under its own fixed literal: CL1 the
     // classifier profile's canonical text, CL2 the int16 embedding, CL3 the
@@ -3145,7 +3145,16 @@ const CALL_SITES: [(&str, &str, usize, &str); 24] = [
     // identity, which a bound run absorbs as its `"calibration"` word
     ("src/private_block/trained_statement.rs", "blake3::Hasher::new(", 1, "D9 — the trained-model statement identity, unkeyed, over a 47-byte versioned domain literal and the length-prefixed statement fields"),
     ("src/private_block.rs", "blake3::hash(", 1, "D1 — the calibration identity, an unkeyed hash of a 30-byte public literal"),
-    ("src/private_block.rs", "blake3::Hasher::new(", 1, "D2 — the block's public/weights digest, unkeyed, over a 31-byte literal and the framed public tensors"),
+    // A21 (efficiency plan, 2026-11-06): D2 has a second, byte-identical form
+    // (`HL_A21_B3PAR`, `BlockPublic::a21_digest_tree`): the same input in the same
+    // order, hashed as BLAKE3's own tree, its subtrees by `blake3::hazmat` in rayon
+    // tasks. Its subtree hasher is a second `blake3::Hasher::new(` here, and its
+    // four `hazmat` calls are entry points of their own below
+    ("src/private_block.rs", "blake3::Hasher::new(", 2, "D2 — the block's public/weights digest, unkeyed, over a 31-byte literal and the framed public tensors: the one pass, and (A21) the subtree hasher of the same input hashed as BLAKE3's tree"),
+    ("src/private_block.rs", "set_input_offset(", 1, "D2 (A21's tree form) — a subtree hasher placed at its chunk offset of D2's own input (`hazmat::HasherExt`), unkeyed; no new input, no new domain"),
+    ("src/private_block.rs", "finalize_non_root(", 1, "D2 (A21's tree form) — a subtree's chaining value, a non-root node of D2's BLAKE3 tree (`hazmat::HasherExt`), unkeyed"),
+    ("src/private_block.rs", "merge_subtrees_non_root(", 1, "D2 (A21's tree form) — a parent node of two subtrees of D2's BLAKE3 tree (`hazmat`, `Mode::Hash`)"),
+    ("src/private_block.rs", "merge_subtrees_root(", 1, "D2 (A21's tree form) — D2's root, the parent of its top two subtrees with the ROOT flag (`hazmat`, `Mode::Hash`): `blake3::hash` of D2's input"),
     ("src/private_block/layout.rs", "blake3::Hasher::new(", 1, "D3 — the block's schedule digest, unkeyed, over a 33-byte literal and the framed description lines"),
     ("src/private_block/run.rs", "blake3::Hasher::new(", 2, "D4 and D5 — the run's public statement digest and its schedule digest, both unkeyed"),
     // D60 (2026-11-02): the registered D55 fork run, production since D60
@@ -3154,6 +3163,15 @@ const CALL_SITES: [(&str, &str, usize, &str); 24] = [
     ("src/private_block/boundary.rs", "blake3::Hasher::new(", 1, "D7 — the internal boundary's spec digest, unkeyed, 151 bytes"),
     ("src/private_seam.rs", "blake3::Hasher::new(", 1, "D8 — the frozen seam's spec digest, unkeyed, 128 bytes"),
     ("src/private_block/run_sink.rs", "sha256_hex(", 1, "C1 — a segment file's digest. SHA-256 (`sha2`), NOT BLAKE3: it shares no oracle with anything above"),
+    // A21 (efficiency plan, 2026-11-06): the SAME SHA-256 on the Arm SHA-2
+    // instructions (`run_sink::a21_sha`, `HL_A21_SHA`; `sha2` without them). The
+    // implementation is counted by its round instruction, and every call of its
+    // one wrapper is a call site. The wrapper's other callers before A21 were
+    // `Sha256::digest`, which this table has never listed as an entry point
+    ("src/private_block/run_sink.rs", "vsha256hq_u32(", 1, "C1 (A21) — the SHA-256 compression function on the Arm SHA-2 instructions (`a21_sha::arm::compress`): FIPS 180-4 SHA-256 itself, differential-tested against `sha2`; NOT BLAKE3, it shares no oracle with any BLAKE3 call above"),
+    ("src/private_block/run_sink.rs", "a21_sha::sha256(", 1, "C1 (A21) — `digest_hex`'s SHA-256 (a segment or fork-receipt frame's digest, written and verified) through the one wrapper"),
+    ("src/private_block/trained_statement.rs", "a21_sha::sha256(", 1, "C1 (A21) — the trained-model statement's file and word digests (`sha`: the nine padded words, the three tables, the shard list), SHA-256 through the one wrapper; recorded, never a transcript input"),
+    ("src/private_block/trained_block.rs", "a21_sha::sha256(", 1, "C1 (A21) — the trained export's file digests (`sha256`: every array checked against its manifest, the manifests, the profile, the rotation file, the sequence files), SHA-256 through the one wrapper"),
     // STAGE 27 added the sixth: `ArrayStore::put`'s CONTENT digest, which
     // both names an array in `arrays.bin` and is the key the store
     // deduplicates on. Same kind as the other five — SHA-256 (`sha2`) over
@@ -3170,7 +3188,7 @@ const CALL_SITES: [(&str, &str, usize, &str); 24] = [
 
 /// Hash entry points the scan looks for. Anything matched must be classified
 /// by [`CALL_SITES`]; anything not in this list is not a hash call at all.
-const ENTRY_POINTS: [&str; 16] = [
+const ENTRY_POINTS: [&str; 22] = [
     "blake3::hash(",
     "blake3::Hasher::new(",
     "blake3::Hasher::new_keyed(",
@@ -3189,6 +3207,15 @@ const ENTRY_POINTS: [&str; 16] = [
     "hash_columns_keyed(",
     "salt_leaf_keyed(",
     "MerkleTree::build_keyed(",
+    // A21 (efficiency plan, 2026-11-06): BLAKE3's tree API (`blake3::hazmat`), which
+    // D2's parallel form calls, and the in-tree SHA-256 (its round instruction and
+    // its one wrapper)
+    "set_input_offset(",
+    "finalize_non_root(",
+    "merge_subtrees_non_root(",
+    "merge_subtrees_root(",
+    "vsha256hq_u32(",
+    "a21_sha::sha256(",
 ];
 
 /// **THE OTHER ENGINEER'S FILES, READ-ONLY** — the call kinds of the memo's

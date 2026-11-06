@@ -902,6 +902,11 @@ impl BlockPublic {
     }
 
     pub fn digest(&self) -> Digest {
+        // [A21] `HL_A21_B3PAR` (default on): the same digest by BLAKE3's own tree, its
+        // subtrees hashed in parallel (see `a21_digest_tree`); `0`, the one pass below
+        if a21_b3par() {
+            return self.a21_digest_tree(A21_LEAF);
+        }
         let mut h = blake3::Hasher::new();
         h.update(b"hashline/private-block-public/1");
         self.attention.absorb_into(&mut h);
@@ -915,6 +920,56 @@ impl BlockPublic {
         *h.finalize().as_bytes()
     }
 
+    /// **[A21] the bytes [`BlockPublic::digest`] hashes, in its order, as pieces**: the
+    /// int8 words by reference (hashed as the `*v as u8` bytes the one pass copies out),
+    /// every other field as that pass's own little-endian encoding
+    fn a21_pieces(&self) -> Vec<A21Piece<'_>> {
+        let (a, f) = (&self.attention, &self.feed_forward);
+        let framed = |n: usize| A21Piece::Bytes((n as u64).to_le_bytes().to_vec());
+        let mut p = vec![A21Piece::Borrowed(b"hashline/private-block-public/1")];
+        for w in [&a.wq, &a.wk, &a.wv, &a.wo, &a.gamma_a] {
+            p.push(framed(w.len()));
+            p.push(A21Piece::Words(w));
+        }
+        for t in [&a.rope_cos, &a.rope_sin, &a.exp] {
+            p.push(framed(t.len()));
+            p.push(A21Piece::Bytes(t.iter().flat_map(|v| v.to_le_bytes()).collect()));
+        }
+        for w in [&f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t] {
+            p.push(framed(w.len()));
+            p.push(A21Piece::Words(w));
+        }
+        p.push(framed(f.act.len()));
+        p.push(A21Piece::Bytes(f.act.iter().flat_map(|v| v.to_le_bytes()).collect()));
+        if let Some(accuracy) = &self.accuracy {
+            let encoded = accuracy.encode();
+            p.push(A21Piece::Borrowed(b"R13-accuracy"));
+            p.push(framed(encoded.len()));
+            p.push(A21Piece::Bytes(encoded));
+        }
+        p
+    }
+
+    /// **[A21] [`BlockPublic::digest`] by BLAKE3's tree**: the same input
+    /// ([`BlockPublic::a21_pieces`]) split as BLAKE3 splits any input (section 2.1 of its
+    /// paper: the left subtree the largest power of two of chunks below the length), each
+    /// subtree of at most `leaf` bytes hashed on its own (`hazmat::HasherExt::
+    /// set_input_offset`, `finalize_non_root`) in a rayon task, the chaining values merged
+    /// back up as parents, the top one as the root. BLAKE3's hash IS this tree, so the 32
+    /// bytes are `blake3::hash` of the input, the one pass's. `leaf` is a power of two of
+    /// at least one chunk.
+    pub(crate) fn a21_digest_tree(&self, leaf: u64) -> Digest {
+        use blake3::hazmat::{left_subtree_len, merge_subtrees_root, Mode};
+        debug_assert!(leaf.is_power_of_two() && leaf >= blake3::CHUNK_LEN as u64);
+        let s = A21Stream::new(self.a21_pieces());
+        if s.len <= leaf {
+            return *s.hasher_at(0, s.len).finalize().as_bytes();
+        }
+        let left = left_subtree_len(s.len);
+        let (l, r) = rayon::join(|| s.subtree(0, left, leaf), || s.subtree(left, s.len - left, leaf));
+        *merge_subtrees_root(&l, &r, Mode::Hash).as_bytes()
+    }
+
     /// The whole PUBLIC SYNTHETIC fixture (`causal_oracle::
     /// public_synthetic_fixture` plus the frozen int16-out SiLU member
     /// `(-3, -11)`) and its input. Deliberately public test data: NOT an
@@ -925,6 +980,141 @@ impl BlockPublic {
         (Self::new(attention, FeedForwardPublic::synthetic_fixture()), input)
     }
 }
+
+// ---------------------------------------- [A21] the block digest in parallel
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A21;
+// `results/zk60_effplan_20261105/a21/README.md`.) `BlockPublic::digest` (D2) is one
+// BLAKE3 pass on one thread over about 218 MB at 8B, with a copy of each int8 word
+// (A20 measured 115 ms a block). It runs in every layer record, in the D55 preflight's
+// CS-6 re-hash of every block and in the verifier's. `HL_A21_B3PAR` (default on; `0`
+// restores the one pass) hashes the SAME input by BLAKE3's own tree: BLAKE3 defines its
+// hash as a binary tree of 1 KiB chunks, so the subtrees can be hashed apart (in rayon
+// tasks, through blake3 1.8.7's public `hazmat` API, no crate feature) and merged, and
+// the root is `blake3::hash` of the whole input. The int8 words are hashed from 16 KiB
+// stack buffers of their `*v as u8` bytes (no 218 MB of copies, no `unsafe`).
+// **Why no byte can move**: the input is the one pass's, byte for byte, in its order
+// ([`BlockPublic::a21_pieces`]), and the hash of an input does not depend on how its
+// tree is computed (tests: the W16R2 rung block, a legacy block, the R13 export's layers,
+// the 8B block and random blocks, at several leaf sizes, against the one pass). The
+// split depends on the input's LENGTH only, which is public (the shape's).
+
+/// [A21] the subtree size each rayon task hashes (a power of two of chunks)
+const A21_LEAF: u64 = 1 << 20;
+
+static A21_B3PAR_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+
+/// [A21] `HL_A21_B3PAR` (default on; `0`: the block digest's one pass, the path before A21)
+pub(crate) fn a21_b3par() -> bool {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    trained_statement::a20_switch(&A21_B3PAR_TEST, &ENV, "HL_A21_B3PAR", 1) != 0
+}
+
+/// tests: the tree on (`Some(true)`), the one pass (`Some(false)`) or as the environment
+/// says (`None`). Changes no byte (see above).
+#[cfg(test)]
+pub(crate) fn set_a21_b3par_for_test(on: Option<bool>) {
+    A21_B3PAR_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [A21] one piece of the block digest's input
+enum A21Piece<'a> {
+    /// a literal
+    Borrowed(&'static [u8]),
+    /// an encoding made for the digest (a length, a table)
+    Bytes(Vec<u8>),
+    /// int8 words, hashed as their `*v as u8` bytes
+    Words(&'a [i8]),
+}
+
+impl A21Piece<'_> {
+    fn len(&self) -> usize {
+        match self {
+            A21Piece::Borrowed(b) => b.len(),
+            A21Piece::Bytes(b) => b.len(),
+            A21Piece::Words(w) => w.len(),
+        }
+    }
+
+    /// bytes `from..to` of this piece into `h`
+    fn feed(&self, h: &mut blake3::Hasher, from: usize, to: usize) {
+        match self {
+            A21Piece::Borrowed(b) => {
+                h.update(&b[from..to]);
+            }
+            A21Piece::Bytes(b) => {
+                h.update(&b[from..to]);
+            }
+            A21Piece::Words(w) => {
+                let mut buf = [0u8; 16 << 10];
+                for c in w[from..to].chunks(buf.len()) {
+                    for (d, v) in buf.iter_mut().zip(c) {
+                        *d = *v as u8;
+                    }
+                    h.update(&buf[..c.len()]);
+                }
+            }
+        }
+    }
+}
+
+/// [A21] the block digest's input as one stream of bytes: its pieces and where each starts
+struct A21Stream<'a> {
+    pieces: Vec<A21Piece<'a>>,
+    starts: Vec<u64>,
+    len: u64,
+}
+
+impl<'a> A21Stream<'a> {
+    fn new(pieces: Vec<A21Piece<'a>>) -> Self {
+        let mut starts = Vec::with_capacity(pieces.len());
+        let mut len = 0u64;
+        for p in &pieces {
+            starts.push(len);
+            len += p.len() as u64;
+        }
+        A21Stream { pieces, starts, len }
+    }
+
+    /// a hasher for the subtree of the stream that starts at byte `off` (a chunk
+    /// boundary), fed its `len` bytes
+    fn hasher_at(&self, off: u64, len: u64) -> blake3::Hasher {
+        use blake3::hazmat::HasherExt;
+        let mut h = blake3::Hasher::new();
+        if off > 0 {
+            h.set_input_offset(off);
+        }
+        let end = off + len;
+        // the last piece that starts at or before `off` (an empty piece is skipped below)
+        let mut i = self.starts.partition_point(|s| *s <= off).saturating_sub(1);
+        let mut pos = off;
+        while pos < end && i < self.pieces.len() {
+            let (start, plen) = (self.starts[i], self.pieces[i].len() as u64);
+            let (from, to) = (pos - start, plen.min(end - start));
+            if to > from {
+                self.pieces[i].feed(&mut h, from as usize, to as usize);
+                pos = start + to;
+            }
+            i += 1;
+        }
+        debug_assert_eq!(pos, end, "the stream ended before the subtree");
+        h
+    }
+
+    /// the chaining value of the subtree at bytes `off..off + len`, its halves hashed
+    /// in parallel down to subtrees of at most `leaf` bytes
+    fn subtree(&self, off: u64, len: u64, leaf: u64) -> blake3::hazmat::ChainingValue {
+        use blake3::hazmat::{left_subtree_len, merge_subtrees_non_root, HasherExt, Mode};
+        if len <= leaf {
+            return self.hasher_at(off, len).finalize_non_root();
+        }
+        let left = left_subtree_len(len);
+        let (l, r) = rayon::join(|| self.subtree(off, left, leaf), || self.subtree(off + left, len - left, leaf));
+        merge_subtrees_non_root(&l, &r, Mode::Hash)
+    }
+}
+
+// ---------------------------------------- [A21] end
 
 /// Trusted request/connection metadata (context must authenticate model,
 /// calibration and request). Scales describe the integer words only.

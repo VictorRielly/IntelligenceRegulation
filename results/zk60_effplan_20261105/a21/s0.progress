@@ -1,0 +1,124 @@
+2026-11-06T08:32:27Z start
+2026-11-06T08:32:43Z type check of the test build rc=0
+759 |     pub tag: &'static str,
+--
+warning: associated items `to_bytes_at` and `from_bytes_at` are never used
+    --> src/private_block.rs:1496:19
+--
+1496 |     pub(crate) fn to_bytes_at(&self, sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
+--
+warning: function `verify_bytes_at` is never used
+    --> src/private_block.rs:1516:15
+--
+410 |     pub(crate) fn rung_g(l: usize) -> Result<RunShape, String> {
+--
+warning: struct `MemorySink` is never constructed
+   --> src/private_block/run_sink.rs:307:19
+--
+    |                   ^^^^^^^^^^
+
+warning: method `segments` is never used
+   --> src/private_block/run_sink.rs:312:19
+--
+    |               ^^^^^
+
+warning: associated function `recipe` is never used
+   --> src/private_block/trained_statement.rs:274:19
+--
+274 |     pub(crate) fn recipe(label: &str, residual_unit: f64, quantizer_sha256: [u8; 32], calibration_set_sha256: [u8; 32]) -> Provenan...
+--
+warning: associated function `new` is never used
+   --> src/private_block/trained_statement.rs:706:19
+--
+    |                   ^^^
+--
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:455:4
+--
+    |    ^^^^^^^^^^^^
+
+warning: function `tied_of` is never used
+   --> src/private_block/trained_block.rs:549:15
+--
+    |               ^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:653:4
+--
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:760:19
+--
+     = help: maybe it is overwritten before being read?
+--
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1955:4
+2026-11-06T08:35:26Z build rc=0
+2026-11-06T08:35:55Z A21 suite tests (nocapture) rc=0
+test private_block::run::fork::tests::a21_block_digests_are_the_same_by_blake3s_tree_and_by_the_one_pass ... D60 F2 EXPORT | /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-40877-1793954127354795000/d60-close-a21-digests/export | variant r13-h24-wide-x4-d60 | 4 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | public synthetic data, not for publication
+A21-DIGEST the same digest by the one pass, by digest() at b3par 0 and 1 and by the tree at leaves [1024, 2048, 4096, 32768, 1048576, 4194304], = blake3::hash of the input written out independently: the W16R2 rung block: eb4e2594006e5526
+A21-DIGEST the same digest by the one pass, by digest() at b3par 0 and 1 and by the tree at leaves [1024, 2048, 4096, 32768, 1048576, 4194304], = blake3::hash of the input written out independently: the legacy synthetic block: fdddc74454334fe9
+A21-DIGEST the same digest by the one pass, by digest() at b3par 0 and 1 and by the tree at leaves [1024, 2048, 4096, 32768, 1048576, 4194304], = blake3::hash of the input written out independently: the R13 export (4 layers, through the loader): ["98d82e8afe0b787c", "98d82e8afe0b787c", "98d82e8afe0b787c", "98d82e8afe0b787c"]
+A21-DIGEST the same digest by the one pass, by digest() at b3par 0 and 1 and by the tree at leaves [1024, 2048, 4096, 32768, 1048576, 4194304], = blake3::hash of the input written out independently: 48 random blocks of 7055 to 4779466 B (median 61573), with and without accuracy data
+test private_block::run::fork::tests::a21_layer_records_and_the_statement_identity_are_the_same_under_every_setting ... D60 F2 EXPORT | /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-40877-1793954128106033000/d60-close-a21-records/export | variant r13-h24-wide-x4-d60 | 4 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | public synthetic data, not for publication
+A21-RECORDS the W16R2 rung block: one record under all eight settings (block digest eb4e2594006e5526, word 0 855684d9b5f096a6, word 6 e08176eaf3c93e42, tables 7155513b103f75f8 b1ccf8c68e14c3df d856c4de0a8171f0)
+A21-RECORDS the legacy synthetic block: one record under all eight settings (block digest fdddc74454334fe9, word 0 50bd3723db7ee69f, word 6 83fd5327622ecdd8, tables 06e70927262edb02 eff5f616f1ab89ff 6d2a512bb132519a)
+A21-RECORDS the R13 export (4 layers, through the loader): the same records under all four A21 settings (layer 0's block digest 98d82e8afe0b787c), the statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 (pinned)
+test private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung ... D60 F2 EXPORT | /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-40877-1793954128823987000/d60-close-a21-prod-cpu/export | variant r13-h24-wide-x4-d60 | 4 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | public synthetic data, not for publication
+A21-PROD [a21old] stack-prove --d55-workers 2, window 0, blocks shared: 0 parked, 0 taken back whole (0 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-PROD [a21old] stack-prove --d55-workers 2, window 2, blocks shared: 2 parked, 0 taken back whole (2 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-PROD [a21old] a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A21-PROD [a21old] a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A21-PROD [a21old] a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A21-PROD [a21old] (recpar true loads 4 writers 16; sha false (instructions false) b3par false): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD [default] stack-prove --d55-workers 2, window 0, blocks shared: 0 parked, 0 taken back whole (0 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-PROD [default] stack-prove --d55-workers 2, window 2, blocks shared: 2 parked, 0 taken back whole (2 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-PROD [default] a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A21-PROD [default] a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A21-PROD [default] a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A21-PROD [default] (recpar true loads 4 writers 16; sha true (instructions true) b3par true): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD every arm ["a21old", "default"]: the statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 (pinned); a chain whose layer 1 fails parity and layers 2-3 their SHA-256 checks: the same refusal (layer 1's parity): layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+test private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung_on_the_device ... ignored, A21: toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::run::fork::tests::a21_profile_of_production_hashing ... ignored, A21: the profile of production's hashing at 8B; heavy, guarded, alone
+test private_block::run::fork::tests::a21_sha256_is_sha2s_on_the_nist_vectors_every_length_to_1100_random_lengths_to_16_mb_and_unaligned_slices ... A21-SHA the same SHA-256 as sha2 (instructions true): the five NIST vectors, every length 0..=1100 at offsets 0..=7, 16 lengths to 16 MB at random offsets
+test private_block::run::fork::tests::a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_setting ... ignored, A21: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=0
+test private_block::run::fork::tests::a21_the_sealing_pass_and_its_refusals_are_the_same_under_every_setting ... D60 F2 EXPORT | /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-40877-1793954150226460000/d60-close-a21-seal/export | variant r13-h24-wide-x4-d60 | 4 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | public synthetic data, not for publication
+A21-SEAL budget 18446744073709551615: the same sealing pass under every A21 setting at loads 0 and 4: identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | block digests 98d82e8afe0b787c,98d82e8afe0b787c,98d82e8afe0b787c,98d82e8afe0b787c | records 339520284ac0f58d0175e2c77adf3d5587f0f34c0fceacf67655b9716ea41de1 | outs 0dd321ab5507ecdc,b3d6196c45ce7531,b2c5181ec5b20e98,33d082dd2
+A21-SEAL budget 0: the same sealing pass under every A21 setting at loads 0 and 4: identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | block digests 98d82e8afe0b787c,98d82e8afe0b787c,98d82e8afe0b787c,98d82e8afe0b787c | records 339520284ac0f58d0175e2c77adf3d5587f0f34c0fceacf67655b9716ea41de1 | outs 0dd321ab5507ecdc,b3d6196c45ce7531,b2c5181ec5b20e98,33d082dd2
+A21-SEAL a parity failure at layer 1: the same refusal under every setting: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A21-SEAL a SHA-256 mismatch at layer 2: the same refusal under every setting: layer 2: array `wq`: SHA-256 mismatch: the manifest says 1922421455f974336ab54fffc6ccb8f0a6a255d78b6b0d62d80b9e198441842e, the file is d0baf3822c86bc615741c7775e092013a4ebbd9a1d52792c9dd7c31d2895199c
+A21-SEAL a parity failure at layer 1 and SHA-256 mismatches at layers 2 and 3: the same refusal under every setting: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+test private_block::run::fork::tests::a21_verifier_ab ... ignored, A21: the verifier's A/B at 8B, 32 blocks; heavy, guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+test result: ok. 5 passed; 0 failed; 4 ignored; 0 measured; 1067 filtered out; finished in 28.72s
+2026-11-06T08:36:24Z suite private_block::s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1056 filtered out; finished in 28.62s
+2026-11-06T08:36:24Z suite private_block::hash_domain_tests rc=0
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1076 filtered out; finished in 0.00s
+2026-11-06T08:36:27Z suite private_block::r6_tests rc=0
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 1070 filtered out; finished in 2.43s
+2026-11-06T08:40:12Z suite private_block::run::fork::tests rc=0
+test result: ok. 37 passed; 0 failed; 18 ignored; 0 measured; 1021 filtered out; finished in 225.31s
+2026-11-06T08:40:27Z no-feature cargo check --tests rc=0
+2026-11-06T08:41:06Z production library build (non-test, gpu-metal) rc=0
+warning: associated items `to_bytes_at` and `from_bytes_at` are never used
+    --> src/private_block.rs:1496:19
+warning: function `verify_bytes_at` is never used
+    --> src/private_block.rs:1516:15
+warning: struct `MemorySink` is never constructed
+   --> src/private_block/run_sink.rs:307:19
+warning: method `segments` is never used
+   --> src/private_block/run_sink.rs:312:19
+warning: associated function `recipe` is never used
+   --> src/private_block/trained_statement.rs:274:19
+warning: associated function `new` is never used
+   --> src/private_block/trained_statement.rs:706:19
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:455:4
+warning: function `tied_of` is never used
+   --> src/private_block/trained_block.rs:549:15
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:653:4
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:760:19
+2026-11-06T08:41:06Z all done

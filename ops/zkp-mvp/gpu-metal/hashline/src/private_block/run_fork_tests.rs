@@ -4488,11 +4488,13 @@ fn a19_production_d55_ab() {
     let alternate: bool = env_or("HL_D55_AB_ALTERNATE", 0usize) == 1;
     let budget = (env_or("HL_A19_BUDGET_GIB", 32.0f64) * (1u64 << 30) as f64) as u64;
     let arms: Vec<String> = std::env::var("HL_A19_AB").unwrap_or_else(|_| "noahead,ahead16".into()).split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
-    let parse = |label: &str| -> (A18Arm, Option<bool>, A20Arm) {
+    let parse = |label: &str| -> (A18Arm, Option<bool>, A20Arm, A21Arm) {
         let mut a = A18Arm::default();
         let mut share = None;
         // [A20] the forms' words (`a20old`, `cast0/1`, `recpar0/1`, `loads<n>`, `write<n>`)
         let mut a20 = A20Arm::default();
+        // [A21] the forms' words (`a21old`, `sha0/1`, `b3par0/1`)
+        let mut a21 = A21Arm::default();
         for w in label.split('+') {
             match w {
                 "share0" => share = Some(false),
@@ -4500,10 +4502,11 @@ fn a19_production_d55_ab() {
                 // the defaults as they stand (the environment's)
                 "default" => {}
                 _ if a20_word(&mut a20, w) => {}
+                _ if a21_word(&mut a21, w) => {}
                 _ => assert!(a18_word(&mut a, w), "HL_A19_AB: an unknown word {w:?} in {label:?}"),
             }
         }
-        (a, share, a20)
+        (a, share, a20, a21)
     };
     for a in &arms {
         let _ = parse(a);
@@ -4520,10 +4523,11 @@ fn a19_production_d55_ab() {
     let tok = |wall: f64| sh.tokens as f64 / wall;
     let mut call = 0usize;
     let mut one = |label: &str, p: Option<usize>, verify: bool| {
-        let (arm, share, a20) = parse(label);
+        let (arm, share, a20, a21) = parse(label);
         a18_apply(&arm);
         set_a19_share_for_test(share);
         a20_apply(&a20);
+        a21_apply(&a21);
         call += 1;
         let out = root.join(format!("run-{call}"));
         // the sealing pass's CPU and context switches, from its start to its end
@@ -4540,9 +4544,11 @@ fn a19_production_d55_ab() {
         a19_sealed_hook_for_tests(None);
         let us = at_seal.get().expect("the sealing pass's hook ran").since(u0);
         let a20_in_force = a20_settings();
+        let a21_in_force = a21_settings();
         a18_apply(&A18Arm::default());
         set_a19_share_for_test(None);
         a20_apply(&A20Arm::default());
+        a21_apply(&A21Arm::default());
         let tm = proved.times().clone();
         let fs = &tm.fork;
         let mean = |v: &[f64]| if v.is_empty() { f64::NAN } else { v.iter().sum::<f64>() / v.len() as f64 };
@@ -4552,7 +4558,7 @@ fn a19_production_d55_ab() {
             None => "cold".to_string(),
         };
         eprintln!(
-            "D55-AB A19 PROD {name} L{l} N{n} [{label}] {tag}: wall {wall:.3} s = {:.2} proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass {:.3} s (loads {:.3} s beside it, witnesses {:.3} s, pool {}); window {}, {} parts handed ({:.2} GB budgeted), {} witnesses kept ({:.2} GB); blocks {} (reload {:.3} s); prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3} s; {} forks parked (mean {:.1} ms), {} taken back whole, feeder waited {:.3} s; directory to receipt written {:.3} s; receipt {} B; footprint start {f0:.1} GiB, peak {peak:.1} GiB, end {f1:.1} GiB; A20: {a20_in_force}; the pass waited {:.3} s for its loads ({} ahead); receipt write {:.3} s ({} writers)",
+            "D55-AB A19 PROD {name} L{l} N{n} [{label}] {tag}: wall {wall:.3} s = {:.2} proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass {:.3} s (loads {:.3} s beside it, witnesses {:.3} s, pool {}); window {}, {} parts handed ({:.2} GB budgeted), {} witnesses kept ({:.2} GB); blocks {} (reload {:.3} s); prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3} s; {} forks parked (mean {:.1} ms), {} taken back whole, feeder waited {:.3} s; directory to receipt written {:.3} s; receipt {} B; footprint start {f0:.1} GiB, peak {peak:.1} GiB, end {f1:.1} GiB; A20: {a20_in_force}; the pass waited {:.3} s for its loads ({} ahead); receipt write {:.3} s ({} writers); A21: {a21_in_force}",
             tok(wall),
             tm.seal_s,
             tm.seal_load_s,
@@ -5300,3 +5306,766 @@ fn a20_profile_of_the_sealing_pass_loads_and_the_receipt_write() {
 }
 
 // ---- end of [A20] ----
+
+// ---- [A21] production's hashing on this Mac: SHA-256 on the Arm SHA-2 instructions, the block digest by BLAKE3's tree ----
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A21;
+// `results/zk60_effplan_20261105/a21/README.md`.) Two byte-preserving forms, each
+// restored by its switch at 0: `HL_A21_SHA` (production's SHA-256s on the Arm SHA-2
+// instructions, `run_sink::a21_sha`) and `HL_A21_B3PAR` (`BlockPublic::digest` hashed as
+// BLAKE3's own tree, its subtrees in rayon tasks, `private_block.rs`). The tests:
+// * **SHA-256** (suite): the NIST vectors, every length 0..=1100 at eight offsets
+//   (unaligned sub-slices), random lengths to 16 MB at random offsets: the instructions
+//   alone, the wrapper under both settings and `digest_hex`, against `sha2`;
+// * **the block digest** (suite): the W16R2 rung block, a legacy block, every layer of
+//   the R13 export through the loader and random blocks (random lengths, with and
+//   without accuracy data), at six leaf sizes and under both settings, against the one
+//   pass and against `blake3::hash` of the input written out here independently;
+// * **the records and the statement identity** (suite) under every A21 and record
+//   setting; **the sealing pass** and its refusals (suite) under every A21 setting at
+//   two load settings and two budgets; **production's D55 path** at the R13 rung (suite
+//   on the CPU, ignored on Metal): A19's whole check, the statement identity
+//   (`10a8fd14…`, pinned) and the refused chain under each arm;
+// * **the 8B block** (ignored): its nine words on the instructions, its digest by the
+//   tree, its record under every setting, the sealing pass over A19's synthetic 8B stack
+//   and production's path on Metal under the forms off and on;
+// * the profile, the verifier's A/B (both ignored) and the A/B words of
+//   `a19_production_d55_ab`: `a21old` (both forms off), `sha0/1`, `b3par0/1`.
+
+use crate::private_block::run_sink::a21_sha;
+
+/// [A21] one arm's forms (`None`: as the environment says)
+#[derive(Clone, Copy, Debug, Default)]
+struct A21Arm {
+    sha: Option<bool>,
+    b3par: Option<bool>,
+}
+
+/// [A21] one `+`-joined word of an arm, if it is A21's
+fn a21_word(a: &mut A21Arm, w: &str) -> bool {
+    match w {
+        "a21old" => *a = A21Arm { sha: Some(false), b3par: Some(false) },
+        "sha0" => a.sha = Some(false),
+        "sha1" => a.sha = Some(true),
+        "b3par0" => a.b3par = Some(false),
+        "b3par1" => a.b3par = Some(true),
+        _ => return false,
+    }
+    true
+}
+
+/// [A21] an arm in force for the whole process (`A21Arm::default()`: the environment's)
+fn a21_apply(a: &A21Arm) {
+    a21_sha::set_for_test(a.sha);
+    crate::private_block::set_a21_b3par_for_test(a.b3par);
+}
+
+/// [A21] the A21 forms in force, as one line
+fn a21_settings() -> String {
+    format!("sha {} (instructions {}) b3par {}", a21_sha::on(), a21_sha::hardware(), crate::private_block::a21_b3par())
+}
+
+/// [A21] an arm of A20's and A21's words (`default`: the environment's)
+fn a21_arm(label: &str) -> (A20Arm, A21Arm) {
+    let (mut a, mut b) = (A20Arm::default(), A21Arm::default());
+    for w in label.split('+') {
+        assert!(w == "default" || a20_word(&mut a, w) || a21_word(&mut b, w), "an unknown A20 / A21 word {w:?} in {label:?}");
+    }
+    (a, b)
+}
+
+/// [A21] `(sha, b3par)`, the path before A21 first
+const A21_SETTINGS: [(bool, bool); 4] = [(false, false), (true, false), (false, true), (true, true)];
+
+/// [A21] the leaf sizes the block-digest tests walk the tree at (1 KiB = one chunk: the
+/// deepest tree)
+const A21_LEAVES: [u64; 6] = [1 << 10, 1 << 11, 1 << 12, 1 << 15, 1 << 20, 1 << 22];
+
+/// [A21] the production statement identity of the R13 export the suite writes (A20's
+/// stage 9, every arm, CPU and Metal)
+const A21_R13_IDENTITY: &str = "10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960";
+
+/// [A21] a small deterministic generator (xorshift64)
+struct A21Rng(u64);
+
+impl A21Rng {
+    fn next(&mut self) -> u64 {
+        let mut x = self.0;
+        x ^= x << 13;
+        x ^= x >> 7;
+        x ^= x << 17;
+        self.0 = x;
+        x
+    }
+    fn below(&mut self, n: u64) -> u64 {
+        if n == 0 {
+            0
+        } else {
+            self.next() % n
+        }
+    }
+    fn bytes(&mut self, n: usize) -> Vec<u8> {
+        (0..n).map(|_| self.next() as u8).collect()
+    }
+}
+
+/// [A21] `sha2`'s SHA-256
+fn a21_sha2(b: &[u8]) -> [u8; 32] {
+    use sha2::Digest as _;
+    sha2::Sha256::digest(b).into()
+}
+
+/// [A21] one SHA-256 case: the instructions alone (where the CPU has them), the
+/// wrapper under both settings and `digest_hex` under both, each `sha2`'s
+fn a21_sha_case(what: &str, b: &[u8]) {
+    use crate::private_block::trained_block::hex;
+    let want = a21_sha2(b);
+    if let Some(d) = a21_sha::instructions(b) {
+        assert_eq!(d, want, "{what} ({} B): the instructions' SHA-256 is not sha2's", b.len());
+    }
+    for on in [false, true] {
+        a21_sha::set_for_test(Some(on));
+        assert_eq!(a21_sha::sha256(b), want, "{what} ({} B): the wrapper's SHA-256 at sha {on}", b.len());
+        assert_eq!(crate::private_block::run_sink::digest_hex(b), hex(&want), "{what} ({} B): digest_hex at sha {on}", b.len());
+    }
+    a21_sha::set_for_test(None);
+}
+
+/// **[A21] SHA-256 on the instructions is `sha2`'s** (in the suite)
+#[test]
+fn a21_sha256_is_sha2s_on_the_nist_vectors_every_length_to_1100_random_lengths_to_16_mb_and_unaligned_slices() {
+    use crate::private_block::trained_block::hex;
+    let _k = a20_knobs();
+    // on an Apple-silicon Mac the instructions are always there: the path is exercised
+    #[cfg(all(target_arch = "aarch64", target_os = "macos"))]
+    assert!(a21_sha::instructions(b"").is_some(), "this Mac reports no Arm SHA-2 instructions");
+    // FIPS 180-4's examples (NIST): the one- and two-block messages, the 896-bit
+    // message and one million `a`
+    let nist: [(Vec<u8>, &str); 5] = [
+        (b"".to_vec(), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
+        (b"abc".to_vec(), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
+        (b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq".to_vec(), "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"),
+        (b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu".to_vec(), "cf5b16a778af8380036ce59e7b0492370b249b11e8f07a51afac45037afee9d1"),
+        (vec![b'a'; 1_000_000], "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0"),
+    ];
+    for (m, want) in &nist {
+        assert_eq!(hex(&a21_sha2(m)), *want, "sha2 disagrees with NIST on a {}-byte vector", m.len());
+        for on in [false, true] {
+            a21_sha::set_for_test(Some(on));
+            assert_eq!(hex(&a21_sha::sha256(m)), *want, "the {}-byte NIST vector at sha {on}", m.len());
+        }
+        a21_sha_case("a NIST vector", m);
+    }
+    // every length 0..=1100 at eight offsets of one buffer (unaligned sub-slices; every
+    // padding case: 0..=55 one padded block, 56..=63 two, every multiple of 64)
+    let mut r = A21Rng(0x9e37_79b9_7f4a_7c15);
+    let buf = r.bytes((16 << 20) + 128);
+    for n in 0..=1100usize {
+        for o in 0..8usize {
+            a21_sha_case(&format!("length {n} at offset {o}"), &buf[o..o + n]);
+        }
+    }
+    // random lengths up to 16 MB at random offsets, and 16 MB itself
+    let mut lens = vec![16usize << 20, (16 << 20) - 1, (1 << 20) + 55, (1 << 20) + 56];
+    for _ in 0..12 {
+        lens.push(r.below(16 << 20) as usize);
+    }
+    for n in lens {
+        let o = r.below(64) as usize;
+        a21_sha_case(&format!("length {n} at offset {o}"), &buf[o..o + n]);
+    }
+    eprintln!("A21-SHA the same SHA-256 as sha2 (instructions {}): the five NIST vectors, every length 0..=1100 at offsets 0..=7, 16 lengths to 16 MB at random offsets", a21_sha::instructions(b"").is_some());
+}
+
+/// [A21] the block digest's input written out here, independently of the code's
+/// (`BlockPublic::digest`'s one pass, field by field)
+fn a21_independent_input(blk: &BlockPublic) -> Vec<u8> {
+    let (a, f) = (blk.attention(), blk.feed_forward());
+    let mut v = b"hashline/private-block-public/1".to_vec();
+    for w in [&a.wq, &a.wk, &a.wv, &a.wo, &a.gamma_a] {
+        v.extend_from_slice(&(w.len() as u64).to_le_bytes());
+        v.extend(w.iter().map(|x| *x as u8));
+    }
+    for t in [&a.rope_cos, &a.rope_sin, &a.exp] {
+        v.extend_from_slice(&(t.len() as u64).to_le_bytes());
+        t.iter().for_each(|x| v.extend_from_slice(&x.to_le_bytes()));
+    }
+    for w in [&f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t] {
+        v.extend_from_slice(&(w.len() as u64).to_le_bytes());
+        v.extend(w.iter().map(|x| *x as u8));
+    }
+    v.extend_from_slice(&(f.act.len() as u64).to_le_bytes());
+    f.act.iter().for_each(|x| v.extend_from_slice(&x.to_le_bytes()));
+    if let Some(acc) = blk.accuracy() {
+        let e = acc.encode();
+        v.extend_from_slice(b"R13-accuracy");
+        v.extend_from_slice(&(e.len() as u64).to_le_bytes());
+        v.extend_from_slice(&e);
+    }
+    v
+}
+
+/// [A21] one block's digest every way: the one pass, `digest()` under both settings and
+/// the tree at every leaf size, each `blake3::hash` of the independent input
+fn a21_digest_case(what: &str, blk: &BlockPublic) -> Digest {
+    let input = a21_independent_input(blk);
+    let want = *blake3::hash(&input).as_bytes();
+    for on in [false, true] {
+        crate::private_block::set_a21_b3par_for_test(Some(on));
+        assert_eq!(blk.digest(), want, "{what} ({} B): digest() at b3par {on}", input.len());
+    }
+    crate::private_block::set_a21_b3par_for_test(None);
+    for leaf in A21_LEAVES {
+        assert_eq!(blk.a21_digest_tree(leaf), want, "{what} ({} B): the tree at leaf {leaf}", input.len());
+    }
+    want
+}
+
+/// [A21] a block with random words and tables of random lengths (some empty), with the
+/// accuracy data given or none: lengths a shape would refuse, which the digest hashes
+/// all the same
+fn a21_random_block(base: &BlockPublic, r: &mut A21Rng, max_word: u64, accuracy: Option<AccuracyPublic>) -> BlockPublic {
+    let mut b = base.clone();
+    let word = |r: &mut A21Rng| -> Vec<i8> {
+        let n = if r.below(8) == 0 { 0 } else { r.below(max_word) as usize };
+        r.bytes(n).into_iter().map(|x| x as i8).collect()
+    };
+    b.attention.wq = word(r);
+    b.attention.wk = word(r);
+    b.attention.wv = word(r);
+    b.attention.wo = word(r);
+    b.attention.gamma_a = word(r);
+    b.feed_forward.gamma_m = word(r);
+    b.feed_forward.wg_t = word(r);
+    b.feed_forward.wu_t = word(r);
+    b.feed_forward.wd_t = word(r);
+    let table = |r: &mut A21Rng| -> Vec<i64> {
+        let n = r.below(300);
+        (0..n).map(|_| r.next() as i64).collect()
+    };
+    b.attention.rope_cos = table(r);
+    b.attention.rope_sin = table(r);
+    b.attention.exp = table(r);
+    for v in b.feed_forward.act.iter_mut() {
+        *v = r.next() as i16;
+    }
+    b.accuracy = accuracy;
+    b
+}
+
+/// **[A21] the block digest by BLAKE3's tree is the one pass's** (in the suite)
+#[test]
+fn a21_block_digests_are_the_same_by_blake3s_tree_and_by_the_one_pass() {
+    use crate::private_block::trained_block::hex;
+    let _k = a20_knobs();
+    let mut lines = Vec::new();
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 1);
+    lines.push(format!("the W16R2 rung block: {}", a20_hex8(&a21_digest_case("the W16R2 rung block", &fix.blk))));
+    let (legacy, _) = BlockPublic::synthetic_fixture();
+    lines.push(format!("the legacy synthetic block: {}", a20_hex8(&a21_digest_case("the legacy synthetic block", &legacy))));
+    // every layer of the R13 export through the loader (accuracy data attached)
+    let root = scratch("a21-digests");
+    let ex_dir = root.join("export");
+    let l = write_r13_multi_layer_export(&ex_dir, 4, true, None);
+    let ex = TrainedExport::load(&ex_dir).unwrap();
+    let c = ex.run_constants(&ex.layers).unwrap();
+    let sh = ex.shape_for(&c).unwrap();
+    let mut r13 = Vec::new();
+    for &i in &ex.layers {
+        let blk = ex.load_layer(&sh, &c, i, false).unwrap().blk;
+        r13.push(hex(&a21_digest_case(&format!("R13 export layer {i}"), &blk))[..16].to_string());
+    }
+    assert_eq!(r13[0], "98d82e8afe0b787c", "the R13 export's layer-0 block digest (A20's stage 1) moved");
+    let acc = ex.load_layer(&sh, &c, ex.layers[0], false).unwrap().blk.accuracy().cloned();
+    assert!(acc.is_some(), "the R13 export's block carries no accuracy data");
+    lines.push(format!("the R13 export ({l} layers, through the loader): {r13:?}"));
+    // random blocks: small ones (deep trees at the small leaves) and a few of megabytes
+    let mut r = A21Rng(0x2026_1106_a21b_3a3b);
+    let mut sizes = Vec::new();
+    for k in 0..48 {
+        let (max_word, with_acc) = if k < 40 { (3000, k % 2 == 0) } else { (900_000, k % 2 == 1) };
+        let b = a21_random_block(&legacy, &mut r, max_word, if with_acc { acc.clone() } else { None });
+        a21_digest_case(&format!("random block {k}"), &b);
+        sizes.push(a21_independent_input(&b).len());
+    }
+    sizes.sort();
+    lines.push(format!("48 random blocks of {} to {} B (median {}), with and without accuracy data", sizes[0], sizes[sizes.len() - 1], sizes[sizes.len() / 2]));
+    std::fs::remove_dir_all(&root).unwrap();
+    for line in lines {
+        eprintln!("A21-DIGEST the same digest by the one pass, by digest() at b3par 0 and 1 and by the tree at leaves {A21_LEAVES:?}, = blake3::hash of the input written out independently: {line}");
+    }
+}
+
+/// [A21] `LayerRecord::of_block` of `blk` under every A21 setting and both record
+/// settings: one record, its block digest `blake3::hash` of the independent input,
+/// each word SHA-256 `sha2`'s of that word's bytes
+fn a21_one_record_under_every_setting(what: &str, blk: &BlockPublic) -> String {
+    use crate::private_block::trained_statement::set_a20_record_for_test;
+    let (a, f) = (blk.attention(), blk.feed_forward());
+    let words: [&Vec<i8>; 9] = [&a.wq, &a.wk, &a.wv, &a.wo, &a.gamma_a, &f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t];
+    let want_digest = *blake3::hash(&a21_independent_input(blk)).as_bytes();
+    let want_words: Vec<[u8; 32]> = words.iter().map(|w| a21_sha2(&w.iter().map(|x| *x as u8).collect::<Vec<u8>>())).collect();
+    let mut first: Option<LayerRecord> = None;
+    for (sha, b3par) in A21_SETTINGS {
+        for recpar in A20_RECORD_SETTINGS {
+            a21_apply(&A21Arm { sha: Some(sha), b3par: Some(b3par) });
+            set_a20_record_for_test(Some(recpar));
+            let rec = LayerRecord::of_block(7, blk, vec![("b".into(), [2; 32]), ("a".into(), [1; 32])]);
+            assert_eq!(rec.block_digest, want_digest, "{what}, sha {sha} b3par {b3par} recpar {recpar}: the record's block digest");
+            for (k, w) in want_words.iter().enumerate() {
+                assert_eq!(rec.word_sha256[k], *w, "{what}, sha {sha} b3par {b3par} recpar {recpar}: word {k}'s SHA-256");
+            }
+            match &first {
+                None => first = Some(rec),
+                Some(f0) => assert!(*f0 == rec, "{what}: the record at sha {sha} b3par {b3par} recpar {recpar} is not the path before A21's"),
+            }
+        }
+    }
+    a21_apply(&A21Arm::default());
+    set_a20_record_for_test(None);
+    let rec = first.expect("eight settings");
+    format!("{what}: one record under all eight settings (block digest {}, word 0 {}, word 6 {}, tables {} {} {})", a20_hex8(&rec.block_digest), a20_hex8(&rec.word_sha256[0]), a20_hex8(&rec.word_sha256[6]), a20_hex8(&rec.table_sha256[0]), a20_hex8(&rec.table_sha256[1]), a20_hex8(&rec.table_sha256[2]))
+}
+
+/// **[A21] the records and the statement identity under every A21 setting** (in the suite)
+#[test]
+fn a21_layer_records_and_the_statement_identity_are_the_same_under_every_setting() {
+    use crate::private_block::trained_block::{hex, stack_identity_for_tests};
+    let _k = a20_knobs();
+    let mut lines = Vec::new();
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 1);
+    lines.push(a21_one_record_under_every_setting("the W16R2 rung block", &fix.blk));
+    let (legacy, _) = BlockPublic::synthetic_fixture();
+    lines.push(a21_one_record_under_every_setting("the legacy synthetic block", &legacy));
+    // every layer of the R13 export through the loader (its array SHA-256s, its records)
+    // and the digest pass's identity
+    let root = scratch("a21-records");
+    let ex_dir = root.join("export");
+    let l = write_r13_multi_layer_export(&ex_dir, 4, true, None);
+    let ex = TrainedExport::load(&ex_dir).unwrap();
+    let c = ex.run_constants(&ex.layers).unwrap();
+    let sh = ex.shape_for(&c).unwrap();
+    let mut base: Option<(Vec<LayerRecord>, Digest)> = None;
+    for (sha, b3par) in A21_SETTINGS {
+        a21_apply(&A21Arm { sha: Some(sha), b3par: Some(b3par) });
+        let records: Vec<LayerRecord> = ex.layers.iter().map(|&i| ex.load_layer(&sh, &c, i, false).unwrap().record).collect();
+        let id = stack_identity_for_tests(&ex_dir).unwrap();
+        assert_eq!(hex(&id), A21_R13_IDENTITY, "the R13 export's statement identity at sha {sha} b3par {b3par}");
+        match &base {
+            None => base = Some((records, id)),
+            Some((r0, _)) => assert!(*r0 == records, "the R13 export's records at sha {sha} b3par {b3par} are not the path before A21's"),
+        }
+    }
+    a21_apply(&A21Arm::default());
+    let (r0, id0) = base.expect("four settings");
+    lines.push(format!("the R13 export ({l} layers, through the loader): the same records under all four A21 settings (layer 0's block digest {}), the statement identity {} (pinned)", a20_hex8(&r0[0].block_digest), hex(&id0)));
+    std::fs::remove_dir_all(&root).unwrap();
+    for line in lines {
+        eprintln!("A21-RECORDS {line}");
+    }
+}
+
+/// **[A21] the sealing pass and its refusals under every A21 setting** (in the suite):
+/// at loads 0 and 4 (A20's), both budgets; the refusals of a parity failure at layer 1,
+/// a SHA-256 mismatch at layer 2 (whose string carries the file's SHA-256) and both
+#[test]
+fn a21_the_sealing_pass_and_its_refusals_are_the_same_under_every_setting() {
+    use crate::private_block::trained_block::{a20_export_seal_summary_for_tests, set_a20_loads_for_test};
+    let _k = a20_knobs();
+    let root = scratch("a21-seal");
+    let good = root.join("export");
+    let l = write_r13_multi_layer_export(&good, 4, true, None);
+    assert!(l >= 4, "the R13 export holds {l} layers; the refusal cases need 4");
+    let mut lines = Vec::new();
+    for budget in [u64::MAX, 0] {
+        let mut base: Option<String> = None;
+        for loads in [0usize, 4] {
+            for (sha, b3par) in A21_SETTINGS {
+                set_a20_loads_for_test(Some(loads));
+                a21_apply(&A21Arm { sha: Some(sha), b3par: Some(b3par) });
+                let (s, ahead) = a20_export_seal_summary_for_tests(&good, "public", budget).unwrap();
+                assert_eq!(ahead, loads);
+                assert!(s.contains(A21_R13_IDENTITY), "the sealing pass's identity at sha {sha} b3par {b3par} loads {loads}: {s}");
+                match &base {
+                    None => base = Some(s),
+                    Some(b) => assert_eq!(*b, s, "the sealing pass at sha {sha} b3par {b3par} loads {loads} budget {budget} is not the path before A21's"),
+                }
+            }
+        }
+        lines.push(format!("budget {budget}: the same sealing pass under every A21 setting at loads 0 and 4: {}", base.expect("eight settings").chars().take(300).collect::<String>()));
+    }
+    let parity = root.join("parity");
+    write_r13_multi_layer_export(&parity, l, false, Some(1));
+    let load2 = root.join("load2");
+    write_r13_multi_layer_export(&load2, l, false, None);
+    a20_corrupt_layer(&load2, 2);
+    let both = root.join("both");
+    write_r13_multi_layer_export(&both, l, false, Some(1));
+    a20_corrupt_layer(&both, 2);
+    a20_corrupt_layer(&both, 3);
+    for (what, dir, layer, needle) in [
+        ("a parity failure at layer 1", &parity, 1usize, "before the run header; ruling H-1"),
+        ("a SHA-256 mismatch at layer 2", &load2, 2, "SHA-256 mismatch"),
+        ("a parity failure at layer 1 and SHA-256 mismatches at layers 2 and 3", &both, 1, "before the run header; ruling H-1"),
+    ] {
+        let mut base: Option<String> = None;
+        for loads in [0usize, 4] {
+            for (sha, b3par) in A21_SETTINGS {
+                set_a20_loads_for_test(Some(loads));
+                a21_apply(&A21Arm { sha: Some(sha), b3par: Some(b3par) });
+                let e = a20_export_seal_summary_for_tests(dir, "public", u64::MAX).expect_err("an inadmissible chain was sealed");
+                match &base {
+                    None => base = Some(e),
+                    Some(b) => assert_eq!(*b, e, "{what}: the refusal at sha {sha} b3par {b3par} loads {loads} is not the path before A21's"),
+                }
+            }
+        }
+        let e = base.expect("eight settings");
+        assert!(e.contains(&format!("layer {layer}")) && e.contains(needle), "{what}: not layer {layer}'s refusal: {e}");
+        lines.push(format!("{what}: the same refusal under every setting: {e}"));
+    }
+    set_a20_loads_for_test(None);
+    a21_apply(&A21Arm::default());
+    std::fs::remove_dir_all(&root).unwrap();
+    for line in lines {
+        eprintln!("A21-SEAL {line}");
+    }
+}
+
+/// [A21] A19's production check (`a19_check_production`, the arms `(window, fork
+/// workers, blocks shared)`: stack-prove, a fresh stack-verify, the replayed head, the
+/// interior forks) under each arm of A20's and A21's words, and beside it the statement
+/// identity production writes (pinned) and the refusal of a chain whose layer 1 fails
+/// parity and whose layers 2 and 3 fail their SHA-256 checks: the same under every arm
+fn a21_check_production(tag: &str, arms: &[&str], a19_arms: &[(usize, usize, bool)]) -> Vec<String> {
+    use crate::private_block::trained_block::{stack_prove_inner_for_tests, trained_stack_prove_command, D55_TEST_RECEIPT_FLAG};
+    let _k = a20_knobs();
+    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
+    let root = scratch(&format!("a21-prod-{tag}"));
+    let ex_dir = root.join("export");
+    let l = write_r13_multi_layer_export(&ex_dir, 4, true, None);
+    let bad = root.join("export-bad");
+    write_r13_multi_layer_export(&bad, l, false, Some(1));
+    a20_corrupt_layer(&bad, 2);
+    a20_corrupt_layer(&bad, 3);
+    let (exd, bd) = (ex_dir.display().to_string(), bad.display().to_string());
+    let mut lines = Vec::new();
+    let (mut ids, mut refusals, mut a19_refusals) = (Vec::new(), Vec::new(), Vec::new());
+    for (i, arm) in arms.iter().enumerate() {
+        let (a20, a21) = a21_arm(arm);
+        a20_apply(&a20);
+        a21_apply(&a21);
+        let settings = format!("{}; {}", a20_settings(), a21_settings());
+        for line in a19_check_production(&format!("{tag}-a21-{i}"), a19_arms) {
+            if let Some(e) = line.split("0 alive: ").nth(1) {
+                a19_refusals.push(e.to_string());
+            }
+            lines.push(format!("[{arm}] {line}"));
+        }
+        let out = root.join(format!("run-{i}"));
+        let rc = trained_stack_prove_command(&s(&["--export", &exd, "--seq", "public", "--out", &out.display().to_string(), "--d55-workers", "2", D55_TEST_RECEIPT_FLAG]));
+        assert_eq!(rc, 0, "[{arm}]: stack-prove --d55-workers failed");
+        let stmt = std::fs::read_to_string(root.join(format!("run-{i}.unverified-statement")).join("statement.json")).unwrap();
+        ids.push(stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string());
+        let bout = root.join(format!("run-bad-{i}"));
+        let e = stack_prove_inner_for_tests(&s(&["--export", &bd, "--seq", "public", "--out", &bout.display().to_string(), "--d55-workers", "2", D55_TEST_RECEIPT_FLAG])).expect_err("A CHAIN WHOSE LAYER-1 PARITY FAILS WAS PROVED");
+        assert!(e.contains("layer 1") && e.contains("before the run header; ruling H-1"), "[{arm}]: not layer 1's parity refusal: {e}");
+        assert!(!bout.exists() && !root.join(format!("run-bad-{i}.unverified-statement")).exists(), "[{arm}]: a refused chain left a run directory or a statement");
+        refusals.push(e);
+        lines.push(format!("[{arm}] ({settings}): statement identity {}", ids[i]));
+        a20_apply(&A20Arm::default());
+        a21_apply(&A21Arm::default());
+    }
+    assert!(ids.iter().all(|x| x == A21_R13_IDENTITY), "the statement identity is not the pinned one under every arm: {ids:?}");
+    assert!(refusals.iter().all(|x| *x == refusals[0]), "the refusal moved between arms: {refusals:?}");
+    assert!(!a19_refusals.is_empty() && a19_refusals.iter().all(|x| *x == a19_refusals[0]), "A19's refused chain's refusal moved between arms: {a19_refusals:?}");
+    lines.push(format!("every arm {arms:?}: the statement identity {A21_R13_IDENTITY} (pinned); a chain whose layer 1 fails parity and layers 2-3 their SHA-256 checks: the same refusal (layer 1's parity): {}", refusals[0]));
+    std::fs::remove_dir_all(&root).unwrap();
+    lines
+}
+
+/// **[A21] production's D55 path under the forms off and on, at the R13 rung, on the CPU** (in the suite)
+#[test]
+fn a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung() {
+    for line in a21_check_production("cpu", &["a21old", "default"], &[(0, 2, true), (2, 2, true)]) {
+        eprintln!("A21-PROD {line}");
+    }
+}
+
+/// **[A21] the same on the Metal device**, more arms: toggles `HL_GPU` in-process, so it
+/// is ignored and run alone by name
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A21: toggles HL_GPU in-process; run alone by name on a Mac"]
+fn a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung_on_the_device() {
+    std::env::set_var("HL_GPU", "1");
+    let before = crate::gpu::metal_sumcheck_stats().1;
+    let lines = a21_check_production("metal", &["a20old+a21old", "a21old", "sha1+b3par0", "sha0+b3par1", "default"], &[(0, 3, true), (0, 3, false), (4, 6, true)]);
+    let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+    std::env::remove_var("HL_GPU");
+    for line in lines {
+        eprintln!("A21-PROD (Metal) {line}");
+    }
+    assert!(ran > 0.0, "no sumcheck round ran on the device");
+}
+
+/// **[A21] the 8B synthetic block** (ignored: a few GB and a minute or two): its nine
+/// words on the instructions against `sha2`, its digest by the tree at every leaf size,
+/// its record under every setting; the sealing pass over A19's synthetic 8B stack
+/// (`HL_A20_8B_L`, default 4) under every A21 setting at loads 0 and 4 and two budgets;
+/// and, on the device, production's `d55_seal_and_prove` under the forms off and on with
+/// seeded generators: each receipt verifies from its run directory under the same arm
+/// (over a `Vec` of the blocks, so the verifier recomputes every block digest), its head
+/// is the replayed commit phase's, every interior fork equals that fork proved whole,
+/// and every arm's receipt is the same length and the same frames
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A21: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=0"]
+fn a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_setting() {
+    use crate::private_block::trained_block::{a19_proved_hook_for_tests, a20_seal_summary_for_tests, d55_seal_and_prove, set_a20_loads_for_test, D55Run};
+    let _k = a20_knobs();
+    let l: usize = env_or("HL_A20_8B_L", 4usize).max(3);
+    let fix = std::sync::Arc::new(A18Fix::new(crate::private_block::shape::W16R2_8B_T128_H24, l));
+    {
+        let (a, f) = (fix.blk.attention(), fix.blk.feed_forward());
+        for (n, w) in [("wq", &a.wq), ("wk", &a.wk), ("wv", &a.wv), ("wo", &a.wo), ("gamma_a", &a.gamma_a), ("gamma_m", &f.gamma_m), ("wg_t", &f.wg_t), ("wu_t", &f.wu_t), ("wd_t", &f.wd_t)] {
+            let bytes: Vec<u8> = w.iter().map(|x| *x as u8).collect();
+            a21_sha_case(&format!("the 8B word {n}"), &bytes);
+            a21_sha_case(&format!("the 8B word {n} from its second byte"), &bytes[1.min(bytes.len())..]);
+        }
+    }
+    eprintln!("A21-8B the nine 8B words (and each from its second byte): the same SHA-256 on the instructions, through the wrapper at sha 0 and 1 and through digest_hex, as sha2's");
+    let d = a21_digest_case("the 8B block", &fix.blk);
+    eprintln!("A21-8B the 8B block's digest {}: the same by the one pass, digest() at b3par 0 and 1 and the tree at leaves {A21_LEAVES:?}, = blake3::hash of the input written out independently", a20_hex8(&d));
+    eprintln!("A21-8B {}", a21_one_record_under_every_setting("the 8B block", &fix.blk));
+    let model = A19Synth { fix: fix.as_ref(), layers: (0..l as u32).collect(), ctx: [21; 32], hash_load: true, record0: LayerRecord::of_block(0, &fix.blk, vec![]) };
+    for budget in [32u64 << 30, 0] {
+        let mut base: Option<String> = None;
+        for loads in [0usize, 4] {
+            for (sha, b3par) in A21_SETTINGS {
+                set_a20_loads_for_test(Some(loads));
+                a21_apply(&A21Arm { sha: Some(sha), b3par: Some(b3par) });
+                let (s, _) = a20_seal_summary_for_tests(&model, budget).unwrap_or_else(|e| panic!("sha {sha} b3par {b3par} loads {loads}: {e}"));
+                match &base {
+                    None => base = Some(s),
+                    Some(b) => assert_eq!(*b, s, "the 8B sealing pass at sha {sha} b3par {b3par} loads {loads} budget {budget} is not the path before A21's"),
+                }
+            }
+        }
+        eprintln!("A21-8B budget {budget}: the same sealing pass under every A21 setting at loads 0 and 4: {}", base.expect("eight settings").chars().take(300).collect::<String>());
+    }
+    set_a20_loads_for_test(None);
+    a21_apply(&A21Arm::default());
+    // production's path on the device, the forms off and on
+    std::env::set_var("HL_GPU", "1");
+    let _seeded = SeededForks::on(A18_SEED, a18_seeded);
+    let blocks: Vec<BlockPublic> = (0..l).map(|_| fix.blk.clone()).collect();
+    let root = scratch("a21-8b");
+    let mut frames: Vec<Vec<(u64, String)>> = Vec::new();
+    for (i, arm) in ["a21old", "sha1+b3par0", "sha0+b3par1", "default"].iter().enumerate() {
+        let (a20, a21) = a21_arm(arm);
+        a20_apply(&a20);
+        a21_apply(&a21);
+        let settings = a21_settings();
+        let seen: std::rc::Rc<std::cell::RefCell<Option<usize>>> = Default::default();
+        let (seen2, fix2) = (seen.clone(), fix.clone());
+        a19_proved_hook_for_tests(Some(Box::new(move |fr: &ForkRun<'_>, blocks: &dyn ForkBlocks, rc: &ForkReceipt, _fs: &ForkStats| {
+            *seen2.borrow_mut() = Some(a19_interior_forks_whole(fr, blocks, &fix2.planes, &|k| fix2.witness(k), rc));
+        })));
+        let out = root.join(format!("run-{i}"));
+        let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: 3, out: &out, budget: 32 << 30, test_receipt: true, events: false }).unwrap_or_else(|e| panic!("[{arm}]: production's D55 path: {e}"));
+        a19_proved_hook_for_tests(None);
+        let compared = seen.borrow().expect("the proved hook ran");
+        let fr = ForkRun::new(proved.statement(), D55OptIn::unreviewed_prototype()).unwrap();
+        let verified = verify_run_with_forks_from_dir(&fr, &blocks, &out, 3).unwrap_or_else(|e| panic!("[{arm}]: the receipt does not verify: {e}"));
+        a20_apply(&A20Arm::default());
+        a21_apply(&A21Arm::default());
+        let bytes = proved.times().receipt_bytes;
+        eprintln!("A21-8B [{arm}] ({settings}): production's d55_seal_and_prove at 8B L{l}: the receipt ({bytes} B, {} frames) verifies from its run directory; head = the replayed commit phase; {compared} interior forks = those forks proved whole", verified.len());
+        frames.push(verified);
+        drop(proved);
+        std::fs::remove_dir_all(&out).unwrap();
+    }
+    std::env::remove_var("HL_GPU");
+    std::fs::remove_dir_all(&root).ok();
+    // seeded generators: every arm's receipt is the same bytes, so the same frame list
+    assert!(frames.iter().all(|v| *v == frames[0]), "the receipt's frames (lengths and SHA-256s) moved between arms");
+    eprintln!("A21-8B every arm: the same {} frames (lengths and SHA-256s), {} B in all", frames[0].len(), frames[0].iter().map(|(n, _)| *n).sum::<u64>());
+}
+
+/// **[A21] THE PROFILE of production's hashing** at the D55 harness's synthetic 8B block
+/// (`HL_D55_PROFILE`, default W16R2_8B_T128_H24): one word's SHA-256 (GB/s) by `sha2` and
+/// on the instructions; the nine word SHA-256s in parallel; the block digest by the one
+/// pass and by the tree at several leaf sizes; the layer record and the synthetic load
+/// under every A21 setting (and A20's record form off); the preflight's CS-6 re-hash of
+/// `HL_D55_L` blocks (default 32); the receipt's frames hashed one after another (the
+/// verifier's `read_fork_receipt`), in parallel, and the receipt write at 16 writers,
+/// under both SHA settings; and the witness build alone, for scale.
+#[test]
+#[ignore = "A21: the profile of production's hashing at 8B; heavy, guarded, alone"]
+fn a21_profile_of_production_hashing() {
+    use crate::private_block::trained_statement::set_a20_record_for_test;
+    use rayon::prelude::*;
+    use std::hint::black_box;
+    fn drop<T>(x: T) {
+        std::mem::drop(x)
+    }
+    let _k = a20_knobs();
+    let name: String = env_or("HL_D55_PROFILE", "W16R2_8B_T128_H24".to_string());
+    let spec = crate::private_block::shape::W16R2_PROFILES.iter().chain(crate::private_block::shape::W16_PROFILES.iter()).find(|s| s.name == name).expect("a W16 or W16R2 profile name");
+    let reps: usize = env_or("HL_A20_REPS", 6usize).max(1);
+    let l: usize = env_or("HL_D55_L", 32usize).max(2);
+    let t0 = Instant::now();
+    let fix = A18Fix::new(spec.profile, 2);
+    let blk = &fix.blk;
+    let say = |what: &str, v: &[f64]| eprintln!("A21-PROFILE {name} | {what} | {}", a20_ms(v));
+    let med = |v: &[f64]| {
+        let mut s = v.to_vec();
+        s.sort_by(|a, b| a.total_cmp(b));
+        s[s.len() / 2]
+    };
+    let (a, f) = (blk.attention(), blk.feed_forward());
+    let words: [(&str, &Vec<i8>); 9] = [("wq", &a.wq), ("wk", &a.wk), ("wv", &a.wv), ("wo", &a.wo), ("gamma_a", &a.gamma_a), ("gamma_m", &f.gamma_m), ("wg_t", &f.wg_t), ("wu_t", &f.wu_t), ("wd_t", &f.wd_t)];
+    eprintln!("A21-PROFILE {name}: the fixture in {:.1} s; instructions {}; global pool {} threads; {reps} reps", t0.elapsed().as_secs_f64(), a21_sha::instructions(b"").is_some(), rayon::current_num_threads());
+    // (1) one word's SHA-256
+    let wg: Vec<u8> = f.wg_t.iter().map(|x| *x as u8).collect();
+    let mut r = A21Rng(0xa21_0001);
+    let rand16 = r.bytes(16 << 20);
+    for (what, b) in [("wg_t (the largest word)", &wg[..]), ("16 MB of random bytes", &rand16[..]), ("1 MB of random bytes", &rand16[..1 << 20])] {
+        let soft = a20_reps(reps, || drop(black_box(a21_sha2(black_box(b)))));
+        let hw = a20_reps(reps, || drop(black_box(a21_sha::instructions(black_box(b)))));
+        say(&format!("SHA-256 of {what}, {} B, sha2: {:.2} GB/s", b.len(), b.len() as f64 / med(&soft) / 1e9), &soft);
+        say(&format!("SHA-256 of {what}, {} B, the instructions: {:.2} GB/s", b.len(), b.len() as f64 / med(&hw) / 1e9), &hw);
+    }
+    // (2) the nine word SHA-256s in parallel from their copies (the record's form)
+    for sha in [false, true] {
+        a21_sha::set_for_test(Some(sha));
+        say(&format!("the nine word SHA-256s in parallel from copies, sha {sha}"), &a20_reps(reps, || drop(black_box(words.par_iter().map(|(_, w)| a21_sha::sha256(&w.iter().map(|x| *x as u8).collect::<Vec<u8>>())).collect::<Vec<_>>()))));
+    }
+    a21_sha::set_for_test(None);
+    // (3) the block digest
+    crate::private_block::set_a21_b3par_for_test(Some(false));
+    say("BlockPublic::digest, the one pass (b3par 0)", &a20_reps(reps, || drop(black_box(blk.digest()))));
+    crate::private_block::set_a21_b3par_for_test(None);
+    for leaf in [1u64 << 15, 1 << 17, 1 << 20, 1 << 22] {
+        say(&format!("BlockPublic::digest by the tree, leaf {leaf} B"), &a20_reps(reps, || drop(black_box(blk.a21_digest_tree(leaf)))));
+    }
+    // (4) the record and the synthetic load under every setting
+    let mut settings: Vec<(bool, bool, bool)> = vec![(false, false, false)];
+    settings.extend(A21_SETTINGS.iter().map(|&(s, b)| (s, b, true)));
+    for (sha, b3par, recpar) in settings {
+        a21_apply(&A21Arm { sha: Some(sha), b3par: Some(b3par) });
+        set_a20_record_for_test(Some(recpar));
+        say(&format!("LayerRecord::of_block, sha {sha} b3par {b3par} recpar {recpar}"), &a20_reps(reps, || drop(black_box(LayerRecord::of_block(1, blk, vec![])))));
+        say(&format!("the synthetic load (copy + record), sha {sha} b3par {b3par} recpar {recpar}"), &a20_reps(reps, || drop(black_box((blk.clone(), LayerRecord::of_block(1, blk, vec![]))))));
+    }
+    a21_apply(&A21Arm::default());
+    set_a20_record_for_test(None);
+    // (5) the preflight's CS-6 re-hash: every block's digest, one rayon task a block
+    {
+        let blocks: Vec<BlockPublic> = (0..l).map(|_| blk.clone()).collect();
+        for b3par in [false, true] {
+            crate::private_block::set_a21_b3par_for_test(Some(b3par));
+            say(&format!("the preflight's re-hash of {l} block digests (one task a block), b3par {b3par}"), &a20_reps(reps, || drop(black_box((0..l).into_par_iter().map(|k| blocks[k].digest()).collect::<Vec<_>>()))));
+        }
+        crate::private_block::set_a21_b3par_for_test(None);
+    }
+    // (6) the receipt's frames at the L-block run's sizes
+    let (st, _) = fix.statement(1);
+    let fork = fw::fork_len(&st.stage_layout(0).unwrap());
+    let rows = st.boundary_spec(0).unwrap().commitment_rows();
+    let (head, tail) = (fw::head_len(l), fw::tail_len(&fix.sh, l, rows, BOUNDARY_SITES));
+    let rc = ForkReceipt { head: r.bytes(head), forks: (0..l).map(|_| r.bytes(fork)).collect(), tail: r.bytes(tail) };
+    let frames: Vec<&Vec<u8>> = rc.frames().collect();
+    eprintln!("A21-PROFILE {name}: the receipt of an {l}-block run: head {head} B, {l} forks of {fork} B, tail {tail} B = {} B", rc.bytes());
+    let root = scratch("a21-profile");
+    let mut call = 0usize;
+    for sha in [false, true] {
+        a21_sha::set_for_test(Some(sha));
+        say(&format!("the frames' SHA-256s one after another (the verifier's read_fork_receipt), sha {sha}"), &a20_reps(reps, || frames.iter().for_each(|b| drop(black_box(crate::private_block::run_sink::digest_hex(b))))));
+        say(&format!("the frames' SHA-256s in parallel (the global pool), sha {sha}"), &a20_reps(reps, || drop(black_box(frames.par_iter().map(|b| crate::private_block::run_sink::digest_hex(b)).collect::<Vec<_>>()))));
+        set_a20_writers_for_test(Some(16));
+        let first = call + 1;
+        let v = a20_reps(reps, || {
+            call += 1;
+            let d = root.join(format!("run-{call}"));
+            std::fs::create_dir(&d).unwrap();
+            black_box(write_fork_receipt(&d, &rc).unwrap());
+        });
+        say(&format!("write_fork_receipt, 16 writers, sha {sha}"), &v);
+        for c in first..=call {
+            std::fs::remove_dir_all(root.join(format!("run-{c}"))).unwrap();
+        }
+        set_a20_writers_for_test(None);
+    }
+    a21_sha::set_for_test(None);
+    std::fs::remove_dir_all(&root).ok();
+    // (7) the witness build alone, for scale
+    let ssh = a19_stage_shape(&fix);
+    let pool = SealPool::get().unwrap();
+    let x = fix.xs[0].clone();
+    say("the witness build alone (the sealing pool)", &a20_reps(reps, || drop(black_box(pool.run(|| witness::build_for_block(&ssh, blk, &x).unwrap())))));
+    eprintln!("A21-PROFILE {name}: total {:.1} s", t0.elapsed().as_secs_f64());
+}
+
+/// **[A21] THE VERIFIER'S A/B** (ignored): one receipt of the D55 harness's synthetic
+/// stack (`HL_D55_PROFILE`, `HL_D55_L`, default 32 blocks) proved once through
+/// production's `d55_seal_and_prove` (the defaults), then verified from its run
+/// directory as `stack-verify --d55-workers 6` verifies one (`verify_run_with_forks_from_dir`
+/// over a `Vec` of the blocks, so its preflight recomputes every block digest), under
+/// each arm of `HL_A21_VERIFY_AB` (A20 / A21 words, default `a21old,default`),
+/// `HL_A21_VERIFY_PASSES` passes (default 4), the order reversed in odd passes. Before
+/// each verification, `read_fork_receipt` alone (the frames read and SHA-256'd).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A21: the verifier's A/B at 8B, 32 blocks; heavy, guarded, alone, HL_GPU=1 HL_PB_ORACLE=0"]
+fn a21_verifier_ab() {
+    use crate::private_block::trained_block::{d55_seal_and_prove, D55Run};
+    let _k = a20_knobs();
+    let name: String = env_or("HL_D55_PROFILE", "W16R2_8B_T128_H24".to_string());
+    let spec = crate::private_block::shape::W16R2_PROFILES.iter().chain(crate::private_block::shape::W16_PROFILES.iter()).find(|s| s.name == name).expect("a W16 or W16R2 profile name");
+    let l: usize = env_or("HL_D55_L", 32usize);
+    let passes: usize = env_or("HL_A21_VERIFY_PASSES", 4usize).max(1);
+    let arms: Vec<String> = std::env::var("HL_A21_VERIFY_AB").unwrap_or_else(|_| "a21old,default".into()).split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+    for a in &arms {
+        let _ = a21_arm(a);
+    }
+    let t0 = Instant::now();
+    let fix = A18Fix::new(spec.profile, l);
+    let model = A19Synth { fix: &fix, layers: (0..l as u32).collect(), ctx: [21; 32], hash_load: true, record0: LayerRecord::of_block(0, &fix.blk, vec![]) };
+    let root = scratch("a21-verify-ab");
+    let out = root.join("run");
+    let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: 6, out: &out, budget: 32 << 30, test_receipt: true, events: false }).unwrap_or_else(|e| panic!("production's D55 path: {e}"));
+    let fr = ForkRun::new(proved.statement(), D55OptIn::unreviewed_prototype()).unwrap();
+    let blocks: Vec<BlockPublic> = (0..l).map(|_| fix.blk.clone()).collect();
+    eprintln!("A21-VERIFY {name} L{l}: the receipt ({} B) proved, {:.1} s from the start; {passes} passes of {arms:?}", proved.times().receipt_bytes, t0.elapsed().as_secs_f64());
+    let mut want: Option<Vec<(u64, String)>> = None;
+    for p in 0..passes {
+        let order: Vec<usize> = if p % 2 == 1 { (0..arms.len()).rev().collect() } else { (0..arms.len()).collect() };
+        for ai in order {
+            let arm = &arms[ai];
+            let (a20, a21) = a21_arm(arm);
+            a20_apply(&a20);
+            a21_apply(&a21);
+            let settings = a21_settings();
+            let t = Instant::now();
+            let (_, seen_read) = read_fork_receipt(&fr, &out).unwrap();
+            let read_s = t.elapsed().as_secs_f64();
+            let t = Instant::now();
+            let seen = verify_run_with_forks_from_dir(&fr, &blocks, &out, 6).unwrap_or_else(|e| panic!("[{arm}]: the receipt does not verify: {e}"));
+            let verify_s = t.elapsed().as_secs_f64();
+            a20_apply(&A20Arm::default());
+            a21_apply(&A21Arm::default());
+            assert_eq!(seen, seen_read);
+            match &want {
+                None => want = Some(seen),
+                Some(w) => assert_eq!(*w, seen, "[{arm}]: the verified frames' lengths and SHA-256s moved"),
+            }
+            eprintln!("A21-VERIFY {name} L{l} [{arm}] pass {p}: verify {verify_s:.3} s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone {read_s:.3} s; {settings}");
+        }
+    }
+    drop(proved);
+    std::fs::remove_dir_all(&root).ok();
+}
+
+// ---- end of [A21] ----
