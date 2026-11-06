@@ -3824,8 +3824,10 @@ fn a18_the_record_covers_only_its_own_data_and_the_table_forms_equal_the_old_cod
                 for mlen in [len.min(256), len] {
                     let m: Vec<u64> = (0..mlen).map(|i| (i as u64 * 13 + 1) % 17).collect();
                     let want = old_inv(&tv.iter().map(|t| alpha.sub(*t)).collect::<Vec<_>>()).map(|inv| inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect::<Vec<_>>());
-                    let got = protocol::table_helper(tv, &m, alpha, per);
-                    assert!(got == want, "len {len} periodic {per} zero {zero_at:?} m {mlen}: the table helper differs from the old one (or its refusal)");
+                    for par in [false, true] {
+                        let got = protocol::table_helper(tv, &m, alpha, per, par);
+                        assert!(got == want, "len {len} periodic {per} parallel {par} zero {zero_at:?} m {mlen}: the table helper differs from the old one (or its refusal)");
+                    }
                 }
             }
         }

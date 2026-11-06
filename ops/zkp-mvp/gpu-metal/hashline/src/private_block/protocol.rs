@@ -1842,13 +1842,14 @@ pub(crate) struct CoreHints<'h, 'b> {
 // where it refused, with the same string. Each sits behind a switch that
 // restores that code (`0` the code before A18, `1` the A18 form, unset the
 // default):
-// * `HL_A18_TABINV` ([`range_tables`], [`table_helper`],
-//   [`range_table_helper`]): a W16 profile's range families' inverse tables
-//   are made side by side in parallel chunks, and the range table helpers read
-//   them instead of inverting the same denominators a second time; the byte and
-//   exp table helpers invert the 256 distinct entries of their periodic tables
-//   instead of every padded copy, and the activation table's helper is
-//   inverted in parallel chunks;
+// * `HL_A18_TABINV` ([`table_helper`], [`range_table_helper`]): at a W16
+//   profile the range table helpers read their families' inverse tables (made
+//   for the looked columns' helpers) instead of inverting the same denominators
+//   a second time; the byte and exp table helpers invert the 256 distinct
+//   entries of their periodic tables instead of every padded copy. It adds no
+//   parallel region. (`HL_A18_TABPAR`, off by default, [`range_tables`]: also
+//   make the families' tables side by side in parallel chunks and invert the
+//   activation table's helper in parallel chunks; it measured slower);
 // * `HL_A18_REGISTRY` ([`CheckedPublic::covers_accuracy`]): in the D55 fork
 //   run, the preflight's record that THIS block's accuracy data passed
 //   `check_for_registry` at THIS shape stands in for `define`'s per-slot
@@ -1864,17 +1865,40 @@ pub(crate) struct CoreHints<'h, 'b> {
 // is `run_fork.rs`'s `HL_D55_AHEAD`, off by default.)
 
 static A18_TABINV: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+static A18_TABPAR: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 static A18_REGISTRY: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 static A18_PUBTAB: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 
-/// [A18] the defaults of the three forms when their variable is unset
+/// [A18] the defaults of the forms when their variable is unset
 const A18_TABINV_DEFAULT: bool = true;
+const A18_TABPAR_DEFAULT: bool = false;
 const A18_REGISTRY_DEFAULT: bool = true;
-const A18_PUBTAB_DEFAULT: bool = true;
+const A18_PUBTAB_DEFAULT: bool = false;
 
 /// [A18] `HL_A18_TABINV`: the table helpers from the inverse tables already made
 fn tabinv_on() -> bool {
     a17_switch(&A18_TABINV, "HL_A18_TABINV", A18_TABINV_DEFAULT)
+}
+
+/// [A18] `HL_A18_TABPAR` (with `HL_A18_TABINV`): the range families' inverse
+/// tables made side by side in parallel chunks, and the activation table
+/// helper inverted in parallel chunks. Off by default: it adds short parallel
+/// regions to every fork, and measured slower (the results' README).
+fn tabpar_on() -> bool {
+    a17_switch(&A18_TABPAR, "HL_A18_TABPAR", A18_TABPAR_DEFAULT)
+}
+
+/// TEST ONLY ([A18]): `HL_A18_TABPAR` on, off or (`None`) as the environment says
+#[cfg(test)]
+pub(crate) fn set_a18_tabpar_for_test(par: Option<bool>) {
+    A18_TABPAR.store(
+        match par {
+            None => 0,
+            Some(false) => 1,
+            Some(true) => 2,
+        },
+        std::sync::atomic::Ordering::Relaxed,
+    );
 }
 
 /// [A18] `HL_A18_REGISTRY`: the preflight's record stands in for `define`'s re-check
@@ -1966,12 +1990,12 @@ pub(super) fn range_inverses_par(width: u32, alpha: Fp2, g: Fp2) -> Vec<Option<F
 /// the legacy activation table, `argument::table_values_*_at`) whose
 /// multiplicities fit one period has every distinct entry among its first
 /// `U8_LEN`, so only those are inverted (checked here, entry by entry, before
-/// they stand for the rest); any other table is inverted whole, in parallel
-/// chunks.
-pub(super) fn table_helper(tv: &[Fp2], m: &[u64], alpha: Fp2, periodic: bool) -> Result<Vec<Fp2>, String> {
+/// they stand for the rest); any other table is inverted whole (with `par`,
+/// `HL_A18_TABPAR`, in parallel chunks).
+pub(super) fn table_helper(tv: &[Fp2], m: &[u64], alpha: Fp2, periodic: bool, par: bool) -> Result<Vec<Fp2>, String> {
     let used = if periodic && m.len() <= U8_LEN && tv.iter().enumerate().all(|(i, t)| *t == tv[i % U8_LEN]) { tv.len().min(U8_LEN) } else { tv.len() };
     let mut den: Vec<Fp2> = tv[..used].iter().map(|t| alpha.sub(*t)).collect();
-    if den.len() >= 2 * RANGE_INV_CHUNK {
+    if par && den.len() >= 2 * RANGE_INV_CHUNK {
         use rayon::prelude::*;
         den.par_chunks_mut(RANGE_INV_CHUNK).try_for_each(batch_inverse2_checked).map_err(|_| ZERO_DENOMINATOR.to_string())?;
     } else {
@@ -2523,12 +2547,13 @@ pub(crate) fn prove_core_after_with(
     let u8_inv = u8_denominator_inverses(alpha, g_u8);
     // W16 (D54): each looked column folds its own family's tag, with that
     // family's inverse table (2^w denominators, inverted once per proof).
-    // [A18] `HL_A18_TABINV`: the families' tables made side by side, each in
-    // parallel chunks ([`range_tables`]: the same entries), and read again by
-    // the range table helpers below instead of inverting their denominators
-    // a second time
+    // [A18] `HL_A18_TABINV`: the families' tables are read again by the range
+    // table helpers below instead of inverting their denominators a second time
+    // (`HL_A18_TABPAR`, off by default: the tables made side by side, each in
+    // parallel chunks, [`range_tables`]: the same entries)
     let tab_on = tabinv_on();
-    let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = if sh.range16() { range_tables(sh, alpha, g_u8, tab_on) } else { Vec::new() };
+    let tab_par = tab_on && tabpar_on();
+    let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = if sh.range16() { range_tables(sh, alpha, g_u8, tab_par) } else { Vec::new() };
     if sh.range16() {
         if views_on {
             // [A17] the same jobs over the views
@@ -2682,7 +2707,7 @@ pub(crate) fn prove_core_after_with(
     ] {
         // [A18] `HL_A18_TABINV`: [`table_helper`] (the same words, the same refusal)
         let col: Vec<Fp2> = if tab_on {
-            table_helper(&tv, m, alpha, periodic)?
+            table_helper(&tv, m, alpha, periodic, tab_par)?
         } else {
             let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
             inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect()

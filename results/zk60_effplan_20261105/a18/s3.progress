@@ -1,0 +1,150 @@
+2026-11-06T01:32:21Z start
+2026-11-06T01:32:21Z build rc=0
+2026-11-06T01:32:21Z GPU quiet (no ds4-bench): (a) forms
+2026-11-06T01:41:04Z (a) a18old against a18new rc=0
+2026-11-06T01:41:04Z no ds4-bench at the end of (a) forms
+# A11 pairs: [a18new] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3a_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -1.8% (3, 2) | +0.9% (3, 1) | **-0.4%** | 3.961 / 3.941 |
+| forks phase s | -2.1% (3, 2) | +0.8% (3, 1) | **-0.6%** | 3.601 / 3.575 |
+| sealed wall s | +1.7% (3, 1) | -1.1% (3, 3) | **+0.3%** | 5.457 / 5.472 |
+| stream steady tok/s | +1.0% (3, 2) | +0.2% (3, 2) | **+0.6%** | 32.565 / 32.763 |
+| stream amortized tok/s | +0.6% (3, 2) | -0.2% (3, 1) | **+0.2%** | 28.943 / 28.993 |
+| user CPU s | +1.3% (3, 1) | +1.2% (3, 1) | **+1.2%** | 39.767 / 40.250 |
+| sys CPU s | -2.6% (3, 2) | +6.0% (3, 0) | **+1.7%** | 4.833 / 4.900 |
+| minor faults | +0.0% (3, 1) | +3.0% (3, 1) | **+1.5%** | 698,580 / 708,680 |
+# A15 sealing-pass clocks: [a18new] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3a_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request: sealing pass s | +0.1% (3, 1) | -2.9% (3, 3) | **-1.4%** | 1.500 / 1.480 |
+| one request: sealing user CPU s | +1.0% (3, 0) | -1.2% (3, 3) | **-0.1%** | 5.325 / 5.320 |
+| one request: sealing sys CPU s | +0.7% (3, 1) | -1.7% (3, 2) | **-0.5%** | 2.758 / 2.745 |
+| one request: sealing involuntary csw | +4.7% (3, 1) | -0.7% (3, 1) | **+2.0%** | 27705.833 / 28181.667 |
+| stream: request 0's sealing pass s (alone) | +0.6% (3, 2) | +0.8% (3, 1) | **+0.7%** | 1.473 / 1.482 |
+| stream: requests 1.. sealing pass s (beside the forks) | +2.6% (3, 1) | +6.2% (3, 0) | **+4.4%** | 2.563 / 2.675 |
+2026-11-06T01:41:04Z GPU quiet (no ds4-bench): (b) singles
+2026-11-06T01:46:15Z (b) singles rc=0
+2026-11-06T01:46:15Z no ds4-bench at the end of (b) singles
+# A11 pairs: [a18old+tabinv1] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3b_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +2.4% (4, 0) | +4.1% (4, 0) | **+3.2%** | 3.895 / 4.019 |
+| forks phase s | +2.3% (4, 0) | +3.8% (4, 0) | **+3.0%** | 3.523 / 3.630 |
+| user CPU s | +1.5% (4, 0) | +1.1% (4, 1) | **+1.3%** | 39.650 / 40.163 |
+| sys CPU s | +6.1% (4, 0) | +5.9% (4, 1) | **+6.0%** | 4.625 / 4.900 |
+| minor faults | +1.2% (4, 2) | -0.2% (4, 2) | **+0.5%** | 689,541 / 692,148 |
+# A11 pairs: [a18old+registry1] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3b_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -0.2% (4, 1) | +0.8% (4, 1) | **+0.3%** | 3.895 / 3.906 |
+| forks phase s | +0.0% (4, 2) | +1.1% (4, 1) | **+0.5%** | 3.523 / 3.542 |
+| user CPU s | -0.2% (4, 3) | +0.2% (4, 3) | **+0.0%** | 39.650 / 39.650 |
+| sys CPU s | -3.9% (4, 2) | +1.4% (4, 2) | **-1.2%** | 4.625 / 4.562 |
+| minor faults | +3.5% (4, 1) | -2.1% (4, 3) | **+0.7%** | 689,541 / 693,963 |
+# A11 pairs: [a18old+pubtab1] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3b_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +0.2% (4, 2) | +2.2% (4, 0) | **+1.2%** | 3.895 / 3.940 |
+| forks phase s | +0.3% (4, 2) | +2.8% (4, 0) | **+1.6%** | 3.523 / 3.578 |
+| user CPU s | +0.7% (4, 1) | +1.1% (4, 1) | **+0.9%** | 39.650 / 40.000 |
+| sys CPU s | +6.4% (4, 0) | +1.9% (4, 2) | **+4.2%** | 4.625 / 4.800 |
+| minor faults | +0.4% (4, 3) | +2.1% (4, 1) | **+1.3%** | 689,541 / 697,294 |
+# A11 pairs: [a18new] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3b_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +0.8% (4, 1) | +2.3% (4, 0) | **+1.6%** | 3.895 / 3.956 |
+| forks phase s | +1.2% (4, 1) | +2.8% (4, 0) | **+2.0%** | 3.523 / 3.593 |
+| user CPU s | +1.5% (4, 0) | +1.4% (4, 0) | **+1.5%** | 39.650 / 40.225 |
+| sys CPU s | +15.2% (4, 0) | +6.9% (4, 1) | **+11.0%** | 4.625 / 5.125 |
+| minor faults | +2.1% (4, 1) | +2.6% (4, 1) | **+2.4%** | 689,541 / 705,196 |
+2026-11-06T01:46:15Z GPU quiet (no ds4-bench): (c) A13 window
+2026-11-06T01:59:17Z (c) A13 window rc=0
+2026-11-06T01:59:17Z no ds4-bench at the end of (c) A13 window
+# A11 pairs: [a18new+ahead16+stsl] against [a18new+noahead+stsl], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3c_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -0.0% (3, 1) | +4.6% (3, 1) | **+2.3%** | 3.966 / 4.055 |
+| forks phase s | +0.3% (3, 1) | +5.0% (3, 1) | **+2.7%** | 3.591 / 3.684 |
+| sealed wall s | -2.3% (3, 3) | -1.1% (3, 2) | **-1.7%** | 5.617 / 5.521 |
+| stream steady tok/s | +1.9% (3, 3) | +3.0% (3, 2) | **+2.5%** | 32.613 / 33.408 |
+| stream amortized tok/s | -0.8% (3, 1) | -0.5% (3, 1) | **-0.6%** | 28.773 / 28.583 |
+| user CPU s | +0.1% (3, 2) | -0.4% (3, 2) | **-0.2%** | 40.283 / 40.217 |
+| sys CPU s | +7.8% (3, 1) | +33.6% (3, 0) | **+20.7%** | 5.450 / 6.567 |
+| minor faults | -1.2% (3, 2) | +40.0% (3, 0) | **+19.4%** | 725,391 / 863,630 |
+# A15 sealing-pass clocks: [a18new+ahead16+stsl] against [a18new+noahead+stsl], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3c_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request: sealing pass s | +8.2% (3, 0) | +12.8% (3, 0) | **+10.5%** | 1.566 / 1.730 |
+| one request: sealing user CPU s | +77.9% (3, 0) | +76.9% (3, 0) | **+77.4%** | 5.355 / 9.498 |
+| one request: sealing sys CPU s | +50.4% (3, 0) | +64.7% (3, 0) | **+57.6%** | 3.127 / 4.880 |
+| one request: sealing involuntary csw | +38.6% (3, 0) | +50.3% (3, 0) | **+44.4%** | 29257.833 / 42146.500 |
+| stream: request 0's sealing pass s (alone) | +10.5% (3, 0) | +11.0% (3, 0) | **+10.8%** | 1.588 / 1.757 |
+| stream: requests 1.. sealing pass s (beside the forks) | +2.0% (3, 0) | +7.6% (3, 0) | **+4.8%** | 2.709 / 2.836 |
+# A11 pairs: [a18new+ahead32+stsl] against [a18new+noahead+stsl], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3c_d55_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -0.8% (3, 2) | +3.7% (3, 0) | **+1.5%** | 3.966 / 4.021 |
+| forks phase s | -0.7% (3, 2) | +3.9% (3, 0) | **+1.6%** | 3.591 / 3.645 |
+| sealed wall s | -0.2% (3, 2) | +1.5% (3, 0) | **+0.6%** | 5.617 / 5.652 |
+| stream steady tok/s | +1.3% (3, 2) | -0.3% (3, 2) | **+0.5%** | 32.613 / 32.763 |
+| stream amortized tok/s | -5.4% (3, 0) | -6.1% (3, 0) | **-5.7%** | 28.773 / 27.112 |
+| user CPU s | -0.4% (3, 2) | +1.0% (3, 0) | **+0.3%** | 40.283 / 40.400 |
+| sys CPU s | +4.7% (3, 1) | +22.5% (3, 0) | **+13.6%** | 5.450 / 6.167 |
+| minor faults | -5.5% (3, 3) | +33.2% (3, 1) | **+13.9%** | 725,391 / 822,850 |
+# A15 sealing-pass clocks: [a18new+ahead32+stsl] against [a18new+noahead+stsl], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s3c_d55_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request: sealing pass s | +22.7% (3, 0) | +27.1% (3, 0) | **+24.9%** | 1.566 / 1.954 |
+| one request: sealing user CPU s | +152.4% (3, 0) | +153.7% (3, 0) | **+153.0%** | 5.355 / 13.548 |
+| one request: sealing sys CPU s | +105.1% (3, 0) | +121.8% (3, 0) | **+113.5%** | 3.127 / 6.602 |
+| one request: sealing involuntary csw | +89.5% (3, 0) | +103.3% (3, 0) | **+96.4%** | 29257.833 / 57278.833 |
+| stream: request 0's sealing pass s (alone) | +37.2% (3, 0) | +31.7% (3, 0) | **+34.4%** | 1.588 / 2.132 |
+| stream: requests 1.. sealing pass s (beside the forks) | +12.7% (3, 0) | +16.8% (3, 0) | **+14.7%** | 2.709 / 3.106 |
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [a18new+noahead+stsl]: wall 5.539 s; sealing pass 1.534 s (5.4 cores busy, 8.3 CPU-s); prove call 4.005 s: preflight 0.069, commit 0.206, forks 3.653, join 0.077 s; 0/32 forks parked (A15: no before-challenge parts)
+a18new+noahead+stsl footprint start 23.0 GiB, peak 45.5 GiB, end 28.5 GiB
+a18new+ahead16+stsl footprint start 24.1 GiB, peak 45.9 G
+a18new+ahead16+stsl footprint start 31.8 GiB, peak 87.0 GiB, end 55.7 GiB
+a18new+ahead32+stsl footprint start 51.2 GiB, peak 72.3 G
+a18new+ahead32+stsl footprint start 50.7 GiB, peak 127.4 GiB, end 56.0 GiB
+a18new+ahead32+stsl footprint start 51.4 GiB, peak 74.6 G
+a18new+ahead32+stsl footprint start 51.5 GiB, peak 125.6 GiB, end 56.2 GiB
+a18new+ahead16+stsl footprint start 51.5 GiB, peak 69.3 G
+a18new+ahead16+stsl footprint start 51.6 GiB, peak 91.9 GiB, end 56.2 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [a18new+noahead+stsl]: wall 5.537 s; sealing pass 1.527 s (5.4 cores busy, 8.2 CPU-s); prove call 4.010 s: preflight 0.085, commit 0.221, forks 3.626, join 0.078 s; 0/32 forks parked (A15: no before-challenge parts)
+a18new+noahead+stsl footprint start 51.6 GiB, peak 75.6 GiB, end 56.3 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [a18new+noahead+stsl]: wall 5.681 s; sealing pass 1.567 s (5.3 cores busy, 8.3 CPU-s); prove call 4.114 s: preflight 0.077, commit 0.204, forks 3.737, join 0.097 s; 0/32 forks parked (A15: no before-challenge parts)
+a18new+noahead+stsl footprint start 51.7 GiB, peak 75.1 GiB, end 56.4 GiB
+a18new+ahead16+stsl footprint start 51.7 GiB, peak 67.9 Gi
+a18new+ahead16+stsl footprint start 51.8 GiB, peak 90.0 GiB, end 56.3 GiB
+a18new+ahead32+stsl footprint start 51.8 GiB, peak 75.0 G
+a18new+ahead32+stsl footprint start 51.8 GiB, peak 129.3 GiB, end 56.4 GiB
+a18new+ahead32+stsl footprint start 51.9 GiB, peak 78.5 G
+a18new+ahead32+stsl footprint start 51.9 GiB, peak 127.3 GiB, end 57.1 GiB
+a18new+ahead16+stsl footprint start 51.9 GiB, peak 73.0 Gi
+a18new+ahead16+stsl footprint start 51.9 GiB, peak 89.1 GiB, end 56.5 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [a18new+noahead+stsl]: wall 5.632 s; sealing pass 1.534 s (5.6 cores busy, 8.5 CPU-s); prove call 4.098 s: preflight 0.082, commit 0.205, forks 3.713, join 0.098 s; 0/32 forks parked (A15: no before-challenge parts)
+a18new+noahead+stsl footprint start 51.9 GiB, peak 75.8 GiB, end 56.6 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [a18new+noahead+stsl]: wall 5.638 s; sealing pass 1.659 s (5.5 cores busy, 9.1 CPU-s); prove call 3.979 s: preflight 0.083, commit 0.203, forks 3.614, join 0.079 s; 0/32 forks parked (A15: no before-challenge parts)
+a18new+noahead+stsl footprint start 51.9 GiB, peak 75.6 GiB, end 56.6 GiB
+a18new+ahead16+stsl footprint start 51.9 GiB, peak 68.0 G
+a18new+ahead16+stsl footprint start 52.0 GiB, peak 88.9 GiB, end 56.6 GiB
+a18new+ahead32+stsl footprint start 52.0 GiB, peak 73.5 G
+a18new+ahead32+stsl footprint start 52.0 GiB, peak 130.0 GiB, end 56.5 GiB
+a18new+ahead32+stsl footprint start 52.0 GiB, peak 79.2 G
+a18new+ahead32+stsl footprint start 52.0 GiB, peak 132.6 GiB, end 56.6 GiB
+a18new+ahead16+stsl footprint start 52.0 GiB, peak 69.2 G
+a18new+ahead16+stsl footprint start 52.1 GiB, peak 88.6 GiB, end 56.7 GiB
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 [a18new+noahead+stsl]: wall 5.678 s; sealing pass 1.575 s (5.4 cores busy, 8.5 CPU-s); prove call 4.103 s: preflight 0.080, commit 0.208, forks 3.733, join 0.082 s; 0/32 forks parked (A15: no before-challenge parts)
+a18new+noahead+stsl footprint start 52.1 GiB, peak 75.3 GiB, end 56.7 GiB
+2026-11-06T01:59:17Z all done
