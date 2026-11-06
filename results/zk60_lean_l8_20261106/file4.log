@@ -1,0 +1,11 @@
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aba57f47425a9ff08/formal/ZK60Formal/ExecComposeFS.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aba57f47425a9ff08/formal/ZK60Formal/ExecComposeFS.lean:1159:22: warning: `List.take_succ` has been deprecated: Use `List.take_add_one` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aba57f47425a9ff08/formal/ZK60Formal/ExecComposeFS.lean:1162:0: warning: automatically included section variable(s) unused in theorem `ZK60.Exec.slotsOps_length`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aba57f47425a9ff08/formal/ZK60Formal/ExecComposeFS.lean
+rc build 0 files 0, 3 s
