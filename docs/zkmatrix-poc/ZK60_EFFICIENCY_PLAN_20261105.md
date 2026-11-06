@@ -124,22 +124,21 @@ are redone once, not per change.
     33.7–34.2 proof only [MEASURED].
   - **The stream is now fork-bound:** about 2.6 s of sealing beside the forks against about 3.9 s of fork work per
     request.
-- **A22 (running; D70, Victor 2026-11-06): production's resident-model stream form, target ≈33 proved tok/s**
-  (`results/zk60_effplan_20261105/a22/`).
-  - It is a long-lived prover over any `StackModel`. The export is loaded and checked once, the layer records are made
-    once, and the blocks, GPU context and pools stay resident.
-  - Requests come one per line and results go out one per line. Request r + 1's sealing pass runs beside request r's
-    fork run, the harness's pipeline, with at most one sealed request waiting.
-  - Byte-preserving per request: the same statement identity as `stack-prove`, and receipts `stack-verify` accepts
-    unchanged.
-  - Fresh randomness per request, and no witness or private value outlives its request.
-  - H-1 per request; a refused request leaves the stream running.
-  - A13's window stays behind its switch (D68's re-reading first).
-- **A21 (running): host hashing** (byte-preserving; `results/zk60_effplan_20261105/a21/`).
-  - Hardware SHA-256 in-tree on the stable aarch64 intrinsics, with runtime detection and `sha2` as the fallback; no
-    new crate. `sha2`'s `asm` feature would regress x86's SHA-NI path.
-  - A parallel BLAKE3 `BlockPublic::digest`.
-  - Optionally, each fork's frame written as it finishes.
+- **A23 (running): close `stack-serve`'s gap to the harness** (byte-preserving per request;
+  `results/zk60_effplan_20261105/a23/`).
+  - Share the resident blocks across requests instead of copying 7.8 GB per request.
+  - CS-6 checks their startup digests, under D72's four conditions.
+  - Then cut what the profile shows next. Anything cached across requests must be public and model-only.
+  - The target is the harness's 32.5–32.7 tok/s steady or better (D70: about 33).
+- **A22 done (D70): `stack-serve`, production's resident-model stream** (`results/zk60_effplan_20261105/a22/`).
+  - Merged tree, independent A/B: 4 requests 29.67 tok/s steady (25.28 amortized), 8 requests 29.06 (26.89), one
+    request 18.85; the harness 32.65.
+  - Byte-preserving per request, with fresh randomness. H-1 holds per request and there is one data owner per process
+    (D73).
+  - Digests-ahead +4.9% (permitted by D72, off). A13's window +1.7% (off).
+- **A21 done: host hashing** (`results/zk60_effplan_20261105/a21/`).
+  - SHA-256 on the Arm SHA-2 instructions in-tree, and the block digest as BLAKE3's tree in parallel.
+  - One request −8.0% on the merged tree (−10.5% agent), in every pair. The verifier −30%.
 - **A20 done: production's per-request host work** (byte-preserving; `results/zk60_effplan_20261105/a20/`).
   - One request through production's function −50.1% in every pair on the merged tree (16.07 → 8.01 s); the agent's
     6-pass A/B −50.6% (15.49 → 7.65 s).

@@ -20,8 +20,10 @@ here. The rates count proving and witness work. Verification time is recorded se
 | the forks' table helpers and registry re-check (A18: inverse tables reused; the preflight's record stands in for `define`'s check) | 4.65 ms per block | 0.78 ms; neutral overall: one request −1.9%, proof only +0.7%, stream +0.3% (A/B, both orders) |
 | production's D55 path proves with the blocks its sealing pass loaded (A19: no second load of all 32 blocks) | 19.3 s per request in production | **15.3 s**; one request −20.9% (A/B through production's function, both orders, every pair) |
 | production's per-request host work (A20: the loads 4 layers ahead on their own threads, the record's digest beside its SHA-256s, the receipt written by 16 threads) | 16.1 s per request in production | **8.0 s**; one request −50.1% (A/B through production's function, both orders, every pair) |
+| production's host hashing (A21: SHA-256 on the Arm SHA-2 instructions, in-tree; the block digest as BLAKE3's tree in parallel) | 7.86 s per request in production | **7.23 s**; one request −8.0% on the merged tree (−10.5% in the agent's 6-pass A/B), every pair; the verifier −30% |
 | **one request from its input, all witness work on the clock (the harness: the model already in memory)** | 11.1 tok/s | **23.4–23.9 tok/s** (best 5.35–5.47 s) |
-| **one request through production's `stack-prove` path (each layer loaded and hashed per request; synthetic 8B stack)** | 6.6 tok/s (19.3 s, before A19) | **16.3–16.9 tok/s** (best 7.59–7.87 s) |
+| **one request through production's `stack-prove` path (each layer loaded and hashed per request; synthetic 8B stack)** | 6.6 tok/s (19.3 s, before A19) | **18.3–18.8 tok/s** (best 6.82–6.98 s) |
+| **production's stream, `stack-serve` (A22: the model loaded once, one request's sealing beside the last one's proof), 4 requests, steady** | — (no production stream before A22) | **29.2–29.7 tok/s** (amortized 24.9–25.3; 8 requests 29.0–29.2 steady, 26.7–27.0 amortized) |
 | **a stream of 4 requests, steady (the harness)** | 15.9 tok/s | **32.3–33.4 tok/s** (amortized 28.8–29.6; latency 5.8–10.9 s) |
 | proof only | 22.7 tok/s | **32.5–34.2 tok/s** (best 3.75–3.94 s; it varies from run to run on the shared Mac) |
 
@@ -103,11 +105,25 @@ here. The rates count proving and witness work. Verification time is recorded se
     waiting for its loads. With 4 loads ahead on their own threads, the record's digest beside its SHA-256s and 16
     receipt writers, the sealing pass fell from 9.7 to 3.3 s and the write from 1.95 to 0.33 s. The prove call (4.3 s)
     is now more than half of the request.
+- **A21: host hashing, 8–10% off production's one request** [MEASURED, every pair; byte-identical].
+  - SHA-256 now runs on the Arm SHA-2 instructions, written in-tree with no new crate: 0.5 → 2.3 GB/s.
+  - The block digest is BLAKE3's own tree, hashed in parallel: 115 → 6 ms.
+  - Production's one request: 18.3–18.8 tok/s. The verifier is 30% faster.
+- **A22: production now has a stream form, `stack-serve`: 29.2–29.7 proved tok/s steady** [MEASURED, merged tree,
+  independent A/B; D70].
+  - It loads and checks the model once, then proves one request per input line. Each request's sealing runs beside the
+    previous request's proof.
+  - Each request has `stack-prove`'s statement identity, receipt size and frames, and passes `stack-verify`. Randomness
+    is fresh per request.
+  - H-1 holds per request: a refused or failed request leaves the stream running (D73).
+  - **One data owner per process** (D73). A request's latency shows the previous request's timing.
+  - **The gap to the harness (32.7 on the same tree) is about 11%:** the preflight re-hashes 32 block copies, and the
+    forks slow beside the next request's copy of 7.8 GB of layers.
+  - D72 allows CS-6 to use a digest kept with the block. **A23 (running)** shares the resident blocks instead of copying
+    them, to close the gap.
 - **Running now:**
-  - **A22, the production stream (D70, Victor 2026-11-06: "lets build a 33 toks/s stream").** A long-lived prover:
-    the model loaded and its records made once, request r + 1's sealing pass beside request r's fork run, as the
-    harness's 32.3–33.4 tok/s stream does. Byte-preserving per request, fresh randomness per request, H-1 per request.
-  - **A21:** hardware SHA-256 in-tree (Arm intrinsics, no new crate) and a parallel BLAKE3 block digest.
+  - **A23:** shared resident blocks in `stack-serve`, with CS-6 checking their startup digests (D72). The target is the
+    harness's 32.5+.
   - **Lean L1/L2:** the integer model and `circuit_iff` for the W16R2 slot families, starting with the range checks
     and lookups (52% of committed rows are LogUp helpers). It also records every constraint or range bound the proofs
     show to be slack, as optimization candidates (Victor's idea, 2026-11-06).
@@ -119,8 +135,7 @@ here. The rates count proving and witness work. Verification time is recorded se
   - about 2–8% off one request, and the receipt 819 → about 767 MB [MODEL].
   - The soundness rate improves slightly (2^-102.93 → 2^-103.02). B1 carries most of the saving, and B6 needs it.
 - **D64's target is ≥ 110.** Next:
-  - production's stream form (A22, running), which is where the harness's numbers and A13's window apply; and the
-    host hashing (A21, running);
+  - production's stream: from 29.7 to the harness's 32.7, then past it (A23, running);
   - the forks' remaining host work (zero-fill, store fold, helper inverses, public weight folds, randomness), since the
     forks now bound the stream;
   - the protocol bundle W16R3, ruled 2026-11-05 (D67): B1 + B2 + B3, no B4. Sol builds B1 first, then B2 and B3, each

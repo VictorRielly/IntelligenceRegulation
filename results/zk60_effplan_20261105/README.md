@@ -1084,3 +1084,150 @@ form restored by its switch at `0`):
 - There is no `unsafe` in production text, and no new hash call site or absorb label.
 - H-1 (D29) is read as still holding by D71 (security owner's reading, not a privacy acceptance).
 - `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+## A21: production's host hashing, done (both forms on by default)
+
+Full write-up: `a21/README.md`. Merged into perf (2eb26c7f). Acceptance and an independent A/B on the merged tree were
+run together with A22's, in one job (`check_a22merge.sh`, `a22merge.progress`, `a22merge_prod_pairs.md`). A21's own
+merged-tree job (`check_a21merge.sh`) was queued behind other jobs and stopped before it started; the combined job
+covers every test it listed.
+
+**What changed** (`run_sink.rs`, `private_block.rs`, `trained_statement.rs`, `trained_block.rs`; byte-preserving; each
+form restored by its switch at `0`):
+- **`HL_A21_SHA`** (on):
+  - FIPS 180-4 SHA-256 written in-tree (`run_sink::a21_sha`), with its compression on the stable aarch64 SHA-2
+    intrinsics.
+  - It is used only after `is_aarch64_feature_detected!("sha2")`; on every other target and CPU, `sha2` runs unchanged.
+  - One wrapper serves the layer record, the export loader's array hashes and the receipt frames, both written and
+    verified.
+  - No crate was added and nothing in Cargo changed. `sha2`'s `asm` feature would have replaced x86's SHA-NI path
+    with plain assembly.
+- **`HL_A21_B3PAR`** (on, 1 MiB leaf):
+  - `BlockPublic::digest` is computed as BLAKE3's own tree, with its subtrees hashed in rayon tasks through blake3's
+    public `hazmat` API.
+  - The int8 words are fed from stack buffers: no copies and no `unsafe`.
+
+**Profile** [MEASURED, agent, 8B]:
+
+| measure | before | after |
+|---|---:|---:|
+| SHA-256 throughput | 0.51 GB/s | 2.31 GB/s |
+| block digest | 115.3 ms | 5.9 ms |
+| layer record | 138.7 ms | 32.2 ms |
+| one load | 143 ms | 36 ms (cheaper than one 45 ms witness build) |
+| the verifier's frame hashing | 1,618 ms | 352 ms |
+
+**Byte evidence** [MEASURED, agent]:
+- SHA-256 equals `sha2` on the NIST vectors, every length 0..=1100 at 8 offsets, lengths up to 16 MB, and the 8B
+  words.
+- The tree digest equals the one-pass digest on rung, legacy, R13, 8B and random blocks, at six leaf sizes.
+- Records, the statement identity `10a8fd14…`, the sealing pass and every refusal are unchanged, on the CPU and on
+  Metal.
+
+**The A/Bs:**
+
+| A/B | one request | pairs | means |
+|---|---:|---:|---|
+| agent: both forms against neither | −10.5% | 6 of 6 | 7.873 → 7.045 s |
+| agent: SHA inside the defaults | −10.7% | 6 of 6 | |
+| agent: B3PAR inside the defaults | −6.3% | 6 of 6 | |
+| agent: SHA alone | −2.2% | | |
+| agent: B3PAR alone | 0.0% | | |
+| **merged tree: `a21old` against `default`** (4 passes) | **−8.0%** | 4 of 4 | 7.859 → 7.229 s |
+
+- Alone, each form helps little or not at all: the record runs both hashes side by side and waits for the slower one.
+- On the merged tree, the sealing pass is −13.1% and its wait for loads −90.3% (0.757 → 0.073 s). The pass now waits
+  on its witness builds.
+- The verifier: −30.3% (4.998 → 3.462 s, 4 of 4, agent).
+- Production's one request on the default: best 6.819 s = **18.77 proved tok/s** (merged tree).
+
+**For the privacy gate:**
+- The source pins that moved are `run_sink.rs`, `private_block.rs`, `trained_statement.rs` and `trained_block.rs`.
+- There is new `unsafe`, in `a21_sha` only: the call into the target-feature function after detection, and the NEON
+  loads and stores over fixed-size arrays, each with a SAFETY comment.
+- Private sequence files given with a manifest are now hashed by the new code. Its time depends on their length only.
+
+## A22: production's resident-model stream form `stack-serve`, done (D70; stream 29.7 tok/s steady)
+
+Full write-up: `a22/README.md`. Merged into perf (ab7e63cb, on top of A21). Acceptance and an independent stream A/B
+on the merged tree: `check_a22merge.sh`, `a22merge.progress`, `a22merge_stream_table.md`.
+
+**What it is:**
+- `stack-serve` is a long-lived prover over any `StackModel`. At startup it loads and checks the export once, with
+  every `stack-prove` admission check, then makes every layer's record and the model statement once. That takes
+  0.57 s for the synthetic 8B stack.
+- Requests arrive one per stdin line (JSON) and results leave one per line, in request order.
+- Each request runs the unchanged `d55_seal_and_prove` over the resident model and that request's own input.
+  - Request r + 1's sealing pass runs beside request r's fork run. There are two lanes, a sealing turn and a prover
+    turn taken in request order, and at most one sealed request waits.
+  - The receipt write happens outside both turns.
+- A request's statement must equal the startup identity before its run header. Refusals print D65(2)'s constant line.
+  A failure after the header removes that run's directory, and the stream carries on.
+- **One data owner per process** (the security owner's rule, until a ruling): a request's latency shows the previous
+  request's sealing time.
+
+**Byte evidence** [MEASURED, agent; the merged tree's device tests]:
+- The server's sealing pass is `stack-prove`'s, word for word.
+- Four requests on one input:
+  - each is verified by a fresh `stack-verify`;
+  - each has `stack-prove`'s identity, receipt size and frame list;
+  - no two share any commitment or frame, so the randomness is fresh per request.
+- A 10-request stream gets each case right, in order:
+  - refused inputs;
+  - an existing directory;
+  - I/O failures after the header;
+  - a bad line;
+  - a statement-file failure.
+- With seeded generators, heads replay and interior forks equal whole forks.
+- Every served 8B receipt is 818,728,672 B.
+
+**Acceptance on the merged tree (A21 and A22 together)** [MEASURED, one guarded job, the GPU quiet at every clock]:
+- **Builds:** the build, the no-feature `cargo check --tests`, the production non-test build and the stack CLI example
+  (`stack-prove`, `stack-serve`) all return rc 0, with the same six dead-code warnings as before.
+- **Suites:** the full lib suite passed 953, failed exactly the known three, and ignored 127. zkp-core lib passed 81.
+- **Device tests:**
+  - A22's three: the R13 export through the server against `stack-prove`, the resident rung stream and the resident
+    8B stream;
+  - A21's two, A20's two and A19's two.
+- **Earlier byte tests:** A18's rung golden, 8B block and parked forks; the A16 8B planes; and the A17, A15, A14, A8,
+  A12, A11 and A7 tests.
+- **Goldens:** the W16R2 rung golden `96e4f0b6` (CPU = Metal), all six digests and the 8B core `90003b760eb7ad80`.
+- **The harness's D55 default** (the model in memory): one request best 5.427 s = 23.59 tok/s; proof only best
+  3.917 s = 32.68 tok/s.
+
+**The independent stream A/B** [MEASURED, `a22merge_stream_table.md`; through the server's code path, in process;
+synthetic W16R2 8B T128, 32 blocks, N = 6, 4 passes, alternating]:
+
+| arm | steady tok/s | amortized tok/s | first request's latency | peak footprint |
+|---|---:|---:|---:|---:|
+| `serve1` (one request) | — | 18.85 | 6.79 s | 50.3 GiB |
+| **`serve4`** | **29.67** | **25.28** | 7.31 s | 59.8 GiB |
+| `serve8` | 29.06 | 26.89 | 7.25 s | 60.3 GiB |
+| `harness4` (the model in memory, receipts kept in memory) | 32.65 | 28.93 | 5.94 s | 54.7 GiB |
+
+- The agent's 4-pass A/B on the same tree agrees: serve4 29.23 steady, harness4 32.53. Its digests-ahead form
+  (`HL_A22_DIGEST_AHEAD`) gave +4.9% steady (4 of 4).
+- Mean latency from arrival (13.9 s for serve4) is queueing: all four requests arrive at t = 0. Each request's own
+  time is about 9 s.
+- **The gap to the harness** (agent §5.3; about 0.44 s a request, the stream bound by the prover turn):
+  - +0.20 s in the preflight, mostly CS-6 re-hashing 32 distinct block copies;
+  - +0.21 s in the forks, slowed beside the next request's heavier production sealing pass, which copies about 7.8 GB
+    of layers;
+  - +0.03 s in the commit.
+
+**What comes next:**
+- **D72:** CS-6 may compare a digest kept with the block object.
+- **A23 (running):** share the resident blocks across requests instead of copying them, with CS-6 checking their
+  startup digests under D72. The target is the harness's 32.5 tok/s or better.
+- `HL_A22_DIGEST_AHEAD` and A13's window stay off in this merge.
+
+**For the privacy gate:**
+- The source pins that moved are `trained_block.rs`, `run_fork.rs`, `private_block.rs` (one re-export) and
+  `examples/zk60_trained_block.rs`.
+- **New threads per stream:** one reader and two lanes. A lane holds a private input only for the request it is
+  serving.
+- **Known limit:** the process-wide `gpu_declines` count fails closed. After one decline every later request fails;
+  the correct value would be a per-request count.
+- H-1 per request and the cached-record binding are read as holding by D73 (the security owner's reading, not a
+  privacy acceptance).
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
