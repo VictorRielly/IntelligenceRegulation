@@ -124,12 +124,15 @@ are redone once, not per change.
     33.7–34.2 proof only [MEASURED].
   - **The stream is now fork-bound:** about 2.6 s of sealing beside the forks against about 3.9 s of fork work per
     request.
-- **A23 (running): close `stack-serve`'s gap to the harness** (byte-preserving per request;
-  `results/zk60_effplan_20261105/a23/`).
-  - Share the resident blocks across requests instead of copying 7.8 GB per request.
-  - CS-6 checks their startup digests, under D72's four conditions.
-  - Then cut what the profile shows next. Anything cached across requests must be public and model-only.
-  - The target is the harness's 32.5–32.7 tok/s steady or better (D70: about 33).
+- **A23 done: `stack-serve`'s resident blocks shared** (`results/zk60_effplan_20261105/a23/`).
+  - Merged tree, independent A/B:
+    - 4 requests 32.40 tok/s steady (27.46 amortized);
+    - 8 requests 31.90 (29.38);
+    - one request 20.18;
+    - the harness 33.15.
+  - Sharing gives +7.9% and the startup checks (D74) +4.4%, each 4 of 4. The peak footprint fell from 60 to 46 GiB.
+  - Not built: the 0.21 s commit phase moved off the prover turn (estimated +0 to +3%).
+  - The stream is now bound by the fork run (3.64 s of a 3.93 s period).
 - **A22 done (D70): `stack-serve`, production's resident-model stream** (`results/zk60_effplan_20261105/a22/`).
   - Merged tree, independent A/B: 4 requests 29.67 tok/s steady (25.28 amortized), 8 requests 29.06 (26.89), one
     request 18.85; the harness 32.65.

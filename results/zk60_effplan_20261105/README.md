@@ -1231,3 +1231,75 @@ synthetic W16R2 8B T128, 32 blocks, N = 6, 4 passes, alternating]:
 - H-1 per request and the cached-record binding are read as holding by D73 (the security owner's reading, not a
   privacy acceptance).
 - `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+## A23: stack-serve's resident blocks shared, done (both forms on; production's stream within 2% of the harness)
+
+Full write-up: `a23/README.md`. Merged into perf (merge commit after acf5c78a). D74 (`4fb4ba86`) turned
+`HL_A23_CHECKED`'s default on.
+
+Acceptance on the merged tree with that default: `check_a23merge.sh` and `a23merge.progress`. It passed everything
+except A22's three tests, whose helper `A23Set::all_checked` read an unset switch as off. The helper now reads the
+switches in force; this is a test-only change. The re-check `check_a23fix.sh` (`a23fix.progress`) ran the test build,
+the full suite and A22's three device tests, and all pass.
+
+**What changed** (`trained_block.rs`, `run_fork.rs`, `protocol.rs`; byte-preserving per request):
+- **`HL_A23_SHARE`** (on; `0` restores the copies):
+  - Each request reads the resident blocks through an `Arc<KeptBlock>` instead of copying about 7.8 GB.
+  - `KeptBlock` holds the block, the digest computed on it at startup and the shapes its CS-1/CS-4 check passed at, all
+    in one allocation. They are written only while the new `Arc` has one owner, and the block is never written.
+  - CS-6 compares the kept digest (D72).
+  - `stack-prove` is unchanged.
+- **`HL_A23_CHECKED`** (on by D74; `0` restores a scan per request): the prover's CS-1/CS-4 check of a shared block
+  takes that very object's startup pass at an equal shape. The verifier always runs the check.
+
+**Byte evidence** [MEASURED, agent and the merged tree]:
+- The R13 export through the server, with blocks shared, shared + checks, and copied, on the CPU and on Metal, matches
+  `stack-prove` on four counts:
+  - the sealing pass;
+  - the statement identity `10a8fd14…`;
+  - the statement;
+  - the frame list.
+- Every receipt is accepted by a fresh `stack-verify`, and no randomness is reused.
+- A22's stream of refusals and failures is unchanged.
+- At budget 0, every witness rebuilt from the shared blocks has the same bytes.
+- A wrong kept digest is refused by CS-6's name, and the stream carries on.
+- Every served 8B receipt is 818,728,672 B.
+
+**Acceptance on the merged tree** [MEASURED, the GPU quiet at every clock]:
+- **Builds:** all four rc 0, the stack CLI example included, with no new warning.
+- **The full lib suite** (re-check): 958 passed, exactly the known three failed, 130 ignored.
+- **zkp-core:** 81 passed.
+- **Device and byte tests:**
+  - A23's three device tests, plus A22's three (re-check), A21's two, A20's two and A19's two;
+  - every earlier lane's byte test;
+  - the golden `96e4f0b6` (CPU = Metal), the six digests and the 8B core `90003b760eb7ad80`.
+- **The harness's D55 default:** one request best 5.417 s = 23.63 tok/s; proof only best 3.921 s = 32.64 tok/s.
+- **Production's one request (`stack-prove`):** best 6.929 s = 18.47 tok/s.
+
+**The independent stream A/B** [MEASURED, `a23merge_stream_table.md`; through the server's code path; W16R2 8B T128,
+32 blocks, N = 6, 4 passes, alternating]:
+
+| arm | steady tok/s | amortized tok/s | first request's latency | peak footprint |
+|---|---:|---:|---:|---:|
+| `serve1` (one request) | — | **20.18** | 6.35 s | 43.2 GiB |
+| **`serve4` (the default: shared + startup checks)** | **32.40** | **27.46** | 6.80 s | 45.6 GiB |
+| `serve4+chk0` (shared only) | 31.04 | 26.66 | 6.83 s | 45.9 GiB |
+| `serve4+share0` (A22's copies) | 30.04 | 25.51 | 7.29 s | 60.1 GiB |
+| `serve8` | 31.90 | 29.38 | 6.77 s | 45.3 GiB |
+| `harness4` (the model in memory) | 33.15 | 29.13 | 6.00 s | 54.5 GiB |
+
+- The default against A22's copies: +7.9% steady, 4 of 4 (amortized +7.6%).
+- The startup checks against shared-only: +4.4% steady, 4 of 4.
+- The harness is +2.3% steady above the default (4 of 4). Production's stream now uses 9 GiB less memory than the
+  harness.
+- **Where the time goes now** (agent §6): the period is about 3.93 s, of which the fork run is 3.64 s; that is the
+  prover core. The next candidate, the 0.21 s commit phase moved off the prover turn, is estimated at +0 to +3% and
+  is not built.
+
+**For the privacy gate:**
+- The source pins that moved are `trained_block.rs`, `run_fork.rs` (a D55 capture source pin) and `protocol.rs` (one
+  constructor, `CheckedPublic::of_kept`).
+- **The cached-record binding:** the prover no longer catches a memory fault in a resident block after its startup
+  digest. `stack-verify` still refuses such a receipt; this is D72's named residual.
+- There is no new hash entry point, absorb label, generator site or `unsafe`.
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.

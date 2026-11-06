@@ -1,0 +1,353 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:168:9
+    |
+168 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:168:12
+    |
+168 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:171:9
+    |
+171 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:351:9
+    |
+351 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:351:33
+    |
+351 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:352:25
+    |
+352 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:356:9
+    |
+356 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:356:39
+    |
+356 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1955:4
+     |
+1955 | fn cpu_seconds() -> f64 {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:455:4
+    |
+455 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:653:4
+    |
+653 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:760:19
+    |
+709 | impl Geometry {
+    | ------------- method in this implementation
+...
+760 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 28 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.02s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 2`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7)
+
+running 1 test
+test private_block::run::fork::tests::a22::a22_stream_ab ... A22-AB W16R2_8B_T128_H24 L32 T128: the fixture (one synthetic block, the honest chain) in 5.8 s
+A22-AB STARTUP W16R2_8B_T128_H24 L32: the resident model (every layer loaded once with its record hashed, the statement) in 0.878 s; footprint 1.5 -> 8.8 GiB; VmHWM NaN MiB
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1 (cold)] cold request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.321 (sealing pass 2.299 s), prover 2.321-6.431 (waited 0.000 s; prove call 4.110 s: preflight 0.002, commit 0.248, forks 3.792, join 0.069), receipt write 0.211 s (16 writers), result 6.673; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB W16R2_8B_T128_H24 L32 [serve1 (cold)] cold: all 1 receipts verified from their run directories, 818728672 B each
+A22-AB W16R2_8B_T128_H24 L32 N6: the cold request 6.673 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 0 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.137 (sealing pass 2.122 s), prover 2.137-6.040 (waited 0.000 s; prove call 3.903 s: preflight 0.002, commit 0.207, forks 3.619, join 0.075), receipt write 0.213 s (16 writers), result 6.286; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB W16R2_8B_T128_H24 L32 [serve1] pass 0: all 1 receipts verified from their run directories, 818728672 B each
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 0: 1 requests in 6.286 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady NaN tok/s; amortized 20.36 tok/s; completions 6.29; latency from arrival 6.29; from the sealing turn 6.29; footprint start 29.2 GiB, peak 41.3 GiB, end 30.2 GiB; user 52.3 s + sys 12.3 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 0 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.183 (sealing pass 2.167 s), prover 2.183-6.418 (waited 0.000 s; prove call 4.235 s: preflight 0.001, commit 0.285, forks 3.872, join 0.077), receipt write 0.234 s (16 writers), result 6.677; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 0 request 1: arrived 0.000, sealing turn 2.183, sealing side done 5.875 (sealing pass 3.539 s), prover 6.418-10.390 (waited 0.543 s; prove call 3.972 s: preflight 0.001, commit 0.204, forks 3.693, join 0.074), receipt write 0.222 s (16 writers), result 10.636; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 0 request 2: arrived 0.000, sealing turn 6.677, sealing side done 10.184 (sealing pass 3.489 s), prover 10.390-14.493 (waited 0.206 s; prove call 4.103 s: preflight 0.001, commit 0.203, forks 3.824, join 0.075), receipt write 0.210 s (16 writers), result 14.727; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 0 request 3: arrived 0.000, sealing turn 10.636, sealing side done 14.283 (sealing pass 3.607 s), prover 14.493-18.171 (waited 0.210 s; prove call 3.678 s: preflight 0.002, commit 0.206, forks 3.400, join 0.070), receipt write 0.230 s (16 writers), result 18.433; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB W16R2_8B_T128_H24 L32 [serve4] pass 0: all 4 receipts verified from their run directories, 818728672 B each
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4] pass 0: 4 requests in 18.433 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 32.67 tok/s; amortized 27.78 tok/s; completions 6.68, 10.64, 14.73, 18.43; latency from arrival 6.68, 10.64, 14.73, 18.43; from the sealing turn 6.68, 8.45, 8.05, 7.80; footprint start 29.8 GiB, peak 44.2 GiB, end 30.8 GiB; user 217.2 s + sys 52.5 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 0 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.164 (sealing pass 2.146 s), prover 2.164-6.526 (waited 0.000 s; prove call 4.362 s: preflight 0.108, commit 0.286, forks 3.892, join 0.076), receipt write 0.219 s (16 writers), result 6.770; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 0 request 1: arrived 0.000, sealing turn 2.164, sealing side done 5.849 (sealing pass 3.617 s), prover 6.526-10.774 (waited 0.677 s; prove call 4.247 s: preflight 0.101, commit 0.214, forks 3.849, join 0.083), receipt write 0.218 s (16 writers), result 11.014; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 0 request 2: arrived 0.000, sealing turn 6.770, sealing side done 10.631 (sealing pass 3.807 s), prover 10.774-14.992 (waited 0.143 s; prove call 4.218 s: preflight 0.092, commit 0.220, forks 3.828, join 0.078), receipt write 0.214 s (16 writers), result 15.228; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 0 request 3: arrived 0.000, sealing turn 11.014, sealing side done 14.661 (sealing pass 3.632 s), prover 14.992-18.952 (waited 0.331 s; prove call 3.960 s: preflight 0.111, commit 0.201, forks 3.568, join 0.080), receipt write 0.231 s (16 writers), result 19.215; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB W16R2_8B_T128_H24 L32 [serve4+chk0] pass 0: all 4 receipts verified from their run directories, 818728672 B each
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 0: 4 requests in 19.215 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks false, seal pool 8); steady 30.86 tok/s; amortized 26.65 tok/s; completions 6.77, 11.01, 15.23, 19.21; latency from arrival 6.77, 11.01, 15.23, 19.21; from the sealing turn 6.77, 8.85, 8.46, 8.20; footprint start 30.5 GiB, peak 45.2 GiB, end 31.0 GiB; user 224.8 s + sys 57.7 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 0 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.347 (sealing pass 2.330 s), prover 2.347-6.871 (waited 0.000 s; prove call 4.524 s: preflight 0.273, commit 0.323, forks 3.856, join 0.071), receipt write 0.240 s (16 writers), result 7.185; 818728672 B; 32 witnesses kept; loads waited 0.019 s (4 ahead); 0 startup passes; load 0.534 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 0 request 1: arrived 0.000, sealing turn 2.347, sealing side done 6.365 (sealing pass 3.992 s), prover 6.871-11.298 (waited 0.506 s; prove call 4.427 s: preflight 0.268, commit 0.239, forks 3.846, join 0.074), receipt write 0.243 s (16 writers), result 11.613; 818728672 B; 32 witnesses kept; loads waited 0.031 s (4 ahead); 0 startup passes; load 0.638 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 0 request 2: arrived 0.000, sealing turn 7.185, sealing side done 10.919 (sealing pass 3.703 s), prover 11.298-15.558 (waited 0.379 s; prove call 4.260 s: preflight 0.255, commit 0.250, forks 3.676, join 0.078), receipt write 0.276 s (16 writers), result 15.912; 818728672 B; 32 witnesses kept; loads waited 0.009 s (4 ahead); 0 startup passes; load 0.553 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 0 request 3: arrived 0.000, sealing turn 11.613, sealing side done 15.107 (sealing pass 3.447 s), prover 15.558-19.514 (waited 0.451 s; prove call 3.956 s: preflight 0.280, commit 0.196, forks 3.406, join 0.074), receipt write 0.213 s (16 writers), result 19.795; 818728672 B; 32 witnesses kept; loads waited 0.010 s (4 ahead); 0 startup passes; load 0.484 s
+A22-AB W16R2_8B_T128_H24 L32 [serve4+share0] pass 0: all 4 receipts verified from their run directories, 818728672 B each
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 0: 4 requests in 19.795 s (window 0, digests ahead false, lanes 2, shared blocks false, startup checks true, seal pool 8); steady 30.45 tok/s; amortized 25.87 tok/s; completions 7.18, 11.61, 15.91, 19.79; latency from arrival 7.18, 11.61, 15.91, 19.79; from the sealing turn 7.18, 9.27, 8.73, 8.18; footprint start 30.6 GiB, peak 59.5 GiB, end 32.0 GiB; user 241.2 s + sys 65.1 s
+A22-AB W16R2_8B_T128_H24 L32 [harness4]: all 4 harness receipts verified, 818728672 B each
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [harness4] pass 0: 4 requests in 17.529 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 32.93 tok/s; amortized 29.21 tok/s; completions 5.87, 9.95, 13.66, 17.53; latency from arrival 5.87, 8.42, 9.41, 10.86; from the sealing turn 5.87, 8.42, 9.41, 10.86; footprint start 30.5 GiB, peak 54.2 GiB, end 35.5 GiB; user 187.0 s + sys 33.4 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 0 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.241 (sealing pass 2.224 s), prover 2.241-6.585 (waited 0.000 s; prove call 4.344 s: preflight 0.001, commit 0.310, forks 3.958, join 0.074), receipt write 0.217 s (16 writers), result 6.824; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 0 request 1: arrived 0.000, sealing turn 2.241, sealing side done 6.170 (sealing pass 3.915 s), prover 6.585-10.599 (waited 0.415 s; prove call 4.014 s: preflight 0.001, commit 0.219, forks 3.721, join 0.073), receipt write 0.214 s (16 writers), result 10.839; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 0 request 2: arrived 0.000, sealing turn 6.824, sealing side done 10.318 (sealing pass 3.478 s), prover 10.599-14.667 (waited 0.281 s; prove call 4.067 s: preflight 0.002, commit 0.209, forks 3.784, join 0.072), receipt write 0.212 s (16 writers), result 14.901; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 0 request 3: arrived 0.000, sealing turn 10.839, sealing side done 14.584 (sealing pass 3.729 s), prover 14.667-18.654 (waited 0.083 s; prove call 3.987 s: preflight 0.001, commit 0.209, forks 3.703, join 0.075), receipt write 0.203 s (16 writers), result 18.878; 818728672 B; 32 witnesses kept; loads waited 0.001 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 0 request 4: arrived 0.000, sealing turn 14.901, sealing side done 18.670 (sealing pass 3.756 s), prover 18.670-22.865 (waited 0.000 s; prove call 4.195 s: preflight 0.002, commit 0.221, forks 3.890, join 0.081), receipt write 0.223 s (16 writers), result 23.113; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 0 request 5: arrived 6.824, sealing turn 18.878, sealing side done 22.567 (sealing pass 3.672 s), prover 22.865-26.932 (waited 0.298 s; prove call 4.067 s: preflight 0.002, commit 0.206, forks 3.788, join 0.071), receipt write 0.229 s (16 writers), result 27.185; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 0 request 6: arrived 10.840, sealing turn 23.113, sealing side done 26.832 (sealing pass 3.704 s), prover 26.932-31.001 (waited 0.100 s; prove call 4.069 s: preflight 0.001, commit 0.201, forks 3.787, join 0.080), receipt write 0.214 s (16 writers), result 31.240; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 0 request 7: arrived 14.901, sealing turn 27.185, sealing side done 30.868 (sealing pass 3.642 s), prover 31.001-34.709 (waited 0.132 s; prove call 3.708 s: preflight 0.001, commit 0.209, forks 3.423, join 0.075), receipt write 0.211 s (16 writers), result 34.950; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB W16R2_8B_T128_H24 L32 [serve8] pass 0: all 8 receipts verified from their run directories, 818728672 B each
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve8] pass 0: 8 requests in 34.950 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 31.86 tok/s; amortized 29.30 tok/s; completions 6.82, 10.84, 14.90, 18.88, 23.11, 27.19, 31.24, 34.95; latency from arrival 6.82, 10.84, 14.90, 18.88, 23.11, 20.36, 20.40, 20.05; from the sealing turn 6.82, 8.60, 8.08, 8.04, 8.21, 8.31, 8.13, 7.77; footprint start 31.0 GiB, peak 44.6 GiB, end 31.2 GiB; user 439.8 s + sys 102.2 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 1 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.149 (sealing pass 2.131 s), prover 2.149-6.513 (waited 0.000 s; prove call 4.364 s: preflight 0.001, commit 0.330, forks 3.955, join 0.077), receipt write 0.232 s (16 writers), result 6.770; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 1 request 1: arrived 0.000, sealing turn 2.149, sealing side done 5.821 (sealing pass 3.623 s), prover 6.513-10.531 (waited 0.692 s; prove call 4.018 s: preflight 0.001, commit 0.207, forks 3.735, join 0.076), receipt write 0.206 s (16 writers), result 10.762; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 1 request 2: arrived 0.000, sealing turn 6.770, sealing side done 10.370 (sealing pass 3.561 s), prover 10.531-14.616 (waited 0.161 s; prove call 4.085 s: preflight 0.002, commit 0.204, forks 3.808, join 0.071), receipt write 0.209 s (16 writers), result 14.848; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 1 request 3: arrived 0.000, sealing turn 10.762, sealing side done 14.425 (sealing pass 3.640 s), prover 14.616-18.570 (waited 0.192 s; prove call 3.954 s: preflight 0.001, commit 0.220, forks 3.652, join 0.081), receipt write 0.218 s (16 writers), result 18.812; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 1 request 4: arrived 0.000, sealing turn 14.848, sealing side done 18.466 (sealing pass 3.602 s), prover 18.570-22.588 (waited 0.105 s; prove call 4.017 s: preflight 0.001, commit 0.206, forks 3.738, join 0.073), receipt write 0.211 s (16 writers), result 22.822; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 1 request 5: arrived 6.770, sealing turn 18.812, sealing side done 22.384 (sealing pass 3.536 s), prover 22.588-26.535 (waited 0.204 s; prove call 3.947 s: preflight 0.004, commit 0.206, forks 3.655, join 0.082), receipt write 0.243 s (16 writers), result 26.801; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 1 request 6: arrived 10.762, sealing turn 22.822, sealing side done 26.154 (sealing pass 3.317 s), prover 26.535-30.615 (waited 0.381 s; prove call 4.080 s: preflight 0.002, commit 0.202, forks 3.799, join 0.077), receipt write 0.214 s (16 writers), result 30.853; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 1 request 7: arrived 14.848, sealing turn 26.801, sealing side done 30.386 (sealing pass 3.543 s), prover 30.615-34.336 (waited 0.229 s; prove call 3.721 s: preflight 0.001, commit 0.215, forks 3.410, join 0.095), receipt write 0.260 s (16 writers), result 34.628; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve8] pass 1: 8 requests in 34.628 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 32.16 tok/s; amortized 29.57 tok/s; completions 6.77, 10.76, 14.85, 18.81, 22.82, 26.80, 30.85, 34.63; latency from arrival 6.77, 10.76, 14.85, 18.81, 22.82, 20.03, 20.09, 19.78; from the sealing turn 6.77, 8.61, 8.08, 8.05, 7.97, 7.99, 8.03, 7.83; footprint start 30.8 GiB, peak 45.2 GiB, end 31.3 GiB; user 438.6 s + sys 102.3 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [harness4] pass 1: 4 requests in 17.758 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 32.89 tok/s; amortized 28.83 tok/s; completions 6.08, 10.24, 14.01, 17.76; latency from arrival 6.08, 8.67, 9.76, 11.02; from the sealing turn 6.08, 8.67, 9.76, 11.02; footprint start 31.3 GiB, peak 54.5 GiB, end 36.0 GiB; user 189.0 s + sys 34.8 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 1 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.396 (sealing pass 2.381 s), prover 2.396-7.008 (waited 0.000 s; prove call 4.611 s: preflight 0.338, commit 0.291, forks 3.909, join 0.073), receipt write 0.263 s (16 writers), result 7.348; 818728672 B; 32 witnesses kept; loads waited 0.019 s (4 ahead); 0 startup passes; load 0.530 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 1 request 1: arrived 0.000, sealing turn 2.396, sealing side done 6.491 (sealing pass 3.957 s), prover 7.008-11.474 (waited 0.517 s; prove call 4.466 s: preflight 0.254, commit 0.251, forks 3.885, join 0.076), receipt write 0.257 s (16 writers), result 11.810; 818728672 B; 32 witnesses kept; loads waited 0.045 s (4 ahead); 0 startup passes; load 0.691 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 1 request 2: arrived 0.000, sealing turn 7.348, sealing side done 11.339 (sealing pass 3.934 s), prover 11.474-15.838 (waited 0.135 s; prove call 4.364 s: preflight 0.272, commit 0.254, forks 3.762, join 0.077), receipt write 0.272 s (16 writers), result 16.189; 818728672 B; 32 witnesses kept; loads waited 0.008 s (4 ahead); 0 startup passes; load 0.527 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 1 request 3: arrived 0.000, sealing turn 11.810, sealing side done 15.547 (sealing pass 3.719 s), prover 15.838-19.861 (waited 0.291 s; prove call 4.023 s: preflight 0.267, commit 0.210, forks 3.468, join 0.078), receipt write 0.208 s (16 writers), result 20.133; 818728672 B; 32 witnesses kept; loads waited 0.008 s (4 ahead); 0 startup passes; load 0.501 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 1: 4 requests in 20.133 s (window 0, digests ahead false, lanes 2, shared blocks false, startup checks true, seal pool 8); steady 30.03 tok/s; amortized 25.43 tok/s; completions 7.35, 11.81, 16.19, 20.13; latency from arrival 7.35, 11.81, 16.19, 20.13; from the sealing turn 7.35, 9.41, 8.84, 8.32; footprint start 32.2 GiB, peak 60.0 GiB, end 32.3 GiB; user 242.7 s + sys 68.3 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 1 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.151 (sealing pass 2.139 s), prover 2.151-6.644 (waited 0.000 s; prove call 4.493 s: preflight 0.126, commit 0.273, forks 4.011, join 0.083), receipt write 0.222 s (16 writers), result 6.891; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 1 request 1: arrived 0.000, sealing turn 2.151, sealing side done 5.790 (sealing pass 3.623 s), prover 6.644-10.863 (waited 0.854 s; prove call 4.218 s: preflight 0.095, commit 0.226, forks 3.818, join 0.079), receipt write 0.227 s (16 writers), result 11.112; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 1 request 2: arrived 0.000, sealing turn 6.891, sealing side done 10.570 (sealing pass 3.665 s), prover 10.863-15.117 (waited 0.293 s; prove call 4.254 s: preflight 0.104, commit 0.214, forks 3.862, join 0.073), receipt write 0.213 s (16 writers), result 15.353; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 1 request 3: arrived 0.000, sealing turn 11.112, sealing side done 14.775 (sealing pass 3.649 s), prover 15.117-19.008 (waited 0.342 s; prove call 3.891 s: preflight 0.098, commit 0.208, forks 3.505, join 0.080), receipt write 0.206 s (16 writers), result 19.246; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 1: 4 requests in 19.246 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks false, seal pool 8); steady 31.08 tok/s; amortized 26.60 tok/s; completions 6.89, 11.11, 15.35, 19.25; latency from arrival 6.89, 11.11, 15.35, 19.25; from the sealing turn 6.89, 8.96, 8.46, 8.13; footprint start 32.3 GiB, peak 45.9 GiB, end 31.4 GiB; user 224.1 s + sys 59.0 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 1 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.340 (sealing pass 2.328 s), prover 2.340-6.762 (waited 0.000 s; prove call 4.421 s: preflight 0.002, commit 0.314, forks 4.027, join 0.078), receipt write 0.218 s (16 writers), result 7.003; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 1 request 1: arrived 0.000, sealing turn 2.340, sealing side done 6.237 (sealing pass 3.876 s), prover 6.762-10.741 (waited 0.524 s; prove call 3.979 s: preflight 0.002, commit 0.213, forks 3.673, join 0.092), receipt write 0.206 s (16 writers), result 10.968; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 1 request 2: arrived 0.000, sealing turn 7.003, sealing side done 10.797 (sealing pass 3.781 s), prover 10.797-14.855 (waited 0.000 s; prove call 4.036 s: preflight 0.002, commit 0.244, forks 3.715, join 0.075), receipt write 0.213 s (16 writers), result 15.090; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 1 request 3: arrived 0.000, sealing turn 10.968, sealing side done 14.646 (sealing pass 3.640 s), prover 14.855-18.623 (waited 0.209 s; prove call 3.768 s: preflight 0.001, commit 0.214, forks 3.475, join 0.079), receipt write 0.210 s (16 writers), result 18.872; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4] pass 1: 4 requests in 18.872 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 32.35 tok/s; amortized 27.13 tok/s; completions 7.00, 10.97, 15.09, 18.87; latency from arrival 7.00, 10.97, 15.09, 18.87; from the sealing turn 7.00, 8.63, 8.09, 7.90; footprint start 31.4 GiB, peak 45.2 GiB, end 31.5 GiB; user 218.1 s + sys 55.9 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 1 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.200 (sealing pass 2.188 s), prover 2.200-6.019 (waited 0.000 s; prove call 3.818 s: preflight 0.002, commit 0.205, forks 3.537, join 0.074), receipt write 0.240 s (16 writers), result 6.289; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 1: 1 requests in 6.289 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady NaN tok/s; amortized 20.35 tok/s; completions 6.29; latency from arrival 6.29; from the sealing turn 6.29; footprint start 31.5 GiB, peak 42.8 GiB, end 31.5 GiB; user 51.8 s + sys 13.1 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 2 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.335 (sealing pass 2.322 s), prover 2.335-6.203 (waited 0.000 s; prove call 3.868 s: preflight 0.002, commit 0.204, forks 3.587, join 0.075), receipt write 0.222 s (16 writers), result 6.457; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 2: 1 requests in 6.457 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady NaN tok/s; amortized 19.82 tok/s; completions 6.46; latency from arrival 6.46; from the sealing turn 6.46; footprint start 31.5 GiB, peak 42.7 GiB, end 31.5 GiB; user 52.1 s + sys 14.0 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 2 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.255 (sealing pass 2.243 s), prover 2.255-6.519 (waited 0.000 s; prove call 4.264 s: preflight 0.002, commit 0.285, forks 3.900, join 0.078), receipt write 0.223 s (16 writers), result 6.770; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 2 request 1: arrived 0.000, sealing turn 2.255, sealing side done 6.023 (sealing pass 3.630 s), prover 6.519-10.549 (waited 0.496 s; prove call 4.030 s: preflight 0.002, commit 0.216, forks 3.730, join 0.081), receipt write 0.219 s (16 writers), result 10.791; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 2 request 2: arrived 0.000, sealing turn 6.770, sealing side done 10.459 (sealing pass 3.674 s), prover 10.549-14.613 (waited 0.090 s; prove call 4.064 s: preflight 0.002, commit 0.222, forks 3.764, join 0.075), receipt write 0.208 s (16 writers), result 14.846; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 2 request 3: arrived 0.000, sealing turn 10.791, sealing side done 14.486 (sealing pass 3.650 s), prover 14.613-18.403 (waited 0.127 s; prove call 3.790 s: preflight 0.002, commit 0.215, forks 3.494, join 0.079), receipt write 0.220 s (16 writers), result 18.656; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4] pass 2: 4 requests in 18.656 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 32.31 tok/s; amortized 27.44 tok/s; completions 6.77, 10.79, 14.85, 18.66; latency from arrival 6.77, 10.79, 14.85, 18.66; from the sealing turn 6.77, 8.54, 8.08, 7.87; footprint start 31.5 GiB, peak 45.5 GiB, end 31.5 GiB; user 218.7 s + sys 52.8 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 2 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.192 (sealing pass 2.179 s), prover 2.192-6.634 (waited 0.000 s; prove call 4.443 s: preflight 0.154, commit 0.277, forks 3.931, join 0.081), receipt write 0.230 s (16 writers), result 6.888; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 2 request 1: arrived 0.000, sealing turn 2.192, sealing side done 6.090 (sealing pass 3.869 s), prover 6.634-10.768 (waited 0.544 s; prove call 4.133 s: preflight 0.105, commit 0.230, forks 3.724, join 0.075), receipt write 0.214 s (16 writers), result 11.006; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 2 request 2: arrived 0.000, sealing turn 6.888, sealing side done 10.560 (sealing pass 3.642 s), prover 10.768-15.028 (waited 0.208 s; prove call 4.260 s: preflight 0.089, commit 0.227, forks 3.864, join 0.080), receipt write 0.219 s (16 writers), result 15.269; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 2 request 3: arrived 0.000, sealing turn 11.006, sealing side done 14.802 (sealing pass 3.772 s), prover 15.028-18.881 (waited 0.226 s; prove call 3.854 s: preflight 0.118, commit 0.199, forks 3.456, join 0.080), receipt write 0.211 s (16 writers), result 19.125; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 2: 4 requests in 19.125 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks false, seal pool 8); steady 31.38 tok/s; amortized 26.77 tok/s; completions 6.89, 11.01, 15.27, 19.13; latency from arrival 6.89, 11.01, 15.27, 19.13; from the sealing turn 6.89, 8.81, 8.38, 8.12; footprint start 31.5 GiB, peak 45.4 GiB, end 31.5 GiB; user 223.4 s + sys 59.4 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 2 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.429 (sealing pass 2.417 s), prover 2.429-6.976 (waited 0.000 s; prove call 4.546 s: preflight 0.349, commit 0.305, forks 3.807, join 0.084), receipt write 0.260 s (16 writers), result 7.305; 818728672 B; 32 witnesses kept; loads waited 0.018 s (4 ahead); 0 startup passes; load 0.521 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 2 request 1: arrived 0.000, sealing turn 2.429, sealing side done 6.431 (sealing pass 3.962 s), prover 6.976-11.309 (waited 0.544 s; prove call 4.333 s: preflight 0.257, commit 0.258, forks 3.744, join 0.074), receipt write 0.243 s (16 writers), result 11.627; 818728672 B; 32 witnesses kept; loads waited 0.036 s (4 ahead); 0 startup passes; load 0.654 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 2 request 2: arrived 0.000, sealing turn 7.305, sealing side done 11.099 (sealing pass 3.771 s), prover 11.309-15.897 (waited 0.209 s; prove call 4.588 s: preflight 0.297, commit 0.266, forks 3.949, join 0.076), receipt write 0.253 s (16 writers), result 16.224; 818728672 B; 32 witnesses kept; loads waited 0.011 s (4 ahead); 0 startup passes; load 0.520 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 2 request 3: arrived 0.000, sealing turn 11.627, sealing side done 15.688 (sealing pass 4.028 s), prover 15.897-19.931 (waited 0.209 s; prove call 4.034 s: preflight 0.270, commit 0.205, forks 3.484, join 0.074), receipt write 0.225 s (16 writers), result 20.220; 818728672 B; 32 witnesses kept; loads waited 0.011 s (4 ahead); 0 startup passes; load 0.509 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 2: 4 requests in 20.220 s (window 0, digests ahead false, lanes 2, shared blocks false, startup checks true, seal pool 8); steady 29.73 tok/s; amortized 25.32 tok/s; completions 7.31, 11.63, 16.22, 20.22; latency from arrival 7.31, 11.63, 16.22, 20.22; from the sealing turn 7.31, 9.20, 8.92, 8.59; footprint start 31.5 GiB, peak 59.8 GiB, end 32.5 GiB; user 241.8 s + sys 69.0 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [harness4] pass 2: 4 requests in 17.584 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 33.13 tok/s; amortized 29.12 tok/s; completions 5.99, 10.10, 13.90, 17.58; latency from arrival 5.99, 8.54, 9.42, 10.57; from the sealing turn 5.99, 8.54, 9.42, 10.57; footprint start 32.5 GiB, peak 54.2 GiB, end 36.2 GiB; user 188.5 s + sys 34.3 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 2 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.112 (sealing pass 2.099 s), prover 2.112-6.389 (waited 0.000 s; prove call 4.276 s: preflight 0.002, commit 0.307, forks 3.895, join 0.073), receipt write 0.296 s (16 writers), result 6.708; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 2 request 1: arrived 0.000, sealing turn 2.112, sealing side done 5.896 (sealing pass 3.707 s), prover 6.389-10.685 (waited 0.492 s; prove call 4.296 s: preflight 0.002, commit 0.351, forks 3.862, join 0.081), receipt write 0.199 s (16 writers), result 10.904; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 2 request 2: arrived 0.000, sealing turn 6.708, sealing side done 10.470 (sealing pass 3.743 s), prover 10.685-14.736 (waited 0.215 s; prove call 4.051 s: preflight 0.001, commit 0.219, forks 3.759, join 0.072), receipt write 0.218 s (16 writers), result 14.977; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 2 request 3: arrived 0.000, sealing turn 10.904, sealing side done 14.533 (sealing pass 3.600 s), prover 14.736-18.806 (waited 0.203 s; prove call 4.069 s: preflight 0.001, commit 0.205, forks 3.777, join 0.086), receipt write 0.208 s (16 writers), result 19.038; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 2 request 4: arrived 0.000, sealing turn 14.977, sealing side done 18.777 (sealing pass 3.788 s), prover 18.806-22.880 (waited 0.028 s; prove call 4.075 s: preflight 0.001, commit 0.218, forks 3.780, join 0.076), receipt write 0.211 s (16 writers), result 23.114; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 2 request 5: arrived 6.708, sealing turn 19.038, sealing side done 22.802 (sealing pass 3.750 s), prover 22.880-26.861 (waited 0.079 s; prove call 3.980 s: preflight 0.001, commit 0.218, forks 3.679, join 0.083), receipt write 0.223 s (16 writers), result 27.108; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 2 request 6: arrived 10.904, sealing turn 23.114, sealing side done 26.853 (sealing pass 3.727 s), prover 26.861-30.887 (waited 0.007 s; prove call 4.026 s: preflight 0.001, commit 0.208, forks 3.742, join 0.075), receipt write 0.205 s (16 writers), result 31.116; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 2 request 7: arrived 14.977, sealing turn 27.108, sealing side done 30.599 (sealing pass 3.477 s), prover 30.887-34.648 (waited 0.289 s; prove call 3.761 s: preflight 0.002, commit 0.207, forks 3.476, join 0.076), receipt write 0.204 s (16 writers), result 34.884; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve8] pass 2: 8 requests in 34.884 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 31.80 tok/s; amortized 29.35 tok/s; completions 6.71, 10.90, 14.98, 19.04, 23.11, 27.11, 31.12, 34.88; latency from arrival 6.71, 10.90, 14.98, 19.04, 23.11, 20.40, 20.21, 19.91; from the sealing turn 6.71, 8.79, 8.27, 8.13, 8.14, 8.07, 8.00, 7.78; footprint start 32.4 GiB, peak 45.3 GiB, end 31.7 GiB; user 438.3 s + sys 105.1 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 3 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.189 (sealing pass 2.175 s), prover 2.189-6.531 (waited 0.000 s; prove call 4.341 s: preflight 0.002, commit 0.288, forks 3.972, join 0.080), receipt write 0.221 s (16 writers), result 6.774; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 3 request 1: arrived 0.000, sealing turn 2.189, sealing side done 6.053 (sealing pass 3.814 s), prover 6.531-10.557 (waited 0.478 s; prove call 4.026 s: preflight 0.001, commit 0.233, forks 3.711, join 0.081), receipt write 0.207 s (16 writers), result 10.789; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 3 request 2: arrived 0.000, sealing turn 6.774, sealing side done 10.563 (sealing pass 3.775 s), prover 10.563-14.540 (waited 0.000 s; prove call 3.970 s: preflight 0.002, commit 0.210, forks 3.681, join 0.077), receipt write 0.219 s (16 writers), result 14.787; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 3 request 3: arrived 0.000, sealing turn 10.789, sealing side done 14.411 (sealing pass 3.576 s), prover 14.540-18.557 (waited 0.129 s; prove call 4.016 s: preflight 0.001, commit 0.202, forks 3.737, join 0.077), receipt write 0.237 s (16 writers), result 18.824; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 3 request 4: arrived 0.000, sealing turn 14.787, sealing side done 18.343 (sealing pass 3.528 s), prover 18.557-22.606 (waited 0.214 s; prove call 4.050 s: preflight 0.001, commit 0.206, forks 3.769, join 0.074), receipt write 0.224 s (16 writers), result 22.854; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 3 request 5: arrived 6.774, sealing turn 18.824, sealing side done 22.543 (sealing pass 3.703 s), prover 22.607-26.795 (waited 0.064 s; prove call 4.188 s: preflight 0.002, commit 0.208, forks 3.902, join 0.076), receipt write 0.207 s (16 writers), result 27.026; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 3 request 6: arrived 10.789, sealing turn 22.854, sealing side done 26.518 (sealing pass 3.649 s), prover 26.795-30.915 (waited 0.276 s; prove call 4.120 s: preflight 0.002, commit 0.218, forks 3.820, join 0.080), receipt write 0.216 s (16 writers), result 31.157; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve8] pass 3 request 7: arrived 14.787, sealing turn 27.026, sealing side done 30.613 (sealing pass 3.573 s), prover 30.915-34.701 (waited 0.302 s; prove call 3.786 s: preflight 0.004, commit 0.218, forks 3.487, join 0.076), receipt write 0.230 s (16 writers), result 34.962; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve8] pass 3: 8 requests in 34.962 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 31.79 tok/s; amortized 29.29 tok/s; completions 6.77, 10.79, 14.79, 18.82, 22.85, 27.03, 31.16, 34.96; latency from arrival 6.77, 10.79, 14.79, 18.82, 22.85, 20.25, 20.37, 20.17; from the sealing turn 6.77, 8.60, 8.01, 8.03, 8.07, 8.20, 8.30, 7.94; footprint start 31.7 GiB, peak 45.1 GiB, end 31.7 GiB; user 439.4 s + sys 105.1 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [harness4] pass 3: 4 requests in 17.446 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 33.65 tok/s; amortized 29.35 tok/s; completions 6.04, 10.05, 13.77, 17.45; latency from arrival 6.04, 8.49, 9.30, 10.53; from the sealing turn 6.04, 8.49, 9.30, 10.53; footprint start 31.7 GiB, peak 54.2 GiB, end 36.3 GiB; user 187.1 s + sys 33.8 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 3 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.383 (sealing pass 2.369 s), prover 2.383-6.988 (waited 0.000 s; prove call 4.605 s: preflight 0.327, commit 0.327, forks 3.854, join 0.098), receipt write 0.241 s (16 writers), result 7.309; 818728672 B; 32 witnesses kept; loads waited 0.018 s (4 ahead); 0 startup passes; load 0.527 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 3 request 1: arrived 0.000, sealing turn 2.383, sealing side done 6.337 (sealing pass 3.863 s), prover 6.988-11.404 (waited 0.651 s; prove call 4.416 s: preflight 0.272, commit 0.264, forks 3.805, join 0.075), receipt write 0.241 s (16 writers), result 11.715; 818728672 B; 32 witnesses kept; loads waited 0.044 s (4 ahead); 0 startup passes; load 0.716 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 3 request 2: arrived 0.000, sealing turn 7.309, sealing side done 11.137 (sealing pass 3.813 s), prover 11.404-15.771 (waited 0.267 s; prove call 4.367 s: preflight 0.259, commit 0.241, forks 3.789, join 0.078), receipt write 0.275 s (16 writers), result 16.114; 818728672 B; 32 witnesses kept; loads waited 0.011 s (4 ahead); 0 startup passes; load 0.549 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 3 request 3: arrived 0.000, sealing turn 11.715, sealing side done 15.379 (sealing pass 3.650 s), prover 15.771-19.866 (waited 0.392 s; prove call 4.095 s: preflight 0.280, commit 0.210, forks 3.523, join 0.082), receipt write 0.209 s (16 writers), result 20.141; 818728672 B; 32 witnesses kept; loads waited 0.011 s (4 ahead); 0 startup passes; load 0.527 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4+share0] pass 3: 4 requests in 20.141 s (window 0, digests ahead false, lanes 2, shared blocks false, startup checks true, seal pool 8); steady 29.93 tok/s; amortized 25.42 tok/s; completions 7.31, 11.72, 16.11, 20.14; latency from arrival 7.31, 11.72, 16.11, 20.14; from the sealing turn 7.31, 9.33, 8.81, 8.43; footprint start 32.5 GiB, peak 60.1 GiB, end 32.6 GiB; user 242.1 s + sys 69.3 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 3 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.156 (sealing pass 2.141 s), prover 2.156-6.561 (waited 0.000 s; prove call 4.405 s: preflight 0.134, commit 0.286, forks 3.904, join 0.081), receipt write 0.206 s (16 writers), result 6.789; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 3 request 1: arrived 0.000, sealing turn 2.156, sealing side done 5.832 (sealing pass 3.599 s), prover 6.561-10.810 (waited 0.729 s; prove call 4.249 s: preflight 0.102, commit 0.228, forks 3.842, join 0.077), receipt write 0.238 s (16 writers), result 11.078; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 3 request 2: arrived 0.000, sealing turn 6.789, sealing side done 10.415 (sealing pass 3.608 s), prover 10.810-15.137 (waited 0.395 s; prove call 4.327 s: preflight 0.110, commit 0.216, forks 3.919, join 0.081), receipt write 0.207 s (16 writers), result 15.367; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 3 request 3: arrived 0.000, sealing turn 11.078, sealing side done 14.743 (sealing pass 3.650 s), prover 15.137-18.987 (waited 0.394 s; prove call 3.850 s: preflight 0.112, commit 0.215, forks 3.448, join 0.075), receipt write 0.224 s (16 writers), result 19.243; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 0 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4+chk0] pass 3: 4 requests in 19.243 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks false, seal pool 8); steady 30.83 tok/s; amortized 26.61 tok/s; completions 6.79, 11.08, 15.37, 19.24; latency from arrival 6.79, 11.08, 15.37, 19.24; from the sealing turn 6.79, 8.92, 8.58, 8.17; footprint start 32.6 GiB, peak 45.9 GiB, end 31.7 GiB; user 223.7 s + sys 58.9 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 3 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.207 (sealing pass 2.195 s), prover 2.207-6.479 (waited 0.000 s; prove call 4.272 s: preflight 0.001, commit 0.275, forks 3.920, join 0.076), receipt write 0.223 s (16 writers), result 6.730; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 3 request 1: arrived 0.000, sealing turn 2.207, sealing side done 5.986 (sealing pass 3.738 s), prover 6.479-10.573 (waited 0.493 s; prove call 4.093 s: preflight 0.001, commit 0.208, forks 3.812, join 0.073), receipt write 0.237 s (16 writers), result 10.834; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 3 request 2: arrived 0.000, sealing turn 6.730, sealing side done 10.366 (sealing pass 3.589 s), prover 10.573-14.602 (waited 0.206 s; prove call 4.029 s: preflight 0.001, commit 0.209, forks 3.744, join 0.075), receipt write 0.201 s (16 writers), result 14.826; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve4] pass 3 request 3: arrived 0.000, sealing turn 10.834, sealing side done 14.298 (sealing pass 3.448 s), prover 14.602-18.386 (waited 0.303 s; prove call 3.784 s: preflight 0.001, commit 0.212, forks 3.493, join 0.078), receipt write 0.214 s (16 writers), result 18.633; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve4] pass 3: 4 requests in 18.633 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady 32.26 tok/s; amortized 27.48 tok/s; completions 6.73, 10.83, 14.83, 18.63; latency from arrival 6.73, 10.83, 14.83, 18.63; from the sealing turn 6.73, 8.63, 8.10, 7.80; footprint start 31.7 GiB, peak 45.6 GiB, end 31.7 GiB; user 218.1 s + sys 52.3 s
+A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 3 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.175 (sealing pass 2.162 s), prover 2.175-6.054 (waited 0.000 s; prove call 3.879 s: preflight 0.002, commit 0.206, forks 3.593, join 0.078), receipt write 0.253 s (16 writers), result 6.339; 818728672 B; 32 witnesses kept; loads waited 0.000 s (4 ahead); 32 startup passes; load 0.000 s
+A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 3: 1 requests in 6.339 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8); steady NaN tok/s; amortized 20.19 tok/s; completions 6.34; latency from arrival 6.34; from the sealing turn 6.34; footprint start 31.7 GiB, peak 43.2 GiB, end 31.7 GiB; user 52.4 s + sys 12.2 s
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve1] | 4 passes | steady mean NaN tok/s (best NaN) | amortized mean 20.18 tok/s (best 20.36) | mean latency 6.343 s (first request 6.343 s, best 6.286) | peak footprint 43.2 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve4] | 4 passes | steady mean 32.40 tok/s (best 32.67) | amortized mean 27.46 tok/s (best 27.78) | mean latency 12.781 s (first request 6.795 s, best 6.677) | peak footprint 45.6 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve4+chk0] | 4 passes | steady mean 31.04 tok/s (best 31.38) | amortized mean 26.66 tok/s (best 26.77) | mean latency 13.100 s (first request 6.834 s, best 6.770) | peak footprint 45.9 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve4+share0] | 4 passes | steady mean 30.04 tok/s (best 30.45) | amortized mean 25.51 tok/s (best 25.87) | mean latency 13.790 s (first request 7.287 s, best 7.185) | peak footprint 60.1 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [harness4] | 4 passes | steady mean 33.15 tok/s (best 33.65) | amortized mean 29.13 tok/s (best 29.35) | mean latency 8.686 s (first request 5.995 s, best 5.867) | peak footprint 54.5 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve8] | 4 passes | steady mean 31.90 tok/s (best 32.16) | amortized mean 29.38 tok/s (best 29.57) | mean latency 16.855 s (first request 6.769 s, best 6.708) | peak footprint 45.3 GiB
+A22-AB W16R2_8B_T128_H24 L32: total 557.8 s (startup 0.878 s)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1090 filtered out; finished in 557.79s
+

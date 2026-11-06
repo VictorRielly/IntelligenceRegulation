@@ -6344,9 +6344,12 @@ mod a22 {
             crate::private_block::trained_block::set_a23_share_for_test(self.share);
             crate::private_block::trained_block::set_a23_checked_for_test(self.checked);
         }
-        /// whether a request's fork run takes every shared block's startup pass
+        /// whether a request's fork run takes every shared block's startup pass: the
+        /// switches IN FORCE (after [`A23Set::apply`]; `None` is the environment's or the
+        /// default, which D74 made on for `HL_A23_CHECKED`)
         fn all_checked(self) -> bool {
-            self.share == Some(true) && self.checked == Some(true)
+            let _ = self;
+            crate::private_block::trained_block::a23_share() && crate::private_block::trained_block::a23_checked()
         }
     }
 

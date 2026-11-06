@@ -23,7 +23,7 @@ here. The rates count proving and witness work. Verification time is recorded se
 | production's host hashing (A21: SHA-256 on the Arm SHA-2 instructions, in-tree; the block digest as BLAKE3's tree in parallel) | 7.86 s per request in production | **7.23 s**; one request −8.0% on the merged tree (−10.5% in the agent's 6-pass A/B), every pair; the verifier −30% |
 | **one request from its input, all witness work on the clock (the harness: the model already in memory)** | 11.1 tok/s | **23.4–23.9 tok/s** (best 5.35–5.47 s) |
 | **one request through production's `stack-prove` path (each layer loaded and hashed per request; synthetic 8B stack)** | 6.6 tok/s (19.3 s, before A19) | **18.3–18.8 tok/s** (best 6.82–6.98 s) |
-| **production's stream, `stack-serve` (A22: the model loaded once, one request's sealing beside the last one's proof), 4 requests, steady** | — (no production stream before A22) | **29.2–29.7 tok/s** (amortized 24.9–25.3; 8 requests 29.0–29.2 steady, 26.7–27.0 amortized) |
+| **production's stream, `stack-serve` (A22: the model loaded once, one request's sealing beside the last one's proof; A23: the resident blocks shared, their startup digests and checks reused, D72/D74), 4 requests, steady** | — (no production stream before A22; 29.2–29.7 with A22 alone) | **32.4–32.6 tok/s** (amortized 27.5–27.8; 8 requests 31.9–32.2 steady, 29.4–29.7 amortized; one request 20.2 tok/s) |
 | **a stream of 4 requests, steady (the harness)** | 15.9 tok/s | **32.3–33.4 tok/s** (amortized 28.8–29.6; latency 5.8–10.9 s) |
 | proof only | 22.7 tok/s | **32.5–34.2 tok/s** (best 3.75–3.94 s; it varies from run to run on the shared Mac) |
 
@@ -119,11 +119,15 @@ here. The rates count proving and witness work. Verification time is recorded se
   - **One data owner per process** (D73). A request's latency shows the previous request's timing.
   - **The gap to the harness (32.7 on the same tree) is about 11%:** the preflight re-hashes 32 block copies, and the
     forks slow beside the next request's copy of 7.8 GB of layers.
-  - D72 allows CS-6 to use a digest kept with the block. **A23 (running)** shares the resident blocks instead of copying
-    them, to close the gap.
+  - D72 allows CS-6 to use a digest kept with the block.
+- **A23: production's stream within 2% of the harness, 32.4 tok/s steady** [MEASURED, merged tree, independent A/B,
+  4 of 4 pairs].
+  - The resident blocks are shared across requests instead of copied (+7.9%).
+  - Their startup CS-1/CS-4 pass is reused at an equal shape (D74, +4.4%). The verifier still runs every check.
+  - Peak memory is down from 60 to 46 GiB.
+  - One request through the server: 20.2 tok/s.
+  - What is left is the prover core: the fork run is 3.64 s of a 3.93 s period.
 - **Running now:**
-  - **A23:** shared resident blocks in `stack-serve`, with CS-6 checking their startup digests (D72). The target is the
-    harness's 32.5+.
   - **Lean L2b:** matmul, RoPE, the products and the SiLU table inside the iff, then the block-level `CircuitIff`.
 - **D63 Lean, L1 and L2 begun (merged acf5c78a; checked on the merged tree)** [PROVED; MEASURED for the L1 check].
   - The integer model is written in executable Lean.
@@ -146,7 +150,8 @@ here. The rates count proving and witness work. Verification time is recorded se
   - about 2–8% off one request, and the receipt 819 → about 767 MB [MODEL].
   - The soundness rate improves slightly (2^-102.93 → 2^-103.02). B1 carries most of the saving, and B6 needs it.
 - **D64's target is ≥ 110.** Next:
-  - production's stream: from 29.7 to the harness's 32.7, then past it (A23, running);
+  - the prover core: the forks (3.6 s a request) now bound production's stream as they bound the harness's. W16R3,
+    the Lean-found row savings (C1–C5, a ruling owed) and the RTX 5090 are the levers;
   - the forks' remaining host work (zero-fill, store fold, helper inverses, public weight folds, randomness), since the
     forks now bound the stream;
   - the protocol bundle W16R3, ruled 2026-11-05 (D67): B1 + B2 + B3, no B4. Sol builds B1 first, then B2 and B3, each

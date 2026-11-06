@@ -1,0 +1,249 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:168:9
+    |
+168 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:168:12
+    |
+168 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:171:9
+    |
+171 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:351:9
+    |
+351 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:351:33
+    |
+351 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:352:25
+    |
+352 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:356:9
+    |
+356 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:356:39
+    |
+356 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1955:4
+     |
+1955 | fn cpu_seconds() -> f64 {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:455:4
+    |
+455 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:653:4
+    |
+653 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:760:19
+    |
+709 | impl Geometry {
+    | ------------- method in this implementation
+...
+760 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 28 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.02s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 2`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7)
+
+running 1 test
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device ... D60 F2 EXPORT | /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-49901-1793975633245881000/d60-close-a22-export-metal/export | variant r13-h24-wide-x4-d60 | 4 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | public synthetic data, not for publication
+D60 F2 EXPORT | /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-49901-1793975633245881000/d60-close-a22-export-metal/export-bad | variant r13-h24-wide-x4-d60 | 4 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | public synthetic data, not for publication
+{"event":"prover_start","gpu":"gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)","hl_gpu_required":true}
+{"event":"loaded","variant":"r13-h24-wide-x4-d60","layers":"0..4","blocks":4,"statement_identity":"10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960","seconds":0.077,"hl_gpu":"1","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the witness builder's own pass over layers 0..4 (parity bit-exact at every layer, before the run header: ruling H-1)","seconds":0.077,"of_which_load_seconds":0.084,"of_which_witness_seconds":0.020,"kept_witnesses":4,"kept_witness_bytes":68194304,"rayon_threads":32,"seal_pool_threads":8,"d55_window":0,"d55_parts":0,"d55_part_bytes":0,"d55_shared_blocks":true}
+{"event":"parity","result":"bit-exact at every layer","layers":4,"words_per_layer":12288,"checked_before_the_run_header":true}
+{"event":"d55","run_profile":"hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/2","base_run_profile":"hashline-zk-mr1/private-run-rung-lh-t32-dev/2","workers":3,"test_receipt_not_for_publication":true}
+{"event":"d55-test-receipt","not_for_publication":true,"marker":"/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-49901-1793975633245881000/d60-close-a22-export-metal/stack-prove-run/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt","why":"D60 review F3: run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false in this build; the operator passed --d55-test-receipt-not-for-publication"}
+{"event":"d55-proved","workers":3,"frames":6,"receipt_bytes":62099008,"block_load_seconds":0.000,"preflight_seconds":0.010,"commit_seconds":0.028,"forks_seconds":0.332,"join_seconds":0.010,"total_seconds":0.380,"fork_prove_core_seconds":[0.195,0.195,0.195,0.132],"generators":5,"join_claim_bytes":6592,"ahead_parked":0,"ahead_taken_back":0,"vmhwm_mib":NaN}
+{"event":"proved","gpu":"gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)","gpu_declines":0,"blocks":4,"receipt_bytes":62099008,"prove_run_seconds":0.417,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.005,"of_which_block_load_seconds":0.000,"block_loads":0,"rayon_threads":32,"in_process_verified":false,"in_process_verify_seconds":0.000,"sealing_pass_seconds":0.077,"sealing_witness_seconds":0.020,"load_seconds":0.084,"total_seconds":0.559,"vmhwm_mib":NaN,"statement_identity":"10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960","statement_dir":"/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-49901-1793975633245881000/d60-close-a22-export-metal/stack-prove-run.unverified-statement","out":"/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-49901-1793975633245881000/d60-close-a22-export-metal/stack-prove-run"}
+
+thread 'private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device' (16177308) panicked at src/private_block/run_fork_tests.rs:6466:13:
+assertion `left == right` failed: request 0: the startup passes taken (A23Set { share: None, checked: None })
+  left: 4
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1090 filtered out; finished in 4.51s
+
+error: test failed, to rerun pass `--lib`

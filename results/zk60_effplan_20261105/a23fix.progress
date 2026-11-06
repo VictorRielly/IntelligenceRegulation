@@ -1,0 +1,15 @@
+2026-11-06T15:16:45Z start
+2026-11-06T15:19:30Z test build rc=0
+2026-11-06T15:30:16Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 958 passed; 3 failed; 130 ignored; 0 measured; 0 filtered out; finished in 645.34s
+2026-11-06T15:30:32Z a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1090 filtered out; finished in 15.24s
+2026-11-06T15:30:43Z a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on_on_the_device rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1090 filtered out; finished in 11.65s
+2026-11-06T15:30:56Z a22 resident 8B stream rc=0
+A22-8B window 0, lanes 2, digests ahead true, budget 18446744073709551615, A23Set { share: None, checked: None }: honest, lie1 (refused before the run header, 0 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (102772480 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 0 witnesses rebuilt in the fork runs; startup
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1090 filtered out; finished in 12.77s
+2026-11-06T15:30:56Z all done
