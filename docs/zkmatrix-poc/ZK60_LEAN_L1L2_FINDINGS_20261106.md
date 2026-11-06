@@ -147,6 +147,11 @@ every site is listed in the log with its count.
 - **The rational vectors.** The requantization's 324 independent vectors (`r13_requant_vectors.tsv`).
 - **Not recomputed: the SiLU table.** It is public data. Its values come from the Rust trace, and only its
   functionality is checked (same `(group, gate)`, same value).
+- **The Rust test's own hygiene.** The source audits that read `witness.rs` and the `private_block/` directory
+  (`s25_tests`, the absorb-label and byte-literal scans) passed 21 of 22 on the first run (`rust_audit_try1.log`). The one
+  failure was the R19b file census, which requires every new file to be listed; `lean_l1_export_tests.rs` is now in
+  `TEST_ONLY_FILES`. The rerun is queued under the guard (`rust_audit.sh`, writing `rust_audit.log` and `.done`); at
+  hand-back the heavy lock was still taken by other lanes.
 - **Not covered: the 8B shapes.** The same functions run at any shape; an 8B export is next (§7).
 
 ## 5. What W16R3 changes for these proofs
