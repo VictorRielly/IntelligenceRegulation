@@ -228,9 +228,12 @@ ceiling.
     MemAvailable covers its `--need-gib`, so our heavy jobs wait while a large case holds the
     RAM.
   - Every timing stage also waits for a quiet GPU, which covers a case started outside the guard:
-    `while pgrep -f ds4-bench > /dev/null; do sleep 30; done`, capped at about 4 h. After each clock
-    it records whether `ds4-bench` was seen. `results/zk60_effplan_20261105/check_a17merge.sh`
+    `while pgrep ds4-bench > /dev/null; do sleep 30; done`, capped at about 4 h. After each clock
+    it records whether `ds4-bench` was seen. `results/zk60_effplan_20261105/check_a20merge.sh`
     (`quiet` / `seen`) is the pattern.
+  - **Match the process NAME (`pgrep ds4-bench`), never `pgrep -f`.** `-f` also matches a guard
+    wrapper whose command line names `ds4-bench`, so a timing stage that holds the heavy lock and a
+    research case queued behind it wait on each other forever (found by A20, 2026-11-06).
   - A clock taken beside a `ds4-bench` run is labelled POLLUTED and is not used for a merge
     decision. Byte and correctness results stand.
 - **The research agent's side** (asked through Victor; this repository cannot instruct it):
@@ -239,5 +242,7 @@ ceiling.
   - Then a case and a zk60 timing job never overlap, and each side waits its turn at the heavy
     lock.
   - Its own free-RAM skip stays as it is (Victor's policy: free RAM only).
+  - **In force since 2026-11-06 07:18Z.** Its cases appear in the guard's history as `mac-moe-*`
+    (class gpu, need up to about 213 GiB). While one runs, zk60's 64 GiB jobs queue behind it.
 - **Priority** between the two projects: **first come, first served**, one job at a time (Victor,
   2026-11-05, D69). Neither project jumps the queue at the heavy lock.
