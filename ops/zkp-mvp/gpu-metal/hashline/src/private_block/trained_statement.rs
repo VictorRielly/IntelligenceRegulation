@@ -503,9 +503,71 @@ fn i8_bytes(v: &[i8]) -> Vec<u8> {
     v.iter().map(|x| *x as u8).collect()
 }
 
+/// [A20] exactly `i8_bytes(v)`'s bytes, without the copy
+fn i8_as_bytes(v: &[i8]) -> &[u8] {
+    // SAFETY: `i8` and `u8` have the same size and alignment and every bit pattern is a
+    // valid `u8`; the slice borrows `v` for its own lifetime. `x as u8` of an `i8` is the
+    // same bits (two's complement), so these are the bytes `i8_bytes(v)` copies out.
+    unsafe { std::slice::from_raw_parts(v.as_ptr().cast::<u8>(), v.len()) }
+}
+
 fn i64_bytes(vs: &[&[i64]]) -> Vec<u8> {
     vs.iter().flat_map(|v| v.iter().flat_map(|x| x.to_le_bytes())).collect()
 }
+
+// ---------------------------------------- [A20] the layer record's hashing
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A20;
+// `results/zk60_effplan_20261105/a20/README.md`.) Production's sealing pass loads
+// each layer beside the previous layer's witness build, and every load makes the
+// layer's record ([`LayerRecord::of_block`]): nine SHA-256s of the padded words,
+// three of the tables and the block digest. Two forms, each restored by its switch
+// at `0`:
+// * `HL_A20_CAST`: each padded word is hashed IN PLACE, as the bytes it already is,
+//   instead of as a fresh `i8_bytes` copy (about 218 MB of copies per 8B layer);
+// * `HL_A20_RECPAR`: the block digest (`BlockPublic::digest`, one BLAKE3 pass on one
+//   thread) runs BESIDE the SHA-256s instead of after them.
+// **Why no byte can move.** `x as u8` of an `i8` is its two's-complement bits, so the
+// borrowed slice is the copy's bytes and SHA-256 of it is the same digest. Every
+// field of the record is a pure function of the block, so the order (or the threads)
+// in which they are computed changes no value. Nothing a check reads is skipped.
+
+/// [A20] a switch, read once from the environment variable `name` (unset, empty or
+/// not a number: `default`), with a test override (`usize::MAX`: the environment's)
+pub(crate) fn a20_switch(test: &std::sync::atomic::AtomicUsize, env: &std::sync::OnceLock<usize>, name: &str, default: usize) -> usize {
+    match test.load(std::sync::atomic::Ordering::Relaxed) {
+        usize::MAX => *env.get_or_init(|| std::env::var(name).ok().and_then(|v| v.trim().parse::<usize>().ok()).unwrap_or(default)),
+        t => t,
+    }
+}
+
+static A20_CAST_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+static A20_RECPAR_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+
+/// [A20] `HL_A20_CAST` (default on; `0`: each word's `i8_bytes` copy is hashed, the
+/// path before A20)
+pub(crate) fn a20_cast() -> bool {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    a20_switch(&A20_CAST_TEST, &ENV, "HL_A20_CAST", 1) != 0
+}
+
+/// [A20] `HL_A20_RECPAR` (default on; `0`: the block digest after the SHA-256s, the
+/// path before A20)
+pub(crate) fn a20_recpar() -> bool {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    a20_switch(&A20_RECPAR_TEST, &ENV, "HL_A20_RECPAR", 1) != 0
+}
+
+/// tests: the two record forms on (`Some(true)`), off (`Some(false)`) or as the
+/// environment says (`None`). Changes no byte (see above).
+#[cfg(test)]
+pub(crate) fn set_a20_record_for_test(cast: Option<bool>, recpar: Option<bool>) {
+    let v = |b: Option<bool>| b.map(usize::from).unwrap_or(usize::MAX);
+    A20_CAST_TEST.store(v(cast), std::sync::atomic::Ordering::Relaxed);
+    A20_RECPAR_TEST.store(v(recpar), std::sync::atomic::Ordering::Relaxed);
+}
+
+// ---------------------------------------- [A20] end
 
 impl LayerRecord {
     /// Reconstruct the trusted layer's entire stage context, including the
@@ -538,22 +600,37 @@ impl LayerRecord {
         // ROUND 5 (R5-2): the nine padded-word SHA-256s IN PARALLEL (the
         // same bytes, the same digests, in the same order)
         let words: [&Vec<i8>; 9] = [&a.wq, &a.wk, &a.wv, &a.wo, &a.gamma_a, &f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t];
-        let hashed: Vec<[u8; 32]> = {
-            use rayon::prelude::*;
-            words.par_iter().map(|w| sha(&i8_bytes(w))).collect()
+        // [A20] HL_A20_CAST: each word hashed in place (the bytes of its `i8_bytes` copy)
+        let cast = a20_cast();
+        let hash_words = || -> [[u8; 32]; 9] {
+            let hashed: Vec<[u8; 32]> = {
+                use rayon::prelude::*;
+                words.par_iter().map(|w| if cast { sha(i8_as_bytes(w)) } else { sha(&i8_bytes(w)) }).collect()
+            };
+            hashed.try_into().expect("nine digests")
         };
-        let word_sha256: [[u8; 32]; 9] = hashed.try_into().expect("nine digests");
-        let act:Vec<u8>=match blk.accuracy() {
-            Some(data)=>data.raw_tables().iter().flatten().flat_map(|v|v.to_le_bytes()).collect(),
-            None=>f.act.iter().flat_map(|v|v.to_le_bytes()).collect(),
+        let hash_tables = || -> [[u8; 32]; 3] {
+            let act:Vec<u8>=match blk.accuracy() {
+                Some(data)=>data.raw_tables().iter().flatten().flat_map(|v|v.to_le_bytes()).collect(),
+                None=>f.act.iter().flat_map(|v|v.to_le_bytes()).collect(),
+            };
+            [sha(&i64_bytes(&[&a.rope_cos, &a.rope_sin])), sha(&i64_bytes(&[&a.exp])), sha(&act)]
         };
-        let table_sha256 = [sha(&i64_bytes(&[&a.rope_cos, &a.rope_sin])), sha(&i64_bytes(&[&a.exp])), sha(&act)];
+        // [A20] HL_A20_RECPAR: the block digest beside the SHA-256s (each field a pure
+        // function of the block; off, the order before A20: words, tables, digest)
+        let ((word_sha256, table_sha256), block_digest) = if a20_recpar() {
+            rayon::join(|| (hash_words(), hash_tables()), || blk.digest())
+        } else {
+            let w = hash_words();
+            let t = hash_tables();
+            ((w, t), blk.digest())
+        };
         let mut source_tensors = source_tensors;
         source_tensors.sort();
         // a recipe block's tables are the frozen SiLU member (-3, -11) and
         // `exp_member(0, ..)` (`dense_tests::statement_of_words`); the export
         // loader overwrites both with the manifest's members
-        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32],
+        LayerRecord { index, block_digest, word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32],
             silu_member:blk.accuracy().map(|a|a.member()).unwrap_or((-3,-11)),exp_e_s:0,own:[None;11],
             accuracy_gate_shift:blk.accuracy().map(|a|a.folds().gate.shift) }
     }
