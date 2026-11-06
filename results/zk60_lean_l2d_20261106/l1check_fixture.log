@@ -1,0 +1,115 @@
+low-h24 input = fixture: 512 checked, 0 failed
+low-h24 na spec (isqrt witness, word, remainder, slack): 32 checked, 0 failed
+low-h24 na = oracle: 512 checked, 0 failed
+low-h24 na isqrt constraints (IsqrtRel, 24-bit facts): 32 checked, 0 failed
+low-h24 na division constraints (NormDivRel, 24-bit remainders, int16 word): 512 checked, 0 failed
+low-h24 Q spec (word, remainder): 512 checked, 0 failed
+low-h24 Q constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low-h24 K spec (word, remainder): 256 checked, 0 failed
+low-h24 K constraints (HostRel, word lookup, remainder limbs): 256 checked, 0 failed
+low-h24 V spec (word, remainder): 256 checked, 0 failed
+low-h24 V constraints (HostRel, word lookup, remainder limbs): 256 checked, 0 failed
+low-h24 QR spec (word, remainder): 512 checked, 0 failed
+low-h24 QR constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low-h24 KR spec (word, remainder): 256 checked, 0 failed
+low-h24 KR constraints (HostRel, word lookup, remainder limbs): 256 checked, 0 failed
+low-h24 score spec (word, remainder): 4096 checked, 0 failed
+low-h24 score constraints (HostRel, word lookup, remainder limbs): 4096 checked, 0 failed
+low-h24 softmax spec (max, total, zsel, e, P, sr, sg): 128 checked, 0 failed
+low-h24 softmax division constraints (c2, c3, P direct, sr/sg limbs): 4096 checked, 0 failed
+low-h24 argmax constraints (row sum of zsel = 1, zsel·δ = 0, δ an exp index, c0): 128 checked, 0 failed
+low-h24 exp tuple (δ, e) is a table tuple: 4096 checked, 0 failed
+low-h24 O (PV) spec (word, remainder): 512 checked, 0 failed
+low-h24 O (PV) constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low-h24 AO spec (word, remainder): 512 checked, 0 failed
+low-h24 AO constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low-h24 residual 1 spec and constraint: 512 checked, 0 failed
+low-h24 nm spec (isqrt witness, word, remainder, slack): 32 checked, 0 failed
+low-h24 nm = oracle: 512 checked, 0 failed
+low-h24 nm isqrt constraints (IsqrtRel, 24-bit facts): 32 checked, 0 failed
+low-h24 nm division constraints (NormDivRel, 24-bit remainders, int16 word): 512 checked, 0 failed
+low-h24 gate spec (word, remainder): 1024 checked, 0 failed
+low-h24 gate constraints (HostRel, word lookup, remainder limbs): 1024 checked, 0 failed
+low-h24 up spec (word, remainder): 1024 checked, 0 failed
+low-h24 up constraints (HostRel, word lookup, remainder limbs): 1024 checked, 0 failed
+low-h24 activation table is a function of (group, gate): 1024 checked, 0 failed
+low-h24 product H spec (word, remainder): 1024 checked, 0 failed
+low-h24 product H constraints (HostRel, word lookup, remainder limbs): 1024 checked, 0 failed
+low-h24 down Z spec (word, remainder): 512 checked, 0 failed
+low-h24 down Z constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low-h24 residual 2 spec and constraint: 512 checked, 0 failed
+low-h24 q.words = oracle q: 512 checked, 0 failed
+low-h24 k.words = oracle k: 256 checked, 0 failed
+low-h24 v.words = oracle v: 256 checked, 0 failed
+low-h24 qr.words = oracle qr: 512 checked, 0 failed
+low-h24 kr.words = oracle kr: 256 checked, 0 failed
+low-h24 s.words = oracle s: 4096 checked, 0 failed
+low-h24 p = oracle p: 4096 checked, 0 failed
+low-h24 o.words = oracle o8: 512 checked, 0 failed
+low-h24 ao.words = oracle ao: 512 checked, 0 failed
+low-h24 x1 = oracle x1: 512 checked, 0 failed
+low-h24 gate.words = oracle gate: 1024 checked, 0 failed
+low-h24 a_scaled = oracle a_scaled: 1024 checked, 0 failed
+low-h24 up.words = oracle u16: 1024 checked, 0 failed
+low-h24 h.words = oracle h16: 1024 checked, 0 failed
+low-h24 z.words = oracle z16: 512 checked, 0 failed
+low-h24 x2 = oracle x2: 512 checked, 0 failed
+low input = fixture: 512 checked, 0 failed
+low na spec (isqrt witness, word, remainder, slack): 32 checked, 0 failed
+low na = oracle: 512 checked, 0 failed
+low na isqrt constraints (IsqrtRel, 24-bit facts): 32 checked, 0 failed
+low na division constraints (NormDivRel, 24-bit remainders, int16 word): 512 checked, 0 failed
+low Q spec (word, remainder): 512 checked, 0 failed
+low Q constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low K spec (word, remainder): 256 checked, 0 failed
+low K constraints (HostRel, word lookup, remainder limbs): 256 checked, 0 failed
+low V spec (word, remainder): 256 checked, 0 failed
+low V constraints (HostRel, word lookup, remainder limbs): 256 checked, 0 failed
+low QR spec (word, remainder): 512 checked, 0 failed
+low QR constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low KR spec (word, remainder): 256 checked, 0 failed
+low KR constraints (HostRel, word lookup, remainder limbs): 256 checked, 0 failed
+low score spec (word, remainder): 4096 checked, 0 failed
+low score constraints (HostRel, word lookup, remainder limbs): 4096 checked, 0 failed
+low softmax spec (max, total, zsel, e, P, sr, sg): 128 checked, 0 failed
+low softmax division constraints (c2, c3, P direct, sr/sg limbs): 4096 checked, 0 failed
+low argmax constraints (row sum of zsel = 1, zsel·δ = 0, δ an exp index, c0): 128 checked, 0 failed
+low exp tuple (δ, e) is a table tuple: 4096 checked, 0 failed
+low O (PV) spec (word, remainder): 512 checked, 0 failed
+low O (PV) constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low AO spec (word, remainder): 512 checked, 0 failed
+low AO constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low residual 1 spec and constraint: 512 checked, 0 failed
+low nm spec (isqrt witness, word, remainder, slack): 32 checked, 0 failed
+low nm = oracle: 512 checked, 0 failed
+low nm isqrt constraints (IsqrtRel, 24-bit facts): 32 checked, 0 failed
+low nm division constraints (NormDivRel, 24-bit remainders, int16 word): 512 checked, 0 failed
+low gate spec (word, remainder): 1024 checked, 0 failed
+low gate constraints (HostRel, word lookup, remainder limbs): 1024 checked, 0 failed
+low up spec (word, remainder): 1024 checked, 0 failed
+low up constraints (HostRel, word lookup, remainder limbs): 1024 checked, 0 failed
+low activation table is a function of (group, gate): 1024 checked, 0 failed
+low product H spec (word, remainder): 1024 checked, 0 failed
+low product H constraints (HostRel, word lookup, remainder limbs): 1024 checked, 0 failed
+low down Z spec (word, remainder): 512 checked, 0 failed
+low down Z constraints (HostRel, word lookup, remainder limbs): 512 checked, 0 failed
+low residual 2 spec and constraint: 512 checked, 0 failed
+low q.words = oracle q: 512 checked, 0 failed
+low k.words = oracle k: 256 checked, 0 failed
+low v.words = oracle v: 256 checked, 0 failed
+low qr.words = oracle qr: 512 checked, 0 failed
+low kr.words = oracle kr: 256 checked, 0 failed
+low s.words = oracle s: 4096 checked, 0 failed
+low p = oracle p: 4096 checked, 0 failed
+low o.words = oracle o8: 512 checked, 0 failed
+low ao.words = oracle ao: 512 checked, 0 failed
+low x1 = oracle x1: 512 checked, 0 failed
+low gate.words = oracle gate: 1024 checked, 0 failed
+low a_scaled = oracle a_scaled: 1024 checked, 0 failed
+low up.words = oracle u16: 1024 checked, 0 failed
+low h.words = oracle h16: 1024 checked, 0 failed
+low z.words = oracle z16: 512 checked, 0 failed
+low x2 = oracle x2: 512 checked, 0 failed
+r13_requant_vectors (accuracy.rs:74-83): 324 checked, 0 failed
+L1 TOTAL: 101956 checks, 0 failed
+l1check_fixture rc 0

@@ -39,6 +39,11 @@ Instance choice (a finding, written up rather than changed): the approved `IntMo
 not see the weights, while the integer model refuses on weight-dependent range violations. The instance therefore fixes
 the public data per model (`Weights := Unit`), which is sound under P1 (public weights). Under P3 (hidden weights)
 `admissible` would need the weights (a statement change for Victor).
+
+Fourth Lean lane (2026-11-06): the SiLU product's word class is the shape's stack (`BlockShape.h24`, `prodC`): the
+24-bit word at LowH24 (the W16R2 profile, as before) or the Low stack's int16 word, so `block_circuitIff` and
+`run_circuitIff` now cover both export stacks (`productC_iff`). The run's two ends are in CircuitOut.lean and
+CircuitTokenRun.lean.
 -/
 import ZK60Formal.CircuitStage
 import ZK60Formal.Statements
@@ -77,6 +82,9 @@ structure BlockShape where
   fe : ℕ
   wrho : ℕ
   nG : ℕ
+  /-- the SiLU product's word class (`accuracy_precision::Stack`): `true` at the LowH24 stack, the 24-bit word the
+  W16R2 profile proves (accuracy_precision.rs:102); `false` at the Low stack, an int16 word (fourth Lean lane, 2026-11-06) -/
+  h24 : Bool
 
 namespace BlockShape
 
@@ -90,6 +98,29 @@ abbrev Hid (S : BlockShape) := Fin S.f
 abbrev Pos (S : BlockShape) := S.Tok × S.Wid
 
 end BlockShape
+
+/-- The SiLU product's word class of the shape's stack: the 24-bit word at LowH24 (`Word24`, the W16R2 profile), an
+int16 word at Low (`Word16`; L1Check.lean:255-258 checks both stacks with these classes). -/
+def BlockShape.prodC (S : BlockShape) : WordClass := if S.h24 then word24Class else word16Class
+
+theorem BlockShape.prodC_bounds (S : BlockShape) : -2 ^ 23 ≤ S.prodC.lo ∧ S.prodC.hi ≤ 2 ^ 23 - 1 := by
+  unfold BlockShape.prodC
+  split
+  · exact ⟨le_refl _, le_refl _⟩
+  · exact ⟨by norm_num [word16Class], by norm_num [word16Class]⟩
+
+/-- **The SiLU product at any word class** (`product_iff` at the class of the stack): the clause, the word lookup and the
+`r`-bit remainder hold exactly when the integer model admits `a·u` in the class and `h` is its word. -/
+theorem productC_iff (C : WordClass) (r : ℕ) (hr : r ≤ 24) (a u : ℤ) (ha : |a| ≤ 2 ^ 31) (hu : |u| ≤ 2 ^ 15) (h : GF) :
+    (∃ R : GF, ProdRel r (a : GF) (u : GF) h R ∧ C.P h ∧ RemW16 r R) ↔
+      ∃ v rr : ℤ, requantIn C.lo C.hi (a * u) 1 r = some (v, rr) ∧ h = (v : GF) := by
+  have hcast : (a : GF) * (u : GF) = ((a * u : ℤ) : GF) := by push_cast; ring
+  obtain ⟨hma, hmb⟩ := mul_bounds ha hu
+  have hl : -2 ^ 62 ≤ a * u := by norm_num at hma hmb ⊢; linarith
+  have hh : a * u ≤ 2 ^ 62 := by norm_num at hma hmb ⊢; linarith
+  refine Iff.trans ?_ (requant_iff C r hr (a * u) hl hh h)
+  refine exists_congr fun R => and_congr ?_ Iff.rfl
+  rw [prodRel_iff, hcast]
 
 /-- The shape class the code admits (each a check of the code):
 * the geometry's no-wrap class: width, query width, head dimension `≤ 4096`, hidden `≤ 16384`
@@ -258,7 +289,7 @@ def uSpec (P : BlockPublic S) (ym : S.Pos → ℤ) (p : S.Tok × S.Hid) : Option
   rq (-2 ^ 15) (2 ^ 15 - 1) (∑ i, ym (p.1, i) * P.wu i p.2) (P.mu p.2) S.sup
 
 def hSpec (P : BlockPublic S) (g u : S.Tok × S.Hid → ℤ) (p : S.Tok × S.Hid) : Option ℤ :=
-  rq (-2 ^ 23) (2 ^ 23 - 1) (actOf P g p * u p) 1 S.sprod
+  rq S.prodC.lo S.prodC.hi (actOf P g p * u p) 1 S.sprod
 
 def zSpec (P : BlockPublic S) (h : S.Tok × S.Hid → ℤ) (p : S.Pos) : Option ℤ :=
   rq (-2 ^ 15) (2 ^ 15 - 1) (∑ k, h (p.1, k) * P.wd k p.2) (P.md p.2) S.sdown
@@ -367,8 +398,9 @@ structure BlockSat (P : BlockPublic S) (X X2 : S.Pos → GF) (w : BlockWit S) : 
   up : ∀ p : S.Tok × S.Hid, ∃ R : GF,
     HostRel S.sup (∑ i, w.YM (p.1, i) * ((P.wu i p.2 * (P.mu p.2 : ℤ) : ℤ) : GF)) (w.U p) R ∧ Word16 (w.U p) ∧
       RemW16 S.sup R
-  /-- the SiLU product (argument_accuracy.rs:526; accuracy_layout.rs:322-324) -/
-  prod : ∀ p : S.Tok × S.Hid, ∃ R : GF, ProdRel S.sprod (w.Ac p) (w.U p) (w.Hh p) R ∧ Word24 (w.Hh p) ∧
+  /-- the SiLU product (argument_accuracy.rs:526; accuracy_layout.rs:322-324), its word in the stack's class
+  (`Word24` at LowH24, `Word16` at Low) -/
+  prod : ∀ p : S.Tok × S.Hid, ∃ R : GF, ProdRel S.sprod (w.Ac p) (w.U p) (w.Hh p) R ∧ S.prodC.P (w.Hh p) ∧
     RemW16 S.sprod R
   /-- down (`SC_DMM` hosted by `host_d`, argument_accuracy.rs:497; accuracy_layout.rs:308) -/
   down : ∀ p : S.Pos, ∃ R : GF,
@@ -403,12 +435,12 @@ theorem ropePlane_iff {P : Type} (c s a b : P → ℤ) (hc : ∀ p, |c p| ≤ 2 
     obtain ⟨r, hr⟩ := rq_eq_some.mp hv
     exact ⟨v, r, hr, hq⟩
 
-theorem prodPlane_iff {P : Type} (r : ℕ) (hr : r ≤ 24) (a u : P → ℤ) (ha : ∀ p, |a p| ≤ 2 ^ 31)
+theorem prodPlane_iff {P : Type} (C : WordClass) (r : ℕ) (hr : r ≤ 24) (a u : P → ℤ) (ha : ∀ p, |a p| ≤ 2 ^ 31)
     (hu : ∀ p, i16 (u p)) (A U : P → GF) (hA : ∀ p, A p = (a p : GF)) (hU : ∀ p, U p = (u p : GF)) (Hh : P → GF) :
-    (∀ p, ∃ R : GF, ProdRel r (A p) (U p) (Hh p) R ∧ Word24 (Hh p) ∧ RemW16 r R) ↔
-      ∃ v, liftO (fun p => rq (-2 ^ 23) (2 ^ 23 - 1) (a p * u p) 1 r) = some v ∧ ∀ p, Hh p = (v p : GF) := by
+    (∀ p, ∃ R : GF, ProdRel r (A p) (U p) (Hh p) R ∧ C.P (Hh p) ∧ RemW16 r R) ↔
+      ∃ v, liftO (fun p => rq C.lo C.hi (a p * u p) 1 r) = some v ∧ ∀ p, Hh p = (v p : GF) := by
   refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p (a : ℤ) => Hh p = (a : GF))
-  rw [hA p, hU p, product_iff r hr (a p) (u p) (ha p) (abs_le_of_int16 (hu p)) (Hh p)]
+  rw [hA p, hU p, productC_iff C r hr (a p) (u p) (ha p) (abs_le_of_int16 (hu p)) (Hh p)]
   constructor
   · rintro ⟨v, rr, hv, hq⟩
     exact ⟨v, rq_eq_some.mpr ⟨rr, hv⟩, hq⟩
@@ -559,9 +591,10 @@ theorem blockSat_iff (hS : S.Valid) (P : BlockPublic S) (hP : P.Valid) (x : S.Po
       (fun p i => w.YM (p.1, i)) (fun p i => hYM _) w.U).mp hU
     have huc : ∀ p, i16 (u p) := fun p => liftO_rq_class hu p
     -- the SiLU product
-    obtain ⟨h, hh, hhC⟩ := (prodPlane_iff S.sprod hS.sprod_le (actOf P g) u (fun p => hP.act _ _) huc w.Ac w.U
-      (fun p => (hgC p).2) huC w.Hh).mp hH
-    have hhc : ∀ p, -2 ^ 23 ≤ h p ∧ h p ≤ 2 ^ 23 - 1 := fun p => liftO_rq_class hh p
+    obtain ⟨h, hh, hhC⟩ := (prodPlane_iff S.prodC S.sprod hS.sprod_le (actOf P g) u (fun p => hP.act _ _) huc w.Ac
+      w.U (fun p => (hgC p).2) huC w.Hh).mp hH
+    have hhc : ∀ p, -2 ^ 23 ≤ h p ∧ h p ≤ 2 ^ 23 - 1 := fun p =>
+      ⟨le_trans S.prodC_bounds.1 (liftO_rq_class hh p).1, le_trans (liftO_rq_class hh p).2 S.prodC_bounds.2⟩
     -- down
     obtain ⟨z, hz, hzC⟩ := (rqPlane_iff word16Class S.sdown hS.sdown_le (fun (p : S.Pos) k => h (p.1, k))
       (fun p k => P.wd k p.2) (fun p => P.md p.2)
@@ -628,7 +661,9 @@ theorem blockSat_iff (hS : S.Valid) (P : BlockPublic S) (hP : P.Valid) (x : S.Po
     have hx1c : ∀ p, i16 (x1 p) := fun p => residual_class (liftO_eq_some.mp hx1 p)
     have hymc : ∀ p, i16 (rowY nm p) := fun p => normTok_class (liftO_eq_some.mp hnm p.1) p.2
     have huc : ∀ p, i16 (u p) := fun p => rq_class (liftO_eq_some.mp hu p)
-    have hhc : ∀ p, -2 ^ 23 ≤ h p ∧ h p ≤ 2 ^ 23 - 1 := fun p => rq_class (liftO_eq_some.mp hh p)
+    have hhc : ∀ p, -2 ^ 23 ≤ h p ∧ h p ≤ 2 ^ 23 - 1 := fun p =>
+      ⟨le_trans S.prodC_bounds.1 (rq_class (liftO_eq_some.mp hh p)).1,
+        le_trans (rq_class (liftO_eq_some.mp hh p)).2 S.prodC_bounds.2⟩
     have hzc : ∀ p, i16 (z p) := fun p => rq_class (liftO_eq_some.mp hz p)
     -- the softmax rows' witnesses
     have hrow : ∀ r : Fin S.H × S.Tok, ∃ mx sum : GF, ∃ zsel e : S.Tok → GF,
@@ -711,7 +746,7 @@ theorem blockSat_iff (hS : S.Valid) (P : BlockPublic S) (hP : P.Valid) (x : S.Po
     · exact (rqPlane_iff word16Class S.sup hS.sup_le (fun (p : S.Tok × S.Hid) i => rowY nm (p.1, i)) (fun p i => P.wu i p.2)
         (fun p => P.mu p.2) (fun p => hosted16_le _ _ _ (fun i => hymc _) (fun i => hP.wu _ _) (hP.mu _) cW)
         (fun p i => (rowY nm (p.1, i) : GF)) (fun p i => rfl) (fun p => (u p : GF))).mpr ⟨u, hu, fun p => rfl⟩
-    · exact (prodPlane_iff S.sprod hS.sprod_le (actOf P g) u (fun p => hP.act _ _) huc (fun p => (actOf P g p : GF))
+    · exact (prodPlane_iff S.prodC S.sprod hS.sprod_le (actOf P g) u (fun p => hP.act _ _) huc (fun p => (actOf P g p : GF))
         (fun p => (u p : GF)) (fun p => rfl) (fun p => rfl) (fun p => (h p : GF))).mpr ⟨h, hh, fun p => rfl⟩
     · exact (rqPlane_iff word16Class S.sdown hS.sdown_le (fun (p : S.Pos) k => h (p.1, k)) (fun p k => P.wd k p.2)
         (fun p => P.md p.2) (fun p => hosted24_le _ _ _ (fun k => hhc _) (fun k => hP.wd _ _) (hP.md _) cF)

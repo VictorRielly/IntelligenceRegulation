@@ -21,6 +21,10 @@
 //! Second Lean lane (2026-11-06): `lean_l1_export_the_t128_rung_trace` prints
 //! the same trace at the 8B token count, `T = 128` (`fixture_tokens`), with
 //! the RoPE rows and the input it uses; public synthetic data as well.
+//!
+//! Fourth Lean lane (2026-11-06): `lean_l1_export_the_token_out_stages` prints
+//! stage OUT and stage OUT-C (the token-I/O code's `out_values` and honest
+//! witness) on the fixture's output rows, with public synthetic tables.
 use super::accuracy::{build, Trace};
 use super::*;
 use crate::private_block::accuracy_groups::Group;
@@ -188,5 +192,92 @@ fn lean_l1_export_the_t128_rung_trace() {
         line(tag, "sin", &sin);
         line(tag, "input", &input.iter().map(|&v| v as i64).collect::<Vec<_>>());
         export_trace(tag, &sh, &public, &ff, &accuracy, &input);
+    }
+}
+
+fn cells(v: &[i64]) -> String {
+    v.iter().map(|x| x.to_string()).collect::<Vec<_>>().join("\t")
+}
+
+/// **Fourth Lean lane (2026-11-06): the run's last stage, on the fixture.** Stage OUT (the next token) and stage
+/// OUT-C (the classifier's verdict) on every row of the fixture block's output plane `x2` (the LowH24 stack, the
+/// stack W16R2 proves), through the token-I/O code itself: the doors `TokenProfile::new` and `ClassifierProfile::new`,
+/// `stage_out::out_values` / `witness_from_values` and `stage_out_c::out_values` / `delta_of`. Public synthetic tables
+/// (an LCG, no real weights): a generic head over `V = 300` and a TIE head whose rows `2k` and `2k + 1` are equal
+/// (same words, same multiplier), so numpy's first-maximum rule decides every row; two final norms, one admitting
+/// every row and one (`g0 = 3`, `cn = 829,000`) refusing the rows whose largest word exceeds about 0.42 of the row's
+/// norm (`|q| > 127`). Lines `OUT<TAB><case><TAB><name><TAB>v0...` and `OUTC...`; the
+/// Lean side is `formal/ZK60Formal/L1CheckOut.lean`.
+#[test]
+fn lean_l1_export_the_token_out_stages() {
+    use crate::private_block::token_io::{classify, stage_out, stage_out_c, FinalNorm, SelectorVariant, Tier, TokenProfile, TokenTables};
+    let (v, d) = (300usize, 16usize);
+    let mut s = 0x6c65_616e_4c31u64;
+    let mut next = move || {
+        s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        s >> 33
+    };
+    let head: Vec<i8> = (0..v * d).map(|_| ((next() % 255) as i64 - 127) as i8).collect();
+    let mult: Vec<i64> = (0..v).map(|_| 1 + (next() % 4096) as i64).collect();
+    let tie_head: Vec<i8> = (0..v * d).map(|k| head[((k / d) / 2) * 2 * d + k % d]).collect();
+    let tie_mult: Vec<i64> = (0..v).map(|j| mult[(j / 2) * 2]).collect();
+    let w_delta: Vec<i16> = (0..d).map(|_| ((next() % 65535) as i64 - 32767) as i16).collect();
+    let emb = vec![0i16; v * d];
+    let (sh, public, ff, accuracy, input) = fixture(Stack::LowH24);
+    let tr: Trace = build(&sh, &public, &ff, &accuracy, &input).unwrap();
+    let g = Geom::new(&sh);
+    let x2: Vec<i64> = g.support(Dom::D).into_iter().map(|i| tr.x2[i]).collect();
+    let norms = [("n1", FinalNorm { g0: 1, cn: 1_000_000, tn: 13, ceps: 1 }), ("n2", FinalNorm { g0: 3, cn: 829_000, tn: 13, ceps: 1 })];
+    let tables = [("gen", TokenTables::new(v, d, emb.clone(), head.clone(), mult.clone()).unwrap()), ("tie", TokenTables::new(v, d, emb.clone(), tie_head.clone(), tie_mult.clone()).unwrap())];
+    println!("OUT\tfixture\tx2\t{}", cells(&x2));
+    for (tt, tab) in &tables {
+        println!("OUT\t{tt}\thead\t{}", cells(&tab.head.iter().map(|w| i64::from(*w)).collect::<Vec<_>>()));
+        println!("OUT\t{tt}\tmult\t{}", cells(&tab.mult));
+        for (nt, nm) in &norms {
+            let tp = TokenProfile::new(&sh, tab, 1, *nm, SelectorVariant::PublicRow, Tier::R1_MVP).unwrap();
+            let case = format!("{tt}-{nt}");
+            println!("OUT\t{case}\tparams\t{}", cells(&[nm.g0, nm.cn, i64::from(nm.tn), nm.ceps, i64::from(tp.wrho), tp.log_v as i64, tp.limbs as i64, tp.v as i64]));
+            for r in 0..sh.tokens {
+                let row: Vec<i64> = x2[r * d..(r + 1) * d].to_vec();
+                let rc = format!("{case}-{r}");
+                match stage_out::out_values(&tp, tab, &row, true) {
+                    Err(_) => println!("OUT\t{rc}\tok\t0"),
+                    Ok(ov) => {
+                        let w = stage_out::witness_from_values(&tp, &ov).unwrap();
+                        let fp = |p: usize, i: usize| w.planes[p][i].0 as i64;
+                        let delta: Vec<i64> = (0..tp.v).map(|i| (0..tp.limbs).map(|kk| fp(stage_out::A_LAM0 + kk, i) << (8 * kk)).sum()).collect();
+                        let e: Vec<i64> = (0..tp.v).map(|i| fp(stage_out::A_E, i)).collect();
+                        println!("OUT\t{rc}\tok\t1");
+                        println!("OUT\t{rc}\tisqrt\t{}", cells(&[ov.d, ov.a1, ov.a2]));
+                        println!("OUT\t{rc}\ty\t{}", cells(&ov.y[..d]));
+                        println!("OUT\t{rc}\trho\t{}", cells(&ov.rho[..d]));
+                        println!("OUT\t{rc}\tsigma\t{}", cells(&ov.sigma[..d]));
+                        println!("OUT\t{rc}\ttok\t{}", cells(&[ov.tok as i64, fp(stage_out::A_TOK, 0), fp(stage_out::A_M, 0), ov.logits[ov.tok]]));
+                        println!("OUT\t{rc}\te\t{}", cells(&e));
+                        println!("OUT\t{rc}\tdelta\t{}", cells(&delta));
+                    }
+                }
+            }
+        }
+    }
+    // stage OUT-C: the development policy (V = 300, c = 0, P0 = 8, S = 1, n = 23: the verdict row is T - 1)
+    let ct = classify::ClassifierTables::new(v, d, emb.clone(), w_delta.clone()).unwrap();
+    let policy = classify::policy_rung_dev();
+    println!("OUTC\tw\tw_delta\t{}", cells(&w_delta.iter().map(|w| i64::from(*w)).collect::<Vec<_>>()));
+    for (nt, nm) in &norms {
+        let cp = classify::ClassifierProfile::new(&sh, &ct, 1, *nm, &policy, 23, Tier::R1_MVP).unwrap();
+        println!("OUTC\t{nt}\tparams\t{}", cells(&[nm.g0, nm.cn, i64::from(nm.tn), nm.ceps, i64::from(cp.wrho), cp.limbs as i64, cp.policy.c]));
+        for r in 0..sh.tokens {
+            let row: Vec<i64> = x2[r * d..(r + 1) * d].to_vec();
+            let rc = format!("{nt}-{r}");
+            match stage_out_c::out_values(&cp, &ct, &row, true) {
+                Err(_) => println!("OUTC\t{rc}\tok\t0"),
+                Ok(ov) => {
+                    println!("OUTC\t{rc}\tok\t1");
+                    println!("OUTC\t{rc}\ty\t{}", cells(&ov.y[..d]));
+                    println!("OUTC\t{rc}\tverdict\t{}", cells(&[ov.margin, i64::from(ov.verdict), stage_out_c::delta_of(ov.margin, cp.policy.c, ov.verdict)]));
+                }
+            }
+        }
     }
 }
