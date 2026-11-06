@@ -1,0 +1,15 @@
+✔ [3354/3357] Built ZK60Formal.CircuitMatmul (11s)
+✖ [3355/3357] Building ZK60Formal.CircuitRopeAct (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/ZK60Formal/CircuitRopeAct.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/lib/lean/ZK60Formal/CircuitRopeAct.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/lib/lean/ZK60Formal/CircuitRopeAct.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/ir/ZK60Formal/CircuitRopeAct.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/ir/ZK60Formal/CircuitRopeAct.setup.json --json
+warning: ZK60Formal/CircuitRopeAct.lean:66:102: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/CircuitRopeAct.lean:97:72: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+error: ZK60Formal/CircuitRopeAct.lean:152:37: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.CircuitRopeAct
+error: build failed

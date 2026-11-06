@@ -53,4 +53,9 @@ import ZK60Formal.CircuitNorm
 import ZK60Formal.CircuitSoftmax
 import ZK60Formal.CircuitHelpers
 import ZK60Formal.Goldilocks
+import ZK60Formal.CircuitMatmul
+import ZK60Formal.CircuitRopeAct
+import ZK60Formal.CircuitStage
+import ZK60Formal.CircuitMasked
+import ZK60Formal.CircuitBlock
 import ZK60Formal.L1Check
