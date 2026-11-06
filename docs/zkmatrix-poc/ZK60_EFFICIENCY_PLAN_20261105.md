@@ -124,6 +124,13 @@ are redone once, not per change.
     33.7–34.2 proof only [MEASURED].
   - **The stream is now fork-bound:** about 2.6 s of sealing beside the forks against about 3.9 s of fork work per
     request.
+- **A18 (running): the forks phase, round 2** (byte-preserving; `results/zk60_effplan_20261105/a18/`).
+  - Profile first.
+  - Then re-test A13 (each block's before-challenge work parked during the sealing pass) on the fork-bound base. It
+    lost while the stream was sealing-bound; now sealing has about 1.3 s of slack per request.
+  - Then the forks' remaining host work: the doubled range inverse tables, `define`'s public weight folds and per-slot
+    registry re-check, and randomness.
+  - zkp-core and the Metal commit path stay with Sol's W16R3 B1.
 - **A17 done: the forks' host work in `protocol.rs`** (byte-preserving; `results/zk60_effplan_20261105/a17/`).
   - At a W16 profile, one-term lookups are read straight from their witness planes (`HL_A17_LOOKED`). The preflight's
     record of each block's public checks stands in for the fork's re-check of that very block object
