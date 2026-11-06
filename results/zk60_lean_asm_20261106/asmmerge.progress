@@ -1,0 +1,11 @@
+2026-11-06T17:41:16Z start
+2026-11-06T17:41:31Z lake build rc=0
+✔ [3432/3433] Built ZK60Formal (2.6s)
+Build completed successfully (3433 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-06T17:41:33Z axiom audit rc=0
+sorryAx mentions: 0
+  20 axioms: [propext, Classical.choice, Quot.sound]
+2026-11-06T17:41:38Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-06T17:41:38Z all done

@@ -152,6 +152,23 @@ here. The rates count proving and witness work. Verification time is recorded se
   - Not modelled: DD and the sealed-selector variants.
   - **Next:** compose with L3, which turns an accepting transcript into `Satisfies`; then the layout map; then
     `ProductionReady`. Both touch what W16R3 changes, so they wait for its freeze.
+- **D63 Lean, the two statements assembled (generic, 2026-11-06)** [PROVED; `formal/ZK60Formal/Assembly.lean`,
+  `ZK60_LEAN_ASSEMBLY_20261106.md`].
+  - **Statement 2:** `semanticHiding_of_zeroKnowledge` turns zero knowledge into the "learns nothing about any
+    property" form exactly as approved. So the receipts' hiding reduces to building one simulator.
+  - **Statement 1:** `knowledgeSound_of_extract` turns an extractor of a satisfying witness into knowledge soundness,
+    using `CircuitIff`. This is where the L3 soundness work and the L2 `tokenRun_circuitIff` meet.
+  - **The gate:** `productionReady_of` assembles `ProductionReady` from its parts. `binding_of_colCommit` derives
+    binding from the proved Merkle binding.
+  - No gap was found in the approved statements.
+  - **What is left for a production profile:**
+    - the Lean `Protocol` instance, its prover and verifier (L5);
+    - the per-profile extraction (L3 composed, the layout map, the M opening under Fiat–Shamir);
+    - completeness (that an honest prover is accepted, which nothing proves yet);
+    - the column-commitment instance for binding;
+    - the zero-knowledge simulator (Fiat–Shamir programming, composition over the run, R receipts).
+
+    Most of these wait for W16R3's freeze.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.
