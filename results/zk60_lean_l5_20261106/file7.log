@@ -1,0 +1,84 @@
+✖ [3378/3378] Building ZK60Formal.ExecTranscript (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecTranscript.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/lib/lean/ZK60Formal/ExecTranscript.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/lib/lean/ZK60Formal/ExecTranscript.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/ir/ZK60Formal/ExecTranscript.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/ir/ZK60Formal/ExecTranscript.setup.json --json
+error: ZK60Formal/ExecTranscript.lean:298:6: Tactic `apply` failed: could not unify the conclusion of `runOps_chainFrom key domain hs ops t ?m.166 its hk`
+  (runOps H t ops).state = (chainEnc key domain hs).lastD H ((chainEnc key domain hs).chainFrom H ?m.166 its)
+with the goal
+  (runOps H (Tr.absorb H t l x) ops).state =
+    (chainEnc key domain hs).lastD H
+      ((chainEnc key domain hs).chainFrom H
+        (τ ++ [(it, H ((chainEnc key domain hs).link ((chainEnc key domain hs).lastD H τ) it))]) its)
+
+Note: The full type of `runOps_chainFrom key domain hs ops t ?m.166 its hk` is
+  (chainEnc key domain hs).lastD H ?m.166 = t.state →
+    List.map Subtype.val its = opItems t.counter ops →
+      (runOps H t ops).state = (chainEnc key domain hs).lastD H ((chainEnc key domain hs).chainFrom H ?m.166 its)
+
+case cons
+H : HIn → Dig
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+l x : List UInt8
+ops : List Op
+t : Tr
+τ : List (It × Dig)
+hk : t.key = key
+hτ : (chainEnc key domain hs).lastD H τ = t.state
+it : It
+its : List It
+hits : ↑it = TItem.absorb l x ∧ List.map Subtype.val its = opItems t.counter ops
+⊢ (runOps H (Tr.absorb H t l x) ops).state =
+    (chainEnc key domain hs).lastD H
+      ((chainEnc key domain hs).chainFrom H
+        (τ ++ [(it, H ((chainEnc key domain hs).link ((chainEnc key domain hs).lastD H τ) it))]) its)
+error: ZK60Formal/ExecTranscript.lean:310:6: Tactic `apply` failed: could not unify the conclusion of `runOps_chainFrom key domain hs ops t ?m.220 its hk`
+  (runOps H t ops).state = (chainEnc key domain hs).lastD H ((chainEnc key domain hs).chainFrom H ?m.220 its)
+with the goal
+  (runOps H (Tr.squeeze H t).2 ops).state =
+    (chainEnc key domain hs).lastD H
+      ((chainEnc key domain hs).chainFrom H
+        (τ ++ [(it, H ((chainEnc key domain hs).link ((chainEnc key domain hs).lastD H τ) it))]) its)
+
+Note: The full type of `runOps_chainFrom key domain hs ops t ?m.220 its hk` is
+  (chainEnc key domain hs).lastD H ?m.220 = t.state →
+    List.map Subtype.val its = opItems t.counter ops →
+      (runOps H t ops).state = (chainEnc key domain hs).lastD H ((chainEnc key domain hs).chainFrom H ?m.220 its)
+
+case cons
+H : HIn → Dig
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+ops : List Op
+t : Tr
+τ : List (It × Dig)
+hk : t.key = key
+hτ : (chainEnc key domain hs).lastD H τ = t.state
+it : It
+its : List It
+hits : ↑it = TItem.squeeze t.counter ∧ List.map Subtype.val its = opItems (t.counter + 1) ops
+⊢ (runOps H (Tr.squeeze H t).2 ops).state =
+    (chainEnc key domain hs).lastD H
+      ((chainEnc key domain hs).chainFrom H
+        (τ ++ [(it, H ((chainEnc key domain hs).link ((chainEnc key domain hs).lastD H τ) it))]) its)
+warning: ZK60Formal/ExecTranscript.lean:330:55: This simp argument is unused:
+  d.2
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/ExecTranscript.lean:336:55: This simp argument is unused:
+  d.2
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/ExecTranscript.lean:343:16: Unknown identifier `gP`
+
+Note: It is not possible to treat `gP` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+Some required targets logged failures:
+- ZK60Formal.ExecTranscript
+error: build failed
+rc 1, 3 s

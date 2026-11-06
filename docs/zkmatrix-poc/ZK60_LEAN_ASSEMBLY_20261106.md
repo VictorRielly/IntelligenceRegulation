@@ -9,6 +9,11 @@ honest acceptance of every sub-protocol model, the composition into `Complete`, 
 and the `R`-receipt hybrid. §4.3 and §4.5 are updated; finding A5 (§6.4) needs a ruling or a sharper per-profile
 argument.
 
+**Update, same day (third lane, §7): step L5's foundation.** The primitives every profile's verifier uses, in
+executable Lean and proved equal to the models: the field and its extension, BLAKE3, the Fiat–Shamir transcript and
+the Merkle column check, with an agreement corpus from the Rust code (5,553 checks, 0 failed). Obligation 0 (§4.0) is
+updated.
+
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms `propext`, `Classical.choice`, `Quot.sound` only), **CODE**
 (read off the sources), **ESTIMATE** (arithmetic on the bounds, not proved in Lean).
 
@@ -152,7 +157,7 @@ theorems about them. `productionReady_of` then gives `ProductionReady M A P εc 
 |---|---|---|
 | `M` (the integer model) | `tokenModel S R`, `classifyModel S R` (`CircuitTokenRun.lean`; `Weights := Unit`, sound under P1): the whole forward pass, generic in the shape `S` and the run data `R` | the registered profile's concrete `(S, R)`. No W16R2 token-I/O run profile is registered in the code today (`token_io/run.rs:213`; L1L2 findings §14) |
 | `A` (the constraint system) | `tokenArith S R`, `classifyArith S R`: `Satisfies` is `TokenRunSat` / `ClassifySat` at the LOGICAL positions, with canonical endpoint words | the same concrete `(S, R)` |
-| `P` (the protocol) | **nothing as a `Protocol` instance.** Pieces of the verifier exist as models: `scAccept`, `chainAcceptsW`, `Tree.verOC` / `Tree.Accepts`, `MerkleEnc.Opens`, the opening and `M` tests. Pieces of the prover's view exist in the L4 files | `Stmt`, `Receipt`, `Salt`; `Leak` and `leak` (the shapes, `T`, the served bit, and D65(2)'s constant refusal); `ypub`; `opensIn` and `opensOut` (§4.4); `prove` (the Lean honest prover: masks, salts, the transcript); `verify`, the Lean verifier that §6 decision 3 makes production acceptance (step L5) |
+| `P` (the protocol) | **nothing as a `Protocol` instance.** Pieces of the verifier exist as models: `scAccept`, `chainAcceptsW`, `Tree.verOC` / `Tree.Accepts`, `MerkleEnc.Opens`, the opening and `M` tests. Pieces of the prover's view exist in the L4 files. **The verifier's foundation exists in executable Lean (step L5, §7)**: `Fp` / `Fp2` (`ExecField.lean`), BLAKE3 in its three modes (`ExecBlake3.lean`), the transcript (`ExecTranscript.lean`: proved to be `FSChain.lean`'s `ChainEnc`, its challenges `fp2Chal` / `idxChal`), the Merkle column check (`ExecMerkle.lean`: proved to be `Opens`, with `exec_merkle_binding`), and a finite oracle domain for `Q`, the inputs of at most `L` bytes (`QB L`), with `D` the 32-byte digests | `Stmt`, `Receipt`, `Salt`; `Leak` and `leak` (the shapes, `T`, the served bit, and D65(2)'s constant refusal); `ypub`; `opensIn` and `opensOut` (§4.4); `prove` (the Lean honest prover: masks, salts, the transcript); `verify`, the Lean verifier that §6 decision 3 makes production acceptance: on top of the foundation, the receipt decoder, the sumcheck and LogUp verifier arithmetic, the opening's claim and column-versus-clear-vector checks (the coset NTT), `M`'s test, and the profile's transcript schedule (§7.5) |
 
 ### 4.1 `CircuitIff M A`: proved at W16R2
 
@@ -500,3 +505,204 @@ All in `results/zk60_lean_gen_20261106/`, each run as one job through the zk60 r
     `Classical.choice`, `Quot.sound`;
   - a source scan of both files for `sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats` and
     `implemented_by`. Its only matches are the words in the files' header comments.
+
+## 7. Step L5, the foundation: the executable primitives and their agreement corpus (2026-11-06, third lane)
+
+Lean lane (Claude), on perf at 1a4acb65. Five new library files, imported by the library root: `ExecField.lean`,
+`ExecBlake3.lean`, `ExecTranscript.lean`, `ExecMerkle.lean` and `L5Vectors.lean` (data). One checker, `L5Check.lean`,
+not imported by the root because it defines `main`. One TEST-ONLY Rust file, the integration test
+`ops/zkp-mvp/gpu-metal/zkp-core/tests/lean_l5_export.rs`: no production source changed, no crate added. `Statements.lean`
+is unchanged. Evidence: `results/zk60_lean_l5_20261106/`.
+
+### 7.1 In plain words, for Victor
+
+**Why this step.** Your §6 decision 3 makes the Lean verifier's verdict production acceptance. That verifier must
+compute exactly what the Rust verifier computes. Every profile's verifier is built from the same four primitives: the
+field, the hash, the Fiat–Shamir transcript and the Merkle check. W16R3 (D67: B1 + B2 + B3) changes what is committed
+and batched, not these four. So they can be done now and will not be redone.
+
+**What now exists, all four in executable Lean.**
+- **The field.** Goldilocks and its extension, written the way the code writes them: 64-bit words and the code's own
+  fast reduction.
+  - PROVED: each operation is the true field operation.
+  - In particular the code's fast reduction (`reduce128`) is now proved correct for every 128-bit input, not just
+    tested.
+- **BLAKE3**, in the three modes the code uses (plain, keyed, key derivation).
+  - It reproduces all 105 official test vectors (131 bytes each) and every digest in the corpus.
+  - This is a test, not a proof. BLAKE3 stays modelled as a random oracle (D19); no Lean theorem says anything about
+    BLAKE3's security.
+- **The transcript**, as the code runs it: the running state, the labelled absorbs, the squeeze counter, and the
+  challenges in `Fp`, `Fp2` and column indices.
+  - PROVED: for EVERY hash function, it is exactly the hash-chain model that L3's Fiat–Shamir theorems are about.
+  - Its challenges are exactly the challenge maps those theorems use.
+  - So those theorems now apply to the transcript the code executes, not to a paraphrase of it.
+- **The Merkle check of one opened column**, as the code runs it: the column digest, the salted leaf, the climb, the
+  depth check.
+  - PROVED: for every hash function, it accepts exactly when L3's model accepts.
+  - Merkle binding is therefore now a theorem about the program (`exec_merkle_binding`): opening one position of one
+    root to two different columns needs a hash collision.
+
+**The agreement corpus.**
+- The Rust test exports 5,359 records from the crate's real code paths:
+  - field operations;
+  - digests in all three modes, including the hash-tag keys of two profiles;
+  - transcript runs, with the state after every step;
+  - Merkle trees and paths, honest and tampered;
+  - three whole PCS openings that `verify_zk_tagged` accepts.
+- Lean recomputes every record:
+  - with the official vectors, **5,553 checks, 0 failed**;
+  - for every tampered record, the Lean verdict equals the Rust verdict;
+  - for each PCS opening, Lean replays the verifier's transcript, reproduces its column indices and its final state
+    byte for byte, and re-verifies every column.
+- **Negative control:** six single changes to the corpus give exactly 6 failures.
+
+**What this does not do yet.**
+- It is not a per-profile verifier. The receipt decoder, the sumcheck and LogUp verifier arithmetic, the opening's
+  column-versus-clear-vector check (the coset NTT), `M`'s test and the block and run schedule are still to write (§7.5).
+- The corpus has no record from a real block receipt (R13 or W16R2). Making one needs a block proof run, which a
+  test-only export of `zkp-core` cannot do. Its PCS openings are the crate's real commit, open and verify path, on
+  synthetic data.
+
+### 7.2 What is proved
+
+All PROVED (`results/zk60_lean_l5_20261106/`):
+- the full `lake -d formal build` is green: 3,449 jobs, no warning, no error, no `sorry` (`full.log`, `check.log`);
+- `#print axioms` on the 74 declarations below (`axioms_l5.lean` → `axioms.log`): each shows only `propext`,
+  `Classical.choice` and `Quot.sound`, or a subset; `sorryAx` and `Lean.ofReduceBool` appear nowhere;
+- every premise is an explicit hypothesis; no `axiom`, `native_decide`, `bv_decide`, `admit`, `maxRecDepth`,
+  `maxHeartbeats`, `implemented_by` or `extern` (source scan in `check.log`: none).
+
+**`ExecField.lean`** (mirrors `zkp-core/src/field.rs` line by line on `UInt64`).
+
+| Theorem | Statement |
+|---|---|
+| `leNat_leBytes`, `leNat_le64`, `ofLE64_le64` | `to_le_bytes` / `from_le_bytes` round-trip |
+| `Fp.new_toNat`, `Fp.add_toNat`, `Fp.sub_toNat`, `Fp.neg_toNat` | `Fp::new` is `x mod p` for every word; on canonical inputs `add`, `sub`, `neg` are `(a + b) mod p`, `(a + p − b) mod p`, `(p − a) mod p` (the carry and borrow corrections by `EPSILON` included) |
+| `Fp.t0_spec`, `Fp.t1_spec`, `Fp.res_spec`, `Fp.reduce128_arith`, **`Fp.reduce128_toNat`** | **`reduce128` is the canonical residue for EVERY `x < 2^128`**: each step's value (borrow `+p`, carry `−p`), then `2^64 ≡ 2^32 − 1` and `2^96 + 1 = p·(2^32 + 1)` |
+| `Fp.mul_toNat`, `Fp.toGF_mul`, `Fp.toGF_pow`, `Fp.toGF_inv` | `mul` is the product mod `p` for ANY two words; `pow` is the power (the code's bit loop); `inv` is the field inverse of a nonzero value (Fermat) |
+| `Fp.toGF_add`, `Fp.toGF_sub`, `Fp.toGF_neg`, `Fp.toGF_new`, `Fp.toGF_reduce128` | the same as equalities in `GF = ZMod gP` under `toGF a = (a.v.toNat : GF)` |
+| `Fp.*_canon`, `Fp.toGF_ofGF`, `Fp.ofGF_toGF`, `Fp.toGF_injective`, `Fp.toGF_zero_iff` | outputs are canonical; canonical words and `GF` are in bijection |
+| `seven_not_square` | `7` is not a square in `GF` (Euler's criterion with `Goldilocks.lean`'s `pow7_2`) |
+| `Fp2.toK_add`, `toK_sub`, `toK_neg`, **`Fp2.toK_mul`**, `toK_mulBase`, `toK_one` | under `toK U a = fp2 U (toGF c0, toGF c1)` (`HidingMOpening.lean`'s reading) into ANY field `K ⊇ GF` with `U² = 7`, the code's `Fp2` operations are the field's; `mul` needs no canonical input |
+| `Fp2.norm_toGF`, `Fp2.norm_ne_zero`, **`Fp2.toK_inv`** | a canonical nonzero value has a nonzero norm, so `Fp2::inv` never meets `Fp::inv`'s assertion, and it is the inverse |
+| **`Fp2.toK_bijective`** | for `K = GF[u]/(u² − 7)`, canonical code pairs are in bijection with the field |
+| `Fp2.fromBytes_toBytes` | `Fp2::from_bytes ∘ to_bytes` is the identity on canonical values |
+
+**`ExecBlake3.lean`.** BLAKE3 (compression, chunks, tree, extendable output; `hash`, `keyedHash`, `deriveKey`), from the
+specification and the reference implementation. No theorem: BLAKE3 is the random oracle. It is tested (§7.3).
+
+**`ExecTranscript.lean`** (mirrors `zkp-core/src/transcript.rs`).
+
+| Theorem | Statement |
+|---|---|
+| **`decodeLink_msg`** | the code's absorb input (`state ‖ le64 len(label) ‖ label ‖ le64 len(data) ‖ data`) and squeeze input (`state ‖ "squeeze" ‖ le64 counter`) decode back to the state and the item, for labels and data under `2^64` bytes |
+| `chainEnc` | so the code's transcript is a `ChainEnc` of `FSChain.lean`, for a domain whose start input decodes as no link |
+| `decodeLink_none_of_long`, `startMsg_ok_rungG` | a sufficient condition for that premise, and the premise for the development rung's profile string, by `decide` |
+| `runOps_chainFrom`, **`runOps_chain`**, `squeeze_out` | for EVERY hash function, the executable transcript's state after any absorbs and squeezes is `lastD H (chainFrom H [] items)` of that `ChainEnc`, the squeezes carrying the code's counters, and each squeeze's output is that chain's digest |
+| **`challengeFp2Of_toGF`**, `challengeFpOf_toGF`, `idx_eq_idxChal` | `challenge_fp2` is `FSChallenge.lean`'s `fp2Chal gP (2^128)` on the digest's two halves; `challenge_fp` its low half reduced; each column index is `idxChal h` of its 8-byte chunk |
+
+**`ExecMerkle.lean`** (mirrors `merkle.rs`'s `verify_path_keyed` and `pcs.rs`'s per-column checks in `verify_zk_tagged`).
+
+| Theorem | Statement |
+|---|---|
+| `merkleEnc`, `decCol_colBytes`, `splitDig_append` | the code's column, salted-leaf and node encodings form a `MerkleEnc` (`SoundMerkle.lean`), with decoders; no separation between them is used, so the legacy rule is covered too |
+| `foldPath_eq_climb`, **`verifyColumn_iff`** | for EVERY hash function, `verifyColumn` (depth check, column length, the climb from the salted leaf) accepts exactly when `Opens` holds and the column has `rows` entries |
+| `merkleEncB`, `liftH_eq`, `climbB_eq`, `opensB_iff` | the same on the finite oracle domain `QB L` (the inputs of at most `L` bytes, `L ≥ 64`, `L ≥ 8·rows`) |
+| **`exec_merkle_binding`** | an adversary making `q` queries outputs one root, one position and two different columns that BOTH pass the executable verifier with probability `≤ collBound (q + 2(h + 2))`: `merkle_binding` applied to the program |
+
+### 7.3 The agreement corpus
+
+The Rust side is `zkp-core/tests/lean_l5_export.rs`, run by `export_corpus.sh`:
+`cargo test --release --offline --locked --test lean_l5_export` through the guard. It writes `corpus.txt`: 5,359
+records, 643,668 bytes. Its own assertions also pass: every PCS opening verifies, a tampered one is refused, and the
+prover's and verifier's transcripts end in the same state.
+
+The Lean side is `L5Check.lean`, run by `check_l5.sh` (`l5check_full.log`). It uses the SAME definitions the theorems
+are about, and it also checks each field result against `Nat` arithmetic mod `p`. In all, 5,553 checks, 0 failed, in
+about 16 s, interpreted:
+
+| Kind | Checks | What |
+|---|---|---|
+| official BLAKE3 vectors | 105 | 35 inputs (0 to 102,400 bytes) × `hash`, `keyed_hash`, `derive_key`, 131 bytes each (`L5Vectors.lean`, from `blake3_test_vectors.json`, sha256 `dcb91ea8…2f624`) |
+| `Fp` | 2,889 | `add`, `sub`, `mul` (on edge × edge and random pairs; `mul` on non-canonical words too), `neg`, `inv`, `pow`, `new` (every word), `from_u128` (every width, the edges of `p`'s multiples) |
+| `Fp2` | 960 | `add`, `sub`, `mul`, `neg`, `mul_base`, `inv` |
+| bytes | 443 | `Fp::to_bytes`, `Fp2::to_bytes`, `Fp2::from_bytes` (non-canonical words included) |
+| BLAKE3 from Rust | 119 | 37 lengths from 0 to 266,624 bytes (every chunk boundary class) × 3 modes; the 8 hash-tag keys of two profiles as `derive_key` |
+| tag keys | 5 | the two profiles' four keys equal Lean's `derive_key` and `hashtag.rs`'s pins; the legacy tag has none |
+| transcript | 232 | three runs (legacy, two tagged): the start premise, and the state after every absorb (`absorb`, `absorb_u64`, `absorb_fp`, `absorb_fp2` up to 16,664 `Fp2` = an opening's clear vector at W16R2 8B) and every challenge (`challenge_fp`, `_fp2`, `_fp2_vec`, `challenge_indices` with 0 to 37 indices) |
+| Merkle trees and paths | 645 | trees of `2^0` to `2^8` leaves under three tags (roots; the Lean tree's paths equal Rust's on 90 honest paths); 528 path verdicts, honest and tampered (wrong position, flipped leaf or path byte, a short or a long path) equal to Rust's |
+| leaf, node, column digests | 18 | `salt_leaf_keyed`, `hash_pair_keyed`, `hash_column_keyed` under three tags |
+| column openings | 84 | 12 columns of the PCS openings, each honest and with six tamperings (column entry, salt, position, short column, short path, path byte), Lean's verdict equal to Rust's |
+| PCS openings | 50 | three openings (`rungg`, `m125`, `legacy`; 12, 20, 12 opened columns): the replayed verifier transcript's indices and final state, and every opened column re-verified |
+| ASCII literals | 3 | `"squeeze"`, `"hashline-v1/"` and the rung's profile string, as the Lean byte lists |
+
+**Negative control** (`mutate_corpus.py`, `negative_control.log`): one field result, one keyed digest, one transcript
+state, one column index, one PCS final state and one honest opening's verdict changed. Exactly 6 checks fail.
+
+### 7.4 Findings
+
+**L5-1 (Info): `reduce128` is correct on its whole domain.** `field.rs`'s A11 comment claims it; `reduce128_toNat`
+proves it for every `x < 2^128`. So `from_u128` (the challenge reduction) and `mul` are exact.
+
+**L5-2 (Info; for the receipt decoder): `Fp2::from_bytes` is not injective.**
+- It reduces each word with `Fp::new`, so a word `w ≥ p` decodes to the same value as `w − p`. The corpus records such
+  inputs, and Lean agrees.
+- `fromBytes_toBytes` holds only on canonical values.
+- No soundness effect where the verifier absorbs re-encoded values, as `absorb_fp2` does.
+- But a receipt decoder that uses `from_bytes` accepts two encodings of one receipt. The per-profile decoder must
+  either refuse non-canonical words or be shown to absorb only re-encoded values.
+
+**L5-3 (Info): the transcript's start premise is a real per-profile condition.**
+- `ChainEnc` needs the start input to decode as no link. This is `FSChain.lean`'s noted condition: e.g. a 35-byte
+  domain whose bytes 20–26 are `"squeeze"` violates it.
+- `decodeLink_none_of_long` gives a sufficient condition, and `startMsg_ok_rungG` the instance for one profile string.
+- Every registered profile string needs this one-line `decide`. `L5Check.lean` checks it for the corpus's three domains
+  (`TRSTART`).
+
+**L5-4 (Info; for obligation 0): a finite `Q` for the `Protocol` instance.**
+- `Statements.lean` needs `Fintype Q`. BLAKE3's input domain is unbounded, so the oracle's domain is taken as `QB L`:
+  the inputs of at most `L` bytes, under each mode and key.
+- The verifier's hash is `liftH G`, which never asks a longer input.
+- `L` is the profile's longest hash input. At W16R2 8B that is about 266,700 bytes, the absorb of an opening's clear
+  vector [ESTIMATE].
+- `exec_merkle_binding` is stated this way; the transcript theorems hold for every hash function, so they need no
+  bound.
+
+**L5-5 (Info): speed.**
+- `lean --run` interprets, and the checker runs 5,553 checks, with hashes of up to 266,624 bytes, in about 16 s.
+- A production verifier would be a compiled `lean_exe` target, which needs a `lakefile.toml` change. This lane did
+  not make it.
+
+### 7.5 What is left for the per-profile verifier (obligation 0)
+
+- **The `Protocol` instance**:
+  - `Q := QB L` and `D := Dig`;
+  - `Stmt`, `Receipt` and a bounded, canonical receipt decoder (L5-2);
+  - `verify` built from this foundation: the run statement's absorbs (the label table of
+    `hashline/src/private_block/hash_domain.rs`), the sumcheck rounds (`interpolate_eval`), the zero-check and LogUp
+    verifier arithmetic, each opening's claim check and column-versus-clear-vector check (`encode_row_zk`, the coset
+    NTT), `M`'s `mask_verify_tagged`, and the D55 fork-join schedule.
+- **Each verifier piece proved to be its L3 model**, as here for the transcript (`runOps_chain`) and the Merkle check
+  (`verifyColumn_iff`). That covers `scAccept`, the opening and `M` tests, and the tree of chains (`Tree.verOC`).
+- **The corpus at the frozen profile (W16R3)**: real receipts and malicious controls, verdict for verdict against the
+  Rust verifier. One check on a real receipt was not possible here (§7.1).
+- **A compiled checker target** (L5-5) and the independent kernel re-check of the statements doc's §5 (nanoda or
+  lean4checker).
+
+### 7.6 Checks
+
+All in `results/zk60_lean_l5_20261106/`, each run as one job through the zk60 resource guard (class `cpu`,
+`run_guarded.py`):
+- `file1.log` … `file10.log`: the new files while they were written. The errors fixed on the way are in those logs:
+  deprecated names, `omega`'s incompleteness on the reduction's congruence (split into `t0_spec`, `res_spec` and
+  `reduce128_arith`), and a kernel deep recursion in a `let`-heavy proof (removed by writing `reduce128` as small
+  named steps).
+- One exploratory job is not in that directory: a bisection copy of the reduction proof in the scratchpad, which the
+  guard stopped at its 24 GiB cap (peak RSS 24.49 GiB). The restructured proof needs 3.7 GiB.
+- `rust.log`: the corpus export (three runs while the path records were trimmed to keep `corpus.txt` well under 1 MB).
+- `check.log`: `check_l5.sh`, which runs:
+  - the full build (`full.log`): 3,449 jobs, rc 0, no warning, no error;
+  - the axiom audit (`axioms.log`): 74 declarations, nothing beyond `propext`, `Classical.choice`, `Quot.sound`;
+  - the source scan (none);
+  - the agreement check (`l5check_full.log`): 5,553 checks, 0 failed;
+  - the negative control (`negative_control.log`): 6 failed, as required.

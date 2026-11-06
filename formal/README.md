@@ -421,6 +421,37 @@ The plain-words version, the modelling choices and the open decisions are in
     - The approved target from per-receipt bounds `εhv ≤ 2^-120`, `δ ≤ 2^-248` per query
       (`zeroKnowledge_target_of_hybrid`). Finding A5: the generic per-query terms are larger, so the target needs a
       sharper per-profile argument or a ruling.
+- Proved and tested so far (step L5, the FOUNDATION of the executable verifier, 2026-11-06, third lane: the primitives
+  every profile's verifier uses, which W16R3 does not change; same build and axiom checks, 74 declarations audited in
+  `results/zk60_lean_l5_20261106/axioms.log`; §7 of `docs/zkmatrix-poc/ZK60_LEAN_ASSEMBLY_20261106.md`):
+  - `ExecField.lean`: Goldilocks `Fp` and `Fp2 = Fp[u]/(u² − 7)` as `field.rs` computes them, line by line on `UInt64`.
+    - **`reduce128` is the canonical residue for every `x < 2^128`** (`Fp.reduce128_toNat`).
+    - Each operation is the `ZMod gP` operation under `toGF` (`Fp.toGF_add`, `_sub`, `_neg`, `_mul`, `_pow`, `_inv`);
+      canonical words and `GF` are in bijection (`Fp.toGF_ofGF`, `Fp.ofGF_toGF`).
+    - `7` is not a square (`seven_not_square`). `Fp2` is the field operation in any `K ⊇ GF` with `U² = 7`
+      (`Fp2.toK_mul`, `Fp2.toK_inv`, `Fp2.norm_ne_zero`), a bijection onto `GF[u]/(u² − 7)` (`Fp2.toK_bijective`).
+    - The byte encodings round-trip (`leNat_le64`, `Fp2.fromBytes_toBytes`).
+  - `ExecBlake3.lean`: BLAKE3, executable, in its three modes with extended output. A test, not a theorem: it
+    reproduces the 105 official vectors (`L5Vectors.lean`) and every Rust digest in the corpus.
+  - `ExecTranscript.lean`: the transcript as `transcript.rs` runs it.
+    - The code's chain inputs decode (`decodeLink_msg`), so the transcript is a `ChainEnc` of `FSChain.lean`
+      (`chainEnc`, for a start string that decodes as no link: `decodeLink_none_of_long`, `startMsg_ok_rungG`).
+    - **For every hash function, the executable state is that chain's last digest** (`runOps_chain`), and the
+      challenges are `FSChallenge.lean`'s `fp2Chal` and `idxChal` (`challengeFp2Of_toGF`, `idx_eq_idxChal`).
+  - `ExecMerkle.lean`: one opened column checked as `verify_zk_tagged` / `verify_path_keyed` do.
+    - The code's encodings are a `MerkleEnc` (`merkleEnc`).
+    - **For every hash function the executable check is `Opens`** (`verifyColumn_iff`).
+    - On the finite oracle domain of inputs of at most `L` bytes, `merkle_binding` holds of the program
+      (`exec_merkle_binding`).
+  - `L5Check.lean`: the agreement check against the corpus of the TEST-ONLY Rust export
+    `ops/zkp-mvp/gpu-metal/zkp-core/tests/lean_l5_export.rs`. It covers field operations, digests, transcript runs,
+    Merkle trees and openings (honest and tampered), and three whole PCS openings accepted by `verify_zk_tagged`, whose
+    verifier transcript it replays: **5,553 checks, 0 failed**. A negative control of six single changes gives exactly
+    6 failures. Run: `lake -d formal env lean --run formal/ZK60Formal/L5Check.lean
+    results/zk60_lean_l5_20261106/corpus.txt` (not imported by the root: it defines `main`).
+  - Left for the per-profile verifier (§7.5 of that document): the `Protocol` instance (`Q := QB L`), the receipt
+    decoder, the sumcheck, LogUp, opening and `M` verifier arithmetic and the run schedule on top of this foundation,
+    each proved to be its L3 model, and a corpus of real W16R3 receipts.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems
@@ -429,6 +460,8 @@ The plain-words version, the modelling choices and the open decisions are in
   - For `Complete`, what is left is per profile: the prover and verifier, the list of checks and their refusal terms.
   - For `ZeroKnowledge`, what is left is the per-receipt hybrid step under Fiat–Shamir, the composition over the run,
     and the profile's simulator (§4.3, §4.5 of that document).
+  - For the `Protocol` instance and its `verify` (step L5), the foundation exists (§7 of that document); the
+    per-profile verifier on top of it is left.
 
 **Build** (Lean 4.34.1 and Mathlib v4.34.1, pinned in `lean-toolchain` and `lakefile.toml`):
 

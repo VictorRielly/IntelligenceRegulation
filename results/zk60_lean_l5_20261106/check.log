@@ -1,0 +1,47 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3448/3449] Built ZK60Formal (11s)
+Build completed successfully (3449 jobs).
+warnings: 0
+errors: 0
+== axiom audit ==
+axioms rc 0
+declarations audited: 74
+sorryAx: 0
+other axioms: 0
+== source scan of the L5 files ==
+none
+== agreement check (L5Check.lean on corpus.txt) ==
+  ASCII: 3
+  BLAKE3-VECTOR: 105
+  FP: 2889
+  BYTES: 443
+  FP2: 960
+  BLAKE3: 119
+  TRSTART: 3
+  TRANSCRIPT: 229
+  TAG-KEYS-LEGACY: 1
+  TAG-KEYS-DERIVED: 2
+  TAG-KEYS-PINNED: 2
+  MERKLE-TREE: 27
+  MERKLE-PATH: 528
+  MERKLE-HONEST-PATH: 90
+  MERKLE-LEAF: 3
+  MERKLE-NODE: 3
+  MERKLE-COLUMN: 12
+  PCS-INDICES: 3
+  PCS-STATE: 3
+  PCS-COLUMN: 44
+  MERKLE-OPENING: 84
+L5Check: 5553 checks, 0 failed
+check rc 0
+== negative control (six single changes; exactly 6 must fail) ==
+mutated: ['B3', 'FP', 'MK', 'PCSEND', 'TCI', 'TS']
+FAILED [FP] FP mul 0 0 1
+FAILED [BLAKE3] B3 keyed 1913aeeed8e09e23a55430397a2b9366d6ea020d37664e2beb661acf1be04074 gen:7:0 2266a962849011a007d15764c889367ceada673ca56697b4e948c0b8013197
+FAILED [TRANSCRIPT] TS 922daa7a52ca7e78b560418f756eee6565577f3578ad7b9e75dfc2f6ff0846e0
+FAILED [TRANSCRIPT] TCI 1 2 0 ff94388ab097abd28818fe91a55b3ec2576ea3ac8ab148829959cc8ec2dd8655
+FAILED [PCS-STATE] rungg: the verifier's final transcript state
+FAILED [MERKLE-OPENING] MK rungg 6 3 03c928e6a9229e84294bd1fcc27c475b576b821eaf28c34e1a9e3f5362a454dc 8 15556063915263991497,10304908657158841361,62452158451281
+L5Check: 5553 checks, 6 failed
+negative control rc 0
