@@ -169,6 +169,18 @@ here. The rates count proving and witness work. Verification time is recorded se
     - the zero-knowledge simulator (Fiat–Shamir programming, composition over the run, R receipts).
 
     Most of these wait for W16R3's freeze.
+  - **The generic halves of the last two, proved the same day** [PROVED; `CompleteSub.lean`, `ZKHybrid.lean`].
+    - **Completeness:** every sub-protocol model accepts its honest prover. That covers the sumcheck (masked,
+      extended and CFS forms), the zero-check, LogUp (refusing only with probability at most M/|F|), the openings,
+      M's tests and the Merkle paths. They compose into the approved `Complete` form, where each refusal is about
+      2^-111 against the 2^-40 target.
+    - **Zero knowledge:** the random-oracle programming lemma and the R-receipt hybrid, ending in
+      `zeroKnowledge_of_hybrid` and its target corollary.
+    - What is left per profile: the Lean prover and verifier, the per-receipt simulation step, the layout links, and
+      the extraction.
+    - **Finding A5, a ruling owed later:** summing the per-receipt bounds leaves a q·R cross term that the approved
+      zero-knowledge target has no slot for. It matters only at absurd scales (about 2^126 queries and 2^118
+      receipts). The fix is a sharper per-profile argument, or a cross term in the target, or a cap on R.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.
