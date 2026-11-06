@@ -41,6 +41,9 @@ use super::{AttentionPublic, FeedForwardPublic};
 // R13 execution is tested independently before any proof profile activates it.
 #[path = "witness_accuracy.rs"]
 mod accuracy;
+// D63 step L1 (Lean lane): prints the fixture's integer trace for the Lean model. Test only, on one line so that
+// the source audits read it as a test module (s25_tests: production_sources, module_children)
+#[cfg(test)] #[path = "lean_l1_export_tests.rs"] mod lean_l1_export_tests;
 /// H124c: the builder's sequential reference paths, for the equality tests
 #[cfg(test)]
 pub(crate) use accuracy::with_sequential;

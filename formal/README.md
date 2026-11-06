@@ -303,6 +303,33 @@ The plain-words version, the modelling choices and the open decisions are in
     code check and the findings F24–F27 are in its Part 7; the tree of chains, the D55 figure, its code check and the
     findings F28–F31 are in its Part 8; the query-free part path by path, the run's code check and the findings
     F40–F44 are in its Part 9.
+- Proved so far (steps L1 and L2, the integer model and `CircuitIff` per slot family, W16R2; 2026-11-06; same build
+  and axiom checks; findings and optimization candidates in `docs/zkmatrix-poc/ZK60_LEAN_L1L2_FINDINGS_20261106.md`):
+  - `ModelInt.lean` (L1): the integer model in executable Lean, as `witness_accuracy.rs` computes it: `requant` /
+    `requantIn` (the rounding and its class check), `residual`, `normRow` (isqrt witness and rounded division),
+    `softmaxRow`, and the block's linear maps.
+  - `CircuitField.lean`: Goldilocks `GF`, no wrap (`int_eq_of_cast_eq`), what a range lookup certifies (`InRange`,
+    `word16_iff`), limbs certify exactly one direct range fact (`twoLimbs_iff`, `remW16_iff`, `limbs_iff`; the isqrt's
+    three bytes, `threeBytes_iff`), and finding F4
+    for the range families: LogUp's tuple conclusion gives a canonical representative (`rangeQuery_mem_iff`,
+    `w16r2Fams_ok`).
+  - `CircuitRequant.lean`: **requantization**, for any shift `1..24` and word class (`requant_iff`; the remainder is
+    unique, `requant_witness`; the int16, symmetric int8, 24-bit and gate classes as the code looks them up; the 8B sites,
+    `requant_iff_sites`); the **residual** (`residual_iff`); what the residual makes redundant (`residual_pins_word`,
+    `requant_of_residual`, `ao_class_gap`); block boundaries (`run_inputs_bounded`).
+  - `CircuitNorm.lean`: **RMSNorm**, the isqrt (`isqrt_iff`) and the rounded division (`normDiv_iff`); the `d ≠ 0`
+    refusal is unreachable (`isqrt_pos`, `normDiv_d_zero`).
+  - `CircuitSoftmax.lean`: **softmax**, the rounded division (`softmaxDiv_iff`, `softmax_sg_window`) and the row
+    maximum WITHOUT the selector's booleanity (`rowmax_without_booleanity`).
+  - `CircuitHelpers.lean`: the LogUp helper layout (`pair_helper_iff`, `helper_split_count`,
+    `w16r2_helper_planes`), evidence for the largest optimization candidate.
+  - `Goldilocks.lean`: **`2^64 − 2^32 + 1` is prime** (`gP_prime`, Lucas with witness 7, powers by `reduce_mod_char`),
+    so every field-generic L3/L4 lemma applies to `ZMod gP`; `rowmax_gf`.
+  - `L1Check.lean`: the value-for-value test against the Rust witness of a whole fixture block (both export stacks):
+    `lake -d formal env lean --run formal/ZK60Formal/L1Check.lean <files>` (the file header has the command).
+  - Still owed for `CircuitIff` at a real profile: the matmul hand-off (the hosted value IS `Σ W·x·m`), RoPE, the
+    product and the ACT table in the iff, and the composition over positions, domains,
+    blocks and the run.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).
