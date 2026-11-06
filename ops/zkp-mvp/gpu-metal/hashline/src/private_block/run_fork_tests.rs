@@ -5888,9 +5888,12 @@ fn a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_s
     }
     std::env::remove_var("HL_GPU");
     std::fs::remove_dir_all(&root).ok();
-    // seeded generators: every arm's receipt is the same bytes, so the same frame list
-    assert!(frames.iter().all(|v| *v == frames[0]), "the receipt's frames (lengths and SHA-256s) moved between arms");
-    eprintln!("A21-8B every arm: the same {} frames (lengths and SHA-256s), {} B in all", frames[0].len(), frames[0].iter().map(|(n, _)| *n).sum::<u64>());
+    // every arm's receipt has the same frames' lengths (the endpoint commitments are drawn
+    // afresh in each call, `prepare_endpoints`, so the bytes are not one arm's; each arm's
+    // receipt is checked above by its own verifier, head replay and interior forks)
+    let lens = |v: &Vec<(u64, String)>| v.iter().map(|(n, _)| *n).collect::<Vec<u64>>();
+    assert!(frames.iter().all(|v| lens(v) == lens(&frames[0])), "the receipt's frame lengths moved between arms");
+    eprintln!("A21-8B every arm: the same {} frame lengths, {} B in all", frames[0].len(), frames[0].iter().map(|(n, _)| *n).sum::<u64>());
 }
 
 /// **[A21] THE PROFILE of production's hashing** at the D55 harness's synthetic 8B block
