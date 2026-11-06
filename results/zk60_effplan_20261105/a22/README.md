@@ -44,8 +44,9 @@ Mac, so the startup of a real 8B export was not measured.
     - about 0.21 s is the forks running slower beside production's heavier sealing pass;
     - about 0.03 s is the commit phase.
 - **The two forms that are off by default:**
-  - `HL_A22_DIGEST_AHEAD` (`dig1`) gives +4.9% steady, 4 of 4 pairs, reaching 30.67 tok/s. It is kept off for the
-    security owner's ruling; the argument is in §5.4.
+  - `HL_A22_DIGEST_AHEAD` (`dig1`) gives +4.9% steady, 4 of 4 pairs, reaching 30.67 tok/s. Ruling D72 now permits it
+    (the argument is in §5.4). It stays off by default in this merge, because stage 9 ran with it off. Lane A23's
+    shared blocks supersede it.
   - A13's window at 16 (`ahead16`) gives +1.7% steady, 3 of 4 pairs, at +5.8 GiB. That is inside the noise, so it stays
     off (decision (e)).
 - **The bytes** [MEASURED]:
@@ -86,7 +87,7 @@ zk60_trained_block stack-serve --export DIR --d55-workers N --d55-test-receipt-n
 - **Environment.** These are `stack-prove`'s switches, plus two new ones:
   - `stack-prove`'s: `HL_GPU`, `HL_GPU_REQUIRED`, `HL_D55_AHEAD` (A13's window, default 0), `HL_A19_SHARE`, `HL_A20_*`, `HL_A21_*`, `HL_SEAL_POOL`, `HL_D55_FORK_POOL`, and `HL_OWNER_PRIVATE_DIR` (the private refusal log);
   - `HL_A22_LANES`: default 2, range 1 to 4. It is how many requests the stream holds at once;
-  - `HL_A22_DIGEST_AHEAD`: default 0. It stays off by the security owner's decision (d).
+  - `HL_A22_DIGEST_AHEAD`: default 0. D72 permits 1; it stays off by default in this merge (§5.4).
 - **stdin: one request per line.** A request is a JSON object, parsed by the crate's strict parser:
   - `{"out": "/runs/r17", "seq": "public"}`, where `seq` names the export's `seq_<ID>/`;
   - or `{"out": "/runs/r17", "seq_dir": "/owner/private/seq17"}`, a prover-private directory (privacy review P-5);
@@ -151,7 +152,7 @@ zk60_trained_block stack-serve --export DIR --d55-workers N --d55-test-receipt-n
 - **`run_fork::SealedBlocks`:** digest cells, `put_digested`, and `digest_of`, which hashes when no digest is kept, as before.
 - **Effect on `stack-prove`:** `turn` is `None` and `fresh` is `false`, so `stack-prove`'s path is the old one, step for step and byte for byte.
 
-**`HL_A22_DIGEST_AHEAD` (off; the security owner's decision (d)).**
+**`HL_A22_DIGEST_AHEAD` (off by default; permitted by D72).**
 - With it on, `Served::load_layer` digests each request's copy of each block where the copy is made (on the sealing pass's loaders), and carries that digest in the copy's record.
 - The request's model statement, made from those records, must still be the startup's.
 - The shared blocks keep each digest beside its block, and the preflight's CS-6 compares the kept digest with the statement's instead of hashing the block again.
@@ -334,7 +335,19 @@ The suspects named:
 - It is not built here. It changes `TrainedLayer`, which the loader, A19's synthetic model and several tests construct,
   and its CS-6 half needs the ruling.
 
-### 5.4 `dig1`: the equivalence argument (for the security owner's decision (d); `HL_A22_DIGEST_AHEAD` stays off)
+### 5.4 `dig1`: the equivalence argument (for the security owner's decision (d), ruled as D72)
+
+**Ruled: D72** (the decisions register, perf `17b83cf4`), accepted on this argument.
+- D72 allows a kept digest on the prover side when all four of these hold:
+  - it is computed by `BlockPublic::digest` over that very object, after the object's last write;
+  - it is stored inseparably with the object;
+  - the object cannot change afterwards;
+  - a mismatch still refuses by CS-6's name.
+- The verifier is unchanged.
+- `dig1` meets all four (below), so D72 now permits `HL_A22_DIGEST_AHEAD=1`.
+- **It stays off by default in this merge**, because the acceptance run (stage 9) ran with it off.
+- The next lane (A23) shares the resident blocks by reference, with CS-6 on their startup digests under D72. That form
+  supersedes `dig1` (§5.3).
 
 **What is digested, when, and on which thread** [CODE]:
 - With `HL_A22_DIGEST_AHEAD=1`, `Served::load_layer(k)` (`trained_block.rs`) runs, for each request and each layer:
@@ -553,16 +566,18 @@ TODO (stage 9).
 ## 11. What is left
 
 - **The 33 tok/s target**: 29.23 steady by default, 30.67 with `dig1` [MEASURED].
-  - **The next form**: shared resident blocks (`Arc<BlockPublic>`), with CS-6 against the startup digest of the very
-    object (§5.3). It removes the copy and the re-hash, and needs A19 §9's ruling. [ESTIMATE] +6 to +9% steady.
+  - **`dig1`**: D72 now permits it, and it measured +4.9% steady. It stays off by default in this merge, because
+    stage 9 ran with it off.
+  - **The next form, lane A23**: shared resident blocks (`Arc<BlockPublic>` or `&`), with CS-6 on the startup digest
+    of the very object, under D72 (§5.3). It removes the per-request copy and the re-hash, and supersedes `dig1`.
+    [ESTIMATE] +6 to +9% steady.
   - **The rest of the gap**: the forks' +0.21 s beside production's heavier sealing pass.
     - The sealing side has 0.35 s of slack per request, so a smaller sealing pool in the stream (A15 measured 8 threads
       at one request only) could trade it for the forks' cores. Not measured.
-- **Rulings owed:**
-  - (d) `dig1`, argued in §5.4;
-  - (a) more than one data owner per process;
-  - the startup-digest form of CS-6;
-  - per-request `gpu_declines` (§10);
+- **Rulings:**
+  - ruled: (d) `dig1` (D72; §5.4), whose conditions also cover A23's startup-digest form of CS-6;
+  - owed: (a) more than one data owner per process;
+  - owed: per-request `gpu_declines` (§10);
   - `F_FULLFSYNC` per frame is `stack-prove`'s durability and is kept.
 - **Not measured:**
   - a real trained 8B export's startup (no export on the Mac): it also reads and SHA-256s every array;
