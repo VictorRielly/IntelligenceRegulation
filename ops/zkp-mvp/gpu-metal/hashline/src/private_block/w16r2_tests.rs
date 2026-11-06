@@ -3299,3 +3299,334 @@ fn a17_the_8b_block_proves_the_same_under_every_a17_setting() {
     }
     std::env::remove_var("HL_GPU");
 }
+
+// ---- [A16] the builder's serial remainder: every form, every plane (efficiency plan A16) ----
+
+/// [A16] the form sets compared with the builder before A16 (no form): each form alone,
+/// every form but one, all of them and the default
+fn a16_form_sets() -> Vec<(String, u32)> {
+    use super::witness::{A16_ALL, A16_CACHE, A16_DEFAULT, A16_KERNELS, A16_LOOPS, A16_NORM, A16_ONCE, A16_OVERLAP, A16_QUANT};
+    let forms = [("cache", A16_CACHE), ("quant", A16_QUANT), ("norm", A16_NORM), ("loops", A16_LOOPS), ("once", A16_ONCE), ("overlap", A16_OVERLAP), ("kernels", A16_KERNELS)];
+    let mut v: Vec<(String, u32)> = forms.iter().map(|(n, f)| (n.to_string(), *f)).collect();
+    v.extend(forms.iter().map(|(n, f)| (format!("all but {n}"), A16_ALL & !f)));
+    v.push(("all".into(), A16_ALL));
+    v.push(("the default".into(), A16_DEFAULT));
+    v
+}
+
+/// [A16] inputs at `sh`: the D55 recipe's synthetic four (admissible at most profiles)
+/// and, with `extra`, wider ramps, the two extreme constants and their alternation
+/// (which refuse at various sites of the builder)
+fn a16_inputs(sh: &Shape, extra: bool) -> Vec<Vec<i16>> {
+    let n = sh.tokens * sh.width;
+    let mut v: Vec<Vec<i16>> = (0..4usize).map(|s| (0..n).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect()).collect();
+    if extra {
+        for m in [201i64, 2001, 20001, 65535] {
+            v.push((0..n).map(|i| (((i as i64) * 7919 + 13) % m - m / 2) as i16).collect());
+        }
+        v.push(vec![32767; n]);
+        v.push(vec![-32768; n]);
+        v.push((0..n).map(|i| if i % 2 == 0 { 32767 } else { -32768 }).collect());
+    }
+    v
+}
+
+/// [A16] two builds are the same: every plane and the output plane, or the same refusal
+fn a16_same(a: &Result<Witness, String>, b: &Result<Witness, String>, what: &str) {
+    match (a, b) {
+        (Ok(a), Ok(b)) => {
+            assert_eq!(a.planes.len(), b.planes.len(), "{what}: plane count");
+            for (k, (pa, pb)) in a.planes.iter().zip(&b.planes).enumerate() {
+                assert!(pa == pb, "{what}: plane {k} differs");
+            }
+            assert_eq!(a.output_plane, b.output_plane, "{what}: output plane");
+        }
+        (Err(a), Err(b)) => assert_eq!(a, b, "{what}: the refusals differ"),
+        (a, b) => panic!("{what}: {:?} against {:?}", a.as_ref().err(), b.as_ref().err()),
+    }
+}
+
+/// [A16] an outcome's name for the record: `ok` or the refusal's site
+fn a16_outcome(r: &Result<Witness, String>) -> String {
+    match r {
+        Ok(_) => "ok".into(),
+        Err(e) => e.rsplit(": ").next().unwrap_or(e).to_string(),
+    }
+}
+
+/// [A16] `range16_tests::case` at `profile` with its norm calibration changed by `edit`
+/// (`None` where the shape or its public data cannot be built at that calibration): the
+/// same tame public block, so that a build refuses at the site the change pushes past its
+/// class (a small shift: the requantizations; a large multiplier: the norms and residuals)
+fn a16_variant(profile: &'static str, edit: &dyn Fn(&mut shape::NormCalibration)) -> Option<(Shape, super::accuracy_public::AccuracyPublic, AttentionPublic, FeedForwardPublic)> {
+    use super::accuracy_groups::Group;
+    use super::accuracy_public::{AccuracyPublic, Geometry, Multipliers};
+    let spec = shape::accuracy_spec(profile)?;
+    let mut cal = shape::NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 4000, cn_m: 4000, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+    edit(&mut cal);
+    let sh = Shape::accuracy_trained(profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).ok()?;
+    let geometry = Geometry { width: sh.width, query_width: sh.q_width(), kv_width: sh.kv_heads * sh.head_dim, hidden: sh.hidden };
+    let sequence = |n, max| (0..n).map(|i| 1 + (i % max) as u16).collect();
+    let m = Multipliers { q: sequence(geometry.query_width, 32), k: sequence(geometry.kv_width, 32), v: sequence(geometry.kv_width, 64), o: sequence(geometry.width, 256), g: sequence(geometry.hidden, 64), u: sequence(geometry.hidden, 16), d: sequence(geometry.width, 64) };
+    let groups = vec![Group { e_in: -4, e_out: -13 }, Group { e_in: -3, e_out: -12 }, Group { e_in: -2, e_out: -11 }];
+    let tables = groups.iter().map(|g| super::accuracy_tables::silu_table(g.e_in, g.e_out, 12)).collect::<Result<Vec<_>, _>>().ok()?;
+    let data = AccuracyPublic::new_with_registry(sh.accuracy_registry(), sh.accuracy_stack(), geometry, sh.accuracy_base(), (-3, -11), m, groups, (0..geometry.hidden).map(|i| i % 3).collect(), tables).ok()?;
+    let sh = sh.with_accuracy_gate_shift(data.folds().gate.shift).ok()?;
+    let (public, ff, _) = super::grow_tests::tame_case(&sh);
+    Some((sh, data, public, ff))
+}
+
+/// [A16] the calibration changes of [`a16_variant`], each named
+fn a16_variant_edits() -> Vec<(&'static str, Box<dyn Fn(&mut shape::NormCalibration)>)> {
+    vec![
+        ("cn 30000", Box::new(|c: &mut shape::NormCalibration| {
+            c.cn_a = 30000;
+            c.cn_m = 30000;
+        })),
+        ("sh_qkv 1", Box::new(|c: &mut shape::NormCalibration| c.sh_qkv = 1)),
+        ("sh_s 1", Box::new(|c: &mut shape::NormCalibration| c.sh_s = 1)),
+        ("sh_o 1", Box::new(|c: &mut shape::NormCalibration| c.sh_o = 1)),
+        ("sh_ao 1", Box::new(|c: &mut shape::NormCalibration| c.sh_ao = 1)),
+        ("sh_g 1", Box::new(|c: &mut shape::NormCalibration| c.sh_g = 1)),
+        ("sh_h 5", Box::new(|c: &mut shape::NormCalibration| c.sh_h = 5)),
+        ("sh_z 1", Box::new(|c: &mut shape::NormCalibration| c.sh_z = 1)),
+    ]
+}
+
+/// **[A16] the forms refuse exactly as the builder before A16, at every site the
+/// calibration variants reach (CPU).** At the W16R2 and R13 rungs, each variant of
+/// [`a16_variant_edits`] that can be built, each of [`a16_inputs`], production's
+/// `build_for_block` and `build_accuracy` with no form and under every set of
+/// [`a16_form_sets`]: the same planes or the same refusal. At least three different
+/// refusal sites must be reached (they are printed).
+#[test]
+fn a16_every_form_refuses_as_the_builder_before_a16_at_every_site() {
+    use super::witness::{build_accuracy, build_for_block, with_a16};
+    let sets = a16_form_sets();
+    let mut sites: std::collections::BTreeMap<String, usize> = std::collections::BTreeMap::new();
+    for profile in [shape::W16R2_RUNG_H24, shape::R13_RUNG_H24] {
+        for (vname, edit) in a16_variant_edits() {
+            let Some((sh, data, public, ff)) = a16_variant(profile, &*edit) else {
+                eprintln!("A16-REFUSALS {profile} [{vname}]: this calibration does not build (skipped)");
+                continue;
+            };
+            let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+            for (xi, x) in a16_inputs(&sh, true).iter().enumerate() {
+                let base_acc = with_a16(0, || build_accuracy(&sh, &public, &ff, &data, x));
+                let base_blk = with_a16(0, || build_for_block(&sh, &blk, x));
+                a16_same(&base_acc, &base_blk, &format!("{profile} [{vname}] input {xi}: the two entries, no form"));
+                for (label, m) in &sets {
+                    a16_same(&base_acc, &with_a16(*m, || build_accuracy(&sh, &public, &ff, &data, x)), &format!("{profile} [{vname}] input {xi} [{label}] build_accuracy"));
+                    a16_same(&base_blk, &with_a16(*m, || build_for_block(&sh, &blk, x)), &format!("{profile} [{vname}] input {xi} [{label}] build_for_block"));
+                }
+                *sites.entry(a16_outcome(&base_acc)).or_insert(0) += 1;
+            }
+        }
+    }
+    let refusals = sites.keys().filter(|k| *k != "ok").count();
+    eprintln!("A16-REFUSALS: {} form sets x 2 entries, every plane and refusal equal; outcomes {sites:?}", sets.len());
+    assert!(refusals >= 3, "only {refusals} refusal sites reached: {sites:?}");
+}
+
+/// **[A16] every form of the builder builds the same planes and refuses the same as the
+/// builder before A16 (CPU).** At the W16 and R13 rungs, the R13 DD rung (the dictionary
+/// branch) and R13 TinyLlama T128 (whose domains are large enough for every chunked form),
+/// each of [`a16_inputs`] is built through `build_accuracy` and through production's
+/// `build_for_block` with no form, then under every set of [`a16_form_sets`] by both
+/// entries: every plane of every witness, or the refusal, is the same. The refusing
+/// inputs' sites are printed.
+#[test]
+fn a16_every_form_builds_the_same_planes_and_refuses_the_same() {
+    use super::range16_tests::case;
+    use super::witness::{build_accuracy, build_for_block, with_a16};
+    let sets = a16_form_sets();
+    for name in ["W16R2_RUNG_H24", "R13_RUNG_H24", "R13_RUNG_H24_DD", "R13_TINY_T128_LOW"] {
+        let spec = shape::ACCURACY_PROFILES.iter().chain(shape::W16_PROFILES.iter()).chain(shape::W16R2_PROFILES.iter()).find(|s| s.name == name).expect("a listed profile");
+        let (sh, data, public, ff) = case(built(spec.profile), 3);
+        let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+        let mut outcomes: std::collections::BTreeMap<String, usize> = std::collections::BTreeMap::new();
+        let inputs = a16_inputs(&sh, true);
+        for (xi, x) in inputs.iter().enumerate() {
+            let base_acc = with_a16(0, || build_accuracy(&sh, &public, &ff, &data, x));
+            let base_blk = with_a16(0, || build_for_block(&sh, &blk, x));
+            a16_same(&base_acc, &base_blk, &format!("{name} input {xi}: build_accuracy against build_for_block, no form"));
+            for (label, m) in &sets {
+                a16_same(&base_acc, &with_a16(*m, || build_accuracy(&sh, &public, &ff, &data, x)), &format!("{name} input {xi} [{label}] build_accuracy"));
+                a16_same(&base_blk, &with_a16(*m, || build_for_block(&sh, &blk, x)), &format!("{name} input {xi} [{label}] build_for_block"));
+            }
+            *outcomes.entry(a16_outcome(&base_acc)).or_insert(0) += 1;
+        }
+        assert!(outcomes.contains_key("ok") || name.ends_with("_DD"), "{name}: no admissible input");
+        eprintln!("A16-FORMS {name}: {} inputs x {} form sets x 2 entries, every plane and refusal equal; outcomes {outcomes:?}", inputs.len(), sets.len());
+    }
+}
+
+/// [A16] a chain of up to `l` witnesses through production's builder, each built at `at`
+/// in the forms `forms` (set on the thread the build enters on)
+fn a16_chain(at: A15At, forms: u32, sh: &Shape, blk: &BlockPublic, x0: &[i16], l: usize) -> Vec<Result<Witness, String>> {
+    let mut out = Vec::with_capacity(l);
+    let mut x = x0.to_vec();
+    for _ in 0..l {
+        let f = || super::witness::with_a16(forms, || super::witness::build_for_block(sh, blk, &x));
+        let r = match at {
+            A15At::Caller => f(),
+            A15At::Pool(p) => p.install(f),
+            A15At::Seal(s) => s.run(f),
+        };
+        let next = r.as_ref().ok().and_then(|w| w.output().ok()).map(|o| unpad(sh, &o));
+        out.push(r);
+        match next {
+            Some(n) => x = n,
+            None => break,
+        }
+    }
+    out
+}
+
+/// **[A16] the rung chain (three different blocks' inputs) in every form and every pool
+/// (CPU).** A15's chain at the W16R2 rung (`rung_case`), built with no form on the calling
+/// thread, then under every set of [`a16_form_sets`] at every place of
+/// [`a15_every_place`] (rayon pools of 1, 4, 8, 16 threads; the sealing pool at 0, 1, 4,
+/// 8, 16 and the default): every plane of every witness is the same; the first is
+/// `rung_case`'s.
+#[test]
+fn a16_the_rung_chain_in_every_form_and_every_pool() {
+    let (sh, blk, w0) = rung_case(shape::W16R2_RUNG_H24);
+    let x0: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11) % 201) as i16 - 100).collect();
+    let base = a16_chain(A15At::Caller, 0, &sh, &blk, &x0, 3);
+    match &base[0] {
+        Ok(w) => assert!(w.planes == w0.planes && w.output_plane == w0.output_plane, "the first witness is not rung_case's"),
+        Err(e) => panic!("the rung's first witness refused: {e}"),
+    }
+    let sets = a16_form_sets();
+    a15_every_place(|label, at| {
+        for (fl, m) in &sets {
+            let got = a16_chain(at, *m, &sh, &blk, &x0, 3);
+            assert_eq!(got.len(), base.len(), "{label} [{fl}]: the chain's length moved");
+            for (k, (g, b)) in got.iter().zip(&base).enumerate() {
+                a16_same(b, g, &format!("{label} [{fl}] block {k}"));
+            }
+        }
+        eprintln!("A16-RUNG {} {label}: {} form sets, {} witnesses each, every plane equal", sh.name, sets.len(), base.len());
+    });
+}
+
+/// **[A16, ignored] the W16R2 8B T128 block in every form, CPU and device products.**
+/// A15's 8B recipe and chain of three through production's builder: built with no form
+/// on the calling thread (CPU products), then with no form and under every set of
+/// [`a16_form_sets`] on the calling thread and in the default sealing pool with CPU
+/// products, and on the calling thread and in sealing pools of 8 and 16 and the default
+/// with the A4 device products: one digest of every plane of every witness, equal
+/// everywhere; `build_accuracy` (the harness's entry) under no form, every form and the
+/// default; and the refusing inputs of [`a16_inputs`] under every set, refused
+/// identically. Heavy; toggles `HL_GPU`; run alone by name (`HL_GPU_REQUIRED=1`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A16: heavy (W16R2 8B T128 chains in 15 form sets, CPU and device products), toggles HL_GPU; run alone by name, HL_GPU_REQUIRED=1"]
+fn a16_the_8b_witness_planes_in_every_form() {
+    use super::trained_block::{set_seal_pool_auto_for_test, set_seal_pool_for_test, SealPool};
+    use super::witness::{build_accuracy, build_for_block, with_a16, A16_ALL, A16_DEFAULT};
+    use crate::private_block::shape::NormCalibration;
+    let spec = shape::W16R2_PROFILES.iter().find(|s| s.name == "W16R2_8B_T128_H24").expect("the W16R2 8B profile");
+    let cal = NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+    let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
+    let (sh, data, public, ff) = super::range16_tests::case(original, 3);
+    let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+    std::env::remove_var("HL_GPU");
+    let mut seed = 0usize;
+    let x0 = loop {
+        let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + seed) % (41 + 20 * (seed % 3))) as i16 - 20).collect();
+        match with_a16(0, || build_accuracy(&sh, &public, &ff, &data, &input)) {
+            Ok(_) => break input,
+            Err(_) if seed < 6 => seed += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let want = a15_chain_digests(&a16_chain(A15At::Caller, 0, &sh, &blk, &x0, 3));
+    assert!(want.iter().all(|d| d.is_ok()), "the 8B chain refused: {want:?}");
+    let sets = a16_form_sets();
+    let pool = |t: Option<usize>| {
+        match t {
+            Some(t) => set_seal_pool_for_test(Some(t)),
+            None => set_seal_pool_auto_for_test(),
+        }
+        let sp = SealPool::get().expect("the sealing pool");
+        set_seal_pool_for_test(None);
+        sp
+    };
+    let (sp_def, sp8, sp16) = (pool(None), pool(Some(8)), pool(Some(16)));
+    for gpu in [false, true] {
+        if gpu {
+            std::env::set_var("HL_GPU", "1");
+        } else {
+            std::env::remove_var("HL_GPU");
+        }
+        let products = if gpu { "device products" } else { "CPU products" };
+        let places: Vec<(String, A15At)> = if gpu {
+            vec![("the calling thread".into(), A15At::Caller), (format!("the default sealing pool ({})", sp_def.threads()), A15At::Seal(&sp_def)), ("a sealing pool of 8".into(), A15At::Seal(&sp8)), ("a sealing pool of 16".into(), A15At::Seal(&sp16))]
+        } else {
+            vec![("the calling thread".into(), A15At::Caller), (format!("the default sealing pool ({})", sp_def.threads()), A15At::Seal(&sp_def))]
+        };
+        for (pl, at) in &places {
+            for (fl, m) in std::iter::once(("no form".to_string(), 0u32)).chain(sets.iter().cloned()) {
+                let made = crate::gpu::witness_product_stats().0;
+                let t = std::time::Instant::now();
+                let got = a15_chain_digests(&a16_chain(*at, m, &sh, &blk, &x0, 3));
+                let secs = t.elapsed().as_secs_f64();
+                let on_device = crate::gpu::witness_product_stats().0 - made;
+                assert_eq!(got, want, "{pl} [{fl}] ({products}): a plane of the 8B chain's witnesses differs");
+                assert!(!gpu || on_device > 0, "{pl} [{fl}]: no product ran on the device");
+                eprintln!("A16-8B {} {pl} [{fl}] [{products}]: 3 witnesses in {secs:.2} s, {on_device} device products, every plane equal (digests {:?})", sh.name, got.iter().map(|d| d.as_ref().map(|s| s[..8].to_string()).unwrap_or_default()).collect::<Vec<_>>());
+            }
+        }
+        // the harness's entry, `build_accuracy`, on the calling thread
+        let base = a15_witness_digest(&with_a16(0, || build_accuracy(&sh, &public, &ff, &data, &x0)).expect("admissible"));
+        assert_eq!(Ok(base.clone()), want[0], "build_accuracy against build_for_block ({products})");
+        for (fl, m) in [("all", A16_ALL), ("the default", A16_DEFAULT)] {
+            let d = a15_witness_digest(&with_a16(m, || build_accuracy(&sh, &public, &ff, &data, &x0)).expect("admissible"));
+            assert_eq!(d, base, "build_accuracy [{fl}] ({products})");
+        }
+        // the refusing inputs: the same refusal in every form
+        let mut outcomes: std::collections::BTreeMap<String, usize> = std::collections::BTreeMap::new();
+        for (xi, x) in a16_inputs(&sh, true).iter().enumerate().skip(4) {
+            let b = with_a16(0, || build_for_block(&sh, &blk, x));
+            for (fl, m) in &sets {
+                let g = with_a16(*m, || build_for_block(&sh, &blk, x));
+                match (&b, &g) {
+                    (Ok(a), Ok(c)) => assert_eq!(a15_witness_digest(a), a15_witness_digest(c), "input {xi} [{fl}] ({products})"),
+                    (Err(a), Err(c)) => assert_eq!(a, c, "input {xi} [{fl}] ({products}): the refusals differ"),
+                    (a, c) => panic!("input {xi} [{fl}] ({products}): {:?} against {:?}", a.as_ref().err(), c.as_ref().err()),
+                }
+            }
+            *outcomes.entry(a16_outcome(&b)).or_insert(0) += 1;
+        }
+        eprintln!("A16-8B {} refusing inputs [{products}]: {} form sets each, refused identically; outcomes {outcomes:?}", sh.name, sets.len());
+        if !gpu {
+            continue;
+        }
+        // the calibration variants at the 8B shape, device products: every chunked form's
+        // refusal at the sizes it runs at
+        let mut sites: std::collections::BTreeMap<String, usize> = std::collections::BTreeMap::new();
+        for (vname, edit) in a16_variant_edits() {
+            let Some((vsh, vdata, vpublic, vff)) = a16_variant(spec.profile, &*edit) else {
+                eprintln!("A16-8B [{vname}]: this calibration does not build (skipped)");
+                continue;
+            };
+            let vblk = BlockPublic::new(vpublic, vff).with_accuracy(vdata);
+            for (xi, x) in a16_inputs(&vsh, true).iter().enumerate() {
+                let b = with_a16(0, || build_for_block(&vsh, &vblk, x));
+                for (fl, m) in &sets {
+                    let g = with_a16(*m, || build_for_block(&vsh, &vblk, x));
+                    match (&b, &g) {
+                        (Ok(a), Ok(c)) => assert_eq!(a15_witness_digest(a), a15_witness_digest(c), "[{vname}] input {xi} [{fl}]"),
+                        (Err(a), Err(c)) => assert_eq!(a, c, "[{vname}] input {xi} [{fl}]: the refusals differ"),
+                        (a, c) => panic!("[{vname}] input {xi} [{fl}]: {:?} against {:?}", a.as_ref().err(), c.as_ref().err()),
+                    }
+                }
+                *sites.entry(a16_outcome(&b)).or_insert(0) += 1;
+            }
+        }
+        eprintln!("A16-8B calibration variants [{products}]: {} form sets each, every plane and refusal equal; outcomes {sites:?}", sets.len());
+    }
+    std::env::remove_var("HL_GPU");
+}

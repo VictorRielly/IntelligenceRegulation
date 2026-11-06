@@ -1,0 +1,85 @@
+# A15 sealing-pass sample summary: a16 s1 [s0]
+interval 2 ms; threads with samples: main 2, other 6, rayon 40
+
+## samples by role and state (thread-seconds = samples x interval)
+| role | run | yield | wake | mutex | vm | sleep | total |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| main | 4.70 | 0.09 | 0.04 | 0.04 | 0.01 | 0.10 | 4.98 |
+| rayon | 9.96 | 0.71 | 0.10 | 0.28 | 0.00 | 244.60 | 255.65 |
+| other | 0.39 | 0.00 | 0.00 | 0.00 | 0.06 | 26.12 | 26.57 |
+
+## the main line (the build's own thread), by what it does
+     1523 =   3.05 s   61.2%  own work [run]
+      477 =   0.95 s   19.2%  gpu-wait [run]
+      335 =   0.67 s   13.5%  region-work (its own region's stolen task) [run]
+       47 =   0.09 s    1.9%  region-wait [yield]
+       40 =   0.08 s    1.6%  region-wait [sleep]
+       17 =   0.03 s    0.7%  region-wait [run]
+       10 =   0.02 s    0.4%  own work [mutex]
+        9 =   0.02 s    0.4%  own work [sleep]
+        9 =   0.02 s    0.4%  region-wait [wake]
+        8 =   0.02 s    0.3%  region-wait [mutex]
+        8 =   0.02 s    0.3%  own work [wake]
+        3 =   0.01 s    0.1%  own work [vm]
+        2 =   0.00 s    0.1%  region-work (its own region's stolen task) [wake]
+        1 =   0.00 s    0.0%  region-work (its own region's stolen task) [mutex]
+
+### the main line's own running work by deepest project frame, top 20
+      349 =   0.70 s  hashline::private_block::witness::accuracy::quantized
+      206 =   0.41 s  hashline::private_block::witness::accuracy::build_with
+      205 =   0.41 s  hashline::private_block::witness::Geom::support
+      185 =   0.37 s  hashline::private_block::witness::accuracy::chunk_plan
+      162 =   0.32 s  hashline::private_block::witness::accuracy::normalized
+      127 =   0.25 s  hashline::private_block::witness::accuracy::fill_planes
+       90 =   0.18 s  hashline::private_block::witness::accuracy::build_with::_$u7b$$u7b$closure$u7d$$u7d$
+       39 =   0.08 s  hashline::private_block::accuracy::requant
+       38 =   0.08 s  hashline::private_block::witness::accuracy::assign_with::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$
+       28 =   0.06 s  hashline::private_block::witness::accuracy::residual
+       26 =   0.05 s  hashline::private_block::witness::accuracy::quantized::_$u7b$$u7b$closure$u7d$$u7d$
+       23 =   0.05 s  hashline::gpu::metal::wprod_run
+       13 =   0.03 s  hashline::private_block::weights_vanish_off_support
+       12 =   0.02 s  hashline::private_block::witness::accuracy::assign_with
+        7 =   0.01 s  hashline::private_block::witness::rotate
+        2 =   0.00 s  hashline::private_block::Axis::supported
+        2 =   0.00 s  hashline::private_block::accuracy_groups::group_folds_for
+        2 =   0.00 s  hashline::private_block::accuracy_public::AccuracyPublic::check_for_registry
+        2 =   0.00 s  hashline::private_block::witness::accuracy::assign_with::_$u7b$$u7b$closure$u7d$$u7d$
+        1 =   0.00 s  hashline::gpu::metal::shared_buffer
+
+### rayon workers' running samples by deepest project frame, top 20
+     3537 =   7.07 s  rayon::iter::plumbing::bridge_producer_consumer::helper
+      441 =   0.88 s  hashline::private_block::witness::accuracy::assign_with::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$
+      379 =   0.76 s  hashline::private_block::accuracy::requant
+      341 =   0.68 s  hashline::private_block::witness::accuracy::quantized::_$u7b$$u7b$closure$u7d$$u7d$
+       68 =   0.14 s  _platform_memmove
+       33 =   0.07 s  mach_absolute_time
+       23 =   0.05 s  (idle, not yielding: rayon_core::registry::WorkerThread::wait_until_cold)
+       17 =   0.03 s  (idle, not yielding: crossbeam_epoch::default::with_handle)
+       16 =   0.03 s  (idle, not yielding: crossbeam_deque::deque::Stealer$LT$T$GT$::steal)
+       11 =   0.02 s  (idle, not yielding: _pthread_mutex_droplock)
+       10 =   0.02 s  xzm_malloc_zone_size
+        9 =   0.02 s  rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+        8 =   0.02 s  crossbeam_epoch::default::with_handle
+        8 =   0.02 s  rayon_core::registry::WorkerThread::wait_until_cold
+        8 =   0.02 s  _xzm_free
+        5 =   0.01 s  (idle, not yielding: _tlv_get_addr)
+        5 =   0.01 s  crossbeam_deque::deque::Stealer$LT$T$GT$::steal
+        5 =   0.01 s  (idle, not yielding: crossbeam_epoch::internal::Global::try_advance)
+        4 =   0.01 s  rayon_core::registry::WorkerThread::take_local_job
+        4 =   0.01 s  _xzm_xzone_malloc_tiny
+
+### the yield samples' chains (leaf first), top 6
+      274  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$ <- _RNvNvMs0_NtNtNtCsgL88BVMLsDE_3std3sys6thread4unixNtB7_6Thread3new12th
+       72  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core.
+       48  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+        3  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- hashline::private_block::witness::accuracy::fill_planes
+        2  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- hashline::private_block::witness::accuracy::quantized
+        1  swtch_pri <- cthread_yield <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- hashline::private_block::witness::accuracy::build_with
+
+### the wake samples' chains (leaf first), top 6
+       33  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- rayon_core::sleep::Sleep::wake_any_threads <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper
+       10  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- rayon_core::sleep::Sleep::wake_any_threads <- rayon_core::registry::WorkerThread::wait_until_cold <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+        7  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- rayon_core::sleep::Sleep::wake_any_threads <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+        6  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core. <- rayon_core::registry::WorkerThread::wait_until_cold <- rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ <- rayon::iter::plumbing::bridge_producer_consumer::helper
+        4  __psynch_cvsignal <- pthread_cond_signal <- rayon_core::sleep::Sleep::wake_specific_thread <- _$LT$rayon_core..job..StackJob$LT$L$C$F$C$R$GT$$u20$as$u20$rayon_core. <- rayon_core::registry::WorkerThread::wait_until_cold <- std::sys::backtrace::__rust_begin_short_backtrace <- core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+        3  __ulock_wake <- _os_unfair_lock_unlock_slow <- _xzm_segment_group_span_mark_smaller <- _xzm_segment_group_find_and_allocate_chunk <- xzm_segment_group_alloc_chunk <- _xzm_malloc_large_huge <- xzm_realloc

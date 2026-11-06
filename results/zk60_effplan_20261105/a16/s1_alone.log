@@ -1,0 +1,302 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:162:12
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:165:9
+    |
+165 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:345:9
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:345:33
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:346:25
+    |
+346 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:350:9
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:350:39
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1940:4
+     |
+1940 | fn cpu_seconds() -> f64 {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 28 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.02s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-9ac86ecf376144d6)
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 5.363 s
+D55-AB W16R2_8B_T128_H24 L32 T128: setup 6.4 s (one witness 0.30 GB; 32 alive per call)
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16old] pass 0: wall 3.276 s in a sealing pool of 8; user 7.51 s + sys 2.96 s = 3.2 cores; csw voluntary 0, involuntary 47660; minor faults 545388; forms 0x00, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache] pass 0: wall 2.826 s in a sealing pool of 8; user 7.04 s + sys 2.43 s = 3.3 cores; csw voluntary 0, involuntary 46870; minor faults 523329; forms 0x01, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant] pass 0: wall 2.361 s in a sealing pool of 8; user 6.33 s + sys 3.36 s = 4.1 cores; csw voluntary 0, involuntary 44517; minor faults 525562; forms 0x03, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm] pass 0: wall 2.139 s in a sealing pool of 8; user 6.24 s + sys 3.48 s = 4.5 cores; csw voluntary 0, involuntary 46577; minor faults 526338; forms 0x07, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm+a16loops] pass 0: wall 2.092 s in a sealing pool of 8; user 6.47 s + sys 4.08 s = 5.0 cores; csw voluntary 0, involuntary 48079; minor faults 528164; forms 0x0f, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm+a16loops+a16kernels] pass 0: wall 1.860 s in a sealing pool of 8; user 5.01 s + sys 4.10 s = 4.9 cores; csw voluntary 0, involuntary 48871; minor faults 528280; forms 0x4f, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16all] pass 0: wall 1.676 s in a sealing pool of 8; user 5.20 s + sys 4.08 s = 5.5 cores; csw voluntary 0, involuntary 45902; minor faults 528052; forms 0x7f, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xoverlap] pass 0: wall 1.900 s in a sealing pool of 8; user 5.04 s + sys 4.08 s = 4.8 cores; csw voluntary 0, involuntary 47397; minor faults 528217; forms 0x5f, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xkernels] pass 0: wall 2.304 s in a sealing pool of 8; user 6.62 s + sys 4.04 s = 4.6 cores; csw voluntary 0, involuntary 51241; minor faults 527674; forms 0x3f, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xcache] pass 0: wall 2.116 s in a sealing pool of 8; user 5.62 s + sys 3.90 s = 4.5 cores; csw voluntary 0, involuntary 45833; minor faults 530582; forms 0x7e, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xquant] pass 0: wall 1.899 s in a sealing pool of 8; user 5.84 s + sys 2.98 s = 4.6 cores; csw voluntary 0, involuntary 48462; minor faults 524794; forms 0x7d, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xnorm] pass 0: wall 1.823 s in a sealing pool of 8; user 5.18 s + sys 3.84 s = 4.9 cores; csw voluntary 0, involuntary 43891; minor faults 526977; forms 0x7b, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xloops] pass 0: wall 1.917 s in a sealing pool of 8; user 5.00 s + sys 3.66 s = 4.5 cores; csw voluntary 0, involuntary 45221; minor faults 526161; forms 0x77, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16old+prod] pass 0: wall 3.428 s in a sealing pool of 8; user 8.12 s + sys 2.38 s = 3.1 cores; csw voluntary 0, involuntary 56191; minor faults 524581; forms 0x00, build_for_block; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16all+prod] pass 0: wall 1.686 s in a sealing pool of 8; user 5.17 s + sys 4.13 s = 5.5 cores; csw voluntary 0, involuntary 47333; minor faults 528290; forms 0x7f, build_for_block; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xonce+prod] pass 0: wall 1.772 s in a sealing pool of 8; user 5.82 s + sys 4.17 s = 5.6 cores; csw voluntary 0, involuntary 54412; minor faults 527999; forms 0x6f, build_for_block; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [sp12+a16all] pass 0: wall 1.546 s in a sealing pool of 12; user 6.29 s + sys 5.82 s = 7.8 cores; csw voluntary 0, involuntary 75691; minor faults 538487; forms 0x7f, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [sp16+a16all] pass 0: wall 1.764 s in a sealing pool of 16; user 7.57 s + sys 10.54 s = 10.3 cores; csw voluntary 0, involuntary 127520; minor faults 541660; forms 0x7f, build_accuracy; every plane of every witness: digest c0d2266503df6675 (equal to the first arm's, [spauto+a16old])
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [sp16+a16all] pass 1: wall 1.689 s in a sealing pool of 16; user 7.43 s + sys 10.35 s = 10.5 cores; csw voluntary 0, involuntary 120629; minor faults 541497; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [sp12+a16all] pass 1: wall 1.535 s in a sealing pool of 12; user 6.30 s + sys 5.68 s = 7.8 cores; csw voluntary 0, involuntary 72577; minor faults 537932; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xonce+prod] pass 1: wall 1.725 s in a sealing pool of 8; user 5.76 s + sys 4.09 s = 5.7 cores; csw voluntary 0, involuntary 50605; minor faults 529524; forms 0x6f, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16all+prod] pass 1: wall 1.665 s in a sealing pool of 8; user 5.15 s + sys 4.03 s = 5.5 cores; csw voluntary 0, involuntary 43425; minor faults 529508; forms 0x7f, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16old+prod] pass 1: wall 3.168 s in a sealing pool of 8; user 7.92 s + sys 2.41 s = 3.3 cores; csw voluntary 0, involuntary 51340; minor faults 526182; forms 0x00, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xloops] pass 1: wall 1.728 s in a sealing pool of 8; user 4.89 s + sys 3.56 s = 4.9 cores; csw voluntary 0, involuntary 41316; minor faults 527596; forms 0x77, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xnorm] pass 1: wall 1.837 s in a sealing pool of 8; user 5.16 s + sys 3.83 s = 4.9 cores; csw voluntary 0, involuntary 41995; minor faults 528294; forms 0x7b, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xquant] pass 1: wall 1.840 s in a sealing pool of 8; user 5.70 s + sys 2.92 s = 4.7 cores; csw voluntary 0, involuntary 45899; minor faults 525983; forms 0x7d, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xcache] pass 1: wall 2.064 s in a sealing pool of 8; user 5.51 s + sys 3.85 s = 4.5 cores; csw voluntary 0, involuntary 43084; minor faults 530775; forms 0x7e, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xkernels] pass 1: wall 1.829 s in a sealing pool of 8; user 6.49 s + sys 4.03 s = 5.8 cores; csw voluntary 0, involuntary 43296; minor faults 529643; forms 0x3f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xoverlap] pass 1: wall 1.755 s in a sealing pool of 8; user 4.87 s + sys 4.07 s = 5.1 cores; csw voluntary 0, involuntary 44475; minor faults 529335; forms 0x5f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16all] pass 1: wall 1.613 s in a sealing pool of 8; user 5.11 s + sys 4.02 s = 5.7 cores; csw voluntary 0, involuntary 44312; minor faults 529287; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm+a16loops+a16kernels] pass 1: wall 1.865 s in a sealing pool of 8; user 4.98 s + sys 4.05 s = 4.8 cores; csw voluntary 0, involuntary 44535; minor faults 529398; forms 0x4f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm+a16loops] pass 1: wall 2.049 s in a sealing pool of 8; user 6.35 s + sys 4.05 s = 5.1 cores; csw voluntary 0, involuntary 44291; minor faults 529704; forms 0x0f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm] pass 1: wall 2.150 s in a sealing pool of 8; user 6.18 s + sys 3.43 s = 4.5 cores; csw voluntary 0, involuntary 41774; minor faults 527622; forms 0x07, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant] pass 1: wall 2.336 s in a sealing pool of 8; user 6.22 s + sys 3.28 s = 4.1 cores; csw voluntary 0, involuntary 40091; minor faults 526793; forms 0x03, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache] pass 1: wall 2.608 s in a sealing pool of 8; user 6.79 s + sys 2.37 s = 3.5 cores; csw voluntary 0, involuntary 42175; minor faults 523906; forms 0x01, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16old] pass 1: wall 3.058 s in a sealing pool of 8; user 7.23 s + sys 2.29 s = 3.1 cores; csw voluntary 0, involuntary 42244; minor faults 525826; forms 0x00, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16old] pass 2: wall 3.080 s in a sealing pool of 8; user 7.25 s + sys 2.31 s = 3.1 cores; csw voluntary 0, involuntary 41989; minor faults 525832; forms 0x00, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache] pass 2: wall 2.610 s in a sealing pool of 8; user 6.79 s + sys 2.36 s = 3.5 cores; csw voluntary 0, involuntary 43949; minor faults 523904; forms 0x01, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant] pass 2: wall 2.337 s in a sealing pool of 8; user 6.22 s + sys 3.27 s = 4.1 cores; csw voluntary 0, involuntary 40928; minor faults 526801; forms 0x03, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm] pass 2: wall 2.092 s in a sealing pool of 8; user 6.11 s + sys 3.43 s = 4.6 cores; csw voluntary 0, involuntary 43163; minor faults 527382; forms 0x07, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm+a16loops] pass 2: wall 2.029 s in a sealing pool of 8; user 6.31 s + sys 4.03 s = 5.1 cores; csw voluntary 0, involuntary 44066; minor faults 529378; forms 0x0f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm+a16loops+a16kernels] pass 2: wall 1.981 s in a sealing pool of 8; user 4.91 s + sys 4.06 s = 4.5 cores; csw voluntary 0, involuntary 47288; minor faults 529395; forms 0x4f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16all] pass 2: wall 1.656 s in a sealing pool of 8; user 5.10 s + sys 4.02 s = 5.5 cores; csw voluntary 0, involuntary 41452; minor faults 529582; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xoverlap] pass 2: wall 1.803 s in a sealing pool of 8; user 4.89 s + sys 4.05 s = 5.0 cores; csw voluntary 0, involuntary 44423; minor faults 529488; forms 0x5f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xkernels] pass 2: wall 1.763 s in a sealing pool of 8; user 6.37 s + sys 3.97 s = 5.9 cores; csw voluntary 0, involuntary 41599; minor faults 529300; forms 0x3f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xcache] pass 2: wall 2.039 s in a sealing pool of 8; user 5.47 s + sys 3.78 s = 4.5 cores; csw voluntary 0, involuntary 40748; minor faults 531724; forms 0x7e, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xquant] pass 2: wall 1.802 s in a sealing pool of 8; user 5.63 s + sys 2.89 s = 4.7 cores; csw voluntary 0, involuntary 43739; minor faults 525877; forms 0x7d, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xnorm] pass 2: wall 1.811 s in a sealing pool of 8; user 5.10 s + sys 3.78 s = 4.9 cores; csw voluntary 0, involuntary 40000; minor faults 528301; forms 0x7b, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xloops] pass 2: wall 1.919 s in a sealing pool of 8; user 4.93 s + sys 3.58 s = 4.4 cores; csw voluntary 0, involuntary 43176; minor faults 527518; forms 0x77, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16old+prod] pass 2: wall 3.134 s in a sealing pool of 8; user 7.82 s + sys 2.40 s = 3.3 cores; csw voluntary 0, involuntary 50104; minor faults 525824; forms 0x00, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16all+prod] pass 2: wall 1.686 s in a sealing pool of 8; user 5.14 s + sys 4.03 s = 5.4 cores; csw voluntary 0, involuntary 42839; minor faults 529370; forms 0x7f, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xonce+prod] pass 2: wall 1.774 s in a sealing pool of 8; user 5.79 s + sys 4.11 s = 5.6 cores; csw voluntary 0, involuntary 48833; minor faults 529485; forms 0x6f, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [sp12+a16all] pass 2: wall 1.497 s in a sealing pool of 12; user 6.26 s + sys 5.66 s = 8.0 cores; csw voluntary 0, involuntary 72224; minor faults 535838; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [sp16+a16all] pass 2: wall 1.771 s in a sealing pool of 16; user 7.57 s + sys 10.42 s = 10.2 cores; csw voluntary 0, involuntary 121348; minor faults 542839; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [sp16+a16all] pass 3: wall 1.739 s in a sealing pool of 16; user 7.51 s + sys 10.40 s = 10.3 cores; csw voluntary 0, involuntary 120832; minor faults 542280; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [sp12+a16all] pass 3: wall 1.511 s in a sealing pool of 12; user 6.28 s + sys 5.65 s = 7.9 cores; csw voluntary 0, involuntary 72098; minor faults 536377; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xonce+prod] pass 3: wall 1.753 s in a sealing pool of 8; user 5.74 s + sys 4.10 s = 5.6 cores; csw voluntary 0, involuntary 48377; minor faults 529292; forms 0x6f, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16all+prod] pass 3: wall 1.651 s in a sealing pool of 8; user 5.09 s + sys 4.06 s = 5.5 cores; csw voluntary 0, involuntary 42991; minor faults 529460; forms 0x7f, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16old+prod] pass 3: wall 3.162 s in a sealing pool of 8; user 7.84 s + sys 2.42 s = 3.2 cores; csw voluntary 0, involuntary 51333; minor faults 525825; forms 0x00, build_for_block
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xloops] pass 3: wall 1.765 s in a sealing pool of 8; user 4.92 s + sys 3.59 s = 4.8 cores; csw voluntary 0, involuntary 39898; minor faults 527627; forms 0x77, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xnorm] pass 3: wall 1.853 s in a sealing pool of 8; user 5.17 s + sys 3.81 s = 4.8 cores; csw voluntary 0, involuntary 40936; minor faults 528134; forms 0x7b, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xquant] pass 3: wall 1.826 s in a sealing pool of 8; user 5.68 s + sys 2.92 s = 4.7 cores; csw voluntary 0, involuntary 44626; minor faults 525907; forms 0x7d, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xcache] pass 3: wall 2.096 s in a sealing pool of 8; user 5.54 s + sys 3.85 s = 4.5 cores; csw voluntary 0, involuntary 42471; minor faults 530925; forms 0x7e, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xkernels] pass 3: wall 1.813 s in a sealing pool of 8; user 6.41 s + sys 4.05 s = 5.8 cores; csw voluntary 0, involuntary 42963; minor faults 529422; forms 0x3f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16xoverlap] pass 3: wall 1.808 s in a sealing pool of 8; user 4.88 s + sys 4.06 s = 4.9 cores; csw voluntary 0, involuntary 45104; minor faults 529359; forms 0x5f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16all] pass 3: wall 1.574 s in a sealing pool of 8; user 4.97 s + sys 3.98 s = 5.7 cores; csw voluntary 0, involuntary 40721; minor faults 529112; forms 0x7f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm+a16loops+a16kernels] pass 3: wall 1.766 s in a sealing pool of 8; user 4.84 s + sys 4.04 s = 5.0 cores; csw voluntary 0, involuntary 43955; minor faults 529371; forms 0x4f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm+a16loops] pass 3: wall 1.984 s in a sealing pool of 8; user 6.22 s + sys 4.02 s = 5.2 cores; csw voluntary 0, involuntary 43995; minor faults 529493; forms 0x0f, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant+a16norm] pass 3: wall 2.063 s in a sealing pool of 8; user 6.02 s + sys 3.45 s = 4.6 cores; csw voluntary 0, involuntary 42863; minor faults 527493; forms 0x07, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache+a16quant] pass 3: wall 2.297 s in a sealing pool of 8; user 6.13 s + sys 3.29 s = 4.1 cores; csw voluntary 0, involuntary 41410; minor faults 526845; forms 0x03, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16cache] pass 3: wall 2.568 s in a sealing pool of 8; user 6.69 s + sys 2.39 s = 3.5 cores; csw voluntary 0, involuntary 43333; minor faults 523904; forms 0x01, build_accuracy
+D55-AB A16 SEALONLY W16R2_8B_T128_H24 L32 [spauto+a16old] pass 3: wall 3.050 s in a sealing pool of 8; user 7.18 s + sys 2.32 s = 3.1 cores; csw voluntary 0, involuntary 42204; minor faults 525824; forms 0x00, build_accuracy
+D55-AB A16: HL_A16_ONLY=1, the test ends after the sealing passes
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1043 filtered out; finished in 161.46s
+

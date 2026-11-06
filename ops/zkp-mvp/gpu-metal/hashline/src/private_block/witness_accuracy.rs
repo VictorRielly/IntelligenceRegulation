@@ -43,6 +43,8 @@ const PAR_CHUNK: usize = 1 << 13;
 struct ChunkPlan {
     stride: usize,
     groups: Vec<Vec<usize>>,
+    /// [A16] the support's length (every position is in exactly one group)
+    count: usize,
 }
 
 fn chunk_plan(g: &Geom, dom: Dom, support: &[usize]) -> Option<ChunkPlan> {
@@ -63,8 +65,225 @@ fn chunk_plan(g: &Geom, dom: Dom, support: &[usize]) -> Option<ChunkPlan> {
     for &i in support {
         groups.get_mut(i / stride)?.push(i);
     }
-    Some(ChunkPlan { stride, groups })
+    Some(ChunkPlan { stride, groups, count: support.len() })
 }
+
+// ---- [A16] the builder's serial remainder (see `witness.rs`, the [A16] block) ----
+
+/// [A16] which of the block's public checks the caller has already run on the same data
+/// at the same shape (`witness::build_accuracy_with`)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(super) enum Checked {
+    /// none: `build` runs every check (its own tests)
+    #[cfg_attr(not(test), allow(dead_code))]
+    Nothing,
+    /// `build_accuracy`'s three (`check_constructed`, `check_for_registry`, the gate shift)
+    Registry,
+    /// the whole `BlockPublic::check_accuracy_for_shape` (`build_for_block` under A16_ONCE)
+    Block,
+}
+
+static PLANS: ShareCache<Option<ChunkPlan>> = ShareCache::new();
+
+/// [A16] `chunk_plan(g, dom, support(dom))`, kept for the process
+fn shared_plan(g: &Geom, dom: Dom) -> std::sync::Arc<Option<ChunkPlan>> {
+    PLANS.get_or(g.cache_key(dom), || chunk_plan(g, dom, &g.support_shared(dom)))
+}
+
+/// [A16] a domain's support: kept for the process (A16_CACHE) or built
+fn support_of(g: &Geom, dom: Dom, cache: bool) -> std::sync::Arc<Vec<usize>> {
+    if cache {
+        g.support_shared(dom)
+    } else {
+        std::sync::Arc::new(g.support(dom))
+    }
+}
+
+/// [A16] a plan usable over a plane of `n` words whose support has `count` positions
+fn plan_for(p: &Option<std::sync::Arc<Option<ChunkPlan>>>, n: usize, count: usize) -> Option<&ChunkPlan> {
+    let pl = p.as_ref()?.as_ref().as_ref()?;
+    (pl.stride > 0 && pl.groups.len() * pl.stride == n && pl.count == count).then_some(pl)
+}
+
+/// **[A16] `quantized` over whole chunks** (A16_QUANT): each chunk of the two output
+/// planes is written by one task at its own support positions, with `quantized`'s
+/// per-position function; no serial read-back. If any position refuses, `quantized`
+/// itself runs and returns its (the sequential loop's) first refusal. Without a plan
+/// for this plane, `quantized`.
+#[allow(clippy::too_many_arguments)]
+fn quantized_with(
+    acc: Vec<i64>,
+    support: &[usize],
+    plan: Option<&ChunkPlan>,
+    shift: u32,
+    mult: &[u64],
+    stride: usize,
+    lo: i64,
+    hi: i64,
+    site: &'static str,
+) -> Result<Quantized, String> {
+    use rayon::prelude::*;
+    let Some(pl) = plan.filter(|p| !sequential() && p.groups.len() * p.stride == acc.len() && p.count == support.len()) else {
+        return quantized(acc, support, shift, mult, stride, lo, hi, site);
+    };
+    let st = pl.stride;
+    let (mut words, mut rho) = (zeros(acc.len()), zeros(acc.len()));
+    let ok = {
+        // `quantized`'s `one`, with `mult[i % stride]` read without the division where the
+        // multiplier's stride is the chunk's (`i - base == i % st` inside chunk `c`)
+        let one = |i: usize, base: usize| -> Option<(i64, i64)> {
+            let m = if stride == 1 { mult[0] } else if stride == st { mult[i - base] } else { mult[i % stride] };
+            let r = crate::private_block::accuracy::requant(acc[i] as i128, m, shift).ok()?;
+            if !(lo..=hi).contains(&r.word) {
+                return None;
+            }
+            Some((r.word, i64::try_from(r.remainder).ok()?))
+        };
+        words.par_chunks_mut(st).zip(rho.par_chunks_mut(st)).zip(pl.groups.par_iter()).enumerate().all(|(c, ((w, r), pos))| {
+            let base = c * st;
+            for &i in pos {
+                let Some((a, b)) = one(i, base) else { return false };
+                w[i - base] = a;
+                r[i - base] = b;
+            }
+            true
+        })
+    };
+    if !ok {
+        return quantized(acc, support, shift, mult, stride, lo, hi, site);
+    }
+    Ok(Quantized { words, rho })
+}
+
+/// [A16] one row of `normalized` (its loop body at row `t`, verbatim but for the i64
+/// form): `(d, a1, a2)`, the row's words, remainders and complements written into
+/// `w`, `r`, `s` (the row's slices of the three `Dom::D` planes)
+#[allow(clippy::too_many_arguments)]
+fn norm_row(g: &Geom, row: &[i64], gamma: &[i8], gmax: u128, tn: u32, cn: i64, w: &mut [i64], r: &mut [i64], s: &mut [i64]) -> Result<(i64, i64, i64), String> {
+    let ss = g.s.norm_ceps + row.iter().map(|v| v * v).sum::<i64>();
+    let d = isqrt(u64::try_from(ss).map_err(|_| range("norm denominator"))?) as i64;
+    let (a1, a2) = (ss - d * d, 2 * d - (ss - d * d));
+    if d == 0
+        || [d, a1, a2]
+            .iter()
+            .any(|v| !(0..1i64 << (8 * LIMBS_ISQRT)).contains(v))
+    {
+        return Err(range("norm denominator"));
+    }
+    let dv = (d as i128) << tn;
+    let denominator = 2 * dv;
+    // every intermediate of `2 * x * gamma * cn + dv` is at most `bound` in magnitude; the
+    // bound takes at least int16's maximum for `x` and the isqrt window's for `d` (checked
+    // above), so for an int16 row the form chosen is a function of public constants only
+    let rmax = row.iter().map(|v| v.unsigned_abs() as u128).max().unwrap_or(0).max(1 << 15);
+    let dv_max = if tn < 64 { (1u128 << (8 * LIMBS_ISQRT)) << tn } else { u128::MAX };
+    let bound = 2u128.saturating_mul(rmax).saturating_mul(gmax.max(1)).saturating_mul((cn.unsigned_abs() as u128).max(1)).saturating_add(dv_max);
+    if bound < 1 << 62 && dv_max < 1 << 61 && denominator.unsigned_abs() < 1 << 62 {
+        // the same Euclidean quotient and remainder as the i128 form: every value fits
+        let (dv, denominator) = (dv as i64, denominator as i64);
+        for i in 0..g.d {
+            let numerator = 2 * row[i] * gamma[i] as i64 * cn + dv;
+            let q = numerator.div_euclid(denominator);
+            let rr = numerator.rem_euclid(denominator);
+            let sg = denominator - 1 - rr;
+            if !(-32768..=32767).contains(&q) || rr >= 1 << 24 || sg >= 1 << 24 {
+                return Err(range("norm quotient/remainder"));
+            }
+            w[i] = q;
+            r[i] = rr;
+            s[i] = sg;
+        }
+    } else {
+        for i in 0..g.d {
+            let numerator = 2 * row[i] as i128 * gamma[i] as i128 * cn as i128 + dv;
+            let q = numerator.div_euclid(denominator);
+            let rr = numerator.rem_euclid(denominator);
+            let sg = denominator - 1 - rr;
+            if !(-32768..=32767).contains(&q) || rr >= 1 << 24 || sg >= 1 << 24 {
+                return Err(range("norm quotient/remainder"));
+            }
+            w[i] = q as i64;
+            r[i] = rr as i64;
+            s[i] = sg as i64;
+        }
+    }
+    Ok((d, a1, a2))
+}
+
+/// **[A16] `normalized`, its rows in parallel** (A16_NORM): each row is the sequential
+/// loop's body ([`norm_row`]); the first refusal in row order is returned, which is the
+/// sequential loop's (a row's refusal depends on that row alone). Outside the shapes it
+/// covers, `normalized`.
+fn normalized_par(g: &Geom, x: &[i64], gamma: &[i8], tn: u32, cn: i64) -> Result<Norm, String> {
+    use rayon::prelude::*;
+    let (dl, tl, dp) = (g.len(Dom::D), g.len(Dom::T), g.d_pad);
+    if sequential() || dp == 0 || g.d > dp || dl % dp != 0 || dl / dp < g.t || tl < g.t || x.len() < g.t * dp || gamma.len() < g.d {
+        return normalized(g, x, gamma, tn, cn);
+    }
+    let gmax = gamma[..g.d].iter().map(|v| v.unsigned_abs() as u128).max().unwrap_or(0);
+    let (mut words, mut rho, mut sigma) = (zeros(dl), zeros(dl), zeros(dl));
+    let rows: Vec<Result<(i64, i64, i64), String>> = words
+        .par_chunks_mut(dp)
+        .zip(rho.par_chunks_mut(dp))
+        .zip(sigma.par_chunks_mut(dp))
+        .take(g.t)
+        .enumerate()
+        .map(|(t, ((w, r), s))| norm_row(g, &x[t * dp..t * dp + g.d], gamma, gmax, tn, cn, w, r, s))
+        .collect();
+    let mut out = Norm { words, d: vec![0; tl], dsq: vec![0; tl], a1: vec![0; tl], a2: vec![0; tl], rho, sigma };
+    for (t, row) in rows.into_iter().enumerate() {
+        let (d, a1, a2) = row?;
+        out.d[t] = d;
+        out.dsq[t] = d * d;
+        out.a1[t] = a1;
+        out.a2[t] = a2;
+    }
+    Ok(out)
+}
+
+/// **[A16] `residual` over whole chunks** (A16_LOOPS): the same sum and class check at
+/// every support position; on any refusal `residual` itself runs and returns its first
+fn residual_with(g: &Geom, x: &[i64], y: &[i64], site: &'static str, plan: Option<&ChunkPlan>) -> Result<Vec<i64>, String> {
+    use rayon::prelude::*;
+    let n = g.len(Dom::D);
+    if let Some(pl) = plan.filter(|p| !sequential() && p.groups.len() * p.stride == n && x.len() >= n && y.len() >= n) {
+        let st = pl.stride;
+        let mut out = zeros(n);
+        let ok = out.par_chunks_mut(st).zip(pl.groups.par_iter()).enumerate().all(|(c, (ch, pos))| {
+            let base = c * st;
+            for &i in pos {
+                match x[i].checked_add(y[i]).filter(|v| (-32768..=32767).contains(v)) {
+                    Some(v) => ch[i - base] = v,
+                    None => return false,
+                }
+            }
+            true
+        });
+        if ok {
+            return Ok(out);
+        }
+    }
+    residual(g, x, y, site)
+}
+
+/// [A16] the words as int16 when every one is in int16's whole class (`-32768..=32767`),
+/// converted on the pool; `None` otherwise
+fn narrow16_par(x: &[i64]) -> Option<Vec<i16>> {
+    use rayon::prelude::*;
+    if !x.par_chunks(PAR_CHUNK).all(|c| c.iter().all(|&v| i16::try_from(v).is_ok())) {
+        return None;
+    }
+    Some(x.par_iter().map(|&v| v as i16).collect())
+}
+
+/// [A16] `sum_i a[i] * b[i]` of int16 words: every product (at most 2^30) is exact in
+/// i32 and the sum is accumulated in i64 in index order: the integer the i64 form gives
+#[inline]
+fn dot16_16(a: &[i16], b: &[i16]) -> i64 {
+    a.iter().zip(b).map(|(&x, &y)| i64::from(i32::from(x) * i32::from(y))).sum()
+}
+
+// ---- end of [A16] helpers ----
 
 /// H124c: fill the planes `targets[k]` at every support position, each plane over its
 /// chunks in parallel; `cell(i, k)` checks position `i` and gives the plane-`k` word.
@@ -248,6 +467,8 @@ fn residual(g: &Geom, x: &[i64], y: &[i64], site: &'static str) -> Result<Vec<i6
     Ok(out)
 }
 
+/// the whole trace, every public check run here (`build_with`, [`Checked::Nothing`])
+#[cfg(test)]
 pub(super) fn build(
     sh: &Shape,
     public: &AttentionPublic,
@@ -255,6 +476,24 @@ pub(super) fn build(
     accuracy: &AccuracyPublic,
     input: &[i16],
 ) -> Result<Trace, String> {
+    build_with(sh, public, ff, accuracy, input, a16_forms(), Checked::Nothing)
+}
+
+/// the whole trace in the [A16] forms `forms`, after the public checks `checked`
+pub(super) fn build_with(
+    sh: &Shape,
+    public: &AttentionPublic,
+    ff: &FeedForwardPublic,
+    accuracy: &AccuracyPublic,
+    input: &[i16],
+    forms: u32,
+    checked: Checked,
+) -> Result<Trace, String> {
+    // [A16] the reference paths take no form
+    let forms = if sequential() { 0 } else { forms };
+    let once = forms & A16_ONCE != 0;
+    // [A16] A16_ONCE: steps 3, 4 and 8 of `check_accuracy_for_shape`, which the caller ran
+    if !(once && checked == Checked::Block) {
     public.check_for_shape(sh)?;
     ff.check_for_shape(sh)?;
     if [
@@ -277,6 +516,7 @@ pub(super) fn build(
     {
         return Err("R13 public weights/gains must be symmetric int8".into());
     }
+    }
     let geometry = Geometry {
         width: sh.width,
         query_width: sh.q_width(),
@@ -295,7 +535,12 @@ pub(super) fn build(
         down: sh.sh_z,
     };
     let registry=sh.accuracy_registry();
-    accuracy.check_for_registry(registry, geometry, base, accuracy.stack())?;
+    // [A16] A16_ONCE: step 6, which `build_accuracy` (or `check_accuracy_for_shape`) ran
+    // with the same registry, geometry and `sh.accuracy_base()` (this `base`, field for
+    // field), passing only if `accuracy.stack() == sh.accuracy_stack()`
+    if !(once && checked != Checked::Nothing) {
+        accuracy.check_for_registry(registry, geometry, base, accuracy.stack())?;
+    }
     let (p, m, folds) = (
         accuracy.precision(),
         accuracy.multipliers(),
@@ -305,18 +550,42 @@ pub(super) fn build(
     if input.len() != g.t * g.d {
         return Err("R13 witness: input shape".into());
     }
+    // [A16] the forms of this build
+    let (cache, quant, norm, loops, kernels) = (forms & A16_CACHE != 0, forms & A16_QUANT != 0, forms & A16_NORM != 0, forms & A16_LOOPS != 0, forms & A16_KERNELS != 0);
+    // (tests: not while this thread pins its products with `with_device_products`, whose
+    // thread-local switch and counter a product made on another thread would not see)
+    let overlap = forms & A16_OVERLAP != 0 && !products_pinned();
     let (sd, sq, sk, ss, sf) = (
-        g.support(Dom::D),
-        g.support(Dom::Q),
-        g.support(Dom::Kv),
-        g.support(Dom::S),
-        g.support(Dom::F),
+        support_of(&g, Dom::D, cache),
+        support_of(&g, Dom::Q, cache),
+        support_of(&g, Dom::Kv, cache),
+        support_of(&g, Dom::S, cache),
+        support_of(&g, Dom::F, cache),
     );
-    let mut x = vec![0; g.len(Dom::D)];
-    for (&i, &word) in sd.iter().zip(input) {
-        x[i] = word as i64;
+    // [A16] the chunk plans of the parallel forms (kept for the process)
+    let plan_of = |dom: Dom| if quant || loops { Some(shared_plan(&g, dom)) } else { None };
+    let (pd, pq, pk, ps, pf) = (plan_of(Dom::D), plan_of(Dom::Q), plan_of(Dom::Kv), plan_of(Dom::S), plan_of(Dom::F));
+    fn qplan(quant: bool, p: &Option<std::sync::Arc<Option<ChunkPlan>>>, n: usize, count: usize) -> Option<&ChunkPlan> {
+        if quant { plan_for(p, n, count) } else { None }
     }
-    let na = normalized(&g, &x, &public.gamma_a, p.norm_tn, sh.norm_cn_a)?;
+    let (lq, lkv, ls, lf, ld) = (g.len(Dom::Q), g.len(Dom::Kv), g.len(Dom::S), g.len(Dom::F), g.len(Dom::D));
+    let zero = |n: usize| if loops { zeros(n) } else { vec![0; n] };
+    let mut x = zero(g.len(Dom::D));
+    if loops && x.len() >= g.t * g.d_pad && g.d <= g.d_pad {
+        // [A16] `sd` is `(t, i) -> t * d_pad + i` in (t, i) order, zipped with `input[t * d + i]`
+        use rayon::prelude::*;
+        x.par_chunks_mut(g.d_pad).take(g.t).enumerate().for_each(|(t, row)| {
+            for i in 0..g.d {
+                row[i] = input[t * g.d + i] as i64;
+            }
+        });
+    } else {
+        for (&i, &word) in sd.iter().zip(input) {
+            x[i] = word as i64;
+        }
+    }
+    let norm_of = |x: &[i64], gamma: &[i8], cn: i64| if norm { normalized_par(&g, x, gamma, p.norm_tn, cn) } else { normalized(&g, x, gamma, p.norm_tn, cn) };
+    let na = norm_of(&x, &public.gamma_a, sh.norm_cn_a)?;
     let pad = |words: &[u16], width: usize| {
         let mut out = vec![1; width];
         for (dst, &word) in out.iter_mut().zip(words) {
@@ -330,107 +599,133 @@ pub(super) fn build(
             mq[g.slot(h) * g.dh + i] = m.q[h * g.dh + i] as u64;
         }
     }
-    let q = quantized(
-        matmul(
-            &g,
-            &na.words,
-            g.d_pad,
-            &public.wq,
-            g.d_pad,
+    // the five requantized products of the attention input, each as before (A16_QUANT:
+    // over whole chunks)
+    let q_of = || {
+        quantized_with(
+            matmul(&g, &na.words, g.d_pad, &public.wq, g.d_pad, g.q_pad, g.q_pad, lq),
+            &sq,
+            qplan(quant, &pq, lq, sq.len()),
+            p.q,
+            &mq,
             g.q_pad,
-            g.q_pad,
-            g.len(Dom::Q),
-        ),
-        &sq,
-        p.q,
-        &mq,
-        g.q_pad,
-        -32768,
-        32767,
-        "Q",
-    )?;
-    let k = quantized(
-        matmul(
-            &g,
-            &na.words,
-            g.d_pad,
-            &public.wk,
-            g.d_pad,
+            -32768,
+            32767,
+            "Q",
+        )
+    };
+    let k_of = || {
+        quantized_with(
+            matmul(&g, &na.words, g.d_pad, &public.wk, g.d_pad, g.kvw, g.kvw, lkv),
+            &sk,
+            qplan(quant, &pk, lkv, sk.len()),
+            p.k,
+            &pad(&m.k, g.kvw),
             g.kvw,
+            -32768,
+            32767,
+            "K",
+        )
+    };
+    let v_of = || {
+        quantized_with(
+            matmul(&g, &na.words, g.d_pad, &public.wv, g.d_pad, g.kvw, g.kvw, lkv),
+            &sk,
+            qplan(quant, &pk, lkv, sk.len()),
+            p.v,
+            &pad(&m.v, g.kvw),
             g.kvw,
-            g.len(Dom::Kv),
-        ),
-        &sk,
-        p.k,
-        &pad(&m.k, g.kvw),
-        g.kvw,
-        -32768,
-        32767,
-        "K",
-    )?;
-    let v = quantized(
-        matmul(
-            &g,
-            &na.words,
-            g.d_pad,
-            &public.wv,
-            g.d_pad,
-            g.kvw,
-            g.kvw,
-            g.len(Dom::Kv),
-        ),
-        &sk,
-        p.v,
-        &pad(&m.v, g.kvw),
-        g.kvw,
-        -32768,
-        32767,
-        "V",
-    )?;
-    let qr = quantized(
-        rotate(
-            &g,
-            &q.words,
-            g.h_pad,
-            g.q_pad,
-            g.len(Dom::Q),
-            &public.rope_cos,
-            &public.rope_sin,
-        ),
-        &sq,
-        SH_ROPE,
-        &[1],
-        1,
-        -32768,
-        32767,
-        "QR",
-    )?;
-    let kr = quantized(
-        rotate(
-            &g,
-            &k.words,
-            g.hkv,
-            g.kvw,
-            g.len(Dom::Kv),
-            &public.rope_cos,
-            &public.rope_sin,
-        ),
-        &sk,
-        SH_ROPE,
-        &[1],
-        1,
-        -32768,
-        32767,
-        "KR",
-    )?;
-    let mut sacc = vec![0; g.len(Dom::S)];
+            -32768,
+            32767,
+            "V",
+        )
+    };
+    let qr_of = |q: &Quantized| {
+        quantized_with(
+            rotate(&g, &q.words, g.h_pad, g.q_pad, lq, &public.rope_cos, &public.rope_sin),
+            &sq,
+            qplan(quant, &pq, lq, sq.len()),
+            SH_ROPE,
+            &[1],
+            1,
+            -32768,
+            32767,
+            "QR",
+        )
+    };
+    let kr_of = |k: &Quantized| {
+        quantized_with(
+            rotate(&g, &k.words, g.hkv, g.kvw, lkv, &public.rope_cos, &public.rope_sin),
+            &sk,
+            qplan(quant, &pk, lkv, sk.len()),
+            SH_ROPE,
+            &[1],
+            1,
+            -32768,
+            32767,
+            "KR",
+        )
+    };
+    let (q, k, v, qr, kr) = if overlap {
+        // [A16] A16_OVERLAP: Q and its rotation, K and its rotation, and V side by side;
+        // the refusals in the sequential order Q, K, V, QR, KR (nothing else is skipped)
+        let ((q, qr), ((k, kr), v)) = rayon::join(
+            || {
+                let q = q_of();
+                let qr = q.as_ref().ok().map(qr_of);
+                (q, qr)
+            },
+            || {
+                rayon::join(
+                    || {
+                        let k = k_of();
+                        let kr = k.as_ref().ok().map(kr_of);
+                        (k, kr)
+                    },
+                    v_of,
+                )
+            },
+        );
+        let (q, k, v) = (q?, k?, v?);
+        (q, k, v, qr.expect("Q was made")?, kr.expect("K was made")?)
+    } else {
+        let q = q_of()?;
+        let k = k_of()?;
+        let v = v_of()?;
+        let qr = qr_of(&q)?;
+        let kr = kr_of(&k)?;
+        (q, k, v, qr, kr)
+    };
+    let mut sacc = zero(ls);
     // H124c: `six` is contiguous per head slot, so each slot's scores are one task
     let tt = g.t_pad * g.t_pad;
     let heads_of_slots = if sacc.len() % tt == 0 { slot_heads(&g, sacc.len() / tt) } else { None };
+    // [A16] A16_KERNELS: the rotated Q and K words as int16 (they were range-checked to
+    // int16 by their requantization, so for an admissible trace this never declines)
+    let qk16 = if kernels { narrow16_par(&qr.words).zip(narrow16_par(&kr.words)) } else { None };
     match heads_of_slots {
         Some(inv) if !sequential() => {
             use rayon::prelude::*;
             let (qw, kw) = (&qr.words, &kr.words);
+            match &qk16 {
+                Some((q16, k16)) => {
+                    // [A16] each score is the same exact integer sum over the head dimension, of
+                    // contiguous int16 rows (`qix(t, hs, i)` and `kvix(j, kv, i)` are `+ i`), in
+                    // the same order
+                    sacc.par_chunks_mut(tt).enumerate().for_each(|(hs, ch)| {
+                        let Some(h) = inv[hs] else { return };
+                        let kv = h / g.group;
+                        for t in 0..g.t {
+                            let qb = g.qix(t, hs, 0);
+                            let qs = &q16[qb..qb + g.dh];
+                            for j in 0..g.t {
+                                let kb = g.kvix(j, kv, 0);
+                                ch[t * g.t_pad + j] = dot16_16(qs, &k16[kb..kb + g.dh]);
+                            }
+                        }
+                    });
+                }
+                None => {
             sacc.par_chunks_mut(tt).enumerate().for_each(|(hs, ch)| {
                 let Some(h) = inv[hs] else { return };
                 for t in 0..g.t {
@@ -439,6 +734,8 @@ pub(super) fn build(
                     }
                 }
             });
+                }
+            }
         }
         _ => {
             for h in 0..g.hq {
@@ -453,19 +750,20 @@ pub(super) fn build(
         }
     }
     // This includes masked future scores. Their range is still checked.
-    let s = quantized(sacc, &ss, p.score, &[1], 1, -127, 127, "score")?;
+    let s = quantized_with(sacc, &ss, qplan(quant, &ps, ls, ss.len()), p.score, &[1], 1, -127, 127, "score")?;
     let mut mx = vec![0; g.len(Dom::Ht)];
     let mut sum = mx.clone();
-    let mut zsel = vec![0; g.len(Dom::S)];
-    let mut e = zsel.clone();
-    let mut probability = zsel.clone();
-    let mut sr = zsel.clone();
-    let mut sg = zsel.clone();
-    let mut oacc = vec![0; g.len(Dom::Q)];
+    let mut zsel = zero(ls);
+    // [A16] A16_LOOPS: four more zero planes zeroed on the pool, not cloned on this thread
+    let (mut e, mut probability, mut sr, mut sg) = if loops { (zeros(ls), zeros(ls), zeros(ls), zeros(ls)) } else { (zsel.clone(), zsel.clone(), zsel.clone(), zsel.clone()) };
+    let mut oacc = zero(lq);
     // H124c: per head slot in parallel when the S and Ht planes split into the same
     // number of whole slot chunks; otherwise the sequential loop below
     let nslots = zsel.len() / tt;
     let par_heads = if !sequential() && zsel.len() == nslots * tt && mx.len() == nslots * g.t_pad { slot_heads(&g, nslots) } else { None };
+    // [A16] A16_KERNELS: the value words as int16 (range-checked by their requantization)
+    let v16_own = if kernels && par_heads.is_some() { narrow16_par(&v.words) } else { None };
+    let v16 = v16_own.as_deref();
     if let Some(inv) = par_heads {
         use rayon::prelude::*;
         let (sw, vw, exp, wrho_s, f_p) = (&s.words, &v.words, &public.exp, sh.wrho_s, p.f_p);
@@ -509,8 +807,28 @@ pub(super) fn build(
                             return Err(range("softmax"));
                         }
                     }
+                    // [A16] A16_KERNELS: the same sums, accumulated j by j over contiguous int16
+                    // value rows (`kvix(j, kv, i)` is `+ i`): for each `i` the terms are added in
+                    // the order j = 0..=t onto 0, as the old sum adds them; a row whose weights
+                    // are not all int16 (never, for an admissible trace) keeps the old form
+                    let prow = &probability[at(t, 0)..at(t, 0) + t + 1];
+                    match v16 {
+                        Some(v16) if prow.iter().all(|&p| i16::try_from(p).is_ok()) => {
+                            let kv = h / g.group;
+                            let orow = &mut o[t * g.dh..(t + 1) * g.dh];
+                            for (j, &pj) in prow.iter().enumerate() {
+                                let vb = g.kvix(j, kv, 0);
+                                let pj = pj as i32;
+                                for (acc, &vv) in orow.iter_mut().zip(&v16[vb..vb + g.dh]) {
+                                    *acc += i64::from(pj * i32::from(vv));
+                                }
+                            }
+                        }
+                        _ => {
                     for i in 0..g.dh {
                         o[t * g.dh + i] = (0..=t).map(|j| probability[at(t, j)] * vw[g.kvix(j, h / g.group, i)]).sum();
+                    }
+                        }
                     }
                 }
                 Ok(o)
@@ -522,6 +840,20 @@ pub(super) fn build(
                 return Err(err.clone());
             }
         }
+        if loops && oacc.len() >= g.t * g.q_pad && g.hq <= g.h_pad {
+            // [A16] A16_LOOPS: the same scatter by rows of `Dom::Q` (`qix(t, hs, i)` is
+            // `t * q_pad + hs * dh + i`; each (t, hs, i) is written once)
+            use rayon::prelude::*;
+            let outs = &outs;
+            oacc.par_chunks_mut(g.q_pad).take(g.t).enumerate().for_each(|(t, row)| {
+                for h in 0..g.hq {
+                    let hs = g.slot(h);
+                    if let Ok(o) = &outs[hs] {
+                        row[hs * g.dh..(hs + 1) * g.dh].copy_from_slice(&o[t * g.dh..(t + 1) * g.dh]);
+                    }
+                }
+            });
+        } else {
         for h in 0..g.hq {
             let hs = g.slot(h);
             if let Ok(o) = &outs[hs] {
@@ -531,6 +863,7 @@ pub(super) fn build(
                     }
                 }
             }
+        }
         }
     } else {
     for h in 0..g.hq {
@@ -572,21 +905,47 @@ pub(super) fn build(
     }
     }
     // The ungated exp lookup also covers padded score coordinates.
-    for index in 0..e.len() {
-        let (ht, j) = (index / g.t_pad, index % g.t_pad);
-        let masked = if j <= ht % g.t_pad {
-            s.words[index]
-        } else {
-            MASK_SCORE
-        };
-        let delta = mx[ht] - masked;
-        if !(0..256).contains(&delta) {
-            return Err(range("exp difference"));
+    let ungated = |e: &mut [i64]| -> Result<(), String> {
+        for index in 0..e.len() {
+            let (ht, j) = (index / g.t_pad, index % g.t_pad);
+            let masked = if j <= ht % g.t_pad {
+                s.words[index]
+            } else {
+                MASK_SCORE
+            };
+            let delta = mx[ht] - masked;
+            if !(0..256).contains(&delta) {
+                return Err(range("exp difference"));
+            }
+            e[index] = public.exp[delta as usize];
         }
-        e[index] = public.exp[delta as usize];
+        Ok(())
+    };
+    if loops && g.t_pad > 0 && e.len() % g.t_pad == 0 && e.len() / g.t_pad <= mx.len() && s.words.len() >= e.len() {
+        // [A16] A16_LOOPS: by rows of `t_pad` (row `ht` holds the indices `ht * t_pad + j`);
+        // on any refusal the loop above runs and names its first
+        use rayon::prelude::*;
+        let (tp, sw, mxr, exp) = (g.t_pad, &s.words, &mx, &public.exp);
+        let ok = e.par_chunks_mut(tp).enumerate().all(|(ht, row)| {
+            let (base, top) = (ht * tp, ht % tp);
+            for (j, slot) in row.iter_mut().enumerate() {
+                let masked = if j <= top { sw[base + j] } else { MASK_SCORE };
+                let delta = mxr[ht] - masked;
+                if !(0..256).contains(&delta) {
+                    return false;
+                }
+                *slot = exp[delta as usize];
+            }
+            true
+        });
+        if !ok {
+            ungated(&mut e)?;
+        }
+    } else {
+        ungated(&mut e)?;
     }
-    let o = quantized(oacc, &sq, p.pv, &[1], 1, -32768, 32767, "O")?;
-    let ao = quantized(
+    let o = quantized_with(oacc, &sq, qplan(quant, &pq, lq, sq.len()), p.pv, &[1], 1, -32768, 32767, "O")?;
+    let ao = quantized_with(
         matmul(
             &g,
             &o.words,
@@ -595,9 +954,10 @@ pub(super) fn build(
             g.q_pad,
             g.d_pad,
             g.d_pad,
-            g.len(Dom::D),
+            ld,
         ),
         &sd,
+        qplan(quant, &pd, ld, sd.len()),
         p.ao,
         &pad(&m.o, g.d_pad),
         g.d_pad,
@@ -605,58 +965,91 @@ pub(super) fn build(
         32767,
         "AO",
     )?;
-    let x1 = residual(&g, &x, &ao.words, "residual 1")?;
-    let nm = normalized(&g, &x1, &ff.gamma_m, p.norm_tn, sh.norm_cn_m)?;
+    // [A16] A16_LOOPS: the residuals over whole chunks
+    let res = |x: &[i64], y: &[i64], site: &'static str| if loops { residual_with(&g, x, y, site, plan_for(&pd, ld, sd.len())) } else { residual(&g, x, y, site) };
+    let x1 = res(&x, &ao.words, "residual 1")?;
+    let nm = norm_of(&x1, &ff.gamma_m, sh.norm_cn_m)?;
     let mut mg = vec![1; g.f_pad];
     mg[..g.f].copy_from_slice(&folds.gate.multipliers);
-    let gate = quantized(
-        matmul_in_out(
-            &g,
-            &nm.words,
-            g.d_pad,
-            &ff.wg_t,
-            g.d_pad,
+    let gate_of = || {
+        quantized_with(
+            matmul_in_out(&g, &nm.words, g.d_pad, &ff.wg_t, g.d_pad, g.f_pad, g.f_pad, lf),
+            &sf,
+            qplan(quant, &pf, lf, sf.len()),
+            folds.gate.shift,
+            &mg,
             g.f_pad,
+            -2048,
+            2047,
+            "FFN gate",
+        )
+    };
+    let up_of = || {
+        quantized_with(
+            matmul_in_out(&g, &nm.words, g.d_pad, &ff.wu_t, g.d_pad, g.f_pad, g.f_pad, lf),
+            &sf,
+            qplan(quant, &pf, lf, sf.len()),
+            p.up,
+            &pad(&m.u, g.f_pad),
             g.f_pad,
-            g.len(Dom::F),
-        ),
-        &sf,
-        folds.gate.shift,
-        &mg,
-        g.f_pad,
-        -2048,
-        2047,
-        "FFN gate",
-    )?;
-    let up = quantized(
-        matmul_in_out(
-            &g,
-            &nm.words,
-            g.d_pad,
-            &ff.wu_t,
-            g.d_pad,
-            g.f_pad,
-            g.f_pad,
-            g.len(Dom::F),
-        ),
-        &sf,
-        p.up,
-        &pad(&m.u, g.f_pad),
-        g.f_pad,
-        -32768,
-        32767,
-        "FFN up",
-    )?;
-    let mut a_scaled = vec![0; g.len(Dom::F)];
-    for &i in &sf {
-        a_scaled[i] = accuracy.scaled_tables()[accuracy.group_ids()[i % g.f_pad]]
-            [(gate.words[i] + 2048) as usize];
-    }
-    let hacc = a_scaled.iter().zip(&up.words).map(|(a, u)| a * u).collect();
+            -32768,
+            32767,
+            "FFN up",
+        )
+    };
+    let (gate, up) = if overlap {
+        // [A16] A16_OVERLAP: gate beside up; gate's refusal first
+        let (gate, up) = rayon::join(gate_of, up_of);
+        (gate?, up?)
+    } else {
+        let gate = gate_of()?;
+        (gate, up_of()?)
+    };
+    let a_scaled_seq = || {
+        let mut a_scaled = vec![0; lf];
+        for &i in sf.iter() {
+            a_scaled[i] = accuracy.scaled_tables()[accuracy.group_ids()[i % g.f_pad]]
+                [(gate.words[i] + 2048) as usize];
+        }
+        a_scaled
+    };
+    let a_scaled = match plan_for(&pf, lf, sf.len()).filter(|pl| loops && pl.stride == g.f_pad && gate.words.len() >= lf) {
+        Some(pl) => {
+            // [A16] A16_LOOPS: over whole rows of `Dom::F` (`i % f_pad == i - base` in row
+            // `c`); a lookup the sequential loop would not make in bounds sends it there
+            use rayon::prelude::*;
+            let (tables, ids) = (accuracy.scaled_tables(), accuracy.group_ids());
+            let mut a = zeros(lf);
+            let ok = a.par_chunks_mut(pl.stride).zip(pl.groups.par_iter()).enumerate().all(|(c, (ch, pos))| {
+                let base = c * pl.stride;
+                for &i in pos {
+                    let word = ids
+                        .get(i - base)
+                        .and_then(|&k| tables.get(k))
+                        .and_then(|t| usize::try_from(gate.words[i] + 2048).ok().and_then(|ix| t.get(ix)));
+                    match word {
+                        Some(w) => ch[i - base] = *w,
+                        None => return false,
+                    }
+                }
+                true
+            });
+            if ok { a } else { a_scaled_seq() }
+        }
+        None => a_scaled_seq(),
+    };
+    let hacc: Vec<i64> = if loops {
+        // [A16] A16_LOOPS: the same element-wise products, collected in order on the pool
+        use rayon::prelude::*;
+        a_scaled.par_iter().zip(up.words.par_iter()).map(|(a, u)| a * u).collect()
+    } else {
+        a_scaled.iter().zip(&up.words).map(|(a, u)| a * u).collect()
+    };
     let bias = 1i64 << (p.product_bits - 1);
-    let h = quantized(
+    let h = quantized_with(
         hacc,
         &sf,
+        qplan(quant, &pf, lf, sf.len()),
         folds.product.shift,
         &[1],
         1,
@@ -664,7 +1057,7 @@ pub(super) fn build(
         bias - 1,
         "FFN product",
     )?;
-    let z = quantized(
+    let z = quantized_with(
         matmul_in_out(
             &g,
             &h.words,
@@ -673,9 +1066,10 @@ pub(super) fn build(
             g.f_pad,
             g.d_pad,
             g.d_pad,
-            g.len(Dom::D),
+            ld,
         ),
         &sd,
+        qplan(quant, &pd, ld, sd.len()),
         p.down,
         &pad(&m.d, g.d_pad),
         g.d_pad,
@@ -683,7 +1077,7 @@ pub(super) fn build(
         32767,
         "FFN down",
     )?;
-    let x2 = residual(&g, &x1, &z.words, "residual 2")?;
+    let x2 = res(&x1, &z.words, "residual 2")?;
     Ok(Trace {
         x,
         na,
@@ -716,10 +1110,20 @@ pub(super) fn build(
 // Assign the independently tested integer trace to R13's explicit roles.
 // This helper does not activate a proof profile or assert that host relations
 // are integrated. Histogram planes remain empty for the protocol to derive.
+#[cfg(test)]
 pub(super) fn assign(
     sh: &Shape, public: &AttentionPublic, data: &AccuracyPublic, trace: Trace,
 ) -> Result<Witness,String> {
+    assign_with(sh,public,data,trace,a16_forms())
+}
+
+/// `assign` in the [A16] forms `forms` (A16_CACHE: the supports and chunk plans kept for
+/// the process, not rebuilt per block; the same vectors)
+pub(super) fn assign_with(
+    sh: &Shape, public: &AttentionPublic, data: &AccuracyPublic, trace: Trace, forms: u32,
+) -> Result<Witness,String> {
     use crate::private_block::accuracy_layout::{AccuracyIds,Limbs as L};
+    let cache=!sequential() && forms&A16_CACHE!=0;
     let g=Geom::new(sh);
     // W16 (D54): the 16-bit allocation; every other profile keeps R13's
     let w16=sh.range16();
@@ -745,16 +1149,19 @@ pub(super) fn assign(
         }
     };
     // H124c: each domain's support is built once, not once per role (about 15 ms per 8B block)
-    let supports:std::cell::RefCell<Vec<(Dom,std::rc::Rc<Vec<usize>>)>>=std::cell::RefCell::new(Vec::new());
-    let support=|dom:Dom| -> std::rc::Rc<Vec<usize>> {
+    // [A16] A16_CACHE: once per geometry for the process instead (the same vectors)
+    let supports:std::cell::RefCell<Vec<(Dom,std::sync::Arc<Vec<usize>>)>>=std::cell::RefCell::new(Vec::new());
+    let support=|dom:Dom| -> std::sync::Arc<Vec<usize>> {
+        if cache {return g.support_shared(dom);}
         if let Some((_,v))=supports.borrow().iter().find(|(d,_)| *d==dom) {return v.clone();}
-        let v=std::rc::Rc::new(g.support(dom)); supports.borrow_mut().push((dom,v.clone())); v
+        let v=std::sync::Arc::new(g.support(dom)); supports.borrow_mut().push((dom,v.clone())); v
     };
     // H124c: and each domain's chunk plan once, for the parallel limb fills
-    let plans:std::cell::RefCell<Vec<(Dom,std::rc::Rc<Option<ChunkPlan>>)>>=std::cell::RefCell::new(Vec::new());
-    let plan=|dom:Dom| -> std::rc::Rc<Option<ChunkPlan>> {
+    let plans:std::cell::RefCell<Vec<(Dom,std::sync::Arc<Option<ChunkPlan>>)>>=std::cell::RefCell::new(Vec::new());
+    let plan=|dom:Dom| -> std::sync::Arc<Option<ChunkPlan>> {
+        if cache {return shared_plan(&g,dom);}
         if let Some((_,v))=plans.borrow().iter().find(|(d,_)| *d==dom) {return v.clone();}
-        let v=std::rc::Rc::new(if sequential() {None} else {chunk_plan(&g,dom,&support(dom))}); plans.borrow_mut().push((dom,v.clone())); v
+        let v=std::sync::Arc::new(if sequential() {None} else {chunk_plan(&g,dom,&support(dom))}); plans.borrow_mut().push((dom,v.clone())); v
     };
     let decompose16=|planes:&mut Vec<Vec<i64>>,role:L,values:&[i64],bias:i64| -> Result<(),String> {
         let (count,dom)=(ids.count(role),role_dom(role));
@@ -1225,6 +1632,135 @@ mod tests {
                 for j in 0..g.t {assert_eq!(witness.planes[ids.map[A_P]][g.six(hs,t,j)],expected[g.six(hs,t,j)]);}
             }}
         }
+    }
+
+    // ---- [A16] the chunked and per-row forms refuse exactly as the loops they replace ----
+
+    /// [A16] `quantized_with` over a hand-made plan whose chunks are visited out of support
+    /// order: equal words, and on refusals of two different kinds in two chunks, the one
+    /// first in SUPPORT order (`quantized`'s), whichever chunk comes first
+    #[test]
+    fn a16_quantized_over_chunks_refuses_with_the_first_refusal_in_support_order() {
+        // 4 chunks of 4; the support visits chunk 3 first, then 0, then 1 and 2
+        let support: Vec<usize> = vec![12, 13, 14, 0, 1, 3, 5, 6, 9, 10];
+        let mut groups = vec![Vec::new(); 4];
+        for &i in &support {
+            groups[i / 4].push(i);
+        }
+        let plan = ChunkPlan { stride: 4, groups, count: support.len() };
+        let mult: Vec<u64> = vec![3, 5, 7, 11];
+        let acc: Vec<i64> = (0..16).map(|i| (i as i64 - 8) * 100).collect();
+        let a = quantized(acc.clone(), &support, 1, &mult, 4, -32768, 32767, "T").unwrap();
+        let b = quantized_with(acc.clone(), &support, Some(&plan), 1, &mult, 4, -32768, 32767, "T").unwrap();
+        assert_eq!((a.words, a.rho), (b.words, b.rho));
+        // the multiplier stride 1 and the chunk-stride form of `mult[i % stride]`
+        let a = quantized(acc.clone(), &support, 1, &[3], 1, -32768, 32767, "T").unwrap();
+        let b = quantized_with(acc.clone(), &support, Some(&plan), 1, &[3], 1, -32768, 32767, "T").unwrap();
+        assert_eq!((a.words, a.rho), (b.words, b.rho));
+        let m2: Vec<u64> = vec![3, 5];
+        let a = quantized(acc.clone(), &support, 1, &m2, 2, -32768, 32767, "T").unwrap();
+        let b = quantized_with(acc.clone(), &support, Some(&plan), 1, &m2, 2, -32768, 32767, "T").unwrap();
+        assert_eq!((a.words, a.rho), (b.words, b.rho));
+        // a class refusal at 13 (chunk 3) and an int64 refusal at 1 (chunk 0): 13 is first
+        // in this support, 1 is first in chunk order
+        let mut bad = acc.clone();
+        bad[13] = 1 << 40;
+        bad[1] = i64::MAX;
+        let want = quantized(bad.clone(), &support, 1, &mult, 4, -32768, 32767, "T").unwrap_err();
+        assert!(want.contains("refusal: T"), "{want}");
+        assert_eq!(quantized_with(bad.clone(), &support, Some(&plan), 1, &mult, 4, -32768, 32767, "T").unwrap_err(), want);
+        // the other support order: the int64 refusal first
+        let support2: Vec<usize> = vec![0, 1, 3, 5, 6, 9, 10, 12, 13, 14];
+        let mut groups = vec![Vec::new(); 4];
+        for &i in &support2 {
+            groups[i / 4].push(i);
+        }
+        let plan2 = ChunkPlan { stride: 4, groups, count: support2.len() };
+        let want = quantized(bad.clone(), &support2, 1, &mult, 4, -32768, 32767, "T").unwrap_err();
+        assert!(want.contains("int64"), "{want}");
+        assert_eq!(quantized_with(bad, &support2, Some(&plan2), 1, &mult, 4, -32768, 32767, "T").unwrap_err(), want);
+    }
+
+    /// [A16] `normalized_par` against `normalized`: equal planes on the fixture (both the
+    /// i64 and, with a huge multiplier, the i128 form), and with two bad rows of different
+    /// kinds, the first row's refusal in either order
+    #[test]
+    fn a16_normalized_by_rows_equals_normalized_and_refuses_with_the_first_rows_refusal() {
+        let (sh, public, _, _, input) = fixture(Stack::LowH24);
+        let g = Geom::new(&sh);
+        let mut x = vec![0; g.len(Dom::D)];
+        for (&i, &w) in g.support(Dom::D).iter().zip(&input) {
+            x[i] = w as i64;
+        }
+        let same = |x: &[i64], gamma: &[i8], tn: u32, cn: i64, what: &str| {
+            match (normalized(&g, x, gamma, tn, cn), normalized_par(&g, x, gamma, tn, cn)) {
+                (Ok(a), Ok(b)) => assert!(a.words == b.words && a.d == b.d && a.dsq == b.dsq && a.a1 == b.a1 && a.a2 == b.a2 && a.rho == b.rho && a.sigma == b.sigma, "{what}: a plane differs"),
+                (Err(a), Err(b)) => assert_eq!(a, b, "{what}: the refusals differ"),
+                (a, b) => panic!("{what}: {:?} against {:?}", a.err(), b.err()),
+            }
+        };
+        same(&x, &public.gamma_a, 10, 200, "the fixture");
+        same(&x, &public.gamma_a, 10, 1 << 55, "a multiplier that needs i128");
+        // row 1: a denominator past the isqrt window; row 3: a quotient past int16
+        let gamma = vec![1i8; g.d_pad];
+        let row = |x: &mut Vec<i64>, t: usize, v: &[i64]| {
+            for (i, &w) in v.iter().enumerate() {
+                x[t * g.d_pad + i] = w;
+            }
+        };
+        let mut a = vec![1; g.len(Dom::D)];
+        row(&mut a, 1, &vec![1 << 23; g.d]);
+        row(&mut a, 3, &[1000]);
+        for i in 1..g.d {
+            a[3 * g.d_pad + i] = 0;
+        }
+        let r = normalized(&g, &a, &gamma, 2, 1 << 17).err().expect("row 1 refuses");
+        assert!(r.contains("norm denominator"), "{r}");
+        same(&a, &gamma, 2, 1 << 17, "denominator first");
+        let mut b = vec![1; g.len(Dom::D)];
+        row(&mut b, 3, &vec![1 << 23; g.d]);
+        row(&mut b, 1, &[1000]);
+        for i in 1..g.d {
+            b[g.d_pad + i] = 0;
+        }
+        let r = normalized(&g, &b, &gamma, 2, 1 << 17).err().expect("row 1 refuses");
+        assert!(r.contains("norm quotient/remainder"), "{r}");
+        same(&b, &gamma, 2, 1 << 17, "quotient first");
+    }
+
+    /// [A16] `residual_with` over a plan equals `residual`, refusal included
+    #[test]
+    fn a16_residual_over_chunks_equals_residual() {
+        let (sh, ..) = fixture(Stack::LowH24);
+        let g = Geom::new(&sh);
+        let support = g.support(Dom::D);
+        let mut groups = vec![Vec::new(); g.len(Dom::D) / g.d_pad];
+        for &i in &support {
+            groups[i / g.d_pad].push(i);
+        }
+        let plan = ChunkPlan { stride: g.d_pad, groups, count: support.len() };
+        let x: Vec<i64> = (0..g.len(Dom::D)).map(|i| (i as i64 * 97) % 30000 - 15000).collect();
+        let y: Vec<i64> = (0..g.len(Dom::D)).map(|i| (i as i64 * 31) % 20000 - 10000).collect();
+        assert_eq!(residual(&g, &x, &y, "r").unwrap(), residual_with(&g, &x, &y, "r", Some(&plan)).unwrap());
+        let mut y2 = y.clone();
+        y2[support[support.len() - 1]] = 40000;
+        assert_eq!(residual(&g, &x, &y2, "r").unwrap_err(), residual_with(&g, &x, &y2, "r", Some(&plan)).unwrap_err());
+    }
+
+    /// [A16] `HL_A16`'s words
+    #[test]
+    fn a16_the_switch_parses_its_words() {
+        use super::super::{a16_parse, A16_ALL, A16_CACHE, A16_DEFAULT, A16_KERNELS, A16_NORM, A16_ONCE};
+        assert_eq!(a16_parse(Some("kernels")), A16_KERNELS);
+        assert_eq!(a16_parse(None), A16_DEFAULT);
+        assert_eq!(a16_parse(Some("")), A16_DEFAULT);
+        assert_eq!(a16_parse(Some("auto")), A16_DEFAULT);
+        assert_eq!(a16_parse(Some("0")), 0);
+        assert_eq!(a16_parse(Some("old")), 0);
+        assert_eq!(a16_parse(Some("all")), A16_ALL);
+        assert_eq!(a16_parse(Some("cache,norm")), A16_CACHE | A16_NORM);
+        assert_eq!(a16_parse(Some("once+cache")), A16_ONCE | A16_CACHE);
+        assert_eq!(a16_parse(Some("cache,bogus")), A16_DEFAULT);
     }
 
 }
