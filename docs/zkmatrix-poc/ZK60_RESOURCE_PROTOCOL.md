@@ -239,5 +239,5 @@ ceiling.
   - Then a case and a zk60 timing job never overlap, and each side waits its turn at the heavy
     lock.
   - Its own free-RAM skip stays as it is (Victor's policy: free RAM only).
-- **Priority** between the two projects is Victor's call. Until he says otherwise, the lock is
-  first come, first served, one job at a time.
+- **Priority** between the two projects: **first come, first served**, one job at a time (Victor,
+  2026-11-05, D69). Neither project jumps the queue at the heavy lock.
