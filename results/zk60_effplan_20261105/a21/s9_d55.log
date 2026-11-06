@@ -1,0 +1,24 @@
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 5.526 s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 5.44 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 9.156 s = 13.98 proved tok/s; receipt 818728480 B
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.48 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 4.091 s = 31.28 proved tok/s; 6 workers; preflight 0.085 s, commit 0.205 s, forks 3.726 s, join 0.075 s; fork prove_core min 0.332 median 0.659 max 0.909 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 []: wall 5.529 s; sealing pass 1.554 s (5.4 cores busy, 8.3 CPU-s); prove call 3.975 s: preflight 0.078, commit 0.208, forks 3.614, join 0.075 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 []: sealing pass 1.554 s in a sealing pool of 8: user 5.41 s + sys 2.94 s = 5.4 cores; csw voluntary 0, involuntary 30332; minor faults 554816
+D55-AB W16R2_8B_T128_H24 L32 forks N6 SEALED: verified (D55 verifier, 6 threads)
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 0: wall 5.529 s = 23.15 proved tok/s FROM THE RUN'S INPUT (sealing pass 1.554 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 1 (serial first): wall 9.340 s = 13.70 proved tok/s; receipt 818728480 B
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 1 (serial first): wall 3.843 s = 33.30 proved tok/s; 6 workers; preflight 0.089 s, commit 0.203 s, forks 3.477 s, join 0.075 s; fork prove_core min 0.361 median 0.609 max 0.733 s; receipt 818728672 B
+D55-AB A13 SEALED W16R2_8B_T128_H24 L32 N6 []: wall 5.521 s; sealing pass 1.546 s (5.4 cores busy, 8.4 CPU-s); prove call 3.975 s: preflight 0.077, commit 0.195, forks 3.633, join 0.070 s; 0/32 forks parked (A15: no before-challenge parts)
+D55-AB A15 SEALED W16R2_8B_T128_H24 L32 N6 []: sealing pass 1.546 s in a sealing pool of 8: user 5.42 s + sys 2.94 s = 5.4 cores; csw voluntary 0, involuntary 31111; minor faults 552013
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 SEALED pass 1: wall 5.521 s = 23.18 proved tok/s FROM THE RUN'S INPUT (sealing pass 1.546 s on the clock, its witnesses kept); receipt 818728672 B
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [] request 0: sealing pass 1.535 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [] request 1: sealing pass 2.959 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [] request 2: sealing pass 2.705 s in a sealing pool of 8
+D55-AB A15 PIPE-SEAL W16R2_8B_T128_H24 L32 N6 [] request 3: sealing pass 2.879 s in a sealing pool of 8
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 17.667 s; amortized 28.98 proved tok/s (all witness work on the clock); steady state 32.61 tok/s (completions 5.89, 10.12, 13.91, 17.67); per-request latency 5.89, 8.59, 9.42, 10.47
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 10.0 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.156 s = 13.98 tok/s | mean 9.248 s = 13.84 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 3.843 s = 33.30 tok/s | mean 3.967 s = 32.26 tok/s | 2.38x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 5.521 s = 23.18 tok/s | mean 5.525 s = 23.17 tok/s
