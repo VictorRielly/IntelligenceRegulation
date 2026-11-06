@@ -2854,9 +2854,10 @@ pub(crate) fn write_d55_test_receipt_marker(dir: &Path) -> Result<std::path::Pat
 /// **Write a fork receipt into an EXISTING, EMPTY run directory**, each frame
 /// ATOMICALLY (a temporary name, flushed to the device, renamed into place,
 /// as `run_sink::DirSink` writes a segment), and return each frame's length
-/// and SHA-256 in file order.
+/// and SHA-256 in file order. [A20] With `HL_A20_WRITE = w > 1` the frames are
+/// written by `w` threads at once (each frame by the same steps, the list in file
+/// order; see [`a20_writers`]).
 pub(crate) fn write_fork_receipt(dir: &Path, rc: &ForkReceipt) -> Result<Vec<(u64, String)>, String> {
-    use std::io::Write;
     if !dir.is_dir() {
         return Err(format!("D55: the run directory {} does not exist; create it before the run", dir.display()));
     }
@@ -2864,20 +2865,87 @@ pub(crate) fn write_fork_receipt(dir: &Path, rc: &ForkReceipt) -> Result<Vec<(u6
     if !names.is_empty() {
         return Err(format!("D55: the run directory {} is not empty (it holds {} entries, the first being {})", dir.display(), names.len(), names[0]));
     }
-    let mut out = Vec::with_capacity(rc.forks.len() + 2);
-    for (name, bytes) in d55_file_names(rc.forks.len()).iter().zip(rc.frames()) {
-        let final_path = dir.join(name);
-        let tmp_path = dir.join(format!("{name}.partial"));
-        {
-            let mut f = std::fs::File::create(&tmp_path).map_err(|e| format!("D55: {} cannot be created: {e}", tmp_path.display()))?;
-            f.write_all(bytes).map_err(|e| format!("D55: {} cannot be written: {e}", tmp_path.display()))?;
-            f.sync_all().map_err(|e| format!("D55: {} cannot be flushed: {e}", tmp_path.display()))?;
+    let files = d55_file_names(rc.forks.len());
+    let frames: Vec<(&String, &Vec<u8>)> = files.iter().zip(rc.frames()).collect();
+    // [A20] the frames written at once by `writers` threads
+    let writers = a20_writers().min(frames.len());
+    if writers <= 1 {
+        let mut out = Vec::with_capacity(rc.forks.len() + 2);
+        for (name, bytes) in frames {
+            out.push(write_fork_frame(dir, name, bytes)?);
         }
-        std::fs::rename(&tmp_path, &final_path).map_err(|e| format!("D55: {} cannot be renamed to {}: {e}", tmp_path.display(), final_path.display()))?;
-        out.push((bytes.len() as u64, super::run_sink::digest_hex(bytes)));
+        return Ok(out);
     }
-    Ok(out)
+    let next = AtomicUsize::new(0);
+    let done: Vec<Mutex<Option<Result<(u64, String), String>>>> = frames.iter().map(|_| Mutex::new(None)).collect();
+    std::thread::scope(|s| {
+        for _ in 0..writers {
+            s.spawn(|| loop {
+                let i = next.fetch_add(1, Ordering::Relaxed);
+                let Some((name, bytes)) = frames.get(i) else { break };
+                let r = write_fork_frame(dir, name, bytes);
+                *done[i].lock().unwrap_or_else(|e| e.into_inner()) = Some(r);
+            });
+        }
+    });
+    // every frame attempted; the first failure IN FILE ORDER is the one returned
+    done.into_iter().map(|d| d.into_inner().unwrap_or_else(|e| e.into_inner()).unwrap_or_else(|| Err("D55: a receipt frame was not written (a writer thread ended early)".into()))).collect()
 }
+
+/// one frame of [`write_fork_receipt`]: written to `<name>.partial`, flushed to the
+/// device, renamed to `name`; its length and SHA-256 (the loop body before A20)
+fn write_fork_frame(dir: &Path, name: &str, bytes: &[u8]) -> Result<(u64, String), String> {
+    use std::io::Write;
+    let final_path = dir.join(name);
+    let tmp_path = dir.join(format!("{name}.partial"));
+    {
+        let mut f = std::fs::File::create(&tmp_path).map_err(|e| format!("D55: {} cannot be created: {e}", tmp_path.display()))?;
+        f.write_all(bytes).map_err(|e| format!("D55: {} cannot be written: {e}", tmp_path.display()))?;
+        f.sync_all().map_err(|e| format!("D55: {} cannot be flushed: {e}", tmp_path.display()))?;
+    }
+    std::fs::rename(&tmp_path, &final_path).map_err(|e| format!("D55: {} cannot be renamed to {}: {e}", tmp_path.display(), final_path.display()))?;
+    Ok((bytes.len() as u64, super::run_sink::digest_hex(bytes)))
+}
+
+// ---------------------------------------- [A20] the receipt write
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A20;
+// `results/zk60_effplan_20261105/a20/README.md`.) Production's D55 request ends with
+// the receipt's `L + 2` frames (818 MB at 8B, 32 blocks) written one after another:
+// each to a temporary name, flushed to the device (`sync_all`, on macOS
+// `F_FULLFSYNC`), renamed, then SHA-256'd for the statement's frame list.
+// `HL_A20_WRITE = w > 1` writes the frames with `w` threads at once, each frame by the
+// very same steps ([`write_fork_frame`]); `0` or `1` restores the loop before A20.
+// **No byte moves**: the same files with the same bytes under the same names, each
+// written atomically and flushed before its rename; the list of lengths and SHA-256s
+// is in file order. Every frame is attempted and the first failure in file order is
+// returned (each failure is an I/O error of the run directory, after the run header,
+// and the caller removes the directory, as before); the directory's emptiness is
+// checked first, as before.
+
+static A20_WRITE_TEST: AtomicUsize = AtomicUsize::new(usize::MAX);
+
+/// [A20] the measured default (`results/zk60_effplan_20261105/a20/README.md`, sections
+/// 2 and 5): the 818 MB 8B receipt's write took 1.94 s, 1.62 s of it the frames'
+/// SHA-256s one after another; with 16 writers 0.33 s, one request -10.2% (6 of 6
+/// pairs, through production's function); 34 writers 0.27 s in the profile
+const A20_WRITE_DEFAULT: usize = 16;
+
+/// [A20] `HL_A20_WRITE`: the threads that write a fork receipt's frames (`0` or `1`:
+/// one after another, the path before A20); at most 64
+pub(crate) fn a20_writers() -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    super::super::trained_statement::a20_switch(&A20_WRITE_TEST, &ENV, "HL_A20_WRITE", A20_WRITE_DEFAULT).min(64)
+}
+
+/// tests: `w` writer threads (`Some(0)`: the loop before A20; `None`: as the
+/// environment says). Changes no byte (see above).
+#[cfg(test)]
+pub(crate) fn set_a20_writers_for_test(w: Option<usize>) {
+    A20_WRITE_TEST.store(w.map(|w| w.min(64)).unwrap_or(usize::MAX), Ordering::Relaxed);
+}
+
+// ---------------------------------------- [A20] end
 
 /// One frame read through a BOUNDED reader (review r3_6's rule for a D12a
 /// segment): a regular file (a link, FIFO, device or directory refused before

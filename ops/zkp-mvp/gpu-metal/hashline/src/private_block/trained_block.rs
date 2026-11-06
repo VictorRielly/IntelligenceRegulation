@@ -2452,6 +2452,11 @@ struct SealTimes {
     witness_s: f64,
     /// [A15] the threads of the pool the witnesses were built in (0: the global pool)
     pool_threads: usize,
+    /// [A20] the loads ahead of the build (0: one, beside it in a `rayon::join`), and
+    /// the seconds the pass waited for a load (0 at `HL_A20_LOADS=0`, where the wait is
+    /// inside the join)
+    loads_ahead: usize,
+    load_wait_s: f64,
 }
 
 // ---------------------------------------- [A15] the sealing pass's own rayon pool
@@ -2757,10 +2762,166 @@ impl SealHand for D55Hand<'_> {
     }
 }
 
+// ---------------------------------------- [A20] the sealing pass's loads, ahead of its builds
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A20;
+// `results/zk60_effplan_20261105/a20/README.md`.) Before A20 the sealing pass loaded
+// layer `k + 1` in a `rayon::join` beside layer `k`'s witness build: one load ahead,
+// and the pass waited for whichever of the two was longer. Each load checks and hashes
+// a whole layer (its record's nine SHA-256s and the block digest; the export's arrays'
+// SHA-256s too), and at 8B a load is several times a build, so the pass ran at the
+// loads' pace. `HL_A20_LOADS = n > 0` runs the loads on `n` threads of their own, each
+// taking the next layer in order, at most `n` layers ahead of the layer being built:
+// `n` loads run at once, beside the build, and the pass takes layer `k`'s load when it
+// reaches layer `k`. `0` restores the path before A20.
+//
+// **H-1 and the refusals.** The pass consumes the loads IN LAYER ORDER, at the place
+// it always did: layer `k`'s load result (and its refusal, `cur?`) is looked at only
+// after every check of layer `k - 1` passed, exactly as before. A load further ahead
+// that fails is held until its turn, and is dropped unseen if an earlier layer refuses
+// (before A20, layer `k + 1`'s load already ran beside layer `k`'s build and was dropped
+// the same way). So the same refusal string comes back, from the same layer, in the
+// same order, before anything of the run exists. The loads read public data only; a
+// load ahead adds no output and creates nothing. When the pass returns (a refusal or
+// the end) the loaders start nothing new and the scope joins them before
+// `seal_chain` returns. **Memory**: the layer being built and up to `n` loaded ahead
+// are resident (before A20: two).
+
+static A20_LOADS_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+
+/// [A20] `HL_A20_LOADS`: how many layers the sealing pass loads ahead of its build,
+/// each on a thread of its own (`0`: one, in a `rayon::join` beside the build, the
+/// path before A20); at most 8
+pub(crate) fn a20_loads() -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    super::trained_statement::a20_switch(&A20_LOADS_TEST, &ENV, "HL_A20_LOADS", A20_LOADS_DEFAULT).min(8)
+}
+
+/// [A20] the measured default (`results/zk60_effplan_20261105/a20/README.md`, section
+/// 5): at 8B, 32 layers, through production's function, 6 passes, both orders, with
+/// the record's digest beside its SHA-256s and the receipt's 16 writers: 3 loads ahead
+/// against 2 one request -6.1% (6 of 6 pairs), 4 against 3 -2.0% (5 of 6) and its
+/// sealing pass -3.8% (6 of 6); every A20 form against none -48.9% (at 3)
+const A20_LOADS_DEFAULT: usize = 4;
+
+/// tests: `n` loads ahead (`Some(0)`: the path before A20; `None`: as the environment
+/// says). Changes no byte (see above).
+#[cfg(test)]
+pub(crate) fn set_a20_loads_for_test(n: Option<usize>) {
+    A20_LOADS_TEST.store(n.map(|n| n.min(8)).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [A20] one layer's load, its result and its seconds
+type TimedLoad = (Result<TrainedLayer, String>, f64);
+
+/// [A20] the loads ahead: `n` loader threads, each taking the next layer, at most `n`
+/// ahead of the layer the pass has taken
+struct LoadAhead<'m> {
+    m: &'m dyn StackModel,
+    l: usize,
+    n: usize,
+    st: std::sync::Mutex<AheadState>,
+    cv: std::sync::Condvar,
+}
+
+struct AheadState {
+    /// the next layer a loader starts
+    next: usize,
+    /// how many layers the pass has taken
+    taken: usize,
+    ready: Vec<Option<TimedLoad>>,
+    /// the pass has returned: start nothing new
+    stop: bool,
+    /// a loader thread ended in a panic
+    lost: bool,
+}
+
+/// [A20] marks the loads lost if a loader thread unwinds (a test build: the release
+/// profile aborts on a panic), so the pass never waits for a load that will not come
+struct LoaderGuard<'a, 'm>(&'a LoadAhead<'m>);
+
+impl Drop for LoaderGuard<'_, '_> {
+    fn drop(&mut self) {
+        if std::thread::panicking() {
+            self.0.lock().lost = true;
+            self.0.cv.notify_all();
+        }
+    }
+}
+
+impl<'m> LoadAhead<'m> {
+    fn new(m: &'m dyn StackModel, n: usize) -> LoadAhead<'m> {
+        let l = m.layers().len();
+        LoadAhead { m, l, n, st: std::sync::Mutex::new(AheadState { next: 0, taken: 0, ready: (0..l).map(|_| None).collect(), stop: false, lost: false }), cv: std::sync::Condvar::new() }
+    }
+    fn lock(&self) -> std::sync::MutexGuard<'_, AheadState> {
+        self.st.lock().unwrap_or_else(|e| e.into_inner())
+    }
+    /// one loader thread's loop
+    fn run(&self) {
+        let _guard = LoaderGuard(self);
+        loop {
+            let k = {
+                let mut s = self.lock();
+                loop {
+                    if s.stop || s.next >= self.l {
+                        return;
+                    }
+                    if s.next < s.taken + self.n {
+                        break;
+                    }
+                    s = self.cv.wait(s).unwrap_or_else(|e| e.into_inner());
+                }
+                s.next += 1;
+                s.next - 1
+            };
+            let t = Instant::now();
+            let r = self.m.load_layer(k);
+            let ls = t.elapsed().as_secs_f64();
+            let mut s = self.lock();
+            s.ready[k] = Some((r, ls));
+            self.cv.notify_all();
+        }
+    }
+    /// layer `k`'s load (the pass takes the layers in order), and the seconds the
+    /// pass waited for it
+    fn take(&self, k: usize) -> (TimedLoad, f64) {
+        let t = Instant::now();
+        let mut s = self.lock();
+        loop {
+            if let Some(r) = s.ready[k].take() {
+                s.taken = k + 1;
+                self.cv.notify_all();
+                return (r, t.elapsed().as_secs_f64());
+            }
+            assert!(!s.lost, "the sealing pass's loader thread ended in a panic before layer {k} was loaded");
+            s = self.cv.wait(s).unwrap_or_else(|e| e.into_inner());
+        }
+    }
+    fn stop(&self) {
+        self.lock().stop = true;
+        self.cv.notify_all();
+    }
+}
+
+/// [A20] stops the loads ahead when the pass returns, however it returns (before the
+/// scope joins the loader threads)
+struct StopLoads<'a, 'm>(&'a LoadAhead<'m>);
+
+impl Drop for StopLoads<'_, '_> {
+    fn drop(&mut self) {
+        self.0.stop();
+    }
+}
+
+// ---------------------------------------- [A20] end
+
 /// **[A19] THE SEALING PASS** (R5b's, the body `seal_and_record` always had),
 /// over any [`StackModel`], each admitted block and witness offered to `hand`
 /// after every check of that block. The returned times' `wall_s` is the
-/// caller's to set (it ends after the model's statement).
+/// caller's to set (it ends after the model's statement). [A20] Each layer's
+/// load runs ahead of the builds on its own threads (`HL_A20_LOADS`), taken in
+/// layer order at the place it always was.
 #[allow(clippy::type_complexity)]
 fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) -> Result<(Vec<LayerMeta>, Vec<Digest>, SealedChain, SealTimes), String> {
     let sh = m.shape().clone();
@@ -2789,25 +2950,43 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         let r = m.load_layer(k);
         (r, t.elapsed().as_secs_f64())
     };
-    let mut next = Some(timed_load(0));
+    // [A20] the loads ahead, on threads of their own (none at `HL_A20_LOADS=0`)
+    let ahead = LoadAhead::new(m, if l > 1 { a20_loads() } else { 0 });
+    let mut load_wait_s = 0.0f64;
+    std::thread::scope(|scope| -> Result<(Vec<LayerMeta>, Vec<Digest>, SealedChain, SealTimes), String> {
+    for _ in 0..ahead.n {
+        scope.spawn(|| ahead.run());
+    }
+    let _stop = StopLoads(&ahead);
+    let mut next = if ahead.n == 0 { Some(timed_load(0)) } else { None };
     for k in 0..l {
-        let (cur, ls) = next.take().expect("one load per layer");
+        let (cur, ls) = if ahead.n == 0 {
+            next.take().expect("one load per layer")
+        } else {
+            let (r, waited) = ahead.take(k);
+            load_wait_s += waited;
+            r
+        };
         load_s += ls;
         let cur = cur?;
         let layer = layers[k];
         // NATIVE R8 (R6 for sh_s): the block's witness at its layer's own
         // calibration
         let ssh=cur.record.shape_at(&sh)?;
-        let ((wres, ws), nxt) = rayon::join(
-            || {
-                let t = Instant::now();
-                // [A15] on the sealing pool (the next layer's load stays on the global pool)
-                let r = pool.run(|| witness_for_block(&ssh,&cur.blk,&x));
-                (r, t.elapsed().as_secs_f64())
-            },
-            || if k + 1 < l { Some(timed_load(k + 1)) } else { None },
-        );
-        next = nxt;
+        let build = || {
+            let t = Instant::now();
+            // [A15] on the sealing pool (the next layer's load stays on the global pool)
+            let r = pool.run(|| witness_for_block(&ssh,&cur.blk,&x));
+            (r, t.elapsed().as_secs_f64())
+        };
+        let (wres, ws) = if ahead.n == 0 {
+            let ((wres, ws), nxt) = rayon::join(build, || if k + 1 < l { Some(timed_load(k + 1)) } else { None });
+            next = nxt;
+            (wres, ws)
+        } else {
+            // [A20] the loads ahead run on their own threads; the build here
+            build()
+        };
         witness_s += ws;
         let w = wres.map_err(|e| format!("the witness builder refuses layer {layer} (before the run header; ruling H-1): {e}"))?;
         // NATIVE R6 (review r5 note N-r5-a): ruling CS-3's lookup-miss
@@ -2870,7 +3049,8 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
     }
     let last = outs[l - 1].clone();
     let chain = SealedChain { x_in0, shapes, outs, kept, kept_bytes, first, last, rebuilt: 0, handed, part_bytes };
-    Ok((metas, digests, chain, SealTimes { wall_s: 0.0, load_s, witness_s, pool_threads: pool.threads() }))
+    Ok((metas, digests, chain, SealTimes { wall_s: 0.0, load_s, witness_s, pool_threads: pool.threads(), loads_ahead: ahead.n, load_wait_s }))
+    })
 }
 
 /// **R5b (P-1): a run that did not complete is removed, and a removal that
@@ -3146,6 +3326,12 @@ pub(crate) struct D55Times {
     pub reload_s: f64,
     pub receipt_bytes: usize,
     pub fork: run::fork::ForkStats,
+    /// [A20] the sealing pass's loads ahead and its wait for them; the receipt
+    /// write's seconds and its writer threads
+    pub seal_loads_ahead: usize,
+    pub seal_load_wait_s: f64,
+    pub write_s: f64,
+    pub writers: usize,
 }
 
 /// [A19] what production's D55 proof leaves for `stack-prove`'s statement
@@ -3261,7 +3447,7 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
             // ---- (3) the proving pass
             std::fs::create_dir(run.out).map_err(|e| format!("{}: {e}", run.out.display()))?;
             let t = Instant::now();
-            let proved = (|| -> Result<(Vec<(u64, String)>, usize, run::fork::ForkStats, f64), String> {
+            let proved = (|| -> Result<(Vec<(u64, String)>, usize, run::fork::ForkStats, f64, f64), String> {
                 // the blocks the fork run proves with: the sealing pass's own, or
                 // (`HL_A19_SHARE=0`, the path before A19) every one loaded again
                 let reloaded;
@@ -3275,7 +3461,9 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
                 let (rc, fs) = planned.prove(&fr, b, &mut src, owners, run.workers)?;
                 #[cfg(test)]
                 a19_after_the_proof(&fr, b, &rc, &fs);
+                let tw = Instant::now();
                 let written = run::fork::write_fork_receipt(run.out, &rc)?;
+                let write_s = tw.elapsed().as_secs_f64();
                 // D60 review F3: the not-for-publication marker, after the frames
                 // and before any verification or statement (a run that fails
                 // later is removed with it)
@@ -3305,12 +3493,12 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
                         peak_rss_mib()
                     );
                 }
-                Ok((written, rc.bytes(), fs, load_s))
+                Ok((written, rc.bytes(), fs, load_s, write_s))
             })();
             let prove_s = t.elapsed().as_secs_f64();
             let (rebuild_s, rebuilt, reloads) = (src.busy_s, src.chain.rebuilt, src.reloads);
             drop(src);
-            let (written, receipt_bytes, fork, block_load_s) = proved.map_err(|e| fail_run(run.out, format!("prove_run: {e}")))?;
+            let (written, receipt_bytes, fork, block_load_s, write_s) = proved.map_err(|e| fail_run(run.out, format!("prove_run: {e}")))?;
             drop(fr);
             let times = D55Times {
                 seal_s: seal.wall_s,
@@ -3331,6 +3519,10 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
                 reload_s: reloads.1,
                 receipt_bytes,
                 fork,
+                seal_loads_ahead: seal.loads_ahead,
+                seal_load_wait_s: seal.load_wait_s,
+                write_s,
+                writers: run::fork::a20_writers(),
             };
             Ok(D55Proved { metas, digests, st, ctx, expected, rst, written, times })
         },
@@ -3590,6 +3782,52 @@ pub(crate) fn stack_identity_for_tests(export: &Path) -> Result<Digest, String> 
     let layers = ex.layers.clone();
     let (_, _, _, _, st) = stack_records(&ex, &layers, false)?;
     Ok(st.identity())
+}
+
+/// [A20] TEST ONLY: the sealing pass (`seal_chain`, D12a's `NoHand`) over `m`, as one
+/// line of everything it returns but its clocks (the model's statement identity, the
+/// block digests, every layer record, every sealed plane and endpoint, the stage
+/// shapes, which witnesses were kept and every plane of each), and the loads it ran
+/// ahead of its builds
+#[cfg(test)]
+pub(crate) fn a20_seal_summary_for_tests(m: &dyn StackModel, budget_bytes: u64) -> Result<(String, usize), String> {
+    let (metas, digests, chain, times) = seal_chain(m, budget_bytes, &mut NoHand)?;
+    let st = m.statement_of_records(metas.iter().map(|m| m.record.clone()).collect())?;
+    let planes = |v: &[i16]| hex(&sha256(&v.iter().flat_map(|x| x.to_le_bytes()).collect::<Vec<u8>>()))[..16].to_string();
+    let kept: Vec<String> = chain
+        .kept
+        .iter()
+        .map(|w| match w {
+            None => "-".to_string(),
+            Some(w) => hex(&sha256(&w.planes.iter().flat_map(|p| p.iter().flat_map(|x| x.to_le_bytes())).collect::<Vec<u8>>()))[..16].to_string(),
+        })
+        .collect();
+    let line = format!(
+        "identity {} | block digests {} | records {} | outs {} | first {} | last {} | x_in0 {} | shapes {} | kept {} ({} B): {}",
+        hex(&st.identity()),
+        digests.iter().map(|d| hex(d)[..16].to_string()).collect::<Vec<_>>().join(","),
+        hex(&sha256(format!("{:?}", metas.iter().map(|m| (&m.record, m.index, m.manifest_sha256)).collect::<Vec<_>>()).as_bytes())),
+        chain.outs.iter().map(|o| planes(o)).collect::<Vec<_>>().join(","),
+        planes(&chain.first),
+        planes(&chain.last),
+        planes(&chain.x_in0),
+        chain.shapes.iter().map(|s| s.name.to_string()).collect::<Vec<_>>().join(","),
+        chain.kept.iter().filter(|w| w.is_some()).count(),
+        chain.kept_bytes,
+        kept.join(",")
+    );
+    Ok((line, times.loads_ahead))
+}
+
+/// [A20] TEST ONLY: [`a20_seal_summary_for_tests`] over a trained export, its sequence
+/// `seq` and every layer (production's model, [`ExportStack`])
+#[cfg(test)]
+pub(crate) fn a20_export_seal_summary_for_tests(export: &Path, seq: &str, budget_bytes: u64) -> Result<(String, usize), String> {
+    let ex = TrainedExport::load(export)?;
+    let layers = ex.layers.clone();
+    let seq = SeqSource::InExport(seq.to_string());
+    let m = ExportStack::new(&ex, &seq, &layers, false, "")?;
+    a20_seal_summary_for_tests(&m, budget_bytes)
 }
 
 #[allow(clippy::too_many_arguments)]
