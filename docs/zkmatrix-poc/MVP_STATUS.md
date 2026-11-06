@@ -125,7 +125,9 @@ here. The rates count proving and witness work. Verification time is recorded se
     forks now bound the stream;
   - the protocol bundle W16R3, ruled 2026-11-05 (D67): B1 + B2 + B3, no B4. Sol builds B1 first, then B2 and B3, each
     after a measured gain (`W16R3_HANDOFF_20261105.md`). B6 goes to the next profile;
-  - the RTX 5090 (date pending, Victor).
+  - the RTX 5090: the bring-up guide and scripts are ready (`ZK60_RTX5090_BRINGUP.md`: Ubuntu 24.04 LTS, the open
+    NVIDIA driver, CUDA 12.9, every project tool). After it, the CUDA backend must catch up with the Metal-era device
+    work under the same byte gates.
 
 **2026-11-04 (night): Lean, Fiat–Shamir part 6 merged; the soundness target needs one more theorem (F20, Medium).**
 - Proved: the wide-digest lemma, LogUp and one commitment opening under Fiat–Shamir (with the extractor), and the
