@@ -124,14 +124,30 @@ are redone once, not per change.
     33.7–34.2 proof only [MEASURED].
   - **The stream is now fork-bound:** about 2.6 s of sealing beside the forks against about 3.9 s of fork work per
     request.
-- **A19 (running): A13's window in production's D55 path** (byte-preserving; `results/zk60_effplan_20261105/a19/`).
-  - Build the forks' before-challenge parts without a `ForkRun`. Load the fork blocks before the sealing pass, or share
-    them with it. Have `seal_and_record` hand each witness over as it is built, with parked parts counted in the
-    memory budget.
-  - H-1 (D29) must still hold: every refusal still happens in the sealing pass, and a refused chain drops its parts.
-  - Measured through production's entry point, window 0 against 16 (and 8). It turns on by default only if it wins
-    beyond noise.
-  - Files: `trained_block.rs`'s D55 path and `run_fork.rs`. Sol's W16R3 files are excluded.
+- **A20 (running): production's per-request costs** (byte-preserving; `results/zk60_effplan_20261105/a20/`).
+  - Profile production's sealing pass, which is load-bound: each layer's load hashes its layer record (nine padded-word
+    SHA-256s over `i8_bytes` copies, three table hashes and the block digest) on the global rayon pool beside A15's
+    8-thread builder pool.
+  - Then cut what the profile shows, each form behind its own switch:
+    - hashing without the copies;
+    - the load's hashing on its own pool, or one or two layers ahead;
+    - the receipt write (about 1.9 s) and its frame hashes in parallel or overlapped.
+  - Caching records across requests needs a ruling and is out of scope. CS-6 and the preflight are unchanged.
+  - Measured through production's function, 6 passes, both orders; H-1 must still hold.
+  - Files: `trained_block.rs`'s loader and D55 path, `trained_statement.rs`'s record hashing, and `run_fork.rs`'s
+    receipt write.
+- **Next after A20: a production form that keeps the model in memory** (a server, or a request stream per process).
+  The harness's numbers and A13's window (+5.0% on the stream) apply there. It needs its own H-1 reading (D68).
+- **A19 done: production's D55 path** (byte-preserving; `results/zk60_effplan_20261105/a19/`).
+  - `stack-prove --d55-workers` runs `d55_seal_and_prove`. It proves with the sealing pass's own checked blocks
+    (`HL_A19_SHARE`, on) instead of loading all 32 again. Independent A/B on the merged tree through production's
+    function: one request −20.9% (19.3 → 15.3 s, 4 of 4 pairs). Byte-identical.
+  - A13's window is now usable from production (`ForkPlan`, `SealedBlocks`, `Planned::check` before the run directory)
+    but stays off: one request −0.4% at 16 and −1.0% at 32, for +10 to +30 GiB.
+  - **Found:** production's one request is 15.3 s = 8.4 tok/s, against the harness's 5.4 s.
+    - The sealing pass is 9.1 s, because each layer's load and record hashing slows the builds about 5×.
+    - The receipt write is about 1.9 s and the preflight's re-hash 0.3 s.
+  - H-1 reading: D68.
 - **A18 done: the forks phase, round 2** (byte-preserving; `results/zk60_effplan_20261105/a18/`).
   - Two small forms, on by default:
     - the range and periodic table helpers read inverse tables already made (`HL_A18_TABINV`, 4.65 → 0.78 ms per

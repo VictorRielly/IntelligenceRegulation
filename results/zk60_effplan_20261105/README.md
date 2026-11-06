@@ -883,3 +883,105 @@ samples wait on the GPU. Of the rest (about 1.1 s per fork per call), the larges
 - With the window off nothing is parked. If it is ever turned on, W-8(5)'s wording changes ("the generator is moved
   with the parked fork"), while the s25 census still holds; A19 must also show that H-1 (D29) still holds.
 - `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+## A19: production's D55 path, done (shared blocks on; A13's window usable from production, off by default)
+
+Full write-up: `a19/README.md`. Merged into perf (3fc8cf92, on top of A18's 3577a374 and c0d25b29); no conflicts.
+Acceptance and an independent A/B on the merged tree: `check_a19merge.sh`, `a19merge.progress`, `a19merge_pairs.md`,
+`a19merge_seal_pairs.md`.
+
+**What changed** (`private_block/trained_block.rs`, `run_fork.rs`, and one line of `r6_tests.rs`; byte-preserving):
+- `stack-prove --d55-workers N` now runs `trained_block::d55_seal_and_prove`. Its steps, refusals and stdout events are
+  in the order they had before. The `sealed` and `d55-proved` events gain public counts.
+  - The sealing pass is `seal_chain` over a `StackModel`: production's export (`ExportStack`), or the tests' synthetic
+    stack. D12a's `seal_and_record` runs the same `seal_chain` with nothing handed over (`NoHand`), so D12a is
+    unchanged.
+- **`HL_A19_SHARE`** (on by default; `0` restores the old code): the fork run proves with the block objects the sealing
+  pass loaded and checked (`run_fork::SealedBlocks`, each block set once). Before, it loaded all 32 blocks a second time
+  after the sealing pass. The preflight still re-hashes every block against the statement (CS-6).
+- **A13's window from production** (`HL_D55_AHEAD`, **off by default**):
+  - a `ForkPlan` (the D55 profile, the NTT domain and each stage's IO rows) is made from the run shape before the
+    statement exists;
+  - `prove_run_with_forks_planned` runs the sealing pass with the side workers beside it;
+  - `Planned::check` holds the plan against the fork run before the run directory exists;
+  - each part is held against its fork's own stage when it is finished.
+- R6's CS-3 source audit now reads `seal_chain`, and checks that both entry points run it. The coordinator reviewed
+  this edit and accepted it.
+
+**Byte evidence** [MEASURED, agent and the merged tree]:
+- the planned path at the W16R2 rung, and real `stack-prove` / `stack-verify` on a 4-layer R13 export (the registered
+  D55 profile), CPU and Metal, window off and on, blocks shared and reloaded: every receipt verifies, heads equal the
+  replayed commit phase, and interior forks equal whole forks;
+- the controls refuse as required: a refused chain gives window 0's exact string, creates nothing and leaves 0 parts
+  alive; a plan with another profile or with swapped IO rows, parts against another blocks object, and a layout with
+  swapped IO rows are all refused.
+
+**Acceptance on the merged tree** [MEASURED, one guarded job, the GPU quiet at every clock]:
+- builds: the build, the no-feature `cargo check --tests` and the production (non-test) library build, rc 0;
+- full lib suite: 941 passed, exactly the known three failed, 116 ignored; zkp-core lib: 81 passed;
+- passing:
+  - A19's two device tests;
+  - the A18 rung golden, 8B block and parked-fork tests;
+  - the A16 8B planes in every form;
+  - the A17, A15, A14, A8, A12, A11 and A7 byte tests;
+- the W16R2 rung golden `96e4f0b6` (CPU = Metal), all six post-F12 digests and the 8B core `90003b760eb7ad80`: all
+  pass;
+- the harness's D55 default:
+  - one request from its input, best 5.411 s = 23.65 tok/s;
+  - the stream 33.40 tok/s steady, 29.57 amortized;
+  - proof only, best 3.940 s = 32.49 tok/s;
+  - every receipt verified: 818,728,672 B (D12a 818,728,480 B);
+- **production's D55 path on the default** (`d55_seal_and_prove`, the synthetic 32-block W16R2 8B T128 stack, each
+  layer's load hashing its layer record as production's load does): one request best 15.300 s = 8.37 tok/s. Its
+  receipts verified in the run directory.
+
+**The independent A/B** [MEASURED, `a19merge_pairs.md`, `a19merge_seal_pairs.md`]:
+- `share0+noahead` (the path before A19) against `share1+noahead` (the A19 default);
+- through production's function, 4 passes, alternating, budget 32 GiB;
+- the cold run and each arm's first pass were verified in the run directory; every receipt was 818,728,672 B.
+
+| metric | order bias removed | pairs favouring A19 | means before / after |
+|---|---:|---:|---:|
+| one request from its input (production's path) | **−20.9%** | 4 of 4 | 19.347 / 15.305 s |
+| its prove call | −0.5% | 4 of 4 | 4.196 / 4.176 s |
+| its forks phase | +0.4% | 2 of 4 | 3.569 / 3.583 s |
+| its sealing pass | +1.2% | 0 of 4 | 8.990 / 9.102 s |
+| request user / sys CPU | −4.8% / +9.2% | | |
+
+- **The shared blocks pay in every pair.** The agent's 6-pass A/B agrees: −20.7%, 19.26 → 15.28 s. The 4.15 s second
+  load is gone. The sealing pass is about 1% slower, which is probably the cost of keeping all 32 blocks resident
+  beside the builds [INFERRED]. Peak footprint is unchanged.
+- **A13's window stays off** [MEASURED, agent, production's path, 6 passes, both orders]:
+
+  | form | one request | prove call | peak footprint |
+  |---|---:|---:|---:|
+  | window 16 | −0.4% | −4.0% | +10 GiB |
+  | window 16, copy-only loads | −1.0% | | |
+  | window 32, 64 GiB budget | −1.0% | −9.4% | +30 GiB |
+
+  None of these clears the ±2% noise floor. Production has no stream form, which is where the window paid (+5.0%,
+  A18).
+
+**Where production's one request goes** [MEASURED, agent, `a19/README.md` §4.5; the means of 6 passes]:
+
+| part of the request | time |
+|---|---:|
+| the sealing pass | 9.1 s |
+| its 32 witness builds, slowed about 5× by the loads beside them | 8.1 s (1.7 s with copy-only loads) |
+| the prove call | 4.2 s |
+| writing the receipt | about 1.9 s |
+| the preflight's CS-6 re-hash of 32 distinct blocks | 0.30 s |
+
+- The sealing pass is load-bound. Each layer's load hashes the layer record beside the witness builds.
+- The harness's 5.4 s does not include these per-request costs. Production's figure (15.3 s, 8.4 tok/s) is the honest
+  single-request figure for `stack-prove` today. A real export also reads and pads the weight files, so 15.3 s is a
+  lower bound.
+- **A20 (running)** cuts these costs without moving a byte.
+
+**For the privacy gate:**
+- The production digests that moved are `private_block/trained_block.rs` and `run_fork.rs`.
+- No path whose time depends on a hidden value was added. The hand-over schedule reads k, the window and byte sizes
+  derived from the shape.
+- With the window off nothing is parked. If it is turned on, W-8(5)'s wording changes as A18 noted.
+- H-1 (D29) is read as still holding by D68 (security owner's reading, not a privacy acceptance).
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
