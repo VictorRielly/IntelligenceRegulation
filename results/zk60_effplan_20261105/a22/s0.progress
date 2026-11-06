@@ -1,0 +1,88 @@
+2026-11-06T09:44:54Z start
+2026-11-06T09:45:11Z cargo check --tests (gpu-metal) rc=0
+2026-11-06T09:45:11Z check warnings in A22's files: 7
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+--
+warning: unused import: `a22_seal_summary_for_tests`
+    --> src/private_block/run_fork_tests.rs:5337:126
+--
+704 | impl TrainedModelStatement {
+    | -------------------------- associated function in this implementation
+705 |     pub(crate) fn new(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>...
+    |                   ^^^
+--
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `tied_of` is never used
+   --> src/private_block/trained_block.rs:548:15
+    |
+548 | pub(super) fn tied_of(dir: &Path, p: &J, geometry: Geometry, source: &ModelSource) -> Result<Option<TiedEmbedding>, String> {
+    |               ^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+--
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+--
+warning: fields `out`, `proved`, and `at` are never read
+    --> src/private_block/trained_block.rs:4147:9
+--
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+--
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1955:4
+2026-11-06T09:45:25Z no-feature cargo check --tests rc=0
+2026-11-06T09:46:05Z production library build (non-test, gpu-metal) rc=0
+2026-11-06T09:46:05Z non-test warnings in trained_block.rs / run_fork.rs: 5
+warning: function `constants_of` is never used
+warning: function `tied_of` is never used
+warning: function `table_keys_of` is never used
+warning: method `is_dd` is never used
+warning: fields `out`, `proved`, and `at` are never read
+2026-11-06T09:46:56Z the CLI example zk60_trained_block (stack-serve) rc=0
+2026-11-06T09:49:41Z test build rc=0
+2026-11-06T09:49:43Z a22_cs6_takes_the_digest_kept_with_its_block_and_refuses_a_wrong_one rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1073 filtered out; finished in 1.25s
+2026-11-06T09:50:16Z a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on rc=0
+A22-SYNTH window 2, lanes 2, digests ahead false: honest, lie1 (refused before the run header, 1 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+A22-SYNTH window 4, lanes 2, digests ahead true: honest, lie1 (refused before the run header, 1 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+A22-SYNTH window 0, lanes 1, digests ahead false: honest, lie1 (refused before the run header, 0 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 1 held at once
+A22-SYNTH window 1, lanes 3, digests ahead true: honest, lie1 (refused before the run header, 1 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 3 held at once
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1073 filtered out; finished in 33.29s
+2026-11-06T09:50:25Z a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal rc=101
+thread 'private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal' (15026269) panicked at src/private_block/run_fork_tests.rs:5644:13:
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1073 filtered out; finished in 8.56s
+2026-11-06T09:51:53Z the audits and A19's / A20's suite tests rc=0
+test private_block::r6_tests::the_sealing_pass_lookup_miss_check_refuses_by_the_cs3_name ... ok
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+test private_block::run::fork::tests::a20_layer_records_and_the_statement_identity_are_the_same_under_every_record_setting ... ok
+test private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung ... ok
+test private_block::run::fork::tests::a19_planned_parts_equal_whole_forks_and_every_control_refuses_at_the_w16r2_rung ... ok
+test private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes ... ok
+test private_block::run::fork::tests::d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang ... ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung ... ok
+test private_block::run::fork::tests::a20_the_receipt_write_is_the_same_files_bytes_list_and_refusals_at_every_writer_count ... ok
+test private_block::run::fork::tests::a20_the_sealing_pass_is_the_same_under_every_load_setting_and_refuses_with_the_earliest_layer ... ok
+test result: ok. 12 passed; 0 failed; 6 ignored; 0 measured; 1056 filtered out; finished in 87.94s
+2026-11-06T09:51:53Z all done

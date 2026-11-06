@@ -2379,15 +2379,24 @@ impl ForkPlan {
 /// them instead of loading every block again after the sealing pass.
 pub(crate) struct SealedBlocks {
     v: Vec<std::sync::OnceLock<BlockPublic>>,
+    /// [A22] the digest the load computed on block `k` itself, when the caller kept it
+    /// (`stack-serve`'s `HL_A22_DIGEST_AHEAD`): CS-6 then takes it
+    d: Vec<std::sync::OnceLock<Digest>>,
 }
 
 impl SealedBlocks {
     pub(crate) fn new(l: usize) -> SealedBlocks {
-        SealedBlocks { v: (0..l).map(|_| std::sync::OnceLock::new()).collect() }
+        SealedBlocks { v: (0..l).map(|_| std::sync::OnceLock::new()).collect(), d: (0..l).map(|_| std::sync::OnceLock::new()).collect() }
     }
     /// block `k`, set once
     pub(crate) fn put(&self, k: usize, blk: BlockPublic) -> Result<(), String> {
         self.v.get(k).ok_or_else(|| format!("D55: no block {k} in a {}-block run", self.v.len()))?.set(blk).map_err(|_| format!("D55: block {k} was set twice"))
+    }
+    /// [A22] block `k` and the digest its load computed on that very object (both set
+    /// once; the object is not changed after: only `&` borrows of it are handed out)
+    pub(crate) fn put_digested(&self, k: usize, blk: BlockPublic, digest: Digest) -> Result<(), String> {
+        self.put(k, blk)?;
+        self.d[k].set(digest).map_err(|_| format!("D55: block {k}'s digest was set twice"))
     }
 }
 
@@ -2399,6 +2408,14 @@ impl ForkBlocks for SealedBlocks {
         match self.v.get(k) {
             Some(c) => c.get().ok_or_else(|| format!("D55: block {k} was not loaded by the sealing pass")),
             None => Err(format!("private run: no public statement for block {k}")),
+        }
+    }
+    /// block `k`'s digest: the one its load computed on it ([A22], when kept), or hashed now
+    fn digest_of(&self, k: usize) -> Result<Digest, String> {
+        let blk = self.get(k)?;
+        match self.d.get(k).and_then(|c| c.get()) {
+            Some(d) => Ok(*d),
+            None => Ok(blk.digest()),
         }
     }
 }

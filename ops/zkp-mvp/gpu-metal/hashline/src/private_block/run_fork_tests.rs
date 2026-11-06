@@ -4537,7 +4537,7 @@ fn a19_production_d55_ab() {
         let mem = A18Mem::start();
         let u0 = usage_now();
         let t = Instant::now();
-        let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: n, out: &out, budget, test_receipt: true, events: false }).unwrap_or_else(|e| panic!("[{label}]: production's D55 path: {e}"));
+        let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: n, out: &out, budget, test_receipt: true, events: false, turn: None }).unwrap_or_else(|e| panic!("[{label}]: production's D55 path: {e}"));
         let wall = t.elapsed().as_secs_f64();
         let u = usage_now().since(u0);
         let (f0, peak, f1) = mem.stop();
@@ -5065,7 +5065,7 @@ fn a20_the_8b_records_sealing_pass_and_production_path_under_every_setting() {
             *seen2.borrow_mut() = Some(a19_interior_forks_whole(fr, blocks, &fix2.planes, &|k| fix2.witness(k), rc));
         })));
         let out = root.join(format!("run-{i}"));
-        let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: 3, out: &out, budget: 32 << 30, test_receipt: true, events: false }).unwrap_or_else(|e| panic!("[{arm}]: production's D55 path: {e}"));
+        let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: 3, out: &out, budget: 32 << 30, test_receipt: true, events: false, turn: None }).unwrap_or_else(|e| panic!("[{arm}]: production's D55 path: {e}"));
         a19_proved_hook_for_tests(None);
         a20_apply(&A20Arm::default());
         let compared = seen.borrow().expect("the proved hook ran");
@@ -5873,7 +5873,7 @@ fn a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_s
             *seen2.borrow_mut() = Some(a19_interior_forks_whole(fr, blocks, &fix2.planes, &|k| fix2.witness(k), rc));
         })));
         let out = root.join(format!("run-{i}"));
-        let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: 3, out: &out, budget: 32 << 30, test_receipt: true, events: false }).unwrap_or_else(|e| panic!("[{arm}]: production's D55 path: {e}"));
+        let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: 3, out: &out, budget: 32 << 30, test_receipt: true, events: false, turn: None }).unwrap_or_else(|e| panic!("[{arm}]: production's D55 path: {e}"));
         a19_proved_hook_for_tests(None);
         let compared = seen.borrow().expect("the proved hook ran");
         let fr = ForkRun::new(proved.statement(), D55OptIn::unreviewed_prototype()).unwrap();
@@ -6038,7 +6038,7 @@ fn a21_verifier_ab() {
     let model = A19Synth { fix: &fix, layers: (0..l as u32).collect(), ctx: [21; 32], hash_load: true, record0: LayerRecord::of_block(0, &fix.blk, vec![]) };
     let root = scratch("a21-verify-ab");
     let out = root.join("run");
-    let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: 6, out: &out, budget: 32 << 30, test_receipt: true, events: false }).unwrap_or_else(|e| panic!("production's D55 path: {e}"));
+    let proved = d55_seal_and_prove(&model, D55OptIn::unreviewed_prototype(), &D55Run { workers: 6, out: &out, budget: 32 << 30, test_receipt: true, events: false, turn: None }).unwrap_or_else(|e| panic!("production's D55 path: {e}"));
     let fr = ForkRun::new(proved.statement(), D55OptIn::unreviewed_prototype()).unwrap();
     let blocks: Vec<BlockPublic> = (0..l).map(|_| fix.blk.clone()).collect();
     eprintln!("A21-VERIFY {name} L{l}: the receipt ({} B) proved, {:.1} s from the start; {passes} passes of {arms:?}", proved.times().receipt_bytes, t0.elapsed().as_secs_f64());
@@ -6072,3 +6072,853 @@ fn a21_verifier_ab() {
 }
 
 // ---- end of [A21] ----
+
+// ---- [A22] `stack-serve`, production's resident-model stream form ----
+
+mod a22 {
+    //! **[A22] `stack-serve`, production's resident-model stream form: its tests.** TEST
+    //! CODE ONLY (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A22, ruling
+    //! D70; `results/zk60_effplan_20261105/a22/README.md`). A module inside the D55
+    //! fork-run tests, whose fixtures it uses (inline, so that no file is added under
+    //! `src/private_block/` for s25's file census).
+    //!
+    //! * **the R13 rung through the export loader** (suite, CPU; ignored on Metal):
+    //!   `stack-serve` in process over a 4-layer R13 export, a stream of requests mixing an
+    //!   honest input twice, a refused input (layer 1's parity), an existing run directory,
+    //!   an I/O failure after the run header, a bad line and a reused run directory. Every
+    //!   proved receipt is verified by a fresh `stack-verify`; its statement identity, its
+    //!   statement (but its endpoint policy) and its frame list are `stack-prove`'s; its
+    //!   size is `stack-prove`'s; the two requests on the same input share no salt, mask or
+    //!   frame byte; every refused or failed request leaves nothing and the stream carries
+    //!   on; the server's sealing pass is `stack-prove`'s, every word of it. Then, with
+    //!   seeded generators on the lanes, A19's checks: the head replays and every interior
+    //!   fork equals that fork proved whole.
+    //! * **the synthetic W16R2 rung** (suite, CPU; ignored on Metal): the resident synthetic
+    //!   stack served with A13's window off and on, seeded: every receipt verifies from its
+    //!   run directory, its head replays, its interior forks equal whole forks, a refused
+    //!   request drops every part, and the turns keep their order.
+    //! * **CS-6 with `HL_A22_DIGEST_AHEAD`** (suite): a digest kept with its block is the
+    //!   one CS-6 compares, and a wrong one is refused by CS-6's own name.
+    //! * **the 8B synthetic block** (ignored, Metal) and **THE A/B** (ignored, heavy):
+    //!   production's server stream against the D55 harness's stream (H124d) on the
+    //!   synthetic W16R2 8B T128 32-block stack.
+
+    use super::*;
+    use crate::private_block::shape::Shape;
+    use crate::private_block::trained_block::{
+        a19_proved_hook_for_tests, a20_export_seal_summary_for_tests, a22_lanes, a22_resident_export_seal_summary_for_tests, js, serve_stream, set_a22_digest_ahead_for_test, set_a22_lanes_for_test, stack_serve_for_tests, trained_stack_prove_command,
+        trained_stack_verify_command, write_unverified_statement_files, A22LaneSetup, D55Proved, Resident, ServeCfg, ServeModel, ServeOutcome, TrainedLayer, D55_TEST_RECEIPT_FLAG, J,
+    };
+    use crate::private_block::ExpectedIo;
+    use std::path::Path;
+    use std::sync::{Arc, Mutex};
+
+    /// [A22] the server's switches (and A19's / A20's) are the whole process's: the tests that
+    /// SET them, or run a server, take A19's lock (one at a time)
+    fn a22_knobs() -> std::sync::MutexGuard<'static, ()> {
+        a19_knobs()
+    }
+
+    /// **[A22] the D55 harness's synthetic stack as a SERVED model**: A19's synthetic load at
+    /// startup (each layer a copy of the one block, its record hashed), and each request's
+    /// private input the fixture's honest chain or (`"chain": "lie<k>"`) that chain with
+    /// layer `k`'s reference output off by one word (the sealing pass's parity refusal)
+    struct A22Synth<'f> {
+        fix: &'f A18Fix,
+        layers: Vec<u32>,
+        ctx: Digest,
+    }
+
+    impl<'f> A22Synth<'f> {
+        fn new(fix: &'f A18Fix, ctx: Digest) -> A22Synth<'f> {
+            A22Synth { fix, layers: (0..fix.l as u32).collect(), ctx }
+        }
+    }
+
+    impl ServeModel for A22Synth<'_> {
+        type Input = Option<usize>;
+        fn shape(&self) -> &Shape {
+            &self.fix.sh
+        }
+        fn layers(&self) -> &[u32] {
+            &self.layers
+        }
+        fn load_layer(&self, k: usize) -> Result<TrainedLayer, String> {
+            let blk = self.fix.blk.clone();
+            let record = LayerRecord::of_block(k as u32, &blk, vec![]);
+            Ok(TrainedLayer { index: k as u32, manifest_sha256: [0; 32], blk, record, rope_note: String::new() })
+        }
+        fn seq(&self, lie: &Option<usize>, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
+            let k = layer as usize;
+            let mut out = self.fix.xs[k + 1].clone();
+            if *lie == Some(k) {
+                out[0] = out[0].wrapping_add(1);
+            }
+            Ok((self.fix.xs[k].clone(), out))
+        }
+        fn statement_of_records(&self, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+            if records != self.fix.model.layers {
+                return Err("A22 synthetic stack: the records are not the fixture's".into());
+            }
+            Ok(self.fix.model.clone())
+        }
+        fn run_shape(&self) -> Result<RunShape, String> {
+            RunShape::new(self.fix.sh.clone(), self.fix.l, self.fix.run_profile)
+        }
+        fn context(&self) -> Result<Digest, String> {
+            Ok(self.ctx)
+        }
+        fn variant(&self) -> &str {
+            "a22-synthetic"
+        }
+        fn scope(&self) -> &'static str {
+            "the D55 harness's synthetic stack (A22)"
+        }
+        fn opt_in(&self) -> D55OptIn {
+            D55OptIn::unreviewed_prototype()
+        }
+        fn input_keys(&self) -> &'static [&'static str] {
+            &["chain"]
+        }
+        fn input_of(&self, req: &J) -> Result<Option<usize>, String> {
+            match req.get("chain").and_then(J::str).map_err(|e| format!("chain: {e}"))? {
+                "honest" => Ok(None),
+                s => s.strip_prefix("lie").and_then(|k| k.parse::<usize>().ok()).map(Some).ok_or_else(|| format!("chain: {s:?} is neither honest nor lie<k>")),
+            }
+        }
+        fn write_statement(&self, p: &D55Proved, _out: &Path, unverified: &Path) -> Result<(), String> {
+            write_unverified_statement_files(unverified, &p.expected_bytes(), &format!("{{\"a22_synthetic_statement_identity\": \"{}\"}}\n", p.identity_hex()), p.written())
+        }
+    }
+
+    /// [A22] a server's settings for the tests
+    fn a22_cfg(workers: usize, budget: u64, setup: Option<A22LaneSetup>) -> ServeCfg {
+        ServeCfg { workers, budget, test_receipt: true, lanes: a22_lanes(), lane_setup: setup }
+    }
+
+    /// [A22] `<out>.unverified-statement`
+    fn a22_unverified(out: &Path) -> std::path::PathBuf {
+        out.with_file_name(format!("{}.unverified-statement", out.file_name().unwrap().to_string_lossy()))
+    }
+
+    /// [A22] a served synthetic request's receipt verified from its run directory as a
+    /// verifier would: the statement rebuilt from the public model and the run's own endpoint
+    /// policy (`<out>.unverified-statement/expected.bin`). Returns the frames' list.
+    fn a22_verify_synth(fix: &A18Fix, ctx: Digest, out: &Path, workers: usize) -> Vec<(u64, String)> {
+        let expected = ExpectedIo::from_bytes_at(&fix.sh, &std::fs::read(a22_unverified(out).join("expected.bin")).unwrap()).unwrap();
+        let st = RunStatement::new_bound_from_digests(RunShape::new(fix.sh.clone(), fix.l, fix.run_profile).unwrap(), ctx, expected, vec![fix.blk.digest(); fix.l], &vec![(0, 0); fix.l], &fix.model).unwrap();
+        let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        verify_run_with_forks_from_dir(&fr, &RepeatBlock::new(&fix.blk, fix.l), out, workers).unwrap_or_else(|e| panic!("{}: the served receipt does not verify: {e}", out.display()))
+    }
+
+    /// [A22] what one lane saw of one request: its index, the interior forks compared with
+    /// whole forks (the head replayed first), the parts made, the parts alive after it, the
+    /// forks parked or taken back whole, the generators and whether every fork was seeded
+    #[derive(Clone, Debug, Default)]
+    struct A22Seen {
+        q: usize,
+        compared: Option<usize>,
+        made: usize,
+        live: usize,
+        parked: usize,
+        generators: usize,
+        seeded: bool,
+    }
+
+    /// [A22] a lane's per-request guard: the seeded generators and the part counter on the
+    /// lane's thread while the request runs; on drop the proved hook is cleared and the
+    /// counts are recorded
+    struct A22Lane {
+        q: usize,
+        count: &'static A19Count,
+        seen: Arc<Mutex<Vec<A22Seen>>>,
+        proof: Arc<Mutex<Option<A22Seen>>>,
+        _counting: A19Counting,
+        _seeded: Option<SeededForks>,
+    }
+
+    impl Drop for A22Lane {
+        fn drop(&mut self) {
+            a19_proved_hook_for_tests(None);
+            let mut s = self.proof.lock().unwrap().take().unwrap_or_default();
+            s.q = self.q;
+            s.made = self.count.made.load(Ordering::SeqCst);
+            s.live = self.count.live.load(Ordering::SeqCst);
+            self.seen.lock().unwrap().push(s);
+        }
+    }
+
+    /// what a lane setup's proved hook does with a request's proof (its fork run, blocks,
+    /// receipt): the number of interior forks it compared
+    type A22Check = Arc<dyn Fn(&ForkRun<'_>, &dyn ForkBlocks, &ForkReceipt) -> usize + Send + Sync>;
+
+    /// [A22] an I/O failure a lane setup injects into one request, after its proof (past its
+    /// run header): its run directory made unwritable (the receipt write fails), or its
+    /// statement directory taken by someone else (the statement files fail)
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    enum A22Fail {
+        Write,
+        Statement,
+    }
+
+    /// **[A22] the byte tests' lane setup**: on each request's lane, A13's seeded generators
+    /// (when `seeded`), A19's part counter, and a proved hook that runs `check` on the proof
+    /// (or, for a request named in `fail`, injects that failure after the run header); each
+    /// request's counts go to `seen`
+    fn a22_setup(seeded: bool, check: Option<A22Check>, fail: Vec<(usize, A22Fail)>, seen: Arc<Mutex<Vec<A22Seen>>>) -> A22LaneSetup {
+        Arc::new(move |q: usize, out: &Path| -> Box<dyn std::any::Any> {
+            let count: &'static A19Count = Box::leak(Box::default());
+            let proof: Arc<Mutex<Option<A22Seen>>> = Arc::new(Mutex::new(None));
+            let (p2, check, out) = (proof.clone(), check.clone(), out.to_path_buf());
+            let fail = fail.iter().find(|(f, _)| *f == q).map(|(_, x)| *x);
+            a19_proved_hook_for_tests(Some(Box::new(move |fr: &ForkRun<'_>, blocks: &dyn ForkBlocks, rc: &ForkReceipt, fs: &ForkStats| {
+                match fail {
+                    Some(A22Fail::Write) => {
+                        use std::os::unix::fs::PermissionsExt;
+                        std::fs::set_permissions(&out, std::fs::Permissions::from_mode(0o555)).unwrap();
+                    }
+                    Some(A22Fail::Statement) => {
+                        let u = a22_unverified(&out);
+                        std::fs::create_dir(&u).unwrap();
+                        std::fs::write(u.join("someone-else.txt"), b"not the server's").unwrap();
+                    }
+                    None => {}
+                }
+                let compared = if fail.is_some() { None } else { check.as_ref().map(|c| c(fr, blocks, rc)) };
+                *p2.lock().unwrap() = Some(A22Seen { compared, parked: fs.ahead_parked + fs.ahead_taken_back, generators: fs.generators, seeded: fs.fork_hooks.iter().all(|h| h.seeded == Some(A18_SEED)), ..A22Seen::default() });
+            })));
+            Box::new(A22Lane { q, count, seen: seen.clone(), proof, _counting: A19Counting::on(count), _seeded: seeded.then(|| SeededForks::on(A18_SEED, a18_seeded)) })
+        })
+    }
+
+    /// [A22] the field `key`'s string value in a JSON line
+    fn a22_field(line: &str, key: &str) -> Option<String> {
+        let j = crate::private_block::trained_block::parse_json(line.as_bytes()).ok()?;
+        j.opt(key).and_then(|v| v.str().ok()).map(str::to_string)
+    }
+
+    /// [A22] the turns' order and bound in a stream's outcomes: every request that entered the
+    /// sealing turn entered it in request order, every request that entered the prover entered
+    /// it in request order, and (at `lanes` lanes) no more than `lanes` requests were between
+    /// their sealing turn and their result at once
+    fn a22_turns_hold(outs: &[ServeOutcome], lanes: usize) -> String {
+        let entered: Vec<(usize, f64)> = outs.iter().filter(|o| o.at[1].is_finite()).map(|o| (o.q, o.at[1])).collect();
+        assert!(entered.windows(2).all(|w| w[0].1 <= w[1].1), "the sealing turn was not taken in request order: {entered:?}");
+        let proving: Vec<(usize, f64, f64)> = outs.iter().filter(|o| o.at[3].is_finite()).map(|o| (o.q, o.at[3], o.at[4])).collect();
+        assert!(proving.windows(2).all(|w| w[0].2 <= w[1].1), "two requests held the prover at once, or out of order: {proving:?}");
+        for o in outs.iter().filter(|o| o.at[1].is_finite()) {
+            let t = o.at[1];
+            let inside = outs.iter().filter(|p| p.at[1].is_finite() && p.at[1] <= t && t < p.at[5]).count();
+            assert!(inside <= lanes, "{inside} requests were between their sealing turn and their result at {t:.3} s ({lanes} lanes)");
+        }
+        format!("{} requests entered the sealing turn and {} the prover, each in request order; at most {lanes} held at once", entered.len(), proving.len())
+    }
+
+    // ------------------------------------------------------------------ the R13 rung through the export loader
+
+    /// **[A22] `stack-serve` on a 4-layer R13 export** (see the module comment): the stream,
+    /// its refusals, the bytes against `stack-prove`, fresh randomness, and A19's checks with
+    /// seeded generators. `workers`: the D55 fork workers.
+    fn a22_check_export(tag: &str, workers: usize) -> Vec<String> {
+        let _k = a22_knobs();
+        let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
+        let root = scratch(&format!("a22-export-{tag}"));
+        let ex_dir = root.join("export");
+        let l = write_r13_multi_layer_export(&ex_dir, 4, true, None);
+        assert!(l >= 3, "the R13 export holds {l} layers; the interior-fork comparison needs 3 or more");
+        let bad = root.join("export-bad");
+        write_r13_multi_layer_export(&bad, l, false, Some(1));
+        let vc = crate::private_block::trained_block_tests::verifier_copy(&ex_dir);
+        let (exd, vcd, ns) = (ex_dir.display().to_string(), vc.display().to_string(), workers.to_string());
+        let mut lines = Vec::new();
+        // ---- stack-prove once, the reference
+        let sp = root.join("stack-prove-run");
+        assert_eq!(trained_stack_prove_command(&s(&["--export", &exd, "--seq", "public", "--out", &sp.display().to_string(), "--d55-workers", &ns, D55_TEST_RECEIPT_FLAG])), 0, "stack-prove --d55-workers failed");
+        let sp_stmt = std::fs::read_to_string(a22_unverified(&sp).join("statement.json")).unwrap();
+        let sp_segs = std::fs::read_to_string(a22_unverified(&sp).join("segments.json")).unwrap();
+        let id = sp_stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
+        let sp_bytes: u64 = std::fs::read_dir(&sp).unwrap().map(|e| e.unwrap()).filter(|e| e.file_name().to_string_lossy().starts_with("d55-")).map(|e| e.metadata().unwrap().len()).sum();
+        // ---- the sealing pass, every word: stack-prove's model against the server's resident one
+        for budget in [u64::MAX, 0] {
+            for dig in [false, true] {
+                set_a22_digest_ahead_for_test(Some(dig));
+                let (a, _) = a20_export_seal_summary_for_tests(&ex_dir, "public", budget).unwrap();
+                let (b, _) = a22_resident_export_seal_summary_for_tests(&ex_dir, "public", budget).unwrap();
+                set_a22_digest_ahead_for_test(None);
+                assert_eq!(a, b, "budget {budget}, digests ahead {dig}: the server's sealing pass is not stack-prove's");
+            }
+        }
+        lines.push("the server's sealing pass (resident model, the request's sequence) = stack-prove's, every record, digest, sealed plane, endpoint and kept witness, at budgets everything and nothing, digests ahead off and on".to_string());
+        // ---- the stream
+        let occupied = root.join("occupied");
+        std::fs::create_dir(&occupied).unwrap();
+        std::fs::write(occupied.join("sentinel.txt"), b"not the server's").unwrap();
+        let run = |i: usize| root.join(format!("run-{i}"));
+        let req = |out: &Path, input: &str| format!("{{\"out\":{},{input}}}", js(&out.display().to_string()));
+        let bad_seq = format!("\"seq_dir\":{}", js(&bad.join("seq_public").display().to_string()));
+        let requests = vec![
+            format!("{{\"id\":\"zero\",\"out\":{},\"seq\":\"public\"}}", js(&run(0).display().to_string())),
+            req(&run(1), &bad_seq),
+            req(&occupied, "\"seq\":\"public\""),
+            String::new(),
+            req(&run(3), "\"seq\":\"public\""),
+            req(&run(4), "\"seq\":\"public\""),
+            "this is not a request".to_string(),
+            req(&run(0), "\"seq\":\"public\""),
+            req(&run(7), "\"seq\":\"public\""),
+            req(&run(8), "\"seq\":\"public\""),
+            req(&run(9), "\"seq\":\"public\""),
+        ];
+        let seen: Arc<Mutex<Vec<A22Seen>>> = Default::default();
+        // request 4 (the fifth non-blank line): its run directory unwritable after the proof;
+        // request 8: its statement directory taken by someone else after the proof
+        let fails = vec![(4, A22Fail::Write), (8, A22Fail::Statement)];
+        let (emitted, outs) = stack_serve_for_tests(&s(&["--export", &exd, "--d55-workers", &ns, D55_TEST_RECEIPT_FLAG]), requests, Some(a22_setup(false, None, fails, seen.clone()))).unwrap_or_else(|e| panic!("the server did not start: {e}"));
+        assert_eq!(outs.len(), 10, "one outcome per non-blank request line");
+        let want = ["proved", "refused", "refused", "proved", "refused", "bad-request", "refused", "proved", "refused", "proved"];
+        for (o, w) in outs.iter().zip(want) {
+            assert_eq!(o.status, w, "request {}: {:?}", o.q, o.detail);
+        }
+        assert!(emitted[0].contains("\"event\":\"serve-start\"") && emitted[0].contains(&id), "the start line: {}", emitted[0]);
+        assert!(emitted.last().unwrap().contains("\"event\":\"serve-end\",\"requests\":10,\"proved\":4,\"refused\":5,\"bad_requests\":1"), "the end line: {}", emitted.last().unwrap());
+        assert_eq!(emitted.len(), 12, "the start line, one line per request, the end line");
+        for l in &emitted {
+            crate::private_block::trained_block::parse_json(l.as_bytes()).unwrap_or_else(|e| panic!("an emitted line is not JSON ({e}): {l}"));
+        }
+        for (k, o) in outs.iter().enumerate() {
+            assert_eq!(o.q, k);
+            assert_eq!(emitted[k + 1], o.line, "the result lines are not in request order");
+        }
+        // the refusals: the constant line, the detail private, nothing created
+        let detail = |q: usize| outs[q].detail.clone().unwrap_or_default();
+        assert!(detail(1).contains("layer 1") && detail(1).contains("before the run header; ruling H-1"), "request 1: not layer 1's parity refusal: {}", detail(1));
+        assert!(detail(2).contains("exists; the run directory must be new"), "request 2: {}", detail(2));
+        assert!(detail(4).starts_with("prove_run:") && detail(4).contains("(the incomplete run directory was removed)"), "request 4: not a failure after the header that removed its run: {}", detail(4));
+        assert!(detail(6).contains("earlier request of this stream"), "request 6: {}", detail(6));
+        assert!(detail(8).contains("(the incomplete run directory was removed)"), "request 8: not a statement failure that removed its run: {}", detail(8));
+        for q in [1usize, 2, 4, 6, 8] {
+            assert_eq!(outs[q].line, format!("{{\"event\":\"served\",\"request\":{q},\"id\":null,\"status\":\"refused\",\"command\":\"stack-serve\",\"error\":\"refused\",\"detail\":\"owner-private\"}}"), "request {q}: the refusal line is not the constant one");
+            assert!(!outs[q].line.contains(&detail(q)));
+        }
+        assert!(outs[5].line.contains("\"status\":\"bad-request\""));
+        for p in [run(1), run(4)] {
+            assert!(!p.exists() && !a22_unverified(&p).exists(), "{}: a refused or failed request left a run directory or a statement", p.display());
+        }
+        assert_eq!(crate::private_block::run_sink::dir_entry_names(&occupied).unwrap(), vec!["sentinel.txt".to_string()], "the existing directory was touched");
+        assert!(seen.lock().unwrap().iter().all(|s| s.live == 0), "a request left a part alive");
+        assert_eq!(std::fs::read(occupied.join("sentinel.txt")).unwrap(), b"not the server's");
+        assert!(!run(8).exists(), "request 8: its run directory was left after its statement failed");
+        assert_eq!(crate::private_block::run_sink::dir_entry_names(&a22_unverified(&run(8))).unwrap(), vec!["someone-else.txt".to_string()], "request 8: the statement directory someone else made was touched");
+        lines.push(format!("a stream of 11 lines (10 requests): proved, refused (layer 1's parity, before the run header), refused (an existing run directory, untouched), proved, refused (the receipt write failed after the run header; its run directory removed), bad-request, refused (a run directory an earlier request named), proved, refused (its statement directory taken after its proof; its run directory removed, the other directory untouched), proved; the results in request order; {}", a22_turns_hold(&outs, a22_lanes())));
+        // the proved requests: stack-verify, the bytes against stack-prove, fresh randomness
+        let mut frames: Vec<Vec<Vec<u8>>> = Vec::new();
+        let mut policies: Vec<Vec<u8>> = Vec::new();
+        for q in [0usize, 3, 7, 9] {
+            let out = outs[q].out.clone().unwrap();
+            let line = &outs[q].line;
+            assert_eq!(a22_field(line, "statement_identity").as_deref(), Some(id.as_str()), "request {q}: the statement identity is not stack-prove's");
+            assert!(out.join(D55_TEST_RECEIPT_MARKER_FILE).exists(), "request {q}: no not-for-publication marker");
+            let stmt = std::fs::read_to_string(a22_unverified(&out).join("statement.json")).unwrap();
+            let segs = std::fs::read_to_string(a22_unverified(&out).join("segments.json")).unwrap();
+            let no_policy = |t: &str| t.lines().filter(|l| !l.contains("\"expected_io\"")).collect::<Vec<_>>().join("\n");
+            assert_eq!(no_policy(&stmt), no_policy(&sp_stmt), "request {q}: the statement (but its endpoint policy) is not stack-prove's");
+            assert_ne!(stmt, sp_stmt, "request {q}: the endpoint policy is stack-prove's own (the randomness was reused)");
+            let shape = |t: &str| t.lines().map(|l| l.split("\"sha256\"").next().unwrap().to_string()).collect::<Vec<_>>();
+            assert_eq!(shape(&segs), shape(&sp_segs), "request {q}: the frames' names and lengths are not stack-prove's");
+            let p = outs[q].proved.as_ref().unwrap();
+            assert_eq!(p.receipt_bytes, sp_bytes, "request {q}: the receipt's size is not stack-prove's");
+            assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &out.display().to_string(), "--expect-statement", &id, "--d55-workers", &ns])), 0, "request {q}: the fresh stack-verify refused the served receipt");
+            let fr_files: Vec<Vec<u8>> = d55_file_names(l).iter().map(|n| std::fs::read(out.join(n)).unwrap()).collect();
+            frames.push(fr_files);
+            policies.push(std::fs::read(out.join("statement").join("expected.bin")).unwrap());
+        }
+        // requests 0, 3, 7 and 9 are the same input: no endpoint commitment, boundary root, fork or tail byte-string in common
+        for a in 0..policies.len() {
+            for b in a + 1..policies.len() {
+                assert_ne!(policies[a], policies[b], "two requests on the same input share their endpoint commitments");
+                for (k, (x, y)) in frames[a].iter().zip(&frames[b]).enumerate() {
+                    assert_ne!(x, y, "two requests on the same input share frame {k}");
+                }
+            }
+        }
+        lines.push(format!("4 proved requests on the same input: each verified by a fresh stack-verify; statement identity {} = stack-prove's; statement.json = stack-prove's but its expected_io; segments.json's names and lengths = stack-prove's; receipt {sp_bytes} B = stack-prove's; marker present; no two share their endpoint commitments, head (boundary roots), any fork frame or the tail", &id[..16]));
+        // ---- A19's checks with seeded generators on the lanes: the head replays, interior forks = whole forks
+        let exd2 = ex_dir.clone();
+        let check: A22Check = Arc::new(move |fr: &ForkRun<'_>, blocks: &dyn ForkBlocks, rc: &ForkReceipt| {
+            let ex = TrainedExport::load(&exd2).unwrap();
+            let sh = &fr.st.rs.sh;
+            let (mut x, _) = ex.load_seq(sh, "public", 0).unwrap();
+            let (mut ws, mut planes) = (Vec::new(), Vec::new());
+            for k in 0..fr.st.rs.l {
+                let w = witness::build_for_block(&fr.st.stage_shape(k).unwrap(), blocks.get(k).unwrap(), &x).unwrap();
+                let out = w.output().unwrap();
+                x = unpad(sh, &out);
+                if k + 1 < fr.st.rs.l {
+                    planes.push(out);
+                }
+                ws.push(w);
+            }
+            a19_interior_forks_whole(fr, blocks, &planes, &|k| ws[k].clone(), rc)
+        });
+        for (window, dig) in [(0usize, false), (2, false), (0, true), (l, true)] {
+            set_ahead_for_test(Some(window), Some(2), Some(2));
+            set_a22_digest_ahead_for_test(Some(dig));
+            let seen: Arc<Mutex<Vec<A22Seen>>> = Default::default();
+            let outs_dir = root.join(format!("seeded-w{window}-d{}", u8::from(dig)));
+            std::fs::create_dir(&outs_dir).unwrap();
+            let reqs: Vec<String> = (0..3).map(|i| if i == 1 { req(&outs_dir.join("run-1"), &bad_seq) } else { req(&outs_dir.join(format!("run-{i}")), "\"seq\":\"public\"") }).collect();
+            let (_, outs) = stack_serve_for_tests(&s(&["--export", &exd, "--d55-workers", &ns, D55_TEST_RECEIPT_FLAG]), reqs, Some(a22_setup(true, Some(check.clone()), Vec::new(), seen.clone()))).unwrap();
+            set_ahead_for_test(None, None, None);
+            set_a22_digest_ahead_for_test(None);
+            assert_eq!(outs.iter().map(|o| o.status).collect::<Vec<_>>(), ["proved", "refused", "proved"], "window {window}, digests ahead {dig}");
+            let mut seen = seen.lock().unwrap().clone();
+            seen.sort_by_key(|s| s.q);
+            for s in &seen {
+                assert_eq!(s.live, 0, "window {window}: request {} left a part alive", s.q);
+                if s.q == 1 {
+                    assert!(s.compared.is_none(), "the refused request reached its proof");
+                } else {
+                    assert_eq!(s.compared, Some(l - 2), "window {window}: request {}'s interior forks", s.q);
+                    assert!(s.seeded && s.generators == l + 1, "window {window}: request {}'s forks did not hold the seeded switch", s.q);
+                    assert_eq!(s.parked, window.min(l), "window {window}: request {}'s forks parked", s.q);
+                }
+            }
+            for q in [0usize, 2] {
+                assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &outs[q].out.clone().unwrap().display().to_string(), "--expect-statement", &id, "--d55-workers", &ns])), 0, "seeded window {window}: request {q} does not verify");
+            }
+            lines.push(format!("seeded lanes, window {window}, digests ahead {dig}: proved, refused (parts made {}, alive 0), proved; each verified by a fresh stack-verify; head = the replayed commit phase; {} interior forks = those forks proved whole, per request; forks parked = the window's", seen[1].made, l - 2));
+        }
+        std::fs::remove_dir_all(&root).unwrap();
+        lines
+    }
+
+    /// **[A22] `stack-serve` on the R13 rung through the export loader, on the CPU** (in the suite)
+    #[test]
+    fn a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal() {
+        for line in a22_check_export("cpu", 2) {
+            eprintln!("A22-EXPORT {line}");
+        }
+    }
+
+    /// **[A22] the same on the Metal device**: toggles `HL_GPU` in-process, so it is ignored
+    /// and run alone by name
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    #[ignore = "A22: toggles HL_GPU in-process; run alone by name on a Mac"]
+    fn a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device() {
+        std::env::set_var("HL_GPU", "1");
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        let lines = a22_check_export("metal", 3);
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        std::env::remove_var("HL_GPU");
+        for line in lines {
+            eprintln!("A22-EXPORT (Metal) {line}");
+        }
+        assert!(ran > 0.0, "no sumcheck round ran on the device");
+    }
+
+    // ------------------------------------------------------------------ the synthetic stack
+
+    /// **[A22] the resident synthetic stack served** at each `(window, lanes, digests ahead)`,
+    /// seeded: honest, lie at layer 1, honest, honest; each receipt verifies from its run
+    /// directory, its head replays and its interior forks equal whole forks; the refused
+    /// request drops every part; the turns keep their order.
+    fn a22_check_synth(fixa: &Arc<A18Fix>, workers: usize, arms: &[(usize, usize, bool)]) -> Vec<String> {
+        let _k = a22_knobs();
+        let fix: &A18Fix = fixa;
+        let l = fix.l;
+        let ctx: Digest = [122; 32];
+        let model = A22Synth::new(fix, ctx);
+        let res = Resident::start(&model).unwrap();
+        assert_eq!(res.identity(), fix.model.identity(), "the resident model's statement is not the fixture's");
+        let root = scratch("a22-synth");
+        let check: A22Check = {
+            let f = fixa.clone();
+            Arc::new(move |fr: &ForkRun<'_>, blocks: &dyn ForkBlocks, rc: &ForkReceipt| a19_interior_forks_whole(fr, blocks, &f.planes, &|k| f.witness(k), rc))
+        };
+        let mut lines = Vec::new();
+        for (i, &(window, lanes, dig)) in arms.iter().enumerate() {
+            set_ahead_for_test(Some(window), Some(2), Some(2));
+            set_a22_lanes_for_test(Some(lanes));
+            set_a22_digest_ahead_for_test(Some(dig));
+            let seen: Arc<Mutex<Vec<A22Seen>>> = Default::default();
+            let dir = root.join(format!("arm-{i}"));
+            std::fs::create_dir(&dir).unwrap();
+            let chains = ["honest", "lie1", "honest", "honest"];
+            let reqs: Vec<String> = chains.iter().enumerate().map(|(q, c)| format!("{{\"out\":{},\"chain\":\"{c}\"}}", js(&dir.join(format!("run-{q}")).display().to_string()))).collect();
+            let cfg = a22_cfg(workers, u64::MAX, Some(a22_setup(true, Some(check.clone()), Vec::new(), seen.clone())));
+            let outs = serve_stream(&res, &cfg, reqs.into_iter(), &mut |_| {});
+            set_ahead_for_test(None, None, None);
+            set_a22_lanes_for_test(None);
+            set_a22_digest_ahead_for_test(None);
+            assert_eq!(outs.iter().map(|o| o.status).collect::<Vec<_>>(), ["proved", "refused", "proved", "proved"], "window {window} lanes {lanes}: {:?}", outs.iter().map(|o| o.detail.clone()).collect::<Vec<_>>());
+            assert!(outs[1].detail.as_deref().unwrap_or("").contains("before the run header; ruling H-1"), "the lie's refusal: {:?}", outs[1].detail);
+            assert!(!dir.join("run-1").exists() && !a22_unverified(&dir.join("run-1")).exists(), "the refused request left a run directory or a statement");
+            let mut seen = seen.lock().unwrap().clone();
+            seen.sort_by_key(|s| s.q);
+            for s in &seen {
+                assert_eq!(s.live, 0, "window {window} lanes {lanes}: request {} left a part alive", s.q);
+                if s.q != 1 {
+                    assert_eq!(s.compared, Some(l.saturating_sub(2)), "window {window} lanes {lanes}: request {}'s interior forks", s.q);
+                    assert!(s.seeded && s.generators == l + 1);
+                    assert_eq!(s.parked, window.min(l), "window {window} lanes {lanes}: request {}'s forks parked", s.q);
+                }
+            }
+            for q in [0usize, 2, 3] {
+                let seen_frames = a22_verify_synth(fix, ctx, outs[q].out.as_ref().unwrap(), 2);
+                let p = outs[q].proved.as_ref().unwrap();
+                assert_eq!(seen_frames.len(), l + 2);
+                assert_eq!(seen_frames.iter().map(|(n, _)| *n).sum::<u64>(), p.receipt_bytes, "request {q}: the receipt's size");
+            }
+            lines.push(format!("window {window}, lanes {lanes}, digests ahead {dig}: honest, lie1 (refused before the run header, {} parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory ({} B); head = the replayed commit phase; {} interior forks = those forks proved whole; {}", seen[1].made, outs[0].proved.as_ref().unwrap().receipt_bytes, l.saturating_sub(2), a22_turns_hold(&outs, lanes)));
+        }
+        std::fs::remove_dir_all(&root).unwrap();
+        lines
+    }
+
+    /// **[A22] the resident synthetic W16R2 rung served, on the CPU** (in the suite)
+    #[test]
+    fn a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on() {
+        let fix = Arc::new(A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4));
+        for line in a22_check_synth(&fix, 2, &[(0, 2, false), (2, 2, false), (4, 2, true), (0, 1, false), (1, 3, true)]) {
+            eprintln!("A22-SYNTH {line}");
+        }
+    }
+
+    /// **[A22] the same on the Metal device** (ignored; run alone by name)
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    #[ignore = "A22: toggles HL_GPU in-process; run alone by name on a Mac"]
+    fn a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on_on_the_device() {
+        let fix = Arc::new(A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4));
+        std::env::set_var("HL_GPU", "1");
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        let lines = a22_check_synth(&fix, 3, &[(0, 2, false), (2, 2, false), (4, 2, true), (0, 1, true)]);
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        std::env::remove_var("HL_GPU");
+        for line in lines {
+            eprintln!("A22-SYNTH (Metal) {line}");
+        }
+        assert!(ran > 0.0, "no sumcheck round ran on the device");
+    }
+
+    /// **[A22] the 8B synthetic block served on the device** (ignored: a few GB): the resident
+    /// 8B stack (`L` = `HL_A22_8B_L`, default 4) at window 0 and the digests ahead off and on
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    #[ignore = "A22: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=0"]
+    fn a22_the_resident_8b_stream_replays() {
+        let l: usize = env_or("HL_A22_8B_L", 4usize).max(3);
+        let fix = Arc::new(A18Fix::new(crate::private_block::shape::W16R2_8B_T128_H24, l));
+        std::env::set_var("HL_GPU", "1");
+        let lines = a22_check_synth(&fix, 3, &[(0, 2, false), (0, 2, true)]);
+        std::env::remove_var("HL_GPU");
+        for line in lines {
+            eprintln!("A22-8B {line}");
+        }
+    }
+
+    // ------------------------------------------------------------------ CS-6 with the digests ahead
+
+    /// **[A22] CS-6 takes a digest kept with its block, and refuses a wrong one by name**
+    /// (in the suite): at the W16R2 rung, the fork run over `SealedBlocks` whose blocks were
+    /// put with their own digests proves and verifies; with one block's kept digest wrong,
+    /// the prover's preflight refuses by CS-6's name before anything is absorbed
+    #[test]
+    fn a22_cs6_takes_the_digest_kept_with_its_block_and_refuses_a_wrong_one() {
+        let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 3);
+        let l = fix.l;
+        let put = |wrong: Option<usize>| {
+            let b = SealedBlocks::new(l);
+            for k in 0..l {
+                let blk = fix.blk.clone();
+                let d = if wrong == Some(k) { [9u8; 32] } else { blk.digest() };
+                b.put_digested(k, blk, d).unwrap();
+            }
+            b
+        };
+        let blocks = put(None);
+        assert_eq!(blocks.digest_of(1).unwrap(), fix.blk.digest());
+        let (st, owners) = fix.statement(201);
+        let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        let (rc, _) = prove_run_with_forks(&fr, &blocks, &mut fix.whole(), owners, 2).expect("the fork run over digested blocks proves");
+        verify_run_with_forks(&fr, &RepeatBlock::new(&fix.blk, l), &rc, 2).expect("and verifies");
+        let wrong = put(Some(1));
+        let (st, owners) = fix.statement(202);
+        let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        let e = prove_run_with_forks(&fr, &wrong, &mut fix.whole(), owners, 2).err().expect("A WRONG KEPT DIGEST PASSED CS-6");
+        assert!(e.contains("CS-6") || e.contains("statement"), "not CS-6's refusal: {e}");
+        let plain = SealedBlocks::new(l);
+        for k in 0..l {
+            plain.put(k, fix.blk.clone()).unwrap();
+        }
+        assert_eq!(plain.digest_of(2).unwrap(), fix.blk.digest(), "a block put without its digest is hashed");
+        eprintln!("A22-CS6 a fork run over blocks kept with their own digests proves and verifies; a wrong kept digest is refused by the preflight: {e}");
+    }
+
+    // ------------------------------------------------------------------ THE A/B
+
+    /// [A22] one arm of the A/B: `serve<R>` (production's server stream of R requests) or
+    /// `harness<R>` (the D55 harness's stream, H124d), and its modifiers: A18's window words
+    /// (`noahead`, `ahead<W>`, ...), `dig0` / `dig1` (the digests ahead), `lanes<k>`
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[derive(Clone, Debug)]
+    struct A22Arm {
+        harness: bool,
+        r: usize,
+        a18: A18Arm,
+        dig: Option<bool>,
+        lanes: Option<usize>,
+    }
+
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    fn a22_arm(label: &str) -> A22Arm {
+        let mut words = label.split('+');
+        let first = words.next().unwrap_or_default();
+        let (harness, r) = if let Some(r) = first.strip_prefix("serve") {
+            (false, r.parse::<usize>().unwrap_or_else(|_| panic!("HL_A22_AB: {first:?}")))
+        } else if let Some(r) = first.strip_prefix("harness") {
+            (true, r.parse::<usize>().unwrap_or_else(|_| panic!("HL_A22_AB: {first:?}")))
+        } else {
+            panic!("HL_A22_AB: an arm starts with serve<R> or harness<R>, not {first:?}")
+        };
+        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None };
+        for w in words {
+            match w {
+                "dig0" => a.dig = Some(false),
+                "dig1" => a.dig = Some(true),
+                _ if w.starts_with("lanes") => a.lanes = Some(w["lanes".len()..].parse().unwrap_or_else(|_| panic!("HL_A22_AB: {w:?}"))),
+                _ => assert!(a18_word(&mut a.a18, w), "HL_A22_AB: an unknown word {w:?} in {label:?}"),
+            }
+        }
+        a
+    }
+
+    /// [A22] one stream's clocks: each request's completion and latency (from its arrival
+    /// and from its sealing turn), the footprint and the process's CPU over it
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    struct A22Stream {
+        done: Vec<f64>,
+        lat_arrival: Vec<f64>,
+        lat_sealing: Vec<f64>,
+        mem: (f64, f64, f64),
+        usage: Usage,
+    }
+
+    /// **[A22] THE A/B: production's server stream against the D55 harness's stream**, in
+    /// process, on the D55 harness's synthetic stack (`HL_D55_PROFILE`, default
+    /// W16R2_8B_T128_H24; `HL_D55_L` layers, default 32) at `HL_D55_WORKERS` fork workers
+    /// (default 6) and the witness budget `HL_A19_BUDGET_GIB` (default 32): the resident model
+    /// started ONCE (its startup timed), one cold request, then `HL_A22_AB_PASSES` passes
+    /// (default 4) of the arms `HL_A22_AB` (default `serve1,serve4,serve8,harness4`), reversed
+    /// in odd passes with `HL_D55_AB_ALTERNATE=1`. Each arm's first pass verifies every
+    /// receipt (after the clock). Lines: `A22-AB STREAM` (one stream), `A22-AB REQ` (one
+    /// served request's parts) and `A22-AB SUMMARY`.
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    #[ignore = "A22: the stream A/B at W16R2 8B T128, 32 blocks; heavy, guarded, alone, HL_GPU=1 HL_PB_ORACLE=0"]
+    fn a22_stream_ab() {
+        use crate::private_block::trained_block::a22_digest_ahead;
+        let name: String = env_or("HL_D55_PROFILE", "W16R2_8B_T128_H24".to_string());
+        let spec = crate::private_block::shape::W16R2_PROFILES.iter().chain(crate::private_block::shape::W16_PROFILES.iter()).find(|s| s.name == name).expect("a W16 or W16R2 profile name");
+        let l: usize = env_or("HL_D55_L", 32usize);
+        let n: usize = env_or("HL_D55_WORKERS", 6usize);
+        let passes: usize = env_or("HL_A22_AB_PASSES", 4usize).max(1);
+        let alternate: bool = env_or("HL_D55_AB_ALTERNATE", 0usize) == 1;
+        let budget = (env_or("HL_A19_BUDGET_GIB", 32.0f64) * (1u64 << 30) as f64) as u64;
+        let labels: Vec<String> = std::env::var("HL_A22_AB").unwrap_or_else(|_| "serve1,serve4,serve8,harness4".into()).split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+        let arms: Vec<A22Arm> = labels.iter().map(|s| a22_arm(s)).collect();
+        let t0 = Instant::now();
+        let fix = A18Fix::new(spec.profile, l);
+        let sh = fix.sh.clone();
+        let tok = sh.tokens as f64;
+        eprintln!("A22-AB {name} L{l} T{}: the fixture (one synthetic block, the honest chain) in {:.1} s", sh.tokens, t0.elapsed().as_secs_f64());
+        let ctx: Digest = [22; 32];
+        let model = A22Synth::new(&fix, ctx);
+        let (f_before, t) = (a18_footprint_gib(), Instant::now());
+        let res = Resident::start(&model).expect("the resident model starts");
+        let startup = t.elapsed().as_secs_f64();
+        eprintln!("A22-AB STARTUP {name} L{l}: the resident model (every layer loaded once with its record hashed, the statement) in {startup:.3} s; footprint {f_before:.1} -> {:.1} GiB; VmHWM {:.0} MiB", a18_footprint_gib(), crate::private_block::run::peak_rss_mib());
+        let rep = RepeatBlock::new(&fix.blk, l);
+        let root = scratch("a22-ab");
+        let mut call = 0usize;
+        let line = |out: &Path| format!("{{\"out\":{},\"chain\":\"honest\"}}", js(&out.display().to_string()));
+        // production's server stream of `r` requests
+        let mut serve = |label: &str, r: usize, p: Option<usize>, verify: bool| -> A22Stream {
+            call += 1;
+            let dir = root.join(format!("stream-{call}"));
+            std::fs::create_dir(&dir).unwrap();
+            let lines: Vec<String> = (0..r).map(|i| line(&dir.join(format!("run-{i}")))).collect();
+            let cfg = a22_cfg(n, budget, None);
+            let mem = A18Mem::start();
+            let u0 = usage_now();
+            let outs = serve_stream(&res, &cfg, lines.into_iter(), &mut |_| {});
+            let usage = usage_now().since(u0);
+            let mem = mem.stop();
+            for o in &outs {
+                assert_eq!(o.status, "proved", "[{label}] request {}: {:?}", o.q, o.detail);
+            }
+            let tag = p.map_or("cold".to_string(), |p| format!("pass {p}"));
+            for o in &outs {
+                let pr = o.proved.as_ref().unwrap();
+                let (tm, fs) = (&pr.times, &pr.times.fork);
+                eprintln!(
+                    "A22-AB REQ {name} L{l} N{n} [{label}] {tag} request {}: arrived {:.3}, sealing turn {:.3}, sealing side done {:.3} (sealing pass {:.3} s), prover {:.3}-{:.3} (waited {:.3} s; prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3}), receipt write {:.3} s ({} writers), result {:.3}; {} B; {} witnesses kept; loads waited {:.3} s ({} ahead)",
+                    o.q,
+                    o.at[0],
+                    o.at[1],
+                    o.at[2],
+                    tm.seal_s,
+                    o.at[3],
+                    o.at[4],
+                    (o.at[3] - o.at[2]).max(0.0),
+                    fs.total_s,
+                    fs.preflight_s,
+                    fs.commit_s,
+                    fs.forks_s,
+                    fs.join_s,
+                    tm.write_s,
+                    tm.writers,
+                    o.at[5],
+                    pr.receipt_bytes,
+                    tm.kept,
+                    tm.seal_load_wait_s,
+                    tm.seal_loads_ahead
+                );
+            }
+            if verify {
+                for o in &outs {
+                    let seen = a22_verify_synth(&fix, ctx, o.out.as_ref().unwrap(), 6);
+                    assert_eq!(seen.iter().map(|(b, _)| *b).sum::<u64>(), o.proved.as_ref().unwrap().receipt_bytes);
+                }
+                eprintln!("A22-AB {name} L{l} [{label}] {tag}: all {r} receipts verified from their run directories, {} B each", outs[0].proved.as_ref().unwrap().receipt_bytes);
+            }
+            std::fs::remove_dir_all(&dir).unwrap();
+            A22Stream { done: outs.iter().map(|o| o.at[5]).collect(), lat_arrival: outs.iter().map(|o| o.at[5] - o.at[0]).collect(), lat_sealing: outs.iter().map(|o| o.at[5] - o.at[1]).collect(), mem, usage }
+        };
+        // the D55 harness's stream (H124d, as `d55_ab_one_request_serial_against_forks`'s `piped`
+        // at its defaults: a sealing thread, each request's statement made on it, a sync_channel(1))
+        let mut hctx = 40u8;
+        let mut harness = |label: &str, r: usize, verify: bool| -> A22Stream {
+            let data = fix.blk.accuracy().expect("an accuracy block");
+            let build = |x: &[i16]| witness::build_accuracy(&sh, fix.blk.attention(), fix.blk.feed_forward(), data, x);
+            let ctx0 = hctx;
+            hctx = hctx.wrapping_add(r as u8);
+            let mem = A18Mem::start();
+            let u0 = usage_now();
+            let t = Instant::now();
+            let (tx, rx) = std::sync::mpsc::sync_channel::<(usize, (RunStatement, Endpoints), Vec<Option<Witness>>, Vec<Vec<i16>>, f64)>(1);
+            let (mut done, mut lat, mut rcs) = (Vec::new(), Vec::new(), Vec::new());
+            std::thread::scope(|sc| {
+                let (fix, build, sh) = (&fix, &build, &sh);
+                sc.spawn(move || {
+                    for q in 0..r {
+                        let t_in = t.elapsed().as_secs_f64();
+                        let sealer = A15Sealer::now();
+                        let made = fix.statement(ctx0.wrapping_add(q as u8));
+                        let (mut ws, mut pls) = (Vec::with_capacity(l), Vec::with_capacity(l));
+                        let mut x = fix.xs[0].clone();
+                        for k in 0..l {
+                            let w = sealer.run(|| build(&x)).expect("the chain was admissible");
+                            let out = w.output().unwrap();
+                            x = unpad(sh, &out);
+                            if k + 1 < l {
+                                pls.push(out);
+                            }
+                            ws.push(Some(w));
+                        }
+                        if tx.send((q, made, ws, pls, t_in)).is_err() {
+                            break;
+                        }
+                    }
+                });
+                for _ in 0..r {
+                    let (_q, (st, owners), ws, pls, t_in) = rx.recv().expect("a sealed request");
+                    let rc = {
+                        let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+                        prove_run_with_forks(&fr, &rep, &mut Chain { witnesses: ws, planes: pls, tamper: None }, owners, n).expect("the D55 fork run proves (the harness's stream)").0
+                    };
+                    let now = t.elapsed().as_secs_f64();
+                    done.push(now);
+                    lat.push(now - t_in);
+                    rcs.push((st, rc));
+                }
+            });
+            let usage = usage_now().since(u0);
+            let mem = mem.stop();
+            if verify {
+                for (st, rc) in &rcs {
+                    let fr = ForkRun::new(st, D55OptIn::unreviewed_prototype()).unwrap();
+                    verify_run_with_forks(&fr, &rep, rc, 6).expect("a harness stream's receipt verifies");
+                }
+                eprintln!("A22-AB {name} L{l} [{label}]: all {r} harness receipts verified, {} B each", rcs[0].1.bytes());
+            }
+            A22Stream { done, lat_arrival: lat.clone(), lat_sealing: lat, mem, usage }
+        };
+        let apply = |a: &A22Arm| {
+            a18_apply(&a.a18);
+            set_a22_digest_ahead_for_test(a.dig);
+            set_a22_lanes_for_test(a.lanes);
+        };
+        let reset = || {
+            a18_apply(&A18Arm::default());
+            set_a22_digest_ahead_for_test(None);
+            set_a22_lanes_for_test(None);
+        };
+        // one cold request through the server (kernel compiles), verified
+        let cold = serve("serve1 (cold)", 1, None, true);
+        eprintln!("A22-AB {name} L{l} N{n}: the cold request {:.3} s", cold.done[0]);
+        let mut table: Vec<Vec<A22Stream>> = (0..arms.len()).map(|_| Vec::new()).collect();
+        for p in 0..passes {
+            let order: Vec<usize> = if alternate && p % 2 == 1 { (0..arms.len()).rev().collect() } else { (0..arms.len()).collect() };
+            for ai in order {
+                let (a, label) = (&arms[ai], &labels[ai]);
+                apply(a);
+                let settings = format!("window {}, digests ahead {}, lanes {}", run::fork::ahead_window(), a22_digest_ahead(), a22_lanes());
+                let s = if a.harness { harness(label, a.r, p == 0) } else { serve(label, a.r, Some(p), p == 0) };
+                reset();
+                let r = a.r;
+                let steady = if r > 1 { (r - 1) as f64 * tok / (s.done[r - 1] - s.done[0]) } else { f64::NAN };
+                let amortized = r as f64 * tok / s.done[r - 1];
+                let f = |v: &[f64]| v.iter().map(|x| format!("{x:.2}")).collect::<Vec<_>>().join(", ");
+                eprintln!(
+                    "A22-AB STREAM {name} L{l} N{n} [{label}] pass {p}: {r} requests in {:.3} s ({settings}); steady {steady:.2} tok/s; amortized {amortized:.2} tok/s; completions {}; latency from arrival {}; from the sealing turn {}; footprint start {:.1} GiB, peak {:.1} GiB, end {:.1} GiB; user {:.1} s + sys {:.1} s",
+                    s.done[r - 1],
+                    f(&s.done),
+                    f(&s.lat_arrival),
+                    f(&s.lat_sealing),
+                    s.mem.0,
+                    s.mem.1,
+                    s.mem.2,
+                    s.usage.user,
+                    s.usage.sys
+                );
+                table[ai].push(s);
+            }
+        }
+        for (ai, v) in table.iter().enumerate() {
+            let r = arms[ai].r;
+            let k = v.len() as f64;
+            let steady: Vec<f64> = v.iter().map(|s| if r > 1 { (r - 1) as f64 * tok / (s.done[r - 1] - s.done[0]) } else { f64::NAN }).collect();
+            let amort: Vec<f64> = v.iter().map(|s| r as f64 * tok / s.done[r - 1]).collect();
+            let lat: Vec<f64> = v.iter().map(|s| s.lat_arrival.iter().sum::<f64>() / r as f64).collect();
+            let peak = v.iter().map(|s| s.mem.1).fold(0.0f64, f64::max);
+            eprintln!(
+                "A22-AB SUMMARY {name} L{l} N{n} | [{}] | {} passes | steady mean {:.2} tok/s (best {:.2}) | amortized mean {:.2} tok/s (best {:.2}) | mean latency {:.3} s (first request {:.3} s, best {:.3}) | peak footprint {peak:.1} GiB",
+                labels[ai],
+                v.len(),
+                steady.iter().sum::<f64>() / k,
+                steady.iter().cloned().fold(f64::NAN, f64::max),
+                amort.iter().sum::<f64>() / k,
+                amort.iter().cloned().fold(0.0f64, f64::max),
+                lat.iter().sum::<f64>() / k,
+                v.iter().map(|s| s.lat_arrival[0]).sum::<f64>() / k,
+                v.iter().map(|s| s.lat_arrival[0]).fold(f64::INFINITY, f64::min)
+            );
+        }
+        std::fs::remove_dir_all(&root).ok();
+        eprintln!("A22-AB {name} L{l}: total {:.1} s (startup {startup:.3} s)", t0.elapsed().as_secs_f64());
+    }
+}
+
+// ---- end of [A22] ----

@@ -41,6 +41,21 @@
 //! (C-R4); `statement.json` records the backend (P-7). stdout from a run on a
 //! hidden input is prover-private (P-6).
 //!
+//!   zk60_trained_block stack-serve  --export DIR --d55-workers N --d55-test-receipt-not-for-publication
+//!                             [--layers A..B] [--label L] [--rope-from-export] [--dd]
+//!                             [--witness-cache-gib G]
+//!
+//! (Efficiency plan A22, ruling D70) `stack-serve` is `stack-prove --d55-workers N` as a
+//! long-lived process: the export is loaded and checked ONCE, then each line on stdin is
+//! one request, `{"out": DIR, "seq": ID}` or `{"out": DIR, "seq_dir": DIR}` (optional
+//! `"id"`), and each request gets one result line on stdout, in request order
+//! (`serve-start`, one `served` line each, `serve-end`). Each run directory and its
+//! unverified statement are `stack-prove`'s, verified by `stack-verify --d55-workers N`
+//! unchanged. `results/zk60_effplan_20261105/a22/README.md` documents the interface.
+//! HARD RULE (security owner, 2026-11-06, until a ruling): ONE data owner per
+//! `stack-serve` process. A request's latency reveals the previous request's prover
+//! time and an early refusal; the server does not enforce this.
+//!
 //! SCOPE: one block of 22 at T = 32 on the CPU (prove/verify); not a model pass; no privacy
 //! acceptance at this shape (D22 covers only the toy). Output is JSON lines
 //! on stdout; exit 0 = accepted, 1 = refused or failed, 2 = bad arguments.
@@ -53,6 +68,7 @@ fn main() {
         Some("verify") => hashline::private_block::trained_verify_command(&args[1..]),
         Some("stack-prove") => hashline::private_block::trained_stack_prove_command(&args[1..]),
         Some("stack-verify") => hashline::private_block::trained_stack_verify_command(&args[1..]),
+        Some("stack-serve") => hashline::private_block::trained_stack_serve_command(&args[1..]),
         _ => {
             eprintln!("usage: zk60_trained_block prove|verify ... (see the header of examples/zk60_trained_block.rs)");
             2
