@@ -2660,6 +2660,34 @@ pub(crate) trait StackModel: Sync {
     fn fresh_digests(&self) -> bool {
         false
     }
+    /// [A23] run position `k`'s layer as the sealing pass takes it: by default the
+    /// checked load ([`StackModel::load_layer`]) with its own block object; a server
+    /// with `HL_A23_SHARE` hands its resident block by shared reference instead
+    fn seal_layer(&self, k: usize) -> Result<SealLayer, String> {
+        self.load_layer(k).map(SealLayer::from)
+    }
+    /// [A23] whether the fork run's CS-1 / CS-4 check may take a shared resident block's
+    /// startup pass at an equal shape (`stack-serve` with `HL_A23_CHECKED`, a ruling's);
+    /// `false`: the preflight checks every block (`stack-prove`, and `stack-serve` by default)
+    fn startup_checks(&self) -> bool {
+        false
+    }
+}
+
+/// **[A23] one layer as the sealing pass takes it**: the load's record, and its block as
+/// a [`run::fork::LayerBlock`] (the load's own object, or a server's resident block shared
+/// by reference). Every consumer reads the block through `&`.
+pub(crate) struct SealLayer {
+    index: u32,
+    manifest_sha256: [u8; 32],
+    blk: run::fork::LayerBlock,
+    record: LayerRecord,
+}
+
+impl From<TrainedLayer> for SealLayer {
+    fn from(t: TrainedLayer) -> SealLayer {
+        SealLayer { index: t.index, manifest_sha256: t.manifest_sha256, blk: t.blk.into(), record: t.record }
+    }
 }
 
 /// [A19] production's model: the trained export, the run's private sequence
@@ -2729,8 +2757,8 @@ fn reload_checked(m: &dyn StackModel, k: usize, digests: &[Digest]) -> Result<Bl
 /// check of that block (the builder's, CS-3's lookup misses, the parity check)
 trait SealHand {
     /// block `k`'s public block (and its record's block digest): kept for the fork run,
-    /// or dropped
-    fn block(&mut self, k: usize, blk: BlockPublic, digest: &Digest) -> Result<(), String>;
+    /// or dropped ([A23] a shared resident block is a reference: dropping it frees nothing)
+    fn block(&mut self, k: usize, blk: run::fork::LayerBlock, digest: &Digest) -> Result<(), String>;
     /// block `k`'s witness, built at `ssh`: taken (`Ok(None)`: a fork's
     /// before-challenge part is made from it) or handed back
     fn witness(&mut self, k: usize, w: Witness, ssh: &Shape) -> Result<Option<Witness>, String>;
@@ -2741,7 +2769,7 @@ trait SealHand {
 struct NoHand;
 
 impl SealHand for NoHand {
-    fn block(&mut self, _k: usize, _blk: BlockPublic, _digest: &Digest) -> Result<(), String> {
+    fn block(&mut self, _k: usize, _blk: run::fork::LayerBlock, _digest: &Digest) -> Result<(), String> {
         Ok(())
     }
     fn witness(&mut self, _k: usize, w: Witness, _ssh: &Shape) -> Result<Option<Witness>, String> {
@@ -2759,7 +2787,9 @@ struct D55Hand<'h> {
 }
 
 impl SealHand for D55Hand<'_> {
-    fn block(&mut self, k: usize, blk: BlockPublic, digest: &Digest) -> Result<(), String> {
+    fn block(&mut self, k: usize, blk: run::fork::LayerBlock, digest: &Digest) -> Result<(), String> {
+        // [A22] a fresh digest is of the load's own copy; [A23] a shared resident block
+        // carries its startup digest itself (the server never has both: `Served`)
         match self.blocks {
             // [A22] with the block, the digest its load computed on it
             Some(b) if self.fresh => b.put_digested(k, blk, *digest),
@@ -2825,8 +2855,8 @@ pub(crate) fn set_a20_loads_for_test(n: Option<usize>) {
     A20_LOADS_TEST.store(n.map(|n| n.min(8)).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
 }
 
-/// [A20] one layer's load, its result and its seconds
-type TimedLoad = (Result<TrainedLayer, String>, f64);
+/// [A20] one layer's load, its result and its seconds ([A23] as the sealing pass takes it)
+type TimedLoad = (Result<SealLayer, String>, f64);
 
 /// [A20] the loads ahead: `n` loader threads, each taking the next layer, at most `n`
 /// ahead of the layer the pass has taken
@@ -2890,7 +2920,7 @@ impl<'m> LoadAhead<'m> {
                 s.next - 1
             };
             let t = Instant::now();
-            let r = self.m.load_layer(k);
+            let r = self.m.seal_layer(k);
             let ls = t.elapsed().as_secs_f64();
             let mut s = self.lock();
             s.ready[k] = Some((r, ls));
@@ -2959,9 +2989,9 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
     let mut shapes: Vec<Shape> = Vec::with_capacity(l);
     let mut lays:Vec<(Shape,super::layout::Layout)>=Vec::new();
     let mut x = x_in0.clone();
-    let timed_load = |k: usize| -> (Result<TrainedLayer, String>, f64) {
+    let timed_load = |k: usize| -> TimedLoad {
         let t = Instant::now();
-        let r = m.load_layer(k);
+        let r = m.seal_layer(k);
         (r, t.elapsed().as_secs_f64())
     };
     // [A20] the loads ahead, on threads of their own (none at `HL_A20_LOADS=0`)
@@ -3346,6 +3376,9 @@ pub(crate) struct D55Times {
     pub seal_load_wait_s: f64,
     pub write_s: f64,
     pub writers: usize,
+    /// [A23] the blocks whose CS-1 / CS-4 record in the fork run's preflight was a shared
+    /// resident block's startup pass (0 unless `HL_A23_CHECKED`)
+    pub startup_checked: usize,
 }
 
 /// [A19] what production's D55 proof leaves for `stack-prove`'s statement
@@ -3416,7 +3449,9 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
     let window = if shared { run::fork::ahead_window().min(l) } else { 0 };
     let plan = if window > 0 { m.run_shape().ok().zip(m.context().ok()).and_then(|(rs, ctx)| run::fork::ForkPlan::for_run(&rs, ctx, &opt_in).ok()) } else { None };
     let window = if plan.is_some() { window } else { 0 };
-    let blocks = run::fork::SealedBlocks::new(l);
+    // [A23] a server's request may let the fork run's CS-1 / CS-4 take its shared
+    // resident blocks' startup passes (`HL_A23_CHECKED`; never for `stack-prove`)
+    let blocks = run::fork::SealedBlocks::new(l).with_startup_checks(m.startup_checks());
     run::fork::prove_run_with_forks_planned(
         plan.as_ref(),
         &blocks,
@@ -3563,6 +3598,7 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
                 seal_load_wait_s: seal.load_wait_s,
                 write_s,
                 writers: run::fork::a20_writers(),
+                startup_checked: blocks.startup_checked_hits(),
             };
             Ok(D55Proved { metas, digests, st, ctx, expected, rst, written, times })
         },
@@ -3781,11 +3817,13 @@ pub(crate) trait ServeModel: Sync {
     fn write_statement(&self, p: &D55Proved, out: &Path, unverified: &Path) -> Result<(), String>;
 }
 
-/// [A22] one layer of the resident model, as the startup's checked load made it
+/// [A22] one layer of the resident model, as the startup's checked load made it ([A23]
+/// its block kept with the digest computed on it at startup, shared by reference under
+/// `HL_A23_SHARE`, copied for each request otherwise)
 struct ResidentLayer {
     index: u32,
     manifest_sha256: [u8; 32],
-    blk: BlockPublic,
+    blk: std::sync::Arc<run::fork::KeptBlock>,
     record: LayerRecord,
     rope_note: String,
 }
@@ -3834,6 +3872,41 @@ pub(crate) fn set_a22_digest_ahead_for_test(on: Option<bool>) {
     A22_DIGEST_AHEAD_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
 }
 
+static A23_SHARE_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+static A23_CHECKED_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+
+/// [A23] `HL_A23_SHARE`: each request's sealing pass and fork run read the resident
+/// blocks themselves, by shared reference, and CS-6 compares the digest kept with each
+/// (ruling D72); `0`: each request copies every resident block (the path before A23)
+pub(crate) fn a23_share() -> bool {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    super::trained_statement::a20_switch(&A23_SHARE_TEST, &ENV, "HL_A23_SHARE", A23_SHARE_DEFAULT) != 0
+}
+
+/// [A23] the default of `HL_A23_SHARE` (decided by the stream A/B, the results' README)
+const A23_SHARE_DEFAULT: usize = 0;
+
+/// [A23] `HL_A23_CHECKED` (default off; it needs a ruling): with the blocks shared, the
+/// fork run's CS-1 / CS-4 check of a resident block takes that very object's startup pass
+/// at an equal shape instead of scanning it again; a shape the startup did not pass is
+/// checked as before
+pub(crate) fn a23_checked() -> bool {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    super::trained_statement::a20_switch(&A23_CHECKED_TEST, &ENV, "HL_A23_CHECKED", 0) != 0
+}
+
+/// tests: the shared blocks on or off (`None`: as the environment says)
+#[cfg(test)]
+pub(crate) fn set_a23_share_for_test(on: Option<bool>) {
+    A23_SHARE_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// tests: the startup checks on or off (`None`: as the environment says)
+#[cfg(test)]
+pub(crate) fn set_a23_checked_for_test(on: Option<bool>) {
+    A23_CHECKED_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
 impl<'m, M: ServeModel> Resident<'m, M> {
     /// **The startup**: every layer of `m` loaded with every check (the first refusal in
     /// layer order is returned), then the model's statement of their records
@@ -3846,16 +3919,36 @@ impl<'m, M: ServeModel> Resident<'m, M> {
         let mut layers = Vec::with_capacity(l);
         let ks: Vec<usize> = (0..l).collect();
         for chunk in ks.chunks(RESIDENT_LOAD_WIDTH) {
-            let loaded: Vec<Result<TrainedLayer, String>> = {
+            // [A23] each block placed in its shared allocation, then digested there and
+            // checked (CS-1 / CS-4) at the shapes a request's fork run checks it at: the
+            // run's base shape and the layer's stage shape (public words of the record)
+            let loaded: Vec<Result<ResidentLayer, String>> = {
                 use rayon::prelude::*;
-                chunk.par_iter().map(|&k| m.load_layer(k)).collect()
+                chunk
+                    .par_iter()
+                    .map(|&k| -> Result<ResidentLayer, String> {
+                        let TrainedLayer { index, manifest_sha256, blk, record, rope_note } = m.load_layer(k)?;
+                        let mut shapes = vec![m.shape().clone()];
+                        if let Ok(s) = record.shape_at(m.shape()) {
+                            if s != shapes[0] {
+                                shapes.push(s);
+                            }
+                        }
+                        // the load's block moves into the kept allocation (no copy)
+                        Ok(ResidentLayer { index, manifest_sha256, blk: run::fork::KeptBlock::new(blk, &shapes), record, rope_note })
+                    })
+                    .collect()
             };
-            for (&k, t) in chunk.iter().zip(loaded) {
-                let t = t?;
-                if t.index != m.layers()[k] {
-                    return Err(format!("stack-serve: run position {k} loaded layer {}, not layer {}", t.index, m.layers()[k]));
+            for (&k, r) in chunk.iter().zip(loaded) {
+                let r = r?;
+                if r.index != m.layers()[k] {
+                    return Err(format!("stack-serve: run position {k} loaded layer {}, not layer {}", r.index, m.layers()[k]));
                 }
-                layers.push(ResidentLayer { index: t.index, manifest_sha256: t.manifest_sha256, blk: t.blk, record: t.record, rope_note: t.rope_note });
+                // [A23] the record the statement is made of names this very object (D72 (i))
+                if r.blk.digest() != r.record.block_digest {
+                    return Err(format!("stack-serve: layer {}'s record does not name its own block (the startup's digest of the resident block differs)", r.index));
+                }
+                layers.push(r);
             }
         }
         let st = m.statement_of_records(layers.iter().map(|r| r.record.clone()).collect())?;
@@ -3877,6 +3970,22 @@ impl<'m, M: ServeModel> Resident<'m, M> {
         self.m
     }
 
+    /// TEST BUILDS ONLY ([A23], D72 (iv)'s control): resident layer `k`'s block kept again
+    /// (a copy) with the kept digest `digest`, as a corrupted startup digest would be. No
+    /// production build has a `&mut` path to the resident model.
+    #[cfg(test)]
+    pub(crate) fn set_kept_digest_for_test(&mut self, k: usize, digest: Digest) {
+        let blk = self.layers[k].blk.block().clone();
+        self.layers[k].blk = run::fork::KeptBlock::with_digest_for_test(blk, digest);
+    }
+
+    /// TEST BUILDS ONLY ([A23]): resident layer `k`'s record with its block digest replaced
+    /// (the request's statement is then not the startup's: refused before the run header)
+    #[cfg(test)]
+    pub(crate) fn set_record_digest_for_test(&mut self, k: usize, digest: Digest) {
+        self.layers[k].record.block_digest = digest;
+    }
+
     /// **ONE REQUEST** (`stack-prove --d55-workers`'s steps after its admission checks,
     /// on the resident model): the run directory must be new; [`d55_seal_and_prove`] over
     /// the request's [`Served`] view (the sealing pass from its input, the statement,
@@ -3888,7 +3997,7 @@ impl<'m, M: ServeModel> Resident<'m, M> {
         if out.exists() || unverified.exists() {
             return Err(format!("{} (or its unverified statement directory) exists; the run directory must be new", out.display()));
         }
-        let view = Served { res: self, input, fresh: a22_digest_ahead() };
+        let view = Served::new(self, input);
         let p = d55_seal_and_prove(&view, self.m.opt_in(), &D55Run { workers: cfg.workers, out, budget: cfg.budget, test_receipt: cfg.test_receipt, events: false, turn })?;
         if let Err(e) = self.m.write_statement(&p, out, &unverified) {
             // a run whose statement could not be written did not complete: it is removed
@@ -3913,11 +4022,28 @@ pub(crate) struct ServeProved {
 /// **[A22] one request's model**: the resident layers (each load a copy of the startup's
 /// block and record) and the request's private input; everything else is the server's
 /// model's. With `fresh` ([`a22_digest_ahead`]), each copy's record carries that copy's
-/// own block digest, computed where the copy is made.
+/// own block digest, computed where the copy is made. [A23] With `share`
+/// ([`a23_share`]), the sealing pass takes each resident block itself, by shared reference,
+/// and the startup's record (no copy, no digest); `checked` ([`a23_checked`], with `share`
+/// only) lets the fork run's CS-1 / CS-4 take each shared block's startup pass.
 struct Served<'r, 'm, M: ServeModel> {
     res: &'r Resident<'m, M>,
     input: &'r M::Input,
     fresh: bool,
+    share: bool,
+    checked: bool,
+}
+
+impl<'r, 'm, M: ServeModel> Served<'r, 'm, M> {
+    /// the request's view under the switches in force ([A23] the shared blocks supersede
+    /// the digests ahead: a shared block carries its startup digest)
+    fn new(res: &'r Resident<'m, M>, input: &'r M::Input) -> Served<'r, 'm, M> {
+        let share = a23_share();
+        Served { res, input, fresh: a22_digest_ahead() && !share, share, checked: share && a23_checked() }
+    }
+    fn layer(&self, k: usize) -> Result<&ResidentLayer, String> {
+        self.res.layers.get(k).ok_or_else(|| format!("stack-serve: no layer at run position {k}"))
+    }
 }
 
 impl<M: ServeModel> StackModel for Served<'_, '_, M> {
@@ -3927,17 +4053,30 @@ impl<M: ServeModel> StackModel for Served<'_, '_, M> {
     fn layers(&self) -> &[u32] {
         self.res.m.layers()
     }
+    /// a copy of the resident layer (the path before A23, and `HL_A23_SHARE=0`)
     fn load_layer(&self, k: usize) -> Result<TrainedLayer, String> {
-        let r = self.res.layers.get(k).ok_or_else(|| format!("stack-serve: no layer at run position {k}"))?;
-        let blk = r.blk.clone();
+        let r = self.layer(k)?;
+        let blk = r.blk.block().clone();
         let mut record = r.record.clone();
         if self.fresh {
             record.block_digest = blk.digest();
         }
         Ok(TrainedLayer { index: r.index, manifest_sha256: r.manifest_sha256, blk, record, rope_note: r.rope_note.clone() })
     }
+    /// [A23] with `share`, the resident block itself (a shared reference) and the
+    /// startup's record; otherwise a copy ([`Served::load_layer`])
+    fn seal_layer(&self, k: usize) -> Result<SealLayer, String> {
+        if !self.share {
+            return self.load_layer(k).map(SealLayer::from);
+        }
+        let r = self.layer(k)?;
+        Ok(SealLayer { index: r.index, manifest_sha256: r.manifest_sha256, blk: run::fork::LayerBlock::Shared(std::sync::Arc::clone(&r.blk)), record: r.record.clone() })
+    }
     fn reload_block(&self, k: usize) -> Result<BlockPublic, String> {
-        self.res.layers.get(k).map(|r| r.blk.clone()).ok_or_else(|| format!("stack-serve: no layer at run position {k}"))
+        self.layer(k).map(|r| r.blk.block().clone())
+    }
+    fn startup_checks(&self) -> bool {
+        self.checked
     }
     /// the request's own private sequence (read on the sealing pass's thread only)
     fn seq(&self, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
@@ -4414,7 +4553,7 @@ fn export_serve_of(f: &[(String, String)]) -> Result<(ExportServe, ServeCfg), St
 fn serve_start_line<M: ServeModel>(res: &Resident<'_, M>, cfg: &ServeCfg) -> String {
     let (m, layers) = (res.model(), res.model().layers());
     format!(
-        "{{\"event\":\"serve-start\",\"command\":\"stack-serve\",\"gpu\":{},\"hl_gpu_required\":{},\"hl_gpu\":{},\"variant\":{},\"layers\":\"{}..{}\",\"blocks\":{},\"statement_identity\":{},\"startup_seconds\":{},\"d55_workers\":{},\"witness_cache_bytes\":{},\"lanes\":{},\"d55_window\":{},\"digest_ahead\":{},\"d55_test_receipt_not_for_publication\":{},\"scope\":{},\"vmhwm_mib\":{}}}",
+        "{{\"event\":\"serve-start\",\"command\":\"stack-serve\",\"gpu\":{},\"hl_gpu_required\":{},\"hl_gpu\":{},\"variant\":{},\"layers\":\"{}..{}\",\"blocks\":{},\"statement_identity\":{},\"startup_seconds\":{},\"d55_workers\":{},\"witness_cache_bytes\":{},\"lanes\":{},\"d55_window\":{},\"digest_ahead\":{},\"shared_blocks\":{},\"startup_checks\":{},\"d55_test_receipt_not_for_publication\":{},\"scope\":{},\"vmhwm_mib\":{}}}",
         js(&crate::gpu::label()),
         crate::gpu::required(),
         js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into())),
@@ -4428,7 +4567,9 @@ fn serve_start_line<M: ServeModel>(res: &Resident<'_, M>, cfg: &ServeCfg) -> Str
         cfg.budget,
         cfg.lanes,
         run::fork::ahead_window(),
-        a22_digest_ahead(),
+        a22_digest_ahead() && !a23_share(),
+        a23_share(),
+        a23_share() && a23_checked(),
         cfg.test_receipt,
         js(m.scope()),
         jnum(peak_rss_mib(), 0)
@@ -4520,7 +4661,7 @@ pub(crate) fn stack_serve_for_tests(args: &[String], lines: Vec<String>, lane_se
 /// [`a20_seal_summary_for_tests`]'s line (everything `seal_chain` returns but its clocks)
 #[cfg(test)]
 pub(crate) fn a22_seal_summary_for_tests<M: ServeModel>(res: &Resident<'_, M>, input: &M::Input, budget_bytes: u64) -> Result<(String, usize), String> {
-    a20_seal_summary_for_tests(&Served { res, input, fresh: a22_digest_ahead() }, budget_bytes)
+    a20_seal_summary_for_tests(&Served::new(res, input), budget_bytes)
 }
 
 /// [A22] TEST ONLY: [`a22_seal_summary_for_tests`] on `stack-serve`'s resident export

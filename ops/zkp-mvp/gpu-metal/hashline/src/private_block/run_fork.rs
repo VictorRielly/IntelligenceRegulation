@@ -1055,6 +1055,13 @@ pub(crate) trait ForkBlocks: Sync {
     fn digest_of(&self, k: usize) -> Result<Digest, String> {
         Ok(self.get(k)?.digest())
     }
+    /// [A23] block `k`'s CS-1 / CS-4 record from a check this very object passed at its
+    /// construction at a shape equal to `sh`, when the caller lets the prover's preflight
+    /// take one (a server's shared resident block under `HL_A23_CHECKED`); `None` (every
+    /// other source, and every verifier): the preflight runs the check
+    fn startup_checked(&self, _k: usize, _sh: &Shape) -> Option<protocol::CheckedPublic<'_>> {
+        None
+    }
 }
 
 impl ForkBlocks for Vec<BlockPublic> {
@@ -1129,6 +1136,12 @@ impl BlockSource for RepeatBlock<'_> {
 /// [A17]: on success, each block's record of its passed CS-1 / CS-4 check
 /// (`protocol::CheckedPublic`: that block object at that shape), in block order
 fn preflight<'b>(st: &RunStatement, blocks: &'b dyn ForkBlocks, check_digests: bool) -> Result<Vec<protocol::CheckedPublic<'b>>, String> {
+    preflight_with(st, blocks, check_digests, false)
+}
+
+/// [`preflight`], and ([A23]) on the PROVER's side (`prover`) a shared resident block's
+/// startup pass taken where its source offers one ([`ForkBlocks::startup_checked`])
+fn preflight_with<'b>(st: &RunStatement, blocks: &'b dyn ForkBlocks, check_digests: bool, prover: bool) -> Result<Vec<protocol::CheckedPublic<'b>>, String> {
     use rayon::prelude::*;
     let sh = &st.rs.sh;
     as_many_blocks_as_the_statement(st, blocks.count())?;
@@ -1141,6 +1154,14 @@ fn preflight<'b>(st: &RunStatement, blocks: &'b dyn ForkBlocks, check_digests: b
         .into_par_iter()
         .map(|k| {
             let ssh = if sh.accuracy_stack() == super::super::accuracy_precision::Stack::Legacy { sh.clone() } else { st.stage_shape(k)? };
+            // [A23] the PROVER only, and only when its source offers one: this very
+            // object's passed startup check at an equal shape (`HL_A23_CHECKED`, a
+            // ruling's); the verifier always runs the check
+            if prover {
+                if let Some(c) = blocks.startup_checked(k, &ssh) {
+                    return Ok(c);
+                }
+            }
             protocol::CheckedPublic::check(blocks.get(k)?, &ssh).map_err(|e| format!("private run: block {k}: {e}"))
         })
         .collect();
@@ -1610,7 +1631,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     #[cfg(not(test))]
     let honest_checks = true;
     // [A17] each block's record of its passed public checks, for its fork
-    let checked = preflight(st, blocks, honest_checks)?;
+    let checked = preflight_with(st, blocks, honest_checks, true)?;
     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
     let tag = sh.hash_tag();
     let ntt = NttTables::new(st.rs.ntt_log());
@@ -2378,23 +2399,37 @@ impl ForkPlan {
 /// object moves while others are read). Production's D55 path also proves with
 /// them instead of loading every block again after the sealing pass.
 pub(crate) struct SealedBlocks {
-    v: Vec<std::sync::OnceLock<BlockPublic>>,
+    v: Vec<std::sync::OnceLock<LayerBlock>>,
     /// [A22] the digest the load computed on block `k` itself, when the caller kept it
     /// (`stack-serve`'s `HL_A22_DIGEST_AHEAD`): CS-6 then takes it
     d: Vec<std::sync::OnceLock<Digest>>,
+    /// [A23] whether the fork run's CS-1 / CS-4 may take a shared resident block's startup
+    /// pass (`HL_A23_CHECKED`), and how many blocks it took
+    checked: bool,
+    hits: AtomicUsize,
 }
 
 impl SealedBlocks {
     pub(crate) fn new(l: usize) -> SealedBlocks {
-        SealedBlocks { v: (0..l).map(|_| std::sync::OnceLock::new()).collect(), d: (0..l).map(|_| std::sync::OnceLock::new()).collect() }
+        SealedBlocks { v: (0..l).map(|_| std::sync::OnceLock::new()).collect(), d: (0..l).map(|_| std::sync::OnceLock::new()).collect(), checked: false, hits: AtomicUsize::new(0) }
     }
-    /// block `k`, set once
-    pub(crate) fn put(&self, k: usize, blk: BlockPublic) -> Result<(), String> {
-        self.v.get(k).ok_or_else(|| format!("D55: no block {k} in a {}-block run", self.v.len()))?.set(blk).map_err(|_| format!("D55: block {k} was set twice"))
+    /// [A23] the same, with the startup passes of shared resident blocks taken (`on`)
+    pub(crate) fn with_startup_checks(mut self, on: bool) -> SealedBlocks {
+        self.checked = on;
+        self
+    }
+    /// [A23] how many blocks' CS-1 / CS-4 records were startup passes
+    pub(crate) fn startup_checked_hits(&self) -> usize {
+        self.hits.load(Ordering::Relaxed)
+    }
+    /// block `k`, set once: the load's own object, or ([A23]) a server's resident block
+    /// shared by reference with the digest kept beside it
+    pub(crate) fn put(&self, k: usize, blk: impl Into<LayerBlock>) -> Result<(), String> {
+        self.v.get(k).ok_or_else(|| format!("D55: no block {k} in a {}-block run", self.v.len()))?.set(blk.into()).map_err(|_| format!("D55: block {k} was set twice"))
     }
     /// [A22] block `k` and the digest its load computed on that very object (both set
     /// once; the object is not changed after: only `&` borrows of it are handed out)
-    pub(crate) fn put_digested(&self, k: usize, blk: BlockPublic, digest: Digest) -> Result<(), String> {
+    pub(crate) fn put_digested(&self, k: usize, blk: impl Into<LayerBlock>, digest: Digest) -> Result<(), String> {
         self.put(k, blk)?;
         self.d[k].set(digest).map_err(|_| format!("D55: block {k}'s digest was set twice"))
     }
@@ -2406,19 +2441,136 @@ impl ForkBlocks for SealedBlocks {
     }
     fn get(&self, k: usize) -> Result<&BlockPublic, String> {
         match self.v.get(k) {
-            Some(c) => c.get().ok_or_else(|| format!("D55: block {k} was not loaded by the sealing pass")),
+            Some(c) => c.get().map(|b| &**b).ok_or_else(|| format!("D55: block {k} was not loaded by the sealing pass")),
             None => Err(format!("private run: no public statement for block {k}")),
         }
     }
-    /// block `k`'s digest: the one its load computed on it ([A22], when kept), or hashed now
+    /// block `k`'s digest: the one its load computed on it ([A22], when kept), the startup
+    /// digest kept with a shared resident block ([A23], ruling D72), or hashed now
     fn digest_of(&self, k: usize) -> Result<Digest, String> {
         let blk = self.get(k)?;
-        match self.d.get(k).and_then(|c| c.get()) {
-            Some(d) => Ok(*d),
-            None => Ok(blk.digest()),
+        if let Some(d) = self.d.get(k).and_then(|c| c.get()) {
+            return Ok(*d);
+        }
+        match self.v.get(k).and_then(|c| c.get()) {
+            Some(LayerBlock::Shared(kept)) => Ok(kept.digest()),
+            _ => Ok(blk.digest()),
+        }
+    }
+    /// [A23] with the startup checks taken, a shared resident block's record of its passed
+    /// startup check at an equal shape (`protocol::CheckedPublic::of_kept`)
+    fn startup_checked(&self, k: usize, sh: &Shape) -> Option<protocol::CheckedPublic<'_>> {
+        if !self.checked {
+            return None;
+        }
+        match self.v.get(k)?.get()? {
+            LayerBlock::Shared(kept) => {
+                let c = protocol::CheckedPublic::of_kept(kept, sh)?;
+                self.hits.fetch_add(1, Ordering::Relaxed);
+                Some(c)
+            }
+            LayerBlock::Owned(_) => None,
         }
     }
 }
+
+// ------------------------------------------------------ [A23] a server's resident blocks, shared
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A23, ruling D72;
+// `results/zk60_effplan_20261105/a23/README.md`.) Before A23 every request of
+// `stack-serve` copied each resident block (about 243 MB each at 8B, 7.8 GB a
+// request) because a load hands the sealing pass an OWNED block, and the preflight's
+// CS-6 hashed every copy again. Every consumer reads a block through `&`, so the copy
+// was only the ownership type's. A [`KeptBlock`] is a resident block with the digest
+// computed on it at startup, stored inseparably beside it; a [`LayerBlock`] is what a
+// load hands the sealing pass: its own object, or (`HL_A23_SHARE`) a shared reference
+// to a `KeptBlock`. The fork run's CS-6 then compares the kept digest of the very
+// object it proves with, as D72 permits:
+// * (i) the digest is `BlockPublic::digest` over that object in its final place, after
+//   its last write ([`KeptBlock::new`] is the one constructor);
+// * (ii) it is stored with the object, in the same allocation, and read only with it;
+// * (iii) the object cannot change afterwards: `KeptBlock`'s fields are private to this
+//   module and no method of it hands out `&mut`; `BlockPublic` has no interior
+//   mutability; the only `unsafe` that reaches a block's memory is the Metal witness
+//   product's read-only view of a weight matrix (`device const char *`);
+// * (iv) a mismatch still refuses by CS-6's name ([`digest_is_the_statements`] in the
+//   preflight, unchanged).
+
+/// **[A23] a server's resident public block, shared by reference by every request, with
+/// the digest computed on it at startup** (ruling D72). Public data only. The one
+/// constructor, [`KeptBlock::new`], computes the digest over the object where it will
+/// live; no method hands out `&mut`, so the digest stays the object's for its life.
+pub(crate) struct KeptBlock {
+    blk: BlockPublic,
+    digest: Digest,
+    /// [A23] the shapes at which `BlockPublic::check_for_shape` (CS-1 / CS-4) PASSED on
+    /// this very object at its construction (`HL_A23_CHECKED`'s record; a ruling's)
+    passed: Vec<Shape>,
+}
+
+impl KeptBlock {
+    /// the block placed in its shared allocation, then `BlockPublic::digest` (D2) computed
+    /// over it there and stored beside it, with the shapes of `shapes` at which its CS-1 /
+    /// CS-4 check passed there (the block is not written after)
+    pub(crate) fn new(blk: BlockPublic, shapes: &[Shape]) -> std::sync::Arc<KeptBlock> {
+        let mut a = std::sync::Arc::new(KeptBlock { blk, digest: [0; 32], passed: Vec::new() });
+        let d = a.blk.digest();
+        let passed: Vec<Shape> = shapes.iter().filter(|s| a.blk.check_for_shape(s).is_ok()).cloned().collect();
+        // a new `Arc` has one owner: only the digest and the passes are written, once,
+        // before any other reference to it exists; the block is never written
+        let m = std::sync::Arc::get_mut(&mut a).expect("a new Arc has one owner");
+        m.digest = d;
+        m.passed = passed;
+        a
+    }
+    /// the block, by shared reference only
+    pub(crate) fn block(&self) -> &BlockPublic {
+        &self.blk
+    }
+    /// the digest computed on this very object at its construction
+    pub(crate) fn digest(&self) -> Digest {
+        self.digest
+    }
+    /// [A23] whether this very object passed its CS-1 / CS-4 check at its construction at
+    /// a shape equal to `sh`
+    pub(crate) fn passed_at(&self, sh: &Shape) -> bool {
+        self.passed.iter().any(|s| s == sh)
+    }
+    /// TEST BUILDS ONLY: a kept block whose kept digest is `digest` and that records no
+    /// passed check (D72 (iv)'s control: a wrong kept digest must be refused by CS-6's name)
+    #[cfg(test)]
+    pub(crate) fn with_digest_for_test(blk: BlockPublic, digest: Digest) -> std::sync::Arc<KeptBlock> {
+        std::sync::Arc::new(KeptBlock { blk, digest, passed: Vec::new() })
+    }
+}
+
+/// **[A23] a layer's public block as a load hands it to the sealing pass**: the load's
+/// own object (every load before A23, `stack-prove`'s always), or a server's resident
+/// block shared by reference (`stack-serve` with `HL_A23_SHARE`). Read through `Deref`
+/// only. It is deliberately not `Clone`: `.clone()` on it clones the `BlockPublic` it
+/// derefs to (a deep copy), never the share.
+pub(crate) enum LayerBlock {
+    Owned(BlockPublic),
+    Shared(std::sync::Arc<KeptBlock>),
+}
+
+impl std::ops::Deref for LayerBlock {
+    type Target = BlockPublic;
+    fn deref(&self) -> &BlockPublic {
+        match self {
+            LayerBlock::Owned(b) => b,
+            LayerBlock::Shared(k) => &k.blk,
+        }
+    }
+}
+
+impl From<BlockPublic> for LayerBlock {
+    fn from(b: BlockPublic) -> LayerBlock {
+        LayerBlock::Owned(b)
+    }
+}
+
+// ------------------------------------------------------ [A23] end
 
 /// **[A19] what a planned sealing pass hands its continuation**
 /// ([`prove_run_with_forks_planned`]): the plan, the blocks the parts were made

@@ -6115,7 +6115,7 @@ mod a22 {
 
     /// [A22] the server's switches (and A19's / A20's) are the whole process's: the tests that
     /// SET them, or run a server, take A19's lock (one at a time)
-    fn a22_knobs() -> std::sync::MutexGuard<'static, ()> {
+    pub(super) fn a22_knobs() -> std::sync::MutexGuard<'static, ()> {
         a19_knobs()
     }
 
@@ -6123,14 +6123,14 @@ mod a22 {
     /// startup (each layer a copy of the one block, its record hashed), and each request's
     /// private input the fixture's honest chain or (`"chain": "lie<k>"`) that chain with
     /// layer `k`'s reference output off by one word (the sealing pass's parity refusal)
-    struct A22Synth<'f> {
+    pub(super) struct A22Synth<'f> {
         fix: &'f A18Fix,
         layers: Vec<u32>,
         ctx: Digest,
     }
 
     impl<'f> A22Synth<'f> {
-        fn new(fix: &'f A18Fix, ctx: Digest) -> A22Synth<'f> {
+        pub(super) fn new(fix: &'f A18Fix, ctx: Digest) -> A22Synth<'f> {
             A22Synth { fix, layers: (0..fix.l as u32).collect(), ctx }
         }
     }
@@ -6191,13 +6191,22 @@ mod a22 {
         }
     }
 
+    /// [A23] restores A23's switches to the environment's on drop (a test's end, or its panic)
+    pub(super) struct A23Reset;
+
+    impl Drop for A23Reset {
+        fn drop(&mut self) {
+            A23Set::default().apply();
+        }
+    }
+
     /// [A22] a server's settings for the tests
-    fn a22_cfg(workers: usize, budget: u64, setup: Option<A22LaneSetup>) -> ServeCfg {
+    pub(super) fn a22_cfg(workers: usize, budget: u64, setup: Option<A22LaneSetup>) -> ServeCfg {
         ServeCfg { workers, budget, test_receipt: true, lanes: a22_lanes(), lane_setup: setup }
     }
 
     /// [A22] `<out>.unverified-statement`
-    fn a22_unverified(out: &Path) -> std::path::PathBuf {
+    pub(super) fn a22_unverified(out: &Path) -> std::path::PathBuf {
         out.with_file_name(format!("{}.unverified-statement", out.file_name().unwrap().to_string_lossy()))
     }
 
@@ -6320,7 +6329,32 @@ mod a22 {
     /// its refusals, the bytes against `stack-prove`, fresh randomness, and A19's checks with
     /// seeded generators. `workers`: the D55 fork workers.
     fn a22_check_export(tag: &str, workers: usize) -> Vec<String> {
+        a22_check_export_at(tag, workers, A23Set::default())
+    }
+
+    /// [A23] the switches A23 adds, as one test sets them (`None`: as the environment says)
+    #[derive(Clone, Copy, Debug, Default)]
+    pub(super) struct A23Set {
+        pub(super) share: Option<bool>,
+        pub(super) checked: Option<bool>,
+    }
+
+    impl A23Set {
+        pub(super) fn apply(self) {
+            crate::private_block::trained_block::set_a23_share_for_test(self.share);
+            crate::private_block::trained_block::set_a23_checked_for_test(self.checked);
+        }
+        /// whether a request's fork run takes every shared block's startup pass
+        fn all_checked(self) -> bool {
+            self.share == Some(true) && self.checked == Some(true)
+        }
+    }
+
+    /// [`a22_check_export`] with A23's switches `a23` in force (set under the knobs' lock)
+    pub(super) fn a22_check_export_at(tag: &str, workers: usize, a23: A23Set) -> Vec<String> {
         let _k = a22_knobs();
+        a23.apply();
+        let _reset = A23Reset;
         let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
         let root = scratch(&format!("a22-export-{tag}"));
         let ex_dir = root.join("export");
@@ -6427,6 +6461,9 @@ mod a22 {
             assert_eq!(shape(&segs), shape(&sp_segs), "request {q}: the frames' names and lengths are not stack-prove's");
             let p = outs[q].proved.as_ref().unwrap();
             assert_eq!(p.receipt_bytes, sp_bytes, "request {q}: the receipt's size is not stack-prove's");
+            // [A23] with the blocks shared and the startup checks taken, every block's CS-1 /
+            // CS-4 record is its startup pass; otherwise none is
+            assert_eq!(p.times.startup_checked, if a23.all_checked() { l } else { 0 }, "request {q}: the startup passes taken ({a23:?})");
             assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &out.display().to_string(), "--expect-statement", &id, "--d55-workers", &ns])), 0, "request {q}: the fresh stack-verify refused the served receipt");
             let fr_files: Vec<Vec<u8>> = d55_file_names(l).iter().map(|n| std::fs::read(out.join(n)).unwrap()).collect();
             frames.push(fr_files);
@@ -6441,7 +6478,7 @@ mod a22 {
                 }
             }
         }
-        lines.push(format!("4 proved requests on the same input: each verified by a fresh stack-verify; statement identity {} = stack-prove's; statement.json = stack-prove's but its expected_io; segments.json's names and lengths = stack-prove's; receipt {sp_bytes} B = stack-prove's; marker present; no two share their endpoint commitments, head (boundary roots), any fork frame or the tail", &id[..16]));
+        lines.push(format!("4 proved requests on the same input ({a23:?}): each verified by a fresh stack-verify; statement identity {} = stack-prove's; statement.json = stack-prove's but its expected_io; segments.json's names and lengths = stack-prove's; receipt {sp_bytes} B = stack-prove's; marker present; startup passes taken {}; no two share their endpoint commitments, head (boundary roots), any fork frame or the tail", &id[..16], if a23.all_checked() { l } else { 0 }));
         // ---- A19's checks with seeded generators on the lanes: the head replays, interior forks = whole forks
         let exd2 = ex_dir.clone();
         let check: A22Check = Arc::new(move |fr: &ForkRun<'_>, blocks: &dyn ForkBlocks, rc: &ForkReceipt| {
@@ -6524,7 +6561,15 @@ mod a22 {
     /// directory, its head replays and its interior forks equal whole forks; the refused
     /// request drops every part; the turns keep their order.
     fn a22_check_synth(fixa: &Arc<A18Fix>, workers: usize, arms: &[(usize, usize, bool)]) -> Vec<String> {
+        a22_check_synth_at(fixa, workers, u64::MAX, A23Set::default(), arms)
+    }
+
+    /// [`a22_check_synth`] at the witness budget `budget` (0: every witness rebuilt in the
+    /// fork run, beside the next request's sealing pass) with A23's switches `a23` in force
+    pub(super) fn a22_check_synth_at(fixa: &Arc<A18Fix>, workers: usize, budget: u64, a23: A23Set, arms: &[(usize, usize, bool)]) -> Vec<String> {
         let _k = a22_knobs();
+        a23.apply();
+        let _reset = A23Reset;
         let fix: &A18Fix = fixa;
         let l = fix.l;
         let ctx: Digest = [122; 32];
@@ -6546,7 +6591,7 @@ mod a22 {
             std::fs::create_dir(&dir).unwrap();
             let chains = ["honest", "lie1", "honest", "honest"];
             let reqs: Vec<String> = chains.iter().enumerate().map(|(q, c)| format!("{{\"out\":{},\"chain\":\"{c}\"}}", js(&dir.join(format!("run-{q}")).display().to_string()))).collect();
-            let cfg = a22_cfg(workers, u64::MAX, Some(a22_setup(true, Some(check.clone()), Vec::new(), seen.clone())));
+            let cfg = a22_cfg(workers, budget, Some(a22_setup(true, Some(check.clone()), Vec::new(), seen.clone())));
             let outs = serve_stream(&res, &cfg, reqs.into_iter(), &mut |_| {});
             set_ahead_for_test(None, None, None);
             set_a22_lanes_for_test(None);
@@ -6556,21 +6601,29 @@ mod a22 {
             assert!(!dir.join("run-1").exists() && !a22_unverified(&dir.join("run-1")).exists(), "the refused request left a run directory or a statement");
             let mut seen = seen.lock().unwrap().clone();
             seen.sort_by_key(|s| s.q);
+            // [A23] at budget 0 nothing is kept or parked: every witness is rebuilt in the fork run
+            let parked = if budget == 0 { 0 } else { window.min(l) };
             for s in &seen {
                 assert_eq!(s.live, 0, "window {window} lanes {lanes}: request {} left a part alive", s.q);
                 if s.q != 1 {
                     assert_eq!(s.compared, Some(l.saturating_sub(2)), "window {window} lanes {lanes}: request {}'s interior forks", s.q);
                     assert!(s.seeded && s.generators == l + 1);
-                    assert_eq!(s.parked, window.min(l), "window {window} lanes {lanes}: request {}'s forks parked", s.q);
+                    assert_eq!(s.parked, parked, "window {window} lanes {lanes}: request {}'s forks parked", s.q);
                 }
             }
+            let mut rebuilt = 0usize;
             for q in [0usize, 2, 3] {
                 let seen_frames = a22_verify_synth(fix, ctx, outs[q].out.as_ref().unwrap(), 2);
                 let p = outs[q].proved.as_ref().unwrap();
                 assert_eq!(seen_frames.len(), l + 2);
                 assert_eq!(seen_frames.iter().map(|(n, _)| *n).sum::<u64>(), p.receipt_bytes, "request {q}: the receipt's size");
+                assert_eq!(p.times.startup_checked, if a23.all_checked() { l } else { 0 }, "request {q}: the startup passes taken ({a23:?})");
+                if budget == 0 {
+                    assert_eq!(p.times.rebuilt, l, "request {q}: at budget 0 every witness is rebuilt");
+                }
+                rebuilt += p.times.rebuilt;
             }
-            lines.push(format!("window {window}, lanes {lanes}, digests ahead {dig}: honest, lie1 (refused before the run header, {} parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory ({} B); head = the replayed commit phase; {} interior forks = those forks proved whole; {}", seen[1].made, outs[0].proved.as_ref().unwrap().receipt_bytes, l.saturating_sub(2), a22_turns_hold(&outs, lanes)));
+            lines.push(format!("window {window}, lanes {lanes}, digests ahead {dig}, budget {budget}, {a23:?}: honest, lie1 (refused before the run header, {} parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory ({} B); head = the replayed commit phase; {} interior forks = those forks proved whole; {} witnesses rebuilt in the fork runs; startup passes taken {} a request; {}", seen[1].made, outs[0].proved.as_ref().unwrap().receipt_bytes, l.saturating_sub(2), rebuilt, if a23.all_checked() { l } else { 0 }, a22_turns_hold(&outs, lanes)));
         }
         std::fs::remove_dir_all(&root).unwrap();
         lines
@@ -6669,6 +6722,10 @@ mod a22 {
         a18: A18Arm,
         dig: Option<bool>,
         lanes: Option<usize>,
+        /// [A23] `share0` / `share1` (the shared resident blocks), `chk0` / `chk1` (the
+        /// startup checks), `seal<t>` (the sealing pool's threads; `seal0` the global pool)
+        a23: A23Set,
+        seal: Option<usize>,
     }
 
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -6682,11 +6739,16 @@ mod a22 {
         } else {
             panic!("HL_A22_AB: an arm starts with serve<R> or harness<R>, not {first:?}")
         };
-        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None };
+        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None };
         for w in words {
             match w {
                 "dig0" => a.dig = Some(false),
                 "dig1" => a.dig = Some(true),
+                "share0" => a.a23.share = Some(false),
+                "share1" => a.a23.share = Some(true),
+                "chk0" => a.a23.checked = Some(false),
+                "chk1" => a.a23.checked = Some(true),
+                _ if w.starts_with("seal") => a.seal = Some(w["seal".len()..].parse().unwrap_or_else(|_| panic!("HL_A22_AB: {w:?}"))),
                 _ if w.starts_with("lanes") => a.lanes = Some(w["lanes".len()..].parse().unwrap_or_else(|_| panic!("HL_A22_AB: {w:?}"))),
                 _ => assert!(a18_word(&mut a.a18, w), "HL_A22_AB: an unknown word {w:?} in {label:?}"),
             }
@@ -6763,7 +6825,7 @@ mod a22 {
                 let pr = o.proved.as_ref().unwrap();
                 let (tm, fs) = (&pr.times, &pr.times.fork);
                 eprintln!(
-                    "A22-AB REQ {name} L{l} N{n} [{label}] {tag} request {}: arrived {:.3}, sealing turn {:.3}, sealing side done {:.3} (sealing pass {:.3} s), prover {:.3}-{:.3} (waited {:.3} s; prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3}), receipt write {:.3} s ({} writers), result {:.3}; {} B; {} witnesses kept; loads waited {:.3} s ({} ahead)",
+                    "A22-AB REQ {name} L{l} N{n} [{label}] {tag} request {}: arrived {:.3}, sealing turn {:.3}, sealing side done {:.3} (sealing pass {:.3} s), prover {:.3}-{:.3} (waited {:.3} s; prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3}), receipt write {:.3} s ({} writers), result {:.3}; {} B; {} witnesses kept; loads waited {:.3} s ({} ahead); {} startup passes; load {:.3} s",
                     o.q,
                     o.at[0],
                     o.at[1],
@@ -6783,7 +6845,9 @@ mod a22 {
                     pr.receipt_bytes,
                     tm.kept,
                     tm.seal_load_wait_s,
-                    tm.seal_loads_ahead
+                    tm.seal_loads_ahead,
+                    tm.startup_checked,
+                    tm.seal_load_s
                 );
             }
             if verify {
@@ -6859,11 +6923,15 @@ mod a22 {
             a18_apply(&a.a18);
             set_a22_digest_ahead_for_test(a.dig);
             set_a22_lanes_for_test(a.lanes);
+            a.a23.apply();
+            crate::private_block::trained_block::set_seal_pool_for_test(a.seal);
         };
         let reset = || {
             a18_apply(&A18Arm::default());
             set_a22_digest_ahead_for_test(None);
             set_a22_lanes_for_test(None);
+            A23Set::default().apply();
+            crate::private_block::trained_block::set_seal_pool_for_test(None);
         };
         // one cold request through the server (kernel compiles), verified
         let cold = serve("serve1 (cold)", 1, None, true);
@@ -6874,7 +6942,15 @@ mod a22 {
             for ai in order {
                 let (a, label) = (&arms[ai], &labels[ai]);
                 apply(a);
-                let settings = format!("window {}, digests ahead {}, lanes {}", run::fork::ahead_window(), a22_digest_ahead(), a22_lanes());
+                let settings = format!(
+                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}",
+                    run::fork::ahead_window(),
+                    a22_digest_ahead(),
+                    a22_lanes(),
+                    crate::private_block::trained_block::a23_share(),
+                    crate::private_block::trained_block::a23_checked(),
+                    crate::private_block::trained_block::seal_pool_threads()
+                );
                 let s = if a.harness { harness(label, a.r, p == 0) } else { serve(label, a.r, Some(p), p == 0) };
                 reset();
                 let r = a.r;
@@ -6922,3 +6998,258 @@ mod a22 {
 }
 
 // ---- end of [A22] ----
+
+mod a23 {
+    //! **[A23] `stack-serve`'s resident blocks shared across requests: its tests.** TEST
+    //! CODE ONLY (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A23, rulings
+    //! D70 and D72; `results/zk60_effplan_20261105/a23/README.md`). Inline beside A22's
+    //! module, whose server fixtures it drives (no file is added for s25's file census).
+    //!
+    //! * **CS-6 and CS-1 / CS-4 on shared kept blocks** (suite): a kept block's digest is
+    //!   D2 of that object and its startup passes are the checks' own results; a fork run
+    //!   over shared kept blocks proves and verifies with the startup checks off and on (every
+    //!   block's record a startup pass when on, none when off, none for an owned block, none
+    //!   on the verifier's side); a wrong kept digest is refused by CS-6's name (D72 (iv)).
+    //! * **the R13 export through the server** (suite, CPU; ignored on Metal): A22's whole
+    //!   export check (the sealing pass word for word against `stack-prove`'s, the stream of
+    //!   refusals and failures, 4 receipts verified by a fresh `stack-verify` with
+    //!   `stack-prove`'s identity, statement and size, fresh randomness, seeded replays at
+    //!   windows 0 and 2 and L) with the blocks shared, the startup checks off and on, and
+    //!   with the blocks copied.
+    //! * **the resident synthetic W16R2 rung** (suite, CPU; ignored on Metal) and **the 8B
+    //!   block** (ignored, Metal): A22's stream check with the blocks shared, at the default
+    //!   budget and at budget 0 (every witness rebuilt in the fork run from the shared block
+    //!   while the next request's sealing pass reads the same objects).
+    //! * **a wrong kept digest in a running server** (suite): the request is refused by
+    //!   CS-6's name, its run directory removed, and the stream carries on; with the blocks
+    //!   copied, the same server proves (CS-6 hashes the copy); a resident record changed
+    //!   after the startup is refused before the run header.
+
+    use super::a22::{a22_cfg, a22_check_export_at, a22_check_synth_at, a22_knobs, a22_unverified, A22Synth, A23Reset, A23Set};
+    use super::*;
+    use crate::private_block::trained_block::{js, serve_stream, Resident};
+    use std::path::Path;
+    use std::sync::Arc;
+
+    const SHARED: A23Set = A23Set { share: Some(true), checked: Some(false) };
+    const CHECKED: A23Set = A23Set { share: Some(true), checked: Some(true) };
+    const COPIED: A23Set = A23Set { share: Some(false), checked: Some(false) };
+
+    // ------------------------------------------------------------------ CS-6 and CS-1 / CS-4 on kept blocks
+
+    /// **[A23] a kept block's digest and startup passes; the fork run over shared kept
+    /// blocks; a wrong kept digest refused by CS-6's name** (in the suite, W16R2 rung)
+    #[test]
+    fn a23_cs6_and_cs1_cs4_take_a_shared_blocks_startup_record_and_a_wrong_digest_is_refused() {
+        let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 3);
+        let l = fix.l;
+        // a shape the block fails CS-1 / CS-4 at: another folded gate denominator
+        let g = fix.sh.accuracy_gate_shift;
+        let other = [g + 1, g.saturating_sub(1)].into_iter().filter(|&h| h != g).find_map(|h| fix.sh.clone().with_accuracy_gate_shift(h).ok()).expect("a shape at another gate denominator");
+        assert!(fix.blk.check_for_shape(&other).is_err(), "the control shape passes CS-1 / CS-4");
+        let kept = KeptBlock::new(fix.blk.clone(), &[fix.sh.clone(), other.clone()]);
+        assert_eq!(kept.digest(), fix.blk.digest(), "the kept digest is not D2 of the block");
+        assert!(kept.passed_at(&fix.sh), "the startup pass at the run's shape is missing");
+        assert!(!kept.passed_at(&other), "a failed startup check was recorded as a pass");
+        let mut lines = Vec::new();
+        for (i, checked) in [false, true].into_iter().enumerate() {
+            let b = SealedBlocks::new(l).with_startup_checks(checked);
+            for k in 0..l {
+                b.put(k, LayerBlock::Shared(Arc::clone(&kept))).unwrap();
+            }
+            assert_eq!(b.digest_of(1).unwrap(), fix.blk.digest(), "a shared block's CS-6 digest is not its kept digest");
+            let (st, owners) = fix.statement(231 + i as u8);
+            let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+            let (rc, _) = prove_run_with_forks(&fr, &b, &mut fix.whole(), owners, 2).expect("the fork run over shared kept blocks proves");
+            assert_eq!(b.startup_checked_hits(), if checked { l } else { 0 }, "startup checks {checked}: the preflight's records");
+            verify_run_with_forks(&fr, &RepeatBlock::new(&fix.blk, l), &rc, 2).expect("and verifies");
+            // the verifier's preflight never takes a startup pass, even from a source that offers one
+            verify_run_with_forks(&fr, &b, &rc, 2).expect("and verifies over the kept blocks too");
+            assert_eq!(b.startup_checked_hits(), if checked { l } else { 0 }, "the verifier's preflight took a startup pass");
+            lines.push(format!("startup checks {checked}: a fork run over {l} shared kept blocks proves and verifies; {} CS-1 / CS-4 records were startup passes; the verifier took none", b.startup_checked_hits()));
+        }
+        // an owned block never offers a startup pass
+        let owned = SealedBlocks::new(l).with_startup_checks(true);
+        for k in 0..l {
+            owned.put(k, fix.blk.clone()).unwrap();
+        }
+        let (st, owners) = fix.statement(233);
+        let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        prove_run_with_forks(&fr, &owned, &mut fix.whole(), owners, 2).expect("the fork run over owned blocks proves");
+        assert_eq!(owned.startup_checked_hits(), 0, "an owned block's record was a startup pass");
+        // D72 (iv): a wrong kept digest is refused by CS-6's name, before anything is absorbed
+        let wrong = KeptBlock::with_digest_for_test(fix.blk.clone(), [9u8; 32]);
+        for checked in [false, true] {
+            let b = SealedBlocks::new(l).with_startup_checks(checked);
+            for k in 0..l {
+                b.put(k, LayerBlock::Shared(Arc::clone(if k == 1 { &wrong } else { &kept }))).unwrap();
+            }
+            let (st, owners) = fix.statement(234 + checked as u8);
+            let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+            let e = prove_run_with_forks(&fr, &b, &mut fix.whole(), owners, 2).err().expect("A WRONG KEPT DIGEST PASSED CS-6");
+            assert!(e.contains("ruling CS-6") && e.contains("block 1") && e.contains("before anything is absorbed"), "not CS-6's refusal of block 1 by name: {e}");
+            lines.push(format!("startup checks {checked}: a wrong kept digest at block 1 is refused: {e}"));
+        }
+        for line in lines {
+            eprintln!("A23-KEPT {line}");
+        }
+    }
+
+    // ------------------------------------------------------------------ the R13 export through the server
+
+    fn a23_export(tag: &str, workers: usize) -> Vec<String> {
+        let mut lines = Vec::new();
+        for (name, set) in [("shared", SHARED), ("shared+checked", CHECKED), ("copied", COPIED)] {
+            for line in a22_check_export_at(&format!("a23-{tag}-{}", name.replace('+', "-")), workers, set) {
+                lines.push(format!("[{name}] {line}"));
+            }
+        }
+        lines
+    }
+
+    /// **[A23] `stack-serve` on the R13 rung, the blocks shared (startup checks off and on)
+    /// and copied, on the CPU** (in the suite)
+    #[test]
+    fn a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does() {
+        for line in a23_export("cpu", 2) {
+            eprintln!("A23-EXPORT {line}");
+        }
+    }
+
+    /// **[A23] the same on the Metal device** (ignored; run alone by name)
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    #[ignore = "A23: toggles HL_GPU in-process; run alone by name on a Mac"]
+    fn a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does_on_the_device() {
+        std::env::set_var("HL_GPU", "1");
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        let lines = a23_export("metal", 3);
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        std::env::remove_var("HL_GPU");
+        for line in lines {
+            eprintln!("A23-EXPORT (Metal) {line}");
+        }
+        assert!(ran > 0.0, "no sumcheck round ran on the device");
+    }
+
+    // ------------------------------------------------------------------ the resident synthetic stack
+
+    fn a23_synth(fix: &Arc<A18Fix>, workers: usize, arms: &[(usize, usize, bool)]) -> Vec<String> {
+        let mut lines = Vec::new();
+        for (name, set) in [("shared", SHARED), ("shared+checked", CHECKED)] {
+            lines.extend(a22_check_synth_at(fix, workers, u64::MAX, set, arms).into_iter().map(|x| format!("[{name}] {x}")));
+        }
+        // budget 0: every witness rebuilt in the fork run from the shared block, beside the
+        // next request's sealing pass reading the same objects (and, for scale, copied)
+        for (name, set) in [("shared+checked, budget 0", CHECKED), ("copied, budget 0", COPIED)] {
+            lines.extend(a22_check_synth_at(fix, workers, 0, set, &[(0, 2, false), (0, 1, false)]).into_iter().map(|x| format!("[{name}] {x}")));
+        }
+        lines
+    }
+
+    /// **[A23] the resident synthetic W16R2 rung served with the blocks shared, on the CPU**
+    /// (in the suite)
+    #[test]
+    fn a23_the_resident_synthetic_rung_stream_with_shared_blocks_replays() {
+        let fix = Arc::new(A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4));
+        for line in a23_synth(&fix, 2, &[(0, 2, false), (2, 2, false), (4, 2, true), (1, 3, false)]) {
+            eprintln!("A23-SYNTH {line}");
+        }
+    }
+
+    /// **[A23] the same on the Metal device** (ignored; run alone by name)
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    #[ignore = "A23: toggles HL_GPU in-process; run alone by name on a Mac"]
+    fn a23_the_resident_synthetic_rung_stream_with_shared_blocks_replays_on_the_device() {
+        let fix = Arc::new(A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4));
+        std::env::set_var("HL_GPU", "1");
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        let lines = a23_synth(&fix, 3, &[(0, 2, false), (2, 2, false), (4, 2, true)]);
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        std::env::remove_var("HL_GPU");
+        for line in lines {
+            eprintln!("A23-SYNTH (Metal) {line}");
+        }
+        assert!(ran > 0.0, "no sumcheck round ran on the device");
+    }
+
+    /// **[A23] the 8B synthetic block served with the blocks shared, on the device**
+    /// (ignored: a few GB): `L` = `HL_A22_8B_L` (default 4), window 0, the startup checks off
+    /// and on, and at budget 0
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    #[ignore = "A23: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=0"]
+    fn a23_the_resident_8b_stream_with_shared_blocks_replays() {
+        let l: usize = env_or("HL_A22_8B_L", 4usize).max(3);
+        let fix = Arc::new(A18Fix::new(crate::private_block::shape::W16R2_8B_T128_H24, l));
+        std::env::set_var("HL_GPU", "1");
+        let mut lines = Vec::new();
+        for (name, set, budget) in [("shared", SHARED, u64::MAX), ("shared+checked", CHECKED, u64::MAX), ("shared+checked, budget 0", CHECKED, 0)] {
+            lines.extend(a22_check_synth_at(&fix, 3, budget, set, &[(0, 2, false)]).into_iter().map(|x| format!("[{name}] {x}")));
+        }
+        std::env::remove_var("HL_GPU");
+        for line in lines {
+            eprintln!("A23-8B {line}");
+        }
+    }
+
+    // ------------------------------------------------------------------ a wrong kept digest in a running server
+
+    /// **[A23] D72 (iv) in a running server** (in the suite, W16R2 rung): resident layer 1's
+    /// kept digest made wrong after the startup. With the blocks shared each request is
+    /// refused by CS-6's name, its run directory removed, and the stream carries on; with the
+    /// blocks copied the same server proves (CS-6 hashes each copy). A resident record changed
+    /// after the startup is refused before the run header, creating nothing.
+    #[test]
+    fn a23_a_wrong_kept_digest_in_a_running_server_is_refused_by_cs6_and_the_stream_carries_on() {
+        let _k = a22_knobs();
+        let _reset = A23Reset;
+        let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 3);
+        let ctx: Digest = [123; 32];
+        let model = A22Synth::new(&fix, ctx);
+        let mut res = Resident::start(&model).unwrap();
+        res.set_kept_digest_for_test(1, [7u8; 32]);
+        let root = scratch("a23-wrong-kept");
+        let req = |dir: &Path, q: usize| format!("{{\"out\":{},\"chain\":\"honest\"}}", js(&dir.join(format!("run-{q}")).display().to_string()));
+        let mut lines = Vec::new();
+        for (name, set, want) in [("shared", SHARED, "refused"), ("shared+checked", CHECKED, "refused"), ("copied", COPIED, "proved")] {
+            set.apply();
+            let dir = root.join(name.replace('+', "-"));
+            std::fs::create_dir(&dir).unwrap();
+            let outs = serve_stream(&res, &a22_cfg(2, u64::MAX, None), (0..3).map(|q| req(&dir, q)), &mut |_| {});
+            assert_eq!(outs.iter().map(|o| o.status).collect::<Vec<_>>(), [want; 3], "[{name}] {:?}", outs.iter().map(|o| o.detail.clone()).collect::<Vec<_>>());
+            for o in &outs {
+                let run = dir.join(format!("run-{}", o.q));
+                if want == "refused" {
+                    let d = o.detail.clone().unwrap_or_default();
+                    assert!(d.contains("ruling CS-6") && d.contains("block 1") && d.contains("(the incomplete run directory was removed)"), "[{name}] request {}: not CS-6's refusal of block 1 with its run removed: {d}", o.q);
+                    assert!(!run.exists() && !a22_unverified(&run).exists(), "[{name}] request {}: a refused request left its run directory or a statement", o.q);
+                } else {
+                    assert!(run.exists() && a22_unverified(&run).exists());
+                }
+            }
+            lines.push(format!("[{name}] a stream of 3 over a resident model whose layer-1 kept digest is wrong: {}; {}", outs.iter().map(|o| o.status).collect::<Vec<_>>().join(", "), outs[0].detail.clone().unwrap_or_else(|| "proved".into())));
+        }
+        // a resident record changed after the startup: the request's statement is not the
+        // startup's, refused before the run header (nothing created), with the blocks shared
+        res.set_kept_digest_for_test(1, fix.blk.digest());
+        res.set_record_digest_for_test(2, [5u8; 32]);
+        SHARED.apply();
+        let dir = root.join("record");
+        std::fs::create_dir(&dir).unwrap();
+        let outs = serve_stream(&res, &a22_cfg(2, u64::MAX, None), (0..2).map(|q| req(&dir, q)), &mut |_| {});
+        for o in &outs {
+            assert_eq!(o.status, "refused");
+            let d = o.detail.clone().unwrap_or_default();
+            assert!(!d.contains("incomplete run directory") && !dir.join(format!("run-{}", o.q)).exists(), "request {}: a changed record was not refused before the run header: {d}", o.q);
+        }
+        lines.push(format!("a resident record changed after the startup (blocks shared): every request refused before the run header, nothing created: {}", outs[0].detail.clone().unwrap_or_default()));
+        std::fs::remove_dir_all(&root).unwrap();
+        for line in lines {
+            eprintln!("A23-WRONG {line}");
+        }
+    }
+}
+
+// ---- end of [A23] ----
