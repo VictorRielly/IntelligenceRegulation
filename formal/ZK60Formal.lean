@@ -62,3 +62,4 @@ import ZK60Formal.L1Check
 import ZK60Formal.ModelOut
 import ZK60Formal.CircuitOut
 import ZK60Formal.CircuitTokenRun
+import ZK60Formal.Assembly

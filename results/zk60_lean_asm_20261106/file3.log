@@ -1,0 +1,8 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:496:4: warning: `push_neg` has been deprecated. Prefer using `push Not` instead.
+If you'd rather continue using `push_neg` in your project, you can implement it as follows:
+```
+open Lean.Parser.Tactic in
+macro "push_neg" cfg:optConfig loc:(location)? : tactic =>
+  `(tactic| push $cfg:optConfig Not $[$loc]?)
+```
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:508:8: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead

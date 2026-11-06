@@ -1,0 +1,82 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:155:18: error: Function expected at
+  zero_le
+but this term has type
+  0 ≤ ?m.248
+
+Note: Expected a function because this term is being applied to the argument
+  _
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:227:13: warning: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:253:13: warning: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:240:0: warning: automatically included section variable(s) unused in theorem `ZK60.Assembly.idealProb_semDist`:
+  [Fintype Q]
+  [DecidableEq Q]
+  [Fintype D]
+  [Nonempty D]
+  [Fintype Coins]
+  [Nonempty Coins]
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype
+  Q] [DecidableEq Q] [Fintype D] [Nonempty D] [Fintype Coins] [Nonempty Coins] [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:326:0: warning: automatically included section variable(s) unused in theorem `ZK60.Assembly.knowledgeSound_of_extract`:
+  [Fintype Coins]
+  [Nonempty Coins]
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype Coins] [Nonempty Coins] [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:351:0: warning: automatically included section variable(s) unused in theorem `ZK60.Assembly.complete_of_arithComplete`:
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:386:46: error: Application type mismatch: The argument
+  hzk
+has type
+  ZeroKnowledge M P εzk
+of sort `Prop` but is expected to have type
+  Protocol ?m.75 ?m.76 ?m.77 ?m.78
+of sort `Type 1` in the application
+  @semanticHiding_of_zeroKnowledge ?m.75 ?m.76 ?m.77 ?m.78 hzk
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:394:0: warning: automatically included section variable(s) unused in theorem `ZK60.Assembly.complete_mono`:
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:397:0: warning: automatically included section variable(s) unused in theorem `ZK60.Assembly.knowledgeSound_mono`:
+  [Fintype Coins]
+  [Nonempty Coins]
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype Coins] [Nonempty Coins] [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:402:0: warning: automatically included section variable(s) unused in theorem `ZK60.Assembly.iopExtract_mono`:
+  [Fintype Coins]
+  [Nonempty Coins]
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype Coins] [Nonempty Coins] [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:407:0: warning: automatically included section variable(s) unused in theorem `ZK60.Assembly.binding_mono`:
+  [Fintype Coins]
+  [Nonempty Coins]
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype Coins] [Nonempty Coins] [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a753c00c22277754e/formal/ZK60Formal/Assembly.lean:427:46: error: Application type mismatch: The argument
+  zeroKnowledge_mono h.zk hzk
+has type
+  ZeroKnowledge M P εzk'
+of sort `Prop` but is expected to have type
+  Protocol ?m.191 ?m.192 ?m.193 ?m.194
+of sort `Type 1` in the application
+  @semanticHiding_of_zeroKnowledge ?m.191 ?m.192 ?m.193 ?m.194 (zeroKnowledge_mono h.zk hzk)
