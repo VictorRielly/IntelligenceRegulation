@@ -3890,15 +3890,21 @@ pub(crate) fn a23_share() -> bool {
 /// peak footprint 60.4 -> 46.4 GiB; every receipt 818,728,672 B
 const A23_SHARE_DEFAULT: usize = 1;
 
-/// [A23] `HL_A23_CHECKED` (default off; it needs a ruling): with the blocks shared, the
-/// fork run's CS-1 / CS-4 check of a resident block takes that very object's startup pass
-/// at an equal shape instead of scanning it again; a shape the startup did not pass is
-/// checked as before. Measured on the shared blocks (stage 2): steady +3.9% (4 of 4;
-/// 31.35 -> 32.56), the preflight 0.097 -> 0.001 s
+/// [A23] `HL_A23_CHECKED` (default on, ruling D74; `0`: every request's preflight scans
+/// each block again): with the blocks shared, the fork run's CS-1 / CS-4 check of a
+/// resident block takes that very object's startup pass at an equal shape instead of
+/// scanning it again; a shape the startup did not pass is checked as before. Measured on
+/// the shared blocks (stage 2): steady +3.9% (4 of 4; 31.35 -> 32.56), the preflight
+/// 0.097 -> 0.001 s
 pub(crate) fn a23_checked() -> bool {
     static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
-    super::trained_statement::a20_switch(&A23_CHECKED_TEST, &ENV, "HL_A23_CHECKED", 0) != 0
+    super::trained_statement::a20_switch(&A23_CHECKED_TEST, &ENV, "HL_A23_CHECKED", A23_CHECKED_DEFAULT) != 0
 }
+
+/// [A23] the default of `HL_A23_CHECKED`: on, by ruling D74 (the security owner's reading,
+/// 2026-11-06: the startup's pass of a pure check over an object that cannot change, at an
+/// equal shape; the verifier always runs the check)
+const A23_CHECKED_DEFAULT: usize = 1;
 
 /// tests: the shared blocks on or off (`None`: as the environment says)
 #[cfg(test)]
