@@ -1813,6 +1813,16 @@ impl<'b> CheckedPublic<'b> {
         Ok(CheckedPublic { blk, sh: sh.clone() })
     }
 
+    /// **[A23] the record of the check a server's resident block PASSED at its
+    /// construction** (`run::fork::KeptBlock::new` ran `check_for_shape` on that very
+    /// object, in its shared allocation, after its last write), at a shape equal to `sh`;
+    /// `None` when it records no pass at such a shape. The block cannot change after
+    /// (`KeptBlock` hands out `&` only), so the record holds what [`CheckedPublic::check`]
+    /// would find again. Used by the prover's preflight only, under `HL_A23_CHECKED`.
+    pub(crate) fn of_kept(kept: &'b super::run::fork::KeptBlock, sh: &Shape) -> Option<CheckedPublic<'b>> {
+        kept.passed_at(sh).then(|| CheckedPublic { blk: kept.block(), sh: sh.clone() })
+    }
+
     /// whether this record is for this very block object at this shape
     pub(crate) fn covers(&self, blk: &BlockPublic, sh: &Shape) -> bool {
         std::ptr::eq(self.blk, blk) && self.sh == *sh
