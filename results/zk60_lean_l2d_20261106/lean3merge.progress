@@ -1,0 +1,31 @@
+2026-11-06T16:55:42Z start
+2026-11-06T16:58:24Z test build rc=0
+2026-11-06T17:09:22Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 960 passed; 3 failed; 130 ignored; 0 measured; 0 filtered out; finished in 656.99s
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... ok
+test private_block::s25_tests::r19b_the_module_follower_refuses_include_outside_test_code ... ok
+test private_block::tied_tables::derive::tests::r19b_checkpoint_open_refuses_a_symlinked_checkpoint_file ... ok
+test private_block::tied_tables::derive::tests::r19b_checkpoint_open_refuses_a_same_size_file_that_is_not_the_pinned_checkpoint ... ok
+test private_block::witness::lean_l1_export_tests::lean_l1_export_the_fixture_trace ... ok
+test private_block::witness::lean_l1_export_tests::lean_l1_export_the_t128_rung_trace ... ok
+test private_block::witness::lean_l1_export_tests::lean_l1_export_the_token_out_stages ... ok
+2026-11-06T17:09:46Z lake build rc=0
+✔ [3431/3432] Built ZK60Formal (1.7s)
+Build completed successfully (3432 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-06T17:09:51Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-06T17:09:55Z output-stage L1 check (OUT, OUT-C) rc=0
+L1 OUT TOTAL: 992 checks, 0 failed
+2026-11-06T17:09:57Z axiom audit rc=0
+sorryAx mentions: 0
+  37 axioms: [propext, Classical.choice, Quot.sound]
+   3 axioms: [propext, Quot.sound]
+   4 axioms: [propext]
+theorems with no axioms: 0
+2026-11-06T17:09:57Z all done

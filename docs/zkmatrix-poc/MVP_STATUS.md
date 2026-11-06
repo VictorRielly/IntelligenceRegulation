@@ -140,9 +140,26 @@ here. The rates count proving and witness work. Verification time is recorded se
     - the LogUp premise, stated exactly: every looked-up tuple is in the code's table;
     - the layout map;
     - the run's boundary link.
-  - Not modelled: the embedding and token stages, DD, and the Low stack's 16-bit product. L1 covers the Low stack.
+  - **Fourth round (merged after the second): the whole forward pass.**
+    - `tokenRun_circuitIff` covers the prompt ids, stage IN, every W16R2 block and stage OUT: the run's constraints
+      are satisfiable exactly when the attested next token is the integer model's. The argmax ties go to the lowest
+      id, as the code's `first_argmax` does.
+    - `classifyRun_circuitIff` does the same for the classifier verdict.
+    - The Low stack's int16 product is now inside `block_circuitIff`.
+    - L1: stage OUT and OUT-C pass 992 checks, 0 failed.
+    - Further candidates C10–C13 are estimates. C12 would drop the last block's dead rows, about −2.5% of a run, but it
+      is a model change.
+  - Not modelled: DD and the sealed-selector variants.
   - **Next:** compose with L3, which turns an accepting transcript into `Satisfies`; then the layout map; then
-    `ProductionReady`.
+    `ProductionReady`. Both touch what W16R3 changes, so they wait for its freeze.
+- **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
+  - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
+    (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.
+  - So today's W16R2 throughput figures prove the 32 transformer blocks: the next-token stages are not in a W16R2
+    receipt yet.
+  - A W16R2 (or W16R3) token-I/O profile has to be registered, gated, and its stage cost measured. The 8B head is a
+    4096 × 128,256 product on the last row.
+  - `tokenRun_circuitIff` gets its production instance from that profile.
   - **For Victor, later:** the statement's admissibility cannot see the weights. This is sound under P1, but P3 (hidden
     weights) will need a statement change.
 - **D63 Lean, L1 and L2 begun (merged acf5c78a; checked on the merged tree)** [PROVED; MEASURED for the L1 check].
