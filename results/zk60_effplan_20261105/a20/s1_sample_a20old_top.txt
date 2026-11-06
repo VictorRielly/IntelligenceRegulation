@@ -1,0 +1,37 @@
+Sort by top of stack, same collapsed (when >= 5):
+        __psynch_cvwait  (in libsystem_kernel.dylib)        614297
+        __workq_kernreturn  (in libsystem_kernel.dylib)        16347
+        sha2::sha256::compress256::hd6e554603e97378d  (in hashline-5f6fcfd23272ecf9)        14045
+        semaphore_wait_trap  (in libsystem_kernel.dylib)        8505
+        __semwait_signal  (in libsystem_kernel.dylib)        8364
+        rayon::iter::plumbing::bridge_producer_consumer::helper::h108966fb7fbe779c  (in hashline-5f6fcfd23272ecf9)        3839
+        swtch_pri  (in libsystem_kernel.dylib)        3353
+        blake3_hash_many_neon  (in hashline-5f6fcfd23272ecf9)        3278
+        __psynch_mutexwait  (in libsystem_kernel.dylib)        2089
+        rayon::iter::plumbing::bridge_producer_consumer::helper::hc717576a68dbdc78  (in hashline-5f6fcfd23272ecf9)        1716
+        rayon::iter::plumbing::bridge_producer_consumer::helper::he8c499332788a933  (in hashline-5f6fcfd23272ecf9)        1425
+        rayon::iter::plumbing::bridge_producer_consumer::helper::h76dd3c51a6c336aa  (in hashline-5f6fcfd23272ecf9)        1270
+        rayon::iter::plumbing::bridge_producer_consumer::helper::h2d1d8b239ed47122  (in hashline-5f6fcfd23272ecf9)        1019
+        _platform_memmove  (in libsystem_platform.dylib)        829
+        madvise  (in libsystem_kernel.dylib)        690
+        __ulock_wait2  (in libsystem_kernel.dylib)        672
+        __psynch_mutexdrop  (in libsystem_kernel.dylib)        661
+        hashline::gpu::metal::wait_done::h472e4751c0f3fa6f  (in hashline-5f6fcfd23272ecf9)        599
+        hashline::private_block::witness::accuracy::assign_with::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$::h71018dd4bc14c035  (in hashline-5f6
+        rayon::iter::plumbing::bridge_producer_consumer::helper::h774c96c81321635a  (in hashline-5f6fcfd23272ecf9)        556
+        iokit_user_client_trap  (in IOKit)        553
+        crossbeam_epoch::internal::Global::try_advance::h1c2d58aede9c9779  (in hashline-5f6fcfd23272ecf9)        329
+        rayon_core::registry::WorkerThread::wait_until_cold::h2f092af08319c200  (in hashline-5f6fcfd23272ecf9)        327
+        rayon::iter::plumbing::bridge_producer_consumer::helper::h9208b371993df2fc  (in hashline-5f6fcfd23272ecf9)        307
+        __psynch_cvsignal  (in libsystem_kernel.dylib)        261
+        crossbeam_deque::deque::Stealer$LT$T$GT$::steal::hebff3b000eea4c4a  (in hashline-5f6fcfd23272ecf9)        251
+        rayon::iter::plumbing::bridge_producer_consumer::helper::h5f392302a5376ae9  (in hashline-5f6fcfd23272ecf9)        233
+        crossbeam_epoch::default::with_handle::hc3b1423c70cdf5f4  (in hashline-5f6fcfd23272ecf9)        196
+        rayon::iter::plumbing::bridge_producer_consumer::helper::hcc02941ce094b09e  (in hashline-5f6fcfd23272ecf9)        154
+        rayon::iter::plumbing::bridge_producer_consumer::helper::hc051697cb18558de  (in hashline-5f6fcfd23272ecf9)        128
+        zkp_core::ntt::NttTables::transform::heb2640d4ffaf3d17  (in hashline-5f6fcfd23272ecf9)        127
+        hashline::private_block::BlockPublic::digest::h06b2a04691a779c3  (in hashline-5f6fcfd23272ecf9)        123
+        rayon::iter::plumbing::bridge_producer_consumer::helper::hfa83ee85ac020a89  (in hashline-5f6fcfd23272ecf9)        114
+        __bzero  (in libsystem_platform.dylib)        97
+        rayon::iter::plumbing::bridge_producer_consumer::helper::hfb8fb04eac6f839a  (in hashline-5f6fcfd23272ecf9)        96
+        mach_absolute_time  (in libsystem_kernel.dylib)        70

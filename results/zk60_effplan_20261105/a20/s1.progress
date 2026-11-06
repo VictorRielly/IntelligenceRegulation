@@ -1,0 +1,193 @@
+2026-11-06T06:15:14Z start
+2026-11-06T06:17:56Z build rc=0
+     |         help: remove this `mut`
+--
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1955:4
+--
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+--
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+--
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+--
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+--
+     |        ^^
+--
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/private_block/run_fork_tests.rs:5141:110
+--
+     |                                           argument has type `[u8; 32]`
+--
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/private_block/run_fork_tests.rs:5142:85
+--
+     |                                                                                          argument has type `[u8; 32]`
+--
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/private_block/run_fork_tests.rs:5144:111
+--
+     |                                           argument has type `[u8; 32]`
+--
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/private_block/run_fork_tests.rs:5145:108
+--
+2026-11-06T06:18:10Z no-feature cargo check --tests rc=0
+2026-11-06T06:21:15Z suite private_block::run::fork::tests rc=0
+test result: ok. 32 passed; 0 failed; 14 ignored; 0 measured; 1021 filtered out; finished in 184.41s
+2026-11-06T06:21:27Z suite private_block::trained_stack_tests rc=101
+thread 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name' (14232705) panicked at src/private_block/trained_stack_tests.rs:553:44:
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 1061 filtered out; finished in 11.30s
+2026-11-06T06:21:30Z suite private_block::trained_block_tests rc=0
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 1061 filtered out; finished in 3.75s
+2026-11-06T06:21:33Z suite private_block::r6_tests rc=0
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 1061 filtered out; finished in 2.53s
+2026-11-06T06:22:09Z suite private_block::s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1047 filtered out; finished in 35.80s
+2026-11-06T06:22:09Z suite private_block::hash_domain_tests rc=0
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1067 filtered out; finished in 0.00s
+2026-11-06T06:22:37Z A20 suite tests alone (nocapture) rc=0
+A20-RECORDS the W16R2 rung block: one record under all four settings (block digest eb4e2594006e5526, word 0 855684d9b5f096a6, word 8 855684d9b5f096a6, act table d856c4de0a8171f0)
+A20-RECORDS the legacy synthetic block: one record under all four settings (block digest fdddc74454334fe9, word 0 50bd3723db7ee69f, word 8 69da0515064ab454, act table 6d2a512bb132519a)
+A20-RECORDS the R13 export (4 layers, through the loader): the same records under all four settings (layer 0's block digest 98d82e8afe0b787c), the same statement identity 10a8fd14f6e75d8c
+A20-PROD [a20old] stack-prove --d55-workers 2, window 0, blocks shared: 0 parked, 0 taken back whole (0 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A20-PROD [a20old] stack-prove --d55-workers 2, window 2, blocks shared: 2 parked, 0 taken back whole (2 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A20-PROD [a20old] a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD [a20old] a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD [a20old] a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD [a20old] (cast false recpar false loads 0 writers 0): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD [cast1+recpar1+loads3+write8] stack-prove --d55-workers 2, window 0, blocks shared: 0 parked, 0 taken back whole (0 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A20-PROD [cast1+recpar1+loads3+write8] stack-prove --d55-workers 2, window 2, blocks shared: 2 parked, 0 taken back whole (2 parts made); verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A20-PROD [cast1+recpar1+loads3+write8] a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD [cast1+recpar1+loads3+write8] a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD [cast1+recpar1+loads3+write8] a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD [cast1+recpar1+loads3+write8] (cast true recpar true loads 3 writers 8): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD every arm ["a20old", "cast1+recpar1+loads3+write8"]: the same statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960; a chain whose layer 1 fails parity and layers 2-3 their loads: the same refusal (layer 1's parity): layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+test private_block::run::fork::tests::a20_the_receipt_write_is_the_same_files_bytes_list_and_refusals_at_every_writer_count ... A20-WRITE the same 7 frames, bytes and list at writer counts [0, 1, 2, 3, 4, 7, 8, 64]; the same three refusals: D55: the run directory /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-82436-1793946151102409000/d60-close-a20-write/run does not exist; create it before the run | D55: the run directory /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-
+A20-SEAL budget 18446744073709551615: the same sealing pass at every setting [(0, false), (0, true), (1, false), (1, true), (2, true), (3, true), (8, true)]: identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | block digests 98d82e8afe0b787c,98d82e8afe0b787c,98d82e8afe0b787c,98d82e8afe0b787c | records 339520284ac0f58d0175e2c77adf3d5587f0f34c0fceacf67655b9716ea41de1 | outs 0dd321ab5507ecdc,b3d6196c45ce7531,b2c5181ec5b20e98,33d082dd27fe0431 | first 35b0ec5217feec41 | last 33
+A20-SEAL budget 0: the same sealing pass at every setting [(0, false), (0, true), (1, false), (1, true), (2, true), (3, true), (8, true)]: identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | block digests 98d82e8afe0b787c,98d82e8afe0b787c,98d82e8afe0b787c,98d82e8afe0b787c | records 339520284ac0f58d0175e2c77adf3d5587f0f34c0fceacf67655b9716ea41de1 | outs 0dd321ab5507ecdc,b3d6196c45ce7531,b2c5181ec5b20e98,33d082dd27fe0431 | first 35b0ec5217feec41 | last 33d082dd27fe0431 | x_
+A20-SEAL a parity failure at layer 1: the same refusal at every setting: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-SEAL a load failure at layer 2: the same refusal at every setting: layer 2: array `wq`: SHA-256 mismatch: the manifest says 1922421455f974336ab54fffc6ccb8f0a6a255d78b6b0d62d80b9e198441842e, the file is d0baf3822c86bc615741c7775e092013a4ebbd9a1d52792c9dd7c31d2895199c
+A20-SEAL load failures at layers 1 and 3: the same refusal at every setting: layer 1: array `wq`: SHA-256 mismatch: the manifest says 1922421455f974336ab54fffc6ccb8f0a6a255d78b6b0d62d80b9e198441842e, the file is d0baf3822c86bc615741c7775e092013a4ebbd9a1d52792c9dd7c31d2895199c
+A20-SEAL a parity failure at layer 1 and load failures at layers 2 and 3: the same refusal at every setting: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+test result: ok. 4 passed; 0 failed; 3 ignored; 0 measured; 1060 filtered out; finished in 27.40s
+2026-11-06T06:23:16Z a20 production path on the device rc=0
+A20-PROD (Metal) [a20old] a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [a20old] a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [a20old] a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [a20old] (cast false recpar false loads 0 writers 0): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD (Metal) [cast1+recpar1+loads1+write2] a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [cast1+recpar1+loads1+write2] a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [cast1+recpar1+loads1+write2] a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [cast1+recpar1+loads1+write2] (cast true recpar true loads 1 writers 2): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD (Metal) [default] a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [default] a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [default] a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [default] (cast true recpar true loads 2 writers 4): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD (Metal) [cast1+recpar1+loads3+write8] a chain refused at layer 1, window 0: the same refusal as window 0's, nothing created, 0 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [cast1+recpar1+loads3+write8] a chain refused at layer 1, window 1: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [cast1+recpar1+loads3+write8] a chain refused at layer 1, window 4: the same refusal as window 0's, nothing created, 1 parts made and 0 alive: layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+A20-PROD (Metal) [cast1+recpar1+loads3+write8] (cast true recpar true loads 3 writers 8): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD (Metal) every arm ["a20old", "cast1+recpar1+loads1+write2", "default", "cast1+recpar1+loads3+write8"]: the same statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960; a chain whose layer 1 fails parity and layers 2-3 their loads: the same refusal (layer 1's parity): layer 1: parity: the native block output differs from the exported x_out (no count, position o
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1066 filtered out; finished in 39.11s
+2026-11-06T06:24:20Z a20 8B records, sealing pass and production path rc=0
+test private_block::run::fork::tests::a20_the_8b_records_sealing_pass_and_production_path_under_every_setting ... A20-8B the 8B block: one record under all four settings (block digest 04c8bd7c5fc92e13, word 0 e646df8d8a7ac39d, word 8 2ceb9b1f49e77e5e, act table d856c4de0a8171f0)
+A20-8B budget 34359738368: the same sealing pass at every setting [(0, false), (0, true), (1, false), (1, true), (2, true), (3, true), (8, true)]: identity 05ea9df9d1cb74ad02e8e7ec044140cb2b0f41f7fec9e0f1cc80239934c0bee8 | block digests 04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13 | records 9ec1274a3761e7fa36b2ce72392eb273fb07a6169dbde8b433fd2d7bfcfc791e | outs 3130c73c2ab50
+A20-8B budget 0: the same sealing pass at every setting [(0, false), (0, true), (1, false), (1, true), (2, true), (3, true), (8, true)]: identity 05ea9df9d1cb74ad02e8e7ec044140cb2b0f41f7fec9e0f1cc80239934c0bee8 | block digests 04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13 | records 9ec1274a3761e7fa36b2ce72392eb273fb07a6169dbde8b433fd2d7bfcfc791e | outs 3130c73c2ab5024f,3130c7
+A20-8B [a20old] (cast false recpar false loads 0 writers 0): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A20-8B [cast1+recpar1+loads3+write8] (cast true recpar true loads 3 writers 8): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A20-8B [default] (cast true recpar true loads 2 writers 4): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1066 filtered out; finished in 63.70s
+2026-11-06T06:24:20Z waiting for a quiet GPU (ds4-bench running): s1 profile
+2026-11-06T06:27:50Z GPU quiet (no ds4-bench): s1 profile
+2026-11-06T06:29:15Z profile rc=0
+2026-11-06T06:29:15Z no ds4-bench at the end of s1 profile
+A20-PROFILE W16R2_8B_T128_H24 | the block's copy (the synthetic load's clone) | median 3.9 ms (min 3.8, max 4.0; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the nine i8_bytes copies, one after another | median 4.3 ms (min 4.3, max 4.3; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wq (16777216 B) from its copy (the copy included) | median 33.4 ms (min 33.0, max 33.5; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wq (16777216 B) in place | median 33.2 ms (min 32.7, max 34.9; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wo (16777216 B) from its copy (the copy included) | median 33.7 ms (min 33.1, max 34.4; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wo (16777216 B) in place | median 33.0 ms (min 32.8, max 33.8; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wg_t (67108864 B) from its copy (the copy included) | median 134.3 ms (min 133.3, max 134.8; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wg_t (67108864 B) in place | median 132.4 ms (min 131.9, max 133.0; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wu_t (67108864 B) from its copy (the copy included) | median 133.5 ms (min 133.0, max 133.8; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wu_t (67108864 B) in place | median 132.3 ms (min 131.8, max 133.3; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wd_t (67108864 B) from its copy (the copy included) | median 133.7 ms (min 132.8, max 135.6; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | SHA-256 of wd_t (67108864 B) in place | median 132.3 ms (min 131.8, max 132.8; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the nine SHA-256s from copies, one after another | median 483.9 ms (min 482.5, max 484.1; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the nine SHA-256s in place, one after another | median 479.9 ms (min 478.0, max 483.6; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the nine SHA-256s in parallel from copies (of_block before A20) | median 146.5 ms (min 136.0, max 147.7; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the nine SHA-256s in parallel in place (HL_A20_CAST) | median 138.8 ms (min 137.3, max 143.2; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the three table SHA-256s | median 0.6 ms (min 0.5, max 0.6; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | BlockPublic::digest (one BLAKE3 pass on one thread, its own copies included) | median 114.8 ms (min 113.5, max 115.7; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, cast false recpar false | median 251.8 ms (min 250.1, max 254.7; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), cast false recpar false | median 257.3 ms (min 255.2, max 260.2; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, cast true recpar false | median 252.4 ms (min 249.6, max 260.9; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), cast true recpar false | median 257.2 ms (min 250.2, max 263.7; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, cast false recpar true | median 138.5 ms (min 134.7, max 142.2; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), cast false recpar true | median 144.4 ms (min 140.5, max 151.4; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, cast true recpar true | median 137.4 ms (min 136.5, max 145.1; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), cast true recpar true | median 142.9 ms (min 140.3, max 149.4; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the witness build alone (the sealing pool) | median 37.3 ms (min 32.8, max 52.0; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the sealing pass's step before A20 (rayon::join of the build and the next load), cast false recpar false: the step | median 258.7 ms (min 255.6, max 267.7; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build's clock as seal_chain reads it (pool.run returned), cast false recpar false | median 257.7 ms (min 40.9, max 260.8; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build's own end (inside the pool), cast false recpar false | median 40.2 ms (min 36.5, max 41.4; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the load's clock, cast false recpar false | median 258.6 ms (min 254.9, max 267.6; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the build beside 1 load(s) on threads of their own (as HL_A20_LOADS=1), cast false recpar false: the wall | median 257.4 ms (min 255.6, max 261.0; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build, beside 1 load(s), cast false recpar false | median 39.8 ms (min 37.2, max 41.4; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... each load, 1 at once beside the build, cast false recpar false | median 257.3 ms (min 255.5, max 260.8; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the build beside 2 load(s) on threads of their own (as HL_A20_LOADS=2), cast false recpar false: the wall | median 270.9 ms (min 261.3, max 272.4; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build, beside 2 load(s), cast false recpar false | median 46.7 ms (min 45.6, max 47.0; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... each load, 2 at once beside the build, cast false recpar false | median 268.5 ms (min 260.0, max 270.9; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the build beside 3 load(s) on threads of their own (as HL_A20_LOADS=3), cast false recpar false: the wall | median 274.8 ms (min 271.2, max 278.9; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build, beside 3 load(s), cast false recpar false | median 53.0 ms (min 47.2, max 57.7; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... each load, 3 at once beside the build, cast false recpar false | median 273.2 ms (min 268.5, max 277.7; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the sealing pass's step before A20 (rayon::join of the build and the next load), cast true recpar true: the step | median 141.6 ms (min 138.3, max 148.3; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build's clock as seal_chain reads it (pool.run returned), cast true recpar true | median 43.2 ms (min 39.6, max 148.3; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build's own end (inside the pool), cast true recpar true | median 39.9 ms (min 35.6, max 40.7; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the load's clock, cast true recpar true | median 141.6 ms (min 138.3, max 144.3; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the build beside 1 load(s) on threads of their own (as HL_A20_LOADS=1), cast true recpar true: the wall | median 142.9 ms (min 140.1, max 144.3; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build, beside 1 load(s), cast true recpar true | median 39.5 ms (min 35.1, max 40.6; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... each load, 1 at once beside the build, cast true recpar true | median 142.9 ms (min 140.0, max 144.2; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the build beside 2 load(s) on threads of their own (as HL_A20_LOADS=2), cast true recpar true: the wall | median 151.8 ms (min 146.2, max 154.4; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build, beside 2 load(s), cast true recpar true | median 42.4 ms (min 37.7, max 45.0; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... each load, 2 at once beside the build, cast true recpar true | median 148.7 ms (min 145.0, max 154.2; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the build beside 3 load(s) on threads of their own (as HL_A20_LOADS=3), cast true recpar true: the wall | median 159.7 ms (min 155.6, max 161.2; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... the build, beside 3 load(s), cast true recpar true | median 53.9 ms (min 49.3, max 56.0; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 |   ... each load, 3 at once beside the build, cast true recpar true | median 157.6 ms (min 154.9, max 160.2; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24: the receipt of an 32-block run: head 1072 B, 32 forks of 24539240 B, tail 33471920 B = 818728672 B
+A20-PROFILE W16R2_8B_T128_H24 | write_fork_receipt, 0 writers (0: the loop before A20) | median 1939.1 ms (min 1899.4, max 1956.5; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | write_fork_receipt, 2 writers (0: the loop before A20) | median 1028.3 ms (min 1005.1, max 1034.0; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | write_fork_receipt, 4 writers (0: the loop before A20) | median 603.3 ms (min 590.5, max 606.3; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | write_fork_receipt, 8 writers (0: the loop before A20) | median 446.1 ms (min 422.8, max 477.5; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | write_fork_receipt, 16 writers (0: the loop before A20) | median 321.1 ms (min 308.9, max 323.5; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | write_fork_receipt, 34 writers (0: the loop before A20) | median 265.2 ms (min 248.8, max 280.8; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the loop before A20, its 34 frames' create, summed | median 2.5 ms (min 2.5, max 2.6; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the loop before A20, its 34 frames' write_all, summed | median 82.6 ms (min 78.6, max 84.9; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the loop before A20, its 34 frames' sync_all (F_FULLFSYNC on macOS), summed | median 279.9 ms (min 183.6, max 325.9; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the loop before A20, its 34 frames' rename, summed | median 3.5 ms (min 3.4, max 3.5; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the loop before A20, its 34 frames' SHA-256 (digest_hex), summed | median 1615.7 ms (min 1611.9, max 1618.4; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the frames' SHA-256s, one after another | median 1612.8 ms (min 1609.5, max 1613.8; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24 | the frames' SHA-256s in parallel (the global pool) | median 120.1 ms (min 102.3, max 122.2; 6 reps)
+A20-PROFILE W16R2_8B_T128_H24: total 84.7 s
+2026-11-06T06:29:15Z GPU quiet (no ds4-bench): s1 sample a20old
+2026-11-06T06:29:54Z sample of a20old (pid 92952) rc=0
+2026-11-06T06:30:19Z sampled run a20old rc=0
+2026-11-06T06:30:19Z ds4-bench RUNNING at the end of s1 sample a20old (TIMING POLLUTED)
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [a20old] cold: wall 15.942 s = 8.03 proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass 9.471 s (loads 8.562 s beside it, witnesses 7.890 s, pool 8); window 0, 0 parts handed (0.00 GB budgeted), 32 witnesses kept (9.47 GB); blocks shared (reload 0.000 s); prove call 4.465 s: preflight 0.308, commit 0.248, forks 3.838, join 0.070 s; 0 forks parked (mean NaN ms), 0 taken back whole, feeder waited 0.000 s; directory to receipt written 6.414 s; receipt 818728672 B; footprint start 1.4 GiB, peak 41.2 GiB, end 23.4 GiB; A20: cast false recpar false loads 0 writers 0; the pass waited 0.000 s for its loads (0 ahead); receipt write 1.933 s (0 writers)
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [a20old] cold: the receipt in the run directory verified (D55 verifier, 6 threads) in 4.39 s
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [a20old] pass 0: wall 18.099 s = 7.07 proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass 11.836 s (loads 10.265 s beside it, witnesses 10.014 s, pool 8); window 0, 0 parts handed (0.00 GB budgeted), 32 witnesses kept (9.47 GB); blocks shared (reload 0.000 s); prove call 4.241 s: preflight 0.310, commit 0.220, forks 3.635, join 0.076 s; 0 forks parked (mean NaN ms), 0 taken back whole, feeder waited 0.000 s; directory to receipt written 6.197 s; receipt 818728672 B; footprint start 21.7 GiB, peak 42.9 GiB, end 23.2 GiB; A20: cast false recpar false loads 0 writers 0; the pass waited 0.000 s for its loads (0 ahead); receipt write 1.937 s (0 writers)
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [a20old] pass 0: the receipt in the run directory verified (D55 verifier, 6 threads) in 4.18 s
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [a20old] pass 1: wall 15.503 s = 8.26 proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass 9.136 s (loads 8.392 s beside it, witnesses 8.059 s, pool 8); window 0, 0 parts handed (0.00 GB budgeted), 32 witnesses kept (9.47 GB); blocks shared (reload 0.000 s); prove call 4.261 s: preflight 0.306, commit 0.200, forks 3.682, join 0.073 s; 0 forks parked (mean NaN ms), 0 taken back whole, feeder waited 0.000 s; directory to receipt written 6.306 s; receipt 818728672 B; footprint start 22.5 GiB, peak 43.1 GiB, end 23.4 GiB; A20: cast false recpar false loads 0 writers 0; the pass waited 0.000 s for its loads (0 ahead); receipt write 2.028 s (0 writers)
+D55-AB SUMMARY | A19 production one request [a20old] | 2 passes | best 15.503 s = 8.26 tok/s | mean 16.801 s = 7.62 tok/s
+2026-11-06T06:30:19Z waiting for a quiet GPU (ds4-bench running): s1 sample cast1+recpar1+loads2+write4
+2026-11-06T06:43:35Z STOPPED by the agent (SIGTERM to this script, not the guard): the quiet check matched a QUEUED guard job whose command line names ds4-bench (mac-moe-smoke50_p1_noprofile, waiting for the heavy lock this stage held), a livelock; the second sample and the smoke A/B did not run (superseded by stage 2, whose quiet check matches running ds4-bench processes by name only)

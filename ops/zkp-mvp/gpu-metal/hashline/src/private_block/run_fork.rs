@@ -2926,7 +2926,7 @@ fn write_fork_frame(dir: &Path, name: &str, bytes: &[u8]) -> Result<(u64, String
 static A20_WRITE_TEST: AtomicUsize = AtomicUsize::new(usize::MAX);
 
 /// [A20] the measured default (`results/zk60_effplan_20261105/a20/README.md`)
-const A20_WRITE_DEFAULT: usize = 4;
+const A20_WRITE_DEFAULT: usize = 16;
 
 /// [A20] `HL_A20_WRITE`: the threads that write a fork receipt's frames (`0` or `1`:
 /// one after another, the path before A20); at most 64

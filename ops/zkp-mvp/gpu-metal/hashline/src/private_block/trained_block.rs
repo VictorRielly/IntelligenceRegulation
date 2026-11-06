@@ -2798,7 +2798,7 @@ pub(crate) fn a20_loads() -> usize {
 }
 
 /// [A20] the measured default (`results/zk60_effplan_20261105/a20/README.md`)
-const A20_LOADS_DEFAULT: usize = 2;
+const A20_LOADS_DEFAULT: usize = 3;
 
 /// tests: `n` loads ahead (`Some(0)`: the path before A20; `None`: as the environment
 /// says). Changes no byte (see above).

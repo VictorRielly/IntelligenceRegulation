@@ -5115,6 +5115,10 @@ fn a20_profile_of_the_sealing_pass_loads_and_the_receipt_write() {
     use crate::private_block::trained_statement::set_a20_record_for_test;
     use sha2::Digest as _;
     use std::hint::black_box;
+    // the profile drops every result, `Copy` digests too, through this generic sink
+    fn drop<T>(x: T) {
+        std::mem::drop(x)
+    }
     let _k = a20_knobs();
     let name: String = env_or("HL_D55_PROFILE", "W16R2_8B_T128_H24".to_string());
     let spec = crate::private_block::shape::W16R2_PROFILES.iter().chain(crate::private_block::shape::W16_PROFILES.iter()).find(|s| s.name == name).expect("a W16 or W16R2 profile name");
