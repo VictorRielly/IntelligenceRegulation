@@ -4161,8 +4161,12 @@ fn a19_controls(fix: &A18Fix) -> Vec<String> {
     let (st, _owners) = fix.statement(121);
     let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
     // (2) a plan that is not the fork run's, refused by the check before anything
+    // (stage 1's rows: at stage 0 both reserved pairs sit at the data rows, the
+    // external endpoint's and boundary 0's site 0, so a swap there moves nothing)
     let other_profile = plan().with_profile_for_test("d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/another");
-    for (what, bad, want) in [("another profile", other_profile, "(its profile)"), ("stage 0's IO rows swapped", plan().with_rows_swapped_for_test(0), "(stage 0's IO rows)")] {
+    assert_eq!(plan().io_rows[0][0], plan().io_rows[0][1], "stage 0's two reserved pairs");
+    assert_ne!(plan().io_rows[1][0], plan().io_rows[1][1], "stage 1's two reserved pairs");
+    for (what, bad, want) in [("another profile", other_profile, "(its profile)"), ("stage 1's IO rows swapped", plan().with_rows_swapped_for_test(1), "(stage 1's IO rows)")] {
         let blocks = SealedBlocks::new(l);
         let e = prove_run_with_forks_planned(
             Some(&bad),
