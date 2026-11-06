@@ -327,25 +327,37 @@ The plain-words version, the modelling choices and the open decisions are in
     so every field-generic L3/L4 lemma applies to `ZMod gP`; `rowmax_gf`.
   - `L1Check.lean`: the value-for-value test against the Rust witness of a whole fixture block (both export stacks):
     `lake -d formal env lean --run formal/ZK60Formal/L1Check.lean <files>` (the file header has the command).
-- Proved so far (steps L1 and L2, second lane, 2026-11-06: **`CircuitIff` for a whole W16R2 block and a run**; same
-  build and axiom checks; findings §8–§13 of `docs/zkmatrix-poc/ZK60_LEAN_L1L2_FINDINGS_20261106.md`):
-  - `CircuitMatmul.lean`: the **matmul hand-off** (`matmul_requant_iff`, `bilinear_requant_iff`): the hosted value is
-    the INTEGER matmul sum, and its no-wrap bound follows from the word classes and the code's geometry class
-    (`noWrap_class_bounds`: below `2^58` at the down projection, the largest), so `requant_iff`'s `2^62` premise is
-    discharged at every site; the norm's sum of squares (`ss_bounds`).
+- Proved so far (steps L1 and L2, second and third lanes, 2026-11-06: **`CircuitIff` for a whole W16R2 block and a
+  run, at the LOGICAL positions**; the whole `lake -d formal build` is green with no warning and no `sorry`, and
+  `#print axioms` on all 64 theorems of the five new files shows only `propext`, `Classical.choice`, `Quot.sound`
+  (`results/zk60_lean_l2b_20261106/axioms.log`); findings §8–§13 of
+  `docs/zkmatrix-poc/ZK60_LEAN_L1L2_FINDINGS_20261106.md`):
+  - `CircuitMatmul.lean`: the **matmul hand-off** (`matmul_requant_iff`, `bilinear_requant_iff`): given the hosted
+    identity, the hosted value is the INTEGER matmul sum, and its no-wrap bound follows from the word classes and the
+    code's geometry class (`noWrap_class_bounds`: below `2^58` at the down projection, the largest), so `requant_iff`'s
+    `2^62` premise is discharged at every site; the norm's sum of squares (`ss_bounds`, `ss_cast`).
   - `CircuitRopeAct.lean`: **RoPE** (`rope_iff`, `rope_pair`), the **SiLU product** (`product_iff`), the **ACT** and exp
     tuples (`actQuery_iff`, `expQuery_iff`), the gate with its class from the ACT index (`gateAct_iff`), and L3's LogUp
-    conclusion read on the block's table (`codeTable_range_iff`, `codeTable_exp_iff`, `codeTable_act_iff`).
-  - `CircuitStage.lean`: stages over planes (`liftO`, `rqPlane_iff`), one **norm row** (`normTok_iff`) and one
-    **softmax row** (`softmaxRow_iff`, the masked columns included).
+    conclusion read on the block's table (`codeTable_range_iff`, `codeTable_exp_iff`, `codeTable_act_iff`,
+    `w16r2Fams_FamsOK`).
+  - `CircuitStage.lean`: stages over planes (`liftO`, `rqPlane_iff`, `rqPlaneBil_iff`), one **norm row**
+    (`normTok_iff`) and one **softmax row** (`softmaxRow_iff`, the masked columns included).
   - `CircuitMasked.lean`: the masked columns are forced and the model reads only live scores (candidate C9).
   - `CircuitBlock.lean`: the integer block `blockSpec`, its constraint system `BlockSat` (every clause, file:line), the
     plane form `blockSat_iff`, and **`block_circuitIff : CircuitIff (blockModel S P) (blockArith S P)`**, the approved
-    statement, for every shape and public data the code admits; the run through its boundary planes
-    (`run_circuitIff`).
-  - Still owed for `CircuitIff` at the committed layout: the layout map (padding, head-slot order, W16R3's re-indexed
-    F domain), the link to L3 that derives `BlockSat` from an accepting transcript, and the run's embedding and token
-    stages.
+    statement, for every shape and public data in the code's class (`BlockShape.Valid`, `BlockPublic.Valid`); the run
+    through its boundary planes (`run_circuitIff`). The instance fixes the public data per model (`Weights := Unit`),
+    sound under P1; P3 would need a statement change (findings §8).
+  - `L1Check.lean`: now parametrized by the token count; the fixture still passes (101,956 checks, 0 failed) and the
+    T = 128 rung adds 658,432 (760,388 in all, 0 failed; findings §11).
+  - **Premises left as hypotheses** (findings §10): what `blockArith`'s `Satisfies` asserts is `BlockSat`, the
+    constraint system pointwise; that an accepting transcript gives it is L3's part and not composed here (the
+    zero-check clauses per position, the matmul and norm sumchecks' hosted identities, `SC_RS`'s two row sums, and the
+    LogUp premise: every looked-up tuple lies in `CodeTable w16r2Fams exp act nG`, which `codeTable_*_iff` turn into
+    `BlockSat`'s range, exp and ACT facts for every family in the list); the layout map from the committed cube to the
+    logical positions (padding, head-slot order, support gating; W16R3's re-indexed F domain); the run's boundary link
+    (block `k + 1`'s input plane is block `k`'s output plane); the code's checks on the shape and the public data,
+    cited and not re-derived; the run's embedding and token stages and the DD variant are not modelled.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).

@@ -1,0 +1,31 @@
+D63 L1/L2: summary of the second lane's guarded job rust_rung.sh (run in worktree agent-abd25deed597b23bd at 42d02d74,
+2026-11-06 07:34:46-07:38:02 PST, rc 0, peak RSS 4.38 GiB). The full log is not committed (over 1 MB).
+log: 9304371 bytes, sha256 e7acf0d214b0a5bc4a1f51ba5243d2c1728af0100173b1d3ea67b44554fae378, 214 trace lines (L1<TAB>...)
+rung TSV (extract_rung.py <log> <tsv> t128-h24 t128-low): 110 arrays, 4092478 bytes, sha256 7dae3c9b6607d21ab18452d7ed3f065e07336f27a2cd1c929a6e565f1f1cdfdf
+fixture TSV (extract_rung.py <log> <tsv> low-h24 low): 104 arrays, 375689 bytes, sha256 06eb3a814a0e223de36b2a7d6b8c7adf190edd8e71b25b24dc33882a893f339a = results/zk60_lean_l1l2_20261106/rust_fixture_trace.tsv
+note: the filter hash_domain_tests::every_absorb_label_on_the_path_is_in_the_table matched no test (its path is private_block::hash_domain::tests::...), so that test did not run
+cargo test results (the test lines that end on one line; 23 passed in all):
+test private_block::grow_tests::no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input ... ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... ok
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... ok
+test private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines ... ok
+test private_block::s25_tests::r18_the_path_child_reader_finds_production_children_and_skips_test_ones ... ok
+test private_block::s25_tests::r19_the_module_follower_fails_on_every_module_line_it_cannot_classify ... ok
+test private_block::s25_tests::r19_the_module_follower_finds_every_module_line_shape ... ok
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test private_block::s25_tests::r19b_the_module_follower_refuses_include_outside_test_code ... ok
+test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... ok
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... ok
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor ... ok
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... ok
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... ok
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ... ok
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... ok
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... ok
+test private_block::witness::lean_l1_export_tests::lean_l1_export_the_fixture_trace ... ok
+test private_block::witness::lean_l1_export_tests::lean_l1_export_the_t128_rung_trace ... ok
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... ok
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 1062 filtered out; finished in 29.13s

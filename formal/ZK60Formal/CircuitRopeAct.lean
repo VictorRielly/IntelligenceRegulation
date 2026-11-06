@@ -149,9 +149,10 @@ theorem actQuery_iff (act : ℕ → ℤ → ℤ) (nG : ℕ) (hnG : nG ≤ gP) (g
       ∃ gi : ℤ, -2048 ≤ gi ∧ gi ≤ 2047 ∧ g = (gi : GF) ∧ a = (act grp (gi + 2048) : GF) := by
   constructor
   · rintro ⟨G, hG, i, h0, h1, he⟩
-    have hx : g + 2048 = (i : GF) := congrArg Tup.x he
-    have hy : a = (act G i : GF) := congrArg Tup.y he
-    have hz : ((grp : ℕ) : GF) = ((G : ℕ) : GF) := congrArg Tup.z he
+    -- `injection` reads the coordinates off the two constructors. (Stating `hx : g + 2048 = (i : GF)` against
+    -- `congrArg Tup.x he` instead makes the elaborator unify `Tup.x (actQuery g a grp)` with `g + 2048` by unfolding the
+    -- `GF` numeral, which exceeds the maximum recursion depth.)
+    injection he with hx _ hy hz
     have hgG : grp = G := natCast_inj_lt (lt_of_lt_of_le hgrp hnG) (lt_of_lt_of_le hG hnG) hz
     subst hgG
     refine ⟨i - 2048, by linarith, by linarith, ?_, ?_⟩

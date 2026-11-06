@@ -57,8 +57,8 @@ theorem softmaxF_live_only (fp wrho : ℕ) (exp : ℤ → ℤ) (t : Fin T) (s s'
     funext j
     unfold smOf
     by_cases hj : j ≤ t
-    · rw [if_pos hj, if_pos hj, h j hj]
-    · rw [if_neg hj, if_neg hj]
+    · rw [ite_eq_left hj, ite_eq_left hj, h j hj]
+    · rw [ite_eq_right hj, ite_eq_right hj]
   unfold softmaxF totalOf numOf expRow
   rw [hb, hsm]
 

@@ -44,9 +44,7 @@ theorem liftO_eq_some {P α : Type} {f : P → Option α} {v : P → α} :
     · intro hv
       congr 1
       funext p
-      have hc := Classical.choose_spec (h p)
-      rw [hv p] at hc
-      exact (Option.some.inj hc).symm
+      exact Option.some.inj ((Classical.choose_spec (h p)).symm.trans (hv p))
   · constructor
     · intro he
       cases he
@@ -66,7 +64,7 @@ theorem liftO_exists {P α : Type} (f : P → Option α) (R : P → α → Prop)
 theorem obind_eq_some {α β : Type} {o : Option α} {f : α → Option β} {b : β} :
     o.bind f = some b ↔ ∃ a, o = some a ∧ f a = some b := by
   cases o with
-  | none => exact ⟨fun h => by cases h, fun ⟨_, h, _⟩ => by cases h⟩
+  | none => exact ⟨fun h => (by simp at h), fun ⟨_, h, _⟩ => (by simp at h)⟩
   | some a => exact ⟨fun h => ⟨a, rfl, h⟩, fun ⟨a', h, h'⟩ => by cases h; exact h'⟩
 
 theorem obind_some {α β : Type} (a : α) (f : α → Option β) : (some a).bind f = f a := rfl
@@ -80,7 +78,7 @@ theorem rq_eq_some {lo hi acc : ℤ} {m s : ℕ} {v : ℤ} :
     rq lo hi acc m s = some v ↔ ∃ r, requantIn lo hi acc m s = some (v, r) := by
   unfold rq
   cases requantIn lo hi acc m s with
-  | none => exact ⟨fun h' => by cases h', fun ⟨_, h'⟩ => by cases h'⟩
+  | none => exact ⟨fun h' => (by simp at h'), fun ⟨_, h'⟩ => (by simp at h')⟩
   | some p =>
     obtain ⟨a, b⟩ := p
     constructor
@@ -114,7 +112,7 @@ theorem rqPlane_iff {P ι : Type} [Fintype ι] (C : WordClass) (s : ℕ) (hs : s
     (∀ p, ∃ R : GF, HostRel s (∑ i, X p i * ((w p i * (m p : ℤ) : ℤ) : GF)) (Q p) R ∧ C.P (Q p) ∧
         RemW16 s R) ↔
       ∃ v, liftO (fun p => rq C.lo C.hi (∑ i, x p i * w p i) (m p) s) = some v ∧ ∀ p, Q p = (v p : GF) := by
-  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p a => Q p = (a : GF))
+  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p (a : ℤ) => Q p = (a : GF))
   have hsum : (∑ i, X p i * ((w p i * (m p : ℤ) : ℤ) : GF)) =
       ∑ i, ((x p i : ℤ) : GF) * ((w p i * (m p : ℤ) : ℤ) : GF) :=
     Finset.sum_congr rfl fun i _ => by rw [hX p i]
@@ -132,7 +130,7 @@ theorem rqPlaneBil_iff {P ι : Type} [Fintype ι] (C : WordClass) (s : ℕ) (hs 
     (hY : ∀ p i, Y p i = (w p i : GF)) (Q : P → GF) :
     (∀ p, ∃ R : GF, HostRel s (∑ i, X p i * Y p i) (Q p) R ∧ C.P (Q p) ∧ RemW16 s R) ↔
       ∃ v, liftO (fun p => rq C.lo C.hi (∑ i, x p i * w p i) 1 s) = some v ∧ ∀ p, Q p = (v p : GF) := by
-  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p a => Q p = (a : GF))
+  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p (a : ℤ) => Q p = (a : GF))
   have hsum : (∑ i, X p i * Y p i) = ∑ i, ((x p i : ℤ) : GF) * ((w p i : ℤ) : GF) :=
     Finset.sum_congr rfl fun i _ => by rw [hX p i, hY p i]
   rw [hsum, bilinear_requant_iff C s hs (x p) (w p) (hb p) (Q p)]
@@ -218,12 +216,12 @@ theorem normTok_iff {n : ℕ} (hn : n ≤ 4096) (ceps cn : ℤ) (tn : ℕ) (hc1 
       (gam i)).map Prod.fst) fun i a => y i = (a : GF)).mp (fun i => (helem _ hpos hd2 i).mp (hdiv i))
     refine ⟨(isqrtWitness (ssOf ceps x)).1, v, ?_, hD, hyv⟩
     unfold normTok
-    rw [if_pos (show NormOK (ssOf ceps x) from ⟨hss0, fun h0 => by rw [h0] at hpos; norm_num at hpos, w0, w1, w2⟩)]
+    rw [ite_eq_left (show NormOK (ssOf ceps x) from ⟨hss0, fun h0 => by rw [h0] at hpos; norm_num at hpos, w0, w1, w2⟩)]
     simp only [hv, Option.map_some]
   · rintro ⟨dd, yy, hnt, hD, hy⟩
     unfold normTok at hnt
     by_cases hok : NormOK (ssOf ceps x)
-    · rw [if_pos hok] at hnt
+    · rw [ite_eq_left hok] at hnt
       obtain ⟨-, -, w0, w1, w2⟩ := hok
       obtain ⟨v, hv, hvy⟩ := Option.map_eq_some_iff.mp hnt
       have hvy2 : ((isqrtWitness (ssOf ceps x)).1, v) = (dd, yy) := hvy
@@ -237,7 +235,7 @@ theorem normTok_iff {n : ℕ} (hn : n ≤ 4096) (ceps cn : ℤ) (tn : ℕ) (hc1 
       refine ⟨⟨w0, w1, w2, hD⟩, fun i => ?_⟩
       rw [hD]
       exact (helem _ hpos hd2 i).mpr ⟨yy i, liftO_eq_some.mp hv i, hy i⟩
-    · rw [if_neg hok] at hnt
+    · rw [ite_eq_right hok] at hnt
       cases hnt
 
 /-- The words of an admitted norm row are int16. -/
@@ -247,7 +245,7 @@ theorem normTok_class {n : ℕ} {ceps cn : ℤ} {tn : ℕ} {gam x : Fin n → �
   show -2 ^ 15 ≤ yy i ∧ yy i ≤ 2 ^ 15 - 1
   unfold normTok at h
   by_cases hok : NormOK (ssOf ceps x)
-  · rw [if_pos hok] at h
+  · rw [ite_eq_left hok] at h
     obtain ⟨v, hv, hvy⟩ := Option.map_eq_some_iff.mp h
     have hvy2 : ((isqrtWitness (ssOf ceps x)).1, v) = (dd, yy) := hvy
     obtain ⟨-, hvyy⟩ := Prod.mk.inj hvy2
@@ -265,7 +263,7 @@ theorem normTok_class {n : ℕ} {ceps cn : ℤ} {tn : ℕ} {gam x : Fin n → �
       unfold int16Lo at h0
       unfold int16Hi at h1
       exact ⟨by norm_num; linarith, by norm_num; linarith⟩
-  · rw [if_neg hok] at h
+  · rw [ite_eq_right hok] at h
     cases h
 
 /-! ## A softmax row -/
@@ -321,34 +319,34 @@ theorem delta_eq (t j : Fin T) (s : Fin T → ℤ) (s8 : Fin T → GF) (hs8 : s8
   rw [hs8]
   unfold maskF smOf maskScore
   by_cases h : j ≤ t
-  · simp only [if_pos h]
+  · simp only [ite_eq_left h]
     ring
-  · simp only [if_neg h]
+  · simp only [ite_eq_right h]
     push_cast; ring
 
 theorem mask_e_eq (t j : Fin T) (exp : ℤ → ℤ) (s : Fin T → ℤ) :
     maskF t j * ((expRow exp t s j : ℤ) : GF) = (((if j ≤ t then expRow exp t s j else 0) : ℤ) : GF) := by
   unfold maskF
   by_cases h : j ≤ t
-  · simp only [if_pos h]
+  · simp only [ite_eq_left h]
     ring
-  · simp only [if_neg h]
+  · simp only [ite_eq_right h]
     push_cast; ring
 
 theorem num_eq (fp : ℕ) (t j : Fin T) (exp : ℤ → ℤ) (s : Fin T → ℤ) :
     maskF t j * ((expRow exp t s j : ℤ) : GF) * 2 ^ fp = ((numOf fp exp t s j : ℤ) : GF) := by
   unfold maskF numOf
   by_cases h : j ≤ t
-  · simp only [if_pos h]
+  · simp only [ite_eq_left h]
     push_cast; ring
-  · simp only [if_neg h]
+  · simp only [ite_eq_right h]
     push_cast; ring
 
 theorem term_nonneg (exp : ℤ → ℤ) (he0 : ∀ i, 0 ≤ exp i) (t : Fin T) (s : Fin T → ℤ) (i : Fin T) :
     0 ≤ (if i ≤ t then expRow exp t s i else 0) := by
   by_cases h : i ≤ t
-  · rw [if_pos h]; exact he0 _
-  · exact le_of_eq (if_neg h).symm
+  · rw [ite_eq_left h]; exact he0 _
+  · exact le_of_eq (ite_eq_right h).symm
 
 /-- The live total is between `0` and `T·2^f_e`. -/
 theorem totalOf_bounds (fe : ℕ) (exp : ℤ → ℤ) (he0 : ∀ i, 0 ≤ exp i) (he1 : ∀ i, exp i ≤ 2 ^ fe) (t : Fin T)
@@ -358,8 +356,8 @@ theorem totalOf_bounds (fe : ℕ) (exp : ℤ → ℤ) (he0 : ∀ i, 0 ≤ exp i)
   · calc totalOf exp t s ≤ ∑ _j : Fin T, (2 : ℤ) ^ fe :=
           Finset.sum_le_sum fun j _ => by
             by_cases h : j ≤ t
-            · rw [if_pos h]; exact he1 _
-            · rw [if_neg h]; positivity
+            · rw [ite_eq_left h]; exact he1 _
+            · rw [ite_eq_right h]; positivity
       _ = (T : ℤ) * 2 ^ fe := by rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
 
 theorem num_bounds (fp : ℕ) (exp : ℤ → ℤ) (he0 : ∀ i, 0 ≤ exp i) (t j : Fin T) (s : Fin T → ℤ) :
@@ -371,11 +369,11 @@ theorem num_bounds (fp : ℕ) (exp : ℤ → ℤ) (he0 : ∀ i, 0 ≤ exp i) (t 
   have h2 : (0 : ℤ) < 2 ^ fp := by positivity
   unfold numOf
   by_cases hj : j ≤ t
-  · rw [if_pos hj] at hle ⊢
+  · rw [ite_eq_left hj] at hle ⊢
     refine ⟨mul_nonneg (he0 _) (le_of_lt h2), ?_⟩
     calc expRow exp t s j * 2 ^ fp = 2 ^ fp * expRow exp t s j := mul_comm _ _
       _ ≤ 2 ^ fp * totalOf exp t s := mul_le_mul_of_nonneg_left hle (le_of_lt h2)
-  · rw [if_neg hj]
+  · rw [ite_eq_right hj]
     exact ⟨le_refl 0, mul_nonneg (le_of_lt h2) htot0⟩
 
 /-- The selector of the honest witness: the indicator of one argmax column. -/
@@ -397,8 +395,8 @@ theorem softmaxRow_iff (fp wrho fe : ℕ) (hfp : fp ≤ 24) (hw : wrho ≤ 24) (
     intro j
     unfold smOf maskScore
     by_cases h : j ≤ t
-    · rw [if_pos h]; exact hs j
-    · rw [if_neg h]; constructor <;> norm_num
+    · rw [ite_eq_left h]; exact hs j
+    · rw [ite_eq_right h]; constructor <;> norm_num
   have hmemt : t ∈ Finset.univ.filter fun j : Fin T => j ≤ t := by simp
   constructor
   · rintro ⟨mx, sum, zsel, e, hexp, -, hc1, hsum, hz, hdiv⟩
@@ -415,14 +413,15 @@ theorem softmaxRow_iff (fp wrho fe : ℕ) (hfp : fp ≤ 24) (hw : wrho ≤ 24) (
       apply le_antisymm
       · refine (Finset.sup'_le_iff _ _).mpr fun j hj => ?_
         have hjt : j ≤ t := (Finset.mem_filter.mp hj).2
-        have h1 : smOf t s j = s j := by unfold smOf; rw [if_pos hjt]
+        have h1 : smOf t s j = s j := by unfold smOf; rw [ite_eq_left hjt]
         rw [← h1]
         exact hmax j
       · by_cases hj0 : j0 ≤ t
-        · have h1 : smOf t s j0 = s j0 := by unfold smOf; rw [if_pos hj0]
+        · have h1 : smOf t s j0 = s j0 := by unfold smOf; rw [ite_eq_left hj0]
           rw [h1]
-          exact Finset.le_sup' s (Finset.mem_filter.mpr ⟨Finset.mem_univ _, hj0⟩)
-        · have h1 : smOf t s j0 = maskScore := by unfold smOf; rw [if_neg hj0]
+          have hm : j0 ∈ Finset.univ.filter fun j : Fin T => j ≤ t := Finset.mem_filter.mpr ⟨Finset.mem_univ _, hj0⟩
+          exact Finset.le_sup' s hm
+        · have h1 : smOf t s j0 = maskScore := by unfold smOf; rw [ite_eq_right hj0]
           have h2 : s t ≤ bestOf t s := Finset.le_sup' s hmemt
           rw [h1]
           unfold maskScore
@@ -456,22 +455,22 @@ theorem softmaxRow_iff (fp wrho fe : ℕ) (hfp : fp ≤ 24) (hw : wrho ≤ 24) (
       exact hj
     refine ⟨fun j => numOf fp exp t s j / totalOf exp t s, ?_, hcol⟩
     unfold softmaxF
-    rw [if_pos (show 0 < totalOf exp t s ∧ ∀ j, 0 ≤ bestOf t s - smOf t s j ∧ bestOf t s - smOf t s j < 256 from
+    rw [ite_eq_left (show 0 < totalOf exp t s ∧ ∀ j, 0 ≤ bestOf t s - smOf t s j ∧ bestOf t s - smOf t s j < 256 from
       ⟨by linarith, hidx⟩)]
     exact liftO_eq_some.mpr fun j =>
-      if_pos (softmax_sg_window wrho (numOf fp exp t s j) _ hpos (le_trans htot1 hT))
+      ite_eq_left (softmax_sg_window wrho (numOf fp exp t s j) _ hpos (le_trans htot1 hT))
   · rintro ⟨pv, hpv, hP⟩
     unfold softmaxF at hpv
     by_cases hcond : 0 < totalOf exp t s ∧ ∀ j, 0 ≤ bestOf t s - smOf t s j ∧ bestOf t s - smOf t s j < 256
-    · rw [if_pos hcond] at hpv
+    · rw [ite_eq_left hcond] at hpv
       obtain ⟨htpos, hidx⟩ := hcond
       have hpos : 1 ≤ totalOf exp t s := htpos
       have hcol : ∀ j, pv j = numOf fp exp t s j / totalOf exp t s := fun j => by
         have h : (if totalOf exp t s - 1 - numOf fp exp t s j % totalOf exp t s < 2 ^ wrho
             then some (numOf fp exp t s j / totalOf exp t s) else none) = some (pv j) := liftO_eq_some.mp hpv j
         by_cases hwin : totalOf exp t s - 1 - numOf fp exp t s j % totalOf exp t s < 2 ^ wrho
-        · rw [if_pos hwin] at h; exact (Option.some.inj h).symm
-        · rw [if_neg hwin] at h; cases h
+        · rw [ite_eq_left hwin] at h; exact (Option.some.inj h).symm
+        · rw [ite_eq_right hwin] at h; cases h
       obtain ⟨j0, hj0, hj0b⟩ := Finset.exists_mem_eq_sup' ⟨t, hmemt⟩ s
       have hj0t : j0 ≤ t := (Finset.mem_filter.mp hj0).2
       have hb0 : bestOf t s = s j0 := hj0b
@@ -483,17 +482,17 @@ theorem softmaxRow_iff (fp wrho fe : ℕ) (hfp : fp ≤ 24) (hw : wrho ≤ 24) (
       · intro j
         unfold zselOf
         by_cases hj : j = j0
-        · rw [if_pos hj]; ring
-        · rw [if_neg hj]; ring
+        · rw [ite_eq_left hj]; ring
+        · rw [ite_eq_right hj]; ring
       · intro j
         rw [delta_eq t j s s8 (hs8 j)]
         unfold zselOf
         by_cases hj : j = j0
-        · rw [if_pos hj, hj]
-          have h1 : smOf t s j0 = s j0 := by unfold smOf; rw [if_pos hj0t]
+        · rw [ite_eq_left hj, hj]
+          have h1 : smOf t s j0 = s j0 := by unfold smOf; rw [ite_eq_left hj0t]
           rw [h1, hb0]
           ring
-        · rw [if_neg hj]; ring
+        · rw [ite_eq_right hj]; ring
       · unfold totalOf
         rw [Int.cast_sum]
         exact Finset.sum_congr rfl fun j _ => mask_e_eq t j exp s
@@ -505,7 +504,7 @@ theorem softmaxRow_iff (fp wrho fe : ℕ) (hfp : fp ≤ 24) (hw : wrho ≤ 24) (
         have hnum : maskF t j * eOf exp t s j * 2 ^ fp = ((numOf fp exp t s j : ℤ) : GF) := num_eq fp t j exp s
         rw [hnum]
         exact h
-    · rw [if_neg hcond] at hpv
+    · rw [ite_eq_right hcond] at hpv
       cases hpv
 
 /-- The quotients of an admitted softmax row lie in `[0, 2^f_p]`. -/
@@ -513,18 +512,18 @@ theorem softmaxF_class (fp wrho : ℕ) (exp : ℤ → ℤ) (he0 : ∀ i, 0 ≤ e
     {pv : Fin T → ℤ} (h : softmaxF fp wrho exp t s = some pv) (j : Fin T) : 0 ≤ pv j ∧ pv j ≤ 2 ^ fp := by
   unfold softmaxF at h
   by_cases hcond : 0 < totalOf exp t s ∧ ∀ j, 0 ≤ bestOf t s - smOf t s j ∧ bestOf t s - smOf t s j < 256
-  · rw [if_pos hcond] at h
+  · rw [ite_eq_left hcond] at h
     have hj : (if totalOf exp t s - 1 - numOf fp exp t s j % totalOf exp t s < 2 ^ wrho
         then some (numOf fp exp t s j / totalOf exp t s) else none) = some (pv j) := liftO_eq_some.mp h j
     by_cases hwin : totalOf exp t s - 1 - numOf fp exp t s j % totalOf exp t s < 2 ^ wrho
-    · rw [if_pos hwin] at hj
+    · rw [ite_eq_left hwin] at hj
       have hpv : numOf fp exp t s j / totalOf exp t s = pv j := Option.some.inj hj
       obtain ⟨hn0, hn1⟩ := num_bounds fp exp he0 t j s
       have hpos : 0 < totalOf exp t s := hcond.1
       rw [← hpv]
       exact ⟨Int.ediv_nonneg hn0 (le_of_lt hpos), Int.ediv_le_of_le_mul hpos hn1⟩
-    · rw [if_neg hwin] at hj; cases hj
-  · rw [if_neg hcond] at h; cases h
+    · rw [ite_eq_right hwin] at hj; cases hj
+  · rw [ite_eq_right hcond] at h; cases h
 
 end ZK60.Circuit
 

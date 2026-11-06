@@ -1,6 +1,6 @@
 #!/bin/bash
 # D63 L1/L2 second Lean lane: the full Lean build, then the L1 check and the axiom audit (one guarded cpu job).
-W=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd
+W=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0
 LAKE=/Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lake
 R=$W/results/zk60_lean_l2b_20261106
 R1=$W/results/zk60_lean_l1l2_20261106

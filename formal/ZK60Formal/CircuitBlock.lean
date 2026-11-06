@@ -134,7 +134,7 @@ structure BlockPublic (S : BlockShape) where
   wq : S.Wid → S.QC → ℤ
   mq : S.QC → ℕ
   wk : S.Wid → S.KC → ℤ
-  mk : S.KC → ℕ
+  mK : S.KC → ℕ
   wv : S.Wid → S.KC → ℤ
   mv : S.KC → ℕ
   wo : S.QC → S.Wid → ℤ
@@ -168,7 +168,7 @@ structure BlockPublic.Valid {S : BlockShape} (P : BlockPublic S) : Prop where
   wu : ∀ i j, |P.wu i j| ≤ 127
   wd : ∀ i j, |P.wd i j| ≤ 127
   mq : ∀ j, P.mq j ≤ 2 ^ 14
-  mk : ∀ j, P.mk j ≤ 2 ^ 14
+  mK : ∀ j, P.mK j ≤ 2 ^ 14
   mv : ∀ j, P.mv j ≤ 2 ^ 14
   mo : ∀ j, P.mo j ≤ 2 ^ 14
   mg : ∀ j, P.mg j ≤ 2 ^ 14
@@ -186,14 +186,14 @@ variable {S : BlockShape}
 /-- An int16 word. -/
 abbrev i16 (v : ℤ) : Prop := -2 ^ 15 ≤ v ∧ v ≤ 2 ^ 15 - 1
 
-theorem residual_class {a b v : ℤ} (h : residual a b = some v) : i16 v := by
-  unfold residual int16Lo int16Hi at h
+theorem residual_class {a b v : ℤ} (h : ZK60.Model.residual a b = some v) : i16 v := by
+  unfold ZK60.Model.residual int16Lo int16Hi at h
   by_cases hc : -32768 ≤ a + b ∧ a + b ≤ 32767
-  · rw [if_pos hc] at h
+  · rw [ite_eq_left hc] at h
     have hv : a + b = v := Option.some.inj h
     rw [← hv]
     exact ⟨by norm_num; linarith [hc.1], by norm_num; linarith [hc.2]⟩
-  · rw [if_neg hc] at h
+  · rw [ite_eq_right hc] at h
     cases h
 
 /-! ## The integer block (the model) -/
@@ -209,7 +209,7 @@ def rowY (na : S.Tok → ℤ × (S.Wid → ℤ)) (p : S.Pos) : ℤ := (na p.1).2
 def qSpec (P : BlockPublic S) (y : S.Pos → ℤ) (p : S.Tok × S.QC) : Option ℤ :=
   rq (-2 ^ 15) (2 ^ 15 - 1) (∑ i, y (p.1, i) * P.wq i p.2) (P.mq p.2) S.sq
 def kSpec (P : BlockPublic S) (y : S.Pos → ℤ) (p : S.Tok × S.KC) : Option ℤ :=
-  rq (-2 ^ 15) (2 ^ 15 - 1) (∑ i, y (p.1, i) * P.wk i p.2) (P.mk p.2) S.sk
+  rq (-2 ^ 15) (2 ^ 15 - 1) (∑ i, y (p.1, i) * P.wk i p.2) (P.mK p.2) S.sk
 def vSpec (P : BlockPublic S) (y : S.Pos → ℤ) (p : S.Tok × S.KC) : Option ℤ :=
   rq (-2 ^ 15) (2 ^ 15 - 1) (∑ i, y (p.1, i) * P.wv i p.2) (P.mv p.2) S.sv
 
@@ -243,7 +243,7 @@ def oSpec (pr : Fin S.H × S.Tok → S.Tok → ℤ) (v : S.Tok × S.KC → ℤ) 
 def aoSpec (P : BlockPublic S) (o : S.Tok × S.QC → ℤ) (p : S.Pos) : Option ℤ :=
   rq (-2 ^ 15) (2 ^ 15 - 1) (∑ c : S.QC, o (p.1, c) * P.wo c p.2) (P.mo p.2) S.sao
 
-def x1Spec (x ao : S.Pos → ℤ) (p : S.Pos) : Option ℤ := residual (x p) (ao p)
+def x1Spec (x ao : S.Pos → ℤ) (p : S.Pos) : Option ℤ := ZK60.Model.residual (x p) (ao p)
 
 noncomputable def normM (P : BlockPublic S) (x1 : S.Pos → ℤ) (t : S.Tok) : Option (ℤ × (S.Wid → ℤ)) :=
   normTok S.ceps S.cnM S.tn P.gM fun i => x1 (t, i)
@@ -263,7 +263,7 @@ def hSpec (P : BlockPublic S) (g u : S.Tok × S.Hid → ℤ) (p : S.Tok × S.Hid
 def zSpec (P : BlockPublic S) (h : S.Tok × S.Hid → ℤ) (p : S.Pos) : Option ℤ :=
   rq (-2 ^ 15) (2 ^ 15 - 1) (∑ k, h (p.1, k) * P.wd k p.2) (P.md p.2) S.sdown
 
-def x2Spec (x1 z : S.Pos → ℤ) (p : S.Pos) : Option ℤ := residual (x1 p) (z p)
+def x2Spec (x1 z : S.Pos → ℤ) (p : S.Pos) : Option ℤ := ZK60.Model.residual (x1 p) (z p)
 
 /-- **The integer block** (`build_with`): every stage in order, refused when any stage refuses. -/
 noncomputable def blockSpec (P : BlockPublic S) (x : S.Pos → ℤ) : Option (S.Pos → ℤ) :=
@@ -326,7 +326,7 @@ structure BlockSat (P : BlockPublic S) (X X2 : S.Pos → GF) (w : BlockWit S) : 
       RemW16 S.sq R
   /-- K (`SC_KMM`, `host1` of the Kv slot; accuracy_layout.rs:316) -/
   k : ∀ p : S.Tok × S.KC, ∃ R : GF,
-    HostRel S.sk (∑ i, w.Y (p.1, i) * ((P.wk i p.2 * (P.mk p.2 : ℤ) : ℤ) : GF)) (w.K p) R ∧ Word16 (w.K p) ∧
+    HostRel S.sk (∑ i, w.Y (p.1, i) * ((P.wk i p.2 * (P.mK p.2 : ℤ) : ℤ) : GF)) (w.K p) R ∧ Word16 (w.K p) ∧
       RemW16 S.sk R
   /-- V (`SC_VMM`, `host2` of the Kv slot; accuracy_layout.rs:317) -/
   v : ∀ p : S.Tok × S.KC, ∃ R : GF,
@@ -382,8 +382,8 @@ structure BlockSat (P : BlockPublic S) (X X2 : S.Pos → GF) (w : BlockWit S) : 
 theorem resPlane_iff {P : Type} (x y : P → ℤ) (hx : ∀ p, i16 (x p)) (hy : ∀ p, i16 (y p)) (X Y : P → GF)
     (hX : ∀ p, X p = (x p : GF)) (hY : ∀ p, Y p = (y p : GF)) (X1 : P → GF) :
     (∀ p, ResidualRel (X p) (Y p) (X1 p) ∧ Word16 (X1 p)) ↔
-      ∃ v, liftO (fun p => residual (x p) (y p)) = some v ∧ ∀ p, X1 p = (v p : GF) := by
-  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p a => X1 p = (a : GF))
+      ∃ v, liftO (fun p => ZK60.Model.residual (x p) (y p)) = some v ∧ ∀ p, X1 p = (v p : GF) := by
+  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p (a : ℤ) => X1 p = (a : GF))
   rw [hX p, hY p]
   exact residual_iff (x p) (y p) (hx p).1 (hx p).2 (hy p).1 (hy p).2 (X1 p)
 
@@ -393,7 +393,7 @@ theorem ropePlane_iff {P : Type} (c s a b : P → ℤ) (hc : ∀ p, |c p| ≤ 2 
     (∀ p, ∃ R : GF, RopeRel (c p : GF) (s p : GF) (A p) (B p) (ROT p) R ∧ Word16 (ROT p) ∧ RemW16 7 R) ↔
       ∃ v, liftO (fun p => rq (-2 ^ 15) (2 ^ 15 - 1) (c p * a p + s p * b p) 1 7) = some v ∧
         ∀ p, ROT p = (v p : GF) := by
-  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p a => ROT p = (a : GF))
+  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p (a : ℤ) => ROT p = (a : GF))
   rw [hA p, hB p, rope_iff (c p) (s p) (a p) (b p) (hc p) (hs p) (abs_le_of_int16 (ha p))
     (abs_le_of_int16 (hb p)) (ROT p)]
   constructor
@@ -407,7 +407,7 @@ theorem prodPlane_iff {P : Type} (r : ℕ) (hr : r ≤ 24) (a u : P → ℤ) (ha
     (hu : ∀ p, i16 (u p)) (A U : P → GF) (hA : ∀ p, A p = (a p : GF)) (hU : ∀ p, U p = (u p : GF)) (Hh : P → GF) :
     (∀ p, ∃ R : GF, ProdRel r (A p) (U p) (Hh p) R ∧ Word24 (Hh p) ∧ RemW16 r R) ↔
       ∃ v, liftO (fun p => rq (-2 ^ 23) (2 ^ 23 - 1) (a p * u p) 1 r) = some v ∧ ∀ p, Hh p = (v p : GF) := by
-  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p a => Hh p = (a : GF))
+  refine Iff.trans (forall_congr' fun p => ?_) (liftO_exists _ fun p (a : ℤ) => Hh p = (a : GF))
   rw [hA p, hU p, product_iff r hr (a p) (u p) (ha p) (abs_le_of_int16 (hu p)) (Hh p)]
   constructor
   · rintro ⟨v, rr, hv, hq⟩
@@ -425,7 +425,7 @@ theorem gatePlane_iff {P ι : Type} [Fintype ι] (act : ℕ → ℤ → ℤ) (nG
       ∃ v, liftO (fun p => rq (-2048) 2047 (∑ i, x p i * w p i) (m p) s) = some v ∧
         ∀ p, G p = (v p : GF) ∧ A p = (act (grp p) (v p + 2048) : GF) := by
   refine Iff.trans (forall_congr' fun p => ?_)
-    (liftO_exists _ fun p a => G p = (a : GF) ∧ A p = (act (grp p) (a + 2048) : GF))
+    (liftO_exists _ fun p (a : ℤ) => G p = (a : GF) ∧ A p = (act (grp p) (a + 2048) : GF))
   have hsum : (∑ i, X p i * ((w p i * (m p : ℤ) : ℤ) : GF)) =
       ((((∑ i, x p i * w p i) * (m p : ℤ)) : ℤ) : GF) := by
     rw [← hosted_cast (x p) (w p) (m p)]
@@ -449,7 +449,7 @@ theorem normPlane_iff {Tk : Type} {n : ℕ} (hn : n ≤ 4096) (ceps cn : ℤ) (t
       ∃ v : Tk → ℤ × (Fin n → ℤ), liftO (fun t => normTok ceps cn tn gam (x t)) = some v ∧
         ∀ t, D t = ((v t).1 : GF) ∧ ∀ i, Y t i = ((v t).2 i : GF) := by
   refine Iff.trans (forall_congr' fun t => ?_)
-    (liftO_exists _ fun t a => D t = (a.1 : GF) ∧ ∀ i, Y t i = (a.2 i : GF))
+    (liftO_exists _ fun t (a : ℤ × (Fin n → ℤ)) => D t = (a.1 : GF) ∧ ∀ i, Y t i = (a.2 i : GF))
   have hXt : X t = fun i => (x t i : GF) := funext (hX t)
   rw [hXt, normTok_iff hn ceps cn tn hc1 hc2 hcn htn gam (x t) hg (hx t) (D t) (Y t)]
   constructor
@@ -489,8 +489,8 @@ theorem blockSat_iff (hS : S.Valid) (P : BlockPublic S) (hP : P.Valid) (x : S.Po
       (fun p i => w.Y (p.1, i)) (fun p i => hY _) w.Q).mp hQ
     have hqc : ∀ p, i16 (q p) := fun p => liftO_rq_class hq p
     obtain ⟨k, hk, hkC⟩ := (rqPlane_iff word16Class S.sk hS.sk_le (fun (p : S.Tok × S.KC) i => rowY na (p.1, i))
-      (fun p i => P.wk i p.2) (fun p => P.mk p.2)
-      (fun p => hosted16_le _ _ _ (fun i => hyc _) (fun i => hP.wk _ _) (hP.mk _) cW)
+      (fun p i => P.wk i p.2) (fun p => P.mK p.2)
+      (fun p => hosted16_le _ _ _ (fun i => hyc _) (fun i => hP.wk _ _) (hP.mK _) cW)
       (fun p i => w.Y (p.1, i)) (fun p i => hY _) w.K).mp hK
     have hkc : ∀ p, i16 (k p) := fun p => liftO_rq_class hk p
     obtain ⟨v, hv, hvC⟩ := (rqPlane_iff word16Class S.sv hS.sv_le (fun (p : S.Tok × S.KC) i => rowY na (p.1, i))
@@ -638,13 +638,30 @@ theorem blockSat_iff (hS : S.Valid) (P : BlockPublic S) (hP : P.Valid) (x : S.Po
         (fun j => sc (r.1, r.2, j)) (fun j => hscc _) (fun j => (sc (r.1, r.2, j) : GF)) (fun j => rfl)
         (fun j => (pr r j : GF))).mpr ⟨pr r, liftO_eq_some.mp hpr r, fun j => rfl⟩
     choose MXf SUMf ZSELf Ef hrowR using hrow
-    refine ⟨{ dA := fun t => ((na t).1 : GF), Y := fun p => (rowY na p : GF), Q := fun p => (q p : GF),
-      K := fun p => (k p : GF), V := fun p => (v p : GF), QR := fun p => (qr p : GF), KR := fun p => (kr p : GF),
-      S8 := fun p => (sc p : GF), MX := MXf, SUM := SUMf, ZSEL := fun p => ZSELf (p.1, p.2.1) p.2.2,
-      E := fun p => Ef (p.1, p.2.1) p.2.2, PP := fun p => (pr (p.1, p.2.1) p.2.2 : GF), O := fun p => (o p : GF),
-      AO := fun p => (ao p : GF), X1 := fun p => (x1 p : GF), dM := fun t => ((nm t).1 : GF),
-      YM := fun p => (rowY nm p : GF), Gt := fun p => (g p : GF), Ac := fun p => (actOf P g p : GF),
-      U := fun p => (u p : GF), Hh := fun p => (h p : GF), Z := fun p => (z p : GF) },
+    refine ⟨{
+        dA := fun t => ((na t).1 : GF)
+        Y := fun p => (rowY na p : GF)
+        Q := fun p => (q p : GF)
+        K := fun p => (k p : GF)
+        V := fun p => (v p : GF)
+        QR := fun p => (qr p : GF)
+        KR := fun p => (kr p : GF)
+        S8 := fun p => (sc p : GF)
+        MX := MXf
+        SUM := SUMf
+        ZSEL := fun p => ZSELf (p.1, p.2.1) p.2.2
+        E := fun p => Ef (p.1, p.2.1) p.2.2
+        PP := fun p => (pr (p.1, p.2.1) p.2.2 : GF)
+        O := fun p => (o p : GF)
+        AO := fun p => (ao p : GF)
+        X1 := fun p => (x1 p : GF)
+        dM := fun t => ((nm t).1 : GF)
+        YM := fun p => (rowY nm p : GF)
+        Gt := fun p => (g p : GF)
+        Ac := fun p => (actOf P g p : GF)
+        U := fun p => (u p : GF)
+        Hh := fun p => (h p : GF)
+        Z := fun p => (z p : GF) },
       ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩⟩
     · exact fun p => (word16_iff _).mpr ⟨x p, (hx p).1, (hx p).2, rfl⟩
     · exact (normPlane_iff hS.d_le S.ceps S.cnA S.tn hS.ceps1 hS.ceps2 hS.cnA hS.tn_le P.gA hP.gA
@@ -654,7 +671,7 @@ theorem blockSat_iff (hS : S.Valid) (P : BlockPublic S) (hP : P.Valid) (x : S.Po
         (fun p => P.mq p.2) (fun p => hosted16_le _ _ _ (fun i => hyc _) (fun i => hP.wq _ _) (hP.mq _) cW)
         (fun p i => (rowY na (p.1, i) : GF)) (fun p i => rfl) (fun p => (q p : GF))).mpr ⟨q, hq, fun p => rfl⟩
     · exact (rqPlane_iff word16Class S.sk hS.sk_le (fun (p : S.Tok × S.KC) i => rowY na (p.1, i)) (fun p i => P.wk i p.2)
-        (fun p => P.mk p.2) (fun p => hosted16_le _ _ _ (fun i => hyc _) (fun i => hP.wk _ _) (hP.mk _) cW)
+        (fun p => P.mK p.2) (fun p => hosted16_le _ _ _ (fun i => hyc _) (fun i => hP.wk _ _) (hP.mK _) cW)
         (fun p i => (rowY na (p.1, i) : GF)) (fun p i => rfl) (fun p => (k p : GF))).mpr ⟨k, hk, fun p => rfl⟩
     · exact (rqPlane_iff word16Class S.sv hS.sv_le (fun (p : S.Tok × S.KC) i => rowY na (p.1, i)) (fun p i => P.wv i p.2)
         (fun p => P.mv p.2) (fun p => hosted16_le _ _ _ (fun i => hyc _) (fun i => hP.wv _ _) (hP.mv _) cW)
@@ -854,7 +871,9 @@ theorem run_circuitIff (hS : S.Valid) (Ps : List (BlockPublic S)) (hPs : ∀ P �
   · rintro ⟨-, hx, -, hr⟩
     have hspec := (run_iff hS Ps hPs x y hx).mp hr
     refine ⟨⟨hx, y, hspec⟩, ?_⟩
-    rw [hspec, Option.getD_some]
+    -- `y : (runModel S Ps).Output` here, so `Option.getD_some` does not match syntactically; the step is by `rfl`
+    rw [hspec]
+    rfl
   · rintro ⟨⟨hx, y', hy'⟩, hyd⟩
     have hyy : y = y' := by rw [hyd, hy', Option.getD_some]
     subst hyy

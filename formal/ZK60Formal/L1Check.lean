@@ -114,7 +114,6 @@ def HQ : Nat := 4
 def HKV : Nat := 2
 def DH : Nat := 4
 
-/-- The whole check of one export stack. -/
 /-- The whole check of one export stack at `T` tokens (32 at the fixture, 128 at the rung of the second lane), with
 the RoPE rows and the input the export used; the oracle comparisons run only when `oracle` (the oracle traces exist at
 the fixture only). -/
@@ -253,7 +252,8 @@ def checkStack (r : IO.Ref Tally) (F O R : Tbl) (stack : String) (T : Nat) (cosT
       !(grp.getD (k % Hd) 0 == grp.getD (i % Hd) 0 && gw.getD k 0 == gw.getD i 0) || asc.getD k 0 == asc.getD i 0
   let uw := g "up.words"
   let hacc := (List.range (T * Hd)).toArray.map fun i => asc.getD i 0 * uw.getD i 0
-  let h24 := stack == "low-h24"
+  -- the LowH24 stack (its 24-bit product word) at the fixture (`low-h24`) and at the rung (`t128-h24`)
+  let h24 := stack == "low-h24" || stack == "t128-h24"
   let hb : Int := if h24 then 2 ^ 23 else 2 ^ 15
   reqSite r s!"{stack} product H" hacc (fun _ => 1) (n sprod) (-hb) (hb - 1) (if h24 then word24B else word16B)
     (g "h.words") (g "h.rho")

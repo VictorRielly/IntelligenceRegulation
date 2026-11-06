@@ -6,7 +6,7 @@ usage: run_guarded.py <label> <class> <need_gib> <cap_gib> -- <cmd...>
 
 Writes `<label>.log` (the command's output, through the guard's --log), `<label>.done` (its exit
 code, the guard's --done) and `<label>.guard.json` in this directory. The guard label is
-`lean-l2b-<label>`.
+`lean-l2c-<label>` (the third lane, 2026-11-06; the second lane used `lean-l2b-`).
 """
 import os
 import subprocess
@@ -24,7 +24,7 @@ def main():
     if os.path.exists(done):
         os.remove(done)
     guard = [sys.executable, GUARD, "run", "--class", klass, "--need-gib", need, "--cap-gib", cap,
-             "--wait-secs", "14400", "--label", f"lean-l2b-{label}",
+             "--wait-secs", "14400", "--label", f"lean-l2c-{label}",
              "--log", os.path.join(HERE, f"{label}.log"), "--done", done,
              "--result-json", os.path.join(HERE, f"{label}.guard.json"), "--", *cmd]
     out = open(os.path.join(HERE, f"{label}.runner.out"), "w")
