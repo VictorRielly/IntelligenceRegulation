@@ -232,6 +232,12 @@ fn the_sealing_pass_lookup_miss_check_refuses_by_the_cs3_name() {
     }
     super::protocol::check_lookup_misses(&sh, &lay, &blk, &w).expect("the restored witness");
     let src = include_str!("trained_block.rs");
-    let seal = src.split("fn seal_and_record(").nth(1).expect("seal_and_record").split("\nfn ").next().unwrap();
+    // [A19] the sealing pass's body is `seal_chain`, which D12a's `seal_and_record`
+    // and the D55 path's `d55_seal_and_prove` both run
+    let seal = src.split("\nfn seal_chain(").nth(1).expect("seal_chain").split("\nfn ").next().unwrap();
     assert!(seal.contains("super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)"), "the sealing pass does not run the CS-3 miss check");
+    let d12a = src.split("fn seal_and_record(").nth(1).expect("seal_and_record").split("\nfn ").next().unwrap();
+    assert!(d12a.contains("seal_chain(&m, budget_bytes, &mut NoHand)"), "D12a's seal_and_record does not run the sealing pass");
+    let d55 = src.split("pub(crate) fn d55_seal_and_prove(").nth(1).expect("d55_seal_and_prove").split("\nfn ").next().unwrap();
+    assert!(d55.contains("seal_chain(m, run.budget, &mut hand)"), "the D55 path does not run the sealing pass");
 }

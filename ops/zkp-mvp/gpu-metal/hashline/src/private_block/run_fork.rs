@@ -1571,7 +1571,9 @@ impl ForkCtx<'_> {
 /// Metal context, as M10; [A11] each worker's forks on its own rayon pool by
 /// default), phase 3 on the calling thread. The source is asked
 /// for every boundary plane first, then for every witness in block order;
-/// at most `workers + 1` witnesses are alive at once.
+/// at most `workers + 1` witnesses are alive at once. ([A19] production's
+/// `stack-prove` reaches the same prover through [`Planned::prove`].)
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn prove_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
     prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), None)
 }

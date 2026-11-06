@@ -1,0 +1,28 @@
+2026-11-06T04:55:51Z start
+2026-11-06T04:55:51Z build rc=0
+2026-11-06T04:55:51Z GPU quiet (no ds4-bench): s3 window 32 A/B
+2026-11-06T04:59:28Z s3 noahead against ahead32 (budget 64 GiB) rc=0
+2026-11-06T04:59:28Z no ds4-bench at the end of s3 window 32 A/B
+# A11 pairs: [ahead32] against [noahead], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1f45d632690f8326/results/zk60_effplan_20261105/a19/raw/s3_prod_ab.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | -10.1% (3, 3) | -8.7% (3, 3) | **-9.4%** | 4.202 / 3.806 |
+| forks phase s | -11.3% (3, 3) | -10.5% (3, 3) | **-10.9%** | 3.615 / 3.220 |
+| sealed wall s | -1.1% (3, 3) | -0.9% (3, 2) | **-1.0%** | 15.274 / 15.125 |
+| user CPU s | +1.7% (3, 0) | +1.8% (3, 0) | **+1.8%** | 78.565 / 79.950 |
+| sys CPU s | +35.4% (3, 0) | +32.3% (3, 0) | **+33.9%** | 16.015 / 21.398 |
+| minor faults | +28.8% (3, 0) | +27.2% (3, 0) | **+28.0%** | 1,745,552 / 2,237,571 |
+# A15 sealing-pass clocks: [ahead32] against [noahead], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1f45d632690f8326/results/zk60_effplan_20261105/a19/raw/s3_prod_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| one request: sealing pass s | +2.4% (3, 0) | +2.3% (3, 0) | **+2.3%** | 9.066 / 9.277 |
+| one request: sealing user CPU s | +24.0% (3, 0) | +23.9% (3, 0) | **+24.0%** | 32.677 / 40.507 |
+| one request: sealing sys CPU s | +61.4% (3, 0) | +55.6% (3, 0) | **+58.5%** | 9.573 / 15.163 |
+| one request: sealing involuntary csw | +21.0% (3, 0) | +17.6% (3, 0) | **+19.3%** | 165107.000 / 196910.500 |
+| stream: request 0's sealing pass s (alone) | — | — | — | — |
+| stream: requests 1.. sealing pass s (beside the forks) | — | — | — | — |
+D55-AB SUMMARY | A19 production one request [noahead] | 6 passes | best 15.149 s = 8.45 tok/s | mean 15.275 s = 8.38 tok/s
+D55-AB SUMMARY | A19 production one request [ahead32] | 6 passes | best 14.991 s = 8.54 tok/s | mean 15.125 s = 8.46 tok/s
+2026-11-06T04:59:28Z all done
