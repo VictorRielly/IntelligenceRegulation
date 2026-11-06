@@ -466,3 +466,212 @@ estimates are not additive with them.
    compiled (not interpreted) Lean check.
 5. **Rulings for Victor**: C9a/C9b alongside C1–C5; and, before P3, whether `IntModel.admissible` takes the weights
    (§8).
+
+---
+
+# Fourth lane (2026-11-06, evening): the run's two ends, the whole forward pass, and the Low stack's product
+
+Lean lane (Claude), on perf at 264ad2e6. New files under `formal/ZK60Formal/`: `ModelOut.lean` (the token stages'
+integer model, executable), `CircuitOut.lean` (stage OUT and OUT-C), `CircuitTokenRun.lean` (stage IN / IN-C and the
+compositions), `L1CheckOut.lean` (the L1 check of the output stages; run by `lean --run`, not imported by the library
+root because it and `L1Check.lean` both define `main`). Changed: `CircuitBlock.lean` (the product's word class, §15)
+and the library root (the three new modules). Rust: test-only, one new test in the already registered
+`lean_l1_export_tests.rs`; no prover source changed. Evidence: `results/zk60_lean_l2d_20261106/`. Labels as in §1.
+
+## 14. In plain words, for Victor
+
+**The headline: statement 1's deterministic lemma is now PROVED for the whole forward pass, in its literal form.**
+- `tokenRun_circuitIff`: the prompt's token ids go in, the next token comes out. In between are stage IN (the
+  embedding), every W16R2 block, and stage OUT (the final norm, the head and the greedy choice). The constraint
+  systems can be satisfied exactly when the attested token is the integer model's next token.
+- `classifyRun_circuitIff`: the same for the classifier. The item's ids go in, with its template, and the published
+  verdict comes out.
+- Both are instances of the `CircuitIff` you approved. The full Lean build is green, with no warning and no `sorry`.
+  Every theorem rests on Lean's three standard axioms only.
+
+**Ties are decided exactly as the code decides them.** The code takes numpy's first maximum: among equal largest
+logits, the lowest token id. The circuit proves this with one "keyed" range check per vocabulary entry. `argmax_iff`
+shows that the circuit accepts that token and no other. A tie broken toward a higher id cannot be accepted.
+
+**The Low stack's 16-bit product is now inside the block iff.** Before, only the 24-bit stack was. The block and run
+iffs now cover both export stacks' integer blocks. The Low stack is used only by the older R13 profiles, whose own
+layouts are not modelled (§15).
+
+**L1:** stage OUT and stage OUT-C were checked value for value against the Rust token-I/O code on the fixture block's
+output rows: 992 checks, 0 failed (§17). One of the two heads has every token paired with an equal twin, so the
+tie rule decides every row; Lean and Rust agree on all of them.
+
+**One fact you should know.** The code registers no W16R2 token-I/O run today: its token runs use the older block
+shapes (`token_io/run.rs:213`: "no R13 token run is registered"), and the production stack (`zk60_private_stack`) proves
+the blocks only. The token stages do not depend on the block stack: they read and write int16 boundary planes. So the
+Lean composition is the run the design intends. It becomes the production instance once a W16R2 token run is
+registered.
+
+**What it still assumes** (§16, each an explicit hypothesis, none an axiom):
+- L3's part: an accepting transcript makes the constraints hold. The new stages add the head and margin sumchecks,
+  the compressed embedding row (a Schwartz–Zippel step over `r_emb`), the selector sums and the byte lookups.
+- The layout map of the stages.
+- The boundary links: `B_in` is block 0's input, and `B_out`'s last row is what stage OUT reads.
+- The code's door checks.
+
+**Savings found (C10–C13, §18).** The largest, C12, needs your ruling: only the last row of the last block matters
+for the next token, so most of the last block could go. That is about −2.5% of a run's committed rows, but a refusal
+on a row the output never reads would no longer refuse, which is a model change. C10, C11 and C13 are small and need no
+model change.
+
+## 15. What is proved (fourth lane)
+
+All PROVED (`results/zk60_lean_l2d_20261106/`): `lake -d formal build` green, 3,432 jobs, no warning, no `sorry`,
+no `native_decide`, no new axiom, no `maxRecDepth` (`full.log`); `#print axioms` on all 44 theorems below shows only
+`propext`, `Classical.choice`, `Quot.sound`, or a subset (`axioms.log`).
+
+| File | Theorem | Statement |
+|---|---|---|
+| CircuitOut | `byteLimbs_iff`, `xBytes_iff` | `k` byte limbs `Σ_j 2^(8j)·b_j` certify exactly `InRange (8k)`; the final norm's two input limbs are `Word16` |
+| | `argmaxN_spec`, `argmaxN_unique`, `argmaxN_succ` | `first_argmax`'s loop (`argmaxN`) returns a maximum strictly above every earlier value, and it is the only such index |
+| | `selector_one`, `sum_indicator` | a boolean selector summing to 1 over fewer than `p` entries is one entry's indicator |
+| | **`argmax_iff`** | the keyed argmax (`e(1−e) = 0`, `δ` in `k` bytes, the host `M + 2^{−v}(z − tok − δ_z) = l_z`, `Σe = 1`, `Σe·z = tok`, `Σe·δ = 0`) holds exactly when `tok` is numpy's first maximum, given the door's window and no-wrap conditions |
+| | `ss_bounds40`, `fnormElem_eq_some`, **`fnormDiv_iff`**, **`fnormTok_iff`**, `fnormTok_class` | the final norm (uniform gain `g0`, symmetric int8 word, 32-bit remainders in four bytes, `ceps ≤ 2^40`) per element and per row |
+| | `logit_cast`, `logit_abs_le` | the hosted head value is the image of the integer logit `m_z·Σ_i W'[z][i]·y_i`, at most `d·127²·2^12` |
+| | **`out_iff`** | stage OUT on one int16 row: the clauses hold for the token word exactly when the integer stage admits the row and the word is its greedy token |
+| | **`verdict_iff`**, `margin_abs_le`, **`outC_iff`** | the verdict identity `Δ = σ·δ + (b + c)` holds exactly when `b` is 1 iff `Δ > c`; stage OUT-C on one row |
+| CircuitTokenRun | **`in_iff`**, `inSpec_some`, `inSpec_class`, `ctl_le`, `ctlPos_le`, `lt_gP_of_V` | stage IN / IN-C: the lookups, BOS and template clauses hold exactly when the prompt is admissible (ids below `V`, BOS, template ids, no control id at a content position) and `B_in` is its embedding |
+| | **`runOut_iff`**, `outSpec_lt` | **the run-to-output iff**: blocks through their boundaries and stage OUT on the last row hold exactly when the integer run and stage OUT admit and the token word is the greedy token |
+| | **`tokenRun_iff`**, `tokenSpec_lt`, **`tokenRun_circuitIff`** | the whole next-token forward pass, and `CircuitIff (tokenModel S R) (tokenArith S R)` |
+| | **`classifyRun_iff`**, `verdictOf_le`, **`classifyRun_circuitIff`** | the whole classifier forward pass, and `CircuitIff (classifyModel S R) (classifyArith S R)` |
+| CircuitBlock (changed) | `BlockShape.prodC_bounds`, **`productC_iff`**, `prodPlane_iff` | the SiLU product at the stack's word class (`h24`: `Word24` at LowH24, `Word16` at Low) |
+| | `blockSat_iff`, `blockSpec_class`, **`block_circuitIff`**, `run_iff`, **`run_circuitIff`** | re-proved with the class: now for both export stacks |
+
+**The models** (each the Rust function's semantics, cited in the file):
+- `outSpec`: `fnormTok` (the code's refusals: an input word outside int16, the isqrt window, `q ∉ [−127, 127]`, a
+  remainder or slack `≥ 2^32`), then `argmaxN` of the raw logits (`stage_out::out_values`, stage_out.rs:207-235;
+  `first_argmax`, :193-201; `TokenTables::logits`, token_io.rs:668-671).
+- `outCSpec`: the same norm, then `verdictOf (Σ_i w_Δ[i]·y_i) c`, `1` exactly when `Δ > c` (stage_out_c.rs:170-198).
+- `inSpec`: the refusals of `honest_inputs` (stage_in.rs:72-106, stage_in_c.rs:72-104), then the embedding rows.
+- `tokenSpec = inSpec ≫= runSpec ≫= outSpec` on the public row, `classifySpec` likewise. `ModelOut.lean` has the
+  executable forms L1 runs (`fnormRowL`, `logitsL`, `firstArgmax`, `outTokenL`, `marginL`, `verdictOf`, `embedL`);
+  `firstArgmax` IS `argmaxN`, the function the proofs use.
+
+**The constraint systems at the logical positions** (each clause cited in the file):
+- `OutSat`: `FNormRel` (`SO_SS` hosted by `SO_TZC`, stage_out.rs:366-394; `SO_DZC`'s `c0`, `c1`, `c2`, :446-448, and
+  its byte lookups `lookups_do`, :145-150), and `ArgRel` on the hosted head values (`SO_HEAD` hosted by `SO_VZC`,
+  :411-420, 456-492; `SO_RSEL`, :493-508). The token word `A_TOK` is what `SO_IOOUT` writes to the output token
+  endpoint's word 0 (:532-538).
+- `OutCSat`: `FNormRel` and `VerdictRel` on the hosted margin (`SOC_PD` hosted by `SOC_LZC`, stage_out_c.rs:338-370).
+- `InSat`: per position the embedding lookup read at the logical level (`SI_QZC`'s LogUp clause, stage_in.rs:230-231:
+  the id `v < V`, the row `E[v]`, and IN-C's control column `ctl(v)`), the BOS clause (:232) and IN-C's template
+  clause.
+- `TokenRunSat` / `ClassifyRunSat`: `InSat` on the endpoint words and `B_in`, `RunSat` through the boundaries, `OutSat` /
+  `OutCSat` on `B_out`'s public row.
+
+**The instances.**
+- `tokenModel`: the input is the prompt's ids, the output the next token. The next token is the HIDDEN part (sealed in
+  the output token endpoint), `Weights := Unit` (P1).
+- `classifyModel`: the verdict is the PUBLIC part (the statement absorbs it).
+- `tokenArith` / `classifyArith`: `Satisfies` asks the endpoint words to be canonical (`< p`) and the verdict to be one
+  bit (classify.rs:957-958).
+
+**The Low stack's product.** `BlockShape` has a new field `h24`; the product's class is `prodC = if h24 then
+word24Class else word16Class`. `hSpec` and `BlockSat.prod` use it, and `productC_iff` is `product_iff` at any class. At
+`h24 = true` every definition is the earlier one, so the W16R2 statement is unchanged. The down projection's no-wrap
+bound uses `prodC_bounds` (both classes are within ±2^23).
+- **Which profiles this reaches.** Every W16-family profile uses LowH24 (shape.rs, `accuracy_spec`). The Low stack is
+  used by the R13 profiles (`R13_RUNG_LOW`, `R13_TINY_T128_LOW` and their DD forms, trained_accuracy.rs:16-26).
+- **What `h24 = false` covers.** `BlockSat` states its lookups as the facts they certify (`InRange`, `Word16`,
+  `RemW16`). An R13 profile certifies the same facts through byte limbs (`byteLimbs_iff`, `limbs_iff`). So
+  `h24 = false` is the Low stack's integer block with those facts.
+- **What it does not cover.** The R13 layouts, their slot sets and DD are not modelled here.
+
+**What the fourth lane changed in proved files.** In `CircuitBlock.lean` only: the product's class as above, and its
+header. No other theorem statement changed.
+
+## 16. What is assumed (fourth lane)
+
+Every item is an explicit hypothesis or a modelling boundary; there is no new axiom.
+
+- **What the stage relations assert, i.e. what L3 must deliver** (as for `BlockSat`, §10):
+  - **stage IN**: per position, that the compressed tuple `(tok_t, x~(t, r_emb))` is a table tuple `(v, E~(v, r_emb))`
+    (LogUp), and that this pins the WHOLE row `B_in(t, ·) = E[v]`. The second step is a Schwartz–Zippel step over
+    `r_emb`; the whole-run figure counts it as `T·log d_pad` (run.rs:224-226). Also the BOS and template clauses
+    (zero-checks), and the endpoint identity of `SI_IO`;
+  - **stage OUT**: the hosted sums. `SO_SS` = `ceps + Σx²` is hosted by `SO_TZC`. `SO_HEAD`'s
+    `Σ_i y_i·W'(r_j, i)` is hosted by `SO_VZC` and read as `l*_z = l_z` at every `z < V`, the per-position content of
+    the MLE identity at `r_j`. `SO_RSEL`'s `c`-batched claim is read as its three identities. Also the zero-checks
+    `SO_TZC`, `SO_DZC`, `SO_VZC`, and the byte lookups (LogUp over the `U8` table: `InRange 8` of every byte);
+  - **stage OUT-C**: `SOC_PD`'s margin sum hosted by `SOC_LZC`, and the byte lookups of the isqrt and margin limbs.
+- **The layout map of the stages**: the P-3 lifts and the pad clauses (`zeta_fold` beyond each support), `To`'s two
+  entries, the limb plane's sub-plane positions (the isqrt limbs at even entries `< 18`, the margin limbs at
+  `32 .. 32 + L`), and the endpoint planes' word positions.
+- **The boundary links**: `B_in` is block 0's input plane, and `SO_IO` reads `B_out` at the fixed bits of row `T − 1`
+  (OUT-C: the public verdict row). `RunSat`'s int16 boundary planes apply at both ends.
+- **The doors' classes** (`InPublic.Valid`, `OutPublic.Valid`, `OutCPublic.Valid`, cited field by field). The
+  window conditions `win` and `nowrap` are stated as hypotheses. They follow from the doors' `bit_length` / `limbs`
+  computation (token_io.rs:513-518, classify.rs:609-616); Lean does not re-derive them.
+- **The canonical endpoint words**: the model's input is the ids, and `Satisfies` asks `id < p`. The endpoint commits
+  `Fp::new(id)` (stage_in.rs:100), and the honest prover refuses `id ≥ V` before any commitment. The extractor recovers
+  field words, which are canonical.
+- **The width**: the final norm's `ss < 2^60` uses `d ≤ 4096` (the block class). The token door alone admits
+  `d_pad ≤ 2^17`.
+- **Not modelled**: the DD variant; the sealed-selector variants (`SealedInInput`, `SealedInOutput`), which the code
+  does not build either; the classifier's chunked items beyond one statement.
+
+## 17. L1 coverage (fourth lane)
+
+- **Stage OUT and OUT-C on the fixture: 992 checks, 0 failed** [TESTED] (`l1check_out.log`, run by
+  `check_l2d.sh`). One check is one row at one site, so a row's argmax check covers its 300 vocabulary entries and its
+  spec check every word of the row. The Rust side is the new test `lean_l1_export_the_token_out_stages`, run under the guard with the
+  source audits (`rust_summary.txt`: 25 passed, 0 failed; the extracted `rust_token_out.tsv`, 972 lines, 498,332 bytes,
+  sha256 `7eb52ce2…`; the 9.8 MB log of the final run, on the committed test file, is not committed, sha256 `6c4ae7d0…`).
+  - **The data:** the fixture block's output plane `x2` (the LowH24 stack, 32 rows of 16 words). Its equality with the
+    `x2` of the L1 fixture trace that §4 checks is itself checked (512 words).
+  - **The tables:** public synthetic tables (an LCG; no real weights) over `V = 300`. The generic head has int8 words
+    and per-row multipliers in `[1, 2^12]`. The TIE head has rows `2k` and `2k + 1` equal, with equal multipliers, so the
+    first-maximum rule decides every row.
+  - **The norms:** two final norms through the code's doors (`TokenProfile::new`, `ClassifierProfile::new` with the
+    development policy). One admits every row; the other (`g0 = 3`, `cn = 829,000`) refuses 16 of the 32 rows. The doors derive `v = 9` and 5 keyed-difference bytes at `V = 300`; the verdicts are 28 zeros and 20 ones.
+  - **SPEC:** the Lean model refuses exactly the rows Rust refuses. On every admitted row the Lean model reproduces
+    the isqrt witness, every word, remainder and slack, the token and its logit, the margin and the verdict.
+  - **CONSTRAINTS:** the clauses are evaluated in `GF` on Rust's witness (`witness_from_values`'s `A_TOK`, `A_M`, `e`
+    and `δ`). For the final norm: `IsqrtRel`, the 24-bit facts, the input's int16 limbs, `NormDivRel`, the 32-bit
+    remainders and `WordS8`. For `ArgRel`: the host term evaluated on the LEAN logits, so the head identity is checked
+    too. For OUT-C: `VerdictRel`.
+  - **The tie rule:** on the TIE head every token is the even member of an equal pair (`tie rule` lines).
+- **The block L1 check, rerun on this tree:** the fixture, 101,956 checks, 0 failed (`l1check_fixture.log`). The
+  block's executable model did not change; only the iff's product class did.
+- **Not covered:** stage IN (no export yet: its semantics are a table read and its refusals); an 8B-wide head
+  (`V = 128,256`); the classifier's other registered policies (`c ≠ 0`).
+
+## 18. Optimization candidates (fourth lane)
+
+Ranked by estimated committed-row saving per 8B T128 run (32 W16R2 blocks of 4,793 rows: 153,376 block rows; the
+stage rows at the stage row width `2^12`). ESTIMATES, not measured.
+
+| # | Candidate (constraint) | Lean evidence | Saving [ESTIMATE] | Protocol impact |
+|---|---|---|---|---|
+| C12 | **The last block's dead rows.** Stage OUT reads `B_out` at row `T − 1` only. In the last block, every per-row computation after K and V at rows `t < T − 1` feeds nothing: the queries, scores, softmax, PV, O, residual 1, `norm_m`, gate, up, product, down, residual 2. | `tokenSpec` reads the run's output only at `R.row` (`outSpec R.out fun i => y (R.row, i)`), and `runOut_iff` composes exactly that. NOT proved: the reduced iff. It needs a lemma that the block's output row `t` depends only on rows `≤ t` and on K, V. | Most of one block: all of F and S, and Q and D after `norm_a`; Kv and `norm_a` stay. At most −4,793 rows of 153,376 (−3.1%), likely about −2.5%, with a similar share of lookups | **model change** (as C4, C9b): a refusal at a dead row (an overflow at row `t < T − 1` of the last block) would no longer refuse. A separate last-block profile. Needs your ruling |
+| C13 | **The token stages' limbs on the W16 range table** instead of bytes | `byteLimbs_iff`, `limbs_iff`: any split of a `w`-bit fact certifies exactly `InRange w`; `out_iff` / `outC_iff` use only `InRange` | at 8B (`V = 128,256`, `V_pad = 2^17`, a 56-bit keyed window): VZC's 7 byte limbs → 4 W16 limbs, A −3 `Vo` planes (−96 rows), helpers 4 → 2 (−128 H data rows); the `U8` histogram replaced by the shared 16-bit family (+48 rows): net ≈ −176 rows per run (−0.1%), −393,216 lookups | new stage layouts and tables (D36 pins stage OUT): a new token profile. No model change |
+| C10 | **Drop stage OUT's input word check** (DZC's `c2` with `XL0`, `XL1` and their two byte lookups per channel, stage_out.rs:448; OUT-C's copy) | `fnormTok_iff` drops it (`and_iff_right` on `xBytes_iff`): the row is int16 already, because `runOut_iff` takes it from `RunSat`'s class, i.e. the last block's `res2` word check | per run: 2 `Do` A planes and one of the six `Do` helpers (≈ −4 rows at 8B), −8,192 byte lookups | new stage OUT layout (D36's pin): a new token profile. No model change |
+| C11 | **IN-C's BOS clause** (stage_in.rs:232, kept in IN-C) | implied by the template clause, since the classifier door makes position 0 a template position with `κ(0) = BOS` (classify.rs:572, :671-673); `in_iff`'s BOS premise then holds | no rows; one clause and one `μ` fewer in IN-C's query zero-check | new IN-C profile; negligible |
+
+**Looked at and rejected (fourth lane):**
+- **Any of the three selector sums or the booleanity of `e`.** Each is needed:
+  - without `Σe = 1`, `e = 0` with a large `M` passes and `tok = 0`;
+  - without `Σe·z = tok`, `tok` cancels from every keyed identity (`δ_z = 2^v(l_{z0} − l_z) + z − z0`, whatever `tok`
+    is), so the endpoint token is free;
+  - without booleanity, `e = 2` at one entry and `−1` at another satisfies all three sums.
+
+  Unlike the softmax selector (C7), `Σe·δ = 0` is one sum, not a per-entry clause.
+- **The keyed window from the actual head** instead of the class maximum `d·127²·2^12`: `argmax_iff` admits any bound
+  `L` on the logits. At 8B it saves about 3 bits of 56, still 7 bytes.
+- **The final norm's isqrt bytes:** at 8B `d_max ≈ 2^21.2`, so the 24-bit window is needed.
+
+## 19. What is next (fourth lane)
+
+1. **A W16R2 token-run profile.** Register a token-I/O run whose blocks are W16R2 blocks, or rule how token I/O runs
+   at 8B, so that `tokenRun_circuitIff` has a production instance.
+2. **L3's hand-offs for the stages** (§16): the head and margin sumchecks, the compressed embedding row, `SO_RSEL`'s
+   batched sums, and the byte LogUp. W16R3's B1–B3 do not change the stages' relations, but B1 and B2 change their
+   commitments and batching, so this waits for the freeze as the block's L3 composition does.
+3. **The layout map for the stages** (lifts, pads, `To`, the limb plane's positions).
+4. **L1 for stage IN** (an export of `honest_inputs` and `lookup_misses` on the fixture prompt) and for the 8B head.
+5. **Rulings for Victor:** C12 (a model change); C10 and C13 with the next token profile; C1–C9 as before.

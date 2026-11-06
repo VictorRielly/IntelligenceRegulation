@@ -1,0 +1,24 @@
+OUT input: the export's x2 = the L1 fixture trace's low-h24 x2: 512 checked, 0 failed
+OUT gen-n1 spec (32 admitted, 0 refused): isqrt witness, every (y, rho, sigma), token, its logit: 32 checked, 0 failed
+OUT gen-n1 constraints: final norm (IsqrtRel, 24-bit isqrt facts, x int16 limbs, NormDivRel, 32-bit remainders, WordS8): 32 checked, 0 failed
+OUT gen-n1 constraints: keyed argmax (e boolean, delta in 8*limbs bits, host term on the Lean logits, three selector sums): 32 checked, 0 failed
+OUT gen-n2: the rows Rust refuses are refused by Lean: 16 checked, 0 failed
+OUT gen-n2 spec (16 admitted, 16 refused): isqrt witness, every (y, rho, sigma), token, its logit: 16 checked, 0 failed
+OUT gen-n2 constraints: final norm (IsqrtRel, 24-bit isqrt facts, x int16 limbs, NormDivRel, 32-bit remainders, WordS8): 16 checked, 0 failed
+OUT gen-n2 constraints: keyed argmax (e boolean, delta in 8*limbs bits, host term on the Lean logits, three selector sums): 16 checked, 0 failed
+OUT tie-n1 tie rule: the token is the even index of an equal pair, the odd one ties it: 32 checked, 0 failed
+OUT tie-n1 spec (32 admitted, 0 refused): isqrt witness, every (y, rho, sigma), token, its logit: 32 checked, 0 failed
+OUT tie-n1 constraints: final norm (IsqrtRel, 24-bit isqrt facts, x int16 limbs, NormDivRel, 32-bit remainders, WordS8): 32 checked, 0 failed
+OUT tie-n1 constraints: keyed argmax (e boolean, delta in 8*limbs bits, host term on the Lean logits, three selector sums): 32 checked, 0 failed
+OUT tie-n2: the rows Rust refuses are refused by Lean: 16 checked, 0 failed
+OUT tie-n2 tie rule: the token is the even index of an equal pair, the odd one ties it: 16 checked, 0 failed
+OUT tie-n2 spec (16 admitted, 16 refused): isqrt witness, every (y, rho, sigma), token, its logit: 16 checked, 0 failed
+OUT tie-n2 constraints: final norm (IsqrtRel, 24-bit isqrt facts, x int16 limbs, NormDivRel, 32-bit remainders, WordS8): 16 checked, 0 failed
+OUT tie-n2 constraints: keyed argmax (e boolean, delta in 8*limbs bits, host term on the Lean logits, three selector sums): 16 checked, 0 failed
+OUT-C n1 spec (32 admitted, 0 refused): every y, the margin, the verdict: 32 checked, 0 failed
+OUT-C n1 constraints: VerdictRel (the margin identity, delta in 8*limbs bits): 32 checked, 0 failed
+OUT-C n2: the rows Rust refuses are refused by Lean: 16 checked, 0 failed
+OUT-C n2 spec (16 admitted, 16 refused): every y, the margin, the verdict: 16 checked, 0 failed
+OUT-C n2 constraints: VerdictRel (the margin identity, delta in 8*limbs bits): 16 checked, 0 failed
+L1 OUT TOTAL: 992 checks, 0 failed
+l1check_out rc 0

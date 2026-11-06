@@ -358,6 +358,30 @@ The plain-words version, the modelling choices and the open decisions are in
     logical positions (padding, head-slot order, support gating; W16R3's re-indexed F domain); the run's boundary link
     (block `k + 1`'s input plane is block `k`'s output plane); the code's checks on the shape and the public data,
     cited and not re-derived; the run's embedding and token stages and the DD variant are not modelled.
+- Proved so far (steps L1 and L2, fourth lane, 2026-11-06: **`CircuitIff` for the WHOLE forward pass**, the prompt's
+  token ids in, the next token or the classifier's verdict out; same build and axiom checks, 44 theorems audited in
+  `results/zk60_lean_l2d_20261106/axioms.log`; findings §14–§19 of `docs/zkmatrix-poc/ZK60_LEAN_L1L2_FINDINGS_20261106.md`):
+  - `ModelOut.lean` (L1): the token stages' integer model, executable: the final norm (`fnormElem`, `fnormRowL`),
+    numpy's first argmax as the code's loop (`argmaxN`, `firstArgmax`), the raw logits, the margin and the verdict,
+    the embedding with the classifier's template and control-id refusals.
+  - `CircuitOut.lean`: stage OUT and OUT-C per row. `k` byte limbs certify exactly `InRange (8k)`
+    (`byteLimbs_iff`); the keyed greedy argmax accepts exactly the FIRST maximum (`argmax_iff`, numpy's tie rule); the
+    final norm with a uniform gain, an int8 word and 32-bit remainders (`fnormDiv_iff`, `fnormTok_iff`); stage OUT
+    (`out_iff`); the verdict identity (`verdict_iff`) and stage OUT-C (`outC_iff`).
+  - `CircuitTokenRun.lean`: stage IN / IN-C (`in_iff`: ids below `V`, BOS, the template ids and no control id at a
+    content position); the run-to-output iff (`runOut_iff`); **`tokenRun_circuitIff : CircuitIff (tokenModel S R)
+    (tokenArith S R)`** (stage IN, every W16R2 block, stage OUT) and **`classifyRun_circuitIff`** (stage IN-C, the
+    blocks, stage OUT-C).
+  - `CircuitBlock.lean` (changed): the SiLU product's word class is the shape's stack (`h24`; `productC_iff`), so
+    `block_circuitIff` and `run_circuitIff` cover the Low stack's int16 product as well as LowH24's 24-bit one (at the
+    level of the facts the lookups certify; the R13 profiles' own layouts, which use the Low stack, are not modelled).
+  - `L1CheckOut.lean`: stage OUT and OUT-C against the Rust token-I/O code on the fixture's output rows
+    (`lake -d formal env lean --run formal/ZK60Formal/L1CheckOut.lean <tsv> <fixture trace>`; not imported by the root,
+    because it and `L1Check.lean` both define `main`).
+  - **Premises left** (findings §16): L3's part for the stages (the head and margin sumchecks, the compressed
+    embedding row, the selector sums, the byte LogUp); the stages' layout map; the boundary links at both ends; the
+    doors' classes and window conditions; canonical endpoint words. Not modelled: DD and the sealed-selector variants.
+    No W16R2 token-I/O run profile is registered in the code yet (findings §14).
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5).

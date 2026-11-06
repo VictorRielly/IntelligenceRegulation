@@ -59,3 +59,6 @@ import ZK60Formal.CircuitStage
 import ZK60Formal.CircuitMasked
 import ZK60Formal.CircuitBlock
 import ZK60Formal.L1Check
+import ZK60Formal.ModelOut
+import ZK60Formal.CircuitOut
+import ZK60Formal.CircuitTokenRun
