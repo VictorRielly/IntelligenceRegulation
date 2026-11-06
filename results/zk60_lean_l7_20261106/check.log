@@ -1,0 +1,29 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3451/3453] Built ZK60Formal.ExecSumcheckFS (8.3s)
+✔ [3452/3453] Built ZK60Formal (2.1s)
+Build completed successfully (3453 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+39 theorems
+axioms rc 0
+declarations audited: 39
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  24 axioms: [propext, Classical.choice, Quot.sound]
+   8 axioms: [propext, Quot.sound]
+   4 axioms: [propext]
+== source scan of the L7 file ==
+none
+== the library root imports the L7 file ==
+76:import ZK60Formal.ExecSumcheckFS
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+L6Check rc 0
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+L5Check rc 0
+regression verdicts: L6 0, L5 0 (0 = the committed count with 0 failed)

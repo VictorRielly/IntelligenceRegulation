@@ -1,0 +1,3 @@
+[zk60-guard 13:47:48] START lean-l7-var2 class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=6bfa9610e319
+[zk60-guard 13:49:02] lean-l7-var2: 1 straggler process(es) outlived the command; killing
+[zk60-guard 13:49:03] END lean-l7-var2 exit=0 child_wall=74s peak_rss=8.03G min_avail=232.17G

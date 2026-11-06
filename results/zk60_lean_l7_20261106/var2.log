@@ -1,0 +1,28 @@
+== CV1.lean: rc 0  peak 3.61 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/CV1.lean:507:8: warning: declaration uses `sorry`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/CV1.lean:698:8: warning: declaration uses `sorry`
+
+== CV2.lean: rc 0  peak 3.62 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/CV2.lean:507:8: warning: declaration uses `sorry`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/CV2.lean:699:8: warning: declaration uses `sorry`
+
+== CV3.lean: rc 0  peak 3.62 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/CV3.lean:507:8: warning: declaration uses `sorry`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/CV3.lean:697:8: warning: declaration uses `sorry`
+
+== CV4.lean: rc 0  peak 3.62 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/CV4.lean:507:8: warning: declaration uses `sorry`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/CV4.lean:695:8: warning: declaration uses `sorry`
+
+== MA.lean: rc 0  peak 3.62 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/MA.lean:507:8: warning: declaration uses `sorry`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var2/MA.lean:694:8: warning: declaration uses `sorry`
+
+== MB.lean: rc -15 KILLED rss 8.20 GiB peak 8.20 GiB 15 s
+
+== MC.lean: rc -15 KILLED rss 8.11 GiB peak 8.11 GiB 15 s
+
+== MD.lean: rc -15 KILLED rss 8.19 GiB peak 8.19 GiB 15 s
+
+== ME.lean: rc -15 KILLED rss 8.15 GiB peak 8.15 GiB 15 s
+
