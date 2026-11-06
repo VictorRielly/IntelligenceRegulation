@@ -1,0 +1,26 @@
+#!/bin/bash
+# D63 step L6 Lean lane (2026-11-06): build the named modules (with their dependencies), then elaborate the named files
+# with `lake env lean` (run through run_guarded.py, the zk60 resource guard, class cpu).
+# usage: stage.sh "<modules to build>" <file.lean> [more files]
+WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba
+LAKE=/Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lake
+start=$(date +%s)
+mods="$1"
+shift
+brc=0
+if [ -n "$mods" ]; then
+  echo "== lake build $mods =="
+  "$LAKE" -d "$WT/formal" build $mods 2>&1 | grep -v '^✔\|^⣿\|Replayed\|Built' | head -n 200
+  brc=${PIPESTATUS[0]}
+  echo "build rc $brc"
+fi
+rc=0
+for f in "$@"; do
+  echo "== lean $f =="
+  "$LAKE" -d "$WT/formal" env lean "$f"
+  r=$?
+  echo "rc $r for $f"
+  [ $r -ne 0 ] && rc=$r
+done
+echo "rc build $brc files $rc, $(( $(date +%s) - start )) s"
+[ $brc -eq 0 ] && [ $rc -eq 0 ]

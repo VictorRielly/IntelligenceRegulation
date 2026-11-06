@@ -14,6 +14,12 @@ executable Lean and proved equal to the models: the field and its extension, BLA
 the Merkle column check, with an agreement corpus from the Rust code (5,553 checks, 0 failed). Obligation 0 (§4.0) is
 updated.
 
+**Update, same day (fourth lane, §8): step L6, the generic sumcheck verifier.** `sumcheck::verify`, `interpolate_eval`,
+the eq tables and multilinear evaluations, and the CFS mask with the last-round extension, in executable Lean on L5's
+foundation and proved equal to the models (`verify` accepts exactly when `FSSumcheck.lean`'s `scAccept` holds on the
+transcript chain's own challenges), with an agreement corpus from the Rust code (1,206 checks, 0 failed). Obligation 0
+(§4.0) is updated.
+
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms `propext`, `Classical.choice`, `Quot.sound` only), **CODE**
 (read off the sources), **ESTIMATE** (arithmetic on the bounds, not proved in Lean).
 
@@ -157,7 +163,7 @@ theorems about them. `productionReady_of` then gives `ProductionReady M A P εc 
 |---|---|---|
 | `M` (the integer model) | `tokenModel S R`, `classifyModel S R` (`CircuitTokenRun.lean`; `Weights := Unit`, sound under P1): the whole forward pass, generic in the shape `S` and the run data `R` | the registered profile's concrete `(S, R)`. No W16R2 token-I/O run profile is registered in the code today (`token_io/run.rs:213`; L1L2 findings §14) |
 | `A` (the constraint system) | `tokenArith S R`, `classifyArith S R`: `Satisfies` is `TokenRunSat` / `ClassifySat` at the LOGICAL positions, with canonical endpoint words | the same concrete `(S, R)` |
-| `P` (the protocol) | **nothing as a `Protocol` instance.** Pieces of the verifier exist as models: `scAccept`, `chainAcceptsW`, `Tree.verOC` / `Tree.Accepts`, `MerkleEnc.Opens`, the opening and `M` tests. Pieces of the prover's view exist in the L4 files. **The verifier's foundation exists in executable Lean (step L5, §7)**: `Fp` / `Fp2` (`ExecField.lean`), BLAKE3 in its three modes (`ExecBlake3.lean`), the transcript (`ExecTranscript.lean`: proved to be `FSChain.lean`'s `ChainEnc`, its challenges `fp2Chal` / `idxChal`), the Merkle column check (`ExecMerkle.lean`: proved to be `Opens`, with `exec_merkle_binding`), and a finite oracle domain for `Q`, the inputs of at most `L` bytes (`QB L`), with `D` the 32-byte digests | `Stmt`, `Receipt`, `Salt`; `Leak` and `leak` (the shapes, `T`, the served bit, and D65(2)'s constant refusal); `ypub`; `opensIn` and `opensOut` (§4.4); `prove` (the Lean honest prover: masks, salts, the transcript); `verify`, the Lean verifier that §6 decision 3 makes production acceptance: on top of the foundation, the receipt decoder, the sumcheck and LogUp verifier arithmetic, the opening's claim and column-versus-clear-vector checks (the coset NTT), `M`'s test, and the profile's transcript schedule (§7.5) |
+| `P` (the protocol) | **nothing as a `Protocol` instance.** Pieces of the verifier exist as models: `scAccept`, `chainAcceptsW`, `Tree.verOC` / `Tree.Accepts`, `MerkleEnc.Opens`, the opening and `M` tests. Pieces of the prover's view exist in the L4 files. **The verifier's foundation exists in executable Lean (step L5, §7)**: `Fp` / `Fp2` (`ExecField.lean`), BLAKE3 in its three modes (`ExecBlake3.lean`), the transcript (`ExecTranscript.lean`: proved to be `FSChain.lean`'s `ChainEnc`, its challenges `fp2Chal` / `idxChal`), the Merkle column check (`ExecMerkle.lean`: proved to be `Opens`, with `exec_merkle_binding`), and a finite oracle domain for `Q`, the inputs of at most `L` bytes (`QB L`), with `D` the 32-byte digests. **The generic sumcheck verifier exists too (step L6, §8)**: `scVerify` (`ExecSumcheck.lean`: accepts, with the caller's terminal check, exactly when `scAccept` holds on the transcript chain's challenges), `interpolate_eval`, the eq tables and multilinear evaluations (`ExecMle.lean`), the CFS mask's weights and rounds, the extension round and the masked terminal (`ExecCfs.lean`) | `Stmt`, `Receipt`, `Salt`; `Leak` and `leak` (the shapes, `T`, the served bit, and D65(2)'s constant refusal); `ypub`; `opensIn` and `opensOut` (§4.4); `prove` (the Lean honest prover: masks, salts, the transcript); `verify`, the Lean verifier that §6 decision 3 makes production acceptance: on top of the foundation and L6, the receipt decoder, the per-profile slot items (W16R3's batched sumcheck, its terminal identities and its item map onto `FSChainRbr.lean`'s chain, §8.5), the zero-check and LogUp verifier arithmetic, the opening's claim and column-versus-clear-vector checks (the coset NTT), `M`'s test, and the profile's transcript schedule (§7.5) |
 
 ### 4.1 `CircuitIff M A`: proved at W16R2
 
@@ -706,3 +712,218 @@ All in `results/zk60_lean_l5_20261106/`, each run as one job through the zk60 re
   - the source scan (none);
   - the agreement check (`l5check_full.log`): 5,553 checks, 0 failed;
   - the negative control (`negative_control.log`): 6 failed, as required.
+
+## 8. Step L6, the generic sumcheck verifier: executable, and proved equal to its models (2026-11-06, fourth lane)
+
+Lean lane (Claude), on perf at fbf81c73 (L5 merged). Three new library files, imported by the library root:
+`ExecMle.lean`, `ExecSumcheck.lean` and `ExecCfs.lean`. One checker, `L6Check.lean`, not imported by the root because it
+defines `main`. One TEST-ONLY Rust file, the integration test `ops/zkp-mvp/gpu-metal/zkp-core/tests/lean_l6_export.rs`:
+no production source changed, no crate added. `Statements.lean` is unchanged. Sol's W16R3 design file was read, not
+changed. Evidence: `results/zk60_lean_l6_20261106/`.
+
+### 8.1 In plain words, for Victor
+
+**Why this step.**
+- Every slot of a block receipt is checked by the same generic sumcheck verifier of `zkp-core` (`sumcheck::verify`),
+  with the same zero-knowledge pieces: the CFS mask's weights and rounds, and the last-round extension.
+- W16R3 (D67) batches the slots into one larger sumcheck (B2) and changes the PCS encoder (B1) and the layout (B3). It
+  keeps this mathematics.
+- So the verifier's sumcheck can be written and proved now, on L5's field and transcript, and it will not be redone.
+
+**What now exists, in executable Lean.**
+- **The sumcheck verifier**, line by line as `verify` runs it: the round count, each round's length, the check
+  `s(0) + s(1) = claim` on the 64-bit words, the absorb, the challenge, the interpolation.
+  - PROVED: together with the caller's final check, it accepts EXACTLY when the list verifier of L3's Fiat–Shamir
+    theorems (`scAccept`) accepts the same rounds with the transcript chain's own challenges, for every hash function.
+  - So those theorems now speak about the program's acceptance condition, not about a paraphrase of it.
+  - One piece of glue is left per profile: listing the receipt's transcript items in the form `FSChainRbr.lean` reads
+    (finding L6-4, §8.5).
+- **The interpolation** of a round message (`interpolate_eval`): PROVED to be the model's (`interpEval`, the round
+  polynomial's value).
+- **The eq tables and multilinear evaluations**: PROVED to be the model's `eqPoly` and `mleAt`, in the code's bit order
+  (variable 0 is the most significant bit of an index).
+- **The zero-knowledge mask (CFS)**:
+  - PROVED: the code's weight vectors give the mask's sum over the cube and its value at the challenge point;
+  - its round messages are the hiding model's;
+  - the code's mask rounds pass the verifier's checks (the mask part of the masked prover's completeness).
+- **The last-round extension and the masked terminals**: PROVED to be the hiding model's, and to be the last round of
+  L3's extended polynomial. So the extension's soundness theorem applies to what the code sends.
+
+**The agreement corpus.**
+- The Rust test exports 1,561 records from the crate's real code paths:
+  - interpolations (degrees 0 to 6), eq values and tables, multilinear evaluations;
+  - CFS weights, masks, values and rounds, masked terminals, extension rounds;
+  - 171 whole sumcheck runs made by `prove` and checked by `verify`: plain, masked, and masked with the extension
+    round as a private slot runs it; honest and tampered.
+- Lean recomputes every record: **1,206 checks, 0 failed.**
+  - For every run Lean's verdict equals Rust's (accepted, or refused with the same message bytes), with the same
+    challenges and the same transcript state after the call.
+- **Negative control:** eight single changes give exactly 8 failures.
+
+**What this does not do yet.**
+- It is not a per-profile verifier. The receipt decoder, W16R3's slot items and terminal identities (B2's batching),
+  the zero-check and LogUp arithmetic, the openings, `M` and the schedule are still to write (§8.5).
+- The corpus has no record from a real block receipt. Its runs are the crate's real `prove` / `verify` path on
+  synthetic tables.
+
+### 8.2 What is proved
+
+All PROVED (`results/zk60_lean_l6_20261106/`):
+- the full `lake -d formal build` is green: 3,452 jobs, no warning, no error (`full.log`, `check.log`);
+- `#print axioms` on all 128 theorems of the three files (`axioms_l6.lean`, written by `gen_axioms.py`, →
+  `axioms.log`): each shows only `propext`, `Classical.choice` and `Quot.sound`, or a subset; `sorryAx` and
+  `Lean.ofReduceBool` appear nowhere;
+- every premise is an explicit hypothesis; no `sorry`, `axiom`, `native_decide`, `bv_decide`, `admit`,
+  `implemented_by`, `extern`, `maxRecDepth` or `maxHeartbeats` (source scan in `check.log`: none).
+
+The reading is L5's: `toK U` maps a code word into ANY field `K ⊇ GF` with `U² = 7` (for `K = GF[u]/(u² − 7)` a
+bijection, `Fp2.toK_bijective`).
+
+**`ExecMle.lean`** (mirrors `mle.rs`, and `from_i64` of `field.rs`).
+
+| Theorem | Statement |
+|---|---|
+| `Fp.toGF_fromI64`, `Fp.toGF_inv'`, `Fp2.toK_injective` | `from_i64` is the residue on `(−2^64, 2^64)`; `Fp::inv` is the field inverse of every word (`0` included); canonical words are determined by their value, so the code's word equality is the field's equality |
+| **`toK_interpolateEval`** | for `d + 1` values (`d < p`) and a canonical point, `interpolate_eval` is `interpEval`, hence the value of `roundPoly` (`interpolateEval_roundPoly`); `ringChar_eq_gP`, `interpolateEval_degree`: `d < ringChar K` is `d < p`, so the value form fixes one polynomial of degree `≤ d` |
+| **`toK_eqPointBody`** | `eq_point(r, s)` is `eqPoly(r, s)` |
+| `eqTableAux_spec`, `toK_eqTable`, **`toK_eqTableMsb`** | entry `idx` of `eq_table(r)` is `Π_i (r_i or 1 − r_i, by bit i of idx)` (the doubling loop on the buffer, step by step); of `eq_table_msb(r)` it is `eqPoly(r, b)` with variable `j` the bit `n − 1 − j` |
+| `msbBits_msbIndex`, `msbIndex_msbBits`, `sum_range_msb` | the code's index and the cube point are a bijection `[0, 2^n) ↔ {0,1}^n` |
+| **`toK_mleSumExt`**, **`toK_mleSumBase`** | `eval_mle_ext(v, r)` and `eval_mle_base(v, r)` are `mleAt` of the cube values `b ↦ v[msbIndex b]` at `r` |
+
+**`ExecSumcheck.lean`** (mirrors `sumcheck.rs::verify`, on L5's transcript).
+
+| Theorem | Statement |
+|---|---|
+| `scAccept_iff` | `scAccept τ n f C` is: exactly `n` rounds, every round check, and the final claim equal to `f` at the challenge vector |
+| `scLoop_ok_iff`, `scExecOk_iff`, `toK_scFinalExec` | the program's loop returns `Ok (fin, rs)` exactly when every round has `d + 1` values and passes its word check along the transcript's challenges; those checks and the final claim are the field's |
+| **`scVerify_accept_iff`** | for `1 ≤ d < p`, a canonical claimed sum and canonical round values, every hash function `H` and every `f`: `verify` returns `Ok (fin, rs)` with `fin = f(rs)` in `K` EXACTLY WHEN every round has `d + 1` values, `rs` is the transcript's challenge sequence (`scChal`), and `scAccept (scTau rounds rs) n f claimed` holds |
+| `scVerify_tr`, `scChal_runOps` | an accepting run leaves the transcript `runOps` of `absorb("sc-round", s_j)` and `squeeze` per round |
+| **`scChal_chain`** | those challenges are `challenge_fp2` of the squeeze digests of `FSChain.lean`'s chain of the run's items (L5's `chainEnc`, with the code's counters); each is `fp2Chal gP (2^128)` of its digest's halves (`challengeFp2Of_toGF`) |
+| **`scVerify_fs`** | the two together, from `new` / `new_tagged` after any header operations: the program accepts exactly when `scAccept` holds on the transcript whose challenges are the chain's |
+
+What the caller must still check, as `argument.rs` does: `fin = poly(terminal values)` (the theorem's hypothesis
+`fin.toK U = f(rs)`), that the claimed sum is the statement's (the slot scalar plus the hosted terms), and that the
+terminal values are the openings' (the PCS and `M`).
+
+**`ExecCfs.lean`** (mirrors `CfsMask`, `CfsMasker::mask_round`, `extension_round`, `masked_terminal`).
+
+| Theorem | Statement |
+|---|---|
+| `cubeSum_cfsEval` | in any field, the mask polynomial's sum over `{0,1}^N` is `cfsTotal` |
+| **`toK_total`**, `toK_total_eq_cubeSum` | for `1 ≤ N < 64`: `<coeffs, sum_weights(N, d)>` (`total`) is `cfsTotal`, the cube sum of `g` |
+| **`toK_evalDot`**, `toK_eval` | `<coeffs, eval_weights(ρ, d)>` (`eval`) is `cfsEval`, i.e. `g(ρ)` |
+| **`toK_roundBody`** | for `1 ≤ d < 2^64`, `N < 64` and a canonical `a_0`: `round(j, prev)` at `x = 0..d` is `peval (cfsMaskRound a r j) x`, for every `r` that agrees with `prev` before `j` |
+| `toK_maskRound` | the masked message at `x` is `s_x + c·g_j(x)`: the value form of `cfsView`'s round message |
+| `interpEval_peval`, `toK_interpolate_round` | interpolating a degree-`≤ d` polynomial's values gives it back; so the verifier's interpolation of the code's mask round is `g_j(r_j)` |
+| **`round_chain_zero`**, **`round_chain_succ`**, **`round_chain_terminal`** | the code's mask rounds pass the code's verifier's chain checks: round 0 sums to `total`, round `j + 1` to the interpolation of round `j` at `ρ_j`, and the last ends at `eval(ρ)`; with `cfs_masked_honest`, the mask part of completeness |
+| **`toK_maskedTerminal`**, **`toK_extensionRound`** | `masked_terminal` is `maskedTerminal`; `extension_round` is `extRoundFun`, for any `poly` the program's `poly` computes |
+| `extFe_halves`, **`extension_fe_round`**, **`extension_fe_terminal`**, `maskedTerminal_zero` | the code's extension round (`ext = R̃(ρ)` for a private table, `0` for a public one) is the last round polynomial of `SoundSumcheck.lean`'s `fe` at the challenge point, and the verifier's terminal `poly(masked terminals, (1 − ρ_k)·public)` is `fe(ρ, ρ_k)`; so `sumcheck_sound_extended` and `extension_halves` apply to what the code sends |
+
+### 8.3 The agreement corpus
+
+The Rust side is `zkp-core/tests/lean_l6_export.rs`, run by `export_corpus.sh`:
+`cargo test --release --offline --locked -j 2 --test lean_l6_export` through the guard. It writes `corpus.txt`: 1,561
+records, 323,299 bytes. Its own assertions pass too: every honest run verifies with the prover's challenges and final
+transcript state, its terminal identity holds, each prover final is the table's `eval_mle_ext`, and every tampered
+plain run is refused or fails its terminal check.
+
+The Lean side is `L6Check.lean`, run by `check_l6.sh` (`l6check_full.log`). It uses the SAME definitions the theorems
+are about, and adds cross-checks that use only Lean's own values. In all, 1,206 checks, 0 failed, in about 7 s,
+interpreted:
+
+| Kind | Checks | What |
+|---|---|---|
+| interpolation | 98 + 30 | `interpolate_eval` at degrees 0 to 6 (1 to 7 values), at the nodes, at `p − 1`, at `d + 1` and at random points; at a node Lean's value is the node's value |
+| eq | 24 + 16 + 255 | `eq_point` (0 to 7 variables); `eq_table` and `eq_table_msb` (0 to 7 variables); each `eq_table_msb` entry is Lean's `eq_point` at the index's bits |
+| MLE | 32 | `eval_mle_ext` and `eval_mle_base`, 0 to 7 variables |
+| CFS weights | 20 | `sum_weights` and `eval_weights`, `N` from 1 to 11, `d` from 1 to 6 |
+| CFS masks | 9 + 9 + 36 + 64 + 64 + 18 | nine masks of `CfsMask::random` (`N` 1 to 7, `d` 1 to 6): the length, `total`, `eval` (and the direct formula), every `round`, the chain with Lean's own rounds, the last round ending at `g(ρ)` |
+| masked terminals, extension rounds | 40 + 18 | `masked_terminal`; `extension_round` for products (degrees 1, 2, 3, 5, 6) and the zero-check form |
+| sumcheck runs | 171 + 171 | 171 `verify` calls: Lean's verdict, challenges and final transcript state equal Rust's (29 accepted; 142 refused with the same message bytes: 32 round count, 56 round length, 54 round sum); the transcript's start premise for each domain |
+| run identities | 19 + 9 + 48 + 18 + 3 + 6 + 3 + 6 | the terminal `poly(finals)` (10 tampered runs fail it, as in Rust); the claimed sum is the cube sum; each final is the table's `eval_mle_ext` at the challenges; each masked round is the unmasked one plus `c·round(j)`; the masked terminal `+ c·g(ρ)`; the masked claim `S + c·G`; the extension round `extension_round + c·round(n)`; the extended terminal with the masked terminals and `(1 − ρ_n)·eq` (and with one mask value changed, it fails) |
+| other | 18 + 1 | the CFS challenge drawn before each masked run; `"sc-round"` as bytes |
+
+The runs: plain sumchecks of degree 1 to 6 over 0 to 8 variables (product polynomials, and the zero-check form with an
+eq table), under the legacy and the rung's keyed transcript; masked (`CfsMasker` on the prover's transcript, degree 2
+and 3); masked with one extension round as `argument.rs` runs a private slot (the zero-check form, 1, 4 and 5
+variables). The tamperings: a dropped and an extra round; a round one value short or long (first, middle and last
+round); `s(0)` off by one; the claimed sum off by one; the last value of a round changed (caught by a later round, or
+only by the terminal check); wrong `n_rounds` and `degree` arguments; for the masked runs a round sum and the extension
+round's sum.
+
+**Negative control** (`mutate_corpus.py`, `negative_control.log`): one interpolation, one `eq_table_msb` entry, one
+sum-weight vector, one mask round, one masked terminal, one extension round, one accepted run's final state and one
+refused run's message changed. Exactly 8 checks fail.
+
+### 8.4 Findings
+
+**L6-1 (Info): `verify` panics on a degree-0 round.**
+- CODE: `verify` checks `s.len() == degree + 1`, then reads `s[1]`. With `degree = 0` a round has one value, so `s[1]`
+  is out of bounds: the process panics (and aborts: `panic = "abort"` in the release profile) instead of returning
+  `Err`. The Lean mirror returns `ScErr.panic`.
+- The model `scAccept` at `d = 0` reads `s 1` as `s 0` (`Fin 1` arithmetic), so it differs from the code there;
+  `scVerify_accept_iff` is stated for `d ≥ 1`.
+- No soundness or hiding effect: `degree` is the verifier's own public slot parameter, and every slot has degree at
+  least 2 (`BASE_DEGREE` in `shape.rs`, minimum 2). The per-profile verifier should never build a degree-0 sumcheck.
+
+**L6-2 (Info; for the per-profile verifier): the CFS weights are right only for `1 ≤ N < 64`.**
+- CODE: `sum_weights` computes `from_u64(1 << N)` and `from_u64(1 << (N − 1))`, and `round` computes
+  `from_u64(1 << (N − 1 − j))`, in `u64`. The release build has no overflow checks, so a shift amount `≥ 64` is taken
+  mod 64 and `N − 1` wraps at `N = 0`.
+- For `N ≥ 64` the weights are silently wrong (`1 << 64` gives `1`, not `2^64 mod p`). `N = 0` gives `[1, 1]`, which
+  happens to be right.
+- The Lean mirror computes with the release build's `UInt64` shifts, and `toK_total` / `toK_roundBody` assume `N < 64`.
+- `N = n_vars + ext` is a slot's cube dimension, fixed by the profile and far below 64 (at most about 30 at 8B
+  [ESTIMATE]). The per-profile verifier needs `N < 64` for every slot: a `decide` on the shape table.
+
+**L6-3 (Info; modelling): exact casts and rayon's reduction.**
+- `interpolate_eval` computes `i as i64 − j as i64` and `Fp::new(j as u64)`. The mirror takes the exact integer, which
+  is the code for `d < 2^63` (the code's `d ≤ 6`).
+- `eval_mle_ext` and `eval_mle_base` sum with rayon's `reduce`, in a tree; the mirror sums left to right. Every partial
+  sum is a canonical word (`add`'s output is canonical) and the field's addition is associative and commutative, so the
+  words are equal (`Fp2.toK_injective`). This is an argument, not a Lean theorem about rayon; the 32 MLE records and
+  the 48 run finals agree.
+
+**L6-4 (Info; for the composition): the chain's items and the squeeze counter.**
+- `scVerify_fs` proves the program's acceptance in terms of L5's `chainEnc` (items `TItem`, with the code's wrapping
+  `u64` squeeze counter).
+- `FSChainRbr.lean`'s `fs_sumcheck_chain_sound_code` is stated for a `ChainEnc` over `PItem X M`, whose squeeze items
+  carry a `ℕ` counter. A `ChainEnc` for the code's encoding needs an injective link, which a wrapping `u64` counter
+  gives only below `2^64` squeezes.
+- So applying the bound needs a `PItem` variant with a bounded counter, or the state function `liftSt` re-stated over
+  `TItem` (with the header absorbs as the statement and the counter offset, as `FSChainRbr.lean`'s header notes).
+- No soundness effect (`2^64` squeezes do not happen). It is the per-profile glue named in §8.5.
+
+**L6-5 (Info): a refusal leaves the transcript advanced.**
+- CODE: `verify` takes `&mut Transcript`; refusing in round `j`, it has already absorbed and squeezed rounds
+  `0 … j − 1`. The corpus records the state after every refusal, and the Lean mirror reproduces it.
+- `argument.rs` returns the error (`?`), so nothing continues on that transcript. A caller that recovered from an
+  `Err` and kept the transcript would be on another chain.
+
+### 8.5 What is left for the per-profile verifier
+
+- **W16R3's slot items** (frozen by Sol's design §7; not modelled here): the batched sumcheck's claimed sum (B2's
+  descriptor), its degree and round count, and each slot's terminal identity (the `poly`, the eq, public and private
+  terms, `sel`, the hosted scalars), each proved to be its `CircuitBlock.lean` / `SoundZeroCheck.lean` model.
+  `scVerify_accept_iff` then gives each sumcheck's acceptance.
+- **The item map** (L6-4): the receipt's transcript items onto `FSChainRbr.lean`'s chain (or `liftSt` over `TItem`), so
+  that `fs_sumcheck_chain_sound_code` and `FSCompose.lean` apply to the whole receipt's chain.
+- `1 ≤ d` and `N < 64` for every slot (L6-1, L6-2): a `decide` on the shape table.
+- The rest of §7.5: the `Protocol` instance, the receipt decoder (L5-2), LogUp, the openings and `M`, the schedule, a
+  corpus of real W16R3 receipts with malicious controls, and a compiled checker.
+
+### 8.6 Checks
+
+All in `results/zk60_lean_l6_20261106/`, each run as one job through the zk60 resource guard (class `cpu`,
+`run_guarded.py`; peak RSS at most 6.72 GiB, the final full check):
+- `file1.log` … `file8.log`: the new files while they were written (`lean_file.sh`, `stage.sh`). The errors fixed on
+  the way are in those logs.
+- `rust.log`: the corpus export (`export_corpus.sh`).
+- `l6check.log`: the modules built and `L6Check.lean` run on the corpus (`run_l6check.sh`).
+- `check.log`: `check_l6.sh`, run twice (before and after a comment-only correction of the three files' headers;
+  both green), which runs:
+  - the full build (`full.log`): 3,452 jobs, rc 0, no warning, no error;
+  - the axiom audit (`axioms.log`): 128 theorems, nothing beyond `propext`, `Classical.choice`, `Quot.sound`;
+  - the source scan (none);
+  - the agreement check (`l6check_full.log`): 1,206 checks, 0 failed;
+  - the negative control (`negative_control.log`): 8 failed, as required.

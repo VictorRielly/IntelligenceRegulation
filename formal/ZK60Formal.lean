@@ -70,3 +70,6 @@ import ZK60Formal.ExecBlake3
 import ZK60Formal.ExecTranscript
 import ZK60Formal.ExecMerkle
 import ZK60Formal.L5Vectors
+import ZK60Formal.ExecMle
+import ZK60Formal.ExecSumcheck
+import ZK60Formal.ExecCfs

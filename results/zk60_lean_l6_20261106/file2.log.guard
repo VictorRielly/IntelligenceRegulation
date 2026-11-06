@@ -1,0 +1,2 @@
+[zk60-guard 12:32:09] START lean-l6-file class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=fecf8d1ae4b6
+[zk60-guard 12:32:12] END lean-l6-file exit=1 child_wall=3s peak_rss=3.62G min_avail=237.29G

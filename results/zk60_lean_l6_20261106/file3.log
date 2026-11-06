@@ -1,0 +1,139 @@
+== lake build ZK60Formal.ExecMle ZK60Formal.FSChainRbr ZK60Formal.HidingSumcheckJoint ==
+Build completed successfully (3382 jobs).
+build rc 0
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:60:17: warning: Variable name `C` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _C
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:86:10: error: Type mismatch
+  fun i => (List.map Prod.snd ((s, r) :: τ)).getD i 0
+has type
+  ℕ → F
+but is expected to have type
+  Fin (n + 1) → F
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:161:22: warning: Variable name `C` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _C
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:219:14: error: No goals to be solved
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:223:12: error: No goals to be solved
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:218:24: warning: This simp argument is unused:
+  false_iff
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [scLoop, hl, ne_eq, not_true_eq_false, ↓reduceIte, h0, h1, hs, not_false_eq_true, reduceCtorEq,
+    scChal, scExecOk, true_and, false_and, not_and]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:218:74: warning: This simp argument is unused:
+  not_and
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [scLoop, hl, ne_eq, not_true_eq_false, ↓reduceIte, h0, h1, hs, not_false_eq_true, reduceCtorEq,
+    false_iff, scChal, scExecOk, true_and, false_and]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:221:81: warning: This simp argument is unused:
+  false_iff
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [scLoop, ne_eq, hl, not_false_eq_true, ↓reduceIte, reduceCtorEq, scChal, scExecOk, false_and,
+    not_and]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:222:19: warning: This simp argument is unused:
+  not_and
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [scLoop, ne_eq, hl, not_false_eq_true, ↓reduceIte, reduceCtorEq, false_iff, scChal, scExecOk,
+    false_and]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:239:8: error: Tactic `simp` failed with a nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:299:12: error: No goals to be solved
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:298:43: warning: This simp argument is unused:
+  false_iff
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hl, false_and, and_false, not_and]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:298:54: warning: This simp argument is unused:
+  not_and
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hl, false_and, and_false, false_iff]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:404:12: warning: Variable name `l` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _l
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:404:14: warning: Variable name `x` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _x
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:404:24: warning: Variable name `t` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _t
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:405:21: warning: Variable name `t` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _t
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:416:50: error: Type mismatch: After simplification, term
+  hits
+ has type
+  its.unattach = []
+but is expected to have type
+  its = []
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:423:4: error: Missing cases:
+(List.cons _ []), _
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean:430:114: error: unsolved goals
+H : HIn → Dig
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+s : List Fp2
+ss : List (List Fp2)
+t : Tr
+τ : List (It × Dig)
+its : List It
+hk : t.key = key
+hits :
+  List.map Subtype.val its =
+    opItems t.counter (Op.absorb scLabel (List.flatMap Fp2.toBytes s) :: Op.squeeze :: scOps ss)
+hops : scOps (s :: ss) = Op.absorb scLabel (List.flatMap Fp2.toBytes s) :: Op.squeeze :: scOps ss
+it1 it2 : It
+its' : List It
+h1 : ↑it1 = TItem.absorb scLabel (List.flatMap Fp2.toBytes s)
+h2 : ↑it2 = TItem.squeeze t.counter
+h3 : List.map Subtype.val its' = opItems (t.counter + 1) (scOps ss)
+C : ChainEnc It HIn Dig := chainEnc key domain hs
+hτ : C.lastD H τ = t.state
+d1 : Dig := H (C.link (C.lastD H τ) it1)
+d2 : Dig := H (C.link d1 it2)
+⊢ C.chainFrom H (τ ++ [(it1, H (C.link (C.lastD H τ) it1))] ++ [(it2, H (C.link (H (C.link (C.lastD H τ) it1)) it2))])
+      its' =
+    C.chainFrom H (τ ++ [(it1, d1)] ++ [(it2, d2)]) its'
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecSumcheck.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean:285:2: error: No goals to be solved
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a18b9cae3877467ba/formal/ZK60Formal/ExecCfs.lean
+rc build 0 files 1, 9 s
