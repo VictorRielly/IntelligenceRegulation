@@ -22,7 +22,55 @@ Mac, so the startup of a real 8B export was not measured.
 
 ## 1. Plain summary
 
-TODO (numbers from stages 1, 2 and 9).
+- **`stack-serve` is production's D55 path as a long-lived process.** It is `stack-prove --d55-workers N` with the
+  export loaded and checked once. Each request runs `d55_seal_and_prove` itself, so every step and every refusal is
+  `stack-prove`'s, in its order. Request r + 1's sealing pass runs beside request r's fork run, and at most one sealed
+  request waits for the prover.
+- **The stream** [MEASURED, stage 2 (s2), merged tree, 4 passes, alternating order]:
+
+  | arm | steady tok/s | amortized tok/s | latency of its first request | peak footprint |
+  |---|---:|---:|---:|---:|
+  | one request (`serve1`) | | 18.27 | 7.01 s | 69.0 GiB |
+  | **a stream of 4 (`serve4`)** | **29.23** | 24.88 | 7.45 s | 78.8 GiB |
+  | a stream of 8 (`serve8`) | 28.98 | 26.72 | 7.41 s | 78.9 GiB |
+  | the harness's stream of 4 (H124d), same tree | 32.53 | 28.61 | 6.09 s | 73.2 GiB |
+
+- **The startup** [MEASURED]: 0.583 s for the synthetic 8B model's 32 layers. The footprint went 1.5 → 8.8 GiB (the
+  resident model). A real export's startup also reads and hashes its files, and was not measured.
+- **The target of 33 steady was not reached.** The default reaches 29.23 tok/s, 11.3% below the harness's stream.
+  - The stream is bound by the prover turn: each request's prove call takes 4.39 s, against the harness's 3.94 s.
+  - Where the 0.44 s per request goes (§5.3) [INFERRED]:
+    - about 0.20 s is the preflight, mostly CS-6 re-hashing 32 distinct blocks;
+    - about 0.21 s is the forks running slower beside production's heavier sealing pass;
+    - about 0.03 s is the commit phase.
+- **The two forms that are off by default:**
+  - `HL_A22_DIGEST_AHEAD` (`dig1`) gives +4.9% steady, 4 of 4 pairs, reaching 30.67 tok/s. It is kept off for the
+    security owner's ruling; the argument is in §5.4.
+  - A13's window at 16 (`ahead16`) gives +1.7% steady, 3 of 4 pairs, at +5.8 GiB. That is inside the noise, so it stays
+    off (decision (e)).
+- **The bytes** [MEASURED]:
+  - Every request's statement identity, statement and frame list are `stack-prove`'s, but for the endpoint policy, which
+    is fresh by design.
+  - A fresh `stack-verify` accepts every receipt.
+  - 85 served 8B receipts are 818,728,672 B each.
+  - Heads replay, and interior forks equal whole forks.
+  - Two requests on the same input share no salt, mask or frame.
+  - A refused request mid-stream creates nothing, and the stream carries on (§4).
+- **Acceptance on the final tree:** §6.
+
+## 1a. The headline numbers, labelled
+
+| quantity | value | label |
+|---|---:|---|
+| steady proved tok/s, a stream of 4 (production's server) | 29.23 (28.58 to 29.51) | MEASURED, s2, 4 passes |
+| steady proved tok/s, a stream of 8 | 28.98 (28.84 to 29.07) | MEASURED |
+| amortized proved tok/s, 4 / 8 | 24.88 / 26.72 | MEASURED |
+| one request's latency (`serve1`, warm) | 7.01 s = 18.27 proved tok/s | MEASURED |
+| each later request's own time, sealing turn to result (`serve4`) | 9.04 s | MEASURED |
+| the startup (resident model, synthetic 8B, 32 layers) | 0.583 s, footprint +7.3 GiB | MEASURED |
+| peak footprint of a stream of 4 / 8 | 78.8 / 78.9 GiB | MEASURED |
+| the harness's stream of 4, same tree | 32.53 steady, 28.61 amortized | MEASURED |
+| `dig1` in a stream of 4 | 30.67 steady (+4.9%), 25.82 amortized | MEASURED |
 
 ## 2. The interface
 
@@ -66,8 +114,6 @@ zk60_trained_block stack-serve --export DIR --d55-workers N --d55-test-receipt-n
 
 ## 3. The design
 
-TODO: the measured parts.
-
 **Startup, once** (`Resident::start`) [CODE]:
 - `export_serve_of` makes `stack-prove`'s admission checks in its order, except the per-request ones: the label, the witness budget, the D55 workers, D60 review F3's admission, the GPU's liveness, the export, `--dd`, the layers, `--rope-from-export`, the run constants and the shape.
 - Every layer is then loaded with every check of the sealing pass's load: the export's array SHA-256s, the tables, the padded words, the record and its block digest. The loads run 4 at a time, and the first refusal in layer order is returned.
@@ -110,13 +156,270 @@ TODO: the measured parts.
 - The request's model statement, made from those records, must still be the startup's.
 - The shared blocks keep each digest beside its block, and the preflight's CS-6 compares the kept digest with the statement's instead of hashing the block again.
 
-## 4. The byte evidence
+## 4. The byte evidence [MEASURED]
 
-TODO (stages 1 and 9).
+**Why no byte can move** [CODE]:
+- A request runs `d55_seal_and_prove` itself.
+- Its model view's loads hand out copies of the very blocks and records the startup's checked loads made. The startup's
+  loads are `stack-prove`'s loads (the same `TrainedExport::load_layer`).
+- Its private sequence is read by the same `SeqSource::load`.
+- So each request's sealing pass reads the same words as `stack-prove`'s on that input. Its statement is the same
+  function of the same records. Its fork run is the same code on the same statement.
+- What differs between two runs is only the fresh randomness: the endpoint commitments, the boundary commitments and every
+  fork's coins. `stack-prove`'s receipts differ from each other in the same way.
 
-## 5. The measurements
+**Stage 1, on the merged tree** (`s1.progress`; stage 0 ran the same suite tests on the CPU before the merge):
+- **The R13 export through the server**
+  (`a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal`): on the CPU and on the
+  Metal device, both pass. It covers:
+  - **The sealing pass.** The server's equals `stack-prove`'s word for word: identity, block digests, every record, every
+    sealed plane, the endpoints, the stage shapes, and every kept witness. This holds at budgets everything and nothing,
+    with the digests ahead off and on.
+  - **A stream of 10 requests** (§7). The results come out in request order. Both turns are taken in request order, with
+    at most 2 requests held at once.
+  - **4 proved requests on the same input.** Each is verified by a fresh `stack-verify` (a verifier's copy of the export,
+    `--d55-workers`):
+    - statement identity `10a8fd14f6e75d8c…`, `stack-prove`'s;
+    - `statement.json` byte for byte `stack-prove`'s, but its `expected_io` line;
+    - `segments.json`'s names and lengths `stack-prove`'s;
+    - each receipt 62,099,008 B, `stack-prove`'s;
+    - the not-for-publication marker present.
+  - **Seeded lanes**, window 0 and 2 with the digests ahead off, and window 0 and 4 (= L) with them on. In each, proved,
+    refused (parity), proved:
+    - each receipt is verified by a fresh `stack-verify`;
+    - its head equals the commit phase replayed with the seeded generator;
+    - both interior forks equal those forks proved whole on the receipt's own statement;
+    - the forks parked equal the window;
+    - the refused request made 0 or 1 parts and left 0 alive.
+- **The resident synthetic W16R2 rung on Metal**
+  (`a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on_on_the_device`) passes. Its arms are window
+  0/2/4, lanes 1 and 2, digests ahead off and on. The stream is honest, lie at layer 1, honest, honest. In each arm:
+  - every receipt (61,301,184 B) verifies from its run directory;
+  - every head replays, and the interior forks equal whole forks;
+  - the lie is refused before the run header, creates nothing, and leaves 0 parts alive.
+- **The resident 8B synthetic stack on Metal** (`a22_the_resident_8b_stream_replays`, L = 4) passes, with the same checks.
+  Each receipt is 102,772,480 B.
+- **CS-6 with the digests ahead** (`a22_cs6_takes_the_digest_kept_with_its_block_and_refuses_a_wrong_one`, the suite):
+  - a fork run over blocks kept with their own digests proves and verifies;
+  - a wrong kept digest is refused by the preflight: `private run: ruling CS-6 — block 1 handed to the run is not the
+    block the run statement names …; refused before anything is absorbed`.
 
-TODO (stage 2: the A/B on the merged tree; stage 9: the confirmation run).
+**Stage 2, the A/B:**
+- All 85 served 8B receipts are 818,728,672 B. That is 4 passes of 1 + 4 + 8 + 4 + 4 requests, and the cold request.
+- Each arm's first pass, and the cold request, were verified from their run directories: 22 receipts.
+- The harness's 4 receipts of its first pass also verified.
+
+**Stage 9** repeats stage 1 on the final tree (§6).
+
+## 5. The measurements [MEASURED, stage 2, `s2_table.md`, `s2_ab.log`]
+
+All are on the merged tree: W16R2 8B T128, 32 blocks, N = 6, 4 passes, the arm order reversed in odd passes, quiet GPU
+(no `ds4-bench` at the start or the end).
+- One resident model started once: 0.583 s, footprint 1.5 → 8.8 GiB.
+- One cold request first: 7.489 s.
+- `steady` = (R − 1) · 128 / (the last completion − the first).
+- `amortized` = R · 128 / the last completion.
+- Every request's line arrives at t = 0.
+
+### 5.1 The arms
+
+| arm | steady tok/s, mean (min, max) | amortized tok/s, mean (min, max) | first request's latency | mean latency from arrival | peak footprint |
+|---|---:|---:|---:|---:|---:|
+| `serve1` | | 18.27 (17.98, 18.43) | 7.008 s | 7.008 s | 69.0 GiB |
+| `serve4` | **29.23** (28.58, 29.51) | 24.88 (24.59, 25.12) | 7.445 s | 14.133 s | 78.8 GiB |
+| `serve8` | 28.98 (28.84, 29.07) | 26.72 (26.61, 26.89) | 7.410 s | 18.601 s | 78.9 GiB |
+| `harness4` (H124d, the same tree) | 32.53 (32.38, 32.73) | 28.61 (28.40, 28.77) | 6.088 s | 8.845 s* | 73.2 GiB |
+| `serve4+dig1` | 30.67 (30.02, 31.14) | 25.82 (25.59, 26.16) | 7.308 s | 13.689 s | 78.7 GiB |
+| `serve4+ahead16` | 29.73 (29.41, 30.21) | 25.00 (24.73, 25.27) | 7.562 s | 14.179 s | 84.6 GiB |
+
+\* The harness measures latency from each request's sealing start, not from its arrival (§5.5).
+
+- **The original harness test's stream on this tree, for reference** (`s2_d55.log`): 32.53 steady, 28.56 amortized.
+  Proof only: best 3.953 s; one request from its input: best 5.489 s.
+- **The footprint** is the process's physical footprint, sampled every 10 ms.
+  - It starts each stream at 29 to 31 GiB in pass 0, and at 51 GiB later: the allocator keeps memory freed earlier.
+  - The rise over a stream's start, in pass 0, is the comparable figure: `serve1` +19.7, `serve4` +29.1, `serve8` +28.0,
+    `harness4` +22.6, `dig1` +29.0 GiB.
+  - The server holds about 6.5 GiB more than the harness in a stream of 4 [INFERRED]. That is mostly the request's block
+    copies (§5.3(a)).
+  - `serve4` and `serve8` peak alike: the stream is bounded at two requests.
+
+### 5.2 Paired changes (4 passes, both orders)
+
+| comparison | steady | amortized |
+|---|---|---|
+| `serve4` → `harness4` | **+11.3%** (4 of 4; +10.4% / +12.3% by order) | +15.0% (4 of 4) |
+| `serve4` → `serve4+dig1` | **+4.9%** (4 of 4; +4.6% / +5.3%) | +3.8% (4 of 4) |
+| `serve4` → `serve4+ahead16` | +1.7% (3 of 4; +2.0% / +1.5%) | +0.5% (2 of 4) |
+| `serve4` → `serve8` | −0.8% (1 of 4) | +7.4% (4 of 4) |
+
+### 5.3 Where each request's time goes, and the gap to the harness
+
+The means of each request's parts. "Later" means every request of a stream but its first. "After the prover" is the
+receipt write, the marker, the statement files and the result line.
+
+| arm | requests | sealing pass | waited for the prover | prove call | preflight | commit | forks | join | receipt write | after the prover | own time, sealing turn to result |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `serve1` | 4 | 2.514 | 0 | 4.183 | 0.316 | 0.207 | 3.584 | 0.076 | 0.223 | 0.296 | 7.007 |
+| `serve4` | first, 4 | 2.479 | 0 | 4.625 | 0.342 | 0.307 | 3.896 | 0.081 | 0.245 | 0.327 | 7.445 |
+| `serve4` | later, 12 | 3.940 | 0.349 | **4.393** | 0.280 | 0.240 | 3.789 | 0.084 | 0.249 | 0.324 | 9.042 |
+| `serve4+dig1` | later, 12 | 3.921 | 0.239 | 4.178 | **0.118** | 0.230 | 3.748 | 0.082 | 0.216 | 0.284 | 8.668 |
+| `serve4+ahead16` | later, 12 | 4.013 | 0.324 | 4.322 | 0.281 | 0.257 | 3.701 | 0.084 | 0.235 | 0.310 | 9.007 |
+| `serve8` | later, 28 | 3.832 | 0.349 | 4.425 | 0.274 | 0.252 | 3.818 | 0.081 | 0.245 | 0.321 | 8.963 |
+| the harness, proof only (`s2_d55.log`, 2 passes) | | | | 3.92 to 4.08 | 0.081 to 0.085 | 0.207 to 0.211 | 3.55 to 3.71 | 0.078 to 0.081 | | | |
+
+**The stream is bound by the prover turn** [INFERRED]:
+- Every later request waits about 0.35 s for the prover, so the prover is never idle.
+- `serve4`'s period, 128 / 29.23 = 4.379 s, is its prove call (4.393 s).
+- The harness's period, 128 / 32.53 = 3.935 s, is its own proof-only call.
+- The gap is therefore the prove call's: **0.444 s per request**. It splits as follows.
+
+1. **The preflight: +0.20 s** (0.280 against the harness's 0.083).
+   - The harness's `RepeatBlock` hashes its one block once. Production's CS-6 hashes 32 distinct blocks in every
+     request's preflight, and its CS-1/CS-4 scan reads 32 distinct objects.
+   - `dig1` takes the preflight to 0.118 s. So CS-6's re-hash is about 0.16 s of it, and the scan of distinct objects
+     the remaining 0.035 s.
+   - This part is on the critical path. `dig1` recovers +4.9% (§5.2).
+2. **The forks: +0.21 s** (3.789 against 3.584 for `serve1`, whose forks are the harness's 3.55 to 3.71 with nothing
+   beside them).
+   - The cause is contention with the next request's sealing pass, which runs beside the whole prove call.
+   - Production's sealing pass is heavier than the harness's. It takes 2.51 s alone (`serve1`) against 1.53 to 1.57 s,
+     and 3.94 s beside the forks against 2.7 to 2.9 s.
+   - It does what the harness's pass does not: each layer's copy from the resident model, CS-3's lookup-miss check, the
+     parity check and the production builder.
+   - Over 4 requests the server used 243 user + 73 system CPU-seconds, against the harness's 189 + 36. That is about +13
+     user and +9 system CPU-seconds per request.
+3. **The commit phase: +0.03 s** (0.240 against about 0.21). The previous request's receipt write and statement files,
+   0.32 s after the prover leaves, run over this request's preflight and commit.
+
+The suspects named:
+- **(a) The per-request copies of the resident layers.**
+  - Bytes: each request copies 32 blocks of about 243 MB of padded words each [MEASURED by A20: 243,277,824 B; tables
+    and accuracy data add under 1%], about 7.8 GB per request [INFERRED].
+  - Time: about 3.9 ms per block alone (A20's profile), about 0.125 CPU-seconds per request, on the sealing pass's four
+    loader threads, beside the forks [INFERRED].
+  - The fresh 7.8 GB is faulted in for every request. That is a likely part of the +9 system CPU-seconds per request and
+    of the forks' +0.21 s [INFERRED; not separately measured].
+  - The copies are off the critical path (the sealing side has 0.35 s of slack) but share the memory system with the forks.
+  - They are also most of the +6.5 GiB of footprint.
+- **(b) The CS-6 re-hash: 0.16 s per request, on the critical path, inside the preflight.** `dig1` moves it to the
+  loaders: +4.9% steady (§5.2).
+- **(c) The receipt write: 0.249 s per request** (16 writers, `F_FULLFSYNC` per frame).
+  - It runs outside the prover turn, beside the next request's preflight and commit.
+  - The harness writes nothing. Its effect is inside (3): about 0.03 s on the commit, and on the preflight beside it
+    [INFERRED].
+- **(d) The statement files: about 0.075 s per request** (the marker, the four statement files with their syncs, the
+  result line: 0.324 − 0.249). They run outside the prover turn, with (c).
+- **(e) The reader and lane threads.**
+  - The reader blocks on a channel of 2 lines; it costs nothing measurable.
+  - The lanes are the harness's two threads (a sealing side, a prover), plus the sealing pass's four loader threads
+    (A20) beside the six fork pools.
+  - Their contention is the sealing pass's own CPU, counted in (2) and (a).
+
+**Could the resident blocks be shared instead of copied, without changing a byte?** Yes [CODE].
+- Every consumer of a block reads it by shared reference:
+  - the witness build (`witness_for_block(&ssh, &cur.blk, &x)`);
+  - CS-3's check (`check_lookup_misses(.., &cur.blk, ..)`);
+  - the preflight and every fork (`ForkBlocks::get(k) -> &BlockPublic`).
+- The copy exists only because of an ownership type. `StackModel::load_layer` returns an owned
+  `TrainedLayer { blk: BlockPublic }`, which `seal_chain` moves into `SealHand::block` and on into
+  `SealedBlocks`' `OnceLock<BlockPublic>`.
+- The change: `TrainedLayer.blk` and the `SealedBlocks` cells become `Arc<BlockPublic>`. A fresh load is wrapped once
+  (no copy); the server hands out `Arc::clone` of the resident block. That would read the same words, so no byte can move.
+- A13's parts check the blocks object's address, which this does not touch.
+- CS-6 could then compare the startup digest of the very object being proved. That is A19 §9's "record kept per manifest
+  digest" form and needs the same ruling. The per-request copy, its faults and its 7.8 GB per in-flight request would
+  go too.
+- [ESTIMATE] `dig1`'s +4.9%, plus a part of the forks' +0.21 s: about +6 to +9% steady, so about 31 to 32 tok/s.
+- It is not built here. It changes `TrainedLayer`, which the loader, A19's synthetic model and several tests construct,
+  and its CS-6 half needs the ruling.
+
+### 5.4 `dig1`: the equivalence argument (for the security owner's decision (d); `HL_A22_DIGEST_AHEAD` stays off)
+
+**What is digested, when, and on which thread** [CODE]:
+- With `HL_A22_DIGEST_AHEAD=1`, `Served::load_layer(k)` (`trained_block.rs`) runs, for each request and each layer:
+  ```
+  let blk = r.blk.clone(); let mut record = r.record.clone(); record.block_digest = blk.digest();
+  ```
+  - `blk` is the request's own copy of resident block `k`.
+  - `BlockPublic::digest` is D2: the same function CS-6's default `ForkBlocks::digest_of` calls. On the merged tree it
+    is A21's parallel tree under `HL_A21_B3PAR`, with the same bytes.
+  - The digest runs right after the copy is made, on the thread running the load: one of the sealing pass's loader threads
+    (`LoadAhead`, A20), or the sealing lane itself at `HL_A20_LOADS=0`.
+- The copy then moves, by value with no clone, inside the `TrainedLayer` into `seal_chain`.
+  - `seal_chain` reads it only by `&` (the witness build, CS-3's check).
+  - It then pushes `record.block_digest` to the run's digests, and hands the copy and `digests[k]` (that same value) to
+    `D55Hand::block`, which calls `SealedBlocks::put_digested(k, blk, digest)`.
+  - `put_digested` sets the block's cell and its digest's cell together. Each is a `OnceLock`, set once; a second set
+    is an error.
+- The preflight's CS-6 then reads `SealedBlocks::digest_of(k)`, which returns that kept digest.
+
+**Why nothing can change the object between the digest and the preflight** [CODE]:
+- From the digest to the `put`, the copy has one owner at a time: the load, then the `TrainedLayer`, then `seal_chain`'s
+  `cur`, then the cell. The only uses are moves and `&` borrows. Rust's ownership excludes any other reference, and so
+  any write.
+- After the `put`, `SealedBlocks` hands out `&BlockPublic` only (`ForkBlocks::get`). `OnceLock` gives no `&mut` without
+  `&mut SealedBlocks`, and `d55_seal_and_prove` owns `blocks` and lends only `&blocks`.
+- `BlockPublic`'s fields are private plain data:
+  - `AttentionPublic`: `Vec<i8>` and `Vec<i64>`;
+  - `FeedForwardPublic`: `Vec<i8>` and `[i16; 256]`;
+  - `Option<AccuracyPublic>`: `Vec`s, enums and plain structs.
+
+  There is no `Cell`, `RefCell`, `OnceLock`, `Mutex`, atomic or raw pointer in any of them (`accuracy_public.rs` has
+  none).
+- No `unsafe` code touches a block.
+  - `trained_block.rs` has no `unsafe`.
+  - `run_fork.rs` has two `unsafe` calls, neither on a block: `clock_gettime` (a thread's CPU clock) and
+    `pthread_set_qos_class_self_np` (A13's side workers' QoS).
+- A move does not touch the heap buffers the digest read.
+
+**Why CS-6's purpose is still met** [CODE]:
+- CS-6's purpose is that the blocks the fork run proves with are the blocks the run statement names.
+- With `dig1`, the statement's digest `k` is the request's record's digest, the D2 of the object in the cell.
+- That record must also produce the startup's statement identity, which `Served::statement_of_records` checks before the
+  run header. The identity covers every record field, the block digest included.
+- So the object proved has the startup's digest: D2(the object proved) = the request's record = the startup's record
+  (D2 of the resident block as the startup's checked load made it).
+- The check is not removed. It moves earlier, before the run header, on the sealing side: a copy that differed from the
+  resident block would give a different digest and so a different identity. It would be refused before anything of the
+  run exists, with `stack-serve: this request's trained-model statement is not the one the server started with (before
+  the run header)`.
+- The preflight's comparison still runs on every block, against the statement.
+- The verifier is independent of all of this. `stack-verify` hashes its own blocks from the export, and the transcript
+  binds the statement's digests.
+
+**What a wrong kept digest does** [MEASURED, the suite test]:
+- If a kept digest were not the statement's, the preflight refuses by CS-6's own name before anything is absorbed:
+  `private run: ruling CS-6 — block k handed to the run is not the block the run statement names (its public digest
+  begins …, the statement's …); refused before anything is absorbed`.
+- If a kept digest were right but the cell held another object, which `put_digested` cannot produce, the receipt would
+  fail verification.
+
+**What it does not cover:**
+- A hardware fault in memory between the digest and the forks' reads. The default has the same exposure between the
+  preflight's hash and the forks' reads, which are later still.
+- **The cost:** 32 digests per request on the loaders (A21's tree; A21 measured 5.9 ms each).
+
+### 5.5 Latency: queueing, not slower requests
+
+- **The figures.** `serve4`'s mean latency of 14.13 s is measured from each line's arrival, and all four lines arrive at
+  t = 0. The harness's 8.85 s is measured from each request's own sealing start.
+- **Each request's own time, from entering the sealing turn to its result** [MEASURED]:
+
+  | stream (pass 0) | request 0 | request 1 | request 2 | request 3 |
+  |---|---:|---:|---:|---:|
+  | `serve4`, own time | 7.47 | 9.47 | 8.90 | 8.51 s |
+  | `serve4`, from arrival | 7.47 | 12.02 | 16.37 | 20.53 s |
+  | `harness4`, from its sealing start | 6.17 | 8.87 | 9.74 | 10.97 s |
+
+- Over 4 passes, a later `serve4` request's own time is 9.04 s on average. The harness's later requests take 9.76 s from
+  their sealing start, because its sealing thread runs ahead and its sealed requests wait in its channel.
+- **So each request does not take longer than in the harness.** The 14.1 s is queueing: request q waits for the q
+  requests ahead of it. The first request, 7.45 s against the harness's 6.09 s, carries the heavier production sealing
+  pass (§5.3(2)) [INFERRED].
+- **One request alone** (`serve1`, warm) takes 7.01 s: a sealing pass of 2.51 s, a prove call of 4.18 s, and 0.30 s
+  after the prover. Production's one request through `d55_seal_and_prove` after A21 took 7.045 s (A21's measurement).
+  At one request the resident model saves little, since A21 made the loads cheap. The stream is where the gain is.
 
 ## 6. Acceptance on the final tree
 
@@ -152,7 +455,26 @@ TODO (stage 9).
    - Within one data owner, that reveals nothing that the earlier request's own result line does not already show.
    - Across owners it would be a new channel, so the server serves one data owner per process until a ruling.
    - The schedule itself reads no hidden value: the turns follow the request order, and each request's timing is `stack-prove`'s.
-6. **The tests** (§4): TODO.
+6. **The tests** (§4) [MEASURED, CPU and Metal, merged tree]. The R13 export's stream of 10 requests:
+   - 0: proved;
+   - 1: **a refused input in the middle of the stream** (layer 1's reference output off by one word, by `seq_dir`). The
+     constant refusal line; the detail was layer 1's parity refusal, `before the run header; ruling H-1`. No run
+     directory or statement was created;
+   - 2: **a run directory that already exists**. Refused, and the directory and its file were untouched;
+   - 3: proved;
+   - 4: **an I/O failure after the run header**. A lane hook made the run directory unwritable after the proof, so the
+     receipt write failed. The run directory was removed (`prove_run: … (the incomplete run directory was removed)`)
+     and no statement was left;
+   - 5: a bad request line;
+   - 6: a run directory request 0 had named. Refused;
+   - 7: proved;
+   - 8: **a statement-file failure after the receipt**. Its statement directory was taken by someone else. The run
+     directory was removed, and the other directory was left untouched;
+   - 9: proved.
+
+   The results came out in request order. Each turn was taken in request order, with at most 2 requests held at once.
+   Requests 0, 3, 7 and 9 were each verified by a fresh `stack-verify`. With the window on, a refused request's parts
+   were all dropped (0 alive), on the export and on the synthetic rung.
 
 ## 8. The cached-record binding
 
@@ -176,7 +498,12 @@ TODO (stage 9).
 - **The endpoint commitments.** `prepare_endpoints` draws fresh OS randomness on every call, and `d55_seal_and_prove` calls it once per request.
 - **The boundary commitments and every fork's coins.** These are the commit phase's generator and one generator per fork. Each is `ZkRng::from_os` under its own domain, made inside `prove_forks_inner`, on the thread that uses it, once per request (run_fork.rs, F4).
 - **The scope of that code.** None of it is cached by the server, and s25's census of the two construction sites is unchanged.
-- The test (§4) proves 4 requests on the same input in one stream. TODO: the result.
+- **The test** (§4) proved 4 requests on the same input in one stream, with no seeded generator [MEASURED, CPU and Metal]:
+  - no two share their endpoint commitments (`expected.bin`);
+  - no two share their head (it carries the 3 boundary roots, each salted and masked);
+  - no two share any fork frame (its masks, and the challenges, which follow);
+  - no two share the tail;
+  - all four verify.
 
 **No carry-over** [CODE]:
 - Every buffer of a request lives inside its `prove_one` call: the private sequence, the chain, the witnesses, the sealed planes, the endpoint owners, the boundary owners, the receipt and its blocks' copies. Each is dropped before that request's outcome goes to the printer, so before its result line.
@@ -190,7 +517,23 @@ TODO (stage 9).
 
 ## 10. For the privacy gate
 
-TODO (source digests at the final commit).
+**The production sources that moved** (SHA-256 of the file: perf `2eb26c7f` → this lane's final tree) [MEASURED]:
+
+| file | perf 2eb26c7f | A22 | what moved |
+|---|---|---|---|
+| `src/private_block/trained_block.rs` | `301cae66…` | `d3616df5…` | the `[A22]` section; `D55Run.turn` and its two calls in `d55_seal_and_prove`; `write_unverified_statement_files`; `SealHand::block`'s digest argument (`seal_chain`'s one line, `NoHand`, `D55Hand`); `StackModel::fresh_digests`; `D55Proved`'s three accessors |
+| `src/private_block/run_fork.rs` | `3cf49cd2…` | `a73edcfd…` | `SealedBlocks`' digest cells, `put_digested`, `digest_of` |
+| `src/private_block.rs` | `a8ce361f…` | `612d87c1…` | the re-export of `trained_stack_serve_command` |
+| `examples/zk60_trained_block.rs` | `54067edf…` | `b7124684…` | `stack-serve` in the CLI and its header |
+
+- `run_fork.rs` is a source pin of the D55 capture.
+- Unchanged: `protocol.rs`, `argument*.rs`, `witness*.rs`, `run.rs`, `run_sink.rs`, `trained_statement.rs`, `gpu/*`,
+  zkp-core, `Cargo.toml` and `Cargo.lock`.
+- No receipt, statement, record or `stack-prove` event byte moves (§4).
+- No new hash call site of s25's census: the server calls `BlockPublic::digest` (D2) only under `dig1`, through the
+  method, not an entry point.
+- No new absorb label, generator site or `unsafe`.
+- s25's call-site and file censuses, the label scan and R6's audit pass (stage 0, and the suite in stage 9).
 
 **New threads** [CODE]:
 - **Per stream:** one reader thread (request lines only) and `HL_A22_LANES` lane threads, 2 by default. Each lane runs one request at a time, end to end, and holds that request's private data only while serving it.
@@ -209,7 +552,27 @@ TODO (source digests at the final commit).
 
 ## 11. What is left
 
-TODO.
+- **The 33 tok/s target**: 29.23 steady by default, 30.67 with `dig1` [MEASURED].
+  - **The next form**: shared resident blocks (`Arc<BlockPublic>`), with CS-6 against the startup digest of the very
+    object (§5.3). It removes the copy and the re-hash, and needs A19 §9's ruling. [ESTIMATE] +6 to +9% steady.
+  - **The rest of the gap**: the forks' +0.21 s beside production's heavier sealing pass.
+    - The sealing side has 0.35 s of slack per request, so a smaller sealing pool in the stream (A15 measured 8 threads
+      at one request only) could trade it for the forks' cores. Not measured.
+- **Rulings owed:**
+  - (d) `dig1`, argued in §5.4;
+  - (a) more than one data owner per process;
+  - the startup-digest form of CS-6;
+  - per-request `gpu_declines` (§10);
+  - `F_FULLFSYNC` per frame is `stack-prove`'s durability and is kept.
+- **Not measured:**
+  - a real trained 8B export's startup (no export on the Mac): it also reads and SHA-256s every array;
+  - any machine but this M3 Ultra;
+  - streams longer than 8;
+  - a supervisor process driving the CLI over a pipe (the A/B drives `serve_stream`, the CLI's own function, in
+    process).
+- **Not built:** a supervisor. `apps/proven-media` is Astra's lane; §2 documents the interface it would drive.
+- **D63 stands**: nothing goes into production before its Lean statements are proved. This is the production form,
+  measured, not a deployment.
 
 ## 12. Merges
 
@@ -236,6 +599,10 @@ TODO.
   - `s9.sh` (the acceptance);
   - `run_stage.py` (A20's runner, with A22's labels);
   - `stream_table.py` (the A/B's tables).
-- **Records:** each stage's progress file, guard record and `.done` marker; `s2_ab.log` and `s2_table.md`; stage 9's files.
+- **Records:**
+  - each stage's progress file, guard record and `.done` marker;
+  - stage 2: `s2_ab.log` (the A/B's lines, trimmed), `s2_table.md` (its tables), `s2_d55.log` (the original harness's
+    stream);
+  - stage 9: `s9_ab.log`, `s9_table.md`, `s9_d55.log`, `s9_prod.log`.
 - **History:** stage 0 ran before the merge. The first `s1`/`s2` queue entry was stopped while still waiting for the lock (exit 70, never started) so that every measurement would run on the merged tree.
 - **Raw logs** stay in `raw/` (not committed).
