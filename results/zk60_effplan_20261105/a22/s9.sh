@@ -53,7 +53,7 @@ grep -A 3 '^warning' $R/s9_build_prod.log | grep -E 'trained_statement.rs|traine
 /opt/homebrew/bin/cargo build --release --offline --locked --features gpu-metal --manifest-path $H --example zk60_trained_block > $R/s9_build_cli.log 2>&1; say "the CLI example zk60_trained_block (stack-serve) rc=$?"
 env HL_R13_LOADER_FIXTURES=$F $C -- --test-threads=8 > $R/s9_full.log 2>&1; say "full lib suite rc=$? (expect failures: exactly the known three)"
 grep -E "^test result|^    [a-z_:0-9]+$" $R/s9_full.log | tail -8 >> $P
-grep -E "a22_|a20_|a19_|a18_|a16_|a17_|h124c_the_parallel|a4_the_device_builder|a15_the_seal_pool_rule|a14_the_lazy_sums|a12_the_device_table_formula|a8_store_fold_forms_equal|d60_f3|d60_f8|r6_tests::the_sealing_pass|hash_call_sites|every_absorb_label|r19b_every_rs_file" $R/s9_full.log | cut -c1-200 >> $P
+grep -E "a22_|a21_|a20_|a19_|a18_|a16_|a17_|h124c_the_parallel|a4_the_device_builder|a15_the_seal_pool_rule|a14_the_lazy_sums|a12_the_device_table_formula|a8_store_fold_forms_equal|d60_f3|d60_f8|r6_tests::the_sealing_pass|hash_call_sites|every_absorb_label|the_production_module_graph|r18_the_census|r19b_every_rs_file" $R/s9_full.log | cut -c1-200 >> $P
 /opt/homebrew/bin/cargo test --release --offline --locked --manifest-path $Z --lib > $R/s9_zkpcore.log 2>&1; say "zkp-core lib tests rc=$?"
 grep -E "test result" $R/s9_zkpcore.log >> $P
 for t in a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on_on_the_device; do
@@ -70,6 +70,11 @@ env HL_R13_LOADER_FIXTURES=$F HL_GPU_REQUIRED=1 HL_METAL_TIMING=0 $C $K::a20_pro
 grep -E "A20-PROD.*(statement identity|every arm)|test result|panicked" $R/s9_a20_prod_metal.log | cut -c1-400 >> $P
 env HL_GPU_REQUIRED=1 HL_METAL_TIMING=0 HL_PB_ORACLE=0 $C $K::a20_the_8b_records_sealing_pass_and_production_path_under_every_setting -- --ignored --exact --nocapture --test-threads=1 > $R/s9_a20_8b.log 2>&1; say "a20 8B records, sealing pass and production path rc=$?"
 grep -E "A20-8B|test result|panicked" $R/s9_a20_8b.log | cut -c1-300 >> $P
+# A21's two device tests (its s9.sh)
+env HL_R13_LOADER_FIXTURES=$F HL_GPU_REQUIRED=1 HL_METAL_TIMING=0 $C $K::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung_on_the_device -- --ignored --exact --nocapture --test-threads=1 > $R/s9_a21_prod_metal.log 2>&1; say "a21 production path on the device (the forms off and on) rc=$?"
+grep -E "A21-PROD.*(statement identity|every arm)|test result|panicked" $R/s9_a21_prod_metal.log | cut -c1-500 >> $P
+env HL_GPU_REQUIRED=1 HL_METAL_TIMING=0 HL_PB_ORACLE=0 $C $K::a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_setting -- --ignored --exact --nocapture --test-threads=1 > $R/s9_a21_8b.log 2>&1; say "a21 8B words, digest, record, sealing pass and production path rc=$?"
+grep -E "A21-8B|test result|panicked" $R/s9_a21_8b.log | cut -c1-500 >> $P
 env HL_GPU_REQUIRED=1 HL_METAL_TIMING=0 $C private_block::w16r2_tests::a18_w16r2_rung_golden_under_every_a18_setting -- --ignored --exact --nocapture --test-threads=1 > $R/s9_a18rung.log 2>&1; say "a18 rung golden under every setting (CPU and Metal, three entries) rc=$?"
 grep -E "test result|panicked" $R/s9_a18rung.log | cut -c1-240 >> $P
 env HL_GPU_REQUIRED=1 HL_METAL_TIMING=0 HL_PB_ORACLE=0 $C private_block::w16r2_tests::a18_the_8b_block_proves_the_same_under_every_a18_setting -- --ignored --exact --nocapture --test-threads=1 > $R/s9_a18_8b.log 2>&1; say "a18 8B block under every setting rc=$?"

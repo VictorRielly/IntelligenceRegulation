@@ -1,5 +1,5 @@
 #!/bin/bash
-# A22 stage 2: THE A/B. Production's server stream (`stack-serve`'s code path, `serve_stream` on the resident model) on
+# A22 stage 2: THE A/B, on the tree with A21 merged (perf 2eb26c7f; no A/B ran before the merge). Production's server stream (`stack-serve`'s code path, `serve_stream` on the resident model) on
 # the D55 harness's synthetic W16R2 8B T128 32-block stack, in process, N = 6, the witness budget the Mac's default
 # (32 GiB): one request (serve1), streams of 4 and 8 (serve4, serve8), the harness's stream of 4 on the same tree
 # (harness4, H124d), and the two forms off by default in a stream of 4 (serve4+dig1: the digests ahead; serve4+ahead16:
