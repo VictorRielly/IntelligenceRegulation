@@ -1,0 +1,29 @@
+== lake build ZK60Formal.CompleteSub ==
+Build completed successfully (3383 jobs).
+== lean ZKHybrid.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:429:27: error(lean.invalidField): Invalid field notation: Type of
+  i
+is not known; cannot resolve field `succ`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `ChainClosure.succ`
+  • `Fin.succ`
+  • `Int.succ`
+  • `IsChain.succ`
+  • `Nat.succ`
+  • `Order.succ`
+  • `SuccOrder.succ`
+  • `UnivLE.succ`
+  • `WithBot.succ`
+  • `Aesop.GoalId.succ`
+  • `Aesop.Iteration.succ`
+  • `Aesop.RappId.succ`
+  • `ChainClosure.below.succ`
+  • `Lean.Level.succ`
+  • `Nat.Subtype.succ`
+  • `Ordinal.IsFundamentalSequence.succ`
+  • `Polynomial.SplittingFieldAux.succ`
+  • `Std.PRange.succ`
+  • `Lean.Level.PP.Result.succ`
+  • `Mathlib.Meta.Nat.UnifyZeroOrSuccResult.succ`
+  • `Std.Time.Internal.Bounded.LE.succ`

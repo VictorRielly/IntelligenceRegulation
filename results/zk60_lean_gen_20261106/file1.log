@@ -1,0 +1,123 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:94:15: warning: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:207:6: error: Application type mismatch: The argument
+  fun i x => rfl
+has type
+  ∀ (i : ?m.114) (x : ?m.118 i), ?m.120 i x = ?m.120 i x
+but is expected to have type
+  degree ?m.112 < ↑(#univ)
+in the application
+  Lagrange.eq_interpolate_of_eval_eq ?m.111 ?m.113 fun i x => rfl
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:206:72: error: Application type mismatch: The argument
+  Function.Injective.injOn (node_injective hd)
+has type
+  Set.InjOn (node d) ?m.109
+of sort `Prop` but is expected to have type
+  Fin (d + 1) → ?m.101
+of sort `Type` in the application
+  @Lagrange.eq_interpolate_of_eval_eq ?m.101 ?m.96 (Fin (d + 1)) (instDecidableEqFin (d + 1)) univ (node d)
+    (Function.Injective.injOn (node_injective hd))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:360:4: warning: Try this: 
+  haveI̵
+
+The goal is a proposition, so `have` is preferred over `haveI`.
+The difference between `have` and `haveI` is that `haveI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:367:28: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  T j
+in the target expression
+  (fun j => if r (T j) = j then #{l | A l = T j} else 0) j = if r u = j then #{l | A l = u} else 0
+
+L κ V : Type
+inst✝² : Fintype L
+inst✝¹ : Fintype κ
+inst✝ : DecidableEq V
+A : L → V
+T : κ → V
+hin : ∀ (l : L), ∃ j, T j = A l
+hκ : Nonempty κ
+r : V → κ := Function.invFun T
+u : V
+hu : ∃ j, T j = u
+hru : T (r u) = u
+j : κ
+hj : j ∈ {j | T j = u}
+⊢ (fun j => if r (T j) = j then #{l | A l = T j} else 0) j = if r u = j then #{l | A l = u} else 0
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:368:8: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:368:32: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Fintype V
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:368:8: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  if u ∈ filter (Eq (T (r u))) univ then ?m.153 else ?m.154
+in the target expression
+  (if r u ∈ {j | T j = u} then #{l | A l = u} else 0) = #{l | A l = u}
+
+case pos
+L κ V : Type
+inst✝² : Fintype L
+inst✝¹ : Fintype κ
+inst✝ : DecidableEq V
+A : L → V
+T : κ → V
+hin : ∀ (l : L), ∃ j, T j = A l
+hκ : Nonempty κ
+r : V → κ := Function.invFun T
+u : V
+hu : ∃ j, T j = u
+hru : T (r u) = u
+⊢ (if r u ∈ {j | T j = u} then #{l | A l = u} else 0) = #{l | A l = u}
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:492:40: error: Ambiguous term
+  fold
+Possible interpretations:
+  Sound.fold ω.1.1 ω.1.2 (T j) : F
+  
+  Finset.fold ?m.257 ω.1.2 ?m.265 : Finset ?m.250 → F
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:492:13: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Membership F (Finset (Finset ?m.250 → F))
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:494:15: warning: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:525:5: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Fintype ((κ → E) × (Fin Q → ι))
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:569:12: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:569:25: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:572:12: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:572:25: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:572:42: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  2 * (j / 2) + 1
+in the target expression
+  H (M.nodeQ (v (j - 1)) (v j)) = H (M.nodeQ (v (j - 1)) (v (j - 1 + 1)))
+
+case neg
+Q D S Col : Type
+M : MerkleEnc Q D S Col
+H : Q → D
+h : ℕ
+v : ℕ → D
+j : ℕ
+hj : j < 2 ^ (h + 1)
+hpar : ¬j % 2 = 0
+e1 : 2 * (j / 2) = j - 1
+e2 : 2 * (j / 2) + 1 = j
+⊢ H (M.nodeQ (v (j - 1)) (v j)) = H (M.nodeQ (v (j - 1)) (v (j - 1 + 1)))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:606:79: error(lean.invalidField): Invalid field `leafVec`: The environment does not contain `ZK60.Assembly.ColCommit.leafVec`, so it is not possible to project the field `leafVec` from an expression
+  C
+of type `ColCommit Q D S Col St V Salt`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:607:65: error(lean.invalidField): Invalid field `leafVec`: The environment does not contain `ZK60.Assembly.ColCommit.leafVec`, so it is not possible to project the field `leafVec` from an expression
+  C
+of type `ColCommit Q D S Col St V Salt`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:610:22: error: Application type mismatch: The argument
+  C.enc
+has type
+  MerkleEnc Q D S Col
+but is expected to have type
+  ColCommit Q D S Col St V Salt
+in the application
+  opens_honest C.enc
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:610:37: error(lean.invalidField): Invalid field `leafVec`: The environment does not contain `ZK60.Assembly.ColCommit.leafVec`, so it is not possible to project the field `leafVec` from an expression
+  C
+of type `ColCommit Q D S Col St V Salt`

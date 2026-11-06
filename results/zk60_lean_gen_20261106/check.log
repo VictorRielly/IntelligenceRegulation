@@ -1,0 +1,15 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3433/3435] Built ZK60Formal.ZKHybrid (2.3s)
+✔ [3434/3435] Built ZK60Formal (1.8s)
+Build completed successfully (3435 jobs).
+warnings: 0
+errors: 0
+== axiom audit ==
+axioms rc 0
+theorems audited: 71
+sorryAx: 0
+other axioms: 0
+== source scan of CompleteSub.lean and ZKHybrid.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/CompleteSub.lean:54:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`. What stays per profile is listed in
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac7a96c145c37fc1d/formal/ZK60Formal/ZKHybrid.lean:46:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
