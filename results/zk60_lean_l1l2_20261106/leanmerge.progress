@@ -1,0 +1,24 @@
+2026-11-06T13:22:21Z start
+2026-11-06T13:25:06Z test build rc=0
+2026-11-06T13:33:29Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 954 passed; 3 failed; 127 ignored; 0 measured; 0 filtered out; finished in 502.64s
+s25 / r19b / lean export tests passing in the suite: 23
+2026-11-06T13:33:29Z == the Lean build of formal/
+2026-11-06T13:33:54Z lake build rc=0
+✔ [3422/3424] Built ZK60Formal.L1Check (2.2s)
+✔ [3423/3424] Built ZK60Formal (1.7s)
+Build completed successfully (3424 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-06T13:33:59Z L1 value-for-value check rc=0
+low z.words = oracle z16: 512 checked, 0 failed
+low x2 = oracle x2: 512 checked, 0 failed
+r13_requant_vectors (accuracy.rs:74-83): 324 checked, 0 failed
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-06T13:34:02Z axiom audit rc=0
+sorryAx mentions: 0
+  29 axioms: [propext, Classical.choice, Quot.sound]
+   2 axioms: [propext, Quot.sound]
+2026-11-06T13:34:02Z all done

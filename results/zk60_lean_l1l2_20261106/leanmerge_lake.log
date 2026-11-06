@@ -1,0 +1,10 @@
+✔ [3415/3424] Built ZK60Formal.ModelInt (308ms)
+✔ [3416/3424] Built ZK60Formal.CircuitField (9.6s)
+✔ [3417/3424] Built ZK60Formal.CircuitHelpers (9.8s)
+✔ [3418/3424] Built ZK60Formal.CircuitRequant (2.4s)
+✔ [3419/3424] Built ZK60Formal.CircuitSoftmax (2.9s)
+✔ [3420/3424] Built ZK60Formal.CircuitNorm (4.0s)
+✔ [3421/3424] Built ZK60Formal.Goldilocks (1.8s)
+✔ [3422/3424] Built ZK60Formal.L1Check (2.2s)
+✔ [3423/3424] Built ZK60Formal (1.7s)
+Build completed successfully (3424 jobs).

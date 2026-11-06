@@ -124,9 +124,20 @@ here. The rates count proving and witness work. Verification time is recorded se
 - **Running now:**
   - **A23:** shared resident blocks in `stack-serve`, with CS-6 checking their startup digests (D72). The target is the
     harness's 32.5+.
-  - **Lean L1/L2:** the integer model and `circuit_iff` for the W16R2 slot families, starting with the range checks
-    and lookups (52% of committed rows are LogUp helpers). It also records every constraint or range bound the proofs
-    show to be slack, as optimization candidates (Victor's idea, 2026-11-06).
+  - **Lean L2b:** matmul, RoPE, the products and the SiLU table inside the iff, then the block-level `CircuitIff`.
+- **D63 Lean, L1 and L2 begun (merged acf5c78a; checked on the merged tree)** [PROVED; MEASURED for the L1 check].
+  - The integer model is written in executable Lean.
+  - The constraint families requantization (with the residuals), RMSNorm and softmax hold exactly when the integer
+    model's computation does, at W16R2. They are proved one position at a time, given their inputs.
+  - Goldilocks is proved prime, so the earlier L3/L4 lemmas now apply to the code's own field.
+  - L1 check against the Rust witness: 101,956 checks, 0 failed. The axioms are `propext`, `Classical.choice` and
+    `Quot.sound` only, and the full Lean build is green with no warnings.
+  - **Not yet proved:** the block-level `CircuitIff` and `ProductionReady`.
+  - **Victor's idea worked: the proofs found slack.** Candidates C1, C2, C3 and C5 together save about 11.7% of
+    committed rows and 3.7 M lookups per 8B block [ESTIMATE]. None changes the discretized model, but each is a
+    protocol change. C4 would widen a word class (`ZK60_LEAN_L1L2_FINDINGS_20261106.md`).
+  - **Waiting on Victor:** whether these join W16R3. Recommended: C1, C2, C3, C5 and C7 in, so there is one re-proof;
+    C4 declined, like B4.
 - **From 2026-11-05 the Mac's GPU is shared** with a frugal-lm research agent (Victor). Timing runs wait for it to be
   idle, and clocks taken beside it are not used (`ZK60_RESOURCE_PROTOCOL.md`, last section).
 - **W16R3 is worth less than first modeled** (Sol's B1–B3 note, reviewed and accepted, 2026-11-05):
