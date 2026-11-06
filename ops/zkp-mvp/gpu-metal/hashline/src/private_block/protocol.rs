@@ -1841,64 +1841,37 @@ pub(crate) struct CoreHints<'h, 'b> {
 // writes the words the code before it wrote, in the same places, and refuses
 // where it refused, with the same string. Each sits behind a switch that
 // restores that code (`0` the code before A18, `1` the A18 form, unset the
-// default):
+// default, on):
 // * `HL_A18_TABINV` ([`table_helper`], [`range_table_helper`]): at a W16
 //   profile the range table helpers read their families' inverse tables (made
 //   for the looked columns' helpers) instead of inverting the same denominators
 //   a second time; the byte and exp table helpers invert the 256 distinct
 //   entries of their periodic tables instead of every padded copy. It adds no
-//   parallel region. (`HL_A18_TABPAR`, off by default, [`range_tables`]: also
-//   make the families' tables side by side in parallel chunks and invert the
-//   activation table's helper in parallel chunks; it measured slower);
+//   parallel region;
 // * `HL_A18_REGISTRY` ([`CheckedPublic::covers_accuracy`]): in the D55 fork
 //   run, the preflight's record that THIS block's accuracy data passed
 //   `check_for_registry` at THIS shape stands in for `define`'s per-slot
-//   re-check of it (`argument_accuracy.rs`);
-// * `HL_A18_PUBTAB` ([`pubtab_on`]): `define`'s public tables (the support
-//   indicators, the causal mask, the two RoPE tables; functions of the shape
-//   and the public block) built in indexed parallel maps (`argument.rs`).
-// No branch below reads a hidden value: which table is read, whether a slot
-// re-checks and whether a public table is built in parallel are decided by the
-// shape, the challenges and the block's address.
-// (A13's split of `prove_core` into its before- and after-challenge parts is
-// above, [`prove_core_before_with`] and [`prove_core_after_with`]; its window
-// is `run_fork.rs`'s `HL_D55_AHEAD`, off by default.)
+//   re-check of it (`argument_accuracy.rs`).
+// No branch below reads a hidden value: which table is read and whether a slot
+// re-checks are decided by the shape, the challenges, the public tables and the
+// block's address. (Two more forms were measured and removed, both adding short
+// parallel regions to every fork: the range tables and the activation table
+// helper in parallel chunks, and `define`'s public tables in parallel maps; the
+// results' README, section 4. A13's split of `prove_core` into its before- and
+// after-challenge parts is above, [`prove_core_before_with`] and
+// [`prove_core_after_with`]; its window is `run_fork.rs`'s `HL_D55_AHEAD`, off by
+// default.)
 
 static A18_TABINV: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
-static A18_TABPAR: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 static A18_REGISTRY: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
-static A18_PUBTAB: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 
-/// [A18] the defaults of the forms when their variable is unset
+/// [A18] the defaults of the two forms when their variable is unset
 const A18_TABINV_DEFAULT: bool = true;
-const A18_TABPAR_DEFAULT: bool = false;
 const A18_REGISTRY_DEFAULT: bool = true;
-const A18_PUBTAB_DEFAULT: bool = false;
 
 /// [A18] `HL_A18_TABINV`: the table helpers from the inverse tables already made
 fn tabinv_on() -> bool {
     a17_switch(&A18_TABINV, "HL_A18_TABINV", A18_TABINV_DEFAULT)
-}
-
-/// [A18] `HL_A18_TABPAR` (with `HL_A18_TABINV`): the range families' inverse
-/// tables made side by side in parallel chunks, and the activation table
-/// helper inverted in parallel chunks. Off by default: it adds short parallel
-/// regions to every fork, and measured slower (the results' README).
-fn tabpar_on() -> bool {
-    a17_switch(&A18_TABPAR, "HL_A18_TABPAR", A18_TABPAR_DEFAULT)
-}
-
-/// TEST ONLY ([A18]): `HL_A18_TABPAR` on, off or (`None`) as the environment says
-#[cfg(test)]
-pub(crate) fn set_a18_tabpar_for_test(par: Option<bool>) {
-    A18_TABPAR.store(
-        match par {
-            None => 0,
-            Some(false) => 1,
-            Some(true) => 2,
-        },
-        std::sync::atomic::Ordering::Relaxed,
-    );
 }
 
 /// [A18] `HL_A18_REGISTRY`: the preflight's record stands in for `define`'s re-check
@@ -1906,16 +1879,10 @@ pub(crate) fn registry_record_on() -> bool {
     a17_switch(&A18_REGISTRY, "HL_A18_REGISTRY", A18_REGISTRY_DEFAULT)
 }
 
-/// [A18] `HL_A18_PUBTAB`: `define`'s public tables (the support indicators, the
-/// causal mask, the RoPE tables) built in indexed parallel maps (`argument.rs`)
-pub(crate) fn pubtab_on() -> bool {
-    a17_switch(&A18_PUBTAB, "HL_A18_PUBTAB", A18_PUBTAB_DEFAULT)
-}
-
-/// TEST ONLY ([A18] A/B and byte tests): `(tabinv, registry, pubtab)`, each on,
-/// off or (`None`) as the environment says. Process-wide; changes no byte.
+/// TEST ONLY ([A18] A/B and byte tests): `(tabinv, registry)`, each on, off or
+/// (`None`) as the environment says. Process-wide; changes no byte.
 #[cfg(test)]
-pub(crate) fn set_a18_for_test(tabinv: Option<bool>, registry: Option<bool>, pubtab: Option<bool>) {
+pub(crate) fn set_a18_for_test(tabinv: Option<bool>, registry: Option<bool>) {
     use std::sync::atomic::Ordering::Relaxed;
     let v = |o: Option<bool>| match o {
         None => 0,
@@ -1924,63 +1891,20 @@ pub(crate) fn set_a18_for_test(tabinv: Option<bool>, registry: Option<bool>, pub
     };
     A18_TABINV.store(v(tabinv), Relaxed);
     A18_REGISTRY.store(v(registry), Relaxed);
-    A18_PUBTAB.store(v(pubtab), Relaxed);
 }
 
 impl CheckedPublic<'_> {
     /// **[A18]** whether this record covers `define`'s registry re-check of
     /// `data` at `sh`: `data` is THIS record's block's own accuracy data (the
-    /// same object) and `sh` an equal shape. `CheckedPublic::check` ran
-    /// `check_for_shape`, which at an accuracy profile runs
-    /// `check_accuracy_for_shape`, whose `check_for_registry` takes exactly the
-    /// arguments `define_changed` passes (the registry, the geometry, the base
-    /// and the stack of `sh`); the record borrows the block, so the data cannot
-    /// have changed since.
+    /// same object) and `sh` an equal shape at an accuracy profile.
+    /// `CheckedPublic::check` ran `check_for_shape`, which at an accuracy
+    /// profile runs `check_accuracy_for_shape`, whose `check_for_registry` takes
+    /// exactly the arguments `define_changed` passes (the registry, the
+    /// geometry, the base and the stack of `sh`); the record borrows the block,
+    /// so the data cannot have changed since.
     pub(crate) fn covers_accuracy(&self, data: Option<&super::accuracy_public::AccuracyPublic>, sh: &Shape) -> bool {
         self.sh == *sh && sh.accuracy_stack() != super::accuracy_precision::Stack::Legacy && matches!((self.blk.accuracy(), data), (Some(a), Some(b)) if std::ptr::eq(a, b))
     }
-}
-
-/// [A18] the chunk of the range families' parallel inverse tables, and of the
-/// activation table helper's parallel inversion
-const RANGE_INV_CHUNK: usize = 1 << 12;
-
-/// **[A18] the range families' inverse tables** (`HL_A18_TABINV`): each
-/// family's fold constant on THIS thread (a test build's collapsed-tag switch is
-/// thread-local), then (`par`) the families side by side, each table in
-/// parallel chunks ([`range_inverses_par`]); `par` off is
-/// `range16::denominator_inverses` per family, the code before A18. An inverse
-/// is unique, so every entry is the same.
-fn range_tables(sh: &Shape, alpha: Fp2, g_u8: Fp2, par: bool) -> Vec<(u32, Fp2, Vec<Option<Fp2>>)> {
-    let gs: Vec<(u32, Fp2)> = sh.range_families().iter().map(|f| (f.width, super::range16::g_range(g_u8, f.width))).collect();
-    if !par {
-        return gs.into_iter().map(|(w, g)| (w, g, super::range16::denominator_inverses(w, alpha, g))).collect();
-    }
-    use rayon::prelude::*;
-    gs.into_par_iter().map(|(w, g)| (w, g, range_inverses_par(w, alpha, g))).collect()
-}
-
-/// [A18] `range16::denominator_inverses(width, alpha, g)` in parallel chunks:
-/// entry `v` is `1 / (alpha - (v + g))` (the same expression), `None` where that
-/// denominator is zero; each chunk batch-inverts its nonzero denominators
-pub(super) fn range_inverses_par(width: u32, alpha: Fp2, g: Fp2) -> Vec<Option<Fp2>> {
-    use rayon::prelude::*;
-    let n = 1usize << width;
-    let mut out: Vec<Option<Fp2>> = vec![None; n];
-    out.par_chunks_mut(RANGE_INV_CHUNK).enumerate().for_each(|(c, o)| {
-        let base = c * RANGE_INV_CHUNK;
-        let den: Vec<Fp2> = (0..o.len()).map(|i| alpha.sub(Fp2::from_i64((base + i) as i64).add(g))).collect();
-        let mut nz: Vec<Fp2> = den.iter().copied().filter(|d| *d != Fp2::ZERO).collect();
-        crate::field::batch_inverse2(&mut nz);
-        let mut k = 0usize;
-        for (slot, d) in o.iter_mut().zip(&den) {
-            if *d != Fp2::ZERO {
-                *slot = Some(nz[k]);
-                k += 1;
-            }
-        }
-    });
-    out
 }
 
 /// **[A18] one of the three table helpers** (`HL_A18_TABINV`): `m[i] / (alpha -
@@ -1990,17 +1914,11 @@ pub(super) fn range_inverses_par(width: u32, alpha: Fp2, g: Fp2) -> Vec<Option<F
 /// the legacy activation table, `argument::table_values_*_at`) whose
 /// multiplicities fit one period has every distinct entry among its first
 /// `U8_LEN`, so only those are inverted (checked here, entry by entry, before
-/// they stand for the rest); any other table is inverted whole (with `par`,
-/// `HL_A18_TABPAR`, in parallel chunks).
-pub(super) fn table_helper(tv: &[Fp2], m: &[u64], alpha: Fp2, periodic: bool, par: bool) -> Result<Vec<Fp2>, String> {
+/// they stand for the rest); any other table is inverted whole, as before.
+pub(super) fn table_helper(tv: &[Fp2], m: &[u64], alpha: Fp2, periodic: bool) -> Result<Vec<Fp2>, String> {
     let used = if periodic && m.len() <= U8_LEN && tv.iter().enumerate().all(|(i, t)| *t == tv[i % U8_LEN]) { tv.len().min(U8_LEN) } else { tv.len() };
     let mut den: Vec<Fp2> = tv[..used].iter().map(|t| alpha.sub(*t)).collect();
-    if par && den.len() >= 2 * RANGE_INV_CHUNK {
-        use rayon::prelude::*;
-        den.par_chunks_mut(RANGE_INV_CHUNK).try_for_each(batch_inverse2_checked).map_err(|_| ZERO_DENOMINATOR.to_string())?;
-    } else {
-        batch_inverse2_checked(&mut den).map_err(|_| ZERO_DENOMINATOR.to_string())?;
-    }
+    batch_inverse2_checked(&mut den).map_err(|_| ZERO_DENOMINATOR.to_string())?;
     Ok(den.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect())
 }
 
@@ -2549,11 +2467,19 @@ pub(crate) fn prove_core_after_with(
     // family's inverse table (2^w denominators, inverted once per proof).
     // [A18] `HL_A18_TABINV`: the families' tables are read again by the range
     // table helpers below instead of inverting their denominators a second time
-    // (`HL_A18_TABPAR`, off by default: the tables made side by side, each in
-    // parallel chunks, [`range_tables`]: the same entries)
+    // (so they are kept to the end of the table helpers)
     let tab_on = tabinv_on();
-    let tab_par = tab_on && tabpar_on();
-    let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = if sh.range16() { range_tables(sh, alpha, g_u8, tab_par) } else { Vec::new() };
+    let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = if sh.range16() {
+        sh.range_families()
+            .iter()
+            .map(|f| {
+                let g = super::range16::g_range(g_u8, f.width);
+                (f.width, g, super::range16::denominator_inverses(f.width, alpha, g))
+            })
+            .collect()
+    } else {
+        Vec::new()
+    };
     if sh.range16() {
         if views_on {
             // [A17] the same jobs over the views
@@ -2707,7 +2633,7 @@ pub(crate) fn prove_core_after_with(
     ] {
         // [A18] `HL_A18_TABINV`: [`table_helper`] (the same words, the same refusal)
         let col: Vec<Fp2> = if tab_on {
-            table_helper(&tv, m, alpha, periodic, tab_par)?
+            table_helper(&tv, m, alpha, periodic)?
         } else {
             let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
             inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect()

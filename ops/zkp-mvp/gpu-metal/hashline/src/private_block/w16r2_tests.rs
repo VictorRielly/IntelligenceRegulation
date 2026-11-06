@@ -3633,11 +3633,10 @@ fn a16_the_8b_witness_planes_in_every_form() {
 
 // ---- [A18] the forks' host work after A16 and A17, and A13's split core (efficiency plan A18) ----
 
-/// [A18] five settings of A18's three forms: (label, (the table helpers from
+/// [A18] the four settings of A18's two forms: (label, (the table helpers from
 /// the inverse tables already made, the preflight's record standing in for
-/// `define`'s registry re-check, `define`'s public tables in parallel)).
-/// `a18old` is the code before A18.
-const A18_SETTINGS: [(&str, (bool, bool, bool)); 5] = [("a18old", (false, false, false)), ("tabinv1 only", (true, false, false)), ("registry1 only", (false, true, false)), ("pubtab1 only", (false, false, true)), ("a18new", (true, true, true))];
+/// `define`'s registry re-check)). `a18old` is the code before A18.
+const A18_SETTINGS: [(&str, (bool, bool)); 4] = [("a18old", (false, false)), ("tabinv1 only", (true, false)), ("registry1 only", (false, true)), ("a18new", (true, true))];
 
 /// [A18] the A17 recipe ([`a17_seeded_digest`], beside the block's record) with
 /// the core SPLIT as a parked D55 fork runs it (A13): the before-challenge part
@@ -3681,12 +3680,12 @@ fn a18_split_digest(sh: &Shape, blk: &BlockPublic, w: Witness, threads: usize) -
 /// [A18] one setting's three proofs of a block: through `prove_core` (no
 /// record), through `prove_core_with` beside the block's record, and split
 /// across two threads (the before-challenge part in a pool of `threads`)
-fn a18_three(sh: &Shape, blk: &BlockPublic, w: &Witness, s: (bool, bool, bool), threads: usize) -> [String; 3] {
-    protocol::set_a18_for_test(Some(s.0), Some(s.1), Some(s.2));
+fn a18_three(sh: &Shape, blk: &BlockPublic, w: &Witness, s: (bool, bool), threads: usize) -> [String; 3] {
+    protocol::set_a18_for_test(Some(s.0), Some(s.1));
     let plain = seeded_digest(sh, blk, copy(w));
     let with = a17_seeded_digest(sh, blk, copy(w));
     let split = a18_split_digest(sh, blk, copy(w), threads);
-    protocol::set_a18_for_test(None, None, None);
+    protocol::set_a18_for_test(None, None);
     [plain, with, split]
 }
 
@@ -3706,13 +3705,13 @@ const A18_ENTRIES: [&str; 3] = ["prove_core", "prove_core_with and the record", 
 fn a18_the_rung_digests_under_a18_forms_and_the_split_core() {
     for profile in [shape::W16R2_RUNG_H24, shape::R13_RUNG_H24] {
         let (sh, blk, w) = rung_case(profile);
-        protocol::set_a18_for_test(Some(false), Some(false), Some(false));
+        protocol::set_a18_for_test(Some(false), Some(false));
         let want = seeded_digest(&sh, &blk, copy(&w));
-        protocol::set_a18_for_test(None, None, None);
+        protocol::set_a18_for_test(None, None);
         if profile == shape::W16R2_RUNG_H24 {
             assert!(want.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's digest before A18 is not the golden: {}", &want[..8]);
         }
-        for (label, s) in [A18_SETTINGS[0], A18_SETTINGS[4]] {
+        for (label, s) in [A18_SETTINGS[0], A18_SETTINGS[3]] {
             for threads in [1usize, 6] {
                 let ds = a18_three(&sh, &blk, &w, s, threads);
                 for (what, d) in A18_ENTRIES.iter().zip(&ds) {
@@ -3759,15 +3758,12 @@ fn a18_the_rung_digests_under_a18_forms_and_the_split_core() {
 /// * At the W16R2 rung a record covers its own block's accuracy data at its
 ///   shape, and not a copy's data (another object), not another shape, not a
 ///   block without accuracy data.
-/// * The range families' parallel inverse tables equal
-///   `range16::denominator_inverses` entry for entry (widths 1..=16), and so
-///   with a challenge that zeroes one denominator (the same `None`).
 /// * The range table helper from the family's table equals the column
 ///   inverted the old way on every sub-plane of the rung, and refuses with the
 ///   old string where the old column refuses.
-/// * The table helper on periodic and non-periodic tables equals the old
-///   inversion word for word, and refuses with the old string, wherever the
-///   zero entry lies (in the first period or in a padded copy).
+/// * The table helper on periodic and non-periodic tables (and a "periodic" one
+///   that is not) equals the old inversion word for word, and refuses with the
+///   old string, wherever the zero entry lies.
 #[test]
 fn a18_the_record_covers_only_its_own_data_and_the_table_forms_equal_the_old_code() {
     use crate::private_block::range16;
@@ -3782,13 +3778,6 @@ fn a18_the_record_covers_only_its_own_data_and_the_table_forms_equal_the_old_cod
     let k = |a: u64, b: u64| Fp2::new(Fp::new(a), Fp::new(b));
     let old_inv = |den: &[Fp2]| protocol::inverses(den.to_vec());
     let zero_text = "zero LogUp denominator; discard attempt";
-    // the families' tables, entry for entry, with and without a zero denominator
-    for w in 1..=16u32 {
-        let g = k(11 + w as u64, 3);
-        for alpha in [k(77, 5), Fp2::from_i64(((1i64 << w) - 1) / 2).add(g)] {
-            assert!(protocol::range_inverses_par(w, alpha, g) == range16::denominator_inverses(w, alpha, g), "width {w}: the parallel inverse table differs");
-        }
-    }
     // the range table helpers, every sub-plane of the rung's families
     let lc = sh.log_cols;
     for f in sh.range_families() {
@@ -3824,15 +3813,13 @@ fn a18_the_record_covers_only_its_own_data_and_the_table_forms_equal_the_old_cod
                 for mlen in [len.min(256), len] {
                     let m: Vec<u64> = (0..mlen).map(|i| (i as u64 * 13 + 1) % 17).collect();
                     let want = old_inv(&tv.iter().map(|t| alpha.sub(*t)).collect::<Vec<_>>()).map(|inv| inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect::<Vec<_>>());
-                    for par in [false, true] {
-                        let got = protocol::table_helper(tv, &m, alpha, per, par);
-                        assert!(got == want, "len {len} periodic {per} parallel {par} zero {zero_at:?} m {mlen}: the table helper differs from the old one (or its refusal)");
-                    }
+                    let got = protocol::table_helper(tv, &m, alpha, per);
+                    assert!(got == want, "len {len} periodic {per} zero {zero_at:?} m {mlen}: the table helper differs from the old one (or its refusal)");
                 }
             }
         }
     }
-    eprintln!("A18-FORMS: the record covers only its own block's data at its shape; the parallel range tables, the range table helpers and the table helpers equal the old code word for word and refusal for refusal");
+    eprintln!("A18-FORMS: the record covers only its own block's data at its shape; the range table helpers and the table helpers equal the old code word for word and refusal for refusal");
 }
 
 /// **[A18] the W16R2 rung's golden under every setting of A18's forms, on the
@@ -3869,15 +3856,15 @@ fn a18_w16r2_rung_golden_under_every_a18_setting() {
 
 /// **[A18, ignored] one W16R2 8B T128 block's core proof under every setting of
 /// A18's forms**: A17's 8B recipe on the device, first through `prove_core`
-/// with every form off (the code before A18), then under each of the five
+/// with every form off (the code before A18), then under each of the four
 /// settings through `prove_core`, `prove_core_with` beside the block's record
 /// and the core split across threads (a pool of 6), each setting twice: one
-/// digest of the whole core proof and the transcript's final state in all 31,
+/// digest of the whole core proof and the transcript's final state in all 25,
 /// and it is the post-F12 8B digest `90003b760eb7ad80`. Heavy; run alone by name
 /// with `HL_PB_ORACLE=0`.
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
 #[test]
-#[ignore = "A18: heavy (one 8B T128 block on Metal, 31 times), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0"]
+#[ignore = "A18: heavy (one 8B T128 block on Metal, 25 times), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0"]
 fn a18_the_8b_block_proves_the_same_under_every_a18_setting() {
     use crate::private_block::shape::NormCalibration;
     let spec = shape::W16R2_PROFILES.iter().find(|s| s.name == "W16R2_8B_T128_H24").expect("the W16R2 8B profile");
@@ -3896,10 +3883,10 @@ fn a18_the_8b_block_proves_the_same_under_every_a18_setting() {
     };
     let w = super::witness::build_accuracy(&sh, &public, &ff, &data, &input).unwrap();
     std::env::set_var("HL_GPU", "1");
-    protocol::set_a18_for_test(Some(false), Some(false), Some(false));
+    protocol::set_a18_for_test(Some(false), Some(false));
     let t = std::time::Instant::now();
     let want = seeded_digest(&sh, &blk, copy(&w));
-    protocol::set_a18_for_test(None, None, None);
+    protocol::set_a18_for_test(None, None);
     eprintln!("A18-8B [a18old through prove_core] {:.3} s (cold), digest {}", t.elapsed().as_secs_f64(), &want[..16]);
     assert!(want.starts_with("90003b760eb7ad80"), "the 8B block's core proof before A18 is not the post-F12 digest: {}", &want[..16]);
     for (label, s) in A18_SETTINGS.iter().chain(A18_SETTINGS.iter()) {

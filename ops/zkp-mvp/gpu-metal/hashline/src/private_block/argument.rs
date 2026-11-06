@@ -1653,14 +1653,7 @@ impl<'a> B<'a> {
         }
         let t = super::pad::indicator_table(sh, dom);
         let rep = tile_rep(t.len(), cube_len)?;
-        // [A18] `HL_A18_PUBTAB`: the same entries in an indexed parallel map
-        let col: Vec<Fp2> = if pubtab_par(cube_len) {
-            use rayon::prelude::*;
-            (0..cube_len).into_par_iter().map(|x| k(t[x / rep])).collect()
-        } else {
-            (0..cube_len).map(|x| k(t[x / rep])).collect()
-        };
-        Ok(Some(self.public(col)))
+        Ok(Some(self.public((0..cube_len).map(|x| k(t[x / rep])).collect())))
     }
     fn finish(self, poly: Poly, hosted: Vec<(usize, Fp2)>) -> Result<SlotDef, String> {
         if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
@@ -1874,27 +1867,8 @@ pub(crate) fn causal_mask() -> Vec<Fp2> {
 /// the frozen table, value for value.
 pub(crate) fn causal_mask_at(sh: &Shape) -> Vec<Fp2> {
     let t = sh.t_pad;
-    let entry = |x: usize| if x % t <= (x / t) % t { Fp2::ONE } else { Fp2::ZERO };
-    // [A18] `HL_A18_PUBTAB`: the same entries in an indexed parallel map
-    if pubtab_par(sh.size(Dom::S)) {
-        use rayon::prelude::*;
-        return (0..sh.size(Dom::S)).into_par_iter().map(entry).collect();
-    }
-    (0..sh.size(Dom::S)).map(entry).collect()
+    (0..sh.size(Dom::S)).map(|x| if x % t <= (x / t) % t { Fp2::ONE } else { Fp2::ZERO }).collect()
 }
-
-/// **[A18] `HL_A18_PUBTAB`**: whether a public table of `len` entries that
-/// `define` builds (a support indicator, the causal mask, the two RoPE tables)
-/// is built in an indexed parallel map instead of a sequential loop. Each entry
-/// is the same function of its index, so the table is the same vector; the
-/// tables are functions of the shape and the public block only (no challenge, no
-/// witness word). The switch is `protocol.rs`'s ([`super::protocol::pubtab_on`]).
-fn pubtab_par(len: usize) -> bool {
-    len >= PUBTAB_PAR_MIN && super::protocol::pubtab_on()
-}
-
-/// [A18] the table length from which [`pubtab_par`] builds in parallel
-const PUBTAB_PAR_MIN: usize = 1 << 15;
 
 /// (C, S') with out = C * x + S' * x_partner, over `heads` heads per row.
 ///
@@ -1927,32 +1901,15 @@ pub(super) fn rope_tables_at(sh: &Shape, public: &AttentionPublic, dom: Dom) -> 
     let heads = if dom == Dom::Q { sh.h_pad } else { sh.kv_heads };
     let n = sh.size(dom);
     let (mut c, mut s) = (vec![Fp2::ZERO; n], vec![Fp2::ZERO; n]);
-    // entry `x`'s two words (`None`: zero, on a pad), a function of `x` alone
-    let entry = |x: usize| -> Option<(Fp2, Fp2)> {
+    for x in 0..n {
         let (i, slot, t) = (x % dh, (x / dh) % heads, x / (dh * heads));
         let live = t < sh.tokens && (dom != Dom::Q || sh.slot_is_true_head(slot)) && x < sh.t_pad * heads * dh;
         if !live {
-            return None;
+            continue;
         }
         let at = t * half + i % half;
-        Some((k(public.rope_cos[at]), k(if i < half { -public.rope_sin[at] } else { public.rope_sin[at] })))
-    };
-    // [A18] `HL_A18_PUBTAB`: the same entries, written in parallel (each `x` once)
-    if pubtab_par(n) {
-        use rayon::prelude::*;
-        c.par_iter_mut().zip(s.par_iter_mut()).enumerate().for_each(|(x, (cx, sx))| {
-            if let Some((a, b)) = entry(x) {
-                *cx = a;
-                *sx = b;
-            }
-        });
-        return (c, s);
-    }
-    for x in 0..n {
-        if let Some((a, b)) = entry(x) {
-            c[x] = a;
-            s[x] = b;
-        }
+        c[x] = k(public.rope_cos[at]);
+        s[x] = k(if i < half { -public.rope_sin[at] } else { public.rope_sin[at] });
     }
     (c, s)
 }

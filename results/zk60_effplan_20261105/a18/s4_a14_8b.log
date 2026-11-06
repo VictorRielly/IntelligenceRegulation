@@ -1,0 +1,14 @@
+test private_block::w16r2_tests::a14_the_8b_block_proves_the_same_under_every_a14_setting ... A14-8B cold pass [a14old] prove core 0.435 s, digest a32cb0dd0fc2ec46
+A14-8B prove core [a14old] 0.323 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8 only] 0.276 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [trpar only] 0.325 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [lazy1 only] 0.272 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14new] 0.299 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8+lazy1] 0.277 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14old] 0.272 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8 only] 0.283 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [trpar only] 0.304 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [lazy1 only] 0.278 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [a14new] 0.298 s, digest a32cb0dd0fc2ec46 (equal)
+A14-8B prove core [xof8+lazy1] 0.274 s, digest a32cb0dd0fc2ec46 (equal)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 7.81s

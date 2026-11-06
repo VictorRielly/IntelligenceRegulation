@@ -3405,9 +3405,8 @@ fn d55_ab_one_request_serial_against_forks() {
 // A13's port. `protocol.rs`'s two forms: `tabinv0` / `tabinv1` (the table helpers
 // inverted again, or read from the inverse tables already made), `registry0` /
 // `registry1` (`define` re-checks its block's registry per slot, or the
-// preflight's record stands in), `pubtab0` / `pubtab1` (`define`'s public tables
-// built in a loop, or in indexed parallel maps); `a18old` / `a18new` all three
-// off / on. A13's window
+// preflight's record stands in); `a18old` / `a18new` both off / on (`a18def`, the
+// default, is `a18new`). A13's window
 // (`run_fork.rs`, `HL_D55_AHEAD`): `noahead` / `ahead<W>`, `aw<k>` side workers,
 // `ap<t>` threads each, `qos<q>`; and `stsl`: a stream's statements made on its
 // sealing thread (forced by any window; the harness before A18 made them on the
@@ -3418,37 +3417,26 @@ fn d55_ab_one_request_serial_against_forks() {
 struct A18Arm {
     tabinv: Option<bool>,
     registry: Option<bool>,
-    pubtab: Option<bool>,
-    /// `tabpar0` / `tabpar1`: with `tabinv1`, the range tables and the activation
-    /// table helper in parallel chunks
-    tabpar: Option<bool>,
     ahead: [Option<usize>; 4],
     stsl: bool,
 }
 
-/// [A18] one `+`-joined word of an arm, if it is A18's. `a18old`: every form
-/// off (the code before A18); `a18new`: every form on (stage 3's form set, the
-/// parallel tables included); `a18def`: the defaults (`tabinv1+registry1`,
-/// `pubtab0`, `tabpar0`)
+/// [A18] one `+`-joined word of an arm, if it is A18's. `a18old`: both forms
+/// off (the code before A18); `a18new` and `a18def` (the default): both on. (The
+/// stage-3 / stage-5 words `pubtab*` and `tabpar*` were for two forms measured and
+/// removed; the results' README, section 4.)
 fn a18_word(a: &mut A18Arm, w: &str) -> bool {
-    let all = |a: &mut A18Arm, t: bool, r: bool, p: bool, q: bool| {
+    let all = |a: &mut A18Arm, t: bool, r: bool| {
         a.tabinv = Some(t);
         a.registry = Some(r);
-        a.pubtab = Some(p);
-        a.tabpar = Some(q);
     };
     match w {
         "tabinv0" => a.tabinv = Some(false),
         "tabinv1" => a.tabinv = Some(true),
         "registry0" => a.registry = Some(false),
         "registry1" => a.registry = Some(true),
-        "pubtab0" => a.pubtab = Some(false),
-        "pubtab1" => a.pubtab = Some(true),
-        "tabpar0" => a.tabpar = Some(false),
-        "tabpar1" => a.tabpar = Some(true),
-        "a18old" => all(a, false, false, false, false),
-        "a18new" => all(a, true, true, true, true),
-        "a18def" => all(a, true, true, false, false),
+        "a18old" => all(a, false, false),
+        "a18new" | "a18def" => all(a, true, true),
         "noahead" => a.ahead[0] = Some(0),
         "stsl" => a.stsl = true,
         _ => {
@@ -3471,8 +3459,7 @@ static A18_STSL: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::
 /// restores the environment's
 #[cfg_attr(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))), allow(dead_code))]
 fn a18_apply(a: &A18Arm) {
-    crate::private_block::protocol::set_a18_for_test(a.tabinv, a.registry, a.pubtab);
-    crate::private_block::protocol::set_a18_tabpar_for_test(a.tabpar);
+    crate::private_block::protocol::set_a18_for_test(a.tabinv, a.registry);
     set_ahead_for_test(a.ahead[0], a.ahead[1], a.ahead[2]);
     set_ahead_qos_for_test(a.ahead[3]);
     A18_STSL.store(a.stsl, std::sync::atomic::Ordering::Relaxed);
@@ -3944,13 +3931,11 @@ fn a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung_on_the_dev
     let before = crate::gpu::metal_sumcheck_stats().1;
     let mut lines = Vec::new();
     for (label, on) in [("a18old", false), ("a18new", true)] {
-        crate::private_block::protocol::set_a18_for_test(Some(on), Some(on), Some(on));
-        crate::private_block::protocol::set_a18_tabpar_for_test(Some(on));
+        crate::private_block::protocol::set_a18_for_test(Some(on), Some(on));
         lines.push(format!("[{label}] {}", a18_check_direct(&fix)));
         lines.extend(a18_check_paths(&fix, &[1, 3, 6], &[2, 4], &[(1, 0), (2, 3), (3, 6)]).into_iter().map(|s| format!("[{label}] {s}")));
     }
-    crate::private_block::protocol::set_a18_for_test(None, None, None);
-    crate::private_block::protocol::set_a18_tabpar_for_test(None);
+    crate::private_block::protocol::set_a18_for_test(None, None);
     let ran = crate::gpu::metal_sumcheck_stats().1 - before;
     std::env::remove_var("HL_GPU");
     for line in lines {

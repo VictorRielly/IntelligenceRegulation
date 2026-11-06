@@ -1,0 +1,7 @@
+thread 'private_block::review_tests::a_toy_receipt_made_before_f12_is_refused' (13594582) panicked at src/private_block/review_tests.rs:738:5:
+thread 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces' (13603571) panicked at src/private_block/trained_accuracy.rs:515:96:
+thread 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name' (13604026) panicked at src/private_block/trained_stack_tests.rs:553:44:
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 939 passed; 3 failed; 113 ignored; 0 measured; 0 filtered out; finished in 316.24s
