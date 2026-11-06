@@ -217,3 +217,165 @@ census puts clear vectors at 52% of the receipt; the B4/B5 study's time model is
 4. **L1 at 8B.** Export one 8B W16R2 block's witness (the same test at a registered shape) and run `L1Check` on it.
 5. **The candidates.** Victor to rule whether any of C1–C5 joins W16R3 or waits for the next profile, and on C4's
    class change.
+
+---
+
+# Second lane (2026-11-06, afternoon): the matmul hand-off, RoPE, the SiLU product and the ACT table, and `CircuitIff` for a whole block
+
+Lean lane (Claude), on perf at acf5c78a. New files under `formal/ZK60Formal/`: `CircuitMatmul.lean`,
+`CircuitRopeAct.lean`, `CircuitStage.lean`, `CircuitMasked.lean`, `CircuitBlock.lean`; `L1Check.lean` extended (a token
+count, the RoPE rows and the input are now parameters, and the oracle comparisons are optional). The test-only Rust
+export (`lean_l1_export_tests.rs`, already registered) gains the rung at the 8B token count; no prover source changed.
+Evidence: `results/zk60_lean_l2b_20261106/`. Labels as in §1 to §7.
+
+## 8. In plain words, for Victor
+
+**The headline: `CircuitIff` is now PROVED for a whole W16R2 block, as an instance of the statement you approved.**
+For every shape and every public data the code admits, the block's constraint system can be satisfied with input
+words `x` and output words `y` exactly when `x` is admissible and `y` is the integer block's output
+(`block_circuitIff`). The same holds for a RUN of blocks chained through their boundary planes (`run_circuitIff`).
+The block is composed in the code's order: norm, Q/K/V, RoPE, scores, softmax, PV, output projection, residual,
+norm, gate with its SiLU table, up, product, down, residual.
+
+**The four steps you asked for:**
+1. **The matmul premise is gone.** The earlier lemma assumed each hosted value was below `2^62`. That bound is now
+   proved from the word classes and the code's size limits: the largest hosted value of any shape the code admits is
+   the down projection's, below `2^58` (`noWrap_class_bounds`); every other site is below `2^51`.
+2. **RoPE, the SiLU product and the SiLU (ACT) table are proved**, each family as the earlier ones were, and so is the
+   exp table. The gate word has no range lookup of its own: the ACT table's index proves its class (`gateAct_iff`).
+3. **The block-level `CircuitIff`** (above).
+4. **L1 at a larger rung**: the whole block at the 8B token count, T = 128 (the full 128 × 128 causal score square per
+   head), value for value against Rust. An 8B-wide export was not attempted (§11).
+
+**What it still assumes** (§10): the IOP's conclusions (that is L3's part: LogUp's table membership, the per-position
+zero-check and sumcheck identities, the row sums), the code's checks on the public data, and the LAYOUT MAP from the
+committed cube to the logical positions (padding, head-slot order and, under W16R3's B3, the re-indexed F domain).
+
+**One new saving (C9):** about half of the softmax domain is the masked triangle `j > t`. The proofs show that
+everything committed there is forced (`P = 0`, `sr = 0`, `sg = sum − 1`) and that the model's output never reads the
+masked scores. Moving the softmax internals to the causal triangle would save about **165 committed rows per 8B block
+(−3.4%), 0.78 M range lookups (−2.4%) and 0.26 M exp tuples** with no model change, and about **270 rows (−5.6%) and
+1.8 M range lookups (−5.6%)** if the masked scores also lose their int8 class check, which is a model change for you
+to rule on [ESTIMATE].
+
+**One finding about the approved statement (not changed, written up):** `IntModel.admissible` does not see the
+weights, but the integer model refuses on weight-dependent overflows. The instance therefore fixes the public data per
+model (sound under P1, where the weights are public). Under P3 (hidden weights) `admissible` would need the weights.
+
+## 9. What is proved (second lane)
+
+All PROVED; `lake -d formal build` succeeds with no warnings; `#print axioms` on every theorem below shows only
+`propext`, `Classical.choice`, `Quot.sound` (`results/zk60_lean_l2b_20261106/axioms.log`).
+
+| File | Theorem | Statement |
+|---|---|---|
+| CircuitMatmul | `hosted_cast`, `bilinear_cast` | the hosted field sum `Σ_i x_i·(W_i·m)` is the image of the integer `(Σ_i x_i·W_i)·m` |
+| | `dot_abs_le`, `hosted_abs_le` | `|Σ x·w| ≤ |ι|·X·W`; the hosted bound from the input, weight and multiplier bounds |
+| | `requantIn_mul` | `requant acc m s = requant (acc·m) 1 s` |
+| | **`matmul_requant_iff`** | the matmul hand-off: hosted identity + word lookup + remainder lookups ⇔ the integer model on the INTEGER matmul sum admits the position and `q` is its word |
+| | **`bilinear_requant_iff`** | the same for the private-by-private products (scores, PV) |
+| | `hosted16_le`, `hosted24_le`, `hostedScore_le`, `hostedPV_le`, `noWrap_class_bounds` | every site's hosted value is below `2^62` for every shape in the code's no-wrap class |
+| | `ss_bounds`, `ss_cast` | the norm's `ss = ceps + Σ x²` is in `[0, 2^60)` (`isqrt_iff`'s premise) |
+| CircuitRopeAct | `ropeRel_iff`, **`rope_iff`**, `rope_pair` | the RoPE clause is a host at shift 7; its iff; the two positions of a pair are `Model.rope`'s two outputs |
+| | `prodRel_iff`, **`product_iff`** | the SiLU product `a·u` requantized to the 24-bit word |
+| | `expQuery_iff`, **`actQuery_iff`** | the exp tuple ⇔ `δ ∈ [0, 256)` and `e = exp[δ]`; the ACT tuple ⇔ the gate is in `[−2048, 2047]` and `a = act[group][g + 2048]` |
+| | **`gateAct_iff`** | the gate's requantization with its class from the ACT index (no word lookup of its own) |
+| | **`codeTable_range_iff`**, `codeTable_exp_iff`, `codeTable_act_iff`, `w16r2Fams_FamsOK` | L3's conclusion (every looked-up tuple is a tuple of the block's table) gives exactly the facts the families use |
+| CircuitStage | `liftO_eq_some`, `liftO_exists` | a stage refuses when any position refuses; per-position iffs lift to planes |
+| | `rqPlane_iff`, `rqPlaneBil_iff` | a whole matmul stage |
+| | **`normTok_iff`**, `normTok_class` | one RMSNorm row (one isqrt shared by the row's divisions) |
+| | **`softmaxRow_iff`**, `softmaxF_class` | one softmax row: the maximum (no booleanity used), the total (proved positive from `c3`), every column's division, the masked columns included |
+| CircuitMasked | `masked_column_forced`, `softmaxF_live_only` | candidate C9 (§12) |
+| CircuitBlock | `resPlane_iff`, `ropePlane_iff`, `prodPlane_iff`, `gatePlane_iff`, `normPlane_iff` | the remaining stages over planes |
+| | **`blockSat_iff`**, `blockSpec_class` | the whole block, plane form |
+| | **`block_circuitIff`** | **`CircuitIff (blockModel S P) (blockArith S P)`**, the approved statement, for every valid shape and public data |
+| | `run_iff`, **`run_circuitIff`** | a run of blocks through the boundary planes |
+| | `w16r2_8B_geometry` | the W16R2 8B T128 geometry is in the shape class |
+
+**The instance.** `blockModel S P : IntModel`: `Input = Output =` int planes over (token, width); `admissible x`: `x` is
+int16 and the integer block `blockSpec P x` does not refuse; `forward`: its output. `blockArith S P : Arith`: the
+witness is the block's committed planes (`BlockWit`), and `Satisfies` says the endpoints are int16 word planes and
+`BlockSat` holds on their images. `BlockSat` lists every clause of the code at every logical position, with its
+file:line (CircuitBlock.lean): the input check; both norms (`SC_SS`/`SC_SSM` hosts, `SC_TZC`, the `dzc_w16`
+divisions); Q, K, V, O, gate, up, down as hosted matmul identities with their word and remainder lookups; both RoPE
+clauses; the scores; the softmax row relation (exp tuple, `c0`–`c3`, `SC_RS`'s two row sums, `P` and the slacks);
+PV; both residuals; the ACT tuple; the product.
+
+**The integer block** (`blockSpec`) is a composition of the per-position functions L1 already tests
+(`requantIn`, `residual`, `normElem`, `isqrtWitness`) with functional forms of `normRow` and `softmaxRow`
+(`normTok`, `softmaxF`), stage by stage; its every word is the image of the Rust builder's under the rung check (§11).
+
+## 10. What is assumed
+
+- **The IOP's conclusions, i.e. the meaning of `Satisfies`.** `BlockSat` is the constraint system pointwise. That the
+  committed planes satisfy it is L3's: the per-position hosted identities and zero-check clauses (zero-check and
+  sumcheck soundness, `SoundZeroCheck.lean`), the two row sums (`λ`-batching), and the lookups. **The lookup premise,
+  exactly:** L3's `logup_block_bound` concludes that every looked-up tuple of the block equals a tuple of
+  `CodeTable w16r2Fams exp act nG` (range families, exp rows, ACT rows). `codeTable_range_iff`, `codeTable_exp_iff`
+  and `codeTable_act_iff` turn each membership into the fact `BlockSat` states (`InRange w x`, `ExpTable`,
+  `ActTable`), given only that the family tags are distinct naturals below `p` and differ from `TAG_EXP` and `TAG_ACT`
+  (`w16r2Fams_FamsOK`).
+- **The public data** (`BlockPublic.Valid`): weights and gains symmetric int8, multipliers `≤ 2^14`, CS-4's RoPE and
+  exp bounds, the scaled ACT words below `2^31`, every hidden channel's group registered. Each is a check the code
+  makes at construction (cited field by field), not re-derived from an export.
+- **The shape** (`BlockShape.Valid`): the code's no-wrap geometry class, the softmax window `T·2^f_e ≤ 2^wrho_s ≤ 2^24`,
+  `f_p ≤ 12`, `1 ≤ ceps ≤ 2^24`, `|cn| ≤ 2^24`, `tn ≤ 16`, shifts `≤ 24`, at most 4 ACT groups.
+- **The layout map.** `BlockSat` is stated at the LOGICAL positions. The committed layout pads `Dom::F` at W16R2
+  (14336 → 16384 columns), permutes the head slots (C-1) and gates every clause by its support indicator. The next
+  instance step is the map: a bijection of each domain's support with the logical positions, the pad rule (padded
+  planes are zero, so they add nothing to a hosted sum, and a padded lookup reads `0` or the ACT pad row
+  `(2048, TAG_ACT, 0, 0)`, which is group 0's row), and the head permutation. **W16R3's B3 changes exactly this map for
+  `Dom::F`** (112 rows, no pad) and nothing proved here.
+- **The boundary link** of a run: block `k + 1`'s input plane IS block `k`'s output plane (`RunSat` shares the plane;
+  the boundary commitment equates the two committed planes, L3's opening soundness).
+- **Not modelled:** the rest of the run (the embedding and token stages, D34), and the DD dictionary variant.
+
+## 11. L1 coverage (second lane)
+
+- **The fixture, unchanged:** the 101,956 checks of §4 still pass (`l1check.log`; the parametrized check runs the
+  fixture exactly as before, and the Rust fixture export is byte-identical, `fixture` being `fixture_tokens(_, 32)`).
+- **The rung at the 8B token count:** the fixture's weights, gains, multipliers, groups, exp table and calibration at
+  `T = 128` (the RoPE rows of tokens `t ≥ 32` repeat the fixture's rows 1–31, the input of token `t` is the fixture's
+  token `t mod 32` plus `4·⌊t/32⌋`), both export stacks, every stage recomputed in Lean from the previous stage's Rust
+  words, every remainder and constraint evaluated on Rust's witness (`lean_l1_export_the_t128_rung_trace`, then
+  `L1Check.lean`'s rung mode). The softmax at this rung has the 8B profile's full score square per head (128 × 128,
+  the 8,128 masked columns per head included). No oracle trace exists at this rung, so the oracle comparisons are not
+  run there. RESULT: see `results/zk60_lean_l2b_20261106/l1check.log`.
+- **Not covered: an 8B-wide export.** An 8B block's public data is about 218 M int8 weights and its witness about 40
+  planes of up to 2 M words; the interpreted Lean check would recompute about `2^35` multiply-adds. It fits the
+  guard's memory but not this lane's time; the rung keeps the width (16) and the head count (4) of the fixture.
+
+## 12. Optimization candidates (updated)
+
+The table of §6 stands (C1–C8). New:
+
+| # | Candidate (constraint) | Lean evidence | Saving per W16R2 8B T128 block [ESTIMATE] | Protocol impact |
+|---|---|---|---|---|
+| C9a | **Move the softmax internals to the causal triangle.** At a masked column `j > t` (half of `Dom::S`: 32 heads × 8,128 of 16,384 columns) the row relation commits `e`, `zsel`, `P`, `sr`, `sg` and looks up the exp tuple, `P`, `sr` and `sg` (argument_accuracy.rs:624-631; accuracy_layout.rs:335) | `masked_column_forced`: there `P = 0`, `sr = 0`, `sg = sum − 1` are forced, and `e` is read by nothing (the row sum multiplies it by the mask); `softmaxRow_iff` holds with the masked columns' clauses present or absent | `e, zsel, P, sr, sg` (5 of the 8 S planes) on a compact triangular domain of 264,192 positions (17 rows per plane instead of 32): A −75 rows; H: the square keeps 2 helper planes for the score's 4 lookups, the triangle 3 (P, sr, sg + exp) of 17 rows, −90 data rows: **−165 rows (−3.4%)**; range lookups −780,288 (−2.4% of the census's 32,276,480) and 260,096 exp tuples; smaller `SC_RS`/`SC_SZC`/`SC_PV` sumchecks | a second S domain with B3-style compact indexing and the causal mask in the hosted sums: new profile; no model change |
+| C9b | **C9a plus the masked scores themselves** (their requantization's host, word check and remainders) | `softmaxF_live_only`: the integer softmax row depends only on its live scores, so the masked scores affect the model ONLY through their own int8 class check (`sSpec`) | all 8 S planes and all 5 helper planes on the triangle: A −120, H −150: **−270 rows (−5.6%)**; range lookups −1,820,672 (−5.6%) and 260,096 exp tuples; `SC_SCORE` over the triangle | **model change**: a masked score outside `[−127, 127]` no longer refuses (as C4, an exact iff with the redefined model); needs your ruling |
+
+C9 overlaps C1 (the S-domain exp helper pairing), C3 (the 18-bit score remainder) and C5 (the int8 score check): the
+estimates are not additive with them.
+
+**Looked at and rejected (second lane):**
+- **Dropping a word check because a later stage pins the word.** The int16 checks of `Y`, `YM`, `QR`, `KR`, `U` and the
+  24-bit check of `H` are each the ONLY fact that makes the next matmul's hosted value an integer of bounded size: a
+  remainder in range does not pin a requantized word (the clause solves `q` in the field for ANY remainder, and only a
+  remainder making the numerator divisible gives an integer). Unlike `AO` and `Z16` (C4) no residual follows them.
+- **The token-0 RoPE row.** CS-4 forces `cos = 2^7`, `sin = 0` at token 0, so `QR(0, ·) = Q(0, ·)` with the remainder
+  `2^6`; one token of 128 on two of the twelve Q/Kv planes: negligible.
+- **The isqrt's `dsq` plane.** Substituting `d·d` into `SC_TZC`'s host saves the two `Dom::T` planes (2 rows) for one
+  degree: negligible.
+
+## 13. What is next (second lane)
+
+1. **The layout map** (§10): the committed cube's support to the logical positions, the pad rule and the head
+   permutation, at W16R2, then re-indexed for W16R3's compact F domain. With it, `BlockSat` becomes a statement about
+   the committed planes themselves.
+2. **The link to L3**: instantiate `logup_block_bound` with the block's lookup list and `CodeTable`, the zero-check
+   and sumcheck lemmas with the block's slots, and so derive `BlockSat` from an accepting transcript (KnowledgeSound's
+   deterministic half).
+3. **The rest of the run**: the embedding and token stages (D34) and the DD variant.
+4. **L1 at 8B width**: an 8B export (one block's public data and witness, under the guard at `--need-gib 32`) and a
+   compiled (not interpreted) Lean check.
+5. **The candidates**: Victor to rule on C9a/C9b alongside C1–C5.

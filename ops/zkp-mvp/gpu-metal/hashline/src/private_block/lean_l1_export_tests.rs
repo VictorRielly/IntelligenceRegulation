@@ -17,6 +17,10 @@
 //! fixture uses); the `Dom::T` arrays by token, the `Dom::Ht` arrays by
 //! (query head, token). Run with `-- --nocapture`. The Lean side is
 //! `formal/ZK60Formal/L1Check.lean`.
+//!
+//! Second Lean lane (2026-11-06): `lean_l1_export_the_t128_rung_trace` prints
+//! the same trace at the 8B token count, `T = 128` (`fixture_tokens`), with
+//! the RoPE rows and the input it uses; public synthetic data as well.
 use super::accuracy::{build, Trace};
 use super::*;
 use crate::private_block::accuracy_groups::Group;
@@ -35,8 +39,29 @@ fn parse(text: &str) -> BTreeMap<&str, Vec<i64>> {
 
 /// `witness_accuracy::tests::fixture`, verbatim but for its formatting
 fn fixture(stack: Stack) -> (Shape, AttentionPublic, FeedForwardPublic, AccuracyPublic, Vec<i16>) {
+    let (sh, public, ff, accuracy, input, _, _) = fixture_tokens(stack, 32);
+    (sh, public, ff, accuracy, input)
+}
+
+/// The fixture at `tokens` tokens (second Lean lane, 2026-11-06: the RUNG at the 8B token count, `tokens = 128`):
+/// the same weights, gains, multipliers, groups, exp table and calibration; the RoPE rows of tokens `t >= 32` repeat
+/// the fixture's rows `1..=31` (row 0, the identity rotation CS-4 requires, is not repeated), and the input of token
+/// `t` is the fixture's token `t mod 32` plus `4 * (t / 32)`. At `tokens = 32` every array is the fixture's own, so
+/// `fixture` is unchanged byte for byte. Public synthetic data, as the fixture.
+fn fixture_tokens(stack: Stack, tokens: usize) -> (Shape, AttentionPublic, FeedForwardPublic, AccuracyPublic, Vec<i16>, Vec<i64>, Vec<i64>) {
     let f = parse(include_str!("r13_vectors/block_fixture_t32.tsv"));
-    let mut sh = Shape::new("R13 trace fixture", "r13-trace-fixture", 32, 16, 32, 4, 4, 2, 8, 8, 9, 7, None, None, None, None).unwrap();
+    let mut sh = Shape::new("R13 trace fixture", "r13-trace-fixture", tokens, 16, 32, 4, 4, 2, 8, 8, 9, 7, None, None, None, None).unwrap();
+    let half = 2;
+    let extend = |key: &str| -> Vec<i64> {
+        (0..tokens * half)
+            .map(|k| {
+                let (t, i) = (k / half, k % half);
+                let src = if t < 32 { t } else { 1 + (t - 1) % 31 };
+                f[key][src * half + i]
+            })
+            .collect()
+    };
+    let (cos, sin) = (extend("cos"), extend("sin"));
     sh.norm_tn = 10;
     sh.norm_cn_a = 200;
     sh.norm_cn_m = 180;
@@ -60,8 +85,8 @@ fn fixture(stack: Stack) -> (Shape, AttentionPublic, FeedForwardPublic, Accuracy
         &transpose("w_v", 16, 8),
         &transpose("w_o", 16, 16),
         &i8s("gamma"),
-        &f["cos"],
-        &f["sin"],
+        &cos,
+        &sin,
         &f["exp"],
     )
     .unwrap();
@@ -80,8 +105,13 @@ fn fixture(stack: Stack) -> (Shape, AttentionPublic, FeedForwardPublic, Accuracy
         tables,
     )
     .unwrap();
-    let input = f["input"].iter().map(|&v| i16::try_from(v).unwrap()).collect();
-    (sh, public, ff, accuracy, input)
+    let input = (0..tokens * 16)
+        .map(|k| {
+            let (t, i) = (k / 16, k % 16);
+            i16::try_from(f["input"][(t % 32) * 16 + i] + 4 * (t / 32) as i64).unwrap()
+        })
+        .collect();
+    (sh, public, ff, accuracy, input, cos, sin)
 }
 
 fn line(stack: &str, name: &str, v: &[i64]) {
@@ -91,8 +121,12 @@ fn line(stack: &str, name: &str, v: &[i64]) {
 
 fn export(stack: Stack, tag: &str) {
     let (sh, public, ff, accuracy, input) = fixture(stack);
-    let tr: Trace = build(&sh, &public, &ff, &accuracy, &input).unwrap();
-    let g = Geom::new(&sh);
+    export_trace(tag, &sh, &public, &ff, &accuracy, &input);
+}
+
+fn export_trace(tag: &str, sh: &Shape, public: &AttentionPublic, ff: &FeedForwardPublic, accuracy: &AccuracyPublic, input: &[i16]) {
+    let tr: Trace = build(sh, public, ff, accuracy, input).unwrap();
+    let g = Geom::new(sh);
     let dense = |dom: Dom, a: &[i64]| -> Vec<i64> { g.support(dom).into_iter().map(|i| a[i]).collect() };
     let rows = |a: &[i64]| -> Vec<i64> { (0..g.t).map(|t| a[t]).collect() };
     let heads = |a: &[i64]| -> Vec<i64> { (0..g.hq).flat_map(|h| (0..g.t).map(move |t| (h, t))).map(|(h, t)| a[g.htix(g.slot(h), t)]).collect() };
@@ -142,4 +176,17 @@ fn export(stack: Stack, tag: &str) {
 fn lean_l1_export_the_fixture_trace() {
     export(Stack::LowH24, "low-h24");
     export(Stack::Low, "low");
+}
+
+/// The rung at the 8B token count (`T = 128`, the full causal score square of the 8B T128 profile per head): the
+/// public RoPE rows and input it uses, then the whole trace, for both export stacks.
+#[test]
+fn lean_l1_export_the_t128_rung_trace() {
+    for (stack, tag) in [(Stack::LowH24, "t128-h24"), (Stack::Low, "t128-low")] {
+        let (sh, public, ff, accuracy, input, cos, sin) = fixture_tokens(stack, 128);
+        line(tag, "cos", &cos);
+        line(tag, "sin", &sin);
+        line(tag, "input", &input.iter().map(|&v| v as i64).collect::<Vec<_>>());
+        export_trace(tag, &sh, &public, &ff, &accuracy, &input);
+    }
 }

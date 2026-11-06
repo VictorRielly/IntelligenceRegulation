@@ -28,6 +28,10 @@ What is checked, per stack (LowH24 = the W16R2 stack, and Low):
    division clauses, the softmax division clauses, the argmax clauses and the row sums.
 The public activation table (SiLU) is not recomputed: its values are taken from the Rust trace, and only its
 functionality (same `(group, gate)`, same value) is checked.
+
+The rung (second lane, 2026-11-06): an optional sixth argument, the trace of the test
+`lean_l1_export_the_t128_rung_trace` (both stacks, tags `t128-h24` and `t128-low`), runs the same check at `T = 128`
+with the RoPE rows and the input the export prints; no oracle trace exists there, so the oracle comparisons are skipped.
 -/
 import ZK60Formal.CircuitNorm
 import ZK60Formal.CircuitSoftmax
@@ -111,7 +115,11 @@ def HKV : Nat := 2
 def DH : Nat := 4
 
 /-- The whole check of one export stack. -/
-def checkStack (r : IO.Ref Tally) (F O R : Tbl) (stack : String) : IO Unit := do
+/-- The whole check of one export stack at `T` tokens (32 at the fixture, 128 at the rung of the second lane), with
+the RoPE rows and the input the export used; the oracle comparisons run only when `oracle` (the oracle traces exist at
+the fixture only). -/
+def checkStack (r : IO.Ref Tally) (F O R : Tbl) (stack : String) (T : Nat) (cosT sinT inputT : Array Int)
+    (oracle : Bool) : IO Unit := do
   let g := fun (k : String) => get R s!"{stack}/{k}"
   let sh := g "shifts"
   let (tn, sq, sk, sv, ss, spv, sao, sup, sdown, fp, sgate, sprod, wrho) :=
@@ -120,9 +128,9 @@ def checkStack (r : IO.Ref Tally) (F O R : Tbl) (stack : String) : IO Unit := do
   let n := fun (v : Int) => v.toNat
   let gamma := (get F "gamma").toList
   let x := g "x"
-  site r s!"{stack} input = fixture" x.size fun i => x.getD i 0 == (get F "input").getD i 0
+  site r s!"{stack} input = fixture" x.size fun i => x.getD i 0 == inputT.getD i 0
   -- the two norms
-  let normCheck : String → Int → Array Int → String → IO Unit := fun tag cn xin oracle => do
+  let normCheck : String → Int → Array Int → String → IO Unit := fun tag cn xin oname => do
     let words := g s!"{tag}.words"; let rho := g s!"{tag}.rho"; let sig := g s!"{tag}.sigma"
     let dd := g s!"{tag}.d"; let dsq := g s!"{tag}.dsq"; let a1 := g s!"{tag}.a1"; let a2 := g s!"{tag}.a2"
     site r s!"{stack} {tag} spec (isqrt witness, word, remainder, slack)" T fun t =>
@@ -133,7 +141,8 @@ def checkStack (r : IO.Ref Tally) (F O R : Tbl) (stack : String) : IO Unit := do
           ((List.range Dm).zip es).all fun ⟨i, (q, rr, s)⟩ =>
             q == words.getD (t * Dm + i) 0 && rr == rho.getD (t * Dm + i) 0 && s == sig.getD (t * Dm + i) 0
       | none => false
-    site r s!"{stack} {tag} = oracle" words.size fun i => words.getD i 0 == (get O oracle).getD i 0
+    if oracle then
+      site r s!"{stack} {tag} = oracle" words.size fun i => words.getD i 0 == (get O oname).getD i 0
     site r s!"{stack} {tag} isqrt constraints (IsqrtRel, 24-bit facts)" T fun t =>
       let ssv := 123 + ((List.range Dm).map fun i => xin.getD (t * Dm + i) 0 ^ 2).foldl (· + ·) 0
       let (d, q, b1, b2) := (dd.getD t 0, dsq.getD t 0, a1.getD t 0, a2.getD t 0)
@@ -157,7 +166,7 @@ def checkStack (r : IO.Ref Tally) (F O R : Tbl) (stack : String) : IO Unit := do
   let vacc := matmulIO T Dm 8 y wv
   reqSite r s!"{stack} V" vacc (fun i => n (mv.getD (i % 8) 1)) (n sv) (-32768) 32767 word16B (g "v.words") (g "v.rho")
   -- RoPE
-  let cos := get F "cos"; let sin := get F "sin"
+  let cos := cosT; let sin := sinT
   let qracc := rope T HQ DH 16 cos sin (g "q.words")
   reqSite r s!"{stack} QR" qracc (fun _ => 1) 7 (-32768) 32767 word16B (g "qr.words") (g "qr.rho")
   let kracc := rope T HKV DH 8 cos sin (g "k.words")
@@ -256,22 +265,30 @@ def checkStack (r : IO.Ref Tally) (F O R : Tbl) (stack : String) : IO Unit := do
     ZK60.Model.residual (x1.getD i 0) (z.getD i 0) == some (x2.getD i 0) &&
       decide (gf (x2.getD i 0) - gf (x1.getD i 0) - gf (z.getD i 0) = 0) && word16B (x2.getD i 0)
   -- every word site against the independent oracle
-  for (rk, ok) in [("q.words", "q"), ("k.words", "k"), ("v.words", "v"), ("qr.words", "qr"), ("kr.words", "kr"),
-      ("s.words", "s"), ("p", "p"), ("o.words", "o8"), ("ao.words", "ao"), ("x1", "x1"), ("gate.words", "gate"),
-      ("a_scaled", "a_scaled"), ("up.words", "u16"), ("h.words", "h16"), ("z.words", "z16"), ("x2", "x2")] do
-    let a := g rk; let b := get O ok
-    site r s!"{stack} {rk} = oracle {ok}" (max a.size b.size) fun i => a.getD i 0 == b.getD i 1
+  if oracle then
+    for (rk, ok) in [("q.words", "q"), ("k.words", "k"), ("v.words", "v"), ("qr.words", "qr"), ("kr.words", "kr"),
+        ("s.words", "s"), ("p", "p"), ("o.words", "o8"), ("ao.words", "ao"), ("x1", "x1"), ("gate.words", "gate"),
+        ("a_scaled", "a_scaled"), ("up.words", "u16"), ("h.words", "h16"), ("z.words", "z16"), ("x2", "x2")] do
+      let a := g rk; let b := get O ok
+      site r s!"{stack} {rk} = oracle {ok}" (max a.size b.size) fun i => a.getD i 0 == b.getD i 1
 
 def main (args : List String) : IO UInt32 := do
   match args with
-  | [fixture, oH24, oLow, rust, vectors] =>
+  | fixture :: oH24 :: oLow :: rust :: vectors :: rest =>
     let F ← loadTsv fixture 1
     let OH ← loadTsv oH24 1
     let OL ← loadTsv oLow 1
     let R ← loadTsv rust 2
     let r ← IO.mkRef ({} : Tally)
-    checkStack r F OH R "low-h24"
-    checkStack r F OL R "low"
+    checkStack r F OH R "low-h24" T (get F "cos") (get F "sin") (get F "input") true
+    checkStack r F OL R "low" T (get F "cos") (get F "sin") (get F "input") true
+    -- the second lane's rung at the 8B token count, T = 128 (its RoPE rows and input come with the trace; no oracle)
+    match rest with
+    | [rung] =>
+      let RR ← loadTsv rung 2
+      for tag in ["t128-h24", "t128-low"] do
+        checkStack r F [] RR tag 128 (get RR s!"{tag}/cos") (get RR s!"{tag}/sin") (get RR s!"{tag}/input") false
+    | _ => pure ()
     -- the requantization's independent rational vectors: (acc, m, shift, word)
     let vl ← IO.FS.lines vectors
     let rows := vl.toList.map fun l => (l.splitOn "\t").filterMap String.toInt?
@@ -284,7 +301,8 @@ def main (args : List String) : IO UInt32 := do
     IO.println s!"L1 TOTAL: {t.checks} checks, {t.fails} failed"
     return (if t.fails == 0 then 0 else 1)
   | _ =>
-    IO.println "usage: L1Check <fixture.tsv> <oracle_low_h24.tsv> <oracle_low.tsv> <rust_trace.tsv> <requant_vectors.tsv>"
+    IO.println ("usage: L1Check <fixture.tsv> <oracle_low_h24.tsv> <oracle_low.tsv> <rust_trace.tsv> " ++
+      "<requant_vectors.tsv> [<rung_t128_trace.tsv>]")
     return 2
 
 end ZK60.L1
