@@ -4,6 +4,11 @@ Lean lane (Claude), on perf at 55aacdce. Lean 4.34.1, Mathlib v4.34.1, no new de
 `formal/ZK60Formal/Assembly.lean`, imported by the library root. `Statements.lean` is unchanged. No Rust and no prover
 source changed. Evidence: `results/zk60_lean_asm_20261106/`.
 
+**Update, same day (second lane, §6):** generic lemmas for obligations 3 (`Complete`) and 5 (`ZeroKnowledge`):
+honest acceptance of every sub-protocol model, the composition into `Complete`, the random-oracle programming lemma
+and the `R`-receipt hybrid. §4.3 and §4.5 are updated; finding A5 (§6.4) needs a ruling or a sharper per-profile
+argument.
+
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms `propext`, `Classical.choice`, `Quot.sound` only), **CODE**
 (read off the sources), **ESTIMATE** (arithmetic on the bounds, not proved in Lean).
 
@@ -49,10 +54,12 @@ put together, give your production gate `ProductionReady`. The per-profile proof
 - Five per-profile theorems:
   - `CircuitIff`: proved at W16R2 for the whole forward pass. It needs a registered W16R2 or W16R3 token-I/O profile.
   - `IOPExtract`: the largest. It is L3's knowledge version plus the layout map, after W16R3's freeze.
-  - `Complete`: nothing in Lean yet.
+  - `Complete`: every sub-protocol's honest acceptance and the composition are now proved generically (§6); the
+    instance is left.
   - `Binding`: reduced here to Merkle binding plus a per-profile column map.
-  - `ZeroKnowledge`: L4's lemmas are honest-verifier with fixed challenges. Still missing: Fiat–Shamir, the composition
-    over the run and over several receipts, and a `Simulator` instance.
+  - `ZeroKnowledge`: L4's lemmas are honest-verifier with fixed challenges. The programming lemma, the `R`-receipt
+    hybrid and the `Simulator` construction are now proved generically (§6). Left: the per-receipt step under
+    Fiat–Shamir, the composition over the run, and the profile's simulator.
 - `SemanticHiding` and `KnowledgeSound` then follow from this lane's theorems, with no per-profile work.
 
 ## 2. What is proved
@@ -124,7 +131,8 @@ All PROVED (`results/zk60_lean_asm_20261106/`):
 **A4 (Info): completeness and binding.**
 - Under `CircuitIff`, `ArithComplete` and `Complete` are the same statement (`arithComplete_iff_complete`).
 - No Lean lemma yet says that the honest prover is accepted. Completeness is the least developed of the five
-  obligations.
+  obligations. (Superseded the same day: §6 proves the honest acceptance of every sub-protocol model and the
+  composition into `Complete`.)
 - `Binding`'s two parts are each a Merkle-binding event once the openings are column by column (§2 (d)). The bound per
   commitment is `collBound (q + 2(h + 2))` over `|D| = 2^256`, i.e. `(q + 2h + 4)(q + 2h + 3)/2^257`.
   - That is below the proposed `εb(q) = q·2^-100 + 2^-100` for every `q ≤ 2^150` and `h ≤ 64`, for the sum of both
@@ -201,22 +209,41 @@ This is L3's part: an accepted receipt makes the constraint system hold, for dat
 **Waits for:** W16R3's freeze. B1 changes the PCS encoder, B2 the batching and the challenge schedule, B3 the F
 indexing. Items c, f, g and h depend on the frozen layout.
 
-### 4.3 `Complete M P εc`: nothing in Lean yet
+### 4.3 `Complete M P εc`: every sub-protocol part is proved generically (§6); the instance is not
 
 - **Route:** `ArithComplete` (equivalent under `CircuitIff`). `CircuitIff`'s ⇐ direction already supplies the satisfying
-  witness for an admissible input.
+  witness for an admissible input. `complete_of_checks` / `arithComplete_of_checks` (§6) assemble it from per-check
+  failure bounds, `εc = Σ εᵢ`, in exactly the approved form `1 - εc ≤ prHC …`.
+- **Exists (§6, PROVED, generic over the models):**
+  - every sub-protocol's honest acceptance, at EVERY challenge: the sumcheck (`sumcheck_complete`; on the list verifier,
+    `sumcheck_complete_list`, so under Fiat–Shamir at every oracle), the masked and extended sumchecks, the CFS chain in
+    the code's coefficient form (`cfs_masked_honest`), the zero-check, batching, the regular opening
+    (`opening_complete`), `M`'s product and proximity tests (`mopening_complete`), honest Merkle paths (`opens_honest`)
+    and column-commitment openings (`colCommit_opens_honest`);
+  - LogUp: honest multiplicities exist and make the identity hold at every fold and every point
+    (`logup_identity_honest`); the honest helpers pass (`helperRel_honest`); the honest prover is served and passes
+    except with probability `≤ M/|F|`, `M` the distinct table tuples (`logup_block_complete_prob`);
+  - the challenge-only refusal `c = 0` of CFS: exactly `1/|F|` (`cfs_refusal_prob`);
+  - the Fiat–Shamir step: a challenge read at a point the honest computation has not asked is uniform
+    (`fresh_point_prob_le`, `fresh_point_prob_le_coins`); a bound at every coin is a bound on average
+    (`prHC_le_of_forall`).
 - **Missing:**
-  - the Lean honest prover (§4.0, `prove`);
-  - each sub-protocol's honest acceptance: the sumcheck, the LogUp identity on honest data, the openings of honestly
-    built trees, and `M`'s tests;
-  - the refusal probability `≤ εc`. The challenge-only classes (C)–(E) of the refusal table (L4 findings, third batch)
-    are each `≤ k/|Fp2|`. Two examples: D66(3)'s dictionary refusal, about `cap·2^-88` per attempt, and the
-    "`α` equals a table tuple" refusals of IN and OUT;
-  - under Fiat–Shamir, the honest challenges are hash outputs at fresh points (the transcript carries fresh salts and
-    roots), so they are uniform.
+  - the Lean honest prover and verifier (§4.0, `prove`, `verify`);
+  - per profile: the list of checks `E i` that `verify` runs on an honest receipt, the proof that together they give
+    acceptance (the hypothesis `himp` of `complete_of_checks`), and each check's refusal term `ε i`. The terms: per
+    LogUp domain `M/|Fp2|`, per slot `c = 0` (`1/|Fp2|`) and the extension challenge `e ∈ {0, 1}` (`2/|Fp2|`, the
+    same `prob_mem_finset` step), batching zeros, D66(3)'s dictionary refusal (about `cap·2^-88` per attempt), the
+    "`α` equals a table tuple" refusals of IN and OUT (a LogUp refusal: `logupRefuses_iff`);
+  - under Fiat–Shamir, that each squeeze point of the honest transcript is fresh (not asked earlier by the honest
+    computation), which fails only on a chain-state collision (`collBound`); then `fresh_point_prob_le` turns each
+    per-challenge bound into a bound over the oracle;
+  - the links from the code's layouts to these models (which claim is which sumcheck, which table which LogUp
+    domain), part of the layout map (§4.2 f);
+  - `M` with offset `0` assumes the honest `b_m = −b_0` (`mask_open`; CODE, cited, not re-derived).
 - Input-admissibility refusals (class B) are outside `Complete`: `tokenModel.admissible` is "the integer model does not
   refuse".
-- **Target:** `εcTarget = 2^-40`.
+- **Target:** `εcTarget = 2^-40`. Each refusal term is about `2^-111` or smaller (`M ≤ 2^17`, `|Fp2| ≈ 2^128`), so the
+  budget holds for any realistic number of refusal sites [ESTIMATE].
 - **Waits for:** W16R3's challenge schedule, and the Lean prover and verifier (L5).
 
 ### 4.4 `Binding M P εb`: reduced here to Merkle binding
@@ -231,7 +258,18 @@ indexing. Items c, f, g and h depend on the frozen layout.
 - **Bound:** below the proposed target (§3 A4) [ESTIMATE].
 - **Waits for:** B1 (coefficient-form rows change the encoder, and so the code argument for `col_inj`).
 
-### 4.5 `ZeroKnowledge M P εzk`: L4's honest-verifier lemmas exist; the rest does not
+### 4.5 `ZeroKnowledge M P εzk`: L4's honest-verifier lemmas, the programming lemma and the hybrid exist
+
+**Exists, generic (§6, PROVED):**
+- **the random-oracle programming lemma** (`program_real_ideal`, `program_coupling`): programming `k` points derived
+  from a fresh salt costs at most `k·q₁·K/|S|` against a distinguisher whose part before the request makes `q₁`
+  queries (`K` salts per point; `k·q₁/|S|` when the points are injective in the salt);
+- **the `R`-receipt hybrid** for any programming simulator (`ProgSim`): it is a `Simulator` (`ProgSim.toSim`); hybrid
+  `0` is exactly `realProb` (`hybProb_zero`) and hybrid `R` exactly `idealProb` (`hybProb_ge`); per-receipt bounds
+  give `ZeroKnowledge` with their sum (`zeroKnowledge_of_hybrid`, `R·ε₁` when uniform); the hybrid's table realizes
+  the programming lemma's oracle (`ovr_ofFn_program`);
+- **the target**: per-receipt `εhv + q·δ` with `εhv ≤ 2^-120` and `δ ≤ 2^-248` gives `εzkTarget`
+  (`zeroKnowledge_target_of_hybrid`); see finding A5 for the condition on `δ`.
 
 **Exists** (honest verifier, fixed challenges):
 - the opened columns are uniform (`Hiding.lean`, `HidingRows.lean`, `HidingM.lean`);
@@ -243,16 +281,21 @@ indexing. Items c, f, g and h depend on the frozen layout.
 - one block composed (`block_view_law_eq_slot_M`).
 
 **Missing:**
-- a. **Fiat–Shamir.** The simulator programs `H` at the transcript points: the challenges, the sampled columns `J` and
-   the opened set. It fails when the distinguisher asked a programmed point first: about `q/2^256` per point, because
-   the transcript carries fresh salts, plus the salt-guessing term.
+- a. **Fiat–Shamir, per profile.** The generic lemma is proved (§6); what is left is its instance: the receipt's points
+   `y a σ` (the challenges, the sampled columns `J`, the opened set) as functions of the fresh salts and roots, their
+   salt count `K`, and the HVZK step at the programmed challenges. The code's points are chain states, which are hash
+   outputs; a first step replaces the first fresh chain digest by a uniform value (`fresh_point_prob_le`,
+   `preimage_out_prob_le`), then `program_real_ideal` applies. Alternatively, a simulator that programs nothing (A6).
 - b. **The links for the registered layouts.** Which claim value is which masked terminal; which `M` functional is
    which `g(ρ)` or `Γ`; `CfsMask`'s layout as `M`'s a-rows.
 - c. **Several slots and blocks**, the D12a / D55 run, and the token stages IN and OUT.
-- d. **`R` receipts.** One simulated receipt per request, composed by a hybrid (the `R·2^-120` term).
-- e. **The `Simulator` instance** (its state is the programmed table and the simulated runs; `SCoins`; `step`), and
-   `P.leak` defined as the declared leakage.
-- f. **The error budget** against `εzkTarget`.
+- d. **`R` receipts: the per-receipt step.** The hybrid is proved generically (§6). Left: the hypothesis `hstep` of
+   `zeroKnowledge_of_hybrid` for the profile's simulator, i.e. receipt `j` honest versus simulated, the earlier
+   receipts simulated and the later ones honest, against the current oracle.
+- e. **The `Simulator` instance**: a `ProgSim` gives one (`ProgSim.toSim`). Left: the profile's `ProgSim.sim` (one
+   simulated receipt and its programmed points), and `P.leak` defined as the declared leakage.
+- f. **The error budget** against `εzkTarget`: `zeroKnowledge_target_of_hybrid` needs `εhv ≤ 2^-120` per receipt and
+   `δ ≤ 2^-248` per query per receipt. The generic per-query terms are larger (finding A5).
 
 **Waits for:** W16R3 (B1 and B2 change the commitments and the batching) and the `Protocol` instance.
 
@@ -280,3 +323,180 @@ All in `results/zk60_lean_asm_20261106/`, each run as one job through the zk60 r
   - the axiom audit (`axioms_asm.lean` → `axioms.log`);
   - a source scan of `Assembly.lean` for `sorry`, `axiom`, `native_decide`, `admit` and `maxRecDepth`. Its only matches
     are the words in the file's header comment.
+
+## 6. Generic lemmas for `Complete` and `ZeroKnowledge` (2026-11-06, second lane)
+
+Lean lane (Claude), on perf at 19399b5f. Two new files, `formal/ZK60Formal/CompleteSub.lean` and
+`formal/ZK60Formal/ZKHybrid.lean`, imported by the library root. They are GENERIC: stated over the existing models of
+the sub-protocols (as the L3 and L4 lemmas are) and over any `IntModel` and `Protocol`, not over the code's layout.
+`Statements.lean` is unchanged; no Rust and no prover source changed. Evidence: `results/zk60_lean_gen_20261106/`.
+
+### 6.1 In plain words, for Victor
+
+**Completeness (obligation 3): the honest proof is accepted.**
+- Every sub-protocol model now has a theorem saying the honest prover is accepted:
+  - the sumcheck, at EVERY challenge. So under Fiat–Shamir it is accepted for every hash function: it costs nothing
+    in `εc`;
+  - the same for the masked (`--zk`) sumcheck, the last-round extension, the CFS mask in the code's own coefficient
+    form, the zero-check and batching;
+  - the regular opening, `M`'s opening (product and proximity tests), honest Merkle paths and column-by-column
+    commitments.
+- The only completeness losses are the prover's own refusals.
+  - LogUp refuses when `α` hits a table value (a denominator vanishes). That has probability at most `M/|F|`, `M` the
+    distinct table tuples: about `2^-111` per LogUp domain [ESTIMATE].
+  - CFS refuses `c = 0`: `1/|F|`.
+- A composition lemma (`complete_of_checks`) turns `k` checks with failure bounds `εᵢ` into `Complete` with
+  `εc = Σ εᵢ`, in exactly the approved form.
+- So `Complete` is now a per-profile bookkeeping exercise: list the verifier's checks on an honest receipt, show they
+  give acceptance, add up the refusal terms. It still needs the Lean prover and verifier (§4.0).
+
+**Zero knowledge (obligation 5): the two generic tools are proved.**
+- **The random-oracle programming lemma** (`program_real_ideal`).
+  - The setting: a simulator draws a receipt's challenges itself and programs the hash to return them at the
+    receipt's `k` Fiat–Shamir points, which depend on a fresh salt.
+  - The result: a distinguisher detects this only by having asked one of those points earlier. With `q₁` earlier
+    queries, its advantage is at most `k·q₁/|S|` (`S` the salt space).
+  - The coupling is exact. The queries after the receipt cost nothing.
+- **The `R`-receipt hybrid** (`zeroKnowledge_of_hybrid`). This settles the composition side of A3.
+  - The worlds: for any simulator of the "programming" kind (one receipt from the public data, plus the points it
+    programs), hybrid `j` simulates the first `j` receipts and proves the rest honestly. All hybrids use one
+    probability space.
+  - The endpoints: hybrid `0` is EXACTLY the approved `realProb`, and hybrid `R` is EXACTLY the approved `idealProb`
+    of a `Simulator` built from it.
+  - The result: if swapping one receipt costs at most `ε₁`, then `R` receipts cost at most `R·ε₁`.
+  - What stays per profile: the one-receipt swap.
+- **The approved target** (`zeroKnowledge_target_of_hybrid`): a per-receipt bound `εhv + q·δ` with `εhv ≤ 2^-120` and
+  `δ ≤ 2^-248` gives exactly `εzkTarget`.
+- **Finding A5 needs your attention.** The per-query terms of the generic bounds we have are larger than `2^-248` per
+  receipt. Summed over `R` receipts they give a `q·R` cross term that `εzkTarget` has no slot for, so the target
+  does not follow from them in one corner (`R` near `2^118`, `q` near `2^126`).
+  - In practice this is irrelevant.
+  - Formally it needs a ruling, or a sharper per-profile argument (§6.4).
+
+### 6.2 What is proved
+
+All PROVED (`results/zk60_lean_gen_20261106/`):
+- the full `lake -d formal build` is green: 3,435 jobs, no warning, no error, no `sorry` (`full.log`, `check.log`);
+- `#print axioms` on all 71 declarations below (`axioms_gen.lean` → `axioms.log`). Each shows only `propext`,
+  `Classical.choice` and `Quot.sound`, or a subset; `sorryAx` appears nowhere;
+- every premise is an explicit hypothesis. No `axiom`, `native_decide`, `admit` or `maxRecDepth`.
+
+**`CompleteSub.lean` (obligation 3).**
+
+| Part | Theorem | Statement |
+|---|---|---|
+| sumcheck | `honestProver`, `honestMsg` (defs); `interpEval_honestMsg`, `honestMsg_check` | round `j` sends the true round polynomial's values at `X = 0..d`. Its interpolant IS the true round polynomial (Lagrange uniqueness at `d + 1` distinct nodes, `d < char F`), so the round check holds and the next claim is true |
+| | **`sumcheck_complete`**, `sumcheck_complete_prob` | for a TRUE claim and `f` of individual degree `≤ d`, `Accepts` at EVERY challenge vector (probability `1`) |
+| | **`sumcheck_complete_list`** | the same on `FSSumcheck.lean`'s list verifier `scAccept`: under Fiat–Shamir, at every oracle |
+| | `sumcheck_complete_masked`, `sumcheck_complete_extended` | `f + c·g` on the claim `S + c·G`, for every mask `g` and every `c`; the last-round extension on the claim `Σ f` |
+| | `zerocheck_complete`, `batch_complete` | a relation vanishing on the cube makes `Σ eq(τ, x)·R(x) = 0` true at every `τ`, accepted at every `(τ, ρ)`; zero relation values pass every batching vector |
+| CFS | **`cfs_masked_chainDefect`**, **`cfs_masked_honest`** | the rounds the code sends, `s_j + c·g_j`, have chain defects `(S + c·G, the unmasked gaps, F + c·g(ρ))`. So an honest chain stays honest, with scalar `S + c·G` and terminal `F + c·g(ρ)`, for every mask, `c` and challenge vector |
+| | `cfs_refusal_prob` | the refusal `c = 0` has probability exactly `1/|K|` |
+| LogUp | `TupleMass` (def), **`exists_tupleMass`**, **`regroup`** | honest multiplicities (natural numbers, the lookup count per distinct tuple; padded copies may share it) exist when every looked-up tuple is in the table. Then `Σ_l f(A_l) = Σ_j μ_j·f(T_j)` for EVERY `f` |
+| | **`logup_identity_honest`**, `logup_ratfunc_honest` | the folded identity `Σ 1/(α − fold A) = Σ μ/(α − fold T)` holds for EVERY `β, γ, α`, and as rational functions; the multiplicities are fixed before the challenges |
+| | `honestHelpers` (def), **`helperRel_honest`** | off the poles the honest helpers `1/(α − a)`, `1/(α − a) + 1/(α − b)`, `m/(α − t)` pass every relation and the sum claim of `SoundLogUpBlock.lean` |
+| | `logupRefuses` (def), **`logupRefuses_iff`**, `not_mem_poles_of_not_refuses` | the honest prover refuses exactly when `α` is a table value (`HidingRefusal.lean`'s `logup_refusal_iff_table`) |
+| | `logup_block_complete`, `logup_complete_prob_gen`, **`logup_block_complete_prob`** | over uniform `β, γ, α`, the honest LogUp is served and passes, except with probability `≤ M/|F|`, `M` the distinct table tuples |
+| opening | **`opening_complete`**, `opening_complete_prob` | codeword rows and a true claim: the honest group and proximity vectors are codewords and pass at EVERY `ρ` and column draw |
+| `M` | **`mproduct_complete`**, **`mopening_complete`** | honest rows, the honest values, `q'` the product polynomial, a blinding row with zero sum over `G_m`, and the honest proximity polynomial: `M`'s product test and its proximity checks pass at EVERY `θ`, `r` and column sample (the code's `o = 0`; `mproduct_offset_accepts` with offset `0`) |
+| Merkle | `treeRoot`, `treePath` (defs); `treePath_length`, **`climb_treePath`**, **`opens_honest`** | the honestly built tree (consecutive pairs) and its paths: from every position `j < 2^h` the climb reaches the root, and the path passes the depth check |
+| | `colLeaves` (def), **`colCommit_opens_honest`** | the honest openings of `Assembly.lean`'s column-by-column commitment open, when the root and paths are the honest ones: the `∃ r, opensIn …` part of `Complete` |
+| compose | `one_sub_le_prob`, `prob_forall_ge` | `Pr[¬E] ≤ ε ⇒ 1 − ε ≤ Pr[E]`; checks with failure bounds `εᵢ` all pass with probability `≥ 1 − Σ εᵢ` |
+| | **`complete_of_checks`**, **`arithComplete_of_checks`** | if the checks together imply the completeness event and check `i` fails with probability `≤ εᵢ` over `(H, c)`, then `Complete M P (Σ εᵢ)` (resp. `ArithComplete`) |
+| FS step | `prHC_le_of_forall`, **`fresh_point_prob_le`**, `fresh_point_prob_le_coins`, `prob_snd_mem_le` | a bound at every coin is a bound on average. A challenge read at a point the honest computation did not ask lands in a set of `m` values with probability `≤ m/|D|` |
+
+**`ZKHybrid.lean` (obligation 5).**
+
+| Part | Theorem | Statement |
+|---|---|---|
+| (A) | `program` (def), `program_at`, `program_off`, `runLog_program` | the oracle programmed at `k` distinct points; an `A₁` that asked none of them runs identically |
+| | `progReal`, `progIdeal`, `progBad`, `progSwap` (defs) | real world: challenges `H(y a σ)`; programmed world: fresh `v`, oracle programmed after `A₁`; bad: `A₁` asked a point; the coupling swaps `H(y)` with `v` |
+| | `progSwap_bad`, `progSwap_good`, `run_program_good`, **`progSwap_involutive`**, `real_swap_iff` | the coupling is an involution of the coins (a bijection); outside the bad event it maps one world's event onto the other's |
+| | **`program_coupling`** | `|progReal − progIdeal| ≤ Pr[bad]`, both directions; nothing about `A₂`'s queries is needed |
+| | **`progBad_le`** | `Pr[bad] ≤ k·q₁·K/|S|` for an `A₁` of `q₁` queries, `K` salts per point |
+| | **`program_real_ideal`**, **`program_real_ideal_inj`** | the programming lemma: advantage `≤ k·q₁·K/|S|`; `≤ k·q₁/|S|` with points injective in the salt |
+| (B) | `ovr` (def), `ovr_append`, **`ovr_ofFn_program`** | the oracle with a table of programmed points on top; a receipt's table of `k` distinct points is exactly `program y v` |
+| | `ProgSim` (structure), `hybStep`, `simStep`, `hybProb` (defs) | a programming simulator: one receipt from the weights, the CURRENT oracle, the public data and its coins, plus the points it programs. Hybrid `j`: the first `j` requests simulated, the rest honest against the current oracle, on one probability space |
+| | **`ProgSim.toSim`** (def) | every programming simulator is a `Simulator` of `Statements.lean`: the base oracle from its first coin, the table in its state |
+| | `runState_ask`, `within_ask_pos`, `hyb_run_real`, `hyb_run_sim`, `toSim_run`, `toSim_run_init`, `splitFst`, `splitSnd`, `splitHead`, `extend_fst`, `extend_snd`, `prob_marginal`, `prob_const` | the runs, step by step, and the coins as marginals of uniform laws |
+| | **`hybProb_zero`** | hybrid `0` IS `realProb M P W n Dist`, exactly |
+| | **`hybProb_ge`** | for `Dist.Within q R` and `j ≥ R`, hybrid `j` IS `idealProb M P PS.toSim W (q + R) Dist`, exactly |
+| | `telescope_le`, `telescope_ge` | steps of at most `e j` add up |
+| | **`zeroKnowledge_of_hybrid`**, `zeroKnowledge_of_hybrid_uniform` | if each step `j < R` moves the probability by `≤ ε q j` (both directions, every `Within q R` distinguisher), then `ZeroKnowledge M P (fun q R => Σ_{j<R} ε q j)`; `R·ε₁ q` when uniform |
+| | `zeroKnowledge_min_one`, **`zeroKnowledge_target_of_hybrid`** | an error above `1` says nothing; per-receipt `εhv + q·δ` with `εhv ≤ 2^-120`, `δ ≤ 2^-248` gives `ZeroKnowledge M P εzkTarget` |
+
+### 6.3 How each result discharges or shrinks an obligation
+
+- **Obligation 3, `Complete`.**
+  - Every "each sub-protocol's honest acceptance" item of the old §4.3 is now PROVED for the models. Those were the
+    sumcheck, the LogUp identity on honest data, the openings of honestly built trees, and `M`'s tests.
+  - "Under Fiat–Shamir the honest challenges are uniform" is now `fresh_point_prob_le`, given that the point is fresh.
+  - The sumcheck, zero-check, opening, `M` and Merkle parts are deterministic: they hold at every oracle. So the only
+    terms of `εc` are the refusals.
+  - What remains is per profile: the instance (prover, verifier), the list of checks with the implication `himp`, and
+    the freshness of the honest squeeze points. Updated §4.3.
+- **Obligation 5, `ZeroKnowledge`.**
+  - Item a (Fiat–Shamir) shrinks to its instance: the generic programming lemma is proved.
+  - Item d (`R` receipts) shrinks to the one-receipt step `hstep`: the hybrid is proved, and its endpoints are the
+    approved worlds exactly.
+  - Item e (the `Simulator` instance) shrinks to a `ProgSim`: `ProgSim.toSim` builds the `Simulator`.
+  - Item f (the budget) has its criterion: `zeroKnowledge_target_of_hybrid`.
+  - Items b and c (the layouts, slots, blocks and stages) are unchanged. Updated §4.5.
+- **A3** (`SemanticHiding` covers one receipt) is unchanged. `SemanticHiding` stays one-receipt as approved. The
+  hybrid concerns `ZeroKnowledge`, which already covers `R` requests; it now has a proof route.
+
+### 6.4 Findings
+
+**A5 (Low; a ruling, or a sharper per-profile argument): per-query, per-receipt terms add up to a `q·R` cross term
+that `εzkTarget` has no slot for.**
+- The hybrid adds one bound per receipt. A per-receipt bound `εhv + q·δ` gives `R·εhv + q·R·δ` in total.
+- `εzkTarget q R = q·2^-128 + R·2^-120` has no cross term. `zeroKnowledge_target_of_hybrid` absorbs `q·R·δ` into
+  `q·2^-128` for every `R < 2^120`, and for that it needs `δ ≤ 2^-248` per query per receipt. For `R ≥ 2^120` the
+  target is at least `1`, so nothing is needed there.
+- The generic per-query terms we have are larger:
+  - Merkle hiding (`merkle_hiding`): about `2N/2^256` per query per commitment, `2^-239` at `N = 2^16` columns;
+  - the programming lemma: `k/2^256` per query per receipt, `k` the programmed points (every Fiat–Shamir squeeze; in
+    the thousands).
+- For these summed bounds to meet the target everywhere, `δ` must be at most `2^-246` [ESTIMATE].
+  - Why: write `a = q·2^-128` and `b = R·2^-120`; the target is `a + b`, and the cross term `q·R·δ` is
+    `a·b·2^248·δ`. Where the target is below `1`, `a·b/(a + b)` comes arbitrarily close to `1/4`.
+  - Example: at `q = 2^126`, `R = 2^118` the target is `2^-1`, while `q·R·2^-239 = 2^5`.
+  - So the target does not follow from the generic bounds in that corner. The corner is `R` above about `2^111`
+    receipts, `q` near `2^126`: irrelevant in practice, but the approved statement quantifies over every `R`.
+- **Options:**
+  - (a) A sharper per-profile argument. The unopened columns carry the mask pads' entropy, so a query hits a salted leaf
+    only by guessing both the content and the salt. That should bring the per-query term below `2^-248`; it is not
+    proved.
+  - (b) A cross term in the target, e.g. `+ q·R·2^-230`.
+  - (c) A cap on the receipts per weight set, e.g. `R ≤ 2^100`. Then the generic terms give about `q·2^-130` or less,
+    with up to `2^7` commitments per receipt [ESTIMATE].
+- (b) and (c) are changes to the approved statement and need your ruling. Until then, (a) is the route.
+
+**A6 (Info): a simulator that programs nothing is a `ProgSim`, and may be the simpler route.**
+- The simulator: from the public data, choose a stand-in input with the same public output part and leakage, and run
+  the honest prover on it against the current oracle, programming nothing. That is a `ProgSim`.
+- Its hybrid step is a witness-indistinguishability statement: the honest prover on `x` versus on the stand-in, with
+  the real oracle.
+- The L4 lemmas are built for that statement: the views' law is independent of the data at every challenge value, and
+  Merkle hiding covers the unopened columns.
+- What it would still need: those lemmas composed under adaptive Fiat–Shamir challenges.
+- It has no programming term at all. The Merkle term of A5 remains.
+
+**A7 (Info): completeness has room to spare.**
+- Every completeness loss is a refusal, and each is at most about `M/|Fp2| ≈ 2^-111` (LogUp) or `2/|Fp2|` (CFS)
+  [ESTIMATE].
+- Against `εcTarget = 2^-40`, that leaves room for about `2^71` refusal sites per receipt.
+
+### 6.5 Checks
+
+All in `results/zk60_lean_gen_20261106/`, each run as one job through the zk60 resource guard (class `cpu`,
+`run_guarded.py`):
+- `file1.log` … `file9.log`: `lake env lean` on the new files while they were written (`file_zk.sh` builds
+  `CompleteSub` first). The errors fixed on the way are in those logs: deprecated names, an implicit argument, two
+  unification timeouts removed by naming the predicate.
+- `check.log`: `check_gen.sh`, which runs:
+  - the full `lake -d formal build` (`full.log`): 3,435 jobs, rc 0, no warning, no error;
+  - the axiom audit (`axioms_gen.lean` → `axioms.log`): 71 declarations, no `sorryAx`, nothing beyond `propext`,
+    `Classical.choice`, `Quot.sound`;
+  - a source scan of both files for `sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats` and
+    `implemented_by`. Its only matches are the words in the files' header comments.
