@@ -107,8 +107,23 @@ are redone once, not per change.
   - The lazy sums were re-checked on top of it: the stream is unchanged, so they stay on.
   - The stream is now balanced (about 4.4 s of proof per request against about 4.6 s of sealing beside the forks), so
     both sides must get faster.
-- **A16 (running): the sealing builder's serial work** (`witness_accuracy.rs`, `witness.rs`, the duplicate public
-  check in the sealing pass), about 1.6 of the pass's 2.9 s [INFERRED, A15]; then the pool size re-swept.
+- **A16 done: the sealing builder's serial work** (`witness_accuracy.rs`, `witness.rs`; byte-preserving;
+  `results/zk60_effplan_20261105/a16/`).
+  - Seven forms (`HL_A16`, all on by default):
+    - supports and chunk plans cached per public geometry;
+    - chunked requantization;
+    - normalization rows in parallel, in i64 where exact;
+    - `build`'s loops on the pool;
+    - int16 score and PV kernels;
+    - Q/K/V and gate/up side by side;
+    - production's public check of each block run once.
+  - The pass's serial main line fell from 1.15 s to 0.04 s. The pool rule stays at 8 threads.
+  - Independent A/B on the merged tree through production's builder (4 passes, both orders, every pair): one request
+    −23.8%, the sealing pass −50.8%, the stream +12.8% steady and +17.1% amortized.
+  - The Mac is now at 23.9 tok/s for one request (best 5.35 s), 33.0 for the stream steady (29.1 amortized) and
+    33.7–34.2 proof only [MEASURED].
+  - **The stream is now fork-bound:** about 2.6 s of sealing beside the forks against about 3.9 s of fork work per
+    request.
 - **A17 done: the forks' host work in `protocol.rs`** (byte-preserving; `results/zk60_effplan_20261105/a17/`).
   - At a W16 profile, one-term lookups are read straight from their witness planes (`HL_A17_LOOKED`). The preflight's
     record of each block's public checks stands in for the fork's re-check of that very block object

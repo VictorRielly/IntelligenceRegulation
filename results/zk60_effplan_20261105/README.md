@@ -701,3 +701,92 @@ against `a17new` (the default), 4 passes, alternating.
 - No branch reads a hidden value. What is borrowed follows the public layout. Whether a fork re-checks follows the
   block's address and the public shape.
 - `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+## A16: the sealing pass's serial remainder, done (every form on by default)
+
+Full write-up: `a16/README.md`. Merged into perf (418cf197, on top of A17). Acceptance and an independent A/B on the
+merged tree: `check_a16merge.sh`, `a16merge.progress`, `a16merge_pairs.md`, `a16merge_seal_pairs.md`.
+
+**The cause** [MEASURED, agent, macOS `sample`]. After A15, about 1.1 s of the sealing pass's 2.6 s main line per
+32-block pass was the builder's own serial work:
+- the supports and chunk plans, rebuilt every block;
+- `quantized`'s serial read-back;
+- `normalized`'s i128 divisions;
+- `build`'s per-position loops;
+- production's three-fold public check of each block.
+
+After A16 that serial part is 0.04 s.
+
+**What changed** (`private_block/witness.rs`, `private_block/witness_accuracy.rs`; byte-preserving): seven forms, all on
+by default. `HL_A16=0` restores the old builder; `all` or a list such as `cache,norm` chooses forms.
+- **`cache`:** each domain's support and chunk plan is kept per public geometry. The key holds every value the
+  support and the plans read.
+- **`quant`:** chunked requantization with no serial read-back.
+- **`norm`:** rows in parallel, in i64 wherever every intermediate provably fits.
+- **`loops`:** `build`'s per-position loops run on the pool.
+- **`kernels`:** the score and PV sums run over contiguous int16 rows.
+- **`overlap`:** Q/K/V run side by side, and so do gate and up.
+- **`once`:** production's `build_for_block` runs `check_accuracy_for_shape` once.
+  - Each skipped repeat is the same function of the same shape and the same borrowed halves. Bad data is still refused
+    by the first check, with its message.
+  - `build_accuracy`, called directly, keeps every check except its exact duplicate of `check_for_registry`.
+
+Every parallel form falls back to the sequential loop on any refusal, so refusals are the old ones. The pool rule stays
+at 8 threads: 12 and 16 lost every pair in the clean re-sweep.
+
+**Byte evidence:**
+- The 32-block 8B chain's planes have one digest under all 18 sealing-alone arms.
+- The 8B witness planes are `5808a1cd` in every form set, with CPU and with device products.
+- The calibration variants refuse identically in every form set.
+- At the rungs, R13 DD and TinyLlama T128, under 16 form sets, every plane and every refusal is equal.
+
+**Acceptance on the merged tree** [MEASURED, one guarded job, the GPU quiet throughout]:
+- build rc 0; no-feature `cargo check --tests` rc 0;
+- full lib suite: 936 passed, exactly the known three failed, 110 ignored; zkp-core lib 81 passed;
+- the A16 8B test, the A17 rung golden and 8B block under every setting, and the A15, A14, A8, A12, A11 and A7 byte
+  tests, all pass;
+- the W16R2 rung golden `96e4f0b6` (CPU = Metal) and all six post-F12 digests pass;
+- D55 default:
+  - one request from its input, best 5.347 s = 23.94 tok/s; the sealing pass 1.47–1.52 s;
+  - the stream 33.02 tok/s steady, 29.09 amortized, per-request latency 5.97–10.93 s;
+  - proof only, best 3.796 s = 33.72 tok/s;
+  - every receipt verified: fork receipts 818,728,672 B, D12a 818,728,480 B. The four stream receipts verified after
+    the clock in 9.2 s.
+
+**The independent A/B** [MEASURED, `a16merge_pairs.md`, `a16merge_seal_pairs.md`]: `a16old+prod` against
+`a16def+prod`, 4 passes, alternating.
+- Every witness is built through production's `build_for_block`, as `seal_and_record` builds it.
+- The agent's main A/B used the harness's `build_accuracy` path.
+
+| metric | order bias removed | pairs favouring A16 | means before / after |
+|---|---:|---:|---:|
+| one request from its input | **−23.8%** | 4 of 4 | 7.377 / 5.624 s (17.4 → 22.8 tok/s) |
+| sealing pass, one request | **−50.8%** | 4 of 4 | 3.476 / 1.708 s |
+| sealing pass beside the forks (stream) | −41.8% | 4 of 4 | 4.554 / 2.648 s |
+| stream, steady | **+12.8%** | 4 of 4 | 29.02 / 32.72 tok/s |
+| stream, amortized | **+17.1%** | 4 of 4 | 24.43 / 28.60 tok/s |
+| proof only (the control) | −2.1% | 4 of 4 | 3.970 / 3.887 s |
+| sealing user / system CPU | −36.4% / +47.6% | — | — |
+
+- **The agent's own A/Bs agree** (6 passes, quiet GPU):
+  - the harness path: one request −22.1%, the stream +7.0% steady and +12.8% amortized;
+  - production's builder (4 passes): one request −23.9%.
+- **The sealing pass's system CPU rose** (2.9 → 4.3 s). It now runs more, shorter parallel regions on its 8 threads.
+  That cost is already inside the measured wall.
+- **The stream is now fork-bound.** Sealing beside the forks (2.6 s) is shorter than a fork run (about 3.9 s). Its
+  steady rate is the forks' own (about 33 tok/s), and latency inside the stream rises as sealed requests queue for the
+  forks.
+- **Left in the sealing pass:**
+  - the seven device products;
+  - `assign`'s per-plane fill regions, which could be fused;
+  - `quantized`'s fills, and the zeroing and first touch of fresh pages;
+  - overlapping the attention half's `assign` with the feed-forward products;
+  - production's load-time `check_accuracy_for_shape` in `load_layer_mode`, still repeated by the build.
+
+**For the privacy gate:**
+- The production digests that moved are `private_block/witness.rs` and `private_block/witness_accuracy.rs`.
+- No path whose time depends on a hidden value was added:
+  - sequential re-runs happen only on a refusal, which ends the build;
+  - the int16 and i64 forms decline only outside classes that earlier range checks already enforce;
+  - the norm's bound uses at least the int16 maximum and the public isqrt window.
+- The caches hold only public geometry. `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.

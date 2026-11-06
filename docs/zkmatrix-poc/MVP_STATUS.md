@@ -16,9 +16,10 @@ here. The rates count proving and witness work. Verification time is recorded se
 | the forks' host sums (A14: summed exactly, reduced once) | — | proof only −2.8%; the stream unchanged when re-checked on top of A15 (A/B, both orders) |
 | the sealing pass's thread pool (A15: 8 threads, not the 32-thread global pool) | sealing 4.3 s | one request −10.5%, stream +16.1% (A/B, both orders, every pair) |
 | the forks' lookups and repeated public checks (A17: lookups read in place; the preflight's check record reused) | — | proof only −3.6%, stream +2.6% (A/B, both orders, every pair) |
-| **one request from its input, all witness work on the clock** | 11.1 tok/s | **17.9 tok/s** (best 7.15 s) |
-| **a stream of 4 requests, steady** | 15.9 tok/s | **30.6 tok/s** (amortized 25.7; latency 7.4–8.3 s) |
-| proof only | 22.7 tok/s | **34.2 tok/s** (best 3.75 s; the A/B mean is 32.5; it varies from run to run on the shared Mac) |
+| the sealing builder's serial work (A16: cached layouts, parallel loops, one public check per block) | sealing 3.5 s | **sealing 1.5–1.7 s**; one request −23.8%, stream +12.8% (A/B, both orders, every pair) |
+| **one request from its input, all witness work on the clock** | 11.1 tok/s | **23.9 tok/s** (best 5.35 s) |
+| **a stream of 4 requests, steady** | 15.9 tok/s | **33.0 tok/s** (amortized 29.1; latency 6.0–10.9 s) |
+| proof only | 22.7 tok/s | **33.7–34.2 tok/s** (best 3.75–3.80 s; it varies from run to run on the shared Mac) |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -55,8 +56,17 @@ here. The rates count proving and witness work. Verification time is recorded se
   - Each fork reuses the preflight's record of its block's public checks. The record is used only for that very block
     object at that shape; anything else re-checks.
   - Independent A/B on the merged tree, every pair: proof only −3.6%, the stream steady +2.6%. Byte-identical.
-  - The stream is now limited by the sealing side: about 3.9 s of proof per request against about 4.4 s of sealing beside
-    the forks. A16 targets that side.
+  - On its own, A17 left the stream limited by sealing: about 3.9 s of proof per request against about 4.4 s of sealing
+    beside the forks. A16 (below) fixed that side.
+- **A16: the sealing pass is twice as fast** [MEASURED].
+  - The builder's serial work fell from about 1.1 s to 0.04 s per pass. The block layouts are now cached per
+    geometry, the per-position loops and normalization run in parallel, and production checks each block's public
+    data once instead of three times.
+  - Independent A/B on the merged tree through production's builder, every pair: one request −23.8% (17.4 → 22.8
+    tok/s), the stream +12.8% steady and +17.1% amortized. Byte-identical; refusals unchanged.
+  - **The stream is now limited by the six proving forks** (about 3.9 s per request) and no longer by sealing (about
+    2.6 s beside the forks). Its steady rate is the forks' own, about 33 tok/s. The forks' host work and W16R3 are
+    the next levers.
 - **From 2026-11-05 the Mac's GPU is shared** with a frugal-lm research agent (Victor). Timing runs wait for it to be
   idle, and clocks taken beside it are not used (`ZK60_RESOURCE_PROTOCOL.md`, last section).
 - **W16R3 is worth less than first modeled** (Sol's B1–B3 note, reviewed and accepted, 2026-11-05):
@@ -65,7 +75,8 @@ here. The rates count proving and witness work. Verification time is recorded se
   - about 2–8% off one request, and the receipt 819 → about 767 MB [MODEL].
   - The soundness rate improves slightly (2^-102.93 → 2^-103.02). B1 carries most of the saving, and B6 needs it.
 - **D64's target is ≥ 110.** Next:
-  - A16 (the sealing builder's serial work), running; it now bounds the stream;
+  - the forks' remaining host work (zero-fill, store fold, helper inverses, public weight folds, randomness), since the
+    forks now bound the stream;
   - the protocol bundle W16R3, ruled 2026-11-05 (D67): B1 + B2 + B3, no B4. Sol builds B1 first, then B2 and B3, each
     after a measured gain (`W16R3_HANDOFF_20261105.md`). B6 goes to the next profile;
   - the RTX 5090 (date pending, Victor).

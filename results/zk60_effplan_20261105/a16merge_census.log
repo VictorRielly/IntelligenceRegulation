@@ -1,0 +1,275 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+803 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:162:12
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:165:9
+    |
+165 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:345:9
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:345:33
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:346:25
+    |
+346 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:350:9
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:350:39
+    |
+350 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1380:13
+     |
+1380 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2638:13
+     |
+2638 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `cpu_seconds` is never used
+    --> src/private_block/run_fork_tests.rs:1940:4
+     |
+1940 | fn cpu_seconds() -> f64 {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:266:19
+    |
+223 | impl Phases {
+    | ----------- method in this implementation
+...
+266 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:927:5
+    |
+920 | struct Rec {
+    |        --- field in this struct
+...
+927 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 28 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.02s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 2`
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7)
+
+running 1 test
+test private_block::range16_tests::a12_census_and_the_device_tables_equal_the_host_tables_word_for_word ... A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 00 [01 SS row sums norm_a (private)]: 2^19 x 2 tables = 1.05 M words (17 MB), 0 public | host 0.84 ms (global pool), 0.62 ms (pool of 6) | device 2.71 ms, 2.96 ms (pool of 6) | 1 eq(p7 @0), 1 A
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 01 [01m SS row sums norm_m (private)]: 2^19 x 2 tables = 1.05 M words (17 MB), 0 public | host 1.76 ms (global pool), 0.57 ms (pool of 6) | device 2.52 ms, 2.99 ms (pool of 6) | 1 eq(p7 @0), 1 A
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: 2^7 x 25 tables = 0.00 M words (0 MB), 0 public | host 0.88 ms (global pool), 0.02 ms (pool of 6) | device 2.45 ms, 2.83 ms (pool of 6) | 3 eq(p7 @0), 22 A
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 03 [08 limb zero-check]: 2^14 x 5 tables = 0.08 M words (1 MB), 1 public | host 0.17 ms (global pool), 0.16 ms (pool of 6) | device 4.61 ms, 5.28 ms (pool of 6) | 1 eq(p14 @0), 2 A, 1 Hx2, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 04 [07 masked row sums + selector (private)]: 2^19 x 4 tables = 2.10 M words (34 MB), 1 public | host 0.63 ms (global pool), 0.71 ms (pool of 6) | device 4.05 ms, 3.16 ms (pool of 6) | 1 eq(p12 @0), 1 pub, 2 A
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 05 [09Q matmul (private)]: 2^12 x 2 tables = 0.01 M words (0 MB), 1 public | host 0.91 ms (global pool), 0.21 ms (pool of 6) | device 2.65 ms, 3.12 ms (pool of 6) | 1 A fix7, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 06 [09K matmul (private)]: 2^12 x 2 tables = 0.01 M words (0 MB), 1 public | host 0.86 ms (global pool), 0.22 ms (pool of 6) | device 2.61 ms, 3.28 ms (pool of 6) | 1 A fix7, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 07 [09V matmul (private)]: 2^12 x 2 tables = 0.01 M words (0 MB), 1 public | host 0.93 ms (global pool), 0.19 ms (pool of 6) | device 2.98 ms, 3.23 ms (pool of 6) | 1 A fix7, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 08 [10 score matmul (private, bilinear)]: 2^10 x 3 tables = 0.00 M words (0 MB), 0 public | host 0.90 ms (global pool), 0.21 ms (pool of 6) | device 3.24 ms, 3.80 ms (pool of 6) | 1 eq(p3 @0), 1 A fix9, 1 A fix7
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 09 [11 PV matmul (private, bilinear)]: 2^10 x 3 tables = 0.00 M words (0 MB), 0 public | host 0.76 ms (global pool), 0.19 ms (pool of 6) | device 3.27 ms, 3.39 ms (pool of 6) | 1 eq(p3 @0), 1 A fix9, 1 A fix7
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 10 [12 Wo matmul (private)]: 2^12 x 2 tables = 0.01 M words (0 MB), 1 public | host 1.17 ms (global pool), 0.21 ms (pool of 6) | device 2.70 ms, 2.61 ms (pool of 6) | 1 A fix7, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 11 [13G gate matmul (private)]: 2^12 x 2 tables = 0.01 M words (0 MB), 1 public | host 0.74 ms (global pool), 0.22 ms (pool of 6) | device 2.60 ms, 2.66 ms (pool of 6) | 1 A fix7, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 12 [13U up matmul (private)]: 2^12 x 2 tables = 0.01 M words (0 MB), 1 public | host 1.19 ms (global pool), 0.20 ms (pool of 6) | device 2.69 ms, 2.64 ms (pool of 6) | 1 A fix7, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 13 [13D down matmul (private)]: 2^14 x 2 tables = 0.03 M words (1 MB), 1 public | host 1.52 ms (global pool), 1.68 ms (pool of 6) | device 2.65 ms, 2.83 ms (pool of 6) | 1 A fix7, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 14 [03 D zero-check (hosts 12, 13D)] DEVICE SLOT: 2^19 x 36 tables = 18.87 M words (302 MB), 2 public | host 3.07 ms (global pool), 7.81 ms (pool of 6) | device 11.93 ms, 7.75 ms (pool of 6) | 3 eq(p19 @0), 2 pub, 19 A, 2 A bcast, 10 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 15 [04 Q zero-check (hosts 09Q, 11)] DEVICE SLOT: 2^19 x 15 tables = 7.86 M words (126 MB), 2 public | host 1.69 ms (global pool), 3.30 ms (pool of 6) | device 8.22 ms, 6.57 ms (pool of 6) | 3 eq(p19 @0), 2 pub, 7 A, 3 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 16 [05 KV zero-check (hosts 09K, 09V)] DEVICE SLOT: 2^17 x 15 tables = 1.97 M words (31 MB), 2 public | host 0.86 ms (global pool), 0.91 ms (pool of 6) | device 5.62 ms, 5.78 ms (pool of 6) | 3 eq(p17 @0), 2 pub, 7 A, 3 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 17 [06 softmax zero-check (hosts 07, 10)] DEVICE SLOT: 2^19 x 19 tables = 9.96 M words (159 MB), 1 public | host 2.39 ms (global pool), 4.42 ms (pool of 6) | device 9.22 ms, 6.78 ms (pool of 6) | 2 eq(p19 @0), 1 eq(p12 @0), 1 pub, 8 A, 2 A bcast, 5 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 18 [14 F zero-check (hosts 13G, 13U)] DEVICE SLOT: 2^21 x 19 tables = 39.85 M words (638 MB), 2 public | host 5.62 ms (global pool), 17.00 ms (pool of 6) | device 20.60 ms, 9.92 ms (pool of 6) | 3 eq(p21 @0), 9 A, 5 Hx2, 2 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 19 [TAB table helper zero-check] DEVICE SLOT: 2^14 x 58 tables = 0.95 M words (15 MB), 25 public | host 0.54 ms (global pool), 0.34 ms (pool of 6) | device 6.32 ms, 5.67 ms (pool of 6) | 1 eq(p14 @0), 16 A, 16 Hx2, 25 pub
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 20 [ZS zero-sum row]: 2^14 x 2 tables = 0.03 M words (1 MB), 1 public | host 0.10 ms (global pool), 0.09 ms (pool of 6) | device 2.54 ms, 2.97 ms (pool of 6) | 1 pub, 1 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 21 [IO-in endpoint equality] DEVICE SLOT: 2^19 x 3 tables = 1.57 M words (25 MB), 0 public | host 0.79 ms (global pool), 0.68 ms (pool of 6) | device 3.26 ms, 3.16 ms (pool of 6) | 1 eq(p19 @0), 1 A, 1 In
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2 slot 22 [IO-out endpoint equality] DEVICE SLOT: 2^19 x 3 tables = 1.57 M words (25 MB), 0 public | host 2.39 ms (global pool), 0.70 ms (pool of 6) | device 2.58 ms, 3.49 ms (pool of 6) | 1 eq(p19 @0), 1 A, 1 Out
+A12-CENSUS hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: every word of 228 tables (87.0 M words) equal, and of every slot's deferred build (23 slots deferred); without resident rows the prover's form left 23 slots to the host; the device slots' tables: host 17.4 ms (global pool), 35.2 ms (pool of 6); device 67.8 ms, 49.1 ms (pool of 6); builds so far [115, 920, 220, 160, 0, 0, 23, 23]
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 00 [01 SS row sums norm_a (private)]: 2^14 x 3 tables = 0.05 M words (1 MB), 1 public | host 0.05 ms (global pool), 0.03 ms (pool of 6) | device 0.56 ms, 1.05 ms (pool of 6) | 1 eq(p5 @0), 1 A, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 01 [01m SS row sums norm_m (private)]: 2^14 x 3 tables = 0.05 M words (1 MB), 1 public | host 0.05 ms (global pool), 0.05 ms (pool of 6) | device 0.54 ms, 1.00 ms (pool of 6) | 1 eq(p5 @0), 1 A, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: 2^5 x 25 tables = 0.00 M words (0 MB), 0 public | host 0.54 ms (global pool), 0.04 ms (pool of 6) | device 0.54 ms, 0.98 ms (pool of 6) | 3 eq(p5 @0), 22 A
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 03 [08 limb zero-check]: 2^14 x 5 tables = 0.08 M words (1 MB), 1 public | host 0.15 ms (global pool), 0.15 ms (pool of 6) | device 0.77 ms, 0.79 ms (pool of 6) | 1 eq(p14 @0), 2 A, 1 Hx2, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 04 [07 masked row sums + selector (private)]: 2^14 x 4 tables = 0.07 M words (1 MB), 1 public | host 0.09 ms (global pool), 0.06 ms (pool of 6) | device 0.55 ms, 0.57 ms (pool of 6) | 1 eq(p9 @0), 1 pub, 2 A
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 05 [09Q matmul (private)]: 2^9 x 2 tables = 0.00 M words (0 MB), 1 public | host 0.10 ms (global pool), 0.09 ms (pool of 6) | device 0.60 ms, 0.61 ms (pool of 6) | 1 A fix5, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 06 [09K matmul (private)]: 2^9 x 2 tables = 0.00 M words (0 MB), 1 public | host 0.09 ms (global pool), 0.10 ms (pool of 6) | device 0.60 ms, 0.61 ms (pool of 6) | 1 A fix5, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 07 [09V matmul (private)]: 2^9 x 2 tables = 0.00 M words (0 MB), 1 public | host 0.09 ms (global pool), 0.09 ms (pool of 6) | device 0.58 ms, 0.59 ms (pool of 6) | 1 A fix5, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 08 [10 score matmul (private, bilinear)]: 2^9 x 3 tables = 0.00 M words (0 MB), 0 public | host 0.18 ms (global pool), 0.18 ms (pool of 6) | device 0.62 ms, 0.65 ms (pool of 6) | 1 eq(p3 @0), 1 A fix6, 1 A fix5
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 09 [11 PV matmul (private, bilinear)]: 2^8 x 3 tables = 0.00 M words (0 MB), 0 public | host 0.13 ms (global pool), 0.13 ms (pool of 6) | device 0.64 ms, 0.88 ms (pool of 6) | 1 eq(p3 @0), 2 A fix6
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 10 [12 Wo matmul (private)]: 2^10 x 2 tables = 0.00 M words (0 MB), 1 public | host 0.16 ms (global pool), 0.17 ms (pool of 6) | device 0.59 ms, 0.59 ms (pool of 6) | 1 A fix5, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 11 [13G gate matmul (private)]: 2^9 x 2 tables = 0.00 M words (0 MB), 1 public | host 0.10 ms (global pool), 0.09 ms (pool of 6) | device 0.59 ms, 0.61 ms (pool of 6) | 1 A fix5, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 12 [13U up matmul (private)]: 2^9 x 2 tables = 0.00 M words (0 MB), 1 public | host 0.10 ms (global pool), 0.09 ms (pool of 6) | device 0.57 ms, 0.59 ms (pool of 6) | 1 A fix5, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 13 [13D down matmul (private)]: 2^10 x 2 tables = 0.00 M words (0 MB), 1 public | host 0.16 ms (global pool), 0.16 ms (pool of 6) | device 0.59 ms, 0.60 ms (pool of 6) | 1 A fix5, 1 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 14 [03 D zero-check (hosts 12, 13D)] DEVICE SLOT: 2^14 x 37 tables = 0.61 M words (10 MB), 3 public | host 0.95 ms (global pool), 0.36 ms (pool of 6) | device 1.14 ms, 0.94 ms (pool of 6) | 3 eq(p14 @0), 3 pub, 19 A, 2 A bcast, 10 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 15 [04 Q zero-check (hosts 09Q, 11)] DEVICE SLOT: 2^15 x 15 tables = 0.49 M words (8 MB), 2 public | host 0.69 ms (global pool), 0.35 ms (pool of 6) | device 0.94 ms, 0.90 ms (pool of 6) | 3 eq(p15 @0), 2 pub, 7 A, 3 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 16 [05 KV zero-check (hosts 09K, 09V)]: 2^14 x 15 tables = 0.25 M words (4 MB), 2 public | host 0.63 ms (global pool), 0.19 ms (pool of 6) | device 0.95 ms, 3.99 ms (pool of 6) | 3 eq(p14 @0), 2 pub, 7 A, 3 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 17 [06 softmax zero-check (hosts 07, 10)] DEVICE SLOT: 2^14 x 22 tables = 0.36 M words (6 MB), 1 public | host 0.76 ms (global pool), 0.23 ms (pool of 6) | device 0.90 ms, 0.83 ms (pool of 6) | 2 eq(p14 @0), 1 eq(p9 @0), 1 pub, 10 A, 2 A bcast, 6 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 18 [14 F zero-check (hosts 13G, 13U)] DEVICE SLOT: 2^15 x 19 tables = 0.62 M words (10 MB), 2 public | host 0.53 ms (global pool), 0.51 ms (pool of 6) | device 1.12 ms, 0.96 ms (pool of 6) | 3 eq(p15 @0), 9 A, 5 Hx2, 2 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 19 [TAB table helper zero-check] DEVICE SLOT: 2^14 x 62 tables = 1.02 M words (16 MB), 27 public | host 0.74 ms (global pool), 0.36 ms (pool of 6) | device 1.92 ms, 1.14 ms (pool of 6) | 1 eq(p14 @0), 17 A, 17 Hx2, 27 pub
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 20 [ZS zero-sum row]: 2^14 x 2 tables = 0.03 M words (1 MB), 1 public | host 0.09 ms (global pool), 0.09 ms (pool of 6) | device 0.45 ms, 0.49 ms (pool of 6) | 1 pub, 1 Hx2
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 21 [IO-in endpoint equality]: 2^14 x 3 tables = 0.05 M words (1 MB), 0 public | host 0.13 ms (global pool), 0.14 ms (pool of 6) | device 0.55 ms, 0.57 ms (pool of 6) | 1 eq(p14 @0), 1 A, 1 In
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 slot 22 [IO-out endpoint equality]: 2^14 x 3 tables = 0.05 M words (1 MB), 0 public | host 0.14 ms (global pool), 0.14 ms (pool of 6) | device 0.55 ms, 0.59 ms (pool of 6) | 1 eq(p14 @0), 1 A, 1 Out
+A12-CENSUS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2: every word of 238 tables (3.7 M words) equal, and of every slot's deferred build (23 slots deferred); without resident rows the prover's form left 22 slots to the host; the device slots' tables: host 3.7 ms (global pool), 1.8 ms (pool of 6); device 6.0 ms, 4.8 ms (pool of 6); builds so far [230, 1865, 465, 320, 0, 0, 46, 45]
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1048 filtered out; finished in 1.98s
+
