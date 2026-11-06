@@ -3883,13 +3883,18 @@ pub(crate) fn a23_share() -> bool {
     super::trained_statement::a20_switch(&A23_SHARE_TEST, &ENV, "HL_A23_SHARE", A23_SHARE_DEFAULT) != 0
 }
 
-/// [A23] the default of `HL_A23_SHARE` (decided by the stream A/B, the results' README)
-const A23_SHARE_DEFAULT: usize = 0;
+/// [A23] the default of `HL_A23_SHARE`: on. Measured (`results/zk60_effplan_20261105/a23/
+/// README.md`, stage 2) in `stack-serve`'s stream of 4 at W16R2 8B T128, 32 blocks, N = 6, 4
+/// passes, both orders, quiet GPU: steady +6.4% (4 of 4 pairs; 29.49 -> 31.35 proved tok/s),
+/// amortized +7.7%, the prove call 4.343 -> 4.083 s (its preflight 0.269 -> 0.097 s), the
+/// peak footprint 60.4 -> 46.4 GiB; every receipt 818,728,672 B
+const A23_SHARE_DEFAULT: usize = 1;
 
 /// [A23] `HL_A23_CHECKED` (default off; it needs a ruling): with the blocks shared, the
 /// fork run's CS-1 / CS-4 check of a resident block takes that very object's startup pass
 /// at an equal shape instead of scanning it again; a shape the startup did not pass is
-/// checked as before
+/// checked as before. Measured on the shared blocks (stage 2): steady +3.9% (4 of 4;
+/// 31.35 -> 32.56), the preflight 0.097 -> 0.001 s
 pub(crate) fn a23_checked() -> bool {
     static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
     super::trained_statement::a20_switch(&A23_CHECKED_TEST, &ENV, "HL_A23_CHECKED", 0) != 0

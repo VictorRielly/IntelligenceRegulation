@@ -9,7 +9,8 @@
 # rung test; the A12 census and rung-mode tests; the A11 pool byte tests; the A7 queue byte test; the W16R2 rung golden
 # and the six post-F12 digests under HL_GPU_REQUIRED=1; the D55 harness on the default; production's D55 path on the
 # default (2 passes); and the server's stream on this tree (2 passes: one request, streams of 4 and 8 at the defaults,
-# the stream of 4 with the blocks copied, the harness's stream of 4). Timing stages wait for a quiet GPU (a RUNNING
+# the stream of 4 with the blocks copied, the stream of 4 with the startup checks (pending a ruling), the harness's
+# stream of 4). Timing stages wait for a quiet GPU (a RUNNING
 # ds4-bench, matched by process name). One guarded job, class gpu.
 set -u
 W=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a34b7617369662958
@@ -130,10 +131,10 @@ seen "production d55 default"
 grep -E "^D55-AB (A19|SUMMARY)" $R/s9_prod.log | cut -c1-1100 > $O/s9_prod.log
 grep -E "SUMMARY|panicked|verified" $R/s9_prod.log | cut -c1-300 >> $P
 quiet "the server's stream"
-env $A HL_A22_AB_PASSES=2 HL_D55_AB_ALTERNATE=1 HL_A22_AB=${A23_S9_ARMS:-serve1,serve4,harness4,serve8,serve4+share0} $C $K::a22::a22_stream_ab -- --ignored --exact --nocapture --test-threads=1 > $R/s9_ab.log 2>&1; say "the server's stream rc=$?"
+env $A HL_A22_AB_PASSES=2 HL_D55_AB_ALTERNATE=1 HL_A22_AB=${A23_S9_ARMS:-serve1,serve4,harness4,serve8,serve4+share0,serve4+chk1} $C $K::a22::a22_stream_ab -- --ignored --exact --nocapture --test-threads=1 > $R/s9_ab.log 2>&1; say "the server's stream rc=$?"
 seen "the server's stream"
 grep -E "^A22-AB|panicked" $R/s9_ab.log | cut -c1-1500 > $O/s9_ab.log
-python3 $O/stream_table.py $R/s9_ab.log serve4 harness4 serve4 serve8 serve4+share0 serve4 > $O/s9_table.md 2>&1
+python3 $O/stream_table.py $R/s9_ab.log serve4 harness4 serve4 serve8 serve4+share0 serve4 serve4 serve4+chk1 serve4+chk1 harness4 > $O/s9_table.md 2>&1
 cat $O/s9_table.md >> $P
 grep -E "SUMMARY|STARTUP|panicked" $R/s9_ab.log | cut -c1-400 >> $P
 say "all done"
