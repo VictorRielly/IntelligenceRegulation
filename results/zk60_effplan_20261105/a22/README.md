@@ -57,7 +57,11 @@ Mac, so the startup of a real 8B export was not measured.
   - Heads replay, and interior forks equal whole forks.
   - Two requests on the same input share no salt, mask or frame.
   - A refused request mid-stream creates nothing, and the stream carries on (§4).
-- **Acceptance on the final tree:** §6.
+- **Acceptance on the final tree** (§6) [MEASURED]:
+  - the suite: 953 passed, exactly the known 3 failed;
+  - zkp-core 81; every device and byte test of A7 to A22 passes;
+  - golden `96e4f0b6`, CPU = Metal; the six digests and the 8B core `90003b760eb7ad80` are present;
+  - the server's stream confirms on the final tree: `serve4` 29.49 steady, 25.12 amortized.
 
 ## 1a. The headline numbers, labelled
 
@@ -434,9 +438,52 @@ The suspects named:
   after the prover. Production's one request through `d55_seal_and_prove` after A21 took 7.045 s (A21's measurement).
   At one request the resident model saves little, since A21 made the loads cheap. The stream is where the gain is.
 
-## 6. Acceptance on the final tree
+## 6. Acceptance on the final tree [MEASURED]
 
-TODO (stage 9).
+Stage 9 is `s9.sh`: A20's `s9.sh` list pointed at this worktree, with A21's and A22's tests added. It ran on the merged
+tree as one guarded job, 10:56–11:23 UTC, rc 0. The GPU was quiet (no `ds4-bench`) at the start and the end of every
+timing step.
+
+- **Builds:**
+  - the test build, the no-feature `cargo check --tests`, the production (non-test) library build and the CLI example
+    `zk60_trained_block` all return rc 0;
+  - no new warning. The non-test build's six in these files are A20's: `recipe`, `new`, `constants_of`, `tied_of`,
+    `table_keys_of`, `is_dd`. The test build's four in this lane's files are pre-existing: A11's `cpu_seconds`, and
+    three of A19's.
+- **The full lib suite** (`--test-threads=8`, the R13 loader fixtures): **953 passed, 3 failed, 127 ignored.** The three
+  failures are exactly the known ones:
+  - `review_tests::a_toy_receipt_made_before_f12_is_refused`;
+  - `trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces`;
+  - `trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name`.
+
+  These pass in the suite: A22's three suite tests; A21's, A20's and A19's; R6's sealing-pass audit; s25's call-site,
+  file and batch censuses; the absorb-label scan; D60 F3 and F8.
+- **zkp-core's lib tests:** 81 passed, 2 ignored.
+- **The device tests, all rc 0:**
+  - A22's R13 export through the server, its resident synthetic rung stream and its resident 8B stream;
+  - A19's planned path and production path;
+  - A20's production path (statement identity `10a8fd14…` under every arm) and its 8B test;
+  - A21's production path (the same identity under every arm) and its 8B test (every receipt 102,772,480 B, verified);
+  - A18's rung golden, 8B block and parked forks; A16, A17, A15, A14, A12, A11, A8 and A7.
+- **The W16R2 rung golden:** CPU = Metal = `96e4f0b6f34f7876…`.
+- **The six post-F12 trained digests:** 5a6193d3, f590b01f, 79f987ef, a8258241, 0e88d84f and 90003b76, all present.
+  **The 8B core proof `90003b760eb7ad80`** is present.
+- **The D55 harness on the default** (`s9_d55.log`): proof only, best 3.889 s = 32.91 tok/s; one request from its input,
+  best 5.476 s; its stream of 4, 32.76 steady and 29.32 amortized.
+- **Production's one request** (`d55_seal_and_prove`, `s9_prod.log`): best 7.153 s = 17.89 tok/s, mean 7.175 s.
+- **The server's stream on the final tree** (`s9_ab.log`, `s9_table.md`; 2 passes, both orders):
+
+| arm | steady tok/s | amortized tok/s | latency | peak footprint |
+|---|---:|---:|---:|---:|
+| `serve1` | | 18.20 | 7.034 s | 50.2 GiB |
+| `serve4` | **29.49** | 25.12 | first 7.365 s | 59.6 GiB |
+| `serve8` | 29.16 | 26.98 | first 7.232 s | 59.4 GiB |
+| `harness4` | 32.43 | 28.85 | first 5.906 s | 54.0 GiB |
+
+- **Startup** 0.571 s, footprint 1.5 → 8.8 GiB.
+- **These agree with stage 2:** `serve4` 29.23 / 24.88, `serve8` 28.98 / 26.72, `harness4` 32.53 / 28.61. The peak
+  footprints are lower here because this process started fresh at each arm's first pass: there were no `dig1` or
+  `ahead16` streams in it.
 
 ## 7. H-1 (rulings D29, D68) per request: the argument, and its tests
 

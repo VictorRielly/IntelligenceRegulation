@@ -1,0 +1,240 @@
+2026-11-06T10:56:05Z start
+2026-11-06T10:56:05Z build rc=0
+2026-11-06T10:56:05Z test-build warnings in A22's files: 4
+2026-11-06T10:56:14Z no-feature cargo check --tests rc=0
+2026-11-06T10:56:54Z production library build (non-test, gpu-metal) rc=0
+2026-11-06T10:56:54Z non-test warnings in trained_statement.rs / trained_block.rs / run_fork.rs: 6
+warning: associated function `recipe` is never used
+warning: associated function `new` is never used
+warning: function `constants_of` is never used
+warning: function `tied_of` is never used
+warning: function `table_keys_of` is never used
+warning: method `is_dd` is never used
+2026-11-06T10:57:08Z the CLI example zk60_trained_block (stack-serve) rc=0
+2026-11-06T11:05:29Z full lib suite rc=101 (expect failures: exactly the known three)
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+test result: FAILED. 953 passed; 3 failed; 127 ignored; 0 measured; 0 filtered out; finished in 501.11s
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+test private_block::r6_tests::the_sealing_pass_lookup_miss_check_refuses_by_the_cs3_name ... ok
+test private_block::range16_tests::a12_the_device_table_formula_equals_the_host_builders_at_every_slot_of_the_w16r2_rung ... ok
+test private_block::range16_tests::a14_the_lazy_sums_equal_the_per_term_sums_word_for_word ... ok
+test private_block::run::fork::tests::a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung_on_the_device ... ignored, A18: toggles HL_GPU and the A18 forms in-process; run alone by name 
+test private_block::run::fork::tests::a19_planned_parts_equal_whole_forks_and_every_control_refuses_at_the_w16r2_rung_on_the_device ... ignored, A19: toggles HL_GPU in-process; run alone by name on a 
+test private_block::run::fork::tests::a19_production_d55_ab ... ignored, heavy: W16R2 8B T128 32-block runs through production's D55 path; guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+test private_block::run::fork::tests::a17_a_fork_refuses_a_block_its_preflight_did_not_check ... ok
+test private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung_on_the_device ... ignored, A19: toggles HL_GPU in-process; run alone by name on a Ma
+test private_block::run::fork::tests::a20_layer_records_and_the_statement_identity_are_the_same_under_every_record_setting ... ok
+test private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung_on_the_device ... ignored, A20: toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::run::fork::tests::a20_profile_of_the_sealing_pass_loads_and_the_receipt_write ... ignored, A20 stage 1: the profile of the sealing pass's loads and the receipt write at 8B; heavy, 
+test private_block::run::fork::tests::a20_the_8b_records_sealing_pass_and_production_path_under_every_setting ... ignored, A20: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=0
+test private_block::run::fork::tests::a19_planned_parts_equal_whole_forks_and_every_control_refuses_at_the_w16r2_rung ... ok
+test private_block::run::fork::tests::a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung has been running for over 60 seconds
+test private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung has been running for over 60 seconds
+test private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung has been running for over 60 seconds
+test private_block::run::fork::tests::a20_the_receipt_write_is_the_same_files_bytes_list_and_refusals_at_every_writer_count has been running for over 60 seconds
+test private_block::run::fork::tests::a20_the_sealing_pass_is_the_same_under_every_load_setting_and_refuses_with_the_earliest_layer has been running for over 60 seconds
+test private_block::run::fork::tests::a21_block_digests_are_the_same_by_blake3s_tree_and_by_the_one_pass has been running for over 60 seconds
+test private_block::run::fork::tests::a21_layer_records_and_the_statement_identity_are_the_same_under_every_setting has been running for over 60 seconds
+test private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung has been running for over 60 seconds
+test private_block::run::fork::tests::a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung ... ok
+test private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung_on_the_device ... ignored, A21: toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::run::fork::tests::a21_profile_of_production_hashing ... ignored, A21: the profile of production's hashing at 8B; heavy, guarded, alone
+test private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung ... ok
+test private_block::run::fork::tests::a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_setting ... ignored, A21: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=
+test private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung ... ok
+test private_block::run::fork::tests::a21_verifier_ab ... ignored, A21: the verifier's A/B at 8B, 32 blocks; heavy, guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+test private_block::run::fork::tests::a20_the_receipt_write_is_the_same_files_bytes_list_and_refusals_at_every_writer_count ... ok
+test private_block::run::fork::tests::a22::a22_stream_ab ... ignored, A22: the stream A/B at W16R2 8B T128, 32 blocks; heavy, guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+test private_block::run::fork::tests::a22::a22_the_resident_8b_stream_replays ... ignored, A22: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=0
+test private_block::run::fork::tests::a22::a22_cs6_takes_the_digest_kept_with_its_block_and_refuses_a_wrong_one ... ok
+test private_block::run::fork::tests::a22::a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on_on_the_device ... ignored, A22: toggles HL_GPU in-process; run alone by name on a M
+test private_block::run::fork::tests::a20_the_sealing_pass_is_the_same_under_every_load_setting_and_refuses_with_the_earliest_layer ... ok
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device ... ignored, A22: toggles HL_GPU in-process; run al
+test private_block::run::fork::tests::a21_block_digests_are_the_same_by_blake3s_tree_and_by_the_one_pass ... ok
+test private_block::run::fork::tests::a21_layer_records_and_the_statement_identity_are_the_same_under_every_setting ... ok
+test private_block::run::fork::tests::a21_sha256_is_sha2s_on_the_nist_vectors_every_length_to_1100_random_lengths_to_16_mb_and_unaligned_slices has been running for over 60 seconds
+test private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes ... ok
+test private_block::run::fork::tests::d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang ... ok
+test private_block::run::fork::tests::a22::a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on ... ok
+test private_block::run::fork::tests::a21_the_sealing_pass_and_its_refusals_are_the_same_under_every_setting has been running for over 60 seconds
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal has been running for over 60 seconds
+test private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines ... ok
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test private_block::tamper::a_product_output_not_equal_to_a16_times_u16_is_rejected ... ok
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal ... ok
+test private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung ... ok
+test private_block::run::fork::tests::a21_sha256_is_sha2s_on_the_nist_vectors_every_length_to_1100_random_lengths_to_16_mb_and_unaligned_slices ... ok
+test private_block::run::fork::tests::a21_the_sealing_pass_and_its_refusals_are_the_same_under_every_setting ... ok
+test private_block::w16r2_tests::a15_the_seal_pool_rule_and_the_rung_witness_planes_in_every_pool ... ok
+test private_block::w16r2_tests::a16_the_8b_witness_planes_in_every_form ... ignored, A16: heavy (W16R2 8B T128 chains in 15 form sets, CPU and device products), toggles HL_GPU; run alone by name, HL_
+test private_block::w16r2_tests::a17_a_record_covers_only_its_own_block_and_a_modified_block_is_refused ... ok
+test private_block::w16r2_tests::a17_the_8b_block_proves_the_same_under_every_a17_setting ... ignored, A17: heavy (one 8B T128 block on Metal, 17 times), toggles HL_GPU; run alone by name with HL_PB_O
+test private_block::w16r2_tests::a17_w16r2_rung_golden_under_every_a17_setting ... ignored, A17: toggles HL_GPU and the A17 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1
+test private_block::w16r2_tests::a18_the_8b_block_proves_the_same_under_every_a18_setting ... ignored, A18: heavy (one 8B T128 block on Metal, 25 times), toggles HL_GPU; run alone by name with HL_PB_O
+test private_block::w16r2_tests::a18_the_record_covers_only_its_own_data_and_the_table_forms_equal_the_old_code ... ok
+test private_block::w16r2_tests::a18_w16r2_rung_golden_under_every_a18_setting ... ignored, A18: toggles HL_GPU and the A18 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1
+test private_block::w16r2_tests::a8_store_fold_forms_equal_the_per_term_fold_word_for_word ... ok
+test private_block::w16r2_tests::a16_the_rung_chain_in_every_form_and_every_pool ... ok
+test private_block::w16r2_tests::a17_the_rung_digests_under_a17_forms ... ok
+test private_block::w16r2_tests::a16_every_form_refuses_as_the_builder_before_a16_at_every_site ... ok
+test private_block::witness::accuracy::tests::a16_normalized_by_rows_equals_normalized_and_refuses_with_the_first_rows_refusal ... ok
+test private_block::witness::accuracy::tests::a16_quantized_over_chunks_refuses_with_the_first_refusal_in_support_order ... ok
+test private_block::witness::accuracy::tests::a16_residual_over_chunks_equals_residual ... ok
+test private_block::witness::accuracy::tests::a16_the_switch_parses_its_words ... ok
+test private_block::w16r2_tests::a18_the_rung_digests_under_a18_forms_and_the_split_core ... ok
+test private_block::witness_speed_tests::h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane ... ok
+test private_block::witness_speed_tests::a4::a4_the_device_builder_equals_the_cpu_one_on_every_plane ... ok
+test private_block::w16r2_tests::a16_every_form_builds_the_same_planes_and_refuses_the_same has been running for over 60 seconds
+test private_block::w16r2_tests::a16_every_form_builds_the_same_planes_and_refuses_the_same ... ok
+2026-11-06T11:05:47Z zkp-core lib tests rc=0
+test result: ok. 81 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.29s
+2026-11-06T11:06:02Z a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device rc=0
+A22-EXPORT (Metal) the server's sealing pass (resident model, the request's sequence) = stack-prove's, every record, digest, sealed plane, endpoint and kept witness, at budgets everything and nothing, digests ahead off and on
+A22-EXPORT (Metal) a stream of 11 lines (10 requests): proved, refused (layer 1's parity, before the run header), refused (an existing run directory, untouched), proved, refused (the receipt write failed after the run header; its run directory removed), bad-request, refused (a run directory an earlier request named), proved, refused (its statement directory taken after its proof; its run directory removed, the other directory untouched), proved; the results in request order; 9 requests entered the sealing turn and 6 the prover, each in request order; at most 2 held at once
+A22-EXPORT (Metal) 4 proved requests on the same input: each verified by a fresh stack-verify; statement identity 10a8fd14f6e75d8c = stack-prove's; statement.json = stack-prove's but its expected_io; segments.json's names and lengths = stack-prove's; receipt 62099008 B = stack-prove's; marker present; no two share their endpoint commitments, head (boundary roots), any fork frame or the tail
+A22-EXPORT (Metal) seeded lanes, window 0, digests ahead false: proved, refused (parts made 0, alive 0), proved; each verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole, per request; forks parked = the window's
+A22-EXPORT (Metal) seeded lanes, window 2, digests ahead false: proved, refused (parts made 1, alive 0), proved; each verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole, per request; forks parked = the window's
+A22-EXPORT (Metal) seeded lanes, window 0, digests ahead true: proved, refused (parts made 0, alive 0), proved; each verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole, per request; forks parked = the window's
+A22-EXPORT (Metal) seeded lanes, window 4, digests ahead true: proved, refused (parts made 1, alive 0), proved; each verified by a fresh stack-verify; head = the replayed commit phase; 2 interior forks = those forks proved whole, per request; forks parked = the window's
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 15.28s
+2026-11-06T11:06:14Z a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on_on_the_device rc=0
+A22-SYNTH (Metal) window 2, lanes 2, digests ahead false: honest, lie1 (refused before the run header, 1 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+A22-SYNTH (Metal) window 4, lanes 2, digests ahead true: honest, lie1 (refused before the run header, 1 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+A22-SYNTH (Metal) window 0, lanes 1, digests ahead true: honest, lie1 (refused before the run header, 0 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 1 held at once
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 11.97s
+2026-11-06T11:06:28Z a22 resident 8B stream rc=0
+A22-8B window 0, lanes 2, digests ahead true: honest, lie1 (refused before the run header, 0 parts made, 0 alive, nothing created), honest, honest: each receipt verified from its run directory (102772480 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 13.61s
+2026-11-06T11:06:40Z a19 planned path + controls on the device rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 11.80s
+2026-11-06T11:06:48Z a19 production path on the device rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 8.16s
+2026-11-06T11:07:12Z a20 production path on the device (the forms off and on) rc=0
+A20-PROD (Metal) [a20old] (recpar false loads 0 writers 0): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD (Metal) [recpar1+loads1+write2] (recpar true loads 1 writers 2): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD (Metal) [default] (recpar true loads 4 writers 16): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD (Metal) [recpar1+loads3+write8] (recpar true loads 3 writers 8): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A20-PROD (Metal) every arm ["a20old", "recpar1+loads1+write2", "default", "recpar1+loads3+write8"]: the same statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960; a chain whose layer 1 fails parity and layers 2-3 their loads: the same refusal (layer 1's parity): layer 1: parity: the native block output differs from the exported x_out (no count, position or value is p
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 24.01s
+2026-11-06T11:07:53Z a20 8B records, sealing pass and production path rc=0
+test private_block::run::fork::tests::a20_the_8b_records_sealing_pass_and_production_path_under_every_setting ... A20-8B the 8B block: one record under both settings (block digest 04c8bd7c5fc92e13, word 0 e646df8d8a7ac39d, word 8 2ceb9b1f49e77e5e, act table d856c4de0a8171f0)
+A20-8B budget 34359738368: the same sealing pass at every setting [(0, false), (0, true), (1, false), (1, true), (2, true), (3, true), (8, true)]: identity 05ea9df9d1cb74ad02e8e7ec044140cb2b0f41f7fec9e0f1cc80239934c0bee8 | block digests 04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc9
+A20-8B budget 0: the same sealing pass at every setting [(0, false), (0, true), (1, false), (1, true), (2, true), (3, true), (8, true)]: identity 05ea9df9d1cb74ad02e8e7ec044140cb2b0f41f7fec9e0f1cc80239934c0bee8 | block digests 04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13 | rec
+A20-8B [a20old] (recpar false loads 0 writers 0): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A20-8B [recpar1+loads3+write8] (recpar true loads 3 writers 8): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A20-8B [default] (recpar true loads 4 writers 16): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 40.79s
+2026-11-06T11:08:23Z a21 production path on the device (the forms off and on) rc=0
+A21-PROD (Metal) [a20old+a21old] (recpar false loads 0 writers 0; sha false (instructions false) b3par false): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) [a21old] (recpar true loads 4 writers 16; sha false (instructions false) b3par false): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) [sha1+b3par0] (recpar true loads 4 writers 16; sha true (instructions true) b3par false): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) [sha0+b3par1] (recpar true loads 4 writers 16; sha false (instructions false) b3par true): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) [default] (recpar true loads 4 writers 16; sha true (instructions true) b3par true): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) every arm ["a20old+a21old", "a21old", "sha1+b3par0", "sha0+b3par1", "default"]: the statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 (pinned); a chain whose layer 1 fails parity and layers 2-3 their SHA-256 checks: the same refusal (layer 1's parity): layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 30.33s
+2026-11-06T11:09:26Z a21 8B words, digest, record, sealing pass and production path rc=0
+test private_block::run::fork::tests::a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_setting ... A21-8B the nine 8B words (and each from its second byte): the same SHA-256 on the instructions, through the wrapper at sha 0 and 1 and through digest_hex, as sha2's
+A21-8B the 8B block's digest 04c8bd7c5fc92e13: the same by the one pass, digest() at b3par 0 and 1 and the tree at leaves [1024, 2048, 4096, 32768, 1048576, 4194304], = blake3::hash of the input written out independently
+A21-8B the 8B block: one record under all eight settings (block digest 04c8bd7c5fc92e13, word 0 e646df8d8a7ac39d, word 6 919f50855676eb46, tables aeef0178ae272b2b 65ff4f522e53eb16 d856c4de0a8171f0)
+A21-8B budget 34359738368: the same sealing pass under every A21 setting at loads 0 and 4: identity 05ea9df9d1cb74ad02e8e7ec044140cb2b0f41f7fec9e0f1cc80239934c0bee8 | block digests 04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13 | records 9ec1274a3761e7fa36b2ce72392eb273fb07a6169dbde8b433fd2d7bfcfc791e | outs 3130c73c2ab5024f,3130c73c2ab5024f,3130c73c2ab5024f,3130c73c2
+A21-8B budget 0: the same sealing pass under every A21 setting at loads 0 and 4: identity 05ea9df9d1cb74ad02e8e7ec044140cb2b0f41f7fec9e0f1cc80239934c0bee8 | block digests 04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13 | records 9ec1274a3761e7fa36b2ce72392eb273fb07a6169dbde8b433fd2d7bfcfc791e | outs 3130c73c2ab5024f,3130c73c2ab5024f,3130c73c2ab5024f,3130c73c2
+A21-8B [a21old] (sha false (instructions false) b3par false): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B, 6 frames) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-8B [sha1+b3par0] (sha true (instructions true) b3par false): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B, 6 frames) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-8B [sha0+b3par1] (sha false (instructions false) b3par true): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B, 6 frames) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-8B [default] (sha true (instructions true) b3par true): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B, 6 frames) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-8B every arm: the same 6 frame lengths, 102772480 B in all
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 62.64s
+2026-11-06T11:10:09Z a18 rung golden under every setting (CPU and Metal, three entries) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 43.17s
+2026-11-06T11:10:21Z a18 8B block under every setting rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 11.25s
+2026-11-06T11:12:00Z a18 parked forks = whole forks on the device rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 98.99s
+2026-11-06T11:15:31Z a16 8B witness planes in every form (CPU and device products, refusals) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 210.85s
+2026-11-06T11:15:40Z a17 rung golden under every setting (CPU and Metal) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 9.09s
+2026-11-06T11:15:48Z a17 8B block under every setting rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 7.99s
+2026-11-06T11:16:16Z a15 8B chain in every pool (CPU and device products) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 28.25s
+2026-11-06T11:16:17Z a14 8B private tables under both sums rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 0.45s
+2026-11-06T11:16:21Z a14 rung golden under every setting rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 4.39s
+2026-11-06T11:16:29Z a14 8B block under every setting rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 8.22s
+2026-11-06T11:16:32Z a8 rung golden under every form rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 2.38s
+2026-11-06T11:16:34Z a12 census + word-for-word (Metal) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 2.05s
+2026-11-06T11:16:37Z a12 rung golden in every table mode rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1082 filtered out; finished in 2.78s
+2026-11-06T11:16:40Z a11 CPU pool byte test rc=0
+2026-11-06T11:16:42Z a11 Metal pool byte test rc=0
+2026-11-06T11:16:44Z a7 queue byte test rc=0
+2026-11-06T11:16:45Z w16r2 rung golden rc=0
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0 metal 96e4f0b6f34f78762df36c5fc
+2026-11-06T11:17:10Z trained digests rc=0
+2026-11-06T11:17:10Z digest 5a6193d3 present
+2026-11-06T11:17:10Z digest f590b01f present
+2026-11-06T11:17:10Z digest 79f987ef present
+2026-11-06T11:17:10Z digest a8258241 present
+2026-11-06T11:17:10Z digest 0e88d84f present
+2026-11-06T11:17:10Z digest 90003b76 present
+2026-11-06T11:17:10Z 8B core proof 90003b760eb7ad80 present (a18 8B block)
+2026-11-06T11:17:10Z GPU quiet (no ds4-bench): d55 default
+2026-11-06T11:18:54Z d55 default rc=0
+2026-11-06T11:18:54Z no ds4-bench at the end of d55 default
+D55-AB PIPE W16R2_8B_T128_H24 L32 T128 forks N6: 4 requests in 17.462 s; amortized 29.32 proved tok/s (all witness work on the clock); steady state 32.76 tok/s (completions 5.74, 10.03, 13.75, 17.46); per-request latency 5.74, 8.57, 9.64, 10.96
+D55-AB PIPE W16R2_8B_T128_H24 L32 forks N6: all 4 receipts verified after the clock in 9.7 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (2 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.329 s = 13.72 tok/s | mean 9.543 s = 13.41 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 3.889 s = 32.91 tok/s | mean 3.930 s = 32.57 tok/s | 2.40x serial (best)
+D55-AB SUMMARY | forks N=6 SEALED | one request end to end from its input, measured | best 5.476 s = 23.37 tok/s | mean 5.734 s = 22.32 tok/s
+2026-11-06T11:18:54Z GPU quiet (no ds4-bench): production d55 default
+2026-11-06T11:19:29Z production d55 default rc=0
+2026-11-06T11:19:29Z no ds4-bench at the end of production d55 default
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [default] cold: the receipt in the run directory verified (D55 verifier, 6 threads) in 3.79 s
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [default] pass 0: the receipt in the run directory verified (D55 verifier, 6 threads) in 3.72 s
+D55-AB SUMMARY | A19 production one request [default] | 2 passes | best 7.153 s = 17.89 tok/s | mean 7.175 s = 17.84 tok/s
+2026-11-06T11:19:29Z GPU quiet (no ds4-bench): the server's stream
+2026-11-06T11:23:23Z the server's stream rc=0
+2026-11-06T11:23:23Z no ds4-bench at the end of the server's stream
+| arm | passes | steady tok/s mean (min, max) | amortized tok/s mean (min, max) | first request's latency, mean | mean latency | peak footprint |
+|---|---:|---:|---:|---:|---:|---:|
+| serve1 | 2 | n/a (one request) | 18.20 (18.06, 18.34) | 7.035 s | 7.035 s | 50.2 GiB |
+| serve4 | 2 | 29.49 (29.34, 29.64) | 25.12 (24.95, 25.29) | 7.365 s | 13.961 s | 59.6 GiB |
+| harness4 | 2 | 32.43 (32.28, 32.58) | 28.85 (28.78, 28.92) | 5.905 s | 8.709 s | 54.0 GiB |
+| serve8 | 2 | 29.16 (28.99, 29.34) | 26.98 (26.83, 27.12) | 7.230 s | 18.423 s | 59.4 GiB |
+
+**serve4 -> harness4** (2 passes)
+
+| pass | steady, base / test | change | amortized, base / test | change |
+|---:|---:|---:|---:|---:|
+| 0 | 29.64 / 32.28 | +8.9% | 25.29 / 28.78 | +13.8% |
+| 1 | 29.34 / 32.58 | +11.0% | 24.95 / 28.92 | +15.9% |
+
+steady: mean +10.0% (2 of 2 faster; even passes +8.9%, odd +11.0%); amortized: mean +14.9% (2 of 2 faster; even +13.8%, odd +15.9%)
+
+**serve4 -> serve8** (2 passes)
+
+| pass | steady, base / test | change | amortized, base / test | change |
+|---:|---:|---:|---:|---:|
+| 0 | 29.64 / 29.34 | -1.0% | 25.29 / 27.12 | +7.2% |
+| 1 | 29.34 / 28.99 | -1.2% | 24.95 / 26.83 | +7.5% |
+
+steady: mean -1.1% (0 of 2 faster; even passes -1.0%, odd -1.2%); amortized: mean +7.4% (2 of 2 faster; even +7.2%, odd +7.5%)
+
+| served arm | requests (after the first of each stream) | sealing pass | waited for the prover | prove call | preflight | commit | forks | join | receipt write |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| serve4 | 6 | 3.925 s | 0.339 s | 4.357 s | 0.277 s | 0.234 s | 3.770 s | 0.077 s | 0.241 s |
+| serve8 | 14 | 3.822 s | 0.355 s | 4.395 s | 0.270 s | 0.243 s | 3.804 s | 0.078 s | 0.249 s |
+A22-AB STARTUP W16R2_8B_T128_H24 L32: the resident model (every layer loaded once with its record hashed, the statement) in 0.571 s; footprint 1.5 -> 8.8 GiB; VmHWM NaN MiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve1] | 2 passes | steady mean NaN tok/s (best NaN) | amortized mean 18.20 tok/s (best 18.34) | mean latency 7.034 s (first request 7.034 s, best 6.980) | peak footprint 50.2 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve4] | 2 passes | steady mean 29.49 tok/s (best 29.64) | amortized mean 25.12 tok/s (best 25.29) | mean latency 13.962 s (first request 7.365 s, best 7.294) | peak footprint 59.6 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [harness4] | 2 passes | steady mean 32.43 tok/s (best 32.58) | amortized mean 28.85 tok/s (best 28.92) | mean latency 8.709 s (first request 5.906 s, best 5.893) | peak footprint 54.0 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve8] | 2 passes | steady mean 29.16 tok/s (best 29.34) | amortized mean 26.98 tok/s (best 27.12) | mean latency 18.424 s (first request 7.232 s, best 7.211) | peak footprint 59.4 GiB
+2026-11-06T11:23:23Z all done
