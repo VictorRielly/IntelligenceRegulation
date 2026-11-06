@@ -1,0 +1,221 @@
+✔ [3376/3378] Built ZK60Formal.ExecField (5.8s)
+✔ [3377/3378] Built ZK60Formal.ExecBlake3 (1.8s)
+✖ [3378/3378] Building ZK60Formal.ExecTranscript (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecTranscript.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/lib/lean/ZK60Formal/ExecTranscript.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/lib/lean/ZK60Formal/ExecTranscript.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/ir/ZK60Formal/ExecTranscript.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/.lake/build/ir/ZK60Formal/ExecTranscript.setup.json --json
+warning: ZK60Formal/ExecTranscript.lean:197:6: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+error: ZK60Formal/ExecTranscript.lean:197:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  dite ((↑d).length = 32) ?m.12 ?m.13
+in the target expression
+  (if h : (List.Vector.toList d).length = 32 then some ⟨List.Vector.toList d, h⟩ else none) = some d
+
+d : Dig
+⊢ (if h : (List.Vector.toList d).length = 32 then some ⟨List.Vector.toList d, h⟩ else none) = some d
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    ⟨List.Vector.toList d, h⟩
+  has type
+    { l // l.length = 32 }
+  but is expected to have type
+    Dig
+  in the application
+    some ⟨List.Vector.toList d, h⟩
+error: ZK60Formal/ExecTranscript.lean:205:53: Type mismatch
+  rfl
+has type
+  ?m.6 = ?m.6
+but is expected to have type
+  squeezeTag.length = 7
+error: ZK60Formal/ExecTranscript.lean:217:93: Tactic `rfl` failed: The left-hand side
+  squeezeTag.length + 8
+is not definitionally equal to the right-hand side
+  15
+
+d : Dig
+hd : (List.Vector.toList d).length = 32
+c : UInt64
+hok : (TItem.squeeze c).Ok
+⊢ squeezeTag.length + 8 = 15
+warning: ZK60Formal/ExecTranscript.lean:218:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/ExecTranscript.lean:218:56: Tactic `rewrite` failed: motive is not type correct:
+  fun _a => some (d, ⟨TItem.squeeze (ofLE64 _a), ⋯⟩) = some (d, ⟨TItem.squeeze c, hok⟩)
+Error: Application type mismatch: The argument
+  congrArg (List.drop 7) ((fun x_0 => (fun x_0 => List.drop_left' hd) x_0) (squeezeTag ++ le64 c))
+has type
+  List.drop 7 (List.drop 32 (List.Vector.toList d ++ (squeezeTag ++ le64 c))) = List.drop 7 (squeezeTag ++ le64 c)
+but is expected to have type
+  List.drop 7 (List.drop 32 (List.Vector.toList d ++ (squeezeTag ++ le64 c))) = _a
+in the application
+  congrArg ofLE64 (congrArg (List.drop 7) ((fun x_0 => (fun x_0 => List.drop_left' hd) x_0) (squeezeTag ++ le64 c)))
+
+Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.
+
+Possible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).
+
+case squeeze
+d : Dig
+hd : (List.Vector.toList d).length = 32
+c : UInt64
+hok : (TItem.squeeze c).Ok
+hr : (squeezeTag ++ le64 c).length = 15
+⊢ some (d, ⟨TItem.squeeze (ofLE64 (List.drop 7 (squeezeTag ++ le64 c))), ⋯⟩) = some (d, ⟨TItem.squeeze c, hok⟩)
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    trivial
+  has type
+    True
+  but is expected to have type
+    (fun it => it.Ok) (TItem.squeeze (ofLE64 (List.drop 7 (List.drop 32 (TItem.msg d ↑⟨TItem.squeeze c, hok⟩)))))
+  in the application
+    @Eq.ndrec TItem (TItem.squeeze (ofLE64 (List.drop 7 (List.drop 32 (TItem.msg d ↑⟨TItem.squeeze c, hok⟩)))))
+      (fun val => (fun it => it.Ok) val) trivial
+warning: ZK60Formal/ExecTranscript.lean:230:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/ExecTranscript.lean:237:6: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  0 ≤ c ≤ 14
+  0 ≤ b ≤ 18446744073709551615
+  0 ≤ a ≤ 18446744073709551615
+where
+ a := ↑l.length
+ b := ↑x.length
+ c := ↑(le64 (UInt64.ofNat l.length) ++ (l ++ (le64 (UInt64.ofNat x.length) ++ x))).length
+warning: ZK60Formal/ExecTranscript.lean:238:8: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+error: ZK60Formal/ExecTranscript.lean:238:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  dite
+    (l.length < 2 ^ 64 ∧
+      x.length = x.length ∧
+        x.length < 2 ^ 64 ∧
+          l.length + 8 ≤ (l ++ (le64 (UInt64.ofNat x.length) ++ x)).length ∧
+            8 ≤ (le64 (UInt64.ofNat l.length) ++ (l ++ (le64 (UInt64.ofNat x.length) ++ x))).length)
+    ?m.268 ?m.269
+in the target expression
+  (if h :
+        l.length < 2 ^ 64 ∧
+          True ∧
+            x.length < 2 ^ 64 ∧
+              l.length + 8 ≤ (l ++ (le64 (UInt64.ofNat x.length) ++ x)).length ∧
+                8 ≤ (le64 (UInt64.ofNat l.length) ++ (l ++ (le64 (UInt64.ofNat x.length) ++ x))).length then
+      some (d, ⟨TItem.absorb l x, ⋯⟩)
+    else none) =
+    some (d, ⟨TItem.absorb l x, ⋯⟩)
+
+case absorb
+d : Dig
+hd : (List.Vector.toList d).length = 32
+l x : List UInt8
+hl : l.length < 2 ^ 64
+hx : x.length < 2 ^ 64
+hr :
+  ¬((le64 (UInt64.ofNat l.length) ++ (l ++ (le64 (UInt64.ofNat x.length) ++ x))).length = 15 ∧
+      List.take 7 (le64 (UInt64.ofNat l.length) ++ (l ++ (le64 (UInt64.ofNat x.length) ++ x))) = squeezeTag)
+hc :
+  l.length < 2 ^ 64 ∧
+    x.length = x.length ∧
+      x.length < 2 ^ 64 ∧
+        l.length + 8 ≤ (l ++ (le64 (UInt64.ofNat x.length) ++ x)).length ∧
+          8 ≤ (le64 (UInt64.ofNat l.length) ++ (l ++ (le64 (UInt64.ofNat x.length) ++ x))).length
+⊢ (if h :
+        l.length < 2 ^ 64 ∧
+          True ∧
+            x.length < 2 ^ 64 ∧
+              l.length + 8 ≤ (l ++ (le64 (UInt64.ofNat x.length) ++ x)).length ∧
+                8 ≤ (le64 (UInt64.ofNat l.length) ++ (l ++ (le64 (UInt64.ofNat x.length) ++ x))).length then
+      some (d, ⟨TItem.absorb l x, ⋯⟩)
+    else none) =
+    some (d, ⟨TItem.absorb l x, ⋯⟩)
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    ⟨hl, hx⟩
+  has type
+    l.length < 2 ^ 64 ∧ x.length < 2 ^ 64
+  but is expected to have type
+    (TItem.absorb l x).Ok
+  in the application
+    ⟨TItem.absorb l x, ⋯⟩
+error: ZK60Formal/ExecTranscript.lean:290:6: Tactic `apply` failed: could not unify the conclusion of `runOps_chainFrom key domain hs ops t ?m.166 its hk`
+  (runOps H t ops).state = (chainEnc key domain hs).lastD H ((chainEnc key domain hs).chainFrom H ?m.166 its)
+with the goal
+  (runOps H (Tr.absorb H t l x) ops).state =
+    (chainEnc key domain hs).lastD H
+      ((chainEnc key domain hs).chainFrom H
+        (τ ++ [(it, H ((chainEnc key domain hs).link ((chainEnc key domain hs).lastD H τ) it))]) its)
+
+Note: The full type of `runOps_chainFrom key domain hs ops t ?m.166 its hk` is
+  (chainEnc key domain hs).lastD H ?m.166 = t.state →
+    List.map Subtype.val its = opItems t.counter ops →
+      (runOps H t ops).state = (chainEnc key domain hs).lastD H ((chainEnc key domain hs).chainFrom H ?m.166 its)
+
+case cons
+H : HIn → Dig
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+l x : List UInt8
+ops : List Op
+t : Tr
+τ : List (It × Dig)
+hk : t.key = key
+hτ : (chainEnc key domain hs).lastD H τ = t.state
+it : It
+its : List It
+hits : ↑it = TItem.absorb l x ∧ List.map Subtype.val its = opItems t.counter ops
+⊢ (runOps H (Tr.absorb H t l x) ops).state =
+    (chainEnc key domain hs).lastD H
+      ((chainEnc key domain hs).chainFrom H
+        (τ ++ [(it, H ((chainEnc key domain hs).link ((chainEnc key domain hs).lastD H τ) it))]) its)
+error: ZK60Formal/ExecTranscript.lean:302:6: Tactic `apply` failed: could not unify the conclusion of `runOps_chainFrom key domain hs ops t ?m.220 its hk`
+  (runOps H t ops).state = (chainEnc key domain hs).lastD H ((chainEnc key domain hs).chainFrom H ?m.220 its)
+with the goal
+  (runOps H (Tr.squeeze H t).2 ops).state =
+    (chainEnc key domain hs).lastD H
+      ((chainEnc key domain hs).chainFrom H
+        (τ ++ [(it, H ((chainEnc key domain hs).link ((chainEnc key domain hs).lastD H τ) it))]) its)
+
+Note: The full type of `runOps_chainFrom key domain hs ops t ?m.220 its hk` is
+  (chainEnc key domain hs).lastD H ?m.220 = t.state →
+    List.map Subtype.val its = opItems t.counter ops →
+      (runOps H t ops).state = (chainEnc key domain hs).lastD H ((chainEnc key domain hs).chainFrom H ?m.220 its)
+
+case cons
+H : HIn → Dig
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+ops : List Op
+t : Tr
+τ : List (It × Dig)
+hk : t.key = key
+hτ : (chainEnc key domain hs).lastD H τ = t.state
+it : It
+its : List It
+hits : ↑it = TItem.squeeze t.counter ∧ List.map Subtype.val its = opItems (t.counter + 1) ops
+⊢ (runOps H (Tr.squeeze H t).2 ops).state =
+    (chainEnc key domain hs).lastD H
+      ((chainEnc key domain hs).chainFrom H
+        (τ ++ [(it, H ((chainEnc key domain hs).link ((chainEnc key domain hs).lastD H τ) it))]) its)
+warning: ZK60Formal/ExecTranscript.lean:322:55: This simp argument is unused:
+  d.2
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/ExecTranscript.lean:328:55: This simp argument is unused:
+  d.2
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/ExecTranscript.lean:335:16: Unknown identifier `gP`
+
+Note: It is not possible to treat `gP` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+Some required targets logged failures:
+- ZK60Formal.ExecTranscript
+error: build failed
+rc 1, 11 s

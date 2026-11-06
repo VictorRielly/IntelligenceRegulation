@@ -1,0 +1,54 @@
+✔ [3382/3382] Built ZK60Formal.L5Vectors (225ms)
+Build completed successfully (3382 jobs).
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/L5Check.lean:380:60: warning: `String.trim` has been deprecated: Use `String.trimAscii` instead
+
+Note: The updated constant has a different type:
+  String → String.Slice
+instead of
+  String → String
+  MERKLE-OPENING: 84
+  PCS-COLUMN: 44
+  PCS-STATE: 3
+  PCS-INDICES: 3
+  MERKLE-COLUMN: 12
+  MERKLE-NODE: 3
+  MERKLE-LEAF: 3
+  MERKLE-HONEST-PATH: 90
+  MERKLE-PATH: 528
+  MERKLE-TREE: 27
+  TRANSCRIPT: 229
+  TRSTART: 3
+  BLAKE3: 119
+  FP2: 960
+  BYTES: 443
+  FP: 2889
+  BLAKE3-VECTOR: 105
+  ASCII: 2
+L5Check: 5547 checks, 0 failed
+rc 0, 16 s
+✔ [3381/3382] Built ZK60Formal.ExecTranscript (1.0s)
+✔ [3382/3382] Built ZK60Formal.ExecMerkle (1.9s)
+Build completed successfully (3382 jobs).
+  ASCII: 3
+  BLAKE3-VECTOR: 105
+  FP: 2889
+  BYTES: 443
+  FP2: 960
+  BLAKE3: 119
+  TRSTART: 3
+  TRANSCRIPT: 229
+  TAG-KEYS-LEGACY: 1
+  TAG-KEYS-DERIVED: 2
+  TAG-KEYS-PINNED: 2
+  MERKLE-TREE: 27
+  MERKLE-PATH: 528
+  MERKLE-HONEST-PATH: 90
+  MERKLE-LEAF: 3
+  MERKLE-NODE: 3
+  MERKLE-COLUMN: 12
+  PCS-INDICES: 3
+  PCS-STATE: 3
+  PCS-COLUMN: 44
+  MERKLE-OPENING: 84
+L5Check: 5553 checks, 0 failed
+rc 0, 20 s

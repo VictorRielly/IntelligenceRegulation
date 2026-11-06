@@ -1,0 +1,18 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:261:8: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:261:48: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:263:8: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:263:60: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:277:8: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:277:20: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:280:8: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:280:20: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:315:21: warning: `if_true` has been deprecated: Use `ite_true` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:315:30: warning: `if_false` has been deprecated: Use `ite_false` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:315:21: warning: `if_true` has been deprecated: Use `ite_true` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:315:30: warning: `if_false` has been deprecated: Use `ite_false` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:315:21: warning: `if_true` has been deprecated: Use `ite_true` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:315:30: warning: `if_false` has been deprecated: Use `ite_false` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:315:21: warning: `if_true` has been deprecated: Use `ite_true` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:315:30: warning: `if_false` has been deprecated: Use `ite_false` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a27bb5b90225b127d/formal/ZK60Formal/ExecField.lean:284:8: error: (kernel) deep recursion detected, use `set_option maxRecDepth <num>` to increase the limit
+rc 1, 89 s
