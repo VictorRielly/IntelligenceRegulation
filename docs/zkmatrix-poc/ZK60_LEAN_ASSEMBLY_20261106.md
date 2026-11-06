@@ -26,6 +26,14 @@ accepts a false claim against a `q`-query prover is at most L3's bound `T·d/|F|
 `T = q + s + 2n + 1` (`exec_sumcheck_fs_sound`); at a slot's shape at most `2^-61`. Finding L6-4 is closed with no
 counter premise. Obligation 0 (§4.0) is updated.
 
+**Update, same day (sixth lane, §10): step L8, Fiat–Shamir composition on the code's own chain.** For any schedule of
+sub-protocols on the code's transcript chain (each in a window at a fixed position, its claim a function of everything
+before it, single or vector challenges), the per-query rate is the LARGEST sub-protocol error, as a theorem about the
+code's chain (`fs_code_chain_sound_sched`). For a run of executable sumcheck slots on ONE transcript, a false claim in
+ANY slot passes every slot's `sumcheck::verify` with probability at most the bound of ONE slot of the largest degree,
+`T·dmax/|F|·(1 + p/2^128)²` plus the collision terms, `T = q + ℓ + 1` (`exec_sumchecks_fs_sound`); at degree `≤ 4`
+and `T ≤ 2^64 + 2^20` at most `2^-61`. Obligation 0 (§4.0) is updated.
+
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms `propext`, `Classical.choice`, `Quot.sound` only), **CODE**
 (read off the sources), **ESTIMATE** (arithmetic on the bounds, not proved in Lean).
 
@@ -169,7 +177,7 @@ theorems about them. `productionReady_of` then gives `ProductionReady M A P εc 
 |---|---|---|
 | `M` (the integer model) | `tokenModel S R`, `classifyModel S R` (`CircuitTokenRun.lean`; `Weights := Unit`, sound under P1): the whole forward pass, generic in the shape `S` and the run data `R` | the registered profile's concrete `(S, R)`. No W16R2 token-I/O run profile is registered in the code today (`token_io/run.rs:213`; L1L2 findings §14) |
 | `A` (the constraint system) | `tokenArith S R`, `classifyArith S R`: `Satisfies` is `TokenRunSat` / `ClassifySat` at the LOGICAL positions, with canonical endpoint words | the same concrete `(S, R)` |
-| `P` (the protocol) | **nothing as a `Protocol` instance.** Pieces of the verifier exist as models: `scAccept`, `chainAcceptsW`, `Tree.verOC` / `Tree.Accepts`, `MerkleEnc.Opens`, the opening and `M` tests. Pieces of the prover's view exist in the L4 files. **The verifier's foundation exists in executable Lean (step L5, §7)**: `Fp` / `Fp2` (`ExecField.lean`), BLAKE3 in its three modes (`ExecBlake3.lean`), the transcript (`ExecTranscript.lean`: proved to be `FSChain.lean`'s `ChainEnc`, its challenges `fp2Chal` / `idxChal`), the Merkle column check (`ExecMerkle.lean`: proved to be `Opens`, with `exec_merkle_binding`), and a finite oracle domain for `Q`, the inputs of at most `L` bytes (`QB L`), with `D` the 32-byte digests. **The generic sumcheck verifier exists too (step L6, §8)**: `scVerify` (`ExecSumcheck.lean`: accepts, with the caller's terminal check, exactly when `scAccept` holds on the transcript chain's challenges), `interpolate_eval`, the eq tables and multilinear evaluations (`ExecMle.lean`), the CFS mask's weights and rounds, the extension round and the masked terminal (`ExecCfs.lean`). **Its Fiat–Shamir bound is a theorem about the program (step L7, §9)**: `exec_sumcheck_fs_sound` on the code's own chain after any header, through the reader `codeSt` (`ExecSumcheckFS.lean`), which also serves any "absorb, then squeeze" round protocol (`fs_code_chain_sound`) | `Stmt`, `Receipt`, `Salt`; `Leak` and `leak` (the shapes, `T`, the served bit, and D65(2)'s constant refusal); `ypub`; `opensIn` and `opensOut` (§4.4); `prove` (the Lean honest prover: masks, salts, the transcript); `verify`, the Lean verifier that §6 decision 3 makes production acceptance: on top of the foundation and L6, the receipt decoder, the per-profile slot items (W16R3's batched sumcheck, its terminal identities, and the composition of its sub-protocols on the code's chain with L7's reader, §9.5), the zero-check and LogUp verifier arithmetic, the opening's claim and column-versus-clear-vector checks (the coset NTT), `M`'s test, and the profile's transcript schedule (§7.5) |
+| `P` (the protocol) | **nothing as a `Protocol` instance.** Pieces of the verifier exist as models: `scAccept`, `chainAcceptsW`, `Tree.verOC` / `Tree.Accepts`, `MerkleEnc.Opens`, the opening and `M` tests. Pieces of the prover's view exist in the L4 files. **The verifier's foundation exists in executable Lean (step L5, §7)**: `Fp` / `Fp2` (`ExecField.lean`), BLAKE3 in its three modes (`ExecBlake3.lean`), the transcript (`ExecTranscript.lean`: proved to be `FSChain.lean`'s `ChainEnc`, its challenges `fp2Chal` / `idxChal`), the Merkle column check (`ExecMerkle.lean`: proved to be `Opens`, with `exec_merkle_binding`), and a finite oracle domain for `Q`, the inputs of at most `L` bytes (`QB L`), with `D` the 32-byte digests. **The generic sumcheck verifier exists too (step L6, §8)**: `scVerify` (`ExecSumcheck.lean`: accepts, with the caller's terminal check, exactly when `scAccept` holds on the transcript chain's challenges), `interpolate_eval`, the eq tables and multilinear evaluations (`ExecMle.lean`), the CFS mask's weights and rounds, the extension round and the masked terminal (`ExecCfs.lean`). **Its Fiat–Shamir bound is a theorem about the program (step L7, §9)**: `exec_sumcheck_fs_sound` on the code's own chain after any header, through the reader `codeSt` (`ExecSumcheckFS.lean`), which also serves any "absorb, then squeeze" round protocol (`fs_code_chain_sound`). **The composition of sub-protocols on that chain is a theorem about the program too (step L8, §10)**: `fs_code_chain_sound_sched` (any schedule of sub-protocols on the code's chain, each in a window at a fixed position with its claim a function of everything before it, single or vector challenges: the LARGEST error per query; `ExecComposeFS.lean`) and `exec_sumchecks_fs_sound` (a run of executable sumcheck slots on ONE transcript: the bound of one slot of the largest degree) | `Stmt`, `Receipt`, `Salt`; `Leak` and `leak` (the shapes, `T`, the served bit, and D65(2)'s constant refusal); `ypub`; `opensIn` and `opensOut` (§4.4); `prove` (the Lean honest prover: masks, salts, the transcript); `verify`, the Lean verifier that §6 decision 3 makes production acceptance: on top of the foundation and L6, the receipt decoder, the per-profile slot items (W16R3's batched sumcheck, its terminal identities, and the profile's SCHEDULE for L8's composition: its windows, each sub-protocol's `CSub` and `RbrWide`, each slot's claim as a function of its trace, §10.5), the zero-check and LogUp verifier arithmetic, the opening's claim and column-versus-clear-vector checks (the coset NTT), `M`'s test, and the profile's transcript schedule (§7.5) |
 
 ### 4.1 `CircuitIff M A`: proved at W16R2
 
@@ -1123,3 +1131,244 @@ All in `results/zk60_lean_l7_20261106/`, each run as one job through the zk60 re
   - the regressions: `L6Check` 1,206 checks, 0 failed (`l6check_regression.log`); `L5Check` 5,553 checks, 0 failed
     (`l5check_regression.log`).
 - Peak RSS of the final check: 3.81 GiB.
+
+## 10. Step L8, Fiat–Shamir composition on the code's own chain (2026-11-06, sixth lane)
+
+Lean lane (Claude), on perf at cad82ec4 (L7 merged). One new library file, imported by the library root:
+`formal/ZK60Formal/ExecComposeFS.lean`. No Rust: the L5 and L6 corpora already pin every encoding used here, and both
+are re-checked as regressions. `Statements.lean`, every existing Lean file and every production source are unchanged.
+Sol's W16R3 design file was not read for this step and not changed. Evidence: `results/zk60_lean_l8_20261106/`.
+
+### 10.1 In plain words, for Victor
+
+**Why this step.**
+- L7 proved the Fiat–Shamir bound for ONE executable sumcheck after a header, on the code's own transcript.
+- A receipt runs MANY sub-protocols on one transcript. Per slot the code draws challenge vectors (`τ`, `μ`, `ν`),
+  absorbs the slot's scalar (`pb-scalar`), runs the sumcheck rounds and absorbs the terminals (`pb-term`)
+  (`argument.rs` 1439–1468, the draws for example at 2039–2042); LogUp and the openings follow.
+- Applying L7 slot by slot and adding the bounds would cost a factor of the number of slots.
+- L3's composition theorem (`FSCompose.lean`: the rate per hash query is the LARGEST round error, not the sum) removes
+  that factor, but it was stated on the MODEL chain (`PItem`), not on the code's.
+
+**What now exists.**
+- **A composition theorem on the code's chain** (`fs_code_chain_sound_sched`). PROVED. Take any schedule of
+  sub-protocols on one code chain:
+  - each sits in a window at a fixed position;
+  - its claim may be any function of EVERYTHING before the window (earlier sub-protocols, their challenges,
+    interstitial absorbs);
+  - its rounds may have a message or not, and a single challenge or a vector of several squeezes;
+  - each is round-by-round sound with its own error.
+- A cheating prover making at most `q` hash queries then gets some sub-protocol to start with a false claim, and yet
+  every sub-protocol to end alive, with probability at most `T·ε` plus two collision terms, `T = q + ℓ + 1`, where `ε`
+  is the LARGEST error and `ℓ` the verifier's item count.
+- **A theorem about the program for a run of slots** (`exec_sumchecks_fs_sound`). PROVED. Take any number of sumcheck
+  slots in sequence on one executable transcript:
+  - each slot is preceded by any interstitial operations (challenge vectors, absorbs);
+  - each slot's polynomial and claimed sum may be any function of the transcript before its rounds (so they may use
+    earlier slots' scalars and challenges and the slot's own `ν`, as the code's claimed sum does).
+- The probability that SOME slot's claim is false and yet EVERY slot's executable `sumcheck::verify` accepts (with its
+  terminal check) is at most `T·dmax/|F|·(1 + p/2^128)²` plus two collision terms, `T = q + ℓ + 1`, `ℓ` the run's
+  items and `dmax` the largest round degree. This is the bound of ONE slot of the largest degree: no factor of the
+  number of slots.
+- **One transcript** (`slot_transcript_next`): each slot runs on the transcript that the previous slot's accepting
+  `verify` leaves, continued by its own interstitial operations.
+- **The numbers** (for orientation only; PROVED in Lean): with every degree at most 4 and `T ≤ 2^64 + 2^20` (for
+  example `q = 2^64` queries and a run of up to about a million items: 32 slots of 30 rounds with up to 32,000
+  interstitial operations each), the bound is at most `2^-61` (`exec_sumchecks_fs_sound_slot`), the same as L7's
+  single slot.
+- **Still no counter premise** when every challenge is single squeezes (the slots' rounds). For vector challenges the
+  theorem takes a width function of the squeeze counter; it holds for every such function (finding L8-3).
+
+**Why this needed a new argument.**
+- L3's composition makes a sub-protocol doomed at the START: the false public statement.
+- A slot's claim exists only when its window starts (it uses `ν`, drawn after the earlier slots), so its doom starts
+  LATER, at a different place for each slot.
+- L8 proves that a doom starting at any later step costs nothing extra (`everSt_rbr`): the same `T·ε`, no union over
+  the slots (finding L8-1).
+
+**What this does not do.**
+- The claims are functions of the trace. That a false PUBLIC statement makes some slot's claim false (the batching
+  with `ν`, the zero-check's `τ`), and that each polynomial is the committed tables' (the extractor), are still the
+  per-profile arithmetization and extraction.
+- The terminal check is the caller's, as in L7. Handing a slot's terminal claim on to a later PCS opening is supported
+  by the theorem (a release, with its frame premise) but not exercised by the slot instance (finding L8-4).
+- The other sub-protocols' round-by-round lemmas (`FSComposeBlock.lean`: LogUp, openings, zero-check points) are on
+  pairs of 128-bit halves, not on the code's 32-byte digests; they need a transfer (finding L8-5).
+- W16R3 (B1–B3) is not modelled; the theorem asks only for its schedule. B2's single degree-4 sumcheck over five
+  slots and B3's lifted sumcheck are each a schedule of `Slot`s with their own `s`, `d`, `n` and statements.
+
+### 10.2 What is proved
+
+All PROVED (`results/zk60_lean_l8_20261106/`):
+- the full `lake -d formal build` is green: 3,454 jobs, rc 0, 0 warnings, 0 errors, no `sorry` (`full.log`,
+  `check.log`);
+- `#print axioms` on all 64 theorems of the file (`axioms_l8.lean`, written by `gen_axioms.py`, → `axioms.log`): 25 on
+  `propext, Classical.choice, Quot.sound`, 15 on `propext, Quot.sound`, 17 on `propext`, 7 on none; `sorryAx` and
+  `Lean.ofReduceBool` appear nowhere;
+- no `sorry`, `axiom`, `native_decide`, `bv_decide`, `admit`, `implemented_by`, `extern`, `maxRecDepth` or
+  `maxHeartbeats` (source scan in `check.log`: none).
+
+**The schedule and the scheduled reader.**
+
+| Theorem / definition | Statement |
+|---|---|
+| `Rounds`, `CSub` | a sub-protocol: its window's start `a` (a fixed entry of the chain), its rounds (`n`; per round a message flag, a label, a width `w i`), its error `ε`, its state `St` on the header (the chain's first `a` entries) and its own rounds (each round's absorbed bytes and raw digests), and a release `rel` |
+| `tWd`, `tRemStep`, `tRem`, `stE` | the step parse: an absorb is a step of one item, a squeeze with counter `k` starts a step of `W k` squeezes; `tRem τ = some 0` exactly when `τ` is whole steps; `stE h ks ds` is a step's entries |
+| `tRem_stE`, `tRem_stE_take` | a whole step keeps the parse at a step's end; a proper nonempty prefix of a step owes items |
+| `cRdStep`, `cRd` | the reader from the window on: a round's message is one absorb under its label; its challenge its squeezes, the FIRST of which must start a step of the round's width (`W k = w i`); the `w i`-th digest completes the round; after `n` rounds the reader is frozen |
+| `CInv`, `cInv_step`, `cInv_foldl`, `cInv_bnd` | the reader and the parse agree: over whole steps the reader is between rounds (or out of the schedule) |
+| `cRd_sqRun`, `foldl_cRdStep_frozen` | a round's squeeze run completes it with exactly its digests; a frozen reading never changes |
+
+**The composition.**
+
+| Theorem / definition | Statement |
+|---|---|
+| `subSt`, `allSt`, `everSt` | a sub-protocol's state on the chain (alive before its window, then alive when read alive, `rdAlive`, or released); all alive; alive now but doomed at some earlier step's end |
+| `CodeRbr` | round-by-round on the code's chain, step by step: from a doomed sequence of whole steps, the next step's uniform digests escape with probability at most `ε`, whatever its items |
+| `rdAlive_step` | from a doomed reading, the next step revives a sub-protocol with probability at most its error (an absorb never does; a round's squeeze run is its `RbrWide` round) |
+| **`allSt_rbr`** | the combined state is `CodeRbr` with the LARGEST error: the largest doomed sub-protocol has started its window; a release cannot revive it (`hframe`); so a revival is its own reading's |
+| **`everSt_rbr`** | being doomed at a LATER step's end costs nothing extra |
+| `StepsOK`, `tRem_steps`, `ents_eq_zip`, `codeRbr_step` | for any `ChainEnc` whose items read as code items and whose steps are a head then squeezes, `CodeRbr` is `chain_sound_wide`'s round hypothesis |
+| `fs_code_chain_ever`, **`fs_code_chain_sound_sched`** | below |
+| `stepsB`, `stepsB_ok`, `ctr_add_ne`, `ctr_add_inj` | the code's own items (`ItB L`) with any widths `1 ≤ W k ≤ 2^64` are such steps: a squeeze `k` continues with `k + 1, k + 2, …`, the step's items distinct although the counter wraps |
+| `stepsOne`, `W1`, `tRem_W1` | every squeeze its own step: every chain is whole steps, no counter premise at all |
+
+`fs_code_chain_sound_sched` (PROVED). Premises:
+- `W` with every `W k ≥ 1`; a list `cs` of sub-protocols, each `RbrWide c.R.n c.R.w c.St c.ε`, each `c.ε ≤ ε`;
+- `hframe`: a release of sub-protocol `k` by a step (`c.rel (τ ++ step)` from a doomed `τ`) only when a LATER
+  sub-protocol `k' > k` is doomed at `τ` (vacuous when nothing is released);
+- any `ChainEnc It' Q D` with items read as code items (`toT`) and steps `S` with `StepsOK W toT S`;
+- a prover `A` making at most `q` queries, outputting heads; the verifier hashes their steps, at most `ℓ` items.
+
+Then the probability of the event "some sub-protocol `c` enters its window (at a step's end) with `¬ c.St header []`
+and not released, and every sub-protocol is alive at the end of the chain" is at most
+`T·ε + collBound T D + collBound (T + 1) D`, `T = q + ℓ + 1`. `fs_code_chain_ever` is the general form (alive at the
+end, doomed at some step's end).
+
+**The executable instance: a run of sumcheck slots.**
+
+| Theorem / definition | Statement |
+|---|---|
+| `Slot`, `Slot.len`, `slotsLen` | a sumcheck slot: its interstitial operations' count `s`, its degree `d`, its rounds `n`, its statement `(f, C)` as a function of the code's trace before its rounds; a run's items |
+| `slotSub`, `slotSubs`, `slotSubs_getElem?` | a slot as a sub-protocol: window at the earlier slots' items plus its `s`, one `sc-round` absorb and one squeeze per round, L7's `scSt` on `decMsg` and `challenge_fp2`, never released |
+| `slotSub_rbr` | each slot is `RbrWide` with error `d·(⌊2^128/p⌋+1)²/|Dig|` (`sumcheck_rbr` → `rbrWide_of_rbrSound` → `RbrWide.comap`) |
+| `slotsOps`, `slotPre`, `slotsOps_split`, `slotsOps_fit`, `slotsOps_length` | the run's operations (per slot, its interstitial ones, then its rounds'), the operations before slot `k`'s rounds, and their lengths |
+| `cRd_rounds`, `sqD_rounds_length`, `chalTr_zip` | the scheduled reader on the verifier's own rounds reads exactly them; the reader's transcript is L6's `scTau` |
+| `slot_take` | a slot's header (the chain's first `|P|` entries) is the executable transcript's trace of the operations `P` before it |
+| **`slot_alive`** | an accepting executable `scVerify` (with its terminal check) on the transcript after `P` makes the slot alive on the run's chain `P ++ rounds ++ Q`, for ANY later operations `Q` |
+| `runOps_append`, **`slot_transcript_next`** | slot `k + 1`'s transcript is the one slot `k`'s accepting `verify` leaves (`scVerify_tr`), then its interstitial operations |
+| `SlotsWin`, `slotsWin_event` | the prover's win (below) is `fs_code_chain_sound_sched`'s event on the chain of the verifier's items |
+
+`exec_sumchecks_fs_sound` (PROVED). Premises:
+- `K` a finite field `⊇ GF` with `finrank GF K = 2` and `U² = 7`;
+- `key` and a `domain` with `decodeLink (startMsg domain) = none`; `L` with `|startMsg domain| ≤ L` and `L < 2^64`;
+- a list `slots` and `dmax` with, for every slot, `1 ≤ d < p`, `d ≤ dmax` and `56 + 16(d + 1) ≤ L`;
+- `A`, an oracle algorithm on `QB L → Dig` making at most `q` queries, outputting per slot its interstitial operations
+  and its rounds.
+
+Then `prH (SlotsWin …) ≤ (q + ℓ + 1)·dmax/|K|·(1 + p/2^128)² + collBound (q + ℓ + 1) Dig + collBound (q + ℓ + 2) Dig`,
+`ℓ = slotsLen slots`, where `SlotsWin` is ALL of:
+- one output entry per slot; slot `k`'s interstitial operations number its `s`, each hash input at most `L` bytes;
+- every round value is canonical; for slot `k`, with `P = slotPre` (the earlier slots' operations, then its own
+  interstitial ones) and `(f, C)` its statement of `opTrace … P`: `C` is canonical and
+  `scVerify (liftH G) C d n rounds (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) P)` returns `Ok (fin, rs)` with
+  `fin = f(rs)` in `K`;
+- for SOME slot: `IndDegLE d f` and `C ≠ Σ f`.
+
+Corollaries: `exec_sumchecks_fs_sound_goldilocks` (`|K| = p²`, the bias `(1 + 2^-64)²`); `exec_sumchecks_fs_sound_slot`
+(`dmax ≤ 4`, `q + ℓ + 1 ≤ 2^64 + 2^20`: at most `2^-61`, through L7's `slot_bound_le`).
+
+### 10.3 Why the composition is re-proved on chains rather than instantiated
+
+- `FSCompose.lean`'s `Composed` is indexed by ROUND number: widths `w : ℕ → ℕ` and owners `own : ℕ → J` of the round's
+  index. On the code's chain a step's width is its head ITEM's (the squeeze's counter, through `W`), and interstitial
+  items (`ν`'s squeezes, `pb-scalar`, `pb-term`) are no round of any sub-protocol. So `Composed.rbrWide` cannot be
+  applied to the code's chain; its largest-doomed argument is re-proved on chains (`allSt_rbr`, 40 lines).
+- Reused as they are: `RbrWide` and `RbrWide.comap` (`FSCompose.lean`), `rbrWide_of_rbrSound` (`FSComposeBlock.lean`),
+  `chain_sound_wide`, `Steps`, `prob_ofFn_congr` (`FSWide.lean`), `sumcheck_rbr` (`FSSumcheck.lean`), and L7's bridge
+  (`chainEncB`, `chainFrom_liftH`, `opTrace_chainFrom`, `card_chal_fiber_le`, `dig_bound_le`, `slot_bound_le`,
+  `decMsg_enc`, `zip_dec_scTau`, `scVerify_accept_iff`, `scVerify_fs`, `scVerify_tr`).
+- A sub-protocol here sees the whole chain before its window as its header, which is more than `SubProt`'s "statement
+  and the rounds before the window": interstitial digests are header items, not rounds.
+
+### 10.4 Findings
+
+**L8-1 (Info): a doom that starts late costs nothing extra.**
+- L3's composition (`fs_chain_sound_sched`) needs a false statement to doom some sub-protocol at the START. A slot's
+  claim is fixed only at its window (it uses challenges drawn after earlier slots), so for slots the doom starts later,
+  at a different position for each.
+- `everSt` ("alive now, doomed at some earlier step's end") is round-by-round with the combined state's own error
+  (`everSt_rbr`), so `chain_sound_wide` gives the same `T·ε` for "doomed at ANY window start, alive at the end": no union
+  over the windows, no factor of the number of slots.
+
+**L8-2 (Info): `Composed` is round-indexed; the composition is re-proved on chains** (§10.3).
+
+**L8-3 (Info; for a profile with vector challenges): widths come from the squeeze counter.**
+- `chain_sound_wide` needs the width of a step to be a function of its first item. A squeeze item carries only its
+  counter, so the width is `W k` for a function `W` of the counter.
+- The theorem holds for EVERY `W` (each `W k ≥ 1`): the reader checks that a round's first squeeze starts a step of the
+  round's width and that windows start at a step's end, so a prover who misaligns steps only dooms the chain. There is
+  no premise that the counter does not wrap.
+- But to apply it, the VERIFIER's own items must parse as whole steps with each wide round's first squeeze a step head
+  of its width (for example `W` read off the profile's schedule: the counter of each wide round's first squeeze and
+  its width, `1` elsewhere; this needs those counters distinct from the profile's other squeeze counters, a decidable
+  fact about the profile's schedule, true when the receipt has fewer than `2^64` squeezes).
+- A schedule whose challenges are all single squeezes (the slots' rounds) uses `W1`: nothing to check at all.
+
+**L8-4 (Info; for the per-profile instance): handing a claim on needs a release and its frame.**
+- The slot instance keeps the caller's terminal check `fin = f(rs)` inside the slot's state, as L7 does; nothing is
+  released, and `hframe` is vacuous.
+- In the receipt, the terminal claim goes to a later opening. Then the slot is released (`rel`), and `hframe` must be
+  shown: a release only when a LATER sub-protocol is already doomed before the releasing step. With a release one
+  step after the opening's window starts (the opening is doomed once its claim, the slot's terminal claim, is false),
+  this is the arithmetization's statement that the two claims are the same.
+
+**L8-5 (Info; for the per-profile instance): `FSComposeBlock.lean`'s sub-protocols are on `Dg`.**
+- `logup_rbrWide`, `opening_rbrWide`, `mle_rbrWide`, `batch_rbrWide` and `sumcheck_rbrWide_code` are `RbrWide` over
+  `Dg = Fin (2^128) × Fin (2^128)` (a digest's two halves), with their own message types. The code's chain has
+  `Dig` (32 bytes) and absorbed bytes.
+- The transfer is `RbrWide.comap` for the messages (a decoder of the absorbed bytes, as `decMsg` here) and L7's
+  `halves` for the digests (injective, `|Dig| = |Dg|`, so a bijection; `prob_equiv_comp` coordinatewise). Not done
+  here; the slots go L7's way (`challengeFp2Of` and `card_chal_fiber_le`), which needs no transfer.
+
+**L8-6 (Info): the run's shape.**
+- The run ends at the last slot's rounds. The code's last `pb-term` absorb and what follows (LogUp, openings) are
+  later sub-protocols' items; with a frozen reader they change no slot's state, so adding them to a schedule changes
+  only `ℓ`.
+- Each slot's `s` counts ALL of its interstitial operations: the previous slot's `pb-term` absorb, its own challenge
+  vectors (`τ`, `μ`, `ν`, `ζ`), and its `pb-scalar` absorb. CODE: the claimed sum is the slot's absorbed scalar plus
+  earlier slots' absorbed scalars times `ν`-derived coefficients (`argument.rs` 1439–1440), all of them in the trace
+  before the slot's rounds, so a per-profile `stmt` can read the claimed sum off the trace (L7-2). The polynomial also
+  uses the slot's `τ`, `μ` (in the trace) and the committed tables (not in the trace: the extraction).
+
+**L8-7 (Info, engineering).** The file elaborates alone in 3–4 s at 3.7 GiB; no literal-`p` or concrete-`Finset.univ`
+proof was needed (L7-4's abstract lemmas are reused). Two instance-search pitfalls, fixed: a `Finset.filter` predicate
+of the form `∃ c, l[k]? = some c ∧ …` gets `Option`'s structural decision instance in one place and the classical one
+in another (fixed by a `def` for the predicate, `doomedAt`); and `rw` with a lemma whose function argument has an
+unresolved type leaves a higher-order pattern (fixed by type ascriptions).
+
+### 10.5 What is left
+
+- **The profile's schedule**: the window positions; each sub-protocol's `CSub` (rounds, state, error) with its
+  `RbrWide`; `W` and the parse of the verifier's items (L8-3); the slots' `Slot`s.
+- **The claims**: each slot's statement as a function of its trace (the arithmetization: the scalars from the
+  absorbed bytes, the hosted coefficients from `ν`); that a false public statement makes some sub-protocol's claim
+  false at its window (the batching and zero-check rounds as their own `CSub`s, with releases, L8-4); the polynomial
+  as the committed tables' (the extractor, `SoundExtract.lean`).
+- **The other sub-protocols on the code's chain**: LogUp, the openings and `M` transferred from `Dg` (L8-5).
+- The rest of §9.5, §8.5 and §7.5: W16R3's slot items, the `Protocol` instance, the receipt decoder, the openings'
+  checks, a corpus of real W16R3 receipts, a compiled checker.
+
+### 10.6 Checks
+
+All in `results/zk60_lean_l8_20261106/`, each run as one job through the zk60 resource guard (class `cpu`,
+`run_guarded.py`):
+- `file2.log` … `file5.log`: the new file alone (`stage.sh`, cap 10 GiB) while it was written; the errors fixed on the
+  way are in those logs (each run 3–4 s, peak RSS 3.68 GiB); `file5.log` is the final file, no message.
+- `check.log`: `check_l8.sh`, which runs:
+  - the full build (`full.log`): 3,454 jobs, rc 0, 0 warnings, 0 errors;
+  - the axiom audit (`axioms.log`): 64 theorems, nothing beyond `propext`, `Classical.choice`, `Quot.sound`;
+  - the source scan (none) and the root import;
+  - the regressions: `L6Check` 1,206 checks, 0 failed (`l6check_regression.log`); `L5Check` 5,553 checks, 0 failed
+    (`l5check_regression.log`).
+- Peak RSS of the final check: 3.84 GiB (31 s).

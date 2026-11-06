@@ -506,6 +506,32 @@ The plain-words version, the modelling choices and the open decisions are in
     must be handled through abstract lemmas; no compiled checker target.
   - Left (§9.5): `FSCompose.lean` / `FSWideRbr.lean` re-stated with this reader for the whole receipt's chain, each
     slot's claim as a function of its header, the extractor for the committed polynomial, and the rest of §8.5.
+- Proved so far (step L8, FIAT–SHAMIR COMPOSITION ON THE CODE'S OWN CHAIN, 2026-11-06, sixth lane; same build and axiom
+  checks, 3,454 jobs, 64 theorems audited in `results/zk60_lean_l8_20261106/axioms.log`, regressions L6Check 1,206 and
+  L5Check 5,553 checks, 0 failed; §10 of `docs/zkmatrix-poc/ZK60_LEAN_ASSEMBLY_20261106.md`):
+  - `ExecComposeFS.lean`: a schedule of sub-protocols on the CODE's chain (`CSub`: a window at a fixed position whose
+    header is everything before it, rounds with or without a message and with single or vector challenges, a state
+    that is `RbrWide` with its error, a release), read by the scheduled reader (`cRdStep`, frozen after its rounds) and
+    the step parse (`tRem`: a vector challenge is one step; widths `W` of the squeeze counter).
+    - `allSt_rbr`: the combined state is round-by-round with the LARGEST error (`Composed.rbrWide`'s argument on
+      chains); `everSt_rbr`: a doom starting at a LATER step (a slot's claim, fixed only at its window) costs nothing
+      extra.
+    - **`fs_code_chain_sound_sched`**: on any code-item chain, some sub-protocol entering its window with a false claim
+      and every sub-protocol alive at the end has probability at most `T·ε + collBound T + collBound (T + 1)`,
+      `T = q + ℓ + 1`, `ε` the largest error. `stepsB`, `stepsB_ok`: the code's own items with any widths are such
+      steps; `W1`: single squeezes, no counter premise.
+    - **`exec_sumchecks_fs_sound`**: a run of executable sumcheck slots on ONE transcript (each slot after any
+      interstitial operations, its statement a function of the trace before its rounds; `slot_transcript_next`: each
+      slot runs on the transcript the previous accepting `verify` leaves): a false claim in ANY slot passes every
+      slot's `scVerify` with its terminal check with probability at most `T·dmax/|K|·(1 + p/2^128)² + collBound T +
+      collBound (T + 1)`. `exec_sumchecks_fs_sound_goldilocks`; `exec_sumchecks_fs_sound_slot`: at `dmax ≤ 4` and
+      `T ≤ 2^64 + 2^20`, at most `2^-61`, the bound of one slot.
+  - Findings L8-1 to L8-7 (Info): a late doom costs nothing extra; `Composed` is round-indexed, so it is re-proved on
+    chains; vector-challenge widths come from the counter (any `W`; the verifier's items must parse); handing a claim
+    on needs a release and its frame; `FSComposeBlock.lean`'s sub-protocols are on `Dg` and need a transfer to `Dig`;
+    the run's shape; two instance-search pitfalls.
+  - Left (§10.5): the profile's schedule (windows, `CSub`s, `W`), each claim as a function of its trace and the
+    batching/zero-check rounds with releases, the other sub-protocols transferred from `Dg`, the extractor.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems
@@ -514,9 +540,9 @@ The plain-words version, the modelling choices and the open decisions are in
   - For `Complete`, what is left is per profile: the prover and verifier, the list of checks and their refusal terms.
   - For `ZeroKnowledge`, what is left is the per-receipt hybrid step under Fiat–Shamir, the composition over the run,
     and the profile's simulator (§4.3, §4.5 of that document).
-  - For the `Protocol` instance and its `verify` (steps L5–L7), the foundation, the generic sumcheck verifier and its
-    Fiat–Shamir bound on the code's chain exist (§7–§9 of that document); the per-profile verifier on top of them is
-    left.
+  - For the `Protocol` instance and its `verify` (steps L5–L8), the foundation, the generic sumcheck verifier, its
+    Fiat–Shamir bound on the code's chain and the composition of sub-protocols on that chain exist (§7–§10 of that
+    document); the per-profile verifier and its schedule on top of them are left.
 
 **Build** (Lean 4.34.1 and Mathlib v4.34.1, pinned in `lean-toolchain` and `lakefile.toml`):
 

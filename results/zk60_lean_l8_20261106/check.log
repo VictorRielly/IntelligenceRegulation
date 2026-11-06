@@ -1,0 +1,29 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3452/3454] Built ZK60Formal.ExecComposeFS (7.0s)
+✔ [3453/3454] Built ZK60Formal (1.7s)
+Build completed successfully (3454 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+64 theorems
+axioms rc 0
+declarations audited: 64
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  25 axioms: [propext, Classical.choice, Quot.sound]
+  15 axioms: [propext, Quot.sound]
+  17 axioms: [propext]
+== source scan of the L8 file ==
+none
+== the library root imports the L8 file ==
+77:import ZK60Formal.ExecComposeFS
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+L6Check rc 0
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+L5Check rc 0
+regression verdicts: L6 0, L5 0 (0 = the committed count with 0 failed)

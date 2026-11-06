@@ -74,3 +74,4 @@ import ZK60Formal.ExecMle
 import ZK60Formal.ExecSumcheck
 import ZK60Formal.ExecCfs
 import ZK60Formal.ExecSumcheckFS
+import ZK60Formal.ExecComposeFS
