@@ -1,0 +1,104 @@
+✔ [3422/3429] Built ZK60Formal.CircuitMatmul (11s)
+✔ [3423/3429] Built ZK60Formal.L1Check (11s)
+✔ [3424/3429] Built ZK60Formal.CircuitRopeAct (1.0s)
+✖ [3425/3429] Building ZK60Formal.CircuitStage (4.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/ZK60Formal/CircuitStage.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean/ZK60Formal/CircuitStage.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean/ZK60Formal/CircuitStage.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/ir/ZK60Formal/CircuitStage.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/ir/ZK60Formal/CircuitStage.setup.json --json
+error: ZK60Formal/CircuitStage.lean:48:10: Tactic `rewrite` failed: motive is not type correct:
+  fun _a => _a = some (Classical.choose ⋯)
+Error: Application type mismatch: The argument
+  h p
+has type
+  ∃ a, f p = some a
+but is expected to have type
+  ∃ x, _a = some x
+in the application
+  Classical.choose ⋯
+
+Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.
+
+Possible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).
+
+case pos.mpr
+P α : Type
+f : P → Option α
+v : P → α
+h : ∀ (p : P), ∃ a, f p = some a
+hv : ∀ (p : P), f p = some (v p)
+p : P
+hc : f p = some (Classical.choose ⋯)
+⊢ Classical.choose ⋯ = v p
+error: ZK60Formal/CircuitStage.lean:69:18: Insufficient number of fields for `⟨...⟩` constructor: Constructor `Iff.intro` has 2 explicit field, but only 1 was provided
+error: ZK60Formal/CircuitStage.lean:69:44: Invalid `⟨...⟩` notation: The expected type of this term could not be determined
+error: ZK60Formal/CircuitStage.lean:69:31: Missing eliminator: An eliminator must be provided when multiple induction targets are specified and no default eliminator has been registered
+
+Hint: Write `using <eliminator-name>` to specify an eliminator, or register a default eliminator with the attribute `[cases_eliminator]`
+error: ZK60Formal/CircuitStage.lean:83:18: Insufficient number of fields for `⟨...⟩` constructor: Constructor `Iff.intro` has 2 explicit field, but only 1 was provided
+error: ZK60Formal/CircuitStage.lean:83:46: Invalid `⟨...⟩` notation: The expected type of this term could not be determined
+error: ZK60Formal/CircuitStage.lean:83:32: Missing eliminator: An eliminator must be provided when multiple induction targets are specified and no default eliminator has been registered
+
+Hint: Write `using <eliminator-name>` to specify an eliminator, or register a default eliminator with the attribute `[cases_eliminator]`
+error: ZK60Formal/CircuitStage.lean:117:47: Application type mismatch: The argument
+  liftO_exists ?m.96 fun p a => Q p = a
+has type
+  (∀ (p : P), ∃ a, ?m.96 p = some a ∧ Q p = a) ↔ ∃ (v : P → GF), liftO ?m.96 = some v ∧ ∀ (p : P), Q p = v p
+but is expected to have type
+  (∀ (a : P), ?m.90 a) ↔
+    ∃ (v : P → ℤ), (liftO fun p => rq C.lo C.hi (∑ i, x p i * w p i) (m p) s) = some v ∧ ∀ (p : P), Q p = ↑(v p)
+in the application
+  Iff.trans (forall_congr' fun p => ?m.92) (liftO_exists ?m.96 fun p a => Q p = a)
+error: ZK60Formal/CircuitStage.lean:135:47: Application type mismatch: The argument
+  liftO_exists ?m.93 fun p a => Q p = a
+has type
+  (∀ (p : P), ∃ a, ?m.93 p = some a ∧ Q p = a) ↔ ∃ (v : P → GF), liftO ?m.93 = some v ∧ ∀ (p : P), Q p = v p
+but is expected to have type
+  (∀ (a : P), ?m.87 a) ↔
+    ∃ (v : P → ℤ), (liftO fun p => rq C.lo C.hi (∑ i, x p i * w p i) 1 s) = some v ∧ ∀ (p : P), Q p = ↑(v p)
+in the application
+  Iff.trans (forall_congr' fun p => ?m.89) (liftO_exists ?m.93 fun p a => Q p = a)
+warning: ZK60Formal/CircuitStage.lean:221:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:226:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:240:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:250:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:268:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:324:15: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:326:15: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:333:15: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:335:15: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:342:15: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:344:15: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:350:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:351:20: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:361:18: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:362:18: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:374:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:374:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:378:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:400:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:401:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:418:58: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:422:62: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/CircuitStage.lean:424:10: Type mismatch
+  Finset.le_sup' s (Finset.mem_filter.mpr ⟨Finset.mem_univ t, hj0⟩)
+has type
+  s t ≤ (Finset.filter (LE.le j0) Finset.univ).sup' ⋯ s
+but is expected to have type
+  s j0 ≤ bestOf t s
+warning: ZK60Formal/CircuitStage.lean:425:67: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:459:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:462:6: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:466:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:473:14: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:474:14: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:486:14: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:487:14: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:492:14: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:493:62: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:496:14: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:508:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:516:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:520:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CircuitStage.lean:526:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CircuitStage.lean:527:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+Some required targets logged failures:
+- ZK60Formal.CircuitStage
+error: build failed

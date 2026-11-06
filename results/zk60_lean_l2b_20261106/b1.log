@@ -1,0 +1,20 @@
+✔ [3347/3355] Built ZK60Formal.ModelInt (307ms)
+✔ [3348/3355] Built ZK60Formal.CircuitField (11s)
+✔ [3349/3355] Built ZK60Formal.CircuitRequant (2.5s)
+✔ [3350/3355] Built ZK60Formal.CircuitSoftmax (3.2s)
+✔ [3351/3355] Built ZK60Formal.CircuitNorm (4.3s)
+✔ [3352/3355] Built ZK60Formal.Goldilocks (1.0s)
+✖ [3353/3355] Building ZK60Formal.CircuitMatmul (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/ZK60Formal/CircuitMatmul.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/lib/lean/ZK60Formal/CircuitMatmul.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/lib/lean/ZK60Formal/CircuitMatmul.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/ir/ZK60Formal/CircuitMatmul.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abd25deed597b23bd/formal/.lake/build/ir/ZK60Formal/CircuitMatmul.setup.json --json
+error: ZK60Formal/CircuitMatmul.lean:86:69: unsolved goals
+lo hi acc : ℤ
+m s : ℕ
+⊢ (if lo ≤ (acc * ↑m + 2 ^ (s - 1)) / 2 ^ s ∧ (acc * ↑m + 2 ^ (s - 1)) / 2 ^ s ≤ hi then
+      some ((acc * ↑m + 2 ^ (s - 1)) / 2 ^ s, (acc * ↑m + 2 ^ (s - 1)) % 2 ^ s)
+    else none) =
+    if lo ≤ (acc * ↑m + 2 ^ (s - 1)) / 2 ^ s ∧ (acc * ↑m + 2 ^ (s - 1)) / 2 ^ s ≤ hi then
+      some ((acc * ↑m + 2 ^ (s - 1)) / 2 ^ s, (acc * ↑m + 2 ^ (s - 1)) % 2 ^ s)
+    else none
+Some required targets logged failures:
+- ZK60Formal.CircuitMatmul
+error: build failed

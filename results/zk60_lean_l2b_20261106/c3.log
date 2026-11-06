@@ -1,0 +1,33 @@
+✖ [3427/3429] Building ZK60Formal.CircuitBlock (3.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/ZK60Formal/CircuitBlock.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean/ZK60Formal/CircuitBlock.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean/ZK60Formal/CircuitBlock.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/ir/ZK60Formal/CircuitBlock.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/ir/ZK60Formal/CircuitBlock.setup.json --json
+error: ZK60Formal/CircuitBlock.lean:874:15: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (some ?m.74).getD ?m.75
+in the target expression
+  y = (some y).getD fun x => 0
+
+case mp
+S : BlockShape
+hS : S.Valid
+Ps : List (BlockPublic S)
+hPs : ∀ P ∈ Ps, P.Valid
+W✝ : (runModel S Ps).Weights
+x : (runModel S Ps).Input
+y : (runModel S Ps).Output
+hx : ∀ (p : S.Pos), i16 (x p)
+hr : RunSat Ps x y
+hspec : runSpec Ps x = some y
+⊢ y = (some y).getD fun x => 0
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    y
+  has type
+    (runModel S Ps).Output
+  but is expected to have type
+    S.Pos → ℤ
+  in the application
+    some y
+Some required targets logged failures:
+- ZK60Formal.CircuitBlock
+error: build failed

@@ -1,0 +1,131 @@
+✔ [3425/3429] Built ZK60Formal.CircuitStage (2.3s)
+✔ [3426/3429] Built ZK60Formal.CircuitMasked (1.9s)
+✖ [3427/3429] Building ZK60Formal.CircuitBlock (2.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/ZK60Formal/CircuitBlock.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean/ZK60Formal/CircuitBlock.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/lib/lean/ZK60Formal/CircuitBlock.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/ir/ZK60Formal/CircuitBlock.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c39ce7cc88eb1b0/formal/.lake/build/ir/ZK60Formal/CircuitBlock.setup.json --json
+error: ZK60Formal/CircuitBlock.lean:137:2: Invalid field name `mk`: This is the name of the structure constructor
+error: ZK60Formal/CircuitBlock.lean:171:2: Invalid field name `mk`: This is the name of the structure constructor
+error: ZK60Formal/CircuitBlock.lean:190:9: ambiguous term, use fully qualified name, possible interpretations [_root_.residual, Model.residual]
+error: ZK60Formal/CircuitBlock.lean:202:29: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:209:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:211:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:213:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:221:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:223:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:225:16: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:227:16: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:235:30: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:243:16: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:248:29: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:251:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:255:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:257:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:260:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:263:15: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:269:33: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:318:24: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:641:103: unexpected identifier; expected '}'
+error: ZK60Formal/CircuitBlock.lean:465:41: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:641:11: Insufficient number of fields for `⟨...⟩` constructor: Constructor `Exists.intro` has 2 explicit field, but only 1 was provided
+error: ZK60Formal/CircuitBlock.lean:641:12: Fields missing: `K`, `V`, `QR`, `KR`, `S8`, `MX`, `SUM`, `ZSEL`, `E`, `PP`, `O`, `AO`, `X1`, `dM`, `YM`, `Gt`, `Ac`, `U`, `Hh`, `Z`
+error: ZK60Formal/CircuitBlock.lean:706:29: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:730:51: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:743:37: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:754:45: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:776:34: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:783:19: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:788:34: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:803:43: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:830:56: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:843:42: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:848:50: Unknown identifier `BlockPublic`
+
+Note: It is not possible to treat `BlockPublic` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/CircuitBlock.lean:857:15: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (some ?m.73).getD ?m.74
+in the target expression
+  y = (some y).getD fun x => 0
+
+case mp
+S : BlockShape
+hS : S.Valid
+Ps : List sorry
+hPs : (P : sorry) → P ∈ Ps → sorry
+W✝ : (runModel S Ps).Weights
+x : (runModel S Ps).Input
+y : (runModel S Ps).Output
+hx : ∀ (p : S.Pos), i16 (x p)
+hr : RunSat Ps x y
+hspec : runSpec Ps x = some y
+⊢ y = (some y).getD fun x => 0
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    y
+  has type
+    (runModel S Ps).Output
+  but is expected to have type
+    S.Pos → ℤ
+  in the application
+    some y
+Some required targets logged failures:
+- ZK60Formal.CircuitBlock
+error: build failed
