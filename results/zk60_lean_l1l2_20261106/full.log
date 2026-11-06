@@ -88,3 +88,12 @@ Build completed successfully (3424 jobs).
 == L1 check rc=0
 == axioms
 == axioms rc=0
+== full build
+✔ [3422/3424] Built ZK60Formal.Goldilocks (10s)
+✔ [3423/3424] Built ZK60Formal (1.8s)
+Build completed successfully (3424 jobs).
+== full build rc=0
+== L1 check
+== L1 check rc=0
+== axioms
+== axioms rc=0

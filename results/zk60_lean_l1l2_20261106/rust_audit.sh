@@ -1,6 +1,7 @@
 #!/bin/bash
-# D63 L1/L2 lane: the new test-only export module, rebuilt in its one-line registration, plus the source audits
-# that read witness.rs (module census, absorb labels, byte-literal lengths).
+# D63 L1/L2 lane: the new test-only export module (one-line registration in witness.rs, listed in s25_tests'
+# TEST_ONLY_FILES), plus the source audits that read witness.rs or the private_block directory
+# (module census, file census, absorb labels, byte-literal lengths).
 W=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122
 H=$W/ops/zkp-mvp/gpu-metal/hashline/Cargo.toml
 /opt/homebrew/bin/cargo test --release --offline --locked --features gpu-metal --manifest-path $H --lib -- \

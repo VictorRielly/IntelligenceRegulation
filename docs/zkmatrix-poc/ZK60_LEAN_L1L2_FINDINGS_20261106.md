@@ -5,7 +5,7 @@ Lean lane (Claude), on perf at 3f25ef9a. Lean 4.34.1, Mathlib v4.34.1, no new de
 `CircuitSoftmax.lean`, `CircuitHelpers.lean`, `Goldilocks.lean`, `L1Check.lean`. One test-only Rust file:
 `ops/zkp-mvp/gpu-metal/hashline/src/private_block/lean_l1_export_tests.rs`, registered by a one-line
 `#[cfg(test)]` module declaration in `witness.rs` (one line, so that the source audits of `s25_tests` read it as a test
-module). Evidence: `results/zk60_lean_l1l2_20261106/`.
+module) and listed in `s25_tests.rs`'s `TEST_ONLY_FILES` (the R19b file census); no prover source changed. Evidence: `results/zk60_lean_l1l2_20261106/`.
 
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms `propext`, `Classical.choice`, `Quot.sound` only),
 **TESTED** (value for value), **CODE** (read off the sources, file:line), **ESTIMATE** (rows and lookups from the
