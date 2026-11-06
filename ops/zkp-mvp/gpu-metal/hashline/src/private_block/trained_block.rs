@@ -4473,6 +4473,16 @@ fn stack_serve_inner(f: &[(String, String)], lines: impl Iterator<Item = String>
 /// Exit 0 after the stream; 1 if the startup is refused; 2 for bad arguments. stdout
 /// from a run on a hidden input is prover-private (privacy review P-6), as
 /// `stack-prove`'s.
+///
+/// **ONE DATA OWNER PER PROCESS (security owner, 2026-11-06, until a ruling).** A
+/// request's latency shows how long the request before it held the prover and whether
+/// it was refused early, so a server's requests must all come from one data owner. Run
+/// one `stack-serve` process per owner. The server does not check this; the operator
+/// must keep to it.
+///
+/// **The one difference from `stack-prove`:** when a request's statement files cannot
+/// be written after its receipt, its run directory is removed (R5b); `stack-prove`
+/// keeps it in that case.
 pub fn trained_stack_serve_command(args: &[String]) -> i32 {
     let f = match flags(args, &SERVE_FLAGS, &SERVE_SWITCHES) {
         Ok(f) => f,

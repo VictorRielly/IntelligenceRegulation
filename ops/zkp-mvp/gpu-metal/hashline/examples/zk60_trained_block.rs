@@ -52,6 +52,9 @@
 //! (`serve-start`, one `served` line each, `serve-end`). Each run directory and its
 //! unverified statement are `stack-prove`'s, verified by `stack-verify --d55-workers N`
 //! unchanged. `results/zk60_effplan_20261105/a22/README.md` documents the interface.
+//! HARD RULE (security owner, 2026-11-06, until a ruling): ONE data owner per
+//! `stack-serve` process. A request's latency reveals the previous request's prover
+//! time and an early refusal; the server does not enforce this.
 //!
 //! SCOPE: one block of 22 at T = 32 on the CPU (prove/verify); not a model pass; no privacy
 //! acceptance at this shape (D22 covers only the toy). Output is JSON lines
