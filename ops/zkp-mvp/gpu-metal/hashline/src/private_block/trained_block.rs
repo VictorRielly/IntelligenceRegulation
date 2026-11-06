@@ -47,7 +47,6 @@ use super::trained_statement::{apply_own, cal_field, has_own, own_of, tied_tenso
 use super::witness::{self, Witness};
 use super::{prepare_endpoints, AttentionPublic, BlockPublic, ExpectedIo, FeedForwardPublic, IoSpec};
 use crate::merkle::Digest;
-use sha2::{Digest as _, Sha256};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
@@ -284,8 +283,10 @@ pub(crate) fn parse_json(bytes: &[u8]) -> Result<J, String> {
 
 // ------------------------------------------------------------------ files
 
+/// [A21] through the one SHA-256 wrapper (`HL_A21_SHA`; at `0` it is `sha2`'s
+/// `Sha256::digest`, this function's body before A21)
 pub(crate) fn sha256(bytes: &[u8]) -> [u8; 32] {
-    Sha256::digest(bytes).into()
+    super::run_sink::a21_sha::sha256(bytes)
 }
 
 pub(crate) fn hex(d: &[u8]) -> String {

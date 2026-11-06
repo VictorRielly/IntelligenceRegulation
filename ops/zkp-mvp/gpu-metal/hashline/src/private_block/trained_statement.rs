@@ -42,7 +42,6 @@
 use super::shape::{NormCalibration, Shape};
 use super::BlockPublic;
 use crate::merkle::Digest;
-use sha2::{Digest as _, Sha256};
 
 /// the statement's schema tag, the first field of its encoding
 /// NATIVE LANE: version 2 — two norm multipliers, export provenance and the
@@ -495,8 +494,10 @@ pub(crate) fn has_own(own: &[Option<i64>; 11]) -> bool {
     own.iter().any(|v| v.is_some())
 }
 
+/// [A21] through the one SHA-256 wrapper (`HL_A21_SHA`; at `0` it is `sha2`'s
+/// `Sha256::digest`, this function's body before A21)
 fn sha(bytes: &[u8]) -> [u8; 32] {
-    Sha256::digest(bytes).into()
+    super::run_sink::a21_sha::sha256(bytes)
 }
 
 fn i8_bytes(v: &[i8]) -> Vec<u8> {

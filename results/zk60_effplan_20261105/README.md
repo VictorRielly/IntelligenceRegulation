@@ -985,3 +985,102 @@ Acceptance and an independent A/B on the merged tree: `check_a19merge.sh`, `a19m
 - With the window off nothing is parked. If it is turned on, W-8(5)'s wording changes as A18 noted.
 - H-1 (D29) is read as still holding by D68 (security owner's reading, not a privacy acceptance).
 - `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+## A20: production's per-request host work, done (three forms on by default)
+
+Full write-up: `a20/README.md`. Merged into perf (e4a887e0, on top of A19's write-up 8314fcb0 and D69 c07e0b33); no
+conflicts. Acceptance and an independent A/B on the merged tree: `check_a20merge.sh`, `a20merge.progress`,
+`a20merge_pairs.md`, `a20merge_seal_pairs.md`, `a20merge_prod_pairs.md`, `a20merge_table.md`.
+
+**What the profile found** [MEASURED, agent, 8B block]:
+- SHA-256 runs in software on this Mac, at about 0.5 GB/s. `sha2 0.10.9` uses the Arm SHA instructions only with its
+  `asm` feature, which needs the `sha2-asm` crate.
+- One 8B layer record took 252 ms: the nine word SHA-256s in parallel (146 ms; the 67 MB `wg_t` alone 132 ms), then
+  the block's one-thread BLAKE3 digest (115 ms).
+- The 1.94 s receipt write was 1.62 s of frame SHA-256s, one after another.
+- **Correction to A19:** "the loads slow the builds 5×" was a clock artifact. Inside `rayon::join`, the worker waiting
+  for the build runs the queued load itself, so the build's clock read 258 ms; the build takes 40 ms. The sealing pass
+  was waiting on its loads.
+
+**What changed** (`private_block/trained_block.rs`, `run_fork.rs`, `trained_statement.rs`; byte-preserving; each
+form restored by its switch at `0`):
+- **`HL_A20_RECPAR`** (on): the layer record's block digest is computed beside its SHA-256s. Every field is a pure
+  function of the block.
+- **`HL_A20_LOADS = 4`**: the sealing pass's loads run on threads of their own, up to 4 layers ahead of the build. The
+  pass takes them in layer order, at the place it always took them. A scope joins the loaders before `seal_chain`
+  returns.
+- **`HL_A20_WRITE = 16`**: the receipt's frames are written, flushed and hashed by 16 threads. Each frame goes through
+  the same steps (`write_fork_frame`). The list is in file order, and the first failure in file order is returned.
+- The words hashed in place instead of from their copies measured +0.6% and were removed, with their `unsafe` block.
+
+**Byte evidence** [MEASURED, agent and the merged tree]:
+- Layer records, block digests and the statement identity (`10a8fd14…` at the R13 rung) are equal under every
+  setting. The tests cover the W16R2 rung block, a legacy block, the R13 export through the real loader and the 8B
+  block, on the CPU and Metal.
+- Everything the sealing pass returns is equal at 7 load and record settings and 2 budgets.
+- The receipt write gives the same files, bytes, list and refusals at writer counts 0 to 64.
+- Production's path under the forms off and on: every receipt verifies, heads replay, and interior forks equal whole
+  forks.
+- A chain whose layer 1 fails parity while layers 2 and 3 fail their loads refuses with layer 1's parity, at every
+  setting.
+
+**Acceptance on the merged tree** [MEASURED, one guarded job, the GPU quiet at every clock]:
+- **Builds:** the build, the no-feature `cargo check --tests` and the production (non-test) library build, rc 0. The
+  same six dead-code warnings as A19; none is new.
+- **Suites:**
+  - full lib suite: 945 passed, exactly the known three failed, 119 ignored;
+  - zkp-core lib: 81 passed.
+- **Device and byte tests, all passing:**
+  - A19's two device tests and A20's two device tests;
+  - the A18 rung golden, 8B block and parked-fork tests;
+  - the A16 8B planes in every form;
+  - the A17, A15, A14, A8, A12, A11 and A7 byte tests.
+- **Goldens:** the W16R2 rung golden `96e4f0b6` (CPU = Metal), all six post-F12 digests and the 8B core
+  `90003b760eb7ad80` all pass.
+- **The harness's D55 default** (the model in memory):
+  - one request from its input: best 5.465 s = 23.42 tok/s;
+  - the stream: 32.29 tok/s steady, 28.76 amortized (one stream pass; A19's was 33.40 / 29.57);
+  - proof only: best 3.942 s = 32.47 tok/s;
+  - every receipt verified: 818,728,672 B (D12a 818,728,480 B).
+- **Production's D55 path on the default** (2 passes): best 8.134 s = 15.74 tok/s. Its receipts verified in the run
+  directory.
+
+**The independent A/B** [MEASURED, `a20merge_prod_pairs.md`, `a20merge_pairs.md`, `a20merge_seal_pairs.md`]:
+- `a20old` (every A20 form off) against `default` (the A20 defaults);
+- through production's `d55_seal_and_prove`, 4 passes, alternating, budget 32 GiB;
+- the cold run and each arm's first pass were verified in the run directory; all 25 receipts were 818,728,672 B.
+
+| clock | order bias removed | pairs favouring A20 | means before / after |
+|---|---:|---:|---:|
+| **one request from its input (production's path)** | **−50.1%** | 4 of 4 | 16.073 / 8.011 s |
+| its sealing pass | −65.4% | 4 of 4 | 9.688 / 3.345 s |
+| its witness builds (summed) | −78.0% | 4 of 4 | 8.517 / 1.869 s |
+| the receipt write | −83.1% | 4 of 4 | 1.951 / 0.330 s |
+| its prove call | −1.6% | 3 of 4 | 4.340 / 4.270 s |
+| peak footprint | +0.5% | | 43.2 / 43.4 GiB |
+
+- The agent's 6-pass A/B on its final tree agrees: −50.6% in every pair (15.49 → 7.65 s; best 7.59 s = 16.88 tok/s).
+- In this A/B, production's best one request was 7.865 s = 16.27 tok/s.
+
+**Where production's one request goes now** [MEASURED, agent §10 and the A/B means]:
+- the prove call: 4.2–4.3 s;
+- the sealing pass: 3.1–3.3 s, of which 1.7–1.9 s is builds, about 0.8 s waiting for loads, and the rest the first loads
+  and the checks;
+- the receipt write: 0.33 s;
+- the preflight's CS-6 re-hash: 0.30 s.
+
+**What comes next:**
+- **A21 (running):** hardware SHA-256 written in-tree on the stable aarch64 intrinsics, with no new crate; and a
+  parallel BLAKE3 block digest.
+  - Enabling `sha2`'s own `asm` feature is the wrong fix: on x86 it would replace the SHA-NI path with plain assembly,
+    a regression on the RTX 5090 box.
+- **A22 (running, D70):** production's resident-model stream form. The model is loaded and its records made once per
+  process, and the stream is the harness's pipeline.
+
+**For the privacy gate:**
+- The production digests that moved are `private_block/trained_block.rs`, `run_fork.rs` and `trained_statement.rs`.
+- New threads: up to 4 loaders and 16 writers, each in a scope joined before its function returns. They hold public
+  blocks and receipt bytes only; the private sequence is read on the pass's own thread.
+- There is no `unsafe` in production text, and no new hash call site or absorb label.
+- H-1 (D29) is read as still holding by D71 (security owner's reading, not a privacy acceptance).
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.

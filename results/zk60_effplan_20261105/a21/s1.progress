@@ -1,0 +1,114 @@
+2026-11-06T09:11:58Z start
+2026-11-06T09:11:58Z build rc=0
+2026-11-06T09:11:58Z suite private_block::hash_domain::tests rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1061 filtered out; finished in 0.13s
+2026-11-06T09:12:30Z a21 production path at the R13 rung on the device rc=0
+A21-PROD (Metal) [a20old+a21old] (recpar false loads 0 writers 0; sha false (instructions false) b3par false): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) [a21old] (recpar true loads 4 writers 16; sha false (instructions false) b3par false): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) [sha1+b3par0] (recpar true loads 4 writers 16; sha true (instructions true) b3par false): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) [sha0+b3par1] (recpar true loads 4 writers 16; sha false (instructions false) b3par true): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) [default] (recpar true loads 4 writers 16; sha true (instructions true) b3par true): statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960
+A21-PROD (Metal) every arm ["a20old+a21old", "a21old", "sha1+b3par0", "sha0+b3par1", "default"]: the statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 (pinned); a chain whose layer 1 fails parity and layers 2-3 their SHA-256 checks: the same refusal (layer 1's parity): layer 1: parity: the native block output differs from the exported x_out (no count, position or value is printed: ruling K-2) (before the run header; ruling H-1)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1075 filtered out; finished in 31.38s
+2026-11-06T09:13:33Z a21 8B words, digest, record, sealing pass and production path rc=101
+test private_block::run::fork::tests::a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_setting ... A21-8B the nine 8B words (and each from its second byte): the same SHA-256 on the instructions, through the wrapper at sha 0 and 1 and through digest_hex, as sha2's
+A21-8B the 8B block's digest 04c8bd7c5fc92e13: the same by the one pass, digest() at b3par 0 and 1 and the tree at leaves [1024, 2048, 4096, 32768, 1048576, 4194304], = blake3::hash of the input written out independently
+A21-8B the 8B block: one record under all eight settings (block digest 04c8bd7c5fc92e13, word 0 e646df8d8a7ac39d, word 6 919f50855676eb46, tables aeef0178ae272b2b 65ff4f522e53eb16 d856c4de0a8171f0)
+A21-8B budget 34359738368: the same sealing pass under every A21 setting at loads 0 and 4: identity 05ea9df9d1cb74ad02e8e7ec044140cb2b0f41f7fec9e0f1cc80239934c0bee8 | block digests 04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13 | records 9ec1274a3761e7fa36b2ce72392eb273fb07a6169dbde8b433fd2d7bfcfc791e | outs 3130c73c2ab5024f,3130c73c2ab5024f,3130c73c2ab5024f,3130c73c2
+A21-8B budget 0: the same sealing pass under every A21 setting at loads 0 and 4: identity 05ea9df9d1cb74ad02e8e7ec044140cb2b0f41f7fec9e0f1cc80239934c0bee8 | block digests 04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13,04c8bd7c5fc92e13 | records 9ec1274a3761e7fa36b2ce72392eb273fb07a6169dbde8b433fd2d7bfcfc791e | outs 3130c73c2ab5024f,3130c73c2ab5024f,3130c73c2ab5024f,3130c73c2
+A21-8B [a21old] (sha false (instructions false) b3par false): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B, 6 frames) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-8B [sha1+b3par0] (sha true (instructions true) b3par false): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B, 6 frames) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-8B [sha0+b3par1] (sha false (instructions false) b3par true): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B, 6 frames) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+A21-8B [default] (sha true (instructions true) b3par true): production's d55_seal_and_prove at 8B L4: the receipt (102772480 B, 6 frames) verifies from its run directory; head = the replayed commit phase; 2 interior forks = those forks proved whole
+thread 'private_block::run::fork::tests::a21_the_8b_words_digest_record_sealing_pass_and_production_path_under_every_setting' (14842123) panicked at src/private_block/run_fork_tests.rs:5892:5:
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1075 filtered out; finished in 63.18s
+2026-11-06T09:13:33Z GPU quiet (no ds4-bench): s1 profile
+2026-11-06T09:14:07Z profile rc=0
+2026-11-06T09:14:07Z no ds4-bench at the end of s1 profile
+A21-PROFILE W16R2_8B_T128_H24 | SHA-256 of wg_t (the largest word), 67108864 B, sha2: 0.51 GB/s | median 132.7 ms (min 131.4, max 133.9; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | SHA-256 of wg_t (the largest word), 67108864 B, the instructions: 2.31 GB/s | median 29.0 ms (min 28.9, max 29.3; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | SHA-256 of 16 MB of random bytes, 16777216 B, sha2: 0.51 GB/s | median 32.8 ms (min 32.7, max 33.1; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | SHA-256 of 16 MB of random bytes, 16777216 B, the instructions: 2.37 GB/s | median 7.1 ms (min 7.0, max 7.1; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | SHA-256 of 1 MB of random bytes, 1048576 B, sha2: 0.50 GB/s | median 2.1 ms (min 2.0, max 2.2; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | SHA-256 of 1 MB of random bytes, 1048576 B, the instructions: 2.21 GB/s | median 0.5 ms (min 0.4, max 0.5; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the nine word SHA-256s in parallel from copies, sha false | median 144.3 ms (min 139.9, max 146.5; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the nine word SHA-256s in parallel from copies, sha true | median 31.9 ms (min 31.2, max 34.0; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | BlockPublic::digest, the one pass (b3par 0) | median 115.3 ms (min 114.8, max 117.9; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | BlockPublic::digest by the tree, leaf 32768 B | median 6.5 ms (min 5.3, max 6.7; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | BlockPublic::digest by the tree, leaf 131072 B | median 5.7 ms (min 5.3, max 5.9; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | BlockPublic::digest by the tree, leaf 1048576 B | median 5.9 ms (min 5.4, max 6.5; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | BlockPublic::digest by the tree, leaf 4194304 B | median 6.3 ms (min 5.6, max 6.8; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, sha false b3par false recpar false | median 254.0 ms (min 251.7, max 257.2; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), sha false b3par false recpar false | median 256.7 ms (min 253.4, max 263.6; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, sha false b3par false recpar true | median 138.7 ms (min 133.8, max 140.8; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), sha false b3par false recpar true | median 143.1 ms (min 136.3, max 149.1; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, sha true b3par false recpar true | median 113.5 ms (min 112.7, max 118.4; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), sha true b3par false recpar true | median 121.3 ms (min 116.7, max 123.0; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, sha false b3par true recpar true | median 138.5 ms (min 134.7, max 142.0; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), sha false b3par true recpar true | median 143.4 ms (min 139.1, max 154.6; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | LayerRecord::of_block, sha true b3par true recpar true | median 32.2 ms (min 31.0, max 34.4; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the synthetic load (copy + record), sha true b3par true recpar true | median 36.3 ms (min 35.6, max 37.7; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the preflight's re-hash of 32 block digests (one task a block), b3par false | median 188.9 ms (min 173.2, max 226.7; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the preflight's re-hash of 32 block digests (one task a block), b3par true | median 152.3 ms (min 147.6, max 159.5; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24: the receipt of an 32-block run: head 1072 B, 32 forks of 24539240 B, tail 33471920 B = 818728672 B
+A21-PROFILE W16R2_8B_T128_H24 | the frames' SHA-256s one after another (the verifier's read_fork_receipt), sha false | median 1618.1 ms (min 1610.0, max 1763.5; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the frames' SHA-256s in parallel (the global pool), sha false | median 116.4 ms (min 103.4, max 124.1; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | write_fork_receipt, 16 writers, sha false | median 320.2 ms (min 301.9, max 352.2; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the frames' SHA-256s one after another (the verifier's read_fork_receipt), sha true | median 352.4 ms (min 348.8, max 355.6; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the frames' SHA-256s in parallel (the global pool), sha true | median 25.9 ms (min 22.6, max 26.6; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | write_fork_receipt, 16 writers, sha true | median 218.7 ms (min 207.8, max 239.0; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24 | the witness build alone (the sealing pool) | median 45.2 ms (min 42.3, max 61.7; 6 reps)
+A21-PROFILE W16R2_8B_T128_H24: total 33.5 s
+2026-11-06T09:14:07Z GPU quiet (no ds4-bench): s1 verifier A/B
+2026-11-06T09:15:45Z verifier A/B rc=0
+2026-11-06T09:15:45Z no ds4-bench at the end of s1 verifier A/B
+A21-VERIFY W16R2_8B_T128_H24 L32 [a21old] pass 0: verify 5.578 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 1.750 s; sha false (instructions false) b3par false
+A21-VERIFY W16R2_8B_T128_H24 L32 [sha1+b3par0] pass 0: verify 3.401 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 0.468 s; sha true (instructions true) b3par false
+A21-VERIFY W16R2_8B_T128_H24 L32 [sha0+b3par1] pass 0: verify 4.766 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 1.728 s; sha false (instructions false) b3par true
+A21-VERIFY W16R2_8B_T128_H24 L32 [default] pass 0: verify 3.350 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 0.477 s; sha true (instructions true) b3par true
+A21-VERIFY W16R2_8B_T128_H24 L32 [default] pass 1: verify 3.586 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 0.467 s; sha true (instructions true) b3par true
+A21-VERIFY W16R2_8B_T128_H24 L32 [sha0+b3par1] pass 1: verify 4.831 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 1.734 s; sha false (instructions false) b3par true
+A21-VERIFY W16R2_8B_T128_H24 L32 [sha1+b3par0] pass 1: verify 3.438 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 0.471 s; sha true (instructions true) b3par false
+A21-VERIFY W16R2_8B_T128_H24 L32 [a21old] pass 1: verify 4.682 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 1.758 s; sha false (instructions false) b3par false
+A21-VERIFY W16R2_8B_T128_H24 L32 [a21old] pass 2: verify 5.091 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 1.762 s; sha false (instructions false) b3par false
+A21-VERIFY W16R2_8B_T128_H24 L32 [sha1+b3par0] pass 2: verify 3.482 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 0.467 s; sha true (instructions true) b3par false
+A21-VERIFY W16R2_8B_T128_H24 L32 [sha0+b3par1] pass 2: verify 4.611 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 1.728 s; sha false (instructions false) b3par true
+A21-VERIFY W16R2_8B_T128_H24 L32 [default] pass 2: verify 3.435 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 0.466 s; sha true (instructions true) b3par true
+A21-VERIFY W16R2_8B_T128_H24 L32 [default] pass 3: verify 3.475 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 0.467 s; sha true (instructions true) b3par true
+A21-VERIFY W16R2_8B_T128_H24 L32 [sha0+b3par1] pass 3: verify 4.663 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 1.729 s; sha false (instructions false) b3par true
+A21-VERIFY W16R2_8B_T128_H24 L32 [sha1+b3par0] pass 3: verify 4.107 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 0.466 s; sha true (instructions true) b3par false
+A21-VERIFY W16R2_8B_T128_H24 L32 [a21old] pass 3: verify 4.641 s (verify_run_with_forks_from_dir, 6 workers, every block digest recomputed); read_fork_receipt alone 1.758 s; sha false (instructions false) b3par false
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1075 filtered out; finished in 98.53s
+# A21 verifier pairs: [default] against [a21old], alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-accc7730ca1479119/results/zk60_effplan_20261105/a21/raw/s1_verify_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| verify_run_with_forks_from_dir s | -36.2% (2, 2) | -24.3% (2, 2) | **-30.3%** | 4.998 / 3.462 |
+| read_fork_receipt alone (frames read and SHA-256'd) s | -73.1% (2, 2) | -73.4% (2, 2) | **-73.3%** | 1.757 / 0.469 |
+
+# A21 verifier pairs: [sha1+b3par0] against [a21old], alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-accc7730ca1479119/results/zk60_effplan_20261105/a21/raw/s1_verify_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| verify_run_with_forks_from_dir s | -35.3% (2, 2) | -19.0% (2, 2) | **-27.2%** | 4.998 / 3.607 |
+| read_fork_receipt alone (frames read and SHA-256'd) s | -73.4% (2, 2) | -73.4% (2, 2) | **-73.4%** | 1.757 / 0.468 |
+
+# A21 verifier pairs: [sha0+b3par1] against [a21old], alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-accc7730ca1479119/results/zk60_effplan_20261105/a21/raw/s1_verify_ab.log)
+
+| clock | base first: mean change (pairs, test lower) | test first: mean change (pairs, test lower) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| verify_run_with_forks_from_dir s | -12.0% (2, 2) | +1.8% (2, 0) | **-5.1%** | 4.998 / 4.718 |
+| read_fork_receipt alone (frames read and SHA-256'd) s | -1.6% (2, 2) | -1.5% (2, 2) | **-1.6%** | 1.757 / 1.730 |
+
+2026-11-06T09:15:45Z GPU quiet (no ds4-bench): s1 sample default
+2026-11-06T09:16:05Z sample: no test process found
+2026-11-06T09:19:09Z sampled run rc=0
+2026-11-06T09:19:09Z no ds4-bench at the end of s1 sample default
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [default] cold: wall 7.298 s = 17.54 proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass 2.828 s (loads 1.705 s beside it, witnesses 1.879 s, pool 8); window 0, 0 parts handed (0.00 GB budgeted), 32 witnesses kept (9.47 GB); blocks shared (reload 0.000 s); prove call 4.176 s: preflight 0.247, commit 0.247, forks 3.612, join 0.070 s; 0 forks parked (mean NaN ms), 0 taken back whole, feeder waited 0.000 s; directory to receipt written 4.417 s; receipt 818728672 B; footprint start 1.5 GiB, peak 41.3 GiB, end 24.0 GiB; A20: recpar true loads 4 writers 16; the pass waited 0.074 s for its loads (4 ahead); receipt write 0.229 s (16 writers); A21: sha true (instructions true) b3par true
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [default] cold: the receipt in the run directory verified (D55 verifier, 6 threads) in 4.38 s
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [default] pass 0: wall 7.023 s = 18.23 proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass 2.607 s (loads 1.640 s beside it, witnesses 1.761 s, pool 8); window 0, 0 parts handed (0.00 GB budgeted), 32 witnesses kept (9.47 GB); blocks shared (reload 0.000 s); prove call 4.124 s: preflight 0.246, commit 0.197, forks 3.603, join 0.077 s; 0 forks parked (mean NaN ms), 0 taken back whole, feeder waited 0.000 s; directory to receipt written 4.366 s; receipt 818728672 B; footprint start 21.7 GiB, peak 41.3 GiB, end 24.0 GiB; A20: recpar true loads 4 writers 16; the pass waited 0.074 s for its loads (4 ahead); receipt write 0.229 s (16 writers); A21: sha true (instructions true) b3par true
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [default] pass 0: the receipt in the run directory verified (D55 verifier, 6 threads) in 2.97 s
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [default] pass 1: wall 6.882 s = 18.60 proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass 2.567 s (loads 1.719 s beside it, witnesses 1.782 s, pool 8); window 0, 0 parts handed (0.00 GB budgeted), 32 witnesses kept (9.47 GB); blocks shared (reload 0.000 s); prove call 4.038 s: preflight 0.259, commit 0.209, forks 3.497, join 0.074 s; 0 forks parked (mean NaN ms), 0 taken back whole, feeder waited 0.000 s; directory to receipt written 4.268 s; receipt 818728672 B; footprint start 22.5 GiB, peak 41.6 GiB, end 24.1 GiB; A20: recpar true loads 4 writers 16; the pass waited 0.078 s for its loads (4 ahead); receipt write 0.216 s (16 writers); A21: sha true (instructions true) b3par true
+D55-AB A19 PROD W16R2_8B_T128_H24 L32 N6 [default] pass 2: wall 7.200 s = 17.78 proved tok/s, one request from its input through production's d55_seal_and_prove; sealing pass 2.609 s (loads 1.596 s beside it, witnesses 1.840 s, pool 8); window 0, 0 parts handed (0.00 GB budgeted), 32 witnesses kept (9.47 GB); blocks shared (reload 0.000 s); prove call 4.314 s: preflight 0.333, commit 0.197, forks 3.708, join 0.076 s; 0 forks parked (mean NaN ms), 0 taken back whole, feeder waited 0.000 s; directory to receipt written 4.546 s; receipt 818728672 B; footprint start 24.1 GiB, peak 41.4 GiB, end 24.2 GiB; A20: recpar true loads 4 writers 16; the pass waited 0.063 s for its loads (4 ahead); receipt write 0.219 s (16 writers); A21: sha true (instructions true) b3par true
+D55-AB SUMMARY | A19 production one request [default] | 3 passes | best 6.882 s = 18.60 tok/s | mean 7.035 s = 18.19 tok/s
+2026-11-06T09:19:09Z all done
