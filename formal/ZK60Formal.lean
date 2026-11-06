@@ -46,3 +46,11 @@ import ZK60Formal.FSPathRbr
 import ZK60Formal.FSPath
 import ZK60Formal.FSPathSched
 import ZK60Formal.FSPathBlock
+import ZK60Formal.ModelInt
+import ZK60Formal.CircuitField
+import ZK60Formal.CircuitRequant
+import ZK60Formal.CircuitNorm
+import ZK60Formal.CircuitSoftmax
+import ZK60Formal.CircuitHelpers
+import ZK60Formal.Goldilocks
+import ZK60Formal.L1Check

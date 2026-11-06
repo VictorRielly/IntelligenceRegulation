@@ -1,0 +1,35 @@
+import ZK60Formal
+open ZK60.Circuit
+#print axioms ZK60.Circuit.int_eq_of_cast_eq
+#print axioms ZK60.Circuit.twoLimbs_iff
+#print axioms ZK60.Circuit.remW16_iff
+#print axioms ZK60.Circuit.word16_iff
+#print axioms ZK60.Circuit.inRangeB_iff
+#print axioms ZK60.Circuit.rangeQuery_mem_iff
+#print axioms ZK60.Circuit.w16r2Fams_ok
+#print axioms ZK60.Circuit.requant_iff
+#print axioms ZK60.Circuit.requant_witness
+#print axioms ZK60.Circuit.wordS8_iff
+#print axioms ZK60.Circuit.word24_iff
+#print axioms ZK60.Circuit.gateWord_iff
+#print axioms ZK60.Circuit.requant_iff_sites
+#print axioms ZK60.Circuit.residual_iff
+#print axioms ZK60.Circuit.residual_pins_word
+#print axioms ZK60.Circuit.requant_of_residual
+#print axioms ZK60.Circuit.ao_class_gap
+#print axioms ZK60.Circuit.run_inputs_bounded
+#print axioms ZK60.Circuit.isqrt_iff
+#print axioms ZK60.Circuit.isqrt_pos
+#print axioms ZK60.Circuit.normDiv_iff
+#print axioms ZK60.Circuit.normDiv_d_zero
+#print axioms ZK60.Circuit.softmaxDiv_iff
+#print axioms ZK60.Circuit.softmax_sg_window
+#print axioms ZK60.Circuit.rowmax_without_booleanity
+#print axioms ZK60.Circuit.pair_helper_iff
+#print axioms ZK60.Circuit.helper_split_count
+#print axioms ZK60.Circuit.w16r2_helper_planes
+#print axioms ZK60.Circuit.gP_prime
+#print axioms ZK60.L1.hostRes_zero_iff
+#print axioms ZK60.Circuit.rowmax_gf
+#print axioms ZK60.Circuit.limbs_iff
+#print axioms ZK60.Circuit.threeBytes_iff

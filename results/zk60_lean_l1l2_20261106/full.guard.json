@@ -1,0 +1,42 @@
+{
+ "ts_end": "2026-11-06T11:26:48Z",
+ "run_id": "e0146a8cf560",
+ "label": "lean-l2-full",
+ "class": "cpu",
+ "cmd": [
+  "/bin/bash",
+  "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/results/zk60_lean_l1l2_20261106/full.sh"
+ ],
+ "need_gib": 14.0,
+ "cap_gib": 28.0,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 23.779797792434692,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 94995,
+ "boot_id": "42BF5F64-F14C-467C-B343-44946D8FFC3F",
+ "pid_ns": null,
+ "guard_starttime_ticks": 1793961374,
+ "lock_ids": {
+  "heavy": "16777233:54418473",
+  "build": "16777233:54490092"
+ },
+ "enforcement": "watchdog-only",
+ "waited_s": 3011.0,
+ "guard_wall_s": 23.8,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": null,
+ "scope_adopted": null,
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 3.65,
+ "peak_cgroup_gib": null,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 210.43,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

@@ -1,0 +1,99 @@
+== full build
+⚠ [3416/3424] Replayed ZK60Formal.CircuitField
+warning: ZK60Formal/CircuitField.lean:97:97: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/CircuitField.lean:112:71: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+✔ [3417/3424] Built ZK60Formal.CircuitHelpers (5.2s)
+✖ [3418/3424] Building ZK60Formal.CircuitRequant (5.6s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/ZK60Formal/CircuitRequant.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/lib/lean/ZK60Formal/CircuitRequant.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/lib/lean/ZK60Formal/CircuitRequant.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/ir/ZK60Formal/CircuitRequant.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/ir/ZK60Formal/CircuitRequant.setup.json --json
+warning: ZK60Formal/CircuitRequant.lean:79:45: Variable name `hs1` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hs1
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/CircuitRequant.lean:153:91: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/CircuitRequant.lean:158:70: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/CircuitRequant.lean:159:65: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/CircuitRequant.lean:181:37: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/CircuitRequant.lean:189:27: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/CircuitRequant.lean:191:16: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/CircuitRequant.lean:211:70: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+error: ZK60Formal/CircuitRequant.lean:257:11: ambiguous term, use fully qualified name, possible interpretations [_root_.residual, Model.residual]
+error: ZK60Formal/CircuitRequant.lean:262:11: ambiguous term, use fully qualified name, possible interpretations [_root_.residual, Model.residual]
+warning: ZK60Formal/CircuitRequant.lean:309:34: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Some required targets logged failures:
+- ZK60Formal.CircuitRequant
+error: build failed
+== full build rc=1
+== full build
+✔ [3417/3424] Built ZK60Formal.CircuitField (10s)
+✖ [3418/3424] Building ZK60Formal.CircuitRequant (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/ZK60Formal/CircuitRequant.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/lib/lean/ZK60Formal/CircuitRequant.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/lib/lean/ZK60Formal/CircuitRequant.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/ir/ZK60Formal/CircuitRequant.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a79790674c331b122/formal/.lake/build/ir/ZK60Formal/CircuitRequant.setup.json --json
+warning: ZK60Formal/CircuitRequant.lean:258:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/CircuitRequant.lean:269:4: No goals to be solved
+Some required targets logged failures:
+- ZK60Formal.CircuitRequant
+error: build failed
+== full build rc=1
+== full build
+✔ [3418/3424] Built ZK60Formal.CircuitRequant (12s)
+✔ [3419/3424] Built ZK60Formal.CircuitSoftmax (2.0s)
+✔ [3420/3424] Built ZK60Formal.CircuitNorm (4.1s)
+⚠ [3421/3424] Built ZK60Formal.Goldilocks (1.8s)
+warning: ZK60Formal/Goldilocks.lean:37:97: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/Goldilocks.lean:38:97: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/Goldilocks.lean:39:97: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/Goldilocks.lean:40:98: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/Goldilocks.lean:41:97: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/Goldilocks.lean:42:97: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/Goldilocks.lean:58:0: Definition `ZK60.Circuit.goldilocks_field` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+✔ [3422/3424] Built ZK60Formal.L1Check (2.3s)
+✔ [3423/3424] Built ZK60Formal (1.7s)
+Build completed successfully (3424 jobs).
+== full build rc=0
+== L1 check
+== L1 check rc=0
+== axioms
+== axioms rc=0
+== full build
+✔ [3422/3424] Built ZK60Formal.Goldilocks (10s)
+✔ [3423/3424] Built ZK60Formal (1.8s)
+Build completed successfully (3424 jobs).
+== full build rc=0
+== L1 check
+== L1 check rc=0
+== axioms
+== axioms rc=0
