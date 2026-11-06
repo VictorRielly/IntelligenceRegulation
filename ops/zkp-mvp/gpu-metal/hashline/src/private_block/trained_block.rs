@@ -2651,6 +2651,14 @@ pub(crate) trait StackModel: Sync {
     /// the variant and the scope line the CLI's events print
     fn variant(&self) -> &str;
     fn scope(&self) -> &'static str;
+    /// [A22] whether each load's record carries the digest of that load's OWN block,
+    /// computed on it where it was made (`stack-serve` with `HL_A22_DIGEST_AHEAD`, a
+    /// ruling's): a D55 run's shared blocks then keep it, and the fork run's CS-6
+    /// check takes it instead of hashing the block again. `false`: CS-6 hashes every
+    /// block (`stack-prove`, and `stack-serve` by default)
+    fn fresh_digests(&self) -> bool {
+        false
+    }
 }
 
 /// [A19] production's model: the trained export, the run's private sequence
@@ -2719,8 +2727,9 @@ fn reload_checked(m: &dyn StackModel, k: usize, digests: &[Digest]) -> Result<Bl
 /// **[A19] what the sealing pass does with each admitted block**, after every
 /// check of that block (the builder's, CS-3's lookup misses, the parity check)
 trait SealHand {
-    /// block `k`'s public block: kept for the fork run, or dropped
-    fn block(&mut self, k: usize, blk: BlockPublic) -> Result<(), String>;
+    /// block `k`'s public block (and its record's block digest): kept for the fork run,
+    /// or dropped
+    fn block(&mut self, k: usize, blk: BlockPublic, digest: &Digest) -> Result<(), String>;
     /// block `k`'s witness, built at `ssh`: taken (`Ok(None)`: a fork's
     /// before-challenge part is made from it) or handed back
     fn witness(&mut self, k: usize, w: Witness, ssh: &Shape) -> Result<Option<Witness>, String>;
@@ -2731,7 +2740,7 @@ trait SealHand {
 struct NoHand;
 
 impl SealHand for NoHand {
-    fn block(&mut self, _k: usize, _blk: BlockPublic) -> Result<(), String> {
+    fn block(&mut self, _k: usize, _blk: BlockPublic, _digest: &Digest) -> Result<(), String> {
         Ok(())
     }
     fn witness(&mut self, _k: usize, w: Witness, _ssh: &Shape) -> Result<Option<Witness>, String> {
@@ -2744,11 +2753,15 @@ impl SealHand for NoHand {
 struct D55Hand<'h> {
     blocks: Option<&'h run::fork::SealedBlocks>,
     push: &'h mut dyn FnMut(usize, Witness, &Shape) -> Result<Option<Witness>, String>,
+    /// [A22] the model's records carry their own blocks' digests ([`StackModel::fresh_digests`])
+    fresh: bool,
 }
 
 impl SealHand for D55Hand<'_> {
-    fn block(&mut self, k: usize, blk: BlockPublic) -> Result<(), String> {
+    fn block(&mut self, k: usize, blk: BlockPublic, digest: &Digest) -> Result<(), String> {
         match self.blocks {
+            // [A22] with the block, the digest its load computed on it
+            Some(b) if self.fresh => b.put_digested(k, blk, *digest),
             Some(b) => b.put(k, blk),
             None => Ok(()),
         }
@@ -3019,7 +3032,7 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         // [A19] every check of block `k` has passed: its block is kept for a D55
         // run's forks (dropped otherwise, as before), and its witness is offered to
         // the window when the budget holds it as a part
-        hand.block(k, cur.blk)?;
+        hand.block(k, cur.blk, &digests[k])?;
         let wb = witness_bytes(&w);
         let w = if kept_bytes + part_bytes + wb + part_extra <= budget_bytes {
             match hand.witness(k, w, &ssh)? {
@@ -3354,6 +3367,18 @@ impl D55Proved {
     pub(crate) fn statement(&self) -> &RunStatement {
         &self.rst
     }
+    /// [A22] the run's endpoint policy (`expected.bin`'s bytes: public roots)
+    pub(crate) fn expected_bytes(&self) -> Vec<u8> {
+        self.expected.to_bytes()
+    }
+    /// [A22] the receipt's frames as written (length, SHA-256), in file order
+    pub(crate) fn written(&self) -> &[(u64, String)] {
+        &self.written
+    }
+    /// [A22] the trained-model statement's identity, in hex
+    pub(crate) fn identity_hex(&self) -> String {
+        hex(&self.st.identity())
+    }
 }
 
 /// [A19] how production's D55 proof is run: the fork workers, the run
@@ -3366,6 +3391,8 @@ pub(crate) struct D55Run<'a> {
     pub budget: u64,
     pub test_receipt: bool,
     pub events: bool,
+    /// [A22] a stream's turns (`stack-serve`; `None`: one request, `stack-prove`)
+    pub turn: Option<&'a dyn D55Turn>,
 }
 
 /// **[A19] PRODUCTION'S D55 PROOF** (`stack-prove --d55-workers N`, from the
@@ -3395,7 +3422,7 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
         // ---- (1) the sealing pass (ruling H-1): every refusal of an inadmissible
         //      chain happens here, before anything of the run exists
         |push| {
-            let mut hand = D55Hand { blocks: shared.then_some(&blocks), push };
+            let mut hand = D55Hand { blocks: shared.then_some(&blocks), push, fresh: m.fresh_digests() };
             let r = seal_chain(m, run.budget, &mut hand)?;
             #[cfg(test)]
             a19_after_the_sealing_pass();
@@ -3444,6 +3471,12 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
             // the run directory exists)
             planned.check(&fr)?;
             let mut src = StackSource::new(sh, if shared { StackBlocks::Sealed(&blocks) } else { StackBlocks::Model(m, &digests) }, l, chain, None)?;
+            // [A22] a stream: this request's sealing side is done (the next request's
+            // sealing pass may start); wait for its turn at the prover, before anything
+            // of the run exists
+            if let Some(turn) = run.turn {
+                turn.sealed();
+            }
             // ---- (3) the proving pass
             std::fs::create_dir(run.out).map_err(|e| format!("{}: {e}", run.out.display()))?;
             let t = Instant::now();
@@ -3458,7 +3491,13 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
                     reloaded = v;
                     (&reloaded as &dyn run::fork::ForkBlocks, s)
                 };
-                let (rc, fs) = planned.prove(&fr, b, &mut src, owners, run.workers)?;
+                let proof = planned.prove(&fr, b, &mut src, owners, run.workers);
+                // [A22] a stream: the prover is free for the next request, whatever the
+                // prove call returned (this run's receipt is written outside the turn)
+                if let Some(turn) = run.turn {
+                    turn.proved();
+                }
+                let (rc, fs) = proof?;
                 #[cfg(test)]
                 a19_after_the_proof(&fr, b, &rc, &fs);
                 let tw = Instant::now();
@@ -3579,7 +3618,7 @@ fn a19_after_the_proof(fr: &run::fork::ForkRun<'_>, b: &dyn run::fork::ForkBlock
 fn stack_prove_d55(f: &[(String, String)], ex: &TrainedExport, layers: &[u32], rope: bool, seq: &SeqSource, label: &str, budget: u64, workers: usize, test_receipt: bool, out: &Path, unverified: &Path, t_total: Instant) -> Result<(), String> {
     let l = layers.len();
     let m = ExportStack::new(ex, seq, layers, rope, label)?;
-    let p = d55_seal_and_prove(&m, run::fork::D55OptIn::registered_profile(), &D55Run { workers, out, budget, test_receipt, events: true })?;
+    let p = d55_seal_and_prove(&m, run::fork::D55OptIn::registered_profile(), &D55Run { workers, out, budget, test_receipt, events: true, turn: None })?;
     let tm = &p.times;
     // the fork run again (its door is deterministic: it admitted this statement)
     let fr = run::fork::ForkRun::new(&p.rst, run::fork::D55OptIn::registered_profile())?;
@@ -3607,11 +3646,8 @@ fn stack_prove_d55(f: &[(String, String)], ex: &TrainedExport, layers: &[u32], r
             publish_statement_dir(out, &[("expected.bin", &p.expected.to_bytes()), ("statement.json", stmt.as_bytes()), ("segments.json", render_fork_frames_json(&seen).as_bytes())]).map_err(|e| fail_run(out, e))?
         }
         None => {
-            std::fs::create_dir(unverified).map_err(|e| format!("{}: {e}", unverified.display()))?;
-            write_new(&unverified.join(UNVERIFIED_MARKER), UNVERIFIED_TEXT)?;
-            write_new(&unverified.join("expected.bin"), &p.expected.to_bytes())?;
-            write_new(&unverified.join("statement.json"), render_stack_statement_for(ex, &m.sh, &p.metas, &p.st, &p.ctx, &p.expected, label, StatementWriter::Unverified, &claims, fork_names).as_bytes())?;
-            write_new(&unverified.join("segments.json"), render_fork_frames_json(&p.written).as_bytes())?;
+            // [A22] the same four files `stack-serve` writes for each request
+            write_unverified_statement_files(unverified, &p.expected.to_bytes(), &render_stack_statement_for(ex, &m.sh, &p.metas, &p.st, &p.ctx, &p.expected, label, StatementWriter::Unverified, &claims, fork_names), &p.written)?;
             unverified.to_path_buf()
         }
     };
@@ -3640,6 +3676,854 @@ fn stack_prove_d55(f: &[(String, String)], ex: &TrainedExport, layers: &[u32], r
 
 /// the text of the marker inside an unverified statement directory
 const UNVERIFIED_TEXT: &[u8] = b"The prover wrote this statement WITHOUT verifying the run. It is not a public statement: only `stack-verify`, after a fresh-process verification of the run directory passes, writes <run>/statement/ itself (rulings M-9 / D12b(1); review r5_A).\n";
+
+/// **The prover-written statement of an unverified D55 run, beside its run
+/// directory** (`stack-prove` without `--verify-in-process`, and [A22] each
+/// request of `stack-serve`): `<out>.unverified-statement/` with its marker, the
+/// endpoint policy, the statement and the frames' list, in that order
+pub(crate) fn write_unverified_statement_files(unverified: &Path, expected: &[u8], statement: &str, written: &[(u64, String)]) -> Result<(), String> {
+    std::fs::create_dir(unverified).map_err(|e| format!("{}: {e}", unverified.display()))?;
+    write_new(&unverified.join(UNVERIFIED_MARKER), UNVERIFIED_TEXT)?;
+    write_new(&unverified.join("expected.bin"), expected)?;
+    write_new(&unverified.join("statement.json"), statement.as_bytes())?;
+    write_new(&unverified.join("segments.json"), render_fork_frames_json(written).as_bytes())
+}
+
+// ---------------------------------------- [A22] production's resident-model stream form (`stack-serve`)
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A22, ruling D70;
+// `results/zk60_effplan_20261105/a22/README.md`.) `stack-prove --d55-workers` loads and
+// checks every layer for each request and proves ONE request per process. `stack-serve`
+// is the same production D55 path as a long-lived process:
+// * **startup, once**: every admission check `stack-prove` makes (the flags, D60 review
+//   F3's acknowledgement, the GPU's liveness, the export, `--dd`, the layers, the run
+//   constants and shape), then every layer loaded with every check of the sealing pass's
+//   load ([`ServeModel::load_layer`]: the export's array SHA-256s, the tables, the padded
+//   words, the layer record and its block digest) and the model's statement made from
+//   those records, kept resident ([`Resident`]): public data only. A failure refuses the
+//   start.
+// * **each request**: [`d55_seal_and_prove`] over [`Served`], a [`StackModel`] whose
+//   loads copy the resident layers (each block and record as the startup's load made
+//   them) and whose private sequence is the request's own (`seq` / `seq_dir`, as
+//   `stack-prove`'s `--seq` / `--seq-dir`); every step and refusal of the D55 path, in its
+//   order; then `stack-prove`'s statement files. The request's model statement must have
+//   the startup's identity (refused before the run header otherwise).
+// * **the stream** ([`serve_stream`]): `HL_A22_LANES` lanes (default 2) take the requests
+//   in order. One request at a time holds the SEALING turn (its sealing pass, up to its
+//   door and plan check) and one at a time the PROVER turn (its run directory and its
+//   prove call), each taken in request order, so request r + 1's sealing pass runs beside
+//   request r's fork run and at most one sealed request waits for the prover. The receipt
+//   write and the statement files are outside both turns. Results come out in request
+//   order, one line each.
+//
+// **What a receipt attests** (the cached-record binding): the statement binds the layer
+// records the startup made from the export as it was read then, and the fork run's
+// preflight re-hashes every block it proves against them (CS-6), per request. A later
+// change of the export's files is not read by a running server; no API changes the
+// resident model (it is built once and only borrowed).
+//
+// **Fresh randomness per request**: nothing of a request's randomness is made at
+// startup or kept: its endpoint commitments (`prepare_endpoints`), its boundary
+// commitments and every fork's coins (`run_fork`'s generators) are drawn from the
+// operating system inside its own `d55_seal_and_prove`, and dropped with it.
+//
+// **`HL_A22_DIGEST_AHEAD`** (off by default; it needs a ruling, A19 section 9): each
+// request's copy of each block is digested where it is made (on the sealing pass's
+// loaders) and that digest is carried in its record; the request's model statement,
+// made from those records, must still be the startup's, and the fork run's CS-6 check
+// takes those digests of its own objects instead of hashing the blocks again.
+
+/// **[A22] a stream's turns, as one request meets them in [`d55_seal_and_prove`]**:
+/// `sealed` when its sealing side is done (the sealing pass, the model's statement, the
+/// endpoints, the bound statement, D60's door, the plan's check, the witness source),
+/// just before its run directory is created: the next request may start its sealing
+/// pass, and this one waits for its turn at the prover; `proved` when its prove call has
+/// returned, Ok or not: the next request may prove.
+pub(crate) trait D55Turn: Sync {
+    fn sealed(&self);
+    fn proved(&self);
+}
+
+/// **[A22] a model a stack server holds**: its public part, loaded and checked once at
+/// startup, and each request's private input. Production's is the trained export
+/// ([`ExportServe`]); the tests' is the D55 harness's synthetic stack.
+pub(crate) trait ServeModel: Sync {
+    /// one request's private input (production: `seq` / `seq_dir`, as `stack-prove`'s)
+    type Input: Send + Sync;
+    /// the run's block shape (its run constants')
+    fn shape(&self) -> &Shape;
+    /// the run's layer indices, in run order
+    fn layers(&self) -> &[u32];
+    /// run position `k`'s layer, loaded with every check (the startup's load, once a layer)
+    fn load_layer(&self, k: usize) -> Result<TrainedLayer, String>;
+    /// the private input and the reference output of `layer` on `input`
+    fn seq(&self, input: &Self::Input, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String>;
+    /// the trained-model statement of the run's layer records
+    fn statement_of_records(&self, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String>;
+    /// the run shape (CS-7)
+    fn run_shape(&self) -> Result<RunShape, String>;
+    /// the run's context digest
+    fn context(&self) -> Result<Digest, String>;
+    fn variant(&self) -> &str;
+    fn scope(&self) -> &'static str;
+    /// the D55 opt-in every request proves under (production: the registered profile)
+    fn opt_in(&self) -> run::fork::D55OptIn {
+        run::fork::D55OptIn::registered_profile()
+    }
+    /// the request-line fields that name the private input
+    fn input_keys(&self) -> &'static [&'static str];
+    /// a request's private input from its request line (an argument error names the line's form only)
+    fn input_of(&self, req: &J) -> Result<Self::Input, String>;
+    /// the run's prover-written statement beside its run directory (`stack-prove`'s steps
+    /// after its D55 proof: the prover's self-report check, which removes the run directory
+    /// when it fails, then the statement files)
+    fn write_statement(&self, p: &D55Proved, out: &Path, unverified: &Path) -> Result<(), String>;
+}
+
+/// [A22] one layer of the resident model, as the startup's checked load made it
+struct ResidentLayer {
+    index: u32,
+    manifest_sha256: [u8; 32],
+    blk: BlockPublic,
+    record: LayerRecord,
+    rope_note: String,
+}
+
+/// **[A22] THE RESIDENT MODEL**: every layer loaded once at startup with every check of
+/// the sealing pass's load, and the identity of the model's statement of those records.
+/// Public data only, kept for the life of the server; nothing changes it after
+/// [`Resident::start`] (every method takes `&self`, and no field is reachable from outside).
+pub(crate) struct Resident<'m, M: ServeModel> {
+    m: &'m M,
+    layers: Vec<ResidentLayer>,
+    identity: Digest,
+    startup_s: f64,
+}
+
+/// [A22] the startup loads this many layers at once (each load reads and hashes its
+/// arrays in parallel too), keeping the first refusal in layer order
+const RESIDENT_LOAD_WIDTH: usize = 4;
+
+static A22_LANES_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+static A22_DIGEST_AHEAD_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+
+/// [A22] `HL_A22_LANES`: how many requests a stream holds at once (default 2: one
+/// sealing while one proves; 1: each request sealed and proved before the next), 1 ..= 4
+pub(crate) fn a22_lanes() -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    super::trained_statement::a20_switch(&A22_LANES_TEST, &ENV, "HL_A22_LANES", 2).clamp(1, 4)
+}
+
+/// [A22] `HL_A22_DIGEST_AHEAD` (default off; a ruling's): each request's block copies
+/// digested where they are made, the fork run's CS-6 check taking those digests
+pub(crate) fn a22_digest_ahead() -> bool {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    super::trained_statement::a20_switch(&A22_DIGEST_AHEAD_TEST, &ENV, "HL_A22_DIGEST_AHEAD", 0) != 0
+}
+
+/// tests: the lanes (`None`: as the environment says)
+#[cfg(test)]
+pub(crate) fn set_a22_lanes_for_test(n: Option<usize>) {
+    A22_LANES_TEST.store(n.unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// tests: the digests ahead on or off (`None`: as the environment says)
+#[cfg(test)]
+pub(crate) fn set_a22_digest_ahead_for_test(on: Option<bool>) {
+    A22_DIGEST_AHEAD_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+impl<'m, M: ServeModel> Resident<'m, M> {
+    /// **The startup**: every layer of `m` loaded with every check (the first refusal in
+    /// layer order is returned), then the model's statement of their records
+    pub(crate) fn start(m: &'m M) -> Result<Resident<'m, M>, String> {
+        let t0 = Instant::now();
+        let l = m.layers().len();
+        if l == 0 {
+            return Err("stack-serve: the run has no layer".into());
+        }
+        let mut layers = Vec::with_capacity(l);
+        let ks: Vec<usize> = (0..l).collect();
+        for chunk in ks.chunks(RESIDENT_LOAD_WIDTH) {
+            let loaded: Vec<Result<TrainedLayer, String>> = {
+                use rayon::prelude::*;
+                chunk.par_iter().map(|&k| m.load_layer(k)).collect()
+            };
+            for (&k, t) in chunk.iter().zip(loaded) {
+                let t = t?;
+                if t.index != m.layers()[k] {
+                    return Err(format!("stack-serve: run position {k} loaded layer {}, not layer {}", t.index, m.layers()[k]));
+                }
+                layers.push(ResidentLayer { index: t.index, manifest_sha256: t.manifest_sha256, blk: t.blk, record: t.record, rope_note: t.rope_note });
+            }
+        }
+        let st = m.statement_of_records(layers.iter().map(|r| r.record.clone()).collect())?;
+        Ok(Resident { m, layers, identity: st.identity(), startup_s: t0.elapsed().as_secs_f64() })
+    }
+
+    /// the identity of the statement the server started with
+    pub(crate) fn identity(&self) -> Digest {
+        self.identity
+    }
+
+    /// the startup's seconds (every load, the statement)
+    pub(crate) fn startup_seconds(&self) -> f64 {
+        self.startup_s
+    }
+
+    /// the model the server holds
+    pub(crate) fn model(&self) -> &M {
+        self.m
+    }
+
+    /// **ONE REQUEST** (`stack-prove --d55-workers`'s steps after its admission checks,
+    /// on the resident model): the run directory must be new; [`d55_seal_and_prove`] over
+    /// the request's [`Served`] view (the sealing pass from its input, the statement,
+    /// D60's door, the plan's check, the run directory, the fork run, the receipt and the
+    /// not-for-publication marker); then the prover-written statement files. `turn`: a
+    /// stream's (`None`: one request alone).
+    pub(crate) fn prove_one(&self, input: &M::Input, out: &Path, cfg: &ServeCfg, turn: Option<&dyn D55Turn>) -> Result<ServeProved, String> {
+        let unverified = unverified_statement_dir(out)?;
+        if out.exists() || unverified.exists() {
+            return Err(format!("{} (or its unverified statement directory) exists; the run directory must be new", out.display()));
+        }
+        let view = Served { res: self, input, fresh: a22_digest_ahead() };
+        let p = d55_seal_and_prove(&view, self.m.opt_in(), &D55Run { workers: cfg.workers, out, budget: cfg.budget, test_receipt: cfg.test_receipt, events: false, turn })?;
+        if let Err(e) = self.m.write_statement(&p, out, &unverified) {
+            // a run whose statement could not be written did not complete: it is removed
+            // (R5b), as after any failure past the run header (`stack-prove` keeps the run
+            // directory in this one case; the statement directory is left as found)
+            return Err(if out.exists() { fail_run(out, e) } else { e });
+        }
+        Ok(ServeProved { identity: p.identity_hex(), receipt_bytes: p.written.iter().map(|(n, _)| *n).sum(), frames: p.written.len(), times: p.times.clone(), statement_dir: unverified })
+    }
+}
+
+/// [A22] what one proved request leaves (public words only)
+#[derive(Clone, Debug)]
+pub(crate) struct ServeProved {
+    pub identity: String,
+    pub receipt_bytes: u64,
+    pub frames: usize,
+    pub times: D55Times,
+    pub statement_dir: PathBuf,
+}
+
+/// **[A22] one request's model**: the resident layers (each load a copy of the startup's
+/// block and record) and the request's private input; everything else is the server's
+/// model's. With `fresh` ([`a22_digest_ahead`]), each copy's record carries that copy's
+/// own block digest, computed where the copy is made.
+struct Served<'r, 'm, M: ServeModel> {
+    res: &'r Resident<'m, M>,
+    input: &'r M::Input,
+    fresh: bool,
+}
+
+impl<M: ServeModel> StackModel for Served<'_, '_, M> {
+    fn shape(&self) -> &Shape {
+        self.res.m.shape()
+    }
+    fn layers(&self) -> &[u32] {
+        self.res.m.layers()
+    }
+    fn load_layer(&self, k: usize) -> Result<TrainedLayer, String> {
+        let r = self.res.layers.get(k).ok_or_else(|| format!("stack-serve: no layer at run position {k}"))?;
+        let blk = r.blk.clone();
+        let mut record = r.record.clone();
+        if self.fresh {
+            record.block_digest = blk.digest();
+        }
+        Ok(TrainedLayer { index: r.index, manifest_sha256: r.manifest_sha256, blk, record, rope_note: r.rope_note.clone() })
+    }
+    fn reload_block(&self, k: usize) -> Result<BlockPublic, String> {
+        self.res.layers.get(k).map(|r| r.blk.clone()).ok_or_else(|| format!("stack-serve: no layer at run position {k}"))
+    }
+    /// the request's own private sequence (read on the sealing pass's thread only)
+    fn seq(&self, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
+        self.res.m.seq(self.input, layer)
+    }
+    /// the model's statement of this request's records, refused unless it is the one the
+    /// server started with (before the run header)
+    fn statement_of_records(&self, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+        let st = self.res.m.statement_of_records(records)?;
+        if st.identity() != self.res.identity {
+            return Err("stack-serve: this request's trained-model statement is not the one the server started with (before the run header)".into());
+        }
+        Ok(st)
+    }
+    fn run_shape(&self) -> Result<RunShape, String> {
+        self.res.m.run_shape()
+    }
+    fn context(&self) -> Result<Digest, String> {
+        self.res.m.context()
+    }
+    fn variant(&self) -> &str {
+        self.res.m.variant()
+    }
+    fn scope(&self) -> &'static str {
+        self.res.m.scope()
+    }
+    fn fresh_digests(&self) -> bool {
+        self.fresh
+    }
+}
+
+/// **[A22] production's served model: the trained export**, read and checked at startup
+/// as `stack-prove` reads it (its constants and shape computed once); every method is the
+/// same function of the same words `stack-prove`'s [`ExportStack`] calls
+struct ExportServe {
+    ex: TrainedExport,
+    layers: Vec<u32>,
+    rope: bool,
+    label: String,
+    c: Constants,
+    sh: Shape,
+}
+
+impl ServeModel for ExportServe {
+    type Input = SeqSource;
+    fn shape(&self) -> &Shape {
+        &self.sh
+    }
+    fn layers(&self) -> &[u32] {
+        &self.layers
+    }
+    fn load_layer(&self, k: usize) -> Result<TrainedLayer, String> {
+        self.ex.load_layer(&self.sh, &self.c, self.layers[k], self.rope)
+    }
+    fn seq(&self, input: &SeqSource, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
+        input.load(&self.ex, &self.sh, layer)
+    }
+    fn statement_of_records(&self, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+        self.ex.statement_of_records(&self.sh, &self.c, records)
+    }
+    fn run_shape(&self) -> Result<RunShape, String> {
+        self.ex.geometry.run_shape(&self.sh, self.layers.len())
+    }
+    fn context(&self) -> Result<Digest, String> {
+        stack_context(&self.ex.variant, &self.layers, &self.label)
+    }
+    fn variant(&self) -> &str {
+        &self.ex.variant
+    }
+    fn scope(&self) -> &'static str {
+        stack_scope(self.ex.geometry)
+    }
+    fn input_keys(&self) -> &'static [&'static str] {
+        &["seq", "seq_dir"]
+    }
+    fn input_of(&self, req: &J) -> Result<SeqSource, String> {
+        match (req.opt("seq"), req.opt("seq_dir")) {
+            (Some(s), None) => Ok(SeqSource::InExport(s.str().map_err(|e| format!("seq: {e}"))?.to_string())),
+            (None, Some(d)) => Ok(SeqSource::Dir(PathBuf::from(d.str().map_err(|e| format!("seq_dir: {e}"))?))),
+            _ => Err("exactly one of seq (the export's seq_<ID>/) or seq_dir (a prover-private directory; privacy review P-5) is required".into()),
+        }
+    }
+    /// `stack-prove`'s steps after its D55 proof, without `--verify-in-process`
+    fn write_statement(&self, p: &D55Proved, out: &Path, unverified: &Path) -> Result<(), String> {
+        let fr = run::fork::ForkRun::new(&p.rst, run::fork::D55OptIn::registered_profile())?;
+        let fork_names = Some((fr.profile(), p.rst.rs().profile()));
+        let claims = ProverClaims::of_this_process();
+        // NATIVE R7 (Q-2): the prover writes only the build's constants
+        check_prover_reported(&claims.backend, claims.gpu_declines).map_err(|e| fail_run(out, e))?;
+        let stmt = render_stack_statement_for(&self.ex, &self.sh, &p.metas, &p.st, &p.ctx, &p.expected, &self.label, StatementWriter::Unverified, &claims, fork_names);
+        write_unverified_statement_files(unverified, &p.expected.to_bytes(), &stmt, &p.written)
+    }
+}
+
+/// **[A22] how a server proves its requests**
+pub(crate) struct ServeCfg {
+    pub workers: usize,
+    pub budget: u64,
+    pub test_receipt: bool,
+    /// how many requests the stream holds at once ([`a22_lanes`])
+    pub lanes: usize,
+    /// TEST BUILDS ONLY: run on the lane's thread before each request (its request index
+    /// and run directory), the guard it returns dropped after the request: the byte tests'
+    /// thread-local switches (seeded generators, the proved hook, the part counter)
+    #[cfg(test)]
+    pub lane_setup: Option<A22LaneSetup>,
+}
+
+#[cfg(test)]
+pub(crate) type A22LaneSetup = std::sync::Arc<dyn Fn(usize, &Path) -> Box<dyn std::any::Any> + Send + Sync>;
+
+/// [A22] one turn of a stream, taken in request order: request `q` enters once every
+/// earlier request has left it (or did not need it)
+struct Turn {
+    st: std::sync::Mutex<(usize, std::collections::BTreeSet<usize>)>,
+    cv: std::sync::Condvar,
+}
+
+impl Turn {
+    fn new() -> Turn {
+        Turn { st: std::sync::Mutex::new((0, std::collections::BTreeSet::new())), cv: std::sync::Condvar::new() }
+    }
+    fn lock(&self) -> std::sync::MutexGuard<'_, (usize, std::collections::BTreeSet<usize>)> {
+        self.st.lock().unwrap_or_else(|e| e.into_inner())
+    }
+    fn enter(&self, q: usize) {
+        let mut g = self.lock();
+        while g.0 != q {
+            g = self.cv.wait(g).unwrap_or_else(|e| e.into_inner());
+        }
+    }
+    fn leave(&self, q: usize) {
+        let mut g = self.lock();
+        g.1.insert(q);
+        loop {
+            let n = g.0;
+            if !g.1.remove(&n) {
+                break;
+            }
+            g.0 = n + 1;
+        }
+        self.cv.notify_all();
+    }
+}
+
+/// [A22] one request's two turns, each left exactly once on every path (a refusal, a
+/// failure, a bad request line: on drop), and the stream's clock at each
+struct RequestTurns<'t> {
+    seal: &'t Turn,
+    prove: &'t Turn,
+    q: usize,
+    seal_left: std::sync::atomic::AtomicBool,
+    prove_left: std::sync::atomic::AtomicBool,
+    t0: Instant,
+    /// seconds since the stream's start: the sealing side done, the prover entered, the prover left
+    at: std::sync::Mutex<[f64; 3]>,
+}
+
+impl<'t> RequestTurns<'t> {
+    fn new(seal: &'t Turn, prove: &'t Turn, q: usize, t0: Instant) -> RequestTurns<'t> {
+        RequestTurns { seal, prove, q, seal_left: false.into(), prove_left: false.into(), t0, at: std::sync::Mutex::new([f64::NAN; 3]) }
+    }
+    fn mark(&self, i: usize) {
+        self.at.lock().unwrap_or_else(|e| e.into_inner())[i] = self.t0.elapsed().as_secs_f64();
+    }
+    fn leave_seal(&self) {
+        if !self.seal_left.swap(true, std::sync::atomic::Ordering::SeqCst) {
+            self.seal.leave(self.q);
+        }
+    }
+    fn leave_prove(&self) {
+        if !self.prove_left.swap(true, std::sync::atomic::Ordering::SeqCst) {
+            self.prove.leave(self.q);
+        }
+    }
+    fn times(&self) -> [f64; 3] {
+        *self.at.lock().unwrap_or_else(|e| e.into_inner())
+    }
+}
+
+impl D55Turn for RequestTurns<'_> {
+    fn sealed(&self) {
+        self.mark(0);
+        self.leave_seal();
+        self.prove.enter(self.q);
+        self.mark(1);
+    }
+    fn proved(&self) {
+        self.mark(2);
+        self.leave_prove();
+    }
+}
+
+impl Drop for RequestTurns<'_> {
+    fn drop(&mut self) {
+        self.leave_seal();
+        self.leave_prove();
+    }
+}
+
+/// **[A22] one request's outcome**: its result line, and the stream's clocks (the CLI
+/// prints the line; the tests and the A/B read the rest)
+#[derive(Clone, Debug)]
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) struct ServeOutcome {
+    /// the request's index in the stream (its line's, blank lines skipped)
+    pub q: usize,
+    /// `proved`, `refused` or `bad-request`
+    pub status: &'static str,
+    pub out: Option<PathBuf>,
+    pub proved: Option<ServeProved>,
+    /// seconds since the stream's start: the line read, the sealing turn entered, the
+    /// sealing side done, the prover entered, the prover left, the result made
+    pub at: [f64; 6],
+    /// the result line
+    pub line: String,
+    /// TEST BUILDS ONLY: a refusal's detail (the CLI keeps it in the owner's private log only)
+    #[cfg(test)]
+    pub detail: Option<String>,
+}
+
+/// [A22] the longest request line read (an argument error beyond it)
+const MAX_REQUEST_LINE: usize = 64 * 1024;
+
+/// [A22] one request line: `{"out": DIR, "seq": ID | "seq_dir": DIR, "id": TEXT}` (the
+/// input's fields are the model's), strictly parsed
+struct Request<I> {
+    id: Option<String>,
+    out: PathBuf,
+    input: I,
+}
+
+fn request_of<M: ServeModel>(m: &M, line: &str) -> Result<Request<M::Input>, String> {
+    if line.len() > MAX_REQUEST_LINE {
+        return Err(format!("the request line is longer than {MAX_REQUEST_LINE} bytes"));
+    }
+    let j = parse_json(line.as_bytes()).map_err(|e| format!("the request line is not JSON: {e}"))?;
+    let kv = j.obj().map_err(|_| "the request line is not a JSON object".to_string())?;
+    for (k, _) in kv {
+        if k != "out" && k != "id" && !m.input_keys().contains(&k.as_str()) {
+            return Err(format!("the request line has an unknown field {} (its fields: out, id, {})", js(k), m.input_keys().join(", ")));
+        }
+    }
+    let out = PathBuf::from(j.get("out").and_then(J::str).map_err(|e| format!("out: {e}"))?);
+    if out.as_os_str().is_empty() {
+        return Err("out is empty".into());
+    }
+    let id = match j.opt("id") {
+        None => None,
+        Some(v) => {
+            let s = v.str().map_err(|e| format!("id: {e}"))?;
+            if s.len() > 256 {
+                return Err("id is longer than 256 bytes".into());
+            }
+            Some(s.to_string())
+        }
+    };
+    let input = m.input_of(&j)?;
+    Ok(Request { id, out, input })
+}
+
+/// [A22] a number for a JSON line, `null` when it is not finite (the resident high-water
+/// mark is NaN where `/proc/self/status` does not exist, as on macOS)
+fn jnum(x: f64, digits: usize) -> String {
+    if x.is_finite() {
+        format!("{x:.digits$}")
+    } else {
+        "null".to_string()
+    }
+}
+
+/// [A22] the result line of a request `stack-prove` would have refused: D65(2)'s one
+/// constant external refusal (the command `stack-serve`), with the request's index and
+/// its own id; the detail goes to the owner's private log only
+fn refused_line(q: usize, id: Option<&str>) -> String {
+    format!(
+        "{{\"event\":\"served\",\"request\":{q},\"id\":{},\"status\":\"refused\",\"command\":\"stack-serve\",\"error\":{},\"detail\":\"owner-private\"}}",
+        id.map_or_else(|| "null".to_string(), js),
+        js(refusal::EXTERNAL_REFUSAL)
+    )
+}
+
+/// **[A22] one request of a stream**, on its lane: the request line; the sealing turn;
+/// the run directory claimed for this stream; [`Resident::prove_one`] with this
+/// request's turns; the result line (a refusal's detail to the owner's private log)
+#[allow(clippy::too_many_arguments)]
+fn serve_one<M: ServeModel>(res: &Resident<'_, M>, cfg: &ServeCfg, seal: &Turn, prove: &Turn, claimed: &std::sync::Mutex<std::collections::HashSet<PathBuf>>, q: usize, line: &str, t_read: f64, t0: Instant) -> ServeOutcome {
+    let turns = RequestTurns::new(seal, prove, q, t0);
+    let now = || t0.elapsed().as_secs_f64();
+    let mut at = [t_read, f64::NAN, f64::NAN, f64::NAN, f64::NAN, f64::NAN];
+    let req = match request_of(res.m, line) {
+        Ok(r) => r,
+        Err(e) => {
+            drop(turns);
+            at[5] = now();
+            let line = format!("{{\"event\":\"served\",\"request\":{q},\"status\":\"bad-request\",\"error\":{}}}", js(&e));
+            return ServeOutcome {
+                q,
+                status: "bad-request",
+                out: None,
+                proved: None,
+                at,
+                line,
+                #[cfg(test)]
+                detail: Some(e),
+            };
+        }
+    };
+    seal.enter(q);
+    at[1] = now();
+    // a run directory an earlier request of this stream named is refused as an existing one
+    let fresh_out = claimed.lock().unwrap_or_else(|e| e.into_inner()).insert(req.out.clone());
+    let r = if fresh_out {
+        #[cfg(test)]
+        let _setup = cfg.lane_setup.as_ref().map(|f| f(q, &req.out));
+        res.prove_one(&req.input, &req.out, cfg, Some(&turns as &dyn D55Turn))
+    } else {
+        Err(format!("{} is the run directory of an earlier request of this stream; the run directory must be new", req.out.display()))
+    };
+    let ts = turns.times();
+    drop(turns);
+    at[2] = ts[0];
+    at[3] = ts[1];
+    at[4] = ts[2];
+    at[5] = now();
+    let id = req.id.as_deref();
+    match r {
+        Ok(p) => {
+            let tm = &p.times;
+            let line = format!(
+                "{{\"event\":\"served\",\"request\":{q},\"id\":{},\"status\":\"proved\",\"out\":{},\"statement_dir\":{},\"statement_identity\":{},\"receipt_bytes\":{},\"frames\":{},\"d55_test_receipt_not_for_publication\":{},\"sealing_pass_seconds\":{},\"prove_call_seconds\":{},\"receipt_write_seconds\":{},\"prove_run_seconds\":{},\"waited_for_the_prover_seconds\":{},\"latency_seconds\":{},\"vmhwm_mib\":{}}}",
+                id.map_or_else(|| "null".to_string(), js),
+                js(&req.out.display().to_string()),
+                js(&p.statement_dir.display().to_string()),
+                js(&p.identity),
+                p.receipt_bytes,
+                p.frames,
+                cfg.test_receipt,
+                jnum(tm.seal_s, 3),
+                jnum(tm.fork.total_s, 3),
+                jnum(tm.write_s, 3),
+                jnum(tm.prove_s, 3),
+                jnum((at[3] - at[2]).max(0.0), 3),
+                jnum(at[5] - at[0], 3),
+                jnum(peak_rss_mib(), 0)
+            );
+            ServeOutcome {
+                q,
+                status: "proved",
+                out: Some(req.out),
+                proved: Some(p),
+                at,
+                line,
+                #[cfg(test)]
+                detail: None,
+            }
+        }
+        Err(e) => {
+            if let Some(dir) = refusal::private_log_dir() {
+                let _ = refusal::log_private_at(&dir, "stack-serve", &e);
+            }
+            ServeOutcome {
+                q,
+                status: "refused",
+                out: Some(req.out),
+                proved: None,
+                at,
+                line: refused_line(q, id),
+                #[cfg(test)]
+                detail: Some(e),
+            }
+        }
+    }
+}
+
+/// **[A22] THE STREAM**: a reader thread takes the request lines in order (blank lines
+/// skipped); `cfg.lanes` lanes each take the next request and serve it ([`serve_one`]);
+/// the calling thread emits each result line in request order. Returns every outcome, in
+/// request order, once the lines have ended and every request has its result.
+pub(crate) fn serve_stream<M: ServeModel>(res: &Resident<'_, M>, cfg: &ServeCfg, lines: impl Iterator<Item = String> + Send, emit: &mut dyn FnMut(&str)) -> Vec<ServeOutcome> {
+    let t0 = Instant::now();
+    let (seal, prove) = (Turn::new(), Turn::new());
+    let claimed = std::sync::Mutex::new(std::collections::HashSet::new());
+    let lanes = cfg.lanes.max(1);
+    // the reader reads at most `lanes` lines ahead of the lanes (a line is a few bytes)
+    let (req_tx, req_rx) = std::sync::mpsc::sync_channel::<(usize, String, f64)>(lanes);
+    let req_rx = std::sync::Mutex::new(req_rx);
+    let (out_tx, out_rx) = std::sync::mpsc::channel::<ServeOutcome>();
+    let mut all = Vec::new();
+    std::thread::scope(|s| {
+        s.spawn(move || {
+            let mut q = 0usize;
+            for line in lines {
+                if line.trim().is_empty() {
+                    continue;
+                }
+                if req_tx.send((q, line, t0.elapsed().as_secs_f64())).is_err() {
+                    break;
+                }
+                q += 1;
+            }
+        });
+        for _ in 0..lanes {
+            let out_tx = out_tx.clone();
+            let (seal, prove, claimed, req_rx) = (&seal, &prove, &claimed, &req_rx);
+            s.spawn(move || loop {
+                let next = req_rx.lock().unwrap_or_else(|e| e.into_inner()).recv();
+                let Ok((q, line, t_read)) = next else { break };
+                let o = serve_one(res, cfg, seal, prove, claimed, q, &line, t_read, t0);
+                if out_tx.send(o).is_err() {
+                    break;
+                }
+            });
+        }
+        drop(out_tx);
+        // the results, in request order
+        let mut pending: std::collections::BTreeMap<usize, ServeOutcome> = std::collections::BTreeMap::new();
+        for o in out_rx {
+            pending.insert(o.q, o);
+            while let Some(o) = pending.remove(&all.len()) {
+                emit(&o.line);
+                all.push(o);
+            }
+        }
+    });
+    all
+}
+
+/// `stack-serve`'s flags: `stack-prove`'s model flags and D55 flags, and no request's
+const SERVE_FLAGS: [&str; 5] = ["--export", "--layers", "--label", "--witness-cache-gib", "--d55-workers"];
+const SERVE_SWITCHES: [&str; 3] = ["--rope-from-export", "--dd", D55_TEST_RECEIPT_FLAG];
+
+/// **[A22] `stack-serve`'s startup checks**, `stack-prove`'s in its order but for a
+/// request's (`--seq` / `--seq-dir`, `--out`): the label, the witness budget, the D55
+/// workers (required), D60 review F3's admission, the GPU's liveness, the export,
+/// `--dd`, the layers, `--rope-from-export`, the run constants and the shape
+fn export_serve_of(f: &[(String, String)]) -> Result<(ExportServe, ServeCfg), String> {
+    let export = PathBuf::from(need(f, "--export")?);
+    let label = label_of(f, &STACK_LABELS)?.to_string();
+    let budget_gib: f64 = match flag(f, "--witness-cache-gib") {
+        Some(v) => v.parse().map_err(|_| "--witness-cache-gib is not a number")?,
+        None if cfg!(not(test)) => default_witness_cache_gib(),
+        None => 4.0,
+    };
+    if !(0.0..=64.0).contains(&budget_gib) {
+        return Err("--witness-cache-gib is outside 0..=64".into());
+    }
+    let workers = d55_workers_of(f)?.ok_or("stack-serve proves production's D55 path: --d55-workers N is required")?;
+    // D60 review F3: fails CLOSED until the real-content privacy gate has passed, unless
+    // the operator acknowledges TEST receipts (refused here, before anything is read)
+    let test_receipt = d55_prove_admission(Some(workers), flag(f, D55_TEST_RECEIPT_FLAG).is_some(), run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED)?;
+    crate::gpu::require_live()?;
+    let mut ex = TrainedExport::load(&export)?;
+    if flag(f, "--dd").is_some() {
+        ex.enable_dd()?;
+    }
+    let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
+    let rope = flag(f, "--rope-from-export").is_some();
+    let c = ex.run_constants(&layers)?;
+    let sh = ex.shape_for(&c)?;
+    let cfg = ServeCfg {
+        workers,
+        budget: (budget_gib * (1u64 << 30) as f64) as u64,
+        test_receipt,
+        lanes: a22_lanes(),
+        #[cfg(test)]
+        lane_setup: None,
+    };
+    Ok((ExportServe { ex, layers, rope, label, c, sh }, cfg))
+}
+
+/// [A22] the startup line: what `stack-prove`'s `prover_start` and `loaded` events say
+/// of the model, and the server's settings
+fn serve_start_line<M: ServeModel>(res: &Resident<'_, M>, cfg: &ServeCfg) -> String {
+    let (m, layers) = (res.model(), res.model().layers());
+    format!(
+        "{{\"event\":\"serve-start\",\"command\":\"stack-serve\",\"gpu\":{},\"hl_gpu_required\":{},\"hl_gpu\":{},\"variant\":{},\"layers\":\"{}..{}\",\"blocks\":{},\"statement_identity\":{},\"startup_seconds\":{},\"d55_workers\":{},\"witness_cache_bytes\":{},\"lanes\":{},\"d55_window\":{},\"digest_ahead\":{},\"d55_test_receipt_not_for_publication\":{},\"scope\":{},\"vmhwm_mib\":{}}}",
+        js(&crate::gpu::label()),
+        crate::gpu::required(),
+        js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into())),
+        js(m.variant()),
+        layers[0],
+        layers[layers.len() - 1] + 1,
+        layers.len(),
+        js(&hex(&res.identity())),
+        jnum(res.startup_seconds(), 3),
+        cfg.workers,
+        cfg.budget,
+        cfg.lanes,
+        run::fork::ahead_window(),
+        a22_digest_ahead(),
+        cfg.test_receipt,
+        js(m.scope()),
+        jnum(peak_rss_mib(), 0)
+    )
+}
+
+/// [A22] the end line: the counts and the stream's seconds
+fn serve_end_line(outs: &[ServeOutcome], seconds: f64) -> String {
+    let n = |s: &str| outs.iter().filter(|o| o.status == s).count();
+    format!("{{\"event\":\"serve-end\",\"requests\":{},\"proved\":{},\"refused\":{},\"bad_requests\":{},\"seconds\":{},\"vmhwm_mib\":{}}}", outs.len(), n("proved"), n("refused"), n("bad-request"), jnum(seconds, 3), jnum(peak_rss_mib(), 0))
+}
+
+/// [A22] the startup, the stream over `lines` and the end line, every line to `emit`
+fn stack_serve_inner(f: &[(String, String)], lines: impl Iterator<Item = String> + Send, emit: &mut dyn FnMut(&str), #[cfg(test)] lane_setup: Option<A22LaneSetup>) -> Result<Vec<ServeOutcome>, String> {
+    #[allow(unused_mut)]
+    let (model, mut cfg) = export_serve_of(f)?;
+    #[cfg(test)]
+    {
+        cfg.lane_setup = lane_setup;
+    }
+    let res = Resident::start(&model)?;
+    emit(&serve_start_line(&res, &cfg));
+    let t = Instant::now();
+    let outs = serve_stream(&res, &cfg, lines, emit);
+    emit(&serve_end_line(&outs, t.elapsed().as_secs_f64()));
+    Ok(outs)
+}
+
+/// **[A22] `stack-serve --export DIR --d55-workers N --d55-test-receipt-not-for-publication
+/// [--layers A..B] [--label L] [--rope-from-export] [--dd] [--witness-cache-gib G]`**
+///
+/// Production's D55 path (`stack-prove --d55-workers N`) as a long-lived process: the
+/// export loaded and checked once, then one request per line on stdin and one result
+/// line per request on stdout, in request order. A request is a JSON object:
+/// `{"out": DIR, "seq": ID}` or `{"out": DIR, "seq_dir": DIR}`, with an optional
+/// `"id"` (text, echoed). `out` must not exist (nor `<out>.unverified-statement`).
+/// Each request's run directory and unverified statement are `stack-prove`'s, and
+/// `stack-verify --d55-workers` verifies them unchanged. Result lines: `serve-start`
+/// (after the startup), one `served` line per request (`status` `proved`, `refused` —
+/// D65(2)'s constant refusal, the detail in the owner's private log — or `bad-request`,
+/// an argument error about the line's form), and `serve-end` at the end of stdin.
+/// A refused or failed request leaves no run directory and the stream carries on.
+/// Exit 0 after the stream; 1 if the startup is refused; 2 for bad arguments. stdout
+/// from a run on a hidden input is prover-private (privacy review P-6), as
+/// `stack-prove`'s.
+pub fn trained_stack_serve_command(args: &[String]) -> i32 {
+    let f = match flags(args, &SERVE_FLAGS, &SERVE_SWITCHES) {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("zk60_trained_block stack-serve: {e}");
+            return 2;
+        }
+    };
+    use std::io::BufRead;
+    let input = std::io::BufReader::new(std::io::stdin());
+    let mut emit = |l: &str| println!("{l}");
+    #[cfg(not(test))]
+    let r = stack_serve_inner(&f, input.lines().map_while(Result::ok), &mut emit);
+    #[cfg(test)]
+    let r = stack_serve_inner(&f, input.lines().map_while(Result::ok), &mut emit, None);
+    match r {
+        Ok(_) => 0,
+        // D65(2): one constant external refusal; the detail goes to the owner's private log
+        Err(e) => refusal::refuse("stack-serve", &e),
+    }
+}
+
+/// TEST BUILDS ONLY: `stack-serve` in process over `lines`: every line it emits, and the
+/// outcomes (a startup refusal's detail as the error)
+#[cfg(test)]
+pub(crate) fn stack_serve_for_tests(args: &[String], lines: Vec<String>, lane_setup: Option<A22LaneSetup>) -> Result<(Vec<String>, Vec<ServeOutcome>), String> {
+    let f = flags(args, &SERVE_FLAGS, &SERVE_SWITCHES)?;
+    let mut emitted = Vec::new();
+    let outs = stack_serve_inner(&f, lines.into_iter(), &mut |l: &str| emitted.push(l.to_string()), lane_setup)?;
+    Ok((emitted, outs))
+}
+
+/// [A22] TEST ONLY: the sealing pass over one request's view of a resident model, as
+/// [`a20_seal_summary_for_tests`]'s line (everything `seal_chain` returns but its clocks)
+#[cfg(test)]
+pub(crate) fn a22_seal_summary_for_tests<M: ServeModel>(res: &Resident<'_, M>, input: &M::Input, budget_bytes: u64) -> Result<(String, usize), String> {
+    a20_seal_summary_for_tests(&Served { res, input, fresh: a22_digest_ahead() }, budget_bytes)
+}
+
+/// [A22] TEST ONLY: [`a22_seal_summary_for_tests`] on `stack-serve`'s resident export
+/// (its startup from `export`, every layer) and the export's sequence `seq`, beside
+/// [`a20_export_seal_summary_for_tests`] (`stack-prove`'s model) for the byte comparison
+#[cfg(test)]
+pub(crate) fn a22_resident_export_seal_summary_for_tests(export: &Path, seq: &str, budget_bytes: u64) -> Result<(String, usize), String> {
+    let args: Vec<String> = ["--export", &export.display().to_string(), "--d55-workers", "2", D55_TEST_RECEIPT_FLAG].iter().map(|s| s.to_string()).collect();
+    let (model, _) = export_serve_of(&flags(&args, &SERVE_FLAGS, &SERVE_SWITCHES)?)?;
+    let res = Resident::start(&model)?;
+    a22_seal_summary_for_tests(&res, &SeqSource::InExport(seq.to_string()), budget_bytes)
+}
+
+// ---------------------------------------- [A22] end
 
 /// **NATIVE R6 (review r5 finding r5_A, (c) and (d)).** A statement directory
 /// as found: a REAL directory (a symbolic link is refused by name, never

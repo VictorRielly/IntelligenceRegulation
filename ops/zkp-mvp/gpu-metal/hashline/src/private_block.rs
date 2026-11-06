@@ -146,7 +146,7 @@ mod trained_statement;
 // from a calibration export and adds no protocol code.
 mod trained_block;
 pub mod tied_tables;
-pub use trained_block::{trained_prove_command, trained_stack_prove_command, trained_stack_verify_command, trained_verify_command};
+pub use trained_block::{trained_prove_command, trained_stack_prove_command, trained_stack_serve_command, trained_stack_verify_command, trained_verify_command};
 // TOKEN I/O LANE (2026-10-19): the token-I/O run's CLI bridge
 // (`examples/zk60_token_io.rs`): a CALLER of the token run, like the above
 pub use token_io::cli::{token_input_owner_command, token_owner_command, token_profile_command, token_prove_command, token_verify_command};
