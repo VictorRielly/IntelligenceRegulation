@@ -2087,6 +2087,8 @@ struct GpuArm {
     a16: Option<u32>,
     /// A16: `prod`: every witness through production's `build_for_block`
     prod: bool,
+    /// A18: the table forms, the registry record, A13's window (see [`A18Arm`])
+    a18: A18Arm,
 }
 
 // ---- [A14] the A/B words of efficiency plan A14 (the forks' remaining host work) ----
@@ -2422,7 +2424,7 @@ fn a16_seal_arm(spec: &str) -> Option<(Option<A15Seal>, Option<u32>, bool)> {
 // ---- end of [A16] ----
 
 fn gpu_arm(spec: &str) -> Option<GpuArm> {
-    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default(), seal: None, a17: (None, None), a16: None, prod: false };
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default(), seal: None, a17: (None, None), a16: None, prod: false, a18: A18Arm::default() };
     for w in spec.split('+').map(str::trim) {
         if let Some(t) = w.strip_prefix("fp").and_then(|t| t.parse::<usize>().ok()) {
             a.fork_pool = Some(t);
@@ -2443,6 +2445,10 @@ fn gpu_arm(spec: &str) -> Option<GpuArm> {
         }
         // [A16]
         if a16_word(&mut a.a16, &mut a.prod, w) {
+            continue;
+        }
+        // [A18]
+        if a18_word(&mut a.a18, w) {
             continue;
         }
         match w {
@@ -2720,6 +2726,41 @@ fn d55_ab_one_request_serial_against_forks() {
         let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
         // [A15] the sealing pass in the pool the arm (or the environment) names, and its CPU
         let sealer = A15Sealer::now();
+        // [A18] A13's window: the sealing pass through `prove_run_with_forks_sealing`, each
+        // witness handed over as it is built and the first W forks' before-challenge parts
+        // made beside it (no byte changes)
+        if ahead_window() > 0 {
+            let mem = A18Mem::start();
+            let (u0, h0) = (usage_now(), tl_start());
+            let t = Instant::now();
+            let (mut seal, mut us) = (0.0f64, None);
+            let (rc, stats) = prove_run_with_forks_sealing(&fr, &rep, owners, n, |push| {
+                let mut pls = Vec::with_capacity(l);
+                let mut x = xs[0].clone();
+                for k in 0..l {
+                    let w = sealer.run(|| build(&x)).expect("the chain was admissible");
+                    let out = w.output().unwrap();
+                    x = unpad(&sh, &out);
+                    if k + 1 < l {
+                        pls.push(out);
+                    }
+                    push(k, w)?;
+                }
+                seal = t.elapsed().as_secs_f64();
+                us = Some(usage_now().since(u0));
+                Ok(Chain { witnesses: (0..l).map(|_| None).collect(), planes: pls, tamper: None })
+            })
+            .expect("the D55 fork run proves (sealing pass on the clock, before-challenge parts beside it)");
+            let wall = t.elapsed().as_secs_f64();
+            let mem = mem.stop();
+            tl_report(&format!("A18 sealing pass with its parts N{n} [{}]", a11_arm_label()), h0, seal, None);
+            a18_sealed_report(&name, l, n, &a11_arm_label(), wall, seal, us.expect("the sealing pass ran"), &stats, &sealer.label(), mem);
+            if verify {
+                verify_run_with_forks(&fr, &rep, &rc, 6).expect("the D55 fork run verifies (sealing pass on the clock, before-challenge parts beside it)");
+                eprintln!("D55-AB {name} L{l} forks N{n} SEALED: verified (D55 verifier, 6 threads)");
+            }
+            return (wall, seal, rc.bytes());
+        }
         let (u0, h0) = (usage_now(), tl_start());
         let t = Instant::now();
         let (mut ws, mut pls) = (Vec::with_capacity(l), Vec::with_capacity(l));
@@ -2754,11 +2795,16 @@ fn d55_ab_one_request_serial_against_forks() {
     // and the receipts with their contexts, verified by the caller after the clock.
     let pipe: usize = env_or("HL_D55_PIPE", 0usize);
     let piped = |ctx0: u8, n: usize, r: usize| -> (f64, Vec<f64>, Vec<f64>, Vec<(RunStatement, ForkReceipt)>) {
+        // [A18] `stsl` (or A13's window, which needs it): each request's statement made
+        // on the sealing thread; with a window its sealing pass makes its forks'
+        // before-challenge parts beside it (`seal_ahead`); and the stream's footprint
+        let (stsl, window) = (a18_stsl(), ahead_window());
+        let mem = if stsl { Some(A18Mem::start()) } else { None };
         let t = Instant::now();
-        let (tx, rx) = std::sync::mpsc::sync_channel::<(usize, Vec<Option<Witness>>, Vec<Vec<i16>>, f64)>(1);
+        let (tx, rx) = std::sync::mpsc::sync_channel::<(usize, Option<(RunStatement, Endpoints)>, A18Sealed, f64)>(1);
         let (mut done, mut lat, mut rcs) = (Vec::new(), Vec::new(), Vec::new());
         std::thread::scope(|sc| {
-            let (xs, build, sh) = (&xs, &build, &sh);
+            let (xs, build, sh, statement, rep_r) = (&xs, &build, &sh, &statement, &rep);
             // [A15] the arm's label for the sealing thread's lines
             let (name, arm) = (&name, a11_arm_label());
             sc.spawn(move || {
@@ -2766,33 +2812,68 @@ fn d55_ab_one_request_serial_against_forks() {
                     let t_in = t.elapsed().as_secs_f64();
                     // [A15] the sealing pass in the pool in force (beside the forks' own pools)
                     let sealer = A15Sealer::now();
-                    let (mut ws, mut pls) = (Vec::with_capacity(l), Vec::with_capacity(l));
-                    let mut x = xs[0].clone();
-                    for k in 0..l {
-                        let w = sealer.run(|| build(&x)).expect("the chain was admissible");
-                        let out = w.output().unwrap();
-                        x = unpad(sh, &out);
-                        if k + 1 < l {
-                            pls.push(out);
+                    // [A18] the statement is kept with its receipt (`statement` draws fresh
+                    // endpoint commitments on every call, so a rebuilt one would be another run)
+                    let made = if stsl { Some(statement(ctx0.wrapping_add(q as u8))) } else { None };
+                    let seal_all = |push: &mut dyn FnMut(usize, Witness) -> Result<(), String>| -> Result<Vec<Vec<i16>>, String> {
+                        let mut pls = Vec::with_capacity(l);
+                        let mut x = xs[0].clone();
+                        for k in 0..l {
+                            let w = sealer.run(|| build(&x)).expect("the chain was admissible");
+                            let out = w.output().unwrap();
+                            x = unpad(sh, &out);
+                            if k + 1 < l {
+                                pls.push(out);
+                            }
+                            push(k, w)?;
                         }
-                        ws.push(Some(w));
-                    }
+                        Ok(pls)
+                    };
+                    let sealed = match &made {
+                        Some((st, _)) if window > 0 => {
+                            let fr = ForkRun::new(st, D55OptIn::unreviewed_prototype()).unwrap();
+                            let (ahead, pls) = seal_ahead(&fr, rep_r, seal_all).expect("the stream's sealing pass with its before-challenge parts");
+                            eprintln!("D55-AB A18 PIPE-SEAL {name} L{l} N{n} [{arm}] request {q}: sealing pass with its parts {:.3} s; {} parts parked, holding {:.2} GB on the host", t.elapsed().as_secs_f64() - t_in, ahead.parked, ahead.host_bytes as f64 / 1e9);
+                            A18Sealed::Ahead(ahead, pls)
+                        }
+                        _ => {
+                            let mut ws = Vec::with_capacity(l);
+                            let pls = seal_all(&mut |_, w| {
+                                ws.push(Some(w));
+                                Ok(())
+                            })
+                            .expect("the stream's sealing pass");
+                            A18Sealed::Whole(ws, pls)
+                        }
+                    };
                     eprintln!("D55-AB A15 PIPE-SEAL {name} L{l} N{n} [{arm}] request {q}: sealing pass {:.3} s in {}", t.elapsed().as_secs_f64() - t_in, sealer.label());
-                    if tx.send((q, ws, pls, t_in)).is_err() {
+                    if tx.send((q, made, sealed, t_in)).is_err() {
                         break;
                     }
                 }
             });
             for _ in 0..r {
-                let (q, ws, pls, t_in) = rx.recv().expect("a sealed request");
-                let ctx = ctx0.wrapping_add(q as u8);
+                let (q, made, sealed, t_in) = rx.recv().expect("a sealed request");
                 // the statement is kept with its receipt: `statement` draws fresh endpoint
                 // commitments on every call, so a rebuilt one would be another run
-                let (st, owners) = statement(ctx);
+                let (st, owners) = match made {
+                    Some(m) => m,
+                    None => statement(ctx0.wrapping_add(q as u8)),
+                };
                 let rc = {
                     let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
-                    let mut src = Chain { witnesses: ws, planes: pls, tamper: None };
-                    prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves (stream)").0
+                    match sealed {
+                        A18Sealed::Whole(ws, pls) => {
+                            let mut src = Chain { witnesses: ws, planes: pls, tamper: None };
+                            prove_run_with_forks(&fr, &rep, &mut src, owners, n)
+                        }
+                        A18Sealed::Ahead(ahead, pls) => {
+                            let mut src = Chain { witnesses: (0..l).map(|_| None).collect(), planes: pls, tamper: None };
+                            prove_run_with_forks_ahead(&fr, &rep, ahead, &mut src, owners, n)
+                        }
+                    }
+                    .expect("the D55 fork run proves (stream)")
+                    .0
                 };
                 let now = t.elapsed().as_secs_f64();
                 done.push(now);
@@ -2800,7 +2881,12 @@ fn d55_ab_one_request_serial_against_forks() {
                 rcs.push((st, rc));
             }
         });
-        (t.elapsed().as_secs_f64(), done, lat, rcs)
+        let wall = t.elapsed().as_secs_f64();
+        if let Some(mem) = mem {
+            let (f0, peak, f1) = mem.stop();
+            eprintln!("D55-AB A18 PIPE-MEM {name} L{l} N{n} [{}]: {r} requests in {wall:.3} s; footprint start {f0:.1} GiB, peak {peak:.1} GiB, end {f1:.1} GiB", a11_arm_label());
+        }
+        (wall, done, lat, rcs)
     };
     // [A15] `HL_A15_SEAL_AB=<arms>` (A15's words `sp<t>`, `spauto`, `spg`): the sealing pass
     // ALONE, `HL_A15_SEAL_PASSES` passes (default 3), each arm once per pass (reversed in
@@ -3100,6 +3186,8 @@ fn d55_ab_one_request_serial_against_forks() {
                 a17_apply(a.a17);
                 // [A16]
                 a16_apply(a.a16, a.prod);
+                // [A18]
+                a18_apply(&a.a18);
                 if a.fork_pool == Some(usize::MAX) {
                     set_fork_pool_auto_for_test();
                 } else {
@@ -3167,6 +3255,8 @@ fn d55_ab_one_request_serial_against_forks() {
         a17_apply((None, None));
         // [A16]
         a16_apply(None, false);
+        // [A18]
+        a18_apply(&A18Arm::default());
         a11_set_arm("");
         set_fork_pool_for_test(None);
     }
@@ -3308,3 +3398,550 @@ fn d55_ab_one_request_serial_against_forks() {
     }
     eprintln!("D55-AB {name} L{l}: total {:.1} s", t0.elapsed().as_secs_f64());
 }
+
+// ---- [A18] the forks' host work, and A13's before-challenge parts on the new base (efficiency plan A18) ----
+//
+// The harness's arm words (joinable with every other word) and the byte tests of
+// A13's port. `protocol.rs`'s two forms: `tabinv0` / `tabinv1` (the table helpers
+// inverted again, or read from the inverse tables already made), `registry0` /
+// `registry1` (`define` re-checks its block's registry per slot, or the
+// preflight's record stands in); `a18old` / `a18new` both off / on (`a18def`, the
+// default, is `a18new`). A13's window
+// (`run_fork.rs`, `HL_D55_AHEAD`): `noahead` / `ahead<W>`, `aw<k>` side workers,
+// `ap<t>` threads each, `qos<q>`; and `stsl`: a stream's statements made on its
+// sealing thread (forced by any window; the harness before A18 made them on the
+// prover thread), so a window can be compared at an equal statement placement.
+
+/// **[A18]** one arm's A18 words (see the block comment above)
+#[derive(Clone, Copy, Debug, Default)]
+struct A18Arm {
+    tabinv: Option<bool>,
+    registry: Option<bool>,
+    ahead: [Option<usize>; 4],
+    stsl: bool,
+}
+
+/// [A18] one `+`-joined word of an arm, if it is A18's. `a18old`: both forms
+/// off (the code before A18); `a18new` and `a18def` (the default): both on. (The
+/// stage-3 / stage-5 words `pubtab*` and `tabpar*` were for two forms measured and
+/// removed; the results' README, section 4.)
+fn a18_word(a: &mut A18Arm, w: &str) -> bool {
+    let all = |a: &mut A18Arm, t: bool, r: bool| {
+        a.tabinv = Some(t);
+        a.registry = Some(r);
+    };
+    match w {
+        "tabinv0" => a.tabinv = Some(false),
+        "tabinv1" => a.tabinv = Some(true),
+        "registry0" => a.registry = Some(false),
+        "registry1" => a.registry = Some(true),
+        "a18old" => all(a, false, false),
+        "a18new" | "a18def" => all(a, true, true),
+        "noahead" => a.ahead[0] = Some(0),
+        "stsl" => a.stsl = true,
+        _ => {
+            for (p, i) in [("ahead", 0usize), ("aw", 1), ("ap", 2), ("qos", 3)] {
+                if let Some(v) = w.strip_prefix(p).and_then(|t| t.parse::<usize>().ok()) {
+                    a.ahead[i] = Some(v);
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    true
+}
+
+/// [A18] `stsl` in force (the stream's sealing thread reads it)
+static A18_STSL: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// [A18] put an arm's words in force for the whole process; `A18Arm::default()`
+/// restores the environment's
+#[cfg_attr(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))), allow(dead_code))]
+fn a18_apply(a: &A18Arm) {
+    crate::private_block::protocol::set_a18_for_test(a.tabinv, a.registry);
+    set_ahead_for_test(a.ahead[0], a.ahead[1], a.ahead[2]);
+    set_ahead_qos_for_test(a.ahead[3]);
+    A18_STSL.store(a.stsl, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [A18] whether a stream's statements are made on its sealing thread
+fn a18_stsl() -> bool {
+    A18_STSL.load(std::sync::atomic::Ordering::Relaxed) || ahead_window() > 0
+}
+
+/// [A18] (A13's) this process's physical footprint in GiB (macOS
+/// `proc_pid_rusage`, `ri_phys_footprint`, which counts Metal's shared buffers;
+/// NaN elsewhere)
+fn a18_footprint_gib() -> f64 {
+    #[cfg(target_os = "macos")]
+    {
+        extern "C" {
+            fn proc_pid_rusage(pid: i32, flavor: i32, buffer: *mut u64) -> i32;
+            fn getpid() -> i32;
+        }
+        // RUSAGE_INFO_V2: a 16-byte uuid, then u64 fields; ri_phys_footprint is the 8th
+        let mut b = [0u64; 64];
+        // SAFETY: fills at most sizeof(rusage_info_v2) = 152 bytes of the 512-byte buffer
+        if unsafe { proc_pid_rusage(getpid(), 2, b.as_mut_ptr()) } == 0 {
+            return b[9] as f64 / (1u64 << 30) as f64;
+        }
+    }
+    f64::NAN
+}
+
+/// [A18] (A13's) the footprint at the start of a call, its peak (sampled every
+/// 10 ms on a side thread) and at the end
+struct A18Mem {
+    f0: f64,
+    stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    h: std::thread::JoinHandle<f64>,
+}
+
+impl A18Mem {
+    fn start() -> A18Mem {
+        let f0 = a18_footprint_gib();
+        let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let s = stop.clone();
+        let h = std::thread::spawn(move || {
+            let mut peak = f0;
+            while !s.load(std::sync::atomic::Ordering::Relaxed) {
+                peak = peak.max(a18_footprint_gib());
+                std::thread::sleep(std::time::Duration::from_millis(10));
+            }
+            peak
+        });
+        A18Mem { f0, stop, h }
+    }
+    fn stop(self) -> (f64, f64, f64) {
+        self.stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        let f1 = a18_footprint_gib();
+        let peak = self.h.join().unwrap_or(f64::NAN).max(f1);
+        (self.f0, peak, f1)
+    }
+}
+
+/// [A18] one request from its input with A13's window: A13's SEALED line (with
+/// the forks parked, the parts taken back whole, the feeder's wait and the
+/// footprint; `a13/seal_pairs.py`) and A15's (`a15/seal_pairs.py`)
+#[allow(clippy::too_many_arguments)]
+fn a18_sealed_report(name: &str, l: usize, n: usize, arm: &str, wall: f64, seal: f64, u: Usage, st: &ForkStats, pool: &str, mem: (f64, f64, f64)) {
+    let cpu = u.user + u.sys;
+    let mean = |v: &[f64]| if v.is_empty() { f64::NAN } else { v.iter().sum::<f64>() / v.len() as f64 };
+    let parked: Vec<f64> = st.fork_before_s.iter().filter(|(_, p)| *p).map(|(s, _)| *s).collect();
+    let inline: Vec<f64> = st.fork_before_s.iter().filter(|(_, p)| !*p).map(|(s, _)| *s).collect();
+    eprintln!(
+        "D55-AB A13 SEALED {name} L{l} N{n} [{arm}]: wall {wall:.3} s; sealing pass {seal:.3} s ({:.1} cores busy, {cpu:.1} CPU-s); prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3} s; {}/{l} forks parked ({} queued parts taken back whole), feeder waited {:.3} s; before-challenge parts: parked mean {:.1} ms (sum {:.2} s), in a fork mean {:.1} ms (sum {:.2} s); footprint start {:.1} GiB, peak {:.1} GiB, end {:.1} GiB",
+        cpu / seal.max(1e-9),
+        st.total_s,
+        st.preflight_s,
+        st.commit_s,
+        st.forks_s,
+        st.join_s,
+        st.ahead_parked,
+        st.ahead_taken_back,
+        st.ahead_wait_s,
+        1e3 * mean(&parked),
+        parked.iter().sum::<f64>(),
+        1e3 * mean(&inline),
+        inline.iter().sum::<f64>(),
+        mem.0,
+        mem.1,
+        mem.2
+    );
+    eprintln!(
+        "D55-AB A15 SEALED {name} L{l} N{n} [{arm}]: sealing pass {seal:.3} s in {pool}: user {:.2} s + sys {:.2} s = {:.1} cores; csw voluntary {}, involuntary {}; minor faults {}",
+        u.user,
+        u.sys,
+        cpu / seal.max(1e-9),
+        u.nvcsw,
+        u.nivcsw,
+        u.minflt
+    );
+}
+
+/// [A18] a stream's sealed request: its witnesses whole, or its forks'
+/// before-challenge parts made beside the sealing pass (`seal_ahead`)
+enum A18Sealed {
+    Whole(Vec<Option<Witness>>, Vec<Vec<i16>>),
+    Ahead(ForkAhead, Vec<Vec<i16>>),
+}
+
+// ---- [A18] the byte tests of A13's port: a parked fork is the same fork, byte for byte ----
+//
+// A D55 receipt cannot be made twice: its generators are the operating system's
+// and its endpoint owners are consumed (and have no `Clone`, by design). So the
+// tests hold the randomness fixed with `run_fork.rs`'s test-only seeded
+// generators ([`SeededForks`]: the commit phase's and every fork's replaced,
+// right after construction, by [`a18_seeded`]) and compare what CAN be compared
+// on one statement (A13's `run_fork_a13_tests.rs`, ported onto A14-A17):
+// * **all forks, directly** ([`a18_check_direct`]): on one statement, one
+//   commit phase and the preflight's records, every fork `k` proved whole
+//   against the same fork with its before-challenge part made first on other
+//   threads in rayon pools of 1, 2 and 6, PARKED, moved and finished in reverse
+//   block order on yet other threads: the fork frame, the end state and the
+//   joined claims, byte for byte;
+// * **the real paths** ([`a18_check_paths`]): `prove_run_with_forks` (no
+//   window), `prove_run_with_forks_sealing` and `seal_ahead` (on another thread,
+//   as a stream's sealing thread runs it) then `prove_run_with_forks_ahead`, at
+//   several windows, fork-worker counts, side-worker counts and side pools. Each
+//   receipt verifies, its head is the replayed commit phase's, its forks parked
+//   are the window's, and each interior fork equals that fork recomputed the
+//   OTHER way.
+// Both at the W16R2 rung, under the A17 and A18 forms in force (the defaults):
+// on the CPU in the suite, and on the Metal device (ignored; run alone by name).
+
+const A18_SEED: u64 = 20261105;
+
+/// the seeded generator these tests install in place of generator `k`
+/// (`usize::MAX`: the commit phase's)
+fn a18_seeded(seed: u64, k: usize) -> ZkRng {
+    let mut d = b"a13 byte test: the seeded generator of fork ".to_vec();
+    d.extend_from_slice(&(k as u64).to_le_bytes());
+    ZkRng::new(seed, &d)
+}
+
+/// the D55 harness's fixture at a W16R2 profile: ONE public synthetic block at
+/// every layer and the honest chain from M10's admissible input
+struct A18Fix {
+    sh: crate::private_block::shape::Shape,
+    blk: BlockPublic,
+    xs: Vec<Vec<i16>>,
+    planes: Vec<Vec<i16>>,
+    input: Vec<i16>,
+    output: Vec<i16>,
+    model: TrainedModelStatement,
+    run_profile: &'static str,
+    l: usize,
+}
+
+impl A18Fix {
+    fn new(profile: &str, l: usize) -> A18Fix {
+        use crate::private_block::shape;
+        let original = crate::private_block::range16_tests::built(profile);
+        let (sh, data, public, ff) = crate::private_block::range16_tests::case(original, 3);
+        let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+        let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+        let mut s = 0usize;
+        let x0 = loop {
+            let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+            match build(&input) {
+                Ok(_) => break input,
+                Err(_) if s < 6 => s += 1,
+                Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+            }
+        };
+        let ids = Ids::new(&sh).unwrap();
+        let (mut xs, mut planes, mut input, mut output) = (vec![x0], Vec::new(), Vec::new(), Vec::new());
+        for k in 0..l {
+            let w = build(&xs[k]).unwrap_or_else(|e| panic!("{}: layer {k} of the synthetic chain is not admissible: {e}", sh.name));
+            if k == 0 {
+                input = w.planes[ids.at(A_X)].iter().map(|&v| v as i16).collect();
+            }
+            let out = w.output().unwrap();
+            xs.push(unpad(&sh, &out));
+            if k + 1 < l {
+                planes.push(out);
+            } else {
+                output = out;
+            }
+        }
+        let run_profile = crate::private_block::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().find(|(_, b)| *b == sh.profile).map(|(r, _)| *r).expect("a W16R2 test-only run identity");
+        let mut prov = Provenance::recipe("A18 byte test fixture (public synthetic)", 1.0, [3; 32], [4; 32]);
+        prov.rope_theta = shape::trained_rope_theta(sh.profile).expect("the profile's pinned RoPE base");
+        prov.rope_scaling = shape::trained_rope_scaling(sh.profile).expect("the profile's pinned RoPE transform");
+        let source = ModelSource { kind: SourceKind::PublicSyntheticRecipe, repo: "synthetic/a18".into(), revision: "a18".into(), weights_sha256: [0; 32], config_sha256: [0; 32], checkpoint_parameters: 0, checkpoint_layers: l as u32 };
+        let r0 = LayerRecord::of_block(0, &blk, vec![]);
+        let records: Vec<LayerRecord> = (0..l)
+            .map(|i| {
+                let mut r = r0.clone();
+                r.index = i as u32;
+                r
+            })
+            .collect();
+        let model = TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&sh, run_profile, source, IntegerCalibration::as_the_code_proves(&sh, &prov), records).unwrap();
+        A18Fix { sh, blk, xs, planes, input, output, model, run_profile, l }
+    }
+
+    fn witness(&self, k: usize) -> Witness {
+        let data = self.blk.accuracy().expect("an accuracy block");
+        witness::build_accuracy(&self.sh, self.blk.attention(), self.blk.feed_forward(), data, &self.xs[k]).expect("the chain was admissible")
+    }
+
+    /// a fresh statement (its endpoint commitments drawn anew) and its owners
+    fn statement(&self, ctx: u8) -> (RunStatement, Endpoints) {
+        let c = [ctx; 32];
+        let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&self.sh, c, 0, 0).unwrap(), &self.input, &self.output).unwrap();
+        let st = RunStatement::new_bound_from_digests(RunShape::new(self.sh.clone(), self.l, self.run_profile).unwrap(), c, expected, vec![self.blk.digest(); self.l], &vec![(0, 0); self.l], &self.model).unwrap();
+        (st, owners)
+    }
+
+    /// every boundary plane only (every witness handed over)
+    fn planes_only(&self) -> Chain {
+        Chain { witnesses: (0..self.l).map(|_| None).collect(), planes: self.planes.clone(), tamper: None }
+    }
+
+    /// every witness and boundary plane, kept whole
+    fn whole(&self) -> Chain {
+        Chain { witnesses: (0..self.l).map(|k| Some(self.witness(k))).collect(), planes: self.planes.clone(), tamper: None }
+    }
+}
+
+/// the commit phase replayed with the seeded commit generator: the boundary
+/// owners, their roots, the binding and the head those make
+fn a18_commit_phase(fr: &ForkRun, fix: &A18Fix, ntt: &NttTables) -> (Vec<PreparedBoundary>, Vec<Digest>, Digest, Vec<u8>) {
+    let st = fr.st;
+    let l = st.rs.l;
+    let tag = st.rs.sh.hash_tag();
+    let mut rng0 = seeded_generator(usize::MAX).expect("a SeededForks guard is live");
+    let bounds: Vec<PreparedBoundary> = (0..l - 1).map(|k| boundary::prepare(&st.boundary_spec(k).unwrap(), &words(&fix.planes[k]), ntt, &mut rng0, &tag).unwrap()).collect();
+    let roots: Vec<Digest> = bounds.iter().map(|p| p.root()).collect();
+    let mut tr = fr.transcript().unwrap();
+    let binding = tr.state();
+    absorb_commit(&mut tr, st, &roots, None).unwrap();
+    let head = fw::encode_head(&binding, l, &roots, &position_tag(&tr)).unwrap();
+    (bounds, roots, binding, head)
+}
+
+fn a18_whole_out(d: Done) -> ForkOut {
+    match d {
+        Done::Out(o) => o,
+        Done::Parked(_) => panic!("a fork parked after the commit phase"),
+    }
+}
+
+fn a18_parked_of(d: Done) -> Box<Parked> {
+    match d {
+        Done::Parked(p) => p,
+        Done::Out(_) => panic!("a fork finished before the commit phase"),
+    }
+}
+
+fn a18_pool(t: usize) -> rayon::ThreadPool {
+    rayon::ThreadPoolBuilder::new().num_threads(t).build().expect("a rayon pool")
+}
+
+/// the same fork, compared: its frame, its end state and its joined claims
+fn a18_same(what: &str, a: &ForkOut, b: &ForkOut) {
+    assert_eq!(a.k, b.k, "{what}: two forks compared");
+    assert!(a.bytes == b.bytes, "{what}: fork {}'s frames differ ({} B against {} B)", a.k, a.bytes.len(), b.bytes.len());
+    assert_eq!(a.end, b.end, "{what}: fork {}'s end states differ", a.k);
+    assert_eq!([claim_bytes(&a.claims[0]), claim_bytes(&a.claims[1])], [claim_bytes(&b.claims[0]), claim_bytes(&b.claims[1])], "{what}: fork {}'s joined claims differ", a.k);
+}
+
+/// **All forks, directly**: on one statement, one commit phase and the
+/// preflight's records, each fork whole against the same fork parked (its part
+/// made on another thread in a pool of `parts` threads, all of them at once)
+/// and finished in reverse block order on other threads in a pool of `finish`.
+/// Returns a summary line.
+fn a18_check_direct(fix: &A18Fix) -> String {
+    let _seeded = SeededForks::on(A18_SEED, a18_seeded);
+    let hooks = ForkHooks::capture();
+    let (st, owners) = fix.statement(7);
+    let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+    let l = st.rs.l;
+    let [ein, eout] = protocol::check_endpoints(&st.rs.sh, &st.expected, owners).unwrap();
+    let ntt = NttTables::new(st.rs.ntt_log());
+    let (bounds, roots, binding, _) = a18_commit_phase(&fr, fix, &ntt);
+    let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { &ein.data[..] } else { bounds[k - 1].data() }).collect();
+    let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].data() }).collect();
+    let blocks = RepeatBlock::new(&fix.blk, l);
+    let checked = preflight(&st, &blocks, true).expect("the preflight passes");
+    let late = ForkCtx { fr: &fr, blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { checked: &checked, roots: &roots, in_data, out_data, binding }) };
+    let early = ForkCtx { fr: &fr, blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
+    let whole: Vec<ForkOut> = (0..l).map(|k| a18_whole_out(late.prove_one(k, fix.witness(k)).unwrap())).collect();
+    let mut sizes = Vec::new();
+    for (parts, finish) in [(1usize, 1usize), (2, 3), (6, 2)] {
+        let (pp, pf) = (a18_pool(parts), a18_pool(finish));
+        let parked: Vec<Box<Parked>> = std::thread::scope(|s| {
+            let hs: Vec<_> = (0..l)
+                .map(|k| {
+                    let (early, pp) = (&early, &pp);
+                    s.spawn(move || {
+                        let _h = hooks.install();
+                        pp.install(|| {
+                            let _h = hooks.install();
+                            early.prove_one(k, fix.witness(k))
+                        })
+                    })
+                })
+                .collect();
+            hs.into_iter().map(|h| a18_parked_of(h.join().expect("a part's thread").expect("a fork's before-challenge part"))).collect()
+        });
+        assert!(parked.iter().enumerate().all(|(k, p)| p.k == k && p.sealing), "the parts are not each block's, parked");
+        let mut outs: Vec<ForkOut> = std::thread::scope(|s| {
+            let hs: Vec<_> = parked
+                .into_iter()
+                .rev()
+                .map(|p| {
+                    let (late, pf) = (&late, &pf);
+                    s.spawn(move || {
+                        let _h = hooks.install();
+                        pf.install(|| {
+                            let _h = hooks.install();
+                            late.finish_one(*p)
+                        })
+                    })
+                })
+                .collect();
+            hs.into_iter().map(|h| h.join().expect("a finishing thread").expect("a parked fork's rest")).collect()
+        });
+        outs.sort_by_key(|o| o.k);
+        for (a, b) in whole.iter().zip(&outs) {
+            a18_same(&format!("parts in a pool of {parts}, finished in a pool of {finish}"), a, b);
+        }
+        sizes.push(format!("{parts}/{finish}"));
+    }
+    format!("{} L{l}: all {l} forks parked (parts / finish pools {}) equal the whole forks byte for byte ({} B of fork frames)", fix.sh.name, sizes.join(", "), whole.iter().map(|o| o.bytes.len()).sum::<usize>())
+}
+
+/// the interior forks of `rc` (both IO commitments boundaries) recomputed the
+/// other way on its own statement's replayed commit phase: whole if
+/// `parked_in_rc`, else parked on another thread and finished here
+fn a18_recompute_interior(fr: &ForkRun, fix: &A18Fix, rc: &ForkReceipt, parked_in_rc: bool, hooks: ForkHooks) {
+    let l = fr.st.rs.l;
+    let ntt = NttTables::new(fr.st.rs.ntt_log());
+    let (bounds, roots, binding, head) = a18_commit_phase(fr, fix, &ntt);
+    assert!(head == rc.head, "the replayed commit phase is not the receipt's head");
+    let none: &[Fp] = &[];
+    let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { none } else { bounds[k - 1].data() }).collect();
+    let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { none } else { bounds[k].data() }).collect();
+    let blocks = RepeatBlock::new(&fix.blk, l);
+    let checked = preflight(fr.st, &blocks, true).expect("the preflight passes");
+    let late = ForkCtx { fr, blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { checked: &checked, roots: &roots, in_data, out_data, binding }) };
+    let early = ForkCtx { fr, blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
+    let p3 = a18_pool(3);
+    for k in 1..l - 1 {
+        let o = if parked_in_rc {
+            a18_whole_out(late.prove_one(k, fix.witness(k)).unwrap())
+        } else {
+            let p = std::thread::scope(|s| {
+                let (early, p3) = (&early, &p3);
+                s.spawn(move || {
+                    let _h = hooks.install();
+                    p3.install(|| {
+                        let _h = hooks.install();
+                        early.prove_one(k, fix.witness(k))
+                    })
+                })
+                .join()
+                .expect("a part's thread")
+            });
+            late.finish_one(*a18_parked_of(p.unwrap())).unwrap()
+        };
+        assert!(o.bytes == rc.forks[k], "fork {k} of a receipt made {} is not that fork made {}", if parked_in_rc { "with parts" } else { "whole" }, if parked_in_rc { "whole" } else { "parked" });
+    }
+}
+
+/// **The real paths**, at `n` fork workers, each window and each
+/// `(side workers, side pool threads)`. Returns the summary lines.
+fn a18_check_paths(fix: &A18Fix, ns: &[usize], windows: &[usize], sides: &[(usize, usize)]) -> Vec<String> {
+    let _seeded = SeededForks::on(A18_SEED, a18_seeded);
+    let hooks = ForkHooks::capture();
+    let l = fix.l;
+    let blocks = RepeatBlock::new(&fix.blk, l);
+    let mut ctx = 40u8;
+    let mut lines = Vec::new();
+    let mut prove = |path: &str, n: usize, window: usize, side: (usize, usize)| -> (usize, usize) {
+        set_ahead_for_test(Some(window), Some(side.0), Some(side.1));
+        ctx = ctx.wrapping_add(1);
+        let (st, owners) = fix.statement(ctx);
+        let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+        let (rc, stats) = match path {
+            "whole" => prove_run_with_forks(&fr, &blocks, &mut fix.whole(), owners, n),
+            "sealing" => prove_run_with_forks_sealing(&fr, &blocks, owners, n, |push| {
+                for k in 0..l {
+                    push(k, fix.witness(k))?;
+                }
+                Ok(fix.planes_only())
+            }),
+            _ => {
+                // a stream's: the sealing pass and its parts on another thread
+                let ahead = std::thread::scope(|s| {
+                    let (fr, blocks) = (&fr, &blocks);
+                    s.spawn(move || {
+                        let _h = hooks.install();
+                        seal_ahead(fr, blocks, |push| {
+                            for k in 0..l {
+                                push(k, fix.witness(k))?;
+                            }
+                            Ok(())
+                        })
+                    })
+                    .join()
+                    .expect("the sealing thread")
+                })
+                .expect("the sealing pass with its parts")
+                .0;
+                prove_run_with_forks_ahead(&fr, &blocks, ahead, &mut fix.planes_only(), owners, n)
+            }
+        }
+        .unwrap_or_else(|e| panic!("{path} N{n} window {window}: the fork run proves: {e}"));
+        set_ahead_for_test(None, None, None);
+        verify_run_with_forks(&fr, &blocks, &rc, 2).unwrap_or_else(|e| panic!("{path} N{n} window {window}: the receipt verifies: {e}"));
+        let want = if path == "whole" { 0 } else { window.min(l) };
+        // one request's form hands a part not yet started when the forks run back
+        // to its fork whole; a stream's (`seal_ahead`) makes every part first
+        let handed = if path == "sealing" { stats.ahead_parked + stats.ahead_taken_back } else { stats.ahead_parked };
+        assert_eq!(handed, want, "{path} N{n} window {window}: forks parked (and parts taken back whole)");
+        assert!(path == "sealing" || stats.ahead_taken_back == 0, "{path}: a part was taken back");
+        assert_eq!(stats.generators, l + 1, "{path}: L + 1 generators");
+        assert!(stats.fork_hooks.iter().all(|h| h.seeded == Some(A18_SEED)), "{path}: a fork did not hold the seeded switch");
+        a18_recompute_interior(&fr, fix, &rc, stats.ahead_parked > 0, hooks);
+        (rc.bytes(), stats.ahead_parked)
+    };
+    for &n in ns {
+        let (bytes, _) = prove("whole", n, 0, (1, 0));
+        lines.push(format!("{} L{l} N{n} whole: {bytes} B, verified; its interior forks parked equal it", fix.sh.name));
+        for &w in windows {
+            for &side in sides {
+                for path in ["sealing", "seal_ahead"] {
+                    let (b, parked) = prove(path, n, w, side);
+                    assert_eq!(b, bytes, "{path}: the receipt's size moved");
+                    lines.push(format!("{} L{l} N{n} {path} window {w} side {side:?}: {parked} parked, {b} B, verified; its interior forks whole equal it", fix.sh.name));
+                }
+            }
+        }
+    }
+    lines
+}
+
+/// **[A18] A13's parked forks equal whole forks, byte for byte, at the W16R2
+/// rung, on the CPU** (in the suite): A13's byte test on the A14-A17 base, every
+/// fork beside the preflight's record
+#[test]
+fn a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung() {
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4);
+    eprintln!("A18-BYTES {}", a18_check_direct(&fix));
+    for line in a18_check_paths(&fix, &[1, 3], &[1, 4, 9], &[(1, 0), (2, 3)]) {
+        eprintln!("A18-BYTES {line}");
+    }
+}
+
+/// **[A18] the same on the Metal device** (`A`'s commitment made by a side
+/// worker on the device, finished by a fork worker), and under the A18 forms
+/// off and on: toggles `HL_GPU` in-process, so it is ignored and run alone by
+/// name
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A18: toggles HL_GPU and the A18 forms in-process; run alone by name on a Mac"]
+fn a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung_on_the_device() {
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4);
+    std::env::set_var("HL_GPU", "1");
+    let before = crate::gpu::metal_sumcheck_stats().1;
+    let mut lines = Vec::new();
+    for (label, on) in [("a18old", false), ("a18new", true)] {
+        crate::private_block::protocol::set_a18_for_test(Some(on), Some(on));
+        lines.push(format!("[{label}] {}", a18_check_direct(&fix)));
+        lines.extend(a18_check_paths(&fix, &[1, 3, 6], &[2, 4], &[(1, 0), (2, 3), (3, 6)]).into_iter().map(|s| format!("[{label}] {s}")));
+    }
+    crate::private_block::protocol::set_a18_for_test(None, None);
+    let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+    std::env::remove_var("HL_GPU");
+    for line in lines {
+        eprintln!("A18-BYTES (Metal) {line}");
+    }
+    assert!(ran > 0.0, "no sumcheck round ran on the device");
+}
+
+// ---- end of [A18] ----

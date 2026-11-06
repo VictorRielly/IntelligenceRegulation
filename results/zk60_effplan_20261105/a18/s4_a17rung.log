@@ -1,0 +1,9 @@
+test private_block::w16r2_tests::a17_w16r2_rung_golden_under_every_a17_setting ... A17-RUNG W16R2_RUNG_H24 CPU [a17old]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 CPU [looked1 only]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 CPU [checked1 only]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 CPU [a17new]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 Metal [a17old]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 Metal [looked1 only]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 Metal [checked1 only]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+A17-RUNG W16R2_RUNG_H24 Metal [a17new]: digest 96e4f0b6 through prove_core and through prove_core_with beside the record (the golden)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 9.03s

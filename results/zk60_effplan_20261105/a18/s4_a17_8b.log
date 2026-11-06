@@ -1,0 +1,10 @@
+test private_block::w16r2_tests::a17_the_8b_block_proves_the_same_under_every_a17_setting ... A17-8B [a17old through prove_core] 0.622 s (cold), digest 90003b760eb7ad80
+A17-8B [a17old] two proofs in 0.902 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [looked1 only] two proofs in 0.836 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [checked1 only] two proofs in 0.849 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [a17new] two proofs in 0.835 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [a17old] two proofs in 0.854 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [looked1 only] two proofs in 0.850 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [checked1 only] two proofs in 0.844 s, digest 90003b760eb7ad80 each (equal)
+A17-8B [a17new] two proofs in 0.825 s, digest 90003b760eb7ad80 each (equal)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 8.09s

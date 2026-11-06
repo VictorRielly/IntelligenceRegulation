@@ -1,0 +1,116 @@
+2026-11-06T02:25:46Z start
+2026-11-06T02:25:46Z build rc=0
+2026-11-06T02:25:46Z GPU quiet (no ds4-bench): phases
+2026-11-06T02:28:47Z phases rc=0
+2026-11-06T02:28:47Z no ds4-bench at the end of phases
+# A18 phase clock, ms per block (mean over passes), N = 6 (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s5_d55_phases.log)
+
+| phase | a18old+phases | a18old+tabinv1+phases | a18old+tabinv1+tabpar1+phases | a18old+pubtab1+phases | a18old+registry1+phases |
+|---|---:|---:|---:|---:|---:|
+| A: allocate + witness planes -> committed rows | 23.12 | 23.10 (-0.02) | 22.16 (-0.96) | 24.18 (+1.06) | 24.97 (+1.85) |
+| A: lookup values + the byte histogram | 14.93 | 15.06 (+0.14) | 15.64 (+0.72) | 15.47 (+0.54) | 15.08 (+0.15) |
+| A: exp/act indices + their two histograms | 2.97 | 2.92 (-0.04) | 2.93 (-0.04) | 3.07 (+0.10) | 2.81 (-0.16) |
+| A: mask + proximity rows (fresh randomness) | 11.48 | 11.27 (-0.21) | 11.62 (+0.13) | 11.22 (-0.26) | 11.16 (-0.32) |
+| A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | 65.63 | 65.89 (+0.26) | 69.55 (+3.92) | 66.35 (+0.72) | 66.69 (+1.06) |
+| M: mask commit (zk::mask_commit, ONE call) | 3.81 | 3.83 (+0.02) | 3.83 (+0.02) | 3.84 (+0.03) | 3.90 (+0.09) |
+| H: LogUp helper inverses (six lookup domains) | 23.35 | 22.88 (-0.47) | 22.27 (-1.08) | 23.21 (-0.14) | 22.57 (-0.78) |
+| H: exp + activation helper inverses | 12.38 | 12.32 (-0.06) | 12.38 (-0.00) | 12.10 (-0.28) | 12.29 (-0.10) |
+| H: release the four witness buffers (S2 drops) | 5.44 | 4.57 (-0.87) | 4.79 (-0.65) | 4.96 (-0.48) | 4.59 (-0.84) |
+| H: the three table helpers | 4.65 | 0.78 (-3.87) | 0.73 (-3.92) | 4.62 (-0.03) | 4.66 (+0.01) |
+| H: mask rows + the zero-sum rows | 4.73 | 4.74 (+0.01) | 4.72 (-0.00) | 4.75 (+0.02) | 4.75 (+0.02) |
+| H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | 42.74 | 44.01 (+1.26) | 47.03 (+4.29) | 43.68 (+0.93) | 43.95 (+1.21) |
+| slot 00 01 SS row sums norm_a (private) | 17.57 | 18.57 (+1.00) | 19.08 (+1.51) | 17.58 (+0.01) | 17.97 (+0.41) |
+| slot 01 01m SS row sums norm_m (private) | 12.04 | 12.07 (+0.03) | 11.87 (-0.17) | 11.29 (-0.75) | 11.87 (-0.17) |
+| slot 02 02 norm squares zero-check (hosts 01, 01m) | 0.57 | 0.57 (-0.00) | 0.57 (+0.00) | 0.56 (-0.01) | 0.35 (-0.22) |
+| slot 03 08 limb zero-check | 6.76 | 6.62 (-0.14) | 6.28 (-0.48) | 7.93 (+1.17) | 6.96 (+0.20) |
+| slot 04 07 masked row sums + selector (private) | 10.96 | 11.82 (+0.87) | 9.21 (-1.75) | 9.76 (-1.20) | 12.21 (+1.25) |
+| slot 05 09Q matmul (private) | 2.38 | 2.39 (+0.02) | 2.38 (+0.00) | 2.46 (+0.08) | 2.24 (-0.14) |
+| slot 06 09K matmul (private) | 1.50 | 1.53 (+0.03) | 1.46 (-0.04) | 1.63 (+0.13) | 1.28 (-0.22) |
+| slot 07 09V matmul (private) | 1.51 | 1.50 (-0.01) | 1.52 (+0.01) | 1.59 (+0.08) | 1.27 (-0.24) |
+| slot 08 10 score matmul (private, bilinear) | 1.41 | 1.22 (-0.19) | 1.27 (-0.13) | 1.29 (-0.12) | 1.05 (-0.35) |
+| slot 09 11 PV matmul (private, bilinear) | 1.23 | 1.20 (-0.03) | 1.25 (+0.02) | 1.23 (+0.00) | 0.98 (-0.25) |
+| slot 10 12 Wo matmul (private) | 2.45 | 2.50 (+0.05) | 2.62 (+0.17) | 2.55 (+0.10) | 2.33 (-0.12) |
+| slot 11 13G gate matmul (private) | 5.41 | 5.30 (-0.10) | 5.56 (+0.15) | 5.38 (-0.02) | 5.19 (-0.22) |
+| slot 12 13U up matmul (private) | 5.33 | 5.38 (+0.05) | 5.39 (+0.05) | 5.29 (-0.04) | 5.14 (-0.20) |
+| slot 13 13D down matmul (private) | 8.88 | 8.86 (-0.02) | 8.89 (+0.02) | 8.27 (-0.61) | 8.63 (-0.25) |
+| slot 14 03 D zero-check (hosts 12, 13D) | 47.37 | 49.83 (+2.45) | 51.36 (+3.99) | 50.69 (+3.32) | 47.81 (+0.44) |
+| slot 15 04 Q zero-check (hosts 09Q, 11) | 31.43 | 29.89 (-1.54) | 31.01 (-0.42) | 29.81 (-1.62) | 30.44 (-0.99) |
+| slot 16 05 KV zero-check (hosts 09K, 09V) | 15.35 | 12.47 (-2.88) | 13.05 (-2.29) | 12.89 (-2.45) | 13.38 (-1.97) |
+| slot 17 06 softmax zero-check (hosts 07, 10) | 31.20 | 30.82 (-0.38) | 31.64 (+0.45) | 29.91 (-1.28) | 28.27 (-2.92) |
+| slot 18 14 F zero-check (hosts 13G, 13U) | 99.70 | 96.92 (-2.79) | 101.01 (+1.30) | 102.63 (+2.93) | 96.47 (-3.23) |
+| slot 19 TAB table helper zero-check | 37.59 | 35.20 (-2.38) | 39.50 (+1.92) | 38.19 (+0.60) | 32.57 (-5.02) |
+| slot 20 ZS zero-sum row | 1.72 | 1.43 (-0.29) | 1.56 (-0.16) | 1.64 (-0.08) | 1.05 (-0.67) |
+| slot 21 IO-in endpoint equality | 6.96 | 6.02 (-0.94) | 6.02 (-0.94) | 5.33 (-1.63) | 6.87 (-0.09) |
+| slot 22 IO-out endpoint equality | 2.74 | 4.20 (+1.46) | 2.71 (-0.03) | 2.66 (-0.08) | 4.05 (+1.31) |
+| open M (zk::mask_open, ONE call) | 3.75 | 3.82 (+0.07) | 3.79 (+0.04) | 3.79 (+0.04) | 3.87 (+0.12) |
+| open A (schedule audit + pcs::open_zk) | 27.76 | 29.66 (+1.91) | 27.17 (-0.59) | 28.11 (+0.35) | 31.71 (+3.95) |
+| open H (schedule audit + pcs::open_zk) | 29.21 | 30.04 (+0.82) | 28.45 (-0.76) | 29.24 (+0.03) | 29.77 (+0.56) |
+| ALL PHASES | 628.00 | 621.19 (-6.81) | 632.28 (+4.28) | 629.18 (+1.19) | 621.15 (-6.84) |
+2026-11-06T02:28:47Z GPU quiet (no ds4-bench): pair tabinv1
+2026-11-06T02:30:59Z pair a18old against a18old+tabinv1 rc=0
+2026-11-06T02:30:59Z no ds4-bench at the end of pair tabinv1
+# A11 pairs: [a18old+tabinv1] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s5_pair_tabinv1.log)
+| proof wall s | +2.2% (3, 0) | +0.9% (3, 1) | **+1.6%** | 3.992 / 4.054 |
+| forks phase s | +2.4% (3, 1) | +1.2% (3, 1) | **+1.8%** | 3.611 / 3.675 |
+| user CPU s | +1.3% (3, 0) | +0.8% (3, 1) | **+1.0%** | 40.100 / 40.517 |
+| sys CPU s | +0.9% (3, 1) | +0.5% (3, 1) | **+0.7%** | 4.917 / 4.933 |
+2026-11-06T02:30:59Z GPU quiet (no ds4-bench): pair tabinv1+tabpar1
+2026-11-06T02:33:12Z pair a18old against a18old+tabinv1+tabpar1 rc=0
+2026-11-06T02:33:12Z no ds4-bench at the end of pair tabinv1+tabpar1
+# A11 pairs: [a18old+tabinv1+tabpar1] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s5_pair_tabinv1+tabpar1.log)
+| proof wall s | +0.2% (3, 1) | +2.9% (3, 0) | **+1.6%** | 3.979 / 4.041 |
+| forks phase s | +0.3% (3, 1) | +2.8% (3, 1) | **+1.5%** | 3.602 / 3.656 |
+| user CPU s | +0.9% (3, 0) | +1.7% (3, 0) | **+1.3%** | 39.933 / 40.450 |
+| sys CPU s | +5.8% (3, 2) | +6.7% (3, 1) | **+6.3%** | 4.750 / 5.017 |
+2026-11-06T02:33:12Z GPU quiet (no ds4-bench): pair pubtab1
+2026-11-06T02:35:24Z pair a18old against a18old+pubtab1 rc=0
+2026-11-06T02:35:24Z no ds4-bench at the end of pair pubtab1
+# A11 pairs: [a18old+pubtab1] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s5_pair_pubtab1.log)
+| proof wall s | +1.9% (3, 1) | +0.9% (3, 1) | **+1.4%** | 3.957 / 4.011 |
+| forks phase s | +2.1% (3, 1) | +1.0% (3, 1) | **+1.6%** | 3.580 / 3.635 |
+| user CPU s | +0.6% (3, 1) | +1.0% (3, 0) | **+0.8%** | 39.900 / 40.217 |
+| sys CPU s | +1.0% (3, 2) | +13.6% (3, 0) | **+7.3%** | 4.817 / 5.150 |
+2026-11-06T02:35:24Z GPU quiet (no ds4-bench): pair registry1
+2026-11-06T02:37:35Z pair a18old against a18old+registry1 rc=0
+2026-11-06T02:37:35Z no ds4-bench at the end of pair registry1
+# A11 pairs: [a18old+registry1] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s5_pair_registry1.log)
+| proof wall s | -1.6% (3, 2) | -1.2% (3, 2) | **-1.4%** | 4.024 / 3.966 |
+| forks phase s | -1.5% (3, 2) | -1.6% (3, 2) | **-1.6%** | 3.642 / 3.585 |
+| user CPU s | -0.8% (3, 2) | +0.0% (3, 2) | **-0.4%** | 40.283 / 40.117 |
+| sys CPU s | -11.5% (3, 2) | +1.0% (3, 1) | **-5.3%** | 5.133 / 4.800 |
+2026-11-06T02:37:35Z GPU quiet (no ds4-bench): pair tabinv1+registry1
+2026-11-06T02:39:45Z pair a18old against a18old+tabinv1+registry1 rc=0
+2026-11-06T02:39:45Z no ds4-bench at the end of pair tabinv1+registry1
+# A11 pairs: [a18old+tabinv1+registry1] against [a18old], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s5_pair_tabinv1+registry1.log)
+| proof wall s | -3.0% (3, 3) | -2.2% (3, 2) | **-2.6%** | 4.004 / 3.899 |
+| forks phase s | -3.1% (3, 3) | -2.4% (3, 2) | **-2.7%** | 3.618 / 3.518 |
+| user CPU s | -2.2% (3, 3) | -0.7% (3, 2) | **-1.4%** | 40.250 / 39.667 |
+| sys CPU s | -9.7% (3, 3) | +8.2% (3, 1) | **-0.7%** | 4.933 / 4.850 |
+2026-11-06T02:39:45Z GPU quiet (no ds4-bench): fork pools
+2026-11-06T02:53:21Z fork pools fpauto, fp4, fp5 rc=0
+2026-11-06T02:53:21Z no ds4-bench at the end of fork pools
+# A11 pairs: [fp4] against [fpauto], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s5_pools.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +1.8% (3, 0) | +4.4% (3, 0) | **+3.1%** | 3.949 / 4.071 |
+| forks phase s | +2.1% (3, 0) | +5.0% (3, 0) | **+3.6%** | 3.559 / 3.684 |
+| sealed wall s | +1.6% (3, 0) | +2.5% (3, 0) | **+2.1%** | 5.542 / 5.657 |
+| stream steady tok/s | -2.0% (3, 0) | -2.2% (3, 0) | **-2.1%** | 32.512 / 31.822 |
+| stream amortized tok/s | -2.5% (3, 0) | -1.8% (3, 0) | **-2.2%** | 28.773 / 28.152 |
+| user CPU s | -7.1% (3, 3) | -6.0% (3, 3) | **-6.5%** | 40.150 / 37.517 |
+| sys CPU s | -22.2% (3, 3) | -20.9% (3, 3) | **-21.6%** | 4.950 / 3.850 |
+| minor faults | -0.4% (3, 1) | -1.2% (3, 2) | **-0.8%** | 674,456 / 668,868 |
+# A11 pairs: [fp5] against [fpauto], N = 6, alternating order (/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s5_pools.log)
+
+| metric | base first: mean change (pairs, favour test) | test first: mean change (pairs, favour test) | order bias solved out | means base / test |
+|---|---|---|---|---|
+| proof wall s | +1.6% (3, 1) | +0.9% (3, 2) | **+1.3%** | 3.949 / 3.998 |
+| forks phase s | +1.2% (3, 1) | +0.9% (3, 2) | **+1.0%** | 3.559 / 3.595 |
+| sealed wall s | +1.3% (3, 0) | +1.7% (3, 0) | **+1.5%** | 5.542 / 5.627 |
+| stream steady tok/s | -1.3% (3, 1) | +0.4% (3, 1) | **-0.5%** | 32.512 / 32.347 |
+| stream amortized tok/s | -1.7% (3, 1) | +0.0% (3, 1) | **-0.8%** | 28.773 / 28.537 |
+| user CPU s | -3.5% (3, 3) | -3.7% (3, 3) | **-3.6%** | 40.150 / 38.717 |
+| sys CPU s | -5.0% (3, 1) | -3.2% (3, 2) | **-4.1%** | 4.950 / 4.683 |
+| minor faults | +2.3% (3, 2) | -3.3% (3, 3) | **-0.5%** | 674,456 / 670,175 |
+2026-11-06T02:53:21Z all done

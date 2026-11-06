@@ -265,18 +265,21 @@ pub(crate) struct ForkHooks {
     pub drop_fork_index: bool,
     /// D60 review F8 (b): every fork's proof panics ([`PanicInEveryFork`])
     pub panic_in_fork: bool,
+    /// [A13] the byte tests' seeded generators ([`SeededForks`])
+    pub seeded: Option<u64>,
 }
 
 #[cfg(test)]
 impl ForkHooks {
     pub(crate) fn capture() -> ForkHooks {
-        ForkHooks { block: protocol::ThreadHooks::capture(), drop_fork_index: DROP_FORK_INDEX.with(|c| c.get()), panic_in_fork: PANIC_IN_FORK.with(|c| c.get()) }
+        ForkHooks { block: protocol::ThreadHooks::capture(), drop_fork_index: DROP_FORK_INDEX.with(|c| c.get()), panic_in_fork: PANIC_IN_FORK.with(|c| c.get()), seeded: SEEDED_FORKS.with(|c| c.get()) }
     }
     fn install(self) -> ForkHooksGuard {
         let block = self.block.install();
         let was = DROP_FORK_INDEX.with(|c| c.replace(self.drop_fork_index));
         let was_panic = PANIC_IN_FORK.with(|c| c.replace(self.panic_in_fork));
-        ForkHooksGuard { _block: block, was, was_panic }
+        let was_seeded = SEEDED_FORKS.with(|c| c.replace(self.seeded));
+        ForkHooksGuard { _block: block, was, was_panic, was_seeded }
     }
 }
 
@@ -285,6 +288,7 @@ struct ForkHooksGuard {
     _block: protocol::ThreadHooksGuard,
     was: bool,
     was_panic: bool,
+    was_seeded: Option<u64>,
 }
 
 #[cfg(test)]
@@ -292,7 +296,54 @@ impl Drop for ForkHooksGuard {
     fn drop(&mut self) {
         DROP_FORK_INDEX.with(|c| c.set(self.was));
         PANIC_IN_FORK.with(|c| c.set(self.was_panic));
+        SEEDED_FORKS.with(|c| c.set(self.was_seeded));
     }
+}
+
+// **[A13] TEST BUILDS ONLY: seeded generators for the byte tests.** A D55 fork
+// run's generators are the operating system's, so two runs never share a byte.
+// To compare a fork proved whole with the same fork parked after its
+// before-challenge part, `run_fork_a13_tests.rs` installs (a [`SeededForks`]
+// guard, carried into every worker by [`ForkHooks`]) a seed and a maker: then
+// the commit phase's generator and fork `k`'s are REPLACED, right after their
+// `from_os` construction, by `make(seed, usize::MAX)` and `make(seed, k)`. The
+// maker is the test file's (this file constructs no seeded generator); nothing
+// of this exists in a production build.
+#[cfg(test)]
+thread_local! {
+    static SEEDED_FORKS: std::cell::Cell<Option<u64>> = const { std::cell::Cell::new(None) };
+}
+
+#[cfg(test)]
+static SEEDED_MAKER: std::sync::OnceLock<fn(u64, usize) -> ZkRng> = std::sync::OnceLock::new();
+
+/// [A13] while alive (test builds only), this thread's fork runs use the test
+/// file's seeded generators (see `SEEDED_FORKS`)
+#[cfg(test)]
+pub(crate) struct SeededForks {
+    was: Option<u64>,
+}
+
+#[cfg(test)]
+impl SeededForks {
+    pub(crate) fn on(seed: u64, make: fn(u64, usize) -> ZkRng) -> SeededForks {
+        let _ = SEEDED_MAKER.set(make);
+        SeededForks { was: SEEDED_FORKS.with(|c| c.replace(Some(seed))) }
+    }
+}
+
+#[cfg(test)]
+impl Drop for SeededForks {
+    fn drop(&mut self) {
+        SEEDED_FORKS.with(|c| c.set(self.was));
+    }
+}
+
+/// [A13] (test builds only) the seeded generator that replaces generator `k`
+/// (`usize::MAX`: the commit phase's), when a [`SeededForks`] guard is live
+#[cfg(test)]
+fn seeded_generator(k: usize) -> Option<ZkRng> {
+    SEEDED_FORKS.with(|c| c.get()).and_then(|seed| SEEDED_MAKER.get().map(|make| make(seed, k)))
 }
 
 /// **THE OPT-IN FLAG.** A value of this type is the only way to make a
@@ -433,6 +484,18 @@ pub(crate) struct ForkStats {
     /// D55 review F3: the byte lengths of every fork's two joined claim lists
     /// (`[slot 21, slot 22]`, block order), for the census's formula
     pub join_claim_bytes: Vec<[usize; 2]>,
+    /// [A13] how many forks went on from a before-challenge part made during
+    /// the sealing pass (0 with `HL_D55_AHEAD` off)
+    pub ahead_parked: usize,
+    /// [A13] the seconds the fork feeder waited for a before-challenge part
+    /// still running when its fork was due
+    pub ahead_wait_s: f64,
+    /// [A13] how many parts queued in the window were not started when the
+    /// forks ran, so their forks took them back whole
+    pub ahead_taken_back: usize,
+    /// [A13] each fork's before-challenge seconds, in block order, and
+    /// whether that part ran during the sealing pass
+    pub fork_before_s: Vec<(f64, bool)>,
 }
 
 /// **The malicious-receipt controls the D55 ruling names** (TEST BUILDS
@@ -1101,6 +1164,10 @@ struct ForkOut {
     /// `[slot 21, slot 22]`
     claims: [Vec<ZClaim>; 2],
     core_s: f64,
+    /// [A13] the before-challenge part's seconds (inside `core_s`), and
+    /// whether that part ran during the sealing pass
+    before_s: f64,
+    parked: bool,
     /// the test switches this fork's worker held (F5)
     #[cfg(test)]
     hooks: ForkHooks,
@@ -1142,32 +1209,109 @@ pub(crate) fn thread_cpu_s() -> f64 {
 struct ForkCtx<'c> {
     fr: &'c ForkRun<'c>,
     blocks: &'c dyn ForkBlocks,
+    ntt: &'c NttTables,
+    cheat: Cheat,
+    /// what only exists after the preflight and the commit phase; `None` while
+    /// the forks' before-challenge parts run during the sealing pass ([A13])
+    late: Option<ForkLate<'c>>,
+}
+
+/// the fork workers' inputs made by the preflight and the commit phase
+struct ForkLate<'c> {
     /// [A17] the preflight's record of each block's passed public checks
     checked: &'c [protocol::CheckedPublic<'c>],
     roots: &'c [Digest],
     in_data: Vec<&'c [Fp]>,
     out_data: Vec<&'c [Fp]>,
-    ntt: &'c NttTables,
     binding: Digest,
-    cheat: Cheat,
+}
+
+/// a fork's transcript, opened from `S0` (never `Send`: it stays on the
+/// thread that opened it)
+struct Opened {
+    f: Transcript,
+    #[cfg(test)]
+    start: ([u8; 32], u64),
+    start_tag: [u8; 32],
+}
+
+/// **[A13] One fork after its before-challenge part.** It holds the fork's
+/// ONE generator (built in [`ForkCtx::prove_one`], moved here by value: no
+/// clone, no copy of its state, no second user), the state
+/// `protocol::prove_core_before` returned, and the stage's shape and layout.
+/// A fork that ran its part during the sealing pass is PARKED like this until
+/// the commit phase has made `S0`; then any fork worker takes it, by value,
+/// and finishes it ([`ForkCtx::finish_one`]). Not public: it holds the
+/// witness, the commitments' openings and the generator.
+struct Parked {
+    k: usize,
+    rng: ZkRng,
+    ahead: protocol::CoreAhead,
+    lay: Layout,
+    ssh: Shape,
+    ph: timing::Phases,
+    before_s: f64,
+    /// whether the before-challenge part ran during the sealing pass (then
+    /// the after-part restarts the phase clock, so no row holds the wait)
+    sealing: bool,
+    #[cfg(test)]
+    hooks: ForkHooks,
+    #[cfg(test)]
+    before_cpu_s: f64,
+}
+
+/// [A13] what [`ForkCtx::prove_one`] hands back: a finished fork, or (while
+/// the commit phase has not run) a parked one
+#[cfg_attr(not(test), allow(dead_code))]
+enum Done {
+    Out(ForkOut),
+    Parked(Box<Parked>),
 }
 
 impl ForkCtx<'_> {
-    fn prove_one(&self, k: usize, wit: Witness) -> Result<ForkOut, String> {
+    fn late(&self) -> Result<&ForkLate<'_>, String> {
+        self.late.as_ref().ok_or_else(|| "D55: a fork's transcript was asked for before the commit phase made S0".to_string())
+    }
+
+    /// block `k`'s fork transcript `fork(S0, k)` and its start tag
+    fn open_fork(&self, late: &ForkLate<'_>, k: usize) -> Result<Opened, String> {
+        let (idx, skip, forge) = (self.cheat.fork_index(k), self.cheat.skipped_root(), self.cheat.forge());
+        let f = self.fr.fork(late.roots, idx, skip)?;
+        #[cfg(test)]
+        let start = (f.state(), f.counter());
+        let start_tag = if forge && (idx != k || skip.is_some()) { position_tag(&self.fr.fork(late.roots, k, None)?) } else { position_tag(&f) };
+        Ok(Opened {
+            f,
+            #[cfg(test)]
+            start,
+            start_tag,
+        })
+    }
+
+    /// **One fork.** Its transcript first (when the commit phase has run), its
+    /// ONE generator, the before-challenge part, then the rest on that
+    /// transcript and generator. [A13] Run during the sealing pass (`late` is
+    /// `None`), it stops after the before-challenge part and returns the fork
+    /// PARKED, its generator inside.
+    fn prove_one(&self, k: usize, wit: Witness) -> Result<Done, String> {
         // D60 review F8 (b), test builds only: the every-fork-panics switch
         #[cfg(test)]
         if PANIC_IN_FORK.with(|c| c.get()) {
             panic!("D60 F8 test switch: fork {k}'s worker panics");
         }
         let st = self.fr.st;
-        let l = st.rs.l;
-        let (idx, skip, forge) = (self.cheat.fork_index(k), self.cheat.skipped_root(), self.cheat.forge());
-        let mut f = self.fr.fork(self.roots, idx, skip)?;
-        #[cfg(test)]
-        let start = (f.state(), f.counter());
-        let start_tag = if forge && (idx != k || skip.is_some()) { position_tag(&self.fr.fork(self.roots, k, None)?) } else { position_tag(&f) };
-        // this fork's ONE generator, built here in its worker (F4)
+        let opened = match &self.late {
+            Some(late) => Some(self.open_fork(late, k)?),
+            None => None,
+        };
+        // this fork's ONE generator, built here in its worker (F4); [A13] a
+        // parked fork carries it, by value, to the worker that finishes it
         let mut rng = ZkRng::from_os(&fork_seed_domain(&self.fr.profile, k)).map_err(|e| format!("D55 fork-run randomness: {e}"))?;
+        // [A13] test builds only: the byte tests' seeded generator
+        #[cfg(test)]
+        if let Some(g) = seeded_generator(k) {
+            rng = g;
+        }
         #[cfg(test)]
         let hooks = ForkHooks::capture();
         let lay = st.stage_layout(k)?;
@@ -1178,31 +1322,85 @@ impl ForkCtx<'_> {
         #[cfg(test)]
         let cpu0 = thread_cpu_s();
         // [A17] the preflight's record for block `k`, used only if it is for this
-        // very block object at this shape
-        let hints = protocol::CoreHints { checked: self.checked.get(k) };
+        // very block object at this shape. [A18] During the sealing pass there is
+        // none yet (the preflight has not run): such a part checks its block itself.
+        let hints = protocol::CoreHints { checked: self.late.as_ref().and_then(|late| late.checked.get(k)) };
         let t = Instant::now();
-        let core = protocol::prove_core_with(&ssh, &lay, blk, wit, [self.in_data[k], self.out_data[k]], self.ntt, &mut rng, &mut f, &mut ph, &mut phases, &mut tick, hints)?;
-        let core_s = t.elapsed().as_secs_f64();
+        let ahead = protocol::prove_core_before_with(&ssh, &lay, blk, wit, self.ntt, &mut rng, &mut ph, &mut phases, &mut tick, hints)?;
+        let p = Parked {
+            k,
+            rng,
+            ahead,
+            lay,
+            ssh,
+            ph,
+            before_s: t.elapsed().as_secs_f64(),
+            sealing: opened.is_none(),
+            #[cfg(test)]
+            hooks,
+            #[cfg(test)]
+            before_cpu_s: thread_cpu_s() - cpu0,
+        };
+        match opened {
+            Some(o) => self.finish(p, o, blk).map(Done::Out),
+            None => Ok(Done::Parked(Box::new(p))),
+        }
+    }
+
+    /// [A13] a parked fork, after the commit phase: its transcript, then the
+    /// rest. [A18] The block is asked for again; `prove_core_after_with` refuses
+    /// it unless it is the very object the before-challenge part was made from.
+    fn finish_one(&self, p: Parked) -> Result<ForkOut, String> {
+        let o = self.open_fork(self.late()?, p.k)?;
+        let blk = self.blocks.get(p.k)?;
+        self.finish(p, o, blk)
+    }
+
+    /// everything from the fork's first transcript use: `prove_core_after`,
+    /// then the fork's frame
+    fn finish(&self, p: Parked, o: Opened, blk: &BlockPublic) -> Result<ForkOut, String> {
+        let late = self.late()?;
+        let Parked { k, mut rng, ahead, lay, ssh, ph, before_s, sealing, .. } = p;
+        let l = self.fr.st.rs.l;
+        let mut f = o.f;
+        // a fork parked during the sealing pass gets a fresh clock for its rest
+        // (the rows of both are reported), so no row holds the wait
+        let (mut ph_before, mut ph) = if sealing { (Some(ph), timing::Phases::start()) } else { (None, ph) };
+        let (mut phases, mut tick) = (Vec::new(), Instant::now());
+        // [A17] the preflight's record (read by the rest's registry form, [A18])
+        let hints = protocol::CoreHints { checked: late.checked.get(k) };
         #[cfg(test)]
-        let thread_cpu_s = thread_cpu_s() - cpu0;
+        let cpu0 = thread_cpu_s();
+        let t = Instant::now();
+        let core = protocol::prove_core_after_with(&ssh, &lay, blk, ahead, [late.in_data[k], late.out_data[k]], self.ntt, &mut rng, &mut f, &mut ph, &mut phases, &mut tick, hints)?;
+        drop(rng);
+        let core_s = before_s + t.elapsed().as_secs_f64();
+        #[cfg(test)]
+        let thread_cpu_s = p.before_cpu_s + (thread_cpu_s() - cpu0);
         let end = (f.state(), f.counter());
         let end_tag = position_tag(&f);
         let frame = ForkFrame { a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open };
-        let bytes = fw::encode_fork(&frame, &lay, &self.binding, l, k, &start_tag, &end_tag)?;
+        let bytes = fw::encode_fork(&frame, &lay, &late.binding, l, k, &o.start_tag, &end_tag)?;
+        #[cfg(test)]
+        let phases = ph_before.take().map(|b| b.rows_for_test()).unwrap_or_default().into_iter().chain(ph.rows_for_test()).collect();
+        #[cfg(not(test))]
+        let _ = ph_before.take();
         Ok(ForkOut {
             k,
             bytes,
             #[cfg(test)]
-            start,
+            start: o.start,
             end,
             claims: core.io_claims,
             core_s,
+            before_s,
+            parked: sealing,
             #[cfg(test)]
-            hooks,
+            hooks: p.hooks,
             #[cfg(test)]
             thread_cpu_s,
             #[cfg(test)]
-            phases: ph.rows_for_test(),
+            phases,
         })
     }
 }
@@ -1214,17 +1412,25 @@ impl ForkCtx<'_> {
 /// for every boundary plane first, then for every witness in block order;
 /// at most `workers + 1` witnesses are alive at once.
 pub(crate) fn prove_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
-    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default())
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), None)
 }
 
 /// **A CHEATING FORK-RUN PROVER** for the D55 controls (`tamper`, and whether
 /// it forges the honest position tags where it can). Test builds only.
 #[cfg(test)]
 pub(crate) fn prove_run_with_forks_tampered(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, tamper: ForkTamper, forge_tags: bool) -> Result<(ForkReceipt, ForkStats), String> {
-    prove_forks_inner(fr, blocks, src, externals, workers, Cheat { t: Some((tamper, forge_tags)) })
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat { t: Some((tamper, forge_tags)) }, None)
 }
 
-fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, cheat: Cheat) -> Result<(ForkReceipt, ForkStats), String> {
+/// [A13] the work one fork worker is handed: a witness (the whole fork), a
+/// fork parked after its before-challenge part, or that part's refusal
+enum Job {
+    Raw(Witness),
+    Parked(Box<Parked>),
+    Failed(String),
+}
+
+fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, cheat: Cheat, ahead: Option<&Slots>) -> Result<(ForkReceipt, ForkStats), String> {
     let t_all = Instant::now();
     let st = fr.st;
     let (sh, l) = (&st.rs.sh, st.rs.l);
@@ -1254,6 +1460,11 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let t1 = Instant::now();
     // the commit phase's ONE generator, on this thread (F4)
     let mut rng0 = ZkRng::from_os(&commit_seed_domain(&fr.profile)).map_err(|e| format!("D55 fork-run randomness: {e}"))?;
+    // [A13] test builds only: the byte tests' seeded generator
+    #[cfg(test)]
+    if let Some(g) = seeded_generator(usize::MAX) {
+        rng0 = g;
+    }
     stats.generators = 1;
     let mut bounds: Vec<(BoundarySpec, PreparedBoundary)> = Vec::with_capacity(l - 1);
     for k in 0..l - 1 {
@@ -1274,11 +1485,12 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
 
     // ---------------- PHASE 2: the forks, concurrently
     let t2 = Instant::now();
+    let mut ahead_wait = 0.0f64;
     let mut outs: Vec<ForkOut> = {
         let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { &ein.data[..] } else { bounds[k - 1].1.data() }).collect();
         let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].1.data() }).collect();
-        let ctx = ForkCtx { fr, blocks, checked: &checked, roots: &roots, in_data, out_data, ntt: &ntt, binding, cheat };
-        let (tx, rx) = mpsc::sync_channel::<(usize, Witness)>(0);
+        let ctx = ForkCtx { fr, blocks, ntt: &ntt, cheat, late: Some(ForkLate { checked: &checked, roots: &roots, in_data, out_data, binding }) };
+        let (tx, rx) = mpsc::sync_channel::<(usize, Job)>(0);
         let rx = Mutex::new(rx);
         // [A11] each worker's own rayon pool, or the global one (the default)
         let pools = fork_pools(workers)?;
@@ -1289,18 +1501,32 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                     s.spawn(move || {
                         #[cfg(test)]
                         let _hooks = hooks.install();
+                        // [A13] a witness is the whole fork; a parked fork goes on
+                        // from its before-challenge part; a refused part is the
+                        // fork's error, as it would have been here
+                        let run = |k: usize, job: Job| -> Result<ForkOut, String> {
+                            match job {
+                                Job::Raw(wit) => match ctx.prove_one(k, wit)? {
+                                    Done::Out(o) => Ok(o),
+                                    Done::Parked(_) => Err("D55: a fork parked after the commit phase".into()),
+                                },
+                                Job::Parked(p) if p.k == k => ctx.finish_one(*p),
+                                Job::Parked(_) => Err("D55: a parked fork was handed out as another block's".into()),
+                                Job::Failed(e) => Err(e),
+                            }
+                        };
                         // [A11] the fork's proof on this worker's pool, when it has
                         // one: `install` runs it on a pool thread (which then takes
                         // this worker's test switches too) and every parallel region
                         // inside it on that pool's threads only
-                        let prove = |k: usize, wit: Witness| -> Result<ForkOut, String> {
+                        let prove = |k: usize, job: Job| -> Result<ForkOut, String> {
                             match &pool {
                                 Some(p) => p.install(|| {
                                     #[cfg(test)]
                                     let _hooks = hooks.install();
-                                    ctx.prove_one(k, wit)
+                                    run(k, job)
                                 }),
-                                None => ctx.prove_one(k, wit),
+                                None => run(k, job),
                             }
                         };
                         let mut mine = Vec::new();
@@ -1315,7 +1541,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                                 // panicked). A release build has `panic =
                                 // "abort"`: there a panic ends the process
                                 // (F8 (a)). Both fail closed.
-                                Ok((k, wit)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| prove(k, wit))) {
+                                Ok((k, job)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| prove(k, job))) {
                                     Ok(r) => r.map_err(|e| format!("D55: fork {k}: {e}")),
                                     Err(p) => Err(format!("D55: fork {k}: its worker panicked: {}", p.downcast_ref::<String>().map(String::as_str).or_else(|| p.downcast_ref::<&str>().copied()).unwrap_or("(no message)"))),
                                 }),
@@ -1331,10 +1557,25 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                 })
                 .collect();
             let mut fed: Result<(), String> = Ok(());
+            // [A13] the forks run: the side workers start no new part, and a
+            // part not yet started is taken back whole
+            if let Some(a) = ahead {
+                a.set(|g| g.closing = true);
+            }
             for k in 0..l {
-                match src.witness(k) {
-                    Ok(w) => {
-                        if tx.send((k, w)).is_err() {
+                // [A13] a before-challenge part made during the sealing pass, if
+                // one was (waiting while it still runs), else the source's witness
+                let job = match ahead.map(|a| a.take(k)).transpose() {
+                    Ok(Some((Some(j), waited))) => {
+                        ahead_wait += waited;
+                        Ok(j)
+                    }
+                    Ok(_) => src.witness(k).map(Job::Raw),
+                    Err(e) => Err(e),
+                };
+                match job {
+                    Ok(j) => {
+                        if tx.send((k, j)).is_err() {
                             fed = Err("D55: every fork worker stopped".into());
                             break;
                         }
@@ -1372,6 +1613,10 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     }
     stats.forks_s = t2.elapsed().as_secs_f64();
     stats.fork_core_s = outs.iter().map(|o| o.core_s).collect();
+    stats.ahead_parked = outs.iter().filter(|o| o.parked).count();
+    stats.ahead_wait_s = ahead_wait;
+    stats.ahead_taken_back = ahead.and_then(|a| a.st.lock().ok().map(|g| g.taken_back)).unwrap_or(0);
+    stats.fork_before_s = outs.iter().map(|o| (o.before_s, o.parked)).collect();
     #[cfg(test)]
     {
         stats.fork_hooks = outs.iter().map(|o| o.hooks).collect();
@@ -1428,6 +1673,454 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     stats.total_s = t_all.elapsed().as_secs_f64();
     let forks = outs.into_iter().map(|o| o.bytes).collect();
     Ok((ForkReceipt { head, forks, tail }, stats))
+}
+
+// ---------------------------------------------------------------- [A13] ahead
+//
+// **[A13] Each fork's before-challenge part during the sealing pass**
+// (efficiency plan A13, 2026-11-05). A fork's transcript starts from `S0`, which
+// needs every boundary root, so before A13 no fork started until the whole
+// sealing pass had run. But `protocol::prove_core` uses no transcript until it
+// absorbs `A`'s root: what comes before (`A`'s rows from the witness, the lookups
+// and histograms, the CS-3 refusal, `A`'s mask rows, `A`'s commitment and `M`'s)
+// needs only the block's own witness, shape, layout and public block, and the
+// fork's generator. With a window `W > 0` the first `W` blocks' parts run on
+// `HL_D55_AHEAD_WORKERS` side workers (each on its own rayon pool of
+// `HL_D55_AHEAD_POOL` threads) as soon as the caller's sealing pass hands their
+// witnesses over; each fork is then PARKED ([`Parked`]) until the commit phase
+// has made `S0`, and the fork workers go on from it.
+//
+// **Why no byte can move.** Every fork is the same calls on the same inputs in
+// the same order: `prove_core` is `prove_core_before` then `prove_core_after`
+// (`A`'s root absorbed after `M`'s commitment, which reads no transcript, so the
+// transcript sees the same absorbs), and each fork's ONE generator is built in
+// `ForkCtx::prove_one` under its own per-`k` domain, drawn from in the same order
+// (A's mask rows, A's pads and salts, M's masks, then everything after) and
+// moved, by value, with its parked fork: never cloned, shared or copied, and
+// nothing else draws from it. Which thread or pool runs a part changes no word
+// (A11). The window and the worker counts decide only WHEN a part runs.
+//
+// **Memory.** A parked fork holds the witness, the lookup values, `A`'s
+// commitment (on Metal its encoding and rows on the device too) and `M`'s, so a
+// window of `W` keeps `W` of them alive at the end of the sealing pass
+// (measured per window in `results/zk60_effplan_20261105/a13/`). `W` bounds it;
+// on a 32 GB card a window must be chosen to fit.
+
+/// `HL_D55_AHEAD`: the window (unset or 0: off, the default)
+#[cfg_attr(not(test), allow(dead_code))]
+const DEFAULT_AHEAD_WINDOW: usize = 0;
+/// `HL_D55_AHEAD_WORKERS` unset: the side workers that make the parts
+#[cfg_attr(not(test), allow(dead_code))]
+const DEFAULT_AHEAD_WORKERS: usize = 2;
+/// `HL_D55_AHEAD_POOL` unset: each side worker's pool of threads
+#[cfg_attr(not(test), allow(dead_code))]
+const DEFAULT_AHEAD_POOL: usize = 6;
+
+/// tests: `[window, workers, pool threads, quality of service]`, `usize::MAX` = as the environment says
+#[cfg_attr(not(test), allow(dead_code))]
+static AHEAD_TEST: [AtomicUsize; 4] = [AtomicUsize::new(usize::MAX), AtomicUsize::new(usize::MAX), AtomicUsize::new(usize::MAX), AtomicUsize::new(usize::MAX)];
+
+#[cfg_attr(not(test), allow(dead_code))]
+fn ahead_knob(i: usize, var: &str, default: usize, cell: &'static std::sync::OnceLock<usize>) -> usize {
+    match AHEAD_TEST[i].load(Ordering::Relaxed) {
+        usize::MAX => *cell.get_or_init(|| std::env::var(var).ok().and_then(|v| v.trim().parse::<usize>().ok()).unwrap_or(default)),
+        v => v,
+    }
+}
+
+/// [A13] the window: how many of a fork run's first blocks have their
+/// before-challenge part made during the sealing pass, by a caller that runs
+/// its sealing pass through [`seal_ahead`] or [`prove_run_with_forks_sealing`]
+/// (`HL_D55_AHEAD`; 0, the default, makes none)
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) fn ahead_window() -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    ahead_knob(0, "HL_D55_AHEAD", DEFAULT_AHEAD_WINDOW, &ENV)
+}
+
+#[cfg_attr(not(test), allow(dead_code))]
+fn ahead_workers() -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    ahead_knob(1, "HL_D55_AHEAD_WORKERS", DEFAULT_AHEAD_WORKERS, &ENV).clamp(1, 64)
+}
+
+#[cfg_attr(not(test), allow(dead_code))]
+fn ahead_pool_threads() -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    ahead_knob(2, "HL_D55_AHEAD_POOL", DEFAULT_AHEAD_POOL, &ENV).min(1024)
+}
+
+/// tests: the window, side workers and their pools' threads (`None`: as the
+/// environment says). Changes no byte (see above).
+#[cfg(test)]
+pub(crate) fn set_ahead_for_test(window: Option<usize>, workers: Option<usize>, threads: Option<usize>) {
+    for (i, v) in [window, workers, threads].into_iter().enumerate() {
+        AHEAD_TEST[i].store(v.unwrap_or(usize::MAX), Ordering::Relaxed);
+    }
+}
+
+/// `HL_D55_AHEAD_QOS`: the side workers' macOS quality of service, 0 none
+/// (the default), 1 utility, 2 background (which keeps them on the efficiency
+/// cores, below the sealing pass's threads). Changes no byte.
+#[cfg_attr(not(test), allow(dead_code))]
+fn ahead_qos() -> usize {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    ahead_knob(3, "HL_D55_AHEAD_QOS", 0, &ENV).min(2)
+}
+
+/// tests: the side workers' quality of service (`None`: as the environment says)
+#[cfg(test)]
+pub(crate) fn set_ahead_qos_for_test(qos: Option<usize>) {
+    AHEAD_TEST[3].store(qos.unwrap_or(usize::MAX), Ordering::Relaxed);
+}
+
+/// this thread's macOS quality-of-service class (0: leave it)
+#[cfg_attr(not(test), allow(dead_code))]
+fn set_thread_qos(qos: usize) {
+    #[cfg(target_os = "macos")]
+    {
+        extern "C" {
+            fn pthread_set_qos_class_self_np(qos_class: u32, relative_priority: i32) -> i32;
+        }
+        let class = match qos {
+            1 => 0x11, // QOS_CLASS_UTILITY
+            2 => 0x09, // QOS_CLASS_BACKGROUND
+            _ => return,
+        };
+        // SAFETY: sets the calling thread's own scheduling class; no memory is passed
+        let _ = unsafe { pthread_set_qos_class_self_np(class, 0) };
+    }
+    #[cfg(not(target_os = "macos"))]
+    let _ = qos;
+}
+
+/// the side workers' pools (0 threads: the global pool), made once per
+/// (worker index, thread count, quality of service) and kept for the process,
+/// apart from the fork workers' (a stream's next request makes its parts while
+/// this one's forks run)
+#[cfg_attr(not(test), allow(dead_code))]
+fn ahead_pools(workers: usize, t: usize, qos: usize) -> Result<Vec<Option<std::sync::Arc<rayon::ThreadPool>>>, String> {
+    if t == 0 {
+        return Ok(vec![None; workers]);
+    }
+    static POOLS: Mutex<Vec<(usize, usize, usize, std::sync::Arc<rayon::ThreadPool>)>> = Mutex::new(Vec::new());
+    let mut g = POOLS.lock().map_err(|_| "D55: the side workers' pools' lock is poisoned".to_string())?;
+    (0..workers)
+        .map(|w| {
+            if let Some((_, _, _, p)) = g.iter().find(|(gw, gt, gq, _)| *gw == w && *gt == t && *gq == qos) {
+                return Ok(Some(p.clone()));
+            }
+            let p = rayon::ThreadPoolBuilder::new()
+                .num_threads(t)
+                .thread_name(move |i| format!("hl-ahead{w}-q{qos}-pool{i}"))
+                .start_handler(move |_| set_thread_qos(qos))
+                .build()
+                .map_err(|e| format!("D55: side worker {w}'s pool of {t} threads: {e}"))?;
+            let p = std::sync::Arc::new(p);
+            g.push((w, t, qos, p.clone()));
+            Ok(Some(p))
+        })
+        .collect()
+}
+
+/// one block's entry in [`Slots`]
+#[cfg_attr(not(test), allow(dead_code))]
+enum Slot {
+    /// nothing handed over: the fork feeder asks the source
+    Absent,
+    /// handed over inside the window, its part not started: a side worker may
+    /// start it, or the fork feeder takes it back whole once the forks run
+    Queued(Witness),
+    /// a side worker is making the block's part
+    Pending,
+    /// the witness, kept whole (outside the window)
+    Raw(Witness),
+    Parked(Box<Parked>),
+    /// the part's refusal (or its worker's panic): the fork's error
+    Failed(String),
+    Taken,
+}
+
+/// what [`Slots`] guards
+#[cfg_attr(not(test), allow(dead_code))]
+struct SlotState {
+    v: Vec<Slot>,
+    /// side workers still running
+    alive: usize,
+    /// the sealing pass has handed over its last witness
+    sealed: bool,
+    /// the forks run: start no new part
+    closing: bool,
+    /// the run failed: start nothing
+    stop: bool,
+    /// parts taken back whole by the fork feeder
+    taken_back: usize,
+}
+
+/// **[A13] a fork run's before-challenge parts, by block** (and the queue the
+/// side workers take them from, lowest block first): written by the sealing
+/// pass's hand-over and the side workers, taken once each by the fork feeder
+/// in block order. A part not yet started when the forks run is taken back
+/// whole, so a slow side worker never holds a fork up for a part it has not
+/// begun.
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) struct Slots {
+    st: Mutex<SlotState>,
+    cv: std::sync::Condvar,
+}
+
+#[cfg_attr(not(test), allow(dead_code))]
+impl Slots {
+    fn new(l: usize, workers: usize) -> Slots {
+        Slots { st: Mutex::new(SlotState { v: (0..l).map(|_| Slot::Absent).collect(), alive: workers, sealed: false, closing: false, stop: false, taken_back: 0 }), cv: std::sync::Condvar::new() }
+    }
+
+    fn put(&self, k: usize, s: Slot) {
+        if let Ok(mut g) = self.st.lock() {
+            if let Some(e) = g.v.get_mut(k) {
+                *e = s;
+            }
+        }
+        self.cv.notify_all();
+    }
+
+    fn set(&self, f: impl FnOnce(&mut SlotState)) {
+        if let Ok(mut g) = self.st.lock() {
+            f(&mut g);
+        }
+        self.cv.notify_all();
+    }
+
+    /// a side worker's next part: the lowest queued block, waiting while none
+    /// is queued and more may come; `None`: stop
+    fn next_part(&self) -> Option<(usize, Witness)> {
+        let mut g = self.st.lock().ok()?;
+        loop {
+            if g.stop || g.closing {
+                return None;
+            }
+            if let Some(k) = g.v.iter().position(|e| matches!(e, Slot::Queued(_))) {
+                if let Slot::Queued(w) = std::mem::replace(&mut g.v[k], Slot::Pending) {
+                    return Some((k, w));
+                }
+            }
+            if g.sealed {
+                return None;
+            }
+            g = self.cv.wait(g).ok()?;
+        }
+    }
+
+    /// a side worker has stopped; the last one to stop fails every part still
+    /// pending, so the feeder can never wait on a part no worker will make
+    fn worker_done(&self) {
+        self.set(|g| {
+            g.alive = g.alive.saturating_sub(1);
+            if g.alive == 0 {
+                for e in g.v.iter_mut().filter(|e| matches!(e, Slot::Pending)) {
+                    *e = Slot::Failed("D55: the side workers stopped before this fork's before-challenge part was made".into());
+                }
+            }
+        });
+    }
+
+    /// block `k`'s job (`None`: nothing was handed over), waiting while its
+    /// part runs (a queued part not started is taken back whole); and the
+    /// seconds waited
+    fn take(&self, k: usize) -> Result<(Option<Job>, f64), String> {
+        let t = Instant::now();
+        let mut g = self.st.lock().map_err(|_| "D55: the before-challenge slots' lock is poisoned".to_string())?;
+        while matches!(g.v.get(k), Some(Slot::Pending)) {
+            g = self.cv.wait(g).map_err(|_| "D55: the before-challenge slots' lock is poisoned".to_string())?;
+        }
+        let s = std::mem::replace(g.v.get_mut(k).ok_or_else(|| format!("D55: no before-challenge slot for block {k}"))?, Slot::Taken);
+        let job = match s {
+            Slot::Absent => None,
+            Slot::Queued(w) => {
+                g.taken_back += 1;
+                Some(Job::Raw(w))
+            }
+            Slot::Raw(w) => Some(Job::Raw(w)),
+            Slot::Parked(p) => Some(Job::Parked(p)),
+            Slot::Failed(e) => Some(Job::Failed(e)),
+            Slot::Taken | Slot::Pending => return Err(format!("D55: block {k}'s before-challenge slot was taken twice")),
+        };
+        Ok((job, t.elapsed().as_secs_f64()))
+    }
+
+    /// how many parts are parked, and the host bytes they hold
+    fn parked(&self) -> (usize, usize) {
+        self.st.lock().map(|g| g.v.iter().filter_map(|e| if let Slot::Parked(p) = e { Some(p.ahead.host_bytes()) } else { None }).fold((0, 0), |(n, b), x| (n + 1, b + x))).unwrap_or((0, 0))
+    }
+}
+
+/// **[A13] The before-challenge parts a sealing pass made** ([`seal_ahead`]),
+/// for [`prove_run_with_forks_ahead`]: they continue only the fork run they
+/// were made for (its header's binding) and with the same blocks object.
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) struct ForkAhead {
+    binding: Digest,
+    blocks_at: usize,
+    slots: Slots,
+    /// how many parts were made, and the host bytes they hold
+    pub parked: usize,
+    pub host_bytes: usize,
+}
+
+#[cfg(test)]
+type WorkerHooks = ForkHooks;
+#[cfg(not(test))]
+#[cfg_attr(not(test), allow(dead_code))]
+type WorkerHooks = ();
+
+#[cfg_attr(not(test), allow(dead_code))]
+fn worker_hooks() -> WorkerHooks {
+    #[cfg(test)]
+    return ForkHooks::capture();
+    #[cfg(not(test))]
+    ()
+}
+
+#[cfg_attr(not(test), allow(dead_code))]
+fn blocks_addr(blocks: &dyn ForkBlocks) -> usize {
+    blocks as *const dyn ForkBlocks as *const () as usize
+}
+
+/// one side worker: takes the lowest queued block, makes its before-challenge
+/// part (`prove_one` with no commit phase yet) on its pool and parks it in its
+/// slot, until nothing is left to start
+#[cfg_attr(not(test), allow(dead_code))]
+fn ahead_worker(ctx: &ForkCtx<'_>, slots: &Slots, pool: Option<std::sync::Arc<rayon::ThreadPool>>, qos: usize, hooks: WorkerHooks) {
+    #[cfg(test)]
+    let _hooks = hooks.install();
+    set_thread_qos(qos);
+    while let Some((k, wit)) = slots.next_part() {
+        let run = || match &pool {
+            Some(p) => p.install(|| {
+                #[cfg(test)]
+                let _hooks = hooks.install();
+                ctx.prove_one(k, wit)
+            }),
+            None => ctx.prove_one(k, wit),
+        };
+        let slot = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(run)) {
+            Ok(Ok(Done::Parked(p))) => Slot::Parked(p),
+            Ok(Ok(Done::Out(_))) => Slot::Failed("D55: a fork finished before the commit phase".into()),
+            Ok(Err(e)) => Slot::Failed(e),
+            Err(p) => Slot::Failed(format!("its worker panicked: {}", p.downcast_ref::<String>().map(String::as_str).or_else(|| p.downcast_ref::<&str>().copied()).unwrap_or("(no message)"))),
+        };
+        slots.put(k, slot);
+    }
+    #[cfg(not(test))]
+    let _ = hooks;
+    slots.worker_done();
+}
+
+/// the hand-over the caller's sealing pass calls with each witness in block
+/// order: inside the window, queued for the side workers; outside it, kept whole
+#[cfg_attr(not(test), allow(dead_code))]
+fn hand_over<'q>(l: usize, window: usize, slots: &'q Slots, next: &'q mut usize) -> impl FnMut(usize, Witness) -> Result<(), String> + 'q {
+    move |k: usize, w: Witness| {
+        if k != *next || k >= l {
+            return Err(format!("D55: the sealing pass handed over block {k}, block {} was due (of {l})", *next));
+        }
+        *next += 1;
+        slots.put(k, if k < window { Slot::Queued(w) } else { Slot::Raw(w) });
+        Ok(())
+    }
+}
+
+/// the side workers' setup, shared by [`seal_ahead`] and
+/// [`prove_run_with_forks_sealing`]: the window, the workers and their pools
+#[cfg_attr(not(test), allow(dead_code))]
+fn ahead_setup(l: usize) -> Result<(usize, usize, Vec<Option<std::sync::Arc<rayon::ThreadPool>>>), String> {
+    let window = ahead_window().min(l);
+    let (aw, qos) = (if window == 0 { 0 } else { ahead_workers() }, ahead_qos());
+    Ok((window, qos, ahead_pools(aw, ahead_pool_threads(), qos)?))
+}
+
+/// **[A13] THE SEALING PASS WITH EACH FORK'S BEFORE-CHALLENGE PART BESIDE IT**
+/// (a stream's: every part in the window is made when it returns). `seal` is
+/// the caller's sealing pass: it hands each witness to the hand-over in block
+/// order as soon as it is built. Returns what [`prove_run_with_forks_ahead`]
+/// continues from, with what `seal` returned. With [`ahead_window`] 0 every
+/// witness is kept whole and no part is made.
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) fn seal_ahead<T>(fr: &ForkRun, blocks: &dyn ForkBlocks, seal: impl FnOnce(&mut dyn FnMut(usize, Witness) -> Result<(), String>) -> Result<T, String>) -> Result<(ForkAhead, T), String> {
+    let l = fr.st.rs.l;
+    let (window, qos, pools) = ahead_setup(l)?;
+    let ntt = NttTables::new(fr.st.rs.ntt_log());
+    let ctx = ForkCtx { fr, blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
+    let slots = Slots::new(l, pools.len());
+    let hooks = worker_hooks();
+    let sealed = std::thread::scope(|s| {
+        for pool in pools {
+            let (ctx, slots) = (&ctx, &slots);
+            s.spawn(move || ahead_worker(ctx, slots, pool, qos, hooks));
+        }
+        let mut next = 0usize;
+        let r = {
+            let mut push = hand_over(l, window, &slots, &mut next);
+            seal(&mut push)
+        };
+        let failed = r.is_err();
+        slots.set(|g| {
+            g.sealed = true;
+            g.stop = failed;
+        });
+        r
+    })?;
+    let (parked, host_bytes) = slots.parked();
+    Ok((ForkAhead { binding: fr.transcript()?.state(), blocks_at: blocks_addr(blocks), slots, parked, host_bytes }, sealed))
+}
+
+/// **[A13] the D55 fork-run prover, continuing from [`seal_ahead`]'s parts**
+/// (the fork run they were made for, the same blocks). A block with no part
+/// takes its witness from `ahead` (kept whole) or, if none was handed over,
+/// from `src`; boundary planes come from `src`.
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) fn prove_run_with_forks_ahead(fr: &ForkRun, blocks: &dyn ForkBlocks, ahead: ForkAhead, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
+    if ahead.binding != fr.transcript()?.state() || ahead.blocks_at != blocks_addr(blocks) {
+        return Err("D55: the before-challenge parts were made for another fork run or another blocks object".into());
+    }
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), Some(&ahead.slots))
+}
+
+/// **[A13] ONE REQUEST: the sealing pass, each fork's before-challenge part
+/// beside it, then the fork run**, in one scope, so the parts still being made
+/// when the sealing pass ends overlap the statement checks and the commit
+/// phase (the fork feeder waits for a part only when its fork is due, and
+/// takes back whole any part not yet started when the forks run). `seal`
+/// hands each witness over in block order and returns the source of the
+/// boundary planes (and of any witness it did not hand over). With
+/// [`ahead_window`] 0 this is the sealing pass, then [`prove_run_with_forks`].
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) fn prove_run_with_forks_sealing<S: RunWitnessSource>(fr: &ForkRun, blocks: &dyn ForkBlocks, externals: Endpoints, workers: usize, seal: impl FnOnce(&mut dyn FnMut(usize, Witness) -> Result<(), String>) -> Result<S, String>) -> Result<(ForkReceipt, ForkStats), String> {
+    let l = fr.st.rs.l;
+    let (window, qos, pools) = ahead_setup(l)?;
+    let ntt = NttTables::new(fr.st.rs.ntt_log());
+    let ctx = ForkCtx { fr, blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
+    let slots = Slots::new(l, pools.len());
+    let hooks = worker_hooks();
+    std::thread::scope(|s| {
+        for pool in pools {
+            let (ctx, slots) = (&ctx, &slots);
+            s.spawn(move || ahead_worker(ctx, slots, pool, qos, hooks));
+        }
+        let mut next = 0usize;
+        let sealed = {
+            let mut push = hand_over(l, window, &slots, &mut next);
+            seal(&mut push)
+        };
+        let failed = sealed.is_err();
+        slots.set(|g| {
+            g.sealed = true;
+            g.stop = failed;
+        });
+        let r = sealed.and_then(|mut src| prove_forks_inner(fr, blocks, &mut src, externals, workers, Cheat::default(), Some(&slots)));
+        slots.set(|g| g.stop = true);
+        r
+    })
 }
 
 /// the refusal of a head whose S0 tag is not the verifier's own (the verifier

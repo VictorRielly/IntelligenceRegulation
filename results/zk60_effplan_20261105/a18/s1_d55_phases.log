@@ -1,0 +1,101 @@
+  window 9.6540 s: 576 command buffers; GPU busy (>= 1 executing) 3.2438 s = 33.6%, idle 6.4102 s = 66.4%; summed command-buffer GPU time 3.2438 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+  window 9.5878 s: 576 command buffers; GPU busy (>= 1 executing) 3.2483 s = 33.9%, idle 6.3395 s = 66.1%; summed command-buffer GPU time 3.2483 s (mean 1.00 at once while busy); >= 2 at once 0.0000 s = 0.0% of busy
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 46.2 CPU-seconds (user + system, the whole process) over the 4.047 s call = 11.4 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 4.047 s, forks 3.682 s | process user 39.7 s + sys 6.5 s = 11.4 cores | minor faults 1211389 (299351/s), major 4 | csw voluntary 0, involuntary 108501 | fork workers: prove_core 20.38 s summed, their own thread CPU 19.88 s (98%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 []: table builds 13.85 ms per block (summed over the forks) | s00 0.71 ms (0/32 dev), s01 0.35 ms (0/32 dev), s03 0.26 ms (0/32 dev), s04 0.86 ms (0/32 dev), s05 0.30 ms (0/32 dev), s06 0.27 ms (0/32 dev), s07 0.35 ms (0/32 dev), s08 0.44 ms (0/32 dev
+  window 4.0467 s: 577 command buffers; GPU busy (>= 1 executing) 2.7827 s = 68.8%, idle 1.2640 s = 31.2%; summed command-buffer GPU time 6.7016 s (mean 2.41 at once while busy); >= 2 at once 2.4137 s = 86.7% of busy
+  window 3.6823 s: 513 command buffers; GPU busy (>= 1 executing) 2.7665 s = 75.1%, idle 0.9158 s = 24.9%; summed command-buffer GPU time 6.6854 s (mean 2.42 at once while busy); >= 2 at once 2.4137 s = 87.2% of busy
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 43.8 CPU-seconds (user + system, the whole process) over the 3.776 s call = 11.6 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [phases]: wall 3.776 s, forks 3.425 s | process user 39.0 s + sys 4.7 s = 11.6 cores | minor faults 683342 (180973/s), major 0 | csw voluntary 0, involuntary 93964 | fork workers: prove_core 19.27 s summed, their own thread CPU 19.00 s (99%)
+D55-AB A11 PHASE N6 [phases] | A: allocate + witness planes -> committed rows                   |    0.777 s summed over 32 forks |    24.27 ms per block |   4.0%
+D55-AB A11 PHASE N6 [phases] | A: lookup values + the byte histogram                            |    0.488 s summed over 32 forks |    15.26 ms per block |   2.5%
+D55-AB A11 PHASE N6 [phases] | A: exp/act indices + their two histograms                        |    0.100 s summed over 32 forks |     3.13 ms per block |   0.5%
+D55-AB A11 PHASE N6 [phases] | A: mask + proximity rows (fresh randomness)                      |    0.358 s summed over 32 forks |    11.18 ms per block |   1.9%
+D55-AB A11 PHASE N6 [phases] | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)        |    1.940 s summed over 32 forks |    60.62 ms per block |  10.1%
+D55-AB A11 PHASE N6 [phases] | M: mask commit (zk::mask_commit, ONE call)                       |    0.121 s summed over 32 forks |     3.77 ms per block |   0.6%
+D55-AB A11 PHASE N6 [phases] | H: LogUp helper inverses (six lookup domains)                    |    0.850 s summed over 32 forks |    26.56 ms per block |   4.4%
+D55-AB A11 PHASE N6 [phases] | H: exp + activation helper inverses                              |    0.396 s summed over 32 forks |    12.37 ms per block |   2.1%
+D55-AB A11 PHASE N6 [phases] | H: release the four witness buffers (S2 drops)                   |    0.127 s summed over 32 forks |     3.96 ms per block |   0.7%
+D55-AB A11 PHASE N6 [phases] | H: the three table helpers                                       |    0.150 s summed over 32 forks |     4.70 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | H: mask rows + the zero-sum rows                                 |    0.154 s summed over 32 forks |     4.80 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)        |    1.315 s summed over 32 forks |    41.08 ms per block |   6.8%
+D55-AB A11 PHASE N6 [phases] | slot 00 01 SS row sums norm_a (private)                          |    0.724 s summed over 32 forks |    22.63 ms per block |   3.8%
+D55-AB A11 PHASE N6 [phases] | slot 01 01m SS row sums norm_m (private)                         |    0.384 s summed over 32 forks |    11.98 ms per block |   2.0%
+D55-AB A11 PHASE N6 [phases] | slot 02 02 norm squares zero-check (hosts 01, 01m)               |    0.017 s summed over 32 forks |     0.52 ms per block |   0.1%
+D55-AB A11 PHASE N6 [phases] | slot 03 08 limb zero-check                                       |    0.172 s summed over 32 forks |     5.38 ms per block |   0.9%
+D55-AB A11 PHASE N6 [phases] | slot 04 07 masked row sums + selector (private)                  |    0.401 s summed over 32 forks |    12.53 ms per block |   2.1%
+D55-AB A11 PHASE N6 [phases] | slot 05 09Q matmul (private)                                     |    0.074 s summed over 32 forks |     2.32 ms per block |   0.4%
+D55-AB A11 PHASE N6 [phases] | slot 06 09K matmul (private)                                     |    0.045 s summed over 32 forks |     1.40 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 07 09V matmul (private)                                     |    0.043 s summed over 32 forks |     1.33 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 08 10 score matmul (private, bilinear)                      |    0.040 s summed over 32 forks |     1.24 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 09 11 PV matmul (private, bilinear)                         |    0.034 s summed over 32 forks |     1.07 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 10 12 Wo matmul (private)                                   |    0.071 s summed over 32 forks |     2.23 ms per block |   0.4%
+D55-AB A11 PHASE N6 [phases] | slot 11 13G gate matmul (private)                                |    0.162 s summed over 32 forks |     5.06 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | slot 12 13U up matmul (private)                                  |    0.158 s summed over 32 forks |     4.92 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | slot 13 13D down matmul (private)                                |    0.206 s summed over 32 forks |     6.45 ms per block |   1.1%
+D55-AB A11 PHASE N6 [phases] | slot 14 03 D zero-check (hosts 12, 13D)                          |    1.859 s summed over 32 forks |    58.08 ms per block |   9.6%
+D55-AB A11 PHASE N6 [phases] | slot 15 04 Q zero-check (hosts 09Q, 11)                          |    0.763 s summed over 32 forks |    23.84 ms per block |   4.0%
+D55-AB A11 PHASE N6 [phases] | slot 16 05 KV zero-check (hosts 09K, 09V)                        |    0.298 s summed over 32 forks |     9.32 ms per block |   1.5%
+D55-AB A11 PHASE N6 [phases] | slot 17 06 softmax zero-check (hosts 07, 10)                     |    0.691 s summed over 32 forks |    21.59 ms per block |   3.6%
+D55-AB A11 PHASE N6 [phases] | slot 18 14 F zero-check (hosts 13G, 13U)                         |    2.628 s summed over 32 forks |    82.13 ms per block |  13.6%
+D55-AB A11 PHASE N6 [phases] | slot 19 TAB table helper zero-check                              |    0.937 s summed over 32 forks |    29.28 ms per block |   4.9%
+D55-AB A11 PHASE N6 [phases] | slot 20 ZS zero-sum row                                          |    0.043 s summed over 32 forks |     1.35 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 21 IO-in endpoint equality                                  |    0.189 s summed over 32 forks |     5.92 ms per block |   1.0%
+D55-AB A11 PHASE N6 [phases] | slot 22 IO-out endpoint equality                                 |    0.146 s summed over 32 forks |     4.57 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | open M (zk::mask_open, ONE call)                                 |    0.126 s summed over 32 forks |     3.93 ms per block |   0.7%
+D55-AB A11 PHASE N6 [phases] | open A (schedule audit + pcs::open_zk)                           |    1.333 s summed over 32 forks |    41.65 ms per block |   6.9%
+D55-AB A11 PHASE N6 [phases] | open H (schedule audit + pcs::open_zk)                           |    0.945 s summed over 32 forks |    29.53 ms per block |   4.9%
+D55-AB A11 PHASE N6 [phases] | ALL PHASES                                                       |   19.263 s summed over 32 forks |   601.97 ms per block (prove_core 602.27 ms)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [phases]: table builds 11.37 ms per block (summed over the forks) | s00 0.73 ms (0/32 dev), s01 0.34 ms (0/32 dev), s03 0.25 ms (0/32 dev), s04 0.78 ms (0/32 dev), s05 0.36 ms (0/32 dev), s06 0.31 ms (0/32 dev), s07 0.29 ms (0/32 dev), s08 0.51 ms (0/
+  window 3.7759 s: 577 command buffers; GPU busy (>= 1 executing) 2.7163 s = 71.9%, idle 1.0597 s = 28.1%; summed command-buffer GPU time 6.4601 s (mean 2.38 at once while busy); >= 2 at once 2.2315 s = 82.2% of busy
+  window 3.4255 s: 513 command buffers; GPU busy (>= 1 executing) 2.6999 s = 78.8%, idle 0.7256 s = 21.2%; summed command-buffer GPU time 6.4437 s (mean 2.39 at once while busy); >= 2 at once 2.2315 s = 82.7% of busy
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [phases] pass 0: wall 3.776 s = 33.90 proved tok/s; preflight 0.073 s, commit 0.202 s, forks 3.425 s, join 0.076 s; receipt 818728672 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 44.5 CPU-seconds (user + system, the whole process) over the 3.896 s call = 11.4 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [phases]: wall 3.896 s, forks 3.551 s | process user 39.3 s + sys 5.2 s = 11.4 cores | minor faults 729784 (187323/s), major 3 | csw voluntary 0, involuntary 99219 | fork workers: prove_core 19.69 s summed, their own thread CPU 19.36 s (98%)
+D55-AB A11 PHASE N6 [phases] | A: allocate + witness planes -> committed rows                   |    0.803 s summed over 32 forks |    25.09 ms per block |   4.1%
+D55-AB A11 PHASE N6 [phases] | A: lookup values + the byte histogram                            |    0.486 s summed over 32 forks |    15.20 ms per block |   2.5%
+D55-AB A11 PHASE N6 [phases] | A: exp/act indices + their two histograms                        |    0.087 s summed over 32 forks |     2.71 ms per block |   0.4%
+D55-AB A11 PHASE N6 [phases] | A: mask + proximity rows (fresh randomness)                      |    0.352 s summed over 32 forks |    11.01 ms per block |   1.8%
+D55-AB A11 PHASE N6 [phases] | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)        |    1.917 s summed over 32 forks |    59.90 ms per block |   9.7%
+D55-AB A11 PHASE N6 [phases] | M: mask commit (zk::mask_commit, ONE call)                       |    0.120 s summed over 32 forks |     3.74 ms per block |   0.6%
+D55-AB A11 PHASE N6 [phases] | H: LogUp helper inverses (six lookup domains)                    |    0.894 s summed over 32 forks |    27.95 ms per block |   4.5%
+D55-AB A11 PHASE N6 [phases] | H: exp + activation helper inverses                              |    0.411 s summed over 32 forks |    12.85 ms per block |   2.1%
+D55-AB A11 PHASE N6 [phases] | H: release the four witness buffers (S2 drops)                   |    0.143 s summed over 32 forks |     4.46 ms per block |   0.7%
+D55-AB A11 PHASE N6 [phases] | H: the three table helpers                                       |    0.148 s summed over 32 forks |     4.63 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | H: mask rows + the zero-sum rows                                 |    0.157 s summed over 32 forks |     4.92 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)        |    1.487 s summed over 32 forks |    46.48 ms per block |   7.6%
+D55-AB A11 PHASE N6 [phases] | slot 00 01 SS row sums norm_a (private)                          |    0.784 s summed over 32 forks |    24.51 ms per block |   4.0%
+D55-AB A11 PHASE N6 [phases] | slot 01 01m SS row sums norm_m (private)                         |    0.418 s summed over 32 forks |    13.06 ms per block |   2.1%
+D55-AB A11 PHASE N6 [phases] | slot 02 02 norm squares zero-check (hosts 01, 01m)               |    0.019 s summed over 32 forks |     0.59 ms per block |   0.1%
+D55-AB A11 PHASE N6 [phases] | slot 03 08 limb zero-check                                       |    0.197 s summed over 32 forks |     6.15 ms per block |   1.0%
+D55-AB A11 PHASE N6 [phases] | slot 04 07 masked row sums + selector (private)                  |    0.492 s summed over 32 forks |    15.39 ms per block |   2.5%
+D55-AB A11 PHASE N6 [phases] | slot 05 09Q matmul (private)                                     |    0.075 s summed over 32 forks |     2.35 ms per block |   0.4%
+D55-AB A11 PHASE N6 [phases] | slot 06 09K matmul (private)                                     |    0.043 s summed over 32 forks |     1.35 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 07 09V matmul (private)                                     |    0.041 s summed over 32 forks |     1.28 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 08 10 score matmul (private, bilinear)                      |    0.035 s summed over 32 forks |     1.10 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 09 11 PV matmul (private, bilinear)                         |    0.034 s summed over 32 forks |     1.07 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 10 12 Wo matmul (private)                                   |    0.075 s summed over 32 forks |     2.33 ms per block |   0.4%
+D55-AB A11 PHASE N6 [phases] | slot 11 13G gate matmul (private)                                |    0.163 s summed over 32 forks |     5.11 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | slot 12 13U up matmul (private)                                  |    0.162 s summed over 32 forks |     5.07 ms per block |   0.8%
+D55-AB A11 PHASE N6 [phases] | slot 13 13D down matmul (private)                                |    0.257 s summed over 32 forks |     8.02 ms per block |   1.3%
+D55-AB A11 PHASE N6 [phases] | slot 14 03 D zero-check (hosts 12, 13D)                          |    1.766 s summed over 32 forks |    55.18 ms per block |   9.0%
+D55-AB A11 PHASE N6 [phases] | slot 15 04 Q zero-check (hosts 09Q, 11)                          |    0.723 s summed over 32 forks |    22.61 ms per block |   3.7%
+D55-AB A11 PHASE N6 [phases] | slot 16 05 KV zero-check (hosts 09K, 09V)                        |    0.355 s summed over 32 forks |    11.09 ms per block |   1.8%
+D55-AB A11 PHASE N6 [phases] | slot 17 06 softmax zero-check (hosts 07, 10)                     |    0.689 s summed over 32 forks |    21.54 ms per block |   3.5%
+D55-AB A11 PHASE N6 [phases] | slot 18 14 F zero-check (hosts 13G, 13U)                         |    2.592 s summed over 32 forks |    81.00 ms per block |  13.2%
+D55-AB A11 PHASE N6 [phases] | slot 19 TAB table helper zero-check                              |    0.876 s summed over 32 forks |    27.37 ms per block |   4.5%
+D55-AB A11 PHASE N6 [phases] | slot 20 ZS zero-sum row                                          |    0.039 s summed over 32 forks |     1.23 ms per block |   0.2%
+D55-AB A11 PHASE N6 [phases] | slot 21 IO-in endpoint equality                                  |    0.210 s summed over 32 forks |     6.58 ms per block |   1.1%
+D55-AB A11 PHASE N6 [phases] | slot 22 IO-out endpoint equality                                 |    0.144 s summed over 32 forks |     4.51 ms per block |   0.7%
+D55-AB A11 PHASE N6 [phases] | open M (zk::mask_open, ONE call)                                 |    0.116 s summed over 32 forks |     3.63 ms per block |   0.6%
+D55-AB A11 PHASE N6 [phases] | open A (schedule audit + pcs::open_zk)                           |    1.211 s summed over 32 forks |    37.83 ms per block |   6.2%
+D55-AB A11 PHASE N6 [phases] | open H (schedule audit + pcs::open_zk)                           |    1.154 s summed over 32 forks |    36.07 ms per block |   5.9%
+D55-AB A11 PHASE N6 [phases] | ALL PHASES                                                       |   19.679 s summed over 32 forks |   614.97 ms per block (prove_core 615.24 ms)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 [phases]: table builds 11.74 ms per block (summed over the forks) | s00 0.73 ms (0/32 dev), s01 0.43 ms (0/32 dev), s03 0.27 ms (0/32 dev), s04 0.88 ms (0/32 dev), s05 0.32 ms (0/32 dev), s06 0.27 ms (0/32 dev), s07 0.26 ms (0/32 dev), s08 0.43 ms (0/
+  window 3.8959 s: 580 command buffers; GPU busy (>= 1 executing) 2.7266 s = 70.0%, idle 1.1692 s = 30.0%; summed command-buffer GPU time 6.6998 s (mean 2.46 at once while busy); >= 2 at once 2.3770 s = 87.2% of busy
+  window 3.5509 s: 516 command buffers; GPU busy (>= 1 executing) 2.7139 s = 76.4%, idle 0.8370 s = 23.6%; summed command-buffer GPU time 6.6870 s (mean 2.46 at once while busy); >= 2 at once 2.3770 s = 87.6% of busy
+D55-AB GPU-AB W16R2_8B_T128_H24 L32 T128 forks N6 [phases] pass 1: wall 3.896 s = 32.86 proved tok/s; preflight 0.080 s, commit 0.189 s, forks 3.551 s, join 0.075 s; receipt 818728672 B
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.588 s = 13.35 tok/s | mean 9.588 s = 13.35 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.047 s = 31.63 tok/s | mean 4.047 s = 31.63 tok/s | 2.37x serial (best)
+D55-AB SUMMARY | forks N=6 phases | A7 GPU-policy A/B, interleaved, 2 passes | best 3.776 s = 33.90 tok/s | mean 3.836 s = 33.37 tok/s

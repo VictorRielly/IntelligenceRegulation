@@ -210,6 +210,12 @@ pub(crate) struct Points {
     p_g: Vec<Fp2>,
     p_u: Vec<Fp2>,
     p_z: Vec<Fp2>,
+    /// **[A18]** set by [`argument_with`] (and nothing else) when a D55 fork's
+    /// preflight record covers THIS argument's accuracy data at THIS shape
+    /// (`protocol::CheckedPublic::covers_accuracy`): then `define_changed` skips
+    /// its per-slot `check_for_registry`, which the record's check already ran
+    /// with the same arguments. `false` (every other `Points`): it checks.
+    registry_checked: bool,
 }
 
 /// **TEST HOOK (stage 20).** The two bilinear slots' published claim points.
@@ -2956,9 +2962,20 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
 /// challenge, table or terminal can depend on whether timing is on. With
 /// `HL_PB_TIMING` unset it returns on its first line.
 pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut super::timing::Phases) -> Result<Acc, String> {
+    argument_with(side, ctx, tr, ph, None)
+}
+
+/// **[A18]** [`argument`] with a D55 fork's preflight record: when it covers
+/// `ctx`'s accuracy data at `ctx`'s shape (`CheckedPublic::covers_accuracy`,
+/// the same object and an equal shape), `define`'s per-slot registry re-check
+/// is skipped (the record's check ran it with the same arguments, and `ctx`
+/// is borrowed unchanged for the whole call). Any other record, or none, checks
+/// as before. The re-check draws, absorbs and writes nothing, so no byte moves.
+pub(crate) fn argument_with(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut super::timing::Phases, checked: Option<&super::protocol::CheckedPublic<'_>>) -> Result<Acc, String> {
     let mut acc = Acc::default();
     let mut pts = Points::default();
     let sh = ctx.lay.shape();
+    pts.registry_checked = checked.is_some_and(|c| c.covers_accuracy(ctx.accuracy, sh));
     // NATIVE R9: THIS profile's slots — the twenty-three, plus the
     // dictionary zero-check on a DD profile (appended last)
     // [ZK60-METAL M3] the IR's own point record, carried beside `pts`

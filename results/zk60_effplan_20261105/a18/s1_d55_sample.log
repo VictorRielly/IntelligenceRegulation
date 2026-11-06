@@ -1,0 +1,12 @@
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 4.047 s, forks 3.687 s | process user 39.7 s + sys 6.7 s = 11.5 cores | minor faults 1240231 (306449/s), major 0 | csw voluntary 0, involuntary 106229 | fork workers: prove_core 20.58 s summed, their own thread CPU 20.03 s (97%)
+A11-SAMPLE READY N6 pid 81309
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.659 s, forks 4.141 s | process user 37.5 s + sys 5.5 s = 9.2 cores | minor faults 602788 (129377/s), major 0 | csw voluntary 0, involuntary 126491 | fork workers: prove_core 23.04 s summed, their own thread CPU 17.04 s (74%)
+A11-SAMPLE N6 call 0: started 0.000 s into the window, wall 4.659 s, forks 4.141 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.241 s, forks 3.775 s | process user 36.4 s + sys 3.5 s = 9.4 cores | minor faults 543062 (128044/s), major 0 | csw voluntary 0, involuntary 112351 | fork workers: prove_core 21.14 s summed, their own thread CPU 16.01 s (76%)
+A11-SAMPLE N6 call 1: started 4.660 s into the window, wall 4.241 s, forks 3.775 s
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 [sample]: wall 4.338 s, forks 3.828 s | process user 37.1 s + sys 3.9 s = 9.5 cores | minor faults 499108 (115062/s), major 0 | csw voluntary 0, involuntary 127172 | fork workers: prove_core 21.37 s summed, their own thread CPU 16.17 s (76%)
+A11-SAMPLE N6 call 2: started 8.901 s into the window, wall 4.338 s, forks 3.828 s
+A11-SAMPLE DONE N6 after 13.239 s
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 9.395 s = 13.62 tok/s | mean 9.395 s = 13.62 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 4.047 s = 31.63 tok/s | mean 4.047 s = 31.63 tok/s | 2.32x serial (best)

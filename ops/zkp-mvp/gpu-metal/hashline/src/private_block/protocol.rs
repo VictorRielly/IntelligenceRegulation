@@ -1829,9 +1829,123 @@ impl std::fmt::Debug for CheckedPublic<'_> {
 /// **[A17] What a D55 fork hands its core proof beside the block**: the
 /// preflight's record of the block's public checks. `CoreHints::default()` (no
 /// record) is every other caller's, through [`prove_core`].
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 pub(crate) struct CoreHints<'h, 'b> {
     pub(crate) checked: Option<&'h CheckedPublic<'b>>,
+}
+
+// ---------------------------------------------------------------- [A18] the forks' host work, after A16 and A17
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A18;
+// `results/zk60_effplan_20261105/a18/README.md`.) Byte-preserving: each form
+// writes the words the code before it wrote, in the same places, and refuses
+// where it refused, with the same string. Each sits behind a switch that
+// restores that code (`0` the code before A18, `1` the A18 form, unset the
+// default, on):
+// * `HL_A18_TABINV` ([`table_helper`], [`range_table_helper`]): at a W16
+//   profile the range table helpers read their families' inverse tables (made
+//   for the looked columns' helpers) instead of inverting the same denominators
+//   a second time; the byte and exp table helpers invert the 256 distinct
+//   entries of their periodic tables instead of every padded copy. It adds no
+//   parallel region;
+// * `HL_A18_REGISTRY` ([`CheckedPublic::covers_accuracy`]): in the D55 fork
+//   run, the preflight's record that THIS block's accuracy data passed
+//   `check_for_registry` at THIS shape stands in for `define`'s per-slot
+//   re-check of it (`argument_accuracy.rs`).
+// No branch below reads a hidden value: which table is read and whether a slot
+// re-checks are decided by the shape, the challenges, the public tables and the
+// block's address. (Two more forms were measured and removed, both adding short
+// parallel regions to every fork: the range tables and the activation table
+// helper in parallel chunks, and `define`'s public tables in parallel maps; the
+// results' README, section 4. A13's split of `prove_core` into its before- and
+// after-challenge parts is above, [`prove_core_before_with`] and
+// [`prove_core_after_with`]; its window is `run_fork.rs`'s `HL_D55_AHEAD`, off by
+// default.)
+
+static A18_TABINV: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+static A18_REGISTRY: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
+/// [A18] the defaults of the two forms when their variable is unset
+const A18_TABINV_DEFAULT: bool = true;
+const A18_REGISTRY_DEFAULT: bool = true;
+
+/// [A18] `HL_A18_TABINV`: the table helpers from the inverse tables already made
+fn tabinv_on() -> bool {
+    a17_switch(&A18_TABINV, "HL_A18_TABINV", A18_TABINV_DEFAULT)
+}
+
+/// [A18] `HL_A18_REGISTRY`: the preflight's record stands in for `define`'s re-check
+pub(crate) fn registry_record_on() -> bool {
+    a17_switch(&A18_REGISTRY, "HL_A18_REGISTRY", A18_REGISTRY_DEFAULT)
+}
+
+/// TEST ONLY ([A18] A/B and byte tests): `(tabinv, registry)`, each on, off or
+/// (`None`) as the environment says. Process-wide; changes no byte.
+#[cfg(test)]
+pub(crate) fn set_a18_for_test(tabinv: Option<bool>, registry: Option<bool>) {
+    use std::sync::atomic::Ordering::Relaxed;
+    let v = |o: Option<bool>| match o {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    A18_TABINV.store(v(tabinv), Relaxed);
+    A18_REGISTRY.store(v(registry), Relaxed);
+}
+
+impl CheckedPublic<'_> {
+    /// **[A18]** whether this record covers `define`'s registry re-check of
+    /// `data` at `sh`: `data` is THIS record's block's own accuracy data (the
+    /// same object) and `sh` an equal shape at an accuracy profile.
+    /// `CheckedPublic::check` ran `check_for_shape`, which at an accuracy
+    /// profile runs `check_accuracy_for_shape`, whose `check_for_registry` takes
+    /// exactly the arguments `define_changed` passes (the registry, the
+    /// geometry, the base and the stack of `sh`); the record borrows the block,
+    /// so the data cannot have changed since.
+    pub(crate) fn covers_accuracy(&self, data: Option<&super::accuracy_public::AccuracyPublic>, sh: &Shape) -> bool {
+        self.sh == *sh && sh.accuracy_stack() != super::accuracy_precision::Stack::Legacy && matches!((self.blk.accuracy(), data), (Some(a), Some(b)) if std::ptr::eq(a, b))
+    }
+}
+
+/// **[A18] one of the three table helpers** (`HL_A18_TABINV`): `m[i] / (alpha -
+/// tv[i])` for `i < min(tv.len(), m.len())`, refused (`ZERO_DENOMINATOR`) when
+/// ANY entry's denominator is zero, as `inverses` over the whole of `tv` did.
+/// A periodic table (entry `i` is entry `i % U8_LEN`: the byte and exp tables and
+/// the legacy activation table, `argument::table_values_*_at`) whose
+/// multiplicities fit one period has every distinct entry among its first
+/// `U8_LEN`, so only those are inverted (checked here, entry by entry, before
+/// they stand for the rest); any other table is inverted whole, as before.
+pub(super) fn table_helper(tv: &[Fp2], m: &[u64], alpha: Fp2, periodic: bool) -> Result<Vec<Fp2>, String> {
+    let used = if periodic && m.len() <= U8_LEN && tv.iter().enumerate().all(|(i, t)| *t == tv[i % U8_LEN]) { tv.len().min(U8_LEN) } else { tv.len() };
+    let mut den: Vec<Fp2> = tv[..used].iter().map(|t| alpha.sub(*t)).collect();
+    batch_inverse2_checked(&mut den).map_err(|_| ZERO_DENOMINATOR.to_string())?;
+    Ok(den.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect())
+}
+
+/// **[A18] one range sub-plane's table helper from its family's inverse table**
+/// (`HL_A18_TABINV`): entry `i` of sub-plane `s` is `range16::value(f, s, i)`
+/// (in `0 .. 2^width`), whose denominator `alpha - (value + g)` the table
+/// inverted (the same `g`: `range16::g_range` of the same width), so the
+/// helper is `m[base + i] * table[value]` on the true rows and zero on the
+/// padded copies, refused when any entry's denominator is zero, exactly as
+/// inverting the column was. `None` (never at a registered shape): an entry
+/// outside the table, for the code before A18.
+pub(super) fn range_table_helper(f: super::range16::Fam, s: usize, log_cols: usize, tbl: &[Option<Fp2>], m: &[u64], base: usize, sup: usize) -> Option<Result<Vec<Fp2>, String>> {
+    let len = 1usize << log_cols;
+    let mut col = vec![Fp2::ZERO; len];
+    let mut zero = false;
+    for (i, c) in col.iter_mut().enumerate() {
+        let v = usize::try_from(super::range16::value(f, s, i, log_cols)).ok()?;
+        match tbl.get(v)? {
+            Some(x) => {
+                if i < sup {
+                    *c = x.mul_base(Fp::new(m[base + i]));
+                }
+            }
+            None => zero = true,
+        }
+    }
+    Some(if zero { Err(ZERO_DENOMINATOR.to_string()) } else { Ok(col) })
 }
 
 pub(super) fn check_endpoints(sh: &Shape, expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
@@ -2015,6 +2129,13 @@ pub(crate) fn prove_core(
 
 /// **[A17]** [`prove_core`] with a D55 fork's [`CoreHints`]: the same proof,
 /// the same bytes and the same refusals, whatever the hints hold.
+///
+/// **[A13, ported by A18]** It is [`prove_core_before_with`] (everything before
+/// the first transcript use) then [`prove_core_after_with`] (everything from
+/// it), on the one generator, transcript and recorder: the same statements in
+/// the same order, with one move that changes no byte (`A`'s root is absorbed
+/// after `M` is committed instead of before; `M`'s commitment reads no
+/// transcript).
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn prove_core_with(
     sh: &Shape,
@@ -2030,6 +2151,85 @@ pub(crate) fn prove_core_with(
     tick: &mut std::time::Instant,
     hints: CoreHints<'_, '_>,
 ) -> Result<CoreProof, String> {
+    let ahead = prove_core_before_with(sh, lay, blk, wit, ntt, rng, ph, phases, tick, hints)?;
+    prove_core_after_with(sh, lay, blk, ahead, io_data, ntt, rng, tr, ph, phases, tick, hints)
+}
+
+/// **[A13] What [`prove_core`] holds at its first transcript use**, made by
+/// [`prove_core_before_with`] from block `k`'s witness, shape, layout and
+/// public block, the NTT tables and the block's generator ALONE: no
+/// transcript, no challenge, no IO commitment. It holds the witness and its
+/// derived lookup columns and histograms (the `H` helpers read them after the
+/// LogUp challenges), the committed `A` (its mask rows, pads and salts drawn)
+/// and the committed `M`, and the two roots, not yet absorbed. It is not
+/// public: it holds the witness and the commitments' openings, and it is
+/// dropped (or consumed by [`prove_core_after_with`]) like the locals it
+/// replaces. [A18] It also records what it was made for (the shape, the
+/// layout's rows, the block object's address and the A17 view form), and the
+/// rest refuses any other.
+pub(crate) struct CoreAhead {
+    sh: Shape,
+    rows: (usize, usize, usize),
+    blk_at: usize,
+    views_on: bool,
+    params: PcsParams,
+    zko: ZkOpts,
+    tag: zkp_core::hashtag::HashTag,
+    wit: Witness,
+    looked: Vec<(Dom, Vec<Vec<i64>>)>,
+    built: Vec<(Dom, Vec<Option<Vec<i64>>>)>,
+    lookup_words: u64,
+    m_u8: Vec<u64>,
+    m_rng: Vec<Vec<u64>>,
+    m_exp: Vec<u64>,
+    m_act: Vec<u64>,
+    deltas: Vec<i64>,
+    act_idx: Vec<i64>,
+    a: pcs::CommittedZk,
+    a_root: crate::merkle::Digest,
+    mc: zk::MaskCommit,
+    mask_root: crate::merkle::Digest,
+}
+
+impl CoreAhead {
+    /// [A13] the bytes this state holds on the host (the witness planes, the
+    /// built lookup columns, `A`'s host rows, pads and salts, `M`'s encoding),
+    /// for a caller's memory budget; `A`'s device copy (on Metal, its encoding
+    /// and rows) is not counted
+    pub(crate) fn host_bytes(&self) -> usize {
+        let wit: usize = self.wit.planes.iter().map(|p| p.len() * 8).sum();
+        let looked: usize = self.looked.iter().map(|(_, cols)| cols.iter().map(|c| c.len() * 8).sum::<usize>()).sum();
+        let built: usize = self.built.iter().map(|(_, cols)| cols.iter().flatten().map(|c| c.len() * 8).sum::<usize>()).sum();
+        wit + looked + built + 8 * (self.deltas.len() + self.act_idx.len() + self.a.data.len() + self.a.pads.len() + self.mc.encoded.len()) + 32 * self.a.salts.len()
+    }
+}
+
+/// a block object's address (the [A18] check that the rest continues the
+/// before-challenge part of THIS block)
+fn block_at(blk: &BlockPublic) -> usize {
+    blk as *const BlockPublic as usize
+}
+
+/// **[A13] THE BEFORE-CHALLENGE PART OF [`prove_core_with`]**: the shape,
+/// layout and block checks, `A`'s rows (the witness planes, the lookups and
+/// their histograms, the CS-3 refusal before any draw, the mask rows), `A`'s
+/// commitment and `M`'s commitment, exactly as `prove_core` has always made
+/// them and in the same order, drawing from `rng` exactly what it drew. It
+/// reads no transcript, so it can run before the transcript it will continue
+/// on exists (a D55 fork's, whose state needs every boundary root).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prove_core_before_with(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    wit: Witness,
+    ntt: &NttTables,
+    rng: &mut ZkRng,
+    ph: &mut timing::Phases,
+    phases: &mut Vec<(&'static str, f64)>,
+    tick: &mut std::time::Instant,
+    hints: CoreHints<'_, '_>,
+) -> Result<CoreAhead, String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
     // RULING CS-8, in the body every proving path shares: the shape is one
     // `Shape::new` builds and the layout the CALLER hands is the one
@@ -2046,7 +2246,7 @@ pub(crate) fn prove_core_with(
     // [A17] a W16 profile's one-term looked columns read from their planes
     // (`HL_A17_LOOKED=0`: every looked column built first, as before)
     let views_on = sh.range16() && looked_cols_on();
-    let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
+    let (ids, n) = (lay.ids(), lay.n());
     // every plane but the three derived histograms
     let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
     if wit.planes.len() != ids.n_a() || committed.iter().any(|p| wit.planes[*p].len() != sh.size(ids.dom(*p))) {
@@ -2167,7 +2367,10 @@ pub(crate) fn prove_core_with(
     a.mask_rows = lay.a_site_rows();
     a.prox_mask_row = Some(lay.a_prox);
     let a_root = a.commitment().root;
-    absorb_root(tr, b"A", &a_root, lay.a_rows, sh.log_cols);
+    // [A13] `A`'s root is absorbed by `prove_core_after_with`, right before
+    // `M`'s: the mask commitment below reads no transcript, so the transcript
+    // sees the same two absorbs in the same order and the generator the same
+    // draws.
     // STAGE 11: row encoding and column hashing are NOT separable here. Both
     // live inside `pcs::commit_zk_owned`, which is `hashline/src/pcs.rs` — a
     // file this lane does not edit — so the enclosing call is one phase.
@@ -2179,10 +2382,73 @@ pub(crate) fn prove_core_with(
     // ---- M: all twenty-three CFS masks, committed before any challenge ----
     let mc = zk::mask_commit_tagged(&lay.mask_specs(), ntt, rng, &tag);
     let mask_root = mc.tree.root();
-    tr.absorb(b"M", &mask_root);
     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
     ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", lay.m_rows() as u64, "rows");
     lap(phases, tick, "commit M");
+    // [A17] the views borrow the planes and the built columns; the rest makes
+    // its own from the same two
+    drop(views);
+    Ok(CoreAhead {
+        sh: sh.clone(),
+        rows: (lay.a_rows, lay.h_rows, n),
+        blk_at: block_at(blk),
+        views_on,
+        params,
+        zko,
+        tag,
+        wit,
+        looked,
+        built,
+        lookup_words,
+        m_u8,
+        m_rng,
+        m_exp,
+        m_act,
+        deltas,
+        act_idx,
+        a,
+        a_root,
+        mc,
+        mask_root,
+    })
+}
+
+/// **[A13] THE REST OF [`prove_core_with`], from its first transcript use.**
+/// The two roots the before-challenge part made are absorbed here, `A`'s then
+/// `M`'s (the order and bytes `prove_core` has always absorbed), and only then
+/// is anything squeezed. `ahead` must be the state [`prove_core_before_with`]
+/// returned for this very block object, shape and layout, with `rng` the
+/// generator it drew from (and nothing drawn from it since); any other state
+/// is refused before anything is absorbed.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prove_core_after_with(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    ahead: CoreAhead,
+    io_data: [&[Fp]; 2],
+    ntt: &NttTables,
+    rng: &mut ZkRng,
+    tr: &mut Transcript,
+    ph: &mut timing::Phases,
+    phases: &mut Vec<(&'static str, f64)>,
+    tick: &mut std::time::Instant,
+    hints: CoreHints<'_, '_>,
+) -> Result<CoreProof, String> {
+    let CoreAhead { sh: made_for, rows, blk_at, views_on, params, zko, tag, wit, looked, built, lookup_words, m_u8, m_rng, m_exp, m_act, deltas, act_idx, a, a_root, mc, mask_root } = ahead;
+    if made_for != *sh || rows != (lay.a_rows, lay.h_rows, lay.n()) {
+        return Err("private block: the before-challenge state was made for another shape or layout".into());
+    }
+    if blk_at != block_at(blk) {
+        return Err("private block: the before-challenge state was made for another block".into());
+    }
+    let (public, ff) = (blk.attention(), blk.feed_forward());
+    let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
+    // [A17] the views again, over the same witness and built columns
+    let views: Vec<(Dom, Vec<LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols(lay, &wit, *d, b))).collect();
+    // ---- the first transcript use: the A root, then the M root ----
+    absorb_root(tr, b"A", &a_root, lay.a_rows, sh.log_cols);
+    tr.absorb(b"M", &mask_root);
 
     // ---- LogUp challenges, helpers, table helpers, the zero-sum pair, commit H ----
     let beta = tr.challenge_fp2();
@@ -2198,16 +2464,23 @@ pub(crate) fn prove_core_with(
     // refusal (see [`helper_inverses_u8`]).
     let u8_inv = u8_denominator_inverses(alpha, g_u8);
     // W16 (D54): each looked column folds its own family's tag, with that
-    // family's inverse table (2^w denominators, inverted once per proof)
-    if sh.range16() {
-        let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = sh
-            .range_families()
+    // family's inverse table (2^w denominators, inverted once per proof).
+    // [A18] `HL_A18_TABINV`: the families' tables are read again by the range
+    // table helpers below instead of inverting their denominators a second time
+    // (so they are kept to the end of the table helpers)
+    let tab_on = tabinv_on();
+    let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = if sh.range16() {
+        sh.range_families()
             .iter()
             .map(|f| {
                 let g = super::range16::g_range(g_u8, f.width);
                 (f.width, g, super::range16::denominator_inverses(f.width, alpha, g))
             })
-            .collect();
+            .collect()
+    } else {
+        Vec::new()
+    };
+    if sh.range16() {
         if views_on {
             // [A17] the same jobs over the views
             let mut wjobs: Vec<HelperJobCols<'_>> = Vec::new();
@@ -2343,6 +2616,9 @@ pub(crate) fn prove_core_with(
     // what the S2 drops cost in time (at 125M they release about 1.5 GB)
     ph.mark(Half::Commit, "H: release the four witness buffers (S2 drops)", 0, "-");
     let [gu8, gexp, gact] = hids.table_helpers();
+    // [A18] the legacy activation table is periodic (`table_values_act_at`); an
+    // accuracy profile's (`accuracy_act::table`) is not
+    let act_periodic = blk.accuracy().is_none();
     let act_table=match blk.accuracy() {
         Some(data)=>{
             let table=super::accuracy_act::table(data,sh.size(Dom::Tab),beta,g_act)?;
@@ -2350,13 +2626,18 @@ pub(crate) fn prove_core_with(
         },
         None=>table_values_act(ff,beta,g_act),
     };
-    for (plane, tv, m) in [
-        (gu8, table_values_u8(g_u8), &m_u8),
-        (gexp, table_values_exp(public, beta, g_exp), &m_exp),
-        (gact, act_table, &m_act),
+    for (plane, tv, m, periodic) in [
+        (gu8, table_values_u8(g_u8), &m_u8, true),
+        (gexp, table_values_exp(public, beta, g_exp), &m_exp, true),
+        (gact, act_table, &m_act, act_periodic),
     ] {
-        let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
-        let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
+        // [A18] `HL_A18_TABINV`: [`table_helper`] (the same words, the same refusal)
+        let col: Vec<Fp2> = if tab_on {
+            table_helper(&tv, m, alpha, periodic)?
+        } else {
+            let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
+            inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect()
+        };
         write_h(&mut h_data, lay.h_off[plane], &col);
     }
     // W16 (D54): one table helper per range sub-plane, `m / (alpha - t)` on
@@ -2368,10 +2649,19 @@ pub(crate) fn prove_core_with(
         let rh: Vec<usize> = hids.range_helpers().collect();
         for (j, (f, s, _)) in ids.accuracy()?.range_planes().into_iter().enumerate() {
             let m = &m_rng[fams.iter().position(|x| *x == f).ok_or("W16: a range sub-plane outside the shape's families")?];
-            let tv = super::range16::table_column(f, s, sh.log_cols, super::range16::g_range(g_u8, f.width));
-            let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
             let (base, sup) = (s << sh.log_cols, super::range16::support(f, sh.log_cols));
-            let col: Vec<Fp2> = inv.iter().enumerate().map(|(i, x)| if i < sup { x.mul_base(Fp::new(m[base + i])) } else { Fp2::ZERO }).collect();
+            // [A18] `HL_A18_TABINV`: the family's inverse table already holds
+            // every entry's inverse ([`range_table_helper`]: the same words, the
+            // same refusal)
+            let read = if tab_on { tabs.iter().find(|t| t.0 == f.width).and_then(|t| range_table_helper(f, s, sh.log_cols, &t.2, m, base, sup)) } else { None };
+            let col: Vec<Fp2> = match read {
+                Some(col) => col?,
+                None => {
+                    let tv = super::range16::table_column(f, s, sh.log_cols, super::range16::g_range(g_u8, f.width));
+                    let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
+                    inv.iter().enumerate().map(|(i, x)| if i < sup { x.mul_base(Fp::new(m[base + i])) } else { Fp2::ZERO }).collect()
+                }
+            };
             write_h(&mut h_data, lay.h_off[rh[j]], &col);
         }
     }
@@ -2432,7 +2722,10 @@ pub(crate) fn prove_core_with(
         // the same words, `argument::resident_rows`)
         #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
         let _resident = super::argument::resident_rows(&a, &h);
-        argument(&mut side, &ctx, tr, ph)?
+        // [A18] `HL_A18_REGISTRY`: the preflight's record (when it is for this
+        // very block's accuracy data at this shape) stands in for `define`'s
+        // per-slot registry re-check
+        super::argument::argument_with(&mut side, &ctx, tr, ph, hints.checked.filter(|_| registry_record_on()))?
     };
     let slots = match side {
         Side::Prove { out, .. } => out,

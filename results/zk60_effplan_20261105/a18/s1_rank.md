@@ -1,0 +1,26 @@
+# A14 ranking: /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2b8233000ecbf9ef/results/zk60_effplan_20261105/a18/raw/s1_sample_N6.txt
+interval 2.0 ms, 3 proof-only fork calls in the window, N = 6
+
+fork main lines: 22022 samples = 44.04 thread-s; gpu-wait 54.5%, host 35.8%, pool-work 7.9%, pool-wait 1.7%
+main-line samples NOT waiting on the GPU: 10016 = 20.03 thread-s (1.113 s per fork per call)
+rayon busy samples: 32219 = 64.44 thread-s (21.48 CPU-s per call)
+
+| bucket | owner | main line, % of its non-GPU samples | main line, s per fork per call | pool busy, CPU-s per call |
+|---|---|---:|---:|---:|
+| openings' store fold (A8) | metal.rs fold region | 14.8% | 0.164 | 5.07 |
+| A/H zero-fill, free (vec! / bzero / vm_deallocate) | protocol.rs (A13) | 13.1% | 0.146 | 0.08 |
+| LogUp helper inverses | protocol.rs (A13) | 10.9% | 0.121 | 2.65 |
+| public weight folds and public tables (define) | argument.rs define; accuracy_fold.rs, mle.rs, pad.rs code | 10.9% | 0.121 | 1.97 |
+| randomness: ZkRng (fill_fp, next_u64, the XOF) | rng.rs (A14) | 9.5% | 0.106 | 2.59 |
+| commit host parts (salts, Merkle, host NTT, uploads) | pcs.rs / metal.rs | 7.3% | 0.081 | 1.64 |
+| lookup values + histograms | protocol.rs (A13) | 6.2% | 0.069 | 1.82 |
+| other / unattributed | - | 4.6% | 0.051 | 0.46 |
+| witness planes into A (write_planes) | protocol.rs (A13) | 4.0% | 0.044 | 1.30 |
+| extension rounds (mask_eval_eq, eq_table_msb) | argument.rs / mle.rs | 3.6% | 0.040 | 0.16 |
+| transcript absorb | transcript.rs (A14) | 3.3% | 0.036 | 0.00 |
+| claimed sum (total_at) | argument.rs | 3.0% | 0.034 | 0.88 |
+| private slots' tables (priv_table_fill / build_tables_at) | argument.rs (A14) | 2.8% | 0.032 | 0.63 |
+| device slots' table plan + public tables (A12 host part) | argument.rs / metal.rs tables (A14) | 2.0% | 0.023 | 0.08 |
+| openings other (group_zclaims, columns, check_opening) | pcs.rs | 2.0% | 0.022 | 0.00 |
+| per-block public checks (check_for_shape, check_for_registry) | prove_core's call (protocol.rs, A13); private_block.rs / accuracy_public.rs code | 1.5% | 0.017 | 2.15 |
+| sumcheck host rounds / host tail | sumcheck (zkp-core) | 0.6% | 0.007 | 0.00 |
