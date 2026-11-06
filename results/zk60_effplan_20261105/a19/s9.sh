@@ -44,6 +44,9 @@ if [ $rc -ne 0 ]; then
 fi
 grep -E "^warning" -A 6 $R/s9_build.log | head -40 >> $P
 /opt/homebrew/bin/cargo check --tests --offline --locked --manifest-path $H > $R/s9_check_nometal.log 2>&1; say "no-feature cargo check --tests rc=$?"
+# A19: the production (non-test) library too, its warnings in this lane's files listed
+/opt/homebrew/bin/cargo build --release --offline --locked --features gpu-metal --manifest-path $H --lib > $R/s9_build_prod.log 2>&1; say "production library build (non-test, gpu-metal) rc=$?"
+grep -E "^warning" -A 3 $R/s9_build_prod.log | grep -E "run_fork.rs|trained_block.rs" -B 3 | head -20 >> $P
 env HL_R13_LOADER_FIXTURES=$F $C -- --test-threads=8 > $R/s9_full.log 2>&1; say "full lib suite rc=$? (expect failures: exactly the known three)"
 grep -E "^test result|^    [a-z_:0-9]+$" $R/s9_full.log | tail -8 >> $P
 grep -E "a19_|a18_|a16_|a17_|h124c_the_parallel|a4_the_device_builder|a15_the_seal_pool_rule|a14_the_lazy_sums|a12_the_device_table_formula|a8_store_fold_forms_equal|d60_f3|d60_f8" $R/s9_full.log | cut -c1-200 >> $P

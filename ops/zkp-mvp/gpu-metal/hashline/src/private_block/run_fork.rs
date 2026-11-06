@@ -1331,7 +1331,6 @@ struct ForkCtx<'c> {
 #[derive(Clone, Copy)]
 enum Stages<'c> {
     Run(&'c ForkRun<'c>),
-    #[cfg_attr(not(test), allow(dead_code))]
     Plan(&'c ForkPlan, &'c Mutex<Vec<Option<Shape>>>),
 }
 
@@ -1893,7 +1892,11 @@ fn ahead_knob(i: usize, var: &str, default: usize, cell: &'static std::sync::Onc
 /// [A13] the window: how many of a fork run's first blocks have their
 /// before-challenge part made during the sealing pass, by a caller that runs
 /// its sealing pass through [`seal_ahead`] or [`prove_run_with_forks_sealing`]
-/// (`HL_D55_AHEAD`; 0, the default, makes none)
+/// or ([A19], production's `stack-prove --d55-workers`)
+/// [`prove_run_with_forks_planned`] (`HL_D55_AHEAD`; 0, the default, makes
+/// none). [A19] measured it through production's path and kept it off: one
+/// request −0.4% at 16 and −1.0% at 32, inside the noise floor, for +10 and
+/// +30 GiB of peak footprint (`results/zk60_effplan_20261105/a19/README.md`).
 #[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn ahead_window() -> usize {
     static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
@@ -2320,7 +2323,6 @@ pub(crate) fn prove_run_with_forks_sealing<S: RunWitnessSource>(fr: &ForkRun, bl
 /// run statement exists** (see above): the D55 profile string (the fork
 /// generators' domain), the block count, the NTT domain and each stage's two IO
 /// rows. Made from the run shape by [`ForkPlan::for_run`]; public words only.
-#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct ForkPlan {
     profile: String,
     l: usize,
@@ -2328,7 +2330,6 @@ pub(crate) struct ForkPlan {
     io_rows: Vec<[usize; 2]>,
 }
 
-#[cfg_attr(not(test), allow(dead_code))]
 impl ForkPlan {
     /// The plan of a fork run over `rs` (its base's D55 profile, by
     /// [`ForkRun::new`]'s own derivation) under the run's `context`. Each
@@ -2417,6 +2418,7 @@ impl Planned<'_> {
     }
 
     /// how many parts are parked now, and the host bytes they hold
+    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn parked(&self) -> (usize, usize) {
         self.slots.parked()
     }

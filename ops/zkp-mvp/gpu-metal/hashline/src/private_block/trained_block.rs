@@ -3121,6 +3121,7 @@ pub(crate) fn set_a19_share_for_test(on: Option<bool>) {
 
 /// [A19] how production's D55 proof ran: the CLI prints these, the harness reads them
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct D55Times {
     /// the sealing pass (its model's statement included), as R5b's `sealed` event
     pub seal_s: f64,
@@ -3159,6 +3160,7 @@ pub(crate) struct D55Proved {
     times: D55Times,
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 impl D55Proved {
     pub(crate) fn times(&self) -> &D55Times {
         &self.times
