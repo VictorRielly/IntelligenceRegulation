@@ -181,6 +181,30 @@ here. The rates count proving and witness work. Verification time is recorded se
     - **Finding A5, a ruling owed later:** summing the per-receipt bounds leaves a q·R cross term that the approved
       zero-knowledge target has no slot for. It matters only at absurd scales (about 2^126 queries and 2^118
       receipts). The fix is a sharper per-profile argument, or a cross term in the target, or a cap on R.
+- **D63 Lean, L5's foundation: the verifier's primitives in executable Lean (2026-11-06)** [PROVED; MEASURED for the
+  agreement check; `ExecField.lean`, `ExecTranscript.lean`, `ExecMerkle.lean`, `ExecBlake3.lean`;
+  `results/zk60_lean_l5_20261106/`].
+  - The field (Goldilocks and its quadratic extension), the Fiat–Shamir transcript and the Merkle column check are
+    written in Lean as the Rust code runs them. Each is proved equal to the model the soundness proofs use:
+    - each field operation is the field's;
+    - the transcript is the Fiat–Shamir chain, and its challenges are the modelled ones;
+    - the column check accepts exactly when the Merkle opening holds, so Merkle binding holds for the program itself.
+  - BLAKE3 is written too, in its three modes. It stays the random oracle, so it is tested, not proved.
+  - Agreement with Rust: 5,553 checks, 0 failed, including the official BLAKE3 vectors and three whole PCS openings
+    replayed. A negative control of six single changes fails exactly 6.
+  - On the merged tree: zkp-core's 81 tests and the export test pass, and the regenerated corpus is byte-identical.
+    The Lean build has 3449 jobs and no warning. 74 declarations use at most `propext`, `Classical.choice` and
+    `Quot.sound`. The L1 check still gives 101,956, 0 failed.
+  - W16R3 changes none of these.
+  - Finding L5-2 is already handled in the code. `Fp2::from_bytes` would read a word w ≥ p as w − p, but no decoder
+    calls it. The block receipt decoder (`wire.rs`) and the ffn_v3 decoder refuse any word ≥ p, so the Lean decoder
+    must copy that refusal.
+  - **Left for the per-profile verifier, after W16R3's freeze:**
+    - the `Protocol` instance and the receipt decoder;
+    - the sumcheck and LogUp arithmetic;
+    - the opening's checks (B1 changes the PCS encoder);
+    - M's mask check and the D55 run schedule, each proved equal to its model;
+    - a corpus from real W16R3 receipts.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.

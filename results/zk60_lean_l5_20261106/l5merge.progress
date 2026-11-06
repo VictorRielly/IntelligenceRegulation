@@ -1,0 +1,26 @@
+2026-11-06T19:42:05Z start
+2026-11-06T19:42:16Z zkp-core whole test suite rc=0
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/zkp_core-68bf4449a8e0df65)
+test result: ok. 81 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.29s
+     Running tests/endpoint_reuse.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/endpoint_reuse-ecba47c2d0a5fc86)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+     Running tests/lean_l5_export.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/lean_l5_export-3deeae70b58833c9)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-06T19:42:16Z regenerated corpus equals the committed corpus.txt: cmp rc=0
+df8919332471d2bf
+2026-11-06T19:42:42Z lake build rc=0
+✔ [3448/3449] Built ZK60Formal (1.7s)
+Build completed successfully (3449 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-06T19:42:45Z axiom audit rc=0
+sorryAx mentions: 0
+  52 axioms: [propext, Classical.choice, Quot.sound]
+  17 axioms: [propext, Quot.sound]
+   4 axioms: [propext]
+declarations with no axioms: 1
+2026-11-06T19:43:00Z L5Check on the committed corpus rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-06T19:43:05Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-06T19:43:05Z all done

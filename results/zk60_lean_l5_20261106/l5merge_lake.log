@@ -1,0 +1,7 @@
+✔ [3443/3449] Built ZK60Formal.L5Vectors (249ms)
+✔ [3444/3449] Built ZK60Formal.ExecField (14s)
+✔ [3445/3449] Built ZK60Formal.ExecBlake3 (1.8s)
+✔ [3446/3449] Built ZK60Formal.ExecTranscript (1.9s)
+✔ [3447/3449] Built ZK60Formal.ExecMerkle (1.8s)
+✔ [3448/3449] Built ZK60Formal (1.7s)
+Build completed successfully (3449 jobs).
