@@ -1,0 +1,13 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3431/3433] Built ZK60Formal.Assembly (3.5s)
+✔ [3432/3433] Built ZK60Formal (2.6s)
+Build completed successfully (3433 jobs).
+warnings: 0
+errors: 0
+== axiom audit ==
+axioms rc 0
+theorems audited: 24
+sorryAx: 0
+== source scan of Assembly.lean ==
+37:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`. The per-profile obligations that remain

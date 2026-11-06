@@ -382,9 +382,25 @@ The plain-words version, the modelling choices and the open decisions are in
     embedding row, the selector sums, the byte LogUp); the stages' layout map; the boundary links at both ends; the
     doors' classes and window conditions; canonical endpoint words. Not modelled: DD and the sealed-selector variants.
     No W16R2 token-I/O run profile is registered in the code yet (findings §14).
+- Proved so far (the ASSEMBLY, 2026-11-06: generic over any `IntModel`, `Arith` and `Protocol`; same build and axiom
+  checks, 24 theorems audited in `results/zk60_lean_asm_20261106/axioms.log`; findings and the per-profile obligation
+  list in `docs/zkmatrix-poc/ZK60_LEAN_ASSEMBLY_20261106.md`):
+  - `Assembly.lean`: **T2 ⇒ T2′ as approved**, `semanticHiding_of_zeroKnowledge : ZeroKnowledge M P εzk →
+    SemanticHiding M P (fun q => εzk q 1)` (the distinguisher `semDist` asks one proof request and is `Within q 1`;
+    `realProb_semDist`, `idealProb_semDist`, `avg_le`). **Statement 1 from an IOP-level extraction**: the notion
+    `IOPExtract` (an extractor of `(x, y, w)` with `Satisfies`, the commitments opening to `x` and `hiddenPart y`), and
+    `knowledgeSound_of_extract : CircuitIff M A → IOPExtract M A P ε → KnowledgeSound M P ε`; the completeness analogue
+    `ArithComplete` (`complete_of_arithComplete`, `arithComplete_iff_complete`). **The gate**: `productionReady_of`
+    (`CircuitIff`, `IOPExtract`, `Complete`, `Binding`, `ZeroKnowledge` give `ProductionReady`), and
+    `productionReady_mono` (the error terms are monotone). **`Binding` from Merkle binding**: `ColCommit`,
+    `ColCommit.binding`, `binding_of_colCommit`.
+  - No gap found in the approved statements for these steps (findings §3); `SemanticHiding` and `KnowledgeSound` need no
+    per-profile work once `ZeroKnowledge` and `IOPExtract` are proved.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
-  and proofs of `ProductionReady` for them (plan L1–L5).
+  and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems
+  (`CircuitIff`, `IOPExtract`, `Complete`, `Binding`, `ZeroKnowledge`) and the `Protocol` instance itself; the list,
+  mapped to the lemmas that exist, is §4 of `docs/zkmatrix-poc/ZK60_LEAN_ASSEMBLY_20261106.md`.
 
 **Build** (Lean 4.34.1 and Mathlib v4.34.1, pinned in `lean-toolchain` and `lakefile.toml`):
 
