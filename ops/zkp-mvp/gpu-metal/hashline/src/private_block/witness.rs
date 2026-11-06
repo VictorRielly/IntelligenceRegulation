@@ -49,13 +49,27 @@ pub(crate) use accuracy::with_sequential;
 /// controls whether a profile can produce or accept a proof.
 pub(crate) fn build_accuracy(sh:&Shape,public:&AttentionPublic,ff:&FeedForwardPublic,
     data:&super::accuracy_public::AccuracyPublic,input:&[i16])->Result<Witness,String> {
-    sh.check_constructed()?;
-    let geometry=super::accuracy_public::Geometry{width:sh.width,query_width:sh.q_width(),kv_width:sh.kv_heads*sh.head_dim,hidden:sh.hidden};
-    data.check_for_registry(sh.accuracy_registry(),geometry,sh.accuracy_base(),sh.accuracy_stack())?;
-    if data.folds().gate.shift!=sh.accuracy_gate_shift {
-        return Err("R13 witness: folded gate shift differs from the shape".into());
+    build_accuracy_with(sh,public,ff,data,input,a16_forms(),false)
+}
+
+/// [A16] `build_accuracy` in the forms `forms`; `block_checked`: the caller has just run
+/// `BlockPublic::check_accuracy_for_shape(sh)` on the block these three halves are
+/// (only `build_for_block` passes `true`)
+fn build_accuracy_with(sh:&Shape,public:&AttentionPublic,ff:&FeedForwardPublic,
+    data:&super::accuracy_public::AccuracyPublic,input:&[i16],forms:u32,block_checked:bool)->Result<Witness,String> {
+    // [A16] A16_ONCE: these three are steps 2, 6 and 7 of `check_accuracy_for_shape`, on the
+    // same shape and the same data (see the [A16] block below); they stay for every other caller
+    let once=forms&A16_ONCE!=0;
+    if !(once&&block_checked) {
+        sh.check_constructed()?;
+        let geometry=super::accuracy_public::Geometry{width:sh.width,query_width:sh.q_width(),kv_width:sh.kv_heads*sh.head_dim,hidden:sh.hidden};
+        data.check_for_registry(sh.accuracy_registry(),geometry,sh.accuracy_base(),sh.accuracy_stack())?;
+        if data.folds().gate.shift!=sh.accuracy_gate_shift {
+            return Err("R13 witness: folded gate shift differs from the shape".into());
+        }
     }
-    accuracy::assign(sh,public,data,accuracy::build(sh,public,ff,data,input)?)
+    let checked=if once&&block_checked {accuracy::Checked::Block} else {accuracy::Checked::Registry};
+    accuracy::assign_with(sh,public,data,accuracy::build_with(sh,public,ff,data,input,forms,checked)?,forms)
 }
 
 /// The block-aware component builder validates the complete public
@@ -65,12 +79,197 @@ pub(crate) fn build_for_block(sh:&Shape,blk:&super::BlockPublic,input:&[i16])->R
         // Component construction is valid independently of proof availability,
         // including when Rayon builds it off the invoking test's thread.
         blk.check_accuracy_for_shape(sh)?;
-        build_accuracy(sh,blk.attention(),blk.feed_forward(),blk.accuracy().expect("validated public data"),input)
+        // [A16] the three halves of the block just checked, at the same shape
+        build_accuracy_with(sh,blk.attention(),blk.feed_forward(),blk.accuracy().expect("validated public data"),input,a16_forms(),true)
     } else {
         blk.check_for_shape(sh)?;
         build_shaped(sh,blk.attention(),blk.feed_forward(),input)
     }
 }
+
+// ---------------------------------------- [A16] the sealing pass's serial remainder
+//
+// (`docs/zkmatrix-poc/ZK60_EFFICIENCY_PLAN_20261105.md`, item A16;
+// `results/zk60_effplan_20261105/a16/README.md`.) After A15 the sealing pass's builds
+// ran in an 8-thread pool, and about 1.1 s of its 2.6 s main line per 32-block pass was
+// the builder's own SERIAL work (A15's sample, re-split by phase): the supports and chunk
+// plans rebuilt every block, `quantized`'s read-back, `normalized`'s i128 divisions, the
+// per-position loops of `build`. Each form below is byte-preserving; `HL_A16` chooses
+// them (unset, empty or `auto`: [`A16_DEFAULT`]; `0`: none, the builder before A16;
+// `all`; or a `,`/`+` list of the words below).
+//
+// - `cache` (A16_CACHE): every domain's support (and chunk plan) is a pure function of the
+//   public geometry ([`Geom::cache_key`] holds everything `Geom::support` reads), kept
+//   for the process instead of rebuilt in `build`, `residual` and `assign`.
+// - `quant` (A16_QUANT): `quantized` writes its two planes over whole chunks in parallel
+//   (each support position belongs to one chunk), with no serial read-back; zeroed in
+//   parallel.
+// - `norm` (A16_NORM): `normalized`'s rows in parallel; each row's divisions in i64 when
+//   every numerator and the denominator fit (the same Euclidean words as i128).
+// - `loops` (A16_LOOPS): `build`'s per-position loops (input scatter, PV scatter, the
+//   ungated exp lookup, `a_scaled`, the product, both residuals) in parallel, and its
+//   zero planes zeroed in parallel instead of cloned.
+// - `once` (A16_ONCE): production's `build_for_block` checks the block once. Before A16
+//   it ran `check_accuracy_for_shape(sh)` (steps 1-9 below), then `build_accuracy` ran 2,
+//   6, 7 again, then `accuracy::build` ran 3, 4, 8 and 6 again; with `once` the repeats
+//   are skipped on that path only, because each is the same function of the same `sh`
+//   and the same `&BlockPublic` halves (shared borrows: nothing changes between them),
+//   so it cannot refuse after the first has passed. Every refusal on bad public data is
+//   still the first check's, in its order, with its message. `build_accuracy` called
+//   directly keeps 2, 6, 7 and 3, 4, 8, and skips only `build`'s second 6 (it is the
+//   same call: `sh.accuracy_base()` is `build`'s `BaseShifts` field for field, and 6
+//   passing pins `data.stack() == sh.accuracy_stack()`).
+//   `check_accuracy_for_shape`: 1 stack not Legacy; 2 `sh.check_constructed()`; 3 the
+//   attention half's CS-1; 4 the feed-forward half's CS-1; 5 the data present; 6
+//   `check_for_registry(registry, geometry, base, stack)`; 7 the folded gate shift; 8 the
+//   -128 scan of the nine weight arrays; 9 the DD column.
+// - `overlap` (A16_OVERLAP): the independent products (Q, K, V; gate, up) and their
+//   requantizations run side by side (`rayon::join`); refusals are taken in the
+//   sequential order.
+// - `kernels` (A16_KERNELS): the two largest parallel regions' inner loops (the scores
+//   and the PV sums) over contiguous int16 rows (QR, KR and V were range-checked to int16;
+//   every product fits i32), each sum the same terms added in the same order.
+// - **Timing.** No form adds a path whose time depends on a hidden value: the
+//   sequential re-runs happen only on a refusal, which ends the build; the int16 and i64
+//   forms decline only for words outside the classes the earlier range checks already
+//   enforce (for `norm`, the bound uses at least the int16 maximum and the public
+//   multiplier), so for an admissible trace they are taken whatever the values.
+//
+// **Why no byte moves.** Every form writes the same words at the same positions: a cache
+// returns the vector a fresh call would build; the parallel loops are indexed writes of
+// the same per-position function, each position written by one task; integer division
+// is exact in any width that holds it. **Refusals:** each new parallel loop only detects
+// that some position refuses, then runs the sequential loop it replaces, which returns
+// that loop's first refusal (as `weights_vanish_off_support` does); per-row loops return
+// the first row's refusal, in row order. `sequential()` (tests) turns every form off.
+// Tests: `w16r2_tests::a16_*` and `witness_speed_tests::h124c_*`.
+
+/// [A16] the builder's forms, one bit each
+pub(crate) const A16_CACHE: u32 = 1;
+pub(crate) const A16_QUANT: u32 = 2;
+pub(crate) const A16_NORM: u32 = 4;
+pub(crate) const A16_LOOPS: u32 = 8;
+pub(crate) const A16_ONCE: u32 = 16;
+pub(crate) const A16_OVERLAP: u32 = 32;
+pub(crate) const A16_KERNELS: u32 = 64;
+pub(crate) const A16_ALL: u32 = 127;
+/// [A16] the default (`HL_A16` unset)
+pub(crate) const A16_DEFAULT: u32 = A16_ALL;
+
+/// [A16] `HL_A16`'s value as a set of forms; an unknown word is the default
+pub(crate) fn a16_parse(v: Option<&str>) -> u32 {
+    let v = match v.map(str::trim) {
+        None | Some("") | Some("auto") => return A16_DEFAULT,
+        Some(v) => v,
+    };
+    match v {
+        "0" | "none" | "old" => return 0,
+        "all" => return A16_ALL,
+        _ => {}
+    }
+    let mut m = 0;
+    for w in v.split([',', '+']).map(str::trim).filter(|w| !w.is_empty()) {
+        m |= match w {
+            "cache" => A16_CACHE,
+            "quant" => A16_QUANT,
+            "norm" => A16_NORM,
+            "loops" => A16_LOOPS,
+            "once" => A16_ONCE,
+            "overlap" => A16_OVERLAP,
+            "kernels" => A16_KERNELS,
+            _ => return A16_DEFAULT,
+        };
+    }
+    m
+}
+
+/// [A16] the test override (`u32::MAX`: none)
+static A16_TEST: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(u32::MAX);
+
+#[cfg(test)]
+thread_local! {
+    /// [A16] tests: this thread's forms, over everything else
+    static A16_LOCAL: std::cell::Cell<Option<u32>> = const { std::cell::Cell::new(None) };
+}
+
+/// [A16] the builder's forms in force (read once per build, at its entry)
+pub(crate) fn a16_forms() -> u32 {
+    #[cfg(test)]
+    if let Some(m) = A16_LOCAL.with(|c| c.get()) {
+        return m;
+    }
+    static ENV: std::sync::OnceLock<u32> = std::sync::OnceLock::new();
+    match A16_TEST.load(std::sync::atomic::Ordering::Relaxed) {
+        u32::MAX => *ENV.get_or_init(|| a16_parse(std::env::var("HL_A16").ok().as_deref())),
+        m => m & A16_ALL,
+    }
+}
+
+/// [A16] tests: the forms for the whole process (`None`: as `HL_A16` says)
+#[cfg(test)]
+pub(crate) fn set_a16_for_test(forms: Option<u32>) {
+    A16_TEST.store(forms.map(|m| m & A16_ALL).unwrap_or(u32::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [A16] tests: run `f` with this thread's builds in the forms `forms` (a build entered
+/// on this thread reads them once and carries them into its parallel regions)
+#[cfg(test)]
+pub(crate) fn with_a16<R>(forms: u32, f: impl FnOnce() -> R) -> R {
+    let before = A16_LOCAL.with(|c| c.replace(Some(forms & A16_ALL)));
+    let r = f();
+    A16_LOCAL.with(|c| c.set(before));
+    r
+}
+
+/// [A16] a domain of one geometry: everything `Geom::support` and the chunk plans read
+pub(super) type GeomKey = (Dom, Vec<usize>);
+
+/// [A16] values kept for the process by [`GeomKey`] (at most [`SHARE_MAX`]; a full
+/// cache is emptied, never consulted for another key)
+pub(super) struct ShareCache<T>(std::sync::Mutex<Vec<(GeomKey, std::sync::Arc<T>)>>);
+
+const SHARE_MAX: usize = 64;
+
+impl<T> ShareCache<T> {
+    pub(super) const fn new() -> Self {
+        ShareCache(std::sync::Mutex::new(Vec::new()))
+    }
+    /// the value kept for `key`, else `make()` (kept); a poisoned lock only skips the cache
+    pub(super) fn get_or(&self, key: GeomKey, make: impl FnOnce() -> T) -> std::sync::Arc<T> {
+        if let Ok(g) = self.0.lock() {
+            if let Some((_, v)) = g.iter().find(|(k, _)| *k == key) {
+                return v.clone();
+            }
+        }
+        let v = std::sync::Arc::new(make());
+        if let Ok(mut g) = self.0.lock() {
+            if let Some((_, w)) = g.iter().find(|(k, _)| *k == key) {
+                return w.clone();
+            }
+            if g.len() >= SHARE_MAX {
+                g.clear();
+            }
+            g.push((key, v.clone()));
+        }
+        v
+    }
+}
+
+static SUPPORTS: ShareCache<Vec<usize>> = ShareCache::new();
+
+/// [A16] a zero plane of `n` words, zeroed on the pool (`vec![0; n]` of a reused
+/// allocation is zeroed on the calling thread); the same words
+pub(super) fn zeros(n: usize) -> Vec<i64> {
+    use rayon::prelude::*;
+    if n < 1 << 16 {
+        return vec![0; n];
+    }
+    let mut v = Vec::with_capacity(n);
+    v.par_extend(rayon::iter::repeat_n(0i64, n));
+    v
+}
+
+// ---------------------------------------- [A16] end (and `Geom::cache_key`, `Geom::support_shared`)
 
 #[derive(Clone)]
 pub(crate) struct Witness {
@@ -405,6 +604,20 @@ impl<'a> Geom<'a> {
         }
         v
     }
+
+    /// [A16] the key of `dom` at this geometry: every value [`Geom::support`] reads for
+    /// it (the true extents, the padded strides, the domain's padded size and every
+    /// logical head's slot), and every value a chunk plan reads (the strides and the size)
+    pub(super) fn cache_key(&self, dom: Dom) -> GeomKey {
+        let mut v = vec![self.t, self.d, self.f, self.hq, self.hkv, self.dh, self.t_pad, self.d_pad, self.q_pad, self.f_pad, self.h_pad, self.kvw, self.s.size(dom)];
+        v.extend((0..self.hq).map(|h| self.slot(h)));
+        (dom, v)
+    }
+
+    /// [A16] `support(dom)`, kept for the process (the same vector)
+    pub(super) fn support_shared(&self, dom: Dom) -> std::sync::Arc<Vec<usize>> {
+        SUPPORTS.get_or(self.cache_key(dom), || self.support(dom))
+    }
 }
 
 /// Requantize the true positions of `acc` into a class, leaving every pad at
@@ -572,6 +785,18 @@ pub(crate) fn with_device_products<R>(on: bool, f: impl FnOnce() -> R) -> R {
 #[cfg(test)]
 pub(crate) fn device_products_made() -> usize {
     DEVICE_MADE.with(|c| c.get())
+}
+
+/// [A16] tests: this thread's products are pinned by [`with_device_products`] (A16_OVERLAP
+/// then stays off: a product made on another thread would not see the switch or count)
+#[cfg(test)]
+fn products_pinned() -> bool {
+    DEVICE.with(|d| d.get()).is_some()
+}
+
+#[cfg(not(test))]
+fn products_pinned() -> bool {
+    false
 }
 
 fn device_wanted(macs: usize) -> bool {

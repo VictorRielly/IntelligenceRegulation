@@ -1,0 +1,140 @@
+2026-11-05T21:56:58Z start
+2026-11-05T21:59:26Z build rc=0
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:790:1
+    |
+790 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+791 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+792 | | /// at its own stage (R3 streaming).
+793 | | ///
+...   |
+802 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+--
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:162:12
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:165:9
+    |
+165 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:345:9
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:345:33
+    |
+345 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+2026-11-05T21:59:28Z no-feature cargo check --tests rc=0
+2026-11-05T21:59:29Z witness_accuracy unit tests rc=0
+test private_block::witness::accuracy::tests::a16_the_switch_parses_its_words ... ok
+test private_block::witness::accuracy::tests::a16_quantized_over_chunks_refuses_with_the_first_refusal_in_support_order ... ok
+test private_block::witness::accuracy::tests::amended_int16_endpoints_and_rope_accumulators_do_not_wrap ... ok
+test private_block::witness::accuracy::tests::a16_residual_over_chunks_equals_residual ... ok
+test private_block::witness::accuracy::tests::a16_normalized_by_rows_equals_normalized_and_refuses_with_the_first_rows_refusal ... ok
+test private_block::witness::accuracy::tests::future_scores_are_range_checked_before_the_causal_mask ... ok
+test private_block::witness::accuracy::tests::new_execution_rejects_public_negative_128_weights ... ok
+test private_block::witness::accuracy::tests::dictionary_assignment_uses_fp12_on_every_slot_including_repeated_padding_zeros ... ok
+test private_block::witness::accuracy::tests::both_export_stacks_match_the_independent_full_block_oracle ... ok
+test private_block::witness::accuracy::tests::both_accuracy_stacks_assign_all_words_to_distinct_native_planes_and_recover_the_output ... ok
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 1034 filtered out; finished in 0.02s
+2026-11-05T22:00:46Z a16 suite tests rc=0
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 [sh_qkv 1]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 [sh_s 1]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 [sh_o 1]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 [sh_ao 1]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 [sh_h 5]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 [sh_z 1]: this calibration does not build (skipped)
+A16-FORMS W16R2_RUNG_H24: 11 inputs x 16 form sets x 2 entries, every plane and refusal equal; outcomes {"ok": 11}
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-dev/2 [sh_qkv 1]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-dev/2 [sh_s 1]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-dev/2 [sh_o 1]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-dev/2 [sh_ao 1]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-dev/2 [sh_h 5]: this calibration does not build (skipped)
+A16-REFUSALS hashline-zk-mr1/private-block-rung-lh-t32-dev/2 [sh_z 1]: this calibration does not build (skipped)
+A16-REFUSALS: 16 form sets x 2 entries, every plane and refusal equal; outcomes {"FFN gate": 16, "norm quotient/remainder": 16, "residual 1": 6, "score": 6}
+test private_block::w16r2_tests::a16_every_form_refuses_as_the_builder_before_a16_at_every_site ... ok
+test private_block::w16r2_tests::a16_the_8b_witness_planes_in_every_form ... ignored, A16: heavy (W16R2 8B T128 chains in 15 form sets, CPU and device products), toggles HL_GPU; run alone by name, HL_GPU_REQUIRED=1
+A16-RUNG W16R2_RUNG_H24 the calling thread (global pool): 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 a rayon pool of 1: 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 a rayon pool of 4: 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 a rayon pool of 8: 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 a rayon pool of 16: 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 the sealing pool, setting Some(0) (0 threads): 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 the sealing pool, setting Some(1) (1 threads): 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 the sealing pool, setting Some(4) (4 threads): 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 the sealing pool, setting Some(8) (8 threads): 16 form sets, 3 witnesses each, every plane equal
+A16-FORMS R13_RUNG_H24: 11 inputs x 16 form sets x 2 entries, every plane and refusal equal; outcomes {"ok": 11}
+A16-RUNG W16R2_RUNG_H24 the sealing pool, setting Some(16) (16 threads): 16 form sets, 3 witnesses each, every plane equal
+A16-RUNG W16R2_RUNG_H24 the sealing pool, setting None (8 threads): 16 form sets, 3 witnesses each, every plane equal
+test private_block::w16r2_tests::a16_the_rung_chain_in_every_form_and_every_pool ... ok
+A16-FORMS R13_RUNG_H24_DD: 11 inputs x 16 form sets x 2 entries, every plane and refusal equal; outcomes {"D30 / B-8 — this block's exp table needs a dictionary column of 59 slots ({0} U its outputs), more than the profile's cap of 32; refused by name before any header": 11}
+test private_block::w16r2_tests::a16_every_form_builds_the_same_planes_and_refuses_the_same has been running for over 60 seconds
+A16-FORMS R13_TINY_T128_LOW: 11 inputs x 16 form sets x 2 entries, every plane and refusal equal; outcomes {"ok": 11}
+test private_block::w16r2_tests::a16_every_form_builds_the_same_planes_and_refuses_the_same ... ok
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 1040 filtered out; finished in 76.90s
+2026-11-05T22:01:04Z witness_speed_tests (H124c, A4) rc=0
+test private_block::witness_speed_tests::a4::a4_activations_outside_i16_stay_on_the_cpu ... ok
+test private_block::witness_speed_tests::a4::a4_the_device_products_are_exact_at_their_extremes ... ok
+test private_block::witness_speed_tests::a4::a4_the_device_products_equal_the_cpu_ones_on_every_input_class ... ok
+test private_block::witness_speed_tests::a4::a4_witness_time_per_block_cpu_against_the_device ... ignored, release timing (A4): the W16R2 8B T128 witness with CPU and device products
+test private_block::witness_speed_tests::a4_forcing_the_device_never_changes_a_product ... ok
+test private_block::witness_speed_tests::h124_witness_time_per_block_at_w16r2_8b_t128 ... ignored, release timing (H124): the W16R2 8B T128 witness, all threads and one thread, and the weight products alone
+A4 R13_TINY_T128_LOW: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+H124c R13_TINY_T128_LOW: 4 admissible inputs equal on every plane, 0 refused identically
+H124c R13_8B_T128_H24_DD: 0 admissible inputs equal on every plane, 4 refused identically
+H124c R13_RUNG_H24: 4 admissible inputs equal on every plane, 0 refused identically
+H124c W16R2_RUNG_H24: 4 admissible inputs equal on every plane, 0 refused identically
+A4 R13_8B_T128_H24_DD: 0 admissible inputs equal on every plane on all 3 device routes, 4 refused identically
+A4 R13_RUNG_H24: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+A4 W16R2_RUNG_H24: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+H124c W16_SHIELD_T256_H24: 4 admissible inputs equal on every plane, 0 refused identically
+H124c W16R2_8B_T128_H24: 4 admissible inputs equal on every plane, 0 refused identically
+test private_block::witness_speed_tests::h124c_the_parallel_builder_equals_the_sequential_one_on_every_plane ... ok
+test private_block::witness_speed_tests::h124c_witness_build_loop_for_sampling ... ignored, profiling load (H124c): W16R2 8B T128 witness builds in a loop
+test private_block::witness_speed_tests::native_witness_time_per_block_at_the_trained_tinyllama_shapes ... ignored, release timing: TinyLlama witnesses at T32, T64 and T128
+test private_block::witness_speed_tests::the_i16_products_are_exact_at_their_extremes ... ok
+test private_block::witness_speed_tests::the_parallel_products_equal_the_sequential_ones_at_the_tinyllama_dimensions ... ignored, release: the sequential reference at TinyLlama's dimensions
+test private_block::witness_speed_tests::the_parallel_products_equal_the_sequential_ones_at_the_trained_rung ... ok
+A4 W16_SHIELD_T256_H24: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+A4 W16R2_8B_T128_H24: 4 admissible inputs equal on every plane on all 3 device routes, 0 refused identically
+test private_block::witness_speed_tests::a4::a4_the_device_builder_equals_the_cpu_one_on_every_plane ... ok
+test result: ok. 8 passed; 0 failed; 5 ignored; 0 measured; 1031 filtered out; finished in 18.08s
+2026-11-05T22:01:04Z a15 rung test rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1043 filtered out; finished in 0.41s
+2026-11-05T22:01:04Z all done

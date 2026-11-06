@@ -2081,6 +2081,10 @@ struct GpuArm {
     /// A15: where the sealing pass builds its witnesses (see [`A15Seal`]); unnamed:
     /// as the environment says
     seal: Option<A15Seal>,
+    /// A16: the builder's forms (see [`a16_word`]); unnamed: as the environment says
+    a16: Option<u32>,
+    /// A16: `prod`: every witness through production's `build_for_block`
+    prod: bool,
 }
 
 // ---- [A14] the A/B words of efficiency plan A14 (the forks' remaining host work) ----
@@ -2256,8 +2260,76 @@ fn a15_sealed_report(name: &str, l: usize, n: usize, arm: &str, wall: f64, seal:
 
 // ---- end of [A15] ----
 
+// ---- [A16] the builder's serial remainder (efficiency plan A16) ----
+
+/// [A16] a form's word (`cache`, `quant`, `norm`, `loops`, `once`, `overlap`, `kernels`)
+fn a16_form(w: &str) -> Option<u32> {
+    use crate::private_block::witness::{A16_CACHE, A16_KERNELS, A16_LOOPS, A16_NORM, A16_ONCE, A16_OVERLAP, A16_QUANT};
+    Some(match w {
+        "cache" => A16_CACHE,
+        "quant" => A16_QUANT,
+        "norm" => A16_NORM,
+        "loops" => A16_LOOPS,
+        "once" => A16_ONCE,
+        "overlap" => A16_OVERLAP,
+        "kernels" => A16_KERNELS,
+        _ => return None,
+    })
+}
+
+/// **[A16]** one `+`-joined word of an arm, if it is A16's: `a16old` (no form: the
+/// builder before A16), `a16all`, `a16def` (the default), `a16<form>` (adds the form to
+/// the arm's set, which starts empty), `a16x<form>` (every form but this one; joined
+/// words take more out), and `prod` (every witness through production's
+/// `witness::build_for_block`, as `seal_and_record` builds it, instead of
+/// `build_accuracy`: the same words; `once` acts on that path only)
+fn a16_word(forms: &mut Option<u32>, prod: &mut bool, w: &str) -> bool {
+    use crate::private_block::witness::{A16_ALL, A16_DEFAULT};
+    match w {
+        "prod" => *prod = true,
+        "a16old" => *forms = Some(0),
+        "a16all" => *forms = Some(A16_ALL),
+        "a16def" => *forms = Some(A16_DEFAULT),
+        _ => {
+            if let Some(f) = w.strip_prefix("a16x").and_then(a16_form) {
+                *forms = Some(forms.unwrap_or(A16_ALL) & !f);
+            } else if let Some(f) = w.strip_prefix("a16").and_then(a16_form) {
+                *forms = Some(forms.unwrap_or(0) | f);
+            } else {
+                return false;
+            }
+        }
+    }
+    true
+}
+
+/// [A16] `prod` in force (the harness's `build`, on every thread, reads it)
+static A16_PROD: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// [A16] put an arm's forms and builder in force for the whole process; `(None, false)`
+/// restores the environment's forms and `build_accuracy`
+fn a16_apply(forms: Option<u32>, prod: bool) {
+    crate::private_block::witness::set_a16_for_test(forms);
+    A16_PROD.store(prod, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [A16] an arm of the sealing-alone A/B: A15's place and A16's forms and builder
+fn a16_seal_arm(spec: &str) -> Option<(Option<A15Seal>, Option<u32>, bool)> {
+    let (mut seal, mut forms, mut prod) = (None, None, false);
+    for w in spec.split('+').map(str::trim).filter(|w| !w.is_empty()) {
+        if let Some(sp) = a15_word(w) {
+            seal = Some(sp);
+        } else if !a16_word(&mut forms, &mut prod, w) {
+            return None;
+        }
+    }
+    Some((seal, forms, prod))
+}
+
+// ---- end of [A16] ----
+
 fn gpu_arm(spec: &str) -> Option<GpuArm> {
-    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default(), seal: None };
+    let mut a = GpuArm { label: spec.to_string(), per_thread: None, wait: None, devfold: false, phases: false, fork_pool: None, device_tables: None, a8_form: None, a14: A14Arm::default(), seal: None, a16: None, prod: false };
     for w in spec.split('+').map(str::trim) {
         if let Some(t) = w.strip_prefix("fp").and_then(|t| t.parse::<usize>().ok()) {
             a.fork_pool = Some(t);
@@ -2270,6 +2342,10 @@ fn gpu_arm(spec: &str) -> Option<GpuArm> {
         // [A15]
         if let Some(sp) = a15_word(w) {
             a.seal = Some(sp);
+            continue;
+        }
+        // [A16]
+        if a16_word(&mut a.a16, &mut a.prod, w) {
             continue;
         }
         match w {
@@ -2350,7 +2426,8 @@ fn d55_ab_one_request_serial_against_forks() {
     let original = crate::private_block::range16_tests::built(spec.profile);
     let (sh, data, public, ff) = crate::private_block::range16_tests::case(original, 3);
     let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
-    let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+    // [A16] `prod`: production's builder (`build_for_block`, as `seal_and_record`), the same words
+    let build = |x: &[i16]| if A16_PROD.load(std::sync::atomic::Ordering::Relaxed) { witness::build_for_block(&sh, &blk, x) } else { witness::build_accuracy(&sh, &public, &ff, &data, x) };
     // M10's admissible input, then the honest chain through every layer
     let mut s = 0usize;
     let x0 = loop {
@@ -2717,6 +2794,87 @@ fn d55_ab_one_request_serial_against_forks() {
             a15_apply(None);
         }
     }
+    // [A16] `HL_A16_SEAL_AB=<arms>`, each `+`-joined A15 words (`sp<t>`, `spauto`, `spg`) and
+    // A16 words ([`a16_word`]: `a16old`, `a16all`, `a16def`, `a16<form>`, `a16x<form>`, `prod`):
+    // the sealing pass ALONE, `HL_A16_SEAL_PASSES` passes (default 3), each arm once per pass
+    // (reversed in odd passes with `HL_D55_AB_ALTERNATE=1`); in each arm's first pass one
+    // digest of every plane of every witness of the chain, which must be the first arm's. Then
+    // `HL_A16_SAMPLE=K` over `HL_A16_SAMPLE_ARMS` (A15's handshake, `A16-SAMPLE READY <arm> pid
+    // <pid>`, `$HL_A16_SAMPLE_DIR/go.<arm>` and `next.<arm>`). `HL_A16_ONLY=1` ends the test there.
+    {
+        let arm_of = |s: &str| a16_seal_arm(s).unwrap_or_else(|| panic!("HL_A16_SEAL_AB / HL_A16_SAMPLE_ARMS: an unknown arm {s:?}"));
+        let a16_put = |s: &str| {
+            let (seal, forms, prod) = arm_of(s);
+            a15_apply(seal);
+            a16_apply(forms, prod);
+            format!("forms {:#04x}, {}", crate::private_block::witness::a16_forms(), if prod { "build_for_block" } else { "build_accuracy" })
+        };
+        let a16_off = || {
+            a15_apply(None);
+            a16_apply(None, false);
+        };
+        let arms: Vec<String> = std::env::var("HL_A16_SEAL_AB").unwrap_or_default().split(',').map(str::trim).filter(|s| !s.is_empty()).map(str::to_string).collect();
+        if !arms.is_empty() {
+            let passes: usize = env_or("HL_A16_SEAL_PASSES", 3usize).max(1);
+            let alternate: bool = env_or("HL_D55_AB_ALTERNATE", 0usize) == 1;
+            let mut first: Option<(String, String)> = None;
+            for p in 0..passes {
+                let order: Vec<usize> = if alternate && p % 2 == 1 { (0..arms.len()).rev().collect() } else { (0..arms.len()).collect() };
+                for ai in order {
+                    let label = &arms[ai];
+                    let what = a16_put(label);
+                    let (wall, u, pool, digest) = a15_alone(p == 0);
+                    a16_off();
+                    let mut same = String::new();
+                    if p == 0 {
+                        match &first {
+                            None => first = Some((label.clone(), digest.clone())),
+                            Some((l0, d0)) => assert_eq!(&digest, d0, "A16: a plane of the chain's witnesses differs between [{l0}] and [{label}]"),
+                        }
+                        same = format!("; every plane of every witness: digest {} (equal to the first arm's, [{}])", &digest[..16], first.as_ref().map(|(l0, _)| l0.as_str()).unwrap_or("-"));
+                    }
+                    eprintln!(
+                        "D55-AB A16 SEALONLY {name} L{l} [{label}] pass {p}: wall {wall:.3} s in {pool}; user {:.2} s + sys {:.2} s = {:.1} cores; csw voluntary {}, involuntary {}; minor faults {}; {what}{same}",
+                        u.user,
+                        u.sys,
+                        (u.user + u.sys) / wall,
+                        u.nvcsw,
+                        u.nivcsw,
+                        u.minflt
+                    );
+                }
+            }
+        }
+        let k: usize = env_or("HL_A16_SAMPLE", 0usize);
+        if k > 0 {
+            let dir = PathBuf::from(std::env::var("HL_A16_SAMPLE_DIR").expect("HL_A16_SAMPLE_DIR names the handshake directory"));
+            let wait_for = |f: &std::path::Path, secs: u64| {
+                let t = Instant::now();
+                while !f.exists() {
+                    assert!(t.elapsed().as_secs() < secs, "A16-SAMPLE: no {} after {secs} s", f.display());
+                    std::thread::sleep(std::time::Duration::from_millis(20));
+                }
+            };
+            let sample_arms: Vec<String> = std::env::var("HL_A16_SAMPLE_ARMS").unwrap_or_else(|_| "spauto+a16old,spauto+a16def".into()).split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+            for (si, label) in sample_arms.iter().enumerate() {
+                let what = a16_put(label);
+                eprintln!("A16-SAMPLE READY s{si} [{label}] pid {}", std::process::id());
+                wait_for(&dir.join(format!("go.s{si}")), 600);
+                let t = Instant::now();
+                for i in 0..k {
+                    let (wall, u, pool, _) = a15_alone(false);
+                    eprintln!("A16-SAMPLE s{si} [{label}] pass {i}: wall {wall:.3} s in {pool}; {what}; user {:.2} s + sys {:.2} s; csw voluntary {}, involuntary {}; minor faults {}", u.user, u.sys, u.nvcsw, u.nivcsw, u.minflt);
+                }
+                eprintln!("A16-SAMPLE DONE s{si} [{label}] after {:.3} s", t.elapsed().as_secs_f64());
+                wait_for(&dir.join(format!("next.s{si}")), 600);
+                a16_off();
+            }
+        }
+        if env_or("HL_A16_ONLY", 0usize) == 1 {
+            eprintln!("D55-AB A16: HL_A16_ONLY=1, the test ends after the sealing passes");
+            return;
+        }
+    }
     if env_or("HL_A15_ONLY", 0usize) == 1 {
         eprintln!("D55-AB A15: HL_A15_ONLY=1, the test ends after the sealing passes");
         return;
@@ -2841,6 +2999,8 @@ fn d55_ab_one_request_serial_against_forks() {
                 a14_apply(&a.a14);
                 // [A15]
                 a15_apply(a.seal);
+                // [A16]
+                a16_apply(a.a16, a.prod);
                 if a.fork_pool == Some(usize::MAX) {
                     set_fork_pool_auto_for_test();
                 } else {
@@ -2904,6 +3064,8 @@ fn d55_ab_one_request_serial_against_forks() {
         a14_apply(&A14Arm::default());
         // [A15]
         a15_apply(None);
+        // [A16]
+        a16_apply(None, false);
         a11_set_arm("");
         set_fork_pool_for_test(None);
     }

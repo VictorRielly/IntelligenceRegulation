@@ -1,0 +1,52 @@
+main line total 5.15 s (2 passes)
+
+## main line by first phase frame and kind (s, 2 passes)
+    1.76  serial  build
+    1.08  gpu     build
+    0.90  par     build
+    0.66  serial  assign
+    0.59  par     assign
+    0.09  wait    build
+    0.06  wait    assign
+    0.01  serial  accuracy_public::AccuracyPublic::check_for_registry
+
+## main line by two frames and kind (top 60)
+    0.72  gpu     build > matmul_in_out
+    0.69  serial  build > quantized
+    0.64  serial  assign > assign::_$u7b$$u7b$closure$u7d$$u7d$
+    0.59  par     assign > assign::_$u7b$$u7b$closure$u7d$$u7d$
+    0.50  par     build > -
+    0.36  gpu     build > matmul
+    0.35  serial  build > -
+    0.33  serial  build > normalized
+    0.29  par     build > quantized
+    0.19  serial  build > Geom::support
+    0.09  par     build > FeedForwardPublic::check_for_shape
+    0.09  serial  build > residual
+    0.06  wait    assign > assign::_$u7b$$u7b$closure$u7d$$u7d$
+    0.04  serial  build > matmul_in_out
+    0.04  wait    build > -
+    0.04  wait    build > quantized
+    0.02  serial  build > rotate
+    0.02  serial  build > matmul
+    0.02  serial  build > accuracy_public::AccuracyPublic::check_for_registry
+    0.02  serial  assign > -
+    0.01  par     build > matmul_in_out
+    0.01  serial  accuracy_public::AccuracyPublic::check_for_registry > accuracy_public::AccuracyPublic::new_with_registry
+    0.01  par     build > matmul
+    0.01  serial  build > AttentionPublic::check_for_shape
+    0.00  wait    build > matmul_in_out
+    0.00  serial  build > FeedForwardPublic::check_for_shape
+    0.00  wait    build > matmul
+    0.00  wait    build > AttentionPublic::check_for_shape
+    0.00  par     build > AttentionPublic::check_for_shape
+
+## workers busy by job frames (top 40)
+    8.95  main > -
+    3.68  run::fork::tests::d55_ab_one_request_serial_against_forks > -
+    1.00  assign::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$ > -
+    0.62  quantized::_$u7b$$u7b$closure$u7d$$u7d$ > -
+    0.58  quantized::_$u7b$$u7b$closure$u7d$$u7d$ > accuracy::requant
+    0.13  accuracy::requant > -
+    0.11  run::fork::tests::d55_ab_one_request_serial_against_forks > run::fork::tests::d55_ab_one_request_serial_against_forks::_$u7b$$u7b$closure$u7d$$u7d$
+    0.01  Axis::supported > -

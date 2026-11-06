@@ -1,0 +1,62 @@
+main line total 2.48 s (2 passes)
+
+## main line by first phase frame and kind (s, 2 passes)
+    0.96  par     build_with
+    0.72  gpu     build_with
+    0.58  par     assign_with
+    0.10  wait    build_with
+    0.06  wait    assign_with
+    0.03  serial  build_with
+    0.02  serial  assign_with
+    0.02  serial  accuracy_public::AccuracyPublic::check_for_registry
+    0.00  serial  shape::Shape::check_constructed
+
+## main line by two frames and kind (top 60)
+    0.58  par     assign_with > assign_with::_$u7b$$u7b$closure$u7d$$u7d$
+    0.51  gpu     build_with > matmul_in_out
+    0.40  par     build_with > quantized_with
+    0.26  par     build_with > -
+    0.21  gpu     build_with > matmul
+    0.09  par     build_with > zeros
+    0.07  par     build_with > normalized_par
+    0.06  par     build_with > FeedForwardPublic::check_for_shape
+    0.06  wait    assign_with > assign_with::_$u7b$$u7b$closure$u7d$$u7d$
+    0.03  wait    build_with > -
+    0.03  wait    build_with > quantized_with
+    0.02  par     build_with > matmul_in_out
+    0.02  par     build_with > build_with::_$u7b$$u7b$closure$u7d$$u7d$
+    0.02  par     build_with > matmul
+    0.02  serial  accuracy_public::AccuracyPublic::check_for_registry > accuracy_public::AccuracyPublic::new_with_registry
+    0.01  serial  assign_with > -
+    0.01  serial  build_with > matmul_in_out
+    0.01  par     build_with > AttentionPublic::check_for_shape
+    0.01  wait    build_with > normalized_par
+    0.01  wait    build_with > zeros
+    0.01  wait    build_with > build_with::_$u7b$$u7b$closure$u7d$$u7d$
+    0.01  wait    build_with > matmul
+    0.01  par     build_with > rotate
+    0.01  serial  build_with > FeedForwardPublic::check_for_shape
+    0.00  wait    build_with > matmul_in_out
+    0.00  serial  build_with > matmul
+    0.00  serial  build_with > AttentionPublic::check_for_shape
+    0.00  wait    build_with > narrow16_par
+    0.00  serial  assign_with > assign_with::_$u7b$$u7b$closure$u7d$$u7d$
+    0.00  serial  accuracy_public::AccuracyPublic::check_for_registry > -
+    0.00  wait    build_with > AttentionPublic::check_for_shape
+    0.00  par     build_with > narrow16_par
+    0.00  serial  build_with > -
+    0.00  serial  assign_with > shape::accuracy_spec
+    0.00  serial  shape::Shape::check_constructed > shape::Shape::with_trained_calibration
+
+## workers busy by job frames (top 40)
+    6.62  main > -
+    4.04  run::fork::tests::d55_ab_one_request_serial_against_forks > -
+    0.98  assign_with::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$ > -
+    0.30  build_with::_$u7b$$u7b$closure$u7d$$u7d$ > matmul_in_out
+    0.19  build_with::_$u7b$$u7b$closure$u7d$$u7d$ > matmul
+    0.16  build_with::_$u7b$$u7b$closure$u7d$$u7d$ > quantized_with
+    0.13  run::fork::tests::d55_ab_one_request_serial_against_forks > run::fork::tests::d55_ab_one_request_serial_against_forks::_$u7b$$u7b$closure$u7d$$u7d$
+    0.00  quantized_with > zeros
+    0.00  quantized_with > -
+    0.00  Axis::supported > -
+    0.00  rotate > -
