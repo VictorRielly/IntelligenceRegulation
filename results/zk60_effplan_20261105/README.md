@@ -790,3 +790,96 @@ at 8 threads: 12 and 16 lost every pair in the clean re-sweep.
   - the int16 and i64 forms decline only outside classes that earlier range checks already enforce;
   - the norm's bound uses at least the int16 maximum and the public isqrt window.
 - The caches hold only public geometry. `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.
+
+## A18: the forks phase, round 2, done (two small forms on; A13's window ported, off by default)
+
+Full write-up: `a18/README.md`. Merged into perf (3577a374, on top of A16 and the plan's 028a0012); no conflicts.
+Acceptance and an independent A/B on the merged tree: `check_a18merge.sh`, `a18merge.progress`, `a18merge_pairs.md`,
+`a18merge_seal_pairs.md`.
+
+**The profile** [MEASURED, agent, macOS `sample`, `a18/s1_rank.md`]. With six forks, 54.5% of a fork's main-line
+samples wait on the GPU. Of the rest (about 1.1 s per fork per call), the largest host buckets are:
+- the openings' store fold, 14.8%;
+- the A/H zero-fill and free, 13.1%;
+- the LogUp helper inverses, 10.9%;
+- `define`'s public weight folds and tables, 10.9%;
+- the randomness, 9.5%.
+
+**What changed** (`private_block/protocol.rs`, `run_fork.rs`, `argument.rs`, `argument_accuracy.rs`; byte-preserving):
+- **`HL_A18_TABINV`** (on by default):
+  - the range table helpers read their families' inverse tables, which are already made for the looked columns'
+    helpers, instead of inverting the same denominators a second time;
+  - the byte and exp table helpers invert only the 256 distinct entries of their periodic tables;
+  - the three table helpers fell from 4.65 to 0.78 ms per block. No parallel region is added.
+- **`HL_A18_REGISTRY`** (on by default): in the D55 fork run, preflight's record stands in for `define`'s per-slot
+  `check_for_registry`.
+  - Only for the same data object at an equal shape: `CheckedPublic::covers_accuracy` uses `ptr::eq`, and its
+    `check_accuracy_for_shape` runs that very call with the same registry, geometry, base and stack.
+  - Any other caller checks slot by slot, as before.
+- **A13's split, ported onto A14–A17:**
+  - `prove_core_with` is now `prove_core_before_with` followed by `prove_core_after_with`. The only move is that A's
+    root is absorbed after M is committed; M's commitment reads no transcript, so the transcript and the generator see
+    the same sequence.
+  - The rest refuses a state made for another block object, shape or layout.
+  - In `run_fork.rs`, `ForkLate` carries what only exists after preflight and the commit phase.
+  - The window `HL_D55_AHEAD` is **off by default**.
+- **Removed after measurement:** the range tables and the activation table helper in parallel chunks (+3.2%, +1.6%), and
+  `define`'s public tables in parallel maps (+1.2%, +1.4%). Both added short parallel regions to every fork, and sys
+  CPU rose 4–7%. A11's pool width was re-swept: 6 stays.
+
+**Byte evidence** [MEASURED, agent and the merged tree]:
+- the W16R2 rung golden `96e4f0b6` under every A18 setting, CPU and Metal, through `prove_core`, through
+  `prove_core_with` beside the record, and through the split core;
+- the 8B block `90003b760eb7ad80` in every proof under every setting;
+- A13's parked forks equal whole forks byte for byte on every path, CPU and Metal (seeded generators, test builds
+  only).
+
+**Acceptance on the merged tree** [MEASURED, one guarded job, the GPU quiet throughout]:
+- build rc 0; no-feature `cargo check --tests` rc 0;
+- full lib suite: 939 passed, exactly the known three failed, 113 ignored; zkp-core lib 81 passed;
+- passing: the A18 rung golden, 8B block and parked-fork device tests; the A16 8B planes in every form (`5808a1cd`);
+  the A17 rung golden and 8B block; the A15, A14, A8, A12, A11 and A7 byte tests;
+- the W16R2 rung golden `96e4f0b6` (CPU = Metal) and all six post-F12 digests pass;
+- D55 default (window off):
+  - one request from its input, best 5.373 s = 23.82 tok/s (mean 23.40);
+  - the stream 32.84 tok/s steady, 29.21 amortized;
+  - proof only, best 3.925 s = 32.61 tok/s;
+  - every receipt verified: fork receipts 818,728,672 B, D12a 818,728,480 B.
+
+**The independent A/B** [MEASURED, `a18merge_pairs.md`, `a18merge_seal_pairs.md`]: `a18old+prod` against
+`a18def+prod`, 4 passes, alternating, every witness through production's `build_for_block`.
+
+| metric | order bias removed | pairs favouring A18 | means before / after |
+|---|---:|---:|---:|
+| proof only | +0.7% | 1 of 4 | 3.966 / 3.995 s |
+| forks phase | +1.4% | 0 of 4 | 3.571 / 3.622 s |
+| one request from its input | −1.9% | 4 of 4 | 5.559 / 5.454 s |
+| stream, steady | +0.3% | 2 of 4 | 32.40 / 32.48 tok/s |
+| stream, amortized | −0.1% | 2 of 4 | 28.86 / 28.84 tok/s |
+| sealing pass, one request (the control) | −0.4% | 1 of 4 | 1.524 / 1.512 s |
+
+- **The default forms are neutral within the ±2% noise floor.** The agent's final A/B (6 passes) agrees: one request
+  −2.0% (6 of 6), proof only +0.2%, stream −0.6%.
+  - The one-request direction is the same in all 10 pairs, but the forks phase here leans slightly the other way.
+  - They stay on: one is pure work removal and the other is fail-closed. `0` restores either.
+- **A13's window is the real gain** [MEASURED, agent, harness only]. At window 16, against the A18 forms, 6 passes,
+  both orders:
+  - the 4-request stream +5.0% steady (32.11 → 33.70 tok/s, 6 of 6) and one request −2.3%;
+  - the forks phase −7.7% and the sealing pass +9.0%;
+  - peak footprint 74.5 → 86 GiB;
+  - window 8: +2.5%; window 32: +0.5% with amortized −5.7% and 130 GiB.
+
+  Production cannot use it yet: `stack-prove` builds its statement, `ForkRun` and fork blocks only after the whole
+  sealing pass. **A19 is porting it to production's D55 path.**
+- **Why parallel forms lose here** [INFERRED]: six 6-thread fork pools already oversubscribe the 32 cores. A short
+  parallel region's wake-up and spin cost the other forks' commits more than the few milliseconds of serial work it
+  saves.
+
+**For the privacy gate:**
+- The production digests that moved are `private_block/protocol.rs`, `run_fork.rs`, `argument.rs` and
+  `argument_accuracy.rs`.
+- No path whose time depends on a hidden value was added. The range-table gathers are indexed by public table
+  positions, and the registry skip follows the block's address and the shape.
+- With the window off nothing is parked. If it is ever turned on, W-8(5)'s wording changes ("the generator is moved
+  with the parked fork"), while the s25 census still holds; A19 must also show that H-1 (D29) still holds.
+- `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is untouched.

@@ -124,13 +124,25 @@ are redone once, not per change.
     33.7–34.2 proof only [MEASURED].
   - **The stream is now fork-bound:** about 2.6 s of sealing beside the forks against about 3.9 s of fork work per
     request.
-- **A18 (running): the forks phase, round 2** (byte-preserving; `results/zk60_effplan_20261105/a18/`).
-  - Profile first.
-  - Then re-test A13 (each block's before-challenge work parked during the sealing pass) on the fork-bound base. It
-    lost while the stream was sealing-bound; now sealing has about 1.3 s of slack per request.
-  - Then the forks' remaining host work: the doubled range inverse tables, `define`'s public weight folds and per-slot
-    registry re-check, and randomness.
-  - zkp-core and the Metal commit path stay with Sol's W16R3 B1.
+- **A19 (running): A13's window in production's D55 path** (byte-preserving; `results/zk60_effplan_20261105/a19/`).
+  - Build the forks' before-challenge parts without a `ForkRun`. Load the fork blocks before the sealing pass, or share
+    them with it. Have `seal_and_record` hand each witness over as it is built, with parked parts counted in the
+    memory budget.
+  - H-1 (D29) must still hold: every refusal still happens in the sealing pass, and a refused chain drops its parts.
+  - Measured through production's entry point, window 0 against 16 (and 8). It turns on by default only if it wins
+    beyond noise.
+  - Files: `trained_block.rs`'s D55 path and `run_fork.rs`. Sol's W16R3 files are excluded.
+- **A18 done: the forks phase, round 2** (byte-preserving; `results/zk60_effplan_20261105/a18/`).
+  - Two small forms, on by default:
+    - the range and periodic table helpers read inverse tables already made (`HL_A18_TABINV`, 4.65 → 0.78 ms per
+      block);
+    - the preflight's record replaces `define`'s per-slot registry re-check (`HL_A18_REGISTRY`, fail-closed).
+  - Independent A/B on the merged tree (4 passes, both orders, production's builder): one request −1.9% (4 of 4
+    pairs), proof only +0.7%, stream +0.3%. Neutral within noise.
+  - A13's split was ported onto A14–A17. On the fork-bound stream its window now pays in the harness: window 16 gives
+    stream +5.0% steady (6 of 6) and one request −2.3%, for +12 GiB. It stays off by default until A19.
+  - Two forms that added short parallel regions to every fork lost (+1.2% to +3.2%) and were removed. A11's pool
+    width stays 6.
 - **A17 done: the forks' host work in `protocol.rs`** (byte-preserving; `results/zk60_effplan_20261105/a17/`).
   - At a W16 profile, one-term lookups are read straight from their witness planes (`HL_A17_LOOKED`). The preflight's
     record of each block's public checks stands in for the fork's re-check of that very block object

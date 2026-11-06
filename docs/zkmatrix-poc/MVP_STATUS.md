@@ -17,9 +17,10 @@ here. The rates count proving and witness work. Verification time is recorded se
 | the sealing pass's thread pool (A15: 8 threads, not the 32-thread global pool) | sealing 4.3 s | one request −10.5%, stream +16.1% (A/B, both orders, every pair) |
 | the forks' lookups and repeated public checks (A17: lookups read in place; the preflight's check record reused) | — | proof only −3.6%, stream +2.6% (A/B, both orders, every pair) |
 | the sealing builder's serial work (A16: cached layouts, parallel loops, one public check per block) | sealing 3.5 s | **sealing 1.5–1.7 s**; one request −23.8%, stream +12.8% (A/B, both orders, every pair) |
-| **one request from its input, all witness work on the clock** | 11.1 tok/s | **23.9 tok/s** (best 5.35 s) |
-| **a stream of 4 requests, steady** | 15.9 tok/s | **33.0 tok/s** (amortized 29.1; latency 6.0–10.9 s) |
-| proof only | 22.7 tok/s | **33.7–34.2 tok/s** (best 3.75–3.80 s; it varies from run to run on the shared Mac) |
+| the forks' table helpers and registry re-check (A18: inverse tables reused; the preflight's record stands in for `define`'s check) | 4.65 ms per block | 0.78 ms; neutral overall: one request −1.9%, proof only +0.7%, stream +0.3% (A/B, both orders) |
+| **one request from its input, all witness work on the clock** | 11.1 tok/s | **23.8–23.9 tok/s** (best 5.35–5.37 s) |
+| **a stream of 4 requests, steady** | 15.9 tok/s | **32.8–33.4 tok/s** (amortized 29.1–29.4; latency 5.8–10.9 s) |
+| proof only | 22.7 tok/s | **32.6–34.2 tok/s** (best 3.75–3.93 s; it varies from run to run on the shared Mac) |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -67,6 +68,15 @@ here. The rates count proving and witness work. Verification time is recorded se
   - **The stream is now limited by the six proving forks** (about 3.9 s per request) and no longer by sealing (about
     2.6 s beside the forks). Its steady rate is the forks' own, about 33 tok/s. The forks' host work and W16R3 are
     the next levers.
+- **A18: two small fork savings, neutral overall; A13 now pays but is not in production yet** [MEASURED].
+  - Each fork's table helpers reuse inverse tables already made (4.65 → 0.78 ms per block), and the preflight's record
+    replaces `define`'s repeated registry check. Independent A/B on the merged tree, both orders: one request −1.9%
+    (4 of 4 pairs), proof only +0.7%, stream +0.3%. That is within noise; both stay on and `0` restores either.
+    Byte-identical.
+  - A13's window (each fork's before-challenge work done during the sealing pass) now pays, because the stream is
+    fork-bound. In the harness, at window 16: the stream +5.0% steady (6 of 6 pairs), one request −2.3%, about 12 GiB
+    more memory. It stays off until production's D55 path can use it; A19 is doing that port.
+  - Adding short parallel regions to the forks made them slower, since six fork pools already fill the cores.
 - **From 2026-11-05 the Mac's GPU is shared** with a frugal-lm research agent (Victor). Timing runs wait for it to be
   idle, and clocks taken beside it are not used (`ZK60_RESOURCE_PROTOCOL.md`, last section).
 - **W16R3 is worth less than first modeled** (Sol's B1–B3 note, reviewed and accepted, 2026-11-05):
@@ -75,6 +85,7 @@ here. The rates count proving and witness work. Verification time is recorded se
   - about 2–8% off one request, and the receipt 819 → about 767 MB [MODEL].
   - The soundness rate improves slightly (2^-102.93 → 2^-103.02). B1 carries most of the saving, and B6 needs it.
 - **D64's target is ≥ 110.** Next:
+  - A13's window in production's D55 path (A19, running);
   - the forks' remaining host work (zero-fill, store fold, helper inverses, public weight folds, randomness), since the
     forks now bound the stream;
   - the protocol bundle W16R3, ruled 2026-11-05 (D67): B1 + B2 + B3, no B4. Sol builds B1 first, then B2 and B3, each
