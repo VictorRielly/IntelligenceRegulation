@@ -65,3 +65,8 @@ import ZK60Formal.CircuitTokenRun
 import ZK60Formal.Assembly
 import ZK60Formal.CompleteSub
 import ZK60Formal.ZKHybrid
+import ZK60Formal.ExecField
+import ZK60Formal.ExecBlake3
+import ZK60Formal.ExecTranscript
+import ZK60Formal.ExecMerkle
+import ZK60Formal.L5Vectors
