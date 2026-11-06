@@ -1,0 +1,55 @@
+cut 186: rc 0  peak 3.46 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut186.lean:186:0: warning: using 'exit' to interrupt Lean
+
+cut 215: rc 0  peak 3.39 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut215.lean:215:0: warning: using 'exit' to interrupt Lean
+
+cut 349: rc 0  peak 3.40 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut349.lean:349:0: warning: using 'exit' to interrupt Lean
+
+cut 412: rc 0  peak 3.39 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut412.lean:412:0: warning: using 'exit' to interrupt Lean
+
+cut 434: rc 0  peak 3.40 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut434.lean:424:19: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut434.lean:431:48: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut434.lean:431:83: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut434.lean:434:0: warning: using 'exit' to interrupt Lean
+
+cut 523: rc 1  peak 3.54 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut523.lean:424:19: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut523.lean:431:48: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut523.lean:431:83: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut523.lean:513:45: warning: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut523.lean:506:0: error: linter Lean.Linter.constructorNameAsVariable failed: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut523.lean:523:0: warning: using 'exit' to interrupt Lean
+
+cut 558: rc 1  peak 3.62 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut558.lean:424:19: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut558.lean:431:48: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut558.lean:431:83: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut558.lean:513:45: warning: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut558.lean:506:0: error: linter Lean.Linter.constructorNameAsVariable failed: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut558.lean:558:0: warning: using 'exit' to interrupt Lean
+
+cut 696: rc 1  peak 3.57 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut696.lean:424:19: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut696.lean:431:48: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut696.lean:431:83: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut696.lean:513:45: warning: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut696.lean:506:0: error: linter Lean.Linter.constructorNameAsVariable failed: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut696.lean:610:34: error: Type mismatch
+  Eq.symm (runOps_counter (liftH G) hdr ?m.345)
+has type
+  opsCtr (Tr.counter ?m.345) hdr = (runOps (liftH G) ?m.345 hdr).counter
+but is expected to have type
+  opsCtr 0 hdr = c0
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut696.lean:695:65: error: unexpected token '#exit'; expected 'lemma'
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect1/cut696.lean:696:0: warning: using 'exit' to interrupt Lean
+

@@ -1,0 +1,157 @@
+cut 515: rc 1  peak 3.61 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect2/cut515.lean:513:9: error: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect2/cut515.lean:506:0: error: linter Lean.Linter.constructorNameAsVariable failed: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect2/cut515.lean:515:0: warning: using 'exit' to interrupt Lean
+
+cut 521: rc 1  peak 3.62 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect2/cut521.lean:513:9: error: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect2/cut521.lean:506:0: error: linter Lean.Linter.constructorNameAsVariable failed: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect2/cut521.lean:521:0: warning: using 'exit' to interrupt Lean
+
+cut 686: rc 1  peak 3.62 GiB 3 s
+          (List.take (s + 2 * n) (liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds)))))) ∧
+    codeSt s n scLabel (decMsg U d) (fun dg => Fp2.toK U (challengeFp2Of dg)) id (scSt U d n stmt)
+      (List.map entB
+        ((chainEncB key domain hs L hL).chainFrom G []
+          (List.take (s + 2 * n) (liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds))))))
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+L : ℕ
+hL : (startMsg domain).length ≤ L
+hL64 : L < 2 ^ 64
+d n : ℕ
+hd : 1 ≤ d
+hdp : d < gP
+hLr : 56 + 16 * (d + 1) ≤ L
+s : ℕ
+stmt : List (TItem × Dig) → ((Fin n → K) → K) × Fp2
+G : QB L → Dig
+hdr : List Op
+rounds : List (List Fp2)
+hlen : hdr.length = s
+hfit : ∀ op ∈ hdr, op.len ≤ L
+hrc : ∀ r ∈ rounds, ∀ a ∈ r, a.Canon
+fin : Fp2
+rs : List Fp2
+x : List (TItem × Dig)
+hx : opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) hdr = x
+hcc : (stmt x).2.Canon
+hdeg : IndDegLE d (stmt x).1
+hfalse : Fp2.toK U (stmt x).2 ≠ cubeSum (stmt x).1
+hok :
+  (scVerify (liftH G) (stmt x).2 d n rounds (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr)).1 =
+    Except.ok (fin, rs)
+hterm : Fp2.toK U fin = (stmt x).1 fun i => Fp2.toK U (rs.getD (↑i) Fp2.zero)
+hls : ∀ s ∈ rounds, s.length = d + 1
+hrs : rs = (scChal (liftH G) rounds (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr)).1
+hsc : scAccept (scTau U d rounds rs) n (stmt x).1 (Fp2.toK U (stmt x).2)
+hn : rounds.length = n
+c0 : UInt64 := (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr).counter
+hc0def : c0 = (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr).counter
+hc0 : opsCtr 0 hdr = c0
+hfitH : ∀ it ∈ opItems 0 hdr, it.Ok ∧ it.len ≤ L
+hfitR : ∀ it ∈ opItems c0 (scOps rounds), it.Ok ∧ it.len ≤ L
+hits :
+  liftItems L (opItems 0 (hdr ++ scOps rounds)) = liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds))
+hbH : List.map Subtype.val (liftItems L (opItems 0 hdr)) = opItems 0 hdr
+hbR : List.map Subtype.val (liftItems L (opItems c0 (scOps rounds))) = opItems c0 (scOps rounds)
+hlH : (liftItems L (opItems 0 hdr)).length = s
+hlR : (liftItems L (opItems c0 (scOps rounds))).length = 2 * n
+⊢ ¬codeSt s n scLabel (decMsg U d) (fun dg => Fp2.toK U (challengeFp2Of dg)) id (scSt U d n stmt)
+        (List.map entB
+          ((chainEncB key domain hs L hL).chainFrom G []
+            (List.take (s + 2 * n) (liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds)))))) ∧
+    codeSt s n scLabel (decMsg U d) (fun dg => Fp2.toK U (challengeFp2Of dg)) id (scSt U d n stmt)
+      (List.map entB
+        ((chainEncB key domain hs L hL).chainFrom G []
+          (List.take (s + 2 * n) (liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds))))))
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect2/cut686.lean:686:0: warning: using 'exit' to interrupt Lean
+
+cut 0: rc -15 KILLED rss 10.14 GiB peak 10.14 GiB 20 s
+ps rounds)))).length ≤ s
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+L : ℕ
+hL : (startMsg domain).length ≤ L
+hL64 : L < 2 ^ 64
+d n : ℕ
+hd : 1 ≤ d
+hdp : d < gP
+hLr : 56 + 16 * (d + 1) ≤ L
+s : ℕ
+stmt : List (TItem × Dig) → ((Fin n → K) → K) × Fp2
+G : QB L → Dig
+hdr : List Op
+rounds : List (List Fp2)
+hlen : hdr.length = s
+hfit : ∀ op ∈ hdr, op.len ≤ L
+hrc : ∀ r ∈ rounds, ∀ a ∈ r, a.Canon
+fin : Fp2
+rs : List Fp2
+x : List (TItem × Dig)
+hx : opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) hdr = x
+hcc : (stmt x).2.Canon
+hdeg : IndDegLE d (stmt x).1
+hfalse : Fp2.toK U (stmt x).2 ≠ cubeSum (stmt x).1
+hok :
+  (scVerify (liftH G) (stmt x).2 d n rounds (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr)).1 =
+    Except.ok (fin, rs)
+hterm : Fp2.toK U fin = (stmt x).1 fun i => Fp2.toK U (rs.getD (↑i) Fp2.zero)
+hls : ∀ s ∈ rounds, s.length = d + 1
+hrs : rs = (scChal (liftH G) rounds (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr)).1
+hsc : scAccept (scTau U d rounds rs) n (stmt x).1 (Fp2.toK U (stmt x).2)
+hn : rounds.length = n
+c0 : UInt64 := (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr).counter
+hc0def : c0 = (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr).counter
+hc0 : opsCtr 0 hdr = c0
+hfitH : ∀ it ∈ opItems 0 hdr, it.Ok ∧ it.len ≤ L
+hfitR : ∀ it ∈ opItems c0 (scOps rounds), it.Ok ∧ it.len ≤ L
+hits :
+  liftItems L (opItems 0 (hdr ++ scOps rounds)) = liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds))
+hbH : List.map Subtype.val (liftItems L (opItems 0 hdr)) = opItems 0 hdr
+hbR : List.map Subtype.val (liftItems L (opItems c0 (scOps rounds))) = opItems c0 (scOps rounds)
+hlH : (liftItems L (opItems 0 hdr)).length = s
+hlR : (liftItems L (opItems c0 (scOps rounds))).length = 2 * n
+⊢ (List.take (s + 2 * n) (liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds)))).length ≤ s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bisect2/cut0.lean:626:75: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  List.take s (liftItems L (opItems 0 hdr) ++ ?m.501)
+in the target expression
+  ¬codeSt s n scLabel (decMsg U d) (fun dg => Fp2.toK U (challengeFp2Of dg)) id (scSt U d n stmt)
+        (List.map entB
+          ((chainEncB key domain hs L hL).chainFrom G []
+            (List.take (s + 2 * n) (liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds)))))) ∧
+    codeSt s n scLabel (decMsg U d) (fun dg => Fp2.toK U (challengeFp2Of dg)) id (scSt U d n stmt)
+      (List.map entB
+        ((chainEncB key domain hs L hL).chainFrom G []
+          (List.take (s + 2 * n) (liftItems L (opItems 0 hdr) ++ liftItems L (opItems c0 (scOps rounds))))))
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMs

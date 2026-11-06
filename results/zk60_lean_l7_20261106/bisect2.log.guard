@@ -1,0 +1,3 @@
+[zk60-guard 13:41:07] START lean-l7-bisect2 class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=31d6feeae5e1
+[zk60-guard 13:41:37] lean-l7-bisect2: 1 straggler process(es) outlived the command; killing
+[zk60-guard 13:41:37] END lean-l7-bisect2 exit=0 child_wall=29s peak_rss=9.99G min_avail=230.68G

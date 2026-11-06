@@ -1,0 +1,2 @@
+[zk60-guard 13:38:27] START lean-l7-bisect1 class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=d693a1f33e71
+[zk60-guard 13:38:51] END lean-l7-bisect1 exit=0 child_wall=24s peak_rss=3.64G min_avail=237.10G

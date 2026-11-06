@@ -486,7 +486,26 @@ The plain-words version, the modelling choices and the open decisions are in
     reduction; the chain's `u64` counter against `FSChainRbr.lean`'s `ℕ` one; a refusal leaves the transcript
     advanced.
   - Left for the per-profile verifier (§8.5 of that document): W16R3's slot items and terminal identities, the item
-    map onto `FSChainRbr.lean`'s chain, `1 ≤ d` and `N < 64` per slot, and the rest of §7.5.
+    map onto `FSChainRbr.lean`'s chain (done in step L7, below), `1 ≤ d` and `N < 64` per slot, and the rest of §7.5.
+- Proved so far (step L7, FIAT–SHAMIR SOUNDNESS OF THE EXECUTABLE SUMCHECK VERIFIER, 2026-11-06, fifth lane; same build
+  and axiom checks, 39 theorems audited in `results/zk60_lean_l7_20261106/axioms.log`, regressions L6Check 1,206 and
+  L5Check 5,553 checks, 0 failed; §9 of `docs/zkmatrix-poc/ZK60_LEAN_ASSEMBLY_20261106.md`):
+  - `ExecSumcheckFS.lean`: the protocol's state read directly off the CODE's transcript chain (`codeSt`; the squeeze
+    counter is hashed but never read, so the wrapping `u64` counter needs no premise: finding L6-4 closed).
+    - `codeSt_round`, `cDecode_rounds`, **`fs_code_chain_sound`**: an RBR-sound "absorb, then squeeze" protocol after
+      any header of `s` items, on any code-item chain, gets `chain_sound`'s bound.
+    - `chainEncB`, `chainFrom_liftH`, `opTrace_chainFrom`: the code's chain on the finite oracle domain `QB L`, and the
+      header's trace as the executable transcript computes it.
+    - **`exec_sumcheck_fs_sound`**: a `q`-query prover choosing any header of `s` operations, a false claim (a function
+      of the header's trace) and the rounds gets the EXECUTABLE `scVerify` to accept, with the caller's terminal check,
+      with probability at most `T·d/|K|·(1 + p/2^128)² + collBound T + collBound (T + 1)`, `T = q + (s + 2n) + 1`.
+      `exec_sumcheck_fs_sound_goldilocks`: the bias `(1 + 2^-64)²`; `exec_sumcheck_fs_sound_slot`: at `d ≤ 4` and
+      `T ≤ 2^64 + 2^20`, at most `2^-61`.
+  - Findings L7-1 to L7-5 (Info): no counter premise; `verify` does not absorb the claimed sum (the instance must show
+    the claim is a function of the header); a fixed header length; concrete huge `Finset.univ`s and the literal `p`
+    must be handled through abstract lemmas; no compiled checker target.
+  - Left (§9.5): `FSCompose.lean` / `FSWideRbr.lean` re-stated with this reader for the whole receipt's chain, each
+    slot's claim as a function of its header, the extractor for the committed polynomial, and the rest of §8.5.
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems
@@ -495,8 +514,9 @@ The plain-words version, the modelling choices and the open decisions are in
   - For `Complete`, what is left is per profile: the prover and verifier, the list of checks and their refusal terms.
   - For `ZeroKnowledge`, what is left is the per-receipt hybrid step under Fiat–Shamir, the composition over the run,
     and the profile's simulator (§4.3, §4.5 of that document).
-  - For the `Protocol` instance and its `verify` (steps L5, L6), the foundation and the generic sumcheck verifier
-    exist (§7, §8 of that document); the per-profile verifier on top of them is left.
+  - For the `Protocol` instance and its `verify` (steps L5–L7), the foundation, the generic sumcheck verifier and its
+    Fiat–Shamir bound on the code's chain exist (§7–§9 of that document); the per-profile verifier on top of them is
+    left.
 
 **Build** (Lean 4.34.1 and Mathlib v4.34.1, pinned in `lean-toolchain` and `lakefile.toml`):
 

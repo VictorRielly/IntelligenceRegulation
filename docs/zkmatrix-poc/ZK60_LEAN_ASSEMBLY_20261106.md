@@ -20,6 +20,12 @@ foundation and proved equal to the models (`verify` accepts exactly when `FSSumc
 transcript chain's own challenges), with an agreement corpus from the Rust code (1,206 checks, 0 failed). Obligation 0
 (§4.0) is updated.
 
+**Update, same day (fifth lane, §9): step L7, Fiat–Shamir soundness of the executable sumcheck verifier.** For any
+header of transcript operations, the probability that the executable `sumcheck::verify`, on the code's own transcript,
+accepts a false claim against a `q`-query prover is at most L3's bound `T·d/|F|·(1 + p/2^128)²` plus the collision terms,
+`T = q + s + 2n + 1` (`exec_sumcheck_fs_sound`); at a slot's shape at most `2^-61`. Finding L6-4 is closed with no
+counter premise. Obligation 0 (§4.0) is updated.
+
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms `propext`, `Classical.choice`, `Quot.sound` only), **CODE**
 (read off the sources), **ESTIMATE** (arithmetic on the bounds, not proved in Lean).
 
@@ -163,7 +169,7 @@ theorems about them. `productionReady_of` then gives `ProductionReady M A P εc 
 |---|---|---|
 | `M` (the integer model) | `tokenModel S R`, `classifyModel S R` (`CircuitTokenRun.lean`; `Weights := Unit`, sound under P1): the whole forward pass, generic in the shape `S` and the run data `R` | the registered profile's concrete `(S, R)`. No W16R2 token-I/O run profile is registered in the code today (`token_io/run.rs:213`; L1L2 findings §14) |
 | `A` (the constraint system) | `tokenArith S R`, `classifyArith S R`: `Satisfies` is `TokenRunSat` / `ClassifySat` at the LOGICAL positions, with canonical endpoint words | the same concrete `(S, R)` |
-| `P` (the protocol) | **nothing as a `Protocol` instance.** Pieces of the verifier exist as models: `scAccept`, `chainAcceptsW`, `Tree.verOC` / `Tree.Accepts`, `MerkleEnc.Opens`, the opening and `M` tests. Pieces of the prover's view exist in the L4 files. **The verifier's foundation exists in executable Lean (step L5, §7)**: `Fp` / `Fp2` (`ExecField.lean`), BLAKE3 in its three modes (`ExecBlake3.lean`), the transcript (`ExecTranscript.lean`: proved to be `FSChain.lean`'s `ChainEnc`, its challenges `fp2Chal` / `idxChal`), the Merkle column check (`ExecMerkle.lean`: proved to be `Opens`, with `exec_merkle_binding`), and a finite oracle domain for `Q`, the inputs of at most `L` bytes (`QB L`), with `D` the 32-byte digests. **The generic sumcheck verifier exists too (step L6, §8)**: `scVerify` (`ExecSumcheck.lean`: accepts, with the caller's terminal check, exactly when `scAccept` holds on the transcript chain's challenges), `interpolate_eval`, the eq tables and multilinear evaluations (`ExecMle.lean`), the CFS mask's weights and rounds, the extension round and the masked terminal (`ExecCfs.lean`) | `Stmt`, `Receipt`, `Salt`; `Leak` and `leak` (the shapes, `T`, the served bit, and D65(2)'s constant refusal); `ypub`; `opensIn` and `opensOut` (§4.4); `prove` (the Lean honest prover: masks, salts, the transcript); `verify`, the Lean verifier that §6 decision 3 makes production acceptance: on top of the foundation and L6, the receipt decoder, the per-profile slot items (W16R3's batched sumcheck, its terminal identities and its item map onto `FSChainRbr.lean`'s chain, §8.5), the zero-check and LogUp verifier arithmetic, the opening's claim and column-versus-clear-vector checks (the coset NTT), `M`'s test, and the profile's transcript schedule (§7.5) |
+| `P` (the protocol) | **nothing as a `Protocol` instance.** Pieces of the verifier exist as models: `scAccept`, `chainAcceptsW`, `Tree.verOC` / `Tree.Accepts`, `MerkleEnc.Opens`, the opening and `M` tests. Pieces of the prover's view exist in the L4 files. **The verifier's foundation exists in executable Lean (step L5, §7)**: `Fp` / `Fp2` (`ExecField.lean`), BLAKE3 in its three modes (`ExecBlake3.lean`), the transcript (`ExecTranscript.lean`: proved to be `FSChain.lean`'s `ChainEnc`, its challenges `fp2Chal` / `idxChal`), the Merkle column check (`ExecMerkle.lean`: proved to be `Opens`, with `exec_merkle_binding`), and a finite oracle domain for `Q`, the inputs of at most `L` bytes (`QB L`), with `D` the 32-byte digests. **The generic sumcheck verifier exists too (step L6, §8)**: `scVerify` (`ExecSumcheck.lean`: accepts, with the caller's terminal check, exactly when `scAccept` holds on the transcript chain's challenges), `interpolate_eval`, the eq tables and multilinear evaluations (`ExecMle.lean`), the CFS mask's weights and rounds, the extension round and the masked terminal (`ExecCfs.lean`). **Its Fiat–Shamir bound is a theorem about the program (step L7, §9)**: `exec_sumcheck_fs_sound` on the code's own chain after any header, through the reader `codeSt` (`ExecSumcheckFS.lean`), which also serves any "absorb, then squeeze" round protocol (`fs_code_chain_sound`) | `Stmt`, `Receipt`, `Salt`; `Leak` and `leak` (the shapes, `T`, the served bit, and D65(2)'s constant refusal); `ypub`; `opensIn` and `opensOut` (§4.4); `prove` (the Lean honest prover: masks, salts, the transcript); `verify`, the Lean verifier that §6 decision 3 makes production acceptance: on top of the foundation and L6, the receipt decoder, the per-profile slot items (W16R3's batched sumcheck, its terminal identities, and the composition of its sub-protocols on the code's chain with L7's reader, §9.5), the zero-check and LogUp verifier arithmetic, the opening's claim and column-versus-clear-vector checks (the coset NTT), `M`'s test, and the profile's transcript schedule (§7.5) |
 
 ### 4.1 `CircuitIff M A`: proved at W16R2
 
@@ -927,3 +933,193 @@ All in `results/zk60_lean_l6_20261106/`, each run as one job through the zk60 re
   - the source scan (none);
   - the agreement check (`l6check_full.log`): 1,206 checks, 0 failed;
   - the negative control (`negative_control.log`): 8 failed, as required.
+
+## 9. Step L7, Fiat–Shamir soundness of the executable sumcheck verifier, end to end (2026-11-06, fifth lane)
+
+Lean lane (Claude), on perf at 8e565e05 (L6 merged). One new library file, imported by the library root:
+`formal/ZK60Formal/ExecSumcheckFS.lean`. No Rust: the L5 and L6 corpora already pin every encoding used here, and both
+are re-checked as regressions. `Statements.lean`, every existing Lean file and every production source are unchanged.
+Sol's W16R3 design file was not read for this step and not changed. Evidence: `results/zk60_lean_l7_20261106/`.
+
+### 9.1 In plain words, for Victor
+
+**Why this step.**
+- L6 proved that the Lean copy of `sumcheck::verify` accepts EXACTLY when L3's list verifier `scAccept` accepts, on the
+  transcript's own challenges.
+- L3 proved the Fiat–Shamir bound for `scAccept` on a hash chain, but on a MODEL of the chain: one "statement" item,
+  then message and squeeze items whose counter is a natural number counted from 0.
+- The code's chain is different in three ways (finding L6-4): the statement is SEVERAL absorbs (the header), the
+  squeeze counter is a 64-bit word that wraps, and it counts every squeeze since the transcript began, so a sumcheck
+  after a header starts at some counter `c0`, not 0.
+- So the bound was not yet a theorem about the program.
+
+**What now exists.**
+- **A theorem about the program** (`exec_sumcheck_fs_sound`). PROVED: take any cheating prover that makes at most `q`
+  hash queries. It may choose:
+  - any header of `s` transcript operations (absorbs and squeezes: the public statement, earlier sumchecks, anything);
+  - a false claim (`C ≠ Σ f`), where the polynomial `f` and the claim `C` may depend on everything in the header,
+    including the challenges squeezed there;
+  - the round messages.
+- The executable Lean `sumcheck::verify`, run on the code's own transcript after that header, then accepts (with the
+  caller's final check `fin = f(rs)`) with probability at most:
+  - `T·d/|F|·(1 + p/2^128)²` plus two hash-collision terms;
+  - where `T = q + s + 2n + 1`;
+  - this is exactly the bound of L3's model theorem, now for the program.
+- **The wrapping counter needs no premise.** The proof reads the protocol back from the code's own chain, and it never
+  reads the counter. The counter is still hashed, so the chain stays unambiguous. No "`c0 + n < 2^64`" assumption is
+  needed: the counter could even repeat without harm, because every hash input also carries the previous digest.
+- **The bridge is general.** `fs_code_chain_sound` applies to ANY round-by-round sound protocol whose rounds are "one
+  labelled absorb, then one squeeze" on the code's chain after any header (the sumcheck is one instance). Rounds with
+  several squeezes or no message (LogUp's challenges, the openings') need the same reader in `FSWideRbr.lean`'s wide
+  form (§9.5).
+- **The numbers at a slot's shape** (for orientation only). PROVED in Lean: with Goldilocks (`|F| = p²`), degree
+  `d ≤ 4`, and `T ≤ 2^64 + 2^20` (for example `q = 2^64` queries, `n = 30` rounds and a header of up to about a million
+  operations), the bound is at most `2^-61` (`exec_sumcheck_fs_sound_slot`). The exact value at `q = 2^64`, `n = 30`,
+  `d = 4` is about `2.17·10^-19 ≈ 2^-62` [ESTIMATE: exact rational arithmetic outside Lean].
+
+**What this does not do.**
+- It is about ONE sumcheck after a header. The receipt runs many sub-protocols on one chain. Composing them so that
+  the rate is the MAXIMUM over rounds, not the sum, is `FSCompose.lean`'s job, which still reads `PItem` chains; the
+  per-profile instance has to apply this file's bridge to that composition (§9.5).
+- The polynomial `f` here is a function of the header. In a receipt it is the multilinear extension of COMMITTED tables,
+  so tying it to the header is the extractor's part (`SoundExtract.lean`), not this file's.
+- W16R3's slot layout, batching (B2), PCS encoder (B1) and layout (B3) are not modelled, by design.
+
+### 9.2 What is proved
+
+All PROVED (`results/zk60_lean_l7_20261106/`):
+- the full `lake -d formal build` is green: 3,453 jobs, rc 0, 0 warnings, 0 errors, no `sorry` (`full.log`,
+  `check.log`);
+- `#print axioms` on all 39 theorems of the file (`axioms_l7.lean`, written by `gen_axioms.py`, → `axioms.log`): 24 on
+  `propext, Classical.choice, Quot.sound`, 8 on `propext, Quot.sound`, 4 on `propext`, 3 on none; `sorryAx` and
+  `Lean.ofReduceBool` appear nowhere;
+- no `sorry`, `axiom`, `native_decide`, `bv_decide`, `admit`, `implemented_by`, `extern`, `maxRecDepth` or
+  `maxHeartbeats` (source scan in `check.log`: none).
+
+**The bridge: the protocol's state on the code's chain.**
+
+| Theorem / definition | Statement |
+|---|---|
+| `cStep`, `cDecode` | the reader of the code's chain entries after the header: an absorb under the label `lab` is the round's message (`dec` of its bytes), the next squeeze completes the round with `chal` of its digest (its counter is not read); anything else leaves the schedule |
+| `codeSt` | the state of a code chain transcript with a header of `s` entries: not doomed while the header is incomplete; then the protocol's state of `stmtOf (header entries)` (items, counters and digests) and the transcript `cDecode` reads off the rest |
+| **`codeSt_round`** | for an RBR-sound protocol (`e` escaping challenges per round) and a derivation `chal` with at most `K` digests per value: from a doomed chain of at least `s` entries, whatever the next item, at most `e·K` digests escape |
+| `cDecode_rounds` | the verifier's round operations (`absorb lab (enc m)`, `squeeze`, from any counter `c`) read back as exactly the messages `dec (enc m)` and the challenges `chal` of the squeezes' digests |
+| **`fs_code_chain_sound`** | `chain_sound` on the code's chain: for any `ChainEnc` whose items read as code items, a `q`-query prover makes the header's chain doomed and the whole chain alive with probability at most `T·e·K/|D| + collBound T D + collBound (T + 1) D`, `T = q + ℓ + 1` |
+
+**The code's chain on the finite oracle domain.**
+
+| Theorem / definition | Statement |
+|---|---|
+| `TItem.len`, `Op.len`, `TItem.msg_length` | an item's hash input has `48 + |label| + |data|` (absorb) or `47` (squeeze) bytes |
+| `chainEncB` | L5's `chainEnc` restricted to the items of at most `L` bytes: a `ChainEnc (ItB L) (QB L) Dig` (its decoder and the start premise from L5) |
+| `lastD_liftH`, **`chainFrom_liftH`** | under `liftH G`, L5's chain of those items is `chainEncB`'s chain under `G` |
+| `opItems_append`, `runOps_counter`, `opItems_fit`, `liftItems_val`, `liftItems_append` | the items of `ops₁ ++ ops₂` (the counter after `ops₁` is `opsCtr`, the executable transcript's counter); operations of at most `L < 2^64` bytes give items the code hashes unambiguously |
+| `opTrace`, **`opTrace_chainFrom`** | the header's trace (each operation's item with the code's counter, and the transcript's state after it, as the executable transcript computes them) is the chain's entries |
+| `decMsg`, `decMsg_enc`, `zip_dec_scTau` | the reader's message of the absorbed bytes of `d + 1` canonical values is L6's `msgK`; the reader's transcript of the rounds is L6's `scTau` |
+
+**The challenge and the bound.**
+
+| Theorem | Statement |
+|---|---|
+| `halves`, `halves_injective`, `challengeFp2Of_toK` | a digest's two 128-bit halves, injectively; `challenge_fp2` read in `K` is `fp2Field gP (2^128) ι` of them (`ι` the field reading `(a, b) ↦ a + U·b`, a bijection when `finrank GF K = 2`) |
+| `card_filter_le_of_injective`, **`card_chal_fiber_le`** | every challenge value has at most `(⌊2^128/p⌋ + 1)²` digest preimages |
+| `card_dig`, `card_of_pairs`, `dig_bound_le` | `|Dig| = 2^256`; `|K| = p²`; `a·(⌊2^128/p⌋+1)²/|Dig| ≤ a/|K|·(1 + p/2^128)²` |
+| `ScWin`, `scSt`, **`scWin_flip`** | the prover's win (below) makes the header's chain doomed and the whole chain of the verifier's items alive, for the sumcheck's state function (`sumcheck_rbr`'s) |
+
+**The end-to-end theorem.**
+
+`exec_sumcheck_fs_sound` (PROVED). Premises:
+- `K` a finite field `⊇ GF` with `finrank GF K = 2` and `U² = 7`;
+- `key` (the mode: legacy or the profile's Fiat–Shamir key) and a `domain` string with `decodeLink (startMsg domain) =
+  none`;
+- `L` with `|startMsg domain| ≤ L`, `56 + 16(d + 1) ≤ L` and `L < 2^64`;
+- `1 ≤ d < p`; any `n`, any `s`, any statement map `stmt` from the header's trace to `(f, C)`;
+- `A`, an oracle algorithm on `QB L → Dig` making at most `q` queries, outputting a header (`List Op`) and the rounds.
+
+Then `prH (ScWin …) ≤ (q + (s + 2n) + 1)·d/|K| · (1 + p/2^128)² + collBound (q + (s + 2n) + 1) Dig + collBound (q + (s +
+2n) + 2) Dig`, where `ScWin` (the event, with `G` the oracle and `liftH G` the verifier's hash) is ALL of:
+- the header has exactly `s` operations, each hash input at most `L` bytes;
+- every round value is a canonical word, and the claimed sum `C` is canonical;
+- for `(f, C) := stmt (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) header)`: `IndDegLE d f` and `C ≠ Σ f`;
+- `(scVerify (liftH G) C d n rounds (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) header)).1 = .ok (fin, rs)` and
+  `fin = f(rs)` in `K`.
+
+Corollaries:
+- `exec_sumcheck_fs_sound_goldilocks`: `|K| = p²` and the bias `(1 + 2^-64)²`.
+- `slot_bound_le`, `exec_sumcheck_fs_sound_slot`: with `d ≤ 4` and `q + (s + 2n) + 1 ≤ 2^64 + 2^20`, the probability is
+  at most `2^-61` (the first term at most `3·2^-63`, each collision term at most `2^-126`; `natFrac_le`,
+  `natFrac_mul`).
+
+### 9.3 Why the bridge reads the code's chain rather than building a `PItem` encoding
+
+- A `ChainEnc` hashes ONE link per item. The header is several links (each absorb of the public statement, every
+  squeeze before the sumcheck), so it cannot be `PItem.stmt x`'s single link.
+- Mapping `PItem.sq j` to the code's counter `c0 + j` as a `u64` is not injective over `ℕ`; a `ChainEnc` would need
+  `j < 2^64 − c0`.
+- Reading the code's own chain, which L5 already proved injective (`decodeLink_msg`), needs neither. The reader never
+  reads the counter: the RBR argument only needs SOME state function satisfying the round condition, and the chain
+  argument (the trace-back, the collisions, the guesses) works on the code's chain as it is.
+- The cost: `FSChainRbr.lean`'s `liftSt_round` is re-proved for the code's items (`codeSt_round`, the same case
+  analysis, 40 lines).
+
+### 9.4 Findings
+
+**L7-1 (Info; closes L6-4): the wrapping `u64` counter needs no premise.**
+- There is no counterexample: two squeezes with the same counter value hash different inputs unless their previous
+  digests collide, and a collision is already paid for in the bound (`collBound`).
+- So `fs_code_chain_sound` has no counter premise at all. L6-4's "`2^64` squeezes" condition is not needed.
+
+**L7-2 (Info; for the per-profile instance): `sumcheck::verify` does not absorb the claimed sum.**
+- CODE: `verify` absorbs only the round values. The theorem takes the claim `C` as a function of the header's trace,
+  so the per-profile instance must show that each slot's claimed sum is computed from the header (absorbed values and
+  squeezed challenges).
+- If a caller's claim were NOT determined by the header, the theorem as stated would not apply. An argument suggests
+  the sumcheck would still be sound: round 0's check `s₀(0) + s₀(1) = C` pins `C` to the absorbed `s₀`, and a false
+  `C` forces `s₀` off the true round polynomial before `r₀` is drawn. That argument is NOT proved here.
+
+**L7-3 (Info): a fixed header length.**
+- The theorem fixes the number `s` of header operations; a per-profile verifier's schedule fixes it for each slot.
+- A profile whose schedule length depends on the statement would pay a union over the possible lengths, or need the
+  prefix-free generalization of the header (not done).
+
+**L7-4 (Info, engineering): concrete huge `Finset.univ`s and the literal `p` in proofs.**
+- The first draft of the file was killed by the guard at its 24 GiB cap after 75 s. The runaway was the one-line proof
+  of `|K| = p²` with the LITERAL Goldilocks `p` (the same proof with a variable `p` is instant).
+- A membership proof in `Finset.univ` of `Fin (2^128) × Fin (2^128)` or of the digests reached Lean's recursion limit.
+- Fix: such facts are stated for a variable `p` or abstract finite types, then instantiated (`card_of_pairs`,
+  `dig_bound_le`, `card_filter_le_of_injective`, `slot_bound_le`). The file then elaborates in 4 s at 3.65 GiB. Later
+  lanes working with the concrete `p` or digest types should do the same (bisection logs in the evidence directory).
+
+**L7-5 (Info): no compiled checker target this step (L5-5).**
+- A `lean_exe` target would not change how `lake build` builds the library (the default target stays the library).
+- But building it compiles every imported module, Mathlib's included, to native code. The cache holds `.olean` files,
+  not native objects, so the first `lake build` of the target is a many-hour job that this lane could not validate. It
+  is left for a lane with that budget.
+
+### 9.5 What is left
+
+- **The composition on the code's chain.** `FSCompose.lean` (the per-round MAXIMUM over sub-protocols on one chain)
+  and `FSWideRbr.lean` (vector challenges) still read `PItem` chains. Their `liftStW` should be re-stated with this
+  file's reader (`codeSt` with a schedule of labels and widths), as here for one sumcheck, so that the whole receipt's
+  chain gets the composed rate. The arguments are the same; the item map is this file's.
+- **Per slot**: each slot's claimed sum as a function of its header (L7-2); `1 ≤ d`, `N < 64` (L6-1, L6-2); `L` for the
+  profile (L5-4) and the decoder's size bounds; the start premise per profile string (L5-3).
+- **The polynomial as the committed tables'**: the extractor (`SoundExtract.lean`) composed with this bound.
+- The rest of §8.5 and §7.5: W16R3's slot items, the `Protocol` instance, the receipt decoder, LogUp, the openings and
+  `M`, the schedule, a corpus of real W16R3 receipts, a compiled checker.
+
+### 9.6 Checks
+
+All in `results/zk60_lean_l7_20261106/`, each run as one job through the zk60 resource guard (class `cpu`,
+`run_guarded.py`):
+- `file1.log`: the first draft, killed at the 24 GiB cap (L7-4).
+- `bisect1.log`, `bisect2.log`, `var1.log` … `var5.log`: truncated and proof-stubbed copies (in the session scratchpad,
+  never in the library), each under its own 8–10 GiB watchdog, that located the runaway; `var5.log`: the final file,
+  4 s, 3.65 GiB, no message.
+- `check.log`: `check_l7.sh`, which runs:
+  - the full build (`full.log`): 3,453 jobs, rc 0, 0 warnings, 0 errors;
+  - the axiom audit (`axioms.log`): 39 theorems, nothing beyond `propext`, `Classical.choice`, `Quot.sound`;
+  - the source scan (none) and the root import;
+  - the regressions: `L6Check` 1,206 checks, 0 failed (`l6check_regression.log`); `L5Check` 5,553 checks, 0 failed
+    (`l5check_regression.log`).
+- Peak RSS of the final check: 3.81 GiB.

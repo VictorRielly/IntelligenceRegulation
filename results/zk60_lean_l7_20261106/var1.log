@@ -1,0 +1,36 @@
+== C1.lean: rc 0  peak 3.60 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C1.lean:507:8: warning: declaration uses `sorry`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C1.lean:694:8: warning: declaration uses `sorry`
+
+== C2.lean: rc 0  peak 3.62 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C2.lean:507:8: warning: declaration uses `sorry`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C2.lean:695:8: warning: declaration uses `sorry`
+
+== C3.lean: rc 1  peak 3.63 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C3.lean:512:2: error: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C3.lean:506:0: error: linter Lean.Linter.constructorNameAsVariable failed: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C3.lean:696:8: warning: declaration uses `sorry`
+
+== C4.lean: rc 1  peak 3.62 GiB 3 s
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C4.lean:513:9: error: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C4.lean:506:0: error: linter Lean.Linter.constructorNameAsVariable failed: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/var1/C4.lean:697:8: warning: declaration uses `sorry`
+
+== M2.lean: rc -15 KILLED rss 8.20 GiB peak 8.20 GiB 15 s
+
+== M3.lean: rc -15 KILLED rss 8.19 GiB peak 8.19 GiB 15 s
+
+== M4.lean: rc -15 KILLED rss 8.19 GiB peak 8.19 GiB 15 s
+
+== M5.lean: rc -15 KILLED rss 8.18 GiB peak 8.18 GiB 15 s
+
+== M6.lean: rc -15 KILLED rss 8.17 GiB peak 8.17 GiB 15 s
+
