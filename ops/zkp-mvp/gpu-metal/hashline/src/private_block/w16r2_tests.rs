@@ -3630,3 +3630,283 @@ fn a16_the_8b_witness_planes_in_every_form() {
     }
     std::env::remove_var("HL_GPU");
 }
+
+// ---- [A18] the forks' host work after A16 and A17, and A13's split core (efficiency plan A18) ----
+
+/// [A18] five settings of A18's three forms: (label, (the table helpers from
+/// the inverse tables already made, the preflight's record standing in for
+/// `define`'s registry re-check, `define`'s public tables in parallel)).
+/// `a18old` is the code before A18.
+const A18_SETTINGS: [(&str, (bool, bool, bool)); 5] = [("a18old", (false, false, false)), ("tabinv1 only", (true, false, false)), ("registry1 only", (false, true, false)), ("pubtab1 only", (false, false, true)), ("a18new", (true, true, true))];
+
+/// [A18] the A17 recipe ([`a17_seeded_digest`], beside the block's record) with
+/// the core SPLIT as a parked D55 fork runs it (A13): the before-challenge part
+/// on another thread in a rayon pool of `threads`, the generator moved there
+/// and back, then the rest here. The A17 and A18 forms are as the process says.
+fn a18_split_digest(sh: &Shape, blk: &BlockPublic, w: Witness, threads: usize) -> String {
+    let lay = Layout::for_shape(sh).unwrap();
+    let (ein, eout) = io_planes(sh, &w);
+    let ntt = NttTables::new(protocol::ntt_log_at(sh));
+    let rng = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+    let mut tr = Transcript::new(b"zk60 metal m4 accuracy");
+    tr.absorb(b"profile", sh.profile.as_bytes());
+    tr.absorb(b"schedule", &lay.schedule_digest());
+    let record = protocol::CheckedPublic::check(blk, sh).expect("the block passes its public checks");
+    let hints = protocol::CoreHints { checked: Some(&record) };
+    let pool = rayon::ThreadPoolBuilder::new().num_threads(threads).build().expect("a rayon pool");
+    let (ahead, mut rng) = std::thread::scope(|s| {
+        let (lay, ntt, pool) = (&lay, &ntt, &pool);
+        s.spawn(move || {
+            pool.install(move || {
+                let mut rng = rng;
+                let mut ph = super::timing::Phases::start();
+                let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+                let a = protocol::prove_core_before_with(sh, lay, blk, w, ntt, &mut rng, &mut ph, &mut phases, &mut tick, hints).expect("the before-challenge part");
+                (a, rng)
+            })
+        })
+        .join()
+        .expect("the before-challenge part's thread")
+    });
+    let mut ph = super::timing::Phases::start();
+    let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+    let core = protocol::prove_core_after_with(sh, &lay, blk, ahead, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints).expect("the rest of the split core");
+    let text = format!(
+        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
+        core.a_root, core.h_root, core.mask_root, core.slots, core.mask_open, core.a_open, core.h_open, core.io_claims, core.order, core.lookups, tr.state()
+    );
+    blake3::hash(text.as_bytes()).to_hex().to_string()
+}
+
+/// [A18] one setting's three proofs of a block: through `prove_core` (no
+/// record), through `prove_core_with` beside the block's record, and split
+/// across two threads (the before-challenge part in a pool of `threads`)
+fn a18_three(sh: &Shape, blk: &BlockPublic, w: &Witness, s: (bool, bool, bool), threads: usize) -> [String; 3] {
+    protocol::set_a18_for_test(Some(s.0), Some(s.1), Some(s.2));
+    let plain = seeded_digest(sh, blk, copy(w));
+    let with = a17_seeded_digest(sh, blk, copy(w));
+    let split = a18_split_digest(sh, blk, copy(w), threads);
+    protocol::set_a18_for_test(None, None, None);
+    [plain, with, split]
+}
+
+const A18_ENTRIES: [&str; 3] = ["prove_core", "prove_core_with and the record", "the core split across threads"];
+
+/// **[A18] the rung digests under A18's forms, and the split core** (CPU, in the
+/// suite). The W16R2 rung (a W16 profile: every A18 form acts) and the R13 rung
+/// (not W16: the range tables do not exist; the other forms act), the code
+/// before A18 (`prove_core`, every form off) against every form off and on,
+/// through `prove_core`, `prove_core_with` beside the record, and the core split
+/// with its before-challenge part in pools of 1 and 6 threads on another
+/// thread: one digest each, and the W16R2 rung's is the golden `96e4f0b6`. A
+/// before-challenge state continued with another block object (an equal copy)
+/// or at another shape is refused before anything is absorbed. (Every setting,
+/// on the CPU and the device: the ignored test below.)
+#[test]
+fn a18_the_rung_digests_under_a18_forms_and_the_split_core() {
+    for profile in [shape::W16R2_RUNG_H24, shape::R13_RUNG_H24] {
+        let (sh, blk, w) = rung_case(profile);
+        protocol::set_a18_for_test(Some(false), Some(false), Some(false));
+        let want = seeded_digest(&sh, &blk, copy(&w));
+        protocol::set_a18_for_test(None, None, None);
+        if profile == shape::W16R2_RUNG_H24 {
+            assert!(want.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's digest before A18 is not the golden: {}", &want[..8]);
+        }
+        for (label, s) in [A18_SETTINGS[0], A18_SETTINGS[4]] {
+            for threads in [1usize, 6] {
+                let ds = a18_three(&sh, &blk, &w, s, threads);
+                for (what, d) in A18_ENTRIES.iter().zip(&ds) {
+                    assert_eq!(d, &want, "{} [{label}] through {what} (pool of {threads}): the digest moved", sh.name);
+                }
+            }
+            eprintln!("A18-RUNG {} CPU [{label}]: digest {} through prove_core, prove_core_with beside the record and the split core (pools of 1 and 6): the code before A18's", sh.name, &want[..8]);
+        }
+        // a before-challenge state is continued only with its own block object, at its own shape
+        let lay = Layout::for_shape(&sh).unwrap();
+        let (ein, eout) = io_planes(&sh, &w);
+        let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+        let twin = blk.clone();
+        {
+            let mut rng = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+            let mut ph = super::timing::Phases::start();
+            let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+            let ahead = protocol::prove_core_before_with(&sh, &lay, &blk, copy(&w), &ntt, &mut rng, &mut ph, &mut phases, &mut tick, protocol::CoreHints::default()).unwrap();
+            let mut tr = header(&sh, &lay);
+            let s0 = tr.state();
+            let got = protocol::prove_core_after_with(&sh, &lay, &twin, ahead, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, protocol::CoreHints::default());
+            let e = got.err().unwrap_or_else(|| panic!("A BEFORE-CHALLENGE STATE WAS CONTINUED WITH AN EQUAL COPY OF ITS BLOCK"));
+            assert!(e.contains("another block"), "an equal copy of its block: {e}");
+            assert_eq!(tr.state(), s0, "the transcript moved before the refusal");
+        }
+        let other = built(if profile == shape::W16R2_RUNG_H24 { shape::W16_RUNG_H24 } else { shape::R13_RUNG_LOW });
+        {
+            let mut rng = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+            let mut ph = super::timing::Phases::start();
+            let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+            let ahead = protocol::prove_core_before_with(&sh, &lay, &blk, copy(&w), &ntt, &mut rng, &mut ph, &mut phases, &mut tick, protocol::CoreHints::default()).unwrap();
+            let olay = Layout::for_shape(&other).unwrap();
+            let mut tr = header(&other, &olay);
+            let got = protocol::prove_core_after_with(&other, &olay, &blk, ahead, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, protocol::CoreHints::default());
+            let e = got.err().unwrap_or_else(|| panic!("A BEFORE-CHALLENGE STATE WAS CONTINUED AT ANOTHER SHAPE"));
+            assert!(e.contains("another shape or layout"), "another shape: {e}");
+        }
+        eprintln!("A18-SPLIT {}: a before-challenge state continued with an equal copy of its block, or at another shape, is refused", sh.name);
+    }
+}
+
+/// **[A18] the record's cover of `define`'s registry re-check, and the table
+/// forms' words and refusals** (CPU, in the suite).
+/// * At the W16R2 rung a record covers its own block's accuracy data at its
+///   shape, and not a copy's data (another object), not another shape, not a
+///   block without accuracy data.
+/// * The range families' parallel inverse tables equal
+///   `range16::denominator_inverses` entry for entry (widths 1..=16), and so
+///   with a challenge that zeroes one denominator (the same `None`).
+/// * The range table helper from the family's table equals the column
+///   inverted the old way on every sub-plane of the rung, and refuses with the
+///   old string where the old column refuses.
+/// * The table helper on periodic and non-periodic tables equals the old
+///   inversion word for word, and refuses with the old string, wherever the
+///   zero entry lies (in the first period or in a padded copy).
+#[test]
+fn a18_the_record_covers_only_its_own_data_and_the_table_forms_equal_the_old_code() {
+    use crate::private_block::range16;
+    let (sh, blk, _) = rung_case(shape::W16R2_RUNG_H24);
+    let record = protocol::CheckedPublic::check(&blk, &sh).expect("the honest rung block passes");
+    assert!(record.covers_accuracy(blk.accuracy(), &sh), "a record does not cover its own block's accuracy data");
+    let twin = blk.clone();
+    assert!(!record.covers_accuracy(twin.accuracy(), &sh), "a record covers a copy's accuracy data (another object)");
+    let other = built(shape::W16_RUNG_H24);
+    assert!(!record.covers_accuracy(blk.accuracy(), &other), "a record covers its data at another shape");
+    assert!(!record.covers_accuracy(None, &sh), "a record covers no data");
+    let k = |a: u64, b: u64| Fp2::new(Fp::new(a), Fp::new(b));
+    let old_inv = |den: &[Fp2]| protocol::inverses(den.to_vec());
+    let zero_text = "zero LogUp denominator; discard attempt";
+    // the families' tables, entry for entry, with and without a zero denominator
+    for w in 1..=16u32 {
+        let g = k(11 + w as u64, 3);
+        for alpha in [k(77, 5), Fp2::from_i64(((1i64 << w) - 1) / 2).add(g)] {
+            assert!(protocol::range_inverses_par(w, alpha, g) == range16::denominator_inverses(w, alpha, g), "width {w}: the parallel inverse table differs");
+        }
+    }
+    // the range table helpers, every sub-plane of the rung's families
+    let lc = sh.log_cols;
+    for f in sh.range_families() {
+        let g = k(13, 7).mul_base(Fp::new(range16::tag_value(f.width)));
+        for (alpha, refuses) in [(k(91, 2), false), (Fp2::from_i64(1).add(g), true)] {
+            let tbl = range16::denominator_inverses(f.width, alpha, g);
+            for s in 0..f.sub {
+                let (base, sup) = (s << lc, range16::support(f, lc));
+                let m: Vec<u64> = (0..(f.sub << lc)).map(|i| (i as u64 * 7 + 3) % 11).collect();
+                let tv = range16::table_column(f, s, lc, g);
+                let want = old_inv(&tv.iter().map(|t| alpha.sub(*t)).collect::<Vec<_>>()).map(|inv| inv.iter().enumerate().map(|(i, x)| if i < sup { x.mul_base(Fp::new(m[base + i])) } else { Fp2::ZERO }).collect::<Vec<_>>());
+                let got = protocol::range_table_helper(f, s, lc, &tbl, &m, base, sup).expect("every entry of the sub-plane is in its family's table");
+                assert!(got == want, "width {} sub-plane {s}: the range table helper differs from the old column (or its refusal)", f.width);
+                assert_eq!(want.is_err(), refuses && s == 0, "width {} sub-plane {s}: the refusal case", f.width);
+                if let Err(e) = &want {
+                    assert_eq!(e, zero_text);
+                }
+            }
+        }
+    }
+    // the three table helpers: periodic (one period of distinct entries, padded
+    // copies) and not, with no zero, a zero in the first period, and a zero in
+    // the last entry
+    for len in [64usize, 256, 1024, 16384] {
+        let periodic: Vec<Fp2> = (0..len).map(|i| k((i % 256) as u64 * 3 + 1, 9)).collect();
+        let flat: Vec<Fp2> = (0..len).map(|i| k(i as u64 * 5 + 2, 1)).collect();
+        for (tv, per) in [(&periodic, true), (&flat, false), (&periodic, false), (&flat, true)] {
+            for zero_at in [None, Some(len.min(256) / 2), Some(len - 1)] {
+                let alpha = match zero_at {
+                    Some(z) => tv[z],
+                    None => k(1_000_003, 17),
+                };
+                for mlen in [len.min(256), len] {
+                    let m: Vec<u64> = (0..mlen).map(|i| (i as u64 * 13 + 1) % 17).collect();
+                    let want = old_inv(&tv.iter().map(|t| alpha.sub(*t)).collect::<Vec<_>>()).map(|inv| inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect::<Vec<_>>());
+                    let got = protocol::table_helper(tv, &m, alpha, per);
+                    assert!(got == want, "len {len} periodic {per} zero {zero_at:?} m {mlen}: the table helper differs from the old one (or its refusal)");
+                }
+            }
+        }
+    }
+    eprintln!("A18-FORMS: the record covers only its own block's data at its shape; the parallel range tables, the range table helpers and the table helpers equal the old code word for word and refusal for refusal");
+}
+
+/// **[A18] the W16R2 rung's golden under every setting of A18's forms, on the
+/// CPU and on the device**, each through `prove_core`, `prove_core_with` beside
+/// the block's record, and the core split across threads (pools of 1, 2 and
+/// 6). Toggles `HL_GPU` and the forms in-process, so it is ignored and run
+/// alone by name (`HL_GPU_REQUIRED=1`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A18: toggles HL_GPU and the A18 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn a18_w16r2_rung_golden_under_every_a18_setting() {
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    for gpu in [false, true] {
+        if gpu {
+            std::env::set_var("HL_GPU", "1");
+        } else {
+            std::env::remove_var("HL_GPU");
+        }
+        for (label, s) in A18_SETTINGS {
+            for threads in [1usize, 2, 6] {
+                let before = crate::gpu::metal_sumcheck_stats().1;
+                let ds = a18_three(&sh, &blk, &w, s, threads);
+                let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+                for (what, d) in A18_ENTRIES.iter().zip(&ds) {
+                    assert!(d.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung under {label} through {what}, pool of {threads} ({}): digest {}", if gpu { "Metal" } else { "CPU" }, &d[..8]);
+                }
+                assert!(!gpu || ran > 0.0, "no sumcheck round ran on the device under {label}");
+                eprintln!("A18-RUNG {} {} [{label}] split pool {threads}: digest {} through all three entries (the golden)", sh.name, if gpu { "Metal" } else { "CPU" }, &ds[0][..8]);
+            }
+        }
+    }
+    std::env::remove_var("HL_GPU");
+}
+
+/// **[A18, ignored] one W16R2 8B T128 block's core proof under every setting of
+/// A18's forms**: A17's 8B recipe on the device, first through `prove_core`
+/// with every form off (the code before A18), then under each of the five
+/// settings through `prove_core`, `prove_core_with` beside the block's record
+/// and the core split across threads (a pool of 6), each setting twice: one
+/// digest of the whole core proof and the transcript's final state in all 31,
+/// and it is the post-F12 8B digest `90003b760eb7ad80`. Heavy; run alone by name
+/// with `HL_PB_ORACLE=0`.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A18: heavy (one 8B T128 block on Metal, 31 times), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0"]
+fn a18_the_8b_block_proves_the_same_under_every_a18_setting() {
+    use crate::private_block::shape::NormCalibration;
+    let spec = shape::W16R2_PROFILES.iter().find(|s| s.name == "W16R2_8B_T128_H24").expect("the W16R2 8B profile");
+    let cal = NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+    let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
+    let (sh, data, public, ff) = super::range16_tests::case(original, 3);
+    let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+    let mut seed = 0usize;
+    let input = loop {
+        let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + seed) % (41 + 20 * (seed % 3))) as i16 - 20).collect();
+        match super::witness::build_accuracy(&sh, &public, &ff, &data, &input) {
+            Ok(_) => break input,
+            Err(_) if seed < 6 => seed += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let w = super::witness::build_accuracy(&sh, &public, &ff, &data, &input).unwrap();
+    std::env::set_var("HL_GPU", "1");
+    protocol::set_a18_for_test(Some(false), Some(false), Some(false));
+    let t = std::time::Instant::now();
+    let want = seeded_digest(&sh, &blk, copy(&w));
+    protocol::set_a18_for_test(None, None, None);
+    eprintln!("A18-8B [a18old through prove_core] {:.3} s (cold), digest {}", t.elapsed().as_secs_f64(), &want[..16]);
+    assert!(want.starts_with("90003b760eb7ad80"), "the 8B block's core proof before A18 is not the post-F12 digest: {}", &want[..16]);
+    for (label, s) in A18_SETTINGS.iter().chain(A18_SETTINGS.iter()) {
+        let t = std::time::Instant::now();
+        let ds = a18_three(&sh, &blk, &w, *s, 6);
+        for (what, d) in A18_ENTRIES.iter().zip(&ds) {
+            assert_eq!(d, &want, "the 8B block's core proof under {label} through {what} differs");
+        }
+        eprintln!("A18-8B [{label}] three proofs in {:.3} s, digest {} each (equal)", t.elapsed().as_secs_f64(), &ds[0][..16]);
+    }
+    std::env::remove_var("HL_GPU");
+}

@@ -1,0 +1,81 @@
+test private_block::run::fork::tests::a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung_on_the_device ... A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4: all 4 forks parked (parts / finish pools 1/1, 2/3, 6/2) equal the whole forks byte for byte
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 whole: 61301184 B, verified; its interior forks parked equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 whole: 61301184 B, verified; its interior forks parked equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 whole: 61301184 B, verified; its interior forks parked equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18old] W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4: all 4 forks parked (parts / finish pools 1/1, 2/3, 6/2) equal the whole forks byte for byte (57032864 B of fork frames)
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 whole: 61301184 B, verified; its interior forks parked equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 whole: 61301184 B, verified; its interior forks parked equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 whole: 61301184 B, verified; its interior forks parked equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 sealing window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (1, 0): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 sealing window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 sealing window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 seal_ahead window 2 side (3, 6): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 sealing window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 sealing window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES (Metal) [a18new] W16R2_RUNG_H24 L4 N6 seal_ahead window 4 side (3, 6): 4 parked, 61301184 B, verified; its interior forks whole equal it
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 100.02s

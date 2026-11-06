@@ -1,0 +1,27 @@
+2026-11-06T01:22:33Z start
+2026-11-06T01:25:03Z build rc=0
+2026-11-06T01:26:54Z a18 suite tests (CPU) rc=0
+test result: ok. 3 passed; 0 failed; 3 ignored; 0 measured; 1049 filtered out; finished in 110.34s
+2026-11-06T01:28:45Z D55 fork-run suite (non-ignored) rc=0
+test result: ok. 26 passed; 0 failed; 8 ignored; 0 measured; 1021 filtered out; finished in 111.06s
+2026-11-06T01:29:20Z source audits (s25, s24, hash_domain) rc=0
+test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 1010 filtered out; finished in 35.01s
+2026-11-06T01:30:15Z a18 rung golden under every setting (CPU and Metal, three entries) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 54.22s
+2026-11-06T01:31:55Z a18 parked forks = whole forks on the device (a18old, a18new) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 100.02s
+2026-11-06T01:32:09Z a18 8B block under every setting rc=0
+test private_block::w16r2_tests::a18_the_8b_block_proves_the_same_under_every_a18_setting ... A18-8B [a18old through prove_core] 0.631 s (cold), digest 90003b760eb7ad80
+A18-8B [a18old] three proofs in 1.336 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [tabinv1 only] three proofs in 1.243 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [registry1 only] three proofs in 1.269 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [pubtab1 only] three proofs in 1.294 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [a18new] three proofs in 1.245 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [a18old] three proofs in 1.376 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [tabinv1 only] three proofs in 1.243 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [registry1 only] three proofs in 1.216 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [pubtab1 only] three proofs in 1.237 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [a18new] three proofs in 1.213 s, digest 90003b760eb7ad80 each (equal)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 14.00s
+2026-11-06T01:32:09Z BYTES PASSED
+2026-11-06T01:32:09Z all done

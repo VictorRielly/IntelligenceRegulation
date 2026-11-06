@@ -1,0 +1,42 @@
+test private_block::run::fork::tests::a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung_on_the_device ... ignored, A18: toggles HL_GPU and the A18 forms in-process; run alone by name on a Mac
+test private_block::w16r2_tests::a18_the_8b_block_proves_the_same_under_every_a18_setting ... ignored, A18: heavy (one 8B T128 block on Metal, 31 times), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0
+test private_block::w16r2_tests::a18_w16r2_rung_golden_under_every_a18_setting ... ignored, A18: toggles HL_GPU and the A18 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1
+A18-FORMS: the record covers only its own block's data at its shape; the parallel range tables, the range table helpers and the table helpers equal the old code word for word and refusal for refusal
+test private_block::w16r2_tests::a18_the_record_covers_only_its_own_data_and_the_table_forms_equal_the_old_code ... ok
+A18-RUNG W16R2_RUNG_H24 CPU [a18old]: digest 96e4f0b6 through prove_core, prove_core_with beside the record and the split core (pools of 1 and 6): the code before A18's
+A18-BYTES W16R2_RUNG_H24 L4: all 4 forks parked (parts / finish pools 1/1, 2/3, 6/2) equal the whole forks byte for byte (57032864 B of fork frames)
+A18-RUNG W16R2_RUNG_H24 CPU [a18new]: digest 96e4f0b6 through prove_core, prove_core_with beside the record and the split core (pools of 1 and 6): the code before A18's
+A18-SPLIT W16R2_RUNG_H24: a before-challenge state continued with an equal copy of its block, or at another shape, is refused
+A18-RUNG R13_RUNG_H24 CPU [a18old]: digest ddd29ae0 through prove_core, prove_core_with beside the record and the split core (pools of 1 and 6): the code before A18's
+A18-RUNG R13_RUNG_H24 CPU [a18new]: digest ddd29ae0 through prove_core, prove_core_with beside the record and the split core (pools of 1 and 6): the code before A18's
+A18-SPLIT R13_RUNG_H24: a before-challenge state continued with an equal copy of its block, or at another shape, is refused
+test private_block::w16r2_tests::a18_the_rung_digests_under_a18_forms_and_the_split_core ... ok
+test private_block::run::fork::tests::a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung has been running for over 60 seconds
+A18-BYTES W16R2_RUNG_H24 L4 N1 whole: 61301184 B, verified; its interior forks parked equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 sealing window 1 side (1, 0): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 1 side (1, 0): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 sealing window 1 side (2, 3): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 1 side (2, 3): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 sealing window 4 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 sealing window 9 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 9 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 sealing window 9 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N1 seal_ahead window 9 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 whole: 61301184 B, verified; its interior forks parked equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 sealing window 1 side (1, 0): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 1 side (1, 0): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 sealing window 1 side (2, 3): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 1 side (2, 3): 1 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 sealing window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 sealing window 4 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 4 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 sealing window 9 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 9 side (1, 0): 4 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 sealing window 9 side (2, 3): 2 parked, 61301184 B, verified; its interior forks whole equal it
+A18-BYTES W16R2_RUNG_H24 L4 N3 seal_ahead window 9 side (2, 3): 4 parked, 61301184 B, verified; its interior forks whole equal it
+test private_block::run::fork::tests::a18_parked_forks_equal_whole_forks_byte_for_byte_at_the_w16r2_rung ... ok
+test result: ok. 3 passed; 0 failed; 3 ignored; 0 measured; 1049 filtered out; finished in 110.34s

@@ -210,6 +210,12 @@ pub(crate) struct Points {
     p_g: Vec<Fp2>,
     p_u: Vec<Fp2>,
     p_z: Vec<Fp2>,
+    /// **[A18]** set by [`argument_with`] (and nothing else) when a D55 fork's
+    /// preflight record covers THIS argument's accuracy data at THIS shape
+    /// (`protocol::CheckedPublic::covers_accuracy`): then `define_changed` skips
+    /// its per-slot `check_for_registry`, which the record's check already ran
+    /// with the same arguments. `false` (every other `Points`): it checks.
+    registry_checked: bool,
 }
 
 /// **TEST HOOK (stage 20).** The two bilinear slots' published claim points.
@@ -1647,7 +1653,14 @@ impl<'a> B<'a> {
         }
         let t = super::pad::indicator_table(sh, dom);
         let rep = tile_rep(t.len(), cube_len)?;
-        Ok(Some(self.public((0..cube_len).map(|x| k(t[x / rep])).collect())))
+        // [A18] `HL_A18_PUBTAB`: the same entries in an indexed parallel map
+        let col: Vec<Fp2> = if pubtab_par(cube_len) {
+            use rayon::prelude::*;
+            (0..cube_len).into_par_iter().map(|x| k(t[x / rep])).collect()
+        } else {
+            (0..cube_len).map(|x| k(t[x / rep])).collect()
+        };
+        Ok(Some(self.public(col)))
     }
     fn finish(self, poly: Poly, hosted: Vec<(usize, Fp2)>) -> Result<SlotDef, String> {
         if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
@@ -1861,8 +1874,27 @@ pub(crate) fn causal_mask() -> Vec<Fp2> {
 /// the frozen table, value for value.
 pub(crate) fn causal_mask_at(sh: &Shape) -> Vec<Fp2> {
     let t = sh.t_pad;
-    (0..sh.size(Dom::S)).map(|x| if x % t <= (x / t) % t { Fp2::ONE } else { Fp2::ZERO }).collect()
+    let entry = |x: usize| if x % t <= (x / t) % t { Fp2::ONE } else { Fp2::ZERO };
+    // [A18] `HL_A18_PUBTAB`: the same entries in an indexed parallel map
+    if pubtab_par(sh.size(Dom::S)) {
+        use rayon::prelude::*;
+        return (0..sh.size(Dom::S)).into_par_iter().map(entry).collect();
+    }
+    (0..sh.size(Dom::S)).map(entry).collect()
 }
+
+/// **[A18] `HL_A18_PUBTAB`**: whether a public table of `len` entries that
+/// `define` builds (a support indicator, the causal mask, the two RoPE tables)
+/// is built in an indexed parallel map instead of a sequential loop. Each entry
+/// is the same function of its index, so the table is the same vector; the
+/// tables are functions of the shape and the public block only (no challenge, no
+/// witness word). The switch is `protocol.rs`'s ([`super::protocol::pubtab_on`]).
+fn pubtab_par(len: usize) -> bool {
+    len >= PUBTAB_PAR_MIN && super::protocol::pubtab_on()
+}
+
+/// [A18] the table length from which [`pubtab_par`] builds in parallel
+const PUBTAB_PAR_MIN: usize = 1 << 15;
 
 /// (C, S') with out = C * x + S' * x_partner, over `heads` heads per row.
 ///
@@ -1895,15 +1927,32 @@ pub(super) fn rope_tables_at(sh: &Shape, public: &AttentionPublic, dom: Dom) -> 
     let heads = if dom == Dom::Q { sh.h_pad } else { sh.kv_heads };
     let n = sh.size(dom);
     let (mut c, mut s) = (vec![Fp2::ZERO; n], vec![Fp2::ZERO; n]);
-    for x in 0..n {
+    // entry `x`'s two words (`None`: zero, on a pad), a function of `x` alone
+    let entry = |x: usize| -> Option<(Fp2, Fp2)> {
         let (i, slot, t) = (x % dh, (x / dh) % heads, x / (dh * heads));
         let live = t < sh.tokens && (dom != Dom::Q || sh.slot_is_true_head(slot)) && x < sh.t_pad * heads * dh;
         if !live {
-            continue;
+            return None;
         }
         let at = t * half + i % half;
-        c[x] = k(public.rope_cos[at]);
-        s[x] = k(if i < half { -public.rope_sin[at] } else { public.rope_sin[at] });
+        Some((k(public.rope_cos[at]), k(if i < half { -public.rope_sin[at] } else { public.rope_sin[at] })))
+    };
+    // [A18] `HL_A18_PUBTAB`: the same entries, written in parallel (each `x` once)
+    if pubtab_par(n) {
+        use rayon::prelude::*;
+        c.par_iter_mut().zip(s.par_iter_mut()).enumerate().for_each(|(x, (cx, sx))| {
+            if let Some((a, b)) = entry(x) {
+                *cx = a;
+                *sx = b;
+            }
+        });
+        return (c, s);
+    }
+    for x in 0..n {
+        if let Some((a, b)) = entry(x) {
+            c[x] = a;
+            s[x] = b;
+        }
     }
     (c, s)
 }
@@ -2956,9 +3005,20 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
 /// challenge, table or terminal can depend on whether timing is on. With
 /// `HL_PB_TIMING` unset it returns on its first line.
 pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut super::timing::Phases) -> Result<Acc, String> {
+    argument_with(side, ctx, tr, ph, None)
+}
+
+/// **[A18]** [`argument`] with a D55 fork's preflight record: when it covers
+/// `ctx`'s accuracy data at `ctx`'s shape (`CheckedPublic::covers_accuracy`,
+/// the same object and an equal shape), `define`'s per-slot registry re-check
+/// is skipped (the record's check ran it with the same arguments, and `ctx`
+/// is borrowed unchanged for the whole call). Any other record, or none, checks
+/// as before. The re-check draws, absorbs and writes nothing, so no byte moves.
+pub(crate) fn argument_with(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut super::timing::Phases, checked: Option<&super::protocol::CheckedPublic<'_>>) -> Result<Acc, String> {
     let mut acc = Acc::default();
     let mut pts = Points::default();
     let sh = ctx.lay.shape();
+    pts.registry_checked = checked.is_some_and(|c| c.covers_accuracy(ctx.accuracy, sh));
     // NATIVE R9: THIS profile's slots — the twenty-three, plus the
     // dictionary zero-check on a DD profile (appended last)
     // [ZK60-METAL M3] the IR's own point record, carried beside `pts`

@@ -12,7 +12,13 @@ pub(super) fn define_changed(slot:usize,ctx:&Ctx<'_>,pts:&mut Points,tr:&mut Tra
     let sh=ctx.lay.shape();
     let data=ctx.accuracy.ok_or("R13 relation requires bound accuracy public data")?;
     let geometry=crate::private_block::accuracy_public::Geometry{width:sh.width,query_width:sh.q_width(),kv_width:sh.kv_heads*sh.head_dim,hidden:sh.hidden};
-    data.check_for_registry(sh.accuracy_registry(),geometry,sh.accuracy_base(),sh.accuracy_stack())?;
+    // [A18] skipped only when a D55 fork's preflight record covers THIS data at
+    // THIS shape (`argument_with`, `CheckedPublic::covers_accuracy`): the
+    // record's check ran this very call on it; every other caller checks, slot
+    // by slot, as before
+    if !pts.registry_checked {
+        data.check_for_registry(sh.accuracy_registry(),geometry,sh.accuracy_base(),sh.accuracy_stack())?;
+    }
     if data.folds().gate.shift!=sh.accuracy_gate_shift {return Err("R13 relation common gate shift differs from the public data".into());}
     // W16 (D54): the same relations at 16-bit limbs; no R13 slot changes
     if sh.range16() {

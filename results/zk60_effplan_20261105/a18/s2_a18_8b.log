@@ -1,0 +1,12 @@
+test private_block::w16r2_tests::a18_the_8b_block_proves_the_same_under_every_a18_setting ... A18-8B [a18old through prove_core] 0.631 s (cold), digest 90003b760eb7ad80
+A18-8B [a18old] three proofs in 1.336 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [tabinv1 only] three proofs in 1.243 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [registry1 only] three proofs in 1.269 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [pubtab1 only] three proofs in 1.294 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [a18new] three proofs in 1.245 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [a18old] three proofs in 1.376 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [tabinv1 only] three proofs in 1.243 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [registry1 only] three proofs in 1.216 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [pubtab1 only] three proofs in 1.237 s, digest 90003b760eb7ad80 each (equal)
+A18-8B [a18new] three proofs in 1.213 s, digest 90003b760eb7ad80 each (equal)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 14.00s
