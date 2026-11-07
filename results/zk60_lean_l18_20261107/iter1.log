@@ -1,0 +1,47 @@
+== lake build of the L18 modules ==
+warning: ZK60Formal/ProtocolClassify.lean:226:63: Try `simp at h` instead of `simpa using h`
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+✖ [3463/3464] Building ZK60Formal.ProtocolClassifyComplete (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyComplete.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean/ZK60Formal/ProtocolClassifyComplete.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean/ZK60Formal/ProtocolClassifyComplete.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/ir/ZK60Formal/ProtocolClassifyComplete.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/ir/ZK60Formal/ProtocolClassifyComplete.setup.json --json
+error: ZK60Formal/ProtocolClassifyComplete.lean:49:0: linter Lean.Linter.constructorNameAsVariable failed: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/ProtocolClassifyComplete.lean:76:46: Invalid argument name `s₂` for function `MeasureTheory.measure_mono`
+
+Hint: Perhaps you meant one of the following parameter names:
+  • `α`: s̵₂̵α̲
+  • `F`: s̵₂̵F̲
+  • `μ`: s̵₂̵μ̲
+  • `s`: s₂̵
+  • `t`: s̵₂̵t̲
+  • `h`: s̵₂̵h̲
+error: ZK60Formal/ProtocolClassifyComplete.lean:81:8: No goals to be solved
+error: ZK60Formal/ProtocolClassifyComplete.lean:111:2: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.ProtocolClassifyComplete
+error: build failed
+build rc 1 (17 s)
+== the Rust framing export ==
+warning: unused doc comment
+warning: unused import: `verify_inner_at`
+warning: unused import: `Dom`
+warning: unused import: `eval_mle_ext`
+warning: unused variable: `ls`
+warning: unused variable: `lp`
+warning: unused variable: `n_pad`
+warning: unused variable: `low`
+warning: unused variable: `precision`
+warning: unused variable: `g_exp`
+warning: unused variable: `n_pad`
+warning: unused variable: `cube`
+warning: unused variable: `hp`
+LEAN-L18 | the classify run's framing (rung, L = 2, verdict 1): 4 segments, corpus 2412 B
+LEAN-L18 | wrote /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/results/zk60_lean_l18_20261107/corpus.txt
+test private_block::token_io::classify_capture_tests::lean_l18_export_tests::lean_l18_export_the_classify_run_framing ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1053 filtered out; finished in 1.74s
+rc 0, 166 s
+rust rc 0
+iteration done, 183 s

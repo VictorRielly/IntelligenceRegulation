@@ -101,3 +101,7 @@ import ZK60Formal.StageCheckDefs
 import ZK60Formal.StageFS
 import ZK60Formal.StageOutWhole
 import ZK60Formal.StageCheckValid
+import ZK60Formal.ProtocolClassify
+import ZK60Formal.ProtocolClassifyFS
+import ZK60Formal.ProtocolClassifyComplete
+import ZK60Formal.AssembleClassify
