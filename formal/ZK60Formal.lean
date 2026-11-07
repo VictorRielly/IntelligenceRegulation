@@ -83,3 +83,8 @@ import ZK60Formal.LayoutW16Handoff
 import ZK60Formal.ExecBlockWire
 import ZK60Formal.ExecBlockVerify
 import ZK60Formal.ExecBlockFS
+import ZK60Formal.ZKW16Prog
+import ZK60Formal.ZKW16Step
+import ZK60Formal.ZKW16View
+import ZK60Formal.ZKW16Block
+import ZK60Formal.ZKW16Hyb

@@ -1,0 +1,44 @@
+== lake build ZK60Formal.ZKW16Block ==
+warning: ZK60Formal/ZKW16Step.lean:238:0: automatically included section variable(s) unused in theorem `ZK60.ZKW16.FSModel.coll_card`:
+  [Inhabited D]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited D] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/ZKW16Step.lean:262:0: automatically included section variable(s) unused in theorem `ZK60.ZKW16.FSModel.hid_card`:
+  [Inhabited D]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited D] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3437/3437] Building ZK60Formal.ZKW16Block (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Block.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Block.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Block.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/ir/ZK60Formal/ZKW16Block.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/ir/ZK60Formal/ZKW16Block.setup.json --json
+error: ZK60Formal/ZKW16Block.lean:79:29: Type mismatch
+  leak16 profile tokens served x
+has type
+  Leak16
+but is expected to have type
+  P.Leak
+error: ZK60Formal/ZKW16Block.lean:225:8: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:232:8: Unknown identifier `mul_le_mul_right'`
+error: ZK60Formal/ZKW16Block.lean:257:29: Unknown identifier `mul_le_mul_right'`
+error: ZK60Formal/ZKW16Block.lean:263:52: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:267:86: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:275:25: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:279:46: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:294:20: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:294:44: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:310:47: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:328:44: Unknown identifier `mul_le_mul_left'`
+error: ZK60Formal/ZKW16Block.lean:326:14: Invalid projection: Projections cannot be used on functions, and
+  ENNReal.mul_lt_mul_right hne0 hnet
+has function type
+  ?m.257 < ?m.258 → 2⁻¹ ^ 256 * ?m.257 < 2⁻¹ ^ 256 * ?m.258
+Some required targets logged failures:
+- ZK60Formal.ZKW16Block
+error: build failed
+build rc 1
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean:27:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Block.olean' of module ZK60Formal.ZKW16Block does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean
+rc build 1 files 1, 22 s

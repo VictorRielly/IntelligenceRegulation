@@ -1,0 +1,28 @@
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean:375:10: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean:396:10: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean:362:0: warning: automatically included section variable(s) unused in theorem `ZK60.ZKW16.apBad_card`:
+  [Inhabited D]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited D] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean:447:10: error: No goals to be solved
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean:465:10: error: No goals to be solved
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean:474:10: error: No goals to be solved
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean:484:2: error: Type mismatch
+  ZKHybrid.prob_marginal (Equiv.prodAssoc (Q → D) S (Fin k → D)).symm ?m.69
+has type
+  @DFunLike.coe (MeasureTheory.OuterMeasure ((Q → D) × S × (Fin k → D))) (Set ((Q → D) × S × (Fin k → D)))
+      (fun x => ℝ≥0∞) MeasureTheory.OuterMeasure.instFunLikeSetENNReal
+      (PMF.uniformOfFintype ((Q → D) × S × (Fin k → D))).toOuterMeasure
+      {a | ((Equiv.prodAssoc (Q → D) S (Fin k → D)).symm a).1 ∈ ?m.69} =
+    (PMF.uniformOfFintype ((Q → D) × S)).toOuterMeasure ?m.69
+but is expected to have type
+  @DFunLike.coe (MeasureTheory.OuterMeasure ((Q → D) × S × (Fin k → D))) (Set ((Q → D) × S × (Fin k → D)))
+      (fun x => ℝ≥0∞) MeasureTheory.OuterMeasure.instFunLikeSetENNReal
+      (PMF.uniformOfFintype ((Q → D) × S × (Fin k → D))).toOuterMeasure {ω | F (OC.run ω.1 A₁) ∧ apReal y A₁ A₂ ω} =
+    (PMF.uniformOfFintype ((Q → D) × S)).toOuterMeasure
+      {p | F (OC.run p.1 A₁) ∧ OC.run p.1 (A₂ (OC.run p.1 A₁) p.2 (chainVals (y (OC.run p.1 A₁) p.2 p.1) p.1)) = true}
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean
+rc build 0 files 1, 21 s

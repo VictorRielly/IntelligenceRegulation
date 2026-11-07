@@ -1,0 +1,25 @@
+== lake build ZK60Formal.ZKW16Block ==
+✖ [3436/3437] Building ZK60Formal.ZKW16Step (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Step.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Step.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/ir/ZK60Formal/ZKW16Step.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/ir/ZK60Formal/ZKW16Step.setup.json --json
+error: ZK60Formal/ZKW16Step.lean:254:18: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression
+  hs
+has type
+  Quot.lift (fun l => s ∈ l) ⋯
+    {s |
+        F (OC.run H A₁) ∧
+          (¬Function.Injective (M.pts (x (OC.run H A₁)) s.1 H s.2) ∨
+            ∃ i, M.pts (x (OC.run H A₁)) s.1 H s.2 i ∈ M.dep (x (OC.run H A₁)) s.1)}.val
+which is not a one-constructor inductive type.
+error: ZK60Formal/ZKW16Step.lean:288:25: Tactic `rcases` failed: `hc : Quot.lift (fun l => c ∈ l) ⋯
+  {c |
+      F (OC.run H A₁) ∧
+        ∃ z ∈ OC.queries (M.progVis (M.out (x (OC.run H A₁)) c v) H v) (A₂ (OC.run H A₁) (M.out (x (OC.run H A₁)) c v)),
+          ∃ i, ¬M.vis v i ∧ M.pts (x (OC.run H A₁)) c H v i = z}.val` is not an inductive datatype
+Some required targets logged failures:
+- ZK60Formal.ZKW16Step
+error: build failed
+build rc 1
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean:27:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Block.olean' of module ZK60Formal.ZKW16Block does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean
+rc build 1 files 1, 16 s
