@@ -141,3 +141,9 @@ import ZK60Formal.RelW16Block
 import ZK60Formal.RelW16Host
 import ZK60Formal.RelW16HostDeg
 import ZK60Formal.RelW16Pos
+import ZK60Formal.ProtocolClassify
+import ZK60Formal.ProtocolClassifyFS
+import ZK60Formal.ProtocolClassifyComplete
+import ZK60Formal.AssembleClassify
+import ZK60Formal.ProtocolClassifyR13
+import ZK60Formal.ProtocolClassifyCount

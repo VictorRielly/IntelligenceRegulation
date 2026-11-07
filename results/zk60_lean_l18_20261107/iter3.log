@@ -1,0 +1,45 @@
+== lake build of the L18 modules ==
+✖ [3477/3477] Building ZK60Formal.ProtocolClassifyR13 (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyR13.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean/ZK60Formal/ProtocolClassifyR13.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean/ZK60Formal/ProtocolClassifyR13.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/ir/ZK60Formal/ProtocolClassifyR13.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/ir/ZK60Formal/ProtocolClassifyR13.setup.json --json
+error: ZK60Formal/ProtocolClassifyR13.lean:55:76: Ambiguous term
+  ZClaim
+Possible interpretations:
+  Block.ZClaim : Type
+  
+  Exec.ZClaim : Type
+error: ZK60Formal/ProtocolClassifyR13.lean:56:49: Ambiguous term
+  ZClaim
+Possible interpretations:
+  Block.ZClaim : Type
+  
+  Exec.ZClaim : Type
+error: ZK60Formal/ProtocolClassifyR13.lean:74:74: Ambiguous term
+  ZClaim
+Possible interpretations:
+  Block.ZClaim : Type
+  
+  Exec.ZClaim : Type
+error: ZK60Formal/ProtocolClassifyR13.lean:75:47: Ambiguous term
+  ZClaim
+Possible interpretations:
+  Block.ZClaim : Type
+  
+  Exec.ZClaim : Type
+error: ZK60Formal/ProtocolClassifyR13.lean:84:89: Ambiguous term
+  ZClaim
+Possible interpretations:
+  Block.ZClaim : Type
+  
+  Exec.ZClaim : Type
+error: ZK60Formal/ProtocolClassifyR13.lean:84:89: Ambiguous term
+  ZClaim
+Possible interpretations:
+  Block.ZClaim : Type
+  
+  Exec.ZClaim : Type
+warning: ZK60Formal/ProtocolClassifyR13.lean:97:8: declaration uses `sorry`
+Some required targets logged failures:
+- ZK60Formal.ProtocolClassifyR13
+error: build failed
+build rc 1 (8 s)
+iteration done, 8 s
