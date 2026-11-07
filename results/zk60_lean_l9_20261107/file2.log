@@ -1,0 +1,212 @@
+== lake build ZK60Formal.ExecBlockWire ==
+✖ [3424/3424] Building ZK60Formal.ExecBlockWire (14s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/ZK60Formal/ExecBlockWire.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean/ZK60Formal/ExecBlockWire.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean/ZK60Formal/ExecBlockWire.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/ir/ZK60Formal/ExecBlockWire.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/ir/ZK60Formal/ExecBlockWire.setup.json --json
+error: ZK60Formal/ExecBlockWire.lean:360:2: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
+
+Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
+bs rest : List UInt8
+d : Dig
+h : rdDig bs = Except.ok (d, rest)
+b m1 : List UInt8
+e1 : rdBytes 32 bs = Except.ok (b, m1)
+hb : bs = b ++ m1
+⊢ (match digOf? b with
+        | some d => Rd.ret d
+        | none => Rd.fail truncMsg)
+        m1 =
+      Except.ok (d, rest) →
+    bs = List.Vector.toList d ++ rest
+error: ZK60Formal/ExecBlockWire.lean:398:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  rdU64.bnd ?m.17 (le64 x.v ++ rest)
+in the target expression
+  rdU64.bnd (fun v => if v.toNat < gP then Rd.ret { v := v } else Rd.fail noncanonMsg) (x.toBytes ++ rest) =
+    Except.ok (x, rest)
+
+x : Fp
+hx : x.Canon
+rest : List UInt8
+⊢ rdU64.bnd (fun v => if v.toNat < gP then Rd.ret { v := v } else Rd.fail noncanonMsg) (x.toBytes ++ rest) =
+    Except.ok (x, rest)
+error: ZK60Formal/ExecBlockWire.lean:475:22: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  e ≥ 0
+  d ≥ 0
+  c ≥ 0
+  b ≥ 0
+  a ≥ 0
+  a - b ≥ 1
+  a - e ≤ 0
+where
+ a := ↑bound
+ b := ↑j.toNat
+ c := ↑rows
+ d := ↑path
+ e := ↑{ j := j.toNat, col := col, salt := salt, path := p }.j
+error: ZK60Formal/ExecBlockWire.lean:488:4: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (rdMany rdFp c.col.length).bnd ?m.123 (List.flatMap Fp.toBytes c.col ++ ?m.134)
+in the target expression
+  (rdMany rdFp c.col.length).bnd
+      (fun col =>
+        rdDig.bnd fun salt =>
+          (rdMany rdDig c.path.length).bnd fun p =>
+            Rd.ret { j := (UInt64.ofNat c.j).toNat, col := col, salt := salt, path := p })
+      (List.flatMap Fp.toBytes c.col ++ List.Vector.toList c.salt ++
+          List.flatMap (fun d => List.Vector.toList d) c.path ++
+        rest) =
+    Except.ok (c, rest)
+
+bound : ℕ
+c : Column
+hc : ColCanon c
+hj : c.j < bound
+hb : bound ≤ 2 ^ 64
+rest : List UInt8
+hj64 : c.j < 2 ^ 64
+hjv : (UInt64.ofNat c.j).toNat = c.j
+⊢ (rdMany rdFp c.col.length).bnd
+      (fun col =>
+        rdDig.bnd fun salt =>
+          (rdMany rdDig c.path.length).bnd fun p =>
+            Rd.ret { j := (UInt64.ofNat c.j).toNat, col := col, salt := salt, path := p })
+      (List.flatMap Fp.toBytes c.col ++ List.Vector.toList c.salt ++
+          List.flatMap (fun d => List.Vector.toList d) c.path ++
+        rest) =
+    Except.ok (c, rest)
+error: ZK60Formal/ExecBlockWire.lean:522:4: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?as ++ (?bs ++ ?cs)
+in the target expression
+  (rdMany rdFp2 d.vec).bnd
+      (fun pv =>
+        (rdMany (rdColumn rows d.encCols d.path) d.checks).bnd fun cs =>
+          Rd.ret { groupVecs := o.groupVecs, proxVec := pv, columns := cs })
+      (encFp2s o.proxVec ++ List.flatMap encColumn o.columns ++ rest) =
+    Except.ok (o, rest)
+
+d : Dim
+rows : ℕ
+o : OpeningZk
+hcan : HidingCanon o
+hgv : ∀ v ∈ o.groupVecs, v.length = d.vec
+hpv : o.proxVec.length = d.vec
+hcs : o.columns.length = d.checks
+hcols : ∀ c ∈ o.columns, c.j < d.encCols ∧ c.col.length = rows ∧ c.path.length = d.path
+henc : d.encCols ≤ 2 ^ 64
+rest : List UInt8
+⊢ (rdMany rdFp2 d.vec).bnd
+      (fun pv =>
+        (rdMany (rdColumn rows d.encCols d.path) d.checks).bnd fun cs =>
+          Rd.ret { groupVecs := o.groupVecs, proxVec := pv, columns := cs })
+      (encFp2s o.proxVec ++ List.flatMap encColumn o.columns ++ rest) =
+    Except.ok (o, rest)
+error: ZK60Formal/ExecBlockWire.lean:619:93: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?as ++ (?bs ++ ?cs)
+in the target expression
+  (rdMany rdFp2 g.maskVec).bnd
+      (fun prox =>
+        (rdMany (rdColumn g.mRows g.maskDom g.maskPath) g.maskChecks).bnd fun cs =>
+          Rd.ret { q := m.q, prox := prox, columns := cs })
+      (encFp2s m.prox ++ List.flatMap encColumn m.columns ++ rest) =
+    Except.ok (m, rest)
+
+g : Geom
+m : MaskOpening
+hcan : MaskCanon m
+hq : m.q.length = g.maskVec
+hp : m.prox.length = g.maskVec
+hcs : m.columns.length = g.maskChecks
+hcols : ∀ c ∈ m.columns, c.j < g.maskDom ∧ c.col.length = g.mRows ∧ c.path.length = g.maskPath
+hdom : g.maskDom ≤ 2 ^ 64
+rest : List UInt8
+⊢ (rdMany rdFp2 g.maskVec).bnd
+      (fun prox =>
+        (rdMany (rdColumn g.mRows g.maskDom g.maskPath) g.maskChecks).bnd fun cs =>
+          Rd.ret { q := m.q, prox := prox, columns := cs })
+      (encFp2s m.prox ++ List.flatMap encColumn m.columns ++ rest) =
+    Except.ok (m, rest)
+error: ZK60Formal/ExecBlockWire.lean:673:15: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  rdDig.bnd ?m.220 (List.Vector.toList ?m.224 ++ ?m.225)
+in the target expression
+  rdDig.bnd
+      (fun a =>
+        rdDig.bnd fun h =>
+          rdDig.bnd fun m =>
+            (rdSlots (g.slots.zip g.terms)).bnd fun slots =>
+              (rdMask g).bnd fun mo =>
+                (rdHiding g.blk g.aGroups g.aRows).bnd fun ao =>
+                  (rdHiding g.blk g.hGroups g.hRows).bnd fun ho =>
+                    Rd.ret
+                      { aRoot := a, hRoot := h, maskRoot := m, slots := slots, maskOpen := mo, aOpen := ao,
+                        hOpen := ho })
+      (List.Vector.toList c.aRoot ++
+          (List.Vector.toList c.hRoot ++
+            (List.Vector.toList c.maskRoot ++
+              (List.flatMap encSlot c.slots ++ (encMask c.maskOpen ++ (encHiding c.aOpen ++ encHiding c.hOpen))))) ++
+        rest) =
+    Except.ok (c, rest)
+
+g : Geom
+hgt : g.slots.length = g.terms.length
+hdom : g.maskDom ≤ 2 ^ 64
+henc : g.blk.encCols ≤ 2 ^ 64
+c : Core
+hcan : CoreCanon c
+rest : List UInt8
+hsl : c.slots.length = g.slots.length
+hss :
+  ∀ (i : ℕ) (p : SlotProof) (s : ℕ × ℕ × ℕ) (t : ℕ),
+    c.slots[i]? = some p →
+      g.slots[i]? = some s →
+        g.terms[i]? = some t →
+          p.rounds.length = s.1 + s.2.1 ∧ (∀ r ∈ p.rounds, r.length = s.2.2 + 1) ∧ p.terms.length = t
+hmq : c.maskOpen.q.length = g.maskVec
+hmp : c.maskOpen.prox.length = g.maskVec
+hmcs : c.maskOpen.columns.length = g.maskChecks
+hmcols : ∀ col ∈ c.maskOpen.columns, col.j < g.maskDom ∧ col.col.length = g.mRows ∧ col.path.length = g.maskPath
+hops :
+  ∀ o ∈ [c.aOpen, c.hOpen],
+    o.proxVec.length = g.blk.vec ∧
+      (∀ v ∈ o.groupVecs, v.length = g.blk.vec) ∧
+        o.columns.length = g.blk.checks ∧ ∀ col ∈ o.columns, col.j < g.blk.encCols ∧ col.path.length = g.blk.path
+hag : c.aOpen.groupVecs.length = g.aGroups
+hhg : c.hOpen.groupVecs.length = g.hGroups
+harows : ∀ col ∈ c.aOpen.columns, col.col.length = g.aRows
+hhrows : ∀ col ∈ c.hOpen.columns, col.col.length = g.hRows
+hA :
+  c.aOpen.proxVec.length = g.blk.vec ∧
+    (∀ v ∈ c.aOpen.groupVecs, v.length = g.blk.vec) ∧
+      c.aOpen.columns.length = g.blk.checks ∧
+        ∀ col ∈ c.aOpen.columns, col.j < g.blk.encCols ∧ col.path.length = g.blk.path
+hH :
+  c.hOpen.proxVec.length = g.blk.vec ∧
+    (∀ v ∈ c.hOpen.groupVecs, v.length = g.blk.vec) ∧
+      c.hOpen.columns.length = g.blk.checks ∧
+        ∀ col ∈ c.hOpen.columns, col.j < g.blk.encCols ∧ col.path.length = g.blk.path
+hzip :
+  ∀ (i : ℕ) (p : SlotProof) (st : (ℕ × ℕ × ℕ) × ℕ),
+    c.slots[i]? = some p →
+      (g.slots.zip g.terms)[i]? = some st →
+        p.rounds.length = st.1.1 + st.1.2.1 ∧ (∀ r ∈ p.rounds, r.length = st.1.2.2 + 1) ∧ p.terms.length = st.2
+⊢ rdDig.bnd
+      (fun a =>
+        rdDig.bnd fun h =>
+          rdDig.bnd fun m =>
+            (rdSlots (g.slots.zip g.terms)).bnd fun slots =>
+              (rdMask g).bnd fun mo =>
+                (rdHiding g.blk g.aGroups g.aRows).bnd fun ao =>
+                  (rdHiding g.blk g.hGroups g.hRows).bnd fun ho =>
+                    Rd.ret
+                      { aRoot := a, hRoot := h, maskRoot := m, slots := slots, maskOpen := mo, aOpen := ao,
+                        hOpen := ho })
+      (List.Vector.toList c.aRoot ++
+          (List.Vector.toList c.hRoot ++
+            (List.Vector.toList c.maskRoot ++
+              (List.flatMap encSlot c.slots ++ (encMask c.maskOpen ++ (encHiding c.aOpen ++ encHiding c.hOpen))))) ++
+        rest) =
+    Except.ok (c, rest)
+error: ZK60Formal/ExecBlockWire.lean:766:8: No goals to be solved
+warning: ZK60Formal/ExecBlockWire.lean:786:6: `ite_cond_eq_false` has been deprecated: Use `ite_eq_right_of_eq_false` instead
+Some required targets logged failures:
+- ZK60Formal.ExecBlockWire
+error: build failed
+rc 1 for ZK60Formal.ExecBlockWire, 20 s

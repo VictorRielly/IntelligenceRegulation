@@ -1,0 +1,14 @@
+== lake build ZK60Formal.StageRunExtract ==
+✖ [3375/3376] Building ZK60Formal.StageOutExtract (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/ZK60Formal/StageOutExtract.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean/ZK60Formal/StageOutExtract.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean/ZK60Formal/StageOutExtract.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/ir/ZK60Formal/StageOutExtract.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/ir/ZK60Formal/StageOutExtract.setup.json --json
+error: ZK60Formal/StageOutExtract.lean:152:22: failed to synthesize instance of type class
+  Decidable (w = w0)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+warning: ZK60Formal/StageOutExtract.lean:156:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/StageOutExtract.lean:160:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+Some required targets logged failures:
+- ZK60Formal.StageOutExtract
+error: build failed
+build rc 1
+rc build 1 files 0, 22 s

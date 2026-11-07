@@ -1,0 +1,20 @@
+== lake build ZK60Formal.StageRunExtract ==
+warning: ZK60Formal/StageInExtract.lean:258:35: Variable name `hP` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hP
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✖ [3374/3376] Building ZK60Formal.StageOutCExtract (8.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/ZK60Formal/StageOutCExtract.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean/ZK60Formal/StageOutCExtract.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean/ZK60Formal/StageOutCExtract.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/ir/ZK60Formal/StageOutCExtract.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/ir/ZK60Formal/StageOutCExtract.setup.json --json
+error: ZK60Formal/StageOutCExtract.lean:107:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+warning: ZK60Formal/StageOutCExtract.lean:235:84: `if_true` has been deprecated: Use `ite_true` instead
+Some required targets logged failures:
+- ZK60Formal.StageOutCExtract
+error: build failed
+build rc 1
+rc build 1 files 0, 25 s

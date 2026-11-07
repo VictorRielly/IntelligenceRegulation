@@ -1,0 +1,38 @@
+2026-11-07T04:45:32Z start
+2026-11-07T04:48:13Z hashline lean_l11_export (test only) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1044 filtered out; finished in 1.14s
+2026-11-07T04:48:13Z regenerated L11 corpus equals the committed corpus.txt: cmp rc=0
+2026-11-07T04:48:33Z lake build rc=0
+✔ [3458/3459] Built ZK60Formal (1.7s)
+Build completed successfully (3459 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-07T04:48:37Z axiom audit axioms_l11 rc=0
+sorryAx or ofReduceBool mentions: 0
+  59 axioms: [propext, Classical.choice, Quot.sound]
+  14 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T04:48:40Z axiom audit axioms_l8 rc=0
+sorryAx or ofReduceBool mentions: 0
+  25 axioms: [propext, Classical.choice, Quot.sound]
+  15 axioms: [propext, Quot.sound]
+  17 axioms: [propext]
+declarations with no axioms: 7
+2026-11-07T04:48:44Z axiom audit axioms_l7 rc=0
+sorryAx or ofReduceBool mentions: 0
+  24 axioms: [propext, Classical.choice, Quot.sound]
+   8 axioms: [propext, Quot.sound]
+   4 axioms: [propext]
+declarations with no axioms: 3
+2026-11-07T04:48:44Z source scan hits (grep rc 1 = none): rc=1
+2026-11-07T04:48:49Z L11Check on the committed corpus rc=0
+L11Check: 404 checks, 0 failed
+2026-11-07T04:48:52Z negative control (7 single changes must give exactly 7 failures)
+L11Check: 404 checks, 7 failed
+2026-11-07T04:48:56Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-07T04:49:11Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-07T04:49:18Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-07T04:49:18Z all done

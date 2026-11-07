@@ -77,6 +77,11 @@ use zkp_core::merkle::MerkleTree;
 use zkp_core::pcs::{self as zpcs, Commitment, CommittedZk, NoExternal, OpeningZk, PcsParams, Slice, Store, ZClaim, ZPart, ZkOpts};
 use zkp_core::rng::ZkRng;
 
+// D63 step L11 (2026-11-07): the Lean lane's W16R2 slot-arithmetic corpus from a real rung receipt (test only)
+#[cfg(test)]
+#[path = "lean_l11_export_tests.rs"]
+mod lean_l11_export_tests;
+
 /// each W16R2 profile beside its W16 sibling (the same geometry, rate 1/4)
 const PAIRS: [(&str, &str); 3] = [
     (shape::W16R2_RUNG_H24, shape::W16_RUNG_H24),
@@ -157,6 +162,10 @@ fn seeded_digest(sh: &Shape, blk: &BlockPublic, w: Witness) -> String {
     );
     blake3::hash(text.as_bytes()).to_hex().to_string()
 }
+
+// D63 step L9 (Lean lane, 2026-11-07): the W16R2 rung block framed and every transcript challenge exported for the
+// Lean block verifier; a child of this module so that it uses the harness above
+#[cfg(test)] #[path = "lean_l9_export_tests.rs"] mod lean_l9_export_tests;
 
 /// the bytes of one block core: `(total, A opening, H opening, M opening, slots)`
 fn core_bytes(core: &CoreProof) -> (usize, usize, usize, usize, usize) {

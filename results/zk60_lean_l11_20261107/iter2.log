@@ -1,0 +1,9 @@
+== lake build the L11 modules ==
+Build completed successfully (3394 jobs).
+build rc 0
+== lean LayoutW16Handoff.lean ==
+rc 0
+== L11Check ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/L11Check.lean:330:109: error: unexpected identifier; expected '}'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/L11Check.lean:433:117: error: unexpected identifier; expected '}'
+rc 1, 22 s

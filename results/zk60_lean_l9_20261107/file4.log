@@ -1,0 +1,488 @@
+== lake build ZK60Formal.ExecBlockWire ==
+rc 0 for ZK60Formal.ExecBlockWire, 1 s
+== lake build ZK60Formal.ExecBlockVerify ==
+rc 0 for ZK60Formal.ExecBlockVerify, 5 s
+== lake build ZK60Formal.ExecBlockFS ==
+✖ [3427/3427] Building ZK60Formal.ExecBlockFS (2.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/ZK60Formal/ExecBlockFS.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean/ZK60Formal/ExecBlockFS.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean/ZK60Formal/ExecBlockFS.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/ir/ZK60Formal/ExecBlockFS.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/ir/ZK60Formal/ExecBlockFS.setup.json --json
+error: ZK60Formal/ExecBlockFS.lean:185:4: Type mismatch
+  hsv
+has type
+  (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+        (Tr.absorbFp2 H
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+          labPbScalar [sp.scalar])).1 =
+    Except.ok (fin, rhoFull)
+but is expected to have type
+  (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+        (runOps H t (slotPreOps P s sp))).1 =
+    Except.ok (fin, rhoFull)
+error: ZK60Formal/ExecBlockFS.lean:186:4: Tactic `rfl` failed: The left-hand side
+  Tr.absorbFp2 H
+    (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+        (Tr.absorbFp2 H
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+          labPbScalar [sp.scalar])).2
+    labPbTerm sp.terms
+is not definitionally equal to the right-hand side
+  Tr.absorb H
+    (scVerify H
+        { draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+            c :=
+              (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+            scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+            es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin }.claimed
+        (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds (runOps H t (slotPreOps P s sp))).2
+    labPbTerm (List.flatMap Fp2.toBytes sp.terms)
+
+case refine_2
+H : HIn → Dig
+P : BlockParams
+s : ℕ
+hist : Hist
+sp : SlotProof
+acc : Acc
+t : Tr
+df : SlotDef
+hdf : P.define s hist (Tr.challengeFp2Vec H t (P.draws s)).1 = Except.ok df
+u1 u2 u3 : Unit
+claimed : Fp2
+hcl : hostedSum acc.scalars sp.scalar df.hosted = Except.ok claimed
+fin : Fp2
+rhoFull : List Fp2
+hfr :
+  scCheck s (P.name s)
+      (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+          (Tr.absorbFp2 H
+            (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+            labPbScalar [sp.scalar])).1 =
+    Except.ok (fin, rhoFull)
+hsv :
+  (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+        (Tr.absorbFp2 H
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+          labPbScalar [sp.scalar])).1 =
+    Except.ok (fin, rhoFull)
+vals : List Fp2
+u4 : Unit
+h✝⁶ :
+  (have nd := slotShape P s;
+    have n := nd.1;
+    have e := nd.2.1;
+    have d := nd.2.2;
+    have dr := Tr.challengeFp2Vec H t (P.draws s);
+    do
+    let df ← P.define s hist dr.1
+    slotDefChecks P s acc df
+    have nPriv : ℕ := (List.filter Tab.isPriv df.tabs).length
+    have t2 : Tr := Tr.absorbU64 H dr.2 labPbSlot (UInt64.ofNat s)
+    have ct : Fp2 × Tr := Tr.challengeFp2 H t2
+    have c : Fp2 := ct.1
+    exGuard c.isZero "zero CFS mask challenge; discard attempt"
+    exGuard (decide (sp.terms.length ≠ nPriv))
+        (toString "private block: slot " ++ toString s ++ toString " terminal count")
+    have t4 : Tr := Tr.absorbFp2 H ct.2 labPbScalar [sp.scalar]
+    let claimed ← hostedSum acc.scalars sp.scalar df.hosted
+    have sv : Except ScErr (Fp2 × List Fp2) × Tr := scVerify H claimed d (n + e) sp.rounds t4
+    let fr ← scCheck s (P.name s) sv.1
+    have fin : Fp2 := fr.1
+    have rhoFull : List Fp2 := fr.2
+    have rho : List Fp2 := List.take n rhoFull
+    have es : List Fp2 := List.drop n rhoFull
+    let vals ← tabVals (oneMinusProd es) rho sp.terms df.tabs 0
+    have gVal : Fp2 := (fin.sub (df.poly vals)).mul c.inv
+    exGuard (es.any fun x => x.isZero || decide (x = Fp2.one)) "degenerate terminal mask challenge; discard attempt"
+    have t6 : Tr := Tr.absorbFp2 H sv.2 labPbTerm sp.terms
+    pure
+        ({ draws := dr.1, c := c, scalar := sp.scalar, claimed := claimed, rho := rho, es := es, terms := sp.terms,
+            fin := fin },
+          slotAcc P s acc df c sp.scalar gVal rhoFull sp.terms, t6)) =
+    Except.ok
+      ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+          c := (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+          scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+          es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin },
+        slotAcc P s acc df
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+          sp.scalar
+          ((fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H
+                  (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv)
+          rhoFull sp.terms,
+        Tr.absorbFp2 H
+          (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+              (Tr.absorbFp2 H
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+                labPbScalar [sp.scalar])).2
+          labPbTerm sp.terms)
+h✝⁵ :
+  (do
+      slotDefChecks P s acc df
+      have nPriv : ℕ := (List.filter Tab.isPriv df.tabs).length
+      have t2 : Tr := Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s)
+      have ct : Fp2 × Tr := Tr.challengeFp2 H t2
+      have c : Fp2 := ct.1
+      exGuard c.isZero "zero CFS mask challenge; discard attempt"
+      exGuard (decide (sp.terms.length ≠ nPriv))
+          (toString "private block: slot " ++ toString s ++ toString " terminal count")
+      have t4 : Tr := Tr.absorbFp2 H ct.2 labPbScalar [sp.scalar]
+      let claimed ← hostedSum acc.scalars sp.scalar df.hosted
+      have sv : Except ScErr (Fp2 × List Fp2) × Tr :=
+        scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds t4
+      let fr ← scCheck s (P.name s) sv.1
+      have fin : Fp2 := fr.1
+      have rhoFull : List Fp2 := fr.2
+      have rho : List Fp2 := List.take (slotShape P s).1 rhoFull
+      have es : List Fp2 := List.drop (slotShape P s).1 rhoFull
+      let vals ← tabVals (oneMinusProd es) rho sp.terms df.tabs 0
+      have gVal : Fp2 := (fin.sub (df.poly vals)).mul c.inv
+      exGuard (es.any fun x => x.isZero || decide (x = Fp2.one)) "degenerate terminal mask challenge; discard attempt"
+      have t6 : Tr := Tr.absorbFp2 H sv.2 labPbTerm sp.terms
+      pure
+          ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1, c := c, scalar := sp.scalar, claimed := claimed,
+              rho := rho, es := es, terms := sp.terms, fin := fin },
+            slotAcc P s acc df c sp.scalar gVal rhoFull sp.terms, t6)) =
+    Except.ok
+      ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+          c := (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+          scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+          es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin },
+        slotAcc P s acc df
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+          sp.scalar
+          ((fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H
+                  (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv)
+          rhoFull sp.terms,
+        Tr.absorbFp2 H
+          (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+              (Tr.absorbFp2 H
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+                labPbScalar [sp.scalar])).2
+          labPbTerm sp.terms)
+h✝⁴ :
+  (have nPriv := (List.filter Tab.isPriv df.tabs).length;
+    have t2 := Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s);
+    have ct := Tr.challengeFp2 H t2;
+    have c := ct.1;
+    do
+    exGuard c.isZero "zero CFS mask challenge; discard attempt"
+    exGuard (decide (sp.terms.length ≠ nPriv))
+        (toString "private block: slot " ++ toString s ++ toString " terminal count")
+    have t4 : Tr := Tr.absorbFp2 H ct.2 labPbScalar [sp.scalar]
+    let claimed ← hostedSum acc.scalars sp.scalar df.hosted
+    have sv : Except ScErr (Fp2 × List Fp2) × Tr :=
+      scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds t4
+    let fr ← scCheck s (P.name s) sv.1
+    have fin : Fp2 := fr.1
+    have rhoFull : List Fp2 := fr.2
+    have rho : List Fp2 := List.take (slotShape P s).1 rhoFull
+    have es : List Fp2 := List.drop (slotShape P s).1 rhoFull
+    let vals ← tabVals (oneMinusProd es) rho sp.terms df.tabs 0
+    have gVal : Fp2 := (fin.sub (df.poly vals)).mul c.inv
+    exGuard (es.any fun x => x.isZero || decide (x = Fp2.one)) "degenerate terminal mask challenge; discard attempt"
+    have t6 : Tr := Tr.absorbFp2 H sv.2 labPbTerm sp.terms
+    pure
+        ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1, c := c, scalar := sp.scalar, claimed := claimed, rho := rho,
+            es := es, terms := sp.terms, fin := fin },
+          slotAcc P s acc df c sp.scalar gVal rhoFull sp.terms, t6)) =
+    Except.ok
+      ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+          c := (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+          scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+          es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin },
+        slotAcc P s acc df
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+          sp.scalar
+          ((fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H
+                  (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv)
+          rhoFull sp.terms,
+        Tr.absorbFp2 H
+          (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+              (Tr.absorbFp2 H
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+                labPbScalar [sp.scalar])).2
+          labPbTerm sp.terms)
+h✝³ :
+  (do
+      exGuard (decide (sp.terms.length ≠ (List.filter Tab.isPriv df.tabs).length))
+          (toString "private block: slot " ++ toString s ++ toString " terminal count")
+      have t4 : Tr :=
+        Tr.absorbFp2 H
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+          labPbScalar [sp.scalar]
+      let claimed ← hostedSum acc.scalars sp.scalar df.hosted
+      have sv : Except ScErr (Fp2 × List Fp2) × Tr :=
+        scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds t4
+      let fr ← scCheck s (P.name s) sv.1
+      have fin : Fp2 := fr.1
+      have rhoFull : List Fp2 := fr.2
+      have rho : List Fp2 := List.take (slotShape P s).1 rhoFull
+      have es : List Fp2 := List.drop (slotShape P s).1 rhoFull
+      let vals ← tabVals (oneMinusProd es) rho sp.terms df.tabs 0
+      have gVal : Fp2 :=
+        (fin.sub (df.poly vals)).mul
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv
+      exGuard (es.any fun x => x.isZero || decide (x = Fp2.one)) "degenerate terminal mask challenge; discard attempt"
+      have t6 : Tr := Tr.absorbFp2 H sv.2 labPbTerm sp.terms
+      pure
+          ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+              c :=
+                (Tr.challengeFp2 H
+                    (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+              scalar := sp.scalar, claimed := claimed, rho := rho, es := es, terms := sp.terms, fin := fin },
+            slotAcc P s acc df
+              (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+              sp.scalar gVal rhoFull sp.terms,
+            t6)) =
+    Except.ok
+      ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+          c := (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+          scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+          es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin },
+        slotAcc P s acc df
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+          sp.scalar
+          ((fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H
+                  (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv)
+          rhoFull sp.terms,
+        Tr.absorbFp2 H
+          (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+              (Tr.absorbFp2 H
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+                labPbScalar [sp.scalar])).2
+          labPbTerm sp.terms)
+h✝² :
+  (have t4 :=
+      Tr.absorbFp2 H
+        (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+        labPbScalar [sp.scalar];
+    do
+    let claimed ← hostedSum acc.scalars sp.scalar df.hosted
+    have sv : Except ScErr (Fp2 × List Fp2) × Tr :=
+      scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds t4
+    let fr ← scCheck s (P.name s) sv.1
+    have fin : Fp2 := fr.1
+    have rhoFull : List Fp2 := fr.2
+    have rho : List Fp2 := List.take (slotShape P s).1 rhoFull
+    have es : List Fp2 := List.drop (slotShape P s).1 rhoFull
+    let vals ← tabVals (oneMinusProd es) rho sp.terms df.tabs 0
+    have gVal : Fp2 :=
+      (fin.sub (df.poly vals)).mul
+        (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv
+    exGuard (es.any fun x => x.isZero || decide (x = Fp2.one)) "degenerate terminal mask challenge; discard attempt"
+    have t6 : Tr := Tr.absorbFp2 H sv.2 labPbTerm sp.terms
+    pure
+        ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+            c :=
+              (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+            scalar := sp.scalar, claimed := claimed, rho := rho, es := es, terms := sp.terms, fin := fin },
+          slotAcc P s acc df
+            (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+            sp.scalar gVal rhoFull sp.terms,
+          t6)) =
+    Except.ok
+      ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+          c := (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+          scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+          es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin },
+        slotAcc P s acc df
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+          sp.scalar
+          ((fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H
+                  (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv)
+          rhoFull sp.terms,
+        Tr.absorbFp2 H
+          (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+              (Tr.absorbFp2 H
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+                labPbScalar [sp.scalar])).2
+          labPbTerm sp.terms)
+h✝¹ :
+  (have sv :=
+      scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+        (Tr.absorbFp2 H
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+          labPbScalar [sp.scalar]);
+    do
+    let fr ← scCheck s (P.name s) sv.1
+    have fin : Fp2 := fr.1
+    have rhoFull : List Fp2 := fr.2
+    have rho : List Fp2 := List.take (slotShape P s).1 rhoFull
+    have es : List Fp2 := List.drop (slotShape P s).1 rhoFull
+    let vals ← tabVals (oneMinusProd es) rho sp.terms df.tabs 0
+    have gVal : Fp2 :=
+      (fin.sub (df.poly vals)).mul
+        (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv
+    exGuard (es.any fun x => x.isZero || decide (x = Fp2.one)) "degenerate terminal mask challenge; discard attempt"
+    have t6 : Tr := Tr.absorbFp2 H sv.2 labPbTerm sp.terms
+    pure
+        ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+            c :=
+              (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+            scalar := sp.scalar, claimed := claimed, rho := rho, es := es, terms := sp.terms, fin := fin },
+          slotAcc P s acc df
+            (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+            sp.scalar gVal rhoFull sp.terms,
+          t6)) =
+    Except.ok
+      ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+          c := (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+          scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+          es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin },
+        slotAcc P s acc df
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+          sp.scalar
+          ((fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H
+                  (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv)
+          rhoFull sp.terms,
+        Tr.absorbFp2 H
+          (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+              (Tr.absorbFp2 H
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+                labPbScalar [sp.scalar])).2
+          labPbTerm sp.terms)
+h✝ :
+  (have fin_1 := (fin, rhoFull).1;
+    have rhoFull := (fin, rhoFull).2;
+    have rho := List.take (slotShape P s).1 rhoFull;
+    have es := List.drop (slotShape P s).1 rhoFull;
+    do
+    let vals ← tabVals (oneMinusProd es) rho sp.terms df.tabs 0
+    have gVal : Fp2 :=
+      (fin_1.sub (df.poly vals)).mul
+        (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv
+    exGuard (es.any fun x => x.isZero || decide (x = Fp2.one)) "degenerate terminal mask challenge; discard attempt"
+    have t6 : Tr :=
+      Tr.absorbFp2 H
+        (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+            (Tr.absorbFp2 H
+              (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+              labPbScalar [sp.scalar])).2
+        labPbTerm sp.terms
+    pure
+        ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+            c :=
+              (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+            scalar := sp.scalar, claimed := claimed, rho := rho, es := es, terms := sp.terms, fin := fin_1 },
+          slotAcc P s acc df
+            (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+            sp.scalar gVal rhoFull sp.terms,
+          t6)) =
+    Except.ok
+      ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+          c := (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+          scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+          es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin },
+        slotAcc P s acc df
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+          sp.scalar
+          ((fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H
+                  (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv)
+          rhoFull sp.terms,
+        Tr.absorbFp2 H
+          (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+              (Tr.absorbFp2 H
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+                labPbScalar [sp.scalar])).2
+          labPbTerm sp.terms)
+h :
+  (have gVal :=
+      ((fin, rhoFull).1.sub (df.poly vals)).mul
+        (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv;
+    do
+    exGuard ((List.drop (slotShape P s).1 (fin, rhoFull).2).any fun x => x.isZero || decide (x = Fp2.one))
+        "degenerate terminal mask challenge; discard attempt"
+    have t6 : Tr :=
+      Tr.absorbFp2 H
+        (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+            (Tr.absorbFp2 H
+              (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+              labPbScalar [sp.scalar])).2
+        labPbTerm sp.terms
+    pure
+        ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+            c :=
+              (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+            scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 (fin, rhoFull).2,
+            es := List.drop (slotShape P s).1 (fin, rhoFull).2, terms := sp.terms, fin := (fin, rhoFull).1 },
+          slotAcc P s acc df
+            (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+            sp.scalar gVal (fin, rhoFull).2 sp.terms,
+          t6)) =
+    Except.ok
+      ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+          c := (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+          scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+          es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin },
+        slotAcc P s acc df
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+          sp.scalar
+          ((fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H
+                  (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv)
+          rhoFull sp.terms,
+        Tr.absorbFp2 H
+          (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+              (Tr.absorbFp2 H
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+                labPbScalar [sp.scalar])).2
+          labPbTerm sp.terms)
+⊢ Tr.absorbFp2 H
+      (scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+          (Tr.absorbFp2 H
+            (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+            labPbScalar [sp.scalar])).2
+      labPbTerm sp.terms =
+    Tr.absorb H
+      (scVerify H
+          { draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+              c :=
+                (Tr.challengeFp2 H
+                    (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+              scalar := sp.scalar, claimed := claimed, rho := List.take (slotShape P s).1 rhoFull,
+              es := List.drop (slotShape P s).1 rhoFull, terms := sp.terms, fin := fin }.claimed
+          (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds (runOps H t (slotPreOps P s sp))).2
+      labPbTerm (List.flatMap Fp2.toBytes sp.terms)
+error: ZK60Formal/ExecBlockFS.lean:768:54: Type mismatch: After simplification, term
+  hdf
+ has type
+  P.define k
+      {
+        beta :=
+          (Tr.challengeFp2 (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ rootOpsA P core))).1,
+        gamma :=
+          (Tr.challengeFp2 (liftH G)
+              (Tr.challengeFp2 (liftH G)
+                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ rootOpsA P core))).2).1,
+        alpha :=
+          (Tr.challengeFp2 (liftH G)
+              (Tr.challengeFp2 (liftH G)
+                  (Tr.challengeFp2 (liftH G)
+                      (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ rootOpsA P core))).2).2).1,
+        draws := List.take k (List.map SlotRec.draws rs) }
+      r.draws =
+    Except.ok df
+but is expected to have type
+  P.define k { beta := bga.1, gamma := bga.2.1, alpha := bga.2.2, draws := List.take k (List.map SlotRec.draws rs) }
+      r.draws =
+    Except.ok df
+error: ZK60Formal/ExecBlockFS.lean:768:84: Type mismatch: After simplification, term
+  hcl
+ has type
+  hostedSum (List.take k (List.map SlotRec.scalar rs)) q.scalar df.hosted = Except.ok r.claimed
+but is expected to have type
+  hostedSum (List.take k (List.map SlotRec.scalar rs)) r.scalar df.hosted = Except.ok r.claimed
+error: ZK60Formal/ExecBlockFS.lean:1000:2: No goals to be solved
+error: ZK60Formal/ExecBlockFS.lean:1031:4: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.ExecBlockFS
+error: build failed
+rc 1 for ZK60Formal.ExecBlockFS, 10 s
