@@ -1,4 +1,4 @@
-"""DEVELOPMENT CANDIDATE (lane A24, 2026-11-07): the resident-server Shieldstral prover.
+"""DEVELOPMENT CANDIDATE (lane A24, 2026-11-07; binary from lane A26): the resident-server Shieldstral prover.
 
 Selected only by PM_PROVER=shieldstral-fast. It proves the same registered moderate
 policies (D61) on the same T128 export and templates as the reviewed `shieldstral` mode,
@@ -8,6 +8,13 @@ several categories proved at once. D58 accepted ONLY the named r16b CPU binary: 
 binary, its GPU execution and its server/concurrent form are NOT covered; its privacy
 statement is pending. Nothing here is production (D63). No automatic binary or profile
 upgrade: every pin below is checked before use.
+
+Lane A26 (2026-11-07, results/zk60_a26_app_20261107/README.md) pins a newer build of the same
+servers: the same receipts byte for byte (checked under fixed test entropy on the real export),
+the same statement identity, profile and verifier verdicts, with less CPU work per proof (the
+24-bit FFN down projection on the device as two exact int16 halves; the verifier's column test
+over its weights' nonzero rows and the slots' public tables through split eq tables; the run's
+CS-1 / CS-4 record kept for the core proof) and one Metal queue per prover thread.
 """
 import os
 from pathlib import Path
@@ -24,13 +31,15 @@ EXPORT_ROOT = Path(os.environ.get('PM_FAST_EXPORT_ROOT', str(reviewed.EXPORT_ROO
 EXPORT = EXPORT_ROOT / reviewed.EXPORT.name
 VERIFIER_EXPORT = EXPORT_ROOT / reviewed.VERIFIER_EXPORT.name
 # The binary lives outside the repository (no binaries in the public repo, D62); the pin
-# below is the authority. Built from lane A24's tree with `--features gpu-metal`.
-BINARY = Path(os.environ.get('PM_FAST_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a24')))
-BINARY_SHA = 'ccd58102e3fdbe4fb0be3446b5d539cd6741779a6efaea073251ef040968a946'
+# below is the authority. Built from lane A26's tree with `--features gpu-metal` (A24's was
+# `zk60_classify.a24`, ccd58102...; its receipts are the same bytes).
+LANE = 'A26'
+BINARY = Path(os.environ.get('PM_FAST_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a26')))
+BINARY_SHA = 'b6336628364ae4407a2640d52b84ddf3c9688420fc827082ccb1c1aaf37d366d'
 PROFILE_SHA = reviewed.PROFILE_SHA
 IDENTITY = 'e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d'
 RUN_PROFILE = 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2'
-CLI_DESCRIPTION = 'zk60_classify A24 serve/check-serve, post-F12 R13 /2, T128, Metal'
+CLI_DESCRIPTION = 'zk60_classify A26 serve/check-serve (A24 servers, A26 work cuts), post-F12 R13 /2, T128, Metal'
 # Astra's Mac activation writer (qualified against the native writer, 2026-11-05). It and the
 # public model root are untracked files of the main checkout (not in git): a worktree points
 # at them with PM_FAST_WRITER_ROOT / PM_FAST_MODELS. The pins below still decide.
@@ -85,7 +94,15 @@ def native_environment():
     require((root / 'shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors').is_file(),
             'configured public model is unavailable')
     return {'ZK60_MODELS': str(root), 'HL_GPU': '1', 'HL_GPU_REQUIRED': '0',
-            'HL_PB_ORACLE': '0', 'HL_PB_TIMING': '0'}
+            'HL_PB_ORACLE': '0', 'HL_PB_TIMING': '0', **NATIVE_SETTINGS}
+
+
+# [A26] the servers' device settings, measured on the M3 Ultra (results/zk60_a26_app_20261107):
+# one Metal command queue per prover thread (A7's opt-in; the stream is GPU-bound and its lanes'
+# command buffers then run side by side). Every A26 work cut is on by default in the binary; the
+# two that wait for the security owner's reading stay off (HL_A26_KEPT, HL_A26_VERIFY_ONCE).
+# None of these moves a byte.
+NATIVE_SETTINGS = {'HL_METAL_QUEUES': 'thread'}
 
 
 def privacy_statement():
@@ -109,7 +126,7 @@ def deployment(template):
 def validate(deploy):
     require(not deploy.development and deploy.binary == BINARY and deploy.binary_sha256 == BINARY_SHA
             and deploy.statement_identity == IDENTITY and deploy.statement_schema == R_C3_SCHEMA
-            and deploy.min_bits == 95 and deploy.overlap == 8, 'deployment differs from the pinned A24 candidate')
+            and deploy.min_bits == 95 and deploy.overlap == 8, f'deployment differs from the pinned {LANE} candidate')
     by_policy = {t.policy_id: t for t in templates()}
     require(deploy.policy in by_policy and deploy.chunk_size == by_policy[deploy.policy].chunk_size,
             'real category or geometry changed')

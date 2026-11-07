@@ -2,7 +2,8 @@
 
 PM_PROVER=shieldstral-fast. The same policies, templates, chunk plans, statement checks and
 publication gates as the reviewed `shieldstral` mode (shieldstral_prover.py, unchanged),
-with three differences: the pinned A24 binary and its own model identity (post-F12 /2),
+with three differences: the pinned binary (lane A26's build of A24's servers, the same receipt
+bytes) and its own model identity (post-F12 /2),
 proofs and checks run by one long-lived service holding two resident native servers
 (fast_service.py, tools/fast_service.py), and up to PROVER_LANES category jobs at once.
 
@@ -170,7 +171,7 @@ class ShieldstralFastProver(ClassifierProver):
         require(chunk in self.plan_text(item.text), 'collected chunk differs from original post')
         category = spec['category']; st = r['statement']
         policy = next(c['policy'] for c in records.categories() if c['id'] == category)
-        checks = {'verify': {'ok': True, 'by': 'pinned A24 resident verifier, its own process'}, 'content_binding': {'ok': True}}
+        checks = {'verify': {'ok': True, 'by': f'pinned {runtime.LANE} resident verifier, its own process'}, 'content_binding': {'ok': True}}
         if spec['last_category_chunk']:
             checks['category_aggregate'] = self._aggregate(job, spec, r)
         steps = self._steps(job)
@@ -190,7 +191,7 @@ class ShieldstralFastProver(ClassifierProver):
             content_length={'tokens': chunk['end']-chunk['start'], 'total_tokens': spec['total'],
                             'tokenizer': 'pinned Tekken', 'tokenizer_sha256': TEKKEN_SHA256},
             chunk=chunk, created_at=records.now_iso(), proved_at=records.now_iso(),
-            notes=['DEVELOPMENT CANDIDATE (A24): resident GPU servers; registered moderate policies (D61).',
+            notes=[f'DEVELOPMENT CANDIDATE (A24 servers, {runtime.LANE} binary): resident GPU servers; registered moderate policies (D61).',
                    describe['privacy_status'] + ': D58 covers the named r16b CPU binary only; not production (D63).'])
         rec.labels[category]['policy_sha256'] = policy['sha256']
         proof_plans.check_category_record(rec.to_dict(), post_id, chunk, require_verdict=True)
@@ -238,6 +239,6 @@ class ShieldstralFastProver(ClassifierProver):
         except (ProverError, OSError, ValueError, KeyError):
             return records.Verdict('re-check', False, False, 'classifier recheck failed', records.now_iso(),
                                    {'rejected': True})
-        return records.Verdict(r['value'], True, True, 'fresh A24 resident verifier and input-owner', records.now_iso(),
+        return records.Verdict(r['value'], True, True, f'fresh {runtime.LANE} resident verifier and input-owner', records.now_iso(),
                                {'content_binding': True, 'privacy_status': self.describe()['privacy_status'],
                                 'privacy_statement': self.describe()['privacy_statement']})
