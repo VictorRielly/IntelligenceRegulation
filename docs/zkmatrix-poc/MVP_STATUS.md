@@ -415,8 +415,28 @@ here. The rates count proving and witness work. Verification time is recorded se
       - the parts' honest provers and completeness, and the zero-knowledge honest-prover facts (lane L25);
       - `S.Valid` / `B.Valid`, which need the weights, not in the repo (D62);
       - the run's zero knowledge as one receipt (L19-2, Victor).
-  - **Running:** L22 (openings' links), L23 (W16R2 cover lemmas), L24 (the run's joint extraction), L25 (honest
-    provers).
+  - **L23, the W16R2 and R13 block instances.** `block_knowledge_target_w16r2`, `_shape` (8B, Shieldstral) and
+    `_r13`, with the covers and the budget discharged.
+    - It found a model bug, **L23-1**: the Lean verifier weighted a host's hosted masks with the host's own weights,
+      where the code uses each hosted slot's. The Lean verifier would have refused honest receipts.
+    - Fixed (3163eb09), and now caught by a new test that compares all 34 M functionals' weights with a real receipt:
+      54 checks, 0 failed.
+  - **L24, the run's extraction (O11), as one joint event.** A first-doom count over sub-protocol kinds along the run's
+    one transcript. The 26 blocks cost what one block costs (L18-2 resolved).
+    - W16R2: 31.2M ≤ 2^25 units. R13: 57.3M ≤ 2^26, within the target, with less margin.
+    - **For Victor (L24-1, High):** the instance's input `opensIn` requires all N columns to open, while the verifier
+      checks Q of them (256 of 65,536). So the endpoint obligation cannot hold as defined. This is a Lean definition
+      mismatch, not a protocol weakness.
+    - The proposed fix: the opening at the unique-decoding radius. It changes the instance's meaning of "opens", so it
+      is Victor's ruling. Lane L26 builds it beside the original.
+  - **L22, the openings' links.**
+    - M is fully linked. The extraction failure at the verifier's own queries is ≤ (q+1)·2^-110. hsem is proved in
+      L21's form.
+    - Left: the A/H half of hexec, the header readers, and the probability glue (lane L28).
+    - Coordinator's decision on L22-1: state the block results for the real run, where the profile fixes the header's
+      squeeze count.
+  - **Running:** L25 (the honest provers and completeness), L26 (the OpensU instance for L24-1), L27 (the run-chain
+    premises of L24's joint theorem), L28 (the openings' glue).
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
