@@ -1,0 +1,53 @@
+✔ [3501/3549] Built ZK60Formal.ExecBlockVerify (9.7s)
+✔ [3502/3549] Built ZK60Formal.SlotPolyW16Kinds (9.6s)
+✔ [3503/3549] Built ZK60Formal.SlotPolyW16Map (9.7s)
+✔ [3504/3549] Built ZK60Formal.ExecOpeningBlock (2.4s)
+✔ [3505/3549] Built ZK60Formal.ProtocolClassify (2.8s)
+✔ [3506/3549] Built ZK60Formal.ExecBlockFS (3.6s)
+✔ [3507/3549] Built ZK60Formal.OpeningR13 (2.2s)
+✔ [3508/3549] Built ZK60Formal.ProtocolClassifyComplete (2.2s)
+✔ [3509/3549] Built ZK60Formal.ZKW16Block (2.7s)
+✔ [3510/3549] Built ZK60Formal.StageFS (2.8s)
+✔ [3511/3549] Built ZK60Formal.ExtractW16Slots (2.9s)
+✔ [3512/3549] Built ZK60Formal.ExecBlockR13 (2.0s)
+✔ [3513/3549] Built ZK60Formal.ProtocolClassifyFS (2.4s)
+✔ [3514/3549] Built ZK60Formal.ZKW16Hyb (2.8s)
+✔ [3515/3549] Built ZK60Formal.ExtractW16Open (2.6s)
+✔ [3516/3549] Built ZK60Formal.ExtractW16Terminal (2.8s)
+✔ [3517/3549] Built ZK60Formal.ProtocolClassifyCount (2.2s)
+✔ [3518/3549] Built ZK60Formal.AssembleClassify (2.6s)
+✔ [3519/3549] Built ZK60Formal.ZKW16Shape (2.5s)
+✔ [3520/3549] Built ZK60Formal.OpenKnowChain (2.9s)
+✔ [3521/3549] Built ZK60Formal.ExtractW16Block (2.9s)
+✔ [3522/3549] Built ZK60Formal.ZKLinks (2.3s)
+✔ [3523/3549] Built ZK60Formal.ZKCount (2.3s)
+✔ [3524/3549] Built ZK60Formal.ProtocolClassifyR13 (2.3s)
+✔ [3525/3549] Built ZK60Formal.CountW16Slots (2.6s)
+✔ [3526/3549] Built ZK60Formal.RelW16Chain (2.6s)
+✔ [3527/3549] Built ZK60Formal.ZKLinksRun (2.3s)
+✔ [3528/3549] Built ZK60Formal.ZKLinksM (2.6s)
+✔ [3529/3549] Built ZK60Formal.ZKCountStep (2.8s)
+✔ [3530/3549] Built ZK60Formal.LookupW16FS (2.7s)
+✔ [3531/3549] Built ZK60Formal.CountW16Target (2.8s)
+✔ [3532/3549] Built ZK60Formal.RelW16Define (2.7s)
+✔ [3533/3549] Built ZK60Formal.ZKCountHyb (2.3s)
+✔ [3534/3549] Built ZK60Formal.OpenKnowBlock (3.0s)
+✔ [3535/3549] Built ZK60Formal.RelW16Block (3.4s)
+✔ [3536/3549] Built ZK60Formal.ZKCountBudget (2.7s)
+✔ [3537/3549] Built ZK60Formal.RelW16Pos (2.9s)
+✔ [3538/3549] Built ZK60Formal.CoverW16 (1.9s)
+✖ [3539/3549] Building ZK60Formal.CoverW16Unmask (8.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:164:41: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/CoverW16Unmask.lean:165:6: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed

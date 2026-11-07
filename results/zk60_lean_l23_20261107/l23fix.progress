@@ -1,0 +1,51 @@
+2026-11-07T16:03:11Z start
+2026-11-07T16:03:59Z lake build rc=1
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+error: ZK60Formal/CoverW16Unmask.lean:164:41: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+error: ZK60Formal/CoverW16Unmask.lean:165:6: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+error: build failed
+lines naming a warning or sorry in the build log: 0
+2026-11-07T16:04:00Z axiom audit l23 rc=1
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:02Z axiom audit l21 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:05Z axiom audit l20 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:07Z axiom audit l19 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:10Z axiom audit l18 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:13Z axiom audit l17 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:15Z axiom audit l16 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:18Z axiom audit l15 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:21Z axiom audit l14 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:23Z axiom audit l13 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:26Z axiom audit l12 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:29Z axiom audit l11 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:31Z axiom audit l10 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:34Z axiom audit l9 rc=0
+sorryAx or ofReduceBool mentions: 0
+2026-11-07T16:04:34Z source scan of ExecBlockVerify.lean (grep rc 1 = none): rc=1
+2026-11-07T16:08:45Z ExecBlockCheck rc=0
+ExecBlockCheck: 273 checks, 0 failed
+2026-11-07T16:08:51Z L11Check rc=0
+L11Check: 404 checks, 0 failed
+2026-11-07T16:08:54Z SlotW16BuildCheck rc=0
+SlotW16BuildCheck: 179 checks, 0 failed
+2026-11-07T16:08:57Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-07T16:09:12Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-07T16:09:18Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-07T16:09:18Z all done
