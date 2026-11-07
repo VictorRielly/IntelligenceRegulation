@@ -25,10 +25,10 @@ The code computes the same values with `encode_row_zk` (inverse NTT, coset power
 the code's words is TESTED by the corpus (`ExecOpeningCheck.lean`), not proved (finding L10-1).
 
 **What is proved** (only `propext`, `Classical.choice`, `Quot.sound`):
-* the arithmetic: `toK_dotB` (a dot product of words is the field's), `powList_getD`, `batchInv_getD` (Montgomery's
-  trick is the field inverse, entry by entry), `baryW_getD`, `toGF_baryScale`;
+* the arithmetic: `toK_dotB` (a dot product of words is the field's), `powList_getD`, `batchInv_spec` (Montgomery's
+  trick is the field inverse, entry by entry), `baryW_spec`, `toGF_baryScale`;
 * **`toK_encLag`**, **`toK_encCoef`**: the executable column evaluation IS the encoder's polynomial `encPoly` of the row
-  form (`lagForm`, `coefForm`) at the point, in any field `K ⊇ GF`; hence (`colEnc_spec`) `colEncLag`, `colEncCoef`
+  form (`lagForm`, `coefForm`) at the point, in any field `K ⊇ GF`; hence (`colEncLag_spec`, `colEncCoef_spec`) they
   meet the specification `ColEncSpec` that `pcsVerify` is proved against;
 * **`pcsVerify_ok_iff`**: `pcsVerify` returns `ok t'` EXACTLY WHEN every listed check holds: the parameters, the
   path depths, the group count, each group's length and claim check, the proximity vector's length, the indices
@@ -100,6 +100,7 @@ theorem foldl_dotB (l : List (Fp2 × Fp)) : ∀ acc : Fp2, acc.Canon →
       Fp2.toK_mulBase, List.map_cons, List.sum_cons]
     ring
 
+omit [Algebra GF K] in
 theorem sum_zip_range (f : Fp2 → Fp → K) : ∀ (v : List Fp2) (w : List Fp), w.length = v.length →
     ((v.zip w).map (fun p => f p.1 p.2)).sum
       = ∑ i ∈ Finset.range v.length, f (v.getD i Fp2.zero) (w.getD i Fp.zero)
@@ -310,8 +311,9 @@ def padK (n Q : ℕ) (v : List Fp2) : Fin Q → K := fun k => (v.getD (n + k) Fp
 noncomputable def encK {n : ℕ} (R : RowForm K n) (Q : ℕ) (v : List Fp2) (x : K) : K :=
   (encPoly R (vecK U n v) (padK U n Q v)).eval x
 
+omit [Algebra GF K] in
 theorem eval_coefPoly {k : ℕ} (g : Fin k → K) (x : K) : (coefPoly g).eval x = ∑ i, g i * x ^ (i : ℕ) := by
-  rw [coefPoly_apply, eval_finset_sum]
+  rw [coefPoly_apply, eval_finsetSum]
   simp [eval_monomial]
 
 /-- The pad part of the executable evaluation: `Σ_k v_{n+k}·x^k`. -/
@@ -633,7 +635,7 @@ theorem groupCheck_none_iff (n q : ℕ) : ∀ (g : ℕ) (cws : List (List Fp2)) 
     rw [groupCheck_cons]
     by_cases ha : v.length = n + q
     · by_cases hb : dotF (v.take n) cw = w
-      · rw [if_neg (not_not.mpr ha), if_neg (not_not.mpr hb), ih]
+      · rw [ite_eq_right (not_not.mpr ha), ite_eq_right (not_not.mpr hb), ih]
         constructor
         · intro h i hi
           rcases i with _ | i
@@ -641,10 +643,10 @@ theorem groupCheck_none_iff (n q : ℕ) : ∀ (g : ℕ) (cws : List (List Fp2)) 
           · simpa using h i (by simpa using hi)
         · intro h i hi
           simpa using h (i + 1) (by simpa using hi)
-      · rw [if_neg (not_not.mpr ha), if_pos hb]
+      · rw [ite_eq_right (not_not.mpr ha), ite_eq_left hb]
         simp only [reduceCtorEq, false_iff, not_forall]
         exact ⟨0, by simp, fun h => hb (by simpa using h.2)⟩
-    · rw [if_pos ha]
+    · rw [ite_eq_left ha]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h => ha (by simpa using h.1)⟩
   | _, [], _ :: _, _, h1, h2 => by simp at h1 h2; omega
@@ -660,7 +662,7 @@ theorem firstBad_none_iff (col : List Fp) : ∀ (g : ℕ) (rhos : List (List Fp2
     have ih := firstBad_none_iff col (g + 1) rhos es (by simpa using h)
     rw [firstBad_cons]
     by_cases ha : dotB rho col = e
-    · rw [if_neg (not_not.mpr ha), ih]
+    · rw [ite_eq_right (not_not.mpr ha), ih]
       constructor
       · intro hall i hi
         rcases i with _ | i
@@ -668,7 +670,7 @@ theorem firstBad_none_iff (col : List Fp) : ∀ (g : ℕ) (rhos : List (List Fp2
         · simpa using hall i (by simpa using hi)
       · intro hall i hi
         simpa using hall (i + 1) (by simpa using hi)
-    · rw [if_pos ha]
+    · rw [ite_eq_left ha]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h => ha (by simpa using h)⟩
   | _, [], _ :: _, h => by simp at h
@@ -693,7 +695,7 @@ theorem colsCheck_none_iff (root : Dig) (rows : ℕ) (rhos : List (List Fp2)) (e
     by_cases ha : j = wj
     · by_cases hb : col.length = rows
       · by_cases hc : verifyPath H tag root j (saltLeaf H tag (colDigest H tag col) salt) path = true
-        · rw [if_neg (not_not.mpr ha), if_neg (not_not.mpr hb), if_neg (by simp [hc])]
+        · rw [ite_eq_right (not_not.mpr ha), ite_eq_right (not_not.mpr hb), ite_eq_right (by simp [hc])]
           cases hf : firstBad col 0 rhos (evAt j) with
           | some g =>
             simp only [reduceCtorEq, false_iff, not_forall]
@@ -711,13 +713,13 @@ theorem colsCheck_none_iff (root : Dig) (rows : ℕ) (rhos : List (List Fp2)) (e
               · simpa using hall k (by simpa using hk)
             · intro hall k hk
               simpa using hall (k + 1) (by simpa using hk)
-        · rw [if_neg (not_not.mpr ha), if_neg (not_not.mpr hb), if_pos (by simpa using hc)]
+        · rw [ite_eq_right (not_not.mpr ha), ite_eq_right (not_not.mpr hb), ite_eq_left (by simpa using hc)]
           simp only [reduceCtorEq, false_iff, not_forall]
           exact ⟨0, by simp, fun h0 => hc (by simpa [ColOk] using h0.2.2.1)⟩
-      · rw [if_neg (not_not.mpr ha), if_pos hb]
+      · rw [ite_eq_right (not_not.mpr ha), ite_eq_left hb]
         simp only [reduceCtorEq, false_iff, not_forall]
         exact ⟨0, by simp, fun h0 => hb (by simpa [ColOk] using h0.2.1)⟩
-    · rw [if_pos ha]
+    · rw [ite_eq_left ha]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h0 => ha (by simpa [ColOk] using h0.1)⟩
   | [], _ :: _, h => by simp at h
@@ -762,10 +764,10 @@ theorem pcsVerify_ok_iff (prm : PcsPrm) (pt : ℕ → Fp) (ev : Fp → List (Lis
   by_cases h1 : cmLogCols = prm.logCols
   swap
   · simp [h1]
-  rw [if_neg (not_not.mpr h1)]
+  rw [ite_eq_right (not_not.mpr h1)]
   by_cases h2 : prm.qPad < prm.nQ
   · simp [h2]
-  rw [if_neg h2]
+  rw [ite_eq_right h2]
   cases hp : badPath (Nat.log2 prm.nn) op.columns with
   | some at_ =>
     simp only [reduceCtorEq, false_iff, not_and]
@@ -778,11 +780,11 @@ theorem pcsVerify_ok_iff (prm : PcsPrm) (pt : ℕ → Fp) (ev : Fp → List (Lis
     simp only
     by_cases h3 : op.groupVecs.length = groups.length
     swap
-    · rw [if_pos h3]
+    · rw [ite_eq_left h3]
       simp only [reduceCtorEq, false_iff, not_and]
       intro _ _ _ h3'
       exact absurd h3' h3
-    rw [if_neg (not_not.mpr h3)]
+    rw [ite_eq_right (not_not.mpr h3)]
     have hgc := groupCheck_none_iff prm.n prm.qPad 0 (groups.map (·.1)) r.2.1 op.groupVecs
       (by rw [List.length_map, h3]) (by rw [hlen.2, h3])
     cases hg : groupCheck prm.n prm.qPad 0 (groups.map (·.1)) r.2.1 op.groupVecs with
@@ -797,11 +799,11 @@ theorem pcsVerify_ok_iff (prm : PcsPrm) (pt : ℕ → Fp) (ev : Fp → List (Lis
       simp only
       by_cases h4 : op.proxVec.length = prm.n + prm.qPad
       swap
-      · rw [if_pos h4]
+      · rw [ite_eq_left h4]
         simp only [reduceCtorEq, false_iff, not_and]
         intro _ _ _ _ _ h4'
         exact absurd h4' h4
-      rw [if_neg (not_not.mpr h4)]
+      rw [ite_eq_right (not_not.mpr h4)]
       cases hi : ((absorbVecs H op.groupVecs r.2.2).absorbFp2 H pcsProxLabel op.proxVec).challengeIndices H
           prm.nQ prm.nn with
       | none =>
@@ -813,12 +815,12 @@ theorem pcsVerify_ok_iff (prm : PcsPrm) (pt : ℕ → Fp) (ev : Fp → List (Lis
         simp only [Option.some.injEq, Prod.mk.injEq]
         by_cases h5 : op.columns.length = idx.length
         swap
-        · rw [if_pos h5]
+        · rw [ite_eq_left h5]
           simp only [reduceCtorEq, false_iff, not_and, not_exists]
           intro _ _ _ _ _ _ idx' hidx h5'
           obtain ⟨rfl, -⟩ := hidx
           exact absurd h5' h5
-        rw [if_neg (not_not.mpr h5)]
+        rw [ite_eq_right (not_not.mpr h5)]
         have hcc := colsCheck_none_iff H tag root rows r.1 (fun j => ev (pt j) (op.groupVecs ++ [op.proxVec]))
           (fun j => by rw [hev, List.length_append, h3, hlen.1]; rfl) op.columns idx h5
         cases hc : colsCheck H tag root rows r.1 (fun j => ev (pt j) (op.groupVecs ++ [op.proxVec])) op.columns idx with

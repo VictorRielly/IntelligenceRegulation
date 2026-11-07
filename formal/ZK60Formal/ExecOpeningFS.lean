@@ -71,7 +71,7 @@ theorem _root_.ZK60.Sound.RbrWide.mapDig (e : D' ≃ D) {n : ℕ} {w : ℕ → �
             St x (τ.map (fun p : M × List D' => (p.1, p.2.map e)) ++ [(m, List.ofFn c)]))
               ((Equiv.arrowCongr (Equiv.refl _) e) b)} := by
       ext b
-      simp only [Set.mem_setOf_eq, List.map_append, List.map_cons, List.map_nil, List.map_ofFn]
+      simp only [Set.mem_ofPred_eq, List.map_append, List.map_cons, List.map_nil, List.map_ofFn]
       exact Iff.rfl
     show (PMF.uniformOfFintype (Fin (w τ.length) → D')).toOuterMeasure
       {b | St x ((τ ++ [(m, List.ofFn b)]).map (fun p => (p.1, p.2.map e)))} ≤ ε
@@ -189,6 +189,7 @@ def mSt (dom : ι ↪ E) (ω : E) (e K : ℕ) (dat : X → MData E ι σ κ k m)
 /-- `M`'s round widths: `w0` (`θ`), `w1` (`r`), `w2` (`J`). -/
 def mW3 (w0 w1 w2 : ℕ) : ℕ → ℕ := fun i => if i = 0 then w0 else if i = 1 then w1 else w2
 
+omit [Fintype E] [DecidableEq E] [DecidableEq ι] [Nonempty ι] [Fintype κ] [DecidableEq κ] in
 /-- A decoding makes the rows close. -/
 theorem MDec.close {dom : ι ↪ E} {e K : ℕ} {Ub : κ → ι → E} {u : ι → E} {Rh : κ → E[X]}
     (h : MDec dom e K Ub u Rh) : Close (rsCode dom K) e (withFirst u Ub) := by
@@ -199,6 +200,7 @@ theorem MDec.close {dom : ι ↪ E} {e K : ℕ} {Ub : κ → ι → E} {u : ι �
   · exact mem_agreeOn.mpr ⟨fun j => (Rh i).eval (dom j), mem_rsCode.mpr ⟨Rh i, hRh i, fun _ => rfl⟩,
       fun j hj => hUb j hj i⟩
 
+omit [Fintype E] [DecidableEq E] [DecidableEq ι] [Nonempty ι] [Fintype κ] [DecidableEq κ] in
 /-- A close table decodes. -/
 theorem MDec.of_close {dom : ι ↪ E} {e K : ℕ} {Ub : κ → ι → E} {u : ι → E}
     (hc : Close (rsCode dom K) e (withFirst u Ub)) : ∃ Rh, MDec dom e K Ub u Rh := by
@@ -208,6 +210,7 @@ theorem MDec.of_close {dom : ι ↪ E} {e K : ℕ} {Ub : κ → ι → E} {u : �
   · rw [show u j = withFirst u Ub none j from rfl, hUV j hj none, hVR none j]
   · rw [show Ub i j = withFirst u Ub (some i) j from rfl, hUV j hj (some i), hVR (some i) j]
 
+omit [Fintype E] [DecidableEq E] [Nonempty ι] [Fintype κ] [DecidableEq κ] in
 /-- **Decodings are unique** (`mDecoded_unique`, for `2e + K < N`). -/
 theorem MDec.unique {dom : ι ↪ E} {e K : ℕ} (h2 : 2 * e + K < Fintype.card ι) {Ub : κ → ι → E} {u : ι → E}
     {Rh Rh' : κ → E[X]} (h : MDec dom e K Ub u Rh) (h' : MDec dom e K Ub u Rh') : Rh = Rh' := by
@@ -215,6 +218,7 @@ theorem MDec.unique {dom : ι ↪ E} {e K : ℕ} (h2 : 2 * e + K < Fintype.card 
   obtain ⟨S', -, hS', -, hR', -, hU'⟩ := h'
   exact mDecoded_unique dom h2 hS hS' hR hR' hU hU'
 
+omit [Fintype E] [DecidableEq E] [DecidableEq ι] [Nonempty ι] [DecidableEq κ] in
 theorem mGood_iff {dom : ι ↪ E} {ω : E} {e K : ℕ} (D : MData E ι σ κ k m) :
     MGood dom ω 1 e K D.wt D.val D.Ub D.u D.La D.Lb ↔ ∃ Rh, MDec dom e K D.Ub D.u Rh ∧ mRes ω D Rh = 0 := by
   constructor
@@ -223,12 +227,14 @@ theorem mGood_iff {dom : ι ↪ E} {ω : E} {e K : ℕ} (D : MData E ι σ κ k 
   · rintro ⟨Rh, ⟨S, uh, hS, huh, hRh, hu, hUb⟩, hres⟩
     exact ⟨S, uh, Rh, hS, huh, hRh, hu, hUb, hres⟩
 
+omit [Fintype E] [DecidableEq E] [Fintype ι] [DecidableEq ι] [Nonempty ι] [DecidableEq κ] in
 theorem mRes_natDegree_le (hk : 0 < k) (ω : E) (D : MData E ι σ κ k m) (Rh : κ → E[X]) :
     (mRes ω D Rh).natDegree ≤ k := by
   have := mResidual_natDegree_le 1 D.val (mTrue ω D.wt (mDecA D.La Rh)) (mOff m ω (mDecB D.Lb Rh))
   unfold mRes
   omega
 
+omit [DecidableEq E] [Nonempty ι] [DecidableEq κ] in
 /-- **Round 0 (`θ`)**: from a bad opening, the residual vanishes at a uniform `θ` with probability `≤ k/|E|`. -/
 theorem mask_round0 (hk : 0 < k) (dom : ι ↪ E) (ω : E) {e K : ℕ} (h2 : 2 * e + K < Fintype.card ι) (D : MData E ι σ κ k m)
     (hng : ¬ MGood dom ω 1 e K D.wt D.val D.Ub D.u D.La D.Lb) :
@@ -243,6 +249,7 @@ theorem mask_round0 (hk : 0 < k) (dom : ι ↪ E) (ω : E) {e K : ℕ} (h2 : 2 *
     exact hz
   · exact prob_le_of_forall_not (fun θ (hθ : MAlive0 dom ω e K D θ) => hc hθ.choose_spec.1.close) _
 
+omit [DecidableEq E] [DecidableEq ι] [Nonempty ι] in
 /-- **Round 1 (`r`)**: from a bad `θ`, whatever `q'`, a uniform `r` revives the opening with probability
 `≤ (e + 1)/(|E| − 1)` (`3e < N − K`). -/
 theorem mask_round1 (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : IsPrimitiveRoot ω m) {e K : ℕ}
@@ -256,7 +263,7 @@ theorem mask_round1 (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : IsPrimitiveRoo
   · obtain ⟨Rh0, h0⟩ := MDec.of_close hc
     have hempty : {r : κ → E | MAlive1 dom ω e K D θ q r} = ∅ := by
       ext r
-      simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+      simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
       rintro (⟨Rh, qq, -, hRh, hdeg, hsum, hP⟩ | ⟨hnc, -⟩)
       · apply hbad
         refine ⟨Rh, hRh, ?_⟩
@@ -270,6 +277,7 @@ theorem mask_round1 (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : IsPrimitiveRoo
     · exact absurd hRh.close hc
     · exact hr
 
+omit [DecidableEq κ] in
 /-- **Round 2 (`J`)**: from a bad `(θ, r)`, whatever `prox`, uniform indices pass every check with probability
 `≤ max(((N − (e + 1))/N)^Q, ((e + dd)/N)^Q)`. -/
 theorem mask_round2 (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : IsPrimitiveRoot ω m) {e K dd : ℕ}
@@ -310,7 +318,7 @@ theorem mask_round2 (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : IsPrimitiveRoo
     have hρ : ¬ Close (rsCode dom K) e (fun _ : Unit => D.u + comb D.Ub r) := fun h => hbad (Or.inr ⟨hc, h⟩)
     rcases pr with _ | pp
     · exact prob_le_of_forall_not (fun J (hJ : MFinal dom ω K D θ q r none J) => by
-        obtain ⟨-, pp, -, hpp, -⟩ := hJ
+        obtain ⟨_qq, pp, _hq, hpp, _hrest⟩ := hJ
         exact absurd hpp (by simp)) _
     · by_cases hpd : pp.natDegree ≤ K
       · have hw : (fun j => pp.eval (dom j)) ∈ rsCode dom K := mem_rsCode.mpr ⟨pp, hpd, fun _ => rfl⟩
@@ -318,12 +326,13 @@ theorem mask_round2 (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : IsPrimitiveRoo
           by_contra hlt
           exact hρ (close_of_card_ne_le hw (by omega))
         refine le_trans (MeasureTheory.measure_mono (fun J hJ => ?_)) (column_test_sound _ _ ht Q)
-        obtain ⟨-, pp', -, hpp', -, -, hacc⟩ := hJ
-        obtain rfl := Option.some.inj hpp'
+        obtain ⟨_qq, pp', _hq, hpp', _hdq, _hdp, hacc⟩ := hJ
+        have hpe : pp = pp' := Option.some.inj hpp'
         intro t
+        rw [hpe]
         exact (hacc.2 t).symm
       · exact prob_le_of_forall_not (fun J (hJ : MFinal dom ω K D θ q r (some pp) J) => by
-          obtain ⟨-, pp', -, hpp', -, hdeg, -⟩ := hJ
+          obtain ⟨_qq, pp', _hq, hpp', _hdq, hdeg, _hacc⟩ := hJ
           obtain rfl := Option.some.inj hpp'
           exact hpd hdeg) _
 
@@ -353,7 +362,7 @@ theorem mask_rbrWide (hk : 0 < k) (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : 
       have hset : {b : Fin w0 → Dd | mSt dom ω e K dat d₀ w0 w1 w2 chal0 chalR chalJ x ([] ++ [(msg, List.ofFn b)])}
           = {b | (fun θ => MAlive0 dom ω e K (dat x) θ) (chal0 b)} := by
         ext b
-        simp only [Set.mem_setOf_eq, List.nil_append, mSt, vecOf_ofFn]
+        simp only [Set.mem_ofPred_eq, List.nil_append, mSt, vecOf_ofFn]
       rw [hset]
       refine (h0 _).trans (le_trans ?_ (le_max_left _ _))
       exact mul_le_mul' (mask_round0 hk dom ω h2e (dat x) hns) le_rfl
@@ -363,7 +372,7 @@ theorem mask_rbrWide (hk : 0 < k) (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : 
             mSt dom ω e K dat d₀ w0 w1 w2 chal0 chalR chalJ x ([(m0, ds0)] ++ [(msg, List.ofFn b)])}
           = {b | (fun r => MAlive1 dom ω e K (dat x) (chal0 (vecOf d₀ w0 ds0)) msg r) (chalR b)} := by
         ext b
-        simp only [Set.mem_setOf_eq, List.cons_append, List.nil_append, mSt, vecOf_ofFn]
+        simp only [Set.mem_ofPred_eq, List.cons_append, List.nil_append, mSt, vecOf_ofFn]
       rw [hset]
       refine (h1 _).trans (le_trans ?_ (le_trans (le_max_left _ _) (le_max_right _ _)))
       exact mul_le_mul' (mask_round1 dom hm hω h3 (dat x) (chal0 (vecOf d₀ w0 ds0)) hns msg) le_rfl
@@ -375,7 +384,7 @@ theorem mask_rbrWide (hk : 0 < k) (dom : ι ↪ E) {ω : E} (hm : 0 < m) (hω : 
           = {b | (fun J => MFinal dom ω K (dat x) (chal0 (vecOf d₀ w0 ds0)) q (chalR (vecOf d₀ w1 ds1)) msg J)
               (chalJ b)} := by
         ext b
-        simp only [Set.mem_setOf_eq, List.cons_append, List.nil_append, mSt, vecOf_ofFn]
+        simp only [Set.mem_ofPred_eq, List.cons_append, List.nil_append, mSt, vecOf_ofFn]
       rw [hset]
       refine (h2 _).trans (le_trans ?_ (le_trans (le_max_right _ _) (le_max_right _ _)))
       exact mul_le_mul' (mask_round2 dom hm hω h3 hdd hdq (dat x) (chal0 (vecOf d₀ w0 ds0)) q (chalR (vecOf d₀ w1 ds1)) hns msg Q) le_rfl
@@ -545,11 +554,12 @@ noncomputable def decPoly (len : ℕ) (b : List UInt8) : Option K[X] :=
   if b.length = 16 * len then some (coefPoly (fun i : Fin len => (Fp2.fromBytes (b.drop (16 * (i : ℕ)))).toK U))
   else none
 
+omit [Fintype K] [DecidableEq K] in
 /-- **On the bytes the verifier absorbs**, `decPoly` is the polynomial of the sent coefficients. -/
 theorem decPoly_enc (len : ℕ) (q : List Fp2) (hq : ∀ a ∈ q, a.Canon) (hl : q.length = len) :
     decPoly U len (q.flatMap Fp2.toBytes) = some (coefPoly (vecK U len q)) := by
   unfold decPoly
-  rw [if_pos (by rw [flatMap_toBytes_length, hl])]
+  rw [ite_eq_left (by rw [flatMap_toBytes_length, hl])]
   congr 2
   funext i
   have hi : (i : ℕ) < q.length := by rw [hl]; exact i.isLt
@@ -577,26 +587,27 @@ noncomputable def maskEps (k S : ℕ) : ℝ≥0∞ :=
 /-- **`M` as a sub-protocol of L8's schedule on the code's chain**: its window at entry `a` (just before `θ`'s squeeze),
 its statement the header (the chain before the window), the data the header names (`dat`: the functionals the
 verifier computed from the slots, the committed rows), its messages decoded by `decPoly`, its digests read as halves;
-never released. -/
+its release `rel` the schedule's (L8-4's pattern; it does not enter the round-by-round bound). -/
 noncomputable def maskCSub (eF : ZMod gP × ZMod gP ≃ K) (dom : Fin (2 ^ 12) ↪ K) (ω : K) {σ κ : Type} [Fintype σ]
     [Fintype κ] [DecidableEq κ] {k : ℕ} (S : ℕ) (a : ℕ) (dat : List (TItem × Dig) → MData K (Fin (2 ^ 12)) σ κ k 512)
-    (eR : κ ≃ Fin (2 * S + 2)) : CSub Dig :=
+    (eR : κ ≃ Fin (2 * S + 2)) (rel : List (TItem × Dig) → Prop) : CSub Dig :=
   toCSub a (maskRounds S) (maskEps (K := K) k S)
-    (maskStCode gP eF dom ω 1024 1023 dat dg0 eR (m2 := 64) (nQ := 256) (by norm_num)) id (decPoly U 1024)
-    (fun _ => False)
+    (maskStCode gP eF dom ω 1024 1023 dat dg0 eR (m2 := 64) (nQ := 256) (by norm_num)) id (decPoly U 1024) rel
 
 /-- **`M` is round-by-round sound on the code's chain** (the `hR` premise of `fs_code_chain_sound_sched`), with error
 `maskEps ≤ 2^-106` (`maskEps_le`). -/
 theorem maskCSub_rbr (eF : ZMod gP × ZMod gP ≃ K) (dom : Fin (2 ^ 12) ↪ K) {ω : K} (hω : IsPrimitiveRoot ω 512)
     {σ κ : Type} [Fintype σ] [Fintype κ] [DecidableEq κ] {k : ℕ} (hk : 0 < k) (S : ℕ) (a : ℕ)
-    (dat : List (TItem × Dig) → MData K (Fin (2 ^ 12)) σ κ k 512) (eR : κ ≃ Fin (2 * S + 2)) :
-    RbrWide (maskCSub U eF dom ω S a dat eR).R.n (maskCSub U eF dom ω S a dat eR).R.w
-      (maskCSub U eF dom ω S a dat eR).St (maskCSub U eF dom ω S a dat eR).ε :=
-  rbrWide_toCode a (maskRounds S) _ _ id (decPoly U 1024) (fun _ => False)
+    (dat : List (TItem × Dig) → MData K (Fin (2 ^ 12)) σ κ k 512) (eR : κ ≃ Fin (2 * S + 2))
+    (rel : List (TItem × Dig) → Prop) :
+    RbrWide (maskCSub U eF dom ω S a dat eR rel).R.n (maskCSub U eF dom ω S a dat eR rel).R.w
+      (maskCSub U eF dom ω S a dat eR rel).St (maskCSub U eF dom ω S a dat eR rel).ε :=
+  rbrWide_toCode a (maskRounds S) _ _ id (decPoly U 1024) rel
     (mask_rbrWide_code gP eF (h := 12) (by norm_num) dom hk (by norm_num) hω (e := 1024) (K := 1023) (dd := 1534)
       (by simp only [Fintype.card_fin]; norm_num) (by norm_num) (by norm_num) dat dg0 eR (m2 := 64) (nQ := 256)
       (by norm_num))
 
+omit [Field K] [DecidableEq K] [Algebra GF K] in
 theorem maskEps_le (hK : Fintype.card K = gP ^ 2) {k S : ℕ} (hk : k ≤ 2 ^ 20) (hS : 2 * S + 2 ≤ 2 ^ 20) :
     maskEps (K := K) k S ≤ (2⁻¹ : ℝ≥0∞) ^ 106 :=
   mask_eps_W16R2_le hK hk hS
@@ -638,7 +649,7 @@ theorem opA_rbrWide (enc : (μ → F) →ₗ[F] (Fin (2 ^ h) → F)) {d e A : �
         = {b | (fun y : (Cl → F) × (κ → F) => Alive1 enc e (Ux x) (clOf x).rw (clOf x).cw (clOf x).grp
             (clOf x).val y.1 y.2) (chalLR b)} := by
       ext b
-      simp only [Set.mem_setOf_eq, List.nil_append, opASt, vecOf_ofFn]
+      simp only [Set.mem_ofPred_eq, List.nil_append, opASt, vecOf_ofFn]
     show (PMF.uniformOfFintype (Fin w0 → Dg)).toOuterMeasure
       {b | opASt enc e clOf Ux d₀ w0 chalLR x ([] ++ [(msg, List.ofFn b)])} ≤ _
     rw [hset]
@@ -654,6 +665,7 @@ def opBSt (enc : (μ → F) →ₗ[F] (Fin (2 ^ h) → F)) (e : ℕ) (clOf : X �
       (fun g _ _ => vOf x g) (fun _ _ => wv) (lrOf x).1 (lrOf x).2 (chalJ (vecOf d₀ m ds))
   | _ => Alive1 enc e (Ux x) (clOf x).rw (clOf x).cw (clOf x).grp (clOf x).val (lrOf x).1 (lrOf x).2
 
+omit [Fintype F] [DecidableEq κ] [DecidableEq Cl] in
 theorem opB_rbrWide (enc : (μ → F) →ₗ[F] (Fin (2 ^ h) → F)) (henc : Function.Injective enc) {d e : ℕ}
     (hd : MinDist (LinearMap.range enc) d) (h2 : 2 * e < d) (clOf : X → OClaims Cl G κ μ F)
     (Ux : X → κ → Fin (2 ^ h) → F) (lrOf : X → (Cl → F) × (κ → F)) (vOf : X → G → μ → F) (d₀ : Dg) (m : ℕ)

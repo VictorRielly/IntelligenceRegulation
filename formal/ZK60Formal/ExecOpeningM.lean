@@ -196,41 +196,41 @@ theorem mColsCheck_none_iff (ω512 ω4096 : Fp) (root : Dig) (S : ℕ) (ws : Lis
     rw [mColsCheck_cons]
     by_cases ha : j = wj
     swap
-    · rw [if_pos ha]
+    · rw [ite_eq_left ha]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h0 => ha (by simpa [MColOk] using h0.1)⟩
-    rw [if_neg (not_not.mpr ha)]
+    rw [ite_eq_right (not_not.mpr ha)]
     by_cases hb : col.length = 2 * S + 4
     swap
-    · rw [if_pos hb]
+    · rw [ite_eq_left hb]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h0 => hb (by simpa [MColOk] using h0.2.1)⟩
-    rw [if_neg (not_not.mpr hb)]
+    rw [ite_eq_right (not_not.mpr hb)]
     by_cases hc : path.length = 12
     swap
-    · rw [if_pos hc]
+    · rw [ite_eq_left hc]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h0 => hc (by simpa [MColOk] using h0.2.2.1)⟩
-    rw [if_neg (not_not.mpr hc)]
+    rw [ite_eq_right (not_not.mpr hc)]
     by_cases hd : verifyPath H tag root j (saltLeaf H tag (colDigest H tag col) salt) path = true
     swap
-    · rw [if_pos (by simpa using hd)]
+    · rw [ite_eq_left (by simpa using hd)]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h0 => hd (by simpa [MColOk] using h0.2.2.2.1)⟩
-    rw [if_neg (by simp [hd])]
+    rw [ite_eq_right (by simp [hd])]
     simp only
     by_cases he : mProdAcc S col (mEnc ω512 ws q prox (cosetPt ω4096 j)).1 = (mEnc ω512 ws q prox (cosetPt ω4096 j)).2.1
     swap
-    · rw [if_pos he]
+    · rw [ite_eq_left he]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h0 => he (by simpa [MColOk] using h0.2.2.2.2.1)⟩
-    rw [if_neg (not_not.mpr he)]
+    rw [ite_eq_right (not_not.mpr he)]
     by_cases hf : mProxAcc S col rs = (mEnc ω512 ws q prox (cosetPt ω4096 j)).2.2
     swap
-    · rw [if_pos hf]
+    · rw [ite_eq_left hf]
       simp only [reduceCtorEq, false_iff, not_forall]
       exact ⟨0, by simp, fun h0 => hf (by simpa [MColOk] using h0.2.2.2.2.2)⟩
-    rw [if_neg (not_not.mpr hf), ih]
+    rw [ite_eq_right (not_not.mpr hf), ih]
     constructor
     · intro hall k hk
       rcases k with _ | k
@@ -264,34 +264,34 @@ theorem maskVerify_ok_iff (ω512 ω4096 : Fp) (root : Dig) (S : ℕ) (fs : List 
   simp only
   by_cases h1 : op.q.length = 2 * mMsg
   swap
-  · rw [if_pos h1]
+  · rw [ite_eq_left h1]
     exact ⟨fun h => absurd h (by simp), fun h => absurd h.1 h1⟩
-  rw [if_neg (not_not.mpr h1)]
+  rw [ite_eq_right (not_not.mpr h1)]
   by_cases h2 : ((op.q.getD 0 Fp2.zero).add (op.q.getD mMsg Fp2.zero)).mulBase (Fp.new (UInt64.ofNat mMsg))
       = (combinedWeights S fs (t.challengeFp2 H).1).2
   swap
-  · rw [if_pos h2]
+  · rw [ite_eq_left h2]
     exact ⟨fun h => absurd h (by simp), fun h => absurd h.2.1 h2⟩
-  rw [if_neg (not_not.mpr h2)]
+  rw [ite_eq_right (not_not.mpr h2)]
   by_cases h3 : op.prox.length = 2 * mMsg
   swap
-  · rw [if_pos h3]
+  · rw [ite_eq_left h3]
     exact ⟨fun h => absurd h (by simp), fun h => absurd h.2.2.1 h3⟩
-  rw [if_neg (not_not.mpr h3)]
+  rw [ite_eq_right (not_not.mpr h3)]
   cases hi : ((((t.challengeFp2 H).2.absorbFp2 H maskQLabel op.q).challengeFp2Vec H (2 * S + 2)).2.absorbFp2 H
       maskProxLabel op.prox).challengeIndices H mQ mDom with
-  | none => simp [h1, h2, h3]
+  | none => simp [h1, h3]
   | some it =>
     obtain ⟨idx, t5⟩ := it
     simp only [Option.some.injEq, Prod.mk.injEq]
     by_cases h5 : op.columns.length = idx.length
     swap
-    · rw [if_pos h5]
+    · rw [ite_eq_left h5]
       simp only [reduceCtorEq, false_iff, not_and, not_exists]
       intro _ _ _ idx' hidx h5'
       obtain ⟨rfl, -⟩ := hidx
       exact absurd h5' h5
-    rw [if_neg (not_not.mpr h5)]
+    rw [ite_eq_right (not_not.mpr h5)]
     have hcc := mColsCheck_none_iff H tag ω512 ω4096 root S (combinedWeights S fs (t.challengeFp2 H).1).1 op.q
       op.prox (((t.challengeFp2 H).2.absorbFp2 H maskQLabel op.q).challengeFp2Vec H (2 * S + 2)).1 op.columns idx h5
     cases hc : mColsCheck H tag ω512 ω4096 root S (combinedWeights S fs (t.challengeFp2 H).1).1 op.q op.prox
@@ -369,9 +369,9 @@ theorem toK_mProdAcc (hU : U ^ 2 = algebraMap GF K 7) (S : ℕ) (col : List Fp) 
   congr 1
   rw [Finset.sum_fin_eq_sum_range, ← List.sum_toFinset _ (List.nodup_range), List.toFinset_range]
   refine Finset.sum_congr rfl fun s hs => ?_
-  rw [dif_pos (Finset.mem_range.mp hs)]
+  rw [dite_eq_left (Finset.mem_range.mp hs)]
 
-theorem foldl_proxAcc (rs : List Fp2) (col : List Fp) :
+theorem foldl_proxAcc :
     ∀ (l : List (Fp2 × Fp)) (acc : Fp2), acc.Canon →
       (l.foldl (fun acc p => acc.add (p.1.mulBase p.2)) acc).toK U
         = acc.toK U + (l.map (fun p => p.1.toK U * algebraMap GF K p.2.toGF)).sum :=
@@ -598,9 +598,9 @@ theorem terms_fold_spec (th : Fp2) (f : MaskFunctional) {S m : ℕ} :
     rw [List.foldl_cons, ih.2 s j hs hj, (addRow_getD th t.2 ws t.1 s).2, List.map_cons, List.sum_cons]
     obtain ⟨hl, hc⟩ := h.2 _ (getD_mem_of_shape h s hs)
     by_cases hst : s = t.1
-    · rw [if_pos hst, if_pos hst.symm, (addPrefix_spec U hU th _ t.2 hc).2.2 j (by rw [hl]; exact hj)]
+    · rw [ite_eq_left hst, ite_eq_left hst.symm, (addPrefix_spec U hU th _ t.2 hc).2.2 j (by rw [hl]; exact hj)]
       ring
-    · rw [if_neg hst, if_neg (fun h' => hst h'.symm)]
+    · rw [ite_eq_right hst, ite_eq_right (fun h' => hst h'.symm)]
       ring
 
 include hU in
@@ -638,8 +638,8 @@ theorem cw_fold_spec (θ : Fp2) {S m : ℕ} : ∀ (fs : List MaskFunctional) (ws
       simp only [List.getD_cons_succ, List.getD_cons_zero, pow_zero, mul_one, pow_succ]
       have : ∀ i, th0.toK U * θ.toK U * θ.toK U ^ i * fwt U (fs.getD i default) s j
           = th0.toK U * (θ.toK U ^ i * θ.toK U) * fwt U (fs.getD i default) s j := fun i => by ring
-      simp only [this, fwt]
-      ring
+      simp only [fwt]
+      ring_nf
 
 theorem zeros_shape (S m : ℕ) : WShape S m (List.replicate S (List.replicate m Fp2.zero)) := by
   refine ⟨List.length_replicate, fun r hr => ?_⟩

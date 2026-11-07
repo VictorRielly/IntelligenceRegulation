@@ -194,7 +194,7 @@ theorem posPlane_inj {T : Type} {dR n : ℕ} {pos : T → Fin dR × Fin n} (hpos
   have h1 := congrFun (congrFun h (pos t).1) (pos t).2
   have hex : ∃ t', pos t' = ((pos t).1, (pos t).2) := ⟨t, rfl⟩
   have hc : hex.choose = t := hpos hex.choose_spec
-  simp only [posPlane, dif_pos hex, hc] at h1
+  simp only [posPlane, dite_eq_left hex, hc] at h1
   have h2 := congrArg ZMod.val h1
   rwa [ZMod.val_natCast, ZMod.val_natCast, Nat.mod_eq_of_lt (hx t), Nat.mod_eq_of_lt (hx' t)] at h2
 

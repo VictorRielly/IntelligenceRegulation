@@ -123,7 +123,7 @@ def incAt : List ℕ → ℕ → List ℕ
   | x :: l, i + 1 => x :: incAt l i
 
 /-- One claim's audit (`audit_claims`'s loop body); the uses updated. -/
-def auditOne (n rows prox : ℕ) (siteRows : List ℕ) (sumRows : Option (ℕ × ℕ)) (nClaims : ℕ) (ci : ℕ)
+def auditOne (n _rows prox : ℕ) (siteRows : List ℕ) (sumRows : Option (ℕ × ℕ)) (nClaims : ℕ) (ci : ℕ)
     (c : Block.ZClaim) (uses : List ℕ) : Except String (List ℕ) := do
   let logN := Nat.log2 n
   let touched ← claimTouched n prox siteRows c
@@ -273,7 +273,7 @@ theorem maskField_transcript (S : ℕ) (H : HIn → Dig) (root : Dig) (fs : List
     exact Bool.false_ne_true
   unfold Block.maskTranscript
   simp only [e2]
-  rw [if_neg hc1, if_neg hc2]
+  rw [ite_eq_right hc1, ite_eq_right hc2]
 
 /-- The transcript after a sequence of vector challenges. -/
 def seqTr (H : HIn → Dig) (counts : List ℕ) (t : Tr) : Tr := counts.foldl (fun t c => (t.challengeFp2Vec H c).2) t
@@ -319,7 +319,7 @@ theorem pcsField_transcript (rowsOf : Block.Cm → ℕ) (H : HIn → Dig) (cm : 
   have hcol : Block.colIdxCheck "pcs zk: " o.columns idx = .ok () := by
     have hc1 : ¬ (o.columns.length ≠ idx.length) := fun h => h hl
     unfold Block.colIdxCheck
-    rw [if_neg hc1, hfind]
+    rw [ite_eq_right hc1, hfind]
   have e1 : (Block.zkRhos H ((groupZclaims (cl.map toZClaim) (rowsOf cm) 14).map (·.2.length)) (rowsOf cm) t).2.2
       = (zkRhosAux H (rowsOf cm) (groupZclaims (cl.map toZClaim) (rowsOf cm) 14) t).2.2 :=
     (zkRhos_tr H _ _ t).trans (zkRhosAux_tr H _ _ t).symm
@@ -342,7 +342,7 @@ section L12
 /-- **The extracted input words are admissible**: L12's input `x t = canonWord (epW t)` is canonical, so a
 `w16r2TokenCommit`'s `opensIn` asks only the columns of it. -/
 theorem token_ok_canon {T : Type} (epW : T → GF) : ∀ t, (fun t => ZK60.StageX.canonWord (epW t)) t < gP :=
-  fun t => ZK60.StageX.canonWord_lt _
+  fun _ => ZK60.StageX.canonWord_lt _
 
 /-- **The canonical words of a plane's extracted values are the values** (`canonWord_cast`): the input plane
 `posPlane pos (canonWord ∘ epW)` holds exactly the extracted words at the token positions. -/
@@ -351,7 +351,7 @@ theorem posPlane_canon {T : Type} {dR n : ℕ} {pos : T → Fin dR × Fin n} (hp
   classical
   have hex : ∃ t', pos t' = ((pos t).1, (pos t).2) := ⟨t, rfl⟩
   have hc : hex.choose = t := hpos hex.choose_spec
-  simp only [posPlane, dif_pos hex, hc, ZK60.StageX.canonWord_cast]
+  simp only [posPlane, dite_eq_left hex, hc, ZK60.StageX.canonWord_cast]
 
 end L12
 
