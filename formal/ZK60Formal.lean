@@ -83,3 +83,10 @@ import ZK60Formal.LayoutW16Handoff
 import ZK60Formal.ExecBlockWire
 import ZK60Formal.ExecBlockVerify
 import ZK60Formal.ExecBlockFS
+import ZK60Formal.StageExtractCore
+import ZK60Formal.StageInExtract
+import ZK60Formal.StageInExtractSlots
+import ZK60Formal.StageOutCExtract
+import ZK60Formal.StageOutCExtractSlots
+import ZK60Formal.StageOutExtract
+import ZK60Formal.StageRunExtract

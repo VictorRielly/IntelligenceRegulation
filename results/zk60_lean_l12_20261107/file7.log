@@ -1,0 +1,36 @@
+== lake build ZK60Formal.StageOutCExtractSlots ==
+✖ [3369/3369] Building ZK60Formal.StageOutCExtractSlots (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/ZK60Formal/StageOutCExtractSlots.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean/ZK60Formal/StageOutCExtractSlots.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean/ZK60Formal/StageOutCExtractSlots.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/ir/ZK60Formal/StageOutCExtractSlots.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/ir/ZK60Formal/StageOutCExtractSlots.setup.json --json
+error: ZK60Formal/StageOutCExtractSlots.lean:174:58: unsolved goals
+K : Type
+inst✝ : Field K
+φ : GF →+* K
+d nd nl L b : ℕ
+c : ℤ
+y : Fin d → GF
+wΔ : Fin d → ℤ
+dpos : Fin d → Fin nd → Bool
+hdpos : Function.Injective dpos
+Y Wd : (Fin nd → Bool) → K
+hY : ∀ (i : Fin d), Y (dpos i) = φ (y i)
+hW : ∀ (i : Fin d), Wd (dpos i) = φ ↑(wΔ i)
+hW0 : ∀ x ∉ Set.range dpos, Wd x = 0
+mpos : Fin L → Fin nl → Bool
+hmpos : Function.Injective mpos
+z0 : Fin nl → Bool
+Gm u0 limb : (Fin nl → Bool) → K
+ml : Fin L → GF
+hG : ∀ (j : Fin L), Gm (mpos j) = φ (sigOf b * 2 ^ (8 * ↑j))
+hG0 : ∀ z ∉ Set.range mpos, Gm z = 0
+hu : ∀ (z : Fin nl → Bool), u0 z = if z = z0 then 1 else 0
+hl : ∀ (j : Fin L), limb (mpos j) = φ (ml j)
+hsum : ∑ x, Y x * Wd x = ∑ z, (Gm z * limb z + u0 z * φ (↑b + ↑c))
+h1 : ∑ x, Y x * Wd x = φ (∑ i, y i * ↑(wΔ i))
+h3 : ∑ z, u0 z * φ (↑b + ↑c) = φ (↑b + ↑c)
+h4 : ∑ z, Gm z * limb z = φ (sigOf b * limbSum ml)
+⊢ φ (sigOf b * limbSum ml) + (φ ↑b + φ ↑c) = φ (sigOf b * limbSum ml + (↑b + ↑c))
+Some required targets logged failures:
+- ZK60Formal.StageOutCExtractSlots
+error: build failed
+build rc 1
+rc build 1 files 0, 4 s
