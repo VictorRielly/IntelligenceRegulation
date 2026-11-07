@@ -1,0 +1,19 @@
+[zk60-guard 00:23:51] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:24:52] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:25:52] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:26:53] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:27:54] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:28:55] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:29:55] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:30:56] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:31:57] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:32:57] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:33:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:34:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:35:59] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:37:00] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:38:00] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:39:01] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:39:16] START lean-l17-export class=cpu need=14G cap=24G enforce=watchdog-only waited=925s run=19e3a942d2d6
+[zk60-guard 00:43:04] KILL lean-l17-export: job RSS 26.26 GiB > cap 24 GiB
+[zk60-guard 00:43:04] END lean-l17-export exit=75 child_wall=228s peak_rss=26.26G min_avail=230.51G

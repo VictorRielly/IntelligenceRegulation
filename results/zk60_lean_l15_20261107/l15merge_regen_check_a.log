@@ -1,0 +1,12 @@
+  logup: 1
+  slot-count: 1
+  schedule: 8
+  draws: 8
+  tables: 8
+  eq-point: 5
+  public-len: 18
+  hosted: 8
+  claimed: 8
+  sumcheck: 8
+  verify-arm: 8
+StageCheckOutC: 81 checks, 0 failed

@@ -1,0 +1,25 @@
+  shape-count: 1
+  stack: 3
+  fold-shift: 1
+  rh-width: 3
+  widths: 3
+  families: 3
+  a-planes: 3
+  h-planes: 3
+  h-ids: 3
+  lookups: 18
+  helpers: 18
+  zero-planes: 27
+  ir-tables: 23
+  table-kinds: 23
+  ir-nodes: 23
+  ir-terms: 23
+  slot-count: 1
+FAILED [zero-planes] W16R2_RUNG_H24 F: lengths 9/8; first difference at 0: Lean 49 | code 50
+FAILED [lookups] W16R2_SHIELD_T128_H24 D: lengths 19/19; first difference at 0: Lean 32768:R16:8*1 | code 32769:R16:8*1
+FAILED [a-planes] W16R2_8B_T128_H24: lengths 71/71; first difference at 0: Lean T:D | code T:DX
+FAILED [ir-nodes] slot 14: lengths 47/47; first difference at 4: Lean S 8000:0@t3.t5;4:0@t24;18446744069414584313:0@t6.t24;18446744069414584320:0@n0 | code S 8001:0@t3.t5;4:0@t24;18446744069414584313:0@t6.t24;18446744069414584320:0@n0
+FAILED [ir-nodes] slot 15: lengths 17/17; first difference at 2: Lean S 10172729525945140597:9184613117041638006@n1 | code S 10172729525945140596:9184613117041638006@n1
+FAILED [ir-terms] slot 17: lengths 3/3; first difference at 1: Lean T 9824396563420694658:10076381976615120515 1 n25 | code T 9824396563420694659:10076381976615120515 1 n25
+FAILED [ir-tables] slot 19: lengths 62/62; first difference at 3: Lean pub the_U8_table's_value_column | code pub the_U8_table's_value_column_X
+SlotW16BuildCheck: 179 checks, 7 failed

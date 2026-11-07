@@ -1,0 +1,38 @@
+== lake build ZK60Formal.ZKW16Block ==
+✖ [3437/3437] Building ZK60Formal.ZKW16Block (3.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Block.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Block.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Block.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/ir/ZK60Formal/ZKW16Block.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/ir/ZK60Formal/ZKW16Block.setup.json --json
+error: ZK60Formal/ZKW16Block.lean:224:39: Function expected at
+  zero_le
+but this term has type
+  0 ≤ ?m.100
+
+Note: Expected a function because this term is being applied to the argument
+  _
+error: ZK60Formal/ZKW16Block.lean:256:46: typeclass instance problem is stuck
+  CharZero ?m.206
+
+Note: Lean will not try to resolve this typeclass instance problem because the first and second type arguments to `CharZero` are metavariables. These arguments must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
+error: ZK60Formal/ZKW16Block.lean:262:10: Type mismatch
+  add_le_add_right (add_le_add_right (mul_le_mul_right (mul_le_mul_left h1 ?m.405) ?m.406) ?m.407) ?m.408
+has type
+  ?m.408 + (?m.407 + ?m.406 * (↑(q + j * qp) * ?m.405)) ≤ ?m.408 + (?m.407 + ?m.406 * ((↑q + ↑R * ↑qp) * ?m.405))
+but is expected to have type
+  2 * (↑(q + j * qp) * δp) + 4 * εc + 2 * ((↑q + ↑R * ↑qp) * δh) ≤
+    2 * ((↑q + ↑R * ↑qp) * δp) + 4 * εc + 2 * ((↑q + ↑R * ↑qp) * δh)
+error: ZK60Formal/ZKW16Block.lean:309:12: Type mismatch
+  add_le_add_right (add_le_add_left (mul_le_mul_right h512 ?m.268) ?m.269) ?m.270
+has type
+  ?m.270 + (?m.268 * 2⁻¹ ^ 512 + ?m.269) ≤ ?m.270 + (?m.268 * 2⁻¹ ^ 256 + ?m.269)
+but is expected to have type
+  ↑(W16R2Z.chainMax + W16R2Z.leaves) * 2⁻¹ ^ 256 + ↑W16R2Z.nodes * 2⁻¹ ^ 512 + ↑W16R2Z.leaves * 2⁻¹ ^ 256 ≤
+    ↑(W16R2Z.chainMax + W16R2Z.leaves) * 2⁻¹ ^ 256 + ↑W16R2Z.nodes * 2⁻¹ ^ 256 + ↑W16R2Z.leaves * 2⁻¹ ^ 256
+Some required targets logged failures:
+- ZK60Formal.ZKW16Block
+error: build failed
+build rc 1
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean:27:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/.lake/build/lib/lean/ZK60Formal/ZKW16Block.olean' of module ZK60Formal.ZKW16Block does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean
+rc build 1 files 1, 24 s

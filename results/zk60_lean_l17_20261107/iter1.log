@@ -1,0 +1,39 @@
+== lake build ZK60Formal.SlotR13 ==
+Build completed successfully (3388 jobs).
+build rc 0 for ZK60Formal.SlotR13 (19 s)
+== lake build ZK60Formal.ExecBlockR13 ==
+Build completed successfully (3428 jobs).
+build rc 0 for ZK60Formal.ExecBlockR13 (33 s)
+== lake build ZK60Formal.OpeningR13 ==
+Build completed successfully (3456 jobs).
+build rc 0 for ZK60Formal.OpeningR13 (45 s)
+== lake build ZK60Formal.LayoutR13 ==
+✖ [3359/3359] Building ZK60Formal.LayoutR13 (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/LayoutR13.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean/ZK60Formal/LayoutR13.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean/ZK60Formal/LayoutR13.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/ir/ZK60Formal/LayoutR13.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/ir/ZK60Formal/LayoutR13.setup.json --json
+warning: ZK60Formal/LayoutR13.lean:64:13: `Fin.coe_castSucc` has been deprecated: Use `Fin.val_castSucc` instead
+error: ZK60Formal/LayoutR13.lean:512:0: cannot omit referenced section variable `inst✝¹¹`
+error: ZK60Formal/LayoutR13.lean:606:0: cannot omit referenced section variable `inst✝¹¹`
+warning: ZK60Formal/LayoutR13.lean:703:8: declaration uses `sorry`
+warning: ZK60Formal/LayoutR13.lean:704:84: Variable name `R` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _R
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/LayoutR13.lean:705:5: Variable name `Lk` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _Lk
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+Some required targets logged failures:
+- ZK60Formal.LayoutR13
+error: build failed
+build rc 1 for ZK60Formal.LayoutR13 (49 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/CheckR13Slots.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/CheckR13Slots.lean (52 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/CheckR13Open.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/CheckR13Open.lean (55 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/CheckR13Block.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/CheckR13Block.lean (69 s)
+rc build 1 files 0, 69 s

@@ -324,8 +324,23 @@ here. The rates count proving and witness work. Verification time is recorded se
     - `Binding` is proved at the target, for the token runs and for the classifier.
     - Open (L10-6, Medium): each slot's final claim is true of the committed tables. That is the knowledge step, and
       it is L16's target.
-  - **Running:** L13 (the slot builders proved, and the block's composed error), L14 (zero knowledge for one block:
-    Statement 2), L15 (the whole OUT-C/OUT stages) and L16 (the block's knowledge extraction).
+  - **L13, the slot builders.** Lean rebuilds all 23 slot IRs of a real receipt from the shape alone, equal to the
+    code's: 179 checks. Each slot is proved sound at ≤ 2^-120. The block's composed bound is an ESTIMATE so far, about
+    20 bits under the target per query.
+  - **L14, zero knowledge for one block (Statement 2).**
+    - The chain from the honest-verifier lemmas to `ZeroKnowledge` is proved, generic in the receipt's shape.
+    - The simulator runs the honest prover on a stand-in input.
+    - Within the target for up to 2^96 receipts. The honest prover's model is still a hypothesis.
+    - **For Victor (L14-1, Low):** the approved target is for any number of receipts. Today's proof reaches 2^96. Lane L19
+      is trying a sharper count; otherwise it is a cap or a cross term, which is your call.
+  - **L15, the token stages whole.** The verdict stage OUT-C (about 2^-112) and the next-token stage OUT (about 2^-108)
+    are each proved as one theorem. Their sumchecks are ≤ 2^-61 under Fiat–Shamir. The registered Shieldstral policies'
+    parameters are checked.
+  - **Running:**
+    - L16, the block's knowledge extraction (L10-6);
+    - L17, the block results at R13, the app's real profile;
+    - L18, the classify run's `Protocol` and the top-level `ProductionReady` with the remaining premises named;
+    - L19, zero knowledge's links and the sharper count.
   - **Still open before production:** the run level (the D55 tree), the extractor end to end, the `Protocol` instance
     and its assembly into `ProductionReady`, and then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].

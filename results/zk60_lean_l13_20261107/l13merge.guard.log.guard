@@ -1,0 +1,2 @@
+[zk60-guard 00:21:24] START lean-l13merge class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=9802f09af7a2
+[zk60-guard 00:30:26] END lean-l13merge exit=0 child_wall=542s peak_rss=4.82G min_avail=230.72G

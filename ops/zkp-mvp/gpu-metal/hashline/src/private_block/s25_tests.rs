@@ -2693,10 +2693,13 @@ fn r19b_the_module_follower_refuses_include_outside_test_code() {
 /// the path, each compiled as test code only (declared `#[cfg(test)]` by its
 /// parent: read for this list with `r19b/tools/mirror19b.py`). Paths are
 /// relative to `src/private_block/`.
-const TEST_ONLY_FILES: [&str; 85] = [
+const TEST_ONLY_FILES: [&str; 87] = [
     // D63 step L1 (2026-11-06): the Lean lane's export of the fixture's integer trace, declared
     // `#[cfg(test)]` (one line) by `witness.rs`
     "lean_l1_export_tests.rs",
+    // D63 Lean lane L17 (2026-11-07): the Lean lane's export of the R13 block's agreement corpora (a real R13 rung
+    // core, a real D12a segment), declared `#[cfg(test)]` (one line) by the test-only `w16r2_tests.rs`
+    "lean_l17_export_tests.rs",
     // D63 Lean lane L15 (2026-11-07): the Lean lane's export of stage OUT-C's slots from a real classifier receipt,
     // declared `#[cfg(test)]` (one line) by the test-only `token_io/classify_capture_tests.rs`
     "token_io/lean_l15_export_tests.rs",
@@ -2706,6 +2709,9 @@ const TEST_ONLY_FILES: [&str; 85] = [
     // D63 step L9 (2026-11-07): the Lean lane's export of a W16R2 rung block frame and its transcript challenges,
     // declared `#[cfg(test)]` (one line) by `w16r2_tests.rs`, itself a test-only file
     "lean_l9_export_tests.rs",
+    // D63 step L13 (2026-11-07): the Lean lane's export of the W16R2 layout facts at the three W16R2 profiles,
+    // a child module of the test-only `w16r2_tests.rs`
+    "lean_l13_export_tests.rs",
     // D65(1) (2026-11-04): F12's receipt-level version checks, declared by a
     // bare `#[cfg(test)]` in `private_block.rs`
     "f12_version_tests.rs",

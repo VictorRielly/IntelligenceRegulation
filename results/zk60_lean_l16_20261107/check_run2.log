@@ -1,0 +1,11 @@
+== lake build (full) ==
+lake build rc 1
+Some required targets logged failures:
+- ZK60Formal.ExtractW16Block
+error: build failed
+warnings: 0
+errors: 2
+sorry: 0
+warnings in the L16 files: 0
+error: ZK60Formal/ExtractW16Block.lean:374:10: Function expected at
+error: build failed

@@ -569,8 +569,28 @@ The plain-words version, the modelling choices and the open decisions are in
     - The checker: 48 checks, 0 failed, on a real 192 MB corpus kept outside the repo (sha256 committed). 148
       theorems.
     - Open: L10-6, the premise `fin = f(ρ)`.
-  - Running: L13 (slot builders and the block's composed ε), L14 (zero knowledge for a block), L15 (the whole
-    OUT-C/OUT stages, a stage corpus) and L16 (the block's knowledge extraction, L10-6).
+  - **L13, the slot builders** (`SlotW16Build.lean`, `SlotW16BuildEval.lean`, `SlotW16BuildSlots.lean`,
+    `SlotW16BuildLayout.lean`, `SlotW16Compose.lean`; checker `SlotW16BuildCheck.lean`).
+    - `build_slot_ir` in Lean for all 23 slots.
+    - `hostTerms_hostPoly`.
+    - `host_claim_sound` / `standalone_claim_sound`, at ≤ 2^-120.
+    - `stdLayout`, `w16Widths_of`.
+    - 179 checks. 60 theorems.
+  - **L14, zero knowledge for a block** (`ZKW16Prog.lean`, `ZKW16Step.lean`, `ZKW16View.lean`, `ZKW16Block.lean`,
+    `ZKW16Hyb.lean`, `ZKW16Shape.lean`).
+    - `aprog_real_ideal`, `fs_step`, `block_view_law_eq_slots_M`.
+    - The stand-in simulator.
+    - `zeroKnowledge_of_oneStep`.
+    - `zk_within_target_of_shape`: within εzkTarget for R ≤ 2^96, generic in `ZKShape`.
+    - 80 theorems.
+  - **L15, the whole stages** (`StageOutCWhole.lean`, `StageOutWhole.lean`, `StageFS.lean`, `StageCheckDefs.lean`,
+    `StageCheckValid.lean`; checker `StageCheckOutC.lean`).
+    - `outc_stage_sound`, `out_stage_sound`, `stage_sumchecks_fs_sound`.
+    - The Shieldstral policies' `Valid`.
+    - 81 checks. Its corpus is a fresh receipt each export (OS-random salts), so it is not byte-stable.
+    - 83 theorems.
+  - Running: L16 (the block's knowledge extraction, L10-6), L17 (the block results at R13), L18 (the classify run's
+    `Protocol` and assembly) and L19 (zero knowledge's links and the sharper count).
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems

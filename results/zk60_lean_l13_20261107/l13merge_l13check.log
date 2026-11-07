@@ -1,0 +1,18 @@
+  shape-count: 1
+  stack: 3
+  fold-shift: 1
+  rh-width: 3
+  widths: 3
+  families: 3
+  a-planes: 3
+  h-planes: 3
+  h-ids: 3
+  lookups: 18
+  helpers: 18
+  zero-planes: 27
+  ir-tables: 23
+  table-kinds: 23
+  ir-nodes: 23
+  ir-terms: 23
+  slot-count: 1
+SlotW16BuildCheck: 179 checks, 0 failed
