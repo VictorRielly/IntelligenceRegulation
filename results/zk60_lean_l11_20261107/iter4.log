@@ -1,0 +1,28 @@
+== lake build the L11 modules ==
+Build completed successfully (3394 jobs).
+build rc 0
+== lean LayoutW16Handoff.lean ==
+rc 0
+== L11Check ==
+  ASCII: 1
+  head: 1
+  tags: 1
+  slot-index: 23
+  kind: 23
+  schedule: 23
+  terms: 23
+  draws: 23
+  draw-layout: 23
+  hosted: 23
+  claim-points: 15
+  ir-shape: 23
+  ir-degree: 23
+  verify-arm-parts: 11
+  ir-challenges: 149
+  ir-template: 6
+  verify-arm: 12
+  slot-count: 1
+DEGREE GAP (info) slot 14: declared degree 5, computed 4
+DEGREE GAP (info) slot 18: declared degree 5, computed 4
+L11Check: 404 checks, 0 failed
+rc 0, 18 s

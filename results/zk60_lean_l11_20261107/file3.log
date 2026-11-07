@@ -1,0 +1,136 @@
+== lake build ZK60Formal.SlotW16Ir ==
+Build completed successfully (3386 jobs).
+build rc 0
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:341:8: error: `simp` failed: maximum number of steps exceeded
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:341:8: error: Tactic `simp` failed with a nested error:
+(deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:350:6: error: (deterministic) timeout at `«tactic execution»`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:335:62: error: (deterministic) timeout at `«tactic execution»`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:332:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:373:2: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 65537
+  b ≥ 0
+  b - c ≥ -1479
+  0 ≤ a ≤ 64
+where
+ a := ↑pp
+ b := ↑nSlots * ↑(4 * pp)
+ c := ↑(blockNum sh8B pp)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:370:8: error: (kernel) unknown constant 'ZK60.Exec.Slot.W16R2.blockNum_le'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:379:2: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 65537
+  b ≥ 0
+  b - c ≥ -1539
+  0 ≤ a ≤ 64
+where
+ a := ↑pp
+ b := ↑nSlots * ↑(4 * pp)
+ c := ↑(blockNum shShield pp)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:376:8: error: (kernel) unknown constant 'ZK60.Exec.Slot.W16R2.blockNum_le'
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean:294:64: error: unexpected token 'omit'; expected 'lemma'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean:305:114: error: unexpected token 'omit'; expected 'lemma'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean:352:38: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean:341:2: error: (deterministic) timeout at `«tactic execution»`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean:514:69: error: typeclass instance problem is stuck
+  Field ?m.103
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Field` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean:454:0: warning: automatically included section variable(s) unused in theorem `ZK60.Layout.flip_qPos`:
+  [Fintype Ct]
+  [Fintype Cw]
+  [Fintype Cg]
+  [Fintype Cj]
+  [Fintype Cd]
+  [Fintype Cf]
+  [DecidableEq Ct]
+  [DecidableEq Cw]
+  [DecidableEq Cg]
+  [DecidableEq Cj]
+  [DecidableEq Cd]
+  [DecidableEq Cf]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype
+  Ct] [Fintype
+  Cw] [Fintype
+  Cg] [Fintype
+  Cj] [Fintype
+  Cd] [Fintype
+  Cf] [DecidableEq
+  Ct] [DecidableEq Cw] [DecidableEq Cg] [DecidableEq Cj] [DecidableEq Cd] [DecidableEq Cf] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean:458:0: warning: automatically included section variable(s) unused in theorem `ZK60.Layout.flip_kPos`:
+  [Fintype Ct]
+  [Fintype Cw]
+  [Fintype Cg]
+  [Fintype Cj]
+  [Fintype Cd]
+  [Fintype Cf]
+  [DecidableEq Ct]
+  [DecidableEq Cw]
+  [DecidableEq Cg]
+  [DecidableEq Cj]
+  [DecidableEq Cd]
+  [DecidableEq Cf]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype
+  Ct] [Fintype
+  Cw] [Fintype
+  Cg] [Fintype
+  Cj] [Fintype
+  Cd] [Fintype
+  Cf] [DecidableEq
+  Ct] [DecidableEq Cw] [DecidableEq Cg] [DecidableEq Cj] [DecidableEq Cd] [DecidableEq Cf] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean:639:27: error(lean.unknownIdentifier): Unknown constant `Prod.mk.inj_iff.mp`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean:639:15: error: Tactic `rcases` failed: `x✝ : ?m.3689` is not an inductive datatype
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean:603:33: warning: This simp argument is unused:
+  W16Layout.htPos
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [W16Layout.sPos] at hg hm
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean:611:33: warning: This simp argument is unused:
+  W16Layout.htPos
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [W16Layout.sPos] at hg
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean
+rc build 0 files 1, 25 s

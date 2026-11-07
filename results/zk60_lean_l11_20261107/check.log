@@ -1,0 +1,67 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3457/3459] Built ZK60Formal.LayoutW16Handoff (2.3s)
+✔ [3458/3459] Built ZK60Formal (1.7s)
+Build completed successfully (3459 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+82 theorems
+axioms rc 0
+declarations audited: 82
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  59 axioms: [propext, Classical.choice, Quot.sound]
+  14 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+== source scan of the L11 files ==
+none
+== the library root imports the L11 files ==
+78:import ZK60Formal.SlotW16Ir
+79:import ZK60Formal.SlotW16R2
+80:import ZK60Formal.SlotW16Sound
+81:import ZK60Formal.LayoutW16
+82:import ZK60Formal.LayoutW16Handoff
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== L11Check on the W16R2 rung corpus ==
+  ASCII: 1
+  head: 1
+  tags: 1
+  slot-index: 23
+  kind: 23
+  schedule: 23
+  terms: 23
+  draws: 23
+  draw-layout: 23
+  hosted: 23
+  claim-points: 15
+  ir-shape: 23
+  ir-degree: 23
+  verify-arm-parts: 11
+  ir-challenges: 149
+  ir-template: 6
+  verify-arm: 12
+  slot-count: 1
+L11Check: 404 checks, 0 failed
+L11Check rc 0
+== negative control ==
+mutations: [1, 2, 3, 4, 5, 6, 7]
+FAILED [head] HEADEND f528dd79ae0b244f504502ba0a199e4825338f6a4f3663e3a58644d9690d4612 3
+FAILED [terms] slot 0
+FAILED [verify-arm-parts] slot 3: refused
+FAILED [draws] slot 4
+FAILED [verify-arm] slot 5
+FAILED [verify-arm-parts] slot 14
+FAILED [verify-arm-parts] slot 20: refused
+L11Check: 404 checks, 7 failed
+== the R19b file census (hashline lib tests; the release test binary is the export's) ==
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1044 filtered out; finished in 0.04s
+verdicts: build 0, axioms 0, L6 0/0, L5 0/0, L1 0/0, L11 0, negative control 0, r19b 0 (0 = as required)

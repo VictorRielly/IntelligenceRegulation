@@ -1,0 +1,43 @@
+== lake build ZK60Formal.SlotW16Ir ==
+Build completed successfully (3386 jobs).
+build rc 0
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:309:8: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun s => segFix s + pp * zetaLen s) ?l).sum
+in the target expression
+  ((sched sh s).1 + (sched sh s).2.1) * (sched sh s).2.2 + (List.map (segNum pp) (draws sh s)).sum + claimLen sh s =
+    ((sched sh s).1 + (sched sh s).2.1) * (sched sh s).2.2 + (List.map (segNum 0) (draws sh s)).sum + claimLen sh s +
+      pp * (List.map zetaLen (draws sh s)).sum
+
+sh : ShapeW
+pp s : ℕ
+⊢ ((sched sh s).1 + (sched sh s).2.1) * (sched sh s).2.2 + (List.map (segNum pp) (draws sh s)).sum + claimLen sh s =
+    ((sched sh s).1 + (sched sh s).2.1) * (sched sh s).2.2 + (List.map (segNum 0) (draws sh s)).sum + claimLen sh s +
+      pp * (List.map zetaLen (draws sh s)).sum
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean:308:24: warning: This simp argument is unused:
+  segNum
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [slotNum]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16R2.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean:507:75: error: unsolved goals
+F : Type
+inst✝ : Field F
+a b : ℕ
+P : (Fin (a + b) → Bool) → F
+r : Fin a → F
+s : Fin b → F
+z : Fin a → Bool
+x✝¹ : z ∈ univ
+j : Fin b → Bool
+x✝ : j ∈ univ
+hb : (fun i => bit (Fin.append z j i)) = Fin.append (fun i => bit (z i)) fun i => bit (j i)
+⊢ ((eqPoly r fun i => bit (z i)) * eqPoly s fun i => bit (j i)) * P ((Fin.appendEquiv a b) (z, j)) =
+    ((eqPoly r fun i => bit (z i)) * eqPoly s fun i => bit (j i)) * P (Fin.append z j)
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/SlotW16Sound.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/LayoutW16.lean
+rc build 0 files 1, 27 s
