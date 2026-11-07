@@ -26,6 +26,7 @@ here. The rates count proving and witness work. Verification time is recorded se
 | **production's stream, `stack-serve` (A22: the model loaded once, one request's sealing beside the last one's proof; A23: the resident blocks shared, their startup digests and checks reused, D72/D74), 4 requests, steady** | — (no production stream before A22; 29.2–29.7 with A22 alone) | **32.4–32.6 tok/s** (amortized 27.5–27.8; 8 requests 31.9–32.2 steady, 29.4–29.7 amortized; one request 20.2 tok/s) |
 | **a stream of 4 requests, steady (the harness)** | 15.9 tok/s | **32.3–33.4 tok/s** (amortized 28.8–29.6; latency 5.8–10.9 s) |
 | proof only | 22.7 tok/s | **32.5–34.2 tok/s** (best 3.75–3.94 s; it varies from run to run on the shared Mac) |
+| **the media app (Shieldstral classifier, R13 blocks, T128, 3 category proofs per post), through the app end to end: every receipt freshly verified, publication included (A24, 2026-11-07, merged 9be693d0; development mode `shieldstral-fast`, privacy statement pending, not production)** | 0.17 proved tok/s (r16b, CPU 2 threads; Astra 2026-11-05) | **one post 5.5 tok/s (70 s); an 8-post stream 11.4 tok/s** (269 s; second half 15.4) [MEASURED, public posts, single runs on the shared Mac] |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -278,6 +279,20 @@ here. The rates count proving and witness work. Verification time is recorded se
     - the extractor (the polynomial is the committed tables');
     - LogUp, the openings and M, plus the L8-5 transfer;
     - the receipt decoder, the D55 schedule and the simulator.
+- **The media app on the fast machinery (A24, 2026-11-07, merged 9be693d0)** [MEASURED; `results/zk60_a24_app_20261107/README.md`].
+  - What A24 built:
+    - `zk60_classify serve` keeps the classifier resident, loaded and checked once, and reuses the sealing pass's
+      witnesses.
+    - `check-serve` verifies each receipt once, where the CLI verified it three times.
+    - The app's new development mode `PM_PROVER=shieldstral-fast` uses both servers.
+  - The receipts are ordinary classify receipts: the unchanged CLI verifier accepts them. No 8B path changed.
+  - Every record says "privacy statement pending" and "not production". D58 covers only the r16b CPU binary; D63 still
+    holds.
+  - **11.4 proved tok/s for a stream of posts, from 0.17. Victor's 30 is not reached.**
+    - The stream is CPU-bound: about 300 core-seconds per category proof, a third of it verification.
+    - The next lever is the classifier on W16R2 blocks, about 1.8× fewer committed rows than R13 (efficiency plan
+      A10). Lane A25 is building it as a development profile for public posts.
+    - Using W16R2 for real content needs Victor's ruling (A10, after the W16R2 privacy gate).
 - **D63 Lean, per profile at W16R2 (2026-11-07, Victor away: "focus on completing the lean proofs")** [PROVED; each
   lane checked on the merged tree; docs `ZK60_LEAN_L9/L11/L12_*_20261107.md`].
   - The W16R3 freeze needs Victor's approval, so the per-profile proofs now target **W16R2**, the profile that the
