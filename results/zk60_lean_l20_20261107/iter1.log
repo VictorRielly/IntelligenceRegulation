@@ -1,0 +1,121 @@
+== lake build ZK60Formal.CountW16Chain ==
+✖ [3426/3426] Building ZK60Formal.CountW16Chain (7.6s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Chain.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Chain.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Chain.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Chain.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Chain.setup.json --json
+warning: ZK60Formal/CountW16Chain.lean:186:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:186:20: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:197:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CountW16Chain.lean:199:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CountW16Chain.lean:200:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/CountW16Chain.lean:210:18: Application type mismatch: The argument
+  add_le_add_right (min_le_right ?m.32 ?m.33) ?m.34
+has type
+  ?m.34 + min ?m.32 ?m.33 ≤ ?m.34 + ?m.33
+but is expected to have type
+  chargeC W sk εmax τ e.1 + potW W sk (τ ++ [e]) ≤ ?m.22
+in the application
+  le_trans (add_le_add_right (min_le_right ?m.32 ?m.33) ?m.34)
+error: ZK60Formal/CountW16Chain.lean:236:20: Application type mismatch: The argument
+  add_le_add_left (vSumFrom_chargeC_le C toT W sk εmax H ?m.61 its) ?m.62
+has type
+  C.vSumFrom (fun τ it => chargeC W sk εmax (List.map (toTE toT) τ) (toT it)) H ?m.61 its + ?m.62 ≤
+    potW W sk (List.map (toTE toT) ?m.61) + ?m.62
+but is expected to have type
+  chargeC W sk εmax (List.map (toTE toT) τ) (toT it) +
+      C.vSumFrom (fun τ it => chargeC W sk εmax (List.map (toTE toT) τ) (toT it)) H
+        (τ ++ [(it, H (C.link (C.lastD H τ) it))]) its ≤
+    ?m.51
+in the application
+  le_trans (add_le_add_left (vSumFrom_chargeC_le C toT W sk εmax H ?m.61 its) ?m.62)
+warning: ZK60Formal/CountW16Chain.lean:306:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:370:15: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/CountW16Chain.lean:441:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/CountW16Chain.lean:503:8: (kernel) unknown constant 'ZK60.Exec.fs_code_chain_ever_log_pos'
+Some required targets logged failures:
+- ZK60Formal.CountW16Chain
+error: build failed
+build rc 1 for ZK60Formal.CountW16Chain, 12 s
+== lake build ZK60Formal.CountW16Slots ==
+✖ [3455/3456] Building ZK60Formal.CountW16Chain (16s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Chain.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Chain.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Chain.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Chain.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Chain.setup.json --json
+warning: ZK60Formal/CountW16Chain.lean:186:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:186:20: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:197:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CountW16Chain.lean:199:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CountW16Chain.lean:200:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/CountW16Chain.lean:210:18: Application type mismatch: The argument
+  add_le_add_right (min_le_right ?m.32 ?m.33) ?m.34
+has type
+  ?m.34 + min ?m.32 ?m.33 ≤ ?m.34 + ?m.33
+but is expected to have type
+  chargeC W sk εmax τ e.1 + potW W sk (τ ++ [e]) ≤ ?m.22
+in the application
+  le_trans (add_le_add_right (min_le_right ?m.32 ?m.33) ?m.34)
+error: ZK60Formal/CountW16Chain.lean:236:20: Application type mismatch: The argument
+  add_le_add_left (vSumFrom_chargeC_le C toT W sk εmax H ?m.61 its) ?m.62
+has type
+  C.vSumFrom (fun τ it => chargeC W sk εmax (List.map (toTE toT) τ) (toT it)) H ?m.61 its + ?m.62 ≤
+    potW W sk (List.map (toTE toT) ?m.61) + ?m.62
+but is expected to have type
+  chargeC W sk εmax (List.map (toTE toT) τ) (toT it) +
+      C.vSumFrom (fun τ it => chargeC W sk εmax (List.map (toTE toT) τ) (toT it)) H
+        (τ ++ [(it, H (C.link (C.lastD H τ) it))]) its ≤
+    ?m.51
+in the application
+  le_trans (add_le_add_left (vSumFrom_chargeC_le C toT W sk εmax H ?m.61 its) ?m.62)
+warning: ZK60Formal/CountW16Chain.lean:306:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:370:15: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/CountW16Chain.lean:441:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/CountW16Chain.lean:503:8: (kernel) unknown constant 'ZK60.Exec.fs_code_chain_ever_log_pos'
+Some required targets logged failures:
+- ZK60Formal.CountW16Chain
+error: build failed
+build rc 1 for ZK60Formal.CountW16Slots, 33 s
+== lake build ZK60Formal.OpenKnowChain ==
+✖ [3448/3449] Building ZK60Formal.CountW16Chain (8.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Chain.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Chain.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Chain.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Chain.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Chain.setup.json --json
+warning: ZK60Formal/CountW16Chain.lean:186:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:186:20: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:197:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CountW16Chain.lean:199:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CountW16Chain.lean:200:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/CountW16Chain.lean:210:18: Application type mismatch: The argument
+  add_le_add_right (min_le_right ?m.32 ?m.33) ?m.34
+has type
+  ?m.34 + min ?m.32 ?m.33 ≤ ?m.34 + ?m.33
+but is expected to have type
+  chargeC W sk εmax τ e.1 + potW W sk (τ ++ [e]) ≤ ?m.22
+in the application
+  le_trans (add_le_add_right (min_le_right ?m.32 ?m.33) ?m.34)
+error: ZK60Formal/CountW16Chain.lean:236:20: Application type mismatch: The argument
+  add_le_add_left (vSumFrom_chargeC_le C toT W sk εmax H ?m.61 its) ?m.62
+has type
+  C.vSumFrom (fun τ it => chargeC W sk εmax (List.map (toTE toT) τ) (toT it)) H ?m.61 its + ?m.62 ≤
+    potW W sk (List.map (toTE toT) ?m.61) + ?m.62
+but is expected to have type
+  chargeC W sk εmax (List.map (toTE toT) τ) (toT it) +
+      C.vSumFrom (fun τ it => chargeC W sk εmax (List.map (toTE toT) τ) (toT it)) H
+        (τ ++ [(it, H (C.link (C.lastD H τ) it))]) its ≤
+    ?m.51
+in the application
+  le_trans (add_le_add_left (vSumFrom_chargeC_le C toT W sk εmax H ?m.61 its) ?m.62)
+warning: ZK60Formal/CountW16Chain.lean:306:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/CountW16Chain.lean:370:15: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/CountW16Chain.lean:441:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/CountW16Chain.lean:503:8: (kernel) unknown constant 'ZK60.Exec.fs_code_chain_ever_log_pos'
+Some required targets logged failures:
+- ZK60Formal.CountW16Chain
+error: build failed
+build rc 1 for ZK60Formal.OpenKnowChain, 43 s
+rc build 1 files 0, 43 s

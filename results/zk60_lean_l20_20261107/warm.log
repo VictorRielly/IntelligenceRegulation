@@ -1,0 +1,16 @@
+== lake build ZK60Formal.ExtractW16Chain ==
+Build completed successfully (3424 jobs).
+build rc 0 for ZK60Formal.ExtractW16Chain, 3 s
+== lake build ZK60Formal.ExtractW16Slots ==
+Build completed successfully (3429 jobs).
+build rc 0 for ZK60Formal.ExtractW16Slots, 5 s
+== lake build ZK60Formal.ExtractW16Terminal ==
+Build completed successfully (3431 jobs).
+build rc 0 for ZK60Formal.ExtractW16Terminal, 6 s
+== lake build ZK60Formal.ExtractW16Block ==
+Build completed successfully (3453 jobs).
+build rc 0 for ZK60Formal.ExtractW16Block, 8 s
+== lake build ZK60Formal.ExtractW16Open ==
+Build completed successfully (3446 jobs).
+build rc 0 for ZK60Formal.ExtractW16Open, 9 s
+rc build 0 files 0, 9 s

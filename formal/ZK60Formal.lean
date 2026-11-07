@@ -117,6 +117,11 @@ import ZK60Formal.ExtractW16Slots
 import ZK60Formal.ExtractW16Terminal
 import ZK60Formal.ExtractW16Block
 import ZK60Formal.ExtractW16Open
+import ZK60Formal.CountW16Chain
+import ZK60Formal.CountW16Slots
+import ZK60Formal.CountW16Target
+import ZK60Formal.OpenKnowChain
+import ZK60Formal.OpenKnowBlock
 import ZK60Formal.RelW16Chain
 import ZK60Formal.RelW16Define
 import ZK60Formal.LookupW16FS

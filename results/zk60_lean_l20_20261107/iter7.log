@@ -1,0 +1,7 @@
+== lake build ZK60Formal.CountW16Target ==
+Build completed successfully (3457 jobs).
+build rc 0 for ZK60Formal.CountW16Target, 5 s
+== lake build ZK60Formal.OpenKnowBlock ==
+Build completed successfully (3463 jobs).
+build rc 0 for ZK60Formal.OpenKnowBlock, 8 s
+rc build 0 files 0, 8 s

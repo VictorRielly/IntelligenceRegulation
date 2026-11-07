@@ -1,0 +1,111 @@
+== lake build ZK60Formal.CountW16Chain ==
+Build completed successfully (3426 jobs).
+build rc 0 for ZK60Formal.CountW16Chain, 4 s
+== lake build ZK60Formal.CountW16Slots ==
+✖ [3456/3456] Building ZK60Formal.CountW16Slots (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Slots.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Slots.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Slots.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Slots.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Slots.setup.json --json
+error: ZK60Formal/CountW16Slots.lean:65:11: Tactic `simp` failed with a nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.CountW16Slots
+error: build failed
+build rc 1 for ZK60Formal.CountW16Slots, 7 s
+== lake build ZK60Formal.CountW16Target ==
+✖ [3456/3457] Building ZK60Formal.CountW16Slots (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Slots.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Slots.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Slots.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Slots.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Slots.setup.json --json
+error: ZK60Formal/CountW16Slots.lean:65:11: Tactic `simp` failed with a nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.CountW16Slots
+error: build failed
+build rc 1 for ZK60Formal.CountW16Target, 11 s
+== lake build ZK60Formal.OpenKnowChain ==
+✖ [3449/3449] Building ZK60Formal.OpenKnowChain (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/OpenKnowChain.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/OpenKnowChain.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/OpenKnowChain.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/OpenKnowChain.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/OpenKnowChain.setup.json --json
+error: ZK60Formal/OpenKnowChain.lean:224:78: Unknown identifier `MinDist`
+
+Note: It is not possible to treat `MinDist` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/OpenKnowChain.lean:225:45: Unknown identifier `CAOn`
+
+Note: It is not possible to treat `CAOn` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/OpenKnowChain.lean:240:52: Unknown identifier `MinDist`
+
+Note: It is not possible to treat `MinDist` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+warning: ZK60Formal/OpenKnowChain.lean:263:0: automatically included section variable(s) unused in theorem `ZK60.Exec.opening_split`:
+  [Fintype F]
+  [DecidableEq F]
+  [DecidableEq κ]
+  [DecidableEq Cl]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype F] [DecidableEq F] [DecidableEq κ] [DecidableEq Cl] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/OpenKnowChain.lean:269:5: Variable name `hBal` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hBal
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/OpenKnowChain.lean:332:22: Unknown identifier `MinDist`
+
+Note: It is not possible to treat `MinDist` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/OpenKnowChain.lean:333:11: Unknown identifier `CAOn`
+
+Note: It is not possible to treat `CAOn` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/OpenKnowChain.lean:460:26: unexpected token ':='; expected ')', ',' or ':'
+error: ZK60Formal/OpenKnowChain.lean:496:26: unexpected token ':='; expected ')', ',' or ':'
+Some required targets logged failures:
+- ZK60Formal.OpenKnowChain
+error: build failed
+build rc 1 for ZK60Formal.OpenKnowChain, 15 s
+== lake build ZK60Formal.OpenKnowBlock ==
+✖ [3460/3463] Building ZK60Formal.CountW16Slots (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Slots.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Slots.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Slots.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Slots.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Slots.setup.json --json
+error: ZK60Formal/CountW16Slots.lean:65:11: Tactic `simp` failed with a nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+✖ [3462/3463] Building ZK60Formal.OpenKnowChain (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/OpenKnowChain.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/OpenKnowChain.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/OpenKnowChain.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/OpenKnowChain.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/OpenKnowChain.setup.json --json
+error: ZK60Formal/OpenKnowChain.lean:224:78: Unknown identifier `MinDist`
+
+Note: It is not possible to treat `MinDist` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/OpenKnowChain.lean:225:45: Unknown identifier `CAOn`
+
+Note: It is not possible to treat `CAOn` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/OpenKnowChain.lean:240:52: Unknown identifier `MinDist`
+
+Note: It is not possible to treat `MinDist` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+warning: ZK60Formal/OpenKnowChain.lean:263:0: automatically included section variable(s) unused in theorem `ZK60.Exec.opening_split`:
+  [Fintype F]
+  [DecidableEq F]
+  [DecidableEq κ]
+  [DecidableEq Cl]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype F] [DecidableEq F] [DecidableEq κ] [DecidableEq Cl] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/OpenKnowChain.lean:269:5: Variable name `hBal` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hBal
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/OpenKnowChain.lean:332:22: Unknown identifier `MinDist`
+
+Note: It is not possible to treat `MinDist` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/OpenKnowChain.lean:333:11: Unknown identifier `CAOn`
+
+Note: It is not possible to treat `CAOn` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/OpenKnowChain.lean:460:26: unexpected token ':='; expected ')', ',' or ':'
+error: ZK60Formal/OpenKnowChain.lean:496:26: unexpected token ':='; expected ')', ',' or ':'
+Some required targets logged failures:
+- ZK60Formal.CountW16Slots
+- ZK60Formal.OpenKnowChain
+error: build failed
+build rc 1 for ZK60Formal.OpenKnowBlock, 19 s
+rc build 1 files 0, 19 s
