@@ -1,0 +1,27 @@
+root 2^9: equal
+root 2^12: equal
+root 2^14: equal
+root 2^16: equal
+M m-honest: accepted, transcript equal [ok] (11522 ms)
+M m-honest: L9's maskTranscript ends where the crate's verifier does [ok]
+M m-q0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: mask: the product polynomial's sum != the combined functional [ok] (15 ms)
+M m-prox3: Lean refused (mask: column index), the crate: mask: column index [ok] (122 ms)
+M m-value0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: mask: the product polynomial's sum != the combined functional [ok] (14 ms)
+M m-col0: Lean refused (mask: Merkle path for column 2239 fails), the crate: mask: Merkle path for column 2239 fails [ok] (124 ms)
+M m-index1: Lean refused (mask: column index), the crate: mask: column index [ok] (164 ms)
+PCS a-honest: accepted, transcript equal [ok] (576215 ms)
+PCS a-honest: L9's pcsTranscript ends where the crate's verifier does [ok]
+PCS h-honest: accepted, transcript equal [ok] (178568 ms)
+PCS h-honest: L9's pcsTranscript ends where the crate's verifier does [ok]
+PCS a-vec0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claim [ok] (25977 ms)
+PCS a-claim0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claim [ok] (25870 ms)
+PCS h-pad0: Lean refused (pcs zk: column index 53240 != sampled 62635), the crate: pcs zk: column index 53240 != sampled 62635 [ok] (16457 ms)
+PCS h-col0: Lean refused (pcs zk: Merkle path for column 53240 fails), the crate: pcs zk: Merkle path for column 53240 fails [ok] (16587 ms)
+PCS h-index1: Lean refused (pcs zk: column index 22900 != sampled 22901), the crate: pcs zk: column index 22900 != sampled 22901 [ok] (17238 ms)
+PCS h-ncols: Lean refused (pcs zk: wrong number of columns), the crate: pcs zk: wrong number of columns [ok] (16378 ms)
+PCS h-coef0: Lean refused (pcs zk: column 53240 disagrees with clear vector 0), the crate: pcs zk: column 53240 disagrees with clear vector 0 [ok] (16919 ms)
+CHECK chk-a: Lean's check_opening accepts [ok] (134 ms)
+CHECK chk-h: Lean's check_opening accepts [ok] (62 ms)
+CHECK chk-h-groups: Lean refused (private block: 9 opening groups, the schedule declares 10), the crate: private block: 9 opening groups, the schedule declares 10 [ok] (7 ms)
+CHECK chk-a-prox: Lean refused (private block: mask schedule audit: proximity pair placement), the crate: private block: mask schedule audit: proximity pair placement [ok] (1 ms)
+CheckR13Open: 35 checks, 0 failed

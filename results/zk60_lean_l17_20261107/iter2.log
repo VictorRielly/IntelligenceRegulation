@@ -1,0 +1,144 @@
+== lake build ZK60Formal.LayoutR13 ==
+✖ [3359/3359] Building ZK60Formal.LayoutR13 (12s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/LayoutR13.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean/ZK60Formal/LayoutR13.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean/ZK60Formal/LayoutR13.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/ir/ZK60Formal/LayoutR13.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/ir/ZK60Formal/LayoutR13.setup.json --json
+error: ZK60Formal/LayoutR13.lean:668:6: 'show' tactic failed, pattern
+  CodeTable allFams P.exp P.act S.nG (rangeQuery (tagW 16) (E.H (L.fPos p) - 2 ^ 16 * (E.hl 2 (L.fPos p) - 128)))
+is not definitionally equal to target
+  ∀ q ∈ remLk S.sup ((E.toW16 S).ru.lo (L.fPos p)) ((E.toW16 S).ru.hi (L.fPos p)), CodeTable allFams P.exp P.act S.nG q
+error: ZK60Formal/LayoutR13.lean:674:6: 'show' tactic failed, pattern
+  CodeTable allFams P.exp P.act S.nG (rangeQuery (tagW 8) (E.hl 2 (L.fPos p) - 128 + 128))
+is not definitionally equal to target
+  CodeTable allFams P.exp P.act S.nG
+    (rangeQuery (tagW 16) ((E.toW16 S).H (L.fPos p) - 2 ^ 16 * (E.toW16 S).Htop (L.fPos p)))
+error: ZK60Formal/LayoutR13.lean:680:6: Type mismatch
+  rem S.sprod
+    (Eq.mpr (id (congrArg (fun _a => _a ≤ 32) hprod))
+      (Mathlib.Meta.NormNum.isNat_le_true (Mathlib.Meta.NormNum.isNat_ofNat ℕ (Eq.refl 16))
+        (Mathlib.Meta.NormNum.isNat_ofNat ℕ (Eq.refl 32)) (Eq.refl true)))
+    (lv E.rh (L.fPos p)) h16
+has type
+  ∀ q ∈ remLk S.sprod (splitLo S.sprod (lv E.rh (L.fPos p))) (splitHi S.sprod (lv E.rh (L.fPos p))),
+    CodeTable allFams P.exp P.act S.nG q
+but is expected to have type
+  CodeTable allFams P.exp P.act S.nG (rangeQuery (tagW 8) ((E.toW16 S).Htop (L.fPos p) + 128)) ∧
+    ∀ q ∈ remLk S.sprod ((E.toW16 S).rh.lo (L.fPos p)) ((E.toW16 S).rh.hi (L.fPos p)),
+      CodeTable allFams P.exp P.act S.nG q
+Some required targets logged failures:
+- ZK60Formal.LayoutR13
+error: build failed
+build rc 1 for ZK60Formal.LayoutR13 (18 s)
+== lake build ZK60Formal.ShapeR13 ==
+✖ [3359/3360] Building ZK60Formal.LayoutR13 (2.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/LayoutR13.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean/ZK60Formal/LayoutR13.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/lib/lean/ZK60Formal/LayoutR13.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/ir/ZK60Formal/LayoutR13.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/.lake/build/ir/ZK60Formal/LayoutR13.setup.json --json
+error: ZK60Formal/LayoutR13.lean:668:6: 'show' tactic failed, pattern
+  CodeTable allFams P.exp P.act S.nG (rangeQuery (tagW 16) (E.H (L.fPos p) - 2 ^ 16 * (E.hl 2 (L.fPos p) - 128)))
+is not definitionally equal to target
+  ∀ q ∈ remLk S.sup ((E.toW16 S).ru.lo (L.fPos p)) ((E.toW16 S).ru.hi (L.fPos p)), CodeTable allFams P.exp P.act S.nG q
+error: ZK60Formal/LayoutR13.lean:674:6: 'show' tactic failed, pattern
+  CodeTable allFams P.exp P.act S.nG (rangeQuery (tagW 8) (E.hl 2 (L.fPos p) - 128 + 128))
+is not definitionally equal to target
+  CodeTable allFams P.exp P.act S.nG
+    (rangeQuery (tagW 16) ((E.toW16 S).H (L.fPos p) - 2 ^ 16 * (E.toW16 S).Htop (L.fPos p)))
+error: ZK60Formal/LayoutR13.lean:680:6: Type mismatch
+  rem S.sprod
+    (Eq.mpr (id (congrArg (fun _a => _a ≤ 32) hprod))
+      (Mathlib.Meta.NormNum.isNat_le_true (Mathlib.Meta.NormNum.isNat_ofNat ℕ (Eq.refl 16))
+        (Mathlib.Meta.NormNum.isNat_ofNat ℕ (Eq.refl 32)) (Eq.refl true)))
+    (lv E.rh (L.fPos p)) h16
+has type
+  ∀ q ∈ remLk S.sprod (splitLo S.sprod (lv E.rh (L.fPos p))) (splitHi S.sprod (lv E.rh (L.fPos p))),
+    CodeTable allFams P.exp P.act S.nG q
+but is expected to have type
+  CodeTable allFams P.exp P.act S.nG (rangeQuery (tagW 8) ((E.toW16 S).Htop (L.fPos p) + 128)) ∧
+    ∀ q ∈ remLk S.sprod ((E.toW16 S).rh.lo (L.fPos p)) ((E.toW16 S).rh.hi (L.fPos p)),
+      CodeTable allFams P.exp P.act S.nG q
+Some required targets logged failures:
+- ZK60Formal.LayoutR13
+error: build failed
+build rc 1 for ZK60Formal.ShapeR13 (22 s)
+rc build 1 files 0, 22 s
+== CheckR13Slots ==
+rc 0 (26 s)
+  ASCII: 1
+  head: 1
+  tags: 1
+  slot-index: 23
+  kind: 23
+  schedule: 23
+  terms: 23
+  draws: 23
+  draw-layout: 23
+  hosted: 23
+  claim-points: 15
+  ir-shape: 22
+  ir-degree: 22
+  verify-arm-parts: 10
+  ir-challenges: 155
+  ir-template: 6
+  verify-arm: 12
+  verify-arm-noir: 1
+  slot-count: 1
+DEGREE GAP (info) slot 14: declared degree 5, computed 4
+DEGREE GAP (info) slot 18: declared degree 5, computed 4
+CheckR13Slots: 408 checks, 0 failed
+== CheckR13Block ==
+rc 0 (407 s)
+  ASCII: 13
+  SHAPE: 1
+  SCHEDULE: 4
+  FRAME: 3
+  TAG: 2
+  DECODE: 3
+  FIELDS: 5
+  SLOT: 1
+  LOGUP: 1
+  SLOTS: 2
+  SLOT-DRAWS: 23
+  SLOT-C: 23
+  SLOT-SCALAR: 23
+  SLOT-CLAIMED: 23
+  SLOT-RHO: 23
+  SLOT-FIN: 23
+  SLOT-TERMS: 23
+  SLOT-HOSTED: 23
+  SLOT-STATE: 23
+  FUNCTIONALS: 1
+  MASK: 4
+  OPEN: 2
+  PCS: 8
+  END: 1
+  FORK: 2
+  TAMPER: 13
+  SEG-SHAPE: 2
+  SEG-FRAME: 2
+  SEG-DECODE: 4
+  SEG-FIELDS: 7
+  SEG-TAMPER: 14
+CheckR13Block: 302 checks, 0 failed
+== CheckR13Open (reduced corpus) ==
+mksmall: 17 records kept, 2 dropped -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l17_open_small.txt
+rc 0 (565 s)
+root 2^9: equal
+root 2^12: equal
+root 2^14: equal
+root 2^16: equal
+M m-honest: accepted, transcript equal [ok] (11639 ms)
+M m-honest: L9's maskTranscript ends where the crate's verifier does [ok]
+M m-q0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: mask: the product polynomial's sum != the combined functional [ok] (15 ms)
+M m-prox3: Lean refused (mask: column index), the crate: mask: column index [ok] (120 ms)
+M m-value0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: mask: the product polynomial's sum != the combined functional [ok] (14 ms)
+M m-col0: Lean refused (mask: Merkle path for column 2239 fails), the crate: mask: Merkle path for column 2239 fails [ok] (124 ms)
+M m-index1: Lean refused (mask: column index), the crate: mask: column index [ok] (166 ms)
+PCS a-vec0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claim [ok] (26237 ms)
+PCS a-claim0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claim [ok] (26327 ms)
+PCS h-pad0: Lean refused (pcs zk: column index 53240 != sampled 62635), the crate: pcs zk: column index 53240 != sampled 62635 [ok] (16051 ms)
+PCS h-col0: Lean refused (pcs zk: Merkle path for column 53240 fails), the crate: pcs zk: Merkle path for column 53240 fails [ok] (16268 ms)
+PCS h-index1: Lean refused (pcs zk: column index 22900 != sampled 22901), the crate: pcs zk: column index 22900 != sampled 22901 [ok] (16840 ms)
+PCS h-ncols: Lean refused (pcs zk: wrong number of columns), the crate: pcs zk: wrong number of columns [ok] (16261 ms)
+PCS h-coef0: Lean refused (pcs zk: column 53240 disagrees with clear vector 0), the crate: pcs zk: column 53240 disagrees with clear vector 0 [ok] (16808 ms)
+CHECK chk-a: Lean's check_opening accepts [ok] (133 ms)
+CHECK chk-h: Lean's check_opening accepts [ok] (63 ms)
+CHECK chk-h-groups: Lean refused (private block: 9 opening groups, the schedule declares 10), the crate: private block: 9 opening groups, the schedule declares 10 [ok] (7 ms)
+CHECK chk-a-prox: Lean refused (private block: mask schedule audit: proximity pair placement), the crate: private block: mask schedule audit: proximity pair placement [ok] (0 ms)
+CheckR13Open: 29 checks, 0 failed
+total 565 s, iterate rc 1

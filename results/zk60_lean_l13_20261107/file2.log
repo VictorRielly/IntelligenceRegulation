@@ -1,0 +1,209 @@
+== lake build ZK60Formal.SlotW16Build ZK60Formal.SlotW16BuildEval ZK60Formal.SlotW16BuildSlots ZK60Formal.SlotW16BuildLayout ==
+✖ [3395/3397] Building ZK60Formal.SlotW16BuildEval (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/ZK60Formal/SlotW16BuildEval.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean/ZK60Formal/SlotW16BuildEval.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean/ZK60Formal/SlotW16BuildEval.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/ir/ZK60Formal/SlotW16BuildEval.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/ir/ZK60Formal/SlotW16BuildEval.setup.json --json
+error: ZK60Formal/SlotW16BuildEval.lean:81:2: Type mismatch
+  rfl
+has type
+  ?m.52 = ?m.52
+but is expected to have type
+  (logupGo c h0 mu x✝¹ x✝ [head✝]).2.length = 3 * ([head✝].length / 2) + 2 * ([head✝].length % 2)
+error: ZK60Formal/SlotW16BuildEval.lean:99:96: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+v : List R
+h0 : ℕ
+mu : ℕ → R
+k : ℕ
+l : LkD R
+acc : List R
+ext : List (Body R)
+t : List R
+ht :
+  nodeVals v ext (acc ++ [denV v l] ++ [c.one * (v.getD (h0 + k) 0 * (denV v l * 1)) + c.negOne * 1]) =
+    acc ++ [denV v l] ++ [c.one * (v.getD (h0 + k) 0 * (denV v l * 1)) + c.negOne * 1] ++ t
+⊢ acc ++ [l.konst + (List.map (fun p => p.1 * v.getD p.2 0) l.terms).sum] ++
+      [(st c.one [Factor.tab (h0 + k), Factor.node acc.length]).coef *
+            (List.map (fval v (acc ++ [l.konst + (List.map (fun p => p.1 * v.getD p.2 0) l.terms).sum]))
+                (st c.one [Factor.tab (h0 + k), Factor.node acc.length]).factors).prod +
+          (st c.negOne []).coef *
+            (List.map (fval v (acc ++ [l.konst + (List.map (fun p => p.1 * v.getD p.2 0) l.terms).sum]))
+                (st c.negOne []).factors).prod] =
+    acc ++ [l.konst + (List.map (fun p => p.1 * v.getD p.2 0) l.terms).sum] ++
+      [c.one * (v.getD (h0 + k) 0 * ((l.konst + (List.map (fun p => p.1 * v.getD p.2 0) l.terms).sum) * 1)) +
+          c.negOne * 1]
+error: ZK60Formal/SlotW16BuildEval.lean:105:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (?A ++ ?B).getD (List.length ?A + ?j) ?d
+in the target expression
+  (st (mu k) [Factor.node (acc.length + 1)]).coef *
+      (List.map
+          (fval v
+            (acc ++ denV v l :: ([] ++ (c.one * (v.getD (h0 + k) 0 * (denV v l * 1)) + c.negOne * 1) :: ([] ++ t))))
+          (st (mu k) [Factor.node (acc.length + 1)]).factors).prod =
+    mu k * (c.one * (v.getD (h0 + k) 0 * denV v l) + c.negOne)
+
+R : Type
+inst✝ : CommRing R
+c : Cst R
+v : List R
+h0 : ℕ
+mu : ℕ → R
+k : ℕ
+l : LkD R
+acc : List R
+ext : List (Body R)
+t : List R
+ht :
+  nodeVals v ext (acc ++ [denV v l] ++ [c.one * (v.getD (h0 + k) 0 * (denV v l * 1)) + c.negOne * 1]) =
+    acc ++ [denV v l] ++ [c.one * (v.getD (h0 + k) 0 * (denV v l * 1)) + c.negOne * 1] ++ t
+hn :
+  nodeVals v (logupGo c h0 mu k acc.length [l]).2 acc =
+    acc ++ [denV v l] ++ [c.one * (v.getD (h0 + k) 0 * (denV v l * 1)) + c.negOne * 1]
+⊢ (st (mu k) [Factor.node (acc.length + 1)]).coef *
+      (List.map
+          (fval v
+            (acc ++ denV v l :: ([] ++ (c.one * (v.getD (h0 + k) 0 * (denV v l * 1)) + c.negOne * 1) :: ([] ++ t))))
+          (st (mu k) [Factor.node (acc.length + 1)]).factors).prod =
+    mu k * (c.one * (v.getD (h0 + k) 0 * denV v l) + c.negOne)
+error: ZK60Formal/SlotW16BuildEval.lean:113:33: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+v : List R
+h0 : ℕ
+mu : ℕ → R
+k : ℕ
+l₁ l₂ : LkD R
+ls : List (LkD R)
+acc : List R
+ext : List (Body R)
+d₁ : R := denV v l₁
+d₂ : R := denV v l₂
+rv : R := c.one * (v.getD (h0 + k) 0 * (d₁ * (d₂ * 1))) + (c.negOne * (d₁ * 1) + (c.negOne * (d₂ * 1) + 0))
+⊢ (st c.one [Factor.tab (h0 + k), Factor.node acc.length, Factor.node (acc.length + 1)]).coef *
+        (List.map
+            (fval v
+              (acc ++
+                [l₁.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₁.terms).sum,
+                  l₂.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₂.terms).sum]))
+            (st c.one [Factor.tab (h0 + k), Factor.node acc.length, Factor.node (acc.length + 1)]).factors).prod +
+      ((st c.negOne [Factor.node acc.length]).coef *
+          (List.map
+              (fval v
+                (acc ++
+                  [l₁.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₁.terms).sum,
+                    l₂.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₂.terms).sum]))
+              (st c.negOne [Factor.node acc.length]).factors).prod +
+        (st c.negOne [Factor.node (acc.length + 1)]).coef *
+          (List.map
+              (fval v
+                (acc ++
+                  [l₁.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₁.terms).sum,
+                    l₂.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₂.terms).sum]))
+              (st c.negOne [Factor.node (acc.length + 1)]).factors).prod) =
+    c.one *
+        (v[h0 + k]?.getD 0 *
+          ((l₁.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₁.terms).sum) *
+            (l₂.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₂.terms).sum))) +
+      (c.negOne * (l₁.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₁.terms).sum) +
+        c.negOne * (l₂.konst + (List.map (fun p => p.1 * v[p.2]?.getD 0) l₂.terms).sum))
+error: ZK60Formal/SlotW16BuildEval.lean:129:55: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (?A ++ ?B).getD (List.length ?A + ?j) ?d
+in the target expression
+  (st (mu k) [Factor.node (acc.length + 2)]).coef *
+        (List.map (fval v (acc ++ d₁ :: d₂ :: rv :: (t' ++ t)))
+            (st (mu k) [Factor.node (acc.length + 2)]).factors).prod +
+      logupSem c v h0 mu (k + 1) ls =
+    logupSem c v h0 mu k (l₁ :: l₂ :: ls)
+
+R : Type
+inst✝ : CommRing R
+c : Cst R
+v : List R
+h0 : ℕ
+mu : ℕ → R
+k : ℕ
+l₁ l₂ : LkD R
+ls : List (LkD R)
+acc : List R
+ext : List (Body R)
+d₁ : R := denV v l₁
+d₂ : R := denV v l₂
+rv : R := c.one * (v.getD (h0 + k) 0 * (d₁ * (d₂ * 1))) + (c.negOne * (d₁ * 1) + (c.negOne * (d₂ * 1) + 0))
+hn :
+  nodeVals v
+      [denB l₁, denB l₂,
+        Body.sum
+          [st c.one [Factor.tab (h0 + k), Factor.node acc.length, Factor.node (acc.length + 1)],
+            st c.negOne [Factor.node acc.length], st c.negOne [Factor.node (acc.length + 1)]]]
+      acc =
+    acc ++ [d₁, d₂, rv]
+hacc : (acc ++ [d₁, d₂, rv]).length = acc.length + 3
+ih :
+  (List.map
+        (stVal v (nodeVals v ext (nodeVals v (logupGo c h0 mu (k + 1) (acc.length + 3) ls).2 (acc ++ [d₁, d₂, rv]))))
+        (logupGo c h0 mu (k + 1) (acc.length + 3) ls).1).sum =
+    logupSem c v h0 mu (k + 1) ls
+t : List R
+ht :
+  nodeVals v ext (nodeVals v (logupGo c h0 mu (k + 1) (acc.length + 3) ls).2 (acc ++ [d₁, d₂, rv])) =
+    nodeVals v (logupGo c h0 mu (k + 1) (acc.length + 3) ls).2 (acc ++ [d₁, d₂, rv]) ++ t
+t' : List R
+ht' : nodeVals v (logupGo c h0 mu (k + 1) (acc.length + 3) ls).2 (acc ++ [d₁, d₂, rv]) = acc ++ [d₁, d₂, rv] ++ t'
+⊢ (st (mu k) [Factor.node (acc.length + 2)]).coef *
+        (List.map (fval v (acc ++ d₁ :: d₂ :: rv :: (t' ++ t)))
+            (st (mu k) [Factor.node (acc.length + 2)]).factors).prod +
+      logupSem c v h0 mu (k + 1) ls =
+    logupSem c v h0 mu k (l₁ :: l₂ :: ls)
+warning: ZK60Formal/SlotW16BuildEval.lean:100:42: This simp argument is unused:
+  bodyVal_sum
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [logupGo, nodeVals, denB, stVal, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil,
+    List.prod_cons, List.prod_nil, fval, add_zero, getD_len, List.getD_cons_zero, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:100:55: This simp argument is unused:
+  stVal
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [logupGo, nodeVals, denB, bodyVal_sum, bodyVal, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, fval, add_zero, getD_len, List.getD_cons_zero, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:101:22: This simp argument is unused:
+  List.prod_cons
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [logupGo, nodeVals, denB, bodyVal_sum, stVal, bodyVal, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_nil, fval, add_zero, getD_len, List.getD_cons_zero, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:101:38: This simp argument is unused:
+  List.prod_nil
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [logupGo, nodeVals, denB, bodyVal_sum, stVal, bodyVal, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, fval, add_zero, getD_len, List.getD_cons_zero, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:101:53: This simp argument is unused:
+  fval
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [logupGo, nodeVals, denB, bodyVal_sum, stVal, bodyVal, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, add_zero, getD_len, List.getD_cons_zero, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:101:69: This simp argument is unused:
+  getD_len
+
+Hint: Omit it from the simp argument list.
+build rc 1
+== lean formal/ZK60Formal/SlotW16BuildCheck.lean ==
+formal/ZK60Formal/SlotW16BuildCheck.lean:207:99: error(lean.invalidField): Invalid field `toList`: The environment does not contain `String.Slice.toList`, so it is not possible to project the field `toList` from an expression
+  x
+of type `String.Slice`
+formal/ZK60Formal/SlotW16BuildCheck.lean:545:6: error: mutable variable `s` cannot be shadowed
+rc 1 for formal/ZK60Formal/SlotW16BuildCheck.lean
+rc build 1 files 1, 55 s

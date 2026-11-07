@@ -1,0 +1,20 @@
+FAILED claimed: slot 0
+FAILED verify-arm: slot 0
+FAILED schedule: slot 2
+FAILED verify-arm: slot 3
+FAILED eq-point: slot 4
+FAILED verify-arm: slot 4
+FAILED sumcheck: slot 5
+FAILED verify-arm: slot 6
+  logup: 1
+  slot-count: 1
+  schedule: 8
+  draws: 8
+  tables: 8
+  eq-point: 5
+  public-len: 18
+  hosted: 8
+  claimed: 8
+  sumcheck: 8
+  verify-arm: 8
+StageCheckOutC: 81 checks, 8 failed

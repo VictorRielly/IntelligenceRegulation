@@ -1,0 +1,148 @@
+== lake build ZK60Formal.ZKW16Prog ==
+Build completed successfully (3392 jobs).
+build rc 0
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:59:14: error(lean.unknownIdentifier): Unknown constant `ENNReal.div_left_inj`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:48:85: error: unsolved goals
+C O : Type
+inst✝² : Fintype C
+inst✝¹ : Nonempty C
+f g : C → O
+h : PMF.map f (PMF.uniformOfFintype C) = PMF.map g (PMF.uniformOfFintype C)
+S : Set O
+inst✝ : DecidablePred fun x => x ∈ S
+e : ∀ (u : C → O), (PMF.map u (PMF.uniformOfFintype C)).toOuterMeasure S = ↑(#{c | u c ∈ S}) / ↑(Fintype.card C)
+h2 : ↑(#{c | g c ∈ S}) / ↑(Fintype.card C) = ↑(#{c | f c ∈ S}) / ↑(Fintype.card C)
+hC0 : ↑(Fintype.card C) ≠ 0
+hCt : ↑(Fintype.card C) ≠ ∞
+⊢ #{c | f c ∈ S} = #{c | g c ∈ S}
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:97:0: warning: automatically included section variable(s) unused in theorem `ZK60.ZKW16.FSModel.progVis_agree`:
+  [Inhabited D]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited D] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:213:2: error: Type mismatch
+  card_preimage_eq_of_map_eq (hHV (OC.run H A₁) v)
+    {o | F (OC.run H A₁) ∧ OC.run (M.progVis o H v) (A₂ (OC.run H A₁) o) = true}
+has type
+  #{c | M.out (x (OC.run H A₁)) c v ∈ {o | F (OC.run H A₁) ∧ OC.run (M.progVis o H v) (A₂ (OC.run H A₁) o) = true}} =
+    #{c | M.out (x' (OC.run H A₁)) c v ∈ {o | F (OC.run H A₁) ∧ OC.run (M.progVis o H v) (A₂ (OC.run H A₁) o) = true}}
+but is expected to have type
+  #{b | M.unprogEv A₁ x A₂ F (H, b, v)} = #{b | M.unprogEv A₁ x' A₂ F (H, b, v)}
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:231:16: error: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression
+  hs
+has type
+  Quot.lift (fun l => s ∈ l) ⋯ {s | F (OC.run H A₁) ∧ ¬Function.Injective (M.pts (x (OC.run H A₁)) s.1 H s.2)}.val
+which is not a one-constructor inductive type.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:261:23: error: Tactic `rcases` failed: `hc : Quot.lift (fun l => c ∈ l) ⋯
+  {c |
+      F (OC.run H A₁) ∧
+        ∃ z ∈ OC.queries (M.progVis (M.out (x (OC.run H A₁)) c v) H v) (A₂ (OC.run H A₁) (M.out (x (OC.run H A₁)) c v)),
+          ∃ i, ¬M.vis v i ∧ M.pts (x (OC.run H A₁)) c H v i = z}.val` is not an inductive datatype
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:301:7: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  DecidablePred fun c => ∃ i, ¬M.vis v i ∧ M.pts x c H v i ∈ Z (M.out x c v)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:335:46: error: Type mismatch
+  rfl
+has type
+  ?m.682 = ?m.682
+but is expected to have type
+  {ω | F (OC.run ω.1 A₁) ∧ apIdeal (fun a c H v => M.pts (u a) c H v) A₁ (fun a c v => A₂ a (M.out (u a) c v)) ω} =
+    filter (M.progEv A₁ u A₂ F) univ
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:359:4: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  o ≥ 0
+  n ≥ 0
+  m ≥ 0
+  l ≥ 0
+  j ≥ 0
+  j + n + o ≥ 0
+  2*j - l + m + 2*n + 2*o ≤ -1
+  i ≥ 0
+  h ≥ 0
+  g ≥ 0
+  g - j - m ≤ 0
+  g + j - m ≥ 0
+  f ≥ 0
+  f - i ≤ 0
+  e ≥ 0
+  e - h ≤ 0
+  d ≥ 0
+  d - e - f - g ≤ 0
+  d + e + f - g ≥ 0
+  c ≥ 0
+  c - j - l ≤ 0
+  c + j - l ≥ 0
+  b ≥ 0
+  b - i ≤ 0
+  a ≥ 0
+  a - h ≤ 0
+  a + b - c + d ≥ 0
+  a + b + c - d ≥ 0
+where
+ a := ↑(#(filter (M.collEv A₁ x F) univ))
+ b := ↑(#(filter (M.hidEv A₁ x A₂ F) univ))
+ c := ↑(#(filter (M.progEv A₁ x A₂ F) univ))
+ d := ↑(#(filter (M.unprogEv A₁ x' A₂ F) univ))
+ e := ↑(#(filter (M.collEv A₁ x' F) univ))
+ f := ↑(#(filter (M.hidEv A₁ x' A₂ F) univ))
+ g := ↑(#(filter (M.progEv A₁ x' A₂ F) univ))
+ h := ↑(#{H | F (OC.run H A₁)}) * ↑Kc
+ i := ↑(#{H | F (OC.run H A₁)}) * ↑(Fintype.card (Fin M.k → D) * (q₂ * KU))
+ j := ↑NF * ↑(q₁ * K + Kc)
+ l := ↑(#{ω | F (OC.run ω.1 A₁) ∧ apReal (fun a c H v => M.pts (x a) c H v) A₁ (fun a c v => A₂ a (M.out (x a) c v)) ω})
+ m := ↑(#{ω |
+      F (OC.run ω.1 A₁) ∧ apReal (fun a c H v => M.pts (x' a) c H v) A₁ (fun a c v => A₂ a (M.out (x' a) c v)) ω})
+ n := ↑NF * ↑Kc
+ o := ↑NF * ↑(NV * (q₂ * KU))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:362:4: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  o ≥ 0
+  n ≥ 0
+  m ≥ 0
+  l ≥ 0
+  j ≥ 0
+  j + n + o ≥ 0
+  2*j - l + m + 2*n + 2*o ≥ 0
+  2*j + l - m + 2*n + 2*o ≤ -1
+  i ≥ 0
+  h ≥ 0
+  g ≥ 0
+  g - j - m ≤ 0
+  g + j - m ≥ 0
+  f ≥ 0
+  f - i ≤ 0
+  e ≥ 0
+  e - h ≤ 0
+  d ≥ 0
+  d - e - f - g ≤ 0
+  d + e + f - g ≥ 0
+  c ≥ 0
+  c - j - l ≤ 0
+  c + j - l ≥ 0
+  b ≥ 0
+  b - i ≤ 0
+  a ≥ 0
+  a - h ≤ 0
+  a + b - c + d ≥ 0
+  a + b + c - d ≥ 0
+where
+ a := ↑(#(filter (M.collEv A₁ x F) univ))
+ b := ↑(#(filter (M.hidEv A₁ x A₂ F) univ))
+ c := ↑(#(filter (M.progEv A₁ x A₂ F) univ))
+ d := ↑(#(filter (M.unprogEv A₁ x' A₂ F) univ))
+ e := ↑(#(filter (M.collEv A₁ x' F) univ))
+ f := ↑(#(filter (M.hidEv A₁ x' A₂ F) univ))
+ g := ↑(#(filter (M.progEv A₁ x' A₂ F) univ))
+ h := ↑(#{H | F (OC.run H A₁)}) * ↑Kc
+ i := ↑(#{H | F (OC.run H A₁)}) * ↑(Fintype.card (Fin M.k → D) * (q₂ * KU))
+ j := ↑NF * ↑(q₁ * K + Kc)
+ l := ↑(#{ω | F (OC.run ω.1 A₁) ∧ apReal (fun a c H v => M.pts (x a) c H v) A₁ (fun a c v => A₂ a (M.out (x a) c v)) ω})
+ m := ↑(#{ω |
+      F (OC.run ω.1 A₁) ∧ apReal (fun a c H v => M.pts (x' a) c H v) A₁ (fun a c v => A₂ a (M.out (x' a) c v)) ω})
+ n := ↑NF * ↑Kc
+ o := ↑NF * ↑(NV * (q₂ * KU))
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean
+rc build 0 files 1, 21 s

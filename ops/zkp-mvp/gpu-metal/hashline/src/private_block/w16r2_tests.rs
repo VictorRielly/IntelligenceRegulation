@@ -82,6 +82,11 @@ use zkp_core::rng::ZkRng;
 #[path = "lean_l11_export_tests.rs"]
 mod lean_l11_export_tests;
 
+// D63 step L13 (2026-11-07): the Lean lane's W16R2 layout facts at the three W16R2 profiles (test only)
+#[cfg(test)]
+#[path = "lean_l13_export_tests.rs"]
+mod lean_l13_export_tests;
+
 /// each W16R2 profile beside its W16 sibling (the same geometry, rate 1/4)
 const PAIRS: [(&str, &str); 3] = [
     (shape::W16R2_RUNG_H24, shape::W16_RUNG_H24),
@@ -166,6 +171,10 @@ fn seeded_digest(sh: &Shape, blk: &BlockPublic, w: Witness) -> String {
 // D63 step L9 (Lean lane, 2026-11-07): the W16R2 rung block framed and every transcript challenge exported for the
 // Lean block verifier; a child of this module so that it uses the harness above
 #[cfg(test)] #[path = "lean_l9_export_tests.rs"] mod lean_l9_export_tests;
+
+// D63 Lean lane L17 (2026-11-07): the R13 block's agreement corpora (L9's, L10's and L11's formats, a real D12a
+// segment, the Shieldstral R13 shape's facts), a child of this module so that it uses the harness above
+#[cfg(test)] #[path = "lean_l17_export_tests.rs"] mod lean_l17_export_tests;
 
 /// the bytes of one block core: `(total, A opening, H opening, M opening, slots)`
 fn core_bytes(core: &CoreProof) -> (usize, usize, usize, usize, usize) {

@@ -1,0 +1,45 @@
+# D63 L17 R13 D12a segment corpus (hashline src/private_block/lean_l17_export_tests.rs)
+META hashline-zk-mr1/private-block-rung-lh-t32-dev/2 hashline-zk-mr1/private-run-rung-lh-t32-dev/2 R13_RUNG_H24
+SEGMENT 15838024 c3c54f5e23bd2ff867835b3ae7d548c83533a51579e2fa407247611fa5ee25e7
+BINDING 9f3cc3065130086b1bd46a2209c6ba495bce3d34790f3d13a7c3622569a68719
+TAGS 438c1cd4047579b538c114e87def0a2593e28c1e65942f6cc544a3445a9cb45c 6326e1067415b6ebd8c56af79f0fca61888f6bc20802c3b149b940ad48981d48
+SEGSHAPE l 1 k 0 log_cols 14 inv_rate 4 q 256 a_rows 437 h_rows 248 m_rows 50 a_groups 36 h_groups 9 n_slots 23 e_log_n 14 e_inv_rate 4 e_rows 6 ceiling 268435456
+SLOTSHAPE 0 14 1 4 1
+SLOTSHAPE 1 14 1 4 1
+SLOTSHAPE 2 5 1 3 22
+SLOTSHAPE 3 14 1 4 3
+SLOTSHAPE 4 14 1 3 2
+SLOTSHAPE 5 9 1 2 1
+SLOTSHAPE 6 9 1 2 1
+SLOTSHAPE 7 9 1 2 1
+SLOTSHAPE 8 9 2 3 2
+SLOTSHAPE 9 8 2 3 2
+SLOTSHAPE 10 10 1 2 1
+SLOTSHAPE 11 9 1 2 1
+SLOTSHAPE 12 9 1 2 1
+SLOTSHAPE 13 10 1 2 1
+SLOTSHAPE 14 14 1 5 58
+SLOTSHAPE 15 15 1 4 22
+SLOTSHAPE 16 14 1 4 22
+SLOTSHAPE 17 14 1 4 27
+SLOTSHAPE 18 15 1 5 24
+SLOTSHAPE 19 14 1 3 6
+SLOTSHAPE 20 14 1 2 1
+SLOTSHAPE 21 14 1 2 2
+SLOTSHAPE 22 14 1 2 2
+ROOTS 598789f661dc7e62dcfda4e0a21563370110f5de95fd597a27da2a8d755f2c66 62e7ace092ce4a842a6fe9224c38cc0296fd8e6fedc78d9cff18eb8ce1b206b2 6f40c4139bfa79a5689b39265036c67ef52392ab2d3007056f701edebfa67d99
+FIELDS slots 23152 9f1baaf2bf0522e50388c524be2248d8f22beadc329fd719673f939dda714cc0 mask 243712 a7c94d34b377cd30e23d3e66754d64cdfe9fc88c852aa07c9cf51e4854512429 a 10887168 adfd8d8341351d9f78040dae038c29f747cf08280fc3aca941822af640e93c18 h 3311616 60481c68b6fab0be5c429681441cb1bd03ff3e9716cdfbb5e5a1ee425ce86144 in 686080 7e57cb632d0f4949bf3abbe10a08ff37f541a1f03e7cbec8cc6f16da68dfd628 out 686080 707a5ac31f20d7860d521b358e1884619de2ce90ae314158211cfd995ef458f6
+TAMPER honest - OK 6326e1067415b6ebd8c56af79f0fca61888f6bc20802c3b149b940ad48981d48
+TAMPER short len:15838023 ERR private run wire: segment 0 is 15838023 B, the counted length is 15838024
+TAMPER long len:15838025 ERR private run wire: segment 0 is 15838025 B, the counted length is 15838024
+TAMPER magic 0:73 ERR private run wire: segment profile
+TAMPER binding 8:158 ERR private run wire: this segment belongs to another run
+TAMPER run-length 40:2 ERR private run wire: segment 0 is not the 1-segment run's segment 0
+TAMPER segment-index 48:1 ERR private run wire: segment 0 is not the 1-segment run's segment 0
+TAMPER start-tag 64:57 ERR private run wire: segment 0's header is not the verifier's own transcript position
+TAMPER noncanonical-scalar 184:1,185:0,186:0,187:0,188:255,189:255,190:255,191:255 ERR private block wire: noncanonical field word
+TAMPER noncanonical-input-vector 14465832:1,14465833:0,14465834:0,14465835:0,14465836:255,14465837:255,14465838:255,14465839:255 ERR private block wire: noncanonical field word
+TAMPER input-column-index 14998312:0,14998313:0,14998314:1 ERR private block wire: column index
+TAMPER noncanonical-output-vector 15151912:1,15151913:0,15151914:0,15151915:0,15151916:255,15151917:255,15151918:255,15151919:255 ERR private block wire: noncanonical field word
+TAMPER a-root 96:221 OK 6326e1067415b6ebd8c56af79f0fca61888f6bc20802c3b149b940ad48981d48
+TAMPER end-tag 15838023:73 OK 6326e1067415b6ebd8c56af79f0fca61888f6bc20802c3b149b940ad48981d49

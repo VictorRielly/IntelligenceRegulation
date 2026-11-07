@@ -1,0 +1,70 @@
+== lake build (full) ==
+== prebuild: the root's modules one target at a time (a fresh worktree's first build in parallel exceeds the cap) ==
+prebuild done
+== lake build (full) ==
+lake build rc 0
+✔ [3463/3464] Built ZK60Formal (1.7s)
+Build completed successfully (3464 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+60 theorems in 5 files
+axioms rc 0
+declarations audited: 60
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  13 axioms: [propext, Classical.choice, Quot.sound]
+  31 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+== source scan of the L13 files ==
+none
+== the library root imports the L13 files ==
+83:import ZK60Formal.SlotW16Build
+84:import ZK60Formal.SlotW16BuildEval
+85:import ZK60Formal.SlotW16BuildSlots
+86:import ZK60Formal.SlotW16BuildLayout
+87:import ZK60Formal.SlotW16Compose
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: L11Check on the W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== SlotW16BuildCheck on the layout export and the L11 corpus ==
+  shape-count: 1
+  stack: 3
+  fold-shift: 1
+  rh-width: 3
+  widths: 3
+  families: 3
+  a-planes: 3
+  h-planes: 3
+  h-ids: 3
+  lookups: 18
+  helpers: 18
+  zero-planes: 27
+  ir-tables: 23
+  table-kinds: 23
+  ir-nodes: 23
+  ir-terms: 23
+  slot-count: 1
+SlotW16BuildCheck: 179 checks, 0 failed
+SlotW16BuildCheck rc 0
+== negative control ==
+7 changes: [1, 2, 3, 4, 5, 6, 7]
+FAILED [zero-planes] W16R2_RUNG_H24 F: lengths 9/8; first difference at 0: Lean 49 | code 50
+FAILED [lookups] W16R2_SHIELD_T128_H24 D: lengths 19/19; first difference at 0: Lean 32768:R16:8*1 | code 32769:R16:8*1
+FAILED [a-planes] W16R2_8B_T128_H24: lengths 71/71; first difference at 0: Lean T:D | code T:DX
+FAILED [ir-nodes] slot 14: lengths 47/47; first difference at 4: Lean S 8000:0@t3.t5;4:0@t24;18446744069414584313:0@t6.t24;18446744069414584320:0@n0 | code S 8001:0@t3.t5;4:0@t24;18446744069414584313:0@t6.t24;18446744069414584320:0@n0
+FAILED [ir-nodes] slot 15: lengths 17/17; first difference at 2: Lean S 10172729525945140597:9184613117041638006@n1 | code S 10172729525945140596:9184613117041638006@n1
+FAILED [ir-terms] slot 17: lengths 3/3; first difference at 1: Lean T 9824396563420694658:10076381976615120515 1 n25 | code T 9824396563420694659:10076381976615120515 1 n25
+FAILED [ir-tables] slot 19: lengths 62/62; first difference at 3: Lean pub the_U8_table's_value_column | code pub the_U8_table's_value_column_X
+SlotW16BuildCheck: 179 checks, 7 failed
+== the R19b file census (hashline lib tests) ==
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1045 filtered out; finished in 0.04s
+verdicts: build 0, axioms 0, L6 0/0, L5 0/0, L1 0/0, L11 0/0, L13 0, negative control 0, r19b 0 (0 = as required)

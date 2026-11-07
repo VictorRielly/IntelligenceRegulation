@@ -1,0 +1,272 @@
+== lake build ZK60Formal.SlotW16BuildEval ZK60Formal.SlotW16BuildSlots ZK60Formal.SlotW16BuildLayout ZK60Formal.SlotW16Compose ==
+warning: ZK60Formal/SlotW16BuildEval.lean:77:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Slot.Build.logupGo_len`:
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+
+
+
+
+
+warning: ZK60Formal/SlotW16BuildEval.lean:124:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Slot.Build.padGo_len`:
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+
+
+
+✖ [3401/3403] Building ZK60Formal.SlotW16BuildSlots (3.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/ZK60Formal/SlotW16BuildSlots.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean/ZK60Formal/SlotW16BuildSlots.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean/ZK60Formal/SlotW16BuildSlots.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/ir/ZK60Formal/SlotW16BuildSlots.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/ir/ZK60Formal/SlotW16BuildSlots.setup.json --json
+error: ZK60Formal/SlotW16BuildSlots.lean:91:25: Tactic `rewrite` failed: motive is not type correct:
+Error: Application type mismatch: The argument
+has type
+but is expected to have type
+in the application
+
+Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.
+
+Possible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).
+
+R : Type
+inst✝ : CommRing R
+v : List R
+bs : List (Body R)
+i : ℕ
+hi : i < bs.length
+hs : bs = List.take i bs ++ [bs[i]] ++ List.drop (i + 1) bs
+hl : (nodeVals v (List.take i bs) []).length = i
+t : List R
+ht :
+⊢ (nodeVals v (List.take i bs) [] ++ ([bodyVal v (nodeVals v (List.take i bs) []) bs[i]] ++ t)).getD i 0 =
+
+
+
+warning: ZK60Formal/SlotW16BuildSlots.lean:123:65: this tactic is never executed
+
+warning: ZK60Formal/SlotW16BuildSlots.lean:128:84: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+
+warning: ZK60Formal/SlotW16BuildSlots.lean:136:68: this tactic is never executed
+
+info: ZK60Formal/SlotW16BuildSlots.lean:178:4: Try this:
+error: ZK60Formal/SlotW16BuildSlots.lean:174:62: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : DzcR
+K : DzcK
+lks : List (LkD R)
+mu nu : List R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (dzcPre c Rr K mu) [] ++ t
+hnv :
+ht :
+⊢ (nodeVals v
+
+
+
+
+
+
+
+
+
+
+
+
+info: ZK60Formal/SlotW16BuildSlots.lean:213:4: Try this:
+error: ZK60Formal/SlotW16BuildSlots.lean:209:52: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : FzcR
+K : FzcK
+lks : List (LkD R)
+mu nu : List R
+amqK nb nb2 : R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (fzcPre c Rr K mu amqK nb nb2) [] ++ t
+hnv :
+ht :
+hlen : (nodeVals v (fzcPre c Rr K mu amqK nb nb2) []).length = 5
+⊢ (nodeVals v
+info: ZK60Formal/SlotW16BuildSlots.lean:218:4: Try this:
+error: ZK60Formal/SlotW16BuildSlots.lean:214:60: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : FzcR
+K : FzcK
+lks : List (LkD R)
+mu nu : List R
+amqK nb nb2 : R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (fzcPre c Rr K mu amqK nb nb2) [] ++ t
+hnv :
+ht :
+hlen : (nodeVals v (fzcPre c Rr K mu amqK nb nb2) []).length = 5
+h3 : A.getD 3 0 = fzcAct v Rr amqK nb nb2
+⊢ (nodeVals v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+info: ZK60Formal/SlotW16BuildSlots.lean:248:4: Try this:
+error: ZK60Formal/SlotW16BuildSlots.lean:244:60: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : QzcR
+K : QzcK
+lks : List (LkD R)
+mu nu : List R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (qzcPre c Rr K mu) [] ++ t
+hnv :
+ht :
+⊢ (nodeVals v
+
+
+
+
+
+
+
+
+
+
+
+
+info: ZK60Formal/SlotW16BuildSlots.lean:292:4: Try this:
+error: ZK60Formal/SlotW16BuildSlots.lean:288:52: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : SzcR
+K : SzcK
+lks : List (LkD R)
+mu nu : List R
+amdK nb lam : R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (szcPre c Rr K mu amdK nb) [] ++ t
+hnv :
+ht :
+hlen : (nodeVals v (szcPre c Rr K mu amdK nb) []).length = 10
+⊢ (nodeVals v
+info: ZK60Formal/SlotW16BuildSlots.lean:297:4: Try this:
+error: ZK60Formal/SlotW16BuildSlots.lean:293:60: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : SzcR
+K : SzcK
+lks : List (LkD R)
+mu nu : List R
+amdK nb lam : R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (szcPre c Rr K mu amdK nb) [] ++ t
+hnv :
+ht :
+hlen : (nodeVals v (szcPre c Rr K mu amdK nb) []).length = 10
+h8 : A.getD 8 0 = szcExp c Rr K v amdK nb
+⊢ (nodeVals v
+error: ZK60Formal/SlotW16BuildSlots.lean:299:90: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : SzcR
+K : SzcK
+lks : List (LkD R)
+mu nu : List R
+amdK nb lam : R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (szcPre c Rr K mu amdK nb) [] ++ t
+hnv :
+ht :
+hlen : (nodeVals v (szcPre c Rr K mu amdK nb) []).length = 10
+h8 : A.getD 8 0 = szcExp c Rr K v amdK nb
+h9 : A.getD 9 0 = batchV mu (szcClauses c Rr K v)
+z : R
+⊢ (match limbs16B c Rr.rsl with
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+build rc 1
+== SlotW16BuildCheck ==
+  shape-count: 1
+  stack: 3
+  fold-shift: 1
+  rh-width: 3
+  widths: 3
+  families: 3
+  a-planes: 3
+  h-planes: 3
+  h-ids: 3
+  lookups: 18
+  helpers: 18
+  zero-planes: 27
+  ir-tables: 23
+  table-kinds: 23
+  ir-nodes: 23
+  ir-terms: 23
+  slot-count: 1
+SlotW16BuildCheck: 179 checks, 0 failed
+rc build 1 check 0, 23 s

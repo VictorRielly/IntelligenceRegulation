@@ -1,0 +1,95 @@
+== lean formal/ZK60Formal/ZKW16Prog.lean ==
+formal/ZK60Formal/ZKW16Prog.lean:159:0: warning: automatically included section variable(s) unused in theorem `ZK60.ZKW16.program_agree`:
+  [Inhabited D]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited D] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+formal/ZK60Formal/ZKW16Prog.lean:164:0: warning: automatically included section variable(s) unused in theorem `ZK60.ZKW16.run_queries_program`:
+  [Inhabited D]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited D] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+formal/ZK60Formal/ZKW16Prog.lean:272:37: error: Invalid projection: Type of
+  ω
+is not known; cannot resolve projection `1`
+formal/ZK60Formal/ZKW16Prog.lean:273:43: error: Invalid projection: Type of
+  ω
+is not known; cannot resolve projection `1`
+formal/ZK60Formal/ZKW16Prog.lean:274:45: error: Invalid projection: Type of
+  ω
+is not known; cannot resolve projection `1`
+formal/ZK60Formal/ZKW16Prog.lean:275:41: error: Invalid projection: Type of
+  ω
+is not known; cannot resolve projection `1`
+formal/ZK60Formal/ZKW16Prog.lean:276:43: error: Invalid projection: Type of
+  ω
+is not known; cannot resolve projection `1`
+formal/ZK60Formal/ZKW16Prog.lean:277:45: error: Invalid projection: Type of
+  ω
+is not known; cannot resolve projection `1`
+formal/ZK60Formal/ZKW16Prog.lean:280:40: error(lean.unknownIdentifier): Unknown identifier `A₁.run`
+formal/ZK60Formal/ZKW16Prog.lean:280:63: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:280:84: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:281:35: error(lean.unknownIdentifier): Unknown identifier `A₁.run`
+formal/ZK60Formal/ZKW16Prog.lean:281:59: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:281:80: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:282:31: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:282:44: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:290:68: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:299:39: error(lean.unknownIdentifier): Unknown identifier `A₁.run`
+formal/ZK60Formal/ZKW16Prog.lean:299:63: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:300:34: error(lean.unknownIdentifier): Unknown identifier `A₁.run`
+formal/ZK60Formal/ZKW16Prog.lean:300:58: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:301:31: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:301:44: error(lean.unknownIdentifier): Unknown identifier `A₁`
+formal/ZK60Formal/ZKW16Prog.lean:318:32: error(lean.unknownIdentifier): Unknown identifier `A₁.run`
+formal/ZK60Formal/ZKW16Prog.lean:318:85: error(lean.unknownIdentifier): Unknown identifier `A₁.run`
+formal/ZK60Formal/ZKW16Prog.lean:319:36: error(lean.unknownIdentifier): Unknown identifier `A₁.run`
+formal/ZK60Formal/ZKW16Prog.lean:277:79: error: unsolved goals
+Q D S α : Type
+inst✝⁴ : DecidableEq Q
+inst✝³ : Inhabited D
+k : ℕ
+y : α → S → (Q → D) → (Fin k → D) → Fin k → Q
+prog : Q → Prop
+inst✝² : Fintype Q
+inst✝¹ : Fintype D
+inst✝ : Fintype S
+hy : ∀ (a : α) (σ : S) (H : Q → D), Causal (y a σ H)
+hprog : ∀ (a : α) (σ : S) (H : Q → D) (v : Fin k → D) (i : Fin k), prog (y a σ H v i)
+hsep : ∀ (a : α) (σ : S) (H H' : Q → D) (v : Fin k → D), (∀ (z : Q), ¬prog z → H z = H' z) → y a σ H v = y a σ H' v
+A₂ : α → S → (Fin k → D) → OC Q D Bool
+F : α → Prop
+hsr :
+  #{ω | (F sorry ∧ apReal y sorry A₂ ω) ∧ apGoodR y sorry ω} =
+    #{ω | (F sorry ∧ apIdeal y sorry A₂ ω) ∧ apGoodI y sorry ω}
+hsg : #{ω | F sorry ∧ apGoodR y sorry ω} = #{ω | F sorry ∧ apGoodI y sorry ω}
+⊢ sorry ≤ sorry + sorry ∧ sorry ≤ sorry + sorry
+formal/ZK60Formal/ZKW16Prog.lean:363:5: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  DecidablePred fun ω => F (OC.run ω.1 A₁) ∧ ¬apGoodI y A₁ ω
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+formal/ZK60Formal/ZKW16Prog.lean:364:9: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  DecidablePred fun H => F (OC.run H A₁)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+formal/ZK60Formal/ZKW16Prog.lean:424:21: error(lean.unknownIdentifier): Unknown identifier `apCount`
+formal/ZK60Formal/ZKW16Prog.lean:424:9: error: Tactic `rcases` failed: `x✝ : ?m.185` is not an inductive datatype
+formal/ZK60Formal/ZKW16Prog.lean:480:2: error: Type mismatch
+  ZKHybrid.prob_marginal (Equiv.prodAssoc (Q → D) S (Fin k → D)).symm ?m.69
+has type
+  @DFunLike.coe (MeasureTheory.OuterMeasure ((Q → D) × S × (Fin k → D))) (Set ((Q → D) × S × (Fin k → D)))
+      (fun x => ℝ≥0∞) MeasureTheory.OuterMeasure.instFunLikeSetENNReal
+      (PMF.uniformOfFintype ((Q → D) × S × (Fin k → D))).toOuterMeasure
+      {a | ((Equiv.prodAssoc (Q → D) S (Fin k → D)).symm a).1 ∈ ?m.69} =
+    (PMF.uniformOfFintype ((Q → D) × S)).toOuterMeasure ?m.69
+but is expected to have type
+  @DFunLike.coe (MeasureTheory.OuterMeasure ((Q → D) × S × (Fin k → D))) (Set ((Q → D) × S × (Fin k → D)))
+      (fun x => ℝ≥0∞) MeasureTheory.OuterMeasure.instFunLikeSetENNReal
+      (PMF.uniformOfFintype ((Q → D) × S × (Fin k → D))).toOuterMeasure {ω | F (OC.run ω.1 A₁) ∧ apReal y A₁ A₂ ω} =
+    (PMF.uniformOfFintype ((Q → D) × S)).toOuterMeasure
+      {p | F (OC.run p.1 A₁) ∧ OC.run p.1 (A₂ (OC.run p.1 A₁) p.2 (chainVals (y (OC.run p.1 A₁) p.2 p.1) p.1)) = true}
+rc 1 for formal/ZK60Formal/ZKW16Prog.lean
+rc build 0 files 1, 5 s
