@@ -1,0 +1,17 @@
+== lake build the L11 modules ==
+Build completed successfully (3394 jobs).
+build rc 0
+== lean LayoutW16Handoff.lean ==
+rc 0
+== L11Check ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/L11Check.lean:253:18: error: Application type mismatch: The argument
+  sh
+has type
+  ShapeW
+but is expected to have type
+  St
+in the application
+  sched sh
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/L11Check.lean:330:6: error: mutable variable `s` cannot be shadowed
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7b7bd2255186ea2f/formal/ZK60Formal/L11Check.lean:456:89: error: unexpected identifier; expected '}'
+rc 1, 28 s
