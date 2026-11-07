@@ -1,0 +1,2 @@
+[zk60-guard 19:12:33] START a24-check class=build need=4G cap=12G enforce=watchdog-only waited=0s run=e3510a5d90ae
+[zk60-guard 19:12:56] END a24-check exit=0 child_wall=24s peak_rss=1.65G min_avail=234.29G

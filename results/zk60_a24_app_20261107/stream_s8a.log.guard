@@ -1,0 +1,3 @@
+[zk60-guard 19:23:17] START a24-stream-s8a class=gpu need=64G cap=140G enforce=watchdog-only waited=0s run=142318bf3cf8
+[zk60-guard 19:29:33] a24-stream-s8a: 1 straggler process(es) outlived the command; killing
+[zk60-guard 19:29:33] END a24-stream-s8a exit=0 child_wall=375s peak_rss=67.39G min_avail=148.84G peak_vram=26592MiB

@@ -1,0 +1,43 @@
+78 blocks, summed wall 24.854 s
+  24.854  WALL CLOCK OF THE CALL
+  24.839  SUM OF PHASES
+   3.301  slot 18 14 F zero-check (hosts 13G, 13U)
+   2.800  slot 14 03 D zero-check (hosts 12, 13D)
+   2.469  verify A (schedule audit + pcs::verify_zk)
+   2.035  slot 15 04 Q zero-check (hosts 09Q, 11)
+   1.721  run: block load + statement check
+   1.383  transcript header + the A and H roots
+   1.147  verify H (schedule audit + pcs::verify_zk)
+   1.078  slot 00 01 SS row sums norm_a (private)
+   0.991  slot 16 05 KV zero-check (hosts 09K, 09V)
+   0.964  slot 04 07 masked row sums + selector (private)
+   0.946  slot 01 01m SS row sums norm_m (private)
+   0.897  slot 17 06 softmax zero-check (hosts 07, 10)
+   0.734  slot 19 TAB table helper zero-check
+   0.607  slot 11 13G gate matmul (private)
+   0.597  frame: decode segment + path depths
+   0.479  slot 13 13D down matmul (private)
+   0.464  verify boundary B_(k-1) opening (pcs::verify_zk)
+   0.447  slot 12 13U up matmul (private)
+   0.335  slot 10 12 Wo matmul (private)
+   0.326  slot 05 09Q matmul (private)
+   0.254  slot 07 09V matmul (private)
+   0.245  verify M (zk::mask_verify, ONE call)
+   0.201  slot 06 09K matmul (private)
+   0.170  slot 20 ZS zero-sum row
+   0.152  slot 03 08 limb zero-check
+   0.002  slot 08 10 score matmul (private, bilinear)
+   0.002  slot 21 IO-in endpoint equality
+   0.002  unaccounted (wall - sum)
+   0.000  slot 02 02 norm squares zero-check (hosts 01, 01m)
+   0.000  slot 09 11 PV matmul (private, bilinear)
+   0.000  slot 22 IO-out endpoint equality
+PB-CLI verify | pre-header stage-shape check (every block loaded once) | 0.971 s
+PB-CLI verify | stage IN-C | 0.073 s
+PB-CLI verify | stage OUT-C | 0.028 s
+PB-CLI verify | pre-header stage-shape check (every block loaded once) | 0.618 s
+PB-CLI verify | stage IN-C | 0.076 s
+PB-CLI verify | stage OUT-C | 0.021 s
+PB-CLI verify | pre-header stage-shape check (every block loaded once) | 0.502 s
+PB-CLI verify | stage IN-C | 0.075 s
+PB-CLI verify | stage OUT-C | 0.021 s

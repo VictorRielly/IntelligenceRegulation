@@ -1,0 +1,8 @@
+2026-11-07T05:23:25Z start
+2026-11-07T05:26:11Z test build rc=0
+2026-11-07T05:26:35Z filter s25_tests rc=0 test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1078 filtered out; finished in 23.59s
+2026-11-07T05:26:35Z filter hash_domain rc=0 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1083 filtered out; finished in 0.12s
+2026-11-07T05:26:56Z filter token_io::classify rc=0 test result: ok. 82 passed; 0 failed; 12 ignored; 0 measured; 1004 filtered out; finished in 20.76s
+2026-11-07T05:26:59Z filter a24_ rc=0 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1093 filtered out; finished in 2.83s
+2026-11-07T05:27:45Z a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does_on_the_device rc=0 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1097 filtered out; finished in 45.81s
+2026-11-07T05:27:45Z all done

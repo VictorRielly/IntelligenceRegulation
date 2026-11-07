@@ -1,0 +1,94 @@
+{
+  "prover": {
+    "kind": "shieldstral-fast",
+    "label": "Shieldstral-1.0-3B classifier (resident GPU servers, development candidate)",
+    "supports": [
+      "text"
+    ],
+    "proves_verdict": true,
+    "model": "Shieldstral-1.0-3B",
+    "binary_sha256": "ccd58102e3fdbe4fb0be3446b5d539cd6741779a6efaea073251ef040968a946",
+    "model_digest": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "cli": "zk60_classify A24 serve/check-serve, post-F12 R13 /2, T128, Metal",
+    "device": "metal",
+    "proof_mode": "resident-server, categories proved concurrently",
+    "policy_ids": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "privacy_adapter_supported": false,
+    "batch_proving": false,
+    "policy_selection": "registered moderate policies (D61)",
+    "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+    "development_candidate": true,
+    "production": false,
+    "per_job_s": 60,
+    "category_geometry": {
+      "sexual": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "violence": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "hate": {
+        "chunk_tokens": 49,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      }
+    },
+    "service": {
+      "prover_lanes": 6,
+      "check_lanes": 3,
+      "device": "Apple GPU (Metal) + CPU",
+      "fresh_verifier": "separate resident verifier process"
+    },
+    "privacy_status": "privacy statement pending",
+    "privacy_statement": {
+      "accepted": false,
+      "status": "privacy statement pending",
+      "decision": null,
+      "scope": "Privacy review remains pending for this proving path.",
+      "conditions": "Deployment conditions for non-public posts still apply.",
+      "permits_non_public_posts": false
+    }
+  },
+  "prover_mode": "shieldstral-fast",
+  "deploy": {
+    "profile": "shieldstral-t128-fast",
+    "label": "Shieldstral T128, resident GPU servers (A24 development candidate)",
+    "note": "Registered moderate templates; each category has its own chunk plan.",
+    "chunk_tokens": 49,
+    "overlap_tokens": 8,
+    "max_chunks": 8,
+    "effective_chunk_tokens": 49,
+    "effective_overlap_tokens": 8,
+    "category_geometry": {
+      "sexual": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "violence": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "hate": {
+        "chunk_tokens": 49,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      }
+    },
+    "capped_by_prover": false,
+    "max_content_tokens": 336,
+    "profiles": {},
+    "file": null
+  }
+}

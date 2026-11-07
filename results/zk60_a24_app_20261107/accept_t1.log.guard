@@ -1,0 +1,5 @@
+[zk60-guard 19:33:06] admission waiting: VRAM 44410 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:34:08] admission waiting: VRAM 42911 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:35:09] admission waiting: VRAM 46448 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:35:45] START a24-accept-t1 class=gpu need=40G cap=100G enforce=watchdog-only waited=159s run=540ffa2d02c2
+[zk60-guard 19:51:10] END a24-accept-t1 exit=0 child_wall=925s peak_rss=9.58G min_avail=130.98G peak_vram=2172MiB

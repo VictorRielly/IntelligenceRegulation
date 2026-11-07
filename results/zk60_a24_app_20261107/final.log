@@ -1,0 +1,4 @@
+{"posts": 8, "all_checked": true, "wall_s": 298.0099301338196, "category_proofs": 24, "proved_tok_per_s": 10.308381330180966, "content_tok_per_s": 0.4597162246858048, "steady": {"from_post": 4, "span_s": 93.55879497528076, "proofs": 12, "proved_tok_per_s": 16.417483790869984}}
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5090f993c1401215/results/zk60_a24_app_20261107/stream.sh: line 12:  7685 Terminated: 15          ( while true; do
+    pgrep ds4-bench > /dev/null && echo "POLLUTED: ds4-bench seen at $(date -u +%H:%M:%S)" >> $R/stream_$TAG.quiet; sleep 30;
+done )

@@ -1,0 +1,4 @@
+launching after 143 s with the lock free
+{"phase": "one", "posts": 1, "published": 1, "failed": 0, "wall_s": 69.98565292358398, "category_proofs": 3, "proved_tok_per_s": 5.486838858519794, "steady": null}
+{"phase": "long", "posts": 1, "published": 1, "failed": 0, "wall_s": 174.47334122657776, "category_proofs": 9, "proved_tok_per_s": 6.6027279119047115, "steady": null}
+{"phase": "stream8", "posts": 8, "published": 8, "failed": 0, "wall_s": 269.32568979263306, "category_proofs": 24, "proved_tok_per_s": 11.40626429794084, "steady": {"from_post": 4, "span_s": 99.87475562095642, "proofs": 12, "proved_tok_per_s": 15.379261660768517}}

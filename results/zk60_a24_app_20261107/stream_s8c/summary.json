@@ -1,0 +1,136 @@
+{
+  "tag": "s8c",
+  "posts": 8,
+  "all_checked": true,
+  "wall_s": 298.0099301338196,
+  "startup_s": 30.968915939331055,
+  "prover_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 8,
+    "lane_threads": 3,
+    "startup_seconds": 30.931,
+    "witness_cache_bytes": 12884901888,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "checker_start": {
+    "event": "serve-start",
+    "command": "classify-check-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 4,
+    "lane_threads": 2,
+    "startup_seconds": 30.851,
+    "min_bits": 95,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "category_proofs": 24,
+  "proved_tok_per_s": 10.308381330180966,
+  "content_tok_per_s": 0.4597162246858048,
+  "per_post": [
+    {
+      "post": 0,
+      "tokens": 14,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 106.08196687698364,
+      "done_at_s": 106.0823700428009
+    },
+    {
+      "post": 1,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 114.21045684814453,
+      "done_at_s": 125.01489400863647
+    },
+    {
+      "post": 2,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 164.08843803405762,
+      "done_at_s": 184.4727840423584
+    },
+    {
+      "post": 3,
+      "tokens": 20,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 173.0255138874054,
+      "done_at_s": 204.40932512283325
+    },
+    {
+      "post": 4,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 178.89936304092407,
+      "done_at_s": 222.338210105896
+    },
+    {
+      "post": 5,
+      "tokens": 17,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 205.0624749660492,
+      "done_at_s": 260.3156681060791
+    },
+    {
+      "post": 6,
+      "tokens": 15,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 218.24031901359558,
+      "done_at_s": 284.7568221092224
+    },
+    {
+      "post": 7,
+      "tokens": 17,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 219.97667407989502,
+      "done_at_s": 297.968120098114
+    }
+  ],
+  "steady": {
+    "from_post": 4,
+    "span_s": 93.55879497528076,
+    "proofs": 12,
+    "proved_tok_per_s": 16.417483790869984
+  },
+  "settings": {
+    "tag": "s8c",
+    "posts": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5090f993c1401215/results/zk60_a24_app_20261107/posts/stream8.json",
+    "lanes": 8,
+    "lane_threads": 3,
+    "check_lanes": 4,
+    "check_threads": 2,
+    "witness_gib": 12.0,
+    "keep": 0,
+    "gap": 0.0,
+    "writer_threads": 4
+  },
+  "hl_gpu": "1",
+  "on_the_clock": "from the first post submitted to the last post's third label accepted: activation writer (Python forward pass), the prover's sealing pass and witnesses, proof, receipt write (fsync per segment), fresh verification in the separate verifier process, input-owner check, category label; NOT on it: server startup (model load), app/publication"
+}

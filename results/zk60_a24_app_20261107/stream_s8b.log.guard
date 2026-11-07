@@ -1,0 +1,4 @@
+[zk60-guard 19:30:18] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:30:24] START a24-stream-s8b class=gpu need=96G cap=180G enforce=watchdog-only waited=5s run=37743216af4d
+[zk60-guard 19:35:45] a24-stream-s8b: 1 straggler process(es) outlived the command; killing
+[zk60-guard 19:35:45] END a24-stream-s8b exit=0 child_wall=321s peak_rss=102.51G min_avail=96.32G peak_vram=48625MiB

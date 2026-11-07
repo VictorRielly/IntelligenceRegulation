@@ -1,0 +1,11 @@
+2026-11-07T04:23:50Z binary ccd58102e3fdbe4fb0be3446b5d539cd6741779a6efaea073251ef040968a946
+2026-11-07T04:24:33Z CLI verify of the server's receipt rc=0 "published_by":"an earlier verifier (re-checked byte for byte)"
+2026-11-07T04:25:15Z CLI input-owner of the server's receipt rc=0 1 content-checked
+2026-11-07T04:26:17Z check-serve rc=0
+"id":"tampered","status":"refused"
+"id":"other-content","status":"refused"
+"id":"wrong-policy","status":"refused"
+"id":"prefix-only","status":"refused"
+"id":"honest","status":"checked"
+2026-11-07T04:26:46Z check-serve pinned to r16b's identity rc=1 (1 = startup refused) 1 fail-closed line
+2026-11-07T04:26:46Z all done

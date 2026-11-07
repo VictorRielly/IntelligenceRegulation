@@ -1,0 +1,20 @@
+2026-11-07T04:26:46Z start
+2026-11-07T04:26:57Z test build rc=101
+error[E0308]: mismatched types
+    --> src/private_block/s25_tests.rs:2696:37
+     |
+2696 |   const TEST_ONLY_FILES: [&str; 81] = [
+     |  ________________________----------___^
+     | |                        |
+     | |                        expected because of the type of the constant
+2697 | |     // D63 step L1 (2026-11-06): the Lean lane's export of the fixture's integer trace, declared
+2698 | |     // `#[cfg(test)]` (one line) by `witness.rs`
+2699 | |     "lean_l1_export_tests.rs",
+...    |
+2732 | |     "trained_stack_tests.rs", "w14_tests.rs", "witness_speed_tests.rs", "zero_witness_tests.rs",
+2733 | | ];
+     | |_^ expected an array with a size of 81, found one with a size of 82
+     |
+--
+error: could not compile `hashline` (lib test) due to 1 previous error; 20 warnings emitted
+2026-11-07T04:26:57Z all done (build failed)

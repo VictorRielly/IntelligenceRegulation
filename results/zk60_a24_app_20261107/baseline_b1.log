@@ -1,0 +1,9 @@
+[02:58:31] binary sha256 7a7e7515b502c4f3eee350aedc45de0f5c8f940e5a928908386f66728df40e21
+[02:58:42] writer rc=0 seconds=11.179
+[03:01:34] cpu prove rc=0 wall=172.095
+[03:01:34] cpu identity e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d
+[03:02:23] cpu verify rc=0 wall=49.155
+[03:03:37] gpu prove rc=0 wall=73.429
+[03:03:37] gpu identity e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d
+[03:04:25] gpu verify rc=0 wall=48.540
+[03:04:25] done
