@@ -11,22 +11,20 @@ functional given. This file reads them off an accepting slot loop:
   hosted sum of the earlier scalars, and the accumulator after it;
 * `SlotFns`, **`slotsLoop_fns`**, **`blockSlots_fns`**: on an accepting slot loop, every slot's definition, claimed
   sum, kind, and its `Γ` functional in the final lists (a standalone's in `acc.fs`, a host's in `acc.hostFs`, the
-  hosted slots weighted by THEIR `c` from the records before the host);
+  hosted slots weighted by THEIR `c` from the records before the host and by THEIR sum weights);
 * `hostedSum_spec`: the claimed sum read in the field is `scalar + Σ κ·scalar_h`, every hosted index earlier;
-* `mdot`, `MLin`, `mdot_scale`, `MLin.cons`, `MLin.single`: `M`'s functional on the extracted mask rows `R` is linear in
-  its weights (the reading `msX` must have: `Σ_terms Σ_j w_j·R_{slot}(j)`);
+* `mdot`, `MLin`, `mdot_scale`, `list_sum_map_mul`: `M`'s functional on the extracted mask rows `R` is linear in its
+  weights (the reading `msX` must have: `Σ_terms Σ_j w_j·R_{slot}(j)`);
 * **`unmask_slots`**: with `M`'s functionals true (`OpenTrue`'s `MTrue`), `msX` linear, and every claimed sum the cube
   sum of `Sp_k + c_k·mask_k` (the masked slot polynomial; `mask_k`'s cube sum is `mdot` at the slot's `sum_weights`),
-  a standalone slot's unmasked sum is `0` and a host's is `Σ_h κ_h·(Sp_h + c_h·(mdot_h(sw_h) − mdot_h(sw_host)))` over its
-  hosted private slots;
-* **`unmask_slots_eq`**: when the host's sum weights are each hosted slot's own (`sw_host = sw_h`), the host's
-  unmasked sum is `Σ_h κ_h·Sp_h`: `unmask_host`'s conclusion.
+  a standalone slot's unmasked sum is `0` and a host's is `Σ_h κ_h·Sp_h` over its hosted private slots: every scalar
+  and every mask drops out;
+* `unmask_slots_eq`: the host half, stated alone.
 
-**Finding L23-1** (the doc, §4): `ExecBlockVerify.slotAcc` (L9's model, line 316) weights a hosted slot's mask in the
-host's `Γ` with the HOST's `sumWeights (n_s + e_s) d_s`; the code (argument.rs:1500) uses the hosted slot's own
-`sum_weights(sh, hs)`. At every W16R2 host the two differ (e.g. `SC_DZC` `(14, 1, 5)` hosts `SC_WO` `(10, 1, 2)` at the
-rung), so on the current model only `unmask_slots`'s form holds, with the extra terms `c_h·(mdot_h(sw_h) −
-mdot_h(sw_host))`; the one-line model fix makes `unmask_slots_eq` apply. Nothing here assumes the fix.
+**Finding L23-1** (the doc, §4), fixed in `ExecBlockVerify.slotAcc` (2026-11-07, authorised by the coordinator): the
+host's `Γ` weights each hosted slot's mask with THAT slot's sum weights `sum_weights(sh, hs)` (argument.rs:1500). With
+the earlier weighting (the host's own `sumWeights (n_s + e_s) d_s`) the unmasking left the extra terms
+`c_h·(mdot_h(sw_h) − mdot_h(sw_host))`; with the code's they cancel, and the conclusion is `unmask_host`'s.
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
@@ -84,7 +82,7 @@ theorem slotStep_ok_fns (P : BlockParams) (s : ℕ) (hist : Hist) (sp : SlotProo
 /-- **What an accepting slot leaves in the final accumulator**: its definition (from the records before it), its index
 (their count), its claimed sum (the hosted sum of their scalars), its kind (a host exactly when its hosted list is
 nonempty), and its `Γ` functional: a standalone's `⟨[(s, sw·c)], scalar⟩` in `acc.fs`, a host's
-`⟨(s, sw·c) :: [(h, sw·(−κ·c_h))], scalar⟩` in `acc.hostFs` (`sw` the model's, the host's own sum weights). -/
+`⟨(s, sw_s·c) :: [(h, sw_h·(−κ·c_h))], scalar⟩` in `acc.hostFs` (`sw_t` slot `t`'s own sum weights, argument.rs:1500). -/
 def SlotFns (P : BlockParams) (s : ℕ) (hist : Hist) (prev : List SlotRec) (sp : SlotProof) (r : SlotRec)
     (accF : Acc) : Prop :=
   ∃ df, P.define s hist r.draws = .ok df ∧ s = prev.length
@@ -94,7 +92,7 @@ def SlotFns (P : BlockParams) (s : ℕ) (hist : Hist) (prev : List SlotRec) (sp 
         (⟨[(s, (swk P s).map (fun w => w.mul r.c))], sp.scalar⟩ : MaskFunctional) ∈ accF.fs)
     ∧ (P.kind s = SlotKind.host →
         (⟨(s, (swk P s).map (fun w => w.mul r.c)) :: df.hosted.map (fun hk => (hk.1,
-          (swk P s).map (fun w => w.mul (hk.2.mul ((prev.map SlotRec.c).getD hk.1 Fp2.zero)).neg))), sp.scalar⟩
+          (swk P hk.1).map (fun w => w.mul (hk.2.mul ((prev.map SlotRec.c).getD hk.1 Fp2.zero)).neg))), sp.scalar⟩
           : MaskFunctional) ∈ accF.hostFs)
 
 theorem slotAcc_hostFs_mono (P : BlockParams) (s : ℕ) (acc : Acc) (df : SlotDef) (c scalar g : Fp2)
@@ -160,7 +158,7 @@ theorem slotsLoop_fns (P : BlockParams) (b g a : Fp2) :
           refine hhf _ ?_
           rw [hacc0]
           unfold slotAcc
-          simp only [hk, ← hcs]
+          simp only [hk, ← hcs, swk]
           exact List.mem_append_right _ (List.mem_singleton_self _)
       | succ i =>
         simp only [List.getElem?_cons_succ] at h1 h2
@@ -260,8 +258,8 @@ theorem mdot_scale (U : K) (hU : U ^ 2 = algebraMap GF K 7) (R : ℕ → ℕ →
 with `M`'s functionals true of `ms` (`MTrue` over `acc.fs ++ acc.hostFs`, as `OpenTrue` gives), `ms` linear on the
 extracted mask rows `R` (`MLin`), and every claimed sum `Sp_k + c_k·mdot_k(sw_k)` (the cube sum of the masked slot
 polynomial: its unmasked part `Sp_k` and its mask's cube sum at the slot's own sum weights): a standalone slot's
-unmasked sum is `0`, and a host's (whose hosted slots are not hosts) is
-`Σ_h κ_h·(Sp_h + c_h·(mdot_h(sw_h) − mdot_h(sw_host)))`. -/
+unmasked sum is `0`, and a host's (whose hosted slots are not hosts) is `Σ_h κ_h·Sp_h`: the scalars and every mask drop
+out (each hosted mask weighted by its own sum weights, the corrected model of finding L23-1). -/
 theorem unmask_slots (U : K) (hU : U ^ 2 = algebraMap GF K 7) (H : HIn → Dig) (P : BlockParams) (core : Core)
     (t : Tr) (bga : Fp2 × Fp2 × Fp2) (rs : List SlotRec) (acc : Acc) (t' : Tr)
     (hacc : blockSlots H P core t = .ok (bga, rs, acc, t')) (hcan : CoreCanon core)
@@ -272,8 +270,7 @@ theorem unmask_slots (U : K) (hU : U ^ 2 = algebraMap GF K 7) (H : HIn → Dig) 
     (hdf : P.define k (histOf bga.1 bga.2.1 bga.2.2 (rs.take k)) r.draws = .ok df) :
     (P.kind k = SlotKind.standalone → Sp k = 0)
     ∧ (P.kind k = SlotKind.host → (∀ hk ∈ df.hosted, P.kind hk.1 ≠ SlotKind.host) →
-        Sp k = (df.hosted.map (fun hk => hk.2.toK U * (Sp hk.1 + (((rs.take k).map SlotRec.c).getD hk.1 Fp2.zero).toK U
-          * (mdot U R Wd (hk.1, swk P hk.1) - mdot U R Wd (hk.1, swk P k))))).sum) := by
+        Sp k = (df.hosted.map (fun hk => hk.2.toK U * Sp hk.1)).sum) := by
   obtain ⟨hlen, hall⟩ := blockSlots_fns H P core t bga rs acc t' hacc
   have hk : k < rs.length := (List.getElem?_eq_some_iff.mp hr).1
   obtain ⟨sp, hsp⟩ : ∃ sp, core.slots[k]? = some sp :=
@@ -305,10 +302,10 @@ theorem unmask_slots (U : K) (hU : U ^ 2 = algebraMap GF K 7) (H : HIn → Dig) 
     have hΓ := hm _ (List.mem_append_right _ (hhost hho))
     rw [hlin] at hΓ
     simp only [List.map_cons, List.sum_cons] at hΓ
-    have hterm : (df.hosted.map (fun hk => (hk.1, (swk P k).map (fun w => w.mul
+    have hterm : (df.hosted.map (fun hk => (hk.1, (swk P hk.1).map (fun w => w.mul
         (hk.2.mul (((rs.take k).map SlotRec.c).getD hk.1 Fp2.zero)).neg)))).map (mdot U R Wd)
         = df.hosted.map (fun hk => -(hk.2.toK U * (((rs.take k).map SlotRec.c).getD hk.1 Fp2.zero).toK U)
-          * mdot U R Wd (hk.1, swk P k)) := by
+          * mdot U R Wd (hk.1, swk P hk.1)) := by
       rw [List.map_map]
       refine List.map_congr_left (fun hk _ => ?_)
       simp only [Function.comp]
@@ -362,14 +359,12 @@ theorem unmask_slots (U : K) (hU : U ^ 2 = algebraMap GF K 7) (H : HIn → Dig) 
       rw [hsub hk hmem, hcl2 hk hmem]
     have h1 := hcl k r hr
     rw [hcs'] at h1
-    -- `hΓ`: scalar = c·mdot(sw) − Σ κ·c_h·mdot_h(sw)
-    have hsplit : ∀ l : List (ℕ × Fp2), (l.map (fun hk => hk.2.toK U * (Sp hk.1
-        + (((rs.take k).map SlotRec.c).getD hk.1 Fp2.zero).toK U
-          * (mdot U R Wd (hk.1, swk P hk.1) - mdot U R Wd (hk.1, swk P k))))).sum
+    -- `hΓ`: scalar = c·mdot(sw) − Σ κ·c_h·mdot_h(sw_h): the hosted masks cancel
+    have hsplit : ∀ l : List (ℕ × Fp2), (l.map (fun hk => hk.2.toK U * Sp hk.1)).sum
         = (l.map (fun hk => hk.2.toK U * (Sp hk.1 + (((rs.take k).map SlotRec.c).getD hk.1 Fp2.zero).toK U
             * mdot U R Wd (hk.1, swk P hk.1)))).sum
           + (l.map (fun hk => -(hk.2.toK U * (((rs.take k).map SlotRec.c).getD hk.1 Fp2.zero).toK U)
-            * mdot U R Wd (hk.1, swk P k))).sum := by
+            * mdot U R Wd (hk.1, swk P hk.1))).sum := by
       intro l
       induction l with
       | nil => simp
@@ -377,9 +372,9 @@ theorem unmask_slots (U : K) (hU : U ^ 2 = algebraMap GF K 7) (H : HIn → Dig) 
     rw [hsplit]
     linear_combination -h1 - hΓ
 
-/-- **The unmasking with the code's weights** (each hosted slot's mask weighted by its own sum weights, argument.rs:1500;
-finding L23-1): when the host's sum weights are every hosted slot's, a host's unmasked sum is `Σ_h κ_h·Sp_h`
-(`RelW16Host.unmask_host`'s conclusion). -/
+/-- **A host's unmasked sum on acceptance**, the host half of `unmask_slots`: `Σ_h κ_h·Sp_h` over its hosted private
+slots (`RelW16Host.unmask_host`'s conclusion, on the verifier's acceptance; each hosted mask weighted by its own sum
+weights, argument.rs:1500, the corrected model of finding L23-1). -/
 theorem unmask_slots_eq (U : K) (hU : U ^ 2 = algebraMap GF K 7) (H : HIn → Dig) (P : BlockParams) (core : Core)
     (t : Tr) (bga : Fp2 × Fp2 × Fp2) (rs : List SlotRec) (acc : Acc) (t' : Tr)
     (hacc : blockSlots H P core t = .ok (bga, rs, acc, t')) (hcan : CoreCanon core)
@@ -388,12 +383,9 @@ theorem unmask_slots_eq (U : K) (hU : U ^ 2 = algebraMap GF K 7) (H : HIn → Di
     (hcl : ∀ k r, rs[k]? = some r → r.claimed.toK U = Sp k + r.c.toK U * mdot U R Wd (k, swk P k))
     (k : ℕ) (r : SlotRec) (hr : rs[k]? = some r) (df : SlotDef)
     (hdf : P.define k (histOf bga.1 bga.2.1 bga.2.2 (rs.take k)) r.draws = .ok df)
-    (hho : P.kind k = SlotKind.host) (hpriv : ∀ hk ∈ df.hosted, P.kind hk.1 ≠ SlotKind.host)
-    (hsw : ∀ hk ∈ df.hosted, swk P hk.1 = swk P k) :
-    Sp k = (df.hosted.map (fun hk => hk.2.toK U * Sp hk.1)).sum := by
-  rw [(unmask_slots U hU H P core t bga rs acc t' hacc hcan ms R Wd hlin hm Sp hcl k r hr df hdf).2 hho hpriv]
-  refine congrArg List.sum (List.map_congr_left fun hk hmem => ?_)
-  rw [hsw hk hmem, sub_self, mul_zero, add_zero]
+    (hho : P.kind k = SlotKind.host) (hpriv : ∀ hk ∈ df.hosted, P.kind hk.1 ≠ SlotKind.host) :
+    Sp k = (df.hosted.map (fun hk => hk.2.toK U * Sp hk.1)).sum :=
+  (unmask_slots U hU H P core t bga rs acc t' hacc hcan ms R Wd hlin hm Sp hcl k r hr df hdf).2 hho hpriv
 
 end K
 

@@ -4,6 +4,7 @@
 # first argument) at run time, one step per line:
 #   build <Module ...>   lake build of the named modules (with their dependencies)
 #   lean <file.lean>     lake env lean of one file (a new file, or a probe)
+#   sh <script>          run a script (its output into the log)
 #   check <script>       run a check script when every earlier step succeeded
 # so that a queued job runs the plan as it stands when the guard admits it.
 WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df
@@ -29,6 +30,13 @@ while read -r kind arg; do
       "$LAKE" -d "$WT/formal" env lean "$arg" 2>&1 | head -n 400
       r=${PIPESTATUS[0]}
       echo "rc $r for $arg ($(( $(date +%s) - start )) s)"
+      [ $r -ne 0 ] && rc=$r
+      ;;
+    sh)
+      echo "== sh $arg =="
+      /bin/bash "$arg" 2>&1 | grep -v '^trace:' | head -n 400
+      r=${PIPESTATUS[0]}
+      echo "sh rc $r for $arg ($(( $(date +%s) - start )) s)"
       [ $r -ne 0 ] && rc=$r
       ;;
     check)

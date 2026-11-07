@@ -1,10 +1,12 @@
 #!/bin/bash
 # D63 lane L23 (2026-11-07): a bounded run of back-to-back iterations as ONE guarded job (run_guarded.py, class cpu),
 # so that the edit-and-elaborate cycles of this lane share one admission. Iteration N starts when OUT/go.N appears; each
-# runs iter.sh on OUT/plan.txt (as read at that moment) into OUT/loopN.log with its exit code in OUT/loopN.done. The job
+# runs iter.sh on OUT/plan.txt (as read at that moment) into OUT/<prefix>N.log with its exit code in OUT/<prefix>N.done
+# (the prefix is the first argument, default loop). The job
 # ends after 6 idle minutes without a go file, after 45 minutes in all, or when OUT/stop appears.
 WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df
 OUT=$WT/results/zk60_lean_l23_20261107
+PFX=${1:-loop}
 start=$(date +%s)
 n=1
 while true; do
@@ -17,8 +19,8 @@ while true; do
     waited=$((waited + 2))
   done
   echo "== iteration $n at $(( $(date +%s) - start )) s =="
-  /bin/bash "$OUT/iter.sh" "$OUT/plan.txt" > "$OUT/loop$n.log" 2>&1
-  echo $? > "$OUT/loop$n.done"
-  echo "iteration $n rc $(cat "$OUT/loop$n.done")"
+  /bin/bash "$OUT/iter.sh" "$OUT/plan.txt" > "$OUT/$PFX$n.log" 2>&1
+  echo $? > "$OUT/$PFX$n.done"
+  echo "iteration $n rc $(cat "$OUT/$PFX$n.done")"
   n=$((n + 1))
 done

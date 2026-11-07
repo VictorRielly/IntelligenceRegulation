@@ -1,0 +1,22 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/results/zk60_lean_l23_20261107/plan.txt ==
+build ZK60Formal.CoverW16Unmask
+sh /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/results/zk60_lean_l23_20261107/mcheck.sh
+build ZK60Formal
+== lake build ZK60Formal.CoverW16Unmask ==
+Build completed successfully (3470 jobs).
+build rc 0 (48 s)
+== sh /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/results/zk60_lean_l23_20261107/mcheck.sh ==
+L10 corpus sha256 0eedc99a74a903cf5b3191c75c8d44f8562c7b1f829d97f6756be9cf83b01608 (as recorded)
+Build completed successfully (3471 jobs).
+  FRAME: 1
+  RECEIPT: 1
+  COUNT: 1
+  TERMS: 34
+  VALUE: 11
+  NEG-HOST-WEIGHTS: 6
+MFunCheck: 54 checks, 0 failed
+sh rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/results/zk60_lean_l23_20261107/mcheck.sh (98 s)
+== lake build ZK60Formal ==
+Build completed successfully (3549 jobs).
+build rc 0 (121 s)
+rc 0, 121 s

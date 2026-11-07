@@ -313,7 +313,8 @@ def slotAcc (P : BlockParams) (s : ℕ) (acc : Acc) (df : SlotDef) (c scalar gVa
     | _ => acc.fs
   let hostFs := match P.kind s with
     | .host => acc.hostFs ++ [⟨(s, sw) :: df.hosted.map (fun hk =>
-        (hk.1, (Cfs.sumWeights (n + e) d).map (fun w => w.mul (hk.2.mul (acc.cs.getD hk.1 Fp2.zero)).neg))), scalar⟩]
+        (hk.1, (Cfs.sumWeights ((slotShape P hk.1).1 + (slotShape P hk.1).2.1) (slotShape P hk.1).2.2).map
+          (fun w => w.mul (hk.2.mul (acc.cs.getD hk.1 Fp2.zero)).neg))), scalar⟩]
     | _ => acc.hostFs
   ⟨acc.cs ++ [c], acc.scalars ++ [scalar], claims, fs1 ++ [⟨[(s, Cfs.evalWeights rhoFull d)], gVal⟩], hostFs⟩
 
