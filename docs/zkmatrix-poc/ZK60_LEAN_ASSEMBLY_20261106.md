@@ -1372,3 +1372,23 @@ All in `results/zk60_lean_l8_20261106/`, each run as one job through the zk60 re
   - the regressions: `L6Check` 1,206 checks, 0 failed (`l6check_regression.log`); `L5Check` 5,553 checks, 0 failed
     (`l5check_regression.log`).
 - Peak RSS of the final check: 3.84 GiB (31 s).
+
+## 11. Per-profile lanes at W16R2 (2026-11-07)
+
+Victor, 2026-11-07, away for the weekend: "focus on completing the lean proofs". W16R3's freeze needs his approval, so
+the per-profile obligations of §4 are now being proved for **W16R2**, the profile the code runs today. W16R2's
+specifics are kept in named definitions so W16R3 becomes an instance swap. Each lane writes its own doc; this section
+only points to them.
+
+| Lane | Doc | §4 obligations it discharges |
+|---|---|---|
+| L9, the block verifier | `ZK60_LEAN_L9_BLOCK_VERIFIER_20261107.md` | §4.0: the receipt decoder and `verify` (the block). §10.5: the profile's schedule. The block's sumcheck Fiat–Shamir bound on the real schedule, ≤ 2^-61. |
+| L11, the slots and the layout map | `ZK60_LEAN_L11_SLOTS_LAYOUT_20261107.md` | §4.2: d (F44), f (the layout map, for the block), c (the hand-off lemmas). The per-slot soundness densities. |
+| L12, the token stages | `ZK60_LEAN_L12_STAGES_20261107.md` | §4.2: e (IN-C whole; the OUT-C and OUT steps), f (the run's boundary links), g (the endpoints, stated against `opensIn` / `opensOut`). |
+| L10, openings, M and `Binding` | running | §4.4 `Binding`. §4.2 b (M's opening under Fiat–Shamir). The L8-5 transfer. L9's `BlockParams` opening fields. |
+| L13, slot builders and composition | running | The proved link from the slot IRs to `W16Rels`. The block's composed ε. |
+| L14, zero knowledge for a block | running | §4.5: a, b, d, e, f for one block receipt. |
+| L15, the whole stages | running | §4.2 e (OUT-C and OUT whole). Their Fiat–Shamir forms. A stage corpus. |
+
+Still open after these: the run level (the D55 tree, §4.2 a's composed knowledge version), the `Protocol` instance and
+`Complete` (§4.3), the assembly into `ProductionReady`, and W16R3's delta.

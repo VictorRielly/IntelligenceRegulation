@@ -278,6 +278,25 @@ here. The rates count proving and witness work. Verification time is recorded se
     - the extractor (the polynomial is the committed tables');
     - LogUp, the openings and M, plus the L8-5 transfer;
     - the receipt decoder, the D55 schedule and the simulator.
+- **D63 Lean, per profile at W16R2 (2026-11-07, Victor away: "focus on completing the lean proofs")** [PROVED; each
+  lane checked on the merged tree; docs `ZK60_LEAN_L9/L11/L12_*_20261107.md`].
+  - The W16R3 freeze needs Victor's approval, so the per-profile proofs now target **W16R2**, the profile that the
+    code, the 8B stack and the media app's classifier run today. W16R3 will then be a swap of named definitions, not a
+    rewrite.
+  - **L9, the block verifier in executable Lean.** It decodes a real W16R2 block receipt (14.3 MB) byte for byte and
+    replays all 1,609 of its challenges: 273 checks, 0 failed. Its Fiat–Shamir bound on the block's real schedule is
+    one slot's bound for all 23 slots, at most 2^-61. Finding L9-5 (Low): W16R2 slots reach degree 5, so the L7/L8
+    degree-4 figures must not be quoted for a W16R2 block.
+  - **L11, the slots and the layout map.** The slots' checks and LogUp's conclusion give the block's constraint system
+    at the model's positions (`blockSat_of_slots`, which feeds the proved `CircuitIff`). Checked against a real receipt:
+    404 checks, 0 failed. One latent Low finding: a hard-coded lookup width that agrees today.
+  - **L12, the classifier's token stages.** The embedding stage IN-C is proved as one theorem. The head stage OUT-C's
+    byte lookup and margin are proved, and the run's boundary links are in place. About 2^-111 per stage
+    [ESTIMATE].
+  - **Running:** L10 (openings, M, `Binding`), L13 (the slot builders proved, and the block's composed error), L14 (zero
+    knowledge for one block: Statement 2), and L15 (the whole OUT-C/OUT stages).
+  - **Still open before production:** the run level (the D55 tree), the extractor end to end, the `Protocol` instance
+    and its assembly into `ProductionReady`, and then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.

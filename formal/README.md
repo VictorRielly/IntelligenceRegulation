@@ -532,6 +532,35 @@ The plain-words version, the modelling choices and the open decisions are in
     the run's shape; two instance-search pitfalls.
   - Left (§10.5): the profile's schedule (windows, `CSub`s, `W`), each claim as a function of its trace and the
     batching/zero-check rounds with releases, the other sub-protocols transferred from `Dg`, the extractor.
+- **Per-profile, at W16R2 (the weekend lanes, 2026-11-07).** Victor, away for the weekend, asked that the Lean proofs
+  be completed. The W16R3 freeze needs his approval, so these lanes target W16R2, the profile the code and the media
+  app run today. Each keeps W16R2's specifics in named definitions, so that W16R3 becomes an instance swap. Each lane
+  has its own doc, `docs/zkmatrix-poc/ZK60_LEAN_L<n>_*_20261107.md`, and evidence dir,
+  `results/zk60_lean_l<n>_20261107/`. All were checked on the merged tree.
+  - **L9, the block verifier** (`ExecBlockWire.lean`, `ExecBlockVerify.lean`, `ExecBlockFS.lean`; checker
+    `ExecBlockCheck.lean`, which defines `main` and is not imported by the root).
+    - `decodeFork_spec` and `decodeFork_injective`: one canonical encoding per receipt.
+    - `blockVerify`: `verify_core`'s exact order. Slot definitions, M and the openings are `BlockParams` fields.
+    - `block_sumchecks_fs_sound`: one slot's bound for the block's 23 slots, at most 2^-61.
+    - `ExecBlockCheck`: a real 14.3 MB W16R2 rung frame, 273 checks, 0 failed, every one of its 1,609 squeezes
+      reproduced. 91 theorems.
+    - Finding L9-5 (Low): W16R2 degrees reach 5, so quote `block_bound_le` (degree ≤ 7), not L7/L8's degree-4
+      corollaries.
+  - **L11, the slots and the layout map** (`SlotW16Ir.lean`, `SlotW16R2.lean`, `SlotW16Sound.lean`, `LayoutW16.lean`,
+    `LayoutW16Handoff.lean`; checker `L11Check.lean`).
+    - The slot IR and `run_slot`'s verify arm are executable and proved equal to their models.
+    - The 23 W16R2 slots. F44 discharged.
+    - `blockSat_of_slots`: the slots' relations plus LogUp's conclusion give `BlockSat` at the logical positions.
+    - The hand-off lemmas.
+    - `L11Check`: 404 checks, 0 failed. 82 theorems.
+  - **L12, the token stages** (`StageExtractCore.lean`, `StageInExtract.lean`, `StageInExtractSlots.lean`,
+    `StageOutCExtract.lean`, `StageOutCExtractSlots.lean`, `StageOutExtract.lean`, `StageRunExtract.lean`).
+    - IN-C as one whole-stage theorem (`inc_stage_sound`).
+    - OUT-C's byte LogUp and margin, and OUT's head and selector steps.
+    - The run's boundary links, and `IOPExtract`'s inner predicate with the openings as hypotheses.
+    - About 2^-111 per stage at the classifier's shape [ESTIMATE]. 83 theorems.
+  - Running: L10 (openings, M, `Binding`), L13 (slot builders and the block's composed ε), L14 (zero knowledge for
+    a block) and L15 (the whole OUT-C/OUT stages, a stage corpus).
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems
