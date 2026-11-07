@@ -1,0 +1,418 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/results/zk60_lean_l23_20261107/plan_warm.txt ==
+build ZK60Formal.RelW16Pos ZK60Formal.SlotW16Compose ZK60Formal.SlotR13 ZK60Formal.LayoutR13 ZK60Formal.ExecBlockR13
+build ZK60Formal.CoverW16
+build ZK60Formal.CoverW16Unmask
+build ZK60Formal.CoverW16Target
+build ZK60Formal.SlotPolyW16Kinds
+build ZK60Formal.SlotPolyW16
+build ZK60Formal.SlotPolyW16Draw
+build ZK60Formal.CoverW16Inst
+build ZK60Formal.SlotPolyW16Map
+build ZK60Formal.CoverW16Gen
+build ZK60Formal.CoverW16R13
+build ZK60Formal.CoverW16Shapes
+== lake build ZK60Formal.RelW16Pos ZK60Formal.SlotW16Compose ZK60Formal.SlotR13 ZK60Formal.LayoutR13 ZK60Formal.ExecBlockR13 ==
+Build completed successfully (3477 jobs).
+build rc 0 (3 s)
+== lake build ZK60Formal.CoverW16 ==
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3469 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.CoverW16Unmask ==
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3470/3470] Building ZK60Formal.CoverW16Unmask (12s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:108:2: No goals to be solved
+error: ZK60Formal/CoverW16Unmask.lean:248:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun b => ?r * ?f b) ?l).sum
+in the target expression
+  (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+R : ℕ → ℕ → K
+Wd s : ℕ
+w : List Fp2
+c : Fp2
+⊢ (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+warning: ZK60Formal/CoverW16Unmask.lean:253:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.list_sum_map_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+build rc 1 (22 s)
+== lake build ZK60Formal.CoverW16Target ==
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3470/3471] Building ZK60Formal.CoverW16Unmask (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:108:2: No goals to be solved
+error: ZK60Formal/CoverW16Unmask.lean:248:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun b => ?r * ?f b) ?l).sum
+in the target expression
+  (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+R : ℕ → ℕ → K
+Wd s : ℕ
+w : List Fp2
+c : Fp2
+⊢ (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+warning: ZK60Formal/CoverW16Unmask.lean:253:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.list_sum_map_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+build rc 1 (27 s)
+== lake build ZK60Formal.SlotPolyW16Kinds ==
+warning: ZK60Formal/SlotPolyW16Kinds.lean:48:6: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:300:70: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:301:24: `if_pos` has been deprecated: Use `ite_eq_left` instead
+Build completed successfully (3371 jobs).
+build rc 0 (31 s)
+== lake build ZK60Formal.SlotPolyW16 ==
+warning: ZK60Formal/SlotPolyW16Kinds.lean:48:6: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:300:70: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:301:24: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3480/3482] Building ZK60Formal.CoverW16Unmask (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:108:2: No goals to be solved
+error: ZK60Formal/CoverW16Unmask.lean:248:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun b => ?r * ?f b) ?l).sum
+in the target expression
+  (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+R : ℕ → ℕ → K
+Wd s : ℕ
+w : List Fp2
+c : Fp2
+⊢ (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+warning: ZK60Formal/CoverW16Unmask.lean:253:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.list_sum_map_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+build rc 1 (35 s)
+== lake build ZK60Formal.SlotPolyW16Draw ==
+warning: ZK60Formal/SlotPolyW16Kinds.lean:48:6: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:300:70: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:301:24: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3482/3485] Building ZK60Formal.CoverW16Unmask (6.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:108:2: No goals to be solved
+error: ZK60Formal/CoverW16Unmask.lean:248:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun b => ?r * ?f b) ?l).sum
+in the target expression
+  (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+R : ℕ → ℕ → K
+Wd s : ℕ
+w : List Fp2
+c : Fp2
+⊢ (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+warning: ZK60Formal/CoverW16Unmask.lean:253:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.list_sum_map_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+build rc 1 (42 s)
+== lake build ZK60Formal.CoverW16Inst ==
+warning: ZK60Formal/SlotPolyW16Kinds.lean:48:6: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:300:70: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:301:24: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3482/3486] Building ZK60Formal.CoverW16Unmask (2.6s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:108:2: No goals to be solved
+error: ZK60Formal/CoverW16Unmask.lean:248:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun b => ?r * ?f b) ?l).sum
+in the target expression
+  (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+R : ℕ → ℕ → K
+Wd s : ℕ
+w : List Fp2
+c : Fp2
+⊢ (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+warning: ZK60Formal/CoverW16Unmask.lean:253:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.list_sum_map_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+build rc 1 (47 s)
+== lake build ZK60Formal.SlotPolyW16Map ==
+✖ [3397/3397] Building ZK60Formal.SlotPolyW16Map (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/SlotPolyW16Map.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Map.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Map.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Map.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Map.setup.json --json
+warning: ZK60Formal/SlotPolyW16Map.lean:55:68: This simp argument is unused:
+  List.length_map
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, tzcPost, tzcExtra, threeTerms, limbsB, st, List.map_cons, List.map_nil, Body.map,
+    SubTerm.map, Term.map, Cst.map, List.map_map, Function.comp_def, getD_map_f, Option.map_map]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Map.lean:55:85: This simp argument is unused:
+  Option.map_map
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, tzcPost, tzcExtra, threeTerms, limbsB, st, List.map_cons, List.map_nil, Body.map,
+    SubTerm.map, Term.map, Cst.map, List.map_map, Function.comp_def, getD_map_f, List.length_map]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Map.lean:55:101: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotPolyW16Map.lean:62:84: Unused tactic linter: `rfl` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotPolyW16Map.lean:62:84: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+error: ZK60Formal/SlotPolyW16Map.lean:88:2: No goals to be solved
+warning: ZK60Formal/SlotPolyW16Map.lean:98:4: This simp argument is unused:
+  Option.map_map
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, fzcPost, threeTerms, gatedSt, limbs16B, reqB, batchB, st, List.map_cons, List.map_nil,
+    Body.map, SubTerm.map, Term.map, Cst.map, List.map_map, Function.comp_def, getD_map_f, List.length_map]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Map.lean:98:20: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotPolyW16Map.lean:108:4: This simp argument is unused:
+  Option.map_map
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [qzcPre, qzcPost, threeTerms, gatedSt, limbs16B, reqB, batchB, st, List.map_cons, List.map_nil,
+    Body.map, SubTerm.map, Term.map, Cst.map, List.map_map, Function.comp_def, getD_map_f, List.length_map]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Map.lean:108:20: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotPolyW16Map.lean:118:4: This simp argument is unused:
+  Option.map_map
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, szcPost, gatedSt, limbs16B, reqB, batchB, st, List.map_cons, List.map_nil, Body.map,
+    SubTerm.map, Term.map, Cst.map, List.map_map, Function.comp_def, getD_map_f, List.length_map]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Map.lean:118:20: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Some required targets logged failures:
+- ZK60Formal.SlotPolyW16Map
+error: build failed
+build rc 1 (50 s)
+== lake build ZK60Formal.CoverW16Gen ==
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3470/3472] Building ZK60Formal.CoverW16Unmask (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:108:2: No goals to be solved
+error: ZK60Formal/CoverW16Unmask.lean:248:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun b => ?r * ?f b) ?l).sum
+in the target expression
+  (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+R : ℕ → ℕ → K
+Wd s : ℕ
+w : List Fp2
+c : Fp2
+⊢ (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+warning: ZK60Formal/CoverW16Unmask.lean:253:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.list_sum_map_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+build rc 1 (54 s)
+== lake build ZK60Formal.CoverW16R13 ==
+warning: ZK60Formal/SlotPolyW16Kinds.lean:48:6: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:300:70: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:301:24: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3483/3489] Building ZK60Formal.CoverW16Unmask (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:108:2: No goals to be solved
+error: ZK60Formal/CoverW16Unmask.lean:248:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun b => ?r * ?f b) ?l).sum
+in the target expression
+  (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+R : ℕ → ℕ → K
+Wd s : ℕ
+w : List Fp2
+c : Fp2
+⊢ (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+warning: ZK60Formal/CoverW16Unmask.lean:253:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.list_sum_map_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+build rc 1 (58 s)
+== lake build ZK60Formal.CoverW16Shapes ==
+warning: ZK60Formal/SlotPolyW16Kinds.lean:48:6: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:300:70: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Kinds.lean:301:24: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/CoverW16.lean:203:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.hbr_of_cover`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3482/3487] Building ZK60Formal.CoverW16Unmask (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/CoverW16Unmask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/CoverW16Unmask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/CoverW16Unmask.setup.json --json
+error: ZK60Formal/CoverW16Unmask.lean:108:2: No goals to be solved
+error: ZK60Formal/CoverW16Unmask.lean:248:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun b => ?r * ?f b) ?l).sum
+in the target expression
+  (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+R : ℕ → ℕ → K
+Wd s : ℕ
+w : List Fp2
+c : Fp2
+⊢ (List.map (fun j => Fp2.toK U ((List.map (fun x => x.mul c) w).getD j Fp2.zero) * R s j) (List.range Wd)).sum =
+    Fp2.toK U c * (List.map (fun j => Fp2.toK U (w.getD j Fp2.zero) * R s j) (List.range Wd)).sum
+warning: ZK60Formal/CoverW16Unmask.lean:253:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.list_sum_map_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.CoverW16Unmask
+error: build failed
+build rc 1 (62 s)
+rc 1, 62 s

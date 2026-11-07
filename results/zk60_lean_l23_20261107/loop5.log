@@ -1,0 +1,46 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/results/zk60_lean_l23_20261107/plan.txt ==
+build ZK60Formal.CoverW16
+build ZK60Formal.CoverW16Unmask
+build ZK60Formal.CoverW16Target
+build ZK60Formal.SlotPolyW16Kinds
+build ZK60Formal.SlotPolyW16
+build ZK60Formal.SlotPolyW16Draw
+build ZK60Formal.CoverW16Inst
+build ZK60Formal.SlotPolyW16Map
+build ZK60Formal.CoverW16Gen
+build ZK60Formal.CoverW16R13
+build ZK60Formal.CoverW16Shapes
+== lake build ZK60Formal.CoverW16 ==
+Build completed successfully (3469 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.CoverW16Unmask ==
+Build completed successfully (3470 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.CoverW16Target ==
+Build completed successfully (3471 jobs).
+build rc 0 (8 s)
+== lake build ZK60Formal.SlotPolyW16Kinds ==
+Build completed successfully (3371 jobs).
+build rc 0 (10 s)
+== lake build ZK60Formal.SlotPolyW16 ==
+Build completed successfully (3482 jobs).
+build rc 0 (11 s)
+== lake build ZK60Formal.SlotPolyW16Draw ==
+Build completed successfully (3485 jobs).
+build rc 0 (12 s)
+== lake build ZK60Formal.CoverW16Inst ==
+Build completed successfully (3486 jobs).
+build rc 0 (14 s)
+== lake build ZK60Formal.SlotPolyW16Map ==
+Build completed successfully (3397 jobs).
+build rc 0 (15 s)
+== lake build ZK60Formal.CoverW16Gen ==
+Build completed successfully (3472 jobs).
+build rc 0 (17 s)
+== lake build ZK60Formal.CoverW16R13 ==
+Build completed successfully (3490 jobs).
+build rc 0 (30 s)
+== lake build ZK60Formal.CoverW16Shapes ==
+Build completed successfully (3487 jobs).
+build rc 0 (34 s)
+rc 0, 34 s

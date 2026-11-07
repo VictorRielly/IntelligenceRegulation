@@ -141,3 +141,14 @@ import ZK60Formal.RelW16Block
 import ZK60Formal.RelW16Host
 import ZK60Formal.RelW16HostDeg
 import ZK60Formal.RelW16Pos
+import ZK60Formal.CoverW16
+import ZK60Formal.CoverW16Unmask
+import ZK60Formal.CoverW16Target
+import ZK60Formal.CoverW16Gen
+import ZK60Formal.CoverW16Inst
+import ZK60Formal.CoverW16R13
+import ZK60Formal.SlotPolyW16Kinds
+import ZK60Formal.SlotPolyW16
+import ZK60Formal.SlotPolyW16Draw
+import ZK60Formal.SlotPolyW16Map
+import ZK60Formal.CoverW16Shapes

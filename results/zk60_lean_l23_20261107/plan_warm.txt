@@ -1,0 +1,12 @@
+build ZK60Formal.RelW16Pos ZK60Formal.SlotW16Compose ZK60Formal.SlotR13 ZK60Formal.LayoutR13 ZK60Formal.ExecBlockR13
+build ZK60Formal.CoverW16
+build ZK60Formal.CoverW16Unmask
+build ZK60Formal.CoverW16Target
+build ZK60Formal.SlotPolyW16Kinds
+build ZK60Formal.SlotPolyW16
+build ZK60Formal.SlotPolyW16Draw
+build ZK60Formal.CoverW16Inst
+build ZK60Formal.SlotPolyW16Map
+build ZK60Formal.CoverW16Gen
+build ZK60Formal.CoverW16R13
+build ZK60Formal.CoverW16Shapes

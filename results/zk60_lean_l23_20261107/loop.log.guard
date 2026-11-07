@@ -1,0 +1,7 @@
+[zk60-guard 07:26:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:27:59] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:28:59] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:30:00] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:30:30] waiting for admission lock (0s)
+[zk60-guard 07:31:02] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:31:32] START lean-l23-iterloop class=cpu need=14G cap=24G enforce=watchdog-only waited=274s run=a9c8f744a2ba

@@ -1,0 +1,244 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/results/zk60_lean_l23_20261107/plan.txt ==
+build ZK60Formal.CoverW16
+build ZK60Formal.CoverW16Unmask
+build ZK60Formal.CoverW16Target
+build ZK60Formal.SlotPolyW16Kinds
+build ZK60Formal.SlotPolyW16
+build ZK60Formal.SlotPolyW16Draw
+build ZK60Formal.CoverW16Inst
+build ZK60Formal.SlotPolyW16Map
+build ZK60Formal.CoverW16Gen
+build ZK60Formal.CoverW16R13
+build ZK60Formal.CoverW16Shapes
+== lake build ZK60Formal.CoverW16 ==
+Build completed successfully (3469 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.CoverW16Unmask ==
+Build completed successfully (3470 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.CoverW16Target ==
+Build completed successfully (3471 jobs).
+build rc 0 (21 s)
+== lake build ZK60Formal.SlotPolyW16Kinds ==
+Build completed successfully (3371 jobs).
+build rc 0 (23 s)
+== lake build ZK60Formal.SlotPolyW16 ==
+warning: ZK60Formal/SlotPolyW16.lean:187:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.schedOf_facts`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3482 jobs).
+build rc 0 (26 s)
+== lake build ZK60Formal.SlotPolyW16Draw ==
+warning: ZK60Formal/SlotPolyW16.lean:187:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.schedOf_facts`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3485/3485] Building ZK60Formal.SlotPolyW16Draw (6.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/SlotPolyW16Draw.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Draw.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Draw.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Draw.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Draw.setup.json --json
+warning: ZK60Formal/SlotPolyW16Draw.lean:67:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:67:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:68:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:68:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:72:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:72:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:73:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:73:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:75:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:75:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:76:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:76:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:92:51: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/SlotPolyW16Draw.lean:95:6: No goals to be solved
+warning: ZK60Formal/SlotPolyW16Draw.lean:130:66: This simp argument is unused:
+  and_false
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hostKeyOf, Prod.mk.injEq, reduceCtorEq, false_and, true_and, eq_self_iff_true, Fin.val_inj] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Draw.lean:130:87: This simp argument is unused:
+  eq_self_iff_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hostKeyOf, Prod.mk.injEq, reduceCtorEq, false_and, and_false, true_and, Fin.val_inj] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/SlotPolyW16Draw.lean:155:2: `simp` failed: maximum number of steps exceeded
+error: ZK60Formal/SlotPolyW16Draw.lean:151:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+warning: ZK60Formal/SlotPolyW16Draw.lean:163:48: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+error: ZK60Formal/SlotPolyW16Draw.lean:188:2: `simp` made no progress
+Some required targets logged failures:
+- ZK60Formal.SlotPolyW16Draw
+error: build failed
+build rc 1 (33 s)
+== lake build ZK60Formal.CoverW16Inst ==
+warning: ZK60Formal/SlotPolyW16.lean:187:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.schedOf_facts`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3485/3486] Building ZK60Formal.SlotPolyW16Draw (6.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/SlotPolyW16Draw.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Draw.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Draw.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Draw.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Draw.setup.json --json
+warning: ZK60Formal/SlotPolyW16Draw.lean:67:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:67:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:68:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:68:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:72:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:72:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:73:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:73:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:75:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:75:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:76:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:76:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:92:51: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/SlotPolyW16Draw.lean:95:6: No goals to be solved
+warning: ZK60Formal/SlotPolyW16Draw.lean:130:66: This simp argument is unused:
+  and_false
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hostKeyOf, Prod.mk.injEq, reduceCtorEq, false_and, true_and, eq_self_iff_true, Fin.val_inj] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Draw.lean:130:87: This simp argument is unused:
+  eq_self_iff_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hostKeyOf, Prod.mk.injEq, reduceCtorEq, false_and, and_false, true_and, Fin.val_inj] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/SlotPolyW16Draw.lean:155:2: `simp` failed: maximum number of steps exceeded
+error: ZK60Formal/SlotPolyW16Draw.lean:151:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+warning: ZK60Formal/SlotPolyW16Draw.lean:163:48: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+error: ZK60Formal/SlotPolyW16Draw.lean:188:2: `simp` made no progress
+Some required targets logged failures:
+- ZK60Formal.SlotPolyW16Draw
+error: build failed
+build rc 1 (41 s)
+== lake build ZK60Formal.SlotPolyW16Map ==
+Build completed successfully (3397 jobs).
+build rc 0 (42 s)
+== lake build ZK60Formal.CoverW16Gen ==
+Build completed successfully (3472 jobs).
+build rc 0 (46 s)
+== lake build ZK60Formal.CoverW16R13 ==
+warning: ZK60Formal/SlotPolyW16.lean:187:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.schedOf_facts`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3487/3489] Building ZK60Formal.SlotPolyW16Draw (6.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/SlotPolyW16Draw.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Draw.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Draw.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Draw.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Draw.setup.json --json
+warning: ZK60Formal/SlotPolyW16Draw.lean:67:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:67:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:68:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:68:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:72:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:72:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:73:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:73:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:75:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:75:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:76:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:76:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:92:51: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/SlotPolyW16Draw.lean:95:6: No goals to be solved
+warning: ZK60Formal/SlotPolyW16Draw.lean:130:66: This simp argument is unused:
+  and_false
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hostKeyOf, Prod.mk.injEq, reduceCtorEq, false_and, true_and, eq_self_iff_true, Fin.val_inj] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Draw.lean:130:87: This simp argument is unused:
+  eq_self_iff_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hostKeyOf, Prod.mk.injEq, reduceCtorEq, false_and, and_false, true_and, Fin.val_inj] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/SlotPolyW16Draw.lean:155:2: `simp` failed: maximum number of steps exceeded
+error: ZK60Formal/SlotPolyW16Draw.lean:151:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+warning: ZK60Formal/SlotPolyW16Draw.lean:163:48: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+error: ZK60Formal/SlotPolyW16Draw.lean:188:2: `simp` made no progress
+Some required targets logged failures:
+- ZK60Formal.SlotPolyW16Draw
+error: build failed
+build rc 1 (53 s)
+== lake build ZK60Formal.CoverW16Shapes ==
+warning: ZK60Formal/SlotPolyW16.lean:187:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.schedOf_facts`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3485/3487] Building ZK60Formal.SlotPolyW16Draw (6.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/ZK60Formal/SlotPolyW16Draw.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Draw.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/lib/lean/ZK60Formal/SlotPolyW16Draw.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Draw.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad9d55551b2c8d9df/formal/.lake/build/ir/ZK60Formal/SlotPolyW16Draw.setup.json --json
+warning: ZK60Formal/SlotPolyW16Draw.lean:67:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:67:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:68:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:68:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:72:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:72:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:73:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:73:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:75:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:75:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:76:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:76:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/SlotPolyW16Draw.lean:92:51: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/SlotPolyW16Draw.lean:95:6: No goals to be solved
+warning: ZK60Formal/SlotPolyW16Draw.lean:130:66: This simp argument is unused:
+  and_false
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hostKeyOf, Prod.mk.injEq, reduceCtorEq, false_and, true_and, eq_self_iff_true, Fin.val_inj] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotPolyW16Draw.lean:130:87: This simp argument is unused:
+  eq_self_iff_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hostKeyOf, Prod.mk.injEq, reduceCtorEq, false_and, and_false, true_and, Fin.val_inj] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/SlotPolyW16Draw.lean:155:2: `simp` failed: maximum number of steps exceeded
+error: ZK60Formal/SlotPolyW16Draw.lean:151:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+warning: ZK60Formal/SlotPolyW16Draw.lean:163:48: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+error: ZK60Formal/SlotPolyW16Draw.lean:188:2: `simp` made no progress
+Some required targets logged failures:
+- ZK60Formal.SlotPolyW16Draw
+error: build failed
+build rc 1 (61 s)
+rc 1, 61 s
