@@ -1,0 +1,9 @@
+# Lane A28, job p1 (diagnostics, single runs): A27 as pinned on the 8-post stream at the app's setting, with two
+# existing byte-preserving device switches: HL_METAL_SPIN_US=200 (A7: spin 200 us, then block, so a waiting lane
+# thread frees its core) and HL_METAL_DEVICE_FOLD=1 (the openings' store folds on the device instead of A8's host
+# fold), between two plain runs. Every receipt freshly verified.
+# tag|binary|posts|driver flags|env
+p1base|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+p1spin|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_METAL_SPIN_US=200
+p1dfold|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_METAL_DEVICE_FOLD=1
+p1base2|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread

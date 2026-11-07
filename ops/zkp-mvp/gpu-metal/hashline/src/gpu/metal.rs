@@ -29,7 +29,9 @@ use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
-const KERNELS: [&str; 20] = [
+const KERNELS: [&str; 22] = [
+    "k_hash_chunk",
+    "k_hash_merge",
     "k_fs_test",
     "k_sc_fs_step",
     "k_sc_part_reduce",
@@ -193,6 +195,8 @@ struct HeadArgs {
     pow2: u32,
     /// [A27] 1: two stages per pass (radix 4 in registers, [`ntt_r4_on`])
     r4: u32,
+    /// [A28] 1: the first radix-4 pass reads only the words its zero positions leave ([`prune_on`])
+    prune: u32,
 }
 #[repr(C)]
 struct TailArgs {
@@ -215,6 +219,62 @@ struct TailArgs {
 fn ntt_r4_on() -> bool {
     static ON: OnceLock<bool> = OnceLock::new();
     *ON.get_or_init(|| std::env::var("HL_A27_NTT4").map(|v| v != "0").unwrap_or(true))
+}
+
+/// **[A28] `HL_A28_PRUNE`** (default on; `0`: the head loads every word and runs its first radix-4
+/// pass as A27 did): the encoding's forward transform reads a plain or hiding row zero-padded to
+/// 2^log_n words. When all its nonzero words lie below 2^(log_n - 1) (rate 1/4 or lower: the
+/// classifier's commitments), every bit-reversed working position whose bit 0 is set holds zero, so
+/// stages 1 and 2 (the head's first radix-4 pass) read only the words at positions 4b and 4b + 2 and
+/// skip the products and sums of the zeros: the same canonical words (`metal_kernels.metal`,
+/// `k_ntt_head`). The zero positions are a function of the shape alone, never of a value. Measured
+/// with the A28 bench at the classifier's A shape (`results/zk60_a28_app_20261107`).
+fn prune_on() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A28_PRUNE").map(|v| v != "0").unwrap_or(true))
+}
+
+/// **[A28] `HL_A28_HASH`** (default on; `0`: `k_hash_cols`, one thread per column, as before): the
+/// column leaves in two passes, one thread per (column, 1024-byte chunk) for the chunks' chaining
+/// values (36 per column at the classifier's A shape instead of one thread walking all 36), then one
+/// thread per column merging them with BLAKE3's chaining-value stack (`k_hash_chunk`,
+/// `k_hash_merge`). BLAKE3 is a function: the same leaves (the commitment tests compare every leaf
+/// and root with the CPU). The A28 bench at the A shape: 5.47 -> 4.23 ms.
+fn hash2_on() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A28_HASH").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [A28] the column leaves of `e` (rows x nn) into `leaves`: [`hash2_on`]'s two passes, or
+/// `k_hash_cols`. `cvs` is the chunks' chaining-value buffer of the two-pass form (nn x chunks x
+/// 32 bytes), required when a column has more than one chunk; a one-chunk column's thread writes
+/// its leaf itself (buffer 1 then unread).
+fn encode_hash(c: &Ctx, enc: &metal::ComputeCommandEncoderRef, e: &Buffer, leaves: &Buffer, cvs: Option<&Buffer>, args: &HashArgs) {
+    let chunks = (args.rows * 8).div_ceil(1024);
+    match (chunks == 1).then_some(leaves).or(cvs) {
+        Some(cv) if hash2_on() => {
+            let p = &c.pipes["k_hash_chunk"];
+            enc.set_compute_pipeline_state(p);
+            enc.set_buffer(0, Some(e), 0);
+            enc.set_buffer(1, Some(cv), 0);
+            enc.set_buffer(2, Some(leaves), 0);
+            set_args(enc, 3, args);
+            let tg = p.max_total_threads_per_threadgroup().min(64).min(args.nn.max(1));
+            enc.dispatch_threads(MTLSize::new(args.nn, chunks, 1), MTLSize::new(tg, 1, 1));
+            if chunks > 1 {
+                enc.set_buffer(0, Some(cv), 0);
+                enc.set_buffer(1, Some(leaves), 0);
+                set_args(enc, 2, args);
+                dispatch_2d(c, enc, "k_hash_merge", args.nn, 1);
+            }
+        }
+        _ => {
+            enc.set_buffer(0, Some(e), 0);
+            enc.set_buffer(1, Some(leaves), 0);
+            set_args(enc, 2, args);
+            dispatch_2d(c, enc, "k_hash_cols", args.nn, 1);
+        }
+    }
 }
 
 /// Head input modes (k_ntt_head): a natural-order copy, the plain RS row, the hiding row.
@@ -246,10 +306,28 @@ fn encode_fused(
     enc.set_buffer(7, Some(hx.unwrap_or(tw)), 0);
     let pow2 = if hx.is_some() { l.min(6) } else { 0 };
     let head_scales = scale.is_some() && log_n <= TILE_LOG;
+    // [A28] the first radix-4 pass pruned when every nonzero word of the row (the plain row's 2^log_src
+    // coefficients, the hiding row's 2^log_src + q) lies below 2^(log_n - 1): then every working
+    // position whose bit 0 is set holds zero ([`prune_on`])
+    let extent = (1u64 << log_src) + if mode == MODE_ZK { q } else { 0 };
+    let prune = prune_on() && ntt_r4_on() && mode != MODE_COPY && l >= 2 && log_n >= 1 && extent <= 1u64 << (log_n - 1);
     set_args(
         enc,
         5,
-        &HeadArgs { rows, log_n, log_src, mode, max_log, q, scale: scale.unwrap_or(1), apply_scale: head_scales as u32, use_hw: hw.is_some() as u32, pow2, r4: ntt_r4_on() as u32 },
+        &HeadArgs {
+            rows,
+            log_n,
+            log_src,
+            mode,
+            max_log,
+            q,
+            scale: scale.unwrap_or(1),
+            apply_scale: head_scales as u32,
+            use_hw: hw.is_some() as u32,
+            pow2,
+            r4: ntt_r4_on() as u32,
+            prune: prune as u32,
+        },
     );
     // [A27] with two stages per pass a thread holds four elements (the single stage left over,
     // if any, loops twice per thread)
@@ -2008,6 +2086,9 @@ fn commit_impl(
         let t = shared_buffer(c, (rows * n * 8) as u64)?;
         let e = shared_buffer(c, (rows * nn * 8) as u64)?;
         let leaves_buf = shared_buffer(c, (nn * 32) as u64)?;
+        // [A28] the chunks' chaining values of the two-pass hash (every word written before it is read)
+        let chunks = (rows * 8).div_ceil(1024);
+        let cvs = if hash2_on() && chunks > 1 { Some(shared_buffer(c, (nn * chunks * 32) as u64)?) } else { None };
         let t_setup = t0.elapsed().as_secs_f64();
         let zk_bufs = match &init {
             Init::Plain => None,
@@ -2037,10 +2118,9 @@ fn commit_impl(
                         encode_fused(c, enc, &t, Some(pb), Some(wb), &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_ZK, *q as u64, ntt.max_log, None)
                     }
                 }
-                enc.set_buffer(0, Some(&e), 0);
-                enc.set_buffer(1, Some(&leaves_buf), 0);
-                set_args(enc, 2, &HashArgs { rows: rows64, nn: nn as u64, keyed: key.is_some() as u32, pad0: 0, key: kw });
-                dispatch_2d(c, enc, "k_hash_cols", nn as u64, 1);
+                // [A28] the leaves in two passes (HL_A28_HASH; `k_hash_cols` with it off or one chunk a column)
+                let ha = HashArgs { rows: rows64, nn: nn as u64, keyed: key.is_some() as u32, pad0: 0, key: kw };
+                encode_hash(c, enc, &e, &leaves_buf, cvs.as_deref(), &ha);
                 return Ok(());
             }
             // M1 reference path (HL_METAL_STAGED=1): one dispatch per stage
@@ -4715,6 +4795,42 @@ fn result_plane(c: &Ctx, out_len: usize, view: bool) -> (Vec<i64>, Option<Buffer
     (v, b)
 }
 
+/// **[A28] `HL_A28_WQ`** (default on; `0`: every thread's witness products on the one witness queue,
+/// as A4 made it): under per-thread queues (`HL_METAL_QUEUES=thread`, the app's setting) each thread
+/// also gets a witness queue of its own, made at its first product and released when the thread
+/// ends. The A28 profile of the 8-post stream found the six prover lanes' sealing passes queued
+/// behind each other on the one witness queue: 23.6 s of commit-to-start waits over 24 proofs
+/// (`results/zk60_a28_app_20261107`). No byte can move: each product's command buffer is waited for
+/// by the thread that made it before it reads the output, whichever queue carries it (A7's argument).
+fn wq_on() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A28_WQ").map(|v| v != "0").unwrap_or(true))
+}
+
+thread_local! {
+    /// [A28] this thread's own witness queue ([`wq_on`]); `None` if Metal gave none
+    static OWN_WQUEUE: std::cell::OnceCell<Option<CommandQueue>> = const { std::cell::OnceCell::new() };
+}
+
+/// [A28] the queue a witness product goes to and its number on the timeline (99: the shared witness
+/// queue; 300 + the thread's serial: its own)
+fn witness_queue(c: &Ctx, wc: &WCtx) -> (CommandQueue, u32) {
+    if queue_mode() == Q_THREAD && wq_on() {
+        let own = OWN_WQUEUE.with(|q| {
+            q.get_or_init(|| {
+                use metal::foreign_types::ForeignType;
+                let made = objc::rc::autoreleasepool(|| c.device.new_command_queue());
+                (!made.as_ptr().is_null()).then_some(made)
+            })
+            .clone()
+        });
+        if let Some(q) = own {
+            return (q, 300 + thread_serial());
+        }
+    }
+    (wc.queue.clone(), 99)
+}
+
 /// pack, present, run, write back (shapes already checked)
 #[allow(clippy::too_many_arguments)]
 fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i64], xs: usize, w: &[i8], k: usize, n: usize, os: usize, out_len: usize, in_out: bool) -> Result<Option<Vec<i64>>, String> {
@@ -4771,7 +4887,9 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
     // one command buffer on the witness queue (`run`'s shape, with the GPU's own clock)
     let tl = tl_on();
     let begin = if tl { host_time_s() } else { 0.0 };
-    let cb = wc.queue.new_command_buffer();
+    // [A28] this thread's own witness queue under per-thread queues (HL_A28_WQ), else the one queue
+    let (wq, wq_id) = witness_queue(c, wc);
+    let cb = wq.new_command_buffer();
     let enc = cb.new_compute_command_encoder();
     enc.set_compute_pipeline_state(wc.pipe(route));
     enc.set_buffer(0, Some(&xb), 0);
@@ -4789,7 +4907,7 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
     }
     if tl {
         trace_detail(|| format!("t={t} k={k} n={n} in_out={}", in_out as u8));
-        tl_record(cb, "wprod", 99, begin, committed);
+        tl_record(cb, "wprod", wq_id, begin, committed);
     }
     // GPUStartTime / GPUEndTime of the completed command buffer (a failed message counts as zero)
     let gpu_s = {

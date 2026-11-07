@@ -1,0 +1,35 @@
+quiet (no ds4-bench)
+pipeline head16: max threads/tg 1024, exec width 32, static tg mem 16384
+pipeline head8: max threads/tg 1024, exec width 32, static tg mem 16384
+pipeline tail_reg5: max threads/tg 1024, exec width 32, static tg mem 0
+pipeline tail_reg3: max threads/tg 1024, exec width 32, static tg mem 0
+pipeline hash_chunk: max threads/tg 1024, exec width 32, static tg mem 0
+pipeline hash_merge: max threads/tg 1024, exec width 32, static tg mem 0
+inverse words: head16 + tail_reg3 == tree true
+inverse words: head8 + tail_reg3 == tree true
+forward head words: head16 == tree true
+forward head words: head8 == tree true
+forward tail words: tail_reg5 == tree true
+leaves: chunk + merge == tree true (chunks per column 2)
+inverse head (tree, r4)               0.286 ms
+inverse head16                        0.522 ms
+inverse head8                         0.338 ms
+inverse tail (tree, r4)               0.142 ms
+inverse tail_reg3 tg 64               0.113 ms
+inverse tail_reg3 tg 128              0.114 ms
+inverse tail_reg3 tg 256              0.121 ms
+inverse tail_reg3 tg 512              0.118 ms
+forward head (tree, r4)               1.120 ms
+forward head16                        1.715 ms
+forward head8                         1.224 ms
+forward tail (tree, r4)               0.565 ms
+forward tail_reg5 tg 64               0.804 ms
+forward tail_reg5 tg 128              0.809 ms
+forward tail_reg5 tg 256              0.817 ms
+forward tail_reg5 tg 512              0.780 ms
+hash (tree)                           0.312 ms
+hash chunk+merge tg 64                0.262 ms
+hash chunk+merge tg 128               0.264 ms
+hash chunk+merge tg 256               0.284 ms
+hash chunk only tg 256                0.264 ms
+rc=0

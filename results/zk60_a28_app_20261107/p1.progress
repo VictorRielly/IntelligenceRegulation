@@ -1,0 +1,10 @@
+2026-11-07T18:19:54Z start; plan p1.plan; free disk 125 GiB
+2026-11-07T18:19:55Z run p1base bin b5b6b9a43563 env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T18:24:07Z p1base rc=0 done )
+2026-11-07T18:24:07Z run p1spin bin b5b6b9a43563 env [HL_METAL_QUEUES=thread HL_METAL_SPIN_US=200] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T18:28:13Z p1spin rc=0 done )
+2026-11-07T18:28:13Z run p1dfold bin b5b6b9a43563 env [HL_METAL_QUEUES=thread HL_METAL_DEVICE_FOLD=1] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T18:32:25Z p1dfold rc=0 done )
+2026-11-07T18:32:25Z run p1base2 bin b5b6b9a43563 env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T18:36:33Z p1base2 rc=0 done )
+2026-11-07T18:36:33Z all done; free disk 125 GiB
