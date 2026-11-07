@@ -1,0 +1,75 @@
+== lake build ZK60Formal.HonestClassifyCount ZK60Formal.HonestClassifyLinks ==
+✖ [3492/3493] Building ZK60Formal.HonestClassifyRun (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/ZK60Formal/HonestClassifyRun.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyRun.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyRun.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyRun.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyRun.setup.json --json
+warning: ZK60Formal/HonestClassifyRun.lean:255:34: This simp argument is unused:
+  eq_self_iff_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hown, hR, hbc, ↓reduceIte] at hrun'
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestClassifyRun.lean:275:0: automatically included section variable(s) unused in theorem `ZK60.HonestClassify.d12aBlockSegP_refuses`:
+  [Algebra GF K]
+  hU
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] hU in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/HonestClassifyRun.lean:331:51: Variable name `k` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _k
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/HonestClassifyRun.lean:411:61: Application type mismatch: The argument
+  ps
+has type
+  List (SegP St X Coins)
+but is expected to have type
+  HIn → Dig
+in the application
+  proveSegs_refuses ps
+error: ZK60Formal/HonestClassifyRun.lean:442:40: Tactic `subst` failed: invalid equality proof, it is not of the form (x = t) or (t = x)
+  p = P.outC ∨ p ∈ []
+
+case inr.inr
+Hdr X Coins : Type
+V : RunV Hdr
+P : RunP Hdr X Coins
+H : HIn → Dig
+root : Dig
+verdict : ℕ
+x : X
+c : Coins
+h : honestSegs V P H root verdict x c = Except.error ()
+j : ℕ
+cr₁ : Carry
+t₁ : Tr
+p : SegP (ClsStmt Hdr) X Coins
+hj : (P.parts V.L)[j]? = some p
+hp :
+  p.run H (honestStmt P.hdr root verdict) x c (V.start H (honestStmt P.hdr root verdict)).state (posTag H t₁) cr₁ t₁ =
+    Except.error ()
+h✝ : p = P.outC ∨ p ∈ []
+⊢ P.inC.run H (honestStmt P.hdr root verdict) x c (V.start H (honestStmt P.hdr root verdict)).state (posTag H t₁) cr₁
+        t₁ =
+      Except.error () ∨
+    (∃ k < V.L,
+        (P.blk k).run H (honestStmt P.hdr root verdict) x c (V.start H (honestStmt P.hdr root verdict)).state
+            (posTag H t₁) cr₁ t₁ =
+          Except.error ()) ∨
+      P.outC.run H (honestStmt P.hdr root verdict) x c (V.start H (honestStmt P.hdr root verdict)).state (posTag H t₁)
+          cr₁ t₁ =
+        Except.error ()
+warning: ZK60Formal/HonestClassifyRun.lean:440:87: This simp argument is unused:
+  List.mem_singleton
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [RunP.parts, List.mem_cons, List.mem_append, List.mem_map, List.mem_range] at hmem
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.HonestClassifyRun
+error: build failed
+build rc 1
+rc build 1 files 0, 18 s

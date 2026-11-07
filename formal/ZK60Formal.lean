@@ -147,3 +147,8 @@ import ZK60Formal.ProtocolClassifyComplete
 import ZK60Formal.AssembleClassify
 import ZK60Formal.ProtocolClassifyR13
 import ZK60Formal.ProtocolClassifyCount
+import ZK60Formal.HonestClassifySum
+import ZK60Formal.HonestClassifyBlock
+import ZK60Formal.HonestClassifyRun
+import ZK60Formal.HonestClassifyCount
+import ZK60Formal.HonestClassifyLinks

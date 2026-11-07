@@ -1,0 +1,10 @@
+== lake build ZK60Formal.HonestClassifyCount ZK60Formal.HonestClassifyLinks ==
+warning: ZK60Formal/HonestClassifyCount.lean:326:0: automatically included section variable(s) unused in theorem `ZK60.HonestClassify.slot_c_guard_iff`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3493 jobs).
+build rc 0
+rc build 0 files 0, 20 s

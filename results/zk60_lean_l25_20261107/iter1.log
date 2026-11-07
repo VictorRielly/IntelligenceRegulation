@@ -1,0 +1,123 @@
+== lake build ZK60Formal.HonestClassifyCount ZK60Formal.HonestClassifyLinks ==
+warning: ZK60Formal/HonestClassifySum.lean:202:56: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✖ [3490/3493] Building ZK60Formal.HonestClassifyLinks (2.6s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/ZK60Formal/HonestClassifyLinks.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyLinks.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyLinks.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyLinks.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyLinks.setup.json --json
+error: ZK60Formal/HonestClassifyLinks.lean:73:25: failed to synthesize instance of type class
+  Subsingleton (Fin (0 + 1))
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/HonestClassifyLinks.lean:77:36: Application type mismatch: The argument
+  n
+has type
+  ℕ
+of sort `Type` but is expected to have type
+  ?m.154 < ringChar K
+of sort `Prop` in the application
+  chainDefect_honestCo n
+error: ZK60Formal/HonestClassifyLinks.lean:76:23: unsolved goals
+K : Type
+inst✝ : Field K
+d : ℕ
+hd : d < ringChar K
+n : ℕ
+f : (Fin (n + 1 + 1) → K) → K
+r : Fin (n + 1 + 1) → K
+hf : IndDegLE d f
+⊢ chainDefect (honestCo d (n + 1) f r) r = (cubeSum f, 0, f r)
+✖ [3491/3493] Building ZK60Formal.HonestClassifyBlock (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/ZK60Formal/HonestClassifyBlock.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyBlock.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyBlock.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyBlock.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyBlock.setup.json --json
+error: ZK60Formal/HonestClassifyBlock.lean:203:6: Dependent elimination failed: Failed to solve equation
+  Except.ok (sp, r, acc', t') =
+    match slotDefChecks P s acc df, hostedSum acc.scalars (slotSP H P D s hist acc t df).scalar df.hosted,
+      tabVals (oneMinusProd (List.drop (slotShape P s).1 (slotRho H P D s hist acc t df)))
+        (List.take (slotShape P s).1 (slotRho H P D s hist acc t df)) (slotSP H P D s hist acc t df).terms df.tabs
+        0 with
+    | Except.ok a, Except.ok claimed, Except.ok vals =>
+      Except.ok
+        (slotSP H P D s hist acc t df,
+          { draws := (Tr.challengeFp2Vec H t (P.draws s)).1, c := slotC H P s t,
+            scalar := (slotSP H P D s hist acc t df).scalar, claimed := claimed,
+            rho := List.take (slotShape P s).1 (slotRho H P D s hist acc t df),
+            es := List.drop (slotShape P s).1 (slotRho H P D s hist acc t df),
+            terms := (slotSP H P D s hist acc t df).terms,
+            fin := scFinalExec (slotSP H P D s hist acc t df).rounds (slotRho H P D s hist acc t df) claimed },
+          slotAcc P s acc df (slotC H P s t) (slotSP H P D s hist acc t df).scalar
+            (((scFinalExec (slotSP H P D s hist acc t df).rounds (slotRho H P D s hist acc t df) claimed).sub
+                  (df.poly vals)).mul
+              (slotC H P s t).inv)
+            (slotRho H P D s hist acc t df) (slotSP H P D s hist acc t df).terms,
+          Tr.absorbFp2 H
+            (scProve H (slotN P s) (D.strat s hist acc df (slotC H P s t))
+                (slotT4 H P s t (slotSP H P D s hist acc t df).scalar)).2
+            labPbTerm (slotSP H P D s hist acc t df).terms)
+    | x, x_1, x_2 => Except.error ()
+error: ZK60Formal/HonestClassifyBlock.lean:204:4: No goals to be solved
+error: ZK60Formal/HonestClassifyBlock.lean:293:24: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/HonestClassifyBlock.lean:388:6: Dependent elimination failed: Failed to solve equation
+  Except.ok R =
+    match P.checkOpening H Cm.a acc.claims.a (D.mOpen (acc.fs ++ acc.hostFs) t4).2 with
+    | Except.error a => Except.error ()
+    | Except.ok a =>
+      match
+        P.checkOpening H Cm.h (acc.claims.h ++ [P.logupSumClaim])
+          (D.aOpen acc.claims.a (D.mOpen (acc.fs ++ acc.hostFs) t4).2).2 with
+      | Except.error a => Except.error ()
+      | Except.ok a =>
+        Except.ok
+          {
+            core :=
+              { aRoot := D.aRoot, hRoot := D.hRoot (coreB H P D t).1 (coreG H P D t).1 (coreA H P D t).1,
+                maskRoot := D.maskRoot, slots := sps, maskOpen := (D.mOpen (acc.fs ++ acc.hostFs) t4).1,
+                aOpen := (D.aOpen acc.claims.a (D.mOpen (acc.fs ++ acc.hostFs) t4).2).1,
+                hOpen :=
+                  (D.hOpen (acc.claims.h ++ [P.logupSumClaim])
+                      (D.aOpen acc.claims.a (D.mOpen (acc.fs ++ acc.hostFs) t4).2).2).1 },
+            bga := ((coreB H P D t).1, (coreG H P D t).1, (coreA H P D t).1), recs := recs, acc := acc,
+            t3 := coreT3 H P D t, t4 := t4, t5 := (D.mOpen (acc.fs ++ acc.hostFs) t4).2,
+            t6 := (D.aOpen acc.claims.a (D.mOpen (acc.fs ++ acc.hostFs) t4).2).2,
+            t7 :=
+              (D.hOpen (acc.claims.h ++ [P.logupSumClaim])
+                  (D.aOpen acc.claims.a (D.mOpen (acc.fs ++ acc.hostFs) t4).2).2).2 }
+error: ZK60Formal/HonestClassifyBlock.lean:389:13: No goals to be solved
+error: ZK60Formal/HonestClassifyBlock.lean:449:34: `simp` made no progress
+error: ZK60Formal/HonestClassifyBlock.lean:497:49: invalid `▸` notation, the equality
+  h3
+has type 
+  tabVals (oneMinusProd (List.drop (slotShape P s).1 (slotRho H P D s hist acc t df)))
+      (List.take (slotShape P s).1 (slotRho H P D s hist acc t df)) (slotSP H P D s hist acc t df).terms df.tabs 0 =
+    Except.ok vals
+but neither side of the equality is mentioned in the type
+  ?m.461 = ?m.461
+error: ZK60Formal/HonestClassifyBlock.lean:497:44: invalid `▸` notation, the equality
+  h2
+has type 
+  hostedSum acc.scalars (slotSP H P D s hist acc t df).scalar df.hosted = Except.ok claimed
+but neither side of the equality is mentioned in the type
+  ?m.462
+error: ZK60Formal/HonestClassifyBlock.lean:497:39: invalid `▸` notation, the equality
+  h1
+has type 
+  slotDefChecks P s acc df = Except.ok u
+but neither side of the equality is mentioned in the type
+  ?m.463
+Some required targets logged failures:
+- ZK60Formal.HonestClassifyLinks
+- ZK60Formal.HonestClassifyBlock
+error: build failed
+build rc 1
+rc build 1 files 0, 17 s

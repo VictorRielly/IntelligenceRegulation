@@ -1,0 +1,78 @@
+== lake build ZK60Formal.HonestClassifyCount ZK60Formal.HonestClassifyLinks ==
+✖ [3491/3493] Building ZK60Formal.HonestClassifyBlock (2.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/ZK60Formal/HonestClassifyBlock.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyBlock.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyBlock.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyBlock.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyBlock.setup.json --json
+warning: ZK60Formal/HonestClassifyBlock.lean:216:4: Unused tactic linter: `all_goals
+  first
+  | (cases h; done)
+  | skip` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestClassifyBlock.lean:216:32: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestClassifyBlock.lean:406:4: Unused tactic linter: `all_goals
+  first
+  | (cases h; done)
+  | skip` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestClassifyBlock.lean:406:32: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+error: ZK60Formal/HonestClassifyBlock.lean:468:2: Type mismatch
+  bind_ok_of ?m.464 ?m.465
+has type
+  ?m.461 >>= ?m.462 = Except.ok ?m.463
+but is expected to have type
+  (match P.maskVerify H D.maskRoot (acc.fs ++ acc.hostFs) mo t4 with
+    | Except.ok t_1 => do
+      P.checkOpening H Cm.a acc.claims.a t_1
+      match P.pcsVerify H Cm.a D.aRoot acc.claims.a ao t_1 with
+        | Except.ok t_2 => do
+          P.checkOpening H Cm.h (acc.claims.h ++ [P.logupSumClaim]) t_2
+          match
+              P.pcsVerify H Cm.h (D.hRoot (coreB H P D t).1 (coreG H P D t).1 (coreA H P D t).1)
+                (acc.claims.h ++ [P.logupSumClaim]) ho t_2 with
+            | Except.ok t => pure ((acc.claims.inp, acc.claims.out), t)
+            | Except.error e => do
+              let t ← throw (toString "H: " ++ toString e)
+              pure ((acc.claims.inp, acc.claims.out), t)
+        | Except.error e => do
+          let t_2 ← throw (toString "A: " ++ toString e)
+          P.checkOpening H Cm.h (acc.claims.h ++ [P.logupSumClaim]) t_2
+          match
+              P.pcsVerify H Cm.h (D.hRoot (coreB H P D t).1 (coreG H P D t).1 (coreA H P D t).1)
+                (acc.claims.h ++ [P.logupSumClaim]) ho t_2 with
+            | Except.ok t => pure ((acc.claims.inp, acc.claims.out), t)
+            | Except.error e => do
+              let t ← throw (toString "H: " ++ toString e)
+              pure ((acc.claims.inp, acc.claims.out), t)
+    | Except.error e => do
+      let t_1 ← throw (toString "M: " ++ toString e)
+      P.checkOpening H Cm.a acc.claims.a t_1
+      match P.pcsVerify H Cm.a D.aRoot acc.claims.a ao t_1 with
+        | Except.ok t_2 => do
+          P.checkOpening H Cm.h (acc.claims.h ++ [P.logupSumClaim]) t_2
+          match
+              P.pcsVerify H Cm.h (D.hRoot (coreB H P D t).1 (coreG H P D t).1 (coreA H P D t).1)
+                (acc.claims.h ++ [P.logupSumClaim]) ho t_2 with
+            | Except.ok t => pure ((acc.claims.inp, acc.claims.out), t)
+            | Except.error e => do
+              let t ← throw (toString "H: " ++ toString e)
+              pure ((acc.claims.inp, acc.claims.out), t)
+        | Except.error e => do
+          let t_2 ← throw (toString "A: " ++ toString e)
+          P.checkOpening H Cm.h (acc.claims.h ++ [P.logupSumClaim]) t_2
+          match
+              P.pcsVerify H Cm.h (D.hRoot (coreB H P D t).1 (coreG H P D t).1 (coreA H P D t).1)
+                (acc.claims.h ++ [P.logupSumClaim]) ho t_2 with
+            | Except.ok t => pure ((acc.claims.inp, acc.claims.out), t)
+            | Except.error e => do
+              let t ← throw (toString "H: " ++ toString e)
+              pure ((acc.claims.inp, acc.claims.out), t)) =
+    Except.ok ((acc.claims.inp, acc.claims.out), t7)
+Some required targets logged failures:
+- ZK60Formal.HonestClassifyBlock
+error: build failed
+build rc 1
+rc build 1 files 0, 21 s
