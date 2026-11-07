@@ -1,0 +1,341 @@
+== lake build ZK60Formal.LinkW16Trace ==
+Build completed successfully (3465 jobs).
+build rc 0 for ZK60Formal.LinkW16Trace, 15 s
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/results/zk60_lean_l22_20261107/l22_scratch1.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/results/zk60_lean_l22_20261107/l22_scratch1.lean:17:2: error: state after the slot phase
+H : HIn → Dig
+P : Block.BlockParams
+core : Block.Core
+t : Tr
+io : List Block.ZClaim × List Block.ZClaim
+t' : Tr
+h✝⁴ :
+  (do
+      P.preChecks
+      Block.pathsDepth "A" P.aPath 0 core.aOpen.columns
+      Block.pathsDepth "H" P.hPath 0 core.hOpen.columns
+      Block.pathsDepth "M" P.maskPath 0 core.maskOpen.columns
+      let __x ← Block.blockSlots H P core t
+      match __x with
+        | (fst, fst_1, acc, t) =>
+          have fs := acc.fs ++ acc.hostFs;
+          have __do_jp := fun __r =>
+            have __do_jp := fun t =>
+              have hc := acc.claims.h ++ [P.logupSumClaim];
+              do
+              P.checkOpening H Block.Cm.a acc.claims.a t
+              have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+                P.checkOpening H Block.Cm.h hc t
+                have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+                  | Except.ok t => do
+                    let t ← pure t
+                    __do_jp t
+                  | Except.error e => do
+                    let t ← throw (toString "H: " ++ toString e)
+                    __do_jp t
+              match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  __do_jp t
+                | Except.error e => do
+                  let t ← throw (toString "A: " ++ toString e)
+                  __do_jp t;
+            match P.maskVerify H core.maskRoot fs core.maskOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "M: " ++ toString e)
+              __do_jp t;
+          if fs.length ≠ P.nFunctionals then do
+            let __r ← throw "private block: functional count differs from the declared schedule"
+            __do_jp __r
+          else __do_jp ()) =
+    Except.ok (io, t')
+w✝³ : Unit
+h✝³ :
+  (do
+      Block.pathsDepth "A" P.aPath 0 core.aOpen.columns
+      Block.pathsDepth "H" P.hPath 0 core.hOpen.columns
+      Block.pathsDepth "M" P.maskPath 0 core.maskOpen.columns
+      let __x ← Block.blockSlots H P core t
+      match __x with
+        | (fst, fst_1, acc, t) =>
+          have fs := acc.fs ++ acc.hostFs;
+          have __do_jp := fun __r =>
+            have __do_jp := fun t =>
+              have hc := acc.claims.h ++ [P.logupSumClaim];
+              do
+              P.checkOpening H Block.Cm.a acc.claims.a t
+              have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+                P.checkOpening H Block.Cm.h hc t
+                have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+                  | Except.ok t => do
+                    let t ← pure t
+                    __do_jp t
+                  | Except.error e => do
+                    let t ← throw (toString "H: " ++ toString e)
+                    __do_jp t
+              match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  __do_jp t
+                | Except.error e => do
+                  let t ← throw (toString "A: " ++ toString e)
+                  __do_jp t;
+            match P.maskVerify H core.maskRoot fs core.maskOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "M: " ++ toString e)
+              __do_jp t;
+          if fs.length ≠ P.nFunctionals then do
+            let __r ← throw "private block: functional count differs from the declared schedule"
+            __do_jp __r
+          else __do_jp ()) =
+    Except.ok (io, t')
+w✝² : Unit
+h✝² :
+  (do
+      Block.pathsDepth "H" P.hPath 0 core.hOpen.columns
+      Block.pathsDepth "M" P.maskPath 0 core.maskOpen.columns
+      let __x ← Block.blockSlots H P core t
+      match __x with
+        | (fst, fst_1, acc, t) =>
+          have fs := acc.fs ++ acc.hostFs;
+          have __do_jp := fun __r =>
+            have __do_jp := fun t =>
+              have hc := acc.claims.h ++ [P.logupSumClaim];
+              do
+              P.checkOpening H Block.Cm.a acc.claims.a t
+              have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+                P.checkOpening H Block.Cm.h hc t
+                have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+                  | Except.ok t => do
+                    let t ← pure t
+                    __do_jp t
+                  | Except.error e => do
+                    let t ← throw (toString "H: " ++ toString e)
+                    __do_jp t
+              match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  __do_jp t
+                | Except.error e => do
+                  let t ← throw (toString "A: " ++ toString e)
+                  __do_jp t;
+            match P.maskVerify H core.maskRoot fs core.maskOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "M: " ++ toString e)
+              __do_jp t;
+          if fs.length ≠ P.nFunctionals then do
+            let __r ← throw "private block: functional count differs from the declared schedule"
+            __do_jp __r
+          else __do_jp ()) =
+    Except.ok (io, t')
+w✝¹ : Unit
+h✝¹ :
+  (do
+      Block.pathsDepth "M" P.maskPath 0 core.maskOpen.columns
+      let __x ← Block.blockSlots H P core t
+      match __x with
+        | (fst, fst_1, acc, t) =>
+          have fs := acc.fs ++ acc.hostFs;
+          have __do_jp := fun __r =>
+            have __do_jp := fun t =>
+              have hc := acc.claims.h ++ [P.logupSumClaim];
+              do
+              P.checkOpening H Block.Cm.a acc.claims.a t
+              have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+                P.checkOpening H Block.Cm.h hc t
+                have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+                  | Except.ok t => do
+                    let t ← pure t
+                    __do_jp t
+                  | Except.error e => do
+                    let t ← throw (toString "H: " ++ toString e)
+                    __do_jp t
+              match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  __do_jp t
+                | Except.error e => do
+                  let t ← throw (toString "A: " ++ toString e)
+                  __do_jp t;
+            match P.maskVerify H core.maskRoot fs core.maskOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "M: " ++ toString e)
+              __do_jp t;
+          if fs.length ≠ P.nFunctionals then do
+            let __r ← throw "private block: functional count differs from the declared schedule"
+            __do_jp __r
+          else __do_jp ()) =
+    Except.ok (io, t')
+w✝ : Unit
+h✝ :
+  (do
+      let __x ← Block.blockSlots H P core t
+      match __x with
+        | (fst, fst_1, acc, t) =>
+          have fs := acc.fs ++ acc.hostFs;
+          have __do_jp := fun __r =>
+            have __do_jp := fun t =>
+              have hc := acc.claims.h ++ [P.logupSumClaim];
+              do
+              P.checkOpening H Block.Cm.a acc.claims.a t
+              have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+                P.checkOpening H Block.Cm.h hc t
+                have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+                  | Except.ok t => do
+                    let t ← pure t
+                    __do_jp t
+                  | Except.error e => do
+                    let t ← throw (toString "H: " ++ toString e)
+                    __do_jp t
+              match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  __do_jp t
+                | Except.error e => do
+                  let t ← throw (toString "A: " ++ toString e)
+                  __do_jp t;
+            match P.maskVerify H core.maskRoot fs core.maskOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "M: " ++ toString e)
+              __do_jp t;
+          if fs.length ≠ P.nFunctionals then do
+            let __r ← throw "private block: functional count differs from the declared schedule"
+            __do_jp __r
+          else __do_jp ()) =
+    Except.ok (io, t')
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+tM : Tr
+hbs : Block.blockSlots H P core t = Except.ok (bga, rs, acc, tM)
+h :
+  (if (acc.fs ++ acc.hostFs).length ≠ P.nFunctionals then do
+      throw "private block: functional count differs from the declared schedule"
+      match P.maskVerify H core.maskRoot (acc.fs ++ acc.hostFs) core.maskOpen tM with
+        | Except.ok t => do
+          let t ← pure t
+          P.checkOpening H Block.Cm.a acc.claims.a t
+          match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              P.checkOpening H Block.Cm.h (acc.claims.h ++ [P.logupSumClaim]) t
+              match P.pcsVerify H Block.Cm.h core.hRoot (acc.claims.h ++ [P.logupSumClaim]) core.hOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                | Except.error e => do
+                  let t ← throw (toString "H: " ++ toString e)
+                  pure ((acc.claims.inp, acc.claims.out), t)
+            | Except.error e => do
+              let t ← throw (toString "A: " ++ toString e)
+              P.checkOpening H Block.Cm.h (acc.claims.h ++ [P.logupSumClaim]) t
+              match P.pcsVerify H Block.Cm.h core.hRoot (acc.claims.h ++ [P.logupSumClaim]) core.hOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                | Except.error e => do
+                  let t ← throw (toString "H: " ++ toString e)
+                  pure ((acc.claims.inp, acc.claims.out), t)
+        | Except.error e => do
+          let t ← throw (toString "M: " ++ toString e)
+          P.checkOpening H Block.Cm.a acc.claims.a t
+          match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              P.checkOpening H Block.Cm.h (acc.claims.h ++ [P.logupSumClaim]) t
+              match P.pcsVerify H Block.Cm.h core.hRoot (acc.claims.h ++ [P.logupSumClaim]) core.hOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                | Except.error e => do
+                  let t ← throw (toString "H: " ++ toString e)
+                  pure ((acc.claims.inp, acc.claims.out), t)
+            | Except.error e => do
+              let t ← throw (toString "A: " ++ toString e)
+              P.checkOpening H Block.Cm.h (acc.claims.h ++ [P.logupSumClaim]) t
+              match P.pcsVerify H Block.Cm.h core.hRoot (acc.claims.h ++ [P.logupSumClaim]) core.hOpen t with
+                | Except.ok t => do
+                  let t ← pure t
+                  pure ((acc.claims.inp, acc.claims.out), t)
+                | Except.error e => do
+                  let t ← throw (toString "H: " ++ toString e)
+                  pure ((acc.claims.inp, acc.claims.out), t)
+    else
+      match P.maskVerify H core.maskRoot (acc.fs ++ acc.hostFs) core.maskOpen tM with
+      | Except.ok t => do
+        let t ← pure t
+        P.checkOpening H Block.Cm.a acc.claims.a t
+        match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+          | Except.ok t => do
+            let t ← pure t
+            P.checkOpening H Block.Cm.h (acc.claims.h ++ [P.logupSumClaim]) t
+            match P.pcsVerify H Block.Cm.h core.hRoot (acc.claims.h ++ [P.logupSumClaim]) core.hOpen t with
+              | Except.ok t => do
+                let t ← pure t
+                pure ((acc.claims.inp, acc.claims.out), t)
+              | Except.error e => do
+                let t ← throw (toString "H: " ++ toString e)
+                pure ((acc.claims.inp, acc.claims.out), t)
+          | Except.error e => do
+            let t ← throw (toString "A: " ++ toString e)
+            P.checkOpening H Block.Cm.h (acc.claims.h ++ [P.logupSumClaim]) t
+            match P.pcsVerify H Block.Cm.h core.hRoot (acc.claims.h ++ [P.logupSumClaim]) core.hOpen t with
+              | Except.ok t => do
+                let t ← pure t
+                pure ((acc.claims.inp, acc.claims.out), t)
+              | Except.error e => do
+                let t ← throw (toString "H: " ++ toString e)
+                pure ((acc.claims.inp, acc.claims.out), t)
+      | Except.error e => do
+        let t ← throw (toString "M: " ++ toString e)
+        P.checkOpening H Block.Cm.a acc.claims.a t
+        match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+          | Except.ok t => do
+            let t ← pure t
+            P.checkOpening H Block.Cm.h (acc.claims.h ++ [P.logupSumClaim]) t
+            match P.pcsVerify H Block.Cm.h core.hRoot (acc.claims.h ++ [P.logupSumClaim]) core.hOpen t with
+              | Except.ok t => do
+                let t ← pure t
+                pure ((acc.claims.inp, acc.claims.out), t)
+              | Except.error e => do
+                let t ← throw (toString "H: " ++ toString e)
+                pure ((acc.claims.inp, acc.claims.out), t)
+          | Except.error e => do
+            let t ← throw (toString "A: " ++ toString e)
+            P.checkOpening H Block.Cm.h (acc.claims.h ++ [P.logupSumClaim]) t
+            match P.pcsVerify H Block.Cm.h core.hRoot (acc.claims.h ++ [P.logupSumClaim]) core.hOpen t with
+              | Except.ok t => do
+                let t ← pure t
+                pure ((acc.claims.inp, acc.claims.out), t)
+              | Except.error e => do
+                let t ← throw (toString "H: " ++ toString e)
+                pure ((acc.claims.inp, acc.claims.out), t)) =
+    Except.ok (io, t')
+⊢ False
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/results/zk60_lean_l22_20261107/l22_scratch1.lean
+rc build 0 files 1, 17 s

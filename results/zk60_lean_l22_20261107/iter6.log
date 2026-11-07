@@ -1,0 +1,334 @@
+== lake build ZK60Formal.ExtractInstW16 ==
+Build completed successfully (3465 jobs).
+build rc 0 for ZK60Formal.ExtractInstW16, 4 s
+== lake build ZK60Formal.LinkW16Trace ==
+Build completed successfully (3465 jobs).
+build rc 0 for ZK60Formal.LinkW16Trace, 6 s
+== lake build ZK60Formal.LinkW16Mask ==
+✖ [3466/3466] Building ZK60Formal.LinkW16Mask (8.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+warning: ZK60Formal/LinkW16Mask.lean:52:8: Variable name `i` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _i
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/LinkW16Mask.lean:52:10: Variable name `j` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _j
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/LinkW16Mask.lean:66:21: Unknown identifier `toMF`
+warning: ZK60Formal/LinkW16Mask.lean:73:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.sum_ite_val`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LinkW16Mask.lean:109:12: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:109:35: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:110:40: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:109:59: unsolved goals
+fs : List Block.MaskFunctional
+i : ℕ
+⊢ (List.map sorry fs).getD i default = sorry
+warning: ZK60Formal/LinkW16Mask.lean:112:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.sum_fin_cast`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LinkW16Mask.lean:116:71: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:117:12: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:117:26: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:125:84: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:126:42: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:125:104: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+S : ℕ
+fs : List Block.MaskFunctional
+cols : Fin (2 ^ 12) → List Fp
+θ : Fp2
+⊢ mV 1 (mDataOf U S fs.length fs cols).val (Fp2.toK U θ) = Fp2.toK U (combinedWeights S (List.map sorry fs) θ).2
+error: ZK60Formal/LinkW16Mask.lean:136:48: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:139:42: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:136:73: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+S : ℕ
+fs : List Block.MaskFunctional
+cols : Fin (2 ^ 12) → List Fp
+θ : Fp2
+s : Fin S
+j : Fin 512
+⊢ mW 1 (mDataOf U S fs.length fs cols).wt (Fp2.toK U θ) s j =
+    Fp2.toK U (((combinedWeights S (List.map sorry fs) θ).1.getD ↑s []).getD (↑j) Fp2.zero)
+error: ZK60Formal/LinkW16Mask.lean:146:52: Unknown identifier `toOCol`
+
+Note: It is not possible to treat `toOCol` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:146:5: Unknown identifier `toMO`
+
+Note: It is not possible to treat `toMO` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:147:23: Unknown identifier `toOCol`
+error: ZK60Formal/LinkW16Mask.lean:147:39: Unknown identifier `toOCol`
+error: ZK60Formal/LinkW16Mask.lean:172:62: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:172:69: Unknown identifier `toMO`
+
+Note: It is not possible to treat `toMO` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:184:31: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/LinkW16Mask.lean:166:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Mask, 15 s
+== lake build ZK60Formal.LinkW16MaskChain ==
+✖ [3466/3467] Building ZK60Formal.LinkW16Mask (8.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+warning: ZK60Formal/LinkW16Mask.lean:52:8: Variable name `i` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _i
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/LinkW16Mask.lean:52:10: Variable name `j` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _j
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/LinkW16Mask.lean:66:21: Unknown identifier `toMF`
+warning: ZK60Formal/LinkW16Mask.lean:73:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.sum_ite_val`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LinkW16Mask.lean:109:12: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:109:35: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:110:40: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:109:59: unsolved goals
+fs : List Block.MaskFunctional
+i : ℕ
+⊢ (List.map sorry fs).getD i default = sorry
+warning: ZK60Formal/LinkW16Mask.lean:112:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.sum_fin_cast`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LinkW16Mask.lean:116:71: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:117:12: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:117:26: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:125:84: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:126:42: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:125:104: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+S : ℕ
+fs : List Block.MaskFunctional
+cols : Fin (2 ^ 12) → List Fp
+θ : Fp2
+⊢ mV 1 (mDataOf U S fs.length fs cols).val (Fp2.toK U θ) = Fp2.toK U (combinedWeights S (List.map sorry fs) θ).2
+error: ZK60Formal/LinkW16Mask.lean:136:48: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:139:42: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:136:73: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+S : ℕ
+fs : List Block.MaskFunctional
+cols : Fin (2 ^ 12) → List Fp
+θ : Fp2
+s : Fin S
+j : Fin 512
+⊢ mW 1 (mDataOf U S fs.length fs cols).wt (Fp2.toK U θ) s j =
+    Fp2.toK U (((combinedWeights S (List.map sorry fs) θ).1.getD ↑s []).getD (↑j) Fp2.zero)
+error: ZK60Formal/LinkW16Mask.lean:146:52: Unknown identifier `toOCol`
+
+Note: It is not possible to treat `toOCol` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:146:5: Unknown identifier `toMO`
+
+Note: It is not possible to treat `toMO` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:147:23: Unknown identifier `toOCol`
+error: ZK60Formal/LinkW16Mask.lean:147:39: Unknown identifier `toOCol`
+error: ZK60Formal/LinkW16Mask.lean:172:62: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:172:69: Unknown identifier `toMO`
+
+Note: It is not possible to treat `toMO` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:184:31: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/LinkW16Mask.lean:166:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16MaskChain, 25 s
+== lake build ZK60Formal.LinkW16Sem ==
+✖ [3466/3467] Building ZK60Formal.LinkW16Mask (8.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+warning: ZK60Formal/LinkW16Mask.lean:52:8: Variable name `i` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _i
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/LinkW16Mask.lean:52:10: Variable name `j` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _j
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/LinkW16Mask.lean:66:21: Unknown identifier `toMF`
+warning: ZK60Formal/LinkW16Mask.lean:73:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.sum_ite_val`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LinkW16Mask.lean:109:12: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:109:35: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:110:40: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:109:59: unsolved goals
+fs : List Block.MaskFunctional
+i : ℕ
+⊢ (List.map sorry fs).getD i default = sorry
+warning: ZK60Formal/LinkW16Mask.lean:112:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.sum_fin_cast`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LinkW16Mask.lean:116:71: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:117:12: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:117:26: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:125:84: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:126:42: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:125:104: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+S : ℕ
+fs : List Block.MaskFunctional
+cols : Fin (2 ^ 12) → List Fp
+θ : Fp2
+⊢ mV 1 (mDataOf U S fs.length fs cols).val (Fp2.toK U θ) = Fp2.toK U (combinedWeights S (List.map sorry fs) θ).2
+error: ZK60Formal/LinkW16Mask.lean:136:48: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:139:42: Unknown identifier `toMF`
+error: ZK60Formal/LinkW16Mask.lean:136:73: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+S : ℕ
+fs : List Block.MaskFunctional
+cols : Fin (2 ^ 12) → List Fp
+θ : Fp2
+s : Fin S
+j : Fin 512
+⊢ mW 1 (mDataOf U S fs.length fs cols).wt (Fp2.toK U θ) s j =
+    Fp2.toK U (((combinedWeights S (List.map sorry fs) θ).1.getD ↑s []).getD (↑j) Fp2.zero)
+error: ZK60Formal/LinkW16Mask.lean:146:52: Unknown identifier `toOCol`
+
+Note: It is not possible to treat `toOCol` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:146:5: Unknown identifier `toMO`
+
+Note: It is not possible to treat `toMO` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:147:23: Unknown identifier `toOCol`
+error: ZK60Formal/LinkW16Mask.lean:147:39: Unknown identifier `toOCol`
+error: ZK60Formal/LinkW16Mask.lean:172:62: Unknown identifier `toMF`
+
+Note: It is not possible to treat `toMF` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:172:69: Unknown identifier `toMO`
+
+Note: It is not possible to treat `toMO` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/LinkW16Mask.lean:184:31: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/LinkW16Mask.lean:166:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Sem, 35 s
+rc build 1 files 0, 35 s

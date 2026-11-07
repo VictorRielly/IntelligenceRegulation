@@ -1,0 +1,306 @@
+== lake build ZK60Formal.LinkW16Parse ==
+Build completed successfully (3464 jobs).
+build rc 0 for ZK60Formal.LinkW16Parse, 17 s
+== lake build ZK60Formal.LinkW16Trace ==
+✖ [3465/3465] Building ZK60Formal.LinkW16Trace (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Trace.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Trace.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Trace.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Trace.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Trace.setup.json --json
+error: ZK60Formal/LinkW16Trace.lean:202:78: Invalid field notation: Type of
+  sp
+is not known; cannot resolve field `rounds`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `ScErr.rounds`
+  • `Block.SlotProof.rounds`
+  • `Slot.SlotProofW.rounds`
+error: ZK60Formal/LinkW16Trace.lean:202:97: Invalid projection: Type of
+  s
+is not known; cannot resolve projection `1`
+error: ZK60Formal/LinkW16Trace.lean:202:103: Invalid projection: Type of
+  s
+is not known; cannot resolve projection `2`
+error: ZK60Formal/LinkW16Trace.lean:236:4: unsolved goals
+case h_2
+H : HIn → Dig
+P : Block.BlockParams
+b g a : Fp2
+sp0 : Block.SlotProof
+sps : List Block.SlotProof
+recs : List Block.SlotRec
+j : ℕ
+acc : Block.Acc
+t : Tr
+recs' : List Block.SlotRec
+acc' : Block.Acc
+t' : Tr
+hd1 : ∀ i < (sp0 :: sps).length, 1 ≤ (Block.slotShape P (j + i)).2.2
+x✝ : Except String (Block.SlotRec × Block.Acc × Tr)
+r0 : Block.SlotRec
+acc0 : Block.Acc
+t0 : Tr
+hstep : Block.slotStep H P j (Block.histOf b g a recs) sp0 acc t = Except.ok (r0, acc0, t0)
+h : Block.slotsLoop H P b g a (recs ++ [r0]) (j + 1) sps acc0 t0 = Except.ok (recs', acc', t')
+df : Block.SlotDef
+hdf : P.define j (Block.histOf b g a recs) (Tr.challengeFp2Vec H t (P.draws j)).1 = Except.ok df
+hcl : Block.hostedSum acc.scalars sp0.scalar df.hosted = Except.ok r0.claimed
+hsv :
+  (scVerify H r0.claimed (Block.slotShape P j).2.2 ((Block.slotShape P j).1 + (Block.slotShape P j).2.1) sp0.rounds
+        (runOps H t (Block.slotPreOps P j sp0))).1 =
+    Except.ok (r0.fin, r0.rho ++ r0.es)
+ht0 :
+  t0 =
+    Tr.absorb H
+      (scVerify H r0.claimed (Block.slotShape P j).2.2 ((Block.slotShape P j).1 + (Block.slotShape P j).2.1) sp0.rounds
+          (runOps H t (Block.slotPreOps P j sp0))).2
+      Block.labPbTerm (List.flatMap Fp2.toBytes sp0.terms)
+hd0 : 1 ≤ (Block.slotShape P j).2.2
+ht0' : t0 = runOps H t (Block.slotPreOps P j sp0 ++ scOps sp0.rounds ++ [Block.termOp sp0])
+ih : t' = runOps H t0 (Block.fullOps P (j + 1) sps)
+⊢ runOps H (runOps H (runOps H t (Block.slotPreOps P j sp0 ++ scOps sp0.rounds)) [Block.termOp sp0])
+      (Block.fullOps P (j + 1) sps) =
+    runOps H t (Block.slotPreOps P j sp0 ++ (scOps sp0.rounds ++ ([Block.termOp sp0] ++ Block.fullOps P (j + 1) sps)))
+error: ZK60Formal/LinkW16Trace.lean:302:4: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≥ 0
+  a ≥ 0
+  a ≥ 1
+where
+ a := ↑[].length
+ b := ↑vs.length
+warning: ZK60Formal/LinkW16Trace.lean:301:24: This simp argument is unused:
+  List.length_singleton
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Stp.ops, List.length_cons]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/LinkW16Trace.lean:315:92: unsolved goals
+S : ℕ
+mo : Block.MaskOpening
+⊢ 2 * S + 3 + (64 + 0) = 2 * S + 67
+error: ZK60Formal/LinkW16Trace.lean:319:84: unsolved goals
+w0 : ℕ
+o : Block.OpeningZk
+⊢ w0 + (0 + (0 + 0)) = w0
+error: ZK60Formal/LinkW16Trace.lean:323:94: unsolved goals
+w0 m : ℕ
+o : Block.OpeningZk
+⊢ w0 + (m + 0) = w0 + m
+error: ZK60Formal/LinkW16Trace.lean:345:75: unsolved goals
+w0 m : ℕ
+o : Block.OpeningZk
+⊢ w0 + o.groupVecs.length + 1 + (m + 0) = w0 + o.groupVecs.length + 1 + m
+error: ZK60Formal/LinkW16Trace.lean:415:4: Tactic `rfl` failed: The left-hand side
+  runOps H t (stpsOps (mPre S mo))
+is not definitionally equal to the right-hand side
+  Tr.absorbFp2 H
+    (List.map challengeFp2Of (sqDs H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 Block.labMaskQ mo.q) (2 * S + 2)),
+        runOps H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 Block.labMaskQ mo.q) (List.replicate (2 * S + 2) Op.squeeze)).2
+    Block.labMaskProx mo.prox
+
+H : HIn → Dig
+S : ℕ
+mo : Block.MaskOpening
+t : Tr
+th : Fp2
+rs : List Fp2
+idx : List ℕ
+t' : Tr
+h : Block.maskTranscript H S mQ mDom mo t = Except.ok (th, rs, idx, t')
+hpow : isPow2 mDom = true
+⊢ runOps H t (stpsOps (mPre S mo)) =
+    Tr.absorbFp2 H
+      (List.map challengeFp2Of (sqDs H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 Block.labMaskQ mo.q) (2 * S + 2)),
+          runOps H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 Block.labMaskQ mo.q)
+            (List.replicate (2 * S + 2) Op.squeeze)).2
+      Block.labMaskProx mo.prox
+error: ZK60Formal/LinkW16Trace.lean:425:2: unsolved goals
+case neg.refl
+H : HIn → Dig
+S : ℕ
+mo : Block.MaskOpening
+t : Tr
+hpow : isPow2 mDom = true
+hT4 :
+  runOps H t (stpsOps (mPre S mo)) =
+    Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 Block.labMaskQ mo.q) (2 * S + 2)).2
+      Block.labMaskProx mo.prox
+hc :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 Block.labMaskQ mo.q) (2 * S + 2)).2
+        Block.labMaskProx mo.prox)
+      mQ mDom =
+    some
+      (idxOf mDom mQ (sqDs H (runOps H t (stpsOps (mPre S mo))) 64),
+        runOps H (runOps H t (stpsOps (mPre S mo))) (List.replicate 64 Op.squeeze))
+h1 : ¬mo.columns.length ≠ (idxOf mDom mQ (sqDs H (runOps H t (stpsOps (mPre S mo))) 64)).length
+h2 :
+  ¬((mo.columns.zip (idxOf mDom mQ (sqDs H (runOps H t (stpsOps (mPre S mo))) 64))).any fun ci =>
+        decide (ci.1.j ≠ ci.2)) =
+      true
+⊢ (Tr.challengeFp2 H t).1 = challengeFp2Of (Tr.squeeze H t).1 ∧
+    (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 Block.labMaskQ mo.q) (2 * S + 2)).1 =
+        List.map challengeFp2Of (sqDs H (Tr.absorbFp2 H (Tr.squeeze H t).2 Block.labMaskQ mo.q) (2 * S + 2)) ∧
+      idxOf mDom mQ (sqDs H (runOps H t (stpsOps (mPre S mo))) 64) =
+          idxOf mDom mQ (sqDs H (runOps H t (stpsOps (mPre S mo))) 64) ∧
+        runOps H (runOps H t (stpsOps (mPre S mo))) (List.replicate 64 Op.squeeze) = runOps H t (stpsOps (mStps S mo)) ∧
+          mo.columns.length = (idxOf mDom mQ (sqDs H (runOps H t (stpsOps (mPre S mo))) 64)).length ∧
+            ∀ ci ∈ mo.columns.zip (idxOf mDom mQ (sqDs H (runOps H t (stpsOps (mPre S mo))) 64)), ci.1.j = ci.2
+error: ZK60Formal/LinkW16Trace.lean:426:2: No goals to be solved
+error: ZK60Formal/LinkW16Trace.lean:472:8: Tactic `rfl` failed: The left-hand side
+  runOps H (runOps H t (stpsOps (pcsPre (counts.sum + rows) o))) (List.replicate ((q + 3) / 4) Op.squeeze)
+is not definitionally equal to the right-hand side
+  runOps H (runOps H t (stpsOps (pcsPre (counts.sum + rows) o))) (stpsOps [Stp.sq ((q + 3) / 4)])
+
+case h_2.refine_1
+H : HIn → Dig
+counts : List ℕ
+rows q nn : ℕ
+hq : 0 < q
+hnn : isPow2 nn = true
+o : Block.OpeningZk
+t : Tr
+hz1 :
+  (Block.zkRhos H counts rows t).1 ++ (Block.zkRhos H counts rows t).2.1 =
+    List.map challengeFp2Of (sqDs H t (counts.sum + rows))
+hz2 : (Block.zkRhos H counts rows t).1.length = counts.sum
+hz3 : (Block.zkRhos H counts rows t).2.2 = runOps H t (List.replicate (counts.sum + rows) Op.squeeze)
+hT :
+  runOps H t (stpsOps (pcsPre (counts.sum + rows) o)) =
+    Tr.absorbFp2 H
+      (List.foldl (fun t v => Tr.absorbFp2 H t Block.labPcsVec v) (Block.zkRhos H counts rows t).2.2 o.groupVecs)
+      Block.labPcsProx o.proxVec
+hc :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H
+        (List.foldl (fun t v => Tr.absorbFp2 H t Block.labPcsVec v) (Block.zkRhos H counts rows t).2.2 o.groupVecs)
+        Block.labPcsProx o.proxVec)
+      q nn =
+    some
+      (idxOf nn q (sqDs H (runOps H t (stpsOps (pcsPre (counts.sum + rows) o))) ((q + 3) / 4)),
+        runOps H (runOps H t (stpsOps (pcsPre (counts.sum + rows) o))) (List.replicate ((q + 3) / 4) Op.squeeze))
+x✝¹ : Except String Unit
+hl :
+  ¬o.columns.length ≠ (idxOf nn q (sqDs H (runOps H t (stpsOps (pcsPre (counts.sum + rows) o))) ((q + 3) / 4))).length
+x✝ : Option (Block.Column × ℕ)
+hfind :
+  List.find? (fun ci => decide (ci.1.j ≠ ci.2))
+      (o.columns.zip (idxOf nn q (sqDs H (runOps H t (stpsOps (pcsPre (counts.sum + rows) o))) ((q + 3) / 4)))) =
+    none
+hcol : Except.ok () = Except.ok PUnit.unit
+⊢ runOps H (runOps H t (stpsOps (pcsPre (counts.sum + rows) o))) (List.replicate ((q + 3) / 4) Op.squeeze) =
+    runOps H (runOps H t (stpsOps (pcsPre (counts.sum + rows) o))) (stpsOps [Stp.sq ((q + 3) / 4)])
+error: ZK60Formal/LinkW16Trace.lean:510:10: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun g => g.2.length) (List.foldl (groupStep rows logCols) ?m.119 cl).2).sum
+in the target expression
+  (List.map (fun g => g.2.length)
+        (List.foldl
+            (fun st c =>
+              match keyIdx st.1 (claimWeights c rows logCols).2 with
+              | some gi => (st.1, pushAt st.2 gi ((claimWeights c rows logCols).1, c.value))
+              | none =>
+                (st.1 ++ [(claimWeights c rows logCols).2],
+                  st.2 ++
+                    [(zkeyWeights (claimWeights c rows logCols).2 logCols,
+                        [((claimWeights c rows logCols).1, c.value)])]))
+            (st.1, pushAt st.2 gi ((claimWeights c rows logCols).1, c.value)) cl).2).sum =
+    (List.map (fun g => g.2.length) st.2).sum + (c :: cl).length
+
+case h_1
+rows logCols : ℕ
+c : ZClaim
+cl : List ZClaim
+st : List ZKey × List (List Fp2 × List (List Fp2 × Fp2))
+hst : st.1.length = st.2.length
+x✝ : Option ℕ
+gi : ℕ
+hgi : keyIdx st.1 (claimWeights c rows logCols).2 = some gi
+⊢ (List.map (fun g => g.2.length)
+        (List.foldl
+            (fun st c =>
+              match keyIdx st.1 (claimWeights c rows logCols).2 with
+              | some gi => (st.1, pushAt st.2 gi ((claimWeights c rows logCols).1, c.value))
+              | none =>
+                (st.1 ++ [(claimWeights c rows logCols).2],
+                  st.2 ++
+                    [(zkeyWeights (claimWeights c rows logCols).2 logCols,
+                        [((claimWeights c rows logCols).1, c.value)])]))
+            (st.1, pushAt st.2 gi ((claimWeights c rows logCols).1, c.value)) cl).2).sum =
+    (List.map (fun g => g.2.length) st.2).sum + (c :: cl).length
+error: ZK60Formal/LinkW16Trace.lean:513:10: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.map (fun g => g.2.length) (List.foldl (groupStep rows logCols) ?m.121 cl).2).sum
+in the target expression
+  (List.map (fun g => g.2.length)
+        (List.foldl
+            (fun st c =>
+              match keyIdx st.1 (claimWeights c rows logCols).2 with
+              | some gi => (st.1, pushAt st.2 gi ((claimWeights c rows logCols).1, c.value))
+              | none =>
+                (st.1 ++ [(claimWeights c rows logCols).2],
+                  st.2 ++
+                    [(zkeyWeights (claimWeights c rows logCols).2 logCols,
+                        [((claimWeights c rows logCols).1, c.value)])]))
+            (st.1 ++ [(claimWeights c rows logCols).2],
+              st.2 ++
+                [(zkeyWeights (claimWeights c rows logCols).2 logCols, [((claimWeights c rows logCols).1, c.value)])])
+            cl).2).sum =
+    (List.map (fun g => g.2.length) st.2).sum + (c :: cl).length
+
+case h_2
+rows logCols : ℕ
+c : ZClaim
+cl : List ZClaim
+st : List ZKey × List (List Fp2 × List (List Fp2 × Fp2))
+hst : st.1.length = st.2.length
+x✝ : Option ℕ
+heq✝ : keyIdx st.1 (claimWeights c rows logCols).2 = none
+⊢ (List.map (fun g => g.2.length)
+        (List.foldl
+            (fun st c =>
+              match keyIdx st.1 (claimWeights c rows logCols).2 with
+              | some gi => (st.1, pushAt st.2 gi ((claimWeights c rows logCols).1, c.value))
+              | none =>
+                (st.1 ++ [(claimWeights c rows logCols).2],
+                  st.2 ++
+                    [(zkeyWeights (claimWeights c rows logCols).2 logCols,
+                        [((claimWeights c rows logCols).1, c.value)])]))
+            (st.1 ++ [(claimWeights c rows logCols).2],
+              st.2 ++
+                [(zkeyWeights (claimWeights c rows logCols).2 logCols, [((claimWeights c rows logCols).1, c.value)])])
+            cl).2).sum =
+    (List.map (fun g => g.2.length) st.2).sum + (c :: cl).length
+error: ZK60Formal/LinkW16Trace.lean:513:54: `simp` made no progress
+error: ZK60Formal/LinkW16Trace.lean:546:41: Application type mismatch: The argument
+  h
+has type
+  (match (bga, rs, acc, tM) with
+    | (fst, fst_1, acc, t) =>
+      have fs := acc.fs ++ acc.hostFs;
+      have __do_jp := fun __r =>
+        have __do_jp := fun t =>
+          have hc := acc.claims.h ++ [P.logupSumClaim];
+          do
+          P.checkOpening H Block.Cm.a acc.claims.a t
+          have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+            P.checkOpening H Block.Cm.h hc t
+            have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+              pure ((acc.claims.inp, acc.claims.out), t)
+            match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+              | Except.ok t => do
+                let t ← pure t
+                __do_jp t
+              | Except.error e => do
+                let t ← throw (toString "H: " ++ toString e)
+                __do_jp t
+          match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "A: " ++ toString e)
+              __do_jp t;
+        match P.maskVerify H core.maskRoot fs core.maskOpen t with
+        | Except.ok t => do
+          let t ← pure t
+          __do_jp t
+build rc 1 for ZK60Formal.LinkW16Trace, 21 s
+rc build 1 files 0, 21 s

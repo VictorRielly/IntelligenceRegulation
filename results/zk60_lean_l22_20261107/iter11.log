@@ -1,0 +1,97 @@
+== lake build ZK60Formal.LinkW16MaskChain ==
+✖ [3473/3473] Building ZK60Formal.LinkW16MaskChain (5.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16MaskChain.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16MaskChain.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16MaskChain.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16MaskChain.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16MaskChain.setup.json --json
+error: ZK60Formal/LinkW16MaskChain.lean:294:25: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (sqDs H (Tr.absorb H (Tr.squeeze H tM).2 Block.labMaskQ (List.flatMap Fp2.toBytes mo.q)) (2 * S + 2))[↑i]?
+in the target expression
+  fp2Field gP (2 ^ 128) (Equiv.ofBijective (Hiding.fp2 U) hbij)
+      ((Option.map halves
+            (some
+              (sqDs H (Tr.absorb H (Tr.squeeze H tM).2 Block.labMaskQ (List.flatMap Fp2.toBytes mo.q))
+                  (2 * S + 2))[↑i])).getD
+        dg0) =
+    Fp2.toK U
+      ((Option.map challengeFp2Of
+            (sqDs H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2))[↑i]?).getD
+        Fp2.zero)
+
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hbij : Function.Bijective (Hiding.fp2 U)
+H : HIn → Dig
+tag : MTag
+root : Dig
+S : ℕ
+fs : List Block.MaskFunctional
+mo : Block.MaskOpening
+hcan : Block.MaskCanon mo
+tM tA : Tr
+hok : MaskOk H tag (rootFp 9) (rootFp 12) root S (List.map toMF fs) (toMO mo) tM tA
+W : UInt64 → ℕ
+h1 : W tM.counter = 1
+h2 : W (Tr.squeeze H tM).2.counter = 2 * S + 2
+h3 :
+  W
+      (runOps H (Tr.absorb H (Tr.squeeze H tM).2 Block.labMaskQ (List.flatMap Fp2.toBytes mo.q))
+          (List.replicate (2 * S + 2) Op.squeeze)).counter =
+    64
+pre rest : List (TItem × Dig)
+hpre : tRem W pre = some 0
+Dm : List (TItem × Dig) → MData K (Fin (2 ^ 12)) (Fin S) (Fin (2 * S + 2)) fs.length 512
+cols : Fin (2 ^ 12) → List Fp
+hDm : Dm pre = mDataOf U S fs.length fs cols
+hcols :
+  ∀ (k : Fin mQ) (hk : (idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64)).getD (↑k) 0 < 2 ^ 12),
+    cols ⟨(idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64)).getD (↑k) 0, hk⟩ =
+      (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col
+htake : List.take pre.length (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest) = pre
+hdrop :
+  List.drop pre.length (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest) =
+    opTrace H tM (stpsOps (mStps S mo)) ++ rest
+hJ : ∀ (k : Fin mQ), (idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64)).getD (↑k) 0 < 2 ^ 12
+hT4 :
+  runOps H tM (stpsOps (mPre S mo)) =
+    Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).2
+      maskProxLabel mo.prox
+hidx :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).2
+        maskProxLabel mo.prox)
+      mQ mDom =
+    some (idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64), tA)
+hfin :
+  MFinal mEtaE mOmega 1023 (mDataOf U S fs.length fs cols) (Fp2.toK U (Tr.challengeFp2 H tM).1)
+    (some (coefPoly (vecK U 1024 mo.q)))
+    (fun i =>
+      Fp2.toK U
+        ((Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).1.getD (↑i)
+          Fp2.zero))
+    (some (coefPoly (vecK U 1024 mo.prox))) fun k =>
+    ⟨(idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64)).getD (↑k) 0, ⋯⟩
+hq : decPoly U 1024 (List.flatMap Fp2.toBytes mo.q) = some (coefPoly (vecK U 1024 mo.q))
+hp : decPoly U 1024 (List.flatMap Fp2.toBytes mo.prox) = some (coefPoly (vecK U 1024 mo.prox))
+eθ :
+  chalTheta gP (Equiv.ofBijective (Hiding.fp2 U) hbij) (vecOf dg0 1 [halves (Tr.squeeze H tM).1]) =
+    Fp2.toK U (Tr.challengeFp2 H tM).1
+i : Fin (2 * S + 2)
+hil : ↑i < (sqDs H (Tr.absorb H (Tr.squeeze H tM).2 Block.labMaskQ (List.flatMap Fp2.toBytes mo.q)) (2 * S + 2)).length
+⊢ fp2Field gP (2 ^ 128) (Equiv.ofBijective (Hiding.fp2 U) hbij)
+      ((Option.map halves
+            (some
+              (sqDs H (Tr.absorb H (Tr.squeeze H tM).2 Block.labMaskQ (List.flatMap Fp2.toBytes mo.q))
+                  (2 * S + 2))[↑i])).getD
+        dg0) =
+    Fp2.toK U
+      ((Option.map challengeFp2Of
+            (sqDs H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2))[↑i]?).getD
+        Fp2.zero)
+Some required targets logged failures:
+- ZK60Formal.LinkW16MaskChain
+error: build failed
+build rc 1 for ZK60Formal.LinkW16MaskChain, 8 s
+rc build 1 files 0, 8 s

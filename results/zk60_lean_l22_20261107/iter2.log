@@ -1,0 +1,83 @@
+== lake build ZK60Formal.LinkW16Parse ==
+✖ [3464/3464] Building ZK60Formal.LinkW16Parse (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Parse.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Parse.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Parse.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Parse.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Parse.setup.json --json
+error: ZK60Formal/LinkW16Parse.lean:402:78: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (idxVals ?bound ?d).length
+in the target expression
+  (List.flatMap (idxVals bound) (sqDs H (Tr.squeeze H t).2 m)).length ≤ rem - 4
+
+H : HIn → Dig
+bound m fuel : ℕ
+t : Tr
+rem : ℕ
+acc : List ℕ
+h0 : 0 < rem
+h1 : rem ≤ 4 * (m + 1)
+h2 : 4 * (m + 1) < rem + 4
+hf : m + 1 ≤ fuel + 1
+hr0 : ¬rem = 0
+h4 : ¬rem ≤ 4
+⊢ (List.flatMap (idxVals bound) (sqDs H (Tr.squeeze H t).2 m)).length ≤ rem - 4
+error: ZK60Formal/LinkW16Parse.lean:395:4: unsolved goals
+case neg
+H : HIn → Dig
+bound m fuel : ℕ
+t : Tr
+rem : ℕ
+acc : List ℕ
+h0 : 0 < rem
+h1 : rem ≤ 4 * (m + 1)
+h2 : 4 * (m + 1) < rem + 4
+hf : m + 1 ≤ fuel + 1
+hr0 : ¬rem = 0
+h4 : ¬rem ≤ 4
+⊢ acc ++ (idxVals bound (Tr.squeeze H t).1 ++ List.flatMap (idxVals bound) (sqDs H (Tr.squeeze H t).2 m)) =
+    acc ++
+      (List.take rem (idxVals bound (Tr.squeeze H t).1) ++
+        List.take (rem - 4) (List.flatMap (idxVals bound) (sqDs H (Tr.squeeze H t).2 m)))
+Some required targets logged failures:
+- ZK60Formal.LinkW16Parse
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Parse, 5 s
+== lake build ZK60Formal.LinkW16Trace ==
+✖ [3464/3465] Building ZK60Formal.LinkW16Parse (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Parse.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Parse.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Parse.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Parse.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Parse.setup.json --json
+error: ZK60Formal/LinkW16Parse.lean:402:78: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (idxVals ?bound ?d).length
+in the target expression
+  (List.flatMap (idxVals bound) (sqDs H (Tr.squeeze H t).2 m)).length ≤ rem - 4
+
+H : HIn → Dig
+bound m fuel : ℕ
+t : Tr
+rem : ℕ
+acc : List ℕ
+h0 : 0 < rem
+h1 : rem ≤ 4 * (m + 1)
+h2 : 4 * (m + 1) < rem + 4
+hf : m + 1 ≤ fuel + 1
+hr0 : ¬rem = 0
+h4 : ¬rem ≤ 4
+⊢ (List.flatMap (idxVals bound) (sqDs H (Tr.squeeze H t).2 m)).length ≤ rem - 4
+error: ZK60Formal/LinkW16Parse.lean:395:4: unsolved goals
+case neg
+H : HIn → Dig
+bound m fuel : ℕ
+t : Tr
+rem : ℕ
+acc : List ℕ
+h0 : 0 < rem
+h1 : rem ≤ 4 * (m + 1)
+h2 : 4 * (m + 1) < rem + 4
+hf : m + 1 ≤ fuel + 1
+hr0 : ¬rem = 0
+h4 : ¬rem ≤ 4
+⊢ acc ++ (idxVals bound (Tr.squeeze H t).1 ++ List.flatMap (idxVals bound) (sqDs H (Tr.squeeze H t).2 m)) =
+    acc ++
+      (List.take rem (idxVals bound (Tr.squeeze H t).1) ++
+        List.take (rem - 4) (List.flatMap (idxVals bound) (sqDs H (Tr.squeeze H t).2 m)))
+Some required targets logged failures:
+- ZK60Formal.LinkW16Parse
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Trace, 8 s
+rc build 1 files 0, 8 s

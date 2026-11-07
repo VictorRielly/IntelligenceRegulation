@@ -1,0 +1,70 @@
+== lake build ZK60Formal.LinkW16Mask ==
+✖ [3472/3472] Building ZK60Formal.LinkW16Mask (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+error: ZK60Formal/LinkW16Mask.lean:113:59: Unknown constant `List.getD_map`
+error: ZK60Formal/LinkW16Mask.lean:112:59: unsolved goals
+fs : List Block.MaskFunctional
+i : ℕ
+⊢ (List.map toMF fs).getD i (toMF mf0) = toMF (fs.getD i mf0)
+error: ZK60Formal/LinkW16Mask.lean:152:6: Unknown constant `List.getD_map`
+error: ZK60Formal/LinkW16Mask.lean:150:103: unsolved goals
+mo : Block.MaskOpening
+k : ℕ
+⊢ (List.map toOCol mo.columns).getD k (toOCol { j := 0, col := [], salt := zeroDig, path := [] }) =
+    toOCol (mo.columns.getD k { j := 0, col := [], salt := zeroDig, path := [] })
+error: ZK60Formal/LinkW16Mask.lean:212:12: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:247:16: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:253:23: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:256:37: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:257:85: Unknown identifier `idx.getD`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Mask, 17 s
+== lake build ZK60Formal.LinkW16MaskChain ==
+✖ [3472/3473] Building ZK60Formal.LinkW16Mask (1.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+error: ZK60Formal/LinkW16Mask.lean:113:59: Unknown constant `List.getD_map`
+error: ZK60Formal/LinkW16Mask.lean:112:59: unsolved goals
+fs : List Block.MaskFunctional
+i : ℕ
+⊢ (List.map toMF fs).getD i (toMF mf0) = toMF (fs.getD i mf0)
+error: ZK60Formal/LinkW16Mask.lean:152:6: Unknown constant `List.getD_map`
+error: ZK60Formal/LinkW16Mask.lean:150:103: unsolved goals
+mo : Block.MaskOpening
+k : ℕ
+⊢ (List.map toOCol mo.columns).getD k (toOCol { j := 0, col := [], salt := zeroDig, path := [] }) =
+    toOCol (mo.columns.getD k { j := 0, col := [], salt := zeroDig, path := [] })
+error: ZK60Formal/LinkW16Mask.lean:212:12: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:247:16: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:253:23: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:256:37: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:257:85: Unknown identifier `idx.getD`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16MaskChain, 21 s
+== lake build ZK60Formal.LinkW16Sem ==
+✖ [3472/3473] Building ZK60Formal.LinkW16Mask (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+error: ZK60Formal/LinkW16Mask.lean:113:59: Unknown constant `List.getD_map`
+error: ZK60Formal/LinkW16Mask.lean:112:59: unsolved goals
+fs : List Block.MaskFunctional
+i : ℕ
+⊢ (List.map toMF fs).getD i (toMF mf0) = toMF (fs.getD i mf0)
+error: ZK60Formal/LinkW16Mask.lean:152:6: Unknown constant `List.getD_map`
+error: ZK60Formal/LinkW16Mask.lean:150:103: unsolved goals
+mo : Block.MaskOpening
+k : ℕ
+⊢ (List.map toOCol mo.columns).getD k (toOCol { j := 0, col := [], salt := zeroDig, path := [] }) =
+    toOCol (mo.columns.getD k { j := 0, col := [], salt := zeroDig, path := [] })
+error: ZK60Formal/LinkW16Mask.lean:212:12: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:247:16: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:253:23: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:256:37: Unknown identifier `idx.getD`
+error: ZK60Formal/LinkW16Mask.lean:257:85: Unknown identifier `idx.getD`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Sem, 25 s
+rc build 1 files 0, 25 s
