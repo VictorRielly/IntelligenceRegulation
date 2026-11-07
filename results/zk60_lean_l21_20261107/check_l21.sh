@@ -1,5 +1,5 @@
 #!/bin/bash
-# D63 lane L21 (2026-11-07): the full Lean build, the axiom audit of every theorem of the six L21 files, the source
+# D63 lane L21 (2026-11-07): the full Lean build, the axiom audit of every theorem of the seven L21 files, the source
 # scan, the root imports, and the regressions (L6Check and L5Check on their committed corpora, L11Check on L11's
 # committed W16R2 rung corpus, the fixture L1 check, SlotW16BuildCheck on L13's layout and L11's corpus; arguments as in
 # results/zk60_lean_l16_20261107/check_l16.sh and results/zk60_lean_l13_20261107/check_l13merge.sh), as ONE guarded job.
@@ -14,10 +14,10 @@ O13=$WT/results/zk60_lean_l13_20261107
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
-FILES="$L/RelW16Chain.lean $L/RelW16Define.lean $L/LookupW16FS.lean $L/RelW16Block.lean $L/RelW16Host.lean $L/RelW16HostDeg.lean"
+FILES="$L/RelW16Chain.lean $L/RelW16Define.lean $L/LookupW16FS.lean $L/RelW16Block.lean $L/RelW16Host.lean $L/RelW16HostDeg.lean $L/RelW16Pos.lean"
 start=$(date +%s)
 echo "== lake build of the L21 modules, one at a time =="
-for m in RelW16Host RelW16HostDeg RelW16Chain RelW16Define LookupW16FS RelW16Block; do
+for m in RelW16Host RelW16HostDeg RelW16Chain RelW16Define LookupW16FS RelW16Block RelW16Pos; do
   "$LAKE" -d "$WT/formal" build ZK60Formal.$m > "$OUT/prebuild_$m.log" 2>&1
   echo "lake build ZK60Formal.$m rc $?"
 done
@@ -47,7 +47,7 @@ grep -oE "axioms: \[[^]]*\]" "$OUT/axioms.log" | sort | uniq -c
 echo "== source scan of the L21 files =="
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $FILES || echo "none"
 echo "== the library root imports the L21 files =="
-for m in RelW16Chain RelW16Define LookupW16FS RelW16Block RelW16Host RelW16HostDeg; do
+for m in RelW16Chain RelW16Define LookupW16FS RelW16Block RelW16Host RelW16HostDeg RelW16Pos; do
   grep -q "^import ZK60Formal.$m\$" "$WT/formal/ZK60Formal.lean" && echo "imported: $m" || echo "MISSING: $m"
 done
 echo "== regression: L6Check on the committed L6 corpus =="

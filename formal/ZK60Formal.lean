@@ -128,3 +128,4 @@ import ZK60Formal.LookupW16FS
 import ZK60Formal.RelW16Block
 import ZK60Formal.RelW16Host
 import ZK60Formal.RelW16HostDeg
+import ZK60Formal.RelW16Pos

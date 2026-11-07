@@ -248,23 +248,12 @@ def LkWin (U : K) (key : Option Dig) (domain : List UInt8) (P : BlockParams) (hd
     ∧ ∃ Hh, HelperRel (fun l => fold (bga.1.toK U) (bga.2.1.toK U) (Alk cuA l))
         (fun j => fold (bga.1.toK U) (bga.2.1.toK U) (T j)) (mlk cuA) (bga.2.2.toK U) Hh
 
-/-- **LogUp under Fiat–Shamir on the block's schedule, knowledge version** (D63 lane L21; `hLk`'s probabilistic half).
-For ANY block shape, any lookup list `Alk` and multiplicities `mlk` over the `A` planes extracted from the prover's log
-(cut at the `A` root's first absorption), any table `T` (`N` lookups, `M` distinct table tuples, `N < char K`): the
-probability that the slots accept, some extracted looked-up tuple is not a table tuple, and yet some helpers pass every
-relation at the transcript's `β, γ, α` is at most `T·(N + 2M)/|K|·(1 + p/2^128)² + collBound T + collBound (T + 1)`,
-`T = q + (hdrLen + 10) + 1`. -/
-theorem block_logup_fs_knowledge [Fintype K] (U : K) (hU : U ^ 2 = algebraMap GF K 7)
-    (hK2 : Module.finrank GF K = 2) (key : Option Dig) (domain : List UInt8) (hs : decodeLink (startMsg domain) = none)
-    (hL : (startMsg domain).length ≤ L) (hL64 : L < 2 ^ 64) (hL81 : 81 ≤ L) (P : BlockParams) (hdrLen : ℕ)
-    (Alk : List (QB L × Dig) → ι ⊕ (π ⊕ π) → Tup K) (T : κ → Tup K) (mlk : List (QB L × Dig) → κ → K)
-    (hN : Fintype.card ι + 2 * Fintype.card π < ringChar K)
-    (q : ℕ) (A : OC (QB L) Dig (List Op × Core)) (hA : A.Bounded q) :
-    prH (fun G : QB L → Dig => LkWin U key domain P hdrLen Alk T mlk (cutsOf key domain hs hL A G).1 G (A.run G))
-      ≤ (((q + (hdrLen + 10) + 1) * (Fintype.card ι + 2 * Fintype.card π + 2 * (univ.image T).card) : ℕ) : ℝ≥0∞)
-          / Fintype.card K * (1 + (gP : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ 2
-        + collBound (q + (hdrLen + 10) + 1) Dig + collBound (q + (hdrLen + 10) + 1 + 1) Dig := by
-  have hstab : ∀ (G : QB L → Dig) (P1 P1' : List (QB L × Dig)) (τ : List (ItB L × Dig)) (qs : List (QB L)),
+omit [Algebra GF K] in
+/-- LogUp's state is frozen once the header up to the `A` root is logged (`cutO_stable`). -/
+theorem lkSq_stab (key : Option Dig) (domain : List UInt8) (hs : decodeLink (startMsg domain) = none)
+    (hL : (startMsg domain).length ≤ L) (hdrLen : ℕ) (Alk : List (QB L × Dig) → ι ⊕ (π ⊕ π) → Tup K)
+    (T : κ → Tup K) (mlk : List (QB L × Dig) → κ → K) {β : Type} (A : OC (QB L) Dig β) :
+    ∀ (G : QB L → Dig) (P1 P1' : List (QB L × Dig)) (τ : List (ItB L × Dig)) (qs : List (QB L)),
       (chainEncB key domain hs L hL).Chain G τ qs → τ.length = hdrLen + 1 → (∀ y ∈ qs, y ∈ P1.map Prod.fst) →
       P1 <+: P1' → (∀ e ∈ P1', e.2 = G e.1) →
       ∀ sx ∈ [lkSq hdrLen (absOfC (chainEncB key domain hs L hL)) Alk T mlk], ∀ ext : List (TItem × Dig),
@@ -283,27 +272,26 @@ theorem block_logup_fs_knowledge [Fintype K] (U : K) (hU : U ^ 2 = algebraMap GF
         (proverLog A P1'))) T (mlk (cutO (absOfC (chainEncB key domain hs L hL)) (absAt (τ.map entB ++ ext) hdrLen)
         (proverLog A P1'))) τr)
     rw [hab, hcut]
-  have hmain := fs_sq_knowledge U hU hK2 key domain hs hL hL64
-    [lkSq hdrLen (absOfC (chainEncB key domain hs L hL)) Alk T mlk]
-    (Fintype.card ι + 2 * Fintype.card π + 2 * (univ.image T).card)
-    (fun sx hsx => by
-      rw [List.mem_singleton] at hsx
-      subst hsx
-      exact lkSq_rbr hdrLen _ Alk T mlk hN)
-    (fun sx hsx => by
-      rw [List.mem_singleton] at hsx
-      subst hsx
-      exact le_rfl)
-    (lkOps P) (hdrLen + 10) (hdrLen + 1)
-    (fun sx hsx => by
-      rw [List.mem_singleton] at hsx
-      subst hsx
-      show hdrLen + 1 < hdrLen + 4
-      omega)
-    q A hA hstab
-  refine le_trans (MeasureTheory.measure_mono ?_) hmain
-  intro G hG
-  rw [Set.mem_ofPred_eq] at hG ⊢
+
+/-- **A win against LogUp is the composed event** on the trace of the header and the roots (`fs_sq_knowledge`'s
+premise). -/
+theorem lkWin_event (U : K) (key : Option Dig) (domain : List UInt8) (hs : decodeLink (startMsg domain) = none)
+    (hL : (startMsg domain).length ≤ L) (hL81 : 81 ≤ L) (P : BlockParams) (hdrLen : ℕ)
+    (Alk : List (QB L × Dig) → ι ⊕ (π ⊕ π) → Tup K) (T : κ → Tup K) (mlk : List (QB L × Dig) → κ → K)
+    (A : OC (QB L) Dig (List Op × Core)) (G : QB L → Dig)
+    (hG : LkWin U key domain P hdrLen Alk T mlk (cutsOf key domain hs hL A G).1 G (A.run G)) :
+    (∀ op ∈ lkOps P (A.run G), op.len ≤ L) ∧ (lkOps P (A.run G)).length ≤ hdrLen + 10
+      ∧ (∃ sx ∈ [lkSq hdrLen (absOfC (chainEncB key domain hs L hL)) Alk T mlk],
+          sx.a ≤ (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (lkOps P (A.run G))).length
+          ∧ ¬ sx.St (A.runLog G).2
+            ((opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (lkOps P (A.run G))).take sx.a) [])
+      ∧ ∀ sx ∈ [lkSq hdrLen (absOfC (chainEncB key domain hs L hL)) Alk T mlk],
+          ∃ (ks : List UInt64) (ds : List Dig) (rest : List (TItem × Dig)), ks.length = sx.n ∧ ds.length = sx.n
+          ∧ (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (lkOps P (A.run G))).drop sx.a
+            = (ks.map TItem.squeeze).zip ds ++ rest
+          ∧ sx.St (A.runLog G).2
+            ((opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (lkOps P (A.run G))).take sx.a)
+            (ds.map (fun d => (([] : List UInt8), (challengeFp2Of d).toK U))) := by
   obtain ⟨bga, _rs, _acc, ⟨hhl, hhfit, -, -, t', hacc⟩, ⟨l, hl⟩, Hh, hH⟩ := hG
   -- the transcript's β, γ, α are `blockSlots`' bga
   have hbga : bga = (((runOps (liftH G) (Tr.newKeyed (liftH G) domain key) ((A.run G).1 ++ rootOpsA P (A.run G).2)).challengeFp2
@@ -387,6 +375,45 @@ theorem block_logup_fs_knowledge [Fintype K] (U : K) (hU : U ^ 2 = algebraMap GF
       simp only [List.map_cons, List.map_nil, lkSt3]
       rw [hb1, hb2, hb3]
       exact ⟨Hh, hH⟩
+
+/-- **LogUp under Fiat–Shamir on the block's schedule, knowledge version** (D63 lane L21; `hLk`'s probabilistic half).
+For ANY block shape, any lookup list `Alk` and multiplicities `mlk` over the `A` planes extracted from the prover's log
+(cut at the `A` root's first absorption), any table `T` (`N` lookups, `M` distinct table tuples, `N < char K`): the
+probability that the slots accept, some extracted looked-up tuple is not a table tuple, and yet some helpers pass every
+relation at the transcript's `β, γ, α` is at most `T·(N + 2M)/|K|·(1 + p/2^128)² + collBound T + collBound (T + 1)`,
+`T = q + (hdrLen + 10) + 1` (L8's count; `RelW16Pos.block_logup_fs_knowledge_pos` is the per-position one). -/
+theorem block_logup_fs_knowledge [Fintype K] (U : K) (hU : U ^ 2 = algebraMap GF K 7)
+    (hK2 : Module.finrank GF K = 2) (key : Option Dig) (domain : List UInt8) (hs : decodeLink (startMsg domain) = none)
+    (hL : (startMsg domain).length ≤ L) (hL64 : L < 2 ^ 64) (hL81 : 81 ≤ L) (P : BlockParams) (hdrLen : ℕ)
+    (Alk : List (QB L × Dig) → ι ⊕ (π ⊕ π) → Tup K) (T : κ → Tup K) (mlk : List (QB L × Dig) → κ → K)
+    (hN : Fintype.card ι + 2 * Fintype.card π < ringChar K)
+    (q : ℕ) (A : OC (QB L) Dig (List Op × Core)) (hA : A.Bounded q) :
+    prH (fun G : QB L → Dig => LkWin U key domain P hdrLen Alk T mlk (cutsOf key domain hs hL A G).1 G (A.run G))
+      ≤ (((q + (hdrLen + 10) + 1) * (Fintype.card ι + 2 * Fintype.card π + 2 * (univ.image T).card) : ℕ) : ℝ≥0∞)
+          / Fintype.card K * (1 + (gP : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ 2
+        + collBound (q + (hdrLen + 10) + 1) Dig + collBound (q + (hdrLen + 10) + 1 + 1) Dig := by
+  have hmain := fs_sq_knowledge U hU hK2 key domain hs hL hL64
+    [lkSq hdrLen (absOfC (chainEncB key domain hs L hL)) Alk T mlk]
+    (Fintype.card ι + 2 * Fintype.card π + 2 * (univ.image T).card)
+    (fun sx hsx => by
+      rw [List.mem_singleton] at hsx
+      subst hsx
+      exact lkSq_rbr hdrLen _ Alk T mlk hN)
+    (fun sx hsx => by
+      rw [List.mem_singleton] at hsx
+      subst hsx
+      exact le_rfl)
+    (lkOps P) (hdrLen + 10) (hdrLen + 1)
+    (fun sx hsx => by
+      rw [List.mem_singleton] at hsx
+      subst hsx
+      show hdrLen + 1 < hdrLen + 4
+      omega)
+    q A hA (lkSq_stab key domain hs hL hdrLen Alk T mlk A)
+  refine le_trans (MeasureTheory.measure_mono ?_) hmain
+  intro G hG
+  rw [Set.mem_ofPred_eq] at hG ⊢
+  exact lkWin_event U key domain hs hL hL81 P hdrLen Alk T mlk A G hG
 
 /-- **`block_knowledge`'s `hLk` from LogUp under Fiat–Shamir** (D63 lane L21). For any block shape and any reading `xtE`
 of the extracted planes: if a failing LogUp conclusion on the extracted planes means some extracted looked-up tuple is

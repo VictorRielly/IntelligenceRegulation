@@ -1,0 +1,49 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/plan.txt ==
+build ZK60Formal.RelW16Host ZK60Formal.RelW16HostDeg ZK60Formal.RelW16Chain ZK60Formal.RelW16Define ZK60Formal.LookupW16FS ZK60Formal.RelW16Block
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/check_l21.sh
+== lake build ZK60Formal.RelW16Host ZK60Formal.RelW16HostDeg ZK60Formal.RelW16Chain ZK60Formal.RelW16Define ZK60Formal.LookupW16FS ZK60Formal.RelW16Block ==
+Build completed successfully (3466 jobs).
+build rc 0 (21 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/check_l21.sh ==
+check rc 0 (103 s); its log is check.log
+== lake build (full) ==
+lake build rc 0
+✔ [3516/3518] Built ZK60Formal.OpenKnowBlock (2.1s)
+✔ [3517/3518] Built ZK60Formal (1.8s)
+Build completed successfully (3518 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L21 files: 0
+== axiom audit ==
+68 theorems
+axioms rc 0
+declarations audited: 68
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  54 axioms: [propext, Classical.choice, Quot.sound]
+  11 axioms: [propext, Quot.sound]
+   2 axioms: [propext]
+== source scan of the L21 files ==
+none
+== the library root imports the L21 files ==
+imported: RelW16Chain
+imported: RelW16Define
+imported: LookupW16FS
+imported: RelW16Block
+imported: RelW16Host
+imported: RelW16HostDeg
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: SlotW16BuildCheck on L13's layout and L11's corpus ==
+SlotW16BuildCheck: 179 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0, L13 0 (0 = the committed count with 0 failed)
+total 82 s
+rc 0, 103 s

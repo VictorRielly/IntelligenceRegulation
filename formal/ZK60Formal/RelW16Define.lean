@@ -398,6 +398,30 @@ theorem defWin_event (U : K) (key : Option Dig) (domain : List UInt8) (hs : deco
         exact hzero k hk r hr
   · cases hacc
 
+omit [Algebra GF K] in
+/-- The draws' states are frozen once the header up to the roots is logged (`cutO_stable`). -/
+theorem defSq_stab (key : Option Dig) (domain : List UInt8) (hs : decodeLink (startMsg domain) = none)
+    (hL : (startMsg domain).length ≤ L) (P : BlockParams) (hdrLen : ℕ) (ks : List ℕ)
+    (Φ : Cuts3 L → RootsO → (k : ℕ) → Hist → (Fin (P.draws k) → K) → K) (dg : ℕ → ℕ) {β : Type}
+    (A : OC (QB L) Dig β) :
+    ∀ (G : QB L → Dig) (P1 P1' : List (QB L × Dig)) (τ : List (ItB L × Dig)) (qs : List (QB L)),
+      (chainEncB key domain hs L hL).Chain G τ qs → τ.length = hdrLen + 8 → (∀ y ∈ qs, y ∈ P1.map Prod.fst) →
+      P1 <+: P1' → (∀ e ∈ P1', e.2 = G e.1) →
+      ∀ sx ∈ ks.map (defSq P hdrLen (absOfC (chainEncB key domain hs L hL)) Φ dg), ∀ ext : List (TItem × Dig),
+        sx.St (proverLog A P1) (τ.map entB ++ ext) = sx.St (proverLog A P1') (τ.map entB ++ ext) := by
+  intro G P1 P1' τ qs hc hl hq hpre _ sx hsx ext
+  obtain ⟨k, -, rfl⟩ := List.mem_map.mp hsx
+  have hrt : rootsAt hdrLen (τ.map entB ++ ext) = rootsAt hdrLen (τ.map entB) :=
+    rootsAt_append hdrLen _ ext (by rw [List.length_map, hl])
+  have hcut : cuts3 (absOfC (chainEncB key domain hs L hL)) (proverLog A P1) (rootsAt hdrLen (τ.map entB))
+      = cuts3 (absOfC (chainEncB key domain hs L hL)) (proverLog A P1') (rootsAt hdrLen (τ.map entB)) := by
+    unfold cuts3 rootsAt
+    simp only
+    rw [cutO_stable _ G τ qs hc P1 P1' hq hpre A hdrLen, cutO_stable _ G τ qs hc P1 P1' hq hpre A (hdrLen + 3),
+      cutO_stable _ G τ qs hc P1 P1' hq hpre A (hdrLen + 7)]
+  simp only [defSq]
+  rw [hrt, hcut]
+
 /-- **The slots' draws under Fiat–Shamir, knowledge version** (D63 lane L21; L13 §5 item 1). For ANY block shape `P`,
 any slots `ks`, any start claims `Gd` and polynomials `Φ` of the draws over the data extracted from the prover's log
 (cut at the roots' first absorption, `cutsOf`) and of what `define` saw, with `(Φ ≡ 0) → Gd` and individual degrees
@@ -420,23 +444,6 @@ theorem block_defines_fs_knowledge [Fintype K] [DecidableEq K] (U : K) (hU : U ^
       ≤ (((q + defLen P hdrLen + 1) * dmax : ℕ) : ℝ≥0∞) / Fintype.card K
           * (1 + (gP : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ 2
         + collBound (q + defLen P hdrLen + 1) Dig + collBound (q + defLen P hdrLen + 1 + 1) Dig := by
-  have hstab : ∀ (G : QB L → Dig) (P1 P1' : List (QB L × Dig)) (τ : List (ItB L × Dig)) (qs : List (QB L)),
-      (chainEncB key domain hs L hL).Chain G τ qs → τ.length = hdrLen + 8 → (∀ y ∈ qs, y ∈ P1.map Prod.fst) →
-      P1 <+: P1' → (∀ e ∈ P1', e.2 = G e.1) →
-      ∀ sx ∈ ks.map (defSq P hdrLen (absOfC (chainEncB key domain hs L hL)) Φ dg), ∀ ext : List (TItem × Dig),
-        sx.St (proverLog A P1) (τ.map entB ++ ext) = sx.St (proverLog A P1') (τ.map entB ++ ext) := by
-    intro G P1 P1' τ qs hc hl hq hpre _ sx hsx ext
-    obtain ⟨k, -, rfl⟩ := List.mem_map.mp hsx
-    have hrt : rootsAt hdrLen (τ.map entB ++ ext) = rootsAt hdrLen (τ.map entB) :=
-      rootsAt_append hdrLen _ ext (by rw [List.length_map, hl])
-    have hcut : cuts3 (absOfC (chainEncB key domain hs L hL)) (proverLog A P1) (rootsAt hdrLen (τ.map entB))
-        = cuts3 (absOfC (chainEncB key domain hs L hL)) (proverLog A P1') (rootsAt hdrLen (τ.map entB)) := by
-      unfold cuts3 rootsAt
-      simp only
-      rw [cutO_stable _ G τ qs hc P1 P1' hq hpre A hdrLen, cutO_stable _ G τ qs hc P1 P1' hq hpre A (hdrLen + 3),
-        cutO_stable _ G τ qs hc P1 P1' hq hpre A (hdrLen + 7)]
-    simp only [defSq]
-    rw [hrt, hcut]
   have hmain := fs_sq_knowledge U hU hK2 key domain hs hL hL64
     (ks.map (defSq P hdrLen (absOfC (chainEncB key domain hs L hL)) Φ dg)) dmax
     (fun sx hsx => by
@@ -450,7 +457,7 @@ theorem block_defines_fs_knowledge [Fintype K] [DecidableEq K] (U : K) (hU : U ^
       obtain ⟨k, -, rfl⟩ := List.mem_map.mp hsx
       show hdrLen + 8 < hdrLen + 10 + defOff P 0 k
       omega)
-    q A hA hstab
+    q A hA (defSq_stab key domain hs hL P hdrLen ks Φ dg A)
   refine le_trans (MeasureTheory.measure_mono ?_) hmain
   intro G hG
   rw [Set.mem_ofPred_eq] at hG ⊢
