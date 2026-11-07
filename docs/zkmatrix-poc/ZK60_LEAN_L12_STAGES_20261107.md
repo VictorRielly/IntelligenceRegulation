@@ -258,9 +258,9 @@ Optimization candidates (for a later profile; nothing changed here):
 ## 6. What is left
 
 - **The stage-level total as ONE Lean theorem for OUT-C and OUT** (done for IN-C: `inc_stage_sound`). Each of their
-  steps is proved and the byte LogUp's two phases compose (`byte_stage_sound`); writing DZC, LZC, TZC, VZC, RSEL
-  and TAB as the code's closures (as `StageInExtractSlots.lean` does for SIC_QZC / SIC_TZC) and composing them is
-  the same pattern, not yet done. Under Fiat–Shamir the composition is L8's (`fs_code_chain_sound_sched`), which
+  steps is proved and the byte LogUp's two phases compose (`byte_stage_sound`); the margin pair PD / LZC is written
+  as the code writes it (`margin_sound`). Writing DZC, TZC, TAB (and OUT's VZC, RSEL) the same way and composing
+  the stage as `inc_stage_sound` does is the same pattern, not yet done. Under Fiat–Shamir the composition is L8's (`fs_code_chain_sound_sched`), which
   needs each step's round-by-round form.
 - **The layout facts.** `IncLayout`'s fields (where `supp`, `u0`, `π`, `τ` are 1 or the table's value) are the
   code's public tables at the layout map's positions; they are hypotheses here, finite checks for a concrete profile.
