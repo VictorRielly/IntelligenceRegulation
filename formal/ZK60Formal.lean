@@ -127,3 +127,10 @@ import ZK60Formal.CountW16Slots
 import ZK60Formal.CountW16Target
 import ZK60Formal.OpenKnowChain
 import ZK60Formal.OpenKnowBlock
+import ZK60Formal.ZKLinks
+import ZK60Formal.ZKLinksM
+import ZK60Formal.ZKLinksRun
+import ZK60Formal.ZKCount
+import ZK60Formal.ZKCountStep
+import ZK60Formal.ZKCountHyb
+import ZK60Formal.ZKCountBudget
