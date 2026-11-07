@@ -1,6 +1,6 @@
 #!/bin/bash
 # D63 step L14 Lean lane (2026-11-07, zero knowledge for one W16R2 block receipt): the full Lean build, the axiom audit
-# of every theorem of the five L14 files, the source scan, the root imports, and the regressions L6Check, L5Check and
+# of every theorem of the six L14 files, the source scan, the root imports, and the regressions L6Check, L5Check and
 # L11Check on their committed corpora (the arguments of results/zk60_lean_l11_20261107/check_l11merge.sh), as ONE
 # guarded job. Run through run_guarded.py (the zk60 resource guard, class cpu).
 WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47
@@ -10,7 +10,7 @@ O6=$WT/results/zk60_lean_l6_20261106
 O5=$WT/results/zk60_lean_l5_20261106
 O11=$WT/results/zk60_lean_l11_20261107
 L=$WT/formal/ZK60Formal
-FILES="$L/ZKW16Prog.lean $L/ZKW16Step.lean $L/ZKW16View.lean $L/ZKW16Block.lean $L/ZKW16Hyb.lean"
+FILES="$L/ZKW16Prog.lean $L/ZKW16Step.lean $L/ZKW16View.lean $L/ZKW16Block.lean $L/ZKW16Hyb.lean $L/ZKW16Shape.lean"
 echo "== lake build (full) =="
 "$LAKE" -d "$WT/formal" build > "$OUT/full.log" 2>&1
 rc=$?
@@ -37,7 +37,7 @@ grep -oE "axioms: \[[^]]*\]" "$OUT/axioms.log" | sort | uniq -c
 echo "== source scan of the L14 files =="
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $FILES || echo "none"
 echo "== the library root imports the L14 files =="
-for m in ZKW16Prog ZKW16Step ZKW16View ZKW16Block ZKW16Hyb; do grep -n "ZK60Formal.$m\$" "$WT/formal/ZK60Formal.lean" || echo "MISSING $m"; done
+for m in ZKW16Prog ZKW16Step ZKW16View ZKW16Block ZKW16Hyb ZKW16Shape; do grep -n "ZK60Formal.$m\$" "$WT/formal/ZK60Formal.lean" || echo "MISSING $m"; done
 echo "== regression: L6Check on the committed L6 corpus =="
 "$LAKE" -d "$WT/formal" env lean --run "$L/L6Check.lean" "$O6/corpus.txt" > "$OUT/l6check_regression.log" 2>&1
 echo "L6Check rc $?"

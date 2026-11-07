@@ -88,3 +88,4 @@ import ZK60Formal.ZKW16Step
 import ZK60Formal.ZKW16View
 import ZK60Formal.ZKW16Block
 import ZK60Formal.ZKW16Hyb
+import ZK60Formal.ZKW16Shape

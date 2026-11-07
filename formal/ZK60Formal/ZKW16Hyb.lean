@@ -21,6 +21,10 @@ stand-in simulator (`ZKW16Block.standinSim`) this file reduces `hstep` to a stat
   bound `ε q₁ q₂` into hybrid `j` versus `j + 1` within `ε (q + j·qp) (q + R·qp)`, both ways, `qp` the prover's
   queries per receipt. With `zeroKnowledge_of_hybrid_R` this gives `ZeroKnowledge` (`zeroKnowledge_of_oneStep`).
 
+* **`w16r2_zeroKnowledge_of_fsModel`**, **`w16r2_zk_within_target`**: the whole chain assembled for a W16R2-shaped
+  protocol: its instance obligations (an `FSModel` per weight set, its counts within W16R2's rates, the view's law)
+  give `ZeroKnowledge` with an error within `εzkTarget` for every `q` and every `R ≤ 2^96`.
+
 The prover is assumed to be a query-bounded oracle computation (`pOC`, `hrun`, `hbd`), as the honest prover is.
 Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
 -/
@@ -803,5 +807,106 @@ theorem oneStep_of_fsModel [Inhabited D] (W : M.Weights) (FM : FSModel Q D M.Inp
   exact hstd
 
 end ZK
+
+/-! ## The assembled W16R2 statement -/
+
+section W16R2Assembled
+
+variable {Q D Coins : Type} [DecidableEq Q] {M : IntModel} {P : Protocol Q D Coins M} [Inhabited M.Input]
+  [Fintype Q] [Fintype D] [Nonempty D] [Fintype Coins] [Nonempty Coins]
+
+/-- `OneStep` holds for any larger error. -/
+theorem oneStep_mono (W : M.Weights) {ε ε' : ℕ → ℕ → ℝ≥0∞} (h : OneStep P W ε)
+    (hle : ∀ q₁ q₂, ε q₁ q₂ ≤ ε' q₁ q₂) : OneStep P W ε' := by
+  intro α A₁ q₁ hA₁ x A₂ q₂ hA₂
+  obtain ⟨h1, h2⟩ := h α A₁ q₁ hA₁ x A₂ q₂ hA₂
+  exact ⟨h1.trans (add_le_add le_rfl (hle q₁ q₂)), h2.trans (add_le_add le_rfl (hle q₁ q₂))⟩
+
+/-- `fs_step`'s error in rate form: with `K/|C × D^k| ≤ δp`, `Kc/|C × D^k| ≤ εc` and `KU/|C| ≤ δh`, it is at most
+`2·q₁·δp + 4·εc + 2·q₂·δh`. -/
+theorem fsStep_err_le (q₁ q₂ K Kc KU NCV NC : ℕ) (δp δh εc : ℝ≥0∞)
+    (hK : (K : ℝ≥0∞) / NCV ≤ δp) (hKc : (Kc : ℝ≥0∞) / NCV ≤ εc) (hKU : (KU : ℝ≥0∞) / NC ≤ δh) :
+    (((2 * (q₁ * K + 2 * Kc)) : ℕ) : ℝ≥0∞) / NCV + (((2 * (q₂ * KU)) : ℕ) : ℝ≥0∞) / NC
+      ≤ 2 * ((q₁ : ℝ≥0∞) * δp) + 4 * εc + 2 * ((q₂ : ℝ≥0∞) * δh) := by
+  have e1 : (((2 * (q₁ * K + 2 * Kc)) : ℕ) : ℝ≥0∞) / NCV
+      = 2 * ((q₁ : ℝ≥0∞) * ((K : ℝ≥0∞) / NCV)) + 4 * ((Kc : ℝ≥0∞) / NCV) := by
+    push_cast
+    rw [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]
+    ring
+  have e2 : (((2 * (q₂ * KU)) : ℕ) : ℝ≥0∞) / NC = 2 * ((q₂ : ℝ≥0∞) * ((KU : ℝ≥0∞) / NC)) := by
+    push_cast
+    rw [div_eq_mul_inv, div_eq_mul_inv]
+    ring
+  rw [e1, e2]
+  exact add_le_add (add_le_add (mul_le_mul_right (mul_le_mul_right hK _) _) (mul_le_mul_right hKc _))
+    (mul_le_mul_right (mul_le_mul_right hKU _) _)
+
+open Classical in
+/-- **Zero knowledge of a W16R2-shaped protocol, assembled.** Suppose, for every weight set `W`, the protocol's prover
+is the honest prover of a Fiat–Shamir receipt model `FM W` (`hP`), given also as a query-bounded oracle computation of
+at most `qp` queries (`pOC`, `hrun`, `hbd`); its receipts on an input and on the stand-in have the same honest-verifier
+law at every value vector (`hHV`, from `block_view_law_eq_slots_M` and the layout's links); and its counts are within
+the rates `δp`, `εc`, `δh` (`hK`, `hKc`, `hU` with `hrK`, `hrKc`, `hrKU`). Then the protocol is zero knowledge, with
+the stand-in simulator, with error `Σ_{j<R} w16Step δp δh εc qp q R j` (`Statements.lean`'s `ZeroKnowledge`). -/
+theorem w16r2_zeroKnowledge_of_fsModel [Inhabited D] [Inhabited Coins]
+    (pOC : M.Weights → M.Input → Coins → OC Q D (P.Stmt × P.Receipt)) (qp : ℕ)
+    (hrun : ∀ W H x c, (pOC W x c).run H = P.prove H W x c) (hbd : ∀ W x c, (pOC W x c).Bounded qp)
+    (FM : M.Weights → FSModel Q D M.Input Coins (P.Stmt × P.Receipt))
+    (hP : ∀ W H x c, P.prove H W x c = (FM W).prove H x c)
+    (hHV : ∀ W x (v : Fin (FM W).k → D), (PMF.uniformOfFintype Coins).map (fun c => (FM W).out x c v)
+      = (PMF.uniformOfFintype Coins).map
+          (fun c => (FM W).out (standin P W (M.publicPart (M.forward W x), P.leak x)) c v))
+    (K Kc KU : M.Weights → ℕ)
+    (hK : ∀ W x (H : Q → D) z, (univ.filter (fun s : Coins × (Fin (FM W).k → D) =>
+      ∃ i, (FM W).pts x s.1 H s.2 i = z)).card ≤ K W)
+    (hKc : ∀ W x (H : Q → D), (univ.filter (fun s : Coins × (Fin (FM W).k → D) =>
+      ¬ Function.Injective ((FM W).pts x s.1 H s.2) ∨ ∃ i, (FM W).pts x s.1 H s.2 i ∈ (FM W).dep x s.1)).card
+        ≤ Kc W)
+    (hU : ∀ W (q₂ : ℕ) x (H : Q → D) (v : Fin (FM W).k → D) (Z : (P.Stmt × P.Receipt) → Finset Q),
+      (∀ o, (Z o).card ≤ q₂) →
+      (univ.filter (fun c => ∃ i, ¬ (FM W).vis v i ∧ (FM W).pts x c H v i ∈ Z ((FM W).out x c v))).card
+        ≤ q₂ * KU W)
+    (δp δh εc : ℝ≥0∞)
+    (hrK : ∀ W, (K W : ℝ≥0∞) / Fintype.card (Coins × (Fin (FM W).k → D)) ≤ δp)
+    (hrKc : ∀ W, (Kc W : ℝ≥0∞) / Fintype.card (Coins × (Fin (FM W).k → D)) ≤ εc)
+    (hrKU : ∀ W, (KU W : ℝ≥0∞) / Fintype.card Coins ≤ δh) :
+    ZeroKnowledge M P (fun q R => ∑ j ∈ range R, w16Step δp δh εc qp q R j) :=
+  zeroKnowledge_of_oneStep pOC qp hrun hbd
+    (fun q₁ q₂ => 2 * ((q₁ : ℝ≥0∞) * δp) + 4 * εc + 2 * ((q₂ : ℝ≥0∞) * δh))
+    (fun W => oneStep_mono W (oneStep_of_fsModel W (FM W) (hP W) (hHV W) (K W) (Kc W) (KU W) (hK W) (hKc W)
+      (hU W)) (fun q₁ q₂ => fsStep_err_le q₁ q₂ (K W) (Kc W) (KU W) _ _ δp δh εc (hrK W) (hrKc W) (hrKU W)))
+
+open Classical in
+/-- **At W16R2's rates, within the approved target.** Under the hypotheses of `w16r2_zeroKnowledge_of_fsModel` with
+the rates of `W16R2Z` (`δprog`, `δhid`, `εcoll`) and at most `2^18` prover queries per receipt, the protocol is zero
+knowledge with an error that is at most `εzkTarget q R` for every `q` and every `R ≤ 2^96`. -/
+theorem w16r2_zk_within_target [Inhabited D] [Inhabited Coins]
+    (pOC : M.Weights → M.Input → Coins → OC Q D (P.Stmt × P.Receipt)) (qp : ℕ) (hqp : qp ≤ 2 ^ 18)
+    (hrun : ∀ W H x c, (pOC W x c).run H = P.prove H W x c) (hbd : ∀ W x c, (pOC W x c).Bounded qp)
+    (FM : M.Weights → FSModel Q D M.Input Coins (P.Stmt × P.Receipt))
+    (hP : ∀ W H x c, P.prove H W x c = (FM W).prove H x c)
+    (hHV : ∀ W x (v : Fin (FM W).k → D), (PMF.uniformOfFintype Coins).map (fun c => (FM W).out x c v)
+      = (PMF.uniformOfFintype Coins).map
+          (fun c => (FM W).out (standin P W (M.publicPart (M.forward W x), P.leak x)) c v))
+    (K Kc KU : M.Weights → ℕ)
+    (hK : ∀ W x (H : Q → D) z, (univ.filter (fun s : Coins × (Fin (FM W).k → D) =>
+      ∃ i, (FM W).pts x s.1 H s.2 i = z)).card ≤ K W)
+    (hKc : ∀ W x (H : Q → D), (univ.filter (fun s : Coins × (Fin (FM W).k → D) =>
+      ¬ Function.Injective ((FM W).pts x s.1 H s.2) ∨ ∃ i, (FM W).pts x s.1 H s.2 i ∈ (FM W).dep x s.1)).card
+        ≤ Kc W)
+    (hU : ∀ W (q₂ : ℕ) x (H : Q → D) (v : Fin (FM W).k → D) (Z : (P.Stmt × P.Receipt) → Finset Q),
+      (∀ o, (Z o).card ≤ q₂) →
+      (univ.filter (fun c => ∃ i, ¬ (FM W).vis v i ∧ (FM W).pts x c H v i ∈ Z ((FM W).out x c v))).card
+        ≤ q₂ * KU W)
+    (hrK : ∀ W, (K W : ℝ≥0∞) / Fintype.card (Coins × (Fin (FM W).k → D)) ≤ W16R2Z.δprog)
+    (hrKc : ∀ W, (Kc W : ℝ≥0∞) / Fintype.card (Coins × (Fin (FM W).k → D)) ≤ W16R2Z.εcoll)
+    (hrKU : ∀ W, (KU W : ℝ≥0∞) / Fintype.card Coins ≤ W16R2Z.δhid) :
+    ZeroKnowledge M P (fun q R => ∑ j ∈ range R, w16Step W16R2Z.δprog W16R2Z.δhid W16R2Z.εcoll qp q R j)
+      ∧ ∀ q R, R ≤ 2 ^ 96 →
+        ∑ j ∈ range R, w16Step W16R2Z.δprog W16R2Z.δhid W16R2Z.εcoll qp q R j ≤ εzkTarget q R :=
+  ⟨w16r2_zeroKnowledge_of_fsModel pOC qp hrun hbd FM hP hHV K Kc KU hK hKc hU _ _ _ hrK hrKc hrKU,
+    fun q R hR => w16Budget_le q R qp hR hqp _ _ _ w16r2_rates.1 w16r2_rates.2.1⟩
+
+end W16R2Assembled
 
 end ZK60.ZKW16

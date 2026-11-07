@@ -80,3 +80,46 @@ L5Check: 5553 checks, 0 failed
 L11Check rc 0
 L11Check: 404 checks, 0 failed
 == done ==
+== lake build (full) ==
+lake build rc 0
+✔ [3466/3468] Built ZK60Formal.ZKW16Shape (2.6s)
+✔ [3467/3468] Built ZK60Formal (7.1s)
+Build completed successfully (3468 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+80 theorems
+axioms rc 0
+declarations audited: 80
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  65 axioms: [propext, Classical.choice, Quot.sound]
+   5 axioms: [propext, Quot.sound]
+   3 axioms: [propext]
+   1 axioms: [Quot.sound]
+== source scan of the L14 files ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Prog.lean:30:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Step.lean:27:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16View.lean:29:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Block.lean:29:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Hyb.lean:29:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a40ca7ccfcd16fc47/formal/ZK60Formal/ZKW16Shape.lean:28:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+== the library root imports the L14 files ==
+86:import ZK60Formal.ZKW16Prog
+87:import ZK60Formal.ZKW16Step
+88:import ZK60Formal.ZKW16View
+89:import ZK60Formal.ZKW16Block
+90:import ZK60Formal.ZKW16Hyb
+91:import ZK60Formal.ZKW16Shape
+== regression: L6Check on the committed L6 corpus ==
+L6Check rc 0
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check rc 0
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on the committed L11 corpus ==
+L11Check rc 0
+L11Check: 404 checks, 0 failed
+== done ==
