@@ -1,0 +1,2 @@
+{"event":"refused","command":"classify-verify","error":"/Users/victorrielly/zk60-artifacts/a25-media-app-20261107/stream-w1/p0/sexual-c0.unverified-statement: No such file or directory (os error 2)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}

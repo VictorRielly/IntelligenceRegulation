@@ -1,0 +1,6 @@
+[zk60-guard 23:33:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 23:34:04] waiting for admission lock (0s)
+[zk60-guard 23:34:45] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 23:35:45] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 23:36:21] START a25-c1 class=cpu need=40G cap=100G enforce=watchdog-only waited=158s run=d0e37d84ce82
+[zk60-guard 23:52:32] END a25-c1 exit=0 child_wall=971s peak_rss=9.29G min_avail=225.89G

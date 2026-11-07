@@ -1,0 +1,6 @@
+2026-11-07T07:15:01Z binary 32a386ff0260df854d800ad9cb06abd57f8df5df741b80bbaa9ee73700b63a16; W16R2 identity ; R13 identity e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d
+2026-11-07T07:15:28Z 1 CLI verify --dev-w16r2 of the W16R2 receipt rc=1 
+2026-11-07T07:15:28Z 1 CLI input-owner --dev-w16r2 of the W16R2 receipt rc=2 0 content-checked
+2026-11-07T07:15:57Z 2 CLI verify (R13, no switch) of the W16R2 receipt rc=1 (1 = refused) 1 fail-closed
+2026-11-07T07:15:57Z 2 CLI verify (no switch, pinned to the W16R2 identity) rc=2 (1 = refused)
+2026-11-07T07:16:26Z 2 the A24 binary's verify of the W16R2 receipt rc=1 (1 = refused)

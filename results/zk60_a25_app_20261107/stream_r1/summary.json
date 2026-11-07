@@ -1,0 +1,83 @@
+{
+  "tag": "r1",
+  "profile": "r13",
+  "binary": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a894d1898cebc946c/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+  "posts": 1,
+  "all_checked": true,
+  "wall_s": 55.47817587852478,
+  "startup_s": 60.59476137161255,
+  "prover_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 3,
+    "lane_threads": 10,
+    "startup_seconds": 30.512,
+    "witness_cache_bytes": 17179869184,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "checker_start": {
+    "event": "serve-start",
+    "command": "classify-check-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 3,
+    "lane_threads": 4,
+    "startup_seconds": 30.016,
+    "min_bits": 95,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "identity_pinned_by_verifier": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+  "category_proofs": 3,
+  "proved_tok_per_s": 6.921640697790926,
+  "content_tok_per_s": 0.25235148377362754,
+  "per_post": [
+    {
+      "post": 0,
+      "tokens": 14,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 55.47770309448242,
+      "done_at_s": 55.47815299034119
+    }
+  ],
+  "steady": null,
+  "deferred": null,
+  "settings": {
+    "tag": "r1",
+    "posts": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a894d1898cebc946c/results/zk60_a24_app_20261107/posts/one.json",
+    "profile": "r13",
+    "bin": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a894d1898cebc946c/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "identity": null,
+    "lanes": 3,
+    "lane_threads": 10,
+    "check_lanes": 3,
+    "check_threads": 4,
+    "witness_gib": 16,
+    "keep": 1,
+    "gap": 0.0,
+    "writer_threads": 4,
+    "defer_check": false
+  },
+  "hl_gpu": "1",
+  "on_the_clock": "ZK60_THROUGHPUT_TARGET clock: from the first post submitted to the last post's third label accepted: activation writer (Python forward pass), the prover's sealing pass and witnesses, proof, receipt write (fsync per segment), fresh verification in the separate verifier process, input-owner check, category label; NOT on it: server startup (model load), app/publication"
+}

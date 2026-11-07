@@ -1,0 +1,823 @@
+diff --git a/apps/proven-media/deploy.json b/apps/proven-media/deploy.json
+index 0000c69f..d81c6713 100644
+--- a/apps/proven-media/deploy.json
++++ b/apps/proven-media/deploy.json
+@@ -58,6 +58,31 @@
+       "privacy_status": "privacy statement pending",
+       "production": false,
+       "measurement_note": "Lane A24, 2026-11-07, M3 Ultra, public posts only; see results/zk60_a24_app_20261107/README.md."
++    },
++    "shieldstral-mac-fast-w16r2": {
++      "label": "M3 Ultra Mac: Shieldstral T128 through resident GPU servers, blocks at the UNREGISTERED W16R2 development profile (lane A25 DEVELOPMENT CANDIDATE; public posts only; privacy pending; not production)",
++      "prover_mode": "shieldstral-fast-w16r2",
++      "device": "metal",
++      "context_tokens": 128,
++      "max_content_tokens": 336,
++      "category_geometry": {
++        "sexual": {"chunk_tokens": 55, "overlap_tokens": 8, "max_chunks": 8},
++        "violence": {"chunk_tokens": 55, "overlap_tokens": 8, "max_chunks": 8},
++        "hate": {"chunk_tokens": 49, "overlap_tokens": 8, "max_chunks": 8}
++      },
++      "binary_sha256": "32a386ff0260df854d800ad9cb06abd57f8df5df741b80bbaa9ee73700b63a16",
++      "statement_identity": "PENDING-A25-IDENTITY",
++      "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
++      "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2",
++      "development_profile": "W16R2 development profile (unregistered; PUBLIC development posts only; not for real content: efficiency plan A10 awaits Victor's ruling)",
++      "public_posts_only": true,
++      "min_bits": 95,
++      "servers": {"prover_lanes": 6, "prover_lane_threads": 5, "witness_cache_gib": 16, "check_lanes": 3,
++                  "check_lane_threads": 4, "writer_threads": 4, "writers_at_once": 2},
++      "guard_resources": {"service": {"need_gib": 110, "cap_gib": 180, "max_seconds": 21600}},
++      "privacy_status": "privacy statement pending",
++      "production": false,
++      "measurement_note": "Lane A25, 2026-11-07, M3 Ultra, public posts only; see results/zk60_a25_app_20261107/README.md."
+     }
+   }
+ }
+diff --git a/apps/proven-media/proven_media/app.py b/apps/proven-media/proven_media/app.py
+index f9c851ae..b8511f08 100644
+--- a/apps/proven-media/proven_media/app.py
++++ b/apps/proven-media/proven_media/app.py
+@@ -647,7 +647,7 @@ def api_bundle(pid: str):
+         raise HTTPException(404, "no published proof bundle")
+     root = f"proven-media-{pid}"
+     vw = rec["verify_with"]
+-    if any(crec.get('prover', {}).get('kind') in ('shieldstral', 'shieldstral-fast') for _, _, crec in chunk_runs):
++    if any(crec.get('prover', {}).get('kind') in ('shieldstral', 'shieldstral-fast', 'shieldstral-fast-w16r2') for _, _, crec in chunk_runs):
+         instructions = []
+         for ci, _, crec in chunk_runs:
+             check = provers.verify_instructions(crec)
+diff --git a/apps/proven-media/proven_media/config.py b/apps/proven-media/proven_media/config.py
+index 29ac569e..aeca6816 100644
+--- a/apps/proven-media/proven_media/config.py
++++ b/apps/proven-media/proven_media/config.py
+@@ -107,13 +107,15 @@ IMAGE_MIME = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "im
+ 
+ def prover_mode() -> str:
+     """PM_PROVER=stub (default) | shieldstral (reviewed testnet demo) | fake (no proof)
+-    | shieldstral-fast (lane A24 development candidate: resident GPU servers; privacy pending)."""
++    | shieldstral-fast (lane A24 development candidate: resident GPU servers; privacy pending)
++    | shieldstral-fast-w16r2 (lane A25 development candidate: the same servers with the blocks at
++      the UNREGISTERED W16R2 development profile; public posts only; privacy pending)."""
+     return os.environ.get("PM_PROVER", "stub")
+ 
+ 
+ def is_shieldstral_mode(mode: str | None = None) -> bool:
+-    """the real Shieldstral classifier modes (reviewed r16b, or the A24 candidate)"""
+-    return (mode or prover_mode()) in ('shieldstral', 'shieldstral-fast')
++    """the real Shieldstral classifier modes (reviewed r16b, or the A24 / A25 candidates)"""
++    return (mode or prover_mode()) in ('shieldstral', 'shieldstral-fast', 'shieldstral-fast-w16r2')
+ 
+ 
+ def registered_categories():
+@@ -128,6 +130,9 @@ def category_set_id():
+         # the same registered policies (D61); a separate screening context, so a post screened
+         # in one mode is never finalized by the other
+         return 'shieldstral-moderate-fast-dev-v1'
++    if prover_mode() == 'shieldstral-fast-w16r2':
++        # [A25] its own screening context too (another model identity and run profile)
++        return 'shieldstral-moderate-fast-w16r2-dev-v1'
+     return 'shieldstral-moderate-testnet-v1' if prover_mode() == 'shieldstral' else CATEGORY_SET_ID
+ 
+ 
+@@ -149,8 +154,10 @@ def deploy() -> dict:
+         overlap = ts[0].overlap
+         maximum = min(t.chunk_size + (t.max_chunks - 1) * (t.chunk_size - t.overlap) for t in ts)
+         fast = prover_mode() == 'shieldstral-fast'
+-        return {'profile': 'shieldstral-t128-fast' if fast else 'shieldstral-t128',
++        w16r2 = prover_mode() == 'shieldstral-fast-w16r2'
++        return {'profile': 'shieldstral-t128-fast' if fast else 'shieldstral-t128-fast-w16r2' if w16r2 else 'shieldstral-t128',
+                 'label': 'Shieldstral T128, resident GPU servers (A24 development candidate)' if fast
++                         else 'Shieldstral T128, resident GPU servers, W16R2 development profile (A25 candidate; public posts only)' if w16r2
+                          else 'Shieldstral T128 testnet demo',
+                 'note': 'Registered moderate templates; each category has its own chunk plan.',
+                 'chunk_tokens': chunk, 'overlap_tokens': overlap, 'max_chunks': min(t.max_chunks for t in ts),
+diff --git a/apps/proven-media/proven_media/fast_service.py b/apps/proven-media/proven_media/fast_service.py
+index e725347b..9fa5f2d4 100644
+--- a/apps/proven-media/proven_media/fast_service.py
++++ b/apps/proven-media/proven_media/fast_service.py
+@@ -98,11 +98,13 @@ def _recent_launch(root: Path, within_s: float = 120.0) -> bool:
+ def guard_command(root: Path, runtime) -> list[str]:
+     """The service's one guarded leaf: its resident servers and writers are its children."""
+     python = os.environ.get('PM_FAST_SERVICE_PYTHON', os.sys.executable)
++    # [A25] a sibling runtime names its own guard label and the service tool's runtime selector
++    # (A24's runtime has neither: its command line is what it was)
+     return ['python3', str(config.GUARD), 'run', '--class', 'gpu', '--need-gib', str(runtime.SERVICE_NEED_GIB),
+             '--cap-gib', str(runtime.SERVICE_CAP_GIB), '--max-secs', str(runtime.SERVICE_MAX_SECONDS),
+-            '--wait-secs', str(config.GUARD_WAIT_SECS), '--label', 'pm-fast-service',
++            '--wait-secs', str(config.GUARD_WAIT_SECS), '--label', getattr(runtime, 'SERVICE_LABEL', 'pm-fast-service'),
+             '--log', str(root / 'service.guard.log'), '--done', str(root / 'service.guard.done'), '--',
+-            python, str(config.TOOLS_DIR / 'fast_service.py'), str(root)]
++            python, str(config.TOOLS_DIR / 'fast_service.py'), str(root), *getattr(runtime, 'SERVICE_TOOL_ARGS', ())]
+ 
+ 
+ def ensure_running(root: Path, runtime, *, launcher=None) -> dict:
+diff --git a/apps/proven-media/proven_media/hardware_profiles.py b/apps/proven-media/proven_media/hardware_profiles.py
+index c0640f83..d2b19799 100644
+--- a/apps/proven-media/proven_media/hardware_profiles.py
++++ b/apps/proven-media/proven_media/hardware_profiles.py
+@@ -35,11 +35,27 @@ def classifier_profile(path=None, name=None):
+ FAST_PROFILE = 'shieldstral-mac-fast'
+ 
+ 
+-def fast_classifier_profile(path=None, name=FAST_PROFILE):
++FAST_W16R2_PROFILE = 'shieldstral-mac-fast-w16r2'
++
++
++def fast_w16r2_classifier_profile(path=None, name=FAST_W16R2_PROFILE):
++    """[A25] the W16R2 development sibling's profile (PM_PROVER=shieldstral-fast-w16r2), validated
++    against shieldstral_fast_w16r2_runtime exactly as A24's profile is against its runtime, and
++    additionally naming the development profile and its run profile"""
++    from . import shieldstral_fast_w16r2_runtime as w16r2
++    p = fast_classifier_profile(path, name, w16r2)
++    require(p.get('run_profile') == w16r2.RUN_PROFILE and p.get('development_profile') == w16r2.DEVELOPMENT_PROFILE
++            and p.get('public_posts_only') is True, 'hardware profile does not name the W16R2 development profile')
++    return p
++
++
++def fast_classifier_profile(path=None, name=FAST_PROFILE, fast=None):
+     """[A24] The Mac's resident-server profile (PM_PROVER=shieldstral-fast, development
+     candidate), validated against shieldstral_fast_runtime the same way: the JSON records the
+-    measured settings; it cannot retune geometry, pins, floors or resource declarations."""
+-    from . import shieldstral_fast_runtime as fast
++    measured settings; it cannot retune geometry, pins, floors or resource declarations.
++    ([A25] `fast`: a sibling runtime module, validated by the same rule.)"""
++    if fast is None:
++        from . import shieldstral_fast_runtime as fast
+     path = Path(path or config.DEPLOY_FILE)
+     settings = json.loads(path.read_text())
+     profiles = settings.get('classifier_profiles', {})
+@@ -65,4 +81,6 @@ def fast_classifier_profile(path=None, name=FAST_PROFILE):
+ 
+ 
+ if __name__ == '__main__':
+-    print(json.dumps(fast_classifier_profile() if config.prover_mode() == 'shieldstral-fast' else classifier_profile(), indent=2))
++    mode = config.prover_mode()
++    print(json.dumps(fast_classifier_profile() if mode == 'shieldstral-fast' else fast_w16r2_classifier_profile()
++                     if mode == 'shieldstral-fast-w16r2' else classifier_profile(), indent=2))
+diff --git a/apps/proven-media/proven_media/jobs.py b/apps/proven-media/proven_media/jobs.py
+index 4d9586a5..86d03901 100644
+--- a/apps/proven-media/proven_media/jobs.py
++++ b/apps/proven-media/proven_media/jobs.py
+@@ -38,6 +38,9 @@ if config.prover_mode() == 'shieldstral-fast':
+     # [A24] measured on the M3 Ultra: about 40 s per category job with three at once, so about
+     # 15 s of queue time per job (results/zk60_a24_app_20261107/README.md); shared-machine wait extra
+     PER_JOB_S = 15.0
++if config.prover_mode() == 'shieldstral-fast-w16r2':
++    # [A25] the W16R2 development profile's queue estimate (results/zk60_a25_app_20261107/README.md)
++    PER_JOB_S = 10.0
+ 
+ 
+ def prove_job_dir(post_id: str, chunk: int = 0) -> Path:
+diff --git a/apps/proven-media/proven_media/provers.py b/apps/proven-media/proven_media/provers.py
+index 33d853a4..8727b8f6 100644
+--- a/apps/proven-media/proven_media/provers.py
++++ b/apps/proven-media/proven_media/provers.py
+@@ -548,6 +548,11 @@ def make_prover(mode: str | None = None) -> ClassifierProver:
+         # lane A24 development candidate: never selected by default, privacy pending, not production
+         from .shieldstral_fast_prover import ShieldstralFastProver
+         return ShieldstralFastProver()
++    if mode == "shieldstral-fast-w16r2":
++        # lane A25 development candidate: the blocks at the UNREGISTERED W16R2 development
++        # profile; public posts only; never selected by default, privacy pending, not production
++        from .shieldstral_fast_w16r2_prover import ShieldstralFastW16R2Prover
++        return ShieldstralFastW16R2Prover()
+     return StubProver()
+ 
+ 
+@@ -589,6 +594,19 @@ def verify_instructions(record: dict) -> dict:
+                            f'--expect-statement {fast.IDENTITY} --min-bits 95',
+                 'accept_if': 'exit0 with classified event; statement rechecked byte for byte',
+                 'privacy_status': privacy['status'], 'privacy_statement': privacy}
++    if p.get('kind') == 'shieldstral-fast-w16r2':
++        from . import shieldstral_fast_w16r2_runtime as w16r2
++        privacy = w16r2.privacy_statement()
++        policy = record.get('statement', {}).get('policy', '<category-policy-id>')
++        return {'binary': 'zk60_classify (lane A25 build, development candidate), sha256 ' + w16r2.BINARY_SHA,
++                'public_model_files': 'R13 T128 public export and its token_io tables (proved at the W16R2 development profile)',
++                'expect_statement': w16r2.IDENTITY,
++                'command': 'zk60_classify verify --export <public-export> --tables <public-export>/token_io '
++                           f'--policy {policy} --label zk60-classify-verdict --artifact <run> '
++                           f'--expect-statement {w16r2.IDENTITY} --min-bits 95 {w16r2.DEV_SWITCH}',
++                'accept_if': 'exit0 with classified event; statement rechecked byte for byte',
++                'development_profile': w16r2.DEVELOPMENT_PROFILE,
++                'privacy_status': privacy['status'], 'privacy_statement': privacy}
+     if p.get("kind") != "stub-next-token":
+         return {"note": "no CLI check for this prover kind"}
+     return {
+diff --git a/apps/proven-media/proven_media/shieldstral_fast_prover.py b/apps/proven-media/proven_media/shieldstral_fast_prover.py
+index 75aff5a9..bea50c65 100644
+--- a/apps/proven-media/proven_media/shieldstral_fast_prover.py
++++ b/apps/proven-media/proven_media/shieldstral_fast_prover.py
+@@ -31,32 +31,46 @@ class ShieldstralFastProver(ClassifierProver):
+     proves_verdict = True
+     separate_categories = True
+     max_running = runtime.JOBS_IN_FLIGHT
++    # [A25] the runtime module this prover reads its pins from (a sibling mode names its own)
++    runtime = runtime
++    # [A25] the words a record names its fresh verifier with
++    verifier_name = 'pinned A24 resident verifier, its own process'
++    recheck_name = 'fresh A24 resident verifier and input-owner'
+ 
+     def __init__(self, *, launcher=None):
+-        require(config.prover_mode() == runtime.KIND, 'select the explicit shieldstral-fast development mode')
++        require(config.prover_mode() == self.runtime.KIND, f'select the explicit {self.runtime.KIND} development mode')
+         require(config.TAU == 0.5, 'registered classifier threshold is fixed at0.5')
+-        self.templates = runtime.templates()
+-        self.encoder = ShieldstralTextEncoder(runtime.TEKKEN)
++        self.templates = self.runtime.templates()
++        self.encoder = ShieldstralTextEncoder(self.runtime.TEKKEN)
+         self.clis = {}
+         for template in self.templates:
+-            deployment = runtime.deployment(template)
+-            runtime.validate(deployment)
++            deployment = self.runtime.deployment(template)
++            self.runtime.validate(deployment)
+             self.clis[template.category] = ClassifierCLI(deployment)
+-        self.service = runtime.service_dir()
++        self.service = self.runtime.service_dir()
+         self.launcher = launcher
+ 
+     def describe(self):
+-        description = {**super().describe(), 'model': config.CLASSIFIER_NAME, **runtime.descriptor(),
++        description = {**super().describe(), 'model': config.CLASSIFIER_NAME, **self.runtime.descriptor(),
+                        'policy_selection': 'registered moderate policies (D61)',
+                        'what_is_proved': 'The pinned integer model verdict for each category, bound to the post by input-owner verification.',
+                        'development_candidate': True, 'production': False,
+                        'per_job_s': 60, 'category_geometry': {t.category: {'chunk_tokens': t.chunk_size,
+                            'overlap_tokens': t.overlap, 'max_chunks': t.max_chunks} for t in self.templates},
+-                       'service': {'prover_lanes': runtime.PROVER_LANES, 'check_lanes': runtime.CHECK_LANES,
++                       'service': {'prover_lanes': self.runtime.PROVER_LANES, 'check_lanes': self.runtime.CHECK_LANES,
+                                    'device': 'Apple GPU (Metal) + CPU', 'fresh_verifier': 'separate resident verifier process'}}
+-        privacy = runtime.privacy_statement()
++        privacy = self.runtime.privacy_statement()
+         return {**description, 'privacy_status': privacy['status'], 'privacy_statement': privacy}
+ 
++    def notes(self, describe):
++        """the record's notes (a sibling mode names its own profile)"""
++        return ['DEVELOPMENT CANDIDATE (A24): resident GPU servers; registered moderate policies (D61).',
++                describe['privacy_status'] + ': D58 covers the named r16b CPU binary only; not production (D63).']
++
++    def check_statement(self, statement):
++        """[A25] a sibling mode's own statement check (none for A24's R13 mode: the collectors decide)"""
++        return None
++
+     def content_length(self, text):
+         return len(self.encoder.content_ids(text))
+ 
+@@ -84,7 +98,7 @@ class ShieldstralFastProver(ClassifierProver):
+                 and records.canonical(chunk) == records.canonical(plan[chunk['index']]),
+                 'category queue slot differs from the whole post')
+         category = chunk['category']; cli = self.clis[category]
+-        runtime.validate(cli.deployment)
++        self.runtime.validate(cli.deployment)
+         require(records.threshold()['tau'] == 0.5 and records.threshold()['c'] == 0,
+                 'registered threshold changed')
+         policy = next(c['policy'] for c in records.categories() if c['id'] == category)
+@@ -109,7 +123,7 @@ class ShieldstralFastProver(ClassifierProver):
+ 
+     def _submit(self, job, op):
+         fast_service.submit(self.service, job, op)
+-        fast_service.ensure_running(self.service, runtime, launcher=self.launcher)
++        fast_service.ensure_running(self.service, self.runtime, launcher=self.launcher)
+ 
+     def start(self, post_id, item, job, chunk=None):
+         self._submit(self.prepare(post_id, item, job, chunk), 'prove')
+@@ -133,7 +147,7 @@ class ShieldstralFastProver(ClassifierProver):
+         require(spec.get('category') in self.clis, 'unknown job category')
+         cli = self.clis[spec['category']]
+         require(spec['deployment'] == deployment_json(cli.deployment), 'job deployment differs')
+-        runtime.validate(cli.deployment)
++        self.runtime.validate(cli.deployment)
+         steps = self._steps(job)
+         require('verify' in steps, 'fresh verification is missing')
+         result = cli.collect_verified(spec['artifact'], spec['total'], spec['chunk'],
+@@ -143,6 +157,7 @@ class ShieldstralFastProver(ClassifierProver):
+         require(result['statement']['template_prefix_ids'] == list(template.prefix)
+                 and result['statement']['template_suffix_ids'] == list(template.suffix)
+                 and result['statement']['blocks'] == 26, 'native model/template differs')
++        self.check_statement(result['statement'])
+         return spec, result
+ 
+     def _aggregate(self, job, spec, current):
+@@ -170,7 +185,7 @@ class ShieldstralFastProver(ClassifierProver):
+         require(chunk in self.plan_text(item.text), 'collected chunk differs from original post')
+         category = spec['category']; st = r['statement']
+         policy = next(c['policy'] for c in records.categories() if c['id'] == category)
+-        checks = {'verify': {'ok': True, 'by': 'pinned A24 resident verifier, its own process'}, 'content_binding': {'ok': True}}
++        checks = {'verify': {'ok': True, 'by': self.verifier_name}, 'content_binding': {'ok': True}}
+         if spec['last_category_chunk']:
+             checks['category_aggregate'] = self._aggregate(job, spec, r)
+         steps = self._steps(job)
+@@ -190,8 +205,7 @@ class ShieldstralFastProver(ClassifierProver):
+             content_length={'tokens': chunk['end']-chunk['start'], 'total_tokens': spec['total'],
+                             'tokenizer': 'pinned Tekken', 'tokenizer_sha256': TEKKEN_SHA256},
+             chunk=chunk, created_at=records.now_iso(), proved_at=records.now_iso(),
+-            notes=['DEVELOPMENT CANDIDATE (A24): resident GPU servers; registered moderate policies (D61).',
+-                   describe['privacy_status'] + ': D58 covers the named r16b CPU binary only; not production (D63).'])
++            notes=self.notes(describe))
+         rec.labels[category]['policy_sha256'] = policy['sha256']
+         proof_plans.check_category_record(rec.to_dict(), post_id, chunk, require_verdict=True)
+         return rec
+@@ -220,7 +234,7 @@ class ShieldstralFastProver(ClassifierProver):
+         cli = self.clis[spec['category']]
+         require(spec['deployment'] == deployment_json(cli.deployment)
+                 and record.post_id == spec['post_id'] and record.receipt['run_dir'] == spec['artifact']
+-                and record.prover['kind'] == self.kind and record.prover['binary_sha256'] == runtime.BINARY_SHA
++                and record.prover['kind'] == self.kind and record.prover['binary_sha256'] == self.runtime.BINARY_SHA
+                 and records.canonical(record.chunk) == records.canonical(spec['queue_chunk']),
+                 'original proof context differs from record')
+         spec = {k: v for k, v in spec.items() if k not in ('schema', 'deployment')}
+@@ -238,6 +252,6 @@ class ShieldstralFastProver(ClassifierProver):
+         except (ProverError, OSError, ValueError, KeyError):
+             return records.Verdict('re-check', False, False, 'classifier recheck failed', records.now_iso(),
+                                    {'rejected': True})
+-        return records.Verdict(r['value'], True, True, 'fresh A24 resident verifier and input-owner', records.now_iso(),
++        return records.Verdict(r['value'], True, True, self.recheck_name, records.now_iso(),
+                                {'content_binding': True, 'privacy_status': self.describe()['privacy_status'],
+                                 'privacy_statement': self.describe()['privacy_statement']})
+diff --git a/apps/proven-media/tools/fast_service.py b/apps/proven-media/tools/fast_service.py
+index 19002155..ba58ddb6 100644
+--- a/apps/proven-media/tools/fast_service.py
++++ b/apps/proven-media/tools/fast_service.py
+@@ -1,7 +1,10 @@
+ #!/usr/bin/env python3
+ """The shieldstral-fast service (DEVELOPMENT CANDIDATE, lane A24): ONE guarded job for its life.
+ 
+-usage: fast_service.py <private service directory>
++usage: fast_service.py <private service directory> [--runtime w16r2]
++
++(`--runtime w16r2`, lane A25: the sibling mode shieldstral-fast-w16r2, whose servers prove the
++blocks at the UNREGISTERED W16R2 development profile; public posts only.)
+ 
+ Launched by the app (proven_media/fast_service.py) through the shared resource guard. It
+ holds `service.lock`, starts the two resident native servers (`zk60_classify serve` and
+@@ -377,5 +380,21 @@ class Service:
+         return 0
+ 
+ 
++# [A25] `--runtime w16r2` (shieldstral_fast_w16r2_runtime.SERVICE_TOOL_ARGS): the sibling mode's
++# pins and server command lines (its servers carry the W16R2 development switch); without it,
++# A24's R13 runtime as before
++RUNTIMES = {'w16r2': 'proven_media.shieldstral_fast_w16r2_runtime'}
++
++
++def select_runtime(args):
++    """the service directory, and the runtime module the arguments name (A24's by default)"""
++    if len(args) == 1:
++        return args[0], runtime
++    require(len(args) == 3 and args[1] == '--runtime' and args[2] in RUNTIMES, 'usage: fast_service.py <dir> [--runtime w16r2]')
++    import importlib
++    return args[0], importlib.import_module(RUNTIMES[args[2]])
++
++
+ if __name__ == '__main__':
+-    raise SystemExit(Service(sys.argv[1]).main())
++    root, runtime = select_runtime(sys.argv[1:])
++    raise SystemExit(Service(root).main())
+diff --git a/apps/proven-media/proven_media/shieldstral_fast_w16r2_runtime.py b/apps/proven-media/proven_media/shieldstral_fast_w16r2_runtime.py
+new file mode 100644
+index 00000000..c6a26754
+--- /dev/null
++++ b/apps/proven-media/proven_media/shieldstral_fast_w16r2_runtime.py
+@@ -0,0 +1,146 @@
++"""DEVELOPMENT CANDIDATE (lane A25, 2026-11-07): the resident-server Shieldstral prover with its
++26 blocks proved at the UNREGISTERED W16R2 development profile. PUBLIC POSTS ONLY.
++
++Selected only by PM_PROVER=shieldstral-fast-w16r2, a sibling of A24's shieldstral-fast mode
++(shieldstral_fast_runtime.py, unchanged): the same export, templates, registered moderate
++policies (D61), chunk plans, activation writer and service lifecycle, with three differences:
++the pinned A25 binary, the native servers started with `--dev-w16r2-public-content-only`
++(the blocks at W16R2_SHIELD_T128_H24: D59's rate 1/2, Q = 280; stages IN-C and OUT-C
++unchanged), and that profile's own trained statement identity.
++
++Why a sibling mode and not a switch inside shieldstral-fast: every record, statement and
++receipt names its mode, binary, identity and run profile, so a W16R2 receipt is never
++mistaken for an R13 one; A24's R13 path keeps its pins and its tests byte for byte; and the
++two services keep separate directories and screening sets.
++
++Not registered for real content: efficiency plan A10 ("register W16R2 for real content")
++waits for the W16R2 privacy gate on GPU-made bundles, D60's conditions and Victor's ruling.
++D58 covers the named r16b CPU binary only: privacy statement PENDING. Not production (D63).
++"""
++from pathlib import Path
++import os
++
++from . import config, records
++from . import shieldstral_fast_runtime as base
++from .classifier_cli import Deployment, R_C3_SCHEMA, require
++
++KIND = 'shieldstral-fast-w16r2'
++# the same public export and tied tables as the R13 fast path (the profile digest still decides)
++EXPORT_ROOT = base.EXPORT_ROOT
++EXPORT = base.EXPORT
++VERIFIER_EXPORT = base.VERIFIER_EXPORT
++PROFILE_SHA = base.PROFILE_SHA
++# outside the repository (D62); the pin below is the authority. Built from lane A25's tree with
++# `--features gpu-metal`.
++BINARY = Path(os.environ.get('PM_FAST_W16R2_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a25')))
++BINARY_SHA = '32a386ff0260df854d800ad9cb06abd57f8df5df741b80bbaa9ee73700b63a16'
++# the W16R2 development profile's trained statement identity on the R13 T128 export (it names
++# both the block profile and the run profile, so it is not the R13 identity)
++IDENTITY = 'PENDING-A25-IDENTITY'
++RUN_PROFILE = 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2'
++BLOCK_PROFILE = 'hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2'
++DEV_SWITCH = '--dev-w16r2-public-content-only'
++CLI_DESCRIPTION = 'zk60_classify A25 serve/check-serve, W16R2 development profile (unregistered), T128, Metal'
++# the activation writer is profile-independent (the same model arithmetic); A24's pins
++WRITER_ROOT = base.WRITER_ROOT
++WRITER = base.WRITER
++WRITER_SHA = base.WRITER_SHA
++WRITER_DEPENDENCIES = dict(base.WRITER_DEPENDENCIES)
++NATIVE_MODELS = base.NATIVE_MODELS
++WRITER_PYTHON = base.WRITER_PYTHON
++TEKKEN = base.TEKKEN
++
++# Server settings: A24's (measured on the M3 Ultra for R13); see
++# results/zk60_a25_app_20261107/README.md for the W16R2 measurements.
++PROVER_LANES = base.PROVER_LANES
++PROVER_LANE_THREADS = base.PROVER_LANE_THREADS
++WITNESS_CACHE_GIB = base.WITNESS_CACHE_GIB
++CHECK_LANES = base.CHECK_LANES
++CHECK_LANE_THREADS = base.CHECK_LANE_THREADS
++WRITER_THREADS = base.WRITER_THREADS
++WRITERS_AT_ONCE = base.WRITERS_AT_ONCE
++JOBS_IN_FLIGHT = PROVER_LANES + CHECK_LANES
++SERVICE_NEED_GIB = base.SERVICE_NEED_GIB
++SERVICE_CAP_GIB = base.SERVICE_CAP_GIB
++SERVICE_MAX_SECONDS = base.SERVICE_MAX_SECONDS
++SERVICE_IDLE_SECONDS = base.SERVICE_IDLE_SECONDS
++STEP_TIMEOUTS = dict(base.STEP_TIMEOUTS)
++# the service tool's runtime selector and the guard label (fast_service.guard_command)
++SERVICE_TOOL_ARGS = ('--runtime', 'w16r2')
++SERVICE_LABEL = 'pm-fast-w16r2-service'
++DEVELOPMENT_PROFILE = ('W16R2 development profile (unregistered; PUBLIC development posts only; '
++                       'not for real content: efficiency plan A10 awaits Victor\'s ruling)')
++
++
++def categories():
++    return base.categories()
++
++
++def templates():
++    return base.templates()
++
++
++def native_environment():
++    return base.native_environment()
++
++
++def privacy_statement():
++    from .classifier_privacy import statement_info
++    return statement_info(descriptor())
++
++
++def descriptor():
++    return {'kind': KIND, 'binary_sha256': BINARY_SHA, 'model_digest': IDENTITY,
++            'token_profile_digest': PROFILE_SHA, 'run_profile': RUN_PROFILE, 'block_profile': BLOCK_PROFILE,
++            'cli': CLI_DESCRIPTION, 'device': 'metal', 'proof_mode': 'resident-server, categories proved concurrently',
++            'development_profile': DEVELOPMENT_PROFILE,
++            'policy_ids': [c['policy_id'] for c in categories()],
++            'privacy_adapter_supported': False, 'batch_proving': False}
++
++
++def deployment(template):
++    return Deployment(BINARY, BINARY_SHA, EXPORT, VERIFIER_EXPORT, VERIFIER_EXPORT / 'token_io',
++                      IDENTITY, template.policy_id, template.chunk_size, 8, 95, False, R_C3_SCHEMA)
++
++
++def validate(deploy):
++    require(not deploy.development and deploy.binary == BINARY and deploy.binary_sha256 == BINARY_SHA
++            and deploy.statement_identity == IDENTITY and deploy.statement_schema == R_C3_SCHEMA
++            and deploy.min_bits == 95 and deploy.overlap == 8, 'deployment differs from the pinned A25 candidate')
++    by_policy = {t.policy_id: t for t in templates()}
++    require(deploy.policy in by_policy and deploy.chunk_size == by_policy[deploy.policy].chunk_size,
++            'real category or geometry changed')
++    for directory in (deploy.prover_export, deploy.verifier_export):
++        require(records.sha256_file(directory / 'profile.json') == PROFILE_SHA, 'real export profile changed')
++    require(deploy.tables.resolve() == (deploy.verifier_export / 'token_io').resolve(), 'real tied tables differ')
++    require(records.sha256_file(WRITER) == WRITER_SHA, 'activation writer differs from tested source')
++    for path, expected in WRITER_DEPENDENCIES.items():
++        require(records.sha256_file(path) == expected, 'activation writer dependency changed')
++    deploy.validate()
++
++
++def check_statement(statement):
++    """the W16R2 development statement names this mode's profiles and says it is development-only"""
++    require(isinstance(statement, dict) and statement.get('run_profile') == RUN_PROFILE
++            and statement.get('block_profile') == BLOCK_PROFILE
++            and 'DEVELOPMENT' in str(statement.get('scope', '')) and 'PUBLIC' in str(statement.get('scope', '')),
++            'statement is not the W16R2 development profile\'s')
++
++
++def service_dir():
++    return config.PRIVATE_DIR / 'fast-service-w16r2'
++
++
++def server_argv(kind):
++    """The two native servers' command lines (public paths and settings only), each with the
++    W16R2 development switch."""
++    policies = ','.join(c['policy_id'] for c in categories())
++    tables = str(VERIFIER_EXPORT / 'token_io')
++    if kind == 'prove':
++        return [str(BINARY), 'serve', '--export', str(EXPORT), '--tables', tables, '--policies', policies,
++                '--label', 'zk60-classify-verdict', '--lanes', str(PROVER_LANES),
++                '--lane-threads', str(PROVER_LANE_THREADS), '--witness-cache-gib', str(WITNESS_CACHE_GIB), DEV_SWITCH]
++    require(kind == 'check', 'unknown native server')
++    return [str(BINARY), 'check-serve', '--export', str(VERIFIER_EXPORT), '--tables', tables, '--policies', policies,
++            '--label', 'zk60-classify-verdict', '--expect-statement', IDENTITY, '--min-bits', '95',
++            '--lanes', str(CHECK_LANES), '--lane-threads', str(CHECK_LANE_THREADS), DEV_SWITCH]
+diff --git a/apps/proven-media/proven_media/shieldstral_fast_w16r2_prover.py b/apps/proven-media/proven_media/shieldstral_fast_w16r2_prover.py
+new file mode 100644
+index 00000000..d786e3e7
+--- /dev/null
++++ b/apps/proven-media/proven_media/shieldstral_fast_w16r2_prover.py
+@@ -0,0 +1,38 @@
++"""DEVELOPMENT CANDIDATE (lane A25): Shieldstral classifier proofs through the resident servers,
++the 26 blocks at the UNREGISTERED W16R2 development profile. PUBLIC POSTS ONLY.
++
++PM_PROVER=shieldstral-fast-w16r2. A24's ShieldstralFastProver (the same policies, templates,
++chunk plans, statement checks, input-owner binding, category aggregate and publication gates,
++re-run by the app on the service's outputs with the same ClassifierCLI collectors), reading
++its pins from shieldstral_fast_w16r2_runtime: the A25 binary, the W16R2 development trained
++statement identity, the native servers started with `--dev-w16r2-public-content-only`, its own
++service directory and screening set. Every accepted label still comes from a FRESH verification
++in the separate resident verifier process; the app additionally checks that each verified
++statement names the W16R2 development run and block profiles and says it is development-only.
++
++Not registered for real content (efficiency plan A10 awaits Victor's ruling). Privacy
++statement PENDING (D58 covers the named r16b CPU binary only). Not production (D63).
++"""
++from . import shieldstral_fast_w16r2_runtime as runtime
++from .shieldstral_fast_prover import ShieldstralFastProver
++
++
++class ShieldstralFastW16R2Prover(ShieldstralFastProver):
++    kind = runtime.KIND
++    label = 'Shieldstral-1.0-3B classifier (resident GPU servers, W16R2 development profile: public posts only)'
++    max_running = runtime.JOBS_IN_FLIGHT
++    runtime = runtime
++    verifier_name = 'pinned A25 resident verifier (W16R2 development profile), its own process'
++    recheck_name = 'fresh A25 resident verifier (W16R2 development profile) and input-owner'
++
++    def describe(self):
++        return {**super().describe(), 'public_posts_only': True,
++                'development_profile': self.runtime.DEVELOPMENT_PROFILE}
++
++    def notes(self, describe):
++        return ['DEVELOPMENT CANDIDATE (A25): resident GPU servers; blocks at the UNREGISTERED W16R2 development '
++                'profile (public posts only; not for real content: A10 awaits Victor\'s ruling); registered moderate policies (D61).',
++                describe['privacy_status'] + ': D58 covers the named r16b CPU binary only; not production (D63).']
++
++    def check_statement(self, statement):
++        self.runtime.check_statement(statement)
+diff --git a/apps/proven-media/tests/test_shieldstral_fast_w16r2.py b/apps/proven-media/tests/test_shieldstral_fast_w16r2.py
+new file mode 100644
+index 00000000..61240156
+--- /dev/null
++++ b/apps/proven-media/tests/test_shieldstral_fast_w16r2.py
+@@ -0,0 +1,244 @@
++"""[A25] The shieldstral-fast-w16r2 development candidate (the blocks at the UNREGISTERED W16R2
++development profile; public posts only): mode selection, metadata, pins, the servers' switch,
++the service tool's runtime selector and the service lifecycle, with simulated servers (never a
++native proof). A24's shieldstral-fast mode is checked unchanged beside it.
++
++The native proofs, fresh verifications and negative controls of this mode are tested natively
++(hashline `classify_w16r2_tests.rs`) and measured in results/zk60_a25_app_20261107/.
++"""
++from contextlib import contextmanager, ExitStack
++import hashlib
++import importlib.util
++import json
++import os
++from pathlib import Path
++import sys
++import tempfile
++import threading
++import time
++import unittest
++from unittest.mock import patch
++
++from native_fixtures import use_context
++from proven_media import config, fast_service, hardware_profiles
++from proven_media import shieldstral_fast_runtime as fast
++from proven_media import shieldstral_fast_w16r2_runtime as w16r2
++from proven_media.classifier_cli import ProverError
++from proven_media.classifier_privacy import statement_info
++from proven_media.items import TextItem
++from proven_media.shieldstral_text import ShieldstralTextEncoder
++from test_shieldstral_fast import FAKE_SERVER, FAKE_WRITER
++
++
++@contextmanager
++def w16r2_fixture(root):
++    """non-executable binary bytes and a stand-in writer, with their real digests (the pins'
++    checks stay active); not native validation"""
++    with ExitStack() as stack:
++        binary = root / 'NOT-A-NATIVE-PROVER-W16R2'
++        binary.write_bytes(b'TEST FIXTURE ONLY (A25): native execution must be simulated\n')
++        writer_root = root / 'writer'
++        writer_root.mkdir()
++        (writer_root / 'write_item_activations.py').write_text(FAKE_WRITER)
++        deps = {}
++        for name in ('mac_model.py', 'source-pins.json'):
++            (writer_root / name).write_text('fixture\n')
++            deps[writer_root / name] = hashlib.sha256(b'fixture\n').hexdigest()
++        sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
++        stack.enter_context(patch.object(w16r2, 'BINARY', binary))
++        stack.enter_context(patch.object(w16r2, 'BINARY_SHA', sha(binary)))
++        stack.enter_context(patch.object(w16r2, 'WRITER', writer_root / 'write_item_activations.py'))
++        stack.enter_context(patch.object(w16r2, 'WRITER_SHA', sha(writer_root / 'write_item_activations.py')))
++        stack.enter_context(patch.object(w16r2, 'WRITER_DEPENDENCIES', deps))
++        stack.enter_context(patch.object(w16r2, 'WRITER_PYTHON', sys.executable))
++        yield binary
++
++
++def statement_of(run_profile, block_profile, scope):
++    return {'run_profile': run_profile, 'block_profile': block_profile, 'scope': scope}
++
++
++class W16R2ModeTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.tmp.cleanup)
++        self.root = Path(self.tmp.name).resolve()
++        use_context(self, w16r2_fixture(self.root))
++        patches = [patch.dict(os.environ, {'PM_PROVER': 'shieldstral-fast-w16r2'}),
++                   patch.object(config, 'PRIVATE_DIR', self.root / 'private'),
++                   patch.object(config, 'JOBS_DIR', self.root / 'private/jobs'),
++                   patch.object(config, 'RUNS_DIR', self.root / 'public/runs'),
++                   patch.object(config, 'HOLD_FILE', self.root / 'HOLD')]
++        self.encoder = object.__new__(ShieldstralTextEncoder)
++        self.encoder.content_ids = lambda text: tuple(range(1000, 1000 + len(text.split())))
++        patches.append(patch('proven_media.shieldstral_fast_prover.ShieldstralTextEncoder', return_value=self.encoder))
++        for p in patches:
++            p.start()
++            self.addCleanup(p.stop)
++        self.launches = []
++        from proven_media.shieldstral_fast_w16r2_prover import ShieldstralFastW16R2Prover
++        self.prover = ShieldstralFastW16R2Prover(launcher=lambda argv: self.launches.append(argv))
++        self.text = 'a calm afternoon in the garden'
++
++    def test_mode_selection_is_explicit_and_separately_screened(self):
++        from proven_media.provers import make_prover
++        self.assertEqual(config.prover_mode(), 'shieldstral-fast-w16r2')
++        self.assertTrue(config.is_shieldstral_mode())
++        self.assertEqual(config.category_set_id(), 'shieldstral-moderate-fast-w16r2-dev-v1')
++        self.assertEqual(config.deploy()['profile'], 'shieldstral-t128-fast-w16r2')
++        with patch.dict(os.environ, {'PM_PROVER': 'shieldstral-fast'}):
++            a24 = config.category_set_id()
++        with patch.dict(os.environ, {'PM_PROVER': 'shieldstral'}):
++            reviewed = config.category_set_id()
++        os.environ.pop('PM_PROVER')
++        stub = config.category_set_id()
++        os.environ['PM_PROVER'] = 'shieldstral-fast-w16r2'
++        self.assertEqual(len({a24, reviewed, stub, config.category_set_id()}), 4, 'a post screened in one mode is never finalized by another')
++        self.assertEqual(type(make_prover()).__name__, 'ShieldstralFastW16R2Prover')
++        with patch.dict(os.environ, {'PM_PROVER': 'shieldstral-fast'}):
++            with self.assertRaises(ProverError):
++                type(self.prover)(launcher=lambda argv: None)
++        self.assertEqual([c['policy_id'] for c in config.registered_categories()],
++                         [f'shieldstral-1.0-3b-moderate-{c}/1' for c in ('sexual', 'violence', 'hate')], 'D61 policies unchanged')
++
++    def test_metadata_says_w16r2_development_public_only_privacy_pending_not_production(self):
++        d = self.prover.describe()
++        self.assertEqual(d['kind'], 'shieldstral-fast-w16r2')
++        self.assertEqual((d['run_profile'], d['block_profile']), (w16r2.RUN_PROFILE, w16r2.BLOCK_PROFILE))
++        self.assertIn('unregistered', d['development_profile'])
++        self.assertIs(d['public_posts_only'], True)
++        self.assertEqual(d['privacy_status'], 'privacy statement pending')
++        self.assertFalse(d['privacy_statement']['accepted'])
++        self.assertFalse(d['privacy_statement']['permits_non_public_posts'])
++        self.assertIs(d['production'], False)
++        self.assertIs(d['development_candidate'], True)
++        self.assertEqual(d['model_digest'], w16r2.IDENTITY)
++        self.assertNotEqual(w16r2.IDENTITY, fast.IDENTITY, 'the W16R2 profile has its own trained statement identity')
++        self.assertNotEqual(w16r2.RUN_PROFILE, fast.RUN_PROFILE)
++        spoof = {**w16r2.descriptor(), 'kind': 'shieldstral', 'device': 'cpu', 'proof_mode': 'per-category',
++                 'privacy_adapter_supported': True}
++        self.assertFalse(statement_info(spoof)['accepted'], 'the W16R2 binary/profile is never D58\'s')
++
++    def test_preparation_pins_the_candidate_and_launches_its_own_service(self):
++        item = TextItem(self.text)
++        plan = self.prover.plan_text(item.text)
++        for ch in plan:
++            job = config.JOBS_DIR / 'post' / ('prove' if ch['index'] == 0 else f'prove-c{ch["index"]}')
++            self.prover.start('post', item, job, ch)
++            spec = json.loads((job / 'classifier-job.json').read_text())
++            self.assertEqual(spec['deployment']['binary_sha256'], w16r2.BINARY_SHA)
++            self.assertEqual(spec['deployment']['statement_identity'], w16r2.IDENTITY)
++            req = w16r2.service_dir() / 'spool' / (job / 'service.request').read_text().strip()
++            self.assertEqual(json.loads(req.read_text()), {'schema': 'pm-fast-request/1', 'op': 'prove', 'job': str(job.resolve())})
++        self.assertNotEqual(w16r2.service_dir(), fast.service_dir(), 'the two services share a directory')
++        self.assertEqual(len(self.launches), 1)
++        argv = self.launches[0]
++        self.assertEqual(argv[-3:], [str(w16r2.service_dir()), '--runtime', 'w16r2'])
++        self.assertEqual(argv[argv.index('--label') + 1], 'pm-fast-w16r2-service')
++        # A24's guard command is what it was (no runtime selector, its own label)
++        a24 = fast_service.guard_command(fast.service_dir(), fast)
++        self.assertEqual(a24[-1], str(fast.service_dir()))
++        self.assertEqual(a24[a24.index('--label') + 1], 'pm-fast-service')
++
++    def test_both_servers_carry_the_w16r2_switch_and_a24s_do_not(self):
++        for kind in ('prove', 'check'):
++            argv = w16r2.server_argv(kind)
++            self.assertEqual(argv[-1], '--dev-w16r2-public-content-only')
++            self.assertEqual(argv[0], str(w16r2.BINARY))
++            self.assertNotIn('--dev-w16r2-public-content-only', fast.server_argv(kind))
++        check = w16r2.server_argv('check')
++        self.assertEqual(check[check.index('--expect-statement') + 1], w16r2.IDENTITY)
++
++    def test_the_app_refuses_a_verified_statement_of_another_profile(self):
++        good = statement_of(w16r2.RUN_PROFILE, w16r2.BLOCK_PROFILE, 'a DEVELOPMENT classifier proof ... for PUBLIC development content only')
++        self.prover.check_statement(good)
++        for bad in (statement_of(fast.RUN_PROFILE, 'hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2', 'a classifier proof'),
++                    statement_of(w16r2.RUN_PROFILE, 'hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2', good['scope']),
++                    statement_of(w16r2.RUN_PROFILE, w16r2.BLOCK_PROFILE, 'a classifier proof'), None):
++            with self.assertRaises(ProverError):
++                self.prover.check_statement(bad)
++
++    def test_the_hardware_profile_validates_and_refuses_retuning(self):
++        with ExitStack() as stack:
++            src = Path(w16r2.__file__).read_text()
++            stack.enter_context(patch.object(w16r2, 'BINARY_SHA', src.split("BINARY_SHA = '")[1].split("'")[0]))
++            p = hardware_profiles.fast_w16r2_classifier_profile()
++            self.assertTrue(p['validated_against_runtime'])
++            data = json.loads(config.DEPLOY_FILE.read_text())
++            for key, value in (('prover_mode', 'shieldstral-fast'), ('public_posts_only', False), ('run_profile', fast.RUN_PROFILE)):
++                changed = json.loads(json.dumps(data))
++                changed['classifier_profiles'][hardware_profiles.FAST_W16R2_PROFILE][key] = value
++                path = self.root / f'deploy-{key}.json'
++                path.write_text(json.dumps(changed))
++                with self.assertRaises(Exception):
++                    hardware_profiles.fast_w16r2_classifier_profile(path)
++
++
++class W16R2ServiceTests(unittest.TestCase):
++    """tools/fast_service.py with the W16R2 runtime and simulated native servers: the runtime
++    selector, a refused step failing its job closed, STOP ending the service"""
++
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.tmp.cleanup)
++        self.root = Path(self.tmp.name).resolve()
++        use_context(self, w16r2_fixture(self.root))
++        patches = [patch.dict(os.environ, {'PM_PROVER': 'shieldstral-fast-w16r2'}),
++                   patch.object(config, 'PRIVATE_DIR', self.root / 'private'),
++                   patch.object(config, 'JOBS_DIR', self.root / 'private/jobs'),
++                   patch.object(config, 'RUNS_DIR', self.root / 'public/runs')]
++        encoder = object.__new__(ShieldstralTextEncoder)
++        encoder.content_ids = lambda text: tuple(range(1000, 1000 + len(text.split())))
++        patches.append(patch('proven_media.shieldstral_fast_prover.ShieldstralTextEncoder', return_value=encoder))
++        self.server = self.root / 'fake_server.py'
++        self.server.write_text(FAKE_SERVER)
++        patches.append(patch.object(w16r2, 'native_environment', lambda: {}))
++        patches.append(patch.object(w16r2, 'SERVICE_IDLE_SECONDS', 600))
++        for p in patches:
++            p.start()
++            self.addCleanup(p.stop)
++        spec = importlib.util.spec_from_file_location('fast_service_tool_w16r2', config.TOOLS_DIR / 'fast_service.py')
++        self.tool = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(self.tool)
++        from proven_media.shieldstral_fast_w16r2_prover import ShieldstralFastW16R2Prover
++        self.prover = ShieldstralFastW16R2Prover(launcher=lambda argv: None)
++
++    def test_the_runtime_selector(self):
++        self.assertIs(self.tool.select_runtime(['/x'])[1], fast, 'A24\'s runtime by default')
++        root, rt = self.tool.select_runtime(['/x', '--runtime', 'w16r2'])
++        self.assertEqual((root, rt.KIND), ('/x', 'shieldstral-fast-w16r2'))
++        for bad in (['/x', '--runtime', 'r14'], ['/x', '--runtime'], ['/x', 'w16r2', '--runtime']):
++            with self.assertRaises(ProverError):
++                self.tool.select_runtime(bad)
++
++    def test_a_refused_prove_fails_the_job_closed_and_stop_ends_the_service(self):
++        item = TextItem('a calm afternoon in the garden')
++        plan = self.prover.plan_text(item.text)
++        job = config.JOBS_DIR / 'post-w' / 'prove'
++        self.prover.start('post-w', item, job, plan[0])
++        argv = {'prove': [sys.executable, str(self.server), 'refused'], 'check': [sys.executable, str(self.server), 'refused']}
++        root = w16r2.service_dir()
++        fast_service.ensure_dirs(root)
++        p = patch.object(w16r2, 'server_argv', lambda kind: argv[kind])
++        p.start()
++        self.addCleanup(p.stop)
++        self.tool.runtime = w16r2
++        svc = self.tool.Service(root)
++        t = threading.Thread(target=svc.main, daemon=True)
++        t.start()
++        deadline = time.time() + 60
++        while not (job / 'pipeline.done').exists() and time.time() < deadline:
++            time.sleep(0.2)
++        self.assertEqual((job / 'pipeline.done').read_text().strip(), '1', 'fail closed')
++        self.assertIn('refused', json.loads((job / 'logs/error.json').read_text())['message'])
++        hb = json.loads((root / 'heartbeat.json').read_text())
++        self.assertEqual(hb['binary_sha256'], w16r2.BINARY_SHA, 'the service ran the W16R2 runtime')
++        fast_service.stop(root)
++        t.join(60)
++        self.assertFalse(t.is_alive(), 'STOP ends an idle service')
++        self.assertFalse(fast_service.service_live(root))
++        self.assertIs(self.prover.poll(job)['done'], True)
++
++
++if __name__ == '__main__':
++    unittest.main()

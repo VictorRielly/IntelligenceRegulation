@@ -1,0 +1,2 @@
+{"event":"refused","command":"classify-verify","error":"`--dev-w16r2-public-content-only` is not a 64-hex-digit SHA-256"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}

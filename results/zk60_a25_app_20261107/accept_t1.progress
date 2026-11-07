@@ -1,0 +1,16 @@
+2026-11-07T06:38:49Z start
+2026-11-07T06:41:38Z test build rc=0
+2026-11-07T06:41:38Z warnings in A25 files: 3
+2026-11-07T06:41:43Z filter a25_ rc=0 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1100 filtered out; finished in 4.38s
+2026-11-07T06:41:46Z filter a24_ rc=0 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1100 filtered out; finished in 2.86s
+2026-11-07T06:42:10Z filter s25_tests rc=0 test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1085 filtered out; finished in 23.93s
+2026-11-07T06:44:57Z filter hash_domain rc=0 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1090 filtered out; finished in 0.13s
+2026-11-07T06:44:58Z filter s24_tests rc=0 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 1095 filtered out; finished in 1.55s
+2026-11-07T06:44:58Z filter s33_tests rc=0 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 1095 filtered out; finished in 0.00s
+2026-11-07T06:45:30Z filter token_io::classify rc=0 test result: ok. 87 passed; 0 failed; 12 ignored; 0 measured; 1006 filtered out; finished in 31.29s
+2026-11-07T06:45:30Z filter w16r2_tests::w16r2_f6 rc=0 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1104 filtered out; finished in 0.00s
+2026-11-07T06:45:30Z filter w16r2_tests::w16r2_profiles rc=0 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1104 filtered out; finished in 0.00s
+2026-11-07T06:45:45Z no-feature cargo check --tests rc=0
+2026-11-07T06:46:36Z release CLI rc=0
+2026-11-07T06:46:36Z zk60_classify sha256 32a386ff0260df854d800ad9cb06abd57f8df5df741b80bbaa9ee73700b63a16
+2026-11-07T06:46:36Z all done

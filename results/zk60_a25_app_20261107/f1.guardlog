@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json; print(json.load(open('/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a894d1898cebc946c/results/zk60_a25_app_20261107/stream_w1/summary.json'))['prover_start']['trained_statement_identity'])
+                                 ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a894d1898cebc946c/results/zk60_a25_app_20261107/stream_w1/summary.json'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    print(len(open('/Users/victorrielly/zk60-owner-private/a25-media-app-20261107/stream-w1/p0/content.ids').read().strip().split(',')))
+              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/victorrielly/zk60-owner-private/a25-media-app-20261107/stream-w1/p0/content.ids'
+cp: /Users/victorrielly/zk60-artifacts/a25-media-app-20261107/stream-w1/p0/sexual-c0/.: No such file or directory
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/victorrielly/zk60-owner-private/a25-media-app-20261107/negctl-w1/tampered-c0/segment-005.bin'
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/victorrielly/zk60-owner-private/a25-media-app-20261107/stream-w1/p0/content.ids'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a894d1898cebc946c/results/zk60_a25_app_20261107/negctl.sh: line 65: $6: unbound variable
