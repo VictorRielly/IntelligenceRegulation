@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from native_fixtures import native_binary_fixture, use_context
 
 from proven_media import config, records, shieldstral_runtime as runtime
 from proven_media.items import TextItem
@@ -16,6 +17,7 @@ from proven_media.shieldstral_text import ShieldstralTextEncoder
 
 class RealAdapterControls(unittest.TestCase):
     def setUp(self):
+        use_context(self, native_binary_fixture())
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)

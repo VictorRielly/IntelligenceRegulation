@@ -12,6 +12,7 @@ import struct
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 TMP = tempfile.mkdtemp(prefix="pm-test-")
@@ -257,6 +258,14 @@ class TestPublisher(unittest.TestCase):
 
 class TestStubJobLayout(unittest.TestCase):
     def test_start_writes_private_files_and_no_content_in_env(self):
+        # Job serialization uses a temporary approval record; the retained
+        # native approval is bound to the original host's export path.
+        approval = Path(TMP)/'stub-job-approval.json'
+        approval.write_text(json.dumps({'export':str(config.STUB_EXPORT),
+            'pins':{'expect_statement':'a'*64, 'expect_token_profile':'b'*64},
+            'approved_by':'TEST FIXTURE ONLY; native launch is mocked'}))
+        fixture = patch.object(config, 'STUB_APPROVAL', approval)
+        fixture.start(); self.addCleanup(fixture.stop)
         launched = []
         orig = provers.launch_detached
         provers.launch_detached = lambda job: launched.append(job)

@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
+from native_fixtures import native_binary_fixture, use_context
 
 from proven_media import config, records, shieldstral_runtime as runtime
 
@@ -15,6 +16,7 @@ tool = importlib.util.module_from_spec(spec); spec.loader.exec_module(tool)
 
 class RealPublicationVerifierControls(unittest.TestCase):
     def setUp(self):
+        use_context(self, native_binary_fixture())
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name); store = self.root/'objects'; store.mkdir()
         for digest in ('11'*32, '22'*32): (store/digest).write_bytes(b'UNIT FIXTURE NOT A PROOF')

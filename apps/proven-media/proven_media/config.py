@@ -13,8 +13,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-REPO = Path("/home/victor/IntelligenceRegulation")
 APP_DIR = Path(__file__).resolve().parents[1]
+REPO = APP_DIR.parents[1]
 STATIC_DIR = APP_DIR / "static"
 TOOLS_DIR = APP_DIR / "tools"
 POLICY_DIR = APP_DIR / "policy"
@@ -48,7 +48,8 @@ STUB_T = 32
 STUB_BOS = 1
 STUB_PAD_ID = 13                      # "\n": pads a short post to the fixed public length T
 STUB_MAX_CONTENT_TOKENS = STUB_T - 1  # BOS takes position 0
-TINYLLAMA_TOKENIZER = Path("/home/victor/models/tinyllama-1.1b-chat-fe8a4ea1/tokenizer.model")
+TINYLLAMA_TOKENIZER = Path(os.environ.get("PM_TINYLLAMA_TOKENIZER",
+    str(HOME / "models/tinyllama-1.1b-chat-fe8a4ea1/tokenizer.model")))
 SPM_BPE_DIR = REPO / "results" / "zk60_1b_calibration_20260929"   # spm_bpe.py, imported read-only
 SYSTEM_PYTHON = "/usr/bin/python3"    # seqgen needs numpy + the calibration code (system site-packages)
 
@@ -138,7 +139,7 @@ def deploy() -> dict:
         overlap = ts[0].overlap
         maximum = min(t.chunk_size + (t.max_chunks - 1) * (t.chunk_size - t.overlap) for t in ts)
         return {'profile': 'shieldstral-t128', 'label': 'Shieldstral T128 testnet demo',
-                'note': 'Each category uses its registered template; privacy statement pending.',
+                'note': 'Registered moderate templates; each category has its own chunk plan.',
                 'chunk_tokens': chunk, 'overlap_tokens': overlap, 'max_chunks': min(t.max_chunks for t in ts),
                 'effective_chunk_tokens': chunk, 'effective_overlap_tokens': overlap,
                 'category_geometry': geometry, 'capped_by_prover': False,

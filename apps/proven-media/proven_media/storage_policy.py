@@ -5,11 +5,18 @@ tests with synthetic temporary databases patch the app's validator explicitly.
 """
 import os
 import json
+import sys
+import tempfile
 from pathlib import Path
 
 from . import config
 
-VOLATILE_ROOTS = tuple(Path(p) for p in ('/tmp', '/var/tmp', '/dev/shm', '/run'))
+_TEMP_ROOTS = [Path(p) for p in ('/tmp', '/var/tmp', '/dev/shm', '/run')]
+if sys.platform == 'darwin':
+    _TEMP_ROOTS.extend(Path(p) for p in ('/private/tmp', '/private/var/tmp',
+                                       '/var/folders', '/private/var/folders'))
+_TEMP_ROOTS.append(Path(tempfile.gettempdir()))
+VOLATILE_ROOTS = tuple(set(_TEMP_ROOTS + [p.resolve() for p in _TEMP_ROOTS]))
 
 
 def durable_path(path: Path, label: str) -> Path:

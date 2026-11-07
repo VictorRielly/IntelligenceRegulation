@@ -20,7 +20,7 @@ def line(event, **fields):
 class ClassifierContractTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(dir='/tmp');self.addCleanup(self.temp.cleanup)
-        self.root=Path(self.temp.name)
+        self.root=Path(self.temp.name).resolve()
         self.binary=self.root/'synthetic-binary';self.binary.write_bytes(b'NOT A PROVER')
         sha=hashlib.sha256(self.binary.read_bytes()).hexdigest()
         self.pin=patch('proven_media.classifier_cli.R_C1_BINARY_SHA256',sha);self.pin.start();self.addCleanup(self.pin.stop)

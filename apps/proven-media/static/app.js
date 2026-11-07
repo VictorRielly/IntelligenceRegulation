@@ -71,7 +71,10 @@ function toast(msg, ms = 3800) {
 }
 function isFake() { return S.cfg && S.cfg.prover && S.cfg.prover.kind === "fake"; }
 function isShieldstral() { return S.cfg?.prover?.kind === "shieldstral"; }
-function stubTag() { return isFake() ? `<span class="tag fake">fake: no proof</span>` : `<span class="tag" title="${esc(S.cfg?.prover?.label || "")}">${isShieldstral() ? "privacy statement pending" : "demo stub"}</span>`; }
+function privacyLabel(prover = S.cfg?.prover) {
+  return prover?.privacy_statement?.status || prover?.privacy_status || "privacy statement pending";
+}
+function stubTag() { return isFake() ? `<span class="tag fake">fake: no proof</span>` : `<span class="tag" title="${esc(S.cfg?.prover?.label || "")}">${isShieldstral() ? esc(privacyLabel()) : "demo stub"}</span>`; }
 function audQuery() { return `audience=${encodeURIComponent(S.audience)}&hide=${encodeURIComponent(S.hide.join(","))}`; }
 function audName() { return (S.cfg.audiences[S.audience] || {}).name || S.audience; }
 function catName(id) { const c = S.cfg.categories.find(c => c.id === id); return c ? c.short : id; }
@@ -86,7 +89,7 @@ function renderModebar() {
   }
   mb.className = "modebar";
   if (p.kind === "shieldstral") {
-    mb.innerHTML = `<div><b>Real Shieldstral classifier · privacy statement pending.</b> Each category label is bound to a verified model proof and checked against the post. Moderate policies are enabled for this testnet demo; the product wording remains pending.</div>`;
+    mb.innerHTML = `<div><b>Real Shieldstral classifier · ${esc(privacyLabel(p))}.</b> Each category label is bound to a verified model proof and checked against the post. Registered moderate policies are selected.</div>`;
     return;
   }
   mb.innerHTML = `<div><b>Demo stub:</b> each post gets a real zero-knowledge proof of a 1.1B model run (next-token proof), standing in for its three
@@ -294,7 +297,7 @@ async function viewFeed() {
     <section class="card pad panel" id="queue"></section><section class="card pad panel" id="subs"></section>
     <section class="card pad panel"><h3>What the labels mean</h3><p class="small">Published items carry three category labels in a signed manifest.
     The labels decide who receives the item. Open a post to inspect its proofs and what they establish.</p>
-    <p class="small muted">${isShieldstral() ? "This testnet demo verifies one Shieldstral proof per category and chunk. Classifier privacy acceptance remains pending." :
+    <p class="small muted">${isShieldstral() ? `This testnet demo verifies one Shieldstral proof per category and chunk. ${esc(privacyLabel())}.` :
       isFake() ? "Development mode: no proof is produced." : "In this demo one next-token stub proof stands in for the three classifier proofs; its labels are not bound by the proof."}</p></section></aside></div>`;
   bindCompose(); bindAudience();
   await refreshFeed();
@@ -366,11 +369,11 @@ function stepsHTML(job) {
 
 function honestLimits() {
   if (isShieldstral()) return `<ul class="limits small">
-    <li><b>Privacy statement pending.</b> The independent classifier privacy review is separate from proof verification.</li>
+    <li><b>${esc(privacyLabel())}.</b> ${esc(S.cfg.prover.privacy_statement?.scope || "Privacy review remains separate from proof verification.")} Deployment conditions for non-public posts still apply.</li>
     <li><b>Real text classifier.</b> Three moderate categories, with 55 / 55 / 49 content tokens per chunk, overlap 8. Image proofs remain in development.</li>
     <li><b>Laptop cost.</b> Earlier real runs took about 7.5 minutes to prove each category, plus about a minute each for verification, input binding and aggregation. Work is sequential and may wait for the shared machine.</li>
     <li><b>Content binding.</b> The platform checks each sealed input against the post. The statement hash is included in the anchored publication.</li>
-    <li><b>Model quality.</b> Full held-out integer-versus-float verdict metrics remain in progress. The moderate product wording is pending.</li>
+    <li><b>Model quality.</b> The full integer/float benchmark comparison is complete. The original arithmetic had six refusals; a revised candidate passed the same cases and awaits native review.</li>
     <li><b>Testnet storage.</b> Only a batch digest goes to Base Sepolia. Proof files remain in this machine's off-chain store.</li></ul>`;
   return `<ul class="limits small">
     <li><b>Demo stub.</b> One next-token proof of TinyLlama-1.1B stands in for the three Shieldstral-1.0-3B category proofs. It proves the approved
@@ -406,7 +409,7 @@ function labelsHero(p, rec) {
       <div style="margin:6px 0 10px">${chips(p.labels)}</div>
       ${p.status_message ? `<div class="note bad" style="margin-bottom:8px">${esc(p.status_message)}</div>` : ""}
       <div class="note ${fake ? "bad" : "stub"}">${fake ? "FAKE PROVER: nothing was proved for this post." : rec?.prover?.kind === "shieldstral" ?
-        `<b>Real classifier proofs · privacy statement pending.</b> Every category label was verified and bound to this post. The complete category coverage was checked before publication.` :
+        `<b>Real classifier proofs.</b> Every category label was verified and bound to this post. The complete category coverage was checked before publication. Privacy scope is listed with the proof's verification details.` :
         `<b>Demo stub: next-token proof, classifier proofs coming.</b> A real zero-knowledge proof was made and verified for this post: it shows the approved
         ${esc(rec && rec.prover ? rec.prover.model : "")} ran on each hidden chunk. Each run stands in for that chunk's three category proofs; the labels themselves come from a placeholder and are not yet bound by the proof.`}</div></div></section>`;
   }
@@ -519,6 +522,7 @@ function verifySection(p, rec) {
     <div><button class="btn" id="verifybtn" ${p.recheck ? "disabled" : ""}>Re-verify now</button>
       <span class="small muted">runs the verifier and input check again on this server in fresh processes for every chunk (${isShieldstral() ? "about two minutes" : "about 15 seconds"} of work each, through the shared machine's guard); it re-checks, it never re-proves</span></div>
     ${lastHTML}
+    ${rec.prover?.kind === "shieldstral" ? `<p class="small"><b>Profile privacy: ${esc(privacyLabel(vw))}.</b> ${esc(vw.privacy_statement?.scope || "Privacy review remains pending for this proving path.")} ${esc(vw.privacy_statement?.conditions || "")}</p>` : ""}
     <div><b class="small">Or verify on your own machine</b>
       <p class="small">Download the bundle (${fmtBytes(rec.receipt.bytes)}: the receipt, the published statement, the record and the manifest) and run the public verifier:</p>
       <p><a class="btn ghost small" href="/api/posts/${esc(p.id)}/bundle.tar">Download bundle (.tar, ${fmtBytes(rec.receipt.bytes)})</a>
@@ -550,7 +554,7 @@ function publicTable(rec) {
 }
 
 function privateList() {
-  return `<section class="card pad"><h2>Private material held by the platform</h2>${isShieldstral() ? '<p class="small">Privacy statement pending. These files are excluded from the published proof bundles.</p>' : ''}<ul class="small">
+  return `<section class="card pad"><h2>Private material held by the platform</h2>${isShieldstral() ? '<p class="small">These files are excluded from the published proof bundles. The verification details show the privacy scope for each record.</p>' : ''}<ul class="small">
     <li>The post's tokens as the proof's input: a 0600 file on the platform, never on a command line or in a log.</li>
     <li>Intermediate model activations${isShieldstral() ? ' (retained privately for this integration demo)' : ''}.</li>
     <li>The openings of the input and output commitments (held by the platform; never in a bundle, D21).</li>
@@ -733,7 +737,7 @@ function viewAbout() {
     <p>Proven Media attaches category labels to published items in a <b>signed proof manifest</b> (like content credentials).
     In classifier mode, a fixed question defines each category and each label is checked against its proof.
     The platform uses these labels to decide who receives the item: explicit content is not sent to minors, for example. Anyone can inspect the proof files.
-    ${isShieldstral() ? "The classifier privacy statement is pending acceptance." : "The intended proof interface hides the item; the active stub has a separate privacy scope."}</p>
+    ${isShieldstral() ? `${esc(privacyLabel())}. Deployment conditions for non-public posts still apply.` : "The intended proof interface hides the item; the active stub has a separate privacy scope."}</p>
     <div class="flow"><div><b>Post</b>The item goes to the platform; the proof's input is written to a private 0600 file. It is pending verification.</div>
     <div><b>Label</b>The prover runs the classifier on the hidden item, once per category, and proves every step (minutes, on a laptop CPU).</div>
     <div><b>Verify &amp; sign</b>A fresh verifier, holding only public model files, checks the proofs; the labels are anchored and the manifest is signed.</div>
@@ -741,9 +745,9 @@ function viewAbout() {
   <section class="card pad"><h2>The categories and the statement</h2>
     <p class="small"><b>${esc(S.cfg.classifier.name)}</b> (${esc(S.cfg.classifier.source)}). Each category is one fixed policy text with one threshold:
     ${esc(S.cfg.threshold.rule)}. Public: the labels, the model identity, the policy texts and the content length. Private: the content and the confidence scores.
-    <b>Today</b>: ${esc(S.cfg.prover.what_is_proved || "")}${isShieldstral() ? " Privacy statement pending." : ""}</p>
+    <b>Today</b>: ${esc(S.cfg.prover.what_is_proved || "")}${isShieldstral() ? ` ${esc(privacyLabel())}.` : ""}</p>
     <ul class="small">${cats}</ul>
-    <p class="small muted">${isShieldstral() ? "These are the registered moderate templates for the testnet demo. The product wording remains pending." : "The stub policy texts are placeholders; each new text requires a new registered id."}</p></section>
+    <p class="small muted">${isShieldstral() ? "These are the registered moderate templates selected for the classifier." : "The stub policy texts are placeholders; each new text requires a new registered id."}</p></section>
   <section class="card pad"><h2>Audiences</h2><p class="small"><b>Adult</b>: receives every labelled item, and may choose to hide categories.
     <b>Minor (under 18)</b>: receives only items proved <b>no</b> in all three categories. Hidden items are served as a placeholder with the reason, never with their content.</p></section>
   <section class="card pad"><h2>Images</h2><p class="small">Three classifier proofs per image, over a canonical canvas (Shieldstral's Pixtral encoder:

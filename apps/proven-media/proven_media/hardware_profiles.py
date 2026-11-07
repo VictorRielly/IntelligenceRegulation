@@ -26,7 +26,7 @@ def classifier_profile(path=None, name=None):
                 'max_content_tokens': min(t.chunk_size + (t.max_chunks - 1) * (t.chunk_size - t.overlap) for t in templates),
                 'category_geometry': geometry, 'guard_resources': resources, 'binary_sha256': runtime.BINARY_SHA,
                 'statement_identity': runtime.IDENTITY, 'profile_sha256': runtime.PROFILE_SHA, 'min_bits': 95,
-                'privacy_status': 'privacy statement pending'}
+                'privacy_status': runtime.privacy_statement()['status']}
     require(type(profile) is dict and all(records.canonical(profile.get(k)) == records.canonical(v) for k, v in expected.items()),
             'hardware profile differs from the reviewed runtime; geometry and safety floors cannot be retuned here')
     return {'name': name, **profile, 'validated_against_runtime': True, 'file': str(path)}

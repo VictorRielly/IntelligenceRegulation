@@ -2,6 +2,7 @@
 from pathlib import Path
 import tempfile
 import json
+import sys
 import unittest
 from unittest.mock import Mock, patch
 
@@ -37,6 +38,12 @@ class StoragePolicyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             alias=Path(directory)/'alias';alias.symlink_to(self.values['PRIVATE_DIR'])
             with self.assertRaises(ValueError):durable_path(alias/'app.sqlite3','database')
+
+    @unittest.skipUnless(sys.platform == 'darwin', 'macOS volatile storage roots')
+    def test_macos_temporary_roots_refuse(self):
+        for root in ('/private/tmp', '/private/var/tmp', '/var/folders', '/private/var/folders'):
+            with self.subTest(root=root), self.assertRaises(ValueError):
+                durable_path(Path(root)/'fixture/state', 'state')
 
     def test_durable_alias_resolving_to_tmp_refuses(self):
         # Exercise resolution without writing outside the test sandbox.

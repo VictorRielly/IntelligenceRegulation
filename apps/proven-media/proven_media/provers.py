@@ -562,6 +562,8 @@ def verify_instructions(record: dict) -> dict:
     p = record.get("prover", {})
     if p.get('kind') == 'shieldstral':
         from . import shieldstral_runtime as runtime
+        from .classifier_privacy import statement_info
+        privacy = statement_info(p)
         policy = record.get('statement', {}).get('policy', '<category-policy-id>')
         return {'binary': 'zk60_classify r16b, sha256 ' + runtime.BINARY_SHA,
                 'public_model_files': 'R13 T128 public export and its token_io tables',
@@ -570,7 +572,7 @@ def verify_instructions(record: dict) -> dict:
                            f'--policy {policy} --label zk60-classify-verdict --artifact <run> '
                            f'--expect-statement {runtime.IDENTITY} --min-bits 95',
                 'accept_if': 'exit0 with classified event; statement rechecked byte for byte',
-                'privacy_status': 'privacy statement pending'}
+                'privacy_status': privacy['status'], 'privacy_statement': privacy}
     if p.get("kind") != "stub-next-token":
         return {"note": "no CLI check for this prover kind"}
     return {

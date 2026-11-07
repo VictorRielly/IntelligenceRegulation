@@ -1,9 +1,10 @@
 """Reviewed R16b/T128 deployment for the explicitly selected testnet demo.
 
-The moderate wording is authorized for this demo; the product ruling and
-classifier privacy statement remain separate. No automatic binary upgrades.
+D61 selects moderate wording. D58 accepts the named CPU classifier statement
+within its scope and conditions. No automatic binary or profile upgrades.
 """
 import json
+import os
 from pathlib import Path
 
 from . import config, records
@@ -21,7 +22,8 @@ RUN_PROFILE = 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-publ
 POLICIES_SHA = 'b1cfcda9ea4f48ce3b95d871b81f77c6cd27f94daa85fc618ec8e54222b44314'
 WRITER = EXPORT_ROOT / 'write_item_activations.py'
 WRITER_SHA = '8d6ce81b74316ef36a7b5202376f465611436d980e4a46a51aa0f32e474d922d'
-TEKKEN = Path('/home/victor/models/shieldstral-1.0-3b/tekken.json')
+TEKKEN = Path(os.environ.get('PM_SHIELDSTRAL_TOKENIZER',
+    str(config.HOME/'models/shieldstral-1.0-3b/tekken.json')))
 POLICY_SHAS = {
     'sexual': 'e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822',
     'violence': 'eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128',
@@ -37,6 +39,15 @@ def categories():
     return [{**c, 'policy_id': f'shieldstral-1.0-3b-moderate-{c["id"]}/1',
              'file': config.POLICY_DIR / f'shieldstral-moderate-{c["id"]}-v1.txt',
              'sha256': POLICY_SHAS[c['id']]} for c in config.CATEGORIES]
+
+
+def privacy_statement(*, adapter_supported=True, batch_proving=False):
+    from .classifier_privacy import statement_info
+    return statement_info({'kind': 'shieldstral', 'binary_sha256': BINARY_SHA,
+        'model_digest': IDENTITY, 'token_profile_digest': PROFILE_SHA, 'run_profile': RUN_PROFILE,
+        'cli': 'zk60_classify r16b, native R13, T128', 'device': 'cpu', 'proof_mode': 'per-category',
+        'policy_ids': [c['policy_id'] for c in categories()],
+        'privacy_adapter_supported': adapter_supported, 'batch_proving': batch_proving})
 
 
 def templates():

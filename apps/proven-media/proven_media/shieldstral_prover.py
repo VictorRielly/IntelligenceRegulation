@@ -13,7 +13,7 @@ from .shieldstral_text import ShieldstralTextEncoder, check_category_coverage, T
 
 class ShieldstralProver(ClassifierProver):
     kind = 'shieldstral'
-    label = 'Shieldstral-1.0-3B classifier — privacy statement pending'
+    label = 'Shieldstral-1.0-3B classifier'
     supports = frozenset({'text'})
     proves_verdict = True
     separate_categories = True
@@ -30,14 +30,22 @@ class ShieldstralProver(ClassifierProver):
             self.clis[template.category] = ClassifierCLI(deployment)
 
     def describe(self):
-        return {**super().describe(), 'model': config.CLASSIFIER_NAME,
+        from .classifier_privacy import statement_info
+        supported = type(self) is ShieldstralProver
+        batch = getattr(self, 'batch_proving', False)
+        description = {**super().describe(), 'model': config.CLASSIFIER_NAME,
                 'model_digest': runtime.IDENTITY, 'token_profile_digest': runtime.PROFILE_SHA,
                 'binary_sha256': runtime.BINARY_SHA, 'run_profile': runtime.RUN_PROFILE,
-                'cli': 'zk60_classify r16b, native R13, T128', 'privacy_status': 'privacy statement pending',
-                'policy_selection': 'moderate testnet demo; product ruling pending',
+                'cli': 'zk60_classify r16b, native R13, T128',
+                'device': 'cpu', 'proof_mode': 'per-category', 'batch_proving': batch,
+                'privacy_adapter_supported': supported,
+                'policy_ids': [t.policy_id for t in self.templates],
+                'policy_selection': 'registered moderate policies (D61)',
                 'what_is_proved': 'The pinned integer model verdict for each category, bound to the post by input-owner verification.',
                 'per_job_s': 700, 'category_geometry': {t.category: {'chunk_tokens': t.chunk_size,
                     'overlap_tokens': t.overlap, 'max_chunks': t.max_chunks} for t in self.templates}}
+        privacy = statement_info(description)
+        return {**description, 'privacy_status': privacy['status'], 'privacy_statement': privacy}
 
     def content_length(self, text):
         return len(self.encoder.content_ids(text))
@@ -170,11 +178,13 @@ class ShieldstralProver(ClassifierProver):
                      'steps': {k: {n: g[n] for n in ('child_wall_seconds', 'peak_rss_gib', 'enforcement', 'waited_s')}
                                for k, g in steps.items()}},
             security={'whole_run_floor_bits': st['whole_run_floor_bits'], 'min_bits_required': 95,
-                      'privacy_status': 'privacy statement pending'}, checks=checks,
+                      'privacy_status': self.describe()['privacy_status'],
+                      'privacy_statement': self.describe()['privacy_statement']}, checks=checks,
             content_length={'tokens': chunk['end']-chunk['start'], 'total_tokens': spec['total'],
                             'tokenizer': 'pinned Tekken', 'tokenizer_sha256': TEKKEN_SHA256},
             chunk=chunk, created_at=records.now_iso(), proved_at=records.now_iso(),
-            notes=['Real classifier testnet demo; privacy statement pending. Moderate product wording remains pending.'])
+            notes=['Real classifier testnet demo; registered moderate policies selected (D61).',
+                   self.describe()['privacy_status'] + '; deployment conditions for non-public posts still apply.'])
         rec.labels[category]['policy_sha256'] = policy['sha256']
         proof_plans.check_category_record(rec.to_dict(), post_id, chunk, require_verdict=True)
         return rec
@@ -224,4 +234,5 @@ class ShieldstralProver(ClassifierProver):
             return records.Verdict('re-check', False, False, 'classifier recheck failed', records.now_iso(),
                                    {'rejected': True})
         return records.Verdict(r['value'], True, True, 'fresh r16b verifier and input-owner', records.now_iso(),
-                               {'content_binding': True, 'privacy_status': 'privacy statement pending'})
+                               {'content_binding': True, 'privacy_status': self.describe()['privacy_status'],
+                                'privacy_statement': self.describe()['privacy_statement']})

@@ -25,7 +25,8 @@ Design: `DESIGN.md`. Ledger: `PROGRESS.md`.
 The optional [Base Sepolia publisher](TESTNET.md) is implemented, tested and
 deployed with free test ETH. The first real app post completed all three
 Shieldstral category proofs and was anchored on Base Sepolia on 2026-10-30.
-All three labels are "no"; the app still displays **privacy statement pending**.
+All three labels are "no". Those captures predate D58; the current app reports
+**CPU privacy statement accepted** only for the named CPU profile.
 The [run and reboot recovery report](../../results/zk60_astra_20261026/real_app_demo_1/RECOVERY_REPORT.md)
 records the proofs, testnet transaction, fresh public-store verification and
 the explicitly replaced local development signing key. The original owner
@@ -62,8 +63,16 @@ root. The app retains the input-owner opening privately. The R-C3 development
 integration exercises this binding. Native R13 and the three moderate category
 profiles now exist; the per-item activation writer matches the native writer on
 the retained three-category item. The r16b app adapter now uses that writer.
-The coordinator authorized a testnet demonstration with the three moderate
-policies; the product policy ruling and classifier privacy statement remain pending.
+Victor selected the registered moderate policies in D61 and accepted the named
+CPU classifier privacy statement in D58. The statement's deployment conditions
+for non-public posts still apply.
+
+`classifier_privacy.py` describes that existing acceptance from the exact binary,
+model/profile identity, CPU per-category path and registered policies. Batch,
+GPU/Metal, changed profiles, rebuilt binaries and unsupported adapter subclasses
+remain pending. This metadata does not authorize non-public posts or replace
+native verification and the deployment checks. Historical signed records are
+unchanged; verification instructions add a current profile-scope annotation.
 
 ## Shieldstral text preparation
 
@@ -91,8 +100,8 @@ into this app's own virtual environment before selecting real mode:
 
 They are installed on this host: mistral-common 1.11.7, tiktoken 0.14.0 and
 NumPy 2.2.6. The runner no longer borrows another environment's package paths.
-Installing dependencies alone does not select a prover mode or settle the
-strict-versus-moderate product ruling.
+Installing dependencies alone does not select a prover mode. D61 selected the
+registered moderate policies; this does not change any policy id or threshold.
 The retained check at `results/zk60_astra_20261026/shieldstral_text_check_r3.json`
 (repository root) matches all 4,872 A1 inputs, checks 1,006 control-string/Unicode
 cases and 14,480 category prompts, including short inputs at T128 and T256.
@@ -158,7 +167,9 @@ segments, and a confirmed Base Sepolia anchor. Three additional native
 verifications from the public store and 11 real ASGI checks pass. The original
 signer, post salt and all input-owner openings remain in durable private
 storage outside this repository. The storage changes pass 199 app tests.
-Screenshots retain the **privacy statement pending** label until acceptance.
+The retained screenshots predate D58 and show **privacy statement pending**.
+Current display status is scoped to the accepted CPU profile; historical images
+and signed records are preserved as evidence.
 
 The earlier 17-token garden post remains under `real_app_demo_1/`. Its public
 receipts and anchor survived the reboot, but its original private openings
@@ -179,13 +190,18 @@ The three moderate policies use content chunks of 55, 55 and 49 tokens, with
 8-token overlap and at most 8 chunks per category. Their differing prefixes
 fill a 128-token context; short posts retain their actual suffix position.
 The private activation files and owner openings remain outside the public
-bundle. The interface explicitly says **privacy statement pending**.
+bundle. The interface shows **CPU privacy statement accepted** for the named
+per-category CPU profile and retains pending status for other proving paths.
 
 Native-lane measurements on one retained item were about 7.5 minutes proving
 per category, 8.3 GiB peak RSS, and about a minute for each verification/owner/
 aggregate check. The app's 700-second work estimate excludes shared-machine
 waits. These are single shared-host observations, not a throughput guarantee.
-The full held-out numerical benchmark is still incomplete.
+The full numerical benchmark is complete: the original arithmetic refused six
+of 4,872 policy/item combinations. A paired score-calibration candidate has zero
+refusals on those same development data and on the original 192 calibration
+sequences; it awaits native/profile review and is not selected by this app.
+See `results/zk60_shieldstral_export_20261026/REPORT.md` at the repository root.
 
 The deployment is testnet-only: contract
 `0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe` on Base Sepolia. Receipts remain
@@ -282,6 +298,20 @@ touch /home/victor/zk60-owner-private/proven-media/STOP-SERVER
   resumes it.
 * **Tests** (no proof is run): `/home/victor/IntelligenceRegulation/apps/proven-media/.venv/bin/python -m unittest
   discover -s /home/victor/IntelligenceRegulation/apps/proven-media/tests`.
+  The checkout path is now discovered from the app source. On another machine,
+  install the three `requirements*.txt` files in an isolated Python environment
+  and set `PM_TINYLLAMA_TOKENIZER` and `PM_SHIELDSTRAL_TOKENIZER` to the retained
+  tokenizer files. Shieldstral still enforces its original tokenizer SHA-256.
+  The app's native transport tests use explicitly labelled, non-executable
+  binary fixtures; they do not validate a native proof or enable a new prover.
+  The staged A5 review runner is
+  `results/zk60_astra_20261026/a5_batch_candidate/run_review_checks.py` (from the
+  repository root); pass `--tinyllama-tokenizer`, `--shieldstral-tokenizer` and
+  a new `--out` directory. It checks both tokenizer hashes and runs the current
+  and staged app suites plus batch controls in separate processes.
+  Native launch still requires the guarded host, model exports and pinned
+  binaries. Production private state must be durable and outside the checkout;
+  macOS temporary directories and their symlink aliases are also rejected.
 * **Third-party checks** from public data:
   - `.venv/bin/python tools/verify_manifest.py <item>.manifest.json [--rehash] [--run-verifier]`
     checks the signature, every entry's anchor and Merkle path, and optionally re-runs each
@@ -316,7 +346,7 @@ Open `http://localhost:8765/` and sign in with the operator-issued access key.
 
 1. **(0:00) The feed.** "Each item carries labels for explicit content, violence and
    hate, with a signed manifest. This legacy demonstration uses unproved placeholder labels.
-   The separate classifier testnet path proves those verdicts and still has a pending privacy statement." Click the small **credentials** icon on
+   The separate classifier testnet path proves those verdicts; its named CPU profile has D58 privacy acceptance with deployment conditions." Click the small **credentials** icon on
    a card to show the manifest entries. Point at the amber bar: "The proof machinery is real; the
    classifier inside it is still a stub. I'll show you exactly where the line is."
 2. **(0:30) Distribution.** Click **Viewing as Adult** to switch to **Minor**. The movie-night post

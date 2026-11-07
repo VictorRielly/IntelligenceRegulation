@@ -34,7 +34,7 @@
         "inowner": {"need_gib": 2.9, "cap_gib": 7, "max_seconds": 600},
         "label": {"need_gib": 2.9, "cap_gib": 7, "max_seconds": 1800}
       },
-      "privacy_status": "privacy statement pending",
+      "privacy_status": "CPU privacy statement accepted",
       "measurement_note": "Native R16 runs, shared laptop n=1: prove peak RSS up to8.27GiB. Resource reservations include margin; T256 has no accepted measurement on this laptop."
     }
   }
