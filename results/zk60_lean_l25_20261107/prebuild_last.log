@@ -1,0 +1,17 @@
+✖ [3445/3446] Building ZK60Formal.HonestClassifySum (1.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/ZK60Formal/HonestClassifySum.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifySum.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifySum.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifySum.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifySum.setup.json --json
+error: ZK60Formal/HonestClassifySum.lean:200:101: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hbij : Function.Bijective (Hiding.fp2 U)
+d n : ℕ
+f : (Fin (n + 1) → K) → K
+i : Fin (d + 1)
+⊢ (ofK U hbij (Complete.honestMsg d f 0) :: List.ofFn fun i => ofK U hbij (Complete.honestMsg d f i.succ))[↑i]?.getD
+      Fp2.zero =
+    ofK U hbij (Complete.honestMsg d f i)
+Some required targets logged failures:
+- ZK60Formal.HonestClassifySum
+error: build failed
