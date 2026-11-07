@@ -1,0 +1,3 @@
+{"phase": "one", "posts": 1, "published": 1, "failed": 0, "wall_s": 47.794273138046265, "category_proofs": 3, "proved_tok_per_s": 8.034435399632006, "steady": null}
+{"phase": "long", "posts": 1, "published": 1, "failed": 0, "wall_s": 127.01000499725342, "category_proofs": 9, "proved_tok_per_s": 9.07015159967053, "steady": null}
+{"phase": "stream8", "posts": 8, "published": 8, "failed": 0, "wall_s": 187.9481439590454, "category_proofs": 24, "proved_tok_per_s": 16.34493395513073, "steady": {"from_post": 4, "span_s": 65.11638331413269, "proofs": 12, "proved_tok_per_s": 23.588533665791456}}

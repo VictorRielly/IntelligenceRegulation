@@ -29,12 +29,14 @@ use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
-const KERNELS: [&str; 18] = [
+const KERNELS: [&str; 20] = [
     "k_fs_test",
     "k_sc_fs_step",
     "k_sc_part_reduce",
     "k_fold_tables_dev",
     "k_fold_tables",
+    "k_fold_tables_dev3",
+    "k_fold_tables3",
     "k_gather_cols",
     "k_fold_partial",
     "k_fold_reduce",
@@ -186,6 +188,11 @@ struct HeadArgs {
     apply_scale: u32,
     /// [M12] 1: the head reads the compact twiddles (buffer 6)
     use_hw: u32,
+    /// [A27] the head's stages `1..=pow2` multiply by their twiddle as a power of 2
+    /// (exponents in buffer 7, [`head_pow2_buffers`]); 0: every stage by `gl_mul`
+    pow2: u32,
+    /// [A27] 1: two stages per pass (radix 4 in registers, [`ntt_r4_on`])
+    r4: u32,
 }
 #[repr(C)]
 struct TailArgs {
@@ -194,7 +201,20 @@ struct TailArgs {
     max_log: u32,
     scale: u64,
     apply_scale: u32,
-    pad0: u32,
+    /// [A27] 1: two stages per pass (radix 4 in registers, [`ntt_r4_on`])
+    r4: u32,
+}
+
+/// **[A27] `HL_A27_NTT4`** (default on; `0`: one radix-2 stage per pass, as before): the
+/// fused NTT's head and tail run stages s and s + 1 in one pass, each thread holding four
+/// elements and applying exactly the two radix-2 butterflies each stage applies to them, with
+/// the same twiddles: the same words, with half the threadgroup barriers and round trips
+/// (`metal_kernels.metal`; the commitment tests compare every leaf, root, column and fold with
+/// the CPU). The A27 commitment bench at the classifier's A shape (4577 x 2^14 -> 2^16): the
+/// forward head 22.5 -> 19.5 ms, its tail 11.6 -> 9.5 ms (`results/zk60_a27_app_20261107/nb1.log`).
+fn ntt_r4_on() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A27_NTT4").map(|v| v != "0").unwrap_or(true))
 }
 
 /// Head input modes (k_ntt_head): a natural-order copy, the plain RS row, the hiding row.
@@ -205,10 +225,12 @@ const MODE_ZK: u32 = 2;
 /// The fused two-pass transform: HEAD (gather + stages 1..min(log_n, 11)) and,
 /// for log_n > 11, TAIL (the remaining stages). `scale` multiplies the final
 /// outputs (the inverse's 1/n). `src`, `pads`, `pows` are read by HEAD only.
+/// `hw`: the compact head twiddles and, [A27], their stage-1..6 exponents (each
+/// such twiddle a power of 2, [`head_pow2_buffers`]).
 #[allow(clippy::too_many_arguments)]
 fn encode_fused(
     c: &Ctx, enc: &metal::ComputeCommandEncoderRef, src: &Buffer, pads: Option<&Buffer>, pows: Option<&Buffer>, dst: &Buffer,
-    tw: &Buffer, hw: Option<&Buffer>, rows: u64, log_n: u32, log_src: u32, mode: u32, q: u64, max_log: u32, scale: Option<u64>,
+    tw: &Buffer, hw: Option<(&Buffer, Option<&Buffer>)>, rows: u64, log_n: u32, log_src: u32, mode: u32, q: u64, max_log: u32, scale: Option<u64>,
 ) {
     let l = log_n.min(TILE_LOG);
     let tile = 1u64 << l;
@@ -219,22 +241,28 @@ fn encode_fused(
     enc.set_buffer(2, Some(pows.unwrap_or(src)), 0);
     enc.set_buffer(3, Some(dst), 0);
     enc.set_buffer(4, Some(tw), 0);
-    enc.set_buffer(6, Some(hw.unwrap_or(tw)), 0);
+    enc.set_buffer(6, Some(hw.map(|h| h.0).unwrap_or(tw)), 0);
+    let hx = hw.and_then(|h| h.1);
+    enc.set_buffer(7, Some(hx.unwrap_or(tw)), 0);
+    let pow2 = if hx.is_some() { l.min(6) } else { 0 };
     let head_scales = scale.is_some() && log_n <= TILE_LOG;
     set_args(
         enc,
         5,
-        &HeadArgs { rows, log_n, log_src, mode, max_log, q, scale: scale.unwrap_or(1), apply_scale: head_scales as u32, use_hw: hw.is_some() as u32 },
+        &HeadArgs { rows, log_n, log_src, mode, max_log, q, scale: scale.unwrap_or(1), apply_scale: head_scales as u32, use_hw: hw.is_some() as u32, pow2, r4: ntt_r4_on() as u32 },
     );
-    let th = (tile / 2).max(1).min(head.max_total_threads_per_threadgroup());
+    // [A27] with two stages per pass a thread holds four elements (the single stage left over,
+    // if any, loops twice per thread)
+    let per = if ntt_r4_on() { 4 } else { 2 };
+    let th = (tile / per).max(1).min(head.max_total_threads_per_threadgroup());
     enc.dispatch_thread_groups(MTLSize::new((1u64 << log_n) / tile, rows, 1), MTLSize::new(th, 1, 1));
     if log_n > TILE_LOG {
         let tail = &c.pipes["k_ntt_tail"];
         enc.set_compute_pipeline_state(tail);
         enc.set_buffer(0, Some(dst), 0);
         enc.set_buffer(1, Some(tw), 0);
-        set_args(enc, 2, &TailArgs { rows, log_n, max_log, scale: scale.unwrap_or(1), apply_scale: scale.is_some() as u32, pad0: 0 });
-        let th = (1u64 << (TILE_LOG - 1)).min(tail.max_total_threads_per_threadgroup());
+        set_args(enc, 2, &TailArgs { rows, log_n, max_log, scale: scale.unwrap_or(1), apply_scale: scale.is_some() as u32, r4: ntt_r4_on() as u32 });
+        let th = ((1u64 << TILE_LOG) / per).min(tail.max_total_threads_per_threadgroup());
         enc.dispatch_thread_groups(MTLSize::new(1u64 << (log_n - TILE_LOG), rows, 1), MTLSize::new(th, 1, 1));
     }
 }
@@ -406,6 +434,55 @@ fn head_twiddle_buffers(c: &Ctx, ntt: &NttTables) -> Result<Option<(Buffer, Buff
     let i = upload(c, &pick(inv))?.keep();
     map.insert(ntt.max_log, (f.clone(), i.clone()));
     Ok(Some((f, i)))
+}
+
+/// **[A27] `HL_A27_NTT`** (default on; `0`: every head stage multiplies by `gl_mul`,
+/// as before): the exponents `e` with `hw[32 j] = 2^e mod p` for `j < 32`, forward
+/// and inverse, as u32 words (buffer 7 of `k_ntt_head`). Stage `s <= 6` of the head
+/// reads `hw[k << (11 - s)]`, a multiple-of-32 index, so its twiddle is a 64th root of
+/// unity, and every 64th root of unity of the Goldilocks field is a power of 2 (2 has
+/// order 192). The head then multiplies by it with shifts and reductions
+/// (`gl_mul_pow2`), the same canonical words. `None` (every stage by `gl_mul`) when
+/// the compact table is not in use, the switch is off, or a twiddle is not found
+/// among the 192 powers of 2 (it cannot happen; a fallback, never a different word).
+fn head_pow2_buffers(c: &Ctx, ntt: &NttTables) -> Result<Option<(Buffer, Buffer)>, String> {
+    static ON: OnceLock<bool> = OnceLock::new();
+    static CACHE: Mutex<Option<HashMap<u32, Option<(Buffer, Buffer)>>>> = Mutex::new(None);
+    if !*ON.get_or_init(|| std::env::var("HL_A27_NTT").map(|v| v != "0").unwrap_or(true)) || ntt.max_log < TILE_LOG {
+        return Ok(None);
+    }
+    if head_twiddle_buffers(c, ntt)?.is_none() {
+        return Ok(None);
+    }
+    let mut g = CACHE.lock().map_err(|_| "metal: pow2 twiddle cache poisoned")?;
+    let map = g.get_or_insert_with(HashMap::new);
+    if let Some(v) = map.get(&ntt.max_log) {
+        return Ok(v.clone());
+    }
+    // 2^e mod p for e < 192
+    let mut pow: HashMap<u64, u32> = HashMap::new();
+    let mut x = Fp::ONE;
+    for e in 0..192u32 {
+        pow.insert(x.0, e);
+        x = x.add(x);
+    }
+    let (fw, inv) = ntt.twiddle_tables();
+    let sh = ntt.max_log - TILE_LOG;
+    let exps = |t: &[Fp]| -> Option<Vec<u32>> { (0..32usize).map(|j| pow.get(&t[(32 * j) << sh].0).copied()).collect() };
+    let made = match (exps(fw), exps(inv)) {
+        (Some(f), Some(i)) => {
+            let up = |v: &[u32]| -> Result<Buffer, String> {
+                let b = c.device.new_buffer((v.len() * 4) as u64, MTLResourceOptions::StorageModeShared);
+                // SAFETY: a fresh shared buffer of v.len() u32 words, not yet used by the GPU
+                unsafe { std::ptr::copy_nonoverlapping(v.as_ptr(), b.contents() as *mut u32, v.len()) };
+                Ok(b)
+            };
+            Some((up(&f)?, up(&i)?))
+        }
+        _ => None,
+    };
+    map.insert(ntt.max_log, made.clone());
+    Ok(made)
 }
 
 /// **[M6, tests] one device Fiat-Shamir round step** (`k_fs_test`), from a
@@ -582,7 +659,7 @@ fn run(c: &Ctx, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<
 /// committed after this one completed, so the queue it ran on cannot reorder
 /// any read against any write.
 fn run_tagged(c: &Ctx, tag: &'static str, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<(), String>) -> Result<(), String> {
-    let tl = TL_ON.load(Ordering::Relaxed);
+    let tl = tl_on();
     let begin = if tl { host_time_s() } else { 0.0 };
     c.with_queue(|queue, qi| {
         let cb = queue.new_command_buffer();
@@ -774,11 +851,101 @@ pub struct CbSpan {
 static TL_ON: AtomicBool = AtomicBool::new(false);
 static TL: Mutex<Vec<CbSpan>> = Mutex::new(Vec::new());
 
+/// whether a completed command buffer is recorded (the tests' timeline or the
+/// [A27] trace); off, one relaxed load and one `OnceLock` read per command buffer
+fn tl_on() -> bool {
+    TL_ON.load(Ordering::Relaxed) || trace_on()
+}
+
 fn tl_record(cb: &metal::CommandBufferRef, tag: &'static str, queue: u32, begin: f64, committed: f64) {
     let done = host_time_s();
     let (gpu_start, gpu_end) = gpu_times(cb);
-    if let Ok(mut g) = TL.lock() {
-        g.push(CbSpan { tag, thread: thread_serial(), queue, begin, committed, gpu_start, gpu_end, done });
+    if TL_ON.load(Ordering::Relaxed) {
+        if let Ok(mut g) = TL.lock() {
+            g.push(CbSpan { tag, thread: thread_serial(), queue, begin, committed, gpu_start, gpu_end, done });
+        }
+    }
+    trace_write(tag, queue, begin, committed, gpu_start, gpu_end, done);
+}
+
+// ------------------------------------- [A27] the GPU trace in any build (diagnostic)
+//
+// `HL_A27_GPU_TRACE=<path prefix>`: every completed command buffer of this
+// process is appended to `<prefix>.<pid>.tsv` as one line: its call-site tag, a
+// shape detail (a slot's label, table count and size, degree, rounds; a
+// commitment's rows and widths), the thread and queue, and the host times it was
+// begun, committed and seen complete with its GPUStartTime / GPUEndTime. Read
+// only after the command buffer completed; nothing the GPU computed is read, and
+// the detail names shapes only (functions of the public profile), never a value.
+// Unset (the default), nothing is formatted or written.
+
+static TRACE: OnceLock<Option<Mutex<(std::fs::File, String, f64)>>> = OnceLock::new();
+
+fn trace_cell() -> &'static Option<Mutex<(std::fs::File, String, f64)>> {
+    TRACE.get_or_init(|| {
+        let prefix = std::env::var("HL_A27_GPU_TRACE").ok().filter(|p| !p.is_empty())?;
+        let path = format!("{prefix}.{}.tsv", std::process::id());
+        let f = std::fs::OpenOptions::new().create(true).append(true).open(&path).ok()?;
+        extern "C" fn flush_at_exit() {
+            trace_flush();
+        }
+        extern "C" {
+            fn atexit(cb: extern "C" fn()) -> i32;
+        }
+        // SAFETY: registers a plain function with no arguments
+        unsafe {
+            atexit(flush_at_exit);
+        }
+        Some(Mutex::new((f, String::from("tag\tdetail\tthread\tqueue\tbegin\tcommitted\tgpu_start\tgpu_end\tdone\n"), 0.0)))
+    })
+}
+
+fn trace_on() -> bool {
+    trace_cell().is_some()
+}
+
+thread_local! {
+    /// [A27] the shape detail of this thread's next recorded command buffer
+    static TRACE_DETAIL: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+}
+
+/// [A27] the shape detail for this thread's next command buffer (formatted only
+/// while the trace is on)
+fn trace_detail(f: impl FnOnce() -> String) {
+    if trace_on() {
+        let s = f();
+        TRACE_DETAIL.with(|d| *d.borrow_mut() = s);
+    }
+}
+
+/// [A27] write the trace's buffered lines (also at exit)
+pub fn trace_flush() {
+    use std::io::Write;
+    if let Some(m) = trace_cell() {
+        if let Ok(mut g) = m.lock() {
+            let (f, buf, _) = &mut *g;
+            let _ = f.write_all(buf.as_bytes());
+            let _ = f.flush();
+            buf.clear();
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn trace_write(tag: &'static str, queue: u32, begin: f64, committed: f64, gpu_start: f64, gpu_end: f64, done: f64) {
+    use std::fmt::Write as _;
+    use std::io::Write as _;
+    let Some(m) = trace_cell() else { return };
+    let detail = TRACE_DETAIL.with(|d| std::mem::take(&mut *d.borrow_mut()));
+    let th = thread_serial();
+    if let Ok(mut g) = m.lock() {
+        let (f, buf, last) = &mut *g;
+        let _ = writeln!(buf, "{tag}\t{detail}\t{th}\t{queue}\t{begin:.7}\t{committed:.7}\t{gpu_start:.7}\t{gpu_end:.7}\t{done:.7}");
+        if buf.len() > 1 << 16 || done - *last > 1.0 {
+            let _ = f.write_all(buf.as_bytes());
+            buf.clear();
+            *last = done;
+        }
     }
 }
 
@@ -1223,6 +1390,7 @@ fn gather_columns_device(enc: &Buffer, rows: usize, nn: usize, idx: &[usize]) ->
         let ib: Vec<Fp> = idx.iter().map(|&j| Fp(j as u64)).collect();
         let ibuf = upload(c, &ib)?;
         let ob = shared_buffer(c, (idx.len() * rows * 8) as u64)?;
+        trace_detail(|| format!("rows={rows} nn={nn} cols={}", idx.len()));
         run_tagged(c, "gather", |e| {
             e.set_buffer(0, Some(enc), 0);
             e.set_buffer(1, Some(&ibuf), 0);
@@ -1833,7 +2001,9 @@ fn commit_impl(
     objc::rc::autoreleasepool(|| {
         let (tw_f, tw_i) = twiddle_buffers(c, ntt)?;
         let hw = head_twiddle_buffers(c, ntt)?;
-        let (hw_f, hw_i) = (hw.as_ref().map(|h| &h.0), hw.as_ref().map(|h| &h.1));
+        // [A27] the head stages 1..6 by powers of 2 (None: by gl_mul, as before)
+        let hx = head_pow2_buffers(c, ntt)?;
+        let (hw_f, hw_i) = (hw.as_ref().map(|h| (&h.0, hx.as_ref().map(|x| &x.0))), hw.as_ref().map(|h| (&h.1, hx.as_ref().map(|x| &x.1))));
         let d = upload(c, data)?;
         let t = shared_buffer(c, (rows * n * 8) as u64)?;
         let e = shared_buffer(c, (rows * nn * 8) as u64)?;
@@ -1856,6 +2026,7 @@ fn commit_impl(
             }
         }
         let staged = std::env::var("HL_METAL_STAGED").map(|v| v == "1").unwrap_or(false);
+        trace_detail(|| format!("rows={rows} log_n={log_n} log_nn={log_nn} zk={} keyed={}", zk_bufs.as_ref().map(|z| z.2).unwrap_or(0), key.is_some() as u8));
         run_tagged(c, "commit", |enc| {
             if !staged {
                 // M2: two fused passes per transform (see metal_kernels.metal)
@@ -2084,6 +2255,25 @@ pub fn sumcheck_stats() -> (f64, f64) {
     (SC_COMPILE_NS.load(Ordering::Relaxed) as f64 * 1e-9, SC_ROUND_NS.load(Ordering::Relaxed) as f64 * 1e-9)
 }
 
+/// [A27] the number of materialized tables of a generated slot kernel source
+/// (`#define SC_M m`, `private_block/metal_slot.rs::lin_plan`); 0 without one
+fn kernel_m(kernel_src: &str) -> usize {
+    let Some(at) = kernel_src.find("#define SC_M ") else { return 0 };
+    kernel_src[at + 13..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().unwrap_or(0)
+}
+
+/// [A27] a slot's materialization pipeline (`k_sc_mat`, in the same library as its
+/// round kernels: compiled by [`sc_pipelines`]), when its source has one
+fn sc_mat_pipeline(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<Option<ComputePipelineState>, String> {
+    if kernel_m(kernel_src) == 0 {
+        return Ok(None);
+    }
+    let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
+    let key = format!("k_sc_mat\n{src}");
+    let cache = c.sc_pipes.lock().map_err(|_| "metal: sumcheck kernel cache poisoned")?;
+    cache.get(&key).cloned().map(Some).ok_or_else(|| "metal: the materialization kernel was not compiled".to_string())
+}
+
 fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<(ComputePipelineState, ComputePipelineState), String> {
     // [M4] ONE library compile for both kernels: the round-0 and the later
     // round kernel live in the same generated source, and compiling it once
@@ -2091,6 +2281,7 @@ fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<(C
     let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
     let names = ["k_sc_round0", "k_sc_round"];
     let keys = names.map(|n| format!("{n}\n{src}"));
+    let mat = kernel_m(kernel_src) > 0;
     let mut cache = c.sc_pipes.lock().map_err(|_| "metal: sumcheck kernel cache poisoned")?;
     if let (Some(p0), Some(p1)) = (cache.get(&keys[0]), cache.get(&keys[1])) {
         return Ok((p0.clone(), p1.clone()));
@@ -2100,14 +2291,17 @@ fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<(C
         let _ = std::fs::write(format!("{dir}/slot_k{k}_d{degree}_{:016x}.metal", src.len() as u64 ^ (kernel_src.len() as u64) << 20), &src);
     }
     let t = std::time::Instant::now();
-    let (p0, p1) = objc::rc::autoreleasepool(|| -> Result<(ComputePipelineState, ComputePipelineState), String> {
+    let (p0, p1, pm) = objc::rc::autoreleasepool(|| -> Result<(ComputePipelineState, ComputePipelineState, Option<ComputePipelineState>), String> {
         let lib = c.device.new_library_with_source(&src, &CompileOptions::new()).map_err(|e| format!("metal sumcheck compile: {e}"))?;
         let mk = |name: &str| -> Result<ComputePipelineState, String> {
             let f = lib.get_function(name, None).map_err(|e| format!("metal sumcheck function {name}: {e}"))?;
             c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal sumcheck pipeline: {e}"))
         };
-        Ok((mk(names[0])?, mk(names[1])?))
+        Ok((mk(names[0])?, mk(names[1])?, if mat { Some(mk("k_sc_mat")?) } else { None }))
     })?;
+    if let Some(pm) = pm {
+        cache.insert(format!("k_sc_mat\n{src}"), pm);
+    }
     SC_COMPILE_NS.fetch_add(t.elapsed().as_nanos() as u64, Ordering::Relaxed);
     if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
         eprintln!("[ZK60-METAL] compiled a slot library ({k} tables, degree {degree}, {} B of source, 2 kernels) in {:.3} s", src.len(), t.elapsed().as_secs_f64());
@@ -2157,6 +2351,204 @@ pub struct MetalRounds {
     /// the first command buffer that reads the tables (round 0's, the batch's)
     /// or run alone before the host reads them ([`MetalRounds::into_host`])
     prelude: Option<TabBuild>,
+    /// [A27] the slot's label for the GPU trace (the generated source's first
+    /// comment line: slot number, name, profile, table counts); empty unless
+    /// the trace is on
+    label: String,
+    /// [A27] the degree the kernel evaluates ([`kernel_de`]): the points
+    /// `de + 1..=degree` are extrapolated, on the host ([`extrapolate`]) or in the
+    /// transcript step; `degree` when every point is evaluated
+    de: usize,
+    /// [A27] the materialized tables ([`kernel_m`]; `private_block/metal_slot.rs::lin_plan`):
+    /// `m` tables of `cap` extension elements in `xtabs` (buffer 4 of the round
+    /// kernels), written by `k_sc_mat` ahead of round 0 (`mat_pending` until then)
+    /// and folded with the slot's own tables every round. Never read as a final:
+    /// the slot's finals are its own `k` tables'.
+    m: usize,
+    xtabs: Option<PBuf>,
+    pipe_mat: Option<ComputePipelineState>,
+    mat_pending: bool,
+}
+
+#[repr(C)]
+struct MatArgs {
+    cap: u64,
+}
+
+/// [A27] a slot's materialized tables, prepared: (their count, `k_sc_mat`, the
+/// buffer of `m` tables of `cap` elements); `None` when its source has none
+fn mat_parts(c: &Ctx, kernel_src: &str, k: usize, degree: usize, cap: usize) -> Result<Option<(usize, ComputePipelineState, PBuf)>, String> {
+    let m = kernel_m(kernel_src);
+    if m == 0 {
+        return Ok(None);
+    }
+    let pm = sc_mat_pipeline(c, kernel_src, k, degree)?.ok_or("metal: no materialization kernel")?;
+    let x = objc::rc::autoreleasepool(|| shared_buffer(c, (m * cap * 16) as u64))?;
+    Ok(Some((m, pm, x)))
+}
+
+impl MetalRounds {
+    /// [A27] install the prepared materialized tables ([`mat_parts`])
+    fn install_mat(&mut self, mat: Option<(usize, ComputePipelineState, PBuf)>) {
+        if let Some((m, pm, x)) = mat {
+            self.m = m;
+            self.pipe_mat = Some(pm);
+            self.xtabs = Some(x);
+            self.mat_pending = true;
+        }
+    }
+
+    /// [A27] encode `k_sc_mat` (ahead of round 0's kernel, in the same encoder:
+    /// the caller clears `mat_pending`, so it runs once)
+    fn encode_mat(&self, enc: &metal::ComputeCommandEncoderRef) {
+        let (Some(p), Some(x)) = (self.pipe_mat.as_ref(), self.xtabs.as_ref()) else { return };
+        enc.set_compute_pipeline_state(p);
+        enc.set_buffer(0, Some(&self.tabs), 0);
+        enc.set_buffer(1, Some(x), 0);
+        enc.set_buffer(2, Some(&self.coefs), 0);
+        set_args(enc, 3, &MatArgs { cap: self.cap as u64 });
+        let tg = p.max_total_threads_per_threadgroup().min(256).min(self.cap as u64);
+        enc.dispatch_threads(MTLSize::new(self.cap as u64, 1, 1), MTLSize::new(tg, 1, 1));
+    }
+
+    /// [A27] encode a fold of the materialized tables at `half` (the same kernel as
+    /// the slot's own tables', over `xtabs`): by `r` as an argument, or by the
+    /// device's challenge at word `roff` of `rbuf`
+    fn encode_xfold(&self, c: &Ctx, enc: &metal::ComputeCommandEncoderRef, half: usize, r: Option<Fp2>, rbuf: Option<(&metal::BufferRef, u64)>) {
+        let Some(x) = self.xtabs.as_ref() else { return };
+        enc.set_buffer(0, Some(x), 0);
+        match (r, rbuf) {
+            (Some(r), _) => {
+                set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.m as u64, r0: r.c0.0, r1: r.c1.0 });
+                dispatch_2d(c, enc, fold_kernels().0, half as u64, self.m as u64);
+            }
+            (None, Some((rb, roff))) => {
+                set_args(enc, 1, &FoldDevArgs { half: half as u64, cap: self.cap as u64, k: self.m as u64, roff });
+                enc.set_buffer(2, Some(rb), 0);
+                dispatch_2d(c, enc, fold_kernels().1, half as u64, self.m as u64);
+            }
+            _ => {}
+        }
+    }
+}
+
+/// **[A27] the degree a generated slot kernel evaluates** (`#define SC_DE n` in its
+/// source, `private_block/metal_slot.rs::evaluated_degree`: the IR's attained degree
+/// when it is below the declared one); `degree` (every point) otherwise
+fn kernel_de(kernel_src: &str, degree: usize) -> usize {
+    let Some(at) = kernel_src.find("#define SC_DE ") else { return degree };
+    let digits: String = kernel_src[at + 14..].chars().take_while(|c| c.is_ascii_digit()).collect();
+    match digits.parse::<usize>() {
+        Ok(de) if de >= 1 && de < degree => de,
+        _ => degree,
+    }
+}
+
+/// [A27] the Lagrange weights of the values `s(de + 1..=degree)` of a polynomial of
+/// degree at most `de` from its values `s(0..=de)`: `s(e) = sum_i w[e - de - 1][i] s(i)`,
+/// `w = prod_{m != i} (e - m) / (i - m)` (exact in the field)
+fn extrapolation_weights(de: usize, degree: usize) -> Vec<Vec<Fp>> {
+    (de + 1..=degree)
+        .map(|e| {
+            (0..=de)
+                .map(|i| {
+                    let (mut num, mut den) = (Fp::ONE, Fp::ONE);
+                    for m in 0..=de {
+                        if m != i {
+                            num = num.mul(Fp::from_i64(e as i64 - m as i64));
+                            den = den.mul(Fp::from_i64(i as i64 - m as i64));
+                        }
+                    }
+                    num.mul(den.inv())
+                })
+                .collect()
+        })
+        .collect()
+}
+
+/// [A27] `sums[de + 1..]` from `sums[..=de]` ([`extrapolation_weights`])
+fn extrapolate(sums: &mut [Fp2], de: usize) {
+    let degree = sums.len() - 1;
+    if de >= degree {
+        return;
+    }
+    for (j, w) in extrapolation_weights(de, degree).iter().enumerate() {
+        let mut acc = Fp2::ZERO;
+        for (i, wi) in w.iter().enumerate() {
+            acc = acc.add(sums[i].mul_base(*wi));
+        }
+        sums[de + 1 + j] = acc;
+    }
+}
+
+/// [A27, tests] [`extrapolate`]
+#[cfg(test)]
+pub fn extrapolate_for_test(sums: &mut [Fp2], de: usize) {
+    extrapolate(sums, de)
+}
+
+/// [A27, tests] whether the head's power-of-2 stages apply at NTT tables of
+/// `2^max_log` ([`head_pow2_buffers`]), and every exponent's 2^e equals its twiddle
+#[cfg(test)]
+pub fn head_pow2_for_test(max_log: u32) -> Result<bool, String> {
+    let c = ctx()?;
+    let ntt = NttTables::new(max_log);
+    let Some((f, i)) = head_pow2_buffers(c, &ntt)? else { return Ok(false) };
+    let (fw, inv) = ntt.twiddle_tables();
+    let sh = max_log - TILE_LOG;
+    let pow2 = |e: u32| (0..e).fold(Fp::ONE, |x, _| x.add(x));
+    // SAFETY: 32 u32 words each, written once when the buffers were made
+    let (ef, ei) = unsafe { (std::slice::from_raw_parts(f.contents() as *const u32, 32), std::slice::from_raw_parts(i.contents() as *const u32, 32)) };
+    Ok((0..32usize).all(|j| pow2(ef[j]) == fw[(32 * j) << sh] && pow2(ei[j]) == inv[(32 * j) << sh] && ef[j] < 192 && ei[j] < 192))
+}
+
+/// [A27, tests] one sumcheck fold of `k` tables of `cap` words-pairs (`tabs`, the
+/// `MetalRounds` layout) at `half` by `r`, on the device: the five-product kernels
+/// (`three = false`) or A27's (`true`), the challenge as an argument (`dev = false`)
+/// or read from device memory (`true`). Returns the whole table buffer after it.
+#[cfg(test)]
+pub fn fold_for_test(tabs: &[u64], k: usize, cap: usize, half: usize, r: Fp2, three: bool, dev: bool) -> Result<Vec<u64>, String> {
+    let c = ctx()?;
+    objc::rc::autoreleasepool(|| {
+        let tb = upload(c, &tabs.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
+        let rb = upload(c, &[Fp(5), r.c0, r.c1])?;
+        run_tagged(c, "test", |enc| {
+            enc.set_buffer(0, Some(&tb), 0);
+            if dev {
+                set_args(enc, 1, &FoldDevArgs { half: half as u64, cap: cap as u64, k: k as u64, roff: 1 });
+                enc.set_buffer(2, Some(&rb), 0);
+                dispatch_2d(c, enc, if three { "k_fold_tables_dev3" } else { "k_fold_tables_dev" }, half as u64, k as u64);
+            } else {
+                set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: cap as u64, k: k as u64, r0: r.c0.0, r1: r.c1.0 });
+                dispatch_2d(c, enc, if three { "k_fold_tables3" } else { "k_fold_tables" }, half as u64, k as u64);
+            }
+            Ok(())
+        })?;
+        Ok(as_u64s(&tb, tabs.len()).to_vec())
+    })
+}
+
+/// [A27] the trace label of a generated slot kernel source (its first line)
+fn slot_label(kernel_src: &str) -> String {
+    if !trace_on() {
+        return String::new();
+    }
+    kernel_src.lines().find(|l| l.starts_with("// slot")).unwrap_or("").trim_start_matches("// ").replace('\t', " ")
+}
+
+/// **[A27] `HL_A27_FOLD`** (default on; `0`: `k_fold_tables` / `k_fold_tables_dev`,
+/// as before): the sumcheck folds by `k_fold_tables3` / `k_fold_tables_dev3`, the
+/// step `r (hi - lo)` as three base products (Karatsuba) instead of five, and two
+/// when its imaginary part is zero (a base-field table's first fold). The same
+/// canonical words (`metal_kernels.metal`; `a27_` tests). Returns (the host-challenge
+/// fold, the device-challenge fold).
+fn fold_kernels() -> (&'static str, &'static str) {
+    static ON: OnceLock<bool> = OnceLock::new();
+    if *ON.get_or_init(|| std::env::var("HL_A27_FOLD").map(|v| v != "0").unwrap_or(true)) {
+        ("k_fold_tables3", "k_fold_tables_dev3")
+    } else {
+        ("k_fold_tables", "k_fold_tables_dev")
+    }
 }
 
 /// threads of a round over `half` pairs (the per-thread pair count and the cap)
@@ -2210,7 +2602,12 @@ pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs:
             eprintln!("[ZK60-METAL] sumcheck setup: {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
         }
         let parts = rounds_parts(c, cap, degree, coefs)?;
-        Ok(Some(assemble_rounds(tabs, k, cap, degree, pipe0, pipe, parts)))
+        let mat = mat_parts(c, kernel_src, k, degree, cap)?;
+        let mut r = assemble_rounds(tabs, k, cap, degree, pipe0, pipe, parts);
+        r.label = slot_label(kernel_src);
+        r.de = kernel_de(kernel_src, degree);
+        r.install_mat(mat);
+        Ok(Some(r))
     })
 }
 
@@ -2263,6 +2660,12 @@ fn assemble_rounds(tabs: PBuf, k: usize, cap: usize, degree: usize, pipe0: Compu
         part: p.part,
         fold_r: None,
         prelude: None,
+        label: String::new(),
+        de: degree,
+        m: 0,
+        xtabs: None,
+        pipe_mat: None,
+        mat_pending: false,
     }
 }
 
@@ -2374,10 +2777,18 @@ pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs
         Ok(p) => p,
         Err(e) => return fail(t, Some(e)),
     };
+    let mat = match mat_parts(c, kernel_src, k, degree, cap) {
+        Ok(m) => m,
+        Err(e) => return fail(t, Some(e)),
+    };
     let MetalTables { buf, pending, .. } = t;
     let mut r = assemble_rounds(buf, k, cap, degree, pipe0, pipe, parts);
+    r.label = slot_label(kernel_src);
+    r.de = kernel_de(kernel_src, degree);
     // [A12] the deferred build runs ahead of the first round
     r.prelude = pending;
+    // [A27] the materialized tables (prepared above: a failure there declined)
+    r.install_mat(mat);
     Ok(r)
 }
 
@@ -2757,7 +3168,7 @@ impl TabBuild {
 /// encoder of the same command buffer (`pre`; none: exactly `run_tagged`).
 fn run_tagged_pre(c: &Ctx, tag: &'static str, pre: Option<(&TabBuild, &metal::BufferRef)>, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<(), String>) -> Result<(), String> {
     let Some((tb, tabs)) = pre else { return run_tagged(c, tag, encode) };
-    let tl = TL_ON.load(Ordering::Relaxed);
+    let tl = tl_on();
     let begin = if tl { host_time_s() } else { 0.0 };
     c.with_queue(|queue, qi| {
         let cb = queue.new_command_buffer();
@@ -2998,6 +3409,7 @@ impl MetalTables {
                 return Ok(true);
             }
             let tabs: &metal::BufferRef = &self.buf;
+            trace_detail(|| format!("k={k} log_cap={n} plans={} sync", tb.args.len()));
             run_tagged_pre(c, "tables", Some((&tb, tabs)), |_| Ok(()))?;
             self.typed = Some(host_ok && !tb.flagged());
             Ok(true)
@@ -3050,6 +3462,9 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let fold = self.fold_r.take();
         // [A12] the tables' deferred device build, ahead of the first round
         let pre = self.prelude.take();
+        trace_detail(|| format!("{} | k={} m={} log_cap={} deg={} j={j} half={half} fold={} pre={}", self.label, self.k, self.m, self.cap.trailing_zeros(), self.degree, fold.is_some() as u8, pre.is_some() as u8));
+        // [A27] the materialized tables' values, ahead of the first round's kernel
+        let mat = std::mem::replace(&mut self.mat_pending, false);
         let sums = objc::rc::autoreleasepool(|| {
             let pipe = if j == 0 { &self.pipe0 } else { &self.pipe };
             let tabs: &metal::BufferRef = &self.tabs;
@@ -3059,22 +3474,31 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                 if let Some((fh, r)) = fold {
                     enc.set_buffer(0, Some(&self.tabs), 0);
                     set_args(enc, 1, &FoldTabArgs { half: fh as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
-                    dispatch_2d(c, enc, "k_fold_tables", fh as u64, self.k as u64);
+                    dispatch_2d(c, enc, fold_kernels().0, fh as u64, self.k as u64);
+                    self.encode_xfold(c, enc, fh, Some(r), None);
+                }
+                if mat {
+                    self.encode_mat(enc);
                 }
                 enc.set_compute_pipeline_state(pipe);
                 enc.set_buffer(0, Some(&self.tabs), 0);
                 enc.set_buffer(1, Some(&self.part), 0);
                 enc.set_buffer(2, Some(&self.coefs), 0);
+                if let Some(x) = self.xtabs.as_ref() {
+                    enc.set_buffer(4, Some(x), 0);
+                }
                 set_args(enc, 3, &RoundArgs { half: half as u64, cap: self.cap as u64, eval_one: eval_one as u32, nthreads: nthreads as u32 });
                 // [M4e] one thread per (stride, evaluation point); [M4g] 32
-                // lanes per point, point 1 not launched when the claim gives s(1)
-                let np = if eval_one { d1 } else { d1 - 1 };
+                // lanes per point, point 1 not launched when the claim gives s(1);
+                // [A27] the points up to the evaluated degree only
+                let np = if eval_one { self.de + 1 } else { self.de };
                 let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
                 let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
                 enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
                 Ok(())
             })
             .expect("metal sumcheck round");
+            let de = self.de;
             // [A12] the deferred build's base-field tables were base by
             // construction; a word the device flags is a device fault
             assert!(!pre.as_ref().is_some_and(|p| p.flagged()), "[ZK60-METAL A12] a base-field table built on the device has an extension word: the attempt is refused");
@@ -3088,7 +3512,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                 let mut acc = vec![Fp2::ZERO; d1];
                 for th in blk.chunks_exact(d1 * 2) {
                     for (d, s) in acc.iter_mut().enumerate() {
-                        if d != 1 || eval_one {
+                        if (d != 1 || eval_one) && d <= de {
                             *s = s.add(Fp2::new(Fp(th[2 * d]), Fp(th[2 * d + 1])));
                         }
                     }
@@ -3110,6 +3534,8 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         if let Some(claim) = claim {
             sums[1] = claim.sub(sums[0]);
         }
+        // [A27] the points above the evaluated degree, exactly
+        extrapolate(&mut sums, self.de);
         self.pending = Some(sums.clone());
         let ns = t0.elapsed().as_nanos() as u64;
         SC_ROUND_NS.fetch_add(ns, Ordering::Relaxed);
@@ -3133,11 +3559,12 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         } else {
             // the last fold: the final tables are read right after it
             let c = ctx().expect("metal context");
+            trace_detail(|| format!("{} | k={} half={half} last", self.label, self.k));
             objc::rc::autoreleasepool(|| {
                 run_tagged(c, "fold", |enc| {
                     enc.set_buffer(0, Some(&self.tabs), 0);
                     set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
-                    dispatch_2d(c, enc, "k_fold_tables", half as u64, self.k as u64);
+                    dispatch_2d(c, enc, fold_kernels().0, half as u64, self.k as u64);
                     Ok(())
                 })
                 .expect("metal sumcheck fold");
@@ -3215,11 +3642,12 @@ impl MetalRounds {
 
     fn run_fold_now(&self, half: usize, r: Fp2) {
         let c = ctx().expect("metal context");
+        trace_detail(|| format!("{} | k={} half={half} to-host", self.label, self.k));
         objc::rc::autoreleasepool(|| {
             run_tagged(c, "fold", |enc| {
                 enc.set_buffer(0, Some(&self.tabs), 0);
                 set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
-                dispatch_2d(c, enc, "k_fold_tables", half as u64, self.k as u64);
+                dispatch_2d(c, enc, fold_kernels().0, half as u64, self.k as u64);
                 Ok(())
             })
             .expect("metal sumcheck fold");
@@ -3233,6 +3661,7 @@ impl MetalRounds {
         if let Some(pre) = self.prelude.take() {
             let c = ctx().expect("metal context");
             let tabs: &metal::BufferRef = &self.tabs;
+            trace_detail(|| format!("{} | k={} log_cap={} plans={} to-host", self.label, self.k, self.cap.trailing_zeros(), pre.args.len()));
             objc::rc::autoreleasepool(|| run_tagged_pre(c, "tables", Some((&pre, tabs)), |_| Ok(()))).expect("[ZK60-METAL A12] the deferred table build");
             assert!(!pre.flagged(), "[ZK60-METAL A12] a base-field table built on the device has an extension word: the attempt is refused");
         }
@@ -3403,6 +3832,8 @@ struct PartRedArgs {
     d1: u32,
     width: u32,
     eval_one: u32,
+    /// [A27] the evaluated degree: points above it are not read (written zero)
+    de: u32,
 }
 
 #[repr(C)]
@@ -3412,7 +3843,9 @@ struct FsStepArgs {
     j: u32,
     eval_one: u32,
     tgw: u32,
-    pad0: u32,
+    /// [A27] the evaluated degree: the points above it are extrapolated from
+    /// `s(0..=de)` with the weights in buffer 5 ([`extrapolation_weights`])
+    de: u32,
 }
 #[repr(C)]
 struct FoldDevArgs {
@@ -3509,22 +3942,38 @@ impl MetalRounds {
         let t0 = std::time::Instant::now();
         // [A12] the tables' deferred device build, ahead of the batch's rounds
         let pre = self.prelude.take();
+        // [A27] the extrapolation weights of the points above the evaluated degree
+        // (one zero word when every point is evaluated: the step reads none)
+        let de = self.de;
+        let mut xw: Vec<Fp> = extrapolation_weights(de, d).into_iter().flatten().collect();
+        if xw.is_empty() {
+            xw.push(Fp::ZERO);
+        }
         let (sums, rs) = objc::rc::autoreleasepool(|| -> Result<(Vec<Vec<Fp2>>, Vec<Fp2>), String> {
             let mkb = upload(cx, &mk.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
             let fsb = upload(cx, &fs.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
+            let xwb = upload(cx, &xw)?;
             let out = shared_buffer(cx, (nd * rec * 8) as u64)?;
             let part2 = shared_buffer(cx, (PART_RED_WIDTH * d1 * 16) as u64)?;
             let mut claim_known = self.recover_one && self.unmasked_claim.is_some();
             let tabs: &metal::BufferRef = &self.tabs;
+            trace_detail(|| format!("{} | k={} m={} log_cap={} deg={} de={de} nd={nd} n_vars={} recover={} pre={}", self.label, self.k, self.m, self.cap.trailing_zeros(), self.degree, self.n_vars, self.recover_one as u8, pre.as_ref().map(|p| p.args.len()).unwrap_or(0)));
+            // [A27] the materialized tables' values, ahead of round 0's kernel
+            let mat = self.mat_pending;
             run_tagged_pre(cx, "batch", pre.as_ref().map(|p| (p, tabs)), |enc| {
+                if mat {
+                    self.encode_mat(enc);
+                }
                 for j in 0..=nd {
                     if j > 0 {
                         // the fold of round j - 1 by the device's challenge
                         let hprev = (self.len >> (j - 1)) / 2;
+                        let roff = ((j - 1) * rec + 4 * d1) as u64;
                         enc.set_buffer(0, Some(&self.tabs), 0);
-                        set_args(enc, 1, &FoldDevArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, roff: ((j - 1) * rec + 4 * d1) as u64 });
+                        set_args(enc, 1, &FoldDevArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, roff });
                         enc.set_buffer(2, Some(&out), 0);
-                        dispatch_2d(cx, enc, "k_fold_tables_dev", hprev as u64, self.k as u64);
+                        dispatch_2d(cx, enc, fold_kernels().1, hprev as u64, self.k as u64);
+                        self.encode_xfold(cx, enc, hprev, None, Some((&out, roff)));
                     }
                     if j == nd {
                         break;
@@ -3537,8 +3986,12 @@ impl MetalRounds {
                     enc.set_buffer(0, Some(&self.tabs), 0);
                     enc.set_buffer(1, Some(&self.part), 0);
                     enc.set_buffer(2, Some(&self.coefs), 0);
+                    if let Some(x) = self.xtabs.as_ref() {
+                        enc.set_buffer(4, Some(x), 0);
+                    }
                     set_args(enc, 3, &RoundArgs { half: half as u64, cap: self.cap as u64, eval_one: eval_one as u32, nthreads: nthreads as u32 });
-                    let np = if eval_one { d1 } else { d1 - 1 };
+                    // [A27] the points up to the evaluated degree only
+                    let np = if eval_one { de + 1 } else { de };
                     let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
                     let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
                     enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
@@ -3546,7 +3999,7 @@ impl MetalRounds {
                     let (src, count) = if nthreads > PART_RED_MIN {
                         enc.set_buffer(0, Some(&self.part), 0);
                         enc.set_buffer(1, Some(&part2), 0);
-                        set_args(enc, 2, &PartRedArgs { nthreads: nthreads as u32, d1: d1 as u32, width: PART_RED_WIDTH as u32, eval_one: eval_one as u32 });
+                        set_args(enc, 2, &PartRedArgs { nthreads: nthreads as u32, d1: d1 as u32, width: PART_RED_WIDTH as u32, eval_one: eval_one as u32, de: de as u32 });
                         dispatch_2d(cx, enc, "k_sc_part_reduce", PART_RED_WIDTH as u64, 1);
                         (&part2, PART_RED_WIDTH)
                     } else {
@@ -3557,7 +4010,8 @@ impl MetalRounds {
                     enc.set_buffer(1, Some(&fsb), 0);
                     enc.set_buffer(2, Some(&mkb), 0);
                     enc.set_buffer(3, Some(&out), 0);
-                    set_args(enc, 4, &FsStepArgs { nthreads: count as u32, d1: d1 as u32, j: j as u32, eval_one: eval_one as u32, tgw: tgw as u32, pad0: 0 });
+                    set_args(enc, 4, &FsStepArgs { nthreads: count as u32, d1: d1 as u32, j: j as u32, eval_one: eval_one as u32, tgw: tgw as u32, de: de as u32 });
+                    enc.set_buffer(5, Some(&xwb), 0);
                     enc.dispatch_thread_groups(MTLSize::new(1, 1, 1), MTLSize::new(tgw, 1, 1));
                     claim_known = self.recover_one;
                 }
@@ -3572,6 +4026,7 @@ impl MetalRounds {
             let rs = (0..nd).map(|j| at(j * rec + 4 * d1)).collect();
             Ok((sums, rs))
         })?;
+        self.mat_pending = false;
         self.len >>= nd;
         self.next = nd;
         let ns = t0.elapsed().as_nanos() as u64;
@@ -3637,6 +4092,8 @@ impl TailedRounds<'_> {
             if let Some(cl) = claim {
                 sums[1] = cl.sub(sums[0]);
             }
+            // [A27] and the points above the evaluated degree, from the same values
+            extrapolate(&mut sums, dev.de);
             assert!(sums == dev_sums[j], "[ZK60-METAL M6] the device's s(1) differs from the host's claim at round {j} of {}: the attempt is refused", self.n_vars);
             tr.absorb_fp2(b"sc-round", &sums);
             let r = tr.challenge_fp2();
@@ -4312,7 +4769,7 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
     let wrote_in_place = in_place.is_some();
     let args = WProdArgs { t: t as u32, k: k as u32, n: n as u32, kp: kp as u32, in_out: in_out as u32, os: ostride as u32, w_off };
     // one command buffer on the witness queue (`run`'s shape, with the GPU's own clock)
-    let tl = TL_ON.load(Ordering::Relaxed);
+    let tl = tl_on();
     let begin = if tl { host_time_s() } else { 0.0 };
     let cb = wc.queue.new_command_buffer();
     let enc = cb.new_compute_command_encoder();
@@ -4331,6 +4788,7 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
         return Err(format!("metal witness product: command buffer ended {:?}", cb.status()));
     }
     if tl {
+        trace_detail(|| format!("t={t} k={k} n={n} in_out={}", in_out as u8));
         tl_record(cb, "wprod", 99, begin, committed);
     }
     // GPUStartTime / GPUEndTime of the completed command buffer (a failed message counts as zero)

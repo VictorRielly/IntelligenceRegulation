@@ -1,0 +1,23 @@
+[zk60-guard 07:04:24] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:05:25] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:06:27] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:07:27] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:08:28] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:09:09] waiting for admission lock (0s)
+[zk60-guard 07:09:30] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:10:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:11:32] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:12:33] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:13:34] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:14:35] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:15:36] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:16:37] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:17:39] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:18:40] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:19:41] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:20:42] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:21:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:22:44] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:23:14] START a27-s1-lanes class=gpu need=140G cap=220G enforce=watchdog-only waited=1130s run=aa2620faf933
+[zk60-guard 07:31:32] a27-s1-lanes: 3 straggler process(es) outlived the command; killing
+[zk60-guard 07:31:32] END a27-s1-lanes exit=0 child_wall=498s peak_rss=108.09G min_avail=86.16G peak_vram=63630MiB

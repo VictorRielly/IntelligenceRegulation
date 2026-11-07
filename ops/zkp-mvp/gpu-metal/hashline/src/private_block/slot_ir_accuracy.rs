@@ -809,6 +809,142 @@ mod tests {
         (sh, data, public, ff)
     }
 
+    /// **[A27] the three-product folds write the five-product folds' words**: random
+    /// extension tables and base-field tables (every `c1 = 0`, so every step's imaginary
+    /// part is zero), the canonical edges 0, 1 and p - 1 in every coordinate, challenges
+    /// with and without an imaginary part, a first fold (`half = cap / 2`) and a later
+    /// one (`half < cap / 2`, the words above `2 half` untouched), with the challenge
+    /// as an argument and read from device memory.
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    fn a27_three_product_folds_write_the_five_product_folds_words() {
+        let p = 0xFFFF_FFFF_0000_0001u64;
+        let mut z = 0x9E37_79B9_7F4A_7C15u64;
+        let mut next = move || {
+            z ^= z << 13;
+            z ^= z >> 7;
+            z ^= z << 17;
+            z
+        };
+        let edges = [0u64, 1, p - 1, p - 2, 0xFFFF_FFFF, 1 << 32];
+        let (k, cap) = (5usize, 1usize << 10);
+        let mut tabs = vec![0u64; k * cap * 2];
+        for t in 0..k {
+            for i in 0..cap {
+                let o = (t * cap + i) * 2;
+                let pick = |v: u64, j: usize| if (i + j) % 13 == 0 { edges[(i / 13 + j + t) % edges.len()] } else { v % p };
+                tabs[o] = pick(next(), 0);
+                // tables 0 and 3 base-field; table 4 base on half its pairs
+                tabs[o + 1] = if t == 0 || t == 3 || (t == 4 && i % 2 == 0) { 0 } else { pick(next(), 7) };
+            }
+        }
+        let rs = [Fp2::new(Fp::new(next()), Fp::new(next())), Fp2::new(Fp::new(next()), Fp::ZERO), Fp2::new(Fp::new(p - 1), Fp::new(p - 1)), Fp2::new(Fp::ZERO, Fp::ONE)];
+        for r in rs {
+            for half in [cap / 2, cap / 8, 1] {
+                for dev in [false, true] {
+                    let five = crate::gpu::metal_fold_for_test(&tabs, k, cap, half, r, false, dev).expect("a Metal device");
+                    let three = crate::gpu::metal_fold_for_test(&tabs, k, cap, half, r, true, dev).expect("a Metal device");
+                    assert_eq!(five, three, "half {half}, device challenge {dev}: the three-product fold's words differ");
+                    assert_ne!(five, tabs, "the fold changed nothing");
+                }
+            }
+        }
+    }
+
+    /// **[A27] the NTT head's stages 1..6 multiply by powers of 2**: at the commitments'
+    /// tables (2^16, 2^17, 2^19) every stage-1..6 twiddle the head reads is found among
+    /// the 192 powers of 2 (forward and inverse), so the power-of-2 form is in effect
+    /// (its words are the CPU's: `tests/zk60_metal_commit.rs`)
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    fn a27_the_ntt_head_twiddles_of_stages_1_to_6_are_powers_of_2() {
+        for max_log in [16u32, 17, 19] {
+            assert_eq!(crate::gpu::metal_head_pow2_for_test(max_log), Ok(true), "2^{max_log}: the power-of-2 head stages do not apply");
+        }
+    }
+
+    /// **[A27] the extrapolated round values are the evaluated ones**: polynomials of
+    /// degree `de` (random extension coefficients) evaluated at `0..=D`; the values at
+    /// `de + 1..=D` from those at `0..=de` equal the direct evaluations, for every
+    /// `1 <= de < D <= 7`; at `de = D` nothing moves.
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    fn a27_extrapolated_round_values_equal_the_evaluated_ones() {
+        let mut z = 0x2545_F491_4F6C_DD1Du64;
+        let mut next = move || {
+            z ^= z << 13;
+            z ^= z >> 7;
+            z ^= z << 17;
+            Fp::new(z)
+        };
+        for d in 2..=7usize {
+            for de in 1..=d {
+                for _ in 0..4 {
+                    let coef: Vec<Fp2> = (0..=de).map(|_| Fp2::new(next(), next())).collect();
+                    let at = |x: u64| coef.iter().rev().fold(Fp2::ZERO, |a, c| a.mul(Fp2::from_u64(x)).add(*c));
+                    let want: Vec<Fp2> = (0..=d as u64).map(at).collect();
+                    let mut got = want.clone();
+                    for v in got.iter_mut().skip(de + 1) {
+                        *v = Fp2::new(next(), next());
+                    }
+                    // (at de = D nothing was replaced and nothing may move)
+                    crate::gpu::metal_extrapolate_for_test(&mut got, de);
+                    assert_eq!(got, want, "degree {de} of {d}: the extrapolated values differ");
+                }
+            }
+        }
+    }
+
+    /// **[A27, diagnostic, ignored] the device slots' arithmetic at a trained shape**:
+    /// per slot of `HL_A27_PROFILE` (default the classifier's `R13_SHIELD_T128_H24`),
+    /// its cube, tables (base), nodes (affine), declared and attained degree, and the
+    /// field products one evaluation of the generated later-round kernel's body
+    /// makes (an `f2_mul` counts 3 base products, an `f2_mulb` 2, a `gl_mul` 1; the
+    /// line values of points >= 2 are counted apart). Prints only.
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    #[ignore = "diagnostic: prints the slot census of a trained shape"]
+    fn a27_slot_census_at_a_trained_shape() {
+        use super::super::NodeBody;
+        let want = std::env::var("HL_A27_PROFILE").unwrap_or_else(|_| "R13_SHIELD_T128_H24".to_string());
+        let original = crate::private_block::accuracy_profile_tests::registered_shapes().into_iter().find(|s| s.name == want).expect("a registered accuracy profile name");
+        let (sh, data, public, ff) = case(original, 3);
+        let lay = Layout::for_shape(&sh).unwrap();
+        let ctx = Ctx { accuracy: Some(&data), lay: &lay, public: &public, ff: &ff, alpha: k(7).add(Fp2::U), beta: k(11), g_u8: k(13), g_exp: k(17), g_act: k(19), g_dd: k(23) };
+        let (mut pts, mut ipts) = (Points::default(), IrPoints::default());
+        let mut tr = Transcript::new(sh.profile.as_bytes());
+        let count = |src: &str, pat: &str| src.matches(pat).count();
+        for slot in 0..sh.n_slots() {
+            let mut twin = Transcript::clone_state(&tr);
+            let ir = build_slot_ir(slot, &ctx, &mut ipts, &mut twin);
+            let def = define(slot, &ctx, &mut pts, &mut tr).unwrap();
+            let (n, ext, deg) = sh.slots()[slot];
+            match ir {
+                Ok(ir) => {
+                    let (_k0, k1, cf, base) = super::super::super::metal_slot::msl_round_kernels(&ir);
+                    let body = k1.split("for (ulong i = ulong(gid)").nth(1).unwrap_or("");
+                    let (m2, mb, m1) = (count(body, "f2_mul("), count(body, "f2_mulb("), count(body, "gl_mul("));
+                    let (le, lb) = (count(body, "ln_ext("), count(body, "ln_base("));
+                    let affine = ir.nodes.iter().filter(|nd| matches!(nd.body, NodeBody::Affine { .. })).count();
+                    let affine_terms: usize = ir.nodes.iter().map(|nd| if let NodeBody::Affine { terms, .. } = &nd.body { terms.len() } else { 0 }).sum();
+                    eprintln!(
+                        "A27-CENSUS {} slot {slot:02} ({}) cube 2^{n} ext {ext} tables {} (base {}) nodes {} (affine {affine}, {affine_terms} terms) terms {} degree {deg} attained {} coefs {} | later-round body products {} (f2_mul {m2}, f2_mulb {mb}, gl_mul {m1}); line values ext {le} base {lb}",
+                        sh.name,
+                        ir.name,
+                        ir.tables.len(),
+                        base.iter().filter(|b| **b).count(),
+                        ir.nodes.len(),
+                        ir.terms.len(),
+                        ir.max_term_degree(),
+                        cf.len(),
+                        3 * m2 + 2 * mb + m1
+                    );
+                }
+                Err(e) => eprintln!("A27-CENSUS {} slot {slot:02} cube 2^{n} ext {ext} tables {} degree {deg}: no IR ({e})", sh.name, def.tabs.len()),
+            }
+        }
+    }
+
     #[test]
     fn the_accuracy_ir_evaluates_to_the_r13_closure_at_every_development_shape_group_count_and_slot() {
         let shapes: Vec<Shape> = crate::private_block::accuracy_profile_tests::registered_shapes().into_iter().filter(|s| s.tokens == 32).collect();

@@ -1,0 +1,56 @@
+window 203.260 s; 16047 command buffers; GPU busy 153.101 s (75.3%); summed GPU spans 442.561 s (mean 2.89 at once while busy); per proof (/24): busy 6.379 s, summed spans 18.440 s
+time at k executing: 0: 50.160, 1: 22.321, 2: 37.966, 3: 53.005, 4: 20.163, 5: 13.229, 6: 6.416, 7: 0.000, 8: 0.000
+idle gaps 5218 totalling 50.160 s: <20us 76 (0.000 s), 20-50us 21 (0.001 s), 50-200us 120 (0.014 s), 0.2-1ms 712 (0.454 s), 1-5ms 1993 (4.824 s), >=5ms 2296 (44.866 s)
+
+per tag: cbs, GPU s (per proof), mean ms, commit->start s, host encode s, done-gpu_end s
+  batch       6999   308.764 ( 12.865)   44.115   100.770    0.243    0.886
+  commit      2016   119.457 (  4.977)   59.254    51.942    0.061    0.277
+  wprod       5016    12.422 (  0.518)    2.476    50.746    0.110    0.945
+  gather      2016     1.918 (  0.080)    0.951    27.130    0.039    0.234
+
+per slot label (batch/round/fold/tables): cbs, GPU s per proof, share of all GPU span; shapes
+  slot 14 (03 D zero-check (hosts 12, 13D))                       624   4.6797 s  25.4%  batch k=64 cap=2^19 deg=5 nd=17/19 x421; batch k=64 cap=2^19 deg=5 nd=16/19 x181; batch k=64 cap=2^19 deg=5 nd=18/19 x21; batch k=64 cap=2^19 deg=5 nd=19/19 x1
+  slot 18 (14 F zero-check (hosts 13G, 13U))                      624   3.9093 s  21.2%  batch k=29 cap=2^21 deg=5 nd=18/21 x496; batch k=29 cap=2^21 deg=5 nd=17/21 x96; batch k=29 cap=2^21 deg=5 nd=19/21 x32
+  slot 15 (04 Q zero-check (hosts 09Q, 11))                       624   1.1749 s   6.4%  batch k=27 cap=2^19 deg=4 nd=15/19 x508; batch k=27 cap=2^19 deg=4 nd=14/19 x80; batch k=27 cap=2^19 deg=4 nd=16/19 x35; batch k=27 cap=2^19 deg=4 nd=17/19 x1
+  slot 17 (06 softmax zero-check (hosts 07, 10))                  624   0.9155 s   5.0%  batch k=28 cap=2^19 deg=4 nd=15/19 x562; batch k=28 cap=2^19 deg=4 nd=16/19 x57; batch k=28 cap=2^19 deg=4 nd=17/19 x4; batch k=28 cap=2^19 deg=4 nd=19/19 x1
+  slot 21 (IO-in endpoint equality))                              624   0.6860 s   3.7%  batch k=3 cap=2^19 deg=2 nd=9/19 x256; batch k=3 cap=2^19 deg=2 nd=10/19 x222; batch k=3 cap=2^19 deg=2 nd=8/19 x84; batch k=3 cap=2^19 deg=2 nd=11/19 x49
+  slot 0 (01 SS row sums norm_a (private))                        624   0.5599 s   3.0%  batch k=3 cap=2^19 deg=4 nd=12/19 x289; batch k=3 cap=2^19 deg=4 nd=11/19 x160; batch k=3 cap=2^19 deg=4 nd=13/19 x147; batch k=3 cap=2^19 deg=4 nd=10/19 x24
+  slot 16 (05 KV zero-check (hosts 09K, 09V))                     624   0.3974 s   2.2%  batch k=27 cap=2^17 deg=4 nd=13/17 x361; batch k=27 cap=2^17 deg=4 nd=12/17 x236; batch k=27 cap=2^17 deg=4 nd=14/17 x25; batch k=27 cap=2^17 deg=4 nd=16/17 x1
+  slot 1 (01m SS row sums norm_m (private))                       624   0.1783 s   1.0%  batch k=3 cap=2^19 deg=4 nd=12/19 x235; batch k=3 cap=2^19 deg=4 nd=11/19 x221; batch k=3 cap=2^19 deg=4 nd=13/19 x86; batch k=3 cap=2^19 deg=4 nd=10/19 x78
+  slot 22 (IO-out endpoint equality))                             624   0.1308 s   0.7%  batch k=3 cap=2^19 deg=2 nd=9/19 x247; batch k=3 cap=2^19 deg=2 nd=8/19 x163; batch k=3 cap=2^19 deg=2 nd=10/19 x156; batch k=3 cap=2^19 deg=2 nd=11/19 x28
+  slot 4 (07 masked row sums + selector (private))                624   0.1071 s   0.6%  batch k=4 cap=2^19 deg=3 nd=12/19 x306; batch k=4 cap=2^19 deg=3 nd=11/19 x202; batch k=4 cap=2^19 deg=3 nd=13/19 x62; batch k=4 cap=2^19 deg=3 nd=10/19 x50
+  slot 3 (08 limb zero-check))                                    624   0.0645 s   0.3%  batch k=5 cap=2^14 deg=4 nd=8/14 x478; batch k=5 cap=2^14 deg=4 nd=9/14 x120; batch k=5 cap=2^14 deg=4 nd=7/14 x13; batch k=5 cap=2^14 deg=4 nd=10/14 x13
+  slot 13 (13D down matmul (private))                              55   0.0288 s   0.2%  batch k=2 cap=2^14 deg=2 nd=5/14 x27; batch k=2 cap=2^14 deg=2 nd=3/14 x10; batch k=2 cap=2^14 deg=2 nd=4/14 x9; batch k=2 cap=2^14 deg=2 nd=6/14 x6
+  slot 20 (ZS zero-sum row))                                       69   0.0288 s   0.2%  batch k=2 cap=2^14 deg=2 nd=5/14 x29; batch k=2 cap=2^14 deg=2 nd=4/14 x17; batch k=2 cap=2^14 deg=2 nd=6/14 x14; batch k=2 cap=2^14 deg=2 nd=3/14 x7
+  slot 12 (13U up matmul (private))                                 5   0.0034 s   0.0%  batch k=2 cap=2^12 deg=2 nd=3/12 x3; batch k=2 cap=2^12 deg=2 nd=4/12 x1; batch k=2 cap=2^12 deg=2 nd=2/12 x1
+  slot 2 (02 norm squares zero-check (hosts 01, 01m))               1   0.0005 s   0.0%  batch k=25 cap=2^7 deg=3 nd=3/7 x1
+  slot 5 (09Q matmul (private))                                     2   0.0004 s   0.0%  batch k=2 cap=2^12 deg=2 nd=3/12 x2
+  slot 11 (13G gate matmul (private))                               1   0.0000 s   0.0%  batch k=2 cap=2^12 deg=2 nd=3/12 x1
+  slot 7 (09V matmul (private))                                     1   0.0000 s   0.0%  batch k=2 cap=2^12 deg=2 nd=3/12 x1
+  slot 10 (12 Wo matmul (private))                                  1   0.0000 s   0.0%  batch k=2 cap=2^12 deg=2 nd=3/12 x1
+
+commits by shape: cbs, GPU s per proof, mean ms
+  rows=4577 log_n=14 log_nn=16 zk=256 keyed=1           624   2.4868   95.646
+  rows=4390 log_n=14 log_nn=16 zk=256 keyed=1           624   2.3589   90.726
+  rows=38 log_n=14 log_nn=16 zk=256 keyed=1             648   0.1098    4.068
+  rows=76 log_n=12 log_nn=14 zk=256 keyed=1              48   0.0081    4.075
+  rows=41 log_n=12 log_nn=14 zk=256 keyed=1              24   0.0059    5.856
+  rows=6 log_n=8 log_nn=11 zk=256 keyed=1                24   0.0057    5.667
+  rows=38 log_n=12 log_nn=14 zk=256 keyed=1              24   0.0022    2.186
+
+wprod by detail (top 8): cbs, GPU s per proof, mean ms
+  t=128 k=4096 n=16384 in_out=1                                            1248   0.1790    3.443
+  t=128 k=9216 n=4096 in_out=1                                             1248   0.1421    2.732
+  t=128 k=4096 n=1024 in_out=0                                             1248   0.1060    2.038
+  t=128 k=4096 n=4096 in_out=0                                             1248   0.0902    1.735
+  t=65 k=1100 n=70 in_out=1                                                  12   0.0001    0.291
+  t=65 k=1100 n=70 in_out=0                                                  12   0.0001    0.291
+
+gather by detail (top 8): cbs, GPU s per proof, mean ms
+  rows=4390 nn=65536 cols=256                                               624   0.0270    1.039
+  rows=38 nn=65536 cols=256                                                 648   0.0250    0.926
+  rows=4577 nn=65536 cols=256                                               624   0.0219    0.843
+  rows=76 nn=16384 cols=256                                                  48   0.0022    1.077
+  rows=41 nn=16384 cols=256                                                  24   0.0018    1.815
+  rows=6 nn=2048 cols=256                                                    24   0.0017    1.660
+  rows=38 nn=16384 cols=256                                                  24   0.0003    0.342

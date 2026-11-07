@@ -1,0 +1,9 @@
+[zk60-guard 05:23:39] admission waiting: VRAM 27623 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:24:40] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:25:41] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:26:41] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:27:42] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:28:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:29:44] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 05:30:40] START a27-kb1 class=gpu need=8G cap=24G enforce=watchdog-only waited=421s run=b04a0544a21c
+[zk60-guard 05:31:10] END a27-kb1 exit=0 child_wall=30s peak_rss=2.09G min_avail=96.28G peak_vram=2908MiB

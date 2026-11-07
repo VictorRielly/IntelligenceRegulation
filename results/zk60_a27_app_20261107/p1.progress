@@ -1,0 +1,13 @@
+2026-11-07T13:14:35Z start; free disk 125 GiB
+2026-11-07T13:15:29Z build rc=0
+2026-11-07T13:15:29Z binary a27-b0 sha256 b5f498dcd6a96363eb3b777661ec771840582221e6d05a3bbfa688da8947c753
+2026-11-07T13:15:29Z start; plan p1.plan; free disk 125 GiB
+2026-11-07T13:15:29Z run p1solo bin b5f498dcd6a9 env [HL_METAL_QUEUES=thread HL_A27_FOLD=0 HL_A27_DEGREE=0 HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a27-traces/p1solo HL_METAL_DUMP=/Users/victorrielly/zk60-artifacts/a27-traces/dump] flags [--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-07T13:17:55Z p1solo rc=0 done )
+2026-11-07T13:17:55Z run p1one bin b5f498dcd6a9 env [HL_METAL_QUEUES=thread HL_A27_FOLD=0 HL_A27_DEGREE=0 HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a27-traces/p1one] flags [--lanes 3 --lane-threads 10 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T13:19:44Z p1one rc=0 done )
+2026-11-07T13:19:44Z run p1s8 bin b5f498dcd6a9 env [HL_METAL_QUEUES=thread HL_A27_FOLD=0 HL_A27_DEGREE=0 HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a27-traces/p1s8] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T13:24:27Z p1s8 rc=0 done )
+2026-11-07T13:24:27Z all done; free disk 125 GiB
+2026-11-07T13:24:27Z runs rc=0
+2026-11-07T13:24:27Z all done

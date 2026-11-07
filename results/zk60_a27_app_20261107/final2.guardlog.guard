@@ -1,0 +1,16 @@
+[zk60-guard 07:56:08] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:57:10] admission waiting: MemAvailable 91.6 GiB < need 120 + margin 1; VRAM 38905 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:58:11] admission waiting: MemAvailable 97.9 GiB < need 120 + margin 1; VRAM 39955 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 07:59:13] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:00:14] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:01:15] admission waiting: MemAvailable 108.9 GiB < need 120 + margin 1; VRAM 48468 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:02:16] admission waiting: MemAvailable 115.2 GiB < need 120 + margin 1; VRAM 28301 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:03:18] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:04:19] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:05:20] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:06:20] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:07:21] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:08:22] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:09:18] START a27-final2 class=gpu need=120G cap=200G enforce=watchdog-only waited=790s run=1b3e374fa4f7
+[zk60-guard 08:56:25] a27-final2: 1 straggler process(es) outlived the command; killing
+[zk60-guard 08:56:25] END a27-final2 exit=0 child_wall=2826s peak_rss=103.09G min_avail=95.56G peak_vram=48950MiB

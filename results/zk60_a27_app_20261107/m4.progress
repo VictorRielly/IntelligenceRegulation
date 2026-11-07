@@ -1,0 +1,10 @@
+2026-11-07T16:38:54Z start; plan m4.plan; free disk 116 GiB
+2026-11-07T16:38:54Z run m4a1 bin b6336628364a env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T16:43:29Z m4a1 rc=0 done )
+2026-11-07T16:43:29Z run m4c1 bin b5b6b9a43563 env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T16:47:35Z m4c1 rc=0 done )
+2026-11-07T16:47:36Z run m4c2 bin b5b6b9a43563 env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T16:51:44Z m4c2 rc=0 done )
+2026-11-07T16:51:44Z run m4a2 bin b6336628364a env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T16:56:24Z m4a2 rc=0 done )
+2026-11-07T16:56:24Z all done; free disk 112 GiB

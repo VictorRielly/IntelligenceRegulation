@@ -2,7 +2,7 @@
 
 PM_PROVER=shieldstral-fast. The same policies, templates, chunk plans, statement checks and
 publication gates as the reviewed `shieldstral` mode (shieldstral_prover.py, unchanged),
-with three differences: the pinned binary (lane A26's build of A24's servers, the same receipt
+with three differences: the pinned binary (lane A27's build of A24's servers, the same receipt
 bytes) and its own model identity (post-F12 /2),
 proofs and checks run by one long-lived service holding two resident native servers
 (fast_service.py, tools/fast_service.py), and up to PROVER_LANES category jobs at once.
