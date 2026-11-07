@@ -1,0 +1,137 @@
+== lake build ZK60Formal.LinkW16Parse ==
+✖ [3464/3464] Building ZK60Formal.LinkW16Parse (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Parse.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Parse.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Parse.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Parse.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Parse.setup.json --json
+error: ZK60Formal/LinkW16Parse.lean:194:11: unsolved goals
+case succ
+L : ℕ
+W : UInt64 → ℕ
+hW : ∀ (k : UInt64), 0 < W k
+hW64 : ∀ (k : UInt64), W k ≤ 2 ^ 64
+k : UInt64
+h : (TItem.squeeze k).Ok ∧ (TItem.squeeze k).len ≤ L
+j : ℕ
+x✝ : j + 1 ∈ List.range (W k)
+⊢ k + 1 + UInt64.ofNat j = k + (UInt64.ofNat j + 1)
+warning: ZK60Formal/LinkW16Parse.lean:193:28: This simp argument is unused:
+  u64_add_ofNat_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [stepItem]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/LinkW16Parse.lean:194:37: This simp argument is unused:
+  u64_add_succ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [stepItem, contB]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/LinkW16Parse.lean:392:30: Application type mismatch: The argument
+  (Tr.squeeze H t).2
+has type
+  Tr
+but is expected to have type
+  ℕ
+in the application
+  idxLoop_sqDs m fuel (Tr.squeeze H t).2
+error: ZK60Formal/LinkW16Parse.lean:392:47: failed to synthesize instance of type class
+  HSub ℕ ℕ Tr
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/LinkW16Parse.lean:392:84: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  b ≥ 0
+  b - c ≤ 0
+  a ≥ 5
+  1 ≤ a - 4*b ≤ 4
+  a - 4*c ≥ 1
+where
+ a := ↑rem
+ b := ↑m
+ c := ↑fuel
+error: ZK60Formal/LinkW16Parse.lean:392:95: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  b ≥ 0
+  b - c ≤ 0
+  a ≥ 5
+  1 ≤ a - 4*b ≤ 4
+  a - 4*c ≤ -4
+where
+ a := ↑rem
+ b := ↑m
+ c := ↑fuel
+Some required targets logged failures:
+- ZK60Formal.LinkW16Parse
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Parse, 3 s
+== lake build ZK60Formal.LinkW16Trace ==
+✖ [3464/3465] Building ZK60Formal.LinkW16Parse (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Parse.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Parse.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Parse.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Parse.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Parse.setup.json --json
+error: ZK60Formal/LinkW16Parse.lean:194:11: unsolved goals
+case succ
+L : ℕ
+W : UInt64 → ℕ
+hW : ∀ (k : UInt64), 0 < W k
+hW64 : ∀ (k : UInt64), W k ≤ 2 ^ 64
+k : UInt64
+h : (TItem.squeeze k).Ok ∧ (TItem.squeeze k).len ≤ L
+j : ℕ
+x✝ : j + 1 ∈ List.range (W k)
+⊢ k + 1 + UInt64.ofNat j = k + (UInt64.ofNat j + 1)
+warning: ZK60Formal/LinkW16Parse.lean:193:28: This simp argument is unused:
+  u64_add_ofNat_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [stepItem]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/LinkW16Parse.lean:194:37: This simp argument is unused:
+  u64_add_succ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [stepItem, contB]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/LinkW16Parse.lean:392:30: Application type mismatch: The argument
+  (Tr.squeeze H t).2
+has type
+  Tr
+but is expected to have type
+  ℕ
+in the application
+  idxLoop_sqDs m fuel (Tr.squeeze H t).2
+error: ZK60Formal/LinkW16Parse.lean:392:47: failed to synthesize instance of type class
+  HSub ℕ ℕ Tr
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/LinkW16Parse.lean:392:84: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  b ≥ 0
+  b - c ≤ 0
+  a ≥ 5
+  1 ≤ a - 4*b ≤ 4
+  a - 4*c ≥ 1
+where
+ a := ↑rem
+ b := ↑m
+ c := ↑fuel
+error: ZK60Formal/LinkW16Parse.lean:392:95: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  b ≥ 0
+  b - c ≤ 0
+  a ≥ 5
+  1 ≤ a - 4*b ≤ 4
+  a - 4*c ≤ -4
+where
+ a := ↑rem
+ b := ↑m
+ c := ↑fuel
+Some required targets logged failures:
+- ZK60Formal.LinkW16Parse
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Trace, 7 s
+rc build 1 files 0, 7 s

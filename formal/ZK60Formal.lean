@@ -127,3 +127,9 @@ import ZK60Formal.CountW16Slots
 import ZK60Formal.CountW16Target
 import ZK60Formal.OpenKnowChain
 import ZK60Formal.OpenKnowBlock
+import ZK60Formal.LinkW16Parse
+import ZK60Formal.LinkW16Trace
+import ZK60Formal.LinkW16Mask
+import ZK60Formal.LinkW16MaskChain
+import ZK60Formal.LinkW16Sem
+import ZK60Formal.ExtractInstW16

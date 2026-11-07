@@ -1,0 +1,159 @@
+== lake build ZK60Formal.LinkW16Mask ==
+Build completed successfully (3472 jobs).
+build rc 0 for ZK60Formal.LinkW16Mask, 15 s
+== lake build ZK60Formal.LinkW16MaskChain ==
+✖ [3473/3473] Building ZK60Formal.LinkW16MaskChain (1.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16MaskChain.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16MaskChain.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16MaskChain.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16MaskChain.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16MaskChain.setup.json --json
+error: ZK60Formal/LinkW16MaskChain.lean:89:10: Unknown constant `List.getD_append`
+error: ZK60Formal/LinkW16MaskChain.lean:91:10: Unknown constant `List.getD_append_right`
+warning: ZK60Formal/LinkW16MaskChain.lean:214:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.chal_toK`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LinkW16MaskChain.lean:244:69: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  List.take pre.length (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest)
+in the target expression
+  tRem W
+      (List.take
+        (maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+            fun x => False).a
+        (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest)) =
+    some 0
+
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hbij : Function.Bijective (Hiding.fp2 U)
+H : HIn → Dig
+tag : MTag
+root : Dig
+S : ℕ
+fs : List Block.MaskFunctional
+mo : Block.MaskOpening
+hcan : Block.MaskCanon mo
+tM tA : Tr
+hok : MaskOk H tag (rootFp 9) (rootFp 12) root S (List.map toMF fs) (toMO mo) tM tA
+W : UInt64 → ℕ
+h1 : W tM.counter = 1
+h2 : W (Tr.squeeze H tM).2.counter = 2 * S + 2
+h3 :
+  W
+      (runOps H (Tr.absorb H (Tr.squeeze H tM).2 Block.labMaskQ (List.flatMap Fp2.toBytes mo.q))
+          (List.replicate (2 * S + 2) Op.squeeze)).counter =
+    64
+pre rest : List (TItem × Dig)
+hpre : tRem W pre = some 0
+Dm : List (TItem × Dig) → MData K (Fin (2 ^ 12)) (Fin S) (Fin (2 * S + 2)) fs.length 512
+cols : Fin (2 ^ 12) → List Fp
+hDm : Dm pre = mDataOf U S fs.length fs cols
+hcols :
+  ∀ (k : Fin mQ) (hk : (idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64)).getD (↑k) 0 < 2 ^ 12),
+    cols ⟨(idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64)).getD (↑k) 0, hk⟩ =
+      (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col
+htake : List.take pre.length (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest) = pre
+hdrop :
+  List.drop pre.length (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest) =
+    opTrace H tM (stpsOps (mStps S mo)) ++ rest
+⊢ tRem W
+      (List.take
+        (maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+            fun x => False).a
+        (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest)) =
+    some 0
+error: ZK60Formal/LinkW16MaskChain.lean:245:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  List.drop pre.length (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest)
+in the target expression
+  liftC
+    ((maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+          fun x => False).St
+      (List.take
+        (maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+            fun x => False).a
+        (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest)))
+    (cRd
+      (maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+          fun x => False).R
+      W
+      (List.drop
+        (maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+            fun x => False).a
+        (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest)))
+
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hbij : Function.Bijective (Hiding.fp2 U)
+H : HIn → Dig
+tag : MTag
+root : Dig
+S : ℕ
+fs : List Block.MaskFunctional
+mo : Block.MaskOpening
+hcan : Block.MaskCanon mo
+tM tA : Tr
+hok : MaskOk H tag (rootFp 9) (rootFp 12) root S (List.map toMF fs) (toMO mo) tM tA
+W : UInt64 → ℕ
+h1 : W tM.counter = 1
+h2 : W (Tr.squeeze H tM).2.counter = 2 * S + 2
+h3 :
+  W
+      (runOps H (Tr.absorb H (Tr.squeeze H tM).2 Block.labMaskQ (List.flatMap Fp2.toBytes mo.q))
+          (List.replicate (2 * S + 2) Op.squeeze)).counter =
+    64
+pre rest : List (TItem × Dig)
+hpre : tRem W pre = some 0
+Dm : List (TItem × Dig) → MData K (Fin (2 ^ 12)) (Fin S) (Fin (2 * S + 2)) fs.length 512
+cols : Fin (2 ^ 12) → List Fp
+hDm : Dm pre = mDataOf U S fs.length fs cols
+hcols :
+  ∀ (k : Fin mQ) (hk : (idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64)).getD (↑k) 0 < 2 ^ 12),
+    cols ⟨(idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64)).getD (↑k) 0, hk⟩ =
+      (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col
+htake : List.take pre.length (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest) = pre
+hdrop :
+  List.drop pre.length (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest) =
+    opTrace H tM (stpsOps (mStps S mo)) ++ rest
+⊢ liftC
+    ((maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+          fun x => False).St
+      (List.take
+        (maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+            fun x => False).a
+        (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest)))
+    (cRd
+      (maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+          fun x => False).R
+      W
+      (List.drop
+        (maskCSubX U (Equiv.ofBijective (Hiding.fp2 U) hbij) mEtaE mOmega S pre.length Dm (Equiv.refl (Fin (2 * S + 2)))
+            fun x => False).a
+        (pre ++ opTrace H tM (stpsOps (mStps S mo)) ++ rest)))
+Some required targets logged failures:
+- ZK60Formal.LinkW16MaskChain
+error: build failed
+build rc 1 for ZK60Formal.LinkW16MaskChain, 18 s
+== lake build ZK60Formal.LinkW16Sem ==
+✖ [3473/3473] Building ZK60Formal.LinkW16Sem (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Sem.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Sem.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Sem.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Sem.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Sem.setup.json --json
+error: ZK60Formal/LinkW16Sem.lean:166:12: Unknown constant `List.getD_append`
+error: ZK60Formal/LinkW16Sem.lean:170:12: Unknown constant `List.getD_append_right`
+error: ZK60Formal/LinkW16Sem.lean:177:14: Unknown constant `List.getD_append`
+error: ZK60Formal/LinkW16Sem.lean:179:14: Unknown constant `List.getD_append`
+error: ZK60Formal/LinkW16Sem.lean:184:14: Unknown constant `List.getD_append_right`
+error: ZK60Formal/LinkW16Sem.lean:186:14: Unknown constant `List.getD_append_right`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Sem
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Sem, 22 s
+rc build 1 files 0, 22 s

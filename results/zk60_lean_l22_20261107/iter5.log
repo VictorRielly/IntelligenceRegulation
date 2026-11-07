@@ -1,0 +1,252 @@
+== lake build ZK60Formal.ExtractInstW16 ==
+✖ [3465/3465] Building ZK60Formal.ExtractInstW16 (10s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/ExtractInstW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/ExtractInstW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/ExtractInstW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/ExtractInstW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/ExtractInstW16.setup.json --json
+error: ZK60Formal/ExtractInstW16.lean:107:2: unsolved goals
+case refine_2
+L nc : ℕ
+cs : List Block.Column
+k : ℕ
+hk : k < nc
+hkl : k < cs.length
+hfit : 8 * (cs.getD k { j := 0, col := [], salt := zeroDig, path := [] }).col.length ≤ L
+⊢ 8 * (cs[k]?.getD { j := 0, col := [], salt := zeroDig, path := [] }).col.length ≤ L
+warning: ZK60Formal/ExtractInstW16.lean:107:10: This simp argument is unused:
+  hfit
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.ExtractInstW16
+error: build failed
+build rc 1 for ZK60Formal.ExtractInstW16, 16 s
+== lake build ZK60Formal.LinkW16Trace ==
+✖ [3465/3465] Building ZK60Formal.LinkW16Trace (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Trace.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Trace.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Trace.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Trace.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Trace.setup.json --json
+error: ZK60Formal/LinkW16Trace.lean:340:2: No goals to be solved
+warning: ZK60Formal/LinkW16Trace.lean:437:2: Unused tactic linter: `all_goals (try (cases h; done))` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/LinkW16Trace.lean:478:2: Unused tactic linter: `all_goals (try (cases hcol; done))` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/LinkW16Trace.lean:478:30: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+error: ZK60Formal/LinkW16Trace.lean:523:54: unsolved goals
+rows logCols : ℕ
+c : ZClaim
+cl : List ZClaim
+st : List ZKey × List (List Fp2 × List (List Fp2 × Fp2))
+hst : st.1.length = st.2.length
+hk : keyIdx st.1 (claimWeights c rows logCols).2 = none
+e :
+  groupStep rows logCols st c =
+    (st.1 ++ [(claimWeights c rows logCols).2],
+      st.2 ++ [(zkeyWeights (claimWeights c rows logCols).2 logCols, [((claimWeights c rows logCols).1, c.value)])])
+⊢ st.2.length + [(claimWeights c rows logCols).2].length =
+    st.2.length +
+      [(zkeyWeights (claimWeights c rows logCols).2 logCols, [((claimWeights c rows logCols).1, c.value)])].length
+error: ZK60Formal/LinkW16Trace.lean:561:41: Application type mismatch: The argument
+  h
+has type
+  (match (bga, rs, acc, tM) with
+    | (fst, fst_1, acc, t) =>
+      have fs := acc.fs ++ acc.hostFs;
+      have __do_jp := fun __r =>
+        have __do_jp := fun t =>
+          have hc := acc.claims.h ++ [P.logupSumClaim];
+          do
+          P.checkOpening H Block.Cm.a acc.claims.a t
+          have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+            P.checkOpening H Block.Cm.h hc t
+            have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+              pure ((acc.claims.inp, acc.claims.out), t)
+            match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+              | Except.ok t => do
+                let t ← pure t
+                __do_jp t
+              | Except.error e => do
+                let t ← throw (toString "H: " ++ toString e)
+                __do_jp t
+          match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "A: " ++ toString e)
+              __do_jp t;
+        match P.maskVerify H core.maskRoot fs core.maskOpen t with
+        | Except.ok t => do
+          let t ← pure t
+          __do_jp t
+        | Except.error e => do
+          let t ← throw (toString "M: " ++ toString e)
+          __do_jp t;
+      if fs.length ≠ P.nFunctionals then do
+        let __r ← throw "private block: functional count differs from the declared schedule"
+        __do_jp __r
+      else __do_jp ()) =
+    Except.ok (io, t')
+but is expected to have type
+  ?m.213 >>= ?m.214 = Except.ok ?m.215
+in the application
+  Block.ex_bind_ok h
+Some required targets logged failures:
+- ZK60Formal.LinkW16Trace
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Trace, 19 s
+== lake build ZK60Formal.LinkW16Mask ==
+✖ [3465/3466] Building ZK60Formal.LinkW16Trace (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Trace.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Trace.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Trace.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Trace.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Trace.setup.json --json
+error: ZK60Formal/LinkW16Trace.lean:340:2: No goals to be solved
+warning: ZK60Formal/LinkW16Trace.lean:437:2: Unused tactic linter: `all_goals (try (cases h; done))` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/LinkW16Trace.lean:478:2: Unused tactic linter: `all_goals (try (cases hcol; done))` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/LinkW16Trace.lean:478:30: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+error: ZK60Formal/LinkW16Trace.lean:523:54: unsolved goals
+rows logCols : ℕ
+c : ZClaim
+cl : List ZClaim
+st : List ZKey × List (List Fp2 × List (List Fp2 × Fp2))
+hst : st.1.length = st.2.length
+hk : keyIdx st.1 (claimWeights c rows logCols).2 = none
+e :
+  groupStep rows logCols st c =
+    (st.1 ++ [(claimWeights c rows logCols).2],
+      st.2 ++ [(zkeyWeights (claimWeights c rows logCols).2 logCols, [((claimWeights c rows logCols).1, c.value)])])
+⊢ st.2.length + [(claimWeights c rows logCols).2].length =
+    st.2.length +
+      [(zkeyWeights (claimWeights c rows logCols).2 logCols, [((claimWeights c rows logCols).1, c.value)])].length
+error: ZK60Formal/LinkW16Trace.lean:561:41: Application type mismatch: The argument
+  h
+has type
+  (match (bga, rs, acc, tM) with
+    | (fst, fst_1, acc, t) =>
+      have fs := acc.fs ++ acc.hostFs;
+      have __do_jp := fun __r =>
+        have __do_jp := fun t =>
+          have hc := acc.claims.h ++ [P.logupSumClaim];
+          do
+          P.checkOpening H Block.Cm.a acc.claims.a t
+          have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+            P.checkOpening H Block.Cm.h hc t
+            have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+              pure ((acc.claims.inp, acc.claims.out), t)
+            match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+              | Except.ok t => do
+                let t ← pure t
+                __do_jp t
+              | Except.error e => do
+                let t ← throw (toString "H: " ++ toString e)
+                __do_jp t
+          match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "A: " ++ toString e)
+              __do_jp t;
+        match P.maskVerify H core.maskRoot fs core.maskOpen t with
+        | Except.ok t => do
+          let t ← pure t
+          __do_jp t
+        | Except.error e => do
+          let t ← throw (toString "M: " ++ toString e)
+          __do_jp t;
+      if fs.length ≠ P.nFunctionals then do
+        let __r ← throw "private block: functional count differs from the declared schedule"
+        __do_jp __r
+      else __do_jp ()) =
+    Except.ok (io, t')
+but is expected to have type
+  ?m.213 >>= ?m.214 = Except.ok ?m.215
+in the application
+  Block.ex_bind_ok h
+Some required targets logged failures:
+- ZK60Formal.LinkW16Trace
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Mask, 23 s
+== lake build ZK60Formal.LinkW16MaskChain ==
+✖ [3465/3467] Building ZK60Formal.LinkW16Trace (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Trace.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Trace.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Trace.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Trace.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Trace.setup.json --json
+error: ZK60Formal/LinkW16Trace.lean:340:2: No goals to be solved
+warning: ZK60Formal/LinkW16Trace.lean:437:2: Unused tactic linter: `all_goals (try (cases h; done))` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/LinkW16Trace.lean:478:2: Unused tactic linter: `all_goals (try (cases hcol; done))` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/LinkW16Trace.lean:478:30: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+error: ZK60Formal/LinkW16Trace.lean:523:54: unsolved goals
+rows logCols : ℕ
+c : ZClaim
+cl : List ZClaim
+st : List ZKey × List (List Fp2 × List (List Fp2 × Fp2))
+hst : st.1.length = st.2.length
+hk : keyIdx st.1 (claimWeights c rows logCols).2 = none
+e :
+  groupStep rows logCols st c =
+    (st.1 ++ [(claimWeights c rows logCols).2],
+      st.2 ++ [(zkeyWeights (claimWeights c rows logCols).2 logCols, [((claimWeights c rows logCols).1, c.value)])])
+⊢ st.2.length + [(claimWeights c rows logCols).2].length =
+    st.2.length +
+      [(zkeyWeights (claimWeights c rows logCols).2 logCols, [((claimWeights c rows logCols).1, c.value)])].length
+error: ZK60Formal/LinkW16Trace.lean:561:41: Application type mismatch: The argument
+  h
+has type
+  (match (bga, rs, acc, tM) with
+    | (fst, fst_1, acc, t) =>
+      have fs := acc.fs ++ acc.hostFs;
+      have __do_jp := fun __r =>
+        have __do_jp := fun t =>
+          have hc := acc.claims.h ++ [P.logupSumClaim];
+          do
+          P.checkOpening H Block.Cm.a acc.claims.a t
+          have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t => do
+            P.checkOpening H Block.Cm.h hc t
+            have __do_jp : Tr → Except String ((List Block.ZClaim × List Block.ZClaim) × Tr) := fun t =>
+              pure ((acc.claims.inp, acc.claims.out), t)
+            match P.pcsVerify H Block.Cm.h core.hRoot hc core.hOpen t with
+              | Except.ok t => do
+                let t ← pure t
+                __do_jp t
+              | Except.error e => do
+                let t ← throw (toString "H: " ++ toString e)
+                __do_jp t
+          match P.pcsVerify H Block.Cm.a core.aRoot acc.claims.a core.aOpen t with
+            | Except.ok t => do
+              let t ← pure t
+              __do_jp t
+            | Except.error e => do
+              let t ← throw (toString "A: " ++ toString e)
+              __do_jp t;
+        match P.maskVerify H core.maskRoot fs core.maskOpen t with
+        | Except.ok t => do
+          let t ← pure t
+          __do_jp t
+        | Except.error e => do
+          let t ← throw (toString "M: " ++ toString e)
+          __do_jp t;
+      if fs.length ≠ P.nFunctionals then do
+        let __r ← throw "private block: functional count differs from the declared schedule"
+        __do_jp __r
+      else __do_jp ()) =
+    Except.ok (io, t')
+but is expected to have type
+  ?m.213 >>= ?m.214 = Except.ok ?m.215
+in the application
+  Block.ex_bind_ok h
+Some required targets logged failures:
+- ZK60Formal.LinkW16Trace
+error: build failed
+build rc 1 for ZK60Formal.LinkW16MaskChain, 27 s
+rc build 1 files 0, 27 s
