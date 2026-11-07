@@ -147,3 +147,15 @@ import ZK60Formal.ProtocolClassifyComplete
 import ZK60Formal.AssembleClassify
 import ZK60Formal.ProtocolClassifyR13
 import ZK60Formal.ProtocolClassifyCount
+import ZK60Formal.CoverW16
+import ZK60Formal.CoverW16Unmask
+import ZK60Formal.CoverW16Target
+import ZK60Formal.CoverW16Gen
+import ZK60Formal.CoverW16Inst
+import ZK60Formal.CoverW16R13
+import ZK60Formal.SlotPolyW16Kinds
+import ZK60Formal.SlotPolyW16
+import ZK60Formal.SlotPolyW16Draw
+import ZK60Formal.SlotPolyW16Map
+import ZK60Formal.CoverW16Shapes
+import ZK60Formal.SlotPolyW16Seg

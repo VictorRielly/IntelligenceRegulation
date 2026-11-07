@@ -1,0 +1,21 @@
+== iteration 1 at 0 s ==
+iteration 1 rc 1
+== iteration 2 at 71 s ==
+iteration 2 rc 1
+== iteration 3 at 175 s ==
+iteration 3 rc 1
+== iteration 4 at 292 s ==
+iteration 4 rc 1
+== iteration 5 at 403 s ==
+iteration 5 rc 0
+== iteration 6 at 475 s ==
+iteration 6 rc 0
+== iteration 7 at 643 s ==
+iteration 7 rc 0
+== iteration 8 at 738 s ==
+iteration 8 rc 1
+== iteration 9 at 767 s ==
+iteration 9 rc 0
+== iteration 10 at 787 s ==
+iteration 10 rc 0
+stop file, 857 s
