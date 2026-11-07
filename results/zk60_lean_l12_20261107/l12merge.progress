@@ -1,0 +1,46 @@
+2026-11-07T05:15:27Z start
+2026-11-07T05:15:53Z lake build rc=0
+✔ [3468/3469] Built ZK60Formal (1.8s)
+Build completed successfully (3469 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-07T05:15:55Z axiom audit axioms_l12 rc=0
+sorryAx or ofReduceBool mentions: 0
+  81 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T05:15:58Z axiom audit axioms_l9 rc=0
+sorryAx or ofReduceBool mentions: 0
+  45 axioms: [propext, Classical.choice, Quot.sound]
+  16 axioms: [propext, Quot.sound]
+  16 axioms: [propext]
+declarations with no axioms: 14
+2026-11-07T05:16:00Z axiom audit axioms_l11 rc=0
+sorryAx or ofReduceBool mentions: 0
+  59 axioms: [propext, Classical.choice, Quot.sound]
+  14 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T05:16:04Z axiom audit axioms_l8 rc=0
+sorryAx or ofReduceBool mentions: 0
+  25 axioms: [propext, Classical.choice, Quot.sound]
+  15 axioms: [propext, Quot.sound]
+  17 axioms: [propext]
+declarations with no axioms: 7
+2026-11-07T05:16:07Z axiom audit axioms_l7 rc=0
+sorryAx or ofReduceBool mentions: 0
+  24 axioms: [propext, Classical.choice, Quot.sound]
+   8 axioms: [propext, Quot.sound]
+   4 axioms: [propext]
+declarations with no axioms: 3
+2026-11-07T05:16:07Z source scan hits (grep rc 1 = none): rc=1
+2026-11-07T05:20:17Z ExecBlockCheck regression rc=0
+ExecBlockCheck: 273 checks, 0 failed
+2026-11-07T05:20:23Z L11Check rc=0
+L11Check: 404 checks, 0 failed
+2026-11-07T05:20:28Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-07T05:20:43Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-07T05:20:49Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-07T05:20:49Z all done
