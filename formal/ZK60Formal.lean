@@ -106,3 +106,9 @@ import ZK60Formal.SlotW16BuildEval
 import ZK60Formal.SlotW16BuildSlots
 import ZK60Formal.SlotW16BuildLayout
 import ZK60Formal.SlotW16Compose
+import ZK60Formal.ZKW16Prog
+import ZK60Formal.ZKW16Step
+import ZK60Formal.ZKW16View
+import ZK60Formal.ZKW16Block
+import ZK60Formal.ZKW16Hyb
+import ZK60Formal.ZKW16Shape
