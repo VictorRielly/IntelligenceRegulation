@@ -1,0 +1,2 @@
+[zk60-guard 05:39:49] START a27-q1-gates class=gpu need=24G cap=64G enforce=watchdog-only waited=0s run=a5fd1148191d
+[zk60-guard 05:44:34] END a27-q1-gates exit=0 child_wall=285s peak_rss=8.55G min_avail=220.68G peak_vram=10071MiB

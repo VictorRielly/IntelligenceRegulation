@@ -1,0 +1,18 @@
+quiet (no ds4-bench)
+== slot 14: 64 tables, 2^19, degree 5, eval_one 0 (later rounds from cap/4)
+compile 0.94 s
+k_v0       np 5: rounds from cap/4: 0.0432 s GPU (first 0.0174 0.0085 0.0047 0.0023 0.0015 | rest 0.0088) regs/tg max 1024
+k_v1       np 4: rounds from cap/4: 0.0347 s GPU (first 0.0125 0.0067 0.0037 0.0019 0.0010 | rest 0.0088) regs/tg max 1024
+k_v2       np 5: rounds from cap/4: 0.0301 s GPU (first 0.0103 0.0056 0.0031 0.0016 0.0010 | rest 0.0084) regs/tg max 1024
+k_v3       np 5: rounds from cap/4: 0.0161 s GPU (first 0.0052 0.0029 0.0016 0.0008 0.0005 | rest 0.0051) regs/tg max 1024
+k_v13      np 4: rounds from cap/4: 0.0141 s GPU (first 0.0042 0.0023 0.0013 0.0008 0.0004 | rest 0.0051) regs/tg max 1024
+k_v123     np 4: rounds from cap/4: 0.0140 s GPU (first 0.0042 0.0023 0.0013 0.0007 0.0004 | rest 0.0051) regs/tg max 1024
+== slot 18: 29 tables, 2^21, degree 5, eval_one 0 (later rounds from cap/4)
+compile 0.75 s
+k_v0       np 5: rounds from cap/4: 0.0306 s GPU (first 0.0132 0.0066 0.0033 0.0018 0.0010 | rest 0.0046) regs/tg max 1024
+k_v1       np 4: rounds from cap/4: 0.0252 s GPU (first 0.0104 0.0053 0.0027 0.0015 0.0008 | rest 0.0045) regs/tg max 1024
+k_v2       np 5: rounds from cap/4: 0.0263 s GPU (first 0.0112 0.0056 0.0028 0.0015 0.0008 | rest 0.0043) regs/tg max 1024
+k_v3       np 5: rounds from cap/4: 0.0172 s GPU (first 0.0072 0.0036 0.0018 0.0010 0.0005 | rest 0.0030) regs/tg max 1024
+k_v13      np 4: rounds from cap/4: 0.0143 s GPU (first 0.0057 0.0029 0.0015 0.0008 0.0004 | rest 0.0029) regs/tg max 1024
+k_v123     np 4: rounds from cap/4: 0.0144 s GPU (first 0.0057 0.0029 0.0015 0.0008 0.0004 | rest 0.0029) regs/tg max 1024
+rc=0

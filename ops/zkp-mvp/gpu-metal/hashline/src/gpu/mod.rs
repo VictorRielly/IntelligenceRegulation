@@ -50,6 +50,12 @@ pub use metal::{with_witness_options, witness_product_stats, witness_product_wit
 // queue count the proof threads are spread over (neither changes a byte)
 #[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
 pub use metal::{gpu_timeline_report, gpu_timeline_start, gpu_timeline_take, queues_for_test as metal_queues_for_test, set_device_fold_for_test as metal_set_device_fold_for_test, set_queues_for_test as metal_set_queues_for_test, set_wait_for_test as metal_set_wait_for_test};
+// [A27] tests: the folds' two kernel forms and the round values' extrapolation (equal words)
+#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::{extrapolate_for_test as metal_extrapolate_for_test, fold_for_test as metal_fold_for_test, head_pow2_for_test as metal_head_pow2_for_test};
+// [A27] the GPU trace's buffered lines, written out (a server may call it after a request)
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::trace_flush as metal_trace_flush;
 
 /// [A4] Without the Metal backend no witness product runs on a device: `Ok(None)`
 /// sends every caller to its CPU path.

@@ -1,0 +1,62 @@
+2026-11-07T13:39:49Z start
+2026-11-07T13:42:46Z test build rc=0
+2026-11-07T13:42:46Z a27_ unit tests rc=0
+test private_block::slot_ir::accuracy::tests::a27_slot_census_at_a_trained_shape ... ignored, diagnostic: prints the slot census of a trained shape
+test private_block::slot_ir::accuracy::tests::a27_extrapolated_round_values_equal_the_evaluated_ones ... ok
+test private_block::slot_ir::accuracy::tests::a27_three_product_folds_write_the_five_product_folds_words ... ok
+test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 1111 filtered out; finished in 0.28s
+2026-11-07T13:42:47Z census rc=0
+test private_block::slot_ir::accuracy::tests::a27_slot_census_at_a_trained_shape ... A27-CENSUS R13_SHIELD_T128_H24 slot 00 (01 SS row sums norm_a (private)) cube 2^19 ext 1 tables 3 (base 2) nodes 0 (affine 0, 0 terms) terms 1 degree 4 attained 4 coefs 0 | later-round body products 9 (f2_mul 3, f2_mulb 0, gl_mul 0); line values
+A27-CENSUS R13_SHIELD_T128_H24 slot 01 (01m SS row sums norm_m (private)) cube 2^19 ext 1 tables 3 (base 2) nodes 0 (affine 0, 0 terms) terms 1 degree 4 attained 4 coefs 0 | later-round body products 9 (f2_mul 3, f2_mulb 0, gl_mul 0); line values ext 3 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 02 (02 norm squares zero-check (hosts 01, 01m)) cube 2^7 ext 1 tables 25 (base 22) nodes 15 (affine 6, 18 terms) terms 3 degree 3 attained 3 coefs 36 | later-round body products 67 (f2_mul 9, f2_mulb 20, gl_mul 0); line values ext 26 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 03 (08 limb zero-check) cube 2^14 ext 1 tables 5 (base 3) nodes 6 (affine 4, 5 terms) terms 1 degree 4 attained 4 coefs 8 | later-round body products 19 (f2_mul 5, f2_mulb 2, gl_mul 0); line values ext 6 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 04 (07 masked row sums + selector (private)) cube 2^19 ext 1 tables 4 (base 3) nodes 1 (affine 0, 0 terms) terms 1 degree 3 attained 3 coefs 1 | later-round body products 9 (f2_mul 3, f2_mulb 0, gl_mul 0); line values ext 4 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 05 (09Q matmul (private)) cube 2^12 ext 1 tables 2 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 2 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 06 (09K matmul (private)) cube 2^12 ext 1 tables 2 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 2 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 07 (09V matmul (private)) cube 2^12 ext 1 tables 2 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 2 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 08 (10 score matmul (private, bilinear)) cube 2^10 ext 2 tables 3 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 3 attained 3 coefs 0 | later-round body products 6 (f2_mul 2, f2_mulb 0, gl_mul 0); line values ext 3 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 09 (11 PV matmul (private, bilinear)) cube 2^10 ext 2 tables 3 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 3 attained 3 coefs 0 | later-round body products 6 (f2_mul 2, f2_mulb 0, gl_mul 0); line values ext 3 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 10 (12 Wo matmul (private)) cube 2^12 ext 1 tables 2 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 2 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 11 (13G gate matmul (private)) cube 2^12 ext 1 tables 2 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 2 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 12 (13U up matmul (private)) cube 2^12 ext 1 tables 2 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 2 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 13 (13D down matmul (private)) cube 2^14 ext 1 tables 2 (base 0) nodes 0 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 2 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 14 (03 D zero-check (hosts 12, 13D)) cube 2^19 ext 1 tables 64 (base 44) nodes 83 (affine 49, 106 terms) terms 3 degree 5 attained 4 coefs 205 | later-round body products 341 (f2_mul 67, f2_mulb 70, gl_mul 0); line values ext 68 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 15 (04 Q zero-check (hosts 09Q, 11)) cube 2^19 ext 1 tables 27 (base 17) nodes 35 (affine 20, 25 terms) terms 3 degree 4 attained 4 coefs 67 | later-round body products 143 (f2_mul 29, f2_mulb 28, gl_mul 0); line values ext 28 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 16 (05 KV zero-check (hosts 09K, 09V)) cube 2^17 ext 1 tables 27 (base 17) nodes 35 (affine 20, 25 terms) terms 3 degree 4 attained 4 coefs 67 | later-round body products 143 (f2_mul 29, f2_mulb 28, gl_mul 0); line values ext 28 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 17 (06 softmax zero-check (hosts 07, 10)) cube 2^19 ext 1 tables 28 (base 16) nodes 39 (affine 19, 24 terms) terms 3 degree 4 attained 4 coefs 67 | later-round body products 164 (f2_mul 38, f2_mulb 25, gl_mul 0); line values ext 31 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 18 (14 F zero-check (hosts 13G, 13U)) cube 2^21 ext 1 tables 29 (base 18) nodes 37 (affine 22, 46 terms) terms 3 degree 5 attained 4 coefs 87 | later-round body products 159 (f2_mul 35, f2_mulb 27, gl_mul 0); line values ext 33 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 19 cube 2^14 ext 1 tables 12 degree 3: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+A27-CENSUS R13_SHIELD_T128_H24 slot 20 (ZS zero-sum row) cube 2^14 ext 1 tables 2 (base 1) nodes 0 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 2 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 21 (IO-in endpoint equality) cube 2^19 ext 1 tables 3 (base 2) nodes 1 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 3 base 0
+A27-CENSUS R13_SHIELD_T128_H24 slot 22 (IO-out endpoint equality) cube 2^19 ext 1 tables 3 (base 2) nodes 1 (affine 0, 0 terms) terms 1 degree 2 attained 2 coefs 0 | later-round body products 3 (f2_mul 1, f2_mulb 0, gl_mul 0); line values ext 3 base 0
+2026-11-07T13:43:08Z M4 development shapes CPU = Metal rc=0
+test private_block::slot_ir::accuracy::tests::m4_accuracy_block_proofs_are_byte_identical_on_the_cpu_and_on_metal ... M4-ACCURACY-DIGEST R13_RUNG_LOW cpu ca529ecc1687d17f241f0811440b0ad1176add9b657707713c8ee7fe54d45bec metal ca529ecc1687d17f241f0811440b0ad1176
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu ddd29ae0a79eccb8fd8f1ffa1afd2ef83a03c5cf9d9b4118f76e71fcfb793f73 metal ddd29ae0a79eccb8fd8f1ffa1afd2ef83a03c5cf9d9b4118f76e71fcfb793f73 (device sumcheck rounds 0.0582 s)
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu e0f48c22049b31602780d8f8248458be44925c510dcfc6857ae7b8d92f4c5c76 metal e0f48c22049b31602780d8f8248458be44925c510dcfc6857ae7b8d92f4c5c76 (device sumcheck rounds 0.0307 s)
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 4868cbbac317fde1796766a27757d67d47bcf01a908aab38a32902add0260de1 metal 4868cbbac317fde1796766a27757d67d47bcf01a908aab38a32902add0260de1 (device sumcheck rounds 0.0316 s)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1113 filtered out; finished in 21.27s
+2026-11-07T13:43:27Z trained R13 Shieldstral + W16R2 8B CPU = Metal rc=0
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.083 s metal-cold 2.999 s (prove core cpu 3.903 s metal 2.827 s; kernel compile 2.032 s, device sumcheck rounds 0.160 s; 1 slots without a matching IR; buffer pool 124 reused / 66 new) digest cpu 5a6193d3df87cf21 metal 5a6193d3df87cf21
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.083 s metal-warm 0.640 s (prove core cpu 3.903 s metal 0.462 s; kernel compile 0.000 s, device sumcheck rounds 0.106 s; 1 slots without a matching IR; buffer pool 138 reused / 0 new) digest cpu 5a6193d3df87cf21 metal 5a6193d3df87cf21
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.083 s metal-warm 0.574 s (prove core cpu 3.903 s metal 0.402 s; kernel compile 0.000 s, device sumcheck rounds 0.104 s; 1 slots without a matching IR; buffer pool 138 reused / 0 new) digest cpu 5a6193d3df87cf21 metal 5a6193d3df87cf21
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.362 s metal-cold 6.164 s (prove core cpu 1.217 s metal 6.018 s; kernel compile 5.551 s, device sumcheck rounds 0.120 s; 0 slots without a matching IR; buffer pool 134 reused / 18 new) digest cpu 90003b760eb7ad80 metal 90003b760eb7ad80
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.362 s metal-warm 0.468 s (prove core cpu 1.217 s metal 0.312 s; kernel compile 0.000 s, device sumcheck rounds 0.075 s; 0 slots without a matching IR; buffer pool 147 reused / 1 new) digest cpu 90003b760eb7ad80 metal 90003b760eb7ad80
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.362 s metal-warm 0.514 s (prove core cpu 1.217 s metal 0.364 s; kernel compile 0.000 s, device sumcheck rounds 0.073 s; 0 slots without a matching IR; buffer pool 148 reused / 0 new) digest cpu 90003b760eb7ad80 metal 90003b760eb7ad80
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1113 filtered out; finished in 19.27s
+2026-11-07T13:43:27Z recorded digest 5a6193d3: CPU and Metal
+2026-11-07T13:43:27Z recorded digest 90003b76: CPU and Metal
+2026-11-07T13:43:36Z trained R13 Shieldstral, every A27 switch off rc=0
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.764 s metal-cold 1.911 s (prove core cpu 3.583 s metal 1.732 s; kernel compile 0.907 s, device sumcheck rounds 0.216 s; 1 slots without a matching IR; buffer pool 122 reused / 62 new) digest cpu 5a6193d3df87cf21 metal 5a6193d3df87cf21
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.764 s metal-warm 0.694 s (prove core cpu 3.583 s metal 0.520 s; kernel compile 0.000 s, device sumcheck rounds 0.168 s; 1 slots without a matching IR; buffer pool 132 reused / 0 new) digest cpu 5a6193d3df87cf21 metal 5a6193d3df87cf21
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.764 s metal-warm 0.651 s (prove core cpu 3.583 s metal 0.473 s; kernel compile 0.000 s, device sumcheck rounds 0.168 s; 1 slots without a matching IR; buffer pool 132 reused / 0 new) digest cpu 5a6193d3df87cf21 metal 5a6193d3df87cf21
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1113 filtered out; finished in 8.41s
+2026-11-07T13:44:34Z Metal commitment tests rc=0
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... ok
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... ok
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape ... ignored, heavy: run through the resource guard
+test device::m2_keyed_commit_timing_at_block_sizes ... ignored, heavy: multi-GB commitments; run through the resource guard
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+test result: ok. 5 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.40s
+2026-11-07T13:44:34Z all done

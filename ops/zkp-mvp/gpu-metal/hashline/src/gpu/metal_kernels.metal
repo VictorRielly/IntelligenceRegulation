@@ -211,7 +211,22 @@ kernel void k_init_zk_bitrev(device const ulong *coeffs [[buffer(0)]],
 #define TILE_LOG 11u
 #define TILE (1u << TILE_LOG)
 
-struct HeadArgs { ulong rows; uint log_n; uint log_src; uint mode; uint max_log; ulong q; ulong scale; uint apply_scale; uint use_hw; };
+// [A27] x * 2^e mod p for e < 192, by shifts and reductions only (2^64 = 2^32 - 1 and
+// 2^96 = -1 mod p): the canonical word gl_mul(x, 2^e mod p) returns. Every 64th root of
+// unity is a power of 2 here (2 has order 192, so 8 generates the 64th roots), so a
+// stage-s <= 6 twiddle, a 2^s-th root, is 2^e for an e the host finds (head_pow2_buffers).
+inline ulong a27_gl_neg(ulong a) { return a == 0UL ? 0UL : GL_P - a; }
+inline ulong gl_mul_pow2(ulong x, uint e) {
+    uint neg = e >= 96u ? 1u : 0u;
+    uint e2 = neg != 0u ? e - 96u : e;
+    uint top = e2 >= 64u ? 1u : 0u;
+    uint e3 = top != 0u ? e2 - 64u : e2;
+    ulong y = gl_reduce128(x << e3, e3 == 0u ? 0UL : x >> (64u - e3));
+    ulong z = top != 0u ? gl_reduce128(0UL, y) : y;
+    return neg != 0u ? a27_gl_neg(z) : z;
+}
+
+struct HeadArgs { ulong rows; uint log_n; uint log_src; uint mode; uint max_log; ulong q; ulong scale; uint apply_scale; uint use_hw; uint pow2; uint pad1; };
 
 inline ulong head_input(uint mode, device const ulong *src, device const ulong *pads, device const ulong *pows,
                         ulong r, ulong i, uint log_n, uint log_src, ulong q) {
@@ -242,6 +257,7 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
                        device const ulong *tw [[buffer(4)]],
                        constant HeadArgs &args [[buffer(5)]],
                        device const ulong *hw [[buffer(6)]],
+                       device const uint *hx [[buffer(7)]],
                        uint2 tid2 [[thread_position_in_threadgroup]],
                        uint2 nth2 [[threads_per_threadgroup]],
                        uint2 tg [[threadgroup_position_in_grid]]) {
@@ -266,11 +282,18 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
             uint grp = b >> (s - 1);
             uint k = b & (half_len - 1);
             uint i0 = (grp << s) + k;
-            // [M12] the same word from the compact table: tw[k << (max_log - s)]
-            // = hw[k << (11 - s)], 8 KB of consecutive words
-            ulong w = args.use_hw != 0u ? hw[ulong(k) << (TILE_LOG - s)] : tw[ulong(k) * stride];
             ulong u = sh[i0];
-            ulong v = gl_mul(sh[i0 + half_len], w);
+            ulong v;
+            if (s <= args.pow2) {
+                // [A27] stage s <= 6: hw[k << (11 - s)] = 2^hx[k << (6 - s)] (pow2 is 0 unless
+                // the compact table is in use and every such twiddle is a power of 2)
+                v = gl_mul_pow2(sh[i0 + half_len], hx[k << (6u - s)]);
+            } else {
+                // [M12] the same word from the compact table: tw[k << (max_log - s)]
+                // = hw[k << (11 - s)], 8 KB of consecutive words
+                ulong w = args.use_hw != 0u ? hw[ulong(k) << (TILE_LOG - s)] : tw[ulong(k) * stride];
+                v = gl_mul(sh[i0 + half_len], w);
+            }
             sh[i0] = gl_add(u, v);
             sh[i0 + half_len] = gl_sub(u, v);
         }
@@ -446,6 +469,38 @@ kernel void k_fold_tables(device ulong *tabs [[buffer(0)]],
     ulong m1 = gl_add(ad, bc);
     tabs[lo_i] = gl_add(l0, m0);
     tabs[lo_i + 1] = gl_add(l1, m1);
+}
+
+// [A27] the same fold with r * d as THREE base products (Karatsuba: the cross term as
+// (r0 + r1)(d0 + d1) - ac - bd, and 7 bd by doublings) instead of five, and as TWO
+// when the step's imaginary part is zero (every pair of a base-field table at its
+// first fold): (r0 + r1 u) d0 = r0 d0 + r1 d0 u. Every operation returns the
+// canonical word, so each output is the word k_fold_tables writes.
+inline ulong a27_mul7(ulong x) { ulong x2 = gl_add(x, x); ulong x4 = gl_add(x2, x2); return gl_sub(gl_add(x4, x4), x); }
+inline void a27_fold_pair(device ulong *tabs, ulong lo_i, ulong hi_i, ulong r0, ulong r1) {
+    ulong l0 = tabs[lo_i], l1 = tabs[lo_i + 1];
+    ulong d0 = gl_sub(tabs[hi_i], l0), d1 = gl_sub(tabs[hi_i + 1], l1);
+    ulong m0, m1;
+    if (d1 == 0UL) {
+        m0 = gl_mul(r0, d0);
+        m1 = gl_mul(r1, d0);
+    } else {
+        ulong ac = gl_mul(r0, d0), bd = gl_mul(r1, d1);
+        ulong cross = gl_mul(gl_add(r0, r1), gl_add(d0, d1));
+        m0 = gl_add(ac, a27_mul7(bd));
+        m1 = gl_sub(gl_sub(cross, ac), bd);
+    }
+    tabs[lo_i] = gl_add(l0, m0);
+    tabs[lo_i + 1] = gl_add(l1, m1);
+}
+
+kernel void k_fold_tables3(device ulong *tabs [[buffer(0)]],
+                           constant FoldTabArgs &args [[buffer(1)]],
+                           uint2 gid [[thread_position_in_grid]]) {
+    ulong i = ulong(gid.x);
+    ulong t = ulong(gid.y);
+    if (i >= args.nhalf || t >= args.k) { return; }
+    a27_fold_pair(tabs, (t * args.cap + i) * 2UL, (t * args.cap + i + args.nhalf) * 2UL, args.r0, args.r1);
 }
 
 // --------------------------------------------------------- column gather
@@ -719,13 +774,17 @@ inline fq2 q2_mul(fq2 a, fq2 b) {
 inline fq2 q2_mulb(fq2 a, ulong b) { return q2(gl_mul(a.c0, b), gl_mul(a.c1, b)); }
 inline fq2 q2_at(device const ulong *p, ulong w) { return q2(p[w], p[w + 1]); }
 
-struct FsStepArgs { uint nthreads; uint d1; uint j; uint eval_one; uint tgw; uint pad0; };
+// [A27] `de` (the evaluated degree, d1 - 1 when every point is evaluated): the points
+// above it are not read and follow exactly from s(0..=de), s(1) recovered first, by the
+// Lagrange weights in `xw` (row e - de - 1, column i: sum_i xw * s(i)).
+struct FsStepArgs { uint nthreads; uint d1; uint j; uint eval_one; uint tgw; uint de; };
 
 kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
                          device ulong *fs [[buffer(1)]],
                          device const ulong *mk [[buffer(2)]],
                          device ulong *out [[buffer(3)]],
                          constant FsStepArgs &a [[buffer(4)]],
+                         device const ulong *xw [[buffer(5)]],
                          uint t [[thread_position_in_threadgroup]]) {
     threadgroup ulong red[2 * 256];
     threadgroup ulong tot[16];
@@ -734,7 +793,7 @@ kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
     // (field addition is exact, so the grouping changes no value)
     for (uint d = 0; d < d1; d++) {
         fq2 acc = q2(0UL, 0UL);
-        if (d != 1u || a.eval_one != 0u) {
+        if ((d != 1u || a.eval_one != 0u) && d <= a.de) {
             for (uint g = t; g < a.nthreads; g += a.tgw) { acc = q2_add(acc, q2_at(part, (ulong(g) * ulong(d1) + ulong(d)) * 2UL)); }
         }
         red[2u * t] = acc.c0;
@@ -756,6 +815,11 @@ kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
     for (uint d = 0; d < d1; d++) { s[d] = q2(tot[2u * d], tot[2u * d + 1u]); }
     fq2 claim = q2(fs[19], fs[20]);
     if (a.eval_one == 0u) { s[1] = q2_sub(claim, s[0]); }
+    for (uint e = a.de + 1u; e < d1; e++) {
+        fq2 x = q2(0UL, 0UL);
+        for (uint i = 0; i <= a.de; i++) { x = q2_add(x, q2_mulb(s[i], xw[ulong(e - a.de - 1u) * ulong(a.de + 1u) + ulong(i)])); }
+        s[e] = x;
+    }
     // the CFS mask's round message g_j(x) = 2^(n-1-j) (base + u_j(x)) + a' prod x
     ulong rec = 4UL + ulong(d1) + ulong(a.j) * 2UL * ulong(2u + d1 + D);
     fq2 c = q2_at(mk, 0UL), ap = q2_at(mk, 2UL);
@@ -836,11 +900,23 @@ kernel void k_fold_tables_dev(device ulong *tabs [[buffer(0)]],
     tabs[lo_i + 1] = gl_add(l1, m1);
 }
 
+// [A27] k_fold_tables_dev with k_fold_tables3's products (a27_fold_pair): the same words
+kernel void k_fold_tables_dev3(device ulong *tabs [[buffer(0)]],
+                               constant FoldDevArgs &args [[buffer(1)]],
+                               device const ulong *rbuf [[buffer(2)]],
+                               uint2 gid [[thread_position_in_grid]]) {
+    ulong i = ulong(gid.x);
+    ulong t = ulong(gid.y);
+    if (i >= args.nhalf || t >= args.k) { return; }
+    a27_fold_pair(tabs, (t * args.cap + i) * 2UL, (t * args.cap + i + args.nhalf) * 2UL, rbuf[args.roff], rbuf[args.roff + 1UL]);
+}
+
 // [M6] the first stage of a large round's partial-sum reduction, across the whole GPU: thread w
 // sums the partials w, w + width, ... of each point into part2[w]; the transcript step then
 // reduces `width` entries instead of `nthreads` in one threadgroup. Point 1 is skipped (written
 // as zero) when the round recovers s(1) from the claim. Field addition is exact: same sums.
-struct PartRedArgs { uint nthreads; uint d1; uint width; uint eval_one; };
+// [A27] points above `de` (the evaluated degree) are not evaluated: skipped like point 1.
+struct PartRedArgs { uint nthreads; uint d1; uint width; uint eval_one; uint de; };
 
 kernel void k_sc_part_reduce(device const ulong *part [[buffer(0)]],
                              device ulong *part2 [[buffer(1)]],
@@ -849,7 +925,7 @@ kernel void k_sc_part_reduce(device const ulong *part [[buffer(0)]],
     if (w >= a.width) { return; }
     for (uint d = 0; d < a.d1; d++) {
         ulong s0 = 0UL, s1 = 0UL;
-        if (d != 1u || a.eval_one != 0u) {
+        if ((d != 1u || a.eval_one != 0u) && d <= a.de) {
             for (uint g = w; g < a.nthreads; g += a.width) {
                 ulong o = (ulong(g) * ulong(a.d1) + ulong(d)) * 2UL;
                 s0 = gl_add(s0, part[o]);

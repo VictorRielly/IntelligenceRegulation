@@ -1,0 +1,3 @@
+[zk60-guard 05:14:35] START a27-p1-profile class=gpu need=110G cap=180G enforce=watchdog-only waited=0s run=f43e2ccab054
+[zk60-guard 05:24:28] a27-p1-profile: 1 straggler process(es) outlived the command; killing
+[zk60-guard 05:24:28] END a27-p1-profile exit=0 child_wall=592s peak_rss=102.87G min_avail=94.45G peak_vram=49364MiB
