@@ -1,0 +1,69 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7626f7dbcb465003/results/zk60_lean_l24_20261107/plan.txt ==
+build ZK60Formal.AssembleClassify ZK60Formal.RelW16Pos ZK60Formal.ProtocolClassifyR13 ZK60Formal.ProtocolClassifyCount
+build ZK60Formal.ZoneCodeWide
+build ZK60Formal.ZoneCodeFirst
+build ZK60Formal.RunExtractKinds
+build ZK60Formal.RunExtractClassify
+build ZK60Formal.RunExtractOpenU
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7626f7dbcb465003/results/zk60_lean_l24_20261107/check_l24.sh
+== lake build ZK60Formal.AssembleClassify ZK60Formal.RelW16Pos ZK60Formal.ProtocolClassifyR13 ZK60Formal.ProtocolClassifyCount ==
+Build completed successfully (3490 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.ZoneCodeWide ==
+Build completed successfully (3053 jobs).
+build rc 0 (8 s)
+== lake build ZK60Formal.ZoneCodeFirst ==
+Build completed successfully (3428 jobs).
+build rc 0 (9 s)
+== lake build ZK60Formal.RunExtractKinds ==
+Build completed successfully (3488 jobs).
+build rc 0 (11 s)
+== lake build ZK60Formal.RunExtractClassify ==
+Build completed successfully (3489 jobs).
+build rc 0 (56 s)
+== lake build ZK60Formal.RunExtractOpenU ==
+Build completed successfully (3438 jobs).
+build rc 0 (69 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7626f7dbcb465003/results/zk60_lean_l24_20261107/check_l24.sh ==
+check rc 0 (109 s); its log is check.log
+lake build ZK60Formal.ZoneCodeWide rc 0
+lake build ZK60Formal.ZoneCodeFirst rc 0
+lake build ZK60Formal.RunExtractKinds rc 0
+lake build ZK60Formal.RunExtractClassify rc 0
+lake build ZK60Formal.RunExtractOpenU rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3541/3542] Built ZK60Formal (1.8s)
+Build completed successfully (3542 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L24 files: 0
+== axiom audit ==
+63 theorems
+axioms rc 0
+declarations audited: 63
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  61 axioms: [propext, Classical.choice, Quot.sound]
+   2 axioms: [propext]
+== source scan of the L24 files ==
+none
+== the library root imports the L24 files ==
+imported: ZoneCodeWide
+imported: ZoneCodeFirst
+imported: RunExtractKinds
+imported: RunExtractClassify
+imported: RunExtractOpenU
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 40 s
+rc 0, 109 s

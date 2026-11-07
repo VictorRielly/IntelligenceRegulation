@@ -159,3 +159,8 @@ import ZK60Formal.SlotPolyW16Draw
 import ZK60Formal.SlotPolyW16Map
 import ZK60Formal.CoverW16Shapes
 import ZK60Formal.SlotPolyW16Seg
+import ZK60Formal.ZoneCodeWide
+import ZK60Formal.ZoneCodeFirst
+import ZK60Formal.RunExtractKinds
+import ZK60Formal.RunExtractClassify
+import ZK60Formal.RunExtractOpenU
