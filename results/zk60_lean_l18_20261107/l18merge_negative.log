@@ -1,0 +1,17 @@
+  LABELS: 3
+  PARSE: 1
+  SHAPE: 2
+  BINDING: 1
+  START: 1
+  TAG-START: 4
+  TAG-END: 4
+  CONTINUITY: 3
+  FRAME: 3
+  CARRY: 9
+FAILED SHAPE: the kinds and order IN-C, BLOCK^L, OUT-C
+FAILED BINDING: the binding is the run header's state
+FAILED TAG-END: segment 1
+FAILED CONTINUITY: segments 1 -> 2
+FAILED FRAME: block 0
+FAILED CARRY: segment 1: pending claims
+ProtocolClassifyCheck: 31 checks, 6 failed

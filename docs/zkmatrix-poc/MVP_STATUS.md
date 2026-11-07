@@ -366,16 +366,33 @@ here. The rates count proving and witness work. Verification time is recorded se
     - L20's per-position count brought the constant term from 2^-82.6 to 2^-104.2.
     - Premises left: two deterministic code-to-model links (lane L22), and the slot relations plus LogUp within a
       budget (lane L21).
-  - **Running:**
-    - L18, the classify run's `Protocol` and the top-level `ProductionReady` with the remaining premises named;
-    - L19, zero knowledge's links and the sharper count;
-    - L21, the slot relations and LogUp under Fiat–Shamir;
-    - L22, the openings' deterministic links (hexec, hsem) and the extraction-failure instance.
-  - **Still open before production:**
-    - the run level: the D12a frame for the classifier, the D55 tree for the 8B stack;
-    - the honest prover as a Lean model;
-    - the `Protocol` instance and its assembly into `ProductionReady` (L18);
-    - then W16R3's delta.
+  - **L19, zero knowledge for any number of receipts (block level).**
+    - `hHV` is now a theorem, resting on named honest-prover properties.
+    - With a per-kind query count, one block receipt (W16R2 or R13) meets εzkTarget for EVERY R. L14's 2^96 cap is
+      gone.
+    - **For Victor (L19-2):** a whole classify run proved as ONE receipt is proved only for R ≤ 2^112. Other receipts'
+      honest provers can meet this receipt's transcript states, a real event. Options: a cross term in the target, a
+      cap (2^112 is proved), or a per-receipt transcript key in W16R3.
+  - **L21, the block's soundness completed in shape.** `block_knowledge_target_mt`: for any block shape and every q,
+    an accepted block whose extracted data fails the block's constraints has probability ≤ εsTarget. At W16R2 the
+    budget is 30.2M of 67.1M units. Left for the W16R2 instance: the cover lemmas (L23) and the openings' semantic link
+    (L22).
+  - **L18, the media app's classify run assembled into `ProductionReady`** [PROVED, given named premises;
+    `docs/zkmatrix-poc/ZK60_LEAN_L18_PROTOCOL_ASSEMBLY_20261107.md`].
+    - The run has a `Protocol` instance whose verifier mirrors `verify_classify_run_with`.
+    - `classify_productionReady_target`: Statements' `ProductionReady` at the approved targets, given one structure
+      `ClassifyOpen` of 15 named obligations.
+    - `Complete` at 2^-40 and `Binding` are proved, given the parts' completeness. The run's sumchecks are ≤ 2^-61.
+    - Checked on a real two-block classifier run: 31 checks, 0 failed.
+    - **Open obligations:**
+      - the run's extraction, with the blocks taken jointly. Per-position counting gives about 2^-99.5, just above
+        2^-100, so a path-wise one-zone count is needed (L18-2, lane L24);
+      - the parts' honest provers and completeness, and the zero-knowledge honest-prover facts (lane L25);
+      - `S.Valid` / `B.Valid`, which need the weights, not in the repo (D62);
+      - the run's zero knowledge as one receipt (L19-2, Victor).
+  - **Running:** L22 (openings' links), L23 (W16R2 cover lemmas), L24 (the run's joint extraction), L25 (honest
+    provers).
+  - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.

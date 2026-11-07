@@ -1,0 +1,43 @@
+2026-11-07T15:03:08Z start
+2026-11-07T15:05:53Z hashline lean_l18_export (test only, fresh entropy) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1061 filtered out; finished in 1.68s
+2026-11-07T15:06:17Z hashline s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1042 filtered out; finished in 23.97s
+2026-11-07T15:06:17Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1047 filtered out; finished in 0.11s
+2026-11-07T15:06:32Z hashline r19b rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1057 filtered out; finished in 15.38s
+2026-11-07T15:06:51Z hashline token_io::classify rc=0
+test result: ok. 86 passed; 0 failed; 12 ignored; 0 measured; 964 filtered out; finished in 18.82s
+2026-11-07T15:07:13Z lake build rc=0
+✔ [3536/3537] Built ZK60Formal (1.7s)
+Build completed successfully (3537 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-07T15:07:16Z axiom audit axioms_l18 rc=0
+sorryAx or ofReduceBool mentions: 0
+  41 axioms: [propext, Classical.choice, Quot.sound]
+  12 axioms: [propext, Quot.sound]
+   7 axioms: [propext]
+2026-11-07T15:07:18Z axiom audit axioms_l21 rc=0
+sorryAx or ofReduceBool mentions: 0
+  73 axioms: [propext, Classical.choice, Quot.sound]
+  12 axioms: [propext, Quot.sound]
+   2 axioms: [propext]
+2026-11-07T15:07:18Z source scan hits other than the header sentences (grep rc 1 = none): rc=1
+2026-11-07T15:07:21Z ProtocolClassifyCheck on the committed corpus rc=0
+ProtocolClassifyCheck: 31 checks, 0 failed
+2026-11-07T15:07:24Z ProtocolClassifyCheck on the fresh corpus rc=0
+ProtocolClassifyCheck: 31 checks, 0 failed
+2026-11-07T15:07:26Z negative control (5 mutations, 6 expected failures)
+ProtocolClassifyCheck: 31 checks, 6 failed
+2026-11-07T15:11:34Z ExecBlockCheck regression rc=0
+ExecBlockCheck: 273 checks, 0 failed
+2026-11-07T15:11:39Z L11Check rc=0
+L11Check: 404 checks, 0 failed
+2026-11-07T15:11:43Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-07T15:11:58Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-07T15:12:03Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-07T15:12:03Z all done
