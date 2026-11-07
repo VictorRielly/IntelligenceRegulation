@@ -96,3 +96,8 @@ import ZK60Formal.ExecOpening
 import ZK60Formal.ExecOpeningM
 import ZK60Formal.ExecOpeningFS
 import ZK60Formal.ExecOpeningBlock
+import ZK60Formal.StageOutCWhole
+import ZK60Formal.StageCheckDefs
+import ZK60Formal.StageFS
+import ZK60Formal.StageOutWhole
+import ZK60Formal.StageCheckValid

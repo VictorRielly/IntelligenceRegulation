@@ -852,3 +852,6 @@ fn capture_a_short_item_through_the_classify_cli() {
 // the R13-stack classifier captures (REVIEW_R16 §10 item 1)
 #[path = "gate19_capture_tests.rs"]
 mod gate19;
+
+// D63 Lean lane L15 (2026-11-07): stage OUT-C's agreement corpus of a real classifier receipt (test only)
+#[cfg(test)] #[path = "lean_l15_export_tests.rs"] mod lean_l15_export_tests;
