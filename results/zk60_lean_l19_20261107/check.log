@@ -1,0 +1,76 @@
+== lake build (full) ==
+lake build rc 0
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+✔ [3508/3509] Built ZK60Formal (1.7s)
+Build completed successfully (3509 jobs).
+warnings: 3
+errors: 0
+sorry: 0
+== axiom audit ==
+71 theorems
+axioms rc 0
+declarations audited: 71
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  58 axioms: [propext, Classical.choice, Quot.sound]
+   6 axioms: [propext, Quot.sound]
+   2 axioms: [propext]
+   1 axioms: [Quot.sound]
+== source scan of the L19 files ==
+none
+== the library root imports the L19 files ==
+115:import ZK60Formal.ZKLinks
+116:import ZK60Formal.ZKLinksM
+117:import ZK60Formal.ZKLinksRun
+118:import ZK60Formal.ZKCount
+119:import ZK60Formal.ZKCountStep
+120:import ZK60Formal.ZKCountHyb
+121:import ZK60Formal.ZKCountBudget
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: L11Check on the W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+verdicts: build 0, axioms 0, L6 0/0, L5 0/0, L1 0/0, L11 0/0 (0 = as required)
+== lake build (full) ==
+lake build rc 0
+✔ [3507/3509] Built ZK60Formal.ZKCountBudget (12s)
+✔ [3508/3509] Built ZK60Formal (1.8s)
+Build completed successfully (3509 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+71 theorems
+axioms rc 0
+declarations audited: 71
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  58 axioms: [propext, Classical.choice, Quot.sound]
+   6 axioms: [propext, Quot.sound]
+   2 axioms: [propext]
+   1 axioms: [Quot.sound]
+== source scan of the L19 files ==
+none
+== the library root imports the L19 files ==
+115:import ZK60Formal.ZKLinks
+116:import ZK60Formal.ZKLinksM
+117:import ZK60Formal.ZKLinksRun
+118:import ZK60Formal.ZKCount
+119:import ZK60Formal.ZKCountStep
+120:import ZK60Formal.ZKCountHyb
+121:import ZK60Formal.ZKCountBudget
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: L11Check on the W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+verdicts: build 0, axioms 0, L6 0/0, L5 0/0, L1 0/0, L11 0/0 (0 = as required)
