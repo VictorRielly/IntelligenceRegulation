@@ -1,0 +1,21 @@
+✔ [3488/3491] Built ZK60Formal.ExtractW16Open (2.6s)
+✖ [3489/3491] Building ZK60Formal.ExtractW16Block (2.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Block.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/.lake/build/lib/lean/ZK60Formal/ExtractW16Block.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/.lake/build/lib/lean/ZK60Formal/ExtractW16Block.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/.lake/build/ir/ZK60Formal/ExtractW16Block.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/.lake/build/ir/ZK60Formal/ExtractW16Block.setup.json --json
+error: ZK60Formal/ExtractW16Block.lean:231:8: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/ExtractW16Block.lean:365:38: failed to synthesize instance of type class
+  DecidableEq Q
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/ExtractW16Block.lean:366:4: failed to synthesize instance of type class
+  DecidableEq Q
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/ExtractW16Block.lean:373:10: failed to synthesize instance of type class
+  Fintype (Q → D)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+Some required targets logged failures:
+- ZK60Formal.ExtractW16Block
+error: build failed

@@ -1,0 +1,14 @@
+== lake build (full) ==
+lake build rc 1
+Some required targets logged failures:
+- ZK60Formal.ExtractW16Block
+error: build failed
+warnings: 0
+errors: 5
+sorry: 0
+warnings in the L16 files: 0
+error: ZK60Formal/ExtractW16Block.lean:231:8: maximum recursion depth has been reached
+error: ZK60Formal/ExtractW16Block.lean:365:38: failed to synthesize instance of type class
+error: ZK60Formal/ExtractW16Block.lean:366:4: failed to synthesize instance of type class
+error: ZK60Formal/ExtractW16Block.lean:373:10: failed to synthesize instance of type class
+error: build failed

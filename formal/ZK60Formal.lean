@@ -112,3 +112,8 @@ import ZK60Formal.ZKW16View
 import ZK60Formal.ZKW16Block
 import ZK60Formal.ZKW16Hyb
 import ZK60Formal.ZKW16Shape
+import ZK60Formal.ExtractW16Chain
+import ZK60Formal.ExtractW16Slots
+import ZK60Formal.ExtractW16Terminal
+import ZK60Formal.ExtractW16Block
+import ZK60Formal.ExtractW16Open
