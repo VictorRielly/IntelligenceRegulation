@@ -1,0 +1,28 @@
+  ASCII: 1
+  head: 1
+  tags: 1
+  slot-index: 23
+  kind: 23
+  schedule: 23
+  terms: 23
+  draws: 23
+  draw-layout: 23
+  hosted: 23
+  claim-points: 15
+  ir-shape: 23
+  ir-degree: 23
+  verify-arm-parts: 11
+  ir-challenges: 149
+  ir-template: 6
+  verify-arm: 12
+  slot-count: 1
+DEGREE GAP (info) slot 14: declared degree 5, computed 4
+DEGREE GAP (info) slot 18: declared degree 5, computed 4
+FAILED [head] HEADEND f528dd79ae0b244f504502ba0a199e4825338f6a4f3663e3a58644d9690d4612 3
+FAILED [terms] slot 0
+FAILED [verify-arm-parts] slot 3: refused
+FAILED [draws] slot 4
+FAILED [verify-arm] slot 5
+FAILED [verify-arm-parts] slot 14
+FAILED [verify-arm-parts] slot 20: refused
+L11Check: 404 checks, 7 failed
