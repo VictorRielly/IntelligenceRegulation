@@ -1,4 +1,4 @@
-"""DEVELOPMENT CANDIDATE (lane A24, 2026-11-07; binary from lane A26): the resident-server Shieldstral prover.
+"""DEVELOPMENT CANDIDATE (lane A24, 2026-11-07; binary from lane A27): the resident-server Shieldstral prover.
 
 Selected only by PM_PROVER=shieldstral-fast. It proves the same registered moderate
 policies (D61) on the same T128 export and templates as the reviewed `shieldstral` mode,
@@ -15,6 +15,12 @@ the same statement identity, profile and verifier verdicts, with less CPU work p
 24-bit FFN down projection on the device as two exact int16 halves; the verifier's column test
 over its weights' nonzero rows and the slots' public tables through split eq tables; the run's
 CS-1 / CS-4 record kept for the core proof) and one Metal queue per prover thread.
+
+Lane A27 (2026-11-07, results/zk60_a27_app_20261107/README.md) pins a newer build again: the same
+receipts byte for byte (fixed test entropy on the real export, against A26's binary), the same
+statement identity, profile and verdicts, with less GPU work per proof (the zero-checks' linear
+parts kept as device tables, the round values above an IR's attained degree extrapolated, the
+folds in three products, the NTT head's power-of-2 stages).
 """
 import os
 from pathlib import Path
@@ -31,15 +37,16 @@ EXPORT_ROOT = Path(os.environ.get('PM_FAST_EXPORT_ROOT', str(reviewed.EXPORT_ROO
 EXPORT = EXPORT_ROOT / reviewed.EXPORT.name
 VERIFIER_EXPORT = EXPORT_ROOT / reviewed.VERIFIER_EXPORT.name
 # The binary lives outside the repository (no binaries in the public repo, D62); the pin
-# below is the authority. Built from lane A26's tree with `--features gpu-metal` (A24's was
-# `zk60_classify.a24`, ccd58102...; its receipts are the same bytes).
-LANE = 'A26'
-BINARY = Path(os.environ.get('PM_FAST_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a26')))
-BINARY_SHA = 'b6336628364ae4407a2640d52b84ddf3c9688420fc827082ccb1c1aaf37d366d'
+# below is the authority. Built from lane A27's tree with `--features gpu-metal` (A26's was
+# `zk60_classify.a26`, b6336628...; A24's `zk60_classify.a24`, ccd58102...; their receipts are the
+# same bytes).
+LANE = 'A27'
+BINARY = Path(os.environ.get('PM_FAST_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a27')))
+BINARY_SHA = 'ed798413701daf047ab8f567e291826163f2671c5726188df4bdc15e1914686f'
 PROFILE_SHA = reviewed.PROFILE_SHA
 IDENTITY = 'e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d'
 RUN_PROFILE = 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2'
-CLI_DESCRIPTION = 'zk60_classify A26 serve/check-serve (A24 servers, A26 work cuts), post-F12 R13 /2, T128, Metal'
+CLI_DESCRIPTION = 'zk60_classify A27 serve/check-serve (A24 servers, A26 work cuts, A27 kernels), post-F12 R13 /2, T128, Metal'
 # Astra's Mac activation writer (qualified against the native writer, 2026-11-05). It and the
 # public model root are untracked files of the main checkout (not in git): a worktree points
 # at them with PM_FAST_WRITER_ROOT / PM_FAST_MODELS. The pins below still decide.
@@ -101,7 +108,8 @@ def native_environment():
 # one Metal command queue per prover thread (A7's opt-in; the stream is GPU-bound and its lanes'
 # command buffers then run side by side). Every A26 work cut is on by default in the binary; the
 # two that wait for the security owner's reading stay off (HL_A26_KEPT, HL_A26_VERIFY_ONCE).
-# None of these moves a byte.
+# [A27] every A27 kernel change is on by default in the binary (each has an HL_A27_*=0 switch the
+# app does not set). None of these moves a byte.
 NATIVE_SETTINGS = {'HL_METAL_QUEUES': 'thread'}
 
 

@@ -1,0 +1,14 @@
+2026-11-07T14:37:51Z start; plan m2.plan; free disk 121 GiB
+2026-11-07T14:37:51Z run m2o1a bin b6336628364a env [HL_METAL_QUEUES=thread] flags [--lanes 3 --lane-threads 10 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T14:39:44Z m2o1a rc=0 done )
+2026-11-07T14:39:44Z run m2o1b bin ed798413701d env [HL_METAL_QUEUES=thread] flags [--lanes 3 --lane-threads 10 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T14:41:32Z m2o1b rc=0 done )
+2026-11-07T14:41:32Z run m2o2b bin ed798413701d env [HL_METAL_QUEUES=thread] flags [--lanes 3 --lane-threads 10 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T14:43:19Z m2o2b rc=0 done )
+2026-11-07T14:43:19Z run m2o2a bin b6336628364a env [HL_METAL_QUEUES=thread] flags [--lanes 3 --lane-threads 10 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T14:45:07Z m2o2a rc=0 done )
+2026-11-07T14:45:07Z run m2d8b bin ed798413701d env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0 --defer-check]
+2026-11-07T14:50:11Z m2d8b rc=0 done )
+2026-11-07T14:50:11Z run m2d8a bin b6336628364a env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0 --defer-check]
+2026-11-07T14:55:50Z m2d8a rc=0 done )
+2026-11-07T14:55:50Z all done; free disk 118 GiB

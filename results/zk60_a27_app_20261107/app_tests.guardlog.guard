@@ -1,0 +1,2 @@
+[zk60-guard 05:54:46] START a27-app-tests class=light need=4G cap=8G enforce=watchdog-only waited=0s run=842844eb6a9d
+[zk60-guard 05:54:54] END a27-app-tests exit=0 child_wall=8s peak_rss=0.12G min_avail=230.41G

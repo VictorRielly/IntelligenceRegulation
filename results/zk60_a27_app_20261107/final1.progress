@@ -1,0 +1,7 @@
+2026-11-07T13:51:20Z start at 9e1e882b; free disk 134 GiB
+2026-11-07T14:11:59Z accept rc=0 (30 steps rc=0; 1 problems)
+2026-11-07T14:11:59Z candidate a27-c1 sha256 ed798413701daf047ab8f567e291826163f2671c5726188df4bdc15e1914686f
+2026-11-07T14:20:02Z bi1 done: {"comparisons": [{"against": "0-A", "run": "1-B", "byte_identical": true}, {"against": "0-A", "run": "2-B0", "byte_identical": true}, {"against": "0-A", "run": "3-A", "byte_identical": true}], "cross": [{"verifier": "A", "receipts_of": "1-B", "all_checked": true}, {"verifier": "A", "receipts_of": "2-B0", "all_checked": true}, {"verifier": "B", "receipts_of": "0-A", "all_checked": true}, {"verifier": "B", "receipts_of": "2-B0", "all_checked": true}, {"verifier": "B0", "receipts_of": "0-A", "all_checked": true}, {"verifier": "B0", "receipts_of": "1-B", "all_checked": true}]}
+2026-11-07T14:37:51Z m1 done
+2026-11-07T14:55:50Z m2 done
+2026-11-07T14:55:50Z all done; free disk 118 GiB
