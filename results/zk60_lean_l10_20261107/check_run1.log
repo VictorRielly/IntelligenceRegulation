@@ -1,0 +1,72 @@
+== lake build (full) ==
+lake build rc 0
+warning: ZK60Formal/ExecOpeningBlock.lean:354:23: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✔ [3485/3486] Built ZK60Formal (1.7s)
+Build completed successfully (3486 jobs).
+warnings: 81
+errors: 0
+sorry: 0
+== axiom audit ==
+148 theorems
+axioms rc 0
+declarations audited: 148
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+ 114 axioms: [propext, Classical.choice, Quot.sound]
+  22 axioms: [propext, Quot.sound]
+  11 axioms: [propext]
+== source scan of the L10 files ==
+none
+== the library root imports the L10 library files ==
+imported: ExecOpeningCode
+imported: BindingW16
+imported: ExecOpening
+imported: ExecOpeningM
+imported: ExecOpeningFS
+imported: ExecOpeningBlock
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+L6Check rc 0
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+L5Check rc 0
+regression verdicts: L6 0, L5 0 (0 = the committed count with 0 failed)
+== the L10 checker on the W16R2 rung corpus ==
+-rw-r--r--@ 1 victorrielly  wheel  191941509 Nov  6 21:38 /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/corpus_w16r2.txt
+0eedc99a74a903cf5b3191c75c8d44f8562c7b1f829d97f6756be9cf83b01608  /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/corpus_w16r2.txt
+== checker on /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/corpus_w16r2.txt: rc 0  1276.6 s peak 4.08 GiB
+L10Check: 48 checks, 0 failed
+last lines:
+PCS h-collast: Lean refused (pcs zk: Merkle path for column 11248 fails), the crate: pcs zk: Merkle path for column 11248 fails [ok] (191102 ms)
+CHECK chk-a: Lean's check_opening accepts [ok] (98 ms)
+CHECK chk-h: Lean's check_opening accepts [ok] (52 ms)
+CHECK chk-a-zerocoef: Lean refused (private block: mask schedule audit: zero terminal mask coefficient; discard attempt), the crate: private block: mask schedule audit: zero terminal mask coefficient; discard attempt [ok] (0 ms)
+CHECK chk-h-groups: Lean refused (private block: 9 opening groups, the schedule declares 10), the crate: private block: 9 opening groups, the schedule declares 10 [ok] (5 ms)
+CHECK chk-h-sumfirst: Lean refused (private block: mask schedule audit: unexpected sum claim), the crate: private block: mask schedule audit: unexpected sum claim [ok] (1 ms)
+CHECK chk-a-prox: Lean refused (private block: mask schedule audit: proximity pair placement), the crate: private block: mask schedule audit: proximity pair placement [ok] (0 ms)
+L10Check: 48 checks, 0 failed
+L10Check rc 0
+== negative control: six single changes to the reduced corpus ==
+mksmall: 25 records kept, 3 dropped -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/corpus_small.txt
+negctl: 6 of 6 changes written; expected failed checks 8
+== checker on /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/corpus_neg.txt: rc 1  215.5 s peak 4.02 GiB
+FAIL root 9
+FAIL m-honest: accepted, transcript DIFFERS
+FAIL m-honest: L9's maskTranscript ends where the crate's verifier does
+FAIL m-q0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: accepted
+FAIL m-q0: L9's maskTranscript refused an honest opening
+FAIL a-vec0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claimx
+FAIL chk-a: Lean's check_opening accepts, the crate refused ()
+FAIL chk-h-groups: Lean refused (private block: 9 opening groups, the schedule declares 11), the crate: private block: 9 opening groups, the schedule declares 10
+L10Check: 41 checks, 8 failed
+last lines:
+FAIL m-honest: accepted, transcript DIFFERS
+FAIL m-honest: L9's maskTranscript ends where the crate's verifier does
+FAIL m-q0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: accepted
+FAIL m-q0: L9's maskTranscript refused an honest opening
+FAIL a-vec0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claimx
+FAIL chk-a: Lean's check_opening accepts, the crate refused ()
+FAIL chk-h-groups: Lean refused (private block: 9 opening groups, the schedule declares 11), the crate: private block: 9 opening groups, the schedule declares 10
+L10Check: 41 checks, 8 failed
+negative control verdict 0 (0 = exactly the 8 failed checks the 6 changes cause)

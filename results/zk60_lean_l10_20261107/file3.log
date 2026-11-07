@@ -1,0 +1,43 @@
+== /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean: rc 1  11.5 s peak 3.68 GiB
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:254:115: error: unexpected identifier; expected ')', ',' or ':'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:254:29: error: unsolved goals
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:251:103: error: unsolved goals
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:248:54: error: unsolved goals
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:333:110: error: unsolved goals
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:859:38: error(lean.unknownIdentifier): Unknown constant `ZK60.Exec.Fp.seven.mul`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:861:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:869:8: warning: declaration uses `sorry`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:923:27: error(lean.unknownIdentifier): Unknown constant `ZK60.Exec.Fp.seven.pow`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:931:6: warning: declaration uses `sorry`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:925:8: warning: declaration uses `sorry`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:953:8: error: (kernel) unknown constant 'ZK60.Exec.colEncLag_spec'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:661:10: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:669:10: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:694:14: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:694:39: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:694:64: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:712:14: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:712:39: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:712:64: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:715:12: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:715:37: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:718:10: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:763:6: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:766:6: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:779:10: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:783:8: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:798:12: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:802:10: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:814:14: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:819:12: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:859:38: error(lean.unknownIdentifier): Unknown constant `ZK60.Exec.Fp.seven.mul`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:861:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:869:8: warning: declaration uses `sorry`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:923:27: error(lean.unknownIdentifier): Unknown constant `ZK60.Exec.Fp.seven.pow`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:931:6: warning: declaration uses `sorry`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:925:8: warning: declaration uses `sorry`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpening.lean:953:8: error: (kernel) unknown constant 'ZK60.Exec.colEncLag_spec'

@@ -3908,3 +3908,7 @@ fn a18_the_8b_block_proves_the_same_under_every_a18_setting() {
     }
     std::env::remove_var("HL_GPU");
 }
+
+// D63 lane L10 (2026-11-07): the Lean lane's export of this rung's M / A / H openings (test only; the file is in `src/`)
+#[path = "../lean_l10_export_tests.rs"]
+mod lean_l10_export_tests;

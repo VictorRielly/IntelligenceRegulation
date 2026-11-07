@@ -1,0 +1,305 @@
+== lake build ZK60Formal.ExecOpening ==
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3426 jobs).
+== /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean: rc 1  13.5 s peak 3.66 GiB
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:487:2: error: unsolved goals
+case left
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+ω512 ω4096 : Fp
+h512 : IsPrimitiveRoot ω512.toGF 512
+h4096 : IsPrimitiveRoot ω4096.toGF 4096
+S : ℕ
+ws : List (List Fp2)
+hws : ws.length = S
+hwl : ∀ w ∈ ws, w.length = mMsg
+q prox rs : List Fp2
+hq : q.length = 2 * mMsg
+hp : prox.length = 2 * mMsg
+hrs : rs.length = 2 * S + 2
+col : List Fp
+hc : ∀ x ∈ col, x.Canon
+hcl : col.length = 2 * S + 4
+j : ℕ
+x : Fp := cosetPt ω4096 j
+ω' : K := (algebraMap GF K) ω512.toGF
+x' : K := (algebraMap GF K) x.toGF
+hxc : x.Canon
+hxn : x.toGF ^ mMsg ≠ 1
+hwv :
+  ∀ (s : Fin S),
+    Fp2.toK U ((mEnc ω512 ws q prox x).1.getD (↑s) Fp2.zero) = eval x' (mInterp ω' (vecK U mMsg (ws.getD ↑s [])))
+key : ∀ (a b : Fp2), a.Canon → b.Canon → (a = b ↔ Fp2.toK U a = Fp2.toK U b)
+⊢ Fp2.toK U (fp2Of col (2 * S) (2 * S + 1)) +
+        ∑ x, Fp2.toK U (fp2Of col (2 * ↑x) (2 * ↑x + 1)) * eval x' (mInterp ω' (vecK U mMsg (ws.getD ↑x []))) =
+      eval ((algebraMap GF K) x.toGF) (coefPoly (vecK U (2 * mMsg) q)) ↔
+    Fp2.toK U (fp2Of col (2 * S) (2 * S + 1)) +
+        ∑ x, Fp2.toK U (fp2Of col (2 * ↑x) (2 * ↑x + 1)) * eval x' (mInterp ω' (vecK U mMsg (ws.getD ↑x []))) =
+      eval x' (coefPoly (vecK U (2 * mMsg) q))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:600:74: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  if t.1 = s then ?m.282 else ?m.283
+in the target expression
+  Fp2.toK U ((ws.getD s []).getD j Fp2.zero) + Fp2.toK U th * Fp2.toK U (t.2.getD j Fp2.zero) +
+      Fp2.toK U th * (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum =
+    Fp2.toK U ((ws.getD s []).getD j Fp2.zero) +
+      Fp2.toK U th *
+        (Fp2.toK U (t.2.getD j Fp2.zero) +
+          (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum)
+
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+th : Fp2
+f : MaskFunctional
+S m : ℕ
+t : ℕ × List Fp2
+ts : List (ℕ × List Fp2)
+ws : List (List Fp2)
+h : WShape S m ws
+h1 : WShape S m (addRow th t.2 ws t.1)
+ih :
+  WShape S m (List.foldl (fun ws t => addRow th t.2 ws t.1) (addRow th t.2 ws t.1) ts) ∧
+    ∀ (s j : ℕ),
+      s < S →
+        j < m →
+          Fp2.toK U
+              (((List.foldl (fun ws t => addRow th t.2 ws t.1) (addRow th t.2 ws t.1) ts).getD s []).getD j Fp2.zero) =
+            Fp2.toK U (((addRow th t.2 ws t.1).getD s []).getD j Fp2.zero) +
+              Fp2.toK U th * (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum
+s j : ℕ
+hs : s < S
+hj : j < m
+hl : (ws.getD s []).length = m
+hc : ∀ a ∈ ws.getD s [], a.Canon
+hst : s = t.1
+h✝ : t.1 = s
+⊢ Fp2.toK U ((ws.getD s []).getD j Fp2.zero) + Fp2.toK U th * Fp2.toK U (t.2.getD j Fp2.zero) +
+      Fp2.toK U th * (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum =
+    Fp2.toK U ((ws.getD s []).getD j Fp2.zero) +
+      Fp2.toK U th *
+        (Fp2.toK U (t.2.getD j Fp2.zero) +
+          (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:602:26: error: Application type mismatch: The argument
+  hst
+has type
+  s = t.1
+but is expected to have type
+  ?m.287 ≠ ?m.288
+in the application
+  Ne.symm hst
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:593:22: error: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+th : Fp2
+f : MaskFunctional
+S m : ℕ
+t : ℕ × List Fp2
+ts : List (ℕ × List Fp2)
+ws : List (List Fp2)
+h : WShape S m ws
+h1 : WShape S m (addRow th t.2 ws t.1)
+ih :
+  WShape S m (List.foldl (fun ws t => addRow th t.2 ws t.1) (addRow th t.2 ws t.1) ts) ∧
+    ∀ (s j : ℕ),
+      s < S →
+        j < m →
+          Fp2.toK U
+              (((List.foldl (fun ws t => addRow th t.2 ws t.1) (addRow th t.2 ws t.1) ts).getD s []).getD j Fp2.zero) =
+            Fp2.toK U (((addRow th t.2 ws t.1).getD s []).getD j Fp2.zero) +
+              Fp2.toK U th * (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum
+s j : ℕ
+hs : s < S
+hj : j < m
+hl : (ws.getD s []).length = m
+hc : ∀ a ∈ ws.getD s [], a.Canon
+hst : ¬s = t.1
+h✝ : t.1 = s
+⊢ Fp2.toK U ((ws.getD s []).getD j Fp2.zero) +
+      Fp2.toK U th * (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum =
+    Fp2.toK U ((ws.getD s []).getD j Fp2.zero) +
+      Fp2.toK U th *
+        (Fp2.toK U (t.2.getD j Fp2.zero) +
+          (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum)
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+th : Fp2
+f : MaskFunctional
+S m : ℕ
+t : ℕ × List Fp2
+ts : List (ℕ × List Fp2)
+ws : List (List Fp2)
+h : WShape S m ws
+h1 : WShape S m (addRow th t.2 ws t.1)
+ih :
+  WShape S m (List.foldl (fun ws t => addRow th t.2 ws t.1) (addRow th t.2 ws t.1) ts) ∧
+    ∀ (s j : ℕ),
+      s < S →
+        j < m →
+          Fp2.toK U
+              (((List.foldl (fun ws t => addRow th t.2 ws t.1) (addRow th t.2 ws t.1) ts).getD s []).getD j Fp2.zero) =
+            Fp2.toK U (((addRow th t.2 ws t.1).getD s []).getD j Fp2.zero) +
+              Fp2.toK U th * (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum
+s j : ℕ
+hs : s < S
+hj : j < m
+hl : (ws.getD s []).length = m
+hc : ∀ a ∈ ws.getD s [], a.Canon
+hst : ¬s = t.1
+h✝ : ¬t.1 = s
+⊢ Fp2.toK U ((ws.getD s []).getD j Fp2.zero) +
+      Fp2.toK U th * (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum =
+    Fp2.toK U ((ws.getD s []).getD j Fp2.zero) +
+      Fp2.toK U th * (0 + (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) ts).sum)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:619:18: error: Application type mismatch: The argument
+  rfl
+has type
+  ?m.200 = ?m.200
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:619:23: error: Application type mismatch: The argument
+  rfl
+has type
+  ?m.204 = ?m.204
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:619:43: error: Type mismatch
+  rfl
+has type
+  ?m.210 = ?m.210
+but is expected to have type
+  True
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:632:10: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?a * ∑ i ∈ ?s, ?f i
+in the target expression
+  Fp2.toK U v0 + Fp2.toK U th0 * Fp2.toK U f.value +
+      ∑ i ∈ range fs.length, Fp2.toK U th0 * Fp2.toK U θ * Fp2.toK U θ ^ i * Fp2.toK U (fs.getD i default).value =
+    Fp2.toK U v0 +
+      (∑ x ∈ range fs.length, Fp2.toK U th0 * (Fp2.toK U θ ^ x * Fp2.toK U θ) * Fp2.toK U (fs.getD x default).value +
+        Fp2.toK U th0 * Fp2.toK U f.value)
+
+case refine_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+θ : Fp2
+S m : ℕ
+f : MaskFunctional
+fs : List MaskFunctional
+ws0 : List (List Fp2)
+v0 th0 : Fp2
+h : WShape S m ws0
+hv : v0.Canon
+hstep :
+  WShape S m (List.foldl (fun ws t => addRow th0 t.2 ws t.1) ws0 f.terms) ∧
+    ∀ (s j : ℕ),
+      s < S →
+        j < m →
+          Fp2.toK U (((List.foldl (fun ws t => addRow th0 t.2 ws t.1) ws0 f.terms).getD s []).getD j Fp2.zero) =
+            Fp2.toK U ((ws0.getD s []).getD j Fp2.zero) +
+              Fp2.toK U th0 * (List.map (fun t => if t.1 = s then Fp2.toK U (t.2.getD j Fp2.zero) else 0) f.terms).sum
+i1 :
+  WShape S m
+    (List.foldl (cwStep θ)
+        (List.foldl (fun ws t => addRow th0 t.2 ws t.1) ws0 f.terms, v0.add (th0.mul f.value), th0.mul θ) fs).1
+i2 :
+  (List.foldl (cwStep θ)
+          (List.foldl (fun ws t => addRow th0 t.2 ws t.1) ws0 f.terms, v0.add (th0.mul f.value), th0.mul θ)
+          fs).2.1.Canon
+i3 :
+  Fp2.toK U
+      (List.foldl (cwStep θ)
+            (List.foldl (fun ws t => addRow th0 t.2 ws t.1) ws0 f.terms, v0.add (th0.mul f.value), th0.mul θ) fs).2.2 =
+    Fp2.toK U (th0.mul θ) * Fp2.toK U θ ^ fs.length
+i4 :
+  Fp2.toK U
+      (List.foldl (cwStep θ)
+            (List.foldl (fun ws t => addRow th0 t.2 ws t.1) ws0 f.terms, v0.add (th0.mul f.value), th0.mul θ) fs).2.1 =
+    Fp2.toK U (v0.add (th0.mul f.value)) +
+      ∑ i ∈ range fs.length, Fp2.toK U (th0.mul θ) * Fp2.toK U θ ^ i * Fp2.toK U (fs.getD i default).value
+i5 :
+  ∀ (s j : ℕ),
+    s < S →
+      j < m →
+        Fp2.toK U
+            (((List.foldl (cwStep θ)
+                        (List.foldl (fun ws t => addRow th0 t.2 ws t.1) ws0 f.terms, v0.add (th0.mul f.value),
+                          th0.mul θ)
+                        fs).1.getD
+                  s []).getD
+              j Fp2.zero) =
+          Fp2.toK U (((List.foldl (fun ws t => addRow th0 t.2 ws t.1) ws0 f.terms).getD s []).getD j Fp2.zero) +
+            ∑ i ∈ range fs.length, Fp2.toK U (th0.mul θ) * Fp2.toK U θ ^ i * fwt U (fs.getD i default) s j
+⊢ Fp2.toK U v0 + Fp2.toK U th0 * Fp2.toK U f.value +
+      ∑ i ∈ range fs.length, Fp2.toK U th0 * Fp2.toK U θ * Fp2.toK U θ ^ i * Fp2.toK U (fs.getD i default).value =
+    Fp2.toK U v0 +
+      (∑ x ∈ range fs.length, Fp2.toK U th0 * (Fp2.toK U θ ^ x * Fp2.toK U θ) * Fp2.toK U (fs.getD x default).value +
+        Fp2.toK U th0 * Fp2.toK U f.value)
+Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:675:36: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.replicate ?m.265 ?m.266).length
+in the target expression
+  j < ((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).length
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+S : ℕ
+fs : List MaskFunctional
+θ : Fp2
+h4 :
+  Fp2.toK U (List.foldl (cwStep θ) (List.replicate S (List.replicate mMsg Fp2.zero), Fp2.zero, θ) fs).2.1 =
+    Fp2.toK U Fp2.zero + ∑ i ∈ range fs.length, Fp2.toK U θ * Fp2.toK U θ ^ i * Fp2.toK U (fs.getD i default).value
+h5 :
+  ∀ (s j : ℕ),
+    s < S →
+      j < mMsg →
+        Fp2.toK U
+            (((List.foldl (cwStep θ) (List.replicate S (List.replicate mMsg Fp2.zero), Fp2.zero, θ) fs).1.getD s
+                  []).getD
+              j Fp2.zero) =
+          Fp2.toK U (((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).getD j Fp2.zero) +
+            ∑ i ∈ range fs.length, Fp2.toK U θ * Fp2.toK U θ ^ i * fwt U (fs.getD i default) s j
+hget : ∀ (i : Fin fs.length), fs.getD (↑i) default = fs.get i
+s j : ℕ
+hs : s < S
+hj : j < mMsg
+⊢ j < ((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).length
+stop: /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean did not elaborate
+total 21 s

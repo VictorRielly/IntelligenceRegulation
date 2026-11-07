@@ -90,3 +90,9 @@ import ZK60Formal.StageOutCExtract
 import ZK60Formal.StageOutCExtractSlots
 import ZK60Formal.StageOutExtract
 import ZK60Formal.StageRunExtract
+import ZK60Formal.ExecOpeningCode
+import ZK60Formal.BindingW16
+import ZK60Formal.ExecOpening
+import ZK60Formal.ExecOpeningM
+import ZK60Formal.ExecOpeningFS
+import ZK60Formal.ExecOpeningBlock

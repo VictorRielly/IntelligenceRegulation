@@ -1,0 +1,3 @@
+[zk60-guard 20:01:02] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 20:01:07] START lean-l10-bisect class=cpu need=12G cap=12G enforce=watchdog-only waited=5s run=b89394fcf293
+[zk60-guard 20:01:48] END lean-l10-bisect exit=0 child_wall=41s peak_rss=6.06G min_avail=232.58G

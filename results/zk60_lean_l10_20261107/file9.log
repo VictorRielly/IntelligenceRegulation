@@ -1,0 +1,226 @@
+== lake build ZK60Formal.ExecOpening ==
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3426 jobs).
+== /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean: rc 0  3.6 s peak 3.66 GiB
+
+== lake build ZK60Formal.ExecOpeningM ==
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+  h2
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h1, h3]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+
+  [apply] _rs
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+
+  [apply] _col
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+info: ZK60Formal/ExecOpeningM.lean:642:6: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+  this
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fwt]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Build completed successfully (3427 jobs).
+== /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean: rc 1  3.7 s peak 3.67 GiB
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:72:58: error: unsolved goals
+X M D D' : Type
+inst✝³ : Fintype D
+inst✝² : Nonempty D
+inst✝¹ : Fintype D'
+inst✝ : Nonempty D'
+e : D' ≃ D
+n : ℕ
+w : ℕ → ℕ
+St : X → List (M × List D) → Prop
+ε : ℝ≥0∞
+h : RbrWide n w St ε
+x : X
+τ : List (M × List D')
+m : M
+hτ : τ.length < n
+hns : ¬St x (List.map (fun p => (p.1, List.map (⇑e) p.2)) τ)
+hl : (List.map (fun p => (p.1, List.map (⇑e) p.2)) τ).length = τ.length
+h1 :
+  (PMF.uniformOfFintype (Fin (w τ.length) → D)).toOuterMeasure
+      {b | St x (List.map (fun p => (p.1, List.map (⇑e) p.2)) τ ++ [(m, List.ofFn b)])} ≤
+    ε
+b : Fin (w τ.length) → D'
+⊢ St x (List.map (fun p => (p.1, List.map (⇑e) p.2)) τ ++ [(m, List.ofFn fun x => e (b x))]) ↔
+    St x
+      (List.map (fun p => (p.1, List.map (⇑e) p.2)) τ ++
+        [(m, List.ofFn (((Equiv.refl (Fin (w τ.length))).arrowCongr e) b))])
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:120:74: error: unsolved goals
+X M : Type
+a : ℕ
+R : Rounds
+ε : ℝ≥0∞
+St : X → List (M × List Dg) → Prop
+xOf : List (TItem × Dig) → X
+dec : List UInt8 → M
+rel : List (TItem × Dig) → Prop
+h : RbrWide R.n R.w St ε
+h1 :
+  RbrWide R.n R.w
+    (fun x τ =>
+      St (xOf x) (List.map (fun e => (dec e.1, e.2)) (List.map (fun p => (p.1, List.map (⇑halvesEquiv) p.2)) τ)))
+    ε
+hdr : List (TItem × Dig)
+τ : List (List UInt8 × List Dig)
+⊢ St (xOf hdr) (List.map (fun x => (dec x.1, List.map (⇑halvesEquiv) x.2)) τ) ↔
+    St (xOf hdr) (List.map (fun p => (dec p.1, List.map halves p.2)) τ)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:165:9: error(lean.unknownIdentifier): Unknown identifier `Close`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:165:55: error(lean.unknownIdentifier): Unknown identifier `Close`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:192:33: error(lean.unknownIdentifier): Unknown identifier `Close`
+
+Note: It is not possible to treat `Close` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:193:9: error(nested.lean.propRecLargeElim): Tactic `cases` failed with a nested error:
+Tactic `induction` failed: recursor `Exists.casesOn` can only eliminate into `Prop`
+
+E ι κ : Type
+inst✝⁷ : Field E
+inst✝⁶ : Fintype E
+inst✝⁵ : DecidableEq E
+inst✝⁴ : Fintype ι
+inst✝³ : DecidableEq ι
+inst✝² : Nonempty ι
+inst✝¹ : Fintype κ
+inst✝ : DecidableEq κ
+dom : ι ↪ E
+e K : ℕ
+Ub : κ → ι → E
+u : ι → E
+Rh : κ → E[X]
+h : MDec dom e K Ub u Rh
+⊢ sorry
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:202:10: error(lean.unknownIdentifier): Unknown identifier `Close`
+
+Note: It is not possible to treat `Close` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:203:9: error: Tactic `rcases` failed: `x✝ : ?m.10` is not an inductive datatype
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:227:2: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  0 ≤ a ≤ 1
+  a ≥ 1
+where
+ a := ↑(mResidual 1 D.val (mTrue ω D.wt (mDecA D.La Rh)) (mOff m ω (mDecB D.Lb Rh))).natDegree
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:234:16: error(lean.unknownIdentifier): Unknown identifier `Close`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:252:16: error(lean.unknownIdentifier): Unknown identifier `Close`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:263:10: error: Function expected at
+  zero_le
+but this term has type
+  0 ≤ ?m.255
+
+Note: Expected a function because this term is being applied to the argument
+  _
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:265:31: error(lean.unknownIdentifier): Unknown identifier `minDist_rsCode`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:280:16: error(lean.unknownIdentifier): Unknown identifier `Close`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:307:16: error(lean.unknownIdentifier): Unknown identifier `Close`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:313:47: error(lean.unknownIdentifier): Unknown identifier `rsCode`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:313:63: error(lean.unknownIdentifier): Unknown identifier `mem_rsCode.mpr`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:379:4: error: unsolved goals
+case cons.cons.cons
+X E ι σ κ : Type
+inst✝¹⁰ : Field E
+inst✝⁹ : Fintype E
+inst✝⁸ : DecidableEq E
+inst✝⁷ : Fintype ι
+inst✝⁶ : DecidableEq ι
+inst✝⁵ : Nonempty ι
+inst✝⁴ : Fintype σ
+inst✝³ : Fintype κ
+inst✝² : DecidableEq κ
+k m : ℕ
+Dd : Type
+inst✝¹ : Fintype Dd
+inst✝ : Nonempty Dd
+dom : ι ↪ E
+ω : E
+hm : 0 < m
+hω : IsPrimitiveRoot ω m
+e K dd : ℕ
+h3 : 3 * e < Fintype.card ι - K
+hdd : K + (m - 1) ≤ dd
+hdq : 2 * m - 1 ≤ dd
+dat : X → MData E ι σ κ k m
+d₀ : Dd
+w0 w1 w2 Q : ℕ
+chal0 : (Fin w0 → Dd) → E
+chalR : (Fin w1 → Dd) → κ → E
+chalJ : (Fin w2 → Dd) → Fin Q → ι
+β0 β1 β2 : ℝ≥0∞
+h0 :
+  ∀ (Ev : E → Prop),
+    (PMF.uniformOfFintype (Fin w0 → Dd)).toOuterMeasure {b | Ev (chal0 b)} ≤
+      (PMF.uniformOfFintype E).toOuterMeasure {y | Ev y} * β0
+h1 :
+  ∀ (Ev : (κ → E) → Prop),
+    (PMF.uniformOfFintype (Fin w1 → Dd)).toOuterMeasure {b | Ev (chalR b)} ≤
+      (PMF.uniformOfFintype (κ → E)).toOuterMeasure {y | Ev y} * β1
+h2 :
+  ∀ (Ev : (Fin Q → ι) → Prop),
+    (PMF.uniformOfFintype (Fin w2 → Dd)).toOuterMeasure {b | Ev (chalJ b)} ≤
+      (PMF.uniformOfFintype (Fin Q → ι)).toOuterMeasure {y | Ev y} * β2
+x : X
+msg : Option E[X]
+h2e : 2 * e + K < Fintype.card ι
+m0 : Option E[X]
+ds0 : List Dd
+q : Option E[X]
+ds1 : List Dd
+e3 : Option E[X] × List Dd
+τ : List (Option E[X] × List Dd)
+hτ : τ.length + 1 + 1 + 1 < 3
+hns : ¬mSt dom ω e K dat d₀ w0 w1 w2 chal0 chalR chalJ x ((m0, ds0) :: (q, ds1) :: e3 :: τ)
+⊢ (PMF.uniformOfFintype (Fin (mW3 w0 w1 w2 ((m0, ds0) :: (q, ds1) :: e3 :: τ).length) → Dd)).toOuterMeasure
+      {b |
+        mSt dom ω e K dat d₀ w0 w1 w2 chal0 chalR chalJ x ((m0, ds0) :: (q, ds1) :: e3 :: τ ++ [(msg, List.ofFn b)])} ≤
+    max (↑k / ↑(Fintype.card E) * β0)
+      (max (↑(e + 1) / ↑(Fintype.card E - 1) * β1)
+        (max ((↑(Fintype.card ι - (e + 1)) / ↑(Fintype.card ι)) ^ Q) ((↑(e + dd) / ↑(Fintype.card ι)) ^ Q) * β2))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:538:8: error: `ZK60.Exec.flatMap_toBytes_length` has already been declared
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:631:10: error(lean.unknownIdentifier): Unknown identifier `MinDist`
+
+Note: It is not possible to treat `MinDist` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:632:11: error(lean.unknownIdentifier): Unknown identifier `CAOn`
+
+Note: It is not possible to treat `CAOn` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:660:10: error(lean.unknownIdentifier): Unknown identifier `MinDist`
+
+Note: It is not possible to treat `MinDist` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean:672:37: error: Function expected at
+  zero_le
+but this term has type
+  0 ≤ ?m.225
+
+Note: Expected a function because this term is being applied to the argument
+  _
+stop: /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningFS.lean did not elaborate
+total 14 s
