@@ -1,0 +1,219 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a26_app_20261107/stream_p1b1/sample_checker.txt: 2466003 thread-samples
+    2349445   95.3%  blocked (kernel wait / I/O)
+     112506    4.6%  running
+       4052    0.2%  yield (idle spin)
+
+running, by top-of-stack function (self), top 30 (% of running):
+      27538   24.5%  blake3_hash_many_neon
+      19473   17.3%  zkp_core::ntt::NttTables::transform
+      15646   13.9%  rayon::iter::plumbing::bridge_producer_consumer::helper #h580e683a1c08c853
+      15530   13.8%  core::ops::function::impls:: for $RF$F::call_mut #hc43a0d1850f0a3c6
+       6107    5.4%  rayon::iter::plumbing::bridge_producer_consumer::helper #h631f3fa4a1b1148c
+       4868    4.3%  rayon::iter::plumbing::bridge_producer_consumer::helper #h133930b9c93e7dde
+       4078    3.6%  core::ops::function::impls:: for $RF$F::call_mut #hd7146995f0b88646
+       3743    3.3%  rayon::iter::plumbing::bridge_producer_consumer::helper #h2f71317fc2712189
+       3086    2.7%  rayon::iter::plumbing::bridge_producer_consumer::helper #hef3b148744798428
+       1651    1.5%  blake3::portable::compress_in_place
+       1294    1.2%  rayon::iter::plumbing::bridge_producer_consumer::helper #h6c0733d68e50c1e4
+       1048    0.9%  hashline::private_block::A21Stream::hasher_at
+        926    0.8%  hashline::private_block::token_io::classify::update_le_words
+        658    0.6%  hashline::private_block::argument::B::supp
+        655    0.6%  zkp_core::mle::eq_table_msb
+        588    0.5%  hashline::private_block::wire::Reader::column
+        461    0.4%  _platform_memmove
+        449    0.4%  zkp_core::pcs::verify_zk_tagged
+        391    0.3%  zkp_core::pcs::group_zclaims
+        268    0.2%  hashline::private_block::argument::rope_tables_at
+        248    0.2%  zkp_core::pcs::encode_row_zk
+        245    0.2%  __bzero
+        227    0.2%  hashline::private_block::wire::Reader::fp2_vec
+        196    0.2%  exp
+        177    0.2%  zkp_core::transcript::Transcript::absorb_fp2
+        171    0.2%  hashline::private_block::argument::causal_mask_at
+        170    0.2%  hashline::private_block::accuracy_aligned::derive_aligned_for
+        165    0.1%  zkp_core::ntt::NttTables::inverse
+        142    0.1%  mach_absolute_time
+        107    0.1%  blake3::compress_subtree_wide
+
+inclusive (% of all thread-samples), top 30:
+    2369297   96.1%  std::sys::backtrace::__rust_begin_short_backtrace
+    2320944   94.1%  thread_start
+    2320944   94.1%  _pthread_start
+    2320944   94.1%  _RNvNvMs0_NtNtNtCsgL88BVMLsDE_3std3sys6thread4unixNtB7_6Thread3new12thread_start
+    2320944   94.1%  core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+    2127532   86.3%  rayon_core::registry::WorkerThread::wait_until_cold #h9f3d014fce1c9e6d
+    2048936   83.1%  _pthread_cond_wait
+    2048911   83.1%  __psynch_cvwait
+      96706    3.9%  as core::iter::traits::iterator::Iterator::next
+      96706    3.9%  start_wqthread
+      96706    3.9%  _pthread_wqthread
+      96706    3.9%  __workq_kernreturn
+      85258    3.5%  _dispatch_semaphore_wait_slow
+      85258    3.5%  _dispatch_sema4_wait
+      85258    3.5%  semaphore_wait_trap
+      69918    2.8%  _pthread_mutex_firstfit_lock_slow
+      69918    2.8%  _pthread_mutex_firstfit_lock_wait
+      69918    2.8%  __psynch_mutexwait
+      48537    2.0%  read
+      48353    2.0%  start
+      48353    2.0%  main
+      48353    2.0%  zk60_classify::main
+      48353    2.0%  hashline::private_block::token_io::classify_cli::serve::classify_check_serve_command
+      48353    2.0%  std::sync::mpmc::list::Channel$LT$T::recv::_$u7b$$u7b$closure$u7d$$u7d$ #h84c771e51e8486f7
+      48353    2.0%  _RNvXs3_NtNtCsgL88BVMLsDE_3std2io5stdioNtB5_5StdinNtB7_4Read8read_buf
+      38298    1.6%  rayon_core::registry::Registry::in_worker_cold #hda2b91b29246aba2
+      38298    1.6%  rayon_core::latch::LockLatch::wait_and_reset #h5b28f5e439969aed
+      38297    1.6%  as rayon_core::job::Job::execute #h4e735e55b6461702
+      38297    1.6%  hashline::private_block::token_io::classify_cli::serve::check_serve_inner::_$u7b$$u7b$closure$u7d$$u7d$ #he1053a4241e7a927
+      36905    1.5%  std::sync::mpmc::Receiver$LT$T::recv
+
+    27538 self  blake3_hash_many_neon
+          26257  <- blake3::compress_subtree_wide
+           1274  <- blake3::compress_parents_parallel
+              7  <- blake3_hash_many_neon
+
+    19473 self  zkp_core::ntt::NttTables::transform
+          14152  <- (worker thread: no named caller)
+           4552  <- hashline::private_block::protocol::verify_core
+            353  <- hashline::private_block::token_io::classify_run::verify_classify_run_with
+            339  <- hashline::zk::mask_verify_tagged
+             38  <- hashline::private_block::token_io::stage_out_c::verify
+             33  <- hashline::zk::weight_polys
+
+    15646 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h580e683a1c08c853
+          11647  <- (worker thread: no named caller)
+           3999  <- hashline::private_block::weights_vanish_off_support
+
+    15530 self  core::ops::function::impls:: for $RF$F::call_mut #hc43a0d1850f0a3c6
+          11387  <- (worker thread: no named caller)
+           4143  <- hashline::private_block::accuracy_fold::fold
+
+     6107 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h631f3fa4a1b1148c
+           4490  <- (worker thread: no named caller)
+           1617  <- hashline::private_block::argument::argument_with
+
+     4868 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h133930b9c93e7dde
+           3598  <- (worker thread: no named caller)
+           1270  <- hashline::private_block::accuracy_fold::fold
+
+     4078 self  core::ops::function::impls:: for $RF$F::call_mut #hd7146995f0b88646
+           3064  <- (worker thread: no named caller)
+           1014  <- hashline::private_block::token_io::stage_in_c::challenges
+
+     3743 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h2f71317fc2712189
+           2760  <- (worker thread: no named caller)
+            983  <- ::try_fold
+
+     3086 self  rayon::iter::plumbing::bridge_producer_consumer::helper #hef3b148744798428
+           2310  <- (worker thread: no named caller)
+            770  <- hashline::private_block::protocol::verify_core
+              5  <- hashline::private_block::token_io::classify_run::verify_classify_run_with
+              1  <- hashline::private_block::token_io::stage_out_c::verify
+
+     1651 self  blake3::portable::compress_in_place
+            602  <- blake3::Hasher::update
+            410  <- blake3::compress_parents_parallel
+            310  <- blake3::compress_subtree_wide
+             86  <- hashline::private_block::protocol::verify_core
+             76  <- hashline::private_block::protocol::check_opening
+             72  <- (worker thread: no named caller)
+
+     1294 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h6c0733d68e50c1e4
+            937  <- (worker thread: no named caller)
+            357  <- hashline::private_block::accuracy_fold::fold
+
+     1048 self  hashline::private_block::A21Stream::hasher_at
+           1048  <- hashline::private_block::A21Stream::subtree
+
+      926 self  hashline::private_block::token_io::classify::update_le_words
+            483  <- hashline::private_block::token_io::classify::ClassifyRunStatement::check_tables
+            443  <- hashline::private_block::token_io::classify::ClassifierTables::emb_digest
+
+      658 self  hashline::private_block::argument::B::supp
+            278  <- hashline::private_block::argument::define
+            236  <- hashline::private_block::argument::accuracy::fzc
+            141  <- hashline::private_block::argument::accuracy::dzc
+              3  <- hashline::private_block::argument::accuracy::tab
+
+      655 self  zkp_core::mle::eq_table_msb
+            559  <- hashline::private_block::protocol::verify_core
+             44  <- hashline::private_block::argument::define
+             30  <- hashline::private_block::token_io::classify_run::verify_classify_run_with
+             15  <- hashline::private_block::argument::argument_with
+              4  <- hashline::private_block::token_io::run_stage_slot
+              3  <- hashline::private_block::token_io::stage_out_c::verify
+
+      588 self  hashline::private_block::wire::Reader::column
+            586  <- hashline::private_block::wire::Reader::hiding
+              2  <- hashline::private_block::wire::decode_segment
+
+      461 self  _platform_memmove
+            163  <- (worker thread: no named caller)
+            140  <- xzm_realloc
+             67  <- hashline::private_block::protocol::verify_core
+             42  <- blake3::ChunkState::update
+             20  <- hashline::private_block::accuracy_public::AccuracyPublic::check_for_registry
+             14  <- ::clone
+
+      449 self  zkp_core::pcs::verify_zk_tagged
+            432  <- hashline::private_block::protocol::verify_core
+             17  <- hashline::private_block::token_io::classify_run::verify_classify_run_with
+
+      391 self  zkp_core::pcs::group_zclaims
+            391  <- hashline::private_block::protocol::verify_core
+
+      268 self  hashline::private_block::argument::rope_tables_at
+            268  <- hashline::private_block::argument::define
+
+      248 self  zkp_core::pcs::encode_row_zk
+            175  <- (worker thread: no named caller)
+             66  <- hashline::private_block::protocol::verify_core
+              6  <- hashline::private_block::token_io::classify_run::verify_classify_run_with
+              1  <- hashline::private_block::token_io::stage_out_c::verify
+
+      245 self  __bzero
+            111  <- hashline::private_block::protocol::verify_core
+             76  <- (worker thread: no named caller)
+             28  <- hashline::private_block::accuracy_act::group_column
+             11  <- hashline::private_block::argument::rope_tables_at
+              7  <- xzm_segment_group_alloc_chunk
+              4  <- hashline::private_block::token_io::classify_run::verify_classify_run_with
+
+      227 self  hashline::private_block::wire::Reader::fp2_vec
+            225  <- hashline::private_block::wire::Reader::hiding
+              2  <- hashline::private_block::wire::decode_segment
+
+      196 self  exp
+            195  <- hashline::private_block::accuracy_tables::silu_table_for
+              1  <- hashline::private_block::accuracy_aligned::derive_aligned_for
+
+      177 self  zkp_core::transcript::Transcript::absorb_fp2
+            163  <- hashline::private_block::protocol::verify_core
+             10  <- hashline::private_block::token_io::classify_run::verify_classify_run_with
+              2  <- hashline::private_block::token_io::stage_out_c::verify
+              2  <- hashline::private_block::argument::argument_with
+
+      171 self  hashline::private_block::argument::causal_mask_at
+             90  <- hashline::private_block::argument::accuracy::szc
+             81  <- hashline::private_block::argument::define
+
+      170 self  hashline::private_block::accuracy_aligned::derive_aligned_for
+            170  <- hashline::private_block::accuracy_public::AccuracyPublic::new_with_registry
+
+      165 self  zkp_core::ntt::NttTables::inverse
+            115  <- (worker thread: no named caller)
+             43  <- hashline::private_block::protocol::verify_core
+              3  <- hashline::private_block::token_io::classify_run::verify_classify_run_with
+              2  <- hashline::private_block::token_io::stage_out_c::verify
+              2  <- hashline::zk::weight_polys
+
+      142 self  mach_absolute_time
+             82  <- mach_vm_reclaim_try_cancel
+             48  <- mach_vm_reclaim_try_enter
+              8  <- _xzm_free
+              4  <- _xzm_xzone_free_freelist
+
+      107 self  blake3::compress_subtree_wide
+             88  <- blake3::compress_subtree_wide
+             18  <- blake3::compress_subtree_to_parent_node
+              1  <- blake3::Hasher::update

@@ -79,6 +79,78 @@ fn stage_block_is_the_statements(st: &ClassifyRunStatement, k: usize, blk: &Bloc
     Ok(())
 }
 
+/// **[A26] the prover's** [`stage_block_is_the_statements`] (the same checks, in the same
+/// order, with the same refusals), returning the record of its passed CS-1 / CS-4 check: the
+/// very block object and the stage shape (`protocol::CheckedPublic`, A17's record), which
+/// `prove_core_with` honours only for that object at an equal shape. With a resident server's
+/// `kept` record for this very object (`HL_A26_KEPT`, see [`prove_classify_run_with`]), the
+/// CS-1 / CS-4 pass recorded on it at startup at an equal shape stands for the check (D74's
+/// conditions; any other shape is checked) and CS-6 compares its kept digest (D72's).
+fn stage_block_kept<'b>(st: &ClassifyRunStatement, k: usize, blk: &'b BlockPublic, cs6: bool, kept: Option<&'b super::super::run::fork::KeptBlock>) -> Result<protocol::CheckedPublic<'b>, String> {
+    let ssh = st.stage_shape(k)?;
+    // only a record made on this very object
+    let kept = kept.filter(|kb| std::ptr::eq(kb.block(), blk));
+    let rec = match kept.and_then(|kb| protocol::CheckedPublic::of_kept(kb, &ssh)) {
+        Some(r) => r,
+        None => protocol::CheckedPublic::check(blk, &ssh).map_err(|e| format!("classifier run: block {k}: {e}"))?,
+    };
+    if cs6 {
+        let digest = match kept {
+            Some(kb) => kb.digest(),
+            None => blk.digest(),
+        };
+        if digest != st.block_digests[k] {
+            return Err(format!("classifier run: ruling CS-6 — block {k} is not the block the statement names"));
+        }
+    }
+    Ok(rec)
+}
+
+/// [A26] `HL_A26_RUN_RECORD` (default on; `0`: `prove_core` re-checks the block, as before)
+fn a26_run_record_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A26_RUN_RECORD").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [A26] `HL_A26_KEPT` (default OFF; `1`: a resident classifier server's prover takes its
+/// startup records for CS-1 / CS-4 / CS-6, see [`prove_classify_run_with`]). Off by default:
+/// D72 and D74 were read for `stack-serve` and the D55 preflight; their reading for
+/// `classify-serve` is the security owner's to give.
+fn a26_kept_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    #[cfg(test)]
+    match A26_KEPT_TEST.load(std::sync::atomic::Ordering::Relaxed) {
+        1 => return false,
+        2 => return true,
+        _ => {}
+    }
+    *ON.get_or_init(|| std::env::var("HL_A26_KEPT").map(|v| v == "1").unwrap_or(false))
+}
+
+/// [A26] `HL_A26_VERIFY_ONCE` (default OFF; `1`: over a resident source the verifier's stage
+/// loop does not repeat the pre-header pass's CS-1 / CS-4 / CS-6 on the same object). Off by
+/// default: D72 and D74 keep the verifier's checks as they are; whether one check and one
+/// re-hash per block per verification satisfies them is the security owner's reading.
+fn a26_verify_once_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    #[cfg(test)]
+    match A26_VERIFY_ONCE_TEST.load(std::sync::atomic::Ordering::Relaxed) {
+        1 => return false,
+        2 => return true,
+        _ => {}
+    }
+    *ON.get_or_init(|| std::env::var("HL_A26_VERIFY_ONCE").map(|v| v == "1").unwrap_or(false))
+}
+
+/// TEST BUILDS ONLY: `HL_A26_VERIFY_ONCE`'s override (0 the environment, 1 off, 2 on)
+#[cfg(test)]
+pub(crate) static A26_VERIFY_ONCE_TEST: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
+/// TEST BUILDS ONLY: `HL_A26_KEPT`'s override (0 the environment, 1 off, 2 on; process-wide;
+/// the kept records change no byte, so a concurrent test sees the same receipts)
+#[cfg(test)]
+pub(crate) static A26_KEPT_TEST: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
 fn endpoint_is_the_witnesss(ep: &CommittedZk, spec: &super::super::endpoint_g::EndpointSpecG, plane: &[Fp]) -> Result<(), String> {
     if plane.len() != spec.len() || ep.data.len() < spec.len() || ep.data[..spec.len()] != *plane {
         return Err("classifier: the input token endpoint's sealed plane is not stage IN-C's (refused in the sealing pass, before any header)".into());
@@ -95,20 +167,32 @@ pub(crate) fn prove_classify_run(
     owner: CommittedZk,
     sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
 ) -> Result<(ClassifyRunStats, Decommitment), String> {
-    prove_classify_run_with(st, &mut ResidentBlocks(blocks), tables, src, owner, sink)
+    prove_classify_run_with(st, &mut ResidentBlocks(blocks), None, tables, src, owner, sink)
 }
 
 /// **THE CLASSIFIER RUN PROVER.** One transcript, `L + 2` segments handed to
 /// `sink` (UNPUBLISHED until this returns Ok), block `k` at its own stage.
+///
+/// **[A26] `kept`**: a resident server's blocks (`run::fork::KeptBlock`, the same objects
+/// `blocks` hands out). Under `HL_A26_KEPT` the prover's CS-6 compares the digest kept with
+/// block `k` (D72's four conditions: computed by `BlockPublic::digest` on that very object at
+/// startup, stored with it, the object reachable by `&` only, a mismatch refused by CS-6's
+/// name) and its CS-1 / CS-4 check takes the pass recorded on that very object at an equal
+/// stage shape (D74's four conditions); any other block object or shape is checked and hashed
+/// as before. `None` (every other caller): the prover before A26. The verifier never reads
+/// these records.
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn prove_classify_run_with(
     st: &ClassifyRunStatement,
     blocks: &mut dyn TokenBlocks,
+    kept: Option<&[std::sync::Arc<super::super::run::fork::KeptBlock>]>,
     tables: &BoundClassifierTables,
     src: &mut dyn ClassifyRunSource,
     owner: CommittedZk,
     sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
 ) -> Result<(ClassifyRunStats, Decommitment), String> {
     use std::time::Instant;
+    let kept_of = |k: usize| kept.filter(|_| a26_kept_on()).and_then(|v| v.get(k)).map(|a| &**a);
     let (sh, l, cp) = (st.sh(), st.l(), &st.cp);
     #[cfg(test)]
     let cheating = protocol::cheating_prover_is_on();
@@ -135,7 +219,8 @@ pub(crate) fn prove_classify_run_with(
     }
     for k in 0..l {
         let blk = blocks.block(k)?;
-        stage_block_is_the_statements(st, k, &blk, !cheating)?;
+        // [A26] `stage_block_is_the_statements`, with a resident server's kept record (D72 / D74)
+        stage_block_kept(st, k, &blk, !cheating, kept_of(k))?;
         let (ssh, lay) = (st.stage_shape(k)?, st.block_layout(k)?);
         src.seal_check(k, &blk, &ssh, &mut |w| if cheating { Ok(()) } else { protocol::check_lookup_misses(&ssh, &lay, &blk, w).map_err(|e| format!("block {k}: {e} (refused in the sealing pass, before any header)")) })?;
     }
@@ -182,7 +267,9 @@ pub(crate) fn prove_classify_run_with(
         tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
         tr.absorb(b"pb-run-block", &st.block_digests[k]);
         let blk = blocks.block(k)?;
-        stage_block_is_the_statements(st, k, &blk, !cheating)?;
+        // [A26] CS-1 / CS-4 / CS-6 as `stage_block_is_the_statements` (the same checks, order and
+        // refusals), keeping the record of the passed CS-1 / CS-4 check for `prove_core_with`
+        let checked = Some(stage_block_kept(st, k, &blk, !cheating, kept_of(k))?);
         // [GPU-CLASSIFIER LANE, diagnostic only] phase marks (write-only recorder, inert unless HL_PB_TIMING=1)
         ph.mark(timing::Half::Run, "run: block load + statement check", 1, "block");
         let spec = st.boundary_spec(k + 1)?;
@@ -198,7 +285,12 @@ pub(crate) fn prove_classify_run_with(
         let ssh = st.stage_shape(k)?;
         let wit = src.witness(k, &blk, &ssh)?;
         ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
-        let core = protocol::prove_core(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?;
+        // [A26] the record above stands in for `prove_core`'s own CS-1 / CS-4 re-check of this very
+        // block at this very shape and for `define`'s per-slot registry re-checks (A17 / A18's
+        // `CoreHints`: honoured only for the same object at an equal shape; `HL_A17_CHECKED=0` /
+        // `HL_A18_REGISTRY=0` or `HL_A26_RUN_RECORD=0` re-check as before). The same bytes.
+        let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
+        let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)?;
         let [ic, oc] = core.io_claims;
         let mut claims = std::mem::take(&mut pending);
         claims.extend(ic);
@@ -264,10 +356,20 @@ pub(crate) fn verify_classify_run_with(st: &ClassifyRunStatement, blocks: &mut d
     // below only (their bytes and costs do not move).
     use std::time::Instant;
     let t_pre = Instant::now();
+    // [A26] `HL_A26_VERIFY_ONCE` (default OFF): over a RESIDENT source only, the stage loop
+    // below skips its repeat of this pass's CS-1 / CS-4 / CS-6 on the very object this pass
+    // checked and hashed in this same call (`passed[k]`, its address; the stage shape is the
+    // statement's for `k` in both). Every block is still checked and re-hashed once per
+    // verification, before the header.
+    let once = a26_verify_once_on() && blocks.resident();
+    let mut passed: Vec<Option<usize>> = vec![None; l];
     if sh.accuracy_stack() != super::super::accuracy_precision::Stack::Legacy {
-        for k in 0..l {
+        for (k, at) in passed.iter_mut().enumerate() {
             let blk = blocks.block(k)?;
             stage_block_is_the_statements(st, k, &blk, true)?;
+            if once {
+                *at = Some(&*blk as *const BlockPublic as usize);
+            }
         }
     }
     // [GPU-CLASSIFIER LANE, diagnostic only]
@@ -308,7 +410,9 @@ pub(crate) fn verify_classify_run_with(st: &ClassifyRunStatement, blocks: &mut d
         // [GPU-CLASSIFIER LANE, diagnostic only] the recorder starts before the block load
         let mut ph = timing::Phases::start();
         let blk = blocks.block(k)?;
-        stage_block_is_the_statements(st, k, &blk, true)?;
+        if passed[k] != Some(&*blk as *const BlockPublic as usize) {
+            stage_block_is_the_statements(st, k, &blk, true)?;
+        }
         ph.mark(timing::Half::Run, "run: block load + statement check", 1, "block");
         let lay = st.block_layout(k)?;
         let start = position_tag(&tr);

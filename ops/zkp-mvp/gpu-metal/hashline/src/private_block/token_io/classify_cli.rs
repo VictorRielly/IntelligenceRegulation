@@ -629,7 +629,9 @@ struct SharedProve<'a> {
     /// **[A24]** a resident server's blocks (`classify-serve`), each the digest pass's own
     /// object: the sealing pass and the run read them instead of reloading every block from
     /// the export twice; `None`: the export's digest-checked reloads, as before
-    blocks: Option<&'a [BlockPublic]>,
+    /// ([A26] each a `run::fork::KeptBlock`: the block with its startup digest and CS-1 / CS-4
+    /// pass, which the prover takes only under `HL_A26_KEPT`)
+    blocks: Option<&'a [std::sync::Arc<super::super::run::fork::KeptBlock>]>,
     /// [A24] with `blocks`: the bytes of sealing-pass witnesses the run may reuse (0: each
     /// block's witness rebuilt by the run, as `prove` does)
     witness_budget: u64,
@@ -712,7 +714,7 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
     let budget = shared.as_ref().map_or(0, |s| s.witness_budget);
     let (x_last, seal_loads, kept_witnesses) = match resident {
         Some(kept) => {
-            let (x_last, w) = seal_chain_keeping(p, &seq, &mut super::run::ResidentBlocks(kept), x_in0.clone(), budget)?;
+            let (x_last, w) = seal_chain_keeping(p, &seq, &mut super::run::KeptResidentBlocks(kept), x_in0.clone(), budget)?;
             (x_last, 0, w)
         }
         None => {
@@ -741,14 +743,16 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
     let mut src = CliSource { p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true, kept: kept_witnesses };
     let mut blocks = ExportTokenBlocks::new(p);
     // [A24] the run reads the same block source as the sealing pass
-    let mut kept = resident.map(super::run::ResidentBlocks);
+    let mut kept = resident.map(super::run::KeptResidentBlocks);
     let run_blocks: &mut dyn TokenBlocks = match kept.as_mut() {
         Some(r) => r,
         None => &mut blocks,
     };
     cli_phase("prove", "stage OUT-C values, input endpoint seal, statement", &mut tp);
     let t = Instant::now();
-    let (_, dec) = prove_classify_run_with(&st, run_blocks, bound, &mut src, owner, &mut |k, bytes| {
+    // [A26] with a resident server's kept blocks, the prover may take their startup records
+    // (`HL_A26_KEPT`); `None` for every other caller
+    let (_, dec) = prove_classify_run_with(&st, run_blocks, resident, bound, &mut src, owner, &mut |k, bytes| {
         let n = bytes.len();
         SegmentSink::accept(&mut disk, k, bytes)?;
         event(format!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64()));

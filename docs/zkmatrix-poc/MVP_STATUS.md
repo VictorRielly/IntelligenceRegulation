@@ -27,6 +27,7 @@ here. The rates count proving and witness work. Verification time is recorded se
 | **a stream of 4 requests, steady (the harness)** | 15.9 tok/s | **32.3–33.4 tok/s** (amortized 28.8–29.6; latency 5.8–10.9 s) |
 | proof only | 22.7 tok/s | **32.5–34.2 tok/s** (best 3.75–3.94 s; it varies from run to run on the shared Mac) |
 | **the media app (Shieldstral classifier, R13 blocks, T128, 3 category proofs per post), through the app end to end: every receipt freshly verified, publication included (A24, 2026-11-07, merged 9be693d0; development mode `shieldstral-fast`, privacy statement pending, not production)** | 0.17 proved tok/s (r16b, CPU 2 threads; Astra 2026-11-05) | **one post 5.5 tok/s (70 s); an 8-post stream 11.4 tok/s** (269 s; second half 15.4) [MEASURED, public posts, single runs on the shared Mac] |
+| **the media app with lane A26's binary (the same receipts byte for byte; the CPU work per category proof cut by a third; development mode `shieldstral-fast`, privacy statement pending, not production)** | A24: native stream 11.25 tok/s, one post 55.2 s; app stream 11.4 | **native stream 14.10 tok/s (+25%, A/B pairs both orders), one post 46.7 s (+18%); through the app: stream 13.8 tok/s, one post 54.4 s (7.1 tok/s); proof only 15.5** [MEASURED; app rows single runs] |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -303,6 +304,24 @@ here. The rates count proving and witness work. Verification time is recorded se
         - (b) an export with one calibration for all layers, which is a new integer model to re-validate;
         - (c) R13 at rate 1/2 (D59-style), for a smaller gain.
       - A25's unregistered W16R2 development profile is kept on its branch, not merged. The R13 path is unchanged.
+- **The media app's CPU work per proof cut by a third, the receipts unchanged (A26, 2026-11-07)** [MEASURED;
+  `results/zk60_a26_app_20261107/README.md`].
+  - Measured, A24's stream was not CPU-bound: about 185 CPU-s per category proof, half the cores busy. 37% of
+    the prover's CPU was one product: R13 LOW+h24's FFN down projection reads a 24-bit activation, which A4's
+    int16 GPU kernel declined. It now runs on the GPU as two exact int16 halves. The verifier's column test
+    sums only over each weight's nonzero rows; its public tables use split eq tables.
+  - A/B pairs in both orders, every receipt freshly verified: the 8-post stream 11.25 → 14.10 proved tok/s
+    (+25%), one post 55.2 → 46.7 s, the proof-only clock 12.4 → 15.5. Through the app: 13.8 tok/s (stream),
+    54.4 s (one post). CPU per proof 185 → 124 CPU-s.
+  - **Byte identity on the real export:** a new fixed-entropy harness for the Mac (an interposer for
+    `/dev/urandom`) shows A24's and A26's binaries make identical receipts, every file of every category, and
+    each verifier accepts the other's. The app pins the A26 binary; statement identity `e4f97455…` unchanged.
+  - **30 tok/s is not reached: the stream is now GPU-bound** (83% mean utilization, 96% median). What is left
+    needs less GPU work per proof (A10/A25's W16R2 route and a ruling, faster device sumcheck kernels) or a
+    second GPU.
+  - Two further cuts are in the binary but off, for the security owner's reading of D72 / D74: the prover's
+    kept digest and startup check for `classify-serve`, and a verifier that checks and re-hashes each block once
+    per verification instead of twice (−20% verifier CPU).
 - **D63 Lean, per profile at W16R2 (2026-11-07, Victor away: "focus on completing the lean proofs")** [PROVED; each
   lane checked on the merged tree; docs `ZK60_LEAN_L9/L11/L12_*_20261107.md`].
   - The W16R3 freeze needs Victor's approval, so the per-profile proofs now target **W16R2**, the profile that the

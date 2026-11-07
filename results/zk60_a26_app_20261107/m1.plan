@@ -1,0 +1,8 @@
+# Lane A26, job m1: the A/B pairs of the 8-post public stream, A24 as shipped (A24's pinned binary, A24's app
+# settings) against A26 as shipped (the A26 binary, the same lanes, one Metal queue per prover thread), in
+# the order A B B A. Every receipt freshly verified (ZK60_THROUGHPUT_TARGET's clock).
+# tag|binary|posts|driver flags|env
+m1a1|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a24|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|-
+m1b1|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a26|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+m1b2|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a26|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+m1a2|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a24|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|-

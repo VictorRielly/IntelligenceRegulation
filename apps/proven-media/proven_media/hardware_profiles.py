@@ -58,9 +58,10 @@ def fast_classifier_profile(path=None, name=FAST_PROFILE):
                             'writers_at_once': fast.WRITERS_AT_ONCE},
                 'guard_resources': {'service': {'need_gib': fast.SERVICE_NEED_GIB, 'cap_gib': fast.SERVICE_CAP_GIB,
                                                 'max_seconds': fast.SERVICE_MAX_SECONDS}},
+                'native_settings': fast.NATIVE_SETTINGS,
                 'privacy_status': fast.privacy_statement()['status'], 'production': False}
     require(type(profile) is dict and all(records.canonical(profile.get(k)) == records.canonical(v) for k, v in expected.items()),
-            'hardware profile differs from the A24 runtime; geometry and safety floors cannot be retuned here')
+            f'hardware profile differs from the {fast.LANE} runtime; geometry and safety floors cannot be retuned here')
     return {'name': name, **profile, 'validated_against_runtime': True, 'file': str(path)}
 
 

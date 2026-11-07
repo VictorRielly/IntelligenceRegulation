@@ -304,3 +304,42 @@ fn a24_the_piecewise_table_digests_equal_the_word_by_word_ones() {
     }
     eprintln!("A24 | the table digests in 1 MiB pieces equal the word-by-word digests (3 sizes, one past a piece boundary)");
 }
+
+/// **[A26] the embedding fold in split 32-bit limbs is the per-word field fold**, entry for
+/// entry: random int16 tables with `i16::MIN`, `i16::MAX` and zeros, at widths below, at and
+/// above a power of two, and eq tables of random points and of points with `p - 1` and zero
+/// coordinates (so eq entries take extreme words)
+#[test]
+fn a26_the_split_limb_embedding_fold_equals_the_field_fold() {
+    use super::super::super::classify::A26_EMB_TEST;
+    use crate::field::{Fp, Fp2};
+    use std::sync::atomic::Ordering::Relaxed;
+    let mut x = 0x26a2_6a26_9e37_79b9u64;
+    let mut next = || {
+        x ^= x << 13;
+        x ^= x >> 7;
+        x ^= x << 17;
+        x
+    };
+    let pm1 = Fp::ZERO.sub(Fp::ONE);
+    for (v, d) in [(5usize, 3usize), (7, 64), (33, 100), (9, 3072)] {
+        let emb: Vec<i16> = (0..v * d).map(|i| match i % 11 { 0 => i16::MIN, 1 => i16::MAX, 2 => 0, _ => (next() >> 20) as i16 }).collect();
+        let w: Vec<i16> = (0..d).map(|_| (next() >> 40) as i16).collect();
+        let t = ClassifierTables::new(v, d, emb, w).unwrap();
+        let logd = d.next_power_of_two().trailing_zeros() as usize;
+        for kind in 0..3 {
+            let r: Vec<Fp2> = (0..logd).map(|i| match kind {
+                0 => Fp2::new(Fp::new(next()), Fp::new(next())),
+                1 => if i % 2 == 0 { Fp2::new(pm1, pm1) } else { Fp2::new(Fp::new(next()), pm1) },
+                _ => if i == 0 { Fp2::ZERO } else { Fp2::new(pm1, Fp::ZERO) },
+            }).collect();
+            A26_EMB_TEST.store(1, Relaxed);
+            let field = t.emb_fold(&r);
+            A26_EMB_TEST.store(2, Relaxed);
+            let split = t.emb_fold(&r);
+            A26_EMB_TEST.store(0, Relaxed);
+            assert_eq!(split, field, "{v} x {d}, point kind {kind}");
+        }
+    }
+    eprintln!("A26 | the embedding fold in split 32-bit limbs equals the per-word field fold (4 shapes, 3 point kinds, extreme words)");
+}

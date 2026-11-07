@@ -1,0 +1,16 @@
+[zk60-guard 00:57:22] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:58:23] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:59:23] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:00:24] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:01:25] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:02:26] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:03:27] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:04:28] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:05:29] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:06:30] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:07:30] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:08:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:09:32] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:10:33] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:11:08] START a26-accept-t1 class=cpu need=16G cap=40G enforce=watchdog-only waited=827s run=5d415e4606ce
+[zk60-guard 01:12:17] END a26-accept-t1 exit=1 child_wall=69s peak_rss=1.84G min_avail=233.58G

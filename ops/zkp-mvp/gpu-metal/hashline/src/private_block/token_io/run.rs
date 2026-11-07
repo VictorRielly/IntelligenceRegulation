@@ -751,6 +751,13 @@ pub(crate) trait TokenBlocks {
     fn count(&self) -> usize;
     /// block `k` (borrowed from a slice, or shared out of a one-block cache)
     fn block(&mut self, k: usize) -> Result<super::super::run::BlockRef<'_>, String>;
+    /// **[A26]** whether every block this source hands out is borrowed from one slice that
+    /// outlives the source (the same object at the same address for every call, never freed
+    /// or written while the source lives): a resident slice. A loading source (a block read
+    /// from disk per call, whose allocation a later load may reuse) is not.
+    fn resident(&self) -> bool {
+        false
+    }
 }
 
 /// a resident slice of blocks (R1, R2)
@@ -762,6 +769,29 @@ impl TokenBlocks for ResidentBlocks<'_> {
     }
     fn block(&mut self, k: usize) -> Result<super::super::run::BlockRef<'_>, String> {
         self.0.get(k).map(super::super::run::BlockRef::Borrowed).ok_or_else(|| format!("token I/O run: no block {k}"))
+    }
+    fn resident(&self) -> bool {
+        true
+    }
+}
+
+/// **[A26] a resident classifier server's blocks** (`classify_serve.rs`), each a
+/// `run::fork::KeptBlock`: the block where it lives for the server's life, with the digest and
+/// the CS-1 / CS-4 pass made on that very object at startup (D72 / D74's record). Read through
+/// `&` only, like [`ResidentBlocks`]; which checks may take the record is the prover's business
+/// (`classify_run::prove_classify_run_kept`), and a verifier reading these blocks re-checks and
+/// re-hashes every block as always.
+pub(crate) struct KeptResidentBlocks<'a>(pub &'a [std::sync::Arc<super::super::run::fork::KeptBlock>]);
+
+impl TokenBlocks for KeptResidentBlocks<'_> {
+    fn count(&self) -> usize {
+        self.0.len()
+    }
+    fn block(&mut self, k: usize) -> Result<super::super::run::BlockRef<'_>, String> {
+        self.0.get(k).map(|b| super::super::run::BlockRef::Borrowed(b.block())).ok_or_else(|| format!("token I/O run: no block {k}"))
+    }
+    fn resident(&self) -> bool {
+        true
     }
 }
 

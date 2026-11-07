@@ -1,0 +1,25 @@
+   61945  masked_prove <- argument_with <- prove_core_after_with <- prove_core_with
+   11532  commit_impl <- commit_zk_owned_tagged <- prove_core_with <- prove_classify_run_kept
+   10856  commit_impl <- commit_zk_owned_tagged <- prove_core_after_with <- prove_core_with
+    6261  prove_core_after_with <- prove_core_with <- prove_classify_run_kept <- prove_with_public
+    4098  commit_impl <- commit_zk_owned_tagged <- prepare <- prove_classify_run_kept
+    1446  wprod_run <- witness_product <- matmul <- build_with
+    1158  wprod_run <- witness_product <- on_device <- on_device_split
+     849  wprod_run <- witness_product <- matmul_in_out <- build_with
+     496  into_opening <- prove_classify_run_kept <- prove_with_public <- Thread_18176202: a24-lane3-0
+     422  commit_impl <- commit_zk_owned_tagged <- prove <- prove_classify_run_kept
+     273  into_opening <- prove_classify_run_kept <- prove_with_public <- Thread_18176187: a24-lane0-0
+     213  into_opening <- prove_classify_run_kept <- prove_with_public <- Thread_18176207: a24-lane4-0
+     177  into_opening <- prove_classify_run_kept <- prove_with_public <- Thread_18176192: a24-lane1-0
+     165  wprod_run <- witness_product <- matmul <- Thread_18176214: a24-lane5-2
+     148  into_opening <- prove_classify_run_kept <- prove_with_public <- Thread_18176197: a24-lane2-0
+     139  commit_impl <- commit_zk_owned_tagged <- prepare <- prove
+     135  into_opening <- prove_classify_run_kept <- prove_with_public <- Thread_18176212: a24-lane5-0
+     128  wprod_run <- witness_product <- matmul <- Thread_18176208: a24-lane4-1
+     125  prove <- prove_classify_run_kept <- prove_with_public <- Thread_18176207: a24-lane4-0
+     122  wprod_run <- witness_product <- matmul_in_out <- Thread_18176193: a24-lane1-1
+     115  wprod_run <- witness_product <- matmul <- Thread_18176198: a24-lane2-1
+     115  wprod_run <- witness_product <- matmul <- Thread_18176210: a24-lane4-3
+     114  commit_impl <- commit_zk_owned_tagged <- seal_input <- prove_with_public
+     109  wprod_run <- witness_product <- matmul <- Thread_18176216: a24-lane5-4
+     108  wprod_run <- witness_product <- matmul <- Thread_18176199: a24-lane2-2

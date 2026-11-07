@@ -83,6 +83,39 @@ pub fn eval_mle_ext(v: &[Fp2], r: &[Fp2]) -> Fp2 {
     v.par_iter().zip(eq.par_iter()).map(|(a, e)| e.mul(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b))
 }
 
+/// **[A26] the MLE values of several tables at ONE point, without the point's full eq
+/// table.** `eq(r, x)` factors over the variables, so with `x = (hi, lo)` (MSB first, `lo`
+/// the last `n / 2` variables) `eq(r, x) = eq(r_hi, hi) * eq(r_lo, lo)`, and
+/// `sum_x v[x] eq(r, x) = sum_hi eq(r_hi, hi) * sum_lo v[hi, lo] eq(r_lo, lo)`. The two half
+/// tables are built once for the point (`2^(n/2) + 2^(n - n/2)` entries) and each table costs
+/// one product per entry, where [`eval_mle_ext`] builds the `2^n` eq table (two products
+/// per entry) for every table and then takes the dot product. Field arithmetic is exact,
+/// so [`SplitEq::eval_ext`] is the same field element as `eval_mle_ext(v, r)`.
+pub struct SplitEq {
+    hi: Vec<Fp2>,
+    lo: Vec<Fp2>,
+}
+
+impl SplitEq {
+    /// the half eq tables of `r`
+    pub fn new(r: &[Fp2]) -> SplitEq {
+        let n = r.len();
+        let lo_log = n / 2;
+        SplitEq { hi: eq_table_msb(&r[..n - lo_log]), lo: eq_table_msb(&r[n - lo_log..]) }
+    }
+
+    /// `eval_mle_ext(v, r)` for this point `r` (`v.len()` must be `2^|r|`)
+    pub fn eval_ext(&self, v: &[Fp2]) -> Fp2 {
+        let w = self.lo.len();
+        assert_eq!(v.len(), self.hi.len() * w);
+        let lo = &self.lo;
+        v.par_chunks(w)
+            .zip(self.hi.par_iter())
+            .map(|(row, h)| row.iter().zip(lo.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(x.mul(*e))).mul(*h))
+            .reduce(|| Fp2::ZERO, |a, b| a.add(b))
+    }
+}
+
 /// Given a row-major matrix M (rows x cols, base field) and row weights
 /// w (len rows), return w^T M (len cols) in the extension.
 pub fn fold_rows_base(m: &[Fp], rows: usize, cols: usize, w: &[Fp2]) -> Vec<Fp2> {
@@ -397,6 +430,24 @@ mod tests {
             let t_scanp = t.elapsed().as_secs_f64();
             assert_eq!(a, b);
             eprintln!("[M8 bench] rep {rep}: column fold field {:.4} s, deferred {:.4} s; class scan one thread {:.4} s, parallel {:.4} s", t_field, t_def, t_scan1, t_scanp);
+        }
+    }
+
+    /// [A26] the split evaluation is `eval_mle_ext`, field element for field element, at
+    /// every arity from 0 (one entry) through both sides of the eq table's parallel cutoff,
+    /// for dense tables, base-valued tables and tables with zeros and `p - 1` entries
+    #[test]
+    fn a26_split_eq_evaluation_equals_eval_mle_ext() {
+        let pm1 = Fp::ZERO.sub(Fp::ONE);
+        for n in [0usize, 1, 2, 3, 5, 8, 11, 16, 17] {
+            let r = pt(40 + n as u64, n);
+            let s = SplitEq::new(&r);
+            let dense: Vec<Fp2> = pt(70 + n as u64, 1usize << n);
+            let base: Vec<Fp2> = (0..1usize << n).map(|i| Fp2::from_base(Fp::from_i64((i as i64 % 255) - 127))).collect();
+            let edge: Vec<Fp2> = (0..1usize << n).map(|i| match i % 4 { 0 => Fp2::ZERO, 1 => Fp2::new(pm1, pm1), 2 => Fp2::ONE, _ => Fp2::new(Fp::new(i as u64), pm1) }).collect();
+            for v in [&dense, &base, &edge] {
+                assert_eq!(s.eval_ext(v), eval_mle_ext(v, &r), "n {n}");
+            }
         }
     }
 

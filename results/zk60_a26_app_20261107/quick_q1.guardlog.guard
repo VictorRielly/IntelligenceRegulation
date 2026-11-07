@@ -1,0 +1,9 @@
+[zk60-guard 00:23:35] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:24:36] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:25:37] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:26:37] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:27:38] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:28:38] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:29:39] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:30:40] START a26-quick-q1 class=build need=8G cap=16G enforce=watchdog-only waited=425s run=dc05f160dad5
+[zk60-guard 00:31:53] END a26-quick-q1 exit=0 child_wall=73s peak_rss=1.80G min_avail=232.30G

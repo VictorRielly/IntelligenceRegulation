@@ -1,0 +1,40 @@
+2026-11-07T12:14:54Z start
+2026-11-07T12:14:54Z release CLI rc=0
+2026-11-07T12:14:54Z zk60_classify sha256 b6336628364ae4407a2640d52b84ddf3c9688420fc827082ccb1c1aaf37d366d (the app's pin: b6336628364ae4407a2640d52b84ddf3c9688420fc827082ccb1c1aaf37d366d)
+2026-11-07T12:17:44Z test build rc=0
+2026-11-07T12:17:48Z hashline a26_ rc=0
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1108 filtered out; finished in 3.65s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1108 filtered out; finished in 3.65s
+2026-11-07T12:17:59Z hashline a4_ rc=0
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 1105 filtered out; finished in 11.27s
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 1105 filtered out; finished in 11.27s
+2026-11-07T12:18:23Z hashline s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1091 filtered out; finished in 23.68s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1091 filtered out; finished in 23.68s
+2026-11-07T12:18:23Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1096 filtered out; finished in 0.11s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1096 filtered out; finished in 0.11s
+2026-11-07T12:18:39Z hashline r19b rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1106 filtered out; finished in 15.35s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1106 filtered out; finished in 15.35s
+2026-11-07T12:18:59Z hashline token_io::classify rc=0
+test result: ok. 85 passed; 0 failed; 12 ignored; 0 measured; 1014 filtered out; finished in 20.62s
+test private_block::token_io::classify_cli::batch::r18::r18_a_failed_batch_leaves_no_receipt_statement_or_decommitment_behind ... ok
+test result: ok. 85 passed; 0 failed; 12 ignored; 0 measured; 1014 filtered out; finished in 20.62s
+2026-11-07T12:19:01Z lean_l9_export rc=0
+2026-11-07T12:19:01Z L9 corpus byte-identical: cmp rc=0
+2026-11-07T12:19:02Z lean_l11_export rc=0
+2026-11-07T12:19:02Z L11 corpus byte-identical: cmp rc=0
+2026-11-07T12:19:08Z lean_l17_export rc=0
+2026-11-07T12:19:08Z L17 block_corpus.txt byte-identical: cmp rc=0
+2026-11-07T12:19:08Z L17 slots_corpus.txt byte-identical: cmp rc=0
+2026-11-07T12:19:08Z L17 segment_corpus.txt byte-identical: cmp rc=1
+2026-11-07T12:19:08Z L17 shape_corpus.txt byte-identical: cmp rc=0
+fork_frame.bin: OK
+segment.bin: FAILED
+open_corpus.txt: OK
+shasum: WARNING: 1 computed checksum did NOT match
+2026-11-07T12:19:08Z L17 large files against their committed sha256: rc=1
+2026-11-07T12:19:08Z zkp-core suite rc=0
+test result: ok. 83 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.28s
+2026-11-07T12:19:08Z all done
