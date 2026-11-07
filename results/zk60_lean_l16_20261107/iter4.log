@@ -1,0 +1,33 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/results/zk60_lean_l16_20261107/plan.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Open.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Terminal.lean
+build ZK60Formal.ExtractW16Terminal
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Block.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Open.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Open.lean (19 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Terminal.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Terminal.lean (24 s)
+== lake build ZK60Formal.ExtractW16Terminal ==
+Build completed successfully (3431 jobs).
+build rc 0 (28 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Block.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Block.lean:228:83: error: unsolved goals
+p : ℕ
+hp1 : p ≤ 2 ^ 64
+hp2 : 2 ^ 64 - 2 ^ 32 ≤ p
+q ℓ d : ℕ
+hℓ : ℓ ≤ 2 ^ 20
+hd : d ≤ 7
+hq : q < 2 ^ 100
+hp0 : p ≠ 0
+hN0 : ↑(2 ^ 128) ≠ 0
+hone : 1 + ↑p / ↑(2 ^ 128) = ↑(2 ^ 128 + p) / ↑(2 ^ 128)
+hsq : (↑(2 ^ 128 + p) / ↑(2 ^ 128)) ^ 2 = ↑((2 ^ 128 + p) * (2 ^ 128 + p)) / ↑(2 ^ 128 * 2 ^ 128)
+hcard : ↑(Fintype.card Dig) = ↑(2 ^ 128 * 2 ^ 128)
+hT : q + ℓ + 1 ≤ 2 ^ 21 * (q + 1)
+h1 : ↑((q + ℓ + 1) * d) / ↑(p ^ 2) * (1 + ↑p / ↑(2 ^ 128)) ^ 2 ≤ ↑(2 * (q + 1)) / ↑(2 ^ 102)
+hcoll : ∀ t ≤ 2 ^ 22 * (q + 1), collBound t Dig ≤ ↑(q + 1) / ↑(2 ^ 102)
+⊢ (↑(2 * (q + 1)) + (↑q + ↑1) + (↑q + ↑1)) / ↑(2 ^ 102) = (↑(2 * (q + 1) + (q + 1)) + ↑(q + 1)) / ↑(2 ^ 102)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Block.lean:272:20: error(lean.unknownIdentifier): Unknown constant `PMF.toOuterMeasure_apply_le_one`
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6dd8ecd1d3edee58/formal/ZK60Formal/ExtractW16Block.lean (32 s)
+rc 1, 32 s

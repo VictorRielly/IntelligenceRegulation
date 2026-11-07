@@ -96,3 +96,8 @@ import ZK60Formal.ExecOpening
 import ZK60Formal.ExecOpeningM
 import ZK60Formal.ExecOpeningFS
 import ZK60Formal.ExecOpeningBlock
+import ZK60Formal.ExtractW16Chain
+import ZK60Formal.ExtractW16Slots
+import ZK60Formal.ExtractW16Terminal
+import ZK60Formal.ExtractW16Block
+import ZK60Formal.ExtractW16Open
