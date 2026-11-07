@@ -170,3 +170,8 @@ import ZK60Formal.LinkW16Mask
 import ZK60Formal.LinkW16MaskChain
 import ZK60Formal.LinkW16Sem
 import ZK60Formal.ExtractInstW16
+import ZK60Formal.HonestClassifySum
+import ZK60Formal.HonestClassifyBlock
+import ZK60Formal.HonestClassifyRun
+import ZK60Formal.HonestClassifyCount
+import ZK60Formal.HonestClassifyLinks

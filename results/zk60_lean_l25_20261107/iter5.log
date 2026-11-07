@@ -1,0 +1,69 @@
+== lake build ZK60Formal.HonestClassifyCount ZK60Formal.HonestClassifyLinks ==
+✖ [3493/3493] Building ZK60Formal.HonestClassifyCount (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/ZK60Formal/HonestClassifyCount.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyCount.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/lib/lean/ZK60Formal/HonestClassifyCount.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyCount.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3d358068f62b6713/formal/.lake/build/ir/ZK60Formal/HonestClassifyCount.setup.json --json
+warning: ZK60Formal/HonestClassifyCount.lean:147:19: Variable name `t` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _t
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestClassifyCount.lean:148:16: Variable name `t` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _t
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/HonestClassifyCount.lean:199:48: Application type mismatch: The argument
+  e
+has type
+  z ∈
+    OC.queries G
+      (oc Lq hLq k
+        { state := liftH G { key := t.key, msg := absorbMsg t.state l d }, counter := t.counter, key := t.key })
+but is expected to have type
+  z ∈ OC.queries G (oc Lq hLq k t)
+in the application
+  queries_below hLq G k t hs (hn t.state) z e
+error: ZK60Formal/HonestClassifyCount.lean:213:58: Application type mismatch: The argument
+  e
+has type
+  z ∈
+    OC.queries G
+      (oc Lq hLq (k (liftH G { key := t.key, msg := squeezeMsg t.state t.counter }))
+        { state := liftH G { key := t.key, msg := squeezeMsg t.state t.counter }, counter := t.counter + 1,
+          key := t.key })
+but is expected to have type
+  z ∈ OC.queries G (oc Lq hLq (k ?m.259) t)
+in the application
+  queries_below hLq G (k ?m.259) t (hs ?m.259) ?m.263 z e
+warning: ZK60Formal/HonestClassifyCount.lean:271:0: automatically included section variable(s) unused in theorem `ZK60.HonestClassify.tprogSite_delta`:
+  [Field K]
+  [DecidableEq K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [DecidableEq K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/HonestClassifyCount.lean:278:0: automatically included section variable(s) unused in theorem `ZK60.HonestClassify.tprogSite_fires`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/HonestClassifyCount.lean:301:0: automatically included section variable(s) unused in theorem `ZK60.HonestClassify.isZero_iff_toK`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/HonestClassifyCount.lean:429:10: typeclass instance problem is stuck
+  Fintype ?m.90
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Fintype` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
+Some required targets logged failures:
+- ZK60Formal.HonestClassifyCount
+error: build failed
+build rc 1
+rc build 1 files 0, 6 s
