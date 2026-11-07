@@ -1,0 +1,8 @@
+✔ [3553/3560] Built ZK60Formal.LinkW16Parse (12s)
+✔ [3554/3560] Built ZK60Formal.ExtractInstW16 (3.1s)
+✔ [3555/3560] Built ZK60Formal.LinkW16Trace (3.5s)
+✔ [3556/3560] Built ZK60Formal.LinkW16Mask (11s)
+✔ [3557/3560] Built ZK60Formal.LinkW16MaskChain (9.2s)
+✔ [3558/3560] Built ZK60Formal.LinkW16Sem (9.2s)
+✔ [3559/3560] Built ZK60Formal (2.6s)
+Build completed successfully (3560 jobs).
