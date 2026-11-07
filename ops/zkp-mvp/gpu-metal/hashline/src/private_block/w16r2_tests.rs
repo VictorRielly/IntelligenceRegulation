@@ -167,6 +167,10 @@ fn seeded_digest(sh: &Shape, blk: &BlockPublic, w: Witness) -> String {
 // Lean block verifier; a child of this module so that it uses the harness above
 #[cfg(test)] #[path = "lean_l9_export_tests.rs"] mod lean_l9_export_tests;
 
+// D63 Lean lane L17 (2026-11-07): the R13 block's agreement corpora (L9's, L10's and L11's formats, a real D12a
+// segment, the Shieldstral R13 shape's facts), a child of this module so that it uses the harness above
+#[cfg(test)] #[path = "lean_l17_export_tests.rs"] mod lean_l17_export_tests;
+
 /// the bytes of one block core: `(total, A opening, H opening, M opening, slots)`
 fn core_bytes(core: &CoreProof) -> (usize, usize, usize, usize, usize) {
     let slots: usize = core.slots.iter().map(|s| 16 + s.sc.size_bytes() + 16 * s.terms.len()).sum();
