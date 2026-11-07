@@ -1,0 +1,20 @@
+2026-11-07T17:18:37Z start
+2026-11-07T17:29:48Z hashline whole lib suite rc=101 (3 known A23 failures expected)
+test result: FAILED. 970 passed; 3 failed; 89 ignored; 0 measured; 0 filtered out; finished in 512.76s
+test private_block::review_tests::a_toy_receipt_made_before_f12_is_refused ... FAILED
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... FAILED
+test private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name ... FAILED
+2026-11-07T17:29:48Z zkp-core suite rc=0
+test result: ok. 83 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.29s
+2026-11-07T17:29:50Z L9 corpus byte-identical: cmp rc=0
+2026-11-07T17:29:51Z L11 corpus byte-identical: cmp rc=0
+2026-11-07T17:29:51Z L13 layout byte-identical: cmp rc=0
+2026-11-07T17:29:56Z L17 block_corpus.txt byte-identical: cmp rc=0
+2026-11-07T17:29:56Z L17 slots_corpus.txt byte-identical: cmp rc=0
+2026-11-07T17:29:56Z L17 shape_corpus.txt byte-identical: cmp rc=0
+2026-11-07T17:29:57Z L17 fork_frame.bin and open_corpus.txt sha256 as committed: cmp rc=0
+2026-11-07T17:30:04Z app suite rc=0
+Ran 218 tests in 6.776s
+
+OK
+2026-11-07T17:30:04Z all done

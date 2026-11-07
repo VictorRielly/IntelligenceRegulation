@@ -1,0 +1,2 @@
+[zk60-guard 09:18:37] START a27merge-check class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=60df88229bdc
+[zk60-guard 09:30:04] END a27merge-check exit=0 child_wall=687s peak_rss=11.81G min_avail=222.57G
