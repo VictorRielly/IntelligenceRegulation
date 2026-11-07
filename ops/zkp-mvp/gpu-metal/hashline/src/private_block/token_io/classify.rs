@@ -460,6 +460,23 @@ pub(crate) fn census_classify_statement(profile: &'static str, l: usize) -> (Cla
 /// below were written before A24; handed over in 1 MiB pieces so BLAKE3 hashes them with its
 /// wide kernels (the 805 MB Shieldstral embedding took about 3 s word by word). A BLAKE3
 /// digest is a function of the concatenated input only, not of how it is split.
+/// [A26] `HL_A26_EMB` (default on; `0`: `ClassifierTables::emb_fold`'s per-word field fold)
+fn a26_emb_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    #[cfg(test)]
+    match A26_EMB_TEST.load(std::sync::atomic::Ordering::Relaxed) {
+        1 => return false,
+        2 => return true,
+        _ => {}
+    }
+    *ON.get_or_init(|| std::env::var("HL_A26_EMB").map(|v| v != "0").unwrap_or(true))
+}
+
+/// TEST BUILDS ONLY: `HL_A26_EMB`'s override (0 the environment, 1 off, 2 on; the two folds
+/// are the same field elements, so a concurrent test sees the same values)
+#[cfg(test)]
+pub(crate) static A26_EMB_TEST: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
 fn update_le_words(h: &mut blake3::Hasher, words: &[i16]) {
     const PIECE: usize = 1 << 19;
     let mut buf: Vec<u8> = Vec::with_capacity(2 * PIECE.min(words.len()));
@@ -513,6 +530,37 @@ impl ClassifierTables {
     pub(crate) fn emb_fold(&self, r: &[Fp2]) -> Vec<Fp2> {
         use rayon::prelude::*;
         let e = eq_table_msb(r);
+        // [A26] `HL_A26_EMB` (default on; `0`: the per-word field fold below). Each eq entry's two
+        // canonical words split as `c = 2^32 c_hi + c_lo` (`c_hi, c_lo < 2^32`); a row's sums
+        // `S_hi = sum w c_hi` and `S_lo = sum w c_lo` over its int16 words are exact in i64
+        // (`|w c_x| < 2^47`, at most `d < 2^16` terms: `|S_x| < 2^63`), and `2^32 S_hi + S_lo`
+        // is the exact integer `sum w c` (in i128), reduced once. The field sum is that integer
+        // mod p, so every entry is the per-word fold's field element.
+        if a26_emb_on() && self.d < 1 << 16 && e.len() >= self.d {
+            let split = |x: u64| (i64::from((x >> 32) as u32), i64::from(x as u32));
+            let limbs: Vec<[i64; 4]> = e[..self.d].iter().map(|c| {
+                let ((h0, l0), (h1, l1)) = (split(c.c0.0), split(c.c1.0));
+                [h0, l0, h1, l1]
+            }).collect();
+            let reduce = |hi: i64, lo: i64| {
+                let s = (i128::from(hi) << 32) + i128::from(lo);
+                let m = Fp::from_u128(s.unsigned_abs());
+                if s < 0 { Fp::ZERO.sub(m) } else { m }
+            };
+            return (0..self.v)
+                .into_par_iter()
+                .map(|v| {
+                    let mut s = [0i64; 4];
+                    for (w, l) in self.emb_row(v).iter().zip(limbs.iter()) {
+                        let w = i64::from(*w);
+                        for (a, b) in s.iter_mut().zip(l.iter()) {
+                            *a += w * b;
+                        }
+                    }
+                    Fp2::new(reduce(s[0], s[1]), reduce(s[2], s[3]))
+                })
+                .collect();
+        }
         (0..self.v)
             .into_par_iter()
             .map(|v| self.emb_row(v).iter().zip(e.iter()).fold(Fp2::ZERO, |a, (w, c)| if *w == 0 { a } else { a.add(c.mul_base(Fp::from_i64(i64::from(*w)))) }))

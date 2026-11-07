@@ -1,0 +1,219 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a26_app_20261107/stream_p1s8/sample_prover.txt: 2404947 thread-samples
+    1841804   76.6%  blocked (kernel wait / I/O)
+     529472   22.0%  running
+      33671    1.4%  yield (idle spin)
+
+running, by top-of-stack function (self), top 30 (% of running):
+     194907   36.8%  rayon::iter::plumbing::bridge_producer_consumer::helper #hf1e2af5ff5e8f9f8
+      64750   12.2%  hashline::gpu::metal::wait_done
+      34256    6.5%  blake3_hash_many_neon
+      33163    6.3%  rayon::iter::plumbing::bridge_producer_consumer::helper #h9849ccf7e00a2263
+      26204    4.9%  rayon::iter::plumbing::bridge_producer_consumer::helper #h48ffd81e14b7fb1e
+      18354    3.5%  hashline::private_block::protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$ #habdc3233b0e6c846
+      14285    2.7%  blake3::platform::Platform::compress_xof
+      12629    2.4%  core::ops::function::impls:: for $RF$F::call_mut #ha9645a7237fdba8a
+       9069    1.7%  _platform_memmove
+       8700    1.6%  rayon::iter::plumbing::bridge_producer_consumer::helper #h5e8ecb223a8e9666
+       8108    1.5%  hashline::private_block::protocol::helper_one
+       6901    1.3%  core::ops::function::impls:: for $RF$F::call_mut #h3e9afd55fbe501c4
+       6577    1.2%  rayon::iter::plumbing::bridge_producer_consumer::helper #h7b80e0779d182da7
+       6545    1.2%  hashline::private_block::protocol::write_helpers_u8::_$u7b$$u7b$closure$u7d$$u7d$ #h24a1db9f2bf3b778
+       6121    1.2%  __bzero
+       5573    1.1%  rayon::iter::plumbing::bridge_producer_consumer::helper #hb73be639335576b2
+       5126    1.0%  rayon::iter::plumbing::bridge_producer_consumer::helper #hb6717527492f02e0
+       4961    0.9%  zkp_core::field::batch_inverse2
+       4053    0.8%  rayon::iter::plumbing::bridge_producer_consumer::helper #hc2314d42b609da2e
+       4032    0.8%  rayon::iter::plumbing::bridge_producer_consumer::helper #h4281640003e69482
+       3886    0.7%  blake3::portable::compress_in_place
+       3846    0.7%  hashline::private_block::witness::accuracy::assign_with::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$ #hecb19fbb65a970fa
+       2342    0.4%  rayon::iter::plumbing::bridge_producer_consumer::helper #ha4f8204b8363543d
+       2219    0.4%  rayon::iter::plumbing::bridge_producer_consumer::helper #h2173933bebfa053b
+       2168    0.4%  hashline::private_block::token_io::classify::update_le_words
+       2126    0.4%  rayon::iter::plumbing::bridge_producer_consumer::helper #h3bd45c554c4ae24d
+       1953    0.4%  objc_msgSend
+       1732    0.3%  rayon::iter::plumbing::bridge_producer_consumer::helper #h9396a357e2b13883
+       1673    0.3%  -[_MTLCommandBuffer status]
+       1660    0.3%  hashline::private_block::run_sink::a21_sha::sha256
+
+inclusive (% of all thread-samples), top 30:
+    2309580   96.0%  std::sys::backtrace::__rust_begin_short_backtrace
+    2276586   94.7%  thread_start
+    2276586   94.7%  _pthread_start
+    2276586   94.7%  _RNvNvMs0_NtNtNtCsgL88BVMLsDE_3std3sys6thread4unixNtB7_6Thread3new12thread_start
+    2276586   94.7%  core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+    2045569   85.1%  rayon_core::registry::WorkerThread::wait_until_cold #h9f3d014fce1c9e6d
+    1679700   69.8%  _pthread_cond_wait
+    1679424   69.8%  __psynch_cvwait
+     197964    8.2%  as rayon_core::job::Job::execute #he70b2e3228e71e0d
+     197964    8.2%  rayon_core::thread_pool::ThreadPool::install::_$u7b$$u7b$closure$u7d$$u7d$ #h926785721b87c580
+     197964    8.2%  rayon_core::registry::Registry::in_worker_cold #hcd1fa66b1999827d
+     197964    8.2%  rayon_core::latch::LockLatch::wait_and_reset #h5b28f5e439969aed
+     197947    8.2%  hashline::private_block::token_io::classify_cli::prove_with_public
+     195781    8.1%  rayon::iter::plumbing::bridge_producer_consumer::helper #hf1e2af5ff5e8f9f8
+     195773    8.1%  rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$ #h52c0895bf74996b6
+     164885    6.9%  as rayon_core::job::Job::execute #h1d00dce7cfdeff01
+     134848    5.6%  hashline::private_block::token_io::classify_run::prove_classify_run_with
+     110660    4.6%  hashline::private_block::protocol::prove_core
+      95367    4.0%  start_wqthread
+      94948    3.9%  _pthread_wqthread
+      93240    3.9%  __workq_kernreturn
+      87758    3.6%  hashline::private_block::protocol::prove_core_after_with
+      68397    2.8%  hashline::gpu::metal::wait_done
+      64614    2.7%  _dispatch_semaphore_wait_slow
+      64614    2.7%  _dispatch_sema4_wait
+      64614    2.7%  semaphore_wait_trap
+      58587    2.4%  hashline::private_block::token_io::classify_cli::seal_chain_keeping
+      54555    2.3%  hashline::private_block::argument::argument_with
+      53295    2.2%  hashline::private_block::witness::build_for_block
+      47056    2.0%  hashline::private_block::witness::accuracy::build_with
+
+   194907 self  rayon::iter::plumbing::bridge_producer_consumer::helper #hf1e2af5ff5e8f9f8
+         153165  <- (worker thread: no named caller)
+          41742  <- hashline::private_block::witness::matmul_in_out
+
+    64750 self  hashline::gpu::metal::wait_done
+          33045  <- hashline::gpu::metal::run_tagged_pre::_$u7b$$u7b$closure$u7d$$u7d$ #he8b29d723ec34ded
+          17673  <- hashline::gpu::metal::run_tagged::_$u7b$$u7b$closure$u7d$$u7d$ #h580b12bb3cf5d943
+           6862  <- hashline::gpu::metal::run_tagged::_$u7b$$u7b$closure$u7d$$u7d$ #h475b8bcb55471593
+           4419  <- hashline::gpu::metal::run_tagged::_$u7b$$u7b$closure$u7d$$u7d$ #hdd2d3e9fae080dbf
+           2751  <- hashline::gpu::metal::wprod_run
+
+    34256 self  blake3_hash_many_neon
+          32628  <- blake3::compress_subtree_wide
+           1613  <- blake3::compress_parents_parallel
+             15  <- blake3_hash_many_neon
+
+    33163 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h9849ccf7e00a2263
+          26161  <- (worker thread: no named caller)
+           7002  <- hashline::gpu::metal::fold_segments_a8_opts
+
+    26204 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h48ffd81e14b7fb1e
+          20602  <- (worker thread: no named caller)
+           5602  <- hashline::private_block::weights_vanish_off_support
+
+    18354 self  hashline::private_block::protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$ #habdc3233b0e6c846
+          14518  <- (worker thread: no named caller)
+           3836  <- hashline::private_block::protocol::lookup_values
+
+    14285 self  blake3::platform::Platform::compress_xof
+          10516  <- (worker thread: no named caller)
+           1549  <- hashline::private_block::protocol::prove_core
+           1318  <- hashline::pcs::commit_zk_owned_tagged
+            622  <- hashline::private_block::protocol::prove_core_after_with
+            141  <- hashline::private_block::boundary::prepare
+             76  <- blake3::OutputReader::fill
+
+    12629 self  core::ops::function::impls:: for $RF$F::call_mut #ha9645a7237fdba8a
+           9970  <- (worker thread: no named caller)
+           2659  <- hashline::private_block::accuracy_fold::fold
+
+     9069 self  _platform_memmove
+           6566  <- (worker thread: no named caller)
+           1656  <- hashline::gpu::metal::upload
+            419  <- hashline::private_block::argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$ #h0d1d61b75dbf3e66
+            252  <- blake3::ChunkState::update
+             40  <- hashline::private_block::protocol::prove_core_after_with
+             37  <- xzm_realloc
+
+     8700 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h5e8ecb223a8e9666
+           6944  <- (worker thread: no named caller)
+           1756  <- hashline::private_block::protocol::byte_histogram_at
+
+     8108 self  hashline::private_block::protocol::helper_one
+           6414  <- hashline::private_block::protocol::write_helpers_u8::_$u7b$$u7b$closure$u7d$$u7d$ #h24a1db9f2bf3b778
+           1369  <- (worker thread: no named caller)
+            325  <- hashline::private_block::protocol::prove_core_after_with
+
+     6901 self  core::ops::function::impls:: for $RF$F::call_mut #h3e9afd55fbe501c4
+           5460  <- (worker thread: no named caller)
+           1441  <- hashline::private_block::token_io::stage_in_c::challenges
+
+     6577 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h7b80e0779d182da7
+           5040  <- (worker thread: no named caller)
+           1537  <- hashline::private_block::witness::accuracy::fill_planes
+
+     6545 self  hashline::private_block::protocol::write_helpers_u8::_$u7b$$u7b$closure$u7d$$u7d$ #h24a1db9f2bf3b778
+           5136  <- (worker thread: no named caller)
+           1409  <- hashline::private_block::protocol::prove_core_after_with
+
+     6121 self  __bzero
+           2715  <- hashline::private_block::protocol::prove_core_after_with
+           2445  <- hashline::private_block::protocol::prove_core
+            285  <- xzm_segment_group_alloc_chunk
+            181  <- hashline::private_block::accuracy_act::group_column
+            164  <- hashline::private_block::accuracy_act::denominators
+            139  <- hashline::private_block::argument::table_of_taking
+
+     5573 self  rayon::iter::plumbing::bridge_producer_consumer::helper #hb73be639335576b2
+           4208  <- (worker thread: no named caller)
+           1365  <- ::try_fold
+
+     5126 self  rayon::iter::plumbing::bridge_producer_consumer::helper #hb6717527492f02e0
+           4059  <- (worker thread: no named caller)
+           1067  <- hashline::private_block::protocol::prove_core
+
+     4961 self  zkp_core::field::batch_inverse2
+           3874  <- (worker thread: no named caller)
+           1055  <- hashline::private_block::protocol::inverses
+             32  <- hashline::private_block::protocol::table_helper
+
+     4053 self  rayon::iter::plumbing::bridge_producer_consumer::helper #hc2314d42b609da2e
+           3207  <- (worker thread: no named caller)
+            846  <- hashline::private_block::protocol::u8_misses_of
+
+     4032 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h4281640003e69482
+           3156  <- (worker thread: no named caller)
+            876  <- hashline::private_block::accuracy_fold::fold
+
+     3886 self  blake3::portable::compress_in_place
+           1654  <- (worker thread: no named caller)
+            776  <- blake3::Hasher::update
+            549  <- hashline::pcs::commit_zk_owned_tagged
+            484  <- blake3::compress_parents_parallel
+            231  <- blake3::compress_subtree_wide
+             54  <- hashline::private_block::protocol::prove_core_after_with
+
+     3846 self  hashline::private_block::witness::accuracy::assign_with::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$ #hec
+           2900  <- (worker thread: no named caller)
+            946  <- hashline::private_block::witness::accuracy::fill_planes
+
+     2342 self  rayon::iter::plumbing::bridge_producer_consumer::helper #ha4f8204b8363543d
+           1797  <- (worker thread: no named caller)
+            545  <- hashline::private_block::argument::priv_table_fill
+
+     2219 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h2173933bebfa053b
+           1594  <- (worker thread: no named caller)
+            611  <- hashline::private_block::witness::zeros
+              9  <- hashline::private_block::witness::accuracy::quantized_with
+              5  <- hashline::private_block::witness::accuracy::build_with
+
+     2168 self  hashline::private_block::token_io::classify::update_le_words
+           1289  <- hashline::private_block::token_io::classify::ClassifierTables::emb_digest
+            879  <- hashline::private_block::token_io::classify::ClassifyRunStatement::check_tables
+
+     2126 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h3bd45c554c4ae24d
+           1654  <- (worker thread: no named caller)
+            242  <- hashline::private_block::protocol::prove_core
+            130  <- hashline::pcs::commit_zk_owned_tagged
+            100  <- hashline::private_block::protocol::prove_core_after_with
+
+     1953 self  objc_msgSend
+           1943  <- hashline::gpu::metal::wait_done
+              5  <- hashline::gpu::metal::shared_buffer
+              1  <- -[_MTLCommandBuffer initWithQueue:retainedReferences:synchronousDebugMode:]
+              1  <- hashline::gpu::metal::TailedRounds::masked_prove
+              1  <- hashline::gpu::metal::run_tagged_pre::_$u7b$$u7b$closure$u7d$$u7d$ #he8b29d723ec34ded
+              1  <- -[AGXG15XFamilyComputeContext dealloc]
+
+     1732 self  rayon::iter::plumbing::bridge_producer_consumer::helper #h9396a357e2b13883
+           1190  <- (worker thread: no named caller)
+            496  <- hashline::private_block::witness::accuracy::quantized_with
+             25  <- hashline::private_block::witness::zeros
+             19  <- hashline::private_block::witness::accuracy::build_with
+              2  <- hashline::gpu::metal::wprod_run
+
+     1673 self  -[_MTLCommandBuffer status]
+           1673  <- hashline::gpu::metal::wait_done
+
+     1660 self  hashline::private_block::run_sink::a21_sha::sha256
+           1660  <- hashline::private_block::run_sink::digest_hex

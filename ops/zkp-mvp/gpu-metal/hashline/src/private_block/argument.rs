@@ -1140,6 +1140,16 @@ fn small_slot_pays(poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync), k: usize, n: usize, de
 #[cfg(feature = "gpu-metal")]
 const METAL_DIRECT_MIN: usize = 1 << 18;
 
+/// **[A26] `HL_A26_MLE`** (default on; `0`: `eval_mle_ext` per table, as before): the
+/// verifier evaluates a slot's public tables at its final point through ONE
+/// [`crate::mle::SplitEq`] (two half eq tables) instead of a full eq table per table. The
+/// same MLE values (exact field arithmetic, `zkp-core`'s
+/// `a26_split_eq_evaluation_equals_eval_mle_ext`), so the same terminal check and refusals.
+fn a26_mle_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A26_MLE").map(|v| v != "0").unwrap_or(true))
+}
+
 pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
     let s = def.slot;
     let sh = def.sh.clone();
@@ -1443,12 +1453,14 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             let es = rho_full[n..].to_vec();
             let sel = es.iter().fold(Fp2::ONE, |a, e| a.mul(Fp2::ONE.sub(*e)));
             let mut k = 0usize;
+            // [A26] the slot's public tables at rho through one split eq table (the same values)
+            let split = (a26_mle_on() && def.tabs.iter().any(|t| matches!(t, Tab::Pub(_)))).then(|| crate::mle::SplitEq::new(&rho));
             let vals: Vec<Fp2> = def
                 .tabs
                 .iter()
                 .map(|t| match t {
                     Tab::Eq { point, start } => sel.mul(eq_point(point, &rho[*start..*start + point.len()])),
-                    Tab::Pub(v) => sel.mul(eval_mle_ext(v, &rho)),
+                    Tab::Pub(v) => sel.mul(match &split { Some(s) => s.eval_ext(v), None => eval_mle_ext(v, &rho) }),
                     Tab::Priv(_) => {
                         k += 1;
                         sp.terms[k - 1]

@@ -1,0 +1,3 @@
+[zk60-guard 01:13:15] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:14:15] START a26-accept-t2 class=cpu need=16G cap=40G enforce=watchdog-only waited=61s run=2a150c36733e
+[zk60-guard 01:18:58] END a26-accept-t2 exit=0 child_wall=283s peak_rss=5.80G min_avail=229.01G

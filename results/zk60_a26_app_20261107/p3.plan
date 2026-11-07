@@ -1,0 +1,9 @@
+# Lane A26, job p3 (diagnostics, single runs): the GPU is now the stream's limit (p2: mean 83%, p50 95%
+# Device Utilization), so the existing byte-preserving GPU-placement switches are swept on b2 with
+# per-thread queues: A12's device tables off (built on the host, which has idle cores), more small
+# slots kept on the CPU (M8's threshold), both; and a repeat of the base for the noise.
+# tag|binary|posts|driver flags|env
+p3base|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a26-b2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+p3dt0|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a26-b2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_METAL_DEVICE_TABLES=0
+p3ss|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a26-b2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_METAL_SMALL_SLOT_US=20000
+p3both|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a26-b2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_METAL_DEVICE_TABLES=0 HL_METAL_SMALL_SLOT_US=20000

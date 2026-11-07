@@ -1164,6 +1164,53 @@ pub fn verify_zk(
     Ok(())
 }
 
+/// **[A26] `HL_A26_PCS_SPARSE`** (default on; `0`: every row, the column loop before A26).
+/// `verify_zk_tagged`'s column test combines each opened column with every group's row
+/// weights `rho_g` (and the proximity weights). A group's weights are zero outside the rows
+/// of its claims' slices (`zpart_weights`), so most of them are zero. With the switch on,
+/// each `rho_g`'s nonzero rows are listed once for all the opened columns and a column's
+/// combination sums over them only. A zero weight adds nothing (`0 * x = 0`) and field
+/// addition is exact, so every combination is the same field element as the full loop's:
+/// the same comparisons, the same verdict, the same refusal and message.
+fn a26_pcs_sparse() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A26_PCS_SPARSE").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [A26] for each row weight, its nonzero rows when they are at most half of its rows (a
+/// denser weight, such as the proximity one, keeps the full loop: `None`)
+fn a26_supports(rhos: &[Vec<Fp2>]) -> Vec<Option<Vec<u32>>> {
+    if !a26_pcs_sparse() {
+        return vec![None; rhos.len()];
+    }
+    rhos.par_iter()
+        .map(|rho| {
+            let nz: Vec<u32> = rho.iter().enumerate().filter(|(_, x)| !x.is_zero()).map(|(i, _)| i as u32).collect();
+            (2 * nz.len() <= rho.len()).then_some(nz)
+        })
+        .collect()
+}
+
+/// [A26] `sum_{i < rows} rho[i] * col[i]`: over every row (`support` `None`, the loop before
+/// A26), or over `support`, exactly the rows where `rho` is nonzero (the same field element)
+#[inline]
+fn a26_combine(rho: &[Fp2], col: &[Fp], rows: usize, support: Option<&[u32]>) -> Fp2 {
+    let mut acc = Fp2::ZERO;
+    match support {
+        Some(ix) => {
+            for &i in ix {
+                acc = acc.add(rho[i as usize].mul_base(col[i as usize]));
+            }
+        }
+        None => {
+            for i in 0..rows {
+                acc = acc.add(rho[i].mul_base(col[i]));
+            }
+        }
+    }
+    acc
+}
+
 /// [ZK60 D19, ruling T-1] `verify_zk` under a [`HashTag`]. `verify_zk` above
 /// keeps its own body.
 ///
@@ -1254,6 +1301,8 @@ pub fn verify_zk_tagged(
             (ere, eim)
         })
         .collect();
+    // [A26] each combined row weight's nonzero rows, found once for all the opened columns
+    let supports = a26_supports(&rhos);
     let results: Vec<Result<(), String>> = opening
         .columns
         .par_iter()
@@ -1270,10 +1319,7 @@ pub fn verify_zk_tagged(
                 return Err(format!("pcs zk: Merkle path for column {j} fails"));
             }
             for (g, rho) in rhos.iter().enumerate() {
-                let mut acc = Fp2::ZERO;
-                for i in 0..rows {
-                    acc = acc.add(rho[i].mul_base(col[i]));
-                }
+                let acc = a26_combine(rho, col, rows, supports[g].as_deref());
                 let (ere, eim) = &encoded_vecs[g];
                 let want = Fp2::new(ere[*j], eim[*j]);
                 if acc != want {
@@ -1663,6 +1709,34 @@ mod tag_tests {
             assert_ne!(keyed[j], plain[j], "the key did not change column {j}");
         }
         assert_eq!(hash_columns_keyed(&enc, rows, nn, None), plain, "hash_columns_keyed(None) is not hash_columns");
+    }
+
+    /// **[A26] the sparse column combination is the full loop's field element.** Row weights
+    /// with zeros (a group's rho off its claims' rows), with `p - 1` entries and with every
+    /// row nonzero; columns with zeros, `p - 1` and random words. `a26_supports` lists exactly
+    /// the nonzero rows of a weight at most half nonzero, and `None` (the full loop) above that.
+    #[test]
+    fn a26_sparse_column_combination_equals_the_full_loop() {
+        let pm1 = Fp::ZERO.sub(Fp::ONE);
+        for rows in [1usize, 2, 7, 64, 333] {
+            let col: Vec<Fp> = (0..rows).map(|i| match i % 5 { 0 => Fp::ZERO, 1 => pm1, _ => Fp::new((i as u64).wrapping_mul(0x9e37_79b9_7f4a_7c15)) }).collect();
+            for density in [0usize, 1, 3, 10] {
+                // nonzero on rows i with i % 10 < density (density 10: every row)
+                let rho: Vec<Fp2> = (0..rows)
+                    .map(|i| if i % 10 < density { if i % 3 == 0 { Fp2::new(pm1, pm1) } else { point(i as u64 + 9, 1)[0] } } else { Fp2::ZERO })
+                    .collect();
+                let sup = a26_supports(std::slice::from_ref(&rho)).pop().unwrap();
+                let nz: Vec<u32> = (0..rows as u32).filter(|&i| !rho[i as usize].is_zero()).collect();
+                if 2 * nz.len() <= rows {
+                    assert_eq!(sup.as_deref(), Some(nz.as_slice()), "rows {rows} density {density}: the support");
+                } else {
+                    assert!(sup.is_none(), "rows {rows} density {density}: a dense weight keeps the full loop");
+                }
+                let full = a26_combine(&rho, &col, rows, None);
+                assert_eq!(a26_combine(&rho, &col, rows, Some(&nz)), full, "rows {rows} density {density}");
+                assert_eq!(a26_combine(&rho, &col, rows, sup.as_deref()), full, "rows {rows} density {density}: as used");
+            }
+        }
     }
 
     /// The tagged round trip: commit, open, verify under the SAME tag.

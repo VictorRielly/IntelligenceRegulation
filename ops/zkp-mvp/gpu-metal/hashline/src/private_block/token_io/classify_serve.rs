@@ -54,7 +54,8 @@
 //! Nothing here is production (D63).
 
 use super::*;
-use super::super::run::ResidentBlocks;
+use super::super::run::KeptResidentBlocks;
+use super::super::super::run::fork::KeptBlock;
 use std::io::Write as _;
 
 /// a request line's longest form (an argument error beyond it)
@@ -69,7 +70,10 @@ pub(super) struct ResidentClassifier {
     pub tables_dir: PathBuf,
     pub label: String,
     pub p: ExportPublic,
-    pub blocks: Vec<BlockPublic>,
+    /// [A26] each block as a `run::fork::KeptBlock`: placed where it lives for the server's
+    /// life, with the digest and the CS-1 / CS-4 pass at its own stage shape made on that very
+    /// object at startup. Shared by `&` only. The verifier server never reads the records.
+    pub blocks: Vec<std::sync::Arc<KeptBlock>>,
     pub bound: super::super::classify_tied::BoundClassifierTables,
     pub policies: Vec<String>,
     pub startup_s: f64,
@@ -111,14 +115,21 @@ impl ResidentClassifier {
         let tables_dir = PathBuf::from(need(f, "--tables")?);
         let label = label_of(f)?.to_string();
         let policies = policies_of(f)?;
-        let (p, blocks) = ExportPublic::load_keeping(&export, classify_run_profile_of, true)?;
-        if blocks.len() != p.layers.len() {
+        let (p, loaded) = ExportPublic::load_keeping(&export, classify_run_profile_of, true)?;
+        if loaded.len() != p.layers.len() {
             return Err("classify server: the digest pass kept a different number of blocks".into());
         }
-        for (k, b) in blocks.iter().enumerate() {
-            if b.digest() != p.digests[k] {
+        // [A26] each kept object moved where it will live (`KeptBlock::new`: its digest computed
+        // there, and its CS-1 / CS-4 check run there at its layer's own stage shape), then the
+        // digest compared with the pass's record as before
+        let mut blocks = Vec::with_capacity(loaded.len());
+        for (k, b) in loaded.into_iter().enumerate() {
+            let stage = p.model.layers.get(k).and_then(|r| r.shape_at(&p.sh).ok());
+            let kb = KeptBlock::new(b, stage.as_slice());
+            if kb.digest() != p.digests[k] {
                 return Err(format!("classify server: kept block {k} is not the block the digest pass recorded (ruling CS-6)"));
             }
+            blocks.push(kb);
         }
         let first = policy_by_id(&policies[0])?;
         let bound = super::super::classify_tied::load_tied_classifier_tables(&p, &export, &tables_dir, &first)?;
@@ -561,7 +572,7 @@ fn check_one(srv: &CheckServer, req: &CheckRequest) -> Result<f64, String> {
         let mut tp = Instant::now();
         let (st, segs, published) = door_statement(&r.p, &r.bound, &policy, &r.label, art, &mut tp)?;
         let t = Instant::now();
-        verify_classify_run_with(&st, &mut ResidentBlocks(&r.blocks), &r.bound, &segs, VerifierPolicy { min_whole_run_bits: srv.min_bits }).map_err(|e| format!("chunk run {}: {e}", art.display()))?;
+        verify_classify_run_with(&st, &mut KeptResidentBlocks(&r.blocks), &r.bound, &segs, VerifierPolicy { min_whole_run_bits: srv.min_bits }).map_err(|e| format!("chunk run {}: {e}", art.display()))?;
         let verify_s = t.elapsed().as_secs_f64();
         verify_total += verify_s;
         drop(segs);
