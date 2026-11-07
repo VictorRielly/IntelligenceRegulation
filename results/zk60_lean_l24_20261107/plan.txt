@@ -1,0 +1,7 @@
+build ZK60Formal.AssembleClassify ZK60Formal.RelW16Pos ZK60Formal.ProtocolClassifyR13 ZK60Formal.ProtocolClassifyCount
+build ZK60Formal.ZoneCodeWide
+build ZK60Formal.ZoneCodeFirst
+build ZK60Formal.RunExtractKinds
+build ZK60Formal.RunExtractClassify
+build ZK60Formal.RunExtractOpenU
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7626f7dbcb465003/results/zk60_lean_l24_20261107/check_l24.sh
