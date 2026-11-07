@@ -1,0 +1,43 @@
+  ASCII: 13
+  SHAPE: 1
+  SCHEDULE: 4
+  FRAME: 3
+  TAG: 2
+  DECODE: 3
+  FIELDS: 5
+  SLOT: 1
+  LOGUP: 1
+  SLOTS: 2
+  SLOT-DRAWS: 23
+  SLOT-C: 23
+  SLOT-SCALAR: 23
+  SLOT-CLAIMED: 23
+  SLOT-RHO: 23
+  SLOT-FIN: 23
+  SLOT-TERMS: 23
+  SLOT-HOSTED: 23
+  SLOT-STATE: 23
+  FUNCTIONALS: 1
+  MASK: 4
+  OPEN: 2
+  PCS: 8
+  END: 1
+  FORK: 2
+  TAMPER: 13
+  SEG-SHAPE: 2
+  SEG-FRAME: 2
+  SEG-DECODE: 1
+  SEG-TAMPER: 14
+FAILED [SEG-FRAME] BLAKE3 of the segment
+FAILED [SEG-DECODE] decodeSegment refused: private run wire: this segment belongs to another run
+FAILED [SEG-TAMPER] honest: Lean ERR private run wire: this segment belongs to another run / Rust OK 6326e1067415b6ebd8c56af79f0fca61888f6bc20802c3b149b940ad48981d48
+FAILED [SEG-TAMPER] run-length: Lean ERR private run wire: this segment belongs to another run / Rust ERR private run wire: segment 0 is not the 1-segment run's segment 0
+FAILED [SEG-TAMPER] segment-index: Lean ERR private run wire: this segment belongs to another run / Rust ERR private run wire: segment 0 is not the 1-segment run's segment 0
+FAILED [SEG-TAMPER] start-tag: Lean ERR private run wire: this segment belongs to another run / Rust ERR private run wire: segment 0's header is not the verifier's own transcript position
+FAILED [SEG-TAMPER] noncanonical-scalar: Lean ERR private run wire: this segment belongs to another run / Rust ERR private block wire: noncanonical field word
+FAILED [SEG-TAMPER] noncanonical-input-vector: Lean ERR private run wire: this segment belongs to another run / Rust ERR private block wire: noncanonical field word
+FAILED [SEG-TAMPER] input-column-index: Lean ERR private run wire: this segment belongs to another run / Rust ERR private block wire: column index
+FAILED [SEG-TAMPER] noncanonical-output-vector: Lean ERR private run wire: this segment belongs to another run / Rust ERR private block wire: noncanonical field word
+FAILED [SEG-TAMPER] a-root: Lean ERR private run wire: this segment belongs to another run / Rust OK 6326e1067415b6ebd8c56af79f0fca61888f6bc20802c3b149b940ad48981d48
+FAILED [SEG-TAMPER] end-tag: Lean ERR private run wire: this segment belongs to another run / Rust OK 6326e1067415b6ebd8c56af79f0fca61888f6bc20802c3b149b940ad48981d49
+CheckR13Block: 292 checks, 12 failed
