@@ -1,0 +1,2 @@
+{"event":"refused","command":"classify-check-serve","error":"the export's trained statement identity (classifier run profile) is e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d, not the pinned one"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}

@@ -1,0 +1,52 @@
+78 blocks, summed wall 41.746 s
+  41.746  WALL CLOCK OF THE CALL
+  41.730  SUM OF PHASES
+   5.935  slot 14 03 D zero-check (hosts 12, 13D)
+   5.320  slot 18 14 F zero-check (hosts 13G, 13U)
+   4.790  A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)
+   4.574  H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)
+   2.009  sink: segment to disk
+   1.585  open A (schedule audit + pcs::open_zk)
+   1.494  A: allocate + witness planes -> committed rows
+   1.244  slot 17 06 softmax zero-check (hosts 07, 10)
+   1.208  open H (schedule audit + pcs::open_zk)
+   1.196  run: block load + statement check
+   1.158  slot 15 04 Q zero-check (hosts 09Q, 11)
+   0.863  A: lookup values + the byte histogram
+   0.749  H: LogUp helper inverses (six lookup domains)
+   0.683  slot 19 TAB table helper zero-check
+   0.659  run: boundary B_k commitment
+   0.634  H: exp + activation helper inverses
+   0.627  slot 00 01 SS row sums norm_a (private)
+   0.553  slot 16 05 KV zero-check (hosts 09K, 09V)
+   0.551  slot 04 07 masked row sums + selector (private)
+   0.505  slot 01 01m SS row sums norm_m (private)
+   0.445  slot 13 13D down matmul (private)
+   0.369  M: mask commit (zk::mask_commit, ONE call)
+   0.360  slot 12 13U up matmul (private)
+   0.357  slot 11 13G gate matmul (private)
+   0.346  A: exp/act indices + their two histograms
+   0.320  H: release the four witness buffers (S2 drops)
+   0.315  A: mask + proximity rows (fresh randomness)
+   0.253  slot 05 09Q matmul (private)
+   0.249  slot 10 12 Wo matmul (private)
+   0.236  open M (zk::mask_open, ONE call)
+   0.219  frame: encode segment
+   0.217  slot 09 11 PV matmul (private, bilinear)
+   0.216  slot 08 10 score matmul (private, bilinear)
+   0.207  slot 21 IO-in endpoint equality
+   0.204  H: mask rows + the zero-sum rows
+   0.182  run: boundary B_(k-1) opening
+   0.166  slot 03 08 limb zero-check
+   0.164  slot 06 09K matmul (private)
+   0.161  slot 07 09V matmul (private)
+   0.156  slot 22 IO-out endpoint equality
+   0.080  slot 02 02 norm squares zero-check (hosts 01, 01m)
+   0.079  slot 20 ZS zero-sum row
+   0.078  run: witness (CliSource)
+   0.001  unaccounted (wall - sum)
+   0.000  H: the three table helpers
+   0.000  run: drop block
+PB-CLI prove | run sealing pass (every block loaded once, statement checks) | 0.560 s
+PB-CLI prove | run sealing pass (every block loaded once, statement checks) | 0.551 s
+PB-CLI prove | run sealing pass (every block loaded once, statement checks) | 0.492 s

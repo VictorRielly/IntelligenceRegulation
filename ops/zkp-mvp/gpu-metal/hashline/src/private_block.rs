@@ -152,6 +152,8 @@ pub use trained_block::{trained_prove_command, trained_stack_prove_command, trai
 pub use token_io::cli::{token_input_owner_command, token_owner_command, token_profile_command, token_prove_command, token_verify_command};
 // TOKEN I/O ROUND 12 (R-C1): the classifier CLI bridge (`examples/zk60_classify.rs`)
 pub use token_io::classify_cli::{classify_input_owner_command, classify_label_command, classify_prove_batch_command, classify_prove_command, classify_verify_command};
+// [A24] the resident classifier servers (`zk60_classify serve`, `check-serve`)
+pub use token_io::classify_cli::{classify_check_serve_command, classify_serve_command};
 // TOKEN I/O R1 LANE (2026-10-17): the token-in / token-out stages of a
 // private run (DESIGN v3 rung R1, public-row variant) under a NEW run profile
 // (D17). Additive: no existing profile, relation or byte moves.

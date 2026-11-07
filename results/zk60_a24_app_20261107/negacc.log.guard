@@ -1,0 +1,2 @@
+[zk60-guard 20:23:50] START a24-negctl-accept2 class=gpu need=40G cap=100G enforce=watchdog-only waited=0s run=4195247d8ce9
+[zk60-guard 20:26:57] END a24-negctl-accept2 exit=1 child_wall=187s peak_rss=8.94G min_avail=226.21G peak_vram=1821MiB

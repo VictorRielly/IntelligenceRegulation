@@ -1,0 +1,3 @@
+[zk60-guard 21:23:25] START a24-final class=gpu need=100G cap=170G enforce=watchdog-only waited=0s run=0ada99317b8f
+[zk60-guard 21:33:15] a24-final: 1 straggler process(es) outlived the command; killing
+[zk60-guard 21:33:15] END a24-final exit=0 child_wall=591s peak_rss=106.90G min_avail=88.78G peak_vram=55845MiB

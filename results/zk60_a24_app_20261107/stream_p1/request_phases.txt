@@ -1,0 +1,25 @@
+violence-c0-prove.log:PB-CLI prove | args + directories + load_export (the digest pass) | 0.001 s
+violence-c0-prove.log:PB-CLI prove | tied classifier tables (re-derived from the pinned checkpoint) | 0.000 s
+violence-c0-prove.log:PB-CLI prove | content, honest stage IN-C inputs, x_in load | 0.519 s
+violence-c0-prove.log:PB-CLI prove | seal_chain (every block: load, witness, int16, parity, CS-3) | 7.613 s
+violence-c0-prove.log:PB-CLI prove | stage OUT-C values, input endpoint seal, statement | 0.574 s
+violence-c0-prove.log:PB-CLI prove | the run (prove_classify_run_with: sealing pass, IN-C, 26 blocks, OUT-C) | 15.374 s
+violence-c0-prove.log:PB-CLI prove | gpu | gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device) | declines 0 | h2d 0.000 s 0 B | ntt 0.000 s | hash 0.000 s | d2h 0.000 s 0 B | reenc 0.000 s | chunked 0 | fold 0.000 s | vram_peak 0 B
+violence-c0-prove.log:PB-CLI prove | owner file, unverified statement, rename | 0.011 s
+sexual-c0-prove.log:PB-CLI prove | args + directories + load_export (the digest pass) | 0.001 s
+sexual-c0-prove.log:PB-CLI prove | tied classifier tables (re-derived from the pinned checkpoint) | 0.000 s
+sexual-c0-prove.log:PB-CLI prove | content, honest stage IN-C inputs, x_in load | 0.514 s
+sexual-c0-prove.log:PB-CLI prove | seal_chain (every block: load, witness, int16, parity, CS-3) | 7.938 s
+sexual-c0-prove.log:PB-CLI prove | stage OUT-C values, input endpoint seal, statement | 0.514 s
+sexual-c0-prove.log:PB-CLI prove | the run (prove_classify_run_with: sealing pass, IN-C, 26 blocks, OUT-C) | 15.254 s
+sexual-c0-prove.log:PB-CLI prove | gpu | gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device) | declines 0 | h2d 0.000 s 0 B | ntt 0.000 s | hash 0.000 s | d2h 0.000 s 0 B | reenc 0.000 s | chunked 0 | fold 0.000 s | vram_peak 0 B
+sexual-c0-prove.log:PB-CLI prove | owner file, unverified statement, rename | 0.012 s
+sexual-check.log:PB-CLI verify | statement door (re-render, byte compare) + segment reads | 0.609 s
+hate-c0-prove.log:PB-CLI prove | args + directories + load_export (the digest pass) | 0.001 s
+hate-c0-prove.log:PB-CLI prove | tied classifier tables (re-derived from the pinned checkpoint) | 0.000 s
+hate-c0-prove.log:PB-CLI prove | content, honest stage IN-C inputs, x_in load | 0.506 s
+hate-c0-prove.log:PB-CLI prove | seal_chain (every block: load, witness, int16, parity, CS-3) | 7.246 s
+hate-c0-prove.log:PB-CLI prove | stage OUT-C values, input endpoint seal, statement | 0.571 s
+hate-c0-prove.log:PB-CLI prove | the run (prove_classify_run_with: sealing pass, IN-C, 26 blocks, OUT-C) | 14.938 s
+hate-c0-prove.log:PB-CLI prove | gpu | gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device) | declines 0 | h2d 0.000 s 0 B | ntt 0.000 s | hash 0.000 s | d2h 0.000 s 0 B | reenc 0.000 s | chunked 0 | fold 0.000 s | vram_peak 0 B
+hate-c0-prove.log:PB-CLI prove | owner file, unverified statement, rename | 0.012 s

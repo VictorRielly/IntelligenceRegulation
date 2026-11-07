@@ -1,0 +1,1230 @@
+PB-CLI verify | load_export (the digest pass) | 28.593 s
+PB-CLI verify | tied classifier tables (re-derived from the pinned checkpoint) | 1.707 s
+PB-CLI verify | statement door (re-render, byte compare) + segment reads | 3.284 s
+PB-CLI verify | pre-header stage-shape check (every block loaded once) | 2.589 s
+PB-CLI verify | stage IN-C | 0.082 s
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.340 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.070 |  20.7% |        1 block |       NaN |       NaN | 70341833.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.009 |   2.7% | 32450184 bytes |       NaN |       NaN |      0.286 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.014 |   4.1% |        2 roots |       NaN |       NaN | 6913292.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.012 |   3.6% | 3145728 elem-terms |       NaN |       NaN |      3.856 |       50331648 |    4.149 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.015 |   4.5% | 3145728 elem-terms |       NaN |       NaN |      4.840 |       50331648 |    3.306 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     33.678 |         102400 |    0.475 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.6% | 163840 elem-terms |       NaN |       NaN |     12.239 |        2621440 |    1.307 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.008 |   2.4% | 4194304 elem-terms |       NaN |       NaN |      1.953 |       67108864 |    8.192 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    187.195 |         262144 |    0.085 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    130.536 |         262144 |    0.123 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    141.464 |         262144 |    0.113 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.998 |         196608 |    1.000 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     14.971 |         196608 |    1.069 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    191.661 |         262144 |    0.083 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.5% | 16384 elem-terms |       NaN |       NaN |    306.058 |         262144 |    0.052 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.6% | 16384 elem-terms |       NaN |       NaN |    336.118 |         262144 |    0.048 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.005 |   1.4% | 65536 elem-terms |       NaN |       NaN |     72.610 |        1048576 |    0.220 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.032 |   9.5% | 67108864 elem-terms |       NaN |       NaN |      0.482 |     1073741824 |   33.165 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.022 |   6.4% | 28311552 elem-terms |       NaN |       NaN |      0.773 |      452984832 |   20.707 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.014 |   4.0% | 7077888 elem-terms |       NaN |       NaN |      1.914 |      113246208 |    8.360 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.013 |   3.9% | 29360128 elem-terms |       NaN |       NaN |      0.450 |      469762048 |   35.556 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.042 |  12.3% | 121634816 elem-terms |       NaN |       NaN |      0.346 |     1946157056 |   46.295 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   2.6% | 393216 elem-terms |       NaN |       NaN |     22.218 |        6291456 |    0.720 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.6% | 65536 elem-terms |       NaN |       NaN |     32.696 |        1048576 |    0.489 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.062 |       50331648 |  256.359 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.060 |       50331648 |  267.189 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  59908.340 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.029 |   8.6% |     146 claims |       NaN |       NaN | 201372.712 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.011 |   3.3% |      54 claims |       NaN |       NaN | 210863.426 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.4% |       2 claims |       NaN |       NaN | 2377458.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.340 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.340 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.070 s   20.7%  (1 phases)
+PB-TIMING verify HALF setup             0.014 s    4.1%  (1 phases)
+PB-TIMING verify HALF norm              0.030 s    8.7%  (4 phases)
+PB-TIMING verify HALF attention         0.068 s   19.9%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.057 s   16.8%  (4 phases)
+PB-TIMING verify HALF residual          0.032 s    9.5%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    3.2%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.049 s   14.3%  (4 phases)
+PB-TIMING verify HALF frame             0.009 s    2.7%  (1 phases)
+PB-TIMING verify SPLIT attention 0.068 s (19.9%) | feed-forward 0.057 s (16.8%) | the rest 0.215 s (63.2%) — of the 0.340 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.032 s (9.5%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.368 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.074 |  20.1% |        1 block |       NaN |       NaN | 73981500.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.2% | 32450184 bytes |       NaN |       NaN |      0.247 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.014 |   3.8% |        2 roots |       NaN |       NaN | 6956541.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.011 |   3.0% | 3145728 elem-terms |       NaN |       NaN |      3.488 |       50331648 |    4.588 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.012 |   3.3% | 3145728 elem-terms |       NaN |       NaN |      3.812 |       50331648 |    4.197 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     31.211 |         102400 |    0.513 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     12.221 |        2621440 |    1.309 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   3.1% | 4194304 elem-terms |       NaN |       NaN |      2.749 |       67108864 |    5.821 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.004 |   1.0% | 16384 elem-terms |       NaN |       NaN |    220.955 |         262144 |    0.072 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    124.687 |         262144 |    0.128 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    102.338 |         262144 |    0.156 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     17.381 |         196608 |    0.921 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% | 12288 elem-terms |       NaN |       NaN |     14.428 |         196608 |    1.109 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    212.677 |         262144 |    0.075 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    386.012 |         262144 |    0.041 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.5% | 16384 elem-terms |       NaN |       NaN |    343.887 |         262144 |    0.047 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   2.0% | 65536 elem-terms |       NaN |       NaN |    109.758 |        1048576 |    0.146 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.032 |   8.7% | 67108864 elem-terms |       NaN |       NaN |      0.477 |     1073741824 |   33.539 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.026 |   7.0% | 28311552 elem-terms |       NaN |       NaN |      0.903 |      452984832 |   17.716 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.013 |   3.6% | 7077888 elem-terms |       NaN |       NaN |      1.874 |      113246208 |    8.538 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.011 |   2.9% | 29360128 elem-terms |       NaN |       NaN |      0.368 |      469762048 |   43.471 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.033 |   8.9% | 121634816 elem-terms |       NaN |       NaN |      0.268 |     1946157056 |   59.764 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   2.7% | 393216 elem-terms |       NaN |       NaN |     25.457 |        6291456 |    0.629 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.4% | 65536 elem-terms |       NaN |       NaN |     23.542 |        1048576 |    0.680 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.061 |       50331648 |  261.633 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.062 |       50331648 |  259.720 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  65234.180 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.030 |   8.1% |     146 claims |       NaN |       NaN | 202772.829 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.018 |   4.8% |      54 claims |       NaN |       NaN | 329238.426 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.028 |   7.5% |       2 claims |       NaN |       NaN | 13756667.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.367 |  99.9% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.368 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.1% |
+PB-TIMING verify HALF run (witness, boundary)    0.074 s   20.1%  (1 phases)
+PB-TIMING verify HALF setup             0.014 s    3.8%  (1 phases)
+PB-TIMING verify HALF norm              0.025 s    6.8%  (4 phases)
+PB-TIMING verify HALF attention         0.072 s   19.7%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.052 s   14.1%  (4 phases)
+PB-TIMING verify HALF residual          0.032 s    8.7%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.012 s    3.1%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.078 s   21.3%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.2%  (1 phases)
+PB-TIMING verify SPLIT attention 0.072 s (19.7%) | feed-forward 0.052 s (14.1%) | the rest 0.243 s (66.2%) — of the 0.368 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.032 s (8.7%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.599 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.184 |  30.8% |        1 block |       NaN |       NaN | 184463000.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   1.2% | 32450184 bytes |       NaN |       NaN |      0.225 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.019 |   3.1% |        2 roots |       NaN |       NaN | 9370250.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.014 |   2.4% | 3145728 elem-terms |       NaN |       NaN |      4.487 |       50331648 |    3.566 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.014 |   2.4% | 3145728 elem-terms |       NaN |       NaN |      4.479 |       50331648 |    3.572 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% | 6400 elem-terms |       NaN |       NaN |     35.840 |         102400 |    0.446 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.3% | 163840 elem-terms |       NaN |       NaN |      9.213 |        2621440 |    1.737 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.010 |   1.6% | 4194304 elem-terms |       NaN |       NaN |      2.337 |       67108864 |    6.848 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.6% | 16384 elem-terms |       NaN |       NaN |    212.949 |         262144 |    0.075 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.3% | 16384 elem-terms |       NaN |       NaN |    115.990 |         262144 |    0.138 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.4% | 16384 elem-terms |       NaN |       NaN |    147.062 |         262144 |    0.109 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% | 12288 elem-terms |       NaN |       NaN |     20.450 |         196608 |    0.782 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% | 12288 elem-terms |       NaN |       NaN |     17.812 |         196608 |    0.898 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.023 |   3.8% | 16384 elem-terms |       NaN |       NaN |   1386.342 |         262144 |    0.012 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.011 |   1.8% | 16384 elem-terms |       NaN |       NaN |    673.586 |         262144 |    0.024 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.008 |   1.4% | 16384 elem-terms |       NaN |       NaN |    500.987 |         262144 |    0.032 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.028 |   4.7% | 65536 elem-terms |       NaN |       NaN |    428.019 |        1048576 |    0.037 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.127 |  21.3% | 67108864 elem-terms |       NaN |       NaN |      1.899 |     1073741824 |    8.426 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.019 |   3.2% | 28311552 elem-terms |       NaN |       NaN |      0.684 |      452984832 |   23.396 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.012 |   2.0% | 7077888 elem-terms |       NaN |       NaN |      1.734 |      113246208 |    9.227 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.011 |   1.8% | 29360128 elem-terms |       NaN |       NaN |      0.372 |      469762048 |   43.011 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.041 |   6.9% | 121634816 elem-terms |       NaN |       NaN |      0.340 |     1946157056 |   47.114 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   1.5% | 393216 elem-terms |       NaN |       NaN |     22.557 |        6291456 |    0.709 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.001 |   0.2% | 65536 elem-terms |       NaN |       NaN |     21.474 |        1048576 |    0.745 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% | 3145728 elem-terms |       NaN |       NaN |      0.074 |       50331648 |  216.248 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% | 3145728 elem-terms |       NaN |       NaN |      0.067 |       50331648 |  240.534 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.5% |        50 rows |       NaN |       NaN |  61159.160 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   4.7% |     146 claims |       NaN |       NaN | 194337.041 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   1.9% |      54 claims |       NaN |       NaN | 213246.926 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   0.8% |       2 claims |       NaN |       NaN | 2383395.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.598 |  99.9% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.599 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.1% |
+PB-TIMING verify HALF run (witness, boundary)    0.184 s   30.8%  (1 phases)
+PB-TIMING verify HALF setup             0.019 s    3.1%  (1 phases)
+PB-TIMING verify HALF norm              0.030 s    5.0%  (4 phases)
+PB-TIMING verify HALF attention         0.083 s   13.9%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.089 s   14.8%  (4 phases)
+PB-TIMING verify HALF residual          0.127 s   21.3%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.010 s    1.7%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.048 s    8.0%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    1.2%  (1 phases)
+PB-TIMING verify SPLIT attention 0.083 s (13.9%) | feed-forward 0.089 s (14.8%) | the rest 0.426 s (71.2%) — of the 0.599 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.127 s (21.3%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.358 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.070 |  19.4% |        1 block |       NaN |       NaN | 69671125.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   2.0% | 32450184 bytes |       NaN |       NaN |      0.216 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.018 |   5.0% |        2 roots |       NaN |       NaN | 8952854.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.013 |   3.6% | 3145728 elem-terms |       NaN |       NaN |      4.098 |       50331648 |    3.904 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.013 |   3.7% | 3145728 elem-terms |       NaN |       NaN |      4.267 |       50331648 |    3.750 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     29.395 |         102400 |    0.544 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     11.661 |        2621440 |    1.372 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.010 |   2.9% | 4194304 elem-terms |       NaN |       NaN |      2.453 |       67108864 |    6.523 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    207.522 |         262144 |    0.077 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    131.973 |         262144 |    0.121 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    124.507 |         262144 |    0.129 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% | 12288 elem-terms |       NaN |       NaN |     14.459 |         196608 |    1.107 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% | 12288 elem-terms |       NaN |       NaN |     13.075 |         196608 |    1.224 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.2% | 16384 elem-terms |       NaN |       NaN |    252.408 |         262144 |    0.063 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.6% | 16384 elem-terms |       NaN |       NaN |    355.326 |         262144 |    0.045 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.004 |   1.2% | 16384 elem-terms |       NaN |       NaN |    257.558 |         262144 |    0.062 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.005 |   1.5% | 65536 elem-terms |       NaN |       NaN |     82.677 |        1048576 |    0.194 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.036 |  10.0% | 67108864 elem-terms |       NaN |       NaN |      0.534 |     1073741824 |   29.986 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.028 |   7.7% | 28311552 elem-terms |       NaN |       NaN |      0.978 |      452984832 |   16.357 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.016 |   4.3% | 7077888 elem-terms |       NaN |       NaN |      2.199 |      113246208 |    7.276 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.014 |   4.0% | 29360128 elem-terms |       NaN |       NaN |      0.491 |      469762048 |   32.568 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.046 |  12.9% | 121634816 elem-terms |       NaN |       NaN |      0.381 |     1946157056 |   41.966 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   2.4% | 393216 elem-terms |       NaN |       NaN |     22.148 |        6291456 |    0.722 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.5% | 65536 elem-terms |       NaN |       NaN |     25.422 |        1048576 |    0.629 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.058 |       50331648 |  273.976 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% | 3145728 elem-terms |       NaN |       NaN |      0.052 |       50331648 |  308.626 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  57679.160 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.8% |     146 claims |       NaN |       NaN | 190462.610 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.011 |   3.2% |      54 claims |       NaN |       NaN | 209940.593 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2332833.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.358 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.358 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.070 s   19.4%  (1 phases)
+PB-TIMING verify HALF setup             0.018 s    5.0%  (1 phases)
+PB-TIMING verify HALF norm              0.028 s    7.9%  (4 phases)
+PB-TIMING verify HALF attention         0.080 s   22.3%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.062 s   17.3%  (4 phases)
+PB-TIMING verify HALF residual          0.036 s   10.0%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.010 s    2.9%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.047 s   13.0%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    2.0%  (1 phases)
+PB-TIMING verify SPLIT attention 0.080 s (22.3%) | feed-forward 0.062 s (17.3%) | the rest 0.216 s (60.4%) — of the 0.358 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.036 s (10.0%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.352 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.076 |  21.7% |        1 block |       NaN |       NaN | 76356375.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.2% | 32450184 bytes |       NaN |       NaN |      0.235 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.017 |   4.8% |        2 roots |       NaN |       NaN | 8486500.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.015 |   4.1% | 3145728 elem-terms |       NaN |       NaN |      4.640 |       50331648 |    3.448 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.012 |   3.3% | 3145728 elem-terms |       NaN |       NaN |      3.676 |       50331648 |    4.352 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     32.422 |         102400 |    0.493 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.7% | 163840 elem-terms |       NaN |       NaN |     15.024 |        2621440 |    1.065 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.011 |   3.1% | 4194304 elem-terms |       NaN |       NaN |      2.584 |       67108864 |    6.192 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.005 |   1.3% | 16384 elem-terms |       NaN |       NaN |    275.365 |         262144 |    0.058 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    149.450 |         262144 |    0.107 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    199.499 |         262144 |    0.080 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     16.581 |         196608 |    0.965 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     19.569 |         196608 |    0.818 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.1% | 16384 elem-terms |       NaN |       NaN |    234.675 |         262144 |    0.068 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.8% | 16384 elem-terms |       NaN |       NaN |    390.935 |         262144 |    0.041 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    368.352 |         262144 |    0.043 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   2.1% | 65536 elem-terms |       NaN |       NaN |    114.100 |        1048576 |    0.140 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.031 |   8.9% | 67108864 elem-terms |       NaN |       NaN |      0.468 |     1073741824 |   34.189 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.023 |   6.4% | 28311552 elem-terms |       NaN |       NaN |      0.800 |      452984832 |   20.000 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.013 |   3.7% | 7077888 elem-terms |       NaN |       NaN |      1.826 |      113246208 |    8.760 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.009 |   2.6% | 29360128 elem-terms |       NaN |       NaN |      0.310 |      469762048 |   51.687 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.040 |  11.2% | 121634816 elem-terms |       NaN |       NaN |      0.325 |     1946157056 |   49.164 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.007 |   2.0% | 393216 elem-terms |       NaN |       NaN |     17.555 |        6291456 |    0.911 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.5% | 65536 elem-terms |       NaN |       NaN |     27.311 |        1048576 |    0.586 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.077 |       50331648 |  207.233 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.063 |       50331648 |  253.028 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  64495.000 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.031 |   8.7% |     146 claims |       NaN |       NaN | 210673.801 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.013 |   3.8% |      54 claims |       NaN |       NaN | 246458.333 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.4% |       2 claims |       NaN |       NaN | 2496562.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.352 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.352 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.076 s   21.7%  (1 phases)
+PB-TIMING verify HALF setup             0.017 s    4.8%  (1 phases)
+PB-TIMING verify HALF norm              0.029 s    8.2%  (4 phases)
+PB-TIMING verify HALF attention         0.070 s   19.9%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.060 s   16.9%  (4 phases)
+PB-TIMING verify HALF residual          0.031 s    8.9%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.009 s    2.5%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.052 s   14.8%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.2%  (1 phases)
+PB-TIMING verify SPLIT attention 0.070 s (19.9%) | feed-forward 0.060 s (16.9%) | the rest 0.223 s (63.2%) — of the 0.352 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.031 s (8.9%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.359 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.102 |  28.3% |        1 block |       NaN |       NaN | 101584000.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.009 |   2.4% | 32450184 bytes |       NaN |       NaN |      0.265 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.020 |   5.5% |        2 roots |       NaN |       NaN | 9959104.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.014 |   3.9% | 3145728 elem-terms |       NaN |       NaN |      4.440 |       50331648 |    3.604 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.009 |   2.5% | 3145728 elem-terms |       NaN |       NaN |      2.890 |       50331648 |    5.537 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     31.816 |         102400 |    0.503 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.6% | 163840 elem-terms |       NaN |       NaN |     12.446 |        2621440 |    1.286 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   3.5% | 4194304 elem-terms |       NaN |       NaN |      2.957 |       67108864 |    5.411 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.005 |   1.3% | 16384 elem-terms |       NaN |       NaN |    275.037 |         262144 |    0.058 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    178.665 |         262144 |    0.090 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    199.165 |         262144 |    0.080 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     19.630 |         196608 |    0.815 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     16.602 |         196608 |    0.964 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.0% | 16384 elem-terms |       NaN |       NaN |    216.026 |         262144 |    0.074 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.6% | 16384 elem-terms |       NaN |       NaN |    357.188 |         262144 |    0.045 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.8% | 16384 elem-terms |       NaN |       NaN |    388.443 |         262144 |    0.041 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   1.9% | 65536 elem-terms |       NaN |       NaN |    103.207 |        1048576 |    0.155 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.027 |   7.6% | 67108864 elem-terms |       NaN |       NaN |      0.409 |     1073741824 |   39.115 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.019 |   5.3% | 28311552 elem-terms |       NaN |       NaN |      0.676 |      452984832 |   23.674 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.011 |   3.1% | 7077888 elem-terms |       NaN |       NaN |      1.566 |      113246208 |   10.218 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.009 |   2.6% | 29360128 elem-terms |       NaN |       NaN |      0.317 |      469762048 |   50.407 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.030 |   8.4% | 121634816 elem-terms |       NaN |       NaN |      0.249 |     1946157056 |   64.163 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.008 |   2.2% | 393216 elem-terms |       NaN |       NaN |     19.927 |        6291456 |    0.803 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.5% | 65536 elem-terms |       NaN |       NaN |     29.219 |        1048576 |    0.548 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.066 |       50331648 |  243.737 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.060 |       50331648 |  267.248 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  65323.340 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.030 |   8.4% |     146 claims |       NaN |       NaN | 207569.918 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.011 |   3.2% |      54 claims |       NaN |       NaN | 210873.444 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.4% |       2 claims |       NaN |       NaN | 2494270.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.359 |  99.9% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.359 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.1% |
+PB-TIMING verify HALF run (witness, boundary)    0.102 s   28.3%  (1 phases)
+PB-TIMING verify HALF setup             0.020 s    5.5%  (1 phases)
+PB-TIMING verify HALF norm              0.025 s    7.0%  (4 phases)
+PB-TIMING verify HALF attention         0.067 s   18.5%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.049 s   13.7%  (4 phases)
+PB-TIMING verify HALF residual          0.027 s    7.6%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.010 s    2.7%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.050 s   13.9%  (4 phases)
+PB-TIMING verify HALF frame             0.009 s    2.4%  (1 phases)
+PB-TIMING verify SPLIT attention 0.067 s (18.5%) | feed-forward 0.049 s (13.7%) | the rest 0.243 s (67.6%) — of the 0.359 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.027 s (7.6%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.363 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.090 |  24.8% |        1 block |       NaN |       NaN | 89998917.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.1% | 32450184 bytes |       NaN |       NaN |      0.238 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.016 |   4.4% |        2 roots |       NaN |       NaN | 8001062.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.011 |   3.1% | 3145728 elem-terms |       NaN |       NaN |      3.602 |       50331648 |    4.442 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.014 |   3.9% | 3145728 elem-terms |       NaN |       NaN |      4.521 |       50331648 |    3.539 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     34.453 |         102400 |    0.464 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.7% | 163840 elem-terms |       NaN |       NaN |     14.548 |        2621440 |    1.100 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.010 |   2.9% | 4194304 elem-terms |       NaN |       NaN |      2.469 |       67108864 |    6.480 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    192.507 |         262144 |    0.083 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    135.696 |         262144 |    0.118 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    147.733 |         262144 |    0.108 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     16.456 |         196608 |    0.972 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.147 |         196608 |    1.056 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    179.787 |         262144 |    0.089 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    302.165 |         262144 |    0.053 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    380.313 |         262144 |    0.042 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.006 |   1.6% | 65536 elem-terms |       NaN |       NaN |     88.551 |        1048576 |    0.181 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.038 |  10.3% | 67108864 elem-terms |       NaN |       NaN |      0.559 |     1073741824 |   28.597 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.026 |   7.0% | 28311552 elem-terms |       NaN |       NaN |      0.903 |      452984832 |   17.711 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.012 |   3.3% | 7077888 elem-terms |       NaN |       NaN |      1.689 |      113246208 |    9.472 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.012 |   3.4% | 29360128 elem-terms |       NaN |       NaN |      0.417 |      469762048 |   38.410 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.036 |   9.9% | 121634816 elem-terms |       NaN |       NaN |      0.297 |     1946157056 |   53.920 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   2.4% | 393216 elem-terms |       NaN |       NaN |     22.190 |        6291456 |    0.721 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.4% | 65536 elem-terms |       NaN |       NaN |     24.755 |        1048576 |    0.646 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.062 |       50331648 |  259.664 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.059 |       50331648 |  271.087 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  63594.160 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.8% |     146 claims |       NaN |       NaN | 194759.418 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   3.3% |      54 claims |       NaN |       NaN | 222613.426 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2317937.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.363 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.363 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.090 s   24.8%  (1 phases)
+PB-TIMING verify HALF setup             0.016 s    4.4%  (1 phases)
+PB-TIMING verify HALF norm              0.028 s    7.8%  (4 phases)
+PB-TIMING verify HALF attention         0.071 s   19.6%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.053 s   14.6%  (4 phases)
+PB-TIMING verify HALF residual          0.038 s   10.3%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.010 s    2.9%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.048 s   13.3%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.1%  (1 phases)
+PB-TIMING verify SPLIT attention 0.071 s (19.6%) | feed-forward 0.053 s (14.6%) | the rest 0.238 s (65.7%) — of the 0.363 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.038 s (10.3%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.354 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.091 |  25.8% |        1 block |       NaN |       NaN | 91410584.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.1% | 32450184 bytes |       NaN |       NaN |      0.233 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.014 |   4.1% |        2 roots |       NaN |       NaN | 7169104.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.009 |   2.7% | 3145728 elem-terms |       NaN |       NaN |      2.995 |       50331648 |    5.342 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.013 |   3.7% | 3145728 elem-terms |       NaN |       NaN |      4.112 |       50331648 |    3.891 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     30.977 |         102400 |    0.517 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.6% | 163840 elem-terms |       NaN |       NaN |     12.133 |        2621440 |    1.319 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   3.4% | 4194304 elem-terms |       NaN |       NaN |      2.873 |       67108864 |    5.570 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    188.441 |         262144 |    0.085 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    114.120 |         262144 |    0.140 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    151.360 |         262144 |    0.106 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     16.056 |         196608 |    0.997 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.171 |         196608 |    1.055 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    179.487 |         262144 |    0.089 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.6% | 16384 elem-terms |       NaN |       NaN |    356.099 |         262144 |    0.045 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.007 |   1.9% | 16384 elem-terms |       NaN |       NaN |    409.358 |         262144 |    0.039 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.006 |   1.7% | 65536 elem-terms |       NaN |       NaN |     91.883 |        1048576 |    0.174 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.033 |   9.3% | 67108864 elem-terms |       NaN |       NaN |      0.492 |     1073741824 |   32.497 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.022 |   6.3% | 28311552 elem-terms |       NaN |       NaN |      0.785 |      452984832 |   20.394 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.012 |   3.3% | 7077888 elem-terms |       NaN |       NaN |      1.674 |      113246208 |    9.559 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.011 |   3.2% | 29360128 elem-terms |       NaN |       NaN |      0.387 |      469762048 |   41.395 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.036 |  10.1% | 121634816 elem-terms |       NaN |       NaN |      0.295 |     1946157056 |   54.257 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.008 |   2.4% | 393216 elem-terms |       NaN |       NaN |     21.426 |        6291456 |    0.747 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.6% | 65536 elem-terms |       NaN |       NaN |     30.565 |        1048576 |    0.523 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.064 |       50331648 |  249.991 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.060 |       50331648 |  267.781 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  63491.660 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.029 |   8.2% |     146 claims |       NaN |       NaN | 198270.548 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   3.5% |      54 claims |       NaN |       NaN | 228739.185 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2378562.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.354 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.354 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.091 s   25.8%  (1 phases)
+PB-TIMING verify HALF setup             0.014 s    4.1%  (1 phases)
+PB-TIMING verify HALF norm              0.025 s    6.9%  (4 phases)
+PB-TIMING verify HALF attention         0.068 s   19.3%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.054 s   15.4%  (4 phases)
+PB-TIMING verify HALF residual          0.033 s    9.3%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.010 s    2.9%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.049 s   13.9%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.1%  (1 phases)
+PB-TIMING verify SPLIT attention 0.068 s (19.3%) | feed-forward 0.054 s (15.4%) | the rest 0.231 s (65.3%) — of the 0.354 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.033 s (9.3%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.361 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.088 |  24.5% |        1 block |       NaN |       NaN | 88491625.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   2.1% | 32450184 bytes |       NaN |       NaN |      0.229 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.015 |   4.1% |        2 roots |       NaN |       NaN | 7497125.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.011 |   3.0% | 3145728 elem-terms |       NaN |       NaN |      3.477 |       50331648 |    4.601 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.011 |   3.1% | 3145728 elem-terms |       NaN |       NaN |      3.541 |       50331648 |    4.518 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     31.107 |         102400 |    0.514 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.7% | 163840 elem-terms |       NaN |       NaN |     15.072 |        2621440 |    1.062 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.009 |   2.4% | 4194304 elem-terms |       NaN |       NaN |      2.100 |       67108864 |    7.619 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    187.050 |         262144 |    0.086 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    120.270 |         262144 |    0.133 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    131.467 |         262144 |    0.122 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.578 |         196608 |    1.027 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     14.960 |         196608 |    1.069 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.0% | 16384 elem-terms |       NaN |       NaN |    215.683 |         262144 |    0.074 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.5% | 16384 elem-terms |       NaN |       NaN |    331.161 |         262144 |    0.048 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.3% | 16384 elem-terms |       NaN |       NaN |    287.557 |         262144 |    0.056 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.005 |   1.5% | 65536 elem-terms |       NaN |       NaN |     82.766 |        1048576 |    0.193 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.039 |  10.9% | 67108864 elem-terms |       NaN |       NaN |      0.586 |     1073741824 |   27.315 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.025 |   7.0% | 28311552 elem-terms |       NaN |       NaN |      0.894 |      452984832 |   17.891 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.013 |   3.5% | 7077888 elem-terms |       NaN |       NaN |      1.779 |      113246208 |    8.993 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.014 |   3.9% | 29360128 elem-terms |       NaN |       NaN |      0.476 |      469762048 |   33.638 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.039 |  10.7% | 121634816 elem-terms |       NaN |       NaN |      0.318 |     1946157056 |   50.293 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   2.6% | 393216 elem-terms |       NaN |       NaN |     23.804 |        6291456 |    0.672 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.003 |   0.8% | 65536 elem-terms |       NaN |       NaN |     44.287 |        1048576 |    0.361 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.059 |       50331648 |  273.233 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% | 3145728 elem-terms |       NaN |       NaN |      0.053 |       50331648 |  302.823 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  58381.680 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.7% |     146 claims |       NaN |       NaN | 190667.527 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   3.4% |      54 claims |       NaN |       NaN | 226423.611 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2320875.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.361 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.361 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.088 s   24.5%  (1 phases)
+PB-TIMING verify HALF setup             0.015 s    4.1%  (1 phases)
+PB-TIMING verify HALF norm              0.025 s    6.8%  (4 phases)
+PB-TIMING verify HALF attention         0.072 s   19.9%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.054 s   15.0%  (4 phases)
+PB-TIMING verify HALF residual          0.039 s   10.9%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.012 s    3.4%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.048 s   13.2%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    2.1%  (1 phases)
+PB-TIMING verify SPLIT attention 0.072 s (19.9%) | feed-forward 0.054 s (15.0%) | the rest 0.235 s (65.1%) — of the 0.361 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.039 s (10.9%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.372 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.094 |  25.4% |        1 block |       NaN |       NaN | 94384083.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   1.9% | 32450184 bytes |       NaN |       NaN |      0.212 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.015 |   3.9% |        2 roots |       NaN |       NaN | 7327000.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.009 |   2.4% | 3145728 elem-terms |       NaN |       NaN |      2.813 |       50331648 |    5.688 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.013 |   3.5% | 3145728 elem-terms |       NaN |       NaN |      4.129 |       50331648 |    3.875 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     32.982 |         102400 |    0.485 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.001 |   0.4% | 163840 elem-terms |       NaN |       NaN |      8.298 |        2621440 |    1.928 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.014 |   3.7% | 4194304 elem-terms |       NaN |       NaN |      3.310 |       67108864 |    4.834 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    203.987 |         262144 |    0.078 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    143.143 |         262144 |    0.112 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    137.896 |         262144 |    0.116 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     16.988 |         196608 |    0.942 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.971 |         196608 |    1.002 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    189.514 |         262144 |    0.084 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    310.371 |         262144 |    0.052 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    315.519 |         262144 |    0.051 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.008 |   2.0% | 65536 elem-terms |       NaN |       NaN |    114.796 |        1048576 |    0.139 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.034 |   9.2% | 67108864 elem-terms |       NaN |       NaN |      0.507 |     1073741824 |   31.537 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.028 |   7.6% | 28311552 elem-terms |       NaN |       NaN |      0.996 |      452984832 |   16.060 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.016 |   4.3% | 7077888 elem-terms |       NaN |       NaN |      2.235 |      113246208 |    7.158 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.009 |   2.5% | 29360128 elem-terms |       NaN |       NaN |      0.313 |      469762048 |   51.185 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.042 |  11.4% | 121634816 elem-terms |       NaN |       NaN |      0.349 |     1946157056 |   45.817 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   2.6% | 393216 elem-terms |       NaN |       NaN |     24.942 |        6291456 |    0.641 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.6% | 65536 elem-terms |       NaN |       NaN |     32.387 |        1048576 |    0.494 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.072 |       50331648 |  221.035 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.061 |       50331648 |  261.803 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  56805.000 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.6% |     146 claims |       NaN |       NaN | 192830.760 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   3.2% |      54 claims |       NaN |       NaN | 218245.370 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2332729.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.372 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.372 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.094 s   25.4%  (1 phases)
+PB-TIMING verify HALF setup             0.015 s    3.9%  (1 phases)
+PB-TIMING verify HALF norm              0.023 s    6.3%  (4 phases)
+PB-TIMING verify HALF attention         0.079 s   21.1%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.060 s   16.2%  (4 phases)
+PB-TIMING verify HALF residual          0.034 s    9.2%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.012 s    3.2%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.047 s   12.8%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    1.9%  (1 phases)
+PB-TIMING verify SPLIT attention 0.079 s (21.1%) | feed-forward 0.060 s (16.2%) | the rest 0.233 s (62.7%) — of the 0.372 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.034 s (9.2%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.368 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.095 |  25.8% |        1 block |       NaN |       NaN | 94885959.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   2.0% | 32450184 bytes |       NaN |       NaN |      0.221 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.015 |   4.0% |        2 roots |       NaN |       NaN | 7391604.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.013 |   3.6% | 3145728 elem-terms |       NaN |       NaN |      4.223 |       50331648 |    3.789 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.013 |   3.6% | 3145728 elem-terms |       NaN |       NaN |      4.227 |       50331648 |    3.785 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     28.809 |         102400 |    0.555 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     12.253 |        2621440 |    1.306 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.011 |   2.9% | 4194304 elem-terms |       NaN |       NaN |      2.511 |       67108864 |    6.371 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    171.616 |         262144 |    0.093 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    137.550 |         262144 |    0.116 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    113.846 |         262144 |    0.141 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.361 |         196608 |    1.042 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% | 12288 elem-terms |       NaN |       NaN |     13.116 |         196608 |    1.220 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.0% | 16384 elem-terms |       NaN |       NaN |    228.269 |         262144 |    0.070 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.6% | 16384 elem-terms |       NaN |       NaN |    351.374 |         262144 |    0.046 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    306.012 |         262144 |    0.052 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.005 |   1.4% | 65536 elem-terms |       NaN |       NaN |     78.758 |        1048576 |    0.203 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.034 |   9.2% | 67108864 elem-terms |       NaN |       NaN |      0.503 |     1073741824 |   31.799 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.025 |   6.8% | 28311552 elem-terms |       NaN |       NaN |      0.887 |      452984832 |   18.035 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.014 |   3.7% | 7077888 elem-terms |       NaN |       NaN |      1.940 |      113246208 |    8.248 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.011 |   3.1% | 29360128 elem-terms |       NaN |       NaN |      0.385 |      469762048 |   41.524 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.042 |  11.3% | 121634816 elem-terms |       NaN |       NaN |      0.342 |     1946157056 |   46.837 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.011 |   3.0% | 393216 elem-terms |       NaN |       NaN |     27.664 |        6291456 |    0.578 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.5% | 65536 elem-terms |       NaN |       NaN |     27.998 |        1048576 |    0.571 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.059 |       50331648 |  271.147 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% | 3145728 elem-terms |       NaN |       NaN |      0.053 |       50331648 |  303.812 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  57099.180 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.027 |   7.5% |     146 claims |       NaN |       NaN | 187954.911 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.011 |   3.0% |      54 claims |       NaN |       NaN | 207782.407 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2338395.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.368 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.368 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.095 s   25.8%  (1 phases)
+PB-TIMING verify HALF setup             0.015 s    4.0%  (1 phases)
+PB-TIMING verify HALF norm              0.029 s    7.8%  (4 phases)
+PB-TIMING verify HALF attention         0.072 s   19.5%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.057 s   15.6%  (4 phases)
+PB-TIMING verify HALF residual          0.034 s    9.2%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.013 s    3.5%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.046 s   12.6%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    2.0%  (1 phases)
+PB-TIMING verify SPLIT attention 0.072 s (19.5%) | feed-forward 0.057 s (15.6%) | the rest 0.239 s (64.9%) — of the 0.368 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.034 s (9.2%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.374 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.090 |  24.0% |        1 block |       NaN |       NaN | 89669875.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   1.8% | 32450184 bytes |       NaN |       NaN |      0.211 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.016 |   4.2% |        2 roots |       NaN |       NaN | 7767771.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.015 |   4.0% | 3145728 elem-terms |       NaN |       NaN |      4.715 |       50331648 |    3.394 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.011 |   3.0% | 3145728 elem-terms |       NaN |       NaN |      3.529 |       50331648 |    4.534 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     35.521 |         102400 |    0.450 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     12.375 |        2621440 |    1.293 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   3.3% | 4194304 elem-terms |       NaN |       NaN |      2.946 |       67108864 |    5.431 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.004 |   1.0% | 16384 elem-terms |       NaN |       NaN |    222.570 |         262144 |    0.072 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    137.901 |         262144 |    0.116 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    147.814 |         262144 |    0.108 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     17.232 |         196608 |    0.928 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.527 |         196608 |    1.030 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    197.421 |         262144 |    0.081 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.5% | 16384 elem-terms |       NaN |       NaN |    348.361 |         262144 |    0.046 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    383.588 |         262144 |    0.042 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   1.7% | 65536 elem-terms |       NaN |       NaN |     99.794 |        1048576 |    0.160 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.040 |  10.7% | 67108864 elem-terms |       NaN |       NaN |      0.599 |     1073741824 |   26.730 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.026 |   7.0% | 28311552 elem-terms |       NaN |       NaN |      0.926 |      452984832 |   17.287 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.010 |   2.7% | 7077888 elem-terms |       NaN |       NaN |      1.450 |      113246208 |   11.036 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.013 |   3.4% | 29360128 elem-terms |       NaN |       NaN |      0.429 |      469762048 |   37.304 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.043 |  11.5% | 121634816 elem-terms |       NaN |       NaN |      0.354 |     1946157056 |   45.139 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   2.5% | 393216 elem-terms |       NaN |       NaN |     23.805 |        6291456 |    0.672 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.5% | 65536 elem-terms |       NaN |       NaN |     26.815 |        1048576 |    0.597 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.073 |       50331648 |  218.794 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.074 |       50331648 |  217.415 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  57145.000 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.4% |     146 claims |       NaN |       NaN | 189468.034 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.011 |   3.0% |      54 claims |       NaN |       NaN | 210687.500 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.4% |       2 claims |       NaN |       NaN | 2565833.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.374 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.374 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.090 s   24.0%  (1 phases)
+PB-TIMING verify HALF setup             0.016 s    4.2%  (1 phases)
+PB-TIMING verify HALF norm              0.028 s    7.5%  (4 phases)
+PB-TIMING verify HALF attention         0.073 s   19.6%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.062 s   16.5%  (4 phases)
+PB-TIMING verify HALF residual          0.040 s   10.7%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    3.0%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.047 s   12.6%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    1.8%  (1 phases)
+PB-TIMING verify SPLIT attention 0.073 s (19.6%) | feed-forward 0.062 s (16.5%) | the rest 0.239 s (63.9%) — of the 0.374 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.040 s (10.7%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.391 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.096 |  24.6% |        1 block |       NaN |       NaN | 96399833.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   1.7% | 32450184 bytes |       NaN |       NaN |      0.210 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.015 |   3.8% |        2 roots |       NaN |       NaN | 7487437.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.013 |   3.3% | 3145728 elem-terms |       NaN |       NaN |      4.090 |       50331648 |    3.912 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.015 |   3.8% | 3145728 elem-terms |       NaN |       NaN |      4.739 |       50331648 |    3.376 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     34.030 |         102400 |    0.470 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     12.871 |        2621440 |    1.243 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   2.9% | 4194304 elem-terms |       NaN |       NaN |      2.742 |       67108864 |    5.835 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    190.506 |         262144 |    0.084 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    134.155 |         262144 |    0.119 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.4% | 16384 elem-terms |       NaN |       NaN |     92.120 |         262144 |    0.174 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.063 |         196608 |    0.886 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% | 12288 elem-terms |       NaN |       NaN |     15.659 |         196608 |    1.022 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    188.443 |         262144 |    0.085 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    328.786 |         262144 |    0.049 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.2% | 16384 elem-terms |       NaN |       NaN |    279.498 |         262144 |    0.057 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   1.7% | 65536 elem-terms |       NaN |       NaN |    101.201 |        1048576 |    0.158 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.046 |  11.6% | 67108864 elem-terms |       NaN |       NaN |      0.679 |     1073741824 |   23.559 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.034 |   8.7% | 28311552 elem-terms |       NaN |       NaN |      1.204 |      452984832 |   13.284 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.016 |   4.1% | 7077888 elem-terms |       NaN |       NaN |      2.291 |      113246208 |    6.985 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.012 |   3.0% | 29360128 elem-terms |       NaN |       NaN |      0.396 |      469762048 |   40.434 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.039 |  10.0% | 121634816 elem-terms |       NaN |       NaN |      0.321 |     1946157056 |   49.919 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   2.2% | 393216 elem-terms |       NaN |       NaN |     21.664 |        6291456 |    0.739 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.5% | 65536 elem-terms |       NaN |       NaN |     29.147 |        1048576 |    0.549 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.073 |       50331648 |  220.069 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% | 3145728 elem-terms |       NaN |       NaN |      0.061 |       50331648 |  262.430 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.7% |        50 rows |       NaN |       NaN |  57014.160 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.1% |     146 claims |       NaN |       NaN | 191517.123 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   3.0% |      54 claims |       NaN |       NaN | 216680.556 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.2% |       2 claims |       NaN |       NaN | 2390458.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.391 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.391 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.096 s   24.6%  (1 phases)
+PB-TIMING verify HALF setup             0.015 s    3.8%  (1 phases)
+PB-TIMING verify HALF norm              0.030 s    7.7%  (4 phases)
+PB-TIMING verify HALF attention         0.084 s   21.4%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.056 s   14.2%  (4 phases)
+PB-TIMING verify HALF residual          0.046 s   11.6%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.010 s    2.7%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.047 s   12.1%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    1.7%  (1 phases)
+PB-TIMING verify SPLIT attention 0.084 s (21.4%) | feed-forward 0.056 s (14.2%) | the rest 0.252 s (64.4%) — of the 0.391 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.046 s (11.6%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.376 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.080 |  21.2% |        1 block |       NaN |       NaN | 79857667.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   1.9% | 32450184 bytes |       NaN |       NaN |      0.214 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.016 |   4.4% |        2 roots |       NaN |       NaN | 8180375.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.017 |   4.5% | 3145728 elem-terms |       NaN |       NaN |      5.350 |       50331648 |    2.991 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.013 |   3.5% | 3145728 elem-terms |       NaN |       NaN |      4.237 |       50331648 |    3.777 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     33.711 |         102400 |    0.475 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     11.430 |        2621440 |    1.400 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.013 |   3.4% | 4194304 elem-terms |       NaN |       NaN |      3.007 |       67108864 |    5.322 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.004 |   1.2% | 16384 elem-terms |       NaN |       NaN |    272.018 |         262144 |    0.059 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    122.050 |         262144 |    0.131 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    140.775 |         262144 |    0.114 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     16.819 |         196608 |    0.951 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.642 |         196608 |    1.023 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    212.245 |         262144 |    0.075 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    395.485 |         262144 |    0.040 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.5% | 16384 elem-terms |       NaN |       NaN |    343.376 |         262144 |    0.047 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.006 |   1.7% | 65536 elem-terms |       NaN |       NaN |     95.418 |        1048576 |    0.168 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.037 |   9.7% | 67108864 elem-terms |       NaN |       NaN |      0.544 |     1073741824 |   29.387 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.029 |   7.7% | 28311552 elem-terms |       NaN |       NaN |      1.023 |      452984832 |   15.638 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.016 |   4.2% | 7077888 elem-terms |       NaN |       NaN |      2.225 |      113246208 |    7.191 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.013 |   3.6% | 29360128 elem-terms |       NaN |       NaN |      0.459 |      469762048 |   34.889 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.043 |  11.5% | 121634816 elem-terms |       NaN |       NaN |      0.356 |     1946157056 |   44.903 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   2.6% | 393216 elem-terms |       NaN |       NaN |     24.675 |        6291456 |    0.648 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.4% | 65536 elem-terms |       NaN |       NaN |     23.656 |        1048576 |    0.676 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.068 |       50331648 |  236.808 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.061 |       50331648 |  262.315 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  57663.340 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.5% |     146 claims |       NaN |       NaN | 192009.986 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   3.1% |      54 claims |       NaN |       NaN | 213114.204 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.2% |       2 claims |       NaN |       NaN | 2275875.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.376 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.376 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.080 s   21.2%  (1 phases)
+PB-TIMING verify HALF setup             0.016 s    4.4%  (1 phases)
+PB-TIMING verify HALF norm              0.032 s    8.6%  (4 phases)
+PB-TIMING verify HALF attention         0.083 s   22.2%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.062 s   16.4%  (4 phases)
+PB-TIMING verify HALF residual          0.037 s    9.7%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    3.0%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.047 s   12.5%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    1.9%  (1 phases)
+PB-TIMING verify SPLIT attention 0.083 s (22.2%) | feed-forward 0.062 s (16.4%) | the rest 0.231 s (61.4%) — of the 0.376 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.037 s (9.7%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.340 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.078 |  23.0% |        1 block |       NaN |       NaN | 78378041.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   2.0% | 32450184 bytes |       NaN |       NaN |      0.209 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.016 |   4.8% |        2 roots |       NaN |       NaN | 8195833.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.011 |   3.3% | 3145728 elem-terms |       NaN |       NaN |      3.575 |       50331648 |    4.475 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.011 |   3.2% | 3145728 elem-terms |       NaN |       NaN |      3.461 |       50331648 |    4.622 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     30.716 |         102400 |    0.521 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.6% | 163840 elem-terms |       NaN |       NaN |     12.244 |        2621440 |    1.307 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.010 |   2.8% | 4194304 elem-terms |       NaN |       NaN |      2.305 |       67108864 |    6.943 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    195.986 |         262144 |    0.082 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    128.003 |         262144 |    0.125 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    134.555 |         262144 |    0.119 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.445 |         196608 |    1.036 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% | 12288 elem-terms |       NaN |       NaN |     13.418 |         196608 |    1.192 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    193.069 |         262144 |    0.083 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.5% | 16384 elem-terms |       NaN |       NaN |    315.211 |         262144 |    0.051 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.8% | 16384 elem-terms |       NaN |       NaN |    372.948 |         262144 |    0.043 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.005 |   1.6% | 65536 elem-terms |       NaN |       NaN |     83.054 |        1048576 |    0.193 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.034 |  10.0% | 67108864 elem-terms |       NaN |       NaN |      0.507 |     1073741824 |   31.527 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.024 |   7.0% | 28311552 elem-terms |       NaN |       NaN |      0.841 |      452984832 |   19.032 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.013 |   3.9% | 7077888 elem-terms |       NaN |       NaN |      1.892 |      113246208 |    8.455 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.012 |   3.6% | 29360128 elem-terms |       NaN |       NaN |      0.413 |      469762048 |   38.786 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.037 |  10.7% | 121634816 elem-terms |       NaN |       NaN |      0.300 |     1946157056 |   53.264 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   2.8% | 393216 elem-terms |       NaN |       NaN |     24.365 |        6291456 |    0.657 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.4% | 65536 elem-terms |       NaN |       NaN |     22.987 |        1048576 |    0.696 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.063 |       50331648 |  255.005 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.057 |       50331648 |  279.232 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  57339.180 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.027 |   7.9% |     146 claims |       NaN |       NaN | 183801.370 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.011 |   3.3% |      54 claims |       NaN |       NaN | 209310.185 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.004 |   1.3% |       2 claims |       NaN |       NaN | 2147791.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.340 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.340 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.078 s   23.0%  (1 phases)
+PB-TIMING verify HALF setup             0.016 s    4.8%  (1 phases)
+PB-TIMING verify HALF norm              0.024 s    7.2%  (4 phases)
+PB-TIMING verify HALF attention         0.070 s   20.6%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.053 s   15.7%  (4 phases)
+PB-TIMING verify HALF residual          0.034 s   10.0%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    3.3%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.045 s   13.3%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    2.0%  (1 phases)
+PB-TIMING verify SPLIT attention 0.070 s (20.6%) | feed-forward 0.053 s (15.7%) | the rest 0.217 s (63.7%) — of the 0.340 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.034 s (10.0%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.369 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.077 |  20.9% |        1 block |       NaN |       NaN | 77139125.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   1.8% | 32450184 bytes |       NaN |       NaN |      0.206 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.019 |   5.2% |        2 roots |       NaN |       NaN | 9622104.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.014 |   3.8% | 3145728 elem-terms |       NaN |       NaN |      4.503 |       50331648 |    3.553 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.013 |   3.5% | 3145728 elem-terms |       NaN |       NaN |      4.161 |       50331648 |    3.845 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     32.520 |         102400 |    0.492 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     10.964 |        2621440 |    1.459 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.014 |   3.8% | 4194304 elem-terms |       NaN |       NaN |      3.319 |       67108864 |    4.820 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.004 |   0.9% | 16384 elem-terms |       NaN |       NaN |    213.725 |         262144 |    0.075 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    135.012 |         262144 |    0.119 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    137.622 |         262144 |    0.116 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     17.398 |         196608 |    0.920 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.496 |         196608 |    1.033 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    207.375 |         262144 |    0.077 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.5% | 16384 elem-terms |       NaN |       NaN |    328.707 |         262144 |    0.049 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    318.789 |         262144 |    0.050 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   1.9% | 65536 elem-terms |       NaN |       NaN |    104.844 |        1048576 |    0.153 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.041 |  11.0% | 67108864 elem-terms |       NaN |       NaN |      0.606 |     1073741824 |   26.399 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.025 |   6.7% | 28311552 elem-terms |       NaN |       NaN |      0.876 |      452984832 |   18.274 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.013 |   3.6% | 7077888 elem-terms |       NaN |       NaN |      1.854 |      113246208 |    8.628 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.015 |   4.0% | 29360128 elem-terms |       NaN |       NaN |      0.506 |      469762048 |   31.599 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.041 |  11.0% | 121634816 elem-terms |       NaN |       NaN |      0.334 |     1946157056 |   47.966 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   2.7% | 393216 elem-terms |       NaN |       NaN |     25.029 |        6291456 |    0.639 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.6% | 65536 elem-terms |       NaN |       NaN |     31.131 |        1048576 |    0.514 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.070 |       50331648 |  227.616 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.061 |       50331648 |  263.172 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  56736.660 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.6% |     146 claims |       NaN |       NaN | 190981.445 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.011 |   3.1% |      54 claims |       NaN |       NaN | 211801.704 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2322083.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.369 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.369 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.077 s   20.9%  (1 phases)
+PB-TIMING verify HALF setup             0.019 s    5.2%  (1 phases)
+PB-TIMING verify HALF norm              0.029 s    7.9%  (4 phases)
+PB-TIMING verify HALF attention         0.078 s   21.3%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.058 s   15.7%  (4 phases)
+PB-TIMING verify HALF residual          0.041 s   11.0%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.012 s    3.2%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.047 s   12.7%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    1.8%  (1 phases)
+PB-TIMING verify SPLIT attention 0.078 s (21.3%) | feed-forward 0.058 s (15.7%) | the rest 0.232 s (62.9%) — of the 0.369 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.041 s (11.0%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.355 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.078 |  21.9% |        1 block |       NaN |       NaN | 77968583.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   1.9% | 32450184 bytes |       NaN |       NaN |      0.211 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.018 |   5.0% |        2 roots |       NaN |       NaN | 8837875.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.012 |   3.4% | 3145728 elem-terms |       NaN |       NaN |      3.858 |       50331648 |    4.148 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.014 |   4.0% | 3145728 elem-terms |       NaN |       NaN |      4.538 |       50331648 |    3.526 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     33.509 |         102400 |    0.477 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.6% | 163840 elem-terms |       NaN |       NaN |     13.487 |        2621440 |    1.186 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   3.5% | 4194304 elem-terms |       NaN |       NaN |      2.928 |       67108864 |    5.464 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    203.562 |         262144 |    0.079 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    144.292 |         262144 |    0.111 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    151.591 |         262144 |    0.106 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.212 |         196608 |    0.879 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     16.764 |         196608 |    0.954 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    180.990 |         262144 |    0.088 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.6% | 16384 elem-terms |       NaN |       NaN |    353.358 |         262144 |    0.045 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    374.687 |         262144 |    0.043 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   1.9% | 65536 elem-terms |       NaN |       NaN |    104.599 |        1048576 |    0.153 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.037 |  10.5% | 67108864 elem-terms |       NaN |       NaN |      0.556 |     1073741824 |   28.776 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.024 |   6.9% | 28311552 elem-terms |       NaN |       NaN |      0.864 |      452984832 |   18.517 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.013 |   3.6% | 7077888 elem-terms |       NaN |       NaN |      1.820 |      113246208 |    8.789 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.011 |   3.1% | 29360128 elem-terms |       NaN |       NaN |      0.379 |      469762048 |   42.188 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.038 |  10.7% | 121634816 elem-terms |       NaN |       NaN |      0.312 |     1946157056 |   51.216 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   2.7% | 393216 elem-terms |       NaN |       NaN |     24.755 |        6291456 |    0.646 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.001 |   0.4% | 65536 elem-terms |       NaN |       NaN |     19.866 |        1048576 |    0.805 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.069 |       50331648 |  230.615 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.061 |       50331648 |  261.973 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  57876.660 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   7.8% |     146 claims |       NaN |       NaN | 190145.548 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.011 |   3.2% |      54 claims |       NaN |       NaN | 207394.278 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.004 |   1.2% |       2 claims |       NaN |       NaN | 2097146.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.355 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.355 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.078 s   21.9%  (1 phases)
+PB-TIMING verify HALF setup             0.018 s    5.0%  (1 phases)
+PB-TIMING verify HALF norm              0.029 s    8.1%  (4 phases)
+PB-TIMING verify HALF attention         0.072 s   20.4%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.057 s   16.0%  (4 phases)
+PB-TIMING verify HALF residual          0.037 s   10.5%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    3.1%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.046 s   13.0%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    1.9%  (1 phases)
+PB-TIMING verify SPLIT attention 0.072 s (20.4%) | feed-forward 0.057 s (16.0%) | the rest 0.226 s (63.6%) — of the 0.355 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.037 s (10.5%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.361 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.077 |  21.3% |        1 block |       NaN |       NaN | 77023667.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   1.9% | 32450184 bytes |       NaN |       NaN |      0.213 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.016 |   4.5% |        2 roots |       NaN |       NaN | 8213792.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.013 |   3.6% | 3145728 elem-terms |       NaN |       NaN |      4.181 |       50331648 |    3.827 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.010 |   2.9% | 3145728 elem-terms |       NaN |       NaN |      3.299 |       50331648 |    4.851 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     32.240 |         102400 |    0.496 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     10.466 |        2621440 |    1.529 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   3.4% | 4194304 elem-terms |       NaN |       NaN |      2.904 |       67108864 |    5.510 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    208.974 |         262144 |    0.077 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    113.419 |         262144 |    0.141 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    143.984 |         262144 |    0.111 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.144 |         196608 |    0.882 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.720 |         196608 |    1.018 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    190.465 |         262144 |    0.084 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    385.086 |         262144 |    0.042 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    299.772 |         262144 |    0.053 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.008 |   2.1% | 65536 elem-terms |       NaN |       NaN |    116.186 |        1048576 |    0.138 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.035 |   9.6% | 67108864 elem-terms |       NaN |       NaN |      0.515 |     1073741824 |   31.062 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.029 |   8.0% | 28311552 elem-terms |       NaN |       NaN |      1.015 |      452984832 |   15.762 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.015 |   4.1% | 7077888 elem-terms |       NaN |       NaN |      2.071 |      113246208 |    7.726 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.013 |   3.5% | 29360128 elem-terms |       NaN |       NaN |      0.427 |      469762048 |   37.440 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.040 |  11.2% | 121634816 elem-terms |       NaN |       NaN |      0.333 |     1946157056 |   48.065 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.008 |   2.3% | 393216 elem-terms |       NaN |       NaN |     21.490 |        6291456 |    0.745 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.7% | 65536 elem-terms |       NaN |       NaN |     37.015 |        1048576 |    0.432 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.072 |       50331648 |  223.283 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.070 |       50331648 |  229.782 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  63634.160 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.029 |   8.1% |     146 claims |       NaN |       NaN | 200066.212 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.013 |   3.6% |      54 claims |       NaN |       NaN | 239466.833 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.5% |       2 claims |       NaN |       NaN | 2714437.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.361 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.361 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.077 s   21.3%  (1 phases)
+PB-TIMING verify HALF setup             0.016 s    4.5%  (1 phases)
+PB-TIMING verify HALF norm              0.025 s    7.0%  (4 phases)
+PB-TIMING verify HALF attention         0.079 s   22.0%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.059 s   16.4%  (4 phases)
+PB-TIMING verify HALF residual          0.035 s    9.6%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    3.0%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.051 s   14.1%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    1.9%  (1 phases)
+PB-TIMING verify SPLIT attention 0.079 s (22.0%) | feed-forward 0.059 s (16.4%) | the rest 0.222 s (61.6%) — of the 0.361 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.035 s (9.6%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.362 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.083 |  22.9% |        1 block |       NaN |       NaN | 83093834.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   2.0% | 32450184 bytes |       NaN |       NaN |      0.227 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.018 |   4.9% |        2 roots |       NaN |       NaN | 8850021.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.010 |   2.8% | 3145728 elem-terms |       NaN |       NaN |      3.258 |       50331648 |    4.911 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.015 |   4.1% | 3145728 elem-terms |       NaN |       NaN |      4.683 |       50331648 |    3.417 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     37.305 |         102400 |    0.429 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.003 |   0.7% | 163840 elem-terms |       NaN |       NaN |     15.411 |        2621440 |    1.038 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   3.2% | 4194304 elem-terms |       NaN |       NaN |      2.753 |       67108864 |    5.811 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    183.589 |         262144 |    0.087 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    193.771 |         262144 |    0.083 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.003 |   0.7% | 16384 elem-terms |       NaN |       NaN |    156.586 |         262144 |    0.102 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     32.037 |         196608 |    0.499 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.653 |         196608 |    0.858 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.2% | 16384 elem-terms |       NaN |       NaN |    273.829 |         262144 |    0.058 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    373.723 |         262144 |    0.043 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.007 |   1.8% | 16384 elem-terms |       NaN |       NaN |    401.952 |         262144 |    0.040 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.006 |   1.8% | 65536 elem-terms |       NaN |       NaN |     98.024 |        1048576 |    0.163 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.033 |   9.0% | 67108864 elem-terms |       NaN |       NaN |      0.488 |     1073741824 |   32.810 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.019 |   5.3% | 28311552 elem-terms |       NaN |       NaN |      0.674 |      452984832 |   23.726 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.012 |   3.4% | 7077888 elem-terms |       NaN |       NaN |      1.716 |      113246208 |    9.326 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.010 |   2.8% | 29360128 elem-terms |       NaN |       NaN |      0.342 |      469762048 |   46.811 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.040 |  11.1% | 121634816 elem-terms |       NaN |       NaN |      0.332 |     1946157056 |   48.212 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   2.6% | 393216 elem-terms |       NaN |       NaN |     23.579 |        6291456 |    0.679 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.6% | 65536 elem-terms |       NaN |       NaN |     30.947 |        1048576 |    0.517 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.107 |       50331648 |  149.537 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.071 |       50331648 |  225.282 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  65703.340 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.032 |   8.9% |     146 claims |       NaN |       NaN | 221231.452 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.015 |   4.1% |      54 claims |       NaN |       NaN | 275003.074 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.4% |       2 claims |       NaN |       NaN | 2592395.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.362 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.362 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.083 s   22.9%  (1 phases)
+PB-TIMING verify HALF setup             0.018 s    4.9%  (1 phases)
+PB-TIMING verify HALF norm              0.028 s    7.7%  (4 phases)
+PB-TIMING verify HALF attention         0.067 s   18.4%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.059 s   16.4%  (4 phases)
+PB-TIMING verify HALF residual          0.033 s    9.0%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    3.1%  (2 phases)
+PB-TIMING verify HALF endpoints         0.001 s    0.2%  (2 phases)
+PB-TIMING verify HALF openings          0.056 s   15.3%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    2.0%  (1 phases)
+PB-TIMING verify SPLIT attention 0.067 s (18.4%) | feed-forward 0.059 s (16.4%) | the rest 0.236 s (65.2%) — of the 0.362 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.033 s (9.0%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.350 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.085 |  24.2% |        1 block |       NaN |       NaN | 84784041.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   2.1% | 32450184 bytes |       NaN |       NaN |      0.229 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.015 |   4.2% |        2 roots |       NaN |       NaN | 7422541.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.010 |   2.8% | 3145728 elem-terms |       NaN |       NaN |      3.137 |       50331648 |    5.100 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.009 |   2.6% | 3145728 elem-terms |       NaN |       NaN |      2.883 |       50331648 |    5.550 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     49.336 |         102400 |    0.324 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.6% | 163840 elem-terms |       NaN |       NaN |     12.679 |        2621440 |    1.262 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.011 |   3.1% | 4194304 elem-terms |       NaN |       NaN |      2.612 |       67108864 |    6.125 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   1.0% | 16384 elem-terms |       NaN |       NaN |    213.237 |         262144 |    0.075 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    130.496 |         262144 |    0.123 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.003 |   0.7% | 16384 elem-terms |       NaN |       NaN |    159.269 |         262144 |    0.100 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.680 |         196608 |    0.857 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     16.242 |         196608 |    0.985 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    183.014 |         262144 |    0.087 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.3% | 16384 elem-terms |       NaN |       NaN |    284.973 |         262144 |    0.056 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.6% | 16384 elem-terms |       NaN |       NaN |    351.395 |         262144 |    0.046 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.005 |   1.5% | 65536 elem-terms |       NaN |       NaN |     82.297 |        1048576 |    0.194 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.033 |   9.3% | 67108864 elem-terms |       NaN |       NaN |      0.487 |     1073741824 |   32.882 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.023 |   6.6% | 28311552 elem-terms |       NaN |       NaN |      0.814 |      452984832 |   19.648 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.009 |   2.5% | 7077888 elem-terms |       NaN |       NaN |      1.232 |      113246208 |   12.989 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.009 |   2.5% | 29360128 elem-terms |       NaN |       NaN |      0.294 |      469762048 |   54.490 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.038 |  10.8% | 121634816 elem-terms |       NaN |       NaN |      0.311 |     1946157056 |   51.384 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   3.0% | 393216 elem-terms |       NaN |       NaN |     26.486 |        6291456 |    0.604 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.003 |   0.7% | 65536 elem-terms |       NaN |       NaN |     39.276 |        1048576 |    0.407 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.075 |       50331648 |  212.072 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.071 |       50331648 |  225.872 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  65149.180 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.032 |   9.3% |     146 claims |       NaN |       NaN | 221907.534 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.015 |   4.4% |      54 claims |       NaN |       NaN | 282759.259 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.008 |   2.2% |       2 claims |       NaN |       NaN | 3924333.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.350 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.350 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.085 s   24.2%  (1 phases)
+PB-TIMING verify HALF setup             0.015 s    4.2%  (1 phases)
+PB-TIMING verify HALF norm              0.021 s    6.1%  (4 phases)
+PB-TIMING verify HALF attention         0.063 s   18.0%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.054 s   15.3%  (4 phases)
+PB-TIMING verify HALF residual          0.033 s    9.3%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.013 s    3.7%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.059 s   16.8%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    2.1%  (1 phases)
+PB-TIMING verify SPLIT attention 0.063 s (18.0%) | feed-forward 0.054 s (15.3%) | the rest 0.233 s (66.6%) — of the 0.350 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.033 s (9.3%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.351 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.105 |  29.9% |        1 block |       NaN |       NaN | 104787625.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.007 |   2.1% | 32450184 bytes |       NaN |       NaN |      0.223 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.018 |   5.2% |        2 roots |       NaN |       NaN | 9077854.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.011 |   3.2% | 3145728 elem-terms |       NaN |       NaN |      3.547 |       50331648 |    4.511 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.012 |   3.3% | 3145728 elem-terms |       NaN |       NaN |      3.663 |       50331648 |    4.368 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     44.505 |         102400 |    0.360 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.7% | 163840 elem-terms |       NaN |       NaN |     15.207 |        2621440 |    1.052 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.009 |   2.7% | 4194304 elem-terms |       NaN |       NaN |      2.227 |       67108864 |    7.185 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   1.0% | 16384 elem-terms |       NaN |       NaN |    204.094 |         262144 |    0.078 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    149.839 |         262144 |    0.107 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.003 |   0.7% | 16384 elem-terms |       NaN |       NaN |    158.717 |         262144 |    0.101 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     27.039 |         196608 |    0.592 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.677 |         196608 |    0.857 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.2% | 16384 elem-terms |       NaN |       NaN |    255.379 |         262144 |    0.063 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.5% | 16384 elem-terms |       NaN |       NaN |    322.004 |         262144 |    0.050 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.7% | 16384 elem-terms |       NaN |       NaN |    363.912 |         262144 |    0.044 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   2.0% | 65536 elem-terms |       NaN |       NaN |    104.584 |        1048576 |    0.153 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.029 |   8.3% | 67108864 elem-terms |       NaN |       NaN |      0.437 |     1073741824 |   36.651 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.022 |   6.3% | 28311552 elem-terms |       NaN |       NaN |      0.781 |      452984832 |   20.479 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.010 |   2.9% | 7077888 elem-terms |       NaN |       NaN |      1.439 |      113246208 |   11.117 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.010 |   2.8% | 29360128 elem-terms |       NaN |       NaN |      0.329 |      469762048 |   48.567 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.028 |   8.1% | 121634816 elem-terms |       NaN |       NaN |      0.234 |     1946157056 |   68.521 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.004 |   1.2% | 393216 elem-terms |       NaN |       NaN |     11.073 |        6291456 |    1.445 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.001 |   0.4% | 65536 elem-terms |       NaN |       NaN |     22.754 |        1048576 |    0.703 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.088 |       50331648 |  181.566 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.072 |       50331648 |  222.011 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  62863.320 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   8.1% |     146 claims |       NaN |       NaN | 194829.055 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   3.4% |      54 claims |       NaN |       NaN | 218162.815 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.5% |       2 claims |       NaN |       NaN | 2568500.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.351 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.351 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.105 s   29.9%  (1 phases)
+PB-TIMING verify HALF setup             0.018 s    5.2%  (1 phases)
+PB-TIMING verify HALF norm              0.025 s    7.3%  (4 phases)
+PB-TIMING verify HALF attention         0.064 s   18.4%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.046 s   13.3%  (4 phases)
+PB-TIMING verify HALF residual          0.029 s    8.3%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.006 s    1.7%  (2 phases)
+PB-TIMING verify HALF endpoints         0.001 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.049 s   13.8%  (4 phases)
+PB-TIMING verify HALF frame             0.007 s    2.1%  (1 phases)
+PB-TIMING verify SPLIT attention 0.064 s (18.4%) | feed-forward 0.046 s (13.3%) | the rest 0.240 s (68.3%) — of the 0.351 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.029 s (8.3%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.344 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.089 |  25.8% |        1 block |       NaN |       NaN | 88576125.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.3% | 32450184 bytes |       NaN |       NaN |      0.239 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.013 |   3.8% |        2 roots |       NaN |       NaN | 6494166.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.012 |   3.4% | 3145728 elem-terms |       NaN |       NaN |      3.729 |       50331648 |    4.291 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.014 |   4.0% | 3145728 elem-terms |       NaN |       NaN |      4.388 |       50331648 |    3.647 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     31.745 |         102400 |    0.504 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.003 |   0.8% | 163840 elem-terms |       NaN |       NaN |     15.766 |        2621440 |    1.015 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.012 |   3.4% | 4194304 elem-terms |       NaN |       NaN |      2.790 |       67108864 |    5.734 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   1.0% | 16384 elem-terms |       NaN |       NaN |    201.383 |         262144 |    0.079 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    143.738 |         262144 |    0.111 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    100.909 |         262144 |    0.159 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.442 |         196608 |    1.036 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     14.733 |         196608 |    1.086 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.1% | 16384 elem-terms |       NaN |       NaN |    225.871 |         262144 |    0.071 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.004 |   1.2% | 16384 elem-terms |       NaN |       NaN |    246.040 |         262144 |    0.065 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.5% | 16384 elem-terms |       NaN |       NaN |    325.048 |         262144 |    0.049 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.005 |   1.5% | 65536 elem-terms |       NaN |       NaN |     79.592 |        1048576 |    0.201 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.032 |   9.2% | 67108864 elem-terms |       NaN |       NaN |      0.474 |     1073741824 |   33.786 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.023 |   6.8% | 28311552 elem-terms |       NaN |       NaN |      0.829 |      452984832 |   19.306 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.012 |   3.5% | 7077888 elem-terms |       NaN |       NaN |      1.713 |      113246208 |    9.339 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.010 |   3.0% | 29360128 elem-terms |       NaN |       NaN |      0.352 |      469762048 |   45.512 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.031 |   9.1% | 121634816 elem-terms |       NaN |       NaN |      0.258 |     1946157056 |   62.061 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   2.5% | 393216 elem-terms |       NaN |       NaN |     21.737 |        6291456 |    0.736 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.6% | 65536 elem-terms |       NaN |       NaN |     29.661 |        1048576 |    0.539 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.066 |       50331648 |  243.099 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.056 |       50331648 |  283.426 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  56506.660 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   8.2% |     146 claims |       NaN |       NaN | 194003.144 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.012 |   3.6% |      54 claims |       NaN |       NaN | 226532.407 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.5% |       2 claims |       NaN |       NaN | 2613937.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.344 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.344 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.089 s   25.8%  (1 phases)
+PB-TIMING verify HALF setup             0.013 s    3.8%  (1 phases)
+PB-TIMING verify HALF norm              0.028 s    8.2%  (4 phases)
+PB-TIMING verify HALF attention         0.069 s   20.1%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.046 s   13.4%  (4 phases)
+PB-TIMING verify HALF residual          0.032 s    9.2%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.010 s    3.1%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.049 s   14.1%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.3%  (1 phases)
+PB-TIMING verify SPLIT attention 0.069 s (20.1%) | feed-forward 0.046 s (13.4%) | the rest 0.229 s (66.6%) — of the 0.344 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.032 s (9.2%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.337 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.082 |  24.5% |        1 block |       NaN |       NaN | 82377625.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.3% | 32450184 bytes |       NaN |       NaN |      0.236 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.013 |   3.8% |        2 roots |       NaN |       NaN | 6462396.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.011 |   3.2% | 3145728 elem-terms |       NaN |       NaN |      3.398 |       50331648 |    4.708 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.010 |   2.9% | 3145728 elem-terms |       NaN |       NaN |      3.066 |       50331648 |    5.219 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     32.103 |         102400 |    0.498 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.003 |   0.9% | 163840 elem-terms |       NaN |       NaN |     17.974 |        2621440 |    0.890 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.009 |   2.7% | 4194304 elem-terms |       NaN |       NaN |      2.164 |       67108864 |    7.394 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    178.187 |         262144 |    0.090 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    121.132 |         262144 |    0.132 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    131.966 |         262144 |    0.121 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.331 |         196608 |    0.873 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     15.517 |         196608 |    1.031 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    165.957 |         262144 |    0.096 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    289.157 |         262144 |    0.055 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.5% | 16384 elem-terms |       NaN |       NaN |    301.949 |         262144 |    0.053 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.006 |   1.9% | 65536 elem-terms |       NaN |       NaN |     97.726 |        1048576 |    0.164 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.033 |   9.9% | 67108864 elem-terms |       NaN |       NaN |      0.499 |     1073741824 |   32.073 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.026 |   7.7% | 28311552 elem-terms |       NaN |       NaN |      0.922 |      452984832 |   17.360 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.010 |   2.9% | 7077888 elem-terms |       NaN |       NaN |      1.391 |      113246208 |   11.502 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.008 |   2.3% | 29360128 elem-terms |       NaN |       NaN |      0.268 |      469762048 |   59.644 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.036 |  10.8% | 121634816 elem-terms |       NaN |       NaN |      0.300 |     1946157056 |   53.422 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.007 |   1.9% | 393216 elem-terms |       NaN |       NaN |     16.579 |        6291456 |    0.965 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.003 |   0.8% | 65536 elem-terms |       NaN |       NaN |     43.647 |        1048576 |    0.367 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.065 |       50331648 |  247.735 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.061 |       50331648 |  264.208 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   1.0% |        50 rows |       NaN |       NaN |  66234.160 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.029 |   8.6% |     146 claims |       NaN |       NaN | 198212.041 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.014 |   4.1% |      54 claims |       NaN |       NaN | 258711.407 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.6% |       2 claims |       NaN |       NaN | 2630791.500 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.337 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.337 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.082 s   24.5%  (1 phases)
+PB-TIMING verify HALF setup             0.013 s    3.8%  (1 phases)
+PB-TIMING verify HALF norm              0.023 s    7.0%  (4 phases)
+PB-TIMING verify HALF attention         0.063 s   18.7%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.053 s   15.6%  (4 phases)
+PB-TIMING verify HALF residual          0.033 s    9.9%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.009 s    2.8%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.051 s   15.3%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.3%  (1 phases)
+PB-TIMING verify SPLIT attention 0.063 s (18.7%) | feed-forward 0.053 s (15.6%) | the rest 0.221 s (65.7%) — of the 0.337 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.033 s (9.9%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.377 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.106 |  28.1% |        1 block |       NaN |       NaN | 105886125.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.2% | 32450184 bytes |       NaN |       NaN |      0.251 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.018 |   4.8% |        2 roots |       NaN |       NaN | 9138687.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.013 |   3.5% | 3145728 elem-terms |       NaN |       NaN |      4.215 |       50331648 |    3.796 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.009 |   2.4% | 3145728 elem-terms |       NaN |       NaN |      2.912 |       50331648 |    5.495 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     39.453 |         102400 |    0.406 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.5% | 163840 elem-terms |       NaN |       NaN |     12.095 |        2621440 |    1.323 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.010 |   2.5% | 4194304 elem-terms |       NaN |       NaN |      2.278 |       67108864 |    7.025 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    196.042 |         262144 |    0.082 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    122.098 |         262144 |    0.131 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.7% | 16384 elem-terms |       NaN |       NaN |    150.884 |         262144 |    0.106 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     22.352 |         196608 |    0.716 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.087 |         196608 |    0.885 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.004 |   1.1% | 16384 elem-terms |       NaN |       NaN |    253.937 |         262144 |    0.063 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.007 |   1.8% | 16384 elem-terms |       NaN |       NaN |    424.253 |         262144 |    0.038 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   1.5% | 16384 elem-terms |       NaN |       NaN |    344.388 |         262144 |    0.046 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   1.8% | 65536 elem-terms |       NaN |       NaN |    104.659 |        1048576 |    0.153 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.031 |   8.1% | 67108864 elem-terms |       NaN |       NaN |      0.455 |     1073741824 |   35.188 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.019 |   5.1% | 28311552 elem-terms |       NaN |       NaN |      0.686 |      452984832 |   23.340 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.013 |   3.5% | 7077888 elem-terms |       NaN |       NaN |      1.876 |      113246208 |    8.529 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.010 |   2.6% | 29360128 elem-terms |       NaN |       NaN |      0.335 |      469762048 |   47.809 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.043 |  11.3% | 121634816 elem-terms |       NaN |       NaN |      0.350 |     1946157056 |   45.757 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.007 |   2.0% | 393216 elem-terms |       NaN |       NaN |     18.704 |        6291456 |    0.855 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   0.5% | 65536 elem-terms |       NaN |       NaN |     30.996 |        1048576 |    0.516 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.091 |       50331648 |  175.143 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.072 |       50331648 |  222.706 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  68932.500 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.032 |   8.4% |     146 claims |       NaN |       NaN | 216775.116 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.013 |   3.5% |      54 claims |       NaN |       NaN | 241823.296 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2543250.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.377 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.377 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.106 s   28.1%  (1 phases)
+PB-TIMING verify HALF setup             0.018 s    4.8%  (1 phases)
+PB-TIMING verify HALF norm              0.025 s    6.5%  (4 phases)
+PB-TIMING verify HALF attention         0.064 s   17.1%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.062 s   16.4%  (4 phases)
+PB-TIMING verify HALF residual          0.031 s    8.1%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.009 s    2.5%  (2 phases)
+PB-TIMING verify HALF endpoints         0.001 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.053 s   14.1%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.2%  (1 phases)
+PB-TIMING verify SPLIT attention 0.064 s (17.1%) | feed-forward 0.062 s (16.4%) | the rest 0.251 s (66.5%) — of the 0.377 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.031 s (8.1%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.349 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.092 |  26.4% |        1 block |       NaN |       NaN | 92130000.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.3% | 32450184 bytes |       NaN |       NaN |      0.252 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.013 |   3.8% |        2 roots |       NaN |       NaN | 6587291.500 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.010 |   2.8% | 3145728 elem-terms |       NaN |       NaN |      3.062 |       50331648 |    5.225 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.014 |   3.9% | 3145728 elem-terms |       NaN |       NaN |      4.357 |       50331648 |    3.672 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     37.396 |         102400 |    0.428 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.003 |   0.9% | 163840 elem-terms |       NaN |       NaN |     18.659 |        2621440 |    0.857 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.009 |   2.6% | 4194304 elem-terms |       NaN |       NaN |      2.180 |       67108864 |    7.341 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    194.954 |         262144 |    0.082 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.6% | 16384 elem-terms |       NaN |       NaN |    121.714 |         262144 |    0.131 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.5% | 16384 elem-terms |       NaN |       NaN |    106.997 |         262144 |    0.150 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     18.446 |         196608 |    0.867 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     17.551 |         196608 |    0.912 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    195.437 |         262144 |    0.082 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.4% | 16384 elem-terms |       NaN |       NaN |    307.322 |         262144 |    0.052 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.5% | 16384 elem-terms |       NaN |       NaN |    323.316 |         262144 |    0.049 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.006 |   1.8% | 65536 elem-terms |       NaN |       NaN |     97.330 |        1048576 |    0.164 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.030 |   8.7% | 67108864 elem-terms |       NaN |       NaN |      0.453 |     1073741824 |   35.338 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.024 |   6.9% | 28311552 elem-terms |       NaN |       NaN |      0.853 |      452984832 |   18.765 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.012 |   3.3% | 7077888 elem-terms |       NaN |       NaN |      1.649 |      113246208 |    9.704 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.010 |   2.9% | 29360128 elem-terms |       NaN |       NaN |      0.343 |      469762048 |   46.665 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.034 |   9.7% | 121634816 elem-terms |       NaN |       NaN |      0.278 |     1946157056 |   57.471 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   2.8% | 393216 elem-terms |       NaN |       NaN |     24.468 |        6291456 |    0.654 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.003 |   0.8% | 65536 elem-terms |       NaN |       NaN |     44.768 |        1048576 |    0.357 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.077 |       50331648 |  207.517 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.069 |       50331648 |  230.747 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.8% |        50 rows |       NaN |       NaN |  56837.500 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.028 |   8.1% |     146 claims |       NaN |       NaN | 194166.664 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.013 |   3.6% |      54 claims |       NaN |       NaN | 232063.259 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.5% |       2 claims |       NaN |       NaN | 2561875.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.349 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.349 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.092 s   26.4%  (1 phases)
+PB-TIMING verify HALF setup             0.013 s    3.8%  (1 phases)
+PB-TIMING verify HALF norm              0.027 s    7.6%  (4 phases)
+PB-TIMING verify HALF attention         0.066 s   18.8%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.051 s   14.5%  (4 phases)
+PB-TIMING verify HALF residual          0.030 s    8.7%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.013 s    3.6%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.049 s   14.0%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.3%  (1 phases)
+PB-TIMING verify SPLIT attention 0.066 s (18.8%) | feed-forward 0.051 s (14.5%) | the rest 0.232 s (66.7%) — of the 0.349 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.030 s (8.7%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify [hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2] 30 phases, wall 0.381 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |    ns/unit |          bytes |     GB/s |
+PB-TIMING verify | run: block load + statement check            | run (witness, boundary) |    0.103 |  27.0% |        1 block |       NaN |       NaN | 102906625.000 |              0 |    0.000 |
+PB-TIMING verify | frame: decode segment + path depths          | frame        |    0.008 |   2.0% | 32450184 bytes |       NaN |       NaN |      0.239 |              0 |    0.000 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.019 |   4.9% |        2 roots |       NaN |       NaN | 9345354.000 |              0 |    0.000 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.012 |   3.2% | 3145728 elem-terms |       NaN |       NaN |      3.902 |       50331648 |    4.100 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.013 |   3.3% | 3145728 elem-terms |       NaN |       NaN |      3.984 |       50331648 |    4.016 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.1% | 6400 elem-terms |       NaN |       NaN |     47.806 |         102400 |    0.335 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   0.4% | 163840 elem-terms |       NaN |       NaN |      9.196 |        2621440 |    1.740 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.011 |   3.0% | 4194304 elem-terms |       NaN |       NaN |      2.685 |       67108864 |    5.958 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.004 |   1.2% | 16384 elem-terms |       NaN |       NaN |    267.703 |         262144 |    0.060 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.003 |   0.8% | 16384 elem-terms |       NaN |       NaN |    195.213 |         262144 |    0.082 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.003 |   0.7% | 16384 elem-terms |       NaN |       NaN |    164.767 |         262144 |    0.097 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     26.038 |         196608 |    0.614 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% | 12288 elem-terms |       NaN |       NaN |     19.101 |         196608 |    0.838 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.9% | 16384 elem-terms |       NaN |       NaN |    212.087 |         262144 |    0.075 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.006 |   1.5% | 16384 elem-terms |       NaN |       NaN |    358.485 |         262144 |    0.045 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.007 |   1.8% | 16384 elem-terms |       NaN |       NaN |    416.288 |         262144 |    0.038 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   1.9% | 65536 elem-terms |       NaN |       NaN |    111.594 |        1048576 |    0.143 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.030 |   7.8% | 67108864 elem-terms |       NaN |       NaN |      0.442 |     1073741824 |   36.185 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.020 |   5.3% | 28311552 elem-terms |       NaN |       NaN |      0.707 |      452984832 |   22.643 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.012 |   3.1% | 7077888 elem-terms |       NaN |       NaN |      1.687 |      113246208 |    9.482 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.011 |   2.9% | 29360128 elem-terms |       NaN |       NaN |      0.379 |      469762048 |   42.251 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.041 |  10.8% | 121634816 elem-terms |       NaN |       NaN |      0.339 |     1946157056 |   47.231 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.010 |   2.5% | 393216 elem-terms |       NaN |       NaN |     24.324 |        6291456 |    0.658 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.001 |   0.3% | 65536 elem-terms |       NaN |       NaN |     18.905 |        1048576 |    0.846 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.096 |       50331648 |  166.753 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.1% | 3145728 elem-terms |       NaN |       NaN |      0.073 |       50331648 |  219.669 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.003 |   0.9% |        50 rows |       NaN |       NaN |  66025.820 |              0 |    0.000 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.032 |   8.5% |     146 claims |       NaN |       NaN | 221133.842 |              0 |    0.000 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.013 |   3.5% |      54 claims |       NaN |       NaN | 249955.259 |              0 |    0.000 |
+PB-TIMING verify | verify boundary B_(k-1) opening (pcs::verify_zk) | openings     |    0.005 |   1.3% |       2 claims |       NaN |       NaN | 2404021.000 |              0 |    0.000 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.381 | 100.0% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.381 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.000 |   0.0% |
+PB-TIMING verify HALF run (witness, boundary)    0.103 s   27.0%  (1 phases)
+PB-TIMING verify HALF setup             0.019 s    4.9%  (1 phases)
+PB-TIMING verify HALF norm              0.027 s    7.0%  (4 phases)
+PB-TIMING verify HALF attention         0.069 s   18.0%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.061 s   16.1%  (4 phases)
+PB-TIMING verify HALF residual          0.030 s    7.8%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    2.8%  (2 phases)
+PB-TIMING verify HALF endpoints         0.001 s    0.1%  (2 phases)
+PB-TIMING verify HALF openings          0.054 s   14.1%  (4 phases)
+PB-TIMING verify HALF frame             0.008 s    2.0%  (1 phases)
+PB-TIMING verify SPLIT attention 0.069 s (18.0%) | feed-forward 0.061 s (16.1%) | the rest 0.251 s (65.9%) — of the 0.381 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.030 s (7.8%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-CLI verify | stage OUT-C | 0.022 s
+PB-CLI verify | the run (verify_classify_run_with) | 15.482 s
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"shieldstral-1.0-3b-moderate-sexual/1","trained_statement_identity":"e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d","input_token_endpoint_root":"34bc72b737793cf6d9c725844b798274335a10c55679efea8a81424bc5ba8877","verify_seconds":15.482,"whole_run_floor_bits":96,"published_by":"this verifier"}

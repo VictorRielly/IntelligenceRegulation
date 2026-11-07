@@ -544,6 +544,10 @@ def make_prover(mode: str | None = None) -> ClassifierProver:
     if mode == "shieldstral":
         from .shieldstral_prover import ShieldstralProver as RealShieldstralProver
         return RealShieldstralProver()
+    if mode == "shieldstral-fast":
+        # lane A24 development candidate: never selected by default, privacy pending, not production
+        from .shieldstral_fast_prover import ShieldstralFastProver
+        return ShieldstralFastProver()
     return StubProver()
 
 
@@ -571,6 +575,18 @@ def verify_instructions(record: dict) -> dict:
                 'command': 'zk60_classify verify --export <public-export> --tables <public-export>/token_io '
                            f'--policy {policy} --label zk60-classify-verdict --artifact <run> '
                            f'--expect-statement {runtime.IDENTITY} --min-bits 95',
+                'accept_if': 'exit0 with classified event; statement rechecked byte for byte',
+                'privacy_status': privacy['status'], 'privacy_statement': privacy}
+    if p.get('kind') == 'shieldstral-fast':
+        from . import shieldstral_fast_runtime as fast
+        privacy = fast.privacy_statement()
+        policy = record.get('statement', {}).get('policy', '<category-policy-id>')
+        return {'binary': 'zk60_classify (lane A24 build, development candidate), sha256 ' + fast.BINARY_SHA,
+                'public_model_files': 'R13 T128 public export and its token_io tables',
+                'expect_statement': fast.IDENTITY,
+                'command': 'zk60_classify verify --export <public-export> --tables <public-export>/token_io '
+                           f'--policy {policy} --label zk60-classify-verdict --artifact <run> '
+                           f'--expect-statement {fast.IDENTITY} --min-bits 95',
                 'accept_if': 'exit0 with classified event; statement rechecked byte for byte',
                 'privacy_status': privacy['status'], 'privacy_statement': privacy}
     if p.get("kind") != "stub-next-token":

@@ -34,6 +34,10 @@ from .store import Store, loads
 log = logging.getLogger("proven_media.jobs")
 # Includes preparation, proving and the three native checks; shared-machine wait is extra.
 PER_JOB_S = 700.0 if config.prover_mode() == 'shieldstral' else 150.0
+if config.prover_mode() == 'shieldstral-fast':
+    # [A24] measured on the M3 Ultra: about 40 s per category job with three at once, so about
+    # 15 s of queue time per job (results/zk60_a24_app_20261107/README.md); shared-machine wait extra
+    PER_JOB_S = 15.0
 
 
 def prove_job_dir(post_id: str, chunk: int = 0) -> Path:
@@ -157,6 +161,8 @@ class Worker(threading.Thread):
             self.publisher.tick()          # close an anchor batch when due (10 min or 1,000 leaves)
         except Exception:
             log.error("batcher failed:\n%s", traceback.format_exc())
+        if getattr(self.prover, "max_running", 1) > 1:
+            return self._tick_concurrent(int(self.prover.max_running))
         running = self.store.q("SELECT * FROM jobs WHERE status='running' ORDER BY id")
         for j in running:
             st = self.prover.poll(Path(j["job_dir"]))
@@ -173,6 +179,25 @@ class Worker(threading.Thread):
             return
         nxt = self.store.one("SELECT * FROM jobs WHERE status='queued' ORDER BY id LIMIT 1")
         if nxt:
+            self.start_job(nxt)
+
+    def _tick_concurrent(self, limit: int) -> None:
+        """[A24] a prover that runs several jobs at once (the shieldstral-fast development
+        candidate): finish or fail every running job that has ended, then start queued jobs in
+        queue order until `limit` run. Every other prover keeps the one-at-a-time tick above."""
+        for j in self.store.q("SELECT * FROM jobs WHERE status='running' ORDER BY id"):
+            st = self.prover.poll(Path(j["job_dir"]))
+            if st["done"]:
+                self.finish(j)
+            elif st["alive"] is False:
+                self.fail(j, "The proof job stopped without finishing (machine restart or the job was ended).",
+                          "pipeline gone, no done marker")
+        if config.HOLD_FILE.exists():      # the coordinator paused this lane: launch nothing new
+            return
+        free = limit - len(self.store.q("SELECT id FROM jobs WHERE status='running'"))
+        if free <= 0:
+            return
+        for nxt in self.store.q("SELECT * FROM jobs WHERE status='queued' ORDER BY id LIMIT ?", (free,)):
             self.start_job(nxt)
 
     def start_job(self, j: dict) -> None:

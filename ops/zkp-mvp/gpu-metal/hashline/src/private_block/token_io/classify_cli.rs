@@ -137,6 +137,36 @@ fn refused(what: &str, e: &str) -> i32 {
     1
 }
 
+thread_local! {
+    /// **[A24] a resident server's capture of ONE request's event lines** on the thread that
+    /// runs it (`classify_serve.rs`); `None` (every CLI command): each line goes to stdout,
+    /// exactly as before
+    static EVENT_CAPTURE: std::cell::RefCell<Option<Vec<String>>> = const { std::cell::RefCell::new(None) };
+}
+
+/// [A24] one event line of a prove: into the calling thread's capture when a server set one,
+/// else to stdout (the CLI's bytes, unchanged)
+fn event(line: String) {
+    let left = EVENT_CAPTURE.with(|c| match c.borrow_mut().as_mut() {
+        Some(v) => {
+            v.push(line);
+            None
+        }
+        None => Some(line),
+    });
+    if let Some(l) = left {
+        println!("{l}");
+    }
+}
+
+/// [A24] run `f` with this thread's event lines captured; returns its result and the lines
+fn with_captured_events<R>(f: impl FnOnce() -> R) -> (R, Vec<String>) {
+    let was = EVENT_CAPTURE.with(|c| c.replace(Some(Vec::new())));
+    let r = f();
+    let lines = EVENT_CAPTURE.with(|c| c.replace(was)).unwrap_or_default();
+    (r, lines)
+}
+
 fn label_of<'a>(f: &'a [(String, String)]) -> Result<&'a str, String> {
     let label = flag(f, "--label").unwrap_or(CLASSIFY_LABELS[0]);
     if !CLASSIFY_LABELS.contains(&label) {
@@ -187,10 +217,10 @@ impl Drop for Claimed {
     fn drop(&mut self) {
         for d in self.0.iter().rev() {
             match std::fs::remove_dir_all(d) {
-                Ok(()) => println!("{{\"event\":\"removed\",\"path\":{},\"why\":\"the prove was refused; this directory was created by this prove and is removed with everything in it\"}}", js(&d.display().to_string())),
+                Ok(()) => event(format!("{{\"event\":\"removed\",\"path\":{},\"why\":\"the prove was refused; this directory was created by this prove and is removed with everything in it\"}}", js(&d.display().to_string()))),
                 Err(e) => {
                     let line = format!("{{\"event\":\"REMOVAL-FAILED\",\"path\":{},\"error\":{},\"what_to_do\":\"remove it by hand (rm -r) before anything syncs its parent\"}}", js(&d.display().to_string()), js(&e.to_string()));
-                    println!("{line}");
+                    event(line.clone());
                     eprintln!("{line}");
                 }
             }
@@ -452,6 +482,19 @@ struct CliSource<'a> {
     /// the CLI's own sealing pass ([`seal_chain`]) has run the builder, the
     /// int16 check, parity and CS-3 on every block before any header
     sealed: bool,
+    /// **[A24]** the witnesses the sealing pass kept (a resident server's budget; empty for
+    /// every CLI command): block `k`'s is used only at the very stage shape and input plane
+    /// it was built from, else the block's witness is rebuilt as before
+    kept: Vec<Option<KeptWitness>>,
+}
+
+/// [A24] a witness the sealing pass kept: the stage shape and the input plane it was built
+/// from (the builder is a function of the block, the shape and the plane), and the witness
+type KeptWitness = (Shape, Vec<i16>, Witness);
+
+/// [A24] a witness's plane words, in bytes (the server's per-request budget)
+fn witness_bytes(w: &Witness) -> u64 {
+    w.planes.iter().map(|p| 8 * p.len() as u64).sum()
 }
 
 impl ClassifyRunSource for CliSource<'_> {
@@ -460,8 +503,12 @@ impl ClassifyRunSource for CliSource<'_> {
     }
     fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<Witness, String> {
         let sh = &self.p.sh;
-        // ROUND 16: the block's own builder (R13 accuracy data at the stage's G)
-        let w = super::super::witness::build_for_block(ssh, blk, &self.x)?;
+        // ROUND 16: the block's own builder (R13 accuracy data at the stage's G); [A24] the
+        // sealing pass's own witness when it kept the one this stage would build
+        let w = match self.kept.get_mut(k).and_then(Option::take) {
+            Some((ks, kx, kw)) if ks == *ssh && kx == self.x => kw,
+            _ => super::super::witness::build_for_block(ssh, blk, &self.x)?,
+        };
         // ROUND 16: the stage shape's own plane ids (an R13 stage is the run
         // seed at its layer's gate denominator; the plane list is the same)
         let ids = Ids::new(ssh)?;
@@ -495,10 +542,20 @@ impl ClassifyRunSource for CliSource<'_> {
 }
 
 /// the sealing chain (the token CLI's, PR4-4): every block from the builder's
-/// own chain, int16, parity, CS-3; the builder's last plane
-fn seal_chain(p: &ExportPublic, seq: &SeqIn, blocks: &mut ExportTokenBlocks, x_in0: Vec<i16>) -> Result<Vec<i16>, String> {
+/// own chain, int16, parity, CS-3; the builder's last plane ([A24] over any block
+/// source: the export's digest-checked reloads, or a resident server's kept blocks)
+fn seal_chain(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlocks, x_in0: Vec<i16>) -> Result<Vec<i16>, String> {
+    seal_chain_keeping(p, seq, blocks, x_in0, 0).map(|(x, _)| x)
+}
+
+/// [A24] [`seal_chain`], keeping each block's witness (with its stage shape and input plane)
+/// while their total stays within `budget` bytes (0: none kept, `seal_chain` itself). Every
+/// check, in its order and with its string, is `seal_chain`'s.
+fn seal_chain_keeping(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlocks, x_in0: Vec<i16>, budget: u64) -> Result<(Vec<i16>, Vec<Option<KeptWitness>>), String> {
     let sh = &p.sh;
     let mut x = x_in0;
+    let mut kept: Vec<Option<KeptWitness>> = Vec::with_capacity(if budget > 0 { p.model.layers.len() } else { 0 });
+    let mut used = 0u64;
     for (k, r) in p.model.layers.iter().enumerate() {
         // ROUND 16 (REVIEW_R13 §10 item 3): the bound layer record's whole
         // stage context — its own calibration and, at R13, its gate
@@ -515,9 +572,18 @@ fn seal_chain(p: &ExportPublic, seq: &SeqIn, blocks: &mut ExportTokenBlocks, x_i
             return Err(format!("block {k}: the builder's output is not the export's x_out_L{:02} (parity, in the sealing pass, before any header)", p.layers[k]));
         }
         super::super::protocol::check_lookup_misses(&ssh, &lay, &blk, &w).map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
-        x = next;
+        let x_in = std::mem::replace(&mut x, next);
+        if budget > 0 {
+            let wb = witness_bytes(&w);
+            if used.saturating_add(wb) <= budget {
+                used += wb;
+                kept.push(Some((ssh, x_in, w)));
+            } else {
+                kept.push(None);
+            }
+        }
     }
-    Ok(x)
+    Ok((x, kept))
 }
 
 /// `zk60_classify prove ...` (see the module text)
@@ -544,6 +610,12 @@ pub fn classify_prove_command(args: &[String]) -> i32 {
 mod batch;
 pub use batch::classify_prove_batch_command;
 
+// [A24] the resident classifier servers (`serve`, `check-serve`): process forms of `prove`
+// and of `verify` + `input-owner` + `label`; no receipt or statement byte changes
+#[path = "classify_serve.rs"]
+mod serve;
+pub use serve::{classify_check_serve_command, classify_serve_command};
+
 /// A5 (token round 18): what a `prove-batch` job borrows from its batch — the
 /// one digest pass, the one tied table derivation and the whole content, all
 /// immutable — and the batch's ONE claim, which the job's directories join
@@ -552,7 +624,15 @@ struct SharedProve<'a> {
     p: &'a ExportPublic,
     bound: &'a super::classify_tied::BoundClassifierTables,
     whole: &'a [u64],
-    claim: &'a mut batch::BatchClaim,
+    /// a batch's claim (`prove-batch`); `None`: the job keeps its own directories once proved
+    claim: Option<&'a mut batch::BatchClaim>,
+    /// **[A24]** a resident server's blocks (`classify-serve`), each the digest pass's own
+    /// object: the sealing pass and the run read them instead of reloading every block from
+    /// the export twice; `None`: the export's digest-checked reloads, as before
+    blocks: Option<&'a [BlockPublic]>,
+    /// [A24] with `blocks`: the bytes of sealing-pass witnesses the run may reuse (0: each
+    /// block's witness rebuilt by the run, as `prove` does)
+    witness_budget: u64,
 }
 
 fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
@@ -563,7 +643,7 @@ fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
 /// printed only under `HL_PB_TIMING=1`; durations only, never a value
 fn cli_phase(side: &str, what: &str, t: &mut Instant) {
     if super::super::timing::enabled() {
-        println!("PB-CLI {side} | {what} | {:.3} s", t.elapsed().as_secs_f64());
+        event(format!("PB-CLI {side} | {what} | {:.3} s", t.elapsed().as_secs_f64()));
     }
     *t = Instant::now();
 }
@@ -618,7 +698,7 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
     let content = whole[ch.a..ch.b].to_vec();
     let cp = ClassifierProfile::new(sh, tables, bound.bos(), bound.norm(), &policy, content.len(), Tier::R1_MVP)?;
     let tokens = cp.tokens_of(&content)?;
-    println!("{{\"event\":\"loaded\",\"export_variant\":{},\"run_profile\":{},\"blocks\":{},\"trained_statement_identity\":{},\"policy\":{},\"chunk\":{},\"chunks\":{},\"content_length_n\":{}}}", js(&p.ex.variant), js(p.profile), p.layers.len(), js(&hex(&p.model.identity())), js(&policy.id), ch.index, ch.count, cp.n);
+    event(format!("{{\"event\":\"loaded\",\"export_variant\":{},\"run_profile\":{},\"blocks\":{},\"trained_statement_identity\":{},\"policy\":{},\"chunk\":{},\"chunks\":{},\"content_length_n\":{}}}", js(&p.ex.variant), js(p.profile), p.layers.len(), js(&hex(&p.model.identity())), js(&policy.id), ch.index, ch.count, cp.n));
     // the honest pipeline's refusals (template, control ids, lengths) fire
     // here, before any header (H-1)
     let (wit_in, b_in, in_plane) = super::stage_in_c::honest_inputs(&cp, tables, &tokens)?;
@@ -627,10 +707,20 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
         return Err("classifier run: the embedding table does not embed the item to the export's x_in_L00".into());
     }
     cli_phase("prove", "content, honest stage IN-C inputs, x_in load", &mut tp);
-    let mut seal_blocks = ExportTokenBlocks::new(p);
-    let x_last = seal_chain(p, &seq, &mut seal_blocks, x_in0.clone())?;
-    let seal_loads = seal_blocks.loads;
-    drop(seal_blocks);
+    // [A24] a resident server's kept blocks, else the export's digest-checked reloads
+    let resident = shared.as_ref().and_then(|s| s.blocks);
+    let budget = shared.as_ref().map_or(0, |s| s.witness_budget);
+    let (x_last, seal_loads, kept_witnesses) = match resident {
+        Some(kept) => {
+            let (x_last, w) = seal_chain_keeping(p, &seq, &mut super::run::ResidentBlocks(kept), x_in0.clone(), budget)?;
+            (x_last, 0, w)
+        }
+        None => {
+            let mut seal_blocks = ExportTokenBlocks::new(p);
+            let x_last = seal_chain(p, &seq, &mut seal_blocks, x_in0.clone())?;
+            (x_last, seal_blocks.loads, Vec::new())
+        }
+    };
     cli_phase("prove", "seal_chain (every block: load, witness, int16, parity, CS-3)", &mut tp);
     // the public verdict row (T - 1, or P0 + n + S - 1 for a short item)
     let vr = cp.verdict_row();
@@ -648,24 +738,30 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
         return Err("classifier run: the statement's chunk is not the prover's slice".into());
     }
     let mut disk = run_sink::DirSink::create(&incomplete, p.layers.len() + 2)?;
-    let mut src = CliSource { p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true };
+    let mut src = CliSource { p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true, kept: kept_witnesses };
     let mut blocks = ExportTokenBlocks::new(p);
+    // [A24] the run reads the same block source as the sealing pass
+    let mut kept = resident.map(super::run::ResidentBlocks);
+    let run_blocks: &mut dyn TokenBlocks = match kept.as_mut() {
+        Some(r) => r,
+        None => &mut blocks,
+    };
     cli_phase("prove", "stage OUT-C values, input endpoint seal, statement", &mut tp);
     let t = Instant::now();
-    let (_, dec) = prove_classify_run_with(&st, &mut blocks, bound, &mut src, owner, &mut |k, bytes| {
+    let (_, dec) = prove_classify_run_with(&st, run_blocks, bound, &mut src, owner, &mut |k, bytes| {
         let n = bytes.len();
         SegmentSink::accept(&mut disk, k, bytes)?;
-        println!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64());
+        event(format!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64()));
         Ok(())
     })?;
     let prove_s = t.elapsed().as_secs_f64();
     cli_phase("prove", "the run (prove_classify_run_with: sealing pass, IN-C, 26 blocks, OUT-C)", &mut tp);
     if super::super::timing::enabled() {
         let s = crate::gpu::dev_stats();
-        println!(
+        event(format!(
             "PB-CLI prove | gpu | {} | declines {} | h2d {:.3} s {} B | ntt {:.3} s | hash {:.3} s | d2h {:.3} s {} B | reenc {:.3} s | chunked {} | fold {:.3} s | vram_peak {} B",
             crate::gpu::label(), crate::gpu::declines(), s.secs_h2d, s.bytes_h2d, s.secs_ntt, s.secs_hash, s.secs_d2h, s.bytes_d2h, s.secs_reenc, s.n_chunked, s.secs_fold, s.vram_peak
-        );
+        ));
     }
     if src.parity != p.layers.len() {
         return Err(format!("classifier run: parity was checked at {} of {} layers", src.parity, p.layers.len()));
@@ -680,11 +776,11 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
     // A5 (REVIEW finding 1, token round 18): a batch job's three directories
     // join the batch's ONE claim BEFORE this job's own claim lets go of them;
     // the batch releases them only just before `batch-proved`
-    if let Some(s) = shared {
-        s.claim.hold([&out, &unverified, &owners_dir], (seal_loads, blocks.loads));
+    if let Some(claim) = shared.and_then(|s| s.claim) {
+        claim.hold([&out, &unverified, &owners_dir], (seal_loads, blocks.loads));
     }
     claimed.keep();
-    println!(
+    event(format!(
         "{{\"event\":\"proved\",\"run\":{},\"owner_dir\":{},\"verdict\":{},\"policy\":{},\"chunk\":{},\"chunks\":{},\"segments\":{},\"receipt_bytes\":{},\"prove_seconds\":{prove_s:.3},\"whole_run_floor_bits\":{},\"total_seconds\":{:.3},\"statement\":\"UNVERIFIED until zk60_classify verify publishes <run>/statement/\"}}",
         js(&out.display().to_string()),
         js(&owners_dir.display().to_string()),
@@ -696,7 +792,7 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
         disk.total_bytes(),
         st.whole_run().floor_bits,
         t_all.elapsed().as_secs_f64()
-    );
+    ));
     Ok(())
 }
 
@@ -766,6 +862,17 @@ pub(super) fn door(f: &[(String, String)], art: &Path) -> Result<DoorPassed, Str
     let policy = policy_by_id(need(f, "--policy")?)?;
     let tables = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
     cli_phase("verify", "tied classifier tables (re-derived from the pinned checkpoint)", &mut tp);
+    let (st, segs, published) = door_statement(&p, &tables, &policy, label, &art, &mut tp)?;
+    Ok(DoorPassed { st, p, tables, segs, label: label.to_string(), min_bits, published })
+}
+
+/// **[A24] the B-3 door's statement half and the segment reads**, `door`'s steps after the
+/// export, the floor, the pinned identity, the policy and the tables: the found statement
+/// (published, else the prover's unverified one), its policy and context, the statement
+/// re-derived and re-rendered byte for byte, then every segment at its counted length.
+/// Returns the statement, the segments and whether the verifier had published it. A resident
+/// verifier (`classify_serve.rs`) calls it with the export and tables it loaded at startup.
+fn door_statement(p: &ExportPublic, tables: &super::classify_tied::BoundClassifierTables, policy: &Policy, label: &str, art: &Path, tp: &mut Instant) -> Result<(ClassifyRunStatement, Vec<Vec<u8>>, bool), String> {
     let published_dir = art.join(run_sink::STATEMENT_DIR);
     let (sdir, writer) = if std::fs::symlink_metadata(&published_dir).is_ok() { (published_dir.clone(), Writer::Verifier) } else { (sibling(&art, ".unverified-statement"), Writer::Prover) };
     check_statement_dir(&sdir, &["statement.json"])?;
@@ -780,21 +887,21 @@ pub(super) fn door(f: &[(String, String)], art: &Path) -> Result<DoorPassed, Str
     }
     // D41: the chunk's range is re-derived from (N, index, the profile's plan);
     // round 14: n must be its length (a short item's one chunk is [0, N))
-    let st = ClassifyRunStatement::new_chunk(RunShape::new(p.sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &tables, &policy, found.n, Tier::R1_MVP, found.root, found.verdict, found.chunk_total, found.chunk_index)?;
+    let st = ClassifyRunStatement::new_chunk(RunShape::new(p.sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, tables, policy, found.n, Tier::R1_MVP, found.root, found.verdict, found.chunk_total, found.chunk_index)?;
     // B-3: every field the verifier can derive is derived and compared, by
     // re-rendering the whole canonical statement (margin vector, yes / no,
     // c, template, tokenizer, model, final norm, rulings, parameters)
-    if render(&p, &st, label, writer)?.as_bytes() != sbytes.as_slice() {
+    if render(p, &st, label, writer)?.as_bytes() != sbytes.as_slice() {
         return Err(format!("{}: not byte for byte the canonical statement of this run under the verifier's own inputs (B-3: the margin vector, ids, threshold, template and model are re-derived, never taken from the statement)", sdir.join("statement.json").display()));
     }
     let lens = st.segment_lens()?;
-    let paths = run_sink::segment_paths(&art, lens.len())?;
+    let paths = run_sink::segment_paths(art, lens.len())?;
     let mut segs = Vec::with_capacity(lens.len());
     for (path, n) in paths.iter().zip(lens.iter()) {
         segs.push(read_regular_file_bounded(path, *n as u64, true)?);
     }
-    cli_phase("verify", "statement door (re-render, byte compare) + segment reads", &mut tp);
-    Ok(DoorPassed { st, p, tables, segs, label: label.to_string(), min_bits, published: writer == Writer::Verifier })
+    cli_phase("verify", "statement door (re-render, byte compare) + segment reads", tp);
+    Ok((st, segs, writer == Writer::Verifier))
 }
 
 /// `zk60_classify verify ...`

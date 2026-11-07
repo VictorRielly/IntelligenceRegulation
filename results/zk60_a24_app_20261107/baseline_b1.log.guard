@@ -1,0 +1,2 @@
+[zk60-guard 18:58:31] START a24-baseline class=gpu need=16G cap=48G enforce=watchdog-only waited=0s run=833a3184af16
+[zk60-guard 19:04:25] END a24-baseline exit=0 child_wall=355s peak_rss=8.64G min_avail=222.76G peak_vram=10873MiB

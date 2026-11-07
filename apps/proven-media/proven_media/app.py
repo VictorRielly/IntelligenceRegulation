@@ -310,7 +310,7 @@ def api_config():
             "publisher": {"name": S.publisher.name, "description": S.publisher.description,
                           "key_id": manifest.key_id(pub), "public_key": pub},
             "deploy": config.deploy(),
-            "limits": {"max_content_tokens": config.deploy()["max_content_tokens"], "T": 128 if config.prover_mode() == "shieldstral" else config.STUB_T,
+            "limits": {"max_content_tokens": config.deploy()["max_content_tokens"], "T": 128 if config.is_shieldstral_mode() else config.STUB_T,
                        "stub_chunk_max": config.STUB_MAX_CONTENT_TOKENS, "max_image_bytes": config.MAX_IMAGE_BYTES},
             "expected": {"stub_work_s": "about 150 s of work on a quiet laptop (prepare ~15 s, prove ~85 s, "
                                         "verify + open + bind ~45 s), plus any wait for the shared machine",
@@ -647,7 +647,7 @@ def api_bundle(pid: str):
         raise HTTPException(404, "no published proof bundle")
     root = f"proven-media-{pid}"
     vw = rec["verify_with"]
-    if any(crec.get('prover', {}).get('kind') == 'shieldstral' for _, _, crec in chunk_runs):
+    if any(crec.get('prover', {}).get('kind') in ('shieldstral', 'shieldstral-fast') for _, _, crec in chunk_runs):
         instructions = []
         for ci, _, crec in chunk_runs:
             check = provers.verify_instructions(crec)
