@@ -385,7 +385,12 @@ core 6%, the witness products 4% (the down projection's two halves among them, a
    slot, typed base-field tables, fused folds. Not this lane's brief.
 3. **A second GPU / machine.** The receipts are files and the verifier uses no GPU: proving on two machines,
    or verifying elsewhere (section 3's proof-only clock), scales the stream.
-4. **Smaller, CPU-side, not useful while GPU-bound:** the two switches waiting for a reading (section 6), the
+4. **Moving device work to the idle CPU does not pay** [MEASURED, `stream_p3*`, single runs on b2 with
+   per-thread queues]: base 13.91 proved tok/s; A12's slot tables built on the host
+   (`HL_METAL_DEVICE_TABLES=0`) 13.21 (−5%, +14 CPU-s per proof, the GPU still 83%); M8's small slots kept on
+   the CPU up to 20 ms (`HL_METAL_SMALL_SLOT_US=20000`) 14.30 (+3%, inside the run-to-run spread of these
+   single runs); both 12.75. The defaults stay.
+5. **Smaller, CPU-side, not useful while GPU-bound:** the two switches waiting for a reading (section 6), the
    embedding digest kept with the tables, a faster weight fold (14% of the verifier, 3% of the prover).
 
 ## 8. Operational notes
