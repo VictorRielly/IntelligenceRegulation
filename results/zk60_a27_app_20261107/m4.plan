@@ -1,0 +1,8 @@
+# Lane A27, job m4 (round 2): the A/B pairs of the 8-post public stream, A26 as shipped (b6336628..., A26's app
+# settings: 6 x 5 prover lanes, 3 x 4 verifier lanes, 16 GiB witness cache, HL_METAL_QUEUES=thread) against the
+# round-2 candidate c2 (A27 + two NTT stages per pass, the same settings), in the order A B B A.
+# tag|binary|posts|driver flags|env
+m4a1|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a26|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+m4c1|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27-c2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+m4c2|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27-c2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+m4a2|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a26|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread

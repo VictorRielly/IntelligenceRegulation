@@ -1,0 +1,8 @@
+# Lane A27, job s1: the prover-lane sweep on the A27 binary (settings only; single runs, diagnostic). After A27 the
+# stream leaves the GPU 30% idle and the CPU half idle (p2s8): does more lane parallelism pay now? The 8-post
+# stream, every receipt freshly verified, 3 x 4 verifier lanes, 16 GiB witness cache, HL_METAL_QUEUES=thread.
+# tag|binary|posts|driver flags|env
+s1l6|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+s1l8|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 8 --lane-threads 4 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+s1l10|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 10 --lane-threads 3 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+s1l12|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 12 --lane-threads 3 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread

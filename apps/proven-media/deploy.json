@@ -48,7 +48,7 @@
         "violence": {"chunk_tokens": 55, "overlap_tokens": 8, "max_chunks": 8},
         "hate": {"chunk_tokens": 49, "overlap_tokens": 8, "max_chunks": 8}
       },
-      "binary_sha256": "ed798413701daf047ab8f567e291826163f2671c5726188df4bdc15e1914686f",
+      "binary_sha256": "b5b6b9a43563c069cec3391e8295867d0cd56e4f83036c992ba066708a9ae072",
       "statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
       "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
       "min_bits": 95,

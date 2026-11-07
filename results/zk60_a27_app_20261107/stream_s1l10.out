@@ -1,0 +1,4 @@
+the prover refused to start: {'event': 'refused', 'command': 'classify-serve', 'error': 'refused', 'detail': 'owner-private'}
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a27_app_20261107/stream.sh: line 12: 67966 Terminated: 15          ( while true; do
+    pgrep ds4-bench > /dev/null && echo "POLLUTED: ds4-bench seen at $(date -u +%H:%M:%S)" >> $R/stream_$TAG.quiet; sleep 30;
+done )

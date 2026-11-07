@@ -20,7 +20,7 @@ Lane A27 (2026-11-07, results/zk60_a27_app_20261107/README.md) pins a newer buil
 receipts byte for byte (fixed test entropy on the real export, against A26's binary), the same
 statement identity, profile and verdicts, with less GPU work per proof (the zero-checks' linear
 parts kept as device tables, the round values above an IR's attained degree extrapolated, the
-folds in three products, the NTT head's power-of-2 stages).
+folds in three products, the commitment NTT two stages per pass).
 """
 import os
 from pathlib import Path
@@ -42,7 +42,7 @@ VERIFIER_EXPORT = EXPORT_ROOT / reviewed.VERIFIER_EXPORT.name
 # same bytes).
 LANE = 'A27'
 BINARY = Path(os.environ.get('PM_FAST_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a27')))
-BINARY_SHA = 'ed798413701daf047ab8f567e291826163f2671c5726188df4bdc15e1914686f'
+BINARY_SHA = 'b5b6b9a43563c069cec3391e8295867d0cd56e4f83036c992ba066708a9ae072'
 PROFILE_SHA = reviewed.PROFILE_SHA
 IDENTITY = 'e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d'
 RUN_PROFILE = 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2'

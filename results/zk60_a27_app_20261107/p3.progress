@@ -1,0 +1,4 @@
+2026-11-07T16:36:40Z start; plan p3.plan; free disk 116 GiB
+2026-11-07T16:36:40Z run p3solo bin b5b6b9a43563 env [HL_METAL_QUEUES=thread HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a27-traces/p3solo] flags [--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-07T16:38:54Z p3solo rc=0 done )
+2026-11-07T16:38:54Z all done; free disk 116 GiB

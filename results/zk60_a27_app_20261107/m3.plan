@@ -1,0 +1,8 @@
+# Lane A27, job m3: the prover lanes on the A27 binary, A/B pairs in both orders (A B B A): the app's setting
+# (6 prover lanes x 5 threads) against 8 x 4 (the server's maximum lane count is 8). The 8-post public stream,
+# 3 x 4 verifier lanes, 16 GiB witness cache, HL_METAL_QUEUES=thread; every receipt freshly verified.
+# tag|binary|posts|driver flags|env
+m3l6a|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+m3l8a|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 8 --lane-threads 4 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+m3l8b|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 8 --lane-threads 4 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+m3l6b|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread

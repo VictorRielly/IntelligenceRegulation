@@ -151,7 +151,7 @@ class FastModeTests(unittest.TestCase):
     def test_a27_pins_its_binary_and_leaves_every_kernel_switch_at_its_default(self):
         """[A27] the pinned binary is lane A27's (never A26's b6336628... or A24's ccd58102...), with
         the same statement identity and run profile; the app sets none of the A27 kernel switches
-        (HL_A27_LIN, HL_A27_DEGREE, HL_A27_FOLD, HL_A27_NTT: on by default in the binary), no GPU
+        (HL_A27_LIN, HL_A27_DEGREE, HL_A27_FOLD, HL_A27_NTT, HL_A27_NTT4: on by default in the binary), no GPU
         trace, and still neither of A26's two switches that wait for the security owner"""
         pin = fast_runtime_pin()
         self.assertRegex(pin, r'^[0-9a-f]{64}$')
