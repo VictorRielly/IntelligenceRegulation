@@ -226,7 +226,17 @@ inline ulong gl_mul_pow2(ulong x, uint e) {
     return neg != 0u ? a27_gl_neg(z) : z;
 }
 
-struct HeadArgs { ulong rows; uint log_n; uint log_src; uint mode; uint max_log; ulong q; ulong scale; uint apply_scale; uint use_hw; uint pow2; uint pad1; };
+struct HeadArgs { ulong rows; uint log_n; uint log_src; uint mode; uint max_log; ulong q; ulong scale; uint apply_scale; uint use_hw; uint pow2; uint r4; };
+
+// [A27] one head butterfly's product: x times stage s's twiddle k (the power-of-2 form for
+// s <= pow2, the compact table's word with use_hw, the full table's otherwise)
+inline ulong head_twiddle_mul(uint s, uint k, ulong x, constant HeadArgs &args, device const ulong *hw, device const uint *hx, device const ulong *tw) {
+    if (s <= args.pow2) {
+        return gl_mul_pow2(x, hx[k << (6u - s)]);
+    }
+    ulong w = args.use_hw != 0u ? hw[ulong(k) << (TILE_LOG - s)] : tw[ulong(k) * (1UL << (args.max_log - s))];
+    return gl_mul(x, w);
+}
 
 inline ulong head_input(uint mode, device const ulong *src, device const ulong *pads, device const ulong *pows,
                         ulong r, ulong i, uint log_n, uint log_src, ulong q) {
@@ -275,7 +285,34 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
         sh[k] = head_input(args.mode, src, pads, pows, r, rev_bits(g, args.log_n), args.log_n, args.log_src, args.q);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    for (uint s = 1; s <= L; s++) {
+    // [A27] r4: stages s and s + 1 in one pass (radix 4 in registers): each item holds the four
+    // elements i0, i0 + h, i0 + 2h, i0 + 3h (h = 2^(s - 1)) and applies exactly the two radix-2
+    // butterflies each stage applies to them, with the same twiddles (stage s: k for both pairs;
+    // stage s + 1: k and k + h), so the same words, with half the barriers and threadgroup round trips
+    uint s0 = 1;
+    if (args.r4 != 0u) {
+        for (; s0 + 1 <= L; s0 += 2) {
+            uint h = 1u << (s0 - 1);
+            for (uint b = tid; b < (tile >> 2); b += nth) {
+                uint grp = b >> (s0 - 1);
+                uint k = b & (h - 1);
+                uint i0 = (grp << (s0 + 1)) + k;
+                ulong a = sh[i0], bb = sh[i0 + h], c = sh[i0 + 2u * h], d = sh[i0 + 3u * h];
+                ulong t1 = head_twiddle_mul(s0, k, bb, args, hw, hx, tw);
+                ulong a1 = gl_add(a, t1), b1 = gl_sub(a, t1);
+                ulong t2 = head_twiddle_mul(s0, k, d, args, hw, hx, tw);
+                ulong c1 = gl_add(c, t2), d1 = gl_sub(c, t2);
+                ulong t3 = head_twiddle_mul(s0 + 1u, k, c1, args, hw, hx, tw);
+                ulong t4 = head_twiddle_mul(s0 + 1u, k + h, d1, args, hw, hx, tw);
+                sh[i0] = gl_add(a1, t3);
+                sh[i0 + 2u * h] = gl_sub(a1, t3);
+                sh[i0 + h] = gl_add(b1, t4);
+                sh[i0 + 3u * h] = gl_sub(b1, t4);
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+    }
+    for (uint s = s0; s <= L; s++) {
         uint half_len = 1u << (s - 1);
         ulong stride = 1UL << (args.max_log - s);
         for (uint b = tid; b < (tile >> 1); b += nth) {
@@ -306,7 +343,7 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
     }
 }
 
-struct TailArgs { ulong rows; uint log_n; uint max_log; ulong scale; uint apply_scale; uint pad0; };
+struct TailArgs { ulong rows; uint log_n; uint max_log; ulong scale; uint apply_scale; uint r4; };
 
 kernel void k_ntt_tail(device ulong *a [[buffer(0)]],
                        device const ulong *tw [[buffer(1)]],
@@ -329,7 +366,42 @@ kernel void k_ntt_tail(device ulong *a [[buffer(0)]],
         sh[h * C + c] = row[low0 + ulong(c) + (ulong(h) << TILE_LOG)];
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    for (uint s = TILE_LOG + 1; s <= args.log_n; s++) {
+    // [A27] r4: stages s and s + 1 in one pass, as in the head: the four rows h0, h0 + H, h0 + 2H,
+    // h0 + 3H (H = 2^(s - 12)) of column c, stage s's twiddle at kh for both pairs, stage s + 1's at kh
+    // and kh + H: exactly the radix-2 butterflies, the same words
+    uint s0 = TILE_LOG + 1;
+    if (args.r4 != 0u) {
+        for (; s0 + 1 <= args.log_n; s0 += 2) {
+            uint hs = s0 - TILE_LOG - 1;
+            uint H = 1u << hs;
+            ulong st0 = 1UL << (args.max_log - s0);
+            ulong st1 = 1UL << (args.max_log - s0 - 1);
+            for (uint b = tid; b < (TILE >> 2); b += nth) {
+                uint c = b % C;
+                uint hb = b / C;
+                uint grp = hb >> hs;
+                uint kh = hb & (H - 1);
+                uint h0 = (grp << (hs + 2)) + kh;
+                ulong kk = low0 + ulong(c) + (ulong(kh) << TILE_LOG);
+                ulong w0 = tw[kk * st0];
+                ulong w1 = tw[kk * st1];
+                ulong w2 = tw[(kk + (ulong(H) << TILE_LOG)) * st1];
+                ulong x0 = sh[h0 * C + c], x1 = sh[(h0 + H) * C + c], x2 = sh[(h0 + 2u * H) * C + c], x3 = sh[(h0 + 3u * H) * C + c];
+                ulong t = gl_mul(x1, w0);
+                ulong y0 = gl_add(x0, t), y1 = gl_sub(x0, t);
+                t = gl_mul(x3, w0);
+                ulong y2 = gl_add(x2, t), y3 = gl_sub(x2, t);
+                t = gl_mul(y2, w1);
+                sh[h0 * C + c] = gl_add(y0, t);
+                sh[(h0 + 2u * H) * C + c] = gl_sub(y0, t);
+                t = gl_mul(y3, w2);
+                sh[(h0 + H) * C + c] = gl_add(y1, t);
+                sh[(h0 + 3u * H) * C + c] = gl_sub(y1, t);
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+    }
+    for (uint s = s0; s <= args.log_n; s++) {
         uint hs = s - TILE_LOG - 1;
         uint half_h = 1u << hs;
         ulong stride = 1UL << (args.max_log - s);

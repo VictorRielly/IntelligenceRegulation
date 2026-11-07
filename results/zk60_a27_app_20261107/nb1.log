@@ -1,0 +1,6 @@
+quiet (no ds4-bench)
+forward head words: pow2 == plain true, radix-4 == plain true
+forward tail words: radix-4 == plain true
+forward tail radix-4 9.47 ms
+rows 4577: inverse head 6.18 ms (pow2 off 6.13), inverse tail 2.87; forward head 22.54 ms (pow2 off 22.68, radix-4 19.46, loads+stores floor 6.91), forward tail 11.59; hash 5.48 ms
+rc=0

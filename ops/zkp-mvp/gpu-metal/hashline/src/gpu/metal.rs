@@ -191,7 +191,8 @@ struct HeadArgs {
     /// [A27] the head's stages `1..=pow2` multiply by their twiddle as a power of 2
     /// (exponents in buffer 7, [`head_pow2_buffers`]); 0: every stage by `gl_mul`
     pow2: u32,
-    pad1: u32,
+    /// [A27] 1: two stages per pass (radix 4 in registers, [`ntt_r4_on`])
+    r4: u32,
 }
 #[repr(C)]
 struct TailArgs {
@@ -200,7 +201,20 @@ struct TailArgs {
     max_log: u32,
     scale: u64,
     apply_scale: u32,
-    pad0: u32,
+    /// [A27] 1: two stages per pass (radix 4 in registers, [`ntt_r4_on`])
+    r4: u32,
+}
+
+/// **[A27] `HL_A27_NTT4`** (default on; `0`: one radix-2 stage per pass, as before): the
+/// fused NTT's head and tail run stages s and s + 1 in one pass, each thread holding four
+/// elements and applying exactly the two radix-2 butterflies each stage applies to them, with
+/// the same twiddles: the same words, with half the threadgroup barriers and round trips
+/// (`metal_kernels.metal`; the commitment tests compare every leaf, root, column and fold with
+/// the CPU). The A27 commitment bench at the classifier's A shape (4577 x 2^14 -> 2^16): the
+/// forward head 22.5 -> 19.5 ms, its tail 11.6 -> 9.5 ms (`results/zk60_a27_app_20261107/nb1.log`).
+fn ntt_r4_on() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A27_NTT4").map(|v| v != "0").unwrap_or(true))
 }
 
 /// Head input modes (k_ntt_head): a natural-order copy, the plain RS row, the hiding row.
@@ -235,17 +249,20 @@ fn encode_fused(
     set_args(
         enc,
         5,
-        &HeadArgs { rows, log_n, log_src, mode, max_log, q, scale: scale.unwrap_or(1), apply_scale: head_scales as u32, use_hw: hw.is_some() as u32, pow2, pad1: 0 },
+        &HeadArgs { rows, log_n, log_src, mode, max_log, q, scale: scale.unwrap_or(1), apply_scale: head_scales as u32, use_hw: hw.is_some() as u32, pow2, r4: ntt_r4_on() as u32 },
     );
-    let th = (tile / 2).max(1).min(head.max_total_threads_per_threadgroup());
+    // [A27] with two stages per pass a thread holds four elements (the single stage left over,
+    // if any, loops twice per thread)
+    let per = if ntt_r4_on() { 4 } else { 2 };
+    let th = (tile / per).max(1).min(head.max_total_threads_per_threadgroup());
     enc.dispatch_thread_groups(MTLSize::new((1u64 << log_n) / tile, rows, 1), MTLSize::new(th, 1, 1));
     if log_n > TILE_LOG {
         let tail = &c.pipes["k_ntt_tail"];
         enc.set_compute_pipeline_state(tail);
         enc.set_buffer(0, Some(dst), 0);
         enc.set_buffer(1, Some(tw), 0);
-        set_args(enc, 2, &TailArgs { rows, log_n, max_log, scale: scale.unwrap_or(1), apply_scale: scale.is_some() as u32, pad0: 0 });
-        let th = (1u64 << (TILE_LOG - 1)).min(tail.max_total_threads_per_threadgroup());
+        set_args(enc, 2, &TailArgs { rows, log_n, max_log, scale: scale.unwrap_or(1), apply_scale: scale.is_some() as u32, r4: ntt_r4_on() as u32 });
+        let th = ((1u64 << TILE_LOG) / per).min(tail.max_total_threads_per_threadgroup());
         enc.dispatch_thread_groups(MTLSize::new(1u64 << (log_n - TILE_LOG), rows, 1), MTLSize::new(th, 1, 1));
     }
 }

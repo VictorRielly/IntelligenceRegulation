@@ -1,0 +1,3 @@
+# Lane A27, job p3: the GPU trace of one post's three proofs (one lane) with the round-2 binary (c2).
+# tag|binary|posts|driver flags|env
+p3solo|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27-c2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6ef8e7c158543247/results/zk60_a24_app_20261107/posts/one.json|--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a27-traces/p3solo
