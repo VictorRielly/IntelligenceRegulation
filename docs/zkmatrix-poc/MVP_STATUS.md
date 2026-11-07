@@ -290,9 +290,19 @@ here. The rates count proving and witness work. Verification time is recorded se
     holds.
   - **11.4 proved tok/s for a stream of posts, from 0.17. Victor's 30 is not reached.**
     - The stream is CPU-bound: about 300 core-seconds per category proof, a third of it verification.
-    - The next lever is the classifier on W16R2 blocks, about 1.8× fewer committed rows than R13 (efficiency plan
-      A10). Lane A25 is building it as a development profile for public posts.
-    - Using W16R2 for real content needs Victor's ruling (A10, after the W16R2 privacy gate).
+    - The next lever was meant to be the classifier on W16R2 blocks, with about 1.8× fewer committed rows than R13
+      (efficiency plan A10). **Lane A25 found that the real model cannot run at W16R2 as the code stands**
+      [MEASURED; `results/zk60_a25_app_20261107/README.md`]:
+      - At W16/W16R2, the 16-bit range families depend on each layer's requantization shifts and gate.
+      - The real Shieldstral export has 17 distinct shift sets over its 26 layers. The trained-model check refuses 8
+        layers, and the 26 layers would need 3 different plane lists.
+      - **The 8B W16R2 figures above use one synthetic calibration in every block, so they do not yet transfer to a
+        real trained model.**
+      - The routes, each needing design, review and a ruling by Victor:
+        - (a) per-layer plane lists in the statement's schedule;
+        - (b) an export with one calibration for all layers, which is a new integer model to re-validate;
+        - (c) R13 at rate 1/2 (D59-style), for a smaller gain.
+      - A25's unregistered W16R2 development profile is kept on its branch, not merged. The R13 path is unchanged.
 - **D63 Lean, per profile at W16R2 (2026-11-07, Victor away: "focus on completing the lean proofs")** [PROVED; each
   lane checked on the merged tree; docs `ZK60_LEAN_L9/L11/L12_*_20261107.md`].
   - The W16R3 freeze needs Victor's approval, so the per-profile proofs now target **W16R2**, the profile that the
