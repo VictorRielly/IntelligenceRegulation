@@ -335,6 +335,16 @@ unadmitted policy, prefix only, missing chunk, wrong model) pass on the new bina
   when the run's body had moved into a new function; the body went back into `prove_classify_run_with`, which
   took a `kept` argument instead; `accept_t1`'s test build failed on test-module paths, fixed.)
 
+**After merging perf** (the Lean lanes L13–L17, a clean merge, `b502973c`; `mergecheck.progress`, one guarded
+job) [MEASURED]: the release CLI is the same binary, `b6336628…` (the app's pin); `a26_` 3, `a4_` 5, `s25_tests`
+20, `hash_domain` 15, `r19b` 5, `token_io::classify` 85 passed; the L9 and L11 corpora byte-identical; the L17
+R13 export regenerated: its SEEDED records (`block_corpus.txt` and `fork_frame.bin`: a seeded R13 rung block core
+proved by the production `prove_core` and accepted by `verify_core`, through A26's verifier changes;
+`slots_corpus.txt`; `shape_corpus.txt`; `open_corpus.txt`) are byte-identical with L17's committed ones;
+`segment.bin` and `segment_corpus.txt` differ, as they must on any rerun: L17 makes that segment with the
+production `run::prove_run`, whose generator is `ZkRng::from_os` (`run.rs`, fresh OS entropy every run), and
+that prover is not touched by A26. zkp-core 83 passed. The app suite on the merged tree: 217 OK.
+
 **App** (the coordinator's command, the `/private/tmp/zk60-astra-app-refresh-20261104-venv` python):
 217 tests OK (A24's 216 and one new: the A26 pin, the servers' device settings, the two ruling switches not
 set, the identity and run profile A24's) [MEASURED, `app_tests.log`].

@@ -18,3 +18,4 @@
 [zk60-guard 04:13:23] admission waiting: another heavy guarded job is live (one heavy job at a time)
 [zk60-guard 04:14:23] admission waiting: another heavy guarded job is live (one heavy job at a time)
 [zk60-guard 04:14:54] START a26-mergecheck class=cpu need=16G cap=40G enforce=watchdog-only waited=1127s run=9fff914c63b7
+[zk60-guard 04:19:09] END a26-mergecheck exit=0 child_wall=255s peak_rss=5.10G min_avail=175.96G
