@@ -125,3 +125,5 @@
 'ZK60.Exec.Slot.Compose.bilIr_canon' depends on axioms: [propext, Quot.sound]
 'ZK60.Exec.Slot.Compose.zsIr_canon' depends on axioms: [propext, Quot.sound]
 'ZK60.Exec.Slot.Compose.ioIr_canon' depends on axioms: [propext, Quot.sound]
+'ZK60.Sound.SlotW16.SlotPoly.rs_last_inj' depends on axioms: [propext]
+'ZK60.Sound.SlotW16.SlotPoly.append_castLE_shift' depends on axioms: [propext, Quot.sound]

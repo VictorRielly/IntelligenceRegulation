@@ -152,3 +152,4 @@ import ZK60Formal.SlotPolyW16
 import ZK60Formal.SlotPolyW16Draw
 import ZK60Formal.SlotPolyW16Map
 import ZK60Formal.CoverW16Shapes
+import ZK60Formal.SlotPolyW16Seg
