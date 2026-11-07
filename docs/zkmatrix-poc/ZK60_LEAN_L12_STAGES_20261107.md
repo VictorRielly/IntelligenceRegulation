@@ -1,8 +1,8 @@
 # D63 Lean lane L12: the token stages' knowledge-soundness parts (2026-11-07)
 
-Lean lane L12 (Claude), on perf at 18d2e74c. Five new library files, imported by the library root:
-`formal/ZK60Formal/StageExtractCore.lean`, `StageInExtract.lean`, `StageOutCExtract.lean`, `StageOutExtract.lean`,
-`StageRunExtract.lean`. `Statements.lean`, every existing Lean file and every production source are unchanged; no
+Lean lane L12 (Claude), on perf at 18d2e74c. Six new library files, imported by the library root:
+`formal/ZK60Formal/StageExtractCore.lean`, `StageInExtract.lean`, `StageInExtractSlots.lean`, `StageOutCExtract.lean`,
+`StageOutExtract.lean`, `StageRunExtract.lean`. `Statements.lean`, every existing Lean file and every production source are unchanged; no
 Rust was added. Evidence: `results/zk60_lean_l12_20261107/`.
 
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms at most `propext`, `Classical.choice`, `Quot.sound`), **CODE**
@@ -27,6 +27,11 @@ probability.** That is the token stages' share of statement 1's "only if" (ASSEM
   most `(T + 4V − 1 + T·log₂ d_pad)/|Fp2|`. At the classifier's shape (`V = 2^15`, `d_pad = 2^12`, `T = 512`) that is
   about `2^-111` [ESTIMATE]. The row-compression step is exactly the `T·log d_pad` term the code's whole-run figure
   already charges.
+- **Stage IN-C as ONE theorem** (`inc_stage_sound`). The stage's slots are written exactly as the code writes them
+  (the clauses on the committed tables, their pads, their degrees), and the whole stage is composed: the challenges,
+  then the helpers the prover commits, then the three slots and the sum claim. For ANY prover, the stage accepts while
+  the embedding rows, BOS or the template positions are wrong with probability at most the lookup's term plus the
+  three slots' (about `2^-110.9` at the classifier's shape [ESTIMATE]).
 - **Stage OUT-C, the margin and the verdict** (`outC_sat_of_clauses`, `byte_logup_sound`, `lzc_host_sum`). The checks
   the classifier's last stage runs (the final norm's isqrt and divisions, the hosted sum of squares, the hosted margin
   `Σ y_i·w_Δ(i)`, the byte lookups of every limb) imply the stage relation `OutCSat` of CircuitOut.lean, with the
@@ -49,8 +54,8 @@ probability.** That is the token stages' share of statement 1's "only if" (ASSEM
 
 **What this does not do.** It is the interactive (uniform-challenge) form, as the other L3 lemmas are; the
 Fiat–Shamir lift is L7/L8's generic composition. The openings (that each terminal value is the committed table's) are
-lane L10's. The blocks are lanes L9/L11's. The stage-level total is a union bound of the proved per-step terms
-[ESTIMATE in §3]; no single Lean theorem states one stage's total yet (§6).
+lane L10's. The blocks are lanes L9/L11's. For stage IN-C the stage total is one theorem; for OUT-C, OUT and IN's
+endpoint slot it is still the union of the proved per-step terms [ESTIMATE in §3] (§6).
 
 **One finding needs no ruling but is worth knowing (L12-2).** The whole-run figure charges stage IN's lookup more than
 the proof needs: the code adds `V·(2 + log d_pad)`, the proof needs `4V − 1`. The figure is conservative, not wrong.
@@ -94,6 +99,23 @@ All PROVED (`results/zk60_lean_l12_20261107/`; the counts are in §7).
 
 Stage IN is the same theorem with `cq = 0`, `ctl = 0` (no control column, no template; stage_in.rs:185-253).
 
+### 2.2b Stage IN-C's slots and the whole stage (`StageInExtractSlots.lean`)
+
+| Theorem | Meaning |
+|---|---|
+| `IndDegLE.mul`, `IndDegLE.const`, `IndDegLE.sub`, `IndDegLE.cmul`, `mle_deg`, `mleAt_bitv` | the degree of a closure on multilinear tables; on the cube an extension is the table |
+| `QzcClause`, `QzcTabs`, `qzcQ`, `qzcW`, `qzcPz`; `TzcTabs`, `tzcW`, `tzcPz` | SIC_QZC's three clauses (`h_q·(α − q) − supp`, `u0·(tok − bos)`, `π·(tok − κ)`, `q = tok + β·B(ρ_t, r_emb) + β²·[ctl_q] + γ·TAG_EMB`) and pad planes `(1 − supp)·tok`, `(1 − supp)·h_q`; SIC_TZC's `h_tab·(α − τ) − m` and pads (stage_in_c.rs:188-230) |
+| `qzcQ_deg`, `qzcW_deg`, `pad2_deg`, `qzcPz_deg`, `tzcW_deg`, `tzcPz_deg` | each of individual degree `≤ 3`, the code's declared round degree 4 |
+| `QzcHolds`, `TzcHolds`, `qzc_cube`, `tzc_cube` | the clauses vanish on the cube; there they are the tables' own values |
+| `ZcChal`, `zcAcc`, **`zc_slot_sound`** | such a slot accepts a violated clause or pad with probability `≤ (1 + (1 + n + 4n))/|K|` |
+| **`zs_sound`** | SIC_ZS (`1·u` on the claim 0) accepts a row with `Σu ≠ 0` with probability `≤ 2n/|K|` |
+| `IncLayout`, `IncHelpers`, `incQ`, `incT`, `incHelpers`, `IncSum`, `IncBosTmpl`, `incLook_eq` | the public tables and layout map of the two cubes and the facts the code's tables satisfy at the logical positions; the committed helper planes; the `H` sum claim; the BOS and template facts |
+| **`incCube`** | the slots' conclusions, the pads and the two sum claims give `InLogUp` (through `inCube_helperRel`), BOS and the template facts |
+| `IncChal2`, `IncAcc`, **`inc_stage_sound`** | the whole stage: pre-`H` challenges, then ANY committed helpers, then the three slots' challenges and ANY sumcheck provers; accept-and-(not `InGood`, or a BOS or template fact false) `≤ ((T + 4V − 1) + T·k)/|K| + (1 + (1 + n + 4n))/|K| + (1 + (1 + nv + 4nv))/|K| + 2nu/|K|` |
+
+With `in_inSat`, `InGood` and the BOS and template facts are `InSat`. SIC_IO (the endpoint slot) is not in
+`inc_stage_sound`: it is `zc_batched_sound` on its own cube, and its conclusion is `in_endpoint_words`.
+
 ### 2.3 Stage OUT-C (`StageOutCExtract.lean`)
 
 | Theorem | Meaning |
@@ -133,7 +155,9 @@ Each slot's error below is the proved per-slot bound with one more round for the
 (`sumcheck_sound_extended`: `(n + 1)` rounds of the declared degree; the CFS mask leaves the bound unchanged,
 `sumcheck_sound_masked`). Shapes: the R1 tier (`stage_log_n = 12`, CODE token_io.rs:190), the classifier's
 `V = 2^15` (Mistral's vocabulary), `d_pad = 2^12`, `T = t_pad = 512`. `|Fp2| = p² ≈ 2^128`. The sum is a union bound
-over the stage's steps; Lean proves each step and the two-phase composition (`two_phase_sound`), not the whole sum.
+over the stage's steps. For stage IN-C the sum of the lookup, INC-01, INC-02 and INC-03 terms IS a Lean theorem
+(`inc_stage_sound`, without the extension round's extra round); INC-00 is its own slot (`zc_batched_sound`). For
+OUT-C each step is proved and the sum is arithmetic.
 
 **Stage IN-C** (stage_in_c.rs:42-57; slots `main`, `degree` CODE):
 
@@ -222,11 +246,13 @@ Optimization candidates (for a later profile; nothing changed here):
 
 ## 6. What is left
 
-- **The stage-level total as ONE Lean theorem.** Each step is proved, and the two phases compose
-  (`in_stage_sound`, `byte_stage_sound`); the union over a stage's slots is the doc's sum (§3). Under Fiat–Shamir the
-  composition is L8's (`fs_code_chain_sound_sched`), which needs each step's round-by-round form.
-- **The slot instances.** The generic slot lemmas take the clause polynomials `W_j`; stating each slot's `W_j` as the
-  code's closure on the committed tables' extensions (and their degrees) is the layout map's part (lane L11's style).
+- **The stage-level total as ONE Lean theorem for OUT-C and OUT** (done for IN-C: `inc_stage_sound`). Each of their
+  steps is proved and the byte LogUp's two phases compose (`byte_stage_sound`); writing DZC, LZC, TZC, VZC, RSEL
+  and TAB as the code's closures (as `StageInExtractSlots.lean` does for SIC_QZC / SIC_TZC) and composing them is
+  the same pattern, not yet done. Under Fiat–Shamir the composition is L8's (`fs_code_chain_sound_sched`), which
+  needs each step's round-by-round form.
+- **The layout facts.** `IncLayout`'s fields (where `supp`, `u0`, `π`, `τ` are 1 or the table's value) are the
+  code's public tables at the layout map's positions; they are hypotheses here, finite checks for a concrete profile.
 - **The pads in the clause hypotheses.** `InCube` and the `*Clauses` structures take the pad facts and the logical
   positions as given; their derivation from `supp`, `live_limb` and the lifted cubes is the layout map's.
 - **Deliverable 4 (executable stage arithmetic and a corpus) was not started.** The stage verifiers are crate-private
@@ -241,21 +267,24 @@ Optimization candidates (for a later profile; nothing changed here):
 
 All in `results/zk60_lean_l12_20261107/`, each run as one job through the zk60 resource guard (class `cpu`,
 `run_guarded.py`, detached with `start_new_session`):
-- `file1.log` … `file4.log`: the new files while they were written (`stage.sh`: `lake env lean` on the core file, then
-  `lake build ZK60Formal.StageRunExtract`, which builds all five). The errors fixed on the way are in those logs: a
+- `file1.log` … `file6.log`: the new files while they were written (`stage.sh`: `lake env lean` on the core file, then
+  `lake build ZK60Formal.StageRunExtract`, which builds five of them, then `lake build ZK60Formal.StageInExtractSlots`). The errors fixed on the way are in those logs: a
   binder type `∑ i, ζ ^ (i : ℕ)` read as `ℕ`, three deprecations (`finset_sum_coeff`, `if_true`, `if_pos`/`if_neg`), an
   unused hypothesis, a missing `DecidableEq`, and an elaboration timeout from unifying a `HelperRel` lambda (fixed by
-  naming the relation, `ByteLogUp`, as `InLogUp` already was). `file4.log`: rc 0, no message. Each run took 4–25 s at
+  naming the relation, `ByteLogUp`, as `InLogUp` already was); in `file5.log` a `fold` that resolved to `Finset.fold`.
+  `file4.log` and `file6.log`: rc 0, no message. Each run took 4–25 s at
   under 7 GiB.
-- `check.log`: `check_l12.sh`, ONE guarded job (`check.log.guard`: 56 s, peak RSS 3.62 GiB):
-  - the full `lake -d formal build` (`full.log`): **3,459 jobs, rc 0, 0 warnings, 0 errors, no `sorry`** (the rest
+- `check.log`: `check_l12.sh`, ONE guarded job. The guard appends, so the log holds two runs: the first before
+  `StageInExtractSlots.lean` (3,459 jobs, 58 theorems), the second, final one after it (`check.log.guard`: 44 s, peak
+  RSS 3.62 GiB), reported here:
+  - the full `lake -d formal build` (`full.log`): **3,460 jobs, rc 0, 0 warnings, 0 errors, no `sorry`** (the rest
     replayed from the build copied from the main checkout);
-  - the axiom audit (`gen_axioms.py` → `axioms_l12.lean` → `axioms.log`): **58 theorems**; 56 on
+  - the axiom audit (`gen_axioms.py` → `axioms_l12.lean` → `axioms.log`): **77 theorems**; 75 on
     `[propext, Classical.choice, Quot.sound]`, 1 on `[propext]` (`canonWord_lt`), 1 on none (`head_tables_eq`); no
     `sorryAx`, no `Lean.ofReduceBool`;
-  - the source scan of the five files for `sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`,
+  - the source scan of the six files for `sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`,
     `implemented_by`, `extern`, `bv_decide`, `ofReduceBool`: **none**;
-  - the library root imports the five files;
+  - the library root imports the six files;
   - regressions: **`L6Check: 1206 checks, 0 failed`**, **`L5Check: 5553 checks, 0 failed`**, the fixture L1 check
     **`L1 TOTAL: 101956 checks, 0 failed`** (the arguments of `check_l8merge.sh`).
 - No Rust was run: this lane adds no export (deliverable 4, §6).
