@@ -1,8 +1,8 @@
 # D63 Lean lane L12: the token stages' knowledge-soundness parts (2026-11-07)
 
-Lean lane L12 (Claude), on perf at 18d2e74c. Six new library files, imported by the library root:
+Lean lane L12 (Claude), on perf at 18d2e74c. Seven new library files, imported by the library root:
 `formal/ZK60Formal/StageExtractCore.lean`, `StageInExtract.lean`, `StageInExtractSlots.lean`, `StageOutCExtract.lean`,
-`StageOutExtract.lean`, `StageRunExtract.lean`. `Statements.lean`, every existing Lean file and every production source are unchanged; no
+`StageOutCExtractSlots.lean`, `StageOutExtract.lean`, `StageRunExtract.lean`. `Statements.lean`, every existing Lean file and every production source are unchanged; no
 Rust was added. Evidence: `results/zk60_lean_l12_20261107/`.
 
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms at most `propext`, `Classical.choice`, `Quot.sound`), **CODE**
@@ -36,7 +36,9 @@ probability.** That is the token stages' share of statement 1's "only if" (ASSEM
   the classifier's last stage runs (the final norm's isqrt and divisions, the hosted sum of squares, the hosted margin
   `Σ y_i·w_Δ(i)`, the byte lookups of every limb) imply the stage relation `OutCSat` of CircuitOut.lean, with the
   byte lookup's error at most `(N + 511)/|Fp2|` (`N` the looked bytes, about `2^15.7` here) [ESTIMATE: about
-  `2^-112`].
+  `2^-112`]. The margin sumcheck itself is written as the code writes it (`margin_sound`): the private margin sum
+  and its host pass with a wrong margin identity with probability at most `(2·12 + 62)/|Fp2|`, and the identity
+  they certify is exactly the one the verdict relation needs (`margin_host_pd`).
 - **Stage OUT, the head and the greedy token** (`out_sat_of_clauses`, `head_sz_prob`, `rsel_batch_sound`). The head's
   random-point identity is read as "every logit is right" except with probability `log₂ V_pad/|Fp2|`; the selector's
   three sums except with `1/|Fp2|`.
@@ -129,6 +131,15 @@ With `in_inSat`, `InGood` and the BOS and template facts are `InSat`. SIC_IO (th
 | `OutCClauses`, **`outC_sat_of_clauses`** | with LZC's hosted margin `σ·δ + (b + c) = Σ_{i<d} y_i·w_Δ(i)` and the margin limbs bytes: `OutCSat` |
 | `lzc_host_sum` | LZC's host term summed over the whole limb plane is `σ·δ + (b + c)` (stage_out_c.rs:356-366) |
 
+### 2.3b Stage OUT-C's margin sumcheck as the code writes it (`StageOutCExtractSlots.lean`)
+
+| Theorem | Meaning |
+|---|---|
+| `LzcClause`, `lzcW`, `lzcHost`, `LzcHolds` | LZC's clauses (the limb plane's single byte-lookup helper `h·(α − (limb + g)) − 1`, the pad `(1 − s)·limb`) and its host term `G·limb + u0·(b + c)` on the tables' extensions (stage_out_c.rs:349-370) |
+| `lzcW_deg`, `lzcHost_deg`, `pd_sum`, `lzcHost_sum` | degrees `≤ 3` and `≤ 4` (LZC's declared round degree 4, PD's 2); on the cube the sums are the tables' |
+| **`margin_sound`** | over PD's rounds, then LZC's `μ`, `ν`, `τ` and rounds, for ANY published scalar `S` and ANY provers: PD accepts `S`, LZC accepts `ν·S`, and yet the hosted identity `Σ_b y(b)·w(b) = Σ_z (G(z)·limb(z) + u0(z)·(b + c))` or an LZC clause fails, with probability `≤ 2·nd/|K| + (2 + nl + 4·nl)/|K|` |
+| **`margin_host_pd`** | with the tables the base field's images through the layout maps, that identity on `K` is `OutCClauses.host_pd` on `GF`: `σ·δ + (b + c) = Σ_i y_i·w_Δ(i)` |
+
 ### 2.4 Stage OUT (`StageOutExtract.lean`)
 
 | Theorem | Meaning |
@@ -178,8 +189,8 @@ OUT-C each step is proved and the sum is arithmetic.
 | OUTC-00 IO-in (`n = 12`, degree 2) | `zc_batched_sound` | `1 + 12 + 13·2 = 39` |
 | OUTC-01 SS, private (`n = 12`, degree 4) | `sumcheck_sound` | `13·4 = 52` |
 | OUTC-02 TZC, host of SS (`n = 1`, degree 3, pad of 2 planes) | `host_pad_sound` | `1 + 2 + 1 + 2·3 = 10` |
-| OUTC-03 PD, private: the margin (`n = 12`, degree 2) | `sumcheck_sound` | `13·2 = 26` |
-| OUTC-04 LZC, host of PD (`n = 12`, degree 4, its pad a plain clause) | `host_sound` | `2 + 12 + 13·4 = 66` |
+| OUTC-03 PD, private: the margin (`n = 12`, degree 2) | `sumcheck_sound` (`margin_sound`) | `13·2 = 26` |
+| OUTC-04 LZC, host of PD (`n = 12`, degree 4, its pad a plain clause) | `host_sound` (`margin_sound`) | `2 + 12 + 13·4 = 66` |
 | OUTC-05 DZC (`n = 12`, degree 5, pad of 12 planes) | `zc_pad_sound` | `11 + 1 + 12 + 13·5 = 89` |
 | OUTC-06 TAB (`n = 12`, degree 3, pad of 2 planes) | `zc_pad_sound` | `1 + 1 + 12 + 13·3 = 53` |
 | OUTC-07 ZS | `sumcheck_sound` | `26` |
@@ -267,24 +278,24 @@ Optimization candidates (for a later profile; nothing changed here):
 
 All in `results/zk60_lean_l12_20261107/`, each run as one job through the zk60 resource guard (class `cpu`,
 `run_guarded.py`, detached with `start_new_session`):
-- `file1.log` … `file6.log`: the new files while they were written (`stage.sh`: `lake env lean` on the core file, then
-  `lake build ZK60Formal.StageRunExtract`, which builds five of them, then `lake build ZK60Formal.StageInExtractSlots`). The errors fixed on the way are in those logs: a
+- `file1.log` … `file8.log`: the new files while they were written (`stage.sh`: `lake env lean` on the core file, then
+  `lake build ZK60Formal.StageRunExtract`, which builds five of them, then the two `*Slots` modules). The errors fixed on the way are in those logs: a
   binder type `∑ i, ζ ^ (i : ℕ)` read as `ℕ`, three deprecations (`finset_sum_coeff`, `if_true`, `if_pos`/`if_neg`), an
   unused hypothesis, a missing `DecidableEq`, and an elaboration timeout from unifying a `HelperRel` lambda (fixed by
-  naming the relation, `ByteLogUp`, as `InLogUp` already was); in `file5.log` a `fold` that resolved to `Finset.fold`.
-  `file4.log` and `file6.log`: rc 0, no message. Each run took 4–25 s at
+  naming the relation, `ByteLogUp`, as `InLogUp` already was); in `file5.log` a `fold` that resolved to `Finset.fold`; in
+  `file7.log` a `map_add` that rewrote the wrong sum. `file4.log`, `file6.log`, `file8.log`: rc 0, no message. Each run took 4–25 s at
   under 7 GiB.
-- `check.log`: `check_l12.sh`, ONE guarded job. The guard appends, so the log holds two runs: the first before
-  `StageInExtractSlots.lean` (3,459 jobs, 58 theorems), the second, final one after it (`check.log.guard`: 44 s, peak
-  RSS 3.62 GiB), reported here:
-  - the full `lake -d formal build` (`full.log`): **3,460 jobs, rc 0, 0 warnings, 0 errors, no `sorry`** (the rest
+- `check_final.log`: `check_l12.sh`, ONE guarded job on the final tree (`check_final.log.guard`: 49 s, peak RSS
+  3.62 GiB), reported here. (`check.log` holds the two earlier runs, before `StageInExtractSlots.lean`: 3,459 jobs, 58
+  theorems; and before `StageOutCExtractSlots.lean`: 3,460 jobs, 77 theorems; both green.)
+  - the full `lake -d formal build` (`full.log`): **3,461 jobs, rc 0, 0 warnings, 0 errors, no `sorry`** (the rest
     replayed from the build copied from the main checkout);
-  - the axiom audit (`gen_axioms.py` → `axioms_l12.lean` → `axioms.log`): **77 theorems**; 75 on
+  - the axiom audit (`gen_axioms.py` → `axioms_l12.lean` → `axioms.log`): **83 theorems**; 81 on
     `[propext, Classical.choice, Quot.sound]`, 1 on `[propext]` (`canonWord_lt`), 1 on none (`head_tables_eq`); no
     `sorryAx`, no `Lean.ofReduceBool`;
-  - the source scan of the six files for `sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`,
+  - the source scan of the seven files for `sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`,
     `implemented_by`, `extern`, `bv_decide`, `ofReduceBool`: **none**;
-  - the library root imports the six files;
+  - the library root imports the seven files;
   - regressions: **`L6Check: 1206 checks, 0 failed`**, **`L5Check: 5553 checks, 0 failed`**, the fixture L1 check
     **`L1 TOTAL: 101956 checks, 0 failed`** (the arguments of `check_l8merge.sh`).
 - No Rust was run: this lane adds no export (deliverable 4, §6).

@@ -2,6 +2,7 @@ import ZK60Formal.StageExtractCore
 import ZK60Formal.StageInExtract
 import ZK60Formal.StageInExtractSlots
 import ZK60Formal.StageOutCExtract
+import ZK60Formal.StageOutCExtractSlots
 import ZK60Formal.StageOutExtract
 import ZK60Formal.StageRunExtract
 
@@ -79,6 +80,13 @@ import ZK60Formal.StageRunExtract
 #print axioms ZK60.StageX.fnormRel_of_clauses
 #print axioms ZK60.StageX.outC_sat_of_clauses
 #print axioms ZK60.StageX.lzc_host_sum
+-- StageOutCExtractSlots.lean
+#print axioms ZK60.StageX.lzcW_deg
+#print axioms ZK60.StageX.lzcHost_deg
+#print axioms ZK60.StageX.lzcHost_sum
+#print axioms ZK60.StageX.pd_sum
+#print axioms ZK60.StageX.margin_sound
+#print axioms ZK60.StageX.margin_host_pd
 -- StageOutExtract.lean
 #print axioms ZK60.StageX.head_sz_prob
 #print axioms ZK60.StageX.head_tables_eq

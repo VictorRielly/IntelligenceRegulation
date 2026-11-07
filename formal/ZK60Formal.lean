@@ -79,5 +79,6 @@ import ZK60Formal.StageExtractCore
 import ZK60Formal.StageInExtract
 import ZK60Formal.StageInExtractSlots
 import ZK60Formal.StageOutCExtract
+import ZK60Formal.StageOutCExtractSlots
 import ZK60Formal.StageOutExtract
 import ZK60Formal.StageRunExtract

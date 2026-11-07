@@ -10,7 +10,7 @@ import sys
 
 src, out = sys.argv[1], sys.argv[2]
 files = ["StageExtractCore.lean", "StageInExtract.lean", "StageInExtractSlots.lean", "StageOutCExtract.lean",
-         "StageOutExtract.lean", "StageRunExtract.lean"]
+         "StageOutCExtractSlots.lean", "StageOutExtract.lean", "StageRunExtract.lean"]
 lines = [f"import ZK60Formal.{f[:-5]}" for f in files] + [
     "",
     "-- D63 Lean lane L12 (2026-11-07): the axiom audit of the token stages' knowledge-soundness parts",

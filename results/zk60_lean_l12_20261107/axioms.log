@@ -64,6 +64,12 @@
 'ZK60.StageX.fnormRel_of_clauses' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.StageX.outC_sat_of_clauses' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.StageX.lzc_host_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.StageX.lzcW_deg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.StageX.lzcHost_deg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.StageX.lzcHost_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.StageX.pd_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.StageX.margin_sound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.StageX.margin_host_pd' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.StageX.head_sz_prob' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.StageX.head_tables_eq' does not depend on any axioms
 'ZK60.StageX.rsel_cube_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
