@@ -1,0 +1,81 @@
+2026-11-07T08:07:19Z start
+2026-11-07T08:10:01Z hashline lean_l15_export (test only) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1052 filtered out; finished in 1.09s
+2026-11-07T08:10:01Z regenerated L15 corpus equals the committed corpus.txt: cmp rc=1
+2026-11-07T08:10:25Z hashline s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1033 filtered out; finished in 23.28s
+2026-11-07T08:10:25Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1038 filtered out; finished in 0.12s
+2026-11-07T08:10:41Z hashline r19b rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1048 filtered out; finished in 15.48s
+2026-11-07T08:11:00Z hashline token_io::classify (R13 loader fixtures named) rc=0
+test result: ok. 83 passed; 0 failed; 12 ignored; 0 measured; 958 filtered out; finished in 19.76s
+2026-11-07T08:11:24Z lake build rc=0
+✔ [3490/3491] Built ZK60Formal (1.0s)
+Build completed successfully (3491 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-07T08:11:27Z axiom audit axioms_l15 rc=0
+sorryAx or ofReduceBool mentions: 0
+  70 axioms: [propext, Classical.choice, Quot.sound]
+   6 axioms: [propext, Quot.sound]
+   3 axioms: [propext]
+declarations with no axioms: 4
+2026-11-07T08:11:29Z axiom audit axioms_l10 rc=0
+sorryAx or ofReduceBool mentions: 0
+ 114 axioms: [propext, Classical.choice, Quot.sound]
+  22 axioms: [propext, Quot.sound]
+  11 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T08:11:32Z axiom audit axioms_l12 rc=0
+sorryAx or ofReduceBool mentions: 0
+  81 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T08:11:34Z axiom audit axioms_l9 rc=0
+sorryAx or ofReduceBool mentions: 0
+  45 axioms: [propext, Classical.choice, Quot.sound]
+  16 axioms: [propext, Quot.sound]
+  16 axioms: [propext]
+declarations with no axioms: 14
+2026-11-07T08:11:37Z axiom audit axioms_l11 rc=0
+sorryAx or ofReduceBool mentions: 0
+  59 axioms: [propext, Classical.choice, Quot.sound]
+  14 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T08:11:40Z axiom audit axioms_l8 rc=0
+sorryAx or ofReduceBool mentions: 0
+  25 axioms: [propext, Classical.choice, Quot.sound]
+  15 axioms: [propext, Quot.sound]
+  17 axioms: [propext]
+declarations with no axioms: 7
+2026-11-07T08:11:42Z axiom audit axioms_l7 rc=0
+sorryAx or ofReduceBool mentions: 0
+  24 axioms: [propext, Classical.choice, Quot.sound]
+   8 axioms: [propext, Quot.sound]
+   4 axioms: [propext]
+declarations with no axioms: 3
+2026-11-07T08:11:42Z source scan hits (grep rc 1 = none): rc=1
+2026-11-07T08:11:46Z StageCheckOutC rc=0
+StageCheckOutC: 81 checks, 0 failed
+2026-11-07T08:11:57Z negative control (8 mutations must give exactly 8 failed)
+StageCheckOutC: 81 checks, 8 failed
+2026-11-07T08:16:09Z ExecBlockCheck regression rc=0
+ExecBlockCheck: 273 checks, 0 failed
+2026-11-07T08:16:15Z L11Check rc=0
+L11Check: 404 checks, 0 failed
+2026-11-07T08:16:18Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-07T08:16:33Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-07T08:16:39Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-07T08:16:39Z all done
+2026-11-07T08:18:51Z re-export a rc=0
+2026-11-07T08:18:52Z re-export b rc=0
+2026-11-07T08:18:52Z two exports on the same tree identical? cmp rc=1 (1 = they differ: fresh salts)
+2026-11-07T08:19:10Z StageCheckOutC on fresh export a rc=0
+StageCheckOutC: 81 checks, 0 failed
+2026-11-07T08:19:20Z StageCheckOutC on fresh export b rc=0
+StageCheckOutC: 81 checks, 0 failed
+2026-11-07T08:19:20Z regen check done
