@@ -16,6 +16,14 @@ What is proved (only `propext`, `Classical.choice`, `Quot.sound`): `ssIr_eval`, 
 -/
 import ZK60Formal.SlotW16BuildEval
 
+-- The evaluation proofs try a short list of simp sets (`first | … | …`) and use broad simp sets; Mathlib's style
+-- linters flag the alternatives not taken and the simp arguments a branch did not need. Style warnings only.
+set_option linter.unusedSimpArgs false
+set_option linter.unreachableTactic false
+set_option linter.unusedTactic false
+set_option linter.unnecessarySeqFocus false
+
+
 namespace ZK60.Exec.Slot.Build
 
 open ZK60.Exec ZK60.Exec.Slot

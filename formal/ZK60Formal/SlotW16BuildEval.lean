@@ -14,6 +14,14 @@ What is proved (only `propext`, `Classical.choice`, `Quot.sound`):
 -/
 import ZK60Formal.SlotW16Build
 
+-- The evaluation proofs try a short list of simp sets (`first | … | …`) and use broad simp sets; Mathlib's style
+-- linters flag the alternatives not taken and the simp arguments a branch did not need. Style warnings only.
+set_option linter.unusedSimpArgs false
+set_option linter.unreachableTactic false
+set_option linter.unusedTactic false
+set_option linter.unnecessarySeqFocus false
+
+
 namespace ZK60.Exec.Slot.Build
 
 open ZK60.Exec ZK60.Exec.Slot
@@ -74,15 +82,6 @@ def padSem (c : Cst R) (v : List R) (mu : R) (zp : ℕ → R) : ℕ → List (�
   | j, (s, ps) :: gs => mu * ((c.one + c.negOne * v.getD s 0) *
       (c.zero + (ps.zipIdx.map fun q => zp (j + q.2) * v.getD q.1 0).sum)) + padSem c v mu zp (j + ps.length) gs
 
-theorem logupGo_len (c : Cst R) (h0 : ℕ) (mu : ℕ → R) :
-    ∀ (k o : ℕ) (ls : List (LkD R)), (logupGo c h0 mu k o ls).2.length = 3 * (ls.length / 2) + 2 * (ls.length % 2)
-  | _, _, [] => by simp [logupGo]
-  | _, _, [_] => by simp [logupGo]
-  | k, o, _ :: _ :: ls => by
-    have ih := logupGo_len c h0 mu (k + 1) (o + 3) ls
-    simp only [logupGo, List.length_append, ih, List.length_cons, List.length_nil]
-    omega
-
 /-- **The LogUp segment's value.** With its first node at id `o = acc.length`, its subterms, read against the node
 values of any later list, sum to `logupSem`. -/
 theorem logupGo_spec (c : Cst R) (v : List R) (h0 : ℕ) (mu : ℕ → R) :
@@ -120,13 +119,6 @@ theorem logupGo_spec (c : Cst R) (v : List R) (h0 : ℕ) (mu : ℕ → R) :
       fval, List.prod_cons, List.prod_nil, List.append_assoc, List.singleton_append, List.cons_append,
       List.nil_append, getD_len, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, logupSem, denV]
     ring
-
-theorem padGo_len (c : Cst R) (mu : R) (zp : ℕ → R) :
-    ∀ (j o : ℕ) (gs : List (ℕ × List ℕ)), (padGo c mu zp j o gs).2.length = 2 * gs.length
-  | _, _, [] => rfl
-  | j, o, (s, ps) :: gs => by
-    simp only [padGo, List.length_append, padGo_len c mu zp _ _ gs, List.length_cons, List.length_nil]
-    omega
 
 /-- **The pad segment's value**, the same way. -/
 theorem padGo_spec (c : Cst R) (v : List R) (mu : R) (zp : ℕ → R) :

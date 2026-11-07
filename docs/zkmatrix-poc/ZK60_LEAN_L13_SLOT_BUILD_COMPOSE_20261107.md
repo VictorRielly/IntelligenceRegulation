@@ -23,7 +23,7 @@ the code, not proved. This lane closes most of that link.
 **What now exists.**
 1. **The 23 slot polynomials, built in Lean.** A Lean port of the code's builders: every slot's table list and its
    polynomial (every node, every term, every coefficient value), as functions of the shape, the precision, the
-   committed layout and the challenges. Lean also builds the layout facts the builders read (the 61-ish committed planes
+   committed layout and the challenges. Lean also builds the layout facts the builders read (the 71 to 75 committed planes
    and their names, the helper planes, every lookup of every domain, the zero-rule planes, the range families).
 2. **Checked against the code.** At the W16R2 development rung (a real receipt, accepted by the production verifier)
    Lean rebuilds all 23 slots' tables and polynomials from the shape and the challenges alone, and they are identical to
@@ -37,14 +37,20 @@ the code, not proved. This lane closes most of that link.
 4. **Per-slot soundness on the code's polynomial, PROVED.** If a host slot's relation fails on the committed data, its
    claimed sum survives the challenges with probability at most `(3n + m + 2)/|F|` (`n` its cube's variables, `m` its pad
    planes); at the W16R2 8B and Shieldstral shapes that is at most `129/p²`, below `2^-120` per slot.
-5. **Layout facts, PROVED for every W16 precision** (so at 8B and Shieldstral whatever their trained calibration): the
-   LogUp family list is well-formed (`FamsOK`), and every width the layout theorem needs is a family (`W16Widths`); and
-   L11-1 checked: the product remainder's literal lookup width equals the product fold's shift at both stacks.
+5. **End to end at one slot.** At `SC_DZC` it is a theorem that the number the executable verifier computes as the
+   slot polynomial's value (an `Fp2` word), read in the field, IS the named host form above.
+6. **Layout facts, PROVED for every W16 precision** (so at 8B and Shieldstral whatever their trained calibration, and
+   block by block when a run's layers are calibrated differently, A25): the LogUp family list is well-formed
+   (`FamsOK`), every width the layout theorem needs is a family (`W16Widths`), the code's layout map is a `W16Layout`
+   (the padded axes, the head-slot order, the RoPE flip); and L11-1 checked: the product remainder's literal lookup
+   width equals the product fold's shift at both stacks, so the literal is safe today.
 
 **What this does not do yet** (§5): the Fiat–Shamir composition of the slots' challenge draws on the transcript (L8's
-schedule), which also needs the committed data as a function of the transcript (the extraction, ASSEMBLY §4.2 a); the
-reindexing of each slot's clause list into `W16Rels`'s named fields on the product cubes (the axes' index maps); and
-`M`'s mask totals (L10).
+schedule, one wide round per slot), which needs the committed data as a function of the transcript; the premise "the
+terminal values are true of the committed tables", which stays explicit here and which lane L16 supplies; the
+reindexing of each slot's clause list into `W16Rels`'s named fields on the product cubes; `M`'s mask totals; the
+end-to-end corollary at the 22 slots other than `SC_DZC`. So there is no single block-level theorem yet; the estimated
+block error (§5) is about `2^-120` per prover query, against the target's `2^-100`.
 
 **Findings** (§4): no mismatch between the code and the approved statements. Notes L13-1 … L13-4 (Info).
 
@@ -107,6 +113,7 @@ For any commutative ring and constants with `one = 1`, `negOne = −1`, `zero = 
 | **`rhWidth_eq_foldShift`** | L11-1, checked: the product remainder's lookup width (accuracy_layout.rs:324) is the product fold's shift (accuracy_aligned.rs:25-29) at both stacks: `16` at LowH24, the stack of both W16R2 profiles |
 | **`famsOK_famsOf`** | the family list of widths `≤ 24` is `FamsOK` (distinct tags below `p`, none `TAG_EXP`, `TAG_ACT`) |
 | **`w16Widths_of`** | for every block shape whose shifts are a W16 precision's (`S.sprod` the fold's shift, `f_p + 1 ≤ 16`), `W16Widths S (famsOf (widthsW p))`: `blockSat_of_slots`'s width premise, at every W16R2 shape, with no table evaluated (L7-4) |
+| `axPad`, **`stdLayout`** | the code's layout map is a `W16Layout` at every shape: the axes padded by `Fin.castLE` (the logical indices first), the head-slot order C-1 `h ↦ (h / hpg, h % hpg)` (injective, with the code's grouping of consecutive heads `grp h = h / hpg`), the head dimension `(top bit, index)` with the RoPE flip of the top bit |
 
 ### 2.5 `SlotW16Compose.lean`: per-slot soundness on the code's polynomial
 
@@ -117,6 +124,7 @@ For any commutative ring and constants with `one = 1`, `negOne = −1`, `zero = 
 | **`standalone_claim_sound`** | a standalone zero-check (`SC_LZC`, `SC_TAB`, `SC_IO_*`): `Σ_b eq(τ, b)·Z(b) = 0` with probability at most `(m + 1 + n)/|F|` |
 | `hostNum`, **`w16r2_host_num_le`**, `w16r2_8B_host_cubes` | at the W16R2 8B and Shieldstral shapes every host slot's numerator is at most `129` for any pad count `m ≤ 64` (the host cubes at 8B: `TZC 7, DZC 19, QZC 19, KVZC 17, SZC 19, FZC 21`) |
 | **`host_bound_goldilocks`** | `129/p² ≤ 2^-120` for every `p ≥ 2^64 − 2^32` |
+| `cstW_map_std`, `getD_map_f`, `dzcIr_map`, **`dzc_code_eval`** | the end-to-end link at `SC_DZC`: the word the executable verify arm computes as `poly(vals)` (`irEvalW`, `slotVerifyW`'s `polyVal`) on the Lean builder's IR at the code's words, read in `K` (`toK_irEvalW`), IS `hostTerms` with `dzcClauses` (the builder commutes with `Ir.map`; the code's constants read in `K` are standard) |
 
 ## 3. How it fits L9's `BlockParams.define`
 
@@ -127,6 +135,16 @@ slot's own draws, `SlotW16BuildCheck.build` produces the tables (kinds and label
 The adapter is not written here because `ExecBlockVerify.lean` is not on this branch (it was merged after this lane
 started): `Tab.priv` there carries the private table's opening data (`Priv`: commitment, slices, coordinates, mask row),
 which is the openings' (L10's) part of `define` and is not built here. The hosted list is L11's `hostedCoefs`.
+
+**Per block, not per run (A25's finding).** At W16 and W16R2 the 16-bit range families, and with them the `A` plane
+list and the `Dom::Tab` sub-planes, depend on the layer's requantization shifts and gate (`range16::widths`); a real
+trained model's per-layer calibration gives several plane lists in one run (A25: three at the real Shieldstral
+export). Nothing here assumes one shape for a run: every layout fact is a function of ONE block's precision
+(`PrecW`: `aPlanes p (famsW (widthsW p) logCols)`, `lookupsW p`, `hIds`, `zeroPlanes`), every slot builder takes that
+block's table positions and constants (`DzcR`, `DzcK`, …), and the layout theorems (`famsOK_famsOf`, `w16Widths_of`,
+`rhWidth_eq_foldShift`, `stdLayout`) and the per-slot soundness hold for every precision. A run instantiates them block
+by block, from each block's calibration; the rung corpus is one concrete instance (one block), and the export's three
+shapes are three precisions.
 
 ## 4. Findings
 
@@ -192,3 +210,35 @@ All in `results/zk60_lean_l13_20261107/`, each run as one job through the zk60 r
 - `file1.log` … `file3.log`, `iter1.log`, `iter2.log` (`stage.sh`, `iterate.sh`): the new files while they were written;
   the errors fixed on the way are in those logs (§4 L13-4). The jobs waited behind the other lanes' and the media lane's
   jobs (up to about 50 minutes per job).
+- `check.log`: `check_l13.sh`, ONE guarded job (545 s, peak RSS 4.71 GiB; it first builds the root's modules one target at a
+  time, because a fresh worktree's first full build in parallel exceeded the 24 GiB cap at 28 GiB), which runs:
+  - the full build (`full.log`): 3,464 jobs, rc 0, 0 warnings, 0 errors, no `sorry` (the three evaluation files set
+    four Mathlib style linters off, `linter.unusedSimpArgs`, `unreachableTactic`, `unusedTactic`,
+    `unnecessarySeqFocus`: their proofs try a short list of simp sets with `first`, and the linters flag the branches
+    not taken);
+  - the axiom audit (`axioms_l13.lean`, written by `gen_axioms.py`, → `axioms.log`): 60 theorems of the five library
+    files, nothing beyond `propext`, `Classical.choice`, `Quot.sound`: 13 on all three, 31 on `propext, Quot.sound`, 13
+    on `propext`, 3 on none; `sorryAx` and `Lean.ofReduceBool` appear nowhere;
+  - the source scan (none of `sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`,
+    `implemented_by`, `extern`, `bv_decide`, `ofReduceBool` in the six files) and the root imports;
+  - the regressions: `L6Check` 1,206 checks, 0 failed; `L5Check` 5,553, 0 failed; the fixture L1 check 101,956, 0 failed;
+    `L11Check` on the W16R2 rung corpus 404, 0 failed;
+  - **`SlotW16BuildCheck`** (`l13check_full.log`) on `layout.txt` and the L11 corpus: **179 checks, 0 failed** (the table
+    below);
+  - the negative control (`mutate_l13.py`, `negative_control.log`): seven single changes, exactly 7 failed, one each;
+  - the R19b file census (`cargo test … r19b_every_rs_file`, `r19b.log`): 1 passed.
+
+| `SlotW16BuildCheck` kind | Checks | What |
+|---|---|---|
+| `shape-count`, `stack`, `fold-shift`, `rh-width` | 1 + 3 + 1 + 3 | three shapes exported; all LowH24; the rung's product fold's shift is `foldShift` (16); the remainder width is the fold's shift |
+| `widths`, `families` | 3 + 3 | `widthsW`, `famsW` equal `range16::widths`, `Shape::range_families` at each shape |
+| `a-planes`, `h-planes`, `h-ids` | 3 + 3 + 3 | `aPlanes` (75 / 71 / 71 planes at the rung / Shieldstral / 8B: domain and name), `hPlanes`, `hIds` equal `AccuracyIds::new_w16`, `HIds` |
+| `lookups`, `helpers` | 18 + 18 | every lookup of `Dom::L, D, Q, Kv, S, F` (terms, constant, family) and the helper count, at each shape |
+| `zero-planes` | 27 | `zeroPlanes` equals `pad::zero_rule_a_planes` for all nine domains at each shape |
+| `ir-tables`, `table-kinds` | 23 + 23 | every slot's table list (kind and label, in `IrB`'s push order) built by Lean from the shape, the precision and the draws equals the code's; its kinds match the verifier's `Tab`s |
+| `ir-nodes`, `ir-terms` | 23 + 23 | every slot's nodes and terms (every coefficient VALUE: the challenges, the constants, LogUp's `α − (cst + g_tag)`, the `ζ` powers) equal the code's IR |
+| `slot-count` | 1 | 23 slots |
+
+**Negative control** (`mutate_l13.py`): the 8B shape's first plane name, the Shieldstral `Dom::D` first lookup constant,
+one of the rung's `Dom::F` zero-rule planes, one constant of slot 14's `c0`, slot 17's `ν₀`, one table label of slot 19,
+slot 15's first draw (`μ₀`). Exactly 7 checks fail, one per change.

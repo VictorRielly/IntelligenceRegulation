@@ -1,0 +1,741 @@
+== lake build ZK60Formal.SlotW16Compose ==
+warning: ZK60Formal/SlotW16BuildEval.lean:77:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Slot.Build.logupGo_len`:
+  [CommRing R]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [CommRing R] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/SlotW16BuildEval.lean:98:62: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [logupGo, nodeVals, denB, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal,
+    st, fval, List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len,
+    getD_len_add, List.getD_cons_succ, List.getD_cons_zero, logupSem, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:120:62: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, denB, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal, st, fval,
+    List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len, getD_len_add,
+    List.getD_cons_succ, List.getD_cons_zero, logupSem, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:124:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Slot.Build.padGo_len`:
+  [CommRing R]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [CommRing R] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/SlotW16BuildEval.lean:155:56: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal, st, fval,
+    List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len, getD_len_add,
+    List.getD_cons_succ, List.getD_cons_zero, padSem, List.map_map, Function.comp_def]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:71:18: This simp argument is unused:
+  bodyVal_sum
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [limbs16B, bodyVal_affine, stVal, L16, List.map_map, hc.zero, Function.comp_def]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:71:47: This simp argument is unused:
+  stVal
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [limbs16B, bodyVal_sum, bodyVal_affine, L16, List.map_map, hc.zero, Function.comp_def]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:75:16: This simp argument is unused:
+  bodyVal_sum
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [limbsB, bodyVal_affine, stVal, L256, List.map_map, hc.zero, Function.comp_def]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:75:45: This simp argument is unused:
+  stVal
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [limbsB, bodyVal_sum, bodyVal_affine, L256, List.map_map, hc.zero, Function.comp_def]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:79:27: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [reqB, bodyVal_sum, stVal, st, fval, hc.one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:109:82: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, bodyVal_limbs16 c hc, bodyVal_req c hc, List.append_assoc, List.cons_append,
+    List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, reqV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:139:65: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:139:65: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:144:84: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [rsIr, irEval, termVal, fval, gV, hc.one, nodeVals, bodyVal_sum, stVal, st]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:144:111: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:152:68: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:152:68: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:160:79: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [ioIr, irEval, termVal, fval, hc.one, hc.negOne, nodeVals, bodyVal_sum, stVal, st]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:193:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [dzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    dzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:193:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [dzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    dzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:194:85: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [dzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    dzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:197:6: Unused tactic linter: `(simp only [dzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons, List.map_nil,
+      List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, dzcClauses,
+      hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:201:6: Unused tactic linter: `(simp [dzcPre, nodeVals, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st,
+      fval, batchV, dzcClauses, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:197:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:201:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:196:56: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:235:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, fzcAct,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:235:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, fzcAct,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:247:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    fzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:247:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    fzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:261:103: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [stVal, st, fval, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one, h3]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:239:6: Unused tactic linter: `(simp only [fzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons, List.map_nil,
+      List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, fzcAct, hc.one,
+      hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:243:6: Unused tactic linter: `(simp [fzcPre, nodeVals, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st,
+      fval, fzcAct, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:251:6: Unused tactic linter: `(simp only [fzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons, List.map_nil,
+      List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, fzcClauses,
+      hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:255:6: Unused tactic linter: `(simp [fzcPre, nodeVals, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st,
+      fval, batchV, fzcClauses, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:239:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:243:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:251:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:255:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:238:44: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:250:56: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:284:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [qzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    qzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:284:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [qzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    qzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:285:85: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [qzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    qzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:288:6: Unused tactic linter: `(simp only [qzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons, List.map_nil,
+      List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, qzcClauses,
+      hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:292:6: Unused tactic linter: `(simp [qzcPre, nodeVals, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st,
+      fval, batchV, qzcClauses, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:288:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:292:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:287:56: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:335:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, szcExp,
+    szcDelta, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:335:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, szcExp,
+    szcDelta, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:336:85: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, szcExp,
+    szcDelta, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:347:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    szcClauses, szcDelta, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:347:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    szcClauses, szcDelta, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:348:85: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal_sum, stVal, batchB, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    szcClauses, szcDelta, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:359:93: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPost, nodeVals, bodyVal_limbs16 c hc, bodyVal_req c hc, List.append_assoc, List.cons_append,
+    List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, reqV, bodyVal_sum,
+    bodyVal_affine, stVal, st, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil,
+    fval, hc.one, mul_one, one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:361:19: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPost, nodeVals, bodyVal_limbs16 c hc, bodyVal_req c hc, List.append_assoc,
+    List.singleton_append, List.cons_append, List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ,
+    List.getD_cons_zero, reqV, bodyVal_sum, stVal, st, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil,
+    List.prod_cons, List.prod_nil, fval, hc.one, mul_one, one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:366:103: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [stVal, st, fval, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one, h8]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:367:42: This simp argument is unused:
+  List.sum_cons
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.map_cons, List.map_nil, List.sum_nil, termVal, fval, getD_len, getD_len_add,
+    List.getD_cons_zero, List.getD_cons_succ, List.prod_cons, List.prod_nil, hc.one, hc.zero, hostTerms]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:367:57: This simp argument is unused:
+  List.sum_nil
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.map_cons, List.map_nil, List.sum_cons, termVal, fval, getD_len, getD_len_add,
+    List.getD_cons_zero, List.getD_cons_succ, List.prod_cons, List.prod_nil, hc.one, hc.zero, hostTerms]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:368:85: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, termVal, fval, getD_len, getD_len_add,
+    List.getD_cons_zero, List.getD_cons_succ, List.prod_cons, List.prod_nil, hc.one, hostTerms]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:339:6: Unused tactic linter: `(simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons, List.map_nil,
+      List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, szcExp, szcDelta,
+      hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:343:6: Unused tactic linter: `(simp [szcPre, nodeVals, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st,
+      fval, szcExp, szcDelta, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:351:6: Unused tactic linter: `(simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st, fval, List.map_cons, List.map_nil,
+      List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, szcClauses,
+      szcDelta, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:355:6: Unused tactic linter: `(simp [szcPre, nodeVals, bodyVal_limbs16 c hc, bodyVal_sum, bodyVal_affine, stVal, batchB, st,
+      fval, batchV, szcClauses, szcDelta, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:339:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:343:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:351:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:355:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:338:54: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:350:66: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:405:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, L256,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:405:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, L256,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:406:86: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, L256,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:408:50: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons,
+    List.zipIdx_nil, L256, hc.one, hc.negOne]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:419:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, L256,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:419:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, L256,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:420:86: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, L256,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:422:50: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons,
+    List.zipIdx_nil, L256, hc.one, hc.negOne]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:436:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    tzcClauses, L256, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:436:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    tzcClauses, L256, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:437:86: This simp argument is unused:
+  bodyVal_affine
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, stVal, st, fval, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV,
+    tzcClauses, L256, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:439:70: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons,
+    List.zipIdx_nil, batchV, tzcClauses, L256, hc.one, hc.negOne]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:452:70: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tzcPost, nodeVals, bodyVal_sum, stVal, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, hc.one, mul_one,
+    one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:408:63: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:409:6: Unused tactic linter: `(simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+      List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, L256, hc.one, hc.negOne,
+      hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:414:6: Unused tactic linter: `(simp [tzcPre, nodeVals, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval,
+      L256, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:422:63: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:423:6: Unused tactic linter: `(simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+      List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, L256, hc.one, hc.negOne,
+      hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:428:6: Unused tactic linter: `(simp [tzcPre, nodeVals, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval,
+      L256, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:440:6: Unused tactic linter: `(simp only [tzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append,
+      List.cons_append, List.getD_eq_getElem?_getD, List.getElem?_cons_succ, List.getElem?_cons_zero, Option.getD_some,
+      bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+      List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, tzcClauses, L256, hc.one,
+      hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:445:6: Unused tactic linter: `(simp [tzcPre, nodeVals, bodyVal_limbs256 c hc, bodyVal_sum, bodyVal_affine, stVal, st, fval,
+      batchV, tzcClauses, L256, hc.one, hc.negOne, hc.zero] <;>
+    ring)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:408:63: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:409:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:414:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:422:63: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:423:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:428:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:440:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:445:6: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:439:79: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:471:67: This simp argument is unused:
+  zero_add
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, termVal, fval, getD_len, List.getD_cons_zero, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, hc.one, add_zero, one_mul, mul_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:471:99: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:471:99: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:499:56: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, bodyVal_sum, bodyVal_affine, stVal, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, stVal, st, fval, List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append,
+    getD_len, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, tabSem, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:516:118: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:516:118: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16Compose.lean:52:56: This simp argument is unused:
+  Matrix.head_cons
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16Compose.lean:64:56: This simp argument is unused:
+  Matrix.head_cons
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16Compose.lean:91:13: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+warning: ZK60Formal/SlotW16Compose.lean:114:13: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+warning: ZK60Formal/SlotW16Compose.lean:195:4: This simp argument is unused:
+  Option.map_map
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [dzcPre, dzcPost, threeTerms, gatedSt, limbs16B, reqB, batchB, st, List.map_cons, List.map_nil,
+    Body.map, SubTerm.map, Term.map, Cst.map, List.map_map, Function.comp_def, getD_map_f, List.length_map]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16Compose.lean:195:20: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Build completed successfully (3396 jobs).
+build rc 0
+== SlotW16BuildCheck ==
+  shape-count: 1
+  stack: 3
+  fold-shift: 1
+  rh-width: 3
+  widths: 3
+  families: 3
+  a-planes: 3
+  h-planes: 3
+  h-ids: 3
+  lookups: 18
+  helpers: 18
+  zero-planes: 27
+  ir-tables: 23
+  table-kinds: 23
+  ir-nodes: 23
+  ir-terms: 23
+  slot-count: 1
+SlotW16BuildCheck: 179 checks, 0 failed
+rc build 0 check 0, 30 s

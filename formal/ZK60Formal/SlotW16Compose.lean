@@ -27,6 +27,14 @@ import ZK60Formal.SlotW16Sound
 import ZK60Formal.ExecSumcheckFS
 import ZK60Formal.SlotW16R2
 
+-- The evaluation proofs try a short list of simp sets (`first | … | …`) and use broad simp sets; Mathlib's style
+-- linters flag the alternatives not taken and the simp arguments a branch did not need. Style warnings only.
+set_option linter.unusedSimpArgs false
+set_option linter.unreachableTactic false
+set_option linter.unusedTactic false
+set_option linter.unnecessarySeqFocus false
+
+
 namespace ZK60.Exec.Slot.Compose
 
 open ZK60.Sound ZK60.Sound.SlotW16 ZK60.Exec.Slot.Build
@@ -88,7 +96,7 @@ theorem host_claim_sound {n m : ℕ} {ι : Type} [Fintype ι] [DecidableEq ι] (
   refine le_trans (MeasureTheory.measure_mono ?_)
     (host_hosted_sound c w (fun b => g b * h 0 b) (M 0) (fun b => g b * h 1 b) (M 1) hfail)
   intro ω hω
-  simp only [Set.mem_setOf_eq] at hω ⊢
+  simp only [Set.mem_ofPred_eq] at hω ⊢
   have e := (host_claim_iff ω.2.1.2 (batched c w ω.2.1.1) ω.2.2 ![ω.1.1, ω.1.2] g h
     (fun i => mleAt (M i) (![ω.1.1, ω.1.2] i))).mp hω
   rw [Fin.sum_univ_two] at e ⊢
@@ -111,7 +119,7 @@ theorem standalone_claim_sound {n m : ℕ} {ι : Type} [Fintype ι] [DecidableEq
     exact dens_mono (fun _ h => h) (dens_mle_zero (batched c w ω) hω)
   refine le_trans (MeasureTheory.measure_mono ?_) (dens_prob hd)
   intro ω hω
-  simp only [Set.mem_setOf_eq] at hω ⊢
+  simp only [Set.mem_ofPred_eq] at hω ⊢
   unfold mleAt
   rw [← hω]
 

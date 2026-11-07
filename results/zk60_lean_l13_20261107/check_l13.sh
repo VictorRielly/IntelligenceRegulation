@@ -15,6 +15,11 @@ V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
 FILES="$L/SlotW16Build.lean $L/SlotW16BuildEval.lean $L/SlotW16BuildSlots.lean $L/SlotW16BuildLayout.lean $L/SlotW16Compose.lean $L/SlotW16BuildCheck.lean"
 S=/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad
+echo "== prebuild: the root's modules one target at a time (a fresh worktree's first build in parallel exceeds the cap) =="
+for m in $(grep '^import ' "$WT/formal/ZK60Formal.lean" | awk '{print $2}'); do
+  "$LAKE" -d "$WT/formal" build "$m" > "$OUT/prebuild_last.log" 2>&1 || { echo "prebuild FAILED at $m"; tail -n 40 "$OUT/prebuild_last.log"; }
+done
+echo "prebuild done"
 echo "== lake build (full) =="
 "$LAKE" -d "$WT/formal" build > "$OUT/full.log" 2>&1
 rc=$?
