@@ -90,3 +90,8 @@ import ZK60Formal.StageOutCExtract
 import ZK60Formal.StageOutCExtractSlots
 import ZK60Formal.StageOutExtract
 import ZK60Formal.StageRunExtract
+import ZK60Formal.StageOutCWhole
+import ZK60Formal.StageCheckDefs
+import ZK60Formal.StageFS
+import ZK60Formal.StageOutWhole
+import ZK60Formal.StageCheckValid
