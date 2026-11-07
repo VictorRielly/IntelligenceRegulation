@@ -1,0 +1,35 @@
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d0.lean: rc 1  17.1 s peak 3.54 GiB
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d0.lean:182:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d0.lean:103:0: warning: automatically included section variable(s) unused in theorem `ZK60.Exec.sum_zip_range`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d0.lean:182:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+
+Hint: If you meant to end the outer scope(s) `ZK60.Exec`, you must end all the intervening scopes `ZK60.Exec.Arith`:
+  end ZK60.Exec.̲A̲r̲i̲t̲h̲
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d1.lean: rc 1  9.9 s peak 3.45 GiB
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d1.lean:182:8: error: `ZK60.Exec.getD_map_lt` has already been declared
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d1.lean:192:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d1.lean:103:0: warning: automatically included section variable(s) unused in theorem `ZK60.Exec.sum_zip_range`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d1.lean:182:8: error: `ZK60.Exec.getD_map_lt` has already been declared
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d1.lean:192:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+
+Hint: If you meant to end the outer scope(s) `ZK60.Exec`, you must end all the intervening scopes `ZK60.Exec.Arith`:
+  end ZK60.Exec.̲A̲r̲i̲t̲h̲
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d2.lean: rc -15 RSS limit 11.8 s peak 6.01 GiB
+
+
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d3.lean: rc -15 RSS limit 12.7 s peak 6.14 GiB
+
+
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/d4.lean: rc -15 RSS limit 10.6 s peak 6.03 GiB
+
+

@@ -75,3 +75,8 @@ import ZK60Formal.ExecSumcheck
 import ZK60Formal.ExecCfs
 import ZK60Formal.ExecSumcheckFS
 import ZK60Formal.ExecComposeFS
+import ZK60Formal.ExecOpeningCode
+import ZK60Formal.BindingW16
+import ZK60Formal.ExecOpening
+import ZK60Formal.ExecOpeningM
+import ZK60Formal.ExecOpeningFS

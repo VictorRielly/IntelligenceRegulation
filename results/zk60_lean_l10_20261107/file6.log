@@ -1,0 +1,137 @@
+== lake build ZK60Formal.ExecOpening ZK60Formal.ExecComposeFS ==
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3437 jobs).
+== /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean: rc 1  3.1 s peak 3.62 GiB
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:273:2: error: unsolved goals
+case neg
+H : HIn → Dig
+tag : MTag
+ω512 ω4096 : Fp
+root : Dig
+S : ℕ
+fs : List MaskFunctional
+op : MaskOpening
+t t' : Tr
+h1 : op.q.length = 2 * mMsg
+h2 :
+  ¬((op.q.getD 0 Fp2.zero).add (op.q.getD mMsg Fp2.zero)).mulBase (Fp.new (UInt64.ofNat mMsg)) =
+      (combinedWeights S fs (Tr.challengeFp2 H t).1).2
+⊢ op.q.length = 2 * mMsg →
+    ((op.q[0]?.getD Fp2.zero).add (op.q[mMsg]?.getD Fp2.zero)).mulBase (Fp.new (UInt64.ofNat mMsg)) =
+        (combinedWeights S fs (Tr.challengeFp2 H t).1).2 →
+      op.prox.length = 2 * mMsg →
+        ∀ (x : List ℕ),
+          Tr.challengeIndices H
+                (Tr.absorbFp2 H
+                  (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel op.q) (2 * S + 2)).2
+                  maskProxLabel op.prox)
+                mQ mDom =
+              some (x, t') →
+            op.columns.length = x.length →
+              ∃ x_1 < op.columns.length,
+                ¬MColOk H tag ω512 ω4096 root S (combinedWeights S fs (Tr.challengeFp2 H t).1).1 op.q op.prox
+                    (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel op.q) (2 * S + 2)).1
+                    (op.columns[x_1]?.getD (0, [], zeroDig, [])) (x[x_1]?.getD 0)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:394:4: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≥ 0
+  a ≥ 0
+  a - b ≤ 0
+where
+ a := ↑m
+ b := ↑col.length
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:484:8: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  mProdAcc ?m.415 col ?m.417 = dotB ?m.418 ?m.419
+in the target expression
+  mProdAcc S col (mEnc ω512 ws q prox x).1 = (mEnc ω512 ws q prox x).2.1 ↔
+    Fp2.toK U (fp2Of col (2 * S) (2 * S + 1)) +
+        ∑ s, Fp2.toK U (fp2Of col (2 * ↑s) (2 * ↑s + 1)) * eval x' (mInterp ω' (vecK U mMsg (ws.getD ↑s []))) =
+      eval x' (coefPoly (vecK U (2 * mMsg) q))
+
+case left
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+ω512 ω4096 : Fp
+h512 : IsPrimitiveRoot ω512.toGF 512
+h4096 : IsPrimitiveRoot ω4096.toGF 4096
+S : ℕ
+ws : List (List Fp2)
+hws : ws.length = S
+hwl : ∀ w ∈ ws, w.length = mMsg
+q prox rs : List Fp2
+hq : q.length = 2 * mMsg
+hp : prox.length = 2 * mMsg
+hrs : rs.length = 2 * S + 2
+col : List Fp
+hc : ∀ x ∈ col, x.Canon
+hcl : col.length = 2 * S + 4
+j : ℕ
+x : Fp := ⋯
+ω' : K := ⋯
+x' : K := ⋯
+hxc : x.Canon
+hxn : x.toGF ^ mMsg ≠ 1
+hwv :
+  ∀ (s : Fin S),
+    Fp2.toK U ((mEnc ω512 ws q prox x).1.getD (↑s) Fp2.zero) = eval x' (mInterp ω' (vecK U mMsg (ws.getD ↑s [])))
+key : ∀ (a b : Fp2), a.Canon → b.Canon → (a = b ↔ Fp2.toK U a = Fp2.toK U b)
+⊢ mProdAcc S col (mEnc ω512 ws q prox x).1 = (mEnc ω512 ws q prox x).2.1 ↔
+    Fp2.toK U (fp2Of col (2 * S) (2 * S + 1)) +
+        ∑ s, Fp2.toK U (fp2Of col (2 * ↑s) (2 * ↑s + 1)) * eval x' (mInterp ω' (vecK U mMsg (ws.getD ↑s []))) =
+      eval x' (coefPoly (vecK U (2 * mMsg) q))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:487:8: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  mProxAcc ?m.422 col ?m.424 = dotB ?m.425 ?m.426
+in the target expression
+  mProxAcc S col rs = (mEnc ω512 ws q prox x).2.2 ↔
+    Fp2.toK U (fp2Of col (2 * S + 2) (2 * S + 3)) +
+        ∑ i, Fp2.toK U (rs.getD (↑i) Fp2.zero) * (algebraMap GF K) (col.getD (↑i) Fp.zero).toGF =
+      eval x' (coefPoly (vecK U (2 * mMsg) prox))
+
+case right
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+ω512 ω4096 : Fp
+h512 : IsPrimitiveRoot ω512.toGF 512
+h4096 : IsPrimitiveRoot ω4096.toGF 4096
+S : ℕ
+ws : List (List Fp2)
+hws : ws.length = S
+hwl : ∀ w ∈ ws, w.length = mMsg
+q prox rs : List Fp2
+hq : q.length = 2 * mMsg
+hp : prox.length = 2 * mMsg
+hrs : rs.length = 2 * S + 2
+col : List Fp
+hc : ∀ x ∈ col, x.Canon
+hcl : col.length = 2 * S + 4
+j : ℕ
+x : Fp := ⋯
+ω' : K := ⋯
+x' : K := ⋯
+hxc : x.Canon
+hxn : x.toGF ^ mMsg ≠ 1
+hwv :
+  ∀ (s : Fin S),
+    Fp2.toK U ((mEnc ω512 ws q prox x).1.getD (↑s) Fp2.zero) = eval x' (mInterp ω' (vecK U mMsg (ws.getD ↑s [])))
+key : ∀ (a b : Fp2), a.Canon → b.Canon → (a = b ↔ Fp2.toK U a = Fp2.toK U b)
+⊢ mProxAcc S col rs = (mEnc ω512 ws q prox x).2.2 ↔
+    Fp2.toK U (fp2Of col (2 * S + 2) (2 * S + 3)) +
+        ∑ i, Fp2.toK U (rs.getD (↑i) Fp2.zero) * (algebraMap GF K) (col.getD (↑i) Fp.zero).toGF =
+      eval x' (coefPoly (vecK U (2 * mMsg) prox))
+stop: /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean did not elaborate
+total 8 s

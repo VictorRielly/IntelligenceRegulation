@@ -1,0 +1,89 @@
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c1.lean: rc 1  4.7 s peak 3.56 GiB
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c1.lean:80:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c1.lean:80:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+
+Hint: If you meant to end the outer scope(s) `ZK60.Exec`, you must end all the intervening scopes `ZK60.Exec.Arith`:
+  end ZK60.Exec.̲A̲r̲i̲t̲h̲
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c2.lean: rc 1  3.2 s peak 3.58 GiB
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c2.lean:88:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c2.lean:88:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+
+Hint: If you meant to end the outer scope(s) `ZK60.Exec`, you must end all the intervening scopes `ZK60.Exec.Arith`:
+  end ZK60.Exec.̲A̲r̲i̲t̲h̲
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c3.lean: rc 1  2.6 s peak 3.42 GiB
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c3.lean:116:86: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c3.lean:121:8: error: `ZK60.Exec.canon_foldl_add` has already been declared
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c3.lean:129:70: error: Type mismatch
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c3.lean:131:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+
+case cons.cons
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+a : Fp2
+v : List Fp2
+ih :
+  ∀ (w : List Fp),
+    w.length = v.length →
+      (List.map (fun p => Fp2.toK U p.1 * (algebraMap GF K) p.2.toGF) (v.zip w)).sum =
+        ∑ i, Fp2.toK U (v.getD (↑i) Fp2.zero) * (algebraMap GF K) (w.getD (↑i) Fp.zero).toGF
+b : Fp
+w : List Fp
+hw : (b :: w).length = (a :: v).length
+⊢ Fp2.toK U (a, b).1 * (algebraMap GF K) (a, b).2.toGF +
+      ∑ i, Fp2.toK U (v.getD (↑i) Fp2.zero) * (algebraMap GF K) (w.getD (↑i) Fp.zero).toGF =
+    ∑ i, Fp2.toK U ((a :: v).getD (↑i) Fp2.zero) * (algebraMap GF K) ((b :: w).getD (↑i) Fp.zero).toGF
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c3.lean:121:8: error: `ZK60.Exec.canon_foldl_add` has already been declared
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c3.lean:129:70: error: Type mismatch
+  canon_foldl_add ?m.2
+has type
+  ∀ (l : List ?m.1) (init : Fp2), init.Canon → (List.foldl (fun acc a => acc.add (?m.2 a)) init l).Canon
+but is expected to have type
+  (dotB v w).Canon
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c3.lean:131:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+
+Hint: If you meant to end the outer scope(s) `ZK60.Exec`, you must end all the intervening scopes `ZK60.Exec.Arith`:
+  end ZK60.Exec.̲A̲r̲i̲t̲h̲
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean: rc 1  2.6 s peak 3.41 GiB
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:116:86: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:121:8: error: `ZK60.Exec.canon_foldl_add` has already been declared
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:129:70: error: Type mismatch
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:162:10: error(lean.unknownIdentifier): Unknown constant `List.prod_ne_zero_iff`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:185:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+case cons.cons
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+a : Fp2
+v : List Fp2
+ih :
+  ∀ (w : List Fp),
+    w.length = v.length →
+      (List.map (fun p => Fp2.toK U p.1 * (algebraMap GF K) p.2.toGF) (v.zip w)).sum =
+        ∑ i, Fp2.toK U (v.getD (↑i) Fp2.zero) * (algebraMap GF K) (w.getD (↑i) Fp.zero).toGF
+b : Fp
+w : List Fp
+hw : (b :: w).length = (a :: v).length
+⊢ Fp2.toK U (a, b).1 * (algebraMap GF K) (a, b).2.toGF +
+      ∑ i, Fp2.toK U (v.getD (↑i) Fp2.zero) * (algebraMap GF K) (w.getD (↑i) Fp.zero).toGF =
+    ∑ i, Fp2.toK U ((a :: v).getD (↑i) Fp2.zero) * (algebraMap GF K) ((b :: w).getD (↑i) Fp.zero).toGF
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:121:8: error: `ZK60.Exec.canon_foldl_add` has already been declared
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:129:70: error: Type mismatch
+  canon_foldl_add ?m.2
+has type
+  ∀ (l : List ?m.1) (init : Fp2), init.Canon → (List.foldl (fun acc a => acc.add (?m.2 a)) init l).Canon
+but is expected to have type
+  (dotB v w).Canon
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:162:10: error(lean.unknownIdentifier): Unknown constant `List.prod_ne_zero_iff`
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c4.lean:185:0: error: Invalid name after `end`: Expected `Exec.Arith`, but found `ZK60.Exec`
+
+Hint: If you meant to end the outer scope(s) `ZK60.Exec`, you must end all the intervening scopes `ZK60.Exec.Arith`:
+  end ZK60.Exec.̲A̲r̲i̲t̲h̲
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c5.lean: rc -15 RSS limit 15.7 s peak 6.10 GiB
+
+
+== /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l10/c6.lean: rc -15 RSS limit 12.0 s peak 6.04 GiB
+
+

@@ -1,0 +1,46 @@
+== lake build ZK60Formal.ExecOpening ==
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3426 jobs).
+== /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean: rc 1  15.2 s peak 3.66 GiB
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean:675:36: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (List.replicate ?m.265 ?m.266).length
+in the target expression
+  j < ((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).length
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+S : ℕ
+fs : List MaskFunctional
+θ : Fp2
+h4 :
+  Fp2.toK U (List.foldl (cwStep θ) (List.replicate S (List.replicate mMsg Fp2.zero), Fp2.zero, θ) fs).2.1 =
+    Fp2.toK U Fp2.zero + ∑ i ∈ range fs.length, Fp2.toK U θ * Fp2.toK U θ ^ i * Fp2.toK U (fs.getD i default).value
+h5 :
+  ∀ (s j : ℕ),
+    s < S →
+      j < mMsg →
+        Fp2.toK U
+            (((List.foldl (cwStep θ) (List.replicate S (List.replicate mMsg Fp2.zero), Fp2.zero, θ) fs).1.getD s
+                  []).getD
+              j Fp2.zero) =
+          Fp2.toK U (((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).getD j Fp2.zero) +
+            ∑ i ∈ range fs.length, Fp2.toK U θ * Fp2.toK U θ ^ i * fwt U (fs.getD i default) s j
+hget : ∀ (i : Fin fs.length), fs.getD (↑i) default = fs.get i
+s j : ℕ
+hs : s < S
+hj : j < mMsg
+⊢ j < ((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).length
+stop: /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9f0e162e79db6aa4/formal/ZK60Formal/ExecOpeningM.lean did not elaborate
+total 21 s
