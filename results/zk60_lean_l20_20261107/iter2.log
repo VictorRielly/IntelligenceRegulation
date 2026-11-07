@@ -1,0 +1,10 @@
+== lake build ZK60Formal.CountW16Chain ==
+Build completed successfully (3426 jobs).
+build rc 0 for ZK60Formal.CountW16Chain, 5 s
+== lake build ZK60Formal.CountW16Slots ==
+Build completed successfully (3456 jobs).
+build rc 0 for ZK60Formal.CountW16Slots, 18 s
+== lake build ZK60Formal.OpenKnowChain ==
+Build completed successfully (3449 jobs).
+build rc 0 for ZK60Formal.OpenKnowChain, 22 s
+rc build 0 files 0, 22 s

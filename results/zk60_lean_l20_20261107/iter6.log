@@ -1,0 +1,30 @@
+== lake build ZK60Formal.CountW16Chain ==
+Build completed successfully (3426 jobs).
+build rc 0 for ZK60Formal.CountW16Chain, 1 s
+== lake build ZK60Formal.CountW16Slots ==
+Build completed successfully (3456 jobs).
+build rc 0 for ZK60Formal.CountW16Slots, 3 s
+== lake build ZK60Formal.CountW16Target ==
+✖ [3457/3457] Building ZK60Formal.CountW16Target (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Target.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Target.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Target.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Target.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Target.setup.json --json
+error: ZK60Formal/CountW16Target.lean:225:8: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.CountW16Target
+error: build failed
+build rc 1 for ZK60Formal.CountW16Target, 6 s
+== lake build ZK60Formal.OpenKnowChain ==
+Build completed successfully (3449 jobs).
+build rc 0 for ZK60Formal.OpenKnowChain, 9 s
+== lake build ZK60Formal.OpenKnowBlock ==
+✖ [3462/3463] Building ZK60Formal.CountW16Target (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Target.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Target.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Target.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Target.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Target.setup.json --json
+error: ZK60Formal/CountW16Target.lean:225:8: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.CountW16Target
+error: build failed
+build rc 1 for ZK60Formal.OpenKnowBlock, 25 s
+rc build 1 files 0, 25 s
