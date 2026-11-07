@@ -32,3 +32,38 @@ L5Check rc 0
 L1 TOTAL: 101956 checks, 0 failed
 L1Check rc 0
 regression verdicts: L6 0, L5 0, L1 0 (0 = the committed count with 0 failed)
+== lake build (full) ==
+lake build rc 0
+✔ [3459/3460] Built ZK60Formal (10s)
+Build completed successfully (3460 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+77 theorems
+axioms rc 0
+declarations audited: 77
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  75 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext]
+== source scan of the L12 files ==
+none
+== the library root imports the L12 files ==
+78:import ZK60Formal.StageExtractCore
+79:import ZK60Formal.StageInExtract
+80:import ZK60Formal.StageInExtractSlots
+81:import ZK60Formal.StageOutCExtract
+82:import ZK60Formal.StageOutExtract
+83:import ZK60Formal.StageRunExtract
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+L6Check rc 0
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+L5Check rc 0
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+L1Check rc 0
+regression verdicts: L6 0, L5 0, L1 0 (0 = the committed count with 0 failed)

@@ -1,0 +1,47 @@
+== lake build ZK60Formal.StageInExtractSlots ==
+✖ [3367/3367] Building ZK60Formal.StageInExtractSlots (3.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/ZK60Formal/StageInExtractSlots.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean/ZK60Formal/StageInExtractSlots.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/lib/lean/ZK60Formal/StageInExtractSlots.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/ir/ZK60Formal/StageInExtractSlots.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab31b1765545a6bd4/formal/.lake/build/ir/ZK60Formal/StageInExtractSlots.setup.json --json
+error: ZK60Formal/StageInExtractSlots.lean:333:15: Invalid simp theorem: Expected a proposition, but found
+  (x_0 : Type _abstMVar.0) →
+    (x_1 : Type _abstMVar.1) →
+      (op : x_1 → x_1 → x_1) →
+        [hc : Std.Commutative op] → [ha : Std.Associative op] → x_1 → (x_0 → x_1) → Finset x_0 → x_1
+error: ZK60Formal/StageInExtractSlots.lean:334:4: ring failed, ring expressions not equal
+B K : Type
+inst✝⁴ : Field B
+inst✝³ : Field K
+ι κ : Type
+k : ℕ
+inst✝² : Fintype ι
+inst✝¹ : Fintype κ
+inst✝ : DecidableEq K
+φ : B →+* K
+D : InData B ι κ k
+n nv nu : ℕ
+L : IncLayout φ D n nv
+ω : InChal K k
+hd : IncHelpers K n nv nu
+hq : QzcHolds (incQ L ω hd) ω.1.2 ω.1.1.1 (L.g ω) L.bos
+ht : TzcHolds (incT L ω hd) ω.1.2
+hs : IncSum hd
+hz : ∑ j, hd.2.2 j = 0
+t : ι
+e1 :
+  hd.1 (L.pos t) *
+        (ω.1.2 -
+          (φ (D.tok t) + ω.1.1.1 * mleAt (fun c => φ (D.X t c)) ω.2 + ω.1.1.1 ^ 2 * φ (D.cq t) + ω.1.1.2 * φ D.tag)) -
+      1 =
+    0
+⊢ -(hd.1 (L.pos t) *
+                Sound.fold ω.1.1.1 ω.1.1.2
+                  { x := φ (D.tok t), tag := φ D.tag, y := mleAt (fun b => φ (D.X t b)) ω.2, z := φ (D.cq t) }) +
+            hd.1 (L.pos t) * φ (D.tok t) +
+          hd.1 (L.pos t) * ω.1.1.1 * mleAt (fun b => φ (D.X t b)) ω.2 +
+        hd.1 (L.pos t) * ω.1.1.1 ^ 2 * φ (D.cq t) +
+      hd.1 (L.pos t) * ω.1.1.2 * φ D.tag =
+    0
+Some required targets logged failures:
+- ZK60Formal.StageInExtractSlots
+error: build failed
+build rc 1
+rc build 1 files 0, 5 s

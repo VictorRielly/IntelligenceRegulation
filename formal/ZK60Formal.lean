@@ -77,6 +77,7 @@ import ZK60Formal.ExecSumcheckFS
 import ZK60Formal.ExecComposeFS
 import ZK60Formal.StageExtractCore
 import ZK60Formal.StageInExtract
+import ZK60Formal.StageInExtractSlots
 import ZK60Formal.StageOutCExtract
 import ZK60Formal.StageOutExtract
 import ZK60Formal.StageRunExtract

@@ -1,5 +1,6 @@
 import ZK60Formal.StageExtractCore
 import ZK60Formal.StageInExtract
+import ZK60Formal.StageInExtractSlots
 import ZK60Formal.StageOutCExtract
 import ZK60Formal.StageOutExtract
 import ZK60Formal.StageRunExtract
@@ -48,6 +49,26 @@ import ZK60Formal.StageRunExtract
 #print axioms ZK60.StageX.in_endpoint_words
 #print axioms ZK60.StageX.canonWord_lt
 #print axioms ZK60.StageX.canonWord_cast
+-- StageInExtractSlots.lean
+#print axioms ZK60.StageX.IndDegLE.mul
+#print axioms ZK60.StageX.IndDegLE.const
+#print axioms ZK60.StageX.IndDegLE.sub
+#print axioms ZK60.StageX.IndDegLE.cmul
+#print axioms ZK60.StageX.mle_deg
+#print axioms ZK60.StageX.mleAt_bitv
+#print axioms ZK60.StageX.qzcQ_deg
+#print axioms ZK60.StageX.qzcW_deg
+#print axioms ZK60.StageX.pad2_deg
+#print axioms ZK60.StageX.qzcPz_deg
+#print axioms ZK60.StageX.tzcW_deg
+#print axioms ZK60.StageX.tzcPz_deg
+#print axioms ZK60.StageX.qzc_cube
+#print axioms ZK60.StageX.tzc_cube
+#print axioms ZK60.StageX.zc_slot_sound
+#print axioms ZK60.StageX.zs_sound
+#print axioms ZK60.StageX.incLook_eq
+#print axioms ZK60.StageX.incCube
+#print axioms ZK60.StageX.inc_stage_sound
 -- StageOutCExtract.lean
 #print axioms ZK60.StageX.byteLook_hit
 #print axioms ZK60.StageX.byte_logup_sound

@@ -1,6 +1,6 @@
 #!/bin/bash
 # D63 Lean lane L12 (2026-11-07, the token stages' knowledge-soundness parts): the full Lean build, the axiom audit
-# of every theorem of the five L12 files, the source scan, the root imports, and as regressions L6Check, L5Check and
+# of every theorem of the six L12 files, the source scan, the root imports, and as regressions L6Check, L5Check and
 # the fixture L1 check on their committed corpora, as ONE guarded job. Run through run_guarded.py (the zk60 resource
 # guard, class cpu). L12 adds no Rust and no checker of its own (deliverable 4 was not reached). The arguments of the
 # regressions are results/zk60_lean_l8_20261106/check_l8merge.sh's.
@@ -11,7 +11,7 @@ O6=$WT/results/zk60_lean_l6_20261106
 O5=$WT/results/zk60_lean_l5_20261106
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
-FILES="$WT/formal/ZK60Formal/StageExtractCore.lean $WT/formal/ZK60Formal/StageInExtract.lean $WT/formal/ZK60Formal/StageOutCExtract.lean $WT/formal/ZK60Formal/StageOutExtract.lean $WT/formal/ZK60Formal/StageRunExtract.lean"
+FILES="$WT/formal/ZK60Formal/StageExtractCore.lean $WT/formal/ZK60Formal/StageInExtract.lean $WT/formal/ZK60Formal/StageInExtractSlots.lean $WT/formal/ZK60Formal/StageOutCExtract.lean $WT/formal/ZK60Formal/StageOutExtract.lean $WT/formal/ZK60Formal/StageRunExtract.lean"
 echo "== lake build (full) =="
 "$LAKE" -d "$WT/formal" build > "$OUT/full.log" 2>&1
 rc=$?
@@ -33,7 +33,7 @@ grep -oE "axioms: \[[^]]*\]" "$OUT/axioms.log" | sort | uniq -c
 echo "== source scan of the L12 files =="
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $FILES || echo "none"
 echo "== the library root imports the L12 files =="
-for m in StageExtractCore StageInExtract StageOutCExtract StageOutExtract StageRunExtract; do
+for m in StageExtractCore StageInExtract StageInExtractSlots StageOutCExtract StageOutExtract StageRunExtract; do
   grep -n "ZK60Formal.$m\$" "$WT/formal/ZK60Formal.lean" || echo "MISSING $m"
 done
 echo "== regression: L6Check on the committed L6 corpus =="
