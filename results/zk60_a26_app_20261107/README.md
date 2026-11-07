@@ -14,13 +14,15 @@ counted was freshly verified (the verifier server, its own process). Public text
 
 **Machine:** the M3 Ultra Mac (24 performance + 8 efficiency cores, 80-core GPU), shared with four Lean
 lanes. Every heavy run went through the resource guard at its default floors, with no `ds4-bench` running
-(`*.quiet` files); the guard serializes heavy jobs, so no Lean job ran beside a measurement.
+(`*.quiet` files); the guard serializes heavy jobs, so no other heavy job ran beside a measurement.
 
 ## 0. Plain summary
 
 - **The stream of 8 public posts: 11.25 → 14.10 proved tok/s (+25%)**, every receipt freshly verified, A/B
   pairs in both orders on the native servers (section 3.1). **One post: 55.2 → 46.7 s (6.96 → 8.23 tok/s,
-  +18%)** (section 3.2). TBD-APP-SUMMARY
+  +18%)** (section 3.2). **Through the app** (single runs, against A24's app run): an 8-post stream 11.4 →
+  **13.8 proved tok/s**, one post 70.0 → **54.4 s (7.1 tok/s)**, one long post 174.5 → 136.9 s (section 3.4).
+  With verification on another machine the proof-only clock is **15.5 tok/s** (from 12.4; section 3.3).
 - **The CPU work per category proof fell by a third: 184.6 → 123.8 CPU-s** (the prover −35%, the verifier
   −29%) [MEASURED].
 - **The receipts did not change, byte for byte.** A new fixed-entropy harness for the Mac (A24 could not run
@@ -243,7 +245,27 @@ clock (the verifier's 32 s startup excluded):
 - With the verifier on its own machine, this Mac's stream is the proof-only figure, 15.5 tok/s; the verifier
   needs no GPU and about 25 CPU-s per category, so one 12-thread verifier keeps up with three such provers.
 
-TBD-APP
+### 3.4 Through the app [MEASURED, `app_a1/summary.json`, `app_a1.out`; single run]
+
+The real app in process (`app_driver.py`: A25's driver with `--binary`), `PM_PROVER=shieldstral-fast` with the
+A26 pin, A24's three phases on one warm service (one guarded gpu-class job: both servers, the writers). Against
+A24's own app run (`results/zk60_a24_app_20261107/app_a2`, measured on 2026-11-07 earlier, a single run, not a
+pair: the A26 app cannot run A24's binary, whose pin it refuses):
+
+| phase | posts | category proofs | A24 app (A24 README) | **A26 app** | change |
+|---|---:|---:|---:|---:|---:|
+| one short public post | 1 | 3 | 70.0 s, 5.49 tok/s | **54.4 s, 7.06 tok/s** | −22% latency |
+| one long public post (3 chunks per category) | 1 | 9 | 174.5 s, 6.60 tok/s | **136.9 s, 8.41 tok/s** | −22% |
+| a stream: 8 short public posts at once | 8 | 24 | 269.3 s, 11.41 tok/s (second half 15.4) | **222.2 s, 13.83 tok/s** (second half 22.6) | +21% |
+
+- All 10 posts published (36 category jobs, 36 accepted, 0 failed); every label "no", `bound_by_proof: true`;
+  every record `shieldstral-fast`, "privacy statement pending", `production: false`, run profile `/2`; each
+  post's signed manifest (3 or 9 entries). The service's heartbeat names the binary `b6336628…`.
+- The service (one guarded job) waited 1,566 s for the heavy lock behind this lane's own measurement job and the
+  Lean lanes, ran 448 s, peaked at 101.0 GiB RSS and 48.3 GB of GPU memory, and stopped cleanly; no other heavy
+  job ran beside it (the guard's history), no `ds4-bench`.
+- The "second half" column is the last four posts of one closed batch (they compete with no new work); the
+  amortized column is the honest stream figure, as in A24's README.
 
 ## 4. Byte preservation
 
