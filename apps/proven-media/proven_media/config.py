@@ -106,18 +106,28 @@ IMAGE_MIME = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "im
 
 
 def prover_mode() -> str:
-    """PM_PROVER=stub (default) | shieldstral (reviewed testnet demo) | fake (no proof)."""
+    """PM_PROVER=stub (default) | shieldstral (reviewed testnet demo) | fake (no proof)
+    | shieldstral-fast (lane A24 development candidate: resident GPU servers; privacy pending)."""
     return os.environ.get("PM_PROVER", "stub")
 
 
+def is_shieldstral_mode(mode: str | None = None) -> bool:
+    """the real Shieldstral classifier modes (reviewed r16b, or the A24 candidate)"""
+    return (mode or prover_mode()) in ('shieldstral', 'shieldstral-fast')
+
+
 def registered_categories():
-    if prover_mode() == 'shieldstral':
+    if is_shieldstral_mode():
         from .shieldstral_runtime import categories
         return categories()
     return CATEGORIES
 
 
 def category_set_id():
+    if prover_mode() == 'shieldstral-fast':
+        # the same registered policies (D61); a separate screening context, so a post screened
+        # in one mode is never finalized by the other
+        return 'shieldstral-moderate-fast-dev-v1'
     return 'shieldstral-moderate-testnet-v1' if prover_mode() == 'shieldstral' else CATEGORY_SET_ID
 
 
@@ -130,7 +140,7 @@ def deploy() -> dict:
     most STUB_MAX_CONTENT_TOKENS content tokens per run, so the configured size is capped there)"""
     import json
 
-    if prover_mode() == 'shieldstral':
+    if is_shieldstral_mode():
         from .shieldstral_runtime import templates
         ts = templates()
         geometry = {t.category: {'chunk_tokens': t.chunk_size, 'overlap_tokens': t.overlap,
@@ -138,7 +148,10 @@ def deploy() -> dict:
         chunk = min(t.chunk_size for t in ts)
         overlap = ts[0].overlap
         maximum = min(t.chunk_size + (t.max_chunks - 1) * (t.chunk_size - t.overlap) for t in ts)
-        return {'profile': 'shieldstral-t128', 'label': 'Shieldstral T128 testnet demo',
+        fast = prover_mode() == 'shieldstral-fast'
+        return {'profile': 'shieldstral-t128-fast' if fast else 'shieldstral-t128',
+                'label': 'Shieldstral T128, resident GPU servers (A24 development candidate)' if fast
+                         else 'Shieldstral T128 testnet demo',
                 'note': 'Registered moderate templates; each category has its own chunk plan.',
                 'chunk_tokens': chunk, 'overlap_tokens': overlap, 'max_chunks': min(t.max_chunks for t in ts),
                 'effective_chunk_tokens': chunk, 'effective_overlap_tokens': overlap,

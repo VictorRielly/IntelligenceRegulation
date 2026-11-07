@@ -210,6 +210,23 @@ The wallet received 0.46 free test ETH and needs no further funding for this dem
 The durable demo's three commitments are confirmed in block 52373745,
 transaction `0x6e6d5166cf17dbaaf03443dddc4d2490ddff90e8bbfd05901ede5222bbac8181`.
 
+## Resident GPU servers (development candidate, lane A24)
+
+`PM_PROVER=shieldstral-fast` is an explicitly selected development candidate, never the
+default. It proves the same registered moderate policies (D61), templates and chunk plans as
+the reviewed mode, with a newer `zk60_classify` build (post-F12 R13 profile `/2`, its own model
+identity) run as two long-lived native servers on the Mac's GPU: `serve` (the prover; the model
+loaded once, several categories proved at once) and `check-serve` (fresh verification in its own
+process, the input-owner check and the category label). One guarded service job holds both; the
+app starts it on demand and it stops after five idle minutes or on `<private>/fast-service/STOP`.
+Up to nine category jobs are in flight at once. Every native output is re-checked by the app with
+the same collectors as the reviewed mode, and the receipts are `prove` receipts that the CLI
+`verify` accepts. Its privacy statement is **pending**: D58 covers the named r16b CPU binary
+only. It is not production (D63). Measurements, the design note and the open issues are in
+`results/zk60_a24_app_20261107/README.md`; the hardware profile is
+`classifier_profiles.shieldstral-mac-fast` in `deploy.json`
+(`PM_PROVER=shieldstral-fast python -m proven_media.hardware_profiles` validates it).
+
 ## Per-job native execution settings
 
 The real classifier pipeline accepts `PM_CLASSIFIER_NATIVE_THREADS=2` (default)
