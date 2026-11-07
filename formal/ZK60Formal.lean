@@ -117,3 +117,9 @@ import ZK60Formal.ExtractW16Slots
 import ZK60Formal.ExtractW16Terminal
 import ZK60Formal.ExtractW16Block
 import ZK60Formal.ExtractW16Open
+import ZK60Formal.RelW16Chain
+import ZK60Formal.RelW16Define
+import ZK60Formal.LookupW16FS
+import ZK60Formal.RelW16Block
+import ZK60Formal.RelW16Host
+import ZK60Formal.RelW16HostDeg

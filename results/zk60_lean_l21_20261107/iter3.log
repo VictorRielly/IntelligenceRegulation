@@ -1,0 +1,31 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/plan.txt ==
+build ZK60Formal.RelW16Host ZK60Formal.RelW16HostDeg ZK60Formal.RelW16Chain ZK60Formal.RelW16Define ZK60Formal.LookupW16FS ZK60Formal.RelW16Block
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/check_l21.sh
+== lake build ZK60Formal.RelW16Host ZK60Formal.RelW16HostDeg ZK60Formal.RelW16Chain ZK60Formal.RelW16Define ZK60Formal.LookupW16FS ZK60Formal.RelW16Block ==
+warning: ZK60Formal/RelW16Define.lean:226:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.defSq_rbr`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/LookupW16FS.lean:219:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.lkSq_rbr`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3465/3466] Building ZK60Formal.RelW16HostDeg (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/ZK60Formal/RelW16HostDeg.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean/ZK60Formal/RelW16HostDeg.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean/ZK60Formal/RelW16HostDeg.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/ir/ZK60Formal/RelW16HostDeg.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/ir/ZK60Formal/RelW16HostDeg.setup.json --json
+error: ZK60Formal/RelW16HostDeg.lean:121:93: Function expected at
+  b
+but this term has type
+  ?m.240
+
+Note: Expected a function because this term is being applied to the argument
+  i
+Some required targets logged failures:
+- ZK60Formal.RelW16HostDeg
+error: build failed
+build rc 1 (18 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/check_l21.sh skipped: an earlier step failed ==
+rc 1, 19 s

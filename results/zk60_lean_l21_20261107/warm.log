@@ -1,0 +1,6 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/plan_warm.txt ==
+build ZK60Formal
+== lake build ZK60Formal ==
+Build completed successfully (3507 jobs).
+build rc 0 (6 s)
+rc 0, 6 s
