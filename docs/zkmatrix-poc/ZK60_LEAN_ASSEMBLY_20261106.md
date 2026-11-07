@@ -1387,9 +1387,13 @@ only points to them.
 | L12, the token stages | `ZK60_LEAN_L12_STAGES_20261107.md` | §4.2: e (IN-C whole; the OUT-C and OUT steps), f (the run's boundary links), g (the endpoints, stated against `opensIn` / `opensOut`). |
 | L10, openings, M and `Binding` | `ZK60_LEAN_L10_OPENINGS_BINDING_20261107.md` | §4.4 `Binding`: `binding_planes_target`, and `binding_classifier_target` for the classifier. §4.2 b: M's opening under Fiat–Shamir is now PROVED on the code chain at ≤ 2^-106, replacing the assumption. The L8-5 transfer (`rbrWide_toCode`). L9's `BlockParams` opening fields. Open: L10-6 (Medium), `fin = f(ρ)`, which is L16's target. |
 | L16, the block's knowledge extraction | running | §4.2 a for one block: L10-6, the claim-to-table map, and `BlockSat` for the extracted planes. |
-| L13, slot builders and composition | running | The proved link from the slot IRs to `W16Rels`. The block's composed ε. |
-| L14, zero knowledge for a block | running | §4.5: a, b, d, e, f for one block receipt. |
-| L15, the whole stages | running | §4.2 e (OUT-C and OUT whole). Their Fiat–Shamir forms. A stage corpus. |
+| L13, slot builders and composition | `ZK60_LEAN_L13_SLOT_BUILD_COMPOSE_20261107.md` | The slot IR builders for all 23 W16R2 slots. Each slot's polynomial is the named clause list (`hostTerms_hostPoly`). Per-slot soundness at ≤ 129/p² ≤ 2^-120. The layout facts at every W16 precision (L11-1 checked). The checker rebuilds all 23 real IRs equal to the code's, 179 checks. Open: the composition on the transcript (an ESTIMATE about 20 bits under εsTarget per query), and the reindexing into `W16Rels`. |
+| L14, zero knowledge for a block | `ZK60_LEAN_L14_ZK_BLOCK_20261107.md` | §4.5 a, d, e and f, carried to `ZeroKnowledge`, generic in the receipt's shape (`ZKShape`). The stand-in simulator (A6). The whole chain is programmed exactly (`aprog_real_ideal`). Within εzkTarget for every q and every R ≤ 2^96 receipts. Open: the honest prover as an `FSModel` and `hHV`'s layout links (L19). L14-1 (Low): δ ≤ 2^-248 is not met (the rate is about 2^-237), so there is no proof for R above 2^96 without a sharper count (L19) or Victor's ruling. |
+| L15, the whole stages | `ZK60_LEAN_L15_STAGES_WHOLE_20261107.md` | §4.2 e. `outc_stage_sound` (about 2^-112.3) and `out_stage_sound` (about 2^-108.1), each the whole stage. `stage_sumchecks_fs_sound`, ≤ 2^-61. The Shieldstral policy and stage parameters as finite checks. The OUT-C corpus, 81 checks. L15-1: IN-C is about 2^-109.0 at V = 2^17. |
+| L17, the block results at R13 | running | The media app's real profile: A25 found that the real model cannot run at W16R2. |
+| L18, the classify run's `Protocol` and assembly | running | §4.0's `P`, the run's Fiat–Shamir schedule, `Complete` (§4.3), and `ProductionReady` with the remaining obligations as named premises. |
+| L19, the zero-knowledge links and the sharper count | running | §4.5 b (`hHV`'s links). L14-1's fix (a), to remove the cap R ≤ 2^96. |
 
-Still open after these: the run level (the D55 tree, §4.2 a's composed knowledge version), the `Protocol` instance and
-`Complete` (§4.3), the assembly into `ProductionReady`, and W16R3's delta.
+Still open after these: the run level (§4.2 a's composed knowledge version, on the D12a frame for the classifier and on the
+D55 tree for the 8B stack), the honest prover as an `FSModel`, and W16R3's delta. W16R3 also has to handle per-layer plane
+lists (A25).
