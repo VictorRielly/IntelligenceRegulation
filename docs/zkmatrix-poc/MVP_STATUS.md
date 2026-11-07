@@ -355,13 +355,27 @@ here. The rates count proving and witness work. Verification time is recorded se
   - **L15, the token stages whole.** The verdict stage OUT-C (about 2^-112) and the next-token stage OUT (about 2^-108)
     are each proved as one theorem. Their sumchecks are ≤ 2^-61 under Fiat–Shamir. The registered Shieldstral policies'
     parameters are checked.
+  - **L17, the block results at R13, the media app's real profile.**
+    - The decoder (including the classify run's D12a segment frame), the block's Fiat–Shamir bound (≤ 2^-61), the
+      openings at rate 1/4, `Binding` and the layout map all hold at R13. Every bound meets its target.
+    - All 26 real Shieldstral layer calibrations pass R13's check, with a constant plane list (proved).
+    - Checked on real R13 receipts: 408, 302 and 35 checks, 0 failed.
+  - **L16 and L20, the block's knowledge statement.**
+    - For any block shape: an accepted block yields extracted planes that satisfy the block's constraints, except with
+      probability ≤ εsTarget for every q.
+    - L20's per-position count brought the constant term from 2^-82.6 to 2^-104.2.
+    - Premises left: two deterministic code-to-model links (lane L22), and the slot relations plus LogUp within a
+      budget (lane L21).
   - **Running:**
-    - L16, the block's knowledge extraction (L10-6);
-    - L17, the block results at R13, the app's real profile;
     - L18, the classify run's `Protocol` and the top-level `ProductionReady` with the remaining premises named;
-    - L19, zero knowledge's links and the sharper count.
-  - **Still open before production:** the run level (the D55 tree), the extractor end to end, the `Protocol` instance
-    and its assembly into `ProductionReady`, and then W16R3's delta.
+    - L19, zero knowledge's links and the sharper count;
+    - L21, the slot relations and LogUp under Fiat–Shamir;
+    - L22, the openings' deterministic links (hexec, hsem) and the extraction-failure instance.
+  - **Still open before production:**
+    - the run level: the D12a frame for the classifier, the D55 tree for the 8B stack;
+    - the honest prover as a Lean model;
+    - the `Protocol` instance and its assembly into `ProductionReady` (L18);
+    - then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
     (TinyLlama, and Llama-3-8B at T32 and T128), not for W16R2.
