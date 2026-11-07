@@ -1,0 +1,922 @@
+== lake build ZK60Formal.SlotW16BuildSlots ZK60Formal.SlotW16BuildLayout ZK60Formal.SlotW16Compose ==
+warning: ZK60Formal/SlotW16BuildEval.lean:77:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Slot.Build.logupGo_len`:
+  [CommRing R]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [CommRing R] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/SlotW16BuildEval.lean:98:62: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [logupGo, nodeVals, denB, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal,
+    st, fval, List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len,
+    getD_len_add, List.getD_cons_succ, List.getD_cons_zero, logupSem, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:120:62: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, denB, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal, st, fval,
+    List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len, getD_len_add,
+    List.getD_cons_succ, List.getD_cons_zero, logupSem, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:124:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Slot.Build.padGo_len`:
+  [CommRing R]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [CommRing R] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/SlotW16BuildEval.lean:155:56: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal, st, fval,
+    List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len, getD_len_add,
+    List.getD_cons_succ, List.getD_cons_zero, padSem, List.map_map, Function.comp_def]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+✖ [3402/3403] Building ZK60Formal.SlotW16BuildSlots (3.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/ZK60Formal/SlotW16BuildSlots.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean/ZK60Formal/SlotW16BuildSlots.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean/ZK60Formal/SlotW16BuildSlots.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/ir/ZK60Formal/SlotW16BuildSlots.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/ir/ZK60Formal/SlotW16BuildSlots.setup.json --json
+warning: ZK60Formal/SlotW16BuildSlots.lean:106:82: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, bodyVal_limbs16 c hc, bodyVal_req c hc, List.append_assoc, List.cons_append,
+    List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, reqV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:126:65: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:126:65: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:131:84: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:139:68: Unused tactic linter: `ring` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:139:68: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+info: ZK60Formal/SlotW16BuildSlots.lean:183:60: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/SlotW16BuildSlots.lean:177:62: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : DzcR
+K : DzcK
+lks : List (LkD R)
+mu nu : List R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (dzcPre c Rr K mu) [] ++ t
+hnv :
+  nodeVals v
+      (zcIr c (dzcPre c Rr K mu) lks Rr.h0 (fun k => mu.getD (6 + k) c.zero) []
+          (mu.getD (6 + (lks.length + 1) / 2) c.zero) zp groups [gatedSt c Rr.gate 10] (dzcPost c Rr K) fun o =>
+          threeTerms c (Rr.tau, Rr.pa, Rr.pz) Rr.gate o nu (o + 2) (o + 4)).nodes
+      [] =
+    nodeVals v (dzcPost c Rr K (A.length + 1))
+      (A ++
+        [logupSem c v Rr.h0 (fun k => mu.getD (6 + k) c.zero) 0 lks + (List.map (stVal v A) []).sum +
+              padSem c v (mu.getD (6 + (lks.length + 1) / 2) c.zero) zp 0 groups +
+            (List.map (stVal v A) [gatedSt c Rr.gate 10]).sum])
+ht :
+  (zcIr c (dzcPre c Rr K mu) lks Rr.h0 (fun k => mu.getD (6 + k) c.zero) [] (mu.getD (6 + (lks.length + 1) / 2) c.zero)
+        zp groups [gatedSt c Rr.gate 10] (dzcPost c Rr K) fun o =>
+        threeTerms c (Rr.tau, Rr.pa, Rr.pz) Rr.gate o nu (o + 2) (o + 4)).terms =
+    threeTerms c (Rr.tau, Rr.pa, Rr.pz) Rr.gate A.length nu (A.length + 2) (A.length + 4)
+⊢ ((((mu.getD 0 0 * c.base K.num * v.getD Rr.ig 0 * v.getD Rr.x 0 + mu.getD 0 0 * c.base K.dv * v.getD Rr.id 0 +
+                                            mu.getD 0 0 * v.getD Rr.id 0 * c.base (-K.den) * v.getD Rr.y 0 -
+                                          mu.getD 0 0 *
+                                            match limbs16B c Rr.nr with
+                                            | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                            | Body.sum ss =>
+                                              (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod)
+                                                  ss).sum) -
+                                        v.getD Rr.x 0 * mu.getD 2 0 +
+                                      c.base K.dv * mu.getD 3 0 * v.getD Rr.idm 0 +
+                                    v.getD Rr.id 0 * c.base (-K.den) * mu.getD 1 0 +
+                                  c.base (-K.den) * mu.getD 3 0 * v.getD Rr.idm 0 * v.getD Rr.ym 0 +
+                                c.base (-K.den) * v.getD Rr.idm 0 * mu.getD 4 0 +
+                              (match limbs16B c Rr.nr with
+                                | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                | Body.sum ss =>
+                                  (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod) ss).sum) *
+                                mu.getD 1 0 +
+                            mu.getD 1 0 +
+                          mu.getD 1 0 *
+                            match limbs16B c Rr.ns with
+                            | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                            | Body.sum ss =>
+                              (List.map
+                                  (fun s =>
+                                    s.coef *
+                                      (List.map
+                                          (fval v
+                                            [match limbs16B c Rr.nr with
+                                              | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                              | Body.sum ss =>
+                                                (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod)
+                                                    ss).sum])
+                                          s.factors).prod)
+                                  ss).sum) +
+                        mu.getD 2 0 * v.getD Rr.x1 0 -
+                      mu.getD 2 0 * v.getD Rr.ao 0 +
+                    v.getD Rr.x1 0 * mu.getD 3 0 * c.base K.numM * v.getD Rr.igm 0 -
+                  v.getD Rr.x1 0 * mu.getD 5 0 -
+                mu.getD 3 0 *
+                  match limbs16B c Rr.mr with
+                  | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                  | Body.sum ss =>
+                    (List.map
+                        (fun s =>
+                          s.coef *
+                            (List.map
+                                (fval v
+                                  [match limbs16B c Rr.nr with
+                                    | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                    | Body.sum ss =>
+                                      (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod) ss).sum,
+                                    match limbs16B c Rr.ns with
+                                    | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                    | Body.sum ss =>
+                                      (List.map
+                                          (fun s =>
+                                            s.coef *
+                                              (List.map
+                                                  (fval v
+                                                    [match limbs16B c Rr.nr with
+                                                      | Body.affine k ts =>
+                                                        k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                                      | Body.sum ss =>
+                                                        (List.map
+                                                            (fun s => s.coef * (List.map (fval v []) s.factors).prod)
+                                                            ss).sum])
+                                                  s.factors).prod)
+                                          ss).sum])
+                                s.factors).prod)
+                        ss).sum) +
+              (match limbs16B c Rr.mr with
+                | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                | Body.sum ss =>
+                  (List.map
+                      (fun s =>
+                        s.coef *
+                          (List.map
+                              (fval v
+                                [match limbs16B c Rr.nr with
+                                  | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                  | Body.sum ss =>
+                                    (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod) ss).sum,
+                                  match limbs16B c Rr.ns with
+                                  | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                  | Body.sum ss =>
+                                    (List.map
+                                        (fun s =>
+                                          s.coef *
+                                            (List.map
+                                                (fval v
+                                                  [match limbs16B c Rr.nr with
+                                                    | Body.affine k ts =>
+                                                      k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                                    | Body.sum ss =>
+                                                      (List.map
+                                                          (fun s => s.coef * (List.map (fval v []) s.factors).prod)
+                                                          ss).sum])
+                                                s.factors).prod)
+                                        ss).sum])
+                              s.factors).prod)
+                      ss).sum) *
+                mu.getD 4 0 +
+            mu.getD 4 0 +
+          mu.getD 4 0 *
+            match limbs16B c Rr.ms with
+            | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+            | Body.sum ss =>
+              (List.map
+                  (fun s =>
+                    s.coef *
+                      (List.map
+                          (fval v
+                            [match limbs16B c Rr.nr with
+                              | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                              | Body.sum ss =>
+                                (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod) ss).sum,
+                              match limbs16B c Rr.ns with
+                              | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                              | Body.sum ss =>
+                                (List.map
+                                    (fun s =>
+                                      s.coef *
+                                        (List.map
+                                            (fval v
+                                              [match limbs16B c Rr.nr with
+                                                | Body.affine k ts =>
+                                                  k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                                | Body.sum ss =>
+                                                  (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod)
+                                                      ss).sum])
+                                            s.factors).prod)
+                                    ss).sum,
+                              match limbs16B c Rr.mr with
+                              | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                              | Body.sum ss =>
+                                (List.map
+                                    (fun s =>
+                                      s.coef *
+                                        (List.map
+                                            (fval v
+                                              [match limbs16B c Rr.nr with
+                                                | Body.affine k ts =>
+                                                  k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                                | Body.sum ss =>
+                                                  (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod)
+                                                      ss).sum,
+                                                match limbs16B c Rr.ns with
+                                                | Body.affine k ts =>
+                                                  k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                                | Body.sum ss =>
+                                                  (List.map
+                                                      (fun s =>
+                                                        s.coef *
+                                                          (List.map
+                                                              (fval v
+                                                                [match limbs16B c Rr.nr with
+                                                                  | Body.affine k ts =>
+                                                                    k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                                                                  | Body.sum ss =>
+                                                                    (List.map
+                                                                        (fun s =>
+                                                                          s.coef *
+                                                                            (List.map (fval v []) s.factors).prod)
+                                                                        ss).sum])
+                                                              s.factors).prod)
+                                                      ss).sum])
+                                            s.factors).prod)
+                                    ss).sum])
+                          s.factors).prod)
+                  ss).sum) +
+        mu.getD 5 0 * v.getD Rr.x2 0 -
+      mu.getD 5 0 * v.getD Rr.z 0 =
+    mu.getD 0 0 * c.base K.num * v.getD Rr.ig 0 * v.getD Rr.x 0 + mu.getD 0 0 * c.base K.dv * v.getD Rr.id 0 +
+                                            mu.getD 0 0 * v.getD Rr.id 0 * c.base (-K.den) * v.getD Rr.y 0 -
+                                          mu.getD 0 0 * L16 c v Rr.nr -
+                                        v.getD Rr.x 0 * mu.getD 2 0 +
+                                      c.base K.dv * mu.getD 3 0 * v.getD Rr.idm 0 +
+                                    v.getD Rr.id 0 * c.base (-K.den) * mu.getD 1 0 +
+                                  c.base (-K.den) * mu.getD 3 0 * v.getD Rr.idm 0 * v.getD Rr.ym 0 +
+                                c.base (-K.den) * v.getD Rr.idm 0 * mu.getD 4 0 +
+                              mu.getD 1 0 +
+                            mu.getD 1 0 * L16 c v Rr.nr +
+                          mu.getD 1 0 * L16 c v Rr.ns +
+                        mu.getD 2 0 * v.getD Rr.x1 0 -
+                      mu.getD 2 0 * v.getD Rr.ao 0 +
+                    v.getD Rr.x1 0 * mu.getD 3 0 * c.base K.numM * v.getD Rr.igm 0 -
+                  v.getD Rr.x1 0 * mu.getD 5 0 -
+                mu.getD 3 0 * L16 c v Rr.mr +
+              mu.getD 4 0 +
+            mu.getD 4 0 * L16 c v Rr.mr +
+          mu.getD 4 0 * L16 c v Rr.ms +
+        mu.getD 5 0 * v.getD Rr.x2 0 -
+      mu.getD 5 0 * v.getD Rr.z 0
+warning: ZK60Formal/SlotW16BuildSlots.lean:180:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [dzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, dzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:180:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [dzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, dzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:181:50: This simp argument is unused:
+  bodyVal_limbs16 c hc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [dzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, dzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+info: ZK60Formal/SlotW16BuildSlots.lean:237:60: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/SlotW16BuildSlots.lean:231:60: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : FzcR
+K : FzcK
+lks : List (LkD R)
+mu nu : List R
+amqK nb nb2 : R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (fzcPre c Rr K mu amqK nb nb2) [] ++ t
+hnv :
+  nodeVals v
+      (zcIr c (fzcPre c Rr K mu amqK nb nb2) lks Rr.h0 (fun k => mu.getD (2 + k) c.zero)
+          [st (mu.getD 1 c.zero) [Factor.node 3]] (mu.getD (2 + (lks.length + 1) / 2) c.zero) zp groups
+          [gatedSt c Rr.gate 4] (fzcPost c Rr K) fun o =>
+          threeTerms c (Rr.tau, Rr.pg, Rr.pu) Rr.gate o nu (o + 2) (o + 4)).nodes
+      [] =
+    nodeVals v (fzcPost c Rr K (A.length + 1))
+      (A ++
+        [logupSem c v Rr.h0 (fun k => mu.getD (2 + k) c.zero) 0 lks +
+                (List.map (stVal v A) [st (mu.getD 1 c.zero) [Factor.node 3]]).sum +
+              padSem c v (mu.getD (2 + (lks.length + 1) / 2) c.zero) zp 0 groups +
+            (List.map (stVal v A) [gatedSt c Rr.gate 4]).sum])
+ht :
+  (zcIr c (fzcPre c Rr K mu amqK nb nb2) lks Rr.h0 (fun k => mu.getD (2 + k) c.zero)
+        [st (mu.getD 1 c.zero) [Factor.node 3]] (mu.getD (2 + (lks.length + 1) / 2) c.zero) zp groups
+        [gatedSt c Rr.gate 4] (fzcPost c Rr K) fun o =>
+        threeTerms c (Rr.tau, Rr.pg, Rr.pu) Rr.gate o nu (o + 2) (o + 4)).terms =
+    threeTerms c (Rr.tau, Rr.pg, Rr.pu) Rr.gate A.length nu (A.length + 2) (A.length + 4)
+hlen : (nodeVals v (fzcPre c Rr K mu amqK nb nb2) []).length = 5
+h3 : A.getD 3 0 = fzcAct v Rr amqK nb nb2
+⊢ (mu.getD 0 0 * v.getD Rr.a 0 * v.getD Rr.u 0 + mu.getD 0 0 * c.base (-2 ^ K.r) * v.getD Rr.h 0 -
+        mu.getD 0 0 *
+          match limbs16B c Rr.rh with
+          | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+          | Body.sum ss => (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod) ss).sum) +
+      mu.getD 0 0 * c.base (2 ^ (K.r - 1)) =
+    mu.getD 0 0 * v.getD Rr.a 0 * v.getD Rr.u 0 + mu.getD 0 0 * c.base (-2 ^ K.r) * v.getD Rr.h 0 +
+        mu.getD 0 0 * c.base (2 ^ (K.r - 1)) -
+      mu.getD 0 0 * L16 c v Rr.rh
+warning: ZK60Formal/SlotW16BuildSlots.lean:222:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, fzcAct, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:222:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, fzcAct, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:223:50: This simp argument is unused:
+  bodyVal_limbs16 c hc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, fzcAct, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:234:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, fzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:234:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, fzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:235:50: This simp argument is unused:
+  bodyVal_limbs16 c hc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [fzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, fzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:248:103: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [stVal, st, fval, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one, h3]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+info: ZK60Formal/SlotW16BuildSlots.lean:274:60: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/SlotW16BuildSlots.lean:268:60: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : QzcR
+K : QzcK
+lks : List (LkD R)
+mu nu : List R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (qzcPre c Rr K mu) [] ++ t
+hnv :
+  nodeVals v
+      (zcIr c (qzcPre c Rr K mu) lks Rr.h0 (fun k => mu.getD (1 + k) c.zero) []
+          (mu.getD (1 + (lks.length + 1) / 2) c.zero) zp groups [gatedSt c Rr.gate 2] (qzcPost c Rr K) fun o =>
+          threeTerms c (Rr.tau, Rr.p1, Rr.p2) Rr.gate o nu (o + 2) (o + 4)).nodes
+      [] =
+    nodeVals v (qzcPost c Rr K (A.length + 1))
+      (A ++
+        [logupSem c v Rr.h0 (fun k => mu.getD (1 + k) c.zero) 0 lks + (List.map (stVal v A) []).sum +
+              padSem c v (mu.getD (1 + (lks.length + 1) / 2) c.zero) zp 0 groups +
+            (List.map (stVal v A) [gatedSt c Rr.gate 2]).sum])
+ht :
+  (zcIr c (qzcPre c Rr K mu) lks Rr.h0 (fun k => mu.getD (1 + k) c.zero) [] (mu.getD (1 + (lks.length + 1) / 2) c.zero)
+        zp groups [gatedSt c Rr.gate 2] (qzcPost c Rr K) fun o =>
+        threeTerms c (Rr.tau, Rr.p1, Rr.p2) Rr.gate o nu (o + 2) (o + 4)).terms =
+    threeTerms c (Rr.tau, Rr.p1, Rr.p2) Rr.gate A.length nu (A.length + 2) (A.length + 4)
+⊢ (mu.getD 0 0 * v.getD Rr.cos 0 * v.getD Rr.src 0 + mu.getD 0 0 * v.getD Rr.sin 0 * v.getD Rr.flip 0 +
+          mu.getD 0 0 * c.base (-2 ^ K.rope) * v.getD Rr.rot 0 -
+        mu.getD 0 0 *
+          match limbs16B c Rr.rr with
+          | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+          | Body.sum ss => (List.map (fun s => s.coef * (List.map (fval v []) s.factors).prod) ss).sum) +
+      mu.getD 0 0 * c.base (2 ^ (K.rope - 1)) =
+    mu.getD 0 0 * v.getD Rr.cos 0 * v.getD Rr.src 0 + mu.getD 0 0 * v.getD Rr.sin 0 * v.getD Rr.flip 0 +
+          mu.getD 0 0 * c.base (-2 ^ K.rope) * v.getD Rr.rot 0 +
+        mu.getD 0 0 * c.base (2 ^ (K.rope - 1)) -
+      mu.getD 0 0 * L16 c v Rr.rr
+warning: ZK60Formal/SlotW16BuildSlots.lean:271:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [qzcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, qzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:271:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [qzcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, qzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:272:50: This simp argument is unused:
+  bodyVal_limbs16 c hc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [qzcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, qzcClauses, hc.one,
+    hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+info: ZK60Formal/SlotW16BuildSlots.lean:337:70: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/SlotW16BuildSlots.lean:331:60: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : SzcR
+K : SzcK
+lks : List (LkD R)
+mu nu : List R
+amdK nb lam : R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (szcPre c Rr K mu amdK nb) [] ++ t
+hnv :
+  nodeVals v
+      (zcIr c (szcPre c Rr K mu amdK nb) lks Rr.h0 (fun k => mu.getD (4 + k) c.zero)
+          [st (mu.getD (4 + (lks.length + 1) / 2) c.zero) [Factor.node 8]] (mu.getD (5 + (lks.length + 1) / 2) c.zero)
+          zp groups [gatedSt c Rr.gS 9] (szcPost c Rr K lam) fun o =>
+          [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node o] },
+            { coef := nu.getD 0 c.zero, wrapper := Rr.pht :: Rr.gHt.toList, inner := [Factor.node (o + 1)] },
+            { coef := nu.getD 1 c.zero, wrapper := Rr.ps :: Rr.gS.toList, inner := [Factor.node (o + 3)] }]).nodes
+      [] =
+    nodeVals v (szcPost c Rr K lam (A.length + 1))
+      (A ++
+        [logupSem c v Rr.h0 (fun k => mu.getD (4 + k) c.zero) 0 lks +
+                (List.map (stVal v A) [st (mu.getD (4 + (lks.length + 1) / 2) c.zero) [Factor.node 8]]).sum +
+              padSem c v (mu.getD (5 + (lks.length + 1) / 2) c.zero) zp 0 groups +
+            (List.map (stVal v A) [gatedSt c Rr.gS 9]).sum])
+ht :
+  (zcIr c (szcPre c Rr K mu amdK nb) lks Rr.h0 (fun k => mu.getD (4 + k) c.zero)
+        [st (mu.getD (4 + (lks.length + 1) / 2) c.zero) [Factor.node 8]] (mu.getD (5 + (lks.length + 1) / 2) c.zero) zp
+        groups [gatedSt c Rr.gS 9] (szcPost c Rr K lam) fun o =>
+        [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node o] },
+          { coef := nu.getD 0 c.zero, wrapper := Rr.pht :: Rr.gHt.toList, inner := [Factor.node (o + 1)] },
+          { coef := nu.getD 1 c.zero, wrapper := Rr.ps :: Rr.gS.toList, inner := [Factor.node (o + 3)] }]).terms =
+    [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node A.length] },
+      { coef := nu.getD 0 c.zero, wrapper := Rr.pht :: Rr.gHt.toList, inner := [Factor.node (A.length + 1)] },
+      { coef := nu.getD 1 c.zero, wrapper := Rr.ps :: Rr.gS.toList, inner := [Factor.node (A.length + 3)] }]
+hlen : (nodeVals v (szcPre c Rr K mu amdK nb) []).length = 10
+h8 : A.getD 8 0 = szcExp c Rr K v amdK nb
+⊢ ((-(mu.getD 0 0 * v.getD Rr.zsel 0) + mu.getD 0 0 * v.getD Rr.zsel 0 ^ 2 +
+                          v.getD Rr.zsel 0 * mu.getD 1 0 * v.getD Rr.mx 0 -
+                        v.getD Rr.zsel 0 * mu.getD 1 0 * v.getD Rr.mask 0 * v.getD Rr.s8 0 +
+                      v.getD Rr.zsel 0 * mu.getD 1 0 * v.getD Rr.mask 0 * c.base (-K.ms) +
+                    v.getD Rr.zsel 0 * mu.getD 1 0 * c.base K.ms +
+                  v.getD Rr.mask 0 * mu.getD 2 0 * c.base (2 ^ K.fp) * v.getD Rr.e 0 -
+                mu.getD 2 0 * v.getD Rr.p 0 * v.getD Rr.sum 0 -
+              mu.getD 2 0 *
+                match limbs16B c Rr.sr with
+                | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                | Body.sum ss =>
+                  (List.map
+                      (fun s =>
+                        s.coef *
+                          (List.map
+                              (fval v
+                                [v.getD Rr.mx 0 - v.getD Rr.mask 0 * v.getD Rr.s8 0 +
+                                      v.getD Rr.mask 0 * c.base (-K.ms) +
+                                    c.base K.ms])
+                              s.factors).prod)
+                      ss).sum) -
+            v.getD Rr.sum 0 * mu.getD 3 0 +
+          (match limbs16B c Rr.sr with
+            | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+            | Body.sum ss =>
+              (List.map
+                  (fun s =>
+                    s.coef *
+                      (List.map
+                          (fval v
+                            [v.getD Rr.mx 0 - v.getD Rr.mask 0 * v.getD Rr.s8 0 + v.getD Rr.mask 0 * c.base (-K.ms) +
+                                c.base K.ms])
+                          s.factors).prod)
+                  ss).sum) *
+            mu.getD 3 0 +
+        mu.getD 3 0 +
+      mu.getD 3 0 *
+        match limbs16B c Rr.sg with
+        | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+        | Body.sum ss =>
+          (List.map
+              (fun s =>
+                s.coef *
+                  (List.map
+                      (fval v
+                        [v.getD Rr.mx 0 - v.getD Rr.mask 0 * v.getD Rr.s8 0 + v.getD Rr.mask 0 * c.base (-K.ms) +
+                            c.base K.ms,
+                          match limbs16B c Rr.sr with
+                          | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                          | Body.sum ss =>
+                            (List.map
+                                (fun s =>
+                                  s.coef *
+                                    (List.map
+                                        (fval v
+                                          [v.getD Rr.mx 0 - v.getD Rr.mask 0 * v.getD Rr.s8 0 +
+                                                v.getD Rr.mask 0 * c.base (-K.ms) +
+                                              c.base K.ms])
+                                        s.factors).prod)
+                                ss).sum])
+                      s.factors).prod)
+              ss).sum) =
+    -(mu.getD 0 0 * v.getD Rr.zsel 0) + mu.getD 0 0 * v.getD Rr.zsel 0 ^ 2 +
+                          v.getD Rr.zsel 0 * mu.getD 1 0 * v.getD Rr.mx 0 -
+                        v.getD Rr.zsel 0 * mu.getD 1 0 * v.getD Rr.mask 0 * v.getD Rr.s8 0 +
+                      v.getD Rr.zsel 0 * mu.getD 1 0 * v.getD Rr.mask 0 * c.base (-K.ms) +
+                    v.getD Rr.zsel 0 * mu.getD 1 0 * c.base K.ms +
+                  v.getD Rr.mask 0 * mu.getD 2 0 * c.base (2 ^ K.fp) * v.getD Rr.e 0 -
+                mu.getD 2 0 * v.getD Rr.p 0 * v.getD Rr.sum 0 -
+              mu.getD 2 0 * L16 c v Rr.sr -
+            v.getD Rr.sum 0 * mu.getD 3 0 +
+          mu.getD 3 0 +
+        mu.getD 3 0 * L16 c v Rr.sr +
+      mu.getD 3 0 * L16 c v Rr.sg
+error: ZK60Formal/SlotW16BuildSlots.lean:344:90: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : SzcR
+K : SzcK
+lks : List (LkD R)
+mu nu : List R
+amdK nb lam : R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (szcPre c Rr K mu amdK nb) [] ++ t
+hnv :
+  nodeVals v
+      (zcIr c (szcPre c Rr K mu amdK nb) lks Rr.h0 (fun k => mu.getD (4 + k) c.zero)
+          [st (mu.getD (4 + (lks.length + 1) / 2) c.zero) [Factor.node 8]] (mu.getD (5 + (lks.length + 1) / 2) c.zero)
+          zp groups [gatedSt c Rr.gS 9] (szcPost c Rr K lam) fun o =>
+          [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node o] },
+            { coef := nu.getD 0 c.zero, wrapper := Rr.pht :: Rr.gHt.toList, inner := [Factor.node (o + 1)] },
+            { coef := nu.getD 1 c.zero, wrapper := Rr.ps :: Rr.gS.toList, inner := [Factor.node (o + 3)] }]).nodes
+      [] =
+    nodeVals v (szcPost c Rr K lam (A.length + 1))
+      (A ++
+        [logupSem c v Rr.h0 (fun k => mu.getD (4 + k) c.zero) 0 lks +
+                (List.map (stVal v A) [st (mu.getD (4 + (lks.length + 1) / 2) c.zero) [Factor.node 8]]).sum +
+              padSem c v (mu.getD (5 + (lks.length + 1) / 2) c.zero) zp 0 groups +
+            (List.map (stVal v A) [gatedSt c Rr.gS 9]).sum])
+ht :
+  (zcIr c (szcPre c Rr K mu amdK nb) lks Rr.h0 (fun k => mu.getD (4 + k) c.zero)
+        [st (mu.getD (4 + (lks.length + 1) / 2) c.zero) [Factor.node 8]] (mu.getD (5 + (lks.length + 1) / 2) c.zero) zp
+        groups [gatedSt c Rr.gS 9] (szcPost c Rr K lam) fun o =>
+        [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node o] },
+          { coef := nu.getD 0 c.zero, wrapper := Rr.pht :: Rr.gHt.toList, inner := [Factor.node (o + 1)] },
+          { coef := nu.getD 1 c.zero, wrapper := Rr.ps :: Rr.gS.toList, inner := [Factor.node (o + 3)] }]).terms =
+    [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node A.length] },
+      { coef := nu.getD 0 c.zero, wrapper := Rr.pht :: Rr.gHt.toList, inner := [Factor.node (A.length + 1)] },
+      { coef := nu.getD 1 c.zero, wrapper := Rr.ps :: Rr.gS.toList, inner := [Factor.node (A.length + 3)] }]
+hlen : (nodeVals v (szcPre c Rr K mu amdK nb) []).length = 10
+h8 : A.getD 8 0 = szcExp c Rr K v amdK nb
+h9 : A.getD 9 0 = batchV mu (szcClauses c Rr K v)
+z : R
+⊢ A ++
+      [z, v.getD Rr.sum 0 + lam,
+        match limbs16B c Rr.rsl with
+        | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+        | Body.sum ss =>
+          (List.map (fun s => s.coef * (List.map (fval v (A ++ [z, v.getD Rr.sum 0 + lam])) s.factors).prod) ss).sum,
+        match reqB c K.score Rr.s8 (A.length + (1 + 1)) with
+        | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+        | Body.sum ss =>
+          (List.map
+              (fun s =>
+                s.coef *
+                  (List.map
+                      (fval v
+                        (A ++
+                          [z, v.getD Rr.sum 0 + lam,
+                            match limbs16B c Rr.rsl with
+                            | Body.affine k ts => k + (List.map (fun p => p.1 * v.getD p.2 0) ts).sum
+                            | Body.sum ss =>
+                              (List.map
+                                  (fun s =>
+                                    s.coef * (List.map (fval v (A ++ [z, v.getD Rr.sum 0 + lam])) s.factors).prod)
+                                  ss).sum]))
+                      s.factors).prod)
+              ss).sum] =
+    A ++
+      [z, v.getD Rr.sum 0 + lam, L16 c v Rr.rsl,
+        c.base (2 ^ K.score) * v.getD Rr.s8 0 + L16 c v Rr.rsl + c.base (-2 ^ (K.score - 1))]
+warning: ZK60Formal/SlotW16BuildSlots.lean:322:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, szcExp, szcDelta, hc.one, hc.negOne,
+    hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:322:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, szcExp, szcDelta, hc.one, hc.negOne,
+    hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:323:50: This simp argument is unused:
+  bodyVal_limbs16 c hc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, szcExp, szcDelta, hc.one, hc.negOne,
+    hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:334:53: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.singleton_append, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, szcClauses, szcDelta,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:334:72: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.cons_append, List.getD_cons_succ,
+    List.getD_cons_zero, bodyVal_limbs16 c hc, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, szcClauses, szcDelta,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:335:50: This simp argument is unused:
+  bodyVal_limbs16 c hc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPre, nodeVals, List.nil_append, List.append_assoc, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal, batchB, st, fval, List.map_cons, List.map_nil, List.sum_cons,
+    List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons, List.zipIdx_nil, batchV, szcClauses, szcDelta,
+    hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:346:34: This simp argument is unused:
+  bodyVal_limbs16 c hc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPost, nodeVals, bodyVal_req c hc, List.append_assoc, List.singleton_append, List.cons_append,
+    List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, reqV, bodyVal, st,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, fval, hc.one, mul_one,
+    one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:346:56: This simp argument is unused:
+  bodyVal_req c hc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPost, nodeVals, bodyVal_limbs16 c hc, List.append_assoc, List.singleton_append,
+    List.cons_append, List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, reqV,
+    bodyVal, st, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, fval, hc.one,
+    mul_one, one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:346:93: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPost, nodeVals, bodyVal_limbs16 c hc, bodyVal_req c hc, List.append_assoc, List.cons_append,
+    List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, reqV, bodyVal, st,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, fval, hc.one, mul_one,
+    one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:347:56: This simp argument is unused:
+  getD_len_add
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPost, nodeVals, bodyVal_limbs16 c hc, bodyVal_req c hc, List.append_assoc,
+    List.singleton_append, List.cons_append, List.nil_append, Nat.add_assoc, List.getD_cons_succ, List.getD_cons_zero,
+    reqV, bodyVal, st, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, fval,
+    hc.one, mul_one, one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:347:70: This simp argument is unused:
+  List.getD_cons_succ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPost, nodeVals, bodyVal_limbs16 c hc, bodyVal_req c hc, List.append_assoc,
+    List.singleton_append, List.cons_append, List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_zero, reqV,
+    bodyVal, st, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, fval, hc.one,
+    mul_one, one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:347:91: This simp argument is unused:
+  List.getD_cons_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [szcPost, nodeVals, bodyVal_limbs16 c hc, bodyVal_req c hc, List.append_assoc,
+    List.singleton_append, List.cons_append, List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ, reqV,
+    bodyVal, st, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, fval, hc.one,
+    mul_one, one_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:353:103: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [stVal, st, fval, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one, h8]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:354:42: This simp argument is unused:
+  List.sum_cons
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.map_cons, List.map_nil, List.sum_nil, termVal, fval, getD_len, getD_len_add,
+    List.getD_cons_zero, List.getD_cons_succ, List.prod_cons, List.prod_nil, hc.one, hc.zero, hostTerms]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:354:57: This simp argument is unused:
+  List.sum_nil
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.map_cons, List.map_nil, List.sum_cons, termVal, fval, getD_len, getD_len_add,
+    List.getD_cons_zero, List.getD_cons_succ, List.prod_cons, List.prod_nil, hc.one, hc.zero, hostTerms]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildSlots.lean:355:85: This simp argument is unused:
+  hc.zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, termVal, fval, getD_len, getD_len_add,
+    List.getD_cons_zero, List.getD_cons_succ, List.prod_cons, List.prod_nil, hc.one, hostTerms]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/SlotW16BuildSlots.lean:393:98: unsolved goals
+R : Type
+inst✝ : CommRing R
+c : Cst R
+hc : c.Std
+v : List R
+Rr : TzcR
+ceps : ℤ
+mu nu : List R
+zp : ℕ → R
+groups : List (ℕ × List ℕ)
+A t : List R
+hAt : A = nodeVals v (tzcPre c Rr) [] ++ t
+hnv :
+  nodeVals v
+      (zcIr c (tzcPre c Rr) [] 0 (fun x => c.zero)
+          (List.map (fun k => st (mu.getD k c.zero) [Factor.node (6 + k)]) (List.range 6)) (mu.getD 6 c.zero) zp groups
+          [] (tzcPost c Rr ceps) fun o =>
+          [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node o] },
+            { coef := nu.getD 0 c.zero, wrapper := Rr.rt :: Rr.gate.toList, inner := [Factor.node (o + 1)] },
+            { coef := nu.getD 1 c.zero, wrapper := Rr.rt2 :: Rr.gate.toList, inner := [Factor.node (o + 2)] }]).nodes
+      [] =
+    nodeVals v (tzcPost c Rr ceps (A.length + 1))
+      (A ++
+        [logupSem c v 0 (fun x => c.zero) 0 [] +
+                (List.map (stVal v A)
+                    (List.map (fun k => st (mu.getD k c.zero) [Factor.node (6 + k)]) (List.range 6))).sum +
+              padSem c v (mu.getD 6 c.zero) zp 0 groups +
+            (List.map (stVal v A) []).sum])
+ht :
+  (zcIr c (tzcPre c Rr) [] 0 (fun x => c.zero)
+        (List.map (fun k => st (mu.getD k c.zero) [Factor.node (6 + k)]) (List.range 6)) (mu.getD 6 c.zero) zp groups []
+        (tzcPost c Rr ceps) fun o =>
+        [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node o] },
+          { coef := nu.getD 0 c.zero, wrapper := Rr.rt :: Rr.gate.toList, inner := [Factor.node (o + 1)] },
+          { coef := nu.getD 1 c.zero, wrapper := Rr.rt2 :: Rr.gate.toList, inner := [Factor.node (o + 2)] }]).terms =
+    [{ coef := c.one, wrapper := [Rr.tau], inner := [Factor.node A.length] },
+      { coef := nu.getD 0 c.zero, wrapper := Rr.rt :: Rr.gate.toList, inner := [Factor.node (A.length + 1)] },
+      { coef := nu.getD 1 c.zero, wrapper := Rr.rt2 :: Rr.gate.toList, inner := [Factor.node (A.length + 2)] }]
+build rc 1
+== SlotW16BuildCheck ==
+  shape-count: 1
+  stack: 3
+  fold-shift: 1
+  rh-width: 3
+  widths: 3
+  families: 3
+  a-planes: 3
+  h-planes: 3
+  h-ids: 3
+  lookups: 18
+  helpers: 18
+  zero-planes: 27
+  ir-tables: 23
+  table-kinds: 23
+  ir-nodes: 23
+  ir-terms: 23
+  slot-count: 1
+SlotW16BuildCheck: 179 checks, 0 failed
+rc build 1 check 0, 19 s

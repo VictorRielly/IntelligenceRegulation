@@ -80,3 +80,8 @@ import ZK60Formal.SlotW16R2
 import ZK60Formal.SlotW16Sound
 import ZK60Formal.LayoutW16
 import ZK60Formal.LayoutW16Handoff
+import ZK60Formal.SlotW16Build
+import ZK60Formal.SlotW16BuildEval
+import ZK60Formal.SlotW16BuildSlots
+import ZK60Formal.SlotW16BuildLayout
+import ZK60Formal.SlotW16Compose
