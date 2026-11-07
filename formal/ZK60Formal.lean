@@ -164,3 +164,9 @@ import ZK60Formal.ZoneCodeFirst
 import ZK60Formal.RunExtractKinds
 import ZK60Formal.RunExtractClassify
 import ZK60Formal.RunExtractOpenU
+import ZK60Formal.LinkW16Parse
+import ZK60Formal.LinkW16Trace
+import ZK60Formal.LinkW16Mask
+import ZK60Formal.LinkW16MaskChain
+import ZK60Formal.LinkW16Sem
+import ZK60Formal.ExtractInstW16

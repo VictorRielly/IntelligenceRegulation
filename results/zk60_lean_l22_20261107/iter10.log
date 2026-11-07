@@ -1,0 +1,51 @@
+== lake build ZK60Formal.LinkW16Mask ==
+Build completed successfully (3472 jobs).
+build rc 0 for ZK60Formal.LinkW16Mask, 4 s
+== lake build ZK60Formal.LinkW16MaskChain ==
+✖ [3473/3473] Building ZK60Formal.LinkW16MaskChain (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16MaskChain.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16MaskChain.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16MaskChain.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16MaskChain.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16MaskChain.setup.json --json
+error: ZK60Formal/LinkW16MaskChain.lean:273:4: Type mismatch
+  hc
+has type
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).2
+        maskProxLabel mo.prox)
+      mQ mDom =
+    some
+      (idxOf mDom mQ
+          (sqDs H
+            (Tr.absorbFp2 H
+              (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).2
+              maskProxLabel mo.prox)
+            ((mQ + 3) / 4)),
+        runOps H
+          (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).2
+            maskProxLabel mo.prox)
+          (List.replicate ((mQ + 3) / 4) Op.squeeze))
+but is expected to have type
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).2
+        maskProxLabel mo.prox)
+      mQ mDom =
+    some
+      (idxOf mDom mQ (sqDs H (runOps H tM (stpsOps (mPre S mo))) 64),
+        runOps H
+          (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).2
+            maskProxLabel mo.prox)
+          (List.replicate ((mQ + 3) / 4) Op.squeeze))
+error: ZK60Formal/LinkW16MaskChain.lean:283:8: Type mismatch
+  fun i =>
+    Fp2.toK U
+      ((Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H tM).2 maskQLabel mo.q) (2 * S + 2)).1.getD i Fp2.zero)
+has type
+  ℕ → K
+but is expected to have type
+  Fin (2 * S + 2) → K
+Some required targets logged failures:
+- ZK60Formal.LinkW16MaskChain
+error: build failed
+build rc 1 for ZK60Formal.LinkW16MaskChain, 8 s
+== lake build ZK60Formal.LinkW16Sem ==
+Build completed successfully (3473 jobs).
+build rc 0 for ZK60Formal.LinkW16Sem, 11 s
+rc build 1 files 0, 11 s

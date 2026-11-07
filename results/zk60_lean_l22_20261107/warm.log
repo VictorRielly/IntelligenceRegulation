@@ -1,0 +1,10 @@
+== lake build ZK60Formal.OpenKnowBlock ==
+Build completed successfully (3463 jobs).
+build rc 0 for ZK60Formal.OpenKnowBlock, 2 s
+== lake build ZK60Formal.OpeningR13 ==
+Build completed successfully (3456 jobs).
+build rc 0 for ZK60Formal.OpeningR13, 17 s
+== lake build ZK60Formal.ExecBlockR13 ==
+Build completed successfully (3428 jobs).
+build rc 0 for ZK60Formal.ExecBlockR13, 28 s
+rc build 0 files 0, 28 s

@@ -1,0 +1,40 @@
+== the L22 modules, one target at a time ==
+prebuild done, 27 s
+== lake build (full) ==
+lake build rc 0
+✔ [3521/3523] Built ZK60Formal.ShapeR13 (2.1s)
+✔ [3522/3523] Built ZK60Formal (1.8s)
+Build completed successfully (3523 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L22 files: 0
+== axiom audit ==
+138 theorems
+axioms rc 0
+declarations audited: 138
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  57 axioms: [propext, Classical.choice, Quot.sound]
+  43 axioms: [propext, Quot.sound]
+  29 axioms: [propext]
+== source scan of the L22 files ==
+none
+== the library root imports the L22 files ==
+imported: LinkW16Parse
+imported: LinkW16Trace
+imported: LinkW16Mask
+imported: LinkW16MaskChain
+imported: LinkW16Sem
+imported: ExtractInstW16
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 73 s

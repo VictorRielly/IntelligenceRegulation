@@ -1,0 +1,436 @@
+== lake build ZK60Formal.LinkW16Mask ==
+✖ [3472/3472] Building ZK60Formal.LinkW16Mask (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+error: ZK60Formal/LinkW16Mask.lean:252:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ↑⟨idx.getD (↑k) 0, ⋯⟩
+in the target expression
+  Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ x,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑x) (2 * ↑x + 1)) *
+          eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))) =
+    eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF) (coefPoly (vecK U 1024 mo.q))
+
+case refine_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+tag : MTag
+root : Dig
+S : ℕ
+fs : List Block.MaskFunctional
+mo : Block.MaskOpening
+hcan : Block.MaskCanon mo
+t t' : Tr
+idx : List ℕ
+hidx :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).2
+        maskProxLabel mo.prox)
+      mQ mDom =
+    some (idx, t')
+hJ : ∀ (k : Fin mQ), idx.getD (↑k) 0 < 2 ^ 12
+cols : Fin (2 ^ 12) → List Fp
+hcols :
+  ∀ (k : Fin mQ),
+    cols ⟨idx.getD (↑k) 0, ⋯⟩ = (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col
+hq : (toMO mo).q.length = 2 * mMsg
+hsum :
+  (((toMO mo).q.getD 0 Fp2.zero).add ((toMO mo).q.getD mMsg Fp2.zero)).mulBase (Fp.new (UInt64.ofNat mMsg)) =
+    (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).2
+hp : (toMO mo).prox.length = 2 * mMsg
+hidx' :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H
+        (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel (toMO mo).q) (2 * S + 2)).2
+        maskProxLabel (toMO mo).prox)
+      mQ mDom =
+    some (idx, t')
+hlen : (toMO mo).columns.length = idx.length
+hcolok :
+  ∀ k < (toMO mo).columns.length,
+    MColOk H tag (rootFp 9) (rootFp 12) root S (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1
+      (toMO mo).q (toMO mo).prox
+      (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel (toMO mo).q) (2 * S + 2)).1
+      ((toMO mo).columns.getD k (0, [], zeroDig, [])) (idx.getD k 0)
+hfold :
+  have res :=
+    List.foldl (cwStep (Tr.challengeFp2 H t).1)
+      (List.replicate S (List.replicate mMsg Fp2.zero), Fp2.zero, (Tr.challengeFp2 H t).1) (List.map toMF fs);
+  WShape S mMsg res.1 ∧
+    res.2.1.Canon ∧
+      Fp2.toK U res.2.2 =
+          Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ (List.map toMF fs).length ∧
+        Fp2.toK U res.2.1 =
+            Fp2.toK U Fp2.zero +
+              ∑ i ∈ Finset.range (List.map toMF fs).length,
+                Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ i *
+                  Fp2.toK U ((List.map toMF fs).getD i default).value ∧
+          ∀ (s j : ℕ),
+            s < S →
+              j < mMsg →
+                Fp2.toK U ((res.1.getD s []).getD j Fp2.zero) =
+                  Fp2.toK U (((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).getD j Fp2.zero) +
+                    ∑ i ∈ Finset.range (List.map toMF fs).length,
+                      Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ i *
+                        fwt U ((List.map toMF fs).getD i default) s j
+hws : WShape S mMsg (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1
+hvc : (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).2.Canon
+hrs : (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).1.length = 2 * S + 2
+h512 : IsPrimitiveRoot (rootFp 9).toGF 512
+h4096 : IsPrimitiveRoot (rootFp 12).toGF 4096
+hlenQ : (toMO mo).columns.length = mQ
+hcolK :
+  ∀ (k : Fin mQ),
+    let c := mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] };
+    c.j = idx.getD (↑k) 0 ∧
+      c.col.length = 2 * S + 4 ∧
+        Fp2.toK U (fp2Of c.col (2 * S) (2 * S + 1)) +
+              ∑ s,
+                Fp2.toK U (fp2Of c.col (2 * ↑s) (2 * ↑s + 1)) *
+                  eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF)
+                    (mInterp mOmega
+                      (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑s []))) =
+            eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF) (coefPoly (vecK U (2 * mMsg) mo.q)) ∧
+          Fp2.toK U (fp2Of c.col (2 * S + 2) (2 * S + 3)) +
+              ∑ i,
+                Fp2.toK U
+                    ((Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).1.getD
+                      (↑i) Fp2.zero) *
+                  (algebraMap GF K) (c.col.getD (↑i) Fp.zero).toGF =
+            eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF) (coefPoly (vecK U (2 * mMsg) mo.prox))
+k : Fin mQ
+hj : (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j = idx.getD (↑k) 0
+hprod :
+  Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ s,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑s) (2 * ↑s + 1)) *
+          eval
+            ((algebraMap GF K)
+              (cosetPt (rootFp 12) (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑s []))) =
+    eval
+      ((algebraMap GF K)
+        (cosetPt (rootFp 12) (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j).toGF)
+      (coefPoly (vecK U (2 * mMsg) mo.q))
+⊢ Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ x,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑x) (2 * ↑x + 1)) *
+          eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))) =
+    eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF) (coefPoly (vecK U 1024 mo.q))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x [])
+  has type
+    Fin mMsg → K
+  but is expected to have type
+    Fin 512 → K
+  in the application
+    mInterp mOmega (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Mask, 3 s
+== lake build ZK60Formal.LinkW16MaskChain ==
+✖ [3472/3473] Building ZK60Formal.LinkW16Mask (1.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+error: ZK60Formal/LinkW16Mask.lean:252:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ↑⟨idx.getD (↑k) 0, ⋯⟩
+in the target expression
+  Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ x,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑x) (2 * ↑x + 1)) *
+          eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))) =
+    eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF) (coefPoly (vecK U 1024 mo.q))
+
+case refine_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+tag : MTag
+root : Dig
+S : ℕ
+fs : List Block.MaskFunctional
+mo : Block.MaskOpening
+hcan : Block.MaskCanon mo
+t t' : Tr
+idx : List ℕ
+hidx :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).2
+        maskProxLabel mo.prox)
+      mQ mDom =
+    some (idx, t')
+hJ : ∀ (k : Fin mQ), idx.getD (↑k) 0 < 2 ^ 12
+cols : Fin (2 ^ 12) → List Fp
+hcols :
+  ∀ (k : Fin mQ),
+    cols ⟨idx.getD (↑k) 0, ⋯⟩ = (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col
+hq : (toMO mo).q.length = 2 * mMsg
+hsum :
+  (((toMO mo).q.getD 0 Fp2.zero).add ((toMO mo).q.getD mMsg Fp2.zero)).mulBase (Fp.new (UInt64.ofNat mMsg)) =
+    (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).2
+hp : (toMO mo).prox.length = 2 * mMsg
+hidx' :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H
+        (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel (toMO mo).q) (2 * S + 2)).2
+        maskProxLabel (toMO mo).prox)
+      mQ mDom =
+    some (idx, t')
+hlen : (toMO mo).columns.length = idx.length
+hcolok :
+  ∀ k < (toMO mo).columns.length,
+    MColOk H tag (rootFp 9) (rootFp 12) root S (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1
+      (toMO mo).q (toMO mo).prox
+      (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel (toMO mo).q) (2 * S + 2)).1
+      ((toMO mo).columns.getD k (0, [], zeroDig, [])) (idx.getD k 0)
+hfold :
+  have res :=
+    List.foldl (cwStep (Tr.challengeFp2 H t).1)
+      (List.replicate S (List.replicate mMsg Fp2.zero), Fp2.zero, (Tr.challengeFp2 H t).1) (List.map toMF fs);
+  WShape S mMsg res.1 ∧
+    res.2.1.Canon ∧
+      Fp2.toK U res.2.2 =
+          Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ (List.map toMF fs).length ∧
+        Fp2.toK U res.2.1 =
+            Fp2.toK U Fp2.zero +
+              ∑ i ∈ Finset.range (List.map toMF fs).length,
+                Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ i *
+                  Fp2.toK U ((List.map toMF fs).getD i default).value ∧
+          ∀ (s j : ℕ),
+            s < S →
+              j < mMsg →
+                Fp2.toK U ((res.1.getD s []).getD j Fp2.zero) =
+                  Fp2.toK U (((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).getD j Fp2.zero) +
+                    ∑ i ∈ Finset.range (List.map toMF fs).length,
+                      Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ i *
+                        fwt U ((List.map toMF fs).getD i default) s j
+hws : WShape S mMsg (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1
+hvc : (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).2.Canon
+hrs : (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).1.length = 2 * S + 2
+h512 : IsPrimitiveRoot (rootFp 9).toGF 512
+h4096 : IsPrimitiveRoot (rootFp 12).toGF 4096
+hlenQ : (toMO mo).columns.length = mQ
+hcolK :
+  ∀ (k : Fin mQ),
+    let c := mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] };
+    c.j = idx.getD (↑k) 0 ∧
+      c.col.length = 2 * S + 4 ∧
+        Fp2.toK U (fp2Of c.col (2 * S) (2 * S + 1)) +
+              ∑ s,
+                Fp2.toK U (fp2Of c.col (2 * ↑s) (2 * ↑s + 1)) *
+                  eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF)
+                    (mInterp mOmega
+                      (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑s []))) =
+            eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF) (coefPoly (vecK U (2 * mMsg) mo.q)) ∧
+          Fp2.toK U (fp2Of c.col (2 * S + 2) (2 * S + 3)) +
+              ∑ i,
+                Fp2.toK U
+                    ((Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).1.getD
+                      (↑i) Fp2.zero) *
+                  (algebraMap GF K) (c.col.getD (↑i) Fp.zero).toGF =
+            eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF) (coefPoly (vecK U (2 * mMsg) mo.prox))
+k : Fin mQ
+hj : (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j = idx.getD (↑k) 0
+hprod :
+  Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ s,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑s) (2 * ↑s + 1)) *
+          eval
+            ((algebraMap GF K)
+              (cosetPt (rootFp 12) (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑s []))) =
+    eval
+      ((algebraMap GF K)
+        (cosetPt (rootFp 12) (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j).toGF)
+      (coefPoly (vecK U (2 * mMsg) mo.q))
+⊢ Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ x,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑x) (2 * ↑x + 1)) *
+          eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))) =
+    eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF) (coefPoly (vecK U 1024 mo.q))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x [])
+  has type
+    Fin mMsg → K
+  but is expected to have type
+    Fin 512 → K
+  in the application
+    mInterp mOmega (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16MaskChain, 7 s
+== lake build ZK60Formal.LinkW16Sem ==
+✖ [3472/3473] Building ZK60Formal.LinkW16Mask (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/ZK60Formal/LinkW16Mask.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Mask.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0faa117f66eac2c6/formal/.lake/build/ir/ZK60Formal/LinkW16Mask.setup.json --json
+error: ZK60Formal/LinkW16Mask.lean:252:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ↑⟨idx.getD (↑k) 0, ⋯⟩
+in the target expression
+  Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ x,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑x) (2 * ↑x + 1)) *
+          eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))) =
+    eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF) (coefPoly (vecK U 1024 mo.q))
+
+case refine_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+tag : MTag
+root : Dig
+S : ℕ
+fs : List Block.MaskFunctional
+mo : Block.MaskOpening
+hcan : Block.MaskCanon mo
+t t' : Tr
+idx : List ℕ
+hidx :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).2
+        maskProxLabel mo.prox)
+      mQ mDom =
+    some (idx, t')
+hJ : ∀ (k : Fin mQ), idx.getD (↑k) 0 < 2 ^ 12
+cols : Fin (2 ^ 12) → List Fp
+hcols :
+  ∀ (k : Fin mQ),
+    cols ⟨idx.getD (↑k) 0, ⋯⟩ = (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col
+hq : (toMO mo).q.length = 2 * mMsg
+hsum :
+  (((toMO mo).q.getD 0 Fp2.zero).add ((toMO mo).q.getD mMsg Fp2.zero)).mulBase (Fp.new (UInt64.ofNat mMsg)) =
+    (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).2
+hp : (toMO mo).prox.length = 2 * mMsg
+hidx' :
+  Tr.challengeIndices H
+      (Tr.absorbFp2 H
+        (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel (toMO mo).q) (2 * S + 2)).2
+        maskProxLabel (toMO mo).prox)
+      mQ mDom =
+    some (idx, t')
+hlen : (toMO mo).columns.length = idx.length
+hcolok :
+  ∀ k < (toMO mo).columns.length,
+    MColOk H tag (rootFp 9) (rootFp 12) root S (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1
+      (toMO mo).q (toMO mo).prox
+      (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel (toMO mo).q) (2 * S + 2)).1
+      ((toMO mo).columns.getD k (0, [], zeroDig, [])) (idx.getD k 0)
+hfold :
+  have res :=
+    List.foldl (cwStep (Tr.challengeFp2 H t).1)
+      (List.replicate S (List.replicate mMsg Fp2.zero), Fp2.zero, (Tr.challengeFp2 H t).1) (List.map toMF fs);
+  WShape S mMsg res.1 ∧
+    res.2.1.Canon ∧
+      Fp2.toK U res.2.2 =
+          Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ (List.map toMF fs).length ∧
+        Fp2.toK U res.2.1 =
+            Fp2.toK U Fp2.zero +
+              ∑ i ∈ Finset.range (List.map toMF fs).length,
+                Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ i *
+                  Fp2.toK U ((List.map toMF fs).getD i default).value ∧
+          ∀ (s j : ℕ),
+            s < S →
+              j < mMsg →
+                Fp2.toK U ((res.1.getD s []).getD j Fp2.zero) =
+                  Fp2.toK U (((List.replicate S (List.replicate mMsg Fp2.zero)).getD s []).getD j Fp2.zero) +
+                    ∑ i ∈ Finset.range (List.map toMF fs).length,
+                      Fp2.toK U (Tr.challengeFp2 H t).1 * Fp2.toK U (Tr.challengeFp2 H t).1 ^ i *
+                        fwt U ((List.map toMF fs).getD i default) s j
+hws : WShape S mMsg (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1
+hvc : (combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).2.Canon
+hrs : (Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).1.length = 2 * S + 2
+h512 : IsPrimitiveRoot (rootFp 9).toGF 512
+h4096 : IsPrimitiveRoot (rootFp 12).toGF 4096
+hlenQ : (toMO mo).columns.length = mQ
+hcolK :
+  ∀ (k : Fin mQ),
+    let c := mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] };
+    c.j = idx.getD (↑k) 0 ∧
+      c.col.length = 2 * S + 4 ∧
+        Fp2.toK U (fp2Of c.col (2 * S) (2 * S + 1)) +
+              ∑ s,
+                Fp2.toK U (fp2Of c.col (2 * ↑s) (2 * ↑s + 1)) *
+                  eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF)
+                    (mInterp mOmega
+                      (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑s []))) =
+            eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF) (coefPoly (vecK U (2 * mMsg) mo.q)) ∧
+          Fp2.toK U (fp2Of c.col (2 * S + 2) (2 * S + 3)) +
+              ∑ i,
+                Fp2.toK U
+                    ((Tr.challengeFp2Vec H (Tr.absorbFp2 H (Tr.challengeFp2 H t).2 maskQLabel mo.q) (2 * S + 2)).1.getD
+                      (↑i) Fp2.zero) *
+                  (algebraMap GF K) (c.col.getD (↑i) Fp.zero).toGF =
+            eval ((algebraMap GF K) (cosetPt (rootFp 12) c.j).toGF) (coefPoly (vecK U (2 * mMsg) mo.prox))
+k : Fin mQ
+hj : (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j = idx.getD (↑k) 0
+hprod :
+  Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ s,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑s) (2 * ↑s + 1)) *
+          eval
+            ((algebraMap GF K)
+              (cosetPt (rootFp 12) (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑s []))) =
+    eval
+      ((algebraMap GF K)
+        (cosetPt (rootFp 12) (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).j).toGF)
+      (coefPoly (vecK U (2 * mMsg) mo.q))
+⊢ Fp2.toK U (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * S) (2 * S + 1)) +
+      ∑ x,
+        Fp2.toK U
+            (fp2Of (mo.columns.getD ↑k { j := 0, col := [], salt := zeroDig, path := [] }).col (2 * ↑x) (2 * ↑x + 1)) *
+          eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF)
+            (mInterp mOmega
+              (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))) =
+    eval ((algebraMap GF K) (cosetPt (rootFp 12) (idx.getD (↑k) 0)).toGF) (coefPoly (vecK U 1024 mo.q))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x [])
+  has type
+    Fin mMsg → K
+  but is expected to have type
+    Fin 512 → K
+  in the application
+    mInterp mOmega (vecK U mMsg ((combinedWeights S (List.map toMF fs) (Tr.challengeFp2 H t).1).1.getD ↑x []))
+Some required targets logged failures:
+- ZK60Formal.LinkW16Mask
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Sem, 11 s
+rc build 1 files 0, 11 s
