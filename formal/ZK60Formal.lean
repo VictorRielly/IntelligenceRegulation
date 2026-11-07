@@ -80,3 +80,6 @@ import ZK60Formal.SlotW16R2
 import ZK60Formal.SlotW16Sound
 import ZK60Formal.LayoutW16
 import ZK60Formal.LayoutW16Handoff
+import ZK60Formal.ExecBlockWire
+import ZK60Formal.ExecBlockVerify
+import ZK60Formal.ExecBlockFS

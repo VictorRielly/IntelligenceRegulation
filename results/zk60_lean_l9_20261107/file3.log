@@ -1,0 +1,181 @@
+== lake build ZK60Formal.ExecBlockWire ==
+rc 0 for ZK60Formal.ExecBlockWire, 17 s
+== lake build ZK60Formal.ExecBlockVerify ==
+rc 0 for ZK60Formal.ExecBlockVerify, 22 s
+== lake build ZK60Formal.ExecBlockFS ==
+✖ [3427/3427] Building ZK60Formal.ExecBlockFS (2.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/ZK60Formal/ExecBlockFS.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean/ZK60Formal/ExecBlockFS.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean/ZK60Formal/ExecBlockFS.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/ir/ZK60Formal/ExecBlockFS.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/ir/ZK60Formal/ExecBlockFS.setup.json --json
+warning: ZK60Formal/ExecBlockFS.lean:127:6: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [slotPre, slotOpsFrom, List.take_succ_cons, slotsOps, fullOps, List.append_assoc,
+    List.cons_append] at ih ⊢
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/ExecBlockFS.lean:168:36: Application type mismatch: The argument
+  h
+has type
+  (have sv :=
+      scVerify H claimed (slotShape P s).2.2 ((slotShape P s).1 + (slotShape P s).2.1) sp.rounds
+        (Tr.absorbFp2 H
+          (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).2
+          labPbScalar [sp.scalar]);
+    have __do_jp := fun __x =>
+      match __x with
+      | (fin, rhoFull) =>
+        have rho := List.take (slotShape P s).1 rhoFull;
+        have es := List.drop (slotShape P s).1 rhoFull;
+        do
+        let vals ← tabVals (oneMinusProd es) rho sp.terms df.tabs 0
+        have gVal : Fp2 :=
+          (fin.sub (df.poly vals)).mul
+            (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1.inv
+        exGuard (es.any fun x => x.isZero || decide (x = Fp2.one)) "degenerate terminal mask challenge; discard attempt"
+        have t6 : Tr := Tr.absorbFp2 H sv.2 labPbTerm sp.terms
+        pure
+            ({ draws := (Tr.challengeFp2Vec H t (P.draws s)).1,
+                c :=
+                  (Tr.challengeFp2 H
+                      (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1,
+                scalar := sp.scalar, claimed := claimed, rho := rho, es := es, terms := sp.terms, fin := fin },
+              slotAcc P s acc df
+                (Tr.challengeFp2 H (Tr.absorbU64 H (Tr.challengeFp2Vec H t (P.draws s)).2 labPbSlot (UInt64.ofNat s))).1
+                sp.scalar gVal rhoFull sp.terms,
+              t6);
+    match sv.1 with
+    | Except.ok r => do
+      let __x ← pure r
+      __do_jp __x
+    | Except.error err => do
+      let __x ←
+        throw
+            (toString "slot " ++ toString s ++ toString " [" ++ toString (P.name s) ++ toString "]: " ++
+              toString err.msg)
+      __do_jp __x) =
+    Except.ok (r, acc', t')
+but is expected to have type
+  ?m.209 >>= ?m.210 = Except.ok ?m.211
+in the application
+  ex_bind_ok h
+error: ZK60Formal/ExecBlockFS.lean:476:59: Application type mismatch: The argument
+  sps
+has type
+  List SlotProof
+but is expected to have type
+  ℕ
+in the application
+  walk_length ?m.30 (j + 1) sps
+error: ZK60Formal/ExecBlockFS.lean:476:52: failed to synthesize instance of type class
+  HAdd ℕ ℕ Tr
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/ExecBlockFS.lean:476:22: unsolved goals
+H : HIn → Dig
+P : BlockParams
+t : Tr
+j : ℕ
+head✝ : SlotProof
+sps : List SlotProof
+⊢ (walk H P (runOps H t (slotPreOps P j head✝ ++ (scOps head✝.rounds ++ [termOp head✝]))) (j + 1) sps).length =
+    sps.length
+warning: ZK60Formal/ExecBlockFS.lean:520:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.slotsLen_blockSched`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/ExecBlockFS.lean:573:75: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/ExecBlockFS.lean:632:80: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/ExecBlockFS.lean:633:79: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/ExecBlockFS.lean:639:79: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/ExecBlockFS.lean:714:83: unexpected token ')'; expected ':=' or '|'
+error: ZK60Formal/ExecBlockFS.lean:713:29: Application type mismatch: The argument
+  fun H =>
+    Tr.challengeFp2 H
+      (Tr.challengeFp2 Hh
+          (Tr.challengeFp2 Hh
+              (Tr.absorb Hh (absorbRoot Hh th labA core.aRoot P.aRows P.logCols) labM
+                (List.Vector.toList core.maskRoot))).2).2
+has type
+  (HIn → Dig) → Fp2 × Tr
+but is expected to have type
+  Tr
+in the application
+  absorbRoot Hh fun H =>
+    Tr.challengeFp2 H
+      (Tr.challengeFp2 Hh
+          (Tr.challengeFp2 Hh
+              (Tr.absorb Hh (absorbRoot Hh th labA core.aRoot P.aRows P.logCols) labM
+                (List.Vector.toList core.maskRoot))).2).2
+error: ZK60Formal/ExecBlockFS.lean:692:82: unsolved goals
+case h_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+key : Option Dig
+domain : List UInt8
+L : ℕ
+P : BlockParams
+hdrLen : ℕ
+f : (k : ℕ) → Seen → (Fin ((slotShape P k).1 + (slotShape P k).2.1) → K) → K
+hgeom : ∀ k < P.geom.slots.length, 1 ≤ (slotShape P k).2.2 ∧ 55 + 16 * slotTerms P k ≤ L
+hgt : P.geom.slots.length = P.geom.terms.length
+hL : 81 ≤ L
+G : QB L → Dig
+hdr : List Op
+core : Core
+hhl : hdr.length = hdrLen
+hhfit : ∀ op ∈ hdr, op.len ≤ L
+hcan : CoreCanon core
+hsh : CoreShape P.geom core
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+acc : Acc
+t' : Tr
+hterm :
+  ∀ (k : ℕ) (r : SlotRec),
+    rs[k]? = some r → Fp2.toK U r.fin = f k (seenOf bga rs k) fun i => Fp2.toK U ((r.rho ++ r.es).getD (↑i) Fp2.zero)
+kf : ℕ
+rf : SlotRec
+hrf : rs[kf]? = some rf
+hdeg : IndDegLE (slotShape P kf).2.2 (f kf (seenOf bga rs kf))
+hfalse : Fp2.toK U rf.claimed ≠ cubeSum (f kf (seenOf bga rs kf))
+Hh : HIn → Dig := liftH G
+hHh : Hh = liftH G
+t0 : Tr := Tr.newKeyed Hh domain key
+ht0 : t0 = Tr.newKeyed Hh domain key
+th : Tr := runOps Hh t0 hdr
+hth : th = runOps Hh t0 hdr
+hslen : core.slots.length = P.geom.slots.length
+x✝ : Except String (List SlotRec × Acc × Tr)
+e✝ : String
+heq✝ :
+  slotsLoop Hh P
+      (Tr.challengeFp2 Hh
+          (Tr.absorb Hh (absorbRoot Hh th labA core.aRoot P.aRows P.logCols) labM (List.Vector.toList core.maskRoot))).1
+      (Tr.challengeFp2 Hh
+          (Tr.challengeFp2 Hh
+              (Tr.absorb Hh (absorbRoot Hh th labA core.aRoot P.aRows P.logCols) labM
+                (List.Vector.toList core.maskRoot))).2).1
+      (Tr.challengeFp2 Hh
+          (Tr.challengeFp2 Hh
+              (Tr.challengeFp2 Hh
+                  (Tr.absorb Hh (absorbRoot Hh th labA core.aRoot P.aRows P.logCols) labM
+                    (List.Vector.toList core.maskRoot))).2).2).1
+      [] 0 core.slots { }
+      (absorbRoot Hh
+        (Tr.challengeFp2 Hh
+            (Tr.challengeFp2 Hh
+                (Tr.challengeFp2 Hh
+                    (Tr.absorb Hh (absorbRoot Hh th labA core.aRoot P.aRows P.logCols) labM
+                      (List.Vector.toList core.maskRoot))).2).2).2
+        labH core.hRoot P.hRows P.logCols) =
+    Except.error e✝
+hacc : Except.error e✝ = Except.ok (bga, rs, acc, t')
+⊢ SlotsWin U key domain L (blockSched P hdrLen f) G (blockOps P (hdr, core).1 (hdr, core).2)
+Some required targets logged failures:
+- ZK60Formal.ExecBlockFS
+error: build failed
+rc 1 for ZK60Formal.ExecBlockFS, 26 s

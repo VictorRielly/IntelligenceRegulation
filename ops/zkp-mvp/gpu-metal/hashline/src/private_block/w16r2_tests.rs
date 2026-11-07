@@ -163,6 +163,10 @@ fn seeded_digest(sh: &Shape, blk: &BlockPublic, w: Witness) -> String {
     blake3::hash(text.as_bytes()).to_hex().to_string()
 }
 
+// D63 step L9 (Lean lane, 2026-11-07): the W16R2 rung block framed and every transcript challenge exported for the
+// Lean block verifier; a child of this module so that it uses the harness above
+#[cfg(test)] #[path = "lean_l9_export_tests.rs"] mod lean_l9_export_tests;
+
 /// the bytes of one block core: `(total, A opening, H opening, M opening, slots)`
 fn core_bytes(core: &CoreProof) -> (usize, usize, usize, usize, usize) {
     let slots: usize = core.slots.iter().map(|s| 16 + s.sc.size_bytes() + 16 * s.terms.len()).sum();

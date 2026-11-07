@@ -1,0 +1,16 @@
+== lake build ZK60Formal.ExecBlockWire ==
+rc 0 for ZK60Formal.ExecBlockWire, 5 s
+== lake build ZK60Formal.ExecBlockVerify ==
+rc 0 for ZK60Formal.ExecBlockVerify, 8 s
+== lake build ZK60Formal.ExecBlockFS ==
+✖ [3427/3427] Building ZK60Formal.ExecBlockFS (12s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/ZK60Formal/ExecBlockFS.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean/ZK60Formal/ExecBlockFS.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/lib/lean/ZK60Formal/ExecBlockFS.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/ir/ZK60Formal/ExecBlockFS.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/formal/.lake/build/ir/ZK60Formal/ExecBlockFS.setup.json --json
+error: ZK60Formal/ExecBlockFS.lean:184:8: Unknown identifier `runOps_slotPreOps`
+error: ZK60Formal/ExecBlockFS.lean:187:8: Unknown identifier `runOps_slotPreOps`
+error: ZK60Formal/ExecBlockFS.lean:1038:4: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.ExecBlockFS
+error: build failed
+rc 1 for ZK60Formal.ExecBlockFS, 22 s
