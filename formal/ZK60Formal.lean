@@ -75,3 +75,6 @@ import ZK60Formal.ExecSumcheck
 import ZK60Formal.ExecCfs
 import ZK60Formal.ExecSumcheckFS
 import ZK60Formal.ExecComposeFS
+import ZK60Formal.ExecBlockWire
+import ZK60Formal.ExecBlockVerify
+import ZK60Formal.ExecBlockFS
