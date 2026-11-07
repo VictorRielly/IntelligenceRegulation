@@ -17,9 +17,12 @@ from . import shieldstral_runtime as reviewed
 from .classifier_cli import Deployment, R_C3_SCHEMA, require
 
 KIND = 'shieldstral-fast'
-EXPORT_ROOT = reviewed.EXPORT_ROOT
-EXPORT = reviewed.EXPORT
-VERIFIER_EXPORT = reviewed.VERIFIER_EXPORT
+# The export's large arrays (the 805 MB embedding, the layer weights) are untracked files of the
+# main checkout; a worktree points at them with PM_FAST_EXPORT_ROOT. The profile digests below
+# and the native verifier's own checks still decide.
+EXPORT_ROOT = Path(os.environ.get('PM_FAST_EXPORT_ROOT', str(reviewed.EXPORT_ROOT)))
+EXPORT = EXPORT_ROOT / reviewed.EXPORT.name
+VERIFIER_EXPORT = EXPORT_ROOT / reviewed.VERIFIER_EXPORT.name
 # The binary lives outside the repository (no binaries in the public repo, D62); the pin
 # below is the authority. Built from lane A24's tree with `--features gpu-metal`.
 BINARY = Path(os.environ.get('PM_FAST_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a24')))

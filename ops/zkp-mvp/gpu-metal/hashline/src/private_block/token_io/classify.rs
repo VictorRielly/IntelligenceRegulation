@@ -455,6 +455,23 @@ pub(crate) fn census_classify_statement(profile: &'static str, l: usize) -> (Cla
 
 // ---------------------------------------------------------------- the public tables
 
+/// **[A24]** `words` as their little-endian bytes, in order, into `h`: the same byte stream
+/// (so the same BLAKE3 digest) as one two-byte `update` per word, which is how the digests
+/// below were written before A24; handed over in 1 MiB pieces so BLAKE3 hashes them with its
+/// wide kernels (the 805 MB Shieldstral embedding took about 3 s word by word). A BLAKE3
+/// digest is a function of the concatenated input only, not of how it is split.
+fn update_le_words(h: &mut blake3::Hasher, words: &[i16]) {
+    const PIECE: usize = 1 << 19;
+    let mut buf: Vec<u8> = Vec::with_capacity(2 * PIECE.min(words.len()));
+    for piece in words.chunks(PIECE) {
+        buf.clear();
+        for w in piece {
+            buf.extend_from_slice(&w.to_le_bytes());
+        }
+        h.update(&buf);
+    }
+}
+
 /// The classifier's public tables: the int16 embedding (`V x d`, as the token
 /// run's) and the int16 MARGIN VECTOR `w_Delta` (`d` words): the quantised
 /// difference of the yes and no head rows, one scale (design §4.1 item 3).
@@ -478,18 +495,14 @@ impl ClassifierTables {
         h.update(b"hashline/classify/embedding-int16/v1");
         h.update(&(self.v as u64).to_le_bytes());
         h.update(&(self.d as u64).to_le_bytes());
-        for w in &self.emb {
-            h.update(&w.to_le_bytes());
-        }
+        update_le_words(&mut h, &self.emb);
         *h.finalize().as_bytes()
     }
     pub(crate) fn w_digest(&self) -> Digest {
         let mut h = blake3::Hasher::new();
         h.update(b"hashline/classify/margin-vector-int16/v1");
         h.update(&(self.d as u64).to_le_bytes());
-        for w in &self.w_delta {
-            h.update(&w.to_le_bytes());
-        }
+        update_le_words(&mut h, &self.w_delta);
         *h.finalize().as_bytes()
     }
     pub(crate) fn emb_row(&self, tok: usize) -> &[i16] {

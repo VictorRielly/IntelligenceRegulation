@@ -14,6 +14,14 @@
 //!                              --expect-statement HEX --expect-total N [--label L] [--min-bits N]
 //!   zk60_classify prove-batch  --export DIR --tables DIR --content-file FILE --batch-file FILE
 //!                              [--label L]
+//!   zk60_classify serve        --export DIR --tables DIR --policies ID,... [--label L] [--lanes N]
+//!                              [--lane-threads T] [--witness-cache-gib G]   (requests on stdin)
+//!   zk60_classify check-serve  --export DIR --tables DIR --policies ID,... --expect-statement HEX
+//!                              [--label L] [--min-bits N] [--lanes N] [--lane-threads T]
+//!
+//! [A24] `serve` / `check-serve` (2026-11-07): resident-model process forms of `prove` and of
+//! `verify` + `input-owner` + `label` (one JSON request per line; see
+//! `src/private_block/token_io/classify_serve.rs`). No receipt or statement byte changes.
 //!
 //! TOKEN ROUND 18 (A5): `prove-batch` proves one post's whole plan (the three
 //! moderate categories, every chunk once) after ONE model / table load; each
@@ -66,8 +74,11 @@ fn main() {
         Some("verify") => hashline::private_block::classify_verify_command(&args[1..]),
         Some("input-owner") => hashline::private_block::classify_input_owner_command(&args[1..]),
         Some("label") => hashline::private_block::classify_label_command(&args[1..]),
+        // [A24] the resident servers (src/private_block/token_io/classify_serve.rs)
+        Some("serve") => hashline::private_block::classify_serve_command(&args[1..]),
+        Some("check-serve") => hashline::private_block::classify_check_serve_command(&args[1..]),
         _ => {
-            eprintln!("usage: zk60_classify prove|prove-batch|verify|input-owner|label ... (see the header of examples/zk60_classify.rs)");
+            eprintln!("usage: zk60_classify prove|prove-batch|verify|input-owner|label|serve|check-serve ... (see the header of examples/zk60_classify.rs)");
             2
         }
     };

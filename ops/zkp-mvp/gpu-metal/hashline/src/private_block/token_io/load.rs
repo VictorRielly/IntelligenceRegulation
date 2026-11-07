@@ -208,6 +208,14 @@ impl ExportPublic {
     /// export's checked tied record (`TrainedExport::tied`, native R12 F3);
     /// an untied export's is `None`, so every earlier statement is unchanged.
     pub(crate) fn load_with(export: &Path, profile_of: fn(&Shape) -> Result<&'static str, String>) -> Result<ExportPublic, String> {
+        Self::load_keeping(export, profile_of, false).map(|(p, _)| p)
+    }
+
+    /// **[A24] the same digest pass, every layer's block KEPT** (`keep`; `false`: each block
+    /// dropped as before, an empty list returned). A resident classifier server
+    /// (`classify_serve.rs`) holds these objects for its life: each is the very object whose
+    /// digest the pass recorded, made by the same checked `load_layer`.
+    pub(crate) fn load_keeping(export: &Path, profile_of: fn(&Shape) -> Result<&'static str, String>, keep: bool) -> Result<(ExportPublic, Vec<BlockPublic>), String> {
         let ex = TrainedExport::load(export)?;
         let layers = ex.layers.clone();
         let c = ex.run_constants(&layers)?;
@@ -215,10 +223,14 @@ impl ExportPublic {
         let profile = profile_of(&sh)?;
         let mut digests = Vec::with_capacity(layers.len());
         let mut records: Vec<LayerRecord> = Vec::with_capacity(layers.len());
+        let mut blocks: Vec<BlockPublic> = Vec::with_capacity(if keep { layers.len() } else { 0 });
         for &k in &layers {
             let t = ex.load_layer(&sh, &c, k, false)?;
             digests.push(t.record.block_digest);
             records.push(t.record);
+            if keep {
+                blocks.push(t.blk);
+            }
         }
         let prov = Provenance {
             label: format!("export:{}", ex.variant),
@@ -233,7 +245,7 @@ impl ExportPublic {
         };
         let cal = IntegerCalibration::as_the_code_proves(&sh, &prov);
         let model = TrainedModelStatement::new_with_tied(&sh, profile, ex.source.clone(), cal, records, ex.tied.clone())?;
-        Ok(ExportPublic { ex, c, sh, layers, digests, model, profile })
+        Ok((ExportPublic { ex, c, sh, layers, digests, model, profile }, blocks))
     }
 }
 
