@@ -1,0 +1,28 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3494/3496] Built ZK60Formal.ShapeR13 (11s)
+✔ [3495/3496] Built ZK60Formal (1.9s)
+Build completed successfully (3496 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+76 theorems
+axioms rc 0
+declarations audited: 76
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  53 axioms: [propext, Classical.choice, Quot.sound]
+   3 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+no axioms: 7
+== source scan of the L17 files ==
+none
+== the library root imports the L17 library files, not the checkers ==
+104:import ZK60Formal.ExecBlockR13
+105:import ZK60Formal.SlotR13
+106:import ZK60Formal.OpeningR13
+107:import ZK60Formal.LayoutR13
+108:import ZK60Formal.ShapeR13
+the checkers (main) are not imported

@@ -117,3 +117,8 @@ import ZK60Formal.ExtractW16Slots
 import ZK60Formal.ExtractW16Terminal
 import ZK60Formal.ExtractW16Block
 import ZK60Formal.ExtractW16Open
+import ZK60Formal.ExecBlockR13
+import ZK60Formal.SlotR13
+import ZK60Formal.OpeningR13
+import ZK60Formal.LayoutR13
+import ZK60Formal.ShapeR13

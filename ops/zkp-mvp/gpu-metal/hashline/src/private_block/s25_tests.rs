@@ -2693,10 +2693,13 @@ fn r19b_the_module_follower_refuses_include_outside_test_code() {
 /// the path, each compiled as test code only (declared `#[cfg(test)]` by its
 /// parent: read for this list with `r19b/tools/mirror19b.py`). Paths are
 /// relative to `src/private_block/`.
-const TEST_ONLY_FILES: [&str; 86] = [
+const TEST_ONLY_FILES: [&str; 87] = [
     // D63 step L1 (2026-11-06): the Lean lane's export of the fixture's integer trace, declared
     // `#[cfg(test)]` (one line) by `witness.rs`
     "lean_l1_export_tests.rs",
+    // D63 Lean lane L17 (2026-11-07): the Lean lane's export of the R13 block's agreement corpora (a real R13 rung
+    // core, a real D12a segment), declared `#[cfg(test)]` (one line) by the test-only `w16r2_tests.rs`
+    "lean_l17_export_tests.rs",
     // D63 Lean lane L15 (2026-11-07): the Lean lane's export of stage OUT-C's slots from a real classifier receipt,
     // declared `#[cfg(test)]` (one line) by the test-only `token_io/classify_capture_tests.rs`
     "token_io/lean_l15_export_tests.rs",
