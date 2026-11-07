@@ -205,6 +205,7 @@ commitment, the refusal sites) are the theorem's arguments. -/
 structure ClassifyOpen (R : ClassifyRunPublic S) (Lq : ℕ) (V : RunV Hdr) (P : RunP Hdr (S.Tok → ℕ) Coins)
     (Cin : PlaneCommit (S.Tok → ℕ) (ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq) (hr : 8 * Cin.R ≤ Lq) (hon : HonestIn Coins Cin)
     (U : K) {ι : Type} [Fintype ι] (site : (S.Tok → ℕ) → ι → Site (QB Lq) Coins K) (kOf : ι → ℕ) (δOf : ι → ℝ≥0∞)
+    (E : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt S Salt)
     (εin εblk εout εep : ℕ → ℝ≥0∞) (εzk : ℕ → ℕ → ℝ≥0∞) : Prop where
   /-- O1: the registered shape's constants (`BlockShape.Valid`, finite checks; L9 §6). -/
   shape : S.Valid
@@ -235,11 +236,39 @@ structure ClassifyOpen (R : ClassifyRunPublic S) (Lq : ℕ) (V : RunV Hdr) (P : 
   honest squeeze point), uniformly in the input. -/
   counts : (∀ x i, (site x i).k ≤ kOf i) ∧ (∀ x i, (site x i).δ ≤ δOf i) ∧ ∑ i, kOf i ≤ 2 ^ 85
     ∧ ∑ i, δOf i ≤ (2⁻¹ : ℝ≥0∞) ^ 41
-  /-- O11: **the run's extraction** (the knowledge version composed over the run, on the code's chain): one extractor,
-  with the stage IN-C (L12/L15, under Fiat–Shamir), blocks (L16, L17 at R13: the joint, path-wise bound of D66(4)),
-  stage OUT-C (L15, under Fiat–Shamir) and endpoint (L10-6) failure bounds. -/
-  extract : RunExtract R (classifyProtocol S R Lq V P Cin h64 hr hon.base) εin εblk εout εep
-  /-- O12: **zero knowledge** of the run's protocol (L14 for one block; the run's simulator and its hybrid step). -/
+  /-- O11a: **stage IN-C's extraction** for the run's extractor `E` (the theorem's argument): accepted, and stage
+  IN-C's `InSat` on `B_in` or SIC_IO's endpoint identity fails, with probability `≤ εin q` (L12's `inc_stage_sound`,
+  interactive; its Fiat–Shamir lift on the code's chain is open). -/
+  extIn : ∀ (q : ℕ) (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)), A.Bounded q →
+    prH (fun G => (classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true
+      ∧ ¬ InOk R (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)) ≤ εin q
+  /-- O11b: **the blocks' extraction, JOINTLY** (`BlocksOk`: every block's `BlockOn` on the run's boundary planes).
+  Per block, lane L21's `block_knowledge_target_mt` (L21-10) gives `Pr[BlockAcc ∧ ¬ BlockSat] ≤ εsTarget q` for every
+  `q` and any block shape, from: L20's opening and `M` chain bounds and links (`hM`, `hEA`, `hEH`, `hX`, `hexec`);
+  `hsem` in the `OpenTrue` form (lane L22); the cover lemmas `hcoverR` / `hcoverH` and the lookup split `hsplit` (the
+  instance's algebra; a follow-on lane); the budget `hbud` (proved at W16R2: `w16r2_budget_mt`, 30.2M ≤ 2^26 units).
+  It enters here through `blocksOk_of_blockSat` / `blocks_extract_union`, after the identification of each block's
+  extracted planes with the run's boundary planes (the boundary openings); 26 per-block bounds of `εsTarget q` sum
+  above the target, so the run needs the joint one-zone form (finding L18-2). -/
+  extBlocks : ∀ (q : ℕ) (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)), A.Bounded q →
+    prH (fun G => (classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true
+      ∧ ¬ BlocksOk R (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)) ≤ εblk q
+  /-- O11c: **stage OUT-C's extraction** for the statement's verdict (L15's `outc_stage_sound`, interactive; its
+  Fiat–Shamir lift open). -/
+  extOut : ∀ (q : ℕ) (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)), A.Bounded q →
+    prH (fun G => (classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true
+      ∧ ¬ OutOk R ((classifyProtocol S R Lq V P Cin h64 hr hon.base).ypub (A.runLog G).1.1)
+        (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)) ≤ εout q
+  /-- O11d: **the input endpoint's opening knowledge** (lane L10's L10-6; the opening's knowledge version, L20's
+  `opening_knowledge_chain_pos`, at the endpoint). -/
+  extEp : ∀ (q : ℕ) (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)), A.Bounded q →
+    prH (fun G => (classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true
+      ∧ ¬ EpOk (classifyProtocol S R Lq V P Cin h64 hr hon.base) G (A.runLog G).1.1
+        (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)) ≤ εep q
+  /-- O12: **zero knowledge of the classify run as ONE receipt** (L14's stand-in simulator; L19's `hHV_of_blockLinks`
+  with its named honest-prover properties, which this lane's prover specification must discharge). NOTE: for the run
+  as one receipt only `R ≤ 2^112` receipts per weight set is proved (`RunK.cap_112`, finding L19-2); the target for
+  EVERY `R` awaits Victor's ruling on L19-2 (a cross term, a cap, a per-receipt transcript key, or a coupling proof). -/
   zk : ZeroKnowledge (classifyModel S R) (classifyProtocol S R Lq V P Cin h64 hr hon.base) εzk
 
 /-- **THE ASSEMBLY of the media app's classify run** (D63, lane L18): with the open obligations `ClassifyOpen` as
@@ -251,15 +280,17 @@ theorem classify_productionReady (R : ClassifyRunPublic S) (Lq : ℕ) (V : RunV 
     (Cin : PlaneCommit (S.Tok → ℕ) (ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq) (hr : 8 * Cin.R ≤ Lq) (hon : HonestIn Coins Cin)
     (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U)) {ι : Type} [Fintype ι]
     (site : (S.Tok → ℕ) → ι → Site (QB Lq) Coins K) (kOf : ι → ℕ) (δOf : ι → ℝ≥0∞)
+    (E : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt S Salt)
     {εin εblk εout εep : ℕ → ℝ≥0∞} {εzk : ℕ → ℕ → ℝ≥0∞}
-    (O : ClassifyOpen R Lq V P Cin h64 hr hon U site kOf δOf εin εblk εout εep εzk) :
+    (O : ClassifyOpen R Lq V P Cin h64 hr hon U site kOf δOf E εin εblk εout εep εzk) :
     ProductionReady (classifyModel S R) (classifyArith S R) (classifyProtocol S R Lq V P Cin h64 hr hon.base)
       εcTarget (fun q => εin q + εblk q + εout q + εep q) εsTarget εzk := by
   have hR : R.Valid := ⟨O.inPub, O.weights, O.outPub⟩
   obtain ⟨hokC, hN, hroot, hdep⟩ := O.commit
   have : Subsingleton (classifyModel S R).HidOut := inferInstanceAs (Subsingleton Unit)
   refine productionReady_of (classifyRun_circuitIff O.shape R hR)
-    (iopExtract_of_runExtract R _ (fun _ _ _ _ => trivial) O.blocks.1 O.extract)
+    (iopExtract_of_runExtract R _ (fun _ _ _ _ => trivial) O.blocks.1
+      ⟨E, fun q A hA => ⟨O.extIn q A hA, O.extBlocks q A hA, O.extOut q A hA, O.extEp q A hA⟩⟩)
     (classify_complete_target R hR Lq V P Cin h64 hr hon hokC hN hroot O.policy.1 O.policy.2 O.parts U hbij site kOf
       O.counts.1 δOf O.counts.2.1 O.counts.2.2.1 O.counts.2.2.2 O.refuse)
     (binding_classifier_target (classifyProtocol S R Lq V P Cin h64 hr hon.base) Cin h64 hr
@@ -294,14 +325,15 @@ theorem classify_productionReady_target (R : ClassifyRunPublic S) (Lq : ℕ) (V 
     (P : RunP Hdr (S.Tok → ℕ) Coins) (Cin : PlaneCommit (S.Tok → ℕ) (ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq)
     (hr : 8 * Cin.R ≤ Lq) (hon : HonestIn Coins Cin) (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
     {ι : Type} [Fintype ι] (site : (S.Tok → ℕ) → ι → Site (QB Lq) Coins K) (kOf : ι → ℕ) (δOf : ι → ℝ≥0∞)
+    (E : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt S Salt)
     {εin εblk εout εep : ℕ → ℝ≥0∞} {εzk : ℕ → ℕ → ℝ≥0∞}
-    (O : ClassifyOpen R Lq V P Cin h64 hr hon U site kOf δOf εin εblk εout εep εzk)
+    (O : ClassifyOpen R Lq V P Cin h64 hr hon U site kOf δOf E εin εblk εout εep εzk)
     (hst : ∀ q, εin q + εout q + εep q ≤ (q : ℝ≥0∞) * (2⁻¹ : ℝ≥0∞) ^ 101 + (2⁻¹ : ℝ≥0∞) ^ 101)
     (hblk : ∀ q, εblk q ≤ (q : ℝ≥0∞) * (2⁻¹ : ℝ≥0∞) ^ 101 + (2⁻¹ : ℝ≥0∞) ^ 101)
     (hzk : ∀ q R', εzk q R' ≤ εzkTarget q R') :
     ProductionReady (classifyModel S R) (classifyArith S R) (classifyProtocol S R Lq V P Cin h64 hr hon.base)
       εcTarget εsTarget εsTarget εzkTarget :=
-  productionReady_mono (classify_productionReady R Lq V P Cin h64 hr hon U hbij site kOf δOf O) le_rfl
+  productionReady_mono (classify_productionReady R Lq V P Cin h64 hr hon U hbij site kOf δOf E O) le_rfl
     (extract_split_le_target εin εblk εout εep hst hblk) (fun _ => le_rfl) hzk
 
 /-- **Zero knowledge at the target from the hybrid step** (the form lane L14 and the run's composition deliver):

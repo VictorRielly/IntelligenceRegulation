@@ -1,0 +1,129 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3528/3530] Built ZK60Formal.ZKCountBudget (2.9s)
+✔ [3529/3530] Built ZK60Formal (1.7s)
+Build completed successfully (3530 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+65 theorems
+axioms rc 1
+declarations audited: 64
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  41 axioms: [propext, Classical.choice, Quot.sound]
+  12 axioms: [propext, Quot.sound]
+   7 axioms: [propext]
+== source scan of the L18 files ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassify.lean:53:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyFS.lean:32:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyComplete.lean:32:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/AssembleClassify.lean:34:Every premise is an explicit hypothesis (a field of `ClassifyOpen` or an argument); no `sorry`, axiom or
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/AssembleClassify.lean:35:`native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyR13.lean:28:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyR13.lean:116:/-- **The R13 input endpoint meets O6**: L17's `r13TokenCommit` with the statement's `inRoot` admits exactly the
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyCount.lean:17:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+== the library root imports the L18 library files ==
+137:import ZK60Formal.ProtocolClassify
+138:import ZK60Formal.ProtocolClassifyFS
+139:import ZK60Formal.ProtocolClassifyComplete
+140:import ZK60Formal.AssembleClassify
+141:import ZK60Formal.ProtocolClassifyR13
+142:import ZK60Formal.ProtocolClassifyCount
+the checker (main) is not imported
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: L11Check on the committed L11 corpus ==
+L11Check: 404 checks, 0 failed
+== ProtocolClassifyCheck on the framing corpus ==
+  LABELS: 3
+  PARSE: 1
+  SHAPE: 2
+  BINDING: 1
+  START: 1
+  TAG-START: 4
+  TAG-END: 4
+  CONTINUITY: 3
+  FRAME: 3
+  CARRY: 9
+ProtocolClassifyCheck: 31 checks, 0 failed
+== negative control ==
+mutated 5 records
+FAILED SHAPE: the kinds and order IN-C, BLOCK^L, OUT-C
+FAILED BINDING: the binding is the run header's state
+FAILED TAG-END: segment 1
+FAILED CONTINUITY: segments 1 -> 2
+FAILED FRAME: block 0
+FAILED CARRY: segment 1: pending claims
+ProtocolClassifyCheck: 31 checks, 6 failed
+verdicts: build 0, axioms 1, L6 0/0, L5 0/0, L1 0/0, L11 0/0, L18 0, negative control 0 (0 = as required)
+== lake build (full) ==
+lake build rc 0
+✔ [3528/3530] Built ZK60Formal.ProtocolClassifyR13 (2.1s)
+✔ [3529/3530] Built ZK60Formal (2.1s)
+Build completed successfully (3530 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+64 theorems
+axioms rc 0
+declarations audited: 64
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  41 axioms: [propext, Classical.choice, Quot.sound]
+  12 axioms: [propext, Quot.sound]
+   7 axioms: [propext]
+== source scan of the L18 files ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassify.lean:53:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyFS.lean:32:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyComplete.lean:32:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/AssembleClassify.lean:34:Every premise is an explicit hypothesis (a field of `ClassifyOpen` or an argument); no `sorry`, axiom or
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/AssembleClassify.lean:35:`native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyR13.lean:28:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/ProtocolClassifyCount.lean:17:Every premise is an explicit hypothesis; no `sorry`, axiom or `native_decide`.
+== the library root imports the L18 library files ==
+137:import ZK60Formal.ProtocolClassify
+138:import ZK60Formal.ProtocolClassifyFS
+139:import ZK60Formal.ProtocolClassifyComplete
+140:import ZK60Formal.AssembleClassify
+141:import ZK60Formal.ProtocolClassifyR13
+142:import ZK60Formal.ProtocolClassifyCount
+the checker (main) is not imported
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: L11Check on the committed L11 corpus ==
+L11Check: 404 checks, 0 failed
+== ProtocolClassifyCheck on the framing corpus ==
+  LABELS: 3
+  PARSE: 1
+  SHAPE: 2
+  BINDING: 1
+  START: 1
+  TAG-START: 4
+  TAG-END: 4
+  CONTINUITY: 3
+  FRAME: 3
+  CARRY: 9
+ProtocolClassifyCheck: 31 checks, 0 failed
+== negative control ==
+mutated 5 records
+FAILED SHAPE: the kinds and order IN-C, BLOCK^L, OUT-C
+FAILED BINDING: the binding is the run header's state
+FAILED TAG-END: segment 1
+FAILED CONTINUITY: segments 1 -> 2
+FAILED FRAME: block 0
+FAILED CARRY: segment 1: pending claims
+ProtocolClassifyCheck: 31 checks, 6 failed
+verdicts: build 0, axioms 0, L6 0/0, L5 0/0, L1 0/0, L11 0/0, L18 0, negative control 0 (0 = as required)

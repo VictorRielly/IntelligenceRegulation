@@ -1,0 +1,18 @@
+== lake build of the L18 modules ==
+Build completed successfully (3480 jobs).
+build rc 0 (25 s)
+== lean the checker ==
+checker elaboration rc 0
+== the checker on the corpus ==
+  LABELS: 3
+  PARSE: 1
+  SHAPE: 2
+  BINDING: 1
+  START: 1
+  TAG-START: 4
+  TAG-END: 4
+  CONTINUITY: 3
+  FRAME: 3
+  CARRY: 9
+ProtocolClassifyCheck: 31 checks, 0 failed
+iteration done, 31 s

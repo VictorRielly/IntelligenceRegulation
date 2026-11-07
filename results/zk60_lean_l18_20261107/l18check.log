@@ -1,0 +1,11 @@
+  LABELS: 3
+  PARSE: 1
+  SHAPE: 2
+  BINDING: 1
+  START: 1
+  TAG-START: 4
+  TAG-END: 4
+  CONTINUITY: 3
+  FRAME: 3
+  CARRY: 9
+ProtocolClassifyCheck: 31 checks, 0 failed

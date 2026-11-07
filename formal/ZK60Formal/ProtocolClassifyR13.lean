@@ -113,7 +113,7 @@ section Endpoint
 
 variable {Hdr : Type} {S : BlockShape}
 
-/-- **The R13 input endpoint meets O6**: L17's `r13TokenCommit` with the statement's `inRoot` admits exactly the
+/-- **The R13 input endpoint meets O6**: L17's `r13TokenCommit` with the statement's `inRoot` accepts exactly the
 canonical words, has `N = 2^16 ≤ 2^16` columns, reads its root off the statement, and is 16 deep. -/
 theorem r13TokenCommit_facts {Salt : Type} (R dR : ℕ) {pos : S.Tok → Fin dR × Fin (2 ^ 14)}
     (hpos : Function.Injective pos) (place : Fin dR → Fin R) (msg : (S.Tok → ℕ) → Salt → Fin R → Fin (2 ^ 14) → GF)

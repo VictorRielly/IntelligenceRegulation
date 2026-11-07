@@ -1,13 +1,16 @@
 # D63 lane L18: the classify run's `Protocol` instance, its Fiat–Shamir schedule, `Complete`, and the assembly into `ProductionReady` (2026-11-07)
 
 Lean lane L18 (Claude), on its own worktree branched from perf at `160dc05d` (lanes L9, L10, L11, L12, L15 merged);
-perf merged in at `0940de9a` (lanes L13, L14, L16, L17: a merge, no rebase) so that the R13 instance uses L17's and L16's
-results. Lean 4.34.1, Mathlib v4.34.1, no new dependency. Five new library files under `formal/ZK60Formal/`, imported
-by the library root: `ProtocolClassify.lean`, `ProtocolClassifyFS.lean`, `ProtocolClassifyComplete.lean`,
-`AssembleClassify.lean`, `ProtocolClassifyR13.lean`; one checker, `ProtocolClassifyCheck.lean`, not imported (it defines `main`). One TEST-ONLY
+perf merged in twice, at `0940de9a` (lanes L13, L14, L16, L17) and at `d80f2ef7` (lanes L19, L20; merges, no rebase),
+so that the R13 instance and the run's schedule use those lanes' results. Lean 4.34.1, Mathlib v4.34.1, no new
+dependency. Six new library files under `formal/ZK60Formal/`, imported by the library root: `ProtocolClassify.lean`,
+`ProtocolClassifyFS.lean`, `ProtocolClassifyComplete.lean`, `AssembleClassify.lean`, `ProtocolClassifyR13.lean`,
+`ProtocolClassifyCount.lean`; one checker, `ProtocolClassifyCheck.lean`, not imported (it defines `main`). One TEST-ONLY
 Rust file, `ops/zkp-mvp/gpu-metal/hashline/src/lean_l18_export_tests.rs`, declared by two lines (a comment and one
 `#[cfg(test)] #[path] mod`) at the end of the test-only `private_block/token_io/classify_capture_tests.rs`; it lives in
-`src/`, not `src/private_block/`, as lane L10's does, so `s25_tests.rs`'s `TEST_ONLY_FILES` (85 entries) is unchanged.
+`src/`, not `src/private_block/`, as lane L10's does, so `s25_tests.rs`'s `TEST_ONLY_FILES` needs no new entry. Lane
+L21 (merged into perf after this branch's last merge) is cited, not used in Lean: its `block_knowledge_target_mt` is
+the form the blocks' premise O11b names.
 `Statements.lean`, every existing Lean file and every production source are unchanged. Evidence:
 `results/zk60_lean_l18_20261107/`.
 
@@ -38,36 +41,48 @@ sequential D12a run) and assembles the gate.
     (D65(2), `prove_unserved`).
 - **It agrees with the code on a real receipt.** A test-only export proves an honest two-block classifier run on the
   development rung, verifies it with the production verifier, and replays the run's loop beside it. Lean recomputes
-  every position tag (BLAKE3 in Lean) and every block's framing absorbs from the recorded transcripts:
-  **[N] checks, 0 failed** [TESTED]; five deliberate corruptions are each caught.
+  every position tag (BLAKE3 in Lean) and every block's framing absorbs from the recorded transcripts, and checks the
+  segment order, the transcript's continuity between segments and the carry of the pending claims: **31 checks, 0
+  failed** [TESTED]; five deliberate corruptions cause exactly the six failures they must.
 - **One Fiat–Shamir schedule for the whole run.** PROVED: the stages' and the blocks' sub-protocols together on the
   run's one transcript give a per-query rate equal to the LARGEST part's error, not 28 times it
-  (`classify_run_fs_sound_sched`). For the run's sumcheck slots that is at most **2^-61** for `q ≤ 2^64`
-  (`classify_run_sumchecks_fs_sound_le`).
+  (`classify_run_fs_sound_sched`; with lane L20's sharper per-position count, `classify_run_fs_sound_sched_pos`). For
+  the run's sumcheck slots that is at most **2^-61** for `q ≤ 2^64`, and at the app's own run (26 R13 blocks and the
+  two stages) the same (`shield_run_sumchecks_le`).
+- **The app's real profile, R13, is an instance, not a promise.** The run's block part is built from lane L17's
+  executable decoder of the run's segment frame and lane L9's executable block verifier (`d12aBlockProf`); every
+  accepted block segment is exactly the canonical encoding of what it decoded; the R13 input commitment meets its
+  premise; `Binding` at R13 comes from L17's theorem; L16/L20's per-block knowledge results plug into the blocks'
+  premise (`blocks_extract_union`).
 - **Completeness is proved, given each part's own completeness.** PROVED: if every part's honest segment is accepted by
   its verifier, and the honest prover refuses only at listed sites, then the honest receipt is accepted, carries the
   model's verdict and opens to the input, except with probability at most the sum of the sites' refusal terms. With
   the site counts below a stated budget that is **`εcTarget = 2^-40`** (`classify_complete_target`).
 - **The gate is assembled.** PROVED: `classify_productionReady` gives your `ProductionReady` for the classify run's
-  protocol from ONE structure of named open obligations (`ClassifyOpen`, 12 fields). Discharged inside: the circuit
+  protocol from ONE structure of named open obligations (`ClassifyOpen`, 15 fields). Discharged inside: the circuit
   lemma, `Binding` at the target, `Complete` at the target, the extraction's link from the parts to the whole run, and
   the two statements that follow generically.
 
 **What it does not do.** The remaining gap is now a checkable list (§3). The big items are unchanged in kind: each
-part's Lean honest prover and its completeness (O8), the run's knowledge extraction (O11: lane L16 for the blocks, L17
-at R13, the stages' Fiat–Shamir lift, L10-6), and zero knowledge (O12: lane L14 and the run's simulator).
+part's Lean honest prover and its completeness (O8), the run's knowledge extraction (O11: per block L21's
+`block_knowledge_target_mt` with its named premises, among them L22's `hsem`; the stages' Fiat–Shamir lift; the run's
+one-zone count), and zero knowledge (O12: L14
+and L19's honest-prover properties; for the run as one receipt only `R ≤ 2^112` receipts is proved, L19-2, which
+needs your ruling).
 
 **Two numbers worth your attention** (findings L18-2 and L18-3, §5).
 - The code-chain composition of lane L8, applied to the whole run, has a query-free part of about `2^-90`: the
-  verifier's own ~`2^16` items times `M`'s `2^-106.4` per-round error. That is above your target's `2^-100` constant.
-  It does not break anything proved; it says the run-level extraction must use the path-wise count you approved in
-  D66(4) (one block zone, `FSPathBlock.lean`), carried to the code's chain.
+  verifier's own ~`2^16` items times `M`'s `2^-106.4` per-round error. Lane L20's per-position count (now applied to
+  the whole run here) brings that to the sum of every part's rounds' errors, about `2^-99.5` for 26 blocks and the
+  stages [ESTIMATE]: still just above your target's `2^-100` constant. Nothing proved is broken; it says the
+  run-level extraction must use the path-wise one-zone count you approved in D66(4), carried to the code's chain.
 - The openings' "dependent proximity coefficients" refusal costs about `1/p ≈ 2^-64` per opening, not `2^-111`: about
   `2^-57.6` over the run's ~83 openings. Still far inside `2^-40`.
 
 ## 2. What is proved
 
-All PROVED (`results/zk60_lean_l18_20261107/`; the counts are in §6).
+All PROVED (`results/zk60_lean_l18_20261107/`): 64 theorems on at most `propext`, `Classical.choice`, `Quot.sound`; the
+counts are in §6.
 
 ### 2.1 The `Protocol` instance (`ProtocolClassify.lean`)
 
@@ -102,6 +117,7 @@ The code: hashline `src/private_block/token_io/classify_run.rs`, `verify_classif
 | **`classify_run_sumchecks_fs_sound`** | L8's `exec_sumchecks_fs_sound` on the run's slots: a false claim in ANY slot of ANY part passing every slot's executable `sumcheck::verify` `≤ T·dmax/|K|·(1 + p/2^128)² + collBound T + collBound (T + 1)` (L9's `block_sumchecks_fs_sound` and L15's `stage_sumchecks_fs_sound` are this bound for ONE part at its own `T`) |
 | **`classify_run_sumchecks_fs_sound_le`** | with every degree `≤ 7` and `T ≤ 2^64 + 2^20`: at most `2^-61` for the WHOLE run |
 | **`sched_le_target`** | the scheduled bound is `≤ εsTarget q` when the largest per-step error is `≤ 2^-103` and `q ≥ ℓ + 1` (`T ≤ 2^76`); finding L18-2 for `q < ℓ` |
+| **`classify_run_fs_sound_sched_pos`** (`ProtocolClassifyCount.lean`) | the run's schedule with lane L20's PER-POSITION count (`fs_code_chain_sound_sched_log_pos`): `≤ q·εmax + Σ_{c ∈ run} n_c·ε_c + collBound T + collBound (T + 1)`: the prover's queries at the largest error, the verifier's own chain at the sum of the run's rounds' errors |
 
 ### 2.3 `Complete` (`ProtocolClassifyComplete.lean`)
 
@@ -138,7 +154,7 @@ Lane L17's R13 results and lane L16's per-block knowledge form, instantiated rat
 | `boundaryFrame` | one extracted plane per boundary index is L12's `RunFrame` (`B_in` block 0's input, `B_L` stage OUT-C's) |
 | `RunExt`, `InOk`, `BlocksOk`, `OutOk`, `EpOk`, `RunExtract` | the run's extraction premise: ONE extractor, four failure bounds (stage IN-C with SIC_IO; the blocks JOINTLY; stage OUT-C for the statement's verdict; the input endpoint's opening) |
 | `prH_or_le`, `prH_mono`, **`iopExtract_of_runExtract`** | `RunExtract … εin εblk εout εep → IOPExtract (classifyModel S R) (classifyArith S R) P (εin + εblk + εout + εep)`, through L12's `classify_inner_of_stages` |
-| `ClassifyOpen` | the 12 open obligations as named fields (§3) |
+| `ClassifyOpen` | the 15 open obligations as named fields (§3), with the run's extractor `E` an argument |
 | **`classify_productionReady`** | `ClassifyOpen … → ProductionReady (classifyModel S R) (classifyArith S R) (classifyProtocol …) εcTarget (εin + εblk + εout + εep) εsTarget εzk` via `productionReady_of`: `CircuitIff` (L2), `IOPExtract` (this lane), `Complete` at the target (this lane), `Binding` at the target (L10's `binding_classifier_target`), `ZeroKnowledge` (O12) |
 | `extract_split_le_target`, **`classify_productionReady_target`** | with the extraction's parts within the target's halves and `εzk ≤ εzkTarget`: `ProductionReady … εcTarget εsTarget εsTarget εzkTarget` (`productionReady_mono`) |
 | `classify_zk_target` | `ZeroKnowledge … εzkTarget` from a programming simulator's one-receipt hybrid step (`zeroKnowledge_target_of_hybrid`): the form O12 can be delivered in |
@@ -162,8 +178,11 @@ refusal sites) are arguments, not premises.
 | O8 `parts` | `List.Forall₂ (SegComplete …) (P.parts L) V.parts`: each part's honest segment accepted, deterministically | IN-C, OUT-C: L12/L15 (model completeness only); blocks: L9–L11 executable verifier, no Lean honest prover | **open, not started**: the Lean honest provers of the parts and the executable stage verifiers |
 | O9 `refuse` | the honest prover refuses only when a listed site fires | with O8 | open: the sites are listed (§4.1); the statement is the prover specification's |
 | O10 `counts` | `∀ x i, k ≤ kOf i`, `∀ x i, δ ≤ δOf i`, `Σ kOf ≤ 2^85`, `Σ δOf ≤ 2^-41` | this lane's site list | the count holds by a wide margin [ESTIMATE §4.1]; `δ` (freshness) is argued, not proved (L18-4) |
-| O11 `extract` | `RunExtract R P εin εblk εout εep` (one extractor; four failure bounds) | IN-C: L12 (`inc_stage_sound`, interactive); OUT-C: L15 (`outc_stage_sound`, interactive); blocks: **L16**'s `block_knowledge` (any shape; `hOpen`, `hRel`, `hLk` named, L20/L21), at R13 with L17's `blockSat_of_slots_r13` for `hRel`, carried into O11 by `blocksOk_of_blockSat` / `blocks_extract_union`; endpoint: L10-6 | open: the stages' Fiat–Shamir lift; L16's three hypotheses; the identification of each block's extracted planes with the run's boundary planes (the boundary openings); the joint path-wise bound (the per-block sum misses the constant: L16-1, L18-2) |
-| O12 `zk` | `ZeroKnowledge (classifyModel S R) P εzk`; for the target, `classify_zk_target`'s hybrid step (`εhv ≤ 2^-120`, `δ ≤ 2^-248`) | **L14**: `zeroKnowledge_of_oneStep`, `w16r2_zk_within_target` (generic in the protocol and the block shape; the stand-in simulator) | open: L14's obligations for the classify run (its prover as a bounded oracle computation, its Fiat–Shamir receipt model, the honest-verifier law, the counts; a 26-block run estimated at `R ≤ 2^85`, L14 §3.1); every `R` needs Victor's ruling on L14-1 / A5 |
+| O11a `extIn` | for the run's extractor `E`: `Pr[accept ∧ ¬ InOk] ≤ εin q` (stage IN-C's `InSat` on `B_in`, SIC_IO's endpoint identity) | L12 (`inc_stage_sound`, interactive) | open: the Fiat–Shamir lift on the code's chain |
+| O11b `extBlocks` | `Pr[accept ∧ ¬ BlocksOk] ≤ εblk q`: every block's `BlockOn` on the run's boundary planes, JOINTLY | per block **L21**'s `block_knowledge_target_mt` (L21-10): `Pr[BlockAcc ∧ ¬ BlockSat] ≤ εsTarget q`, any shape, every `q`; carried in by `blocksOk_of_blockSat` / `blocks_extract_union` | open. `block_knowledge_target_mt`'s premises: L20's opening and `M` chain bounds and links (`hM`, `hEA`, `hEH`, `hX`, `hexec`); `hsem` in the `OpenTrue` form (**L22**, running); the cover lemmas `hcoverR` / `hcoverH` and the lookup split `hsplit` (the instance's algebra; a follow-on lane); the budget `hbud` (PROVED at W16R2: `w16r2_budget_mt`, 30.2M ≤ 2^26 units). Then: each block's extracted planes identified with the run's boundary planes (the boundary openings); and the joint one-zone count, since 26 per-block bounds of `εsTarget q` sum above the target (L18-2) |
+| O11c `extOut` | `Pr[accept ∧ ¬ OutOk] ≤ εout q` for the statement's verdict | L15 (`outc_stage_sound`, interactive) | open: the Fiat–Shamir lift |
+| O11d `extEp` | `Pr[accept ∧ ¬ EpOk] ≤ εep q`: the input endpoint opens to the extracted words | L10-6; L20's `opening_knowledge_chain_pos` at the endpoint's geometry | open |
+| O12 `zk` | `ZeroKnowledge (classifyModel S R) P εzk`, the RUN's zero knowledge as ONE receipt; for the target, `classify_zk_target`'s hybrid step (`εhv ≤ 2^-120`, `δ ≤ 2^-248`) | **L14** (`zeroKnowledge_of_oneStep`, the stand-in simulator), **L19** (`hHV_of_blockLinks`: `hHV` a theorem from named honest-prover properties; `zk_every_R` for a block receipt; `RunK.cap_112` for the run) | open. **For the classify run as one receipt only `R ≤ 2^112` receipts per weight set is proved (`RunK.cap_112`, finding L19-2), and the choice of fix awaits Victor's ruling**; L19's honest-prover hypotheses are this lane's prover specification's to discharge and are not yet: the coin map and the receipt read off the view (`hπ`, `hout`), honest rounds and masked terminals as claim values (`hclaim`), the honest host sums and the hand-off, `M`'s layout (`hlay`, `hMK`), the openings' coin and weight conditions, the counts by kind (`hKw`, `hKc`, `hUw`, `hwb`, `hwba`); and the column digests modelled as programmed points (L19-3) |
 
 ## 4. The numeric totals against the targets
 
@@ -228,6 +247,12 @@ composition's query-free part is above the target's constant.**
   zone premises. The run-level extraction must carry it to the code chain; that is why O11 takes the blocks JOINTLY,
   not as 26 per-block bounds (their sum, `26·2^-102.7 ≈ 2^-98`, would miss the constant too).
 - Not a change to any statement or target. The sumcheck slots alone are fine (`ℓ·5/p² ≈ 2^-109.7` at `q = 0`).
+- **With lane L20's per-position count** (merged after this finding was first written): L20 replaces `(q + ℓ + 1)·εmax`
+  by `q·εmax + Σ_c n_c·ε_c`, and this lane applies it to the whole run (`classify_run_fs_sound_sched_pos`, PROVED). The
+  query-free part is then the SUM of every part's rounds' errors over the run: one W16R2 block's is about `2^-104.2`
+  (L20), so 26 blocks and the two stages give about `2^-99.5` [ESTIMATE; an R13 block's `opB` is larger, L20], still just
+  above `2^-100`. So the per-position count fixes the block (L16-1) but not yet the run; the run needs the path-wise
+  one-zone count of D66(4) on the code's chain, which is the form O11's blocks part should be delivered in.
 
 **L18-3 (Low; completeness arithmetic): the dependent-proximity refusal is about `1/p` per opening.**
 - CODE (protocol.rs:312-322): `check_opening_challenges` refuses when `det(ρ_prox, ρ_prox+1) = 0` in `Fp`, i.e. when the
@@ -262,4 +287,53 @@ zkp-core/src/transcript.rs:61-64), so the Lean `Tr.absorb` is the same function.
 
 ## 6. Checks
 
-[to be filled in from check.log]
+All through the zk60 resource guard (class cpu, `run_guarded.py`), logs and `.done` markers in
+`results/zk60_lean_l18_20261107/`. The heavy lock was contended all night (other lanes' GPU and Lean jobs); the
+first iteration waited about three hours for admission (`iter1.log.guard`).
+
+**The framing corpus** (TEST ONLY). `export_corpus.sh` runs `cargo test --release --offline --locked -j 2 --lib
+lean_l18_export` (`rust.log`, inside `iter1.log`'s job): **1 passed**, 166 s with the build. The test proves an honest
+classifier run on the development rung with two blocks (`hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2`,
+verdict 1, segments 1,224,328 / 7,421,464 / 7,421,464 / 2,489,016 B), checks it with the production
+`verify_classify_run`, and replays `verify_classify_run_with`'s loop with the production pieces; `corpus.txt`
+(2,412 B, committed) records the run header's transcript and binding, every segment's start and end transcripts
+(state, squeeze counter) and tags, every block's framing inputs and the transcript after them, and the claims carried.
+
+**The agreement check** (`ProtocolClassifyCheck.lean` on `corpus.txt`, `l18check.log`): **31 checks, 0 failed**
+[TESTED]:
+
+| Kind | Checks | What |
+|---|---|---|
+| `LABELS` | 3 | `labRunStage`, `labRunBlock`, `labB` are `ascii` of `pb-run-stage`, `pb-run-block`, `B` |
+| `PARSE`, `SHAPE` | 1 + 2 | every line parsed; `L + 2 = 4` segments, in the order IN-C, BLOCK, BLOCK, OUT-C (`RunV.parts`) |
+| `BINDING`, `START` | 1 + 1 | the binding is the run header's state; segment 0 starts at the run header's transcript |
+| `TAG-START`, `TAG-END` | 4 + 4 | Lean's `posTag` (BLAKE3 in Lean, under the profile's key) of the recorded transcripts is each segment's start tag and the end tag it carries (`segStep`) |
+| `CONTINUITY` | 3 | each segment starts from the transcript the previous one ended on (`runSegs`) |
+| `FRAME` | 2 + 1 | Lean's `blockFrame` of each block's start transcript, digest and boundary root is the code's transcript before `verify_core`; one record per block |
+| `CARRY` | 9 | each block opens the previous boundary's root with the claims the previous segment left pending and hands on its own root; stage OUT-C opens the last boundary with the last block's claims (`Carry`) |
+
+**Negative control** (`mutate_corpus.py`, five single changes: the binding, segment 1's end tag, block 0's framing
+counter, block 1's pending count, segment 0's kind): **31 checks, 6 failed**, exactly the six the changes must cause
+(`negative_control.log`).
+
+**The gate** (`check_l18.sh`, ONE guarded job, 57 s, peak RSS 6.71 GiB; `check.log`, the second run: the first run's
+only miss was the axiom generator reading a header-comment line that began with the word "theorem", reworded):
+
+| Gate | Result |
+|---|---|
+| full `lake build` of the library (`full.log`) | green, 3,530 jobs, 0 warnings, 0 errors, no `sorry` |
+| axiom audit (`gen_axioms.py` → `axioms_l18.lean` → `axioms.log`: every `theorem` of the six L18 library files) | **64 theorems** (ProtocolClassify 26, ProtocolClassifyFS 10, ProtocolClassifyComplete 9, AssembleClassify 10, ProtocolClassifyR13 8, ProtocolClassifyCount 1): 41 on `[propext, Classical.choice, Quot.sound]`, 12 on `[propext, Quot.sound]`, 7 on `[propext]`, 4 on none; no `sorryAx`, no `Lean.ofReduceBool`, no other axiom |
+| source scan of the seven L18 files (`sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`, `implemented_by`, `extern`, `bv_decide`, `ofReduceBool`) | only the words of the files' header comments ("no `sorry`, axiom or `native_decide`") |
+| the root imports the six library files; the checker (`main`) is not imported | yes |
+| regressions on their committed corpora: L6Check / L5Check / fixture L1 / L11Check | 1,206 / 5,553 / 101,956 / 404 checks, 0 failed |
+| ProtocolClassifyCheck on `corpus.txt` | 31 checks, 0 failed |
+| negative control | 31 checks, 6 failed (as required) |
+
+Not run here: hashline's R19b census and the `s25` tests. The new Rust file is in `src/`, outside
+`src/private_block/`, so `TEST_ONLY_FILES` is unchanged (as for lane L10's); the merged tree's census is the
+coordinator's.
+
+The iterations (`file1.log`, `iter1.log` … `iter4.log`) show the errors fixed on the way (§5, L18-7, and two more: a
+`congr` and the `constructorNameAsVariable` linter both exceeded the recursion limit by unfolding `Finset.univ` over
+the `2^256` digests; the fix is `Set.ext` with simp lemmas and that one linter off in `ProtocolClassifyComplete.lean`,
+a linter option, not `maxRecDepth`; and `ZClaim` ambiguous with a merged lane's `Exec.ZClaim`).

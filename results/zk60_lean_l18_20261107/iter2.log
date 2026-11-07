@@ -1,0 +1,25 @@
+== lake build of the L18 modules ==
+warning: ZK60Formal/ProtocolClassifyComplete.lean:115:13: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+warning: ZK60Formal/ProtocolClassifyComplete.lean:108:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.Site.prob_le`:
+  [Fintype K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3476/3477] Building ZK60Formal.AssembleClassify (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/ZK60Formal/AssembleClassify.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean/ZK60Formal/AssembleClassify.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/lib/lean/ZK60Formal/AssembleClassify.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/ir/ZK60Formal/AssembleClassify.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7ec794744dd611b8/formal/.lake/build/ir/ZK60Formal/AssembleClassify.setup.json --json
+error: ZK60Formal/AssembleClassify.lean:119:10: Unknown identifier `OutCSat`
+warning: ZK60Formal/AssembleClassify.lean:158:8: declaration uses `sorry`
+warning: ZK60Formal/AssembleClassify.lean:259:2: Try this: 
+  haveI̵
+
+The goal is a proposition, so `have` is preferred over `haveI`.
+The difference between `have` and `haveI` is that `haveI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+Some required targets logged failures:
+- ZK60Formal.AssembleClassify
+error: build failed
+build rc 1 (10 s)
+iteration done, 10 s

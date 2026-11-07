@@ -14,7 +14,7 @@ O11=$WT/results/zk60_lean_l11_20261107
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
-FILES="$L/ProtocolClassify.lean $L/ProtocolClassifyFS.lean $L/ProtocolClassifyComplete.lean $L/AssembleClassify.lean $L/ProtocolClassifyR13.lean $L/ProtocolClassifyCheck.lean"
+FILES="$L/ProtocolClassify.lean $L/ProtocolClassifyFS.lean $L/ProtocolClassifyComplete.lean $L/AssembleClassify.lean $L/ProtocolClassifyR13.lean $L/ProtocolClassifyCount.lean $L/ProtocolClassifyCheck.lean"
 echo "== lake build (full) =="
 "$LAKE" -d "$WT/formal" build > "$OUT/full.log" 2>&1
 rc=$?
@@ -36,7 +36,7 @@ grep -oE "axioms: \[[^]]*\]" "$OUT/axioms.log" | sort | uniq -c
 echo "== source scan of the L18 files =="
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $FILES || echo "none"
 echo "== the library root imports the L18 library files =="
-for m in ProtocolClassify ProtocolClassifyFS ProtocolClassifyComplete AssembleClassify ProtocolClassifyR13; do grep -n "ZK60Formal.$m\$" "$WT/formal/ZK60Formal.lean" || echo "MISSING $m"; done
+for m in ProtocolClassify ProtocolClassifyFS ProtocolClassifyComplete AssembleClassify ProtocolClassifyR13 ProtocolClassifyCount; do grep -n "ZK60Formal.$m\$" "$WT/formal/ZK60Formal.lean" || echo "MISSING $m"; done
 grep -n "ZK60Formal.ProtocolClassifyCheck" "$WT/formal/ZK60Formal.lean" && echo "UNEXPECTED: the checker is imported" || echo "the checker (main) is not imported"
 echo "== regression: L6Check on the committed L6 corpus =="
 "$LAKE" -d "$WT/formal" env lean --run "$L/L6Check.lean" "$O6/corpus.txt" > "$OUT/l6check_regression.log" 2>&1
