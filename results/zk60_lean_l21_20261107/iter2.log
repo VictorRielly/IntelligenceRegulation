@@ -1,0 +1,293 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/plan.txt ==
+build ZK60Formal.RelW16Host ZK60Formal.RelW16HostDeg ZK60Formal.RelW16Chain ZK60Formal.RelW16Define ZK60Formal.LookupW16FS ZK60Formal.RelW16Block
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/check_l21.sh
+== lake build ZK60Formal.RelW16Host ZK60Formal.RelW16HostDeg ZK60Formal.RelW16Chain ZK60Formal.RelW16Define ZK60Formal.LookupW16FS ZK60Formal.RelW16Block ==
+warning: ZK60Formal/RelW16Host.lean:112:51: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RelW16Host.lean:113:47: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RelW16Host.lean:127:66: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RelW16Host.lean:128:43: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RelW16Host.lean:168:49: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RelW16Host.lean:169:45: `if_pos` has been deprecated: Use `ite_eq_left` instead
+✖ [3463/3466] Building ZK60Formal.RelW16HostDeg (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/ZK60Formal/RelW16HostDeg.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean/ZK60Formal/RelW16HostDeg.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean/ZK60Formal/RelW16HostDeg.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/ir/ZK60Formal/RelW16HostDeg.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/ir/ZK60Formal/RelW16HostDeg.setup.json --json
+warning: ZK60Formal/RelW16HostDeg.lean:88:54: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/RelW16HostDeg.lean:88:54: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  if b' = b then ?m.58 else ?m.59
+in the target expression
+  (eqPoly y fun i => bit (b' i)) * (fun b' => if b' = b then 1 else 0) b' = 0
+
+F : Type
+inst✝ : Field F
+n : ℕ
+b : Fin n → Bool
+y : Fin n → F
+b' : Fin n → Bool
+hb' : b' ≠ b
+⊢ (eqPoly y fun i => bit (b' i)) * (fun b' => if b' = b then 1 else 0) b' = 0
+warning: ZK60Formal/RelW16HostDeg.lean:88:78: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/RelW16HostDeg.lean:88:78: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  if ?m.64 = ?m.64 then ?m.66 else ?m.67
+in the target expression
+  (eqPoly y fun i => bit (b i)) = (eqPoly y fun i => bit (b i)) * (fun b' => if b' = b then 1 else 0) b
+
+F : Type
+inst✝ : Field F
+n : ℕ
+b : Fin n → Bool
+y : Fin n → F
+⊢ (eqPoly y fun i => bit (b i)) = (eqPoly y fun i => bit (b i)) * (fun b' => if b' = b then 1 else 0) b
+error: ZK60Formal/RelW16HostDeg.lean:120:93: Function expected at
+  b
+but this term has type
+  ?m.240
+
+Note: Expected a function because this term is being applied to the argument
+  i
+✖ [3464/3466] Building ZK60Formal.RelW16Define (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/ZK60Formal/RelW16Define.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean/ZK60Formal/RelW16Define.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean/ZK60Formal/RelW16Define.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/ir/ZK60Formal/RelW16Define.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/ir/ZK60Formal/RelW16Define.setup.json --json
+error: ZK60Formal/RelW16Define.lean:233:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  tHistD P hdrLen k hdr
+in the target expression
+  EscapesWithin (fun c => szSt (Φ (cuts3 absOf Lg (rootsAt hdrLen hdr)) (rootsAt hdrLen hdr) k h) (τ ++ [(m, c)]))
+    (dg k)
+
+case h_1
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+L : ℕ
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+P : BlockParams
+hdrLen : ℕ
+absOf : QB L → Option (List UInt8)
+Φ : Cuts3 L → RootsO → (k : ℕ) → Hist → (Fin (P.draws k) → K) → K
+dg : ℕ → ℕ
+k : ℕ
+hdeg : ∀ (cu : Cuts3 L) (rt : RootsO) (h : Hist), IndDegLE (dg k) (Φ cu rt k h)
+Lg : List (QB L × Dig)
+hdr : List (TItem × Dig)
+τ : List (List UInt8 × K)
+m : List UInt8
+hτ : τ.length < (defSq P hdrLen absOf Φ dg k).n
+x✝ : Option (Hist × List (TItem × Dig))
+h : Hist
+rest : List (TItem × Dig)
+hh : tHistD P hdrLen k hdr = some (h, rest)
+hns : ¬szSt (Φ (cuts3 absOf Lg (rootsAt hdrLen hdr)) (rootsAt hdrLen hdr) k h) τ
+⊢ EscapesWithin (fun c => szSt (Φ (cuts3 absOf Lg (rootsAt hdrLen hdr)) (rootsAt hdrLen hdr) k h) (τ ++ [(m, c)]))
+    (dg k)
+✖ [3465/3466] Building ZK60Formal.LookupW16FS (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/ZK60Formal/LookupW16FS.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean/ZK60Formal/LookupW16FS.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/lib/lean/ZK60Formal/LookupW16FS.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/ir/ZK60Formal/LookupW16FS.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/formal/.lake/build/ir/ZK60Formal/LookupW16FS.setup.json --json
+error: ZK60Formal/LookupW16FS.lean:52:9: ambiguous term, use fully qualified name, possible interpretations [@Finset.fold, @Sound.fold]
+warning: ZK60Formal/LookupW16FS.lean:66:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.lkQ_natDegree`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/LookupW16FS.lean:70:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.lkQ_eval`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LookupW16FS.lean:81:56: ring failed, ring expressions not equal
+K : Type
+inst✝¹ : Field K
+inst✝ : DecidableEq K
+a τ : Tup K
+ht : τ.tag = a.tag
+hne : τ ≠ a
+h0 : lkQ a τ = 0
+c0 : τ.x - a.x = 0
+c1 : ((C τ.z - C a.z) * X ^ 2).coeff 1 + (τ.y - a.y) = 0
+c2 : ((C τ.z - C a.z) * X ^ 2).coeff 2 = 0
+⊢ -((C τ.z - C a.z) * X ^ 2).coeff 1 = 0
+error: ZK60Formal/LookupW16FS.lean:81:83: ring failed, ring expressions not equal
+K : Type
+inst✝¹ : Field K
+inst✝ : DecidableEq K
+a τ : Tup K
+ht : τ.tag = a.tag
+hne : τ ≠ a
+h0 : lkQ a τ = 0
+c0 : τ.x - a.x = 0
+c1 : ((C τ.z - C a.z) * X ^ 2).coeff 1 + (τ.y - a.y) = 0
+c2 : ((C τ.z - C a.z) * X ^ 2).coeff 2 = 0
+⊢ τ.z - a.z - ((C τ.z - C a.z) * X ^ 2).coeff 2 = 0
+warning: ZK60Formal/LookupW16FS.lean:108:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/LookupW16FS.lean:87:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.lk_round_beta`:
+  [Fintype ι]
+  [Fintype π]
+  [Fintype K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype ι] [Fintype π] [Fintype K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/LookupW16FS.lean:113:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.lk_round_gamma`:
+  [Fintype ι]
+  [Fintype π]
+  [Fintype K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype ι] [Fintype π] [Fintype K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LookupW16FS.lean:145:36: Ambiguous term
+  fold
+Possible interpretations:
+  Finset.fold ?m.127 γ ?m.131 : Finset ?m.124 → K
+  
+  Sound.fold β γ (T j) : K
+error: ZK60Formal/LookupW16FS.lean:148:101: Application type mismatch: The argument
+  α
+has type
+  κ
+but is expected to have type
+  K
+in the application
+  HelperRel (fun l => Sound.fold β γ (A l)) (fun j => Sound.fold β γ (T j)) m α
+error: ZK60Formal/LookupW16FS.lean:139:73: unsolved goals
+case refine_2
+K : Type
+inst✝⁵ : Field K
+inst✝⁴ : DecidableEq K
+ι π κ : Type
+inst✝³ : Fintype ι
+inst✝² : Fintype π
+inst✝¹ : Fintype κ
+inst✝ : Fintype K
+A : ι ⊕ π ⊕ π → Tup K
+T : κ → Tup K
+m : κ → K
+β γ : K
+hN : Fintype.card ι + 2 * Fintype.card π < ringChar K
+l : ι ⊕ π ⊕ π
+hl : ∀ (j : κ), Sound.fold β γ (T j) ≠ Sound.fold β γ (A l)
+hcardL : Fintype.card (ι ⊕ π ⊕ π) = Fintype.card ι + 2 * Fintype.card π
+hne : (logupLhs fun l => Sound.fold β γ (A l)) ≠ logupRhs (fun j => Sound.fold β γ (T j)) m
+himg : #(image (fun j => sorry) univ) ≤ #(image T univ)
+⊢ EscapesWithin (fun α => ∃ H, HelperRel (fun l => Sound.fold β γ (A l)) (fun j => Sound.fold β γ (T j)) m α H)
+    (Fintype.card ι + 2 * Fintype.card π + 2 * #(image T univ))
+warning: ZK60Formal/LookupW16FS.lean:210:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.lkSq_rbr`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LookupW16FS.lean:321:95: unsolved goals
+K : Type
+inst✝⁶ : Field K
+inst✝⁵ : Algebra GF K
+inst✝⁴ : DecidableEq K
+L : ℕ
+ι π κ : Type
+inst✝³ : Fintype ι
+inst✝² : Fintype π
+inst✝¹ : Fintype κ
+inst✝ : Fintype K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hK2 : Module.finrank GF K = 2
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL64 : L < 2 ^ 64
+hL81 : 81 ≤ L
+P : BlockParams
+hdrLen : ℕ
+Alk : List (QB L × Dig) → ι ⊕ π ⊕ π → Tup K
+T : κ → Tup K
+mlk : List (QB L × Dig) → κ → K
+hN : Fintype.card ι + 2 * Fintype.card π < ringChar K
+q : ℕ
+A : OC (QB L) Dig (List Op × Core)
+hA : A.Bounded q
+hstab :
+  ∀ (G : QB L → Dig) (P1 P1' : List (QB L × Dig)) (τ : List (ItB L × Dig)) (qs : List (QB L)),
+    (chainEncB key domain hs L hL).Chain G τ qs →
+      τ.length = hdrLen + 1 →
+        (∀ y ∈ qs, y ∈ List.map Prod.fst P1) →
+          P1 <+: P1' →
+            (∀ e ∈ P1', e.2 = G e.1) →
+              ∀ sx ∈ [lkSq hdrLen (absOfC (chainEncB key domain hs L hL)) Alk T mlk],
+                ∀ (ext : List (TItem × Dig)),
+                  sx.St (proverLog A P1) (List.map entB τ ++ ext) = sx.St (proverLog A P1') (List.map entB τ ++ ext)
+hmain :
+  (prH fun G =>
+      (∀ op ∈ lkOps P (OC.run G A), op.len ≤ L) ∧
+        (lkOps P (OC.run G A)).length ≤ hdrLen + 10 ∧
+          (∃ sx ∈ [lkSq hdrLen (absOfC (chainEncB key domain hs L hL)) Alk T mlk],
+              sx.a ≤ (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (lkOps P (OC.run G A))).length ∧
+                ¬sx.St (OC.runLog G A).2
+                    (List.take sx.a (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (lkOps P (OC.run G A)))) []) ∧
+            ∀ sx ∈ [lkSq hdrLen (absOfC (chainEncB key domain hs L hL)) Alk T mlk],
+              ∃ ks ds rest,
+                ks.length = sx.n ∧
+                  ds.length = sx.n ∧
+                    List.drop sx.a (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (lkOps P (OC.run G A))) =
+                        (List.map TItem.squeeze ks).zip ds ++ rest ∧
+                      sx.St (OC.runLog G A).2
+                        (List.take sx.a (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (lkOps P (OC.run G A))))
+                        (List.map (fun d => ([], Fp2.toK U (challengeFp2Of d))) ds)) ≤
+    ↑((q + (hdrLen + 10) + 1) * (Fintype.card ι + 2 * Fintype.card π + 2 * #(image T univ))) / ↑(Fintype.card K) *
+          (1 + ↑gP / ↑(2 ^ 128)) ^ 2 +
+        collBound (q + (hdrLen + 10) + 1) Dig +
+      collBound (q + (hdrLen + 10) + 1 + 1) Dig
+G : QB L → Dig
+bga : Fp2 × Fp2 × Fp2
+_rs : List SlotRec
+_acc : Acc
+hhl : (OC.run G A).1.length = hdrLen
+hhfit : ∀ op ∈ (OC.run G A).1, op.len ≤ L
+t' : Tr
+hacc :
+  blockSlots (liftH G) P (OC.run G A).2 (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1) =
+    Except.ok (bga, _rs, _acc, t')
+l : ι ⊕ π ⊕ π
+hl : ∀ (j : κ), T j ≠ Alk (cutsOf key domain hs hL A G).1 l
+Hh : Helpers ι π κ K
+hH :
+  HelperRel (fun l => Sound.fold (Fp2.toK U bga.1) (Fp2.toK U bga.2.1) (Alk (cutsOf key domain hs hL A G).1 l))
+    (fun j => Sound.fold (Fp2.toK U bga.1) (Fp2.toK U bga.2.1) (T j)) (mlk (cutsOf key domain hs hL A G).1)
+    (Fp2.toK U bga.2.2) Hh
+hbga :
+  bga =
+    ((Tr.challengeFp2 (liftH G)
+          (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) ((OC.run G A).1 ++ rootOpsA P (OC.run G A).2))).1,
+      (Tr.challengeFp2 (liftH G)
+          (Tr.challengeFp2 (liftH G)
+              (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) ((OC.run G A).1 ++ rootOpsA P (OC.run G A).2))).2).1,
+      (Tr.challengeFp2 (liftH G)
+          (Tr.challengeFp2 (liftH G)
+              (Tr.challengeFp2 (liftH G)
+                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key)
+                    ((OC.run G A).1 ++ rootOpsA P (OC.run G A).2))).2).2).1)
+hfit : ∀ op ∈ lkOps P (OC.run G A), op.len ≤ L
+hops : lkOps P (OC.run G A) = (OC.run G A).1 ++ rootOpsA P (OC.run G A).2 ++ (drawOps 3 ++ rootOpsH P (OC.run G A).2)
+⊢ opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1 ++
+        opTrace (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1)
+          (rootOpsA P (OC.run G A).2) ++
+      opTrace (liftH G)
+        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) ((OC.run G A).1 ++ rootOpsA P (OC.run G A).2))
+        (drawOps 3 ++ rootOpsH P (OC.run G A).2) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1 ++
+        opTrace (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1)
+          (rootOpsA P (OC.run G A).2) ++
+      (opTrace (liftH G)
+          (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) ((OC.run G A).1 ++ rootOpsA P (OC.run G A).2))
+          (drawOps 3) ++
+        opTrace (liftH G)
+          (runOps (liftH G)
+            (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) ((OC.run G A).1 ++ rootOpsA P (OC.run G A).2))
+            (drawOps 3))
+          (rootOpsH P (OC.run G A).2))
+Some required targets logged failures:
+- ZK60Formal.RelW16HostDeg
+- ZK60Formal.RelW16Define
+- ZK60Formal.LookupW16FS
+error: build failed
+build rc 1 (17 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/check_l21.sh skipped: an earlier step failed ==
+rc 1, 17 s

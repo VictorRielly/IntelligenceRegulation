@@ -134,3 +134,10 @@ import ZK60Formal.ZKCount
 import ZK60Formal.ZKCountStep
 import ZK60Formal.ZKCountHyb
 import ZK60Formal.ZKCountBudget
+import ZK60Formal.RelW16Chain
+import ZK60Formal.RelW16Define
+import ZK60Formal.LookupW16FS
+import ZK60Formal.RelW16Block
+import ZK60Formal.RelW16Host
+import ZK60Formal.RelW16HostDeg
+import ZK60Formal.RelW16Pos

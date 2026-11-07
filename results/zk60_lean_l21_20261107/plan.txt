@@ -1,0 +1,2 @@
+build ZK60Formal.RelW16Define ZK60Formal.LookupW16FS ZK60Formal.RelW16Block ZK60Formal.RelW16Pos
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0e5e4a2f7cdf5ec5/results/zk60_lean_l21_20261107/check_l21.sh
