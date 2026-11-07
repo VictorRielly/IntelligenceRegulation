@@ -1,0 +1,40 @@
+  ASCII: 13
+  SHAPE: 1
+  SCHEDULE: 4
+  FRAME: 3
+  TAG: 2
+  DECODE: 3
+  FIELDS: 5
+  SLOT: 1
+  LOGUP: 1
+  SLOTS: 2
+  SLOT-DRAWS: 23
+  SLOT-C: 23
+  SLOT-SCALAR: 23
+  SLOT-CLAIMED: 23
+  SLOT-RHO: 23
+  SLOT-FIN: 23
+  SLOT-TERMS: 23
+  SLOT-HOSTED: 23
+  SLOT-STATE: 23
+  FUNCTIONALS: 1
+  MASK: 4
+  OPEN: 2
+  PCS: 8
+  END: 1
+  FORK: 2
+  TAMPER: 13
+  SEG-SHAPE: 2
+  SEG-FRAME: 2
+  SEG-DECODE: 4
+  SEG-FIELDS: 7
+  SEG-TAMPER: 14
+FAILED [FIELDS] M's opening
+FAILED [SLOT-DRAWS] define's draws 15
+FAILED [SLOT-RHO] the round challenges (10)
+FAILED [SLOT-STATE] the state after slot 12
+FAILED [PCS] A: the 256 column indices
+FAILED [TAMPER] round-sum: Lean ERR slot 3 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim / Rust ERR slot 4 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim
+FAILED [SEG-FIELDS] the input endpoint's opening
+FAILED [SEG-TAMPER] input-column-index: Lean ERR private block wire: column index / Rust ERR private block wire: column indexx
+CheckR13Block: 302 checks, 8 failed

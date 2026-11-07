@@ -88,7 +88,7 @@ fn lib_run(export: &Path, tables_dir: &Path, policy_id: &str, content: &[u64]) -
     let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &bound, &policy, content.len(), Tier::R1_MVP, root, hp.out_values.verdict, content.len(), 0)?;
     let mut segs = Vec::new();
     let mut blocks = ExportTokenBlocks::new(&p);
-    prove_classify_run_with(&st, &mut blocks, &bound, &mut ClassifySource(&mut hp), owner, &mut |_, b| {
+    prove_classify_run_with(&st, &mut blocks, None, &bound, &mut ClassifySource(&mut hp), owner, &mut |_, b| {
         segs.push(b);
         Ok(())
     })?;
@@ -119,7 +119,7 @@ fn lib_prove(export: &Path, bound: &BoundClassifierTables, policy: &Policy, cont
     let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, bound, policy, content.len(), Tier::R1_MVP, root, hp.out_values.verdict, content.len(), 0)?;
     let mut segs = Vec::new();
     let mut blocks = ExportTokenBlocks::new(&p);
-    prove_classify_run_with(&st, &mut blocks, bound, &mut ClassifySource(&mut hp), owner, &mut |_, b| {
+    prove_classify_run_with(&st, &mut blocks, None, bound, &mut ClassifySource(&mut hp), owner, &mut |_, b| {
         segs.push(b);
         Ok(())
     })?;
@@ -370,4 +370,86 @@ fn r14_a_short_items_statement_read_under_another_length_is_refused() {
     std::fs::write(&sp, &honest).unwrap();
     assert_eq!(cc.verify(&r, &cc.tables), 0, "the honest statement verifies");
     eprintln!("TOKEN-IO R14 | a 22-id item's statement read as n = 23 (alone, or as a consistent 23-id chunk) is refused; the honest one verifies");
+}
+
+/// **[A26] the prover's kept records** (`prove_classify_run_with`'s `kept`, `HL_A26_KEPT`), on the
+/// rung through the library: with every block a `run::fork::KeptBlock` made by its one
+/// constructor (the digest and the CS-1 / CS-4 pass at its stage shape, on that very object),
+/// the run proves and its receipt verifies under the unchanged verifier, with the records on
+/// and off. D72 (iv)'s control: a kept record whose digest is wrong is refused by CS-6's name
+/// when the records are on (the prover compares the KEPT digest), and is ignored when they are
+/// off (the block is hashed, as before). A record kept for ANOTHER object than the block handed
+/// is never taken: the block is checked and hashed (the wrong digest then does not matter).
+#[test]
+fn a26_kept_records_prove_verifiable_receipts_and_a_wrong_kept_digest_is_refused_by_cs6() {
+    use crate::private_block::run::fork::KeptBlock;
+    use crate::private_block::token_io::classify_run::A26_KEPT_TEST;
+    use crate::private_block::token_io::run::KeptResidentBlocks;
+    use std::sync::atomic::Ordering::Relaxed;
+    let cc = Cc::new("a26-kept");
+    let content = ids(&cc.content);
+    let p = load_export(&cc.export).unwrap();
+    let policy = policy_by_id(POLICY_RUNG_DEV).unwrap();
+    let sh = p.sh.clone();
+    let bound = load_bound_tables(&sh, &p.model, &cc.export, &cc.tables, &policy).unwrap();
+    let mut eb = ExportTokenBlocks::new(&p);
+    let blks: Vec<BlockPublic> = (0..p.layers.len()).map(|k| eb.block(k).map(|b| (*b).clone())).collect::<Result<_, _>>().unwrap();
+    drop(eb);
+    let shapes: Vec<Shape> = p.model.layers.iter().map(|r| cli_stage_shape(&sh, &r.own)).collect::<Result<_, _>>().unwrap();
+    let stage: Vec<Shape> = p.model.layers.iter().map(|r| r.shape_at(&sh).unwrap()).collect();
+    let honest: Vec<std::sync::Arc<KeptBlock>> = blks.iter().zip(&stage).map(|(b, s)| KeptBlock::new(b.clone(), std::slice::from_ref(s))).collect();
+    let wrong: Vec<std::sync::Arc<KeptBlock>> = blks.iter().map(|b| KeptBlock::with_digest_for_test(b.clone(), [7u8; 32])).collect();
+    let prove = |kept: &[std::sync::Arc<KeptBlock>], foreign: bool| -> Result<(ClassifyRunStatement, Vec<Vec<u8>>), String> {
+        let cp = ClassifierProfile::new(&sh, bound.tables(), bound.bos(), bound.norm(), &policy, content.len(), Tier::R1_MVP)?;
+        let mut hp = honest_classify(&shapes, &cp, bound.tables(), &blks, &cp.tokens_of(&content)?)?;
+        let ctx = stack_context(&p.ex.variant, &p.layers, super::classify_cli::CLASSIFY_LABELS[0])?;
+        let (root, owner) = seal_input(&input_endpoint_spec(&sh, ctx, &cp)?, &hp.in_plane, &sh.hash_tag())?;
+        let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &bound, &policy, content.len(), Tier::R1_MVP, root, hp.out_values.verdict, content.len(), 0)?;
+        let mut segs = Vec::new();
+        // `foreign`: the blocks handed are the export's own (other objects than the records')
+        let mut own = ExportTokenBlocks::new(&p);
+        let mut res = KeptResidentBlocks(kept);
+        let blocks: &mut dyn TokenBlocks = if foreign { &mut own } else { &mut res };
+        prove_classify_run_with(&st, blocks, Some(kept), &bound, &mut ClassifySource(&mut hp), owner, &mut |_, b| {
+            segs.push(b);
+            Ok(())
+        })?;
+        Ok((st, segs))
+    };
+    let verify = |st: &ClassifyRunStatement, segs: &[Vec<u8>]| {
+        let mut blocks = ExportTokenBlocks::new(&p);
+        verify_classify_run_with(st, &mut blocks, &bound, segs, VerifierPolicy { min_whole_run_bits: 93 })
+    };
+    for on in [2u8, 1] {
+        A26_KEPT_TEST.store(on, Relaxed);
+        let (st, segs) = prove(&honest, false).unwrap_or_else(|e| panic!("honest kept records (switch {on}): {e}"));
+        verify(&st, &segs).unwrap_or_else(|e| panic!("the receipt made with kept records (switch {on}) verifies: {e}"));
+    }
+    A26_KEPT_TEST.store(2, Relaxed);
+    let e = prove(&wrong, false).err().expect("D72 (iv): a wrong kept digest was not refused");
+    assert!(e.contains("ruling CS-6"), "the wrong kept digest is refused by CS-6's name: {e}");
+    let (st, segs) = prove(&wrong, true).unwrap_or_else(|e| panic!("a record for another object is never taken: {e}"));
+    verify(&st, &segs).unwrap();
+    A26_KEPT_TEST.store(1, Relaxed);
+    let (st, segs) = prove(&wrong, false).unwrap_or_else(|e| panic!("records off: the blocks are hashed, the record ignored: {e}"));
+    verify(&st, &segs).unwrap();
+    A26_KEPT_TEST.store(0, Relaxed);
+    // [A26] `HL_A26_VERIFY_ONCE` over a resident source: the same verdict and the same refusal
+    // string as the verifier that repeats the checks, on the honest receipt and on a tampered one
+    use crate::private_block::token_io::classify_run::A26_VERIFY_ONCE_TEST;
+    use crate::private_block::token_io::run::ResidentBlocks;
+    let mut bad: Vec<Vec<u8>> = segs.to_vec();
+    let mid = bad[1].len() / 2;
+    bad[1][mid] ^= 1;
+    let mut verdicts = Vec::new();
+    for on in [1u8, 2] {
+        A26_VERIFY_ONCE_TEST.store(on, Relaxed);
+        let good = verify_classify_run_with(&st, &mut ResidentBlocks(&blks), &bound, &segs, VerifierPolicy { min_whole_run_bits: 93 });
+        let tampered = verify_classify_run_with(&st, &mut ResidentBlocks(&blks), &bound, &bad, VerifierPolicy { min_whole_run_bits: 93 });
+        verdicts.push((good, tampered.err().expect("a tampered segment verified")));
+    }
+    A26_VERIFY_ONCE_TEST.store(0, Relaxed);
+    assert!(verdicts.iter().all(|(g, _)| g.is_ok()), "the honest receipt over resident blocks: {:?}", verdicts.iter().map(|(g, _)| g.clone()).collect::<Vec<_>>());
+    assert_eq!(verdicts[0].1, verdicts[1].1, "the tampered receipt's refusal moved with HL_A26_VERIFY_ONCE");
+    eprintln!("A26 | kept records: honest records prove verifiable receipts (on and off); a wrong kept digest refused by CS-6 when on, ignored when off; a record for another object never taken; verify-once: the same verdicts and refusal ({})", verdicts[0].1);
 }

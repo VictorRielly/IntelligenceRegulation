@@ -835,6 +835,57 @@ fn on_device(t_rows: usize, x: &[i64], xs: usize, w: &[i8], inner: usize, outer:
     }
 }
 
+/// **[A26] a product whose activations do not fit i16 but fit i32, on the device as TWO
+/// exact i16 products** (`HL_A26_SPLIT`, default on; `0`: the CPU path, as before). R13
+/// LOW+h24's down projection reads the 24-bit FFN product, which A4's kernels (int16
+/// activations) decline, so it ran on the CPU: in A26's profile of the media app's stream it
+/// was 37% of the prover's CPU. Each word splits as `x = 2^16 hi + lo` with `lo = ((x + 2^15)
+/// mod 2^16) - 2^15` in `[-2^15, 2^15)` and `hi = (x - lo) / 2^16` (an exact division) in
+/// `[-2^15, 2^15)` for `|x| < 2^31`: both i16. A4's device product is exact for i16 times int8
+/// (its bound, `metal.rs`), so `P_hi = W hi` and `P_lo = W lo` are the exact integers, and
+/// `2^16 P_hi + P_lo = W x` by linearity, in i64 (`|2^16 P_hi| <= 2^16 K 2^15 2^7 < 2^55` for
+/// `K <= 2^16` terms, `metal.rs`'s `WP_MAX_K`). So the plane is the CPU path's, word for word.
+/// `None` (the CPU path) when the switch is off, the product is too small for the device, a
+/// word is outside i32, or the device takes neither half. Private values stay on this machine
+/// exactly as A4's do.
+#[allow(clippy::too_many_arguments)]
+fn on_device_split(t_rows: usize, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Option<Vec<i64>> {
+    if !a26_split_on() || !device_wanted(t_rows.saturating_mul(inner).saturating_mul(outer)) {
+        return None;
+    }
+    if t_rows == 0 || inner == 0 || xs < inner || (t_rows - 1).checked_mul(xs).and_then(|e| e.checked_add(inner)).map_or(true, |e| e > x.len()) {
+        return None;
+    }
+    if !x.iter().all(|v| (i64::from(i32::MIN)..=i64::from(i32::MAX)).contains(v)) {
+        return None;
+    }
+    use rayon::prelude::*;
+    let (hi, lo): (Vec<i64>, Vec<i64>) = x
+        .par_iter()
+        .map(|&v| {
+            let lo = ((v + (1 << 15)).rem_euclid(1 << 16)) - (1 << 15);
+            ((v - lo) >> 16, lo)
+        })
+        .unzip();
+    // (input, output) weights: the terms past the last input column any row reads as nonzero
+    // add zero (`x` is zero there: the padded hidden width), so the device sums only the
+    // others; the weight rows below are the same rows (row stride `outer`)
+    let used = if in_out {
+        (0..t_rows).map(|t| x[t * xs..t * xs + inner].iter().rposition(|v| *v != 0).map_or(0, |i| i + 1)).max().unwrap_or(0).max(1)
+    } else {
+        inner
+    };
+    let p_hi = on_device(t_rows, &hi, xs, w, used, outer, os, out_len, in_out)?;
+    let p_lo = on_device(t_rows, &lo, xs, w, used, outer, os, out_len, in_out)?;
+    Some(p_hi.par_iter().zip(p_lo.par_iter()).map(|(h, l)| (h << 16) + l).collect())
+}
+
+/// [A26] `HL_A26_SPLIT` (default on; `0`: an out-of-i16 product stays on the CPU, as before)
+fn a26_split_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A26_SPLIT").map(|v| v != "0").unwrap_or(true))
+}
+
 /// `out[t, j] = sum_i x[t, i] * w[j, i]`, `w` stored (output, input), reading
 /// `x` at stride `xs` and writing at stride `os` on a plane of `out_len`.
 fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
@@ -844,6 +895,10 @@ fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, 
     }
     if let Some(x16) = narrow16(x) {
         return tiled16(g.t, &x16, xs, w, inner, outer, os, out_len, false);
+    }
+    // [A26] activations outside i16: two exact device halves
+    if let Some(out) = on_device_split(g.t, x, xs, w, inner, outer, os, out_len, false) {
+        return out;
     }
     let mut out = vec![0i64; out_len];
     let c = out_chunk(os, 256);
@@ -877,6 +932,10 @@ fn matmul_in_out(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: 
     }
     if let Some(x16) = narrow16(x) {
         return tiled16(g.t, &x16, xs, w, inner, outer, os, out_len, true);
+    }
+    // [A26] activations outside i16 (R13 LOW+h24's down projection): two exact device halves
+    if let Some(out) = on_device_split(g.t, x, xs, w, inner, outer, os, out_len, true) {
+        return out;
     }
     let mut out = vec![0i64; out_len];
     let c = out_chunk(os, 512);

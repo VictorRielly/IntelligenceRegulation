@@ -1,0 +1,9 @@
+[zk60-guard 01:13:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:14:44] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:15:45] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:16:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:17:48] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:18:49] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:18:59] START a26-p2-variants class=gpu need=140G cap=180G enforce=watchdog-only waited=316s run=a0c9e2ed4445
+[zk60-guard 01:43:52] a26-p2-variants: 1 straggler process(es) outlived the command; killing
+[zk60-guard 01:43:52] END a26-p2-variants exit=0 child_wall=1493s peak_rss=110.66G min_avail=84.89G peak_vram=59748MiB

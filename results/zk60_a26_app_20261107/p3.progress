@@ -1,0 +1,10 @@
+2026-11-07T11:54:47Z start; plan p3.plan; free disk 125 GiB
+2026-11-07T11:54:47Z run p3base bin 5c63f5552356 env [HL_METAL_QUEUES=thread] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T11:59:32Z p3base rc=0 done )
+2026-11-07T11:59:32Z run p3dt0 bin 5c63f5552356 env [HL_METAL_QUEUES=thread HL_METAL_DEVICE_TABLES=0] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T12:04:29Z p3dt0 rc=0 done )
+2026-11-07T12:04:29Z run p3ss bin 5c63f5552356 env [HL_METAL_QUEUES=thread HL_METAL_SMALL_SLOT_US=20000] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T12:09:09Z p3ss rc=0 done )
+2026-11-07T12:09:09Z run p3both bin 5c63f5552356 env [HL_METAL_QUEUES=thread HL_METAL_DEVICE_TABLES=0 HL_METAL_SMALL_SLOT_US=20000] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-07T12:14:15Z p3both rc=0 done )
+2026-11-07T12:14:15Z all done; free disk 121 GiB

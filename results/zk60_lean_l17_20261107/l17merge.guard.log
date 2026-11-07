@@ -1,0 +1,6 @@
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l17merge/out/segment_corpus.txt /Users/victorrielly/IntelligenceRegulation/results/zk60_lean_l17_20261107/segment_corpus.txt differ: char 218, line 3
+/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l17merge/large.sha256 /Users/victorrielly/IntelligenceRegulation/results/zk60_lean_l17_20261107/large_files.sha256 differ: char 82, line 2
+mutations: [1, 2, 3, 4, 5, 6, 7]
+8 changes written
+mksmall: 17 records kept, 2 dropped -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l17merge/open_small.txt
+negctl: 6 of 6 changes written; expected failed checks 8

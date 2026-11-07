@@ -1,0 +1,39 @@
+2026-11-07T09:14:15Z start
+2026-11-07T09:14:16Z release CLI rc=0
+2026-11-07T09:14:16Z zk60_classify sha256 5c63f5552356052f7ea6abf91f4664df3b05eb9a51174fb536fa161a00ade177
+2026-11-07T09:17:02Z test build rc=0
+2026-11-07T09:17:02Z warnings naming A26 files: 1
+2026-11-07T09:17:07Z hashline a26_ rc=0
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1101 filtered out; finished in 3.51s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1101 filtered out; finished in 3.51s
+2026-11-07T09:17:22Z hashline a4_ rc=0
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 1098 filtered out; finished in 15.14s
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 1098 filtered out; finished in 15.14s
+2026-11-07T09:17:45Z hashline s25_tests rc=101
+test result: FAILED. 19 passed; 1 failed; 0 ignored; 0 measured; 1084 filtered out; finished in 23.20s
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... FAILED
+test result: FAILED. 19 passed; 1 failed; 0 ignored; 0 measured; 1084 filtered out; finished in 23.20s
+2026-11-07T09:17:45Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1089 filtered out; finished in 0.10s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1089 filtered out; finished in 0.10s
+2026-11-07T09:18:01Z hashline r19b rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1099 filtered out; finished in 15.38s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1099 filtered out; finished in 15.38s
+2026-11-07T09:18:21Z hashline token_io::classify rc=0
+test result: ok. 84 passed; 0 failed; 12 ignored; 0 measured; 1008 filtered out; finished in 20.21s
+test private_block::token_io::classify_cli::batch::r18::r18_a_failed_batch_leaves_no_receipt_statement_or_decommitment_behind ... ok
+test result: ok. 84 passed; 0 failed; 12 ignored; 0 measured; 1008 filtered out; finished in 20.21s
+2026-11-07T09:18:22Z hashline lean_l9_export rc=0
+2026-11-07T09:18:22Z L9 corpus byte-identical: cmp rc=0
+2026-11-07T09:18:23Z hashline lean_l11_export rc=0
+2026-11-07T09:18:23Z L11 corpus byte-identical: cmp rc=0
+2026-11-07T09:18:44Z zkp-core suite rc=0
+test pcs::tag_tests::a26_sparse_column_combination_equals_the_full_loop ... ok
+test mle::tests::a26_split_eq_evaluation_equals_eval_mle_ext ... ok
+test result: ok. 83 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.30s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-07T09:18:58Z no-feature cargo check --tests rc=0
+2026-11-07T09:18:58Z all done

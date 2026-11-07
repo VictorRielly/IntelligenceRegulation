@@ -1,0 +1,73 @@
+2026-11-07T09:11:08Z start
+2026-11-07T09:12:02Z release CLI rc=0
+2026-11-07T09:12:02Z zk60_classify sha256 5c63f5552356052f7ea6abf91f4664df3b05eb9a51174fb536fa161a00ade177
+2026-11-07T09:12:17Z test build rc=101
+error[E0433]: cannot find `run` in `super`
+   --> src/private_block/token_io/classify_r14_tests.rs:385:30
+    |
+385 |     use super::super::super::run::fork::KeptBlock;
+    |                              ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+385 |     use super::super::super::crate::private_block::run::fork::KeptBlock;
+    |                              ++++++++++++++++++++++
+
+error[E0432]: unresolved import `super::super::classify_run`
+   --> src/private_block/token_io/classify_r14_tests.rs:386:23
+    |
+386 |     use super::super::classify_run::{prove_classify_run_kept, A26_KEPT_TEST};
+    |                       ^^^^^^^^^^^^ could not find `classify_run` in `super`
+
+error[E0432]: unresolved import `super::super::run::KeptResidentBlocks`
+   --> src/private_block/token_io/classify_r14_tests.rs:387:9
+    |
+387 |     use super::super::run::KeptResidentBlocks;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `KeptResidentBlocks` in `private_block::run`
+    |
+help: consider importing this struct instead
+    |
+387 -     use super::super::run::KeptResidentBlocks;
+387 +     use crate::private_block::token_io::run::KeptResidentBlocks;
+    |
+
+error[E0432]: unresolved import `super::super::classify_run`
+   --> src/private_block/token_io/classify_r14_tests.rs:439:23
+    |
+439 |     use super::super::classify_run::A26_VERIFY_ONCE_TEST;
+    |                       ^^^^^^^^^^^^ could not find `classify_run` in `super`
+
+error[E0432]: unresolved import `super::super::run::ResidentBlocks`
+   --> src/private_block/token_io/classify_r14_tests.rs:440:9
+    |
+440 |     use super::super::run::ResidentBlocks;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `ResidentBlocks` in `private_block::run`
+    |
+help: consider importing this struct instead
+    |
+440 -     use super::super::run::ResidentBlocks;
+440 +     use crate::private_block::token_io::run::ResidentBlocks;
+    |
+
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:820:1
+    |
+--
+error[E0599]: no method named `clone` found for slice `[Vec<u8>]` in the current scope
+   --> src/private_block/token_io/classify_r14_tests.rs:441:24
+    |
+441 |     let mut bad = segs.clone();
+    |                        ^^^^^
+    |
+help: there is a method `clone_into` with a similar name, but with different arguments
+   --> /opt/homebrew/Cellar/rust/1.96.0/lib/rustlib/src/rust/library/alloc/src/borrow.rs:66:5
+    |
+ 66 |     fn clone_into(&self, target: &mut Self::Owned) {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:168:9
+    |
+--
+error: could not compile `hashline` (lib test) due to 6 previous errors; 20 warnings emitted
+2026-11-07T09:12:17Z all done (test build failed)

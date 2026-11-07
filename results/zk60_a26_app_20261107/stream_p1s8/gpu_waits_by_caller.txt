@@ -1,0 +1,25 @@
+   42139  masked_prove <- argument_with <- prove_core_after_with <- prove_core
+    8133  commit_impl <- commit_zk_owned_tagged <- prove_core <- prove_classify_run_with
+    7923  commit_impl <- commit_zk_owned_tagged <- prove_core_after_with <- prove_core
+    3784  prove_core_after_with <- prove_core <- prove_classify_run_with <- prove_with_public
+    2283  commit_impl <- commit_zk_owned_tagged <- prepare <- prove_classify_run_with
+     959  wprod_run <- on_device <- matmul <- build_with
+     564  wprod_run <- on_device <- matmul_in_out <- build_with
+     224  into_opening <- prove_classify_run_with <- prove_with_public <- Thread_18061354: a24-lane1-0
+     215  commit_impl <- commit_zk_owned_tagged <- prove <- prove_classify_run_with
+     162  into_opening <- prove_classify_run_with <- prove_with_public <- Thread_18061359: a24-lane2-0
+     137  into_opening <- prove_classify_run_with <- prove_with_public <- Thread_18061374: a24-lane5-0
+     127  prove <- prove_classify_run_with <- prove_with_public <- Thread_18061374: a24-lane5-0
+     125  into_opening <- prove_classify_run_with <- prove_with_public <- Thread_18061349: a24-lane0-0
+     104  wprod_run <- on_device <- matmul <- Thread_18061365: a24-lane3-1
+      88  wprod_run <- on_device <- matmul <- Thread_18061372: a24-lane4-3
+      79  commit_impl <- commit_zk_owned_tagged <- seal_input <- prove_with_public
+      79  wprod_run <- on_device <- matmul_in_out <- Thread_18061378: a24-lane5-4
+      61  wprod_run <- on_device <- matmul <- Thread_18061375: a24-lane5-1
+      60  commit_impl <- commit_zk_owned_tagged <- prepare <- prove
+      54  wprod_run <- on_device <- matmul <- Thread_18061370: a24-lane4-1
+      51  wprod_run <- on_device <- matmul_in_out <- Thread_18061358: a24-lane1-4
+      49  wprod_run <- on_device <- matmul_in_out <- Thread_18061370: a24-lane4-1
+      45  wprod_run <- on_device <- matmul <- Thread_18061352: a24-lane0-3
+      44  wprod_run <- on_device <- matmul <- Thread_18061351: a24-lane0-2
+      43  wprod_run <- on_device <- matmul <- Thread_18061355: a24-lane1-1

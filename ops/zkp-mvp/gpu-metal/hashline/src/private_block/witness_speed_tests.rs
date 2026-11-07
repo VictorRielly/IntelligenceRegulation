@@ -386,10 +386,48 @@ mod a4 {
                 let made = witness::device_products_made();
                 let want = witness::matmul_reference(sh.tokens, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out);
                 let got = witness::with_device_products(true, || witness::matmul_parallel(&sh, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out));
-                assert!(got == want, "an activation of {bad}: the CPU product differs from the sequential one");
-                assert_eq!(witness::device_products_made(), made, "an activation of {bad} was counted as a device product");
+                assert!(got == want, "an activation of {bad}: the builder's product differs from the sequential one");
+                // [A26] an activation outside i16 but inside i32 now goes to the device as two
+                // exact i16 halves (`witness::on_device_split`): two device products, the same
+                // words; outside i32 (2^40) the CPU path, no device product
+                let halves = if bad.unsigned_abs() < 1 << 31 { 2 } else { 0 };
+                assert_eq!(witness::device_products_made() - made, halves, "an activation of {bad}: device products made");
             }
         }
+    }
+
+    /// **[A26] activations outside i16 on the device as two exact i16 halves.** Words of
+    /// R13 LOW+h24's FFN product class (24-bit: `[-2^23, 2^23)`) in the leading input columns
+    /// and zeros in the trailing ones (the padded hidden width, which the split skips), then
+    /// words across the whole i32 range: each product, forced onto the device, is the
+    /// sequential sums word for word, in both weight layouts, and was made as two device
+    /// products. A word whose upper half leaves i16 (`i32::MAX`) is declined by the device's
+    /// own pack check and stays on the CPU (the same words, no device product).
+    #[test]
+    fn a26_out_of_i16_activations_split_into_two_exact_device_halves() {
+        let sh = Shape::rung_c6();
+        let mut r = Rng(0xa26a_0001);
+        let (dp, fp) = (sh.d_pad, sh.f_pad);
+        for (case, lim, used) in [("24-bit, padded tail", 1i64 << 23, dp / 2 + 3), ("i32", (1i64 << 31) - (1 << 16), dp)] {
+            let x: Vec<i64> = (0..sh.t_pad * dp).map(|i| if i % dp < used { r.range(-lim, lim - 1) } else { 0 }).collect();
+            let w: Vec<i8> = (0..dp * fp).map(|_| r.range(-128, 127) as i8).collect();
+            for in_out in [false, true] {
+                let want = witness::matmul_reference(sh.tokens, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out);
+                let made = witness::device_products_made();
+                let got = witness::with_device_products(true, || witness::matmul_parallel(&sh, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, in_out));
+                assert!(got == want, "{case}, in_out {in_out}: the split device product differs from the sequential one");
+                assert_eq!(witness::device_products_made() - made, 2, "{case}, in_out {in_out}: two device halves");
+            }
+        }
+        let mut x: Vec<i64> = (0..sh.t_pad * dp).map(|_| r.range(-(1 << 20), 1 << 20)).collect();
+        x[3] = i64::from(i32::MAX);
+        let w: Vec<i8> = (0..dp * fp).map(|_| r.range(-128, 127) as i8).collect();
+        let want = witness::matmul_reference(sh.tokens, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, true);
+        let made = witness::device_products_made();
+        let got = witness::with_device_products(true, || witness::matmul_parallel(&sh, &x, dp, &w, dp, fp, fp, sh.t_pad * fp, true));
+        assert!(got == want, "i32::MAX: the CPU product differs from the sequential one");
+        assert_eq!(witness::device_products_made() - made, 0, "i32::MAX: no device product (its upper half leaves i16)");
+        eprintln!("A26 | out-of-i16 activations: 24-bit (padded tail) and i32 words split into two exact device halves, both layouts; i32::MAX declined to the CPU; every product the sequential sums");
     }
 
     /// **A4 acceptance: the builder with its products on the device equals the CPU

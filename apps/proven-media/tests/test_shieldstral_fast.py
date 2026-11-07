@@ -124,6 +124,29 @@ class FastModeTests(unittest.TestCase):
                  'privacy_adapter_supported': True}
         self.assertFalse(statement_info(spoof)['accepted'])
 
+    def test_a26_pins_its_binary_and_the_servers_device_settings_and_keeps_its_ruling_switches_off(self):
+        """[A26] the pinned binary is lane A26's (a SHA-256, never A24's ccd58102...), with the same
+        statement identity and run profile as A24's; the servers get one Metal queue per thread;
+        the two work cuts that wait for the security owner (HL_A26_KEPT, HL_A26_VERIFY_ONCE) are
+        not switched on by the app"""
+        pin = fast_runtime_pin()
+        self.assertRegex(pin, r'^[0-9a-f]{64}$')
+        self.assertNotEqual(pin, 'ccd58102e3fdbe4fb0be3446b5d539cd6741779a6efaea073251ef040968a946')
+        self.assertEqual(fast.IDENTITY, 'e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d', 'the same receipts: the same identity')
+        self.assertEqual(fast.RUN_PROFILE, 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2')
+        self.assertEqual(fast.LANE, 'A26')
+        self.assertEqual(fast.NATIVE_SETTINGS, {'HL_METAL_QUEUES': 'thread'})
+        models = self.root / 'models/shieldstral-1.0-3b/snapshot-003ec7e2'
+        models.mkdir(parents=True)
+        (models / 'model.safetensors').write_bytes(b'TEST FIXTURE\n')
+        with patch.object(fast, 'NATIVE_MODELS', self.root / 'models'):
+            env = fast.native_environment()
+        self.assertEqual(env['HL_METAL_QUEUES'], 'thread')
+        self.assertEqual(env['HL_GPU'], '1')
+        for off in ('HL_A26_KEPT', 'HL_A26_VERIFY_ONCE'):
+            self.assertNotIn(off, env, f'{off} waits for the security owner')
+        self.assertIn('A26', fast.CLI_DESCRIPTION)
+
     def test_preparation_pins_the_candidate_and_submits_one_spool_request_per_job(self):
         item = TextItem(self.text)
         plan = self.prover.plan_text(item.text)

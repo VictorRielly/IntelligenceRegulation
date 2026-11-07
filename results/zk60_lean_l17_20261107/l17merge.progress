@@ -1,0 +1,67 @@
+2026-11-07T12:20:15Z start
+2026-11-07T12:23:00Z hashline lean_l17_export rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 5.85s
+2026-11-07T12:23:00Z regenerated block_corpus.txt equals the committed one: cmp rc=0
+2026-11-07T12:23:00Z regenerated slots_corpus.txt equals the committed one: cmp rc=0
+2026-11-07T12:23:00Z regenerated segment_corpus.txt equals the committed one: cmp rc=1
+2026-11-07T12:23:00Z regenerated shape_corpus.txt equals the committed one: cmp rc=0
+2026-11-07T12:23:00Z the three large files' sha256 equal large_files.sha256: cmp rc=1
+2026-11-07T12:23:24Z hashline s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1039 filtered out; finished in 23.18s
+2026-11-07T12:23:24Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1044 filtered out; finished in 0.12s
+2026-11-07T12:23:39Z hashline r19b rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 15.33s
+2026-11-07T12:23:55Z lake build ZK60Formal.ExecBlockR13 rc=0
+2026-11-07T12:23:59Z lake build ZK60Formal.SlotR13 rc=0
+2026-11-07T12:24:02Z lake build ZK60Formal.OpeningR13 rc=0
+2026-11-07T12:24:06Z lake build ZK60Formal.LayoutR13 rc=0
+2026-11-07T12:24:11Z lake build ZK60Formal.ShapeR13 rc=0
+2026-11-07T12:24:22Z lake build (full) rc=0
+✔ [3511/3512] Built ZK60Formal (9.4s)
+Build completed successfully (3512 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-07T12:24:25Z axiom audit axioms_l17 rc=0
+sorryAx or ofReduceBool mentions: 0
+  53 axioms: [propext, Classical.choice, Quot.sound]
+   3 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+2026-11-07T12:24:28Z axiom audit axioms_l16 rc=0
+sorryAx or ofReduceBool mentions: 0
+  32 axioms: [propext, Classical.choice, Quot.sound]
+  15 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+2026-11-07T12:24:30Z axiom audit axioms_l13 rc=0
+sorryAx or ofReduceBool mentions: 0
+  13 axioms: [propext, Classical.choice, Quot.sound]
+  31 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+2026-11-07T12:24:30Z source scan hits (grep rc 1 = none): rc=1
+2026-11-07T12:24:34Z CheckR13Slots rc=0
+CheckR13Slots: 408 checks, 0 failed
+2026-11-07T12:24:37Z CheckR13Slots negative control (7 changes)
+CheckR13Slots: 408 checks, 7 failed
+2026-11-07T12:29:25Z CheckR13Block rc=1
+CheckR13Block: 292 checks, 12 failed
+2026-11-07T12:34:13Z CheckR13Block negative control (8 changes)
+CheckR13Block: 292 checks, 18 failed
+2026-11-07T12:36:49Z CheckR13Open (reduced) rc=0
+CheckR13Open: 29 checks, 0 failed
+2026-11-07T12:39:25Z CheckR13Open negative control (8 changes)
+CheckR13Open: 30 checks, 8 failed
+2026-11-07T12:43:32Z ExecBlockCheck regression rc=0
+ExecBlockCheck: 273 checks, 0 failed
+2026-11-07T12:43:36Z L11Check rc=0
+L11Check: 404 checks, 0 failed
+2026-11-07T12:43:39Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-07T12:43:54Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-07T12:43:59Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-07T12:43:59Z all done (the 139.6 MB opening corpus removed from scratch)
+2026-11-07T12:51:25Z CheckR13Block on the regenerated consistent segment pair rc=0
+CheckR13Block: 302 checks, 0 failed
+2026-11-07T12:57:45Z CheckR13Block negative control on that pair (8 changes must give exactly 8 failed)
+CheckR13Block: 302 checks, 8 failed
+2026-11-07T12:57:45Z segment re-check done

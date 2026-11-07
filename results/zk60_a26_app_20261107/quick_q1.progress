@@ -1,0 +1,7 @@
+2026-11-07T08:30:40Z start
+2026-11-07T08:31:33Z release CLI rc=0
+2026-11-07T08:31:33Z zk60_classify sha256 fc517e0f8d1d1cbd93e6041a2a09f2bd79fac5edb579541bc44e163ff88e53e9
+2026-11-07T08:31:53Z zkp-core lib tests rc=0
+test mle::tests::a26_split_eq_evaluation_equals_eval_mle_ext ... ok
+test result: ok. 82 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.29s
+2026-11-07T08:31:53Z all done

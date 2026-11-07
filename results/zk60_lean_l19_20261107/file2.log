@@ -1,0 +1,27 @@
+== lake build ZK60Formal.ZKLinksRun ZK60Formal.ZKCountBudget ==
+✖ [3440/3445] Building ZK60Formal.ZKCount (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c9689a93e645f06/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c9689a93e645f06/formal/ZK60Formal/ZKCount.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c9689a93e645f06/formal/.lake/build/lib/lean/ZK60Formal/ZKCount.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c9689a93e645f06/formal/.lake/build/lib/lean/ZK60Formal/ZKCount.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c9689a93e645f06/formal/.lake/build/ir/ZK60Formal/ZKCount.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a7c9689a93e645f06/formal/.lake/build/ir/ZK60Formal/ZKCount.setup.json --json
+error: ZK60Formal/ZKCount.lean:220:12: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  P (a, b)
+in the target expression
+  (fun b => P (a, b)) b = (fun b => P (a, b)) b'
+
+A B Q : Type
+inst✝² : Fintype A
+inst✝¹ : Fintype B
+inst✝ : DecidableEq Q
+P : A × B → Q
+hinj : ∀ (a : A), Function.Injective fun b => P (a, b)
+z : Q
+a : A
+x✝ : a ∈ univ
+b : B
+hb : b ∈ {b | P (a, b) = z}
+b' : B
+hb' : b' ∈ {b | P (a, b) = z}
+⊢ (fun b => P (a, b)) b = (fun b => P (a, b)) b'
+Some required targets logged failures:
+- ZK60Formal.ZKCount
+error: build failed
+build rc 1
+rc build 1 files 0, 18 s
