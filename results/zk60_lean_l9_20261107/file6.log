@@ -1,0 +1,8 @@
+== lake build ZK60Formal.ExecBlockWire ==
+rc 0 for ZK60Formal.ExecBlockWire, 2 s
+== lake build ZK60Formal.ExecBlockVerify ==
+rc 0 for ZK60Formal.ExecBlockVerify, 4 s
+== lake build ZK60Formal.ExecBlockFS ==
+rc 0 for ZK60Formal.ExecBlockFS, 12 s
+== ExecBlockCheck ==
+check rc 143, 469 s

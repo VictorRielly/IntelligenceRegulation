@@ -1,0 +1,44 @@
+== lake build (full) ==
+lake build rc 0
+✔ [3456/3457] Built ZK60Formal (12s)
+Build completed successfully (3457 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+91 theorems
+axioms rc 0
+declarations audited: 91
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  45 axioms: [propext, Classical.choice, Quot.sound]
+  16 axioms: [propext, Quot.sound]
+  16 axioms: [propext]
+== source scan of the L9 files ==
+none
+== the library root imports the L9 files ==
+78:import ZK60Formal.ExecBlockWire
+79:import ZK60Formal.ExecBlockVerify
+80:import ZK60Formal.ExecBlockFS
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+L6Check rc 0
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+L5Check rc 0
+== the L9 agreement check: ExecBlockCheck on the W16R2 rung block ==
+-rw-r--r--@ 1 victorrielly  staff  14258216 Nov  6 19:58 /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-abdecaa028b7cbdaf/results/zk60_lean_l9_20261107/fork_frame.bin
+ExecBlockCheck: 273 checks, 0 failed
+ExecBlockCheck rc 0
+== negative control: six single changes to the corpus ==
+6 changes written
+negative control rc 1 (nonzero expected)
+ExecBlockCheck: 273 checks, 6 failed
+FAILED [FIELDS] M's opening
+FAILED [SLOT-DRAWS] define's draws 15
+FAILED [SLOT-RHO] the round challenges (10)
+FAILED [SLOT-STATE] the state after slot 12
+FAILED [PCS] A: the 280 column indices
+FAILED [TAMPER] round-sum: Lean ERR slot 3 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim / Rust ERR slot 4 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim
+verdicts: L6 0, L5 0, L9 0, negative control 0 (0 = as required)

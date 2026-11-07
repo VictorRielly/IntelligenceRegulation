@@ -139,9 +139,9 @@ def Rd.fail {α : Type} (e : String) : Rd α := fun _ => .error e
 /-- A refusal when `c` holds (the code's `if c { return Err(e) }`). -/
 def Rd.guard (c : Prop) [Decidable c] (e : String) : Rd Unit := fun bs => if c then .error e else .ok ((), bs)
 
-/-- `Reader::take::<K>`. -/
+/-- `Reader::take::<K>` (the `k` bytes taken first, so a read costs `k`, not the frame's length). -/
 def rdBytes (k : ℕ) : Rd (List UInt8) := fun bs =>
-  if k ≤ bs.length then .ok (bs.take k, bs.drop k) else .error truncMsg
+  if (bs.take k).length = k then .ok (bs.take k, bs.drop k) else .error truncMsg
 
 /-- `take::<32>()` as a digest. -/
 def rdDig : Rd Dig := Rd.bnd (rdBytes 32) fun b =>
@@ -345,8 +345,9 @@ theorem rdBytes_ok {k : ℕ} {bs b rest : List UInt8} (h : rdBytes k bs = .ok (b
     bs = b ++ rest ∧ b.length = k := by
   unfold rdBytes at h
   split at h
-  · cases h
-    exact ⟨(List.take_append_drop k bs).symm, by rw [List.length_take]; omega⟩
+  · rename_i hk
+    cases h
+    exact ⟨(List.take_append_drop k bs).symm, hk⟩
   · cases h
 
 theorem rdBytes_enc (b rest : List UInt8) (k : ℕ) (hk : b.length = k) : rdBytes k (b ++ rest) = .ok (b, rest) := by
