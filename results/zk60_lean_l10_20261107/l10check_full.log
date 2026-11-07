@@ -1,0 +1,36 @@
+root 2^9: equal
+root 2^12: equal
+root 2^14: equal
+root 2^15: equal
+M m-honest: accepted, transcript equal [ok] (11773 ms)
+M m-honest: L9's maskTranscript ends where the crate's verifier does [ok]
+M m-q0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: mask: the product polynomial's sum != the combined functional [ok] (15 ms)
+M m-q5: Lean refused (mask: column index), the crate: mask: column index [ok] (121 ms)
+M m-prox3: Lean refused (mask: column index), the crate: mask: column index [ok] (120 ms)
+M m-value0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: mask: the product polynomial's sum != the combined functional [ok] (15 ms)
+M m-col0: Lean refused (mask: Merkle path for column 3657 fails), the crate: mask: Merkle path for column 3657 fails [ok] (123 ms)
+M m-index1: Lean refused (mask: column index), the crate: mask: column index [ok] (166 ms)
+M m-path2: Lean refused (mask: Merkle path for column 2694 has 11 entries; the tree is 12 deep), the crate: mask: Merkle path for column 2694 has 11 entries; the tree is 12 deep [ok] (211 ms)
+M m-collast: Lean refused (mask: Merkle path for column 2196 fails), the crate: mask: Merkle path for column 2196 fails [ok] (11603 ms)
+PCS a-honest: accepted, transcript equal [ok] (630610 ms)
+PCS a-honest: L9's pcsTranscript ends where the crate's verifier does [ok]
+PCS h-honest: accepted, transcript equal [ok] (193061 ms)
+PCS h-honest: L9's pcsTranscript ends where the crate's verifier does [ok]
+PCS a-vec0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claim [ok] (26648 ms)
+PCS a-claim0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claim [ok] (26362 ms)
+PCS a-path2: Lean refused (pcs zk: opened column 2 carries a Merkle path of 14 entries; this commitment's tree is 15 deep), the crate: pcs zk: opened column 2 carries a Merkle path of 14 entries; this commitment's tree is 15 deep [ok] (13108 ms)
+PCS h-pad0: Lean refused (pcs zk: column index 5008 != sampled 5231), the crate: pcs zk: column index 5008 != sampled 5231 [ok] (16744 ms)
+PCS h-veclast: Lean refused (pcs zk: group 8: <v, c> != combined claim), the crate: pcs zk: group 8: <v, c> != combined claim [ok] (9722 ms)
+PCS h-col0: Lean refused (pcs zk: Merkle path for column 5008 fails), the crate: pcs zk: Merkle path for column 5008 fails [ok] (16809 ms)
+PCS h-index1: Lean refused (pcs zk: column index 20382 != sampled 20383), the crate: pcs zk: column index 20382 != sampled 20383 [ok] (17634 ms)
+PCS h-ncols: Lean refused (pcs zk: wrong number of columns), the crate: pcs zk: wrong number of columns [ok] (16889 ms)
+PCS h-prox0: Lean refused (pcs zk: column index 5008 != sampled 16609), the crate: pcs zk: column index 5008 != sampled 16609 [ok] (16692 ms)
+PCS h-coef0: Lean refused (pcs zk: column 5008 disagrees with clear vector 0), the crate: pcs zk: column 5008 disagrees with clear vector 0 [ok] (17419 ms)
+PCS h-collast: Lean refused (pcs zk: Merkle path for column 11248 fails), the crate: pcs zk: Merkle path for column 11248 fails [ok] (193844 ms)
+CHECK chk-a: Lean's check_opening accepts [ok] (97 ms)
+CHECK chk-h: Lean's check_opening accepts [ok] (52 ms)
+CHECK chk-a-zerocoef: Lean refused (private block: mask schedule audit: zero terminal mask coefficient; discard attempt), the crate: private block: mask schedule audit: zero terminal mask coefficient; discard attempt [ok] (0 ms)
+CHECK chk-h-groups: Lean refused (private block: 9 opening groups, the schedule declares 10), the crate: private block: 9 opening groups, the schedule declares 10 [ok] (6 ms)
+CHECK chk-h-sumfirst: Lean refused (private block: mask schedule audit: unexpected sum claim), the crate: private block: mask schedule audit: unexpected sum claim [ok] (0 ms)
+CHECK chk-a-prox: Lean refused (private block: mask schedule audit: proximity pair placement), the crate: private block: mask schedule audit: proximity pair placement [ok] (0 ms)
+L10Check: 48 checks, 0 failed

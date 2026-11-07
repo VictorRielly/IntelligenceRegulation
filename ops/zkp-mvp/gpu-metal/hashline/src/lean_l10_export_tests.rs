@@ -129,6 +129,27 @@ fn pcs_record(o: &mut Out, name: &str, params: &PcsParams, zko: &ZkOpts, root: [
     o.records += 1;
 }
 
+/// one `check_opening` record: the commitment's geometry, the claims, the transcript, the crate's verdict
+#[allow(clippy::too_many_arguments)]
+fn check_record(o: &mut Out, name: &str, log_n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize, groups: usize, claims: &[ZClaim], tr: &Transcript) {
+    let v = protocol::check_opening(claims, log_n, rows, site_rows, sum_rows, prox, groups, tr);
+    let sites = site_rows.iter().map(|r| r.to_string()).collect::<Vec<_>>().join(",");
+    let sums = match sum_rows { Some([a, b]) => format!("{a},{b}"), None => "-".to_string() };
+    o.line(format!("L10CHK {name} {log_n} {rows} {} {sums} {prox} {groups} {}", if sites.is_empty() { "-".into() } else { sites }, v.is_ok() as u8));
+    if let Err(e) = &v {
+        o.line(format!("L10ERR {e}"));
+    }
+    o.line(format!("L10TR {}", tr_line(tr)));
+    for c in claims {
+        o.line(format!("L10CLAIM {}:{} {}", c.value.c0.0, c.value.c1.0, c.parts.len()));
+        for p in &c.parts {
+            o.line(format!("L10PART {} {} {}:{} {}", p.slice.offset, p.slice.log_size, p.coef.c0.0, p.coef.c1.0, fp2_csv(&p.point)));
+        }
+    }
+    o.line("L10END -".to_string());
+    o.records += 1;
+}
+
 #[test]
 fn lean_l10_export_the_w16r2_rung_openings() {
     let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
@@ -254,6 +275,20 @@ fn lean_l10_export_the_w16r2_rung_openings() {
     let lastc = h1.columns.len() - 1;
     h1.columns[lastc].1[0] = h1.columns[lastc].1[0].add(Fp::ONE);
     pcs_record(&mut o, "h-collast", &params, &zko, core.h_root, lay.h_rows, &hc, &h1, &before_h, &tag);
+    // ---------------------------------------------------------------- check_opening (A, then H with the sum claim)
+    let (ls, la) = (sh.log_cols, lay.a_rows);
+    check_record(&mut o, "chk-a", ls, la, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), &ac, &before_a);
+    check_record(&mut o, "chk-h", ls, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), &hc, &before_h);
+    let mut acz = ac.clone();
+    let lp = acz[0].parts.len() - 1;
+    acz[0].parts[lp].coef = Fp2::ZERO;
+    check_record(&mut o, "chk-a-zerocoef", ls, la, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), &acz, &before_a);
+    check_record(&mut o, "chk-h-groups", ls, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups() + 1, &hc, &before_h);
+    let mut hcs = hc.clone();
+    let sum = hcs.pop().unwrap();
+    hcs.insert(0, sum);
+    check_record(&mut o, "chk-h-sumfirst", ls, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), &hcs, &before_h);
+    check_record(&mut o, "chk-a-prox", ls, la, &lay.a_site_rows(), None, lay.a_prox + 1, sh.a_groups(), &ac, &before_a);
     o.line(format!("L10SHAPE {} {} {} {} {} {}", sh.profile, lay.a_rows, lay.h_rows, specs.len(), core.a_open.group_vecs.len(), core.h_open.group_vecs.len()));
     eprintln!(
         "LEAN-L10: {} records, {} bytes; prove {prove_s:.1} s; A {} rows {} groups, H {} rows {} groups, M {} masks, {} functionals",

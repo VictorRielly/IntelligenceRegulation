@@ -1,22 +1,23 @@
 /-
-D63 lane L10 (2026-11-07): **the agreement check of the executable opening and `M` verifiers against a REAL W16R2
-block receipt.**
+D63 lane L10 (2026-11-07): **the agreement check of the executable opening, `M` and `check_opening` against a REAL
+W16R2 block receipt**, through the very functions L9's block verifier takes as `BlockParams` fields.
 
 Run (through the zk60 resource guard; `results/zk60_lean_l10_20261107/check_l10.sh` does it):
   lake -d formal env lean --run formal/ZK60Formal/ExecOpeningCheck.lean <corpus>
 
 The corpus is written by the TEST-ONLY Rust export `hashline/src/lean_l10_export_tests.rs`: the W16R2 development
 rung's block core (`W16R2_RUNG_H24`, public synthetic data), proved by the crate, then its verifier body replayed step
-by step; for `M` (`zk::mask_verify_tagged`) and for `A` and `H` (`pcs::verify_zk_tagged`) the transcript before the
-opening, the functionals or claims the verifier computed, the opening, the crate's verdict and the transcript after;
-honest and tampered. For every record this checker runs the Lean verifier (`maskVerify`, `pcsVerify` with W16R2's
-column evaluator `colEncLag` at the coset points `cosetPt (rootFp 15)`, the SAME definitions the theorems are about)
-and requires the same verdict, on acceptance the same transcript state and counter after the call, and on refusal a
-refusal of the same kind (the crate's message names it). It also checks that `rootFp k` is the crate's NTT root of
-order `2^k` for `k = 9, 12, 14, 15`. It prints `L10Check: N checks, F failed` and exits nonzero on any failure. Not
-imported by the library root (it defines `main`).
+by step; for `M` (`zk::mask_verify_tagged`), for `A` and `H` (`pcs::verify_zk_tagged`) and for `protocol::check_opening`
+of `A` and `H`: the transcript before, the functionals or claims the verifier computed, the opening, the crate's verdict
+and (on acceptance) the transcript after; honest and tampered. For every record this checker runs this lane's field
+(`maskField`, `pcsField`, `checkField`'s `checkOpeningExec`; the SAME definitions the theorems are about) and requires
+the same verdict, on acceptance the same transcript state and counter, and on refusal the same message, character for
+character. On the honest `M` record it also runs L9's `maskTranscript` and requires the same transcript (the contract
+`maskField_transcript` proves); on every PCS record it requires the crate's parameters to be W16R2's (which the field
+fixes). It checks `rootFp k` against the crate's NTT root of order `2^k` (`k = 9, 12, 14, 15`). It prints `L10Check: N checks, F failed` and exits
+nonzero on any failure. Not imported by the library root (it defines `main`).
 -/
-import ZK60Formal.ExecOpeningM
+import ZK60Formal.ExecOpeningBlock
 
 namespace ZK60.Exec.L10
 
@@ -46,6 +47,8 @@ def parseOptDig (s : String) : Option (Option Dig) := if s = "-" then some none 
 
 def fpOf (n : ℕ) : Fp := ⟨UInt64.ofNat n⟩
 
+def parseNatCsv (s : String) : Option (List ℕ) := if s = "-" then some [] else (s.splitOn ",").mapM String.toNat?
+
 def parseFpCsv (s : String) : Option (List Fp) :=
   if s = "-" then some [] else (s.splitOn ",").mapM (fun t => t.toNat?.map fpOf)
 
@@ -65,9 +68,9 @@ def parseTr (ws : List String) : Option Tr :=
   | [st, ctr, k] => do pure ⟨← parseDig st, UInt64.ofNat (← ctr.toNat?), ← parseOptDig k⟩
   | _ => none
 
-def parseCol (ws : List String) : Option OCol :=
+def parseCol (ws : List String) : Option Block.Column :=
   match ws with
-  | [j, col, salt, path] => do pure (← j.toNat?, ← parseFpCsv col, ← parseDig salt, ← parseDigCsv path)
+  | [j, col, salt, path] => do pure ⟨← j.toNat?, ← parseFpCsv col, ← parseDig salt, ← parseDigCsv path⟩
   | _ => none
 
 /-! ## Records -/
@@ -79,8 +82,8 @@ structure MRec where
   ok : Bool
   err : String
   before : Tr
-  fs : List MaskFunctional
-  op : MaskOpening
+  fs : List Block.MaskFunctional
+  op : Block.MaskOpening
   after : Option Tr
 
 structure PRec where
@@ -92,18 +95,27 @@ structure PRec where
   ok : Bool
   err : String
   before : Tr
-  claims : List ZClaim
-  op : OpeningZk
+  claims : List Block.ZClaim
+  op : Block.OpeningZk
   after : Option Tr
+
+structure CRec where
+  name : String
+  logN : ℕ
+  geom : OpenGeom
+  ok : Bool
+  err : String
+  before : Tr
+  claims : List Block.ZClaim
 
 inductive Rec
   | root (k : ℕ) (w : Fp)
-  | tag (t : MTag) (trKey : Option Dig)
+  | tag (t : MTag)
   | m (r : MRec)
   | p (r : PRec)
+  | c (r : CRec)
   | other
 
-/-- Read lines `L10ERR?`, `L10TR` after a record's header. -/
 def takeErrTr (ls : List String) : Option (String × Tr × List String) :=
   match ls with
   | l :: rest =>
@@ -118,7 +130,6 @@ def takeErrTr (ls : List String) : Option (String × Tr × List String) :=
       pure ("", t, rest)
   | [] => none
 
-/-- Lines starting with `pre`, parsed by `f`, until the first other line. -/
 partial def takeMany {α : Type} (pre : String) (f : List String → Option α) : List String → Option (List α × List String)
   | l :: rest =>
     if l.startsWith pre then do
@@ -132,8 +143,7 @@ def parseEnd (l : String) : Option (Option Tr) :=
   let ws := (words l).drop 1
   if ws = ["-"] then some none else (parseTr ws).map some
 
-/-- A functional: `L10F value nterms`, then its `L10T slot weights` lines. -/
-partial def takeFunctionals : List String → Option (List MaskFunctional × List String)
+partial def takeFunctionals : List String → Option (List Block.MaskFunctional × List String)
   | l :: rest =>
     if l.startsWith "L10F " then
       match words l with
@@ -149,7 +159,7 @@ partial def takeFunctionals : List String → Option (List MaskFunctional × Lis
     else some ([], l :: rest)
   | [] => some ([], [])
 
-partial def takeClaims : List String → Option (List ZClaim × List String)
+partial def takeClaims : List String → Option (List Block.ZClaim × List String)
   | l :: rest =>
     if l.startsWith "L10CLAIM " then
       match words l with
@@ -167,7 +177,7 @@ partial def takeClaims : List String → Option (List ZClaim × List String)
 
 def parseM (hdr : List String) (ls : List String) : Option (MRec × List String) := do
   let (name, S, root, ok) ← match hdr with
-    | [_, n, s, r, v] => do pure (n, ← s.toNat?, ← parseDig r, v = "1")
+    | [_, n, s, r, v] => do pure (n, ← s.toNat?, ← parseDig r, v == "1")
     | _ => none
   let (err, before, ls) ← takeErrTr ls
   let (fs, ls) ← takeFunctionals ls
@@ -186,7 +196,7 @@ def parseP (hdr : List String) (ls : List String) : Option (PRec × List String)
   let (name, prm, rows, cml, root, ok) ← match hdr with
     | [_, n, lc, ir, nq, qp, rw, cl, r, v] =>
       do pure (n, (⟨← lc.toNat?, ← ir.toNat?, ← nq.toNat?, ← qp.toNat?⟩ : PcsPrm), ← rw.toNat?, ← cl.toNat?,
-        ← parseDig r, v = "1")
+        ← parseDig r, v == "1")
     | _ => none
   let (err, before, ls) ← takeErrTr ls
   let (claims, ls) ← takeClaims ls
@@ -199,6 +209,22 @@ def parseP (hdr : List String) (ls : List String) : Option (PRec × List String)
   | l :: r => do pure (⟨name, prm, rows, cml, root, ok, err, before, claims, ⟨gvs, prox, cols⟩, ← parseEnd l⟩, r)
   | [] => none
 
+def parseC (hdr : List String) (ls : List String) : Option (CRec × List String) := do
+  let (name, logN, g, ok) ← match hdr with
+    | [_, n, ln, rw, sites, sums, px, gr, v] => do
+      let sr ← parseNatCsv sums
+      let sumRows : Option (ℕ × ℕ) := match sr with
+        | [a, b] => some (a, b)
+        | _ => none
+      pure (n, ← ln.toNat?, (⟨← rw.toNat?, ← parseNatCsv sites, sumRows, ← px.toNat?, ← gr.toNat?⟩ : OpenGeom),
+        v == "1")
+    | _ => none
+  let (err, before, ls) ← takeErrTr ls
+  let (claims, ls) ← takeClaims ls
+  match ls with
+  | _ :: r => pure (⟨name, logN, g, ok, err, before, claims⟩, r)
+  | [] => none
+
 partial def parseAll : List String → Except String (List Rec)
   | [] => .ok []
   | l :: rest =>
@@ -208,10 +234,10 @@ partial def parseAll : List String → Except String (List Rec)
       match k.toNat?, w.toNat? with
       | some k, some w => do pure (.root k (fpOf w) :: (← parseAll rest))
       | _, _ => .error s!"bad root line: {l}"
-    | ["L10TAG", c, lf, nd, trk] =>
-      match parseOptDig c, parseOptDig lf, parseOptDig nd, parseOptDig trk with
-      | some c, some lf, some nd, some trk => do pure (.tag ⟨c, lf, nd⟩ trk :: (← parseAll rest))
-      | _, _, _, _ => .error "bad tag line"
+    | ["L10TAG", c, lf, nd, _] =>
+      match parseOptDig c, parseOptDig lf, parseOptDig nd with
+      | some c, some lf, some nd => do pure (.tag ⟨c, lf, nd⟩ :: (← parseAll rest))
+      | _, _, _ => .error "bad tag line"
     | "L10M" :: _ =>
       match parseM ws rest with
       | some (r, rest') => do pure (.m r :: (← parseAll rest'))
@@ -220,42 +246,13 @@ partial def parseAll : List String → Except String (List Rec)
       match parseP ws rest with
       | some (r, rest') => do pure (.p r :: (← parseAll rest'))
       | none => .error s!"bad PCS record at: {l.take 80}"
+    | "L10CHK" :: _ =>
+      match parseC ws rest with
+      | some (r, rest') => do pure (.c r :: (← parseAll rest'))
+      | none => .error s!"bad check record at: {l.take 80}"
     | _ => do pure (.other :: (← parseAll rest))
 
 /-! ## Checking -/
-
-/-- The kind of a refusal, as the crate's message names it. -/
-def mErrMatches (e : MErr) (msg : String) : Bool :=
-  let has (s : String) : Bool := (msg.splitOn s).length > 1
-  match e with
-  | .qLen => has "q length"
-  | .sum => has "product polynomial's sum"
-  | .proxLen => has "prox length"
-  | .indices => false
-  | .nCols => has "column count"
-  | .colIndex _ => has "column index"
-  | .colLen _ => has "column length"
-  | .pathLen _ => has "deep"
-  | .merkle _ => has "Merkle path for column" && has "fails"
-  | .product _ => has "disagrees with the product polynomial"
-  | .prox _ => has "disagrees with the proximity vector"
-
-def pErrMatches (e : PcsErr) (msg : String) : Bool :=
-  let has (s : String) : Bool := (msg.splitOn s).length > 1
-  match e with
-  | .logCols => has "log_cols mismatch"
-  | .fewPads => has "fewer pads"
-  | .pathLen _ => has "carries a Merkle path"
-  | .nGroups => has "group vectors for"
-  | .vecLen _ => has "has length"
-  | .claim _ => has "!= combined claim"
-  | .proxLen => has "prox vector length"
-  | .indices => false
-  | .nCols => has "wrong number of columns"
-  | .colIndex _ _ => has "column index"
-  | .colLen => has "column length"
-  | .merkle _ => has "Merkle path for column"
-  | .colVec _ _ => has "disagrees with clear vector"
 
 structure Tally where
   checks : ℕ := 0
@@ -268,23 +265,40 @@ def Tally.add (t : Tally) (ok : Bool) (what : String) : Tally :=
 
 def sameTr (a b : Tr) : Bool := a.state == b.state && a.counter == b.counter
 
-def checkM (tag : MTag) (r : MRec) : Bool × String :=
-  match maskVerify blake3H tag (rootFp 9) (rootFp 12) r.root r.S r.fs r.op r.before with
+def verdict (name : String) (ok : Bool) (err : String) (after : Option Tr) : Except String Tr → Bool × String
   | .ok t' =>
-    match r.ok, r.after with
-    | true, some a => (sameTr t' a, s!"{r.name}: accepted, state {if sameTr t' a then "equal" else "DIFFERS"}")
-    | _, _ => (false, s!"{r.name}: Lean accepted, the crate refused ({r.err})")
-  | .error e => (!r.ok && mErrMatches e r.err, s!"{r.name}: Lean refused {repr e}, the crate: {r.err}")
+    match ok, after with
+    | true, some a => (sameTr t' a, s!"{name}: accepted, transcript {if sameTr t' a then "equal" else "DIFFERS"}")
+    | _, _ => (false, s!"{name}: Lean accepted, the crate refused ({err})")
+  | .error e => (!ok && e == err, s!"{name}: Lean refused ({e}), the crate: {if ok then "accepted" else err}")
+
+def checkM (tag : MTag) (r : MRec) : Bool × String :=
+  verdict r.name r.ok r.err r.after (maskField tag r.S blake3H r.root r.fs r.op r.before)
+
+def checkMContract (r : MRec) : Bool × String :=
+  match Block.maskTranscript blake3H r.S mQ mDom r.op r.before, r.after with
+  | .ok (_, _, _, t'), some a => (sameTr t' a, s!"{r.name}: L9's maskTranscript ends where the crate's verifier does")
+  | _, _ => (false, s!"{r.name}: L9's maskTranscript refused an honest opening")
 
 def checkP (tag : MTag) (r : PRec) : Bool × String :=
-  let ev := colEncLag (rootFp r.prm.logCols) (2 ^ r.prm.logCols) r.prm.qPad
-  let pt := cosetPt (rootFp (r.prm.logCols + Nat.log2 r.prm.invRate))
-  match pcsVerify blake3H tag r.prm pt ev r.root r.rows r.cmLogCols r.claims r.op r.before with
-  | .ok t' =>
-    match r.ok, r.after with
-    | true, some a => (sameTr t' a, s!"{r.name}: accepted, state {if sameTr t' a then "equal" else "DIFFERS"}")
-    | _, _ => (false, s!"{r.name}: Lean accepted, the crate refused ({r.err})")
-  | .error e => (!r.ok && pErrMatches e r.err, s!"{r.name}: Lean refused {repr e}, the crate: {r.err}")
+  verdict r.name r.ok r.err r.after (pcsField tag (fun _ => r.rows) blake3H .a r.root r.claims r.op r.before)
+
+/-- The record's PCS parameters are W16R2's (the field fixes them). -/
+def checkPrm (r : PRec) : Bool × String :=
+  (r.prm.logCols == 14 && r.prm.invRate == 2 && r.prm.nQ == 280 && r.prm.qPad == 280 && r.cmLogCols == 14,
+    s!"{r.name}: the crate's parameters are W16R2's (log_cols 14, rate 1/2, 280 columns, 280 pads)")
+
+def checkPContract (r : PRec) : Bool × String :=
+  let counts := (groupZclaims (r.claims.map toZClaim) r.rows 14).map (·.2.length)
+  match Block.pcsTranscript blake3H counts r.rows w16r2Prm.nQ w16r2Prm.nn r.op r.before, r.after with
+  | .ok (_, _, _, t'), some a => (sameTr t' a, s!"{r.name}: L9's pcsTranscript ends where the crate's verifier does")
+  | _, _ => (false, s!"{r.name}: L9's pcsTranscript refused an honest opening")
+
+def checkC (r : CRec) : Bool × String :=
+  match (if r.logN = 14 then checkField (fun _ => r.geom) blake3H .a r.claims r.before
+         else .error s!"the record's row width is 2^{r.logN}, not W16R2's 2^14") with
+  | .ok () => (r.ok, s!"{r.name}: Lean's check_opening accepts{if r.ok then "" else s!", the crate refused ({r.err})"}")
+  | .error e => (!r.ok && e == r.err, s!"{r.name}: Lean refused ({e}), the crate: {if r.ok then "accepted" else r.err}")
 
 def main (args : List String) : IO UInt32 := do
   let path := args.headD "corpus.txt"
@@ -298,22 +312,35 @@ def main (args : List String) : IO UInt32 := do
     let mut tally : Tally := {}
     let mut tag : MTag := MTag.legacy
     for r in recs do
+      let start ← IO.monoMsNow
       match r with
       | .root k w =>
         let ok := rootFp k == w
         tally := tally.add ok s!"root {k}"
         IO.println s!"root 2^{k}: {if ok then "equal" else "DIFFERS"}"
-      | .tag t _ => tag := t
+      | .tag t => tag := t
       | .m mr =>
-        let start ← IO.monoMsNow
         let (ok, msg) := checkM tag mr
         tally := tally.add ok msg
         IO.println s!"M {msg} [{if ok then "ok" else "FAIL"}] ({(← IO.monoMsNow) - start} ms)"
+        if mr.ok then
+          let (ok2, msg2) := checkMContract mr
+          tally := tally.add ok2 msg2
+          IO.println s!"M {msg2} [{if ok2 then "ok" else "FAIL"}]"
       | .p pr =>
-        let start ← IO.monoMsNow
+        let (ok0, msg0) := checkPrm pr
+        tally := tally.add ok0 msg0
         let (ok, msg) := checkP tag pr
         tally := tally.add ok msg
-        IO.println s!"PCS {msg} [{if ok then "ok" else "FAIL"}] ({(← IO.monoMsNow) - start} ms)"
+        IO.println s!"PCS {msg} [{if ok && ok0 then "ok" else "FAIL"}] ({(← IO.monoMsNow) - start} ms)"
+        if pr.ok then
+          let (ok2, msg2) := checkPContract pr
+          tally := tally.add ok2 msg2
+          IO.println s!"PCS {msg2} [{if ok2 then "ok" else "FAIL"}]"
+      | .c cr =>
+        let (ok, msg) := checkC cr
+        tally := tally.add ok msg
+        IO.println s!"CHECK {msg} [{if ok then "ok" else "FAIL"}] ({(← IO.monoMsNow) - start} ms)"
       | .other => pure ()
     for l in tally.log.reverse do
       IO.println l
