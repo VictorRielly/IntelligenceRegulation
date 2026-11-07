@@ -48,6 +48,7 @@ open scoped ENNReal
 open ZK60 ZK60.Exec ZK60.TokenRun ZK60.Sound ZK60.Assembly ZK60.StageX
 open ZK60.Circuit (gP GF)
 open ZK60.Block (BlockShape BlockPublic BlockSat RunSat i16 i16_eq_of_cast)
+open ZK60.Out (OutCSat)
 
 variable {S : BlockShape}
 
@@ -195,7 +196,7 @@ theorem iopExtract_of_runExtract {Lq : ℕ} {Coins : Type} (R : ClassifyRunPubli
 /-! ## The open obligations, and the gate -/
 
 variable {Hdr Salt Coins : Type} [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
-variable {K : Type} [Field K] [Fintype K] [DecidableEq K] [Algebra GF K]
+variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
 /-- **The classify run's OPEN obligations**, each a named premise of the precise shape the component lane must deliver
 (the remaining gap of D63 for the media app's classify run, as a checkable list; the doc's table gives each field's
@@ -256,7 +257,7 @@ theorem classify_productionReady (R : ClassifyRunPublic S) (Lq : ℕ) (V : RunV 
       εcTarget (fun q => εin q + εblk q + εout q + εep q) εsTarget εzk := by
   have hR : R.Valid := ⟨O.inPub, O.weights, O.outPub⟩
   obtain ⟨hokC, hN, hroot, hdep⟩ := O.commit
-  haveI : Subsingleton (classifyModel S R).HidOut := inferInstanceAs (Subsingleton Unit)
+  have : Subsingleton (classifyModel S R).HidOut := inferInstanceAs (Subsingleton Unit)
   refine productionReady_of (classifyRun_circuitIff O.shape R hR)
     (iopExtract_of_runExtract R _ (fun _ _ _ _ => trivial) O.blocks.1 O.extract)
     (classify_complete_target R hR Lq V P Cin h64 hr hon hokC hN hroot O.policy.1 O.policy.2 O.parts U hbij site kOf

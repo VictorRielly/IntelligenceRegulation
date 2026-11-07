@@ -8,7 +8,7 @@ OUT=$WT/results/zk60_lean_l18_20261107
 L=$WT/formal/ZK60Formal
 start=$(date +%s)
 echo "== lake build of the L18 modules =="
-"$LAKE" -d "$WT/formal" build ZK60Formal.ProtocolClassifyFS ZK60Formal.AssembleClassify 2>&1 \
+"$LAKE" -d "$WT/formal" build ZK60Formal.ProtocolClassifyFS ZK60Formal.AssembleClassify ZK60Formal.ProtocolClassifyR13 2>&1 \
   | grep -v '^✔\|^⣿\|Replayed\|Built' | head -n 400
 brc=${PIPESTATUS[0]}
 echo "build rc $brc ($(( $(date +%s) - start )) s)"

@@ -86,7 +86,7 @@ theorem site_refusal_le {β : Type} (G : Coins → OC Q Dig (Q × β)) (T : β �
   · exact Or.inr hq
   · exact Or.inl ⟨hp, hq⟩
 
-variable {K : Type} [Field K] [Fintype K] [DecidableEq K] [Algebra GF K]
+variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
 /-- **A refusal site of the honest run**: the honest computation up to it (`G`), the bad challenge values (`bad`, at
 most `k`), and its freshness failure bound `δ` (the probability that the honest computation had already asked the
@@ -112,7 +112,7 @@ theorem Site.prob_le (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := G
   refine le_trans (le_of_eq ?_) h
   unfold prHC
   refine congrArg _ (Set.ext fun p => ?_)
-  simp only [Set.mem_setOf_eq, Site.fires, Finset.mem_filter, Finset.mem_univ, true_and]
+  simp only [Set.mem_ofPred_eq, Site.fires, Finset.mem_filter, Finset.mem_univ, true_and]
 
 end Sites
 
@@ -165,7 +165,7 @@ theorem classify_complete (R : ClassifyRunPublic S) (hR : R.Valid) (Lq : ℕ) (V
   · intro W x hx i
     simpa only [not_not] using hε x hx i
 
-variable {K : Type} [Field K] [Fintype K] [DecidableEq K] [Algebra GF K]
+variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
 /-- **`Complete` with the sites' own bounds**: `εc = Σ_i (k_i·fibC/|Dig| + δ_i)`, the sites the honest prover's
 challenge-dependent refusals. -/
@@ -239,7 +239,7 @@ theorem refusal_total_le_target {ι : Type} [Fintype ι] (k : ι → ℕ) (δ : 
   exact add_le_add h1 hδ
 
 variable {S : Block.BlockShape} {Hdr Salt Coins : Type} [Fintype Coins] [Nonempty Coins]
-variable {K : Type} [Field K] [Fintype K] [DecidableEq K] [Algebra GF K]
+variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
 /-- **`Complete` at the approved target `εcTarget = 2^-40`** for the classify run: `classify_complete_sites` with the
 site counts `Σ k ≤ 2^85` and the freshness failures `Σ δ ≤ 2^-41` (`refusal_total_le_target`, `complete_mono`). -/

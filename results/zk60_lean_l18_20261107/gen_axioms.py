@@ -9,7 +9,8 @@ import re
 import sys
 
 src, out = sys.argv[1], sys.argv[2]
-files = ["ProtocolClassify.lean", "ProtocolClassifyFS.lean", "ProtocolClassifyComplete.lean", "AssembleClassify.lean"]
+files = ["ProtocolClassify.lean", "ProtocolClassifyFS.lean", "ProtocolClassifyComplete.lean", "AssembleClassify.lean",
+         "ProtocolClassifyR13.lean"]
 lines = [f"import ZK60Formal.{f[:-5]}" for f in files] + [
     "",
     "-- D63 Lean lane L18 (2026-11-07): the axiom audit of the classify run's Protocol instance and assembly",

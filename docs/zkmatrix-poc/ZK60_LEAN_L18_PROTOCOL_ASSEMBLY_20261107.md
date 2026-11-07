@@ -1,9 +1,10 @@
 # D63 lane L18: the classify run's `Protocol` instance, its Fiat–Shamir schedule, `Complete`, and the assembly into `ProductionReady` (2026-11-07)
 
-Lean lane L18 (Claude), on its own worktree branched from perf at `160dc05d` (lanes L9, L10, L11, L12, L15 merged).
-Lean 4.34.1, Mathlib v4.34.1, no new dependency. Four new library files under `formal/ZK60Formal/`, imported by the
-library root: `ProtocolClassify.lean`, `ProtocolClassifyFS.lean`, `ProtocolClassifyComplete.lean`,
-`AssembleClassify.lean`; one checker, `ProtocolClassifyCheck.lean`, not imported (it defines `main`). One TEST-ONLY
+Lean lane L18 (Claude), on its own worktree branched from perf at `160dc05d` (lanes L9, L10, L11, L12, L15 merged);
+perf merged in at `0940de9a` (lanes L13, L14, L16, L17: a merge, no rebase) so that the R13 instance uses L17's and L16's
+results. Lean 4.34.1, Mathlib v4.34.1, no new dependency. Five new library files under `formal/ZK60Formal/`, imported
+by the library root: `ProtocolClassify.lean`, `ProtocolClassifyFS.lean`, `ProtocolClassifyComplete.lean`,
+`AssembleClassify.lean`, `ProtocolClassifyR13.lean`; one checker, `ProtocolClassifyCheck.lean`, not imported (it defines `main`). One TEST-ONLY
 Rust file, `ops/zkp-mvp/gpu-metal/hashline/src/lean_l18_export_tests.rs`, declared by two lines (a comment and one
 `#[cfg(test)] #[path] mod`) at the end of the test-only `private_block/token_io/classify_capture_tests.rs`; it lives in
 `src/`, not `src/private_block/`, as lane L10's does, so `s25_tests.rs`'s `TEST_ONLY_FILES` (85 entries) is unchanged.
@@ -29,8 +30,9 @@ sequential D12a run) and assembles the gate.
   core, and the opening of the previous boundary with the claims left pending. PROVED: the verifier accepts exactly
   when stage IN-C, the blocks in order and stage OUT-C each accept (`classifyVerifyE_ok_iff`), and each part's step is
   unfolded in the code's order (`blockSeg_step_ok_iff` and its two siblings).
-  - The **block profile is a parameter**: W16R2 (lanes L9–L11) and R13 (lane L17, the app's real profile after A25)
-    both plug in. So are the two stages' verifiers.
+  - The **block profile is a parameter**, and its **R13 instance is built** from lane L17's executable D12a segment
+    decoder and L9's executable block verifier (`d12aBlockProf`): the app's real profile after A25. W16R2 is the same
+    definition with W16R2's parameters. The two stages' verifiers are parameters.
   - The commitments are lane L10's: the input opens as a plane commitment, the classifier's hidden output is `Unit`.
   - The declared leakage is the shapes, `T`, `L` and the served bit; every refusal is ONE constant output
     (D65(2), `prove_unserved`).
@@ -113,7 +115,22 @@ The code: hashline `src/private_block/token_io/classify_run.rs`, `verify_classif
 | `fib_le` (variable `p > 2^63`, L7-4), `fibC_le`, **`refusal_total_le_target`** | `fibC ≤ 2^130`; `Σ k ≤ 2^85` and `Σ δ ≤ 2^-41` give a total `≤ εcTarget = 2^-40` |
 | **`classify_complete_target`** | `Complete … εcTarget` (`complete_mono`) |
 
-### 2.4 The assembly (`AssembleClassify.lean`)
+### 2.4 The R13 instance (`ProtocolClassifyR13.lean`)
+
+Lane L17's R13 results and lane L16's per-block knowledge form, instantiated rather than restated.
+
+| Theorem / definition | Meaning |
+|---|---|
+| **`d12aBlockProf`** | the run's block profile: L17's `decodeSegment` (the D12a `HLPRUNS1` segment, `wire::decode_segment`) at block `k`'s segment geometry, L9's executable `blockVerify` (`verify_core`) at block `k`'s `BlockParams` (at R13 each layer's own calibration, with L17's `r13Fields`), the segment's `b_root`, the boundary opening of its `in_open`; W16R2 is the same definition with W16R2's parameters |
+| **`d12a_blockSeg_step_ok_iff`** | the R13 block step unfolded in the code's order (the decoder, the core, the boundary opening) |
+| **`d12a_block_segment_canonical`** | an accepted block segment is EXACTLY L17's `encSeg` of what it decoded (`decodeSegment_spec`): one receipt, one encoding, per block segment |
+| `r13TokenCommit_facts` | L17's R13 input endpoint (`r13TokenCommit`, `N = 2^16`, depth 16) with the statement's root meets O6 |
+| **`classify_binding_r13`** | `Binding … εsTarget` for the classify run at R13, from L17's `binding_classifier_target_r13` |
+| **`shield_run_sumchecks_le`** | the media app's run: 26 blocks and two stages, each part `≤ 2^14` slot items (L17's `shield_len`: a Shieldstral R13 block's slot phase is its header plus 1,292), degrees `≤ 7`, `q ≤ 2^64`: a false claim in ANY slot of the run passes with probability `≤ 2^-61` (L17's `shield_block_fs_sound` is this bound for ONE block) |
+| `blockOn_of_blockSat`, `blocksOk_of_blockSat` | `BlockSat` on two planes gives `BlockOn` (`BlockSat` carries the `Word16` class of both planes, `inX` and `res2`): L16's `block_knowledge` conclusion (with L17's `blockSat_of_slots_r13` as the `hRel` route at R13) is the blocks' part of O11, per block |
+| **`blocks_extract_union`** | per-block failure bounds (L16's per-block form) give the blocks' part of `RunExtract` with their sum (L16's `run_blocks_union`) |
+
+### 2.5 The assembly (`AssembleClassify.lean`)
 
 | Theorem / definition | Meaning |
 |---|---|
@@ -140,13 +157,13 @@ refusal sites) are arguments, not premises.
 | O3 `inPub` | `R.inp.Valid` | L15 | discharged for the registered policies by `shield_in_valid` (`shield_inp_valid`), given `R.inp = shieldIn …` |
 | O4 `outPub` | `R.out.Valid` | L15 | discharged by `shield_outc_valid` at `d = 3072` for the door's classes of `w_Δ` and the final norm |
 | O5 `blocks` | `0 < R.Ps.length ∧ V.L = R.Ps.length` | instance | true at `L = 26` by the instance |
-| O6 `commit` | the input commitment: canonical words admissible, `N ≤ 2^depth`, `root s = s.inRoot`, depth `≤ 64` | L10 (W16R2: `w16r2TokenCommit`); the R13 endpoint | W16R2: by definition (`N = 2^15`, depth 15); R13: the R13 endpoint's `PlaneCommit` instance is not written |
-| O7 `policy` | `V.preA hdr = .ok () ∧ V.preB hdr = .ok ()` | registered profile | open: the registered header in Lean (rulings, tier, the D27 floor, NTT tables, the tables' binding, R13's stage shapes) |
+| O6 `commit` | the input commitment: canonical words admissible, `N ≤ 2^depth`, `root s = s.inRoot`, depth `≤ 64` | L17 (R13: `r13TokenCommit`), L10 (W16R2: `w16r2TokenCommit`) | **discharged at R13** by `r13TokenCommit_facts` (`N = 2^16`, depth 16) once the endpoint's layout (`pos`, the rows) is given; W16R2 the same by definition |
+| O7 `policy` | `V.preA hdr = .ok () ∧ V.preB hdr = .ok ()` | registered profile; L17 | partly: L17's `shield_layers_accepted` proves the code's R13 calibration check passes for all 26 real layers (`preB`'s per-block stage shapes); the rest (rulings, tier, the D27 floor, NTT tables, the tables' binding) open |
 | O8 `parts` | `List.Forall₂ (SegComplete …) (P.parts L) V.parts`: each part's honest segment accepted, deterministically | IN-C, OUT-C: L12/L15 (model completeness only); blocks: L9–L11 executable verifier, no Lean honest prover | **open, not started**: the Lean honest provers of the parts and the executable stage verifiers |
 | O9 `refuse` | the honest prover refuses only when a listed site fires | with O8 | open: the sites are listed (§4.1); the statement is the prover specification's |
 | O10 `counts` | `∀ x i, k ≤ kOf i`, `∀ x i, δ ≤ δOf i`, `Σ kOf ≤ 2^85`, `Σ δOf ≤ 2^-41` | this lane's site list | the count holds by a wide margin [ESTIMATE §4.1]; `δ` (freshness) is argued, not proved (L18-4) |
-| O11 `extract` | `RunExtract R P εin εblk εout εep` (one extractor; four failure bounds) | IN-C: L12 (`inc_stage_sound`, interactive), OUT-C: L15 (`outc_stage_sound`, interactive); blocks: **L16** (W16R2), **L17** (R13), jointly path-wise (D66(4)); endpoint: L10-6 (now L16) | open: the stages' Fiat–Shamir lift, the blocks' knowledge version, the run-level path-wise composition on the code's chain (L18-2) |
-| O12 `zk` | `ZeroKnowledge (classifyModel S R) P εzk`; for the target, `classify_zk_target`'s hybrid step (`εhv ≤ 2^-120`, `δ ≤ 2^-248`) | **L14** (one block); the run's simulator and the stages | open: one block in progress; the run's composition; finding A5 on `δ` needs a ruling or a sharper argument |
+| O11 `extract` | `RunExtract R P εin εblk εout εep` (one extractor; four failure bounds) | IN-C: L12 (`inc_stage_sound`, interactive); OUT-C: L15 (`outc_stage_sound`, interactive); blocks: **L16**'s `block_knowledge` (any shape; `hOpen`, `hRel`, `hLk` named, L20/L21), at R13 with L17's `blockSat_of_slots_r13` for `hRel`, carried into O11 by `blocksOk_of_blockSat` / `blocks_extract_union`; endpoint: L10-6 | open: the stages' Fiat–Shamir lift; L16's three hypotheses; the identification of each block's extracted planes with the run's boundary planes (the boundary openings); the joint path-wise bound (the per-block sum misses the constant: L16-1, L18-2) |
+| O12 `zk` | `ZeroKnowledge (classifyModel S R) P εzk`; for the target, `classify_zk_target`'s hybrid step (`εhv ≤ 2^-120`, `δ ≤ 2^-248`) | **L14**: `zeroKnowledge_of_oneStep`, `w16r2_zk_within_target` (generic in the protocol and the block shape; the stand-in simulator) | open: L14's obligations for the classify run (its prover as a bounded oracle computation, its Fiat–Shamir receipt model, the honest-verifier law, the counts; a 26-block run estimated at `R ≤ 2^85`, L14 §3.1); every `R` needs Victor's ruling on L14-1 / A5 |
 
 ## 4. The numeric totals against the targets
 
@@ -198,8 +215,8 @@ No mismatch between the code and the approved statements was found; `Statements.
 - The integer model `classifyModel` is the profile-independent ModelInt (CircuitBlock covers the Low stack), so the
   R13 block profile instantiates the same model; what changes at R13 is the protocol's block part (L17).
 
-**L18-2 (Medium; for the run-level extraction, O11): the code-chain composition's query-free part is above the
-target's constant.**
+**L18-2 (Medium; for the run-level extraction, O11; lane L16 found the same for one block, L16-1): the code-chain
+composition's query-free part is above the target's constant.**
 - `fs_code_chain_sound_sched` (L8) bounds the run by `T·εmax`, `T = q + ℓ + 1`: the verifier's own `ℓ` items count
   as attempts. On the whole classify run `ℓ` is about `2^16` items [ESTIMATE: 26 blocks of about 2,000–2,500 items
   with their openings], and `εmax` is at least `M`'s column round, `(3071/4096)^256 ≈ 2^-106.4` (L10), so the
