@@ -28,6 +28,7 @@ here. The rates count proving and witness work. Verification time is recorded se
 | proof only | 22.7 tok/s | **32.5–34.2 tok/s** (best 3.75–3.94 s; it varies from run to run on the shared Mac) |
 | **the media app (Shieldstral classifier, R13 blocks, T128, 3 category proofs per post), through the app end to end: every receipt freshly verified, publication included (A24, 2026-11-07, merged 9be693d0; development mode `shieldstral-fast`, privacy statement pending, not production)** | 0.17 proved tok/s (r16b, CPU 2 threads; Astra 2026-11-05) | **one post 5.5 tok/s (70 s); an 8-post stream 11.4 tok/s** (269 s; second half 15.4) [MEASURED, public posts, single runs on the shared Mac] |
 | **the media app with lane A26's binary (the same receipts byte for byte; the CPU work per category proof cut by a third; development mode `shieldstral-fast`, privacy statement pending, not production)** | A24: native stream 11.25 tok/s, one post 55.2 s; app stream 11.4 | **native stream 14.10 tok/s (+25%, A/B pairs both orders), one post 46.7 s (+18%); through the app: stream 13.8 tok/s, one post 54.4 s (7.1 tok/s); proof only 15.5** [MEASURED; app rows single runs] |
+| **the media app with lane A27's binary (the same receipts byte for byte; the GPU work per category proof cut by 28%; development mode `shieldstral-fast`, privacy statement pending, not production)** | A26: native stream 14.27 tok/s, one post 46.9 s, proof only 14.7 | **native stream 16.86 tok/s (+18%, A/B pairs both orders, every pair), one post 44.2 s (+6%), proof only 17.7 (+21%); through the app: stream 16.3 tok/s, one post 47.8 s (8.0 tok/s)** [MEASURED; app rows single runs] |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -322,6 +323,30 @@ here. The rates count proving and witness work. Verification time is recorded se
   - Two further cuts are in the binary but off, for the security owner's reading of D72 / D74: the prover's
     kept digest and startup check for `classify-serve`, and a verifier that checks and re-hashes each block once
     per verification instead of twice (−20% verifier CPU).
+- **The media app's GPU work per proof cut by 28%, the receipts unchanged (A27, 2026-11-07)** [MEASURED;
+  `results/zk60_a27_app_20261107/README.md`].
+  - A new GPU trace (every command buffer's GPU timestamps, any build, off by default) profiled one category proof
+    on the real export: 6.93 s of GPU, 59% the device sumcheck slots (slot 14 alone 24%, slot 18 21%), 34% the A
+    and H commitments. A third to two fifths of the big zero-checks' products evaluated parts that are affine in the
+    tables, at every point of every pair of every round.
+  - Those parts are now tables of their own on the device (computed once, folded with the rest: the same field
+    elements by linearity), and a slot whose IR attains a lower degree than it declares (slots 14 and 18: 4 of 5)
+    skips the redundant point (extrapolated exactly, re-checked by the host's replay). Slot 14 is 2.3x faster,
+    slot 18 1.7x. The commitment's NTT now runs two stages per pass (it was bound by its threadgroup passes, not its
+    multiplies). One proof's GPU time 6.93 → 5.01 s.
+  - A/B pairs in both orders, every receipt freshly verified: the 8-post stream 14.27 → 16.86 proved tok/s (+18%),
+    one post 46.9 → 44.2 s, proof only 14.7 → 17.7. Through the app (single run): the stream 13.8 → 16.3 tok/s,
+    one post 54.4 → 47.8 s.
+  - **Byte identity on the real export** (A26's fixed-entropy harness): A26's binary, A27's and A27 with every
+    switch off make identical receipts, every file of every category; the six trained profiles' recorded digests
+    (the 8B profiles included) hold on CPU and Metal, and the 8B stack's server tests pass on the device. The app
+    pins the A27 binary; identity `e4f97455…` unchanged.
+  - **30 tok/s is not reached (about 1.8x short).** More prover lanes do not help (6 x 5 and 8 x 4 give the same
+    stream): the GPU's shared throughput still bounds it, and the commitments are 43% of its work. Next: deeper NTT
+    passes (radix 8/16, a larger tile), the folds, or A25's W16R2 rows after a ruling, or a second GPU.
+  - One note for the privacy gate: the three-product fold's two-product fast path is taken per element, so for an
+    extension table of private data a fold's time can depend slightly on whether neighbouring hidden values are
+    equal (`HL_A27_FOLD=0` removes it; README section 6).
 - **D63 Lean, per profile at W16R2 (2026-11-07, Victor away: "focus on completing the lean proofs")** [PROVED; each
   lane checked on the merged tree; docs `ZK60_LEAN_L9/L11/L12_*_20261107.md`].
   - The W16R3 freeze needs Victor's approval, so the per-profile proofs now target **W16R2**, the profile that the
