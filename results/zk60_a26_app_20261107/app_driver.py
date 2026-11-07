@@ -130,7 +130,8 @@ def main():
                 break
             if hb.get('state') in ('stopped', 'failed', 'server-died'):
                 raise SystemExit('the service stopped before it was ready (see its private logs)')
-            if time.time() - t0 > 3600:
+            # A26: the service may wait behind other lanes' guarded jobs (the guard's own wait is 7200 s)
+            if time.time() - t0 > 7200:
                 raise SystemExit('the service did not become ready')
             time.sleep(1)
         summary['service_ready_s'] = time.time() - t0

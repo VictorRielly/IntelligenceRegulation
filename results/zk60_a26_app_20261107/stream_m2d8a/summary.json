@@ -1,0 +1,178 @@
+{
+  "tag": "m2d8a",
+  "profile": "r13",
+  "binary": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a24",
+  "posts": 8,
+  "all_checked": true,
+  "wall_s": 361.1805911064148,
+  "startup_s": 30.876718044281006,
+  "prover_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 6,
+    "lane_threads": 5,
+    "startup_seconds": 30.848,
+    "witness_cache_bytes": 17179869184,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "checker_start": {
+    "event": "serve-start",
+    "command": "classify-check-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 3,
+    "lane_threads": 4,
+    "startup_seconds": 31.614,
+    "min_bits": 95,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "identity_pinned_by_verifier": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+  "category_proofs": 24,
+  "proved_tok_per_s": 8.505440424108768,
+  "content_tok_per_s": 0.3793116334970381,
+  "per_post": [
+    {
+      "post": 0,
+      "tokens": 14,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 289.5626800060272,
+      "done_at_s": 289.5680100917816
+    },
+    {
+      "post": 1,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 289.79311203956604,
+      "done_at_s": 299.81553506851196
+    },
+    {
+      "post": 2,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 290.0257089138031,
+      "done_at_s": 310.0887269973755
+    },
+    {
+      "post": 3,
+      "tokens": 20,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 287.9187750816345,
+      "done_at_s": 320.32582116127014
+    },
+    {
+      "post": 4,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 286.9929280281067,
+      "done_at_s": 330.494909286499
+    },
+    {
+      "post": 5,
+      "tokens": 17,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 286.2375953197479,
+      "done_at_s": 340.70625829696655
+    },
+    {
+      "post": 6,
+      "tokens": 15,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 285.330041885376,
+      "done_at_s": 350.9510509967804
+    },
+    {
+      "post": 7,
+      "tokens": 17,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 283.3051588535309,
+      "done_at_s": 361.14681005477905
+    }
+  ],
+  "steady": null,
+  "deferred": {
+    "wall_s": 247.26274418830872,
+    "category_proofs": 24,
+    "proved_tok_per_s": 12.42403100428444,
+    "per_post_last_proof_s": [
+      62.434223890304565,
+      65.4844138622284,
+      102.48040890693665,
+      100.28118515014648,
+      137.73713779449463,
+      135.9344630241394,
+      173.7881419658661,
+      169.42106294631958
+    ],
+    "verifier": {
+      "startup_s": 31.63782000541687,
+      "wall_s": 82.07154607772827,
+      "category_proofs": 24,
+      "verified_tok_per_s": 37.43075580775062
+    }
+  },
+  "cpu": {
+    "prover_cpu_s": 3362.63,
+    "checker_cpu_s": 747.07,
+    "writer_cpu_s": 162.125784,
+    "prover_cpu_s_per_proof": 140.10958333333335,
+    "checker_cpu_s_per_proof": 31.127916666666668,
+    "writer_cpu_s_per_proof": 6.755241000000001,
+    "all_cpu_s_per_proof": 177.992741,
+    "note": "ps -o time= (user+system) of each server over the clocked window; the writer by RUSAGE_CHILDREN"
+  },
+  "gpu": {
+    "samples": 178,
+    "mean_pct": 54.51123595505618,
+    "p50_pct": 91,
+    "p90_pct": 98,
+    "note": "ioreg IOAccelerator Device Utilization %, every 2 s over the whole clock (diagnostics)"
+  },
+  "env": {},
+  "settings": {
+    "tag": "m2d8a",
+    "posts": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a010958861d4921eb/results/zk60_a24_app_20261107/posts/stream8.json",
+    "profile": "r13",
+    "bin": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a24",
+    "identity": null,
+    "lanes": 6,
+    "lane_threads": 5,
+    "check_lanes": 3,
+    "check_threads": 4,
+    "witness_gib": 16.0,
+    "keep": 0,
+    "gap": 0.0,
+    "writer_threads": 4,
+    "defer_check": true,
+    "sample": null
+  },
+  "hl_gpu": "1",
+  "on_the_clock": "PROOF-ONLY CLOCK (deferred check): from the first post submitted to the last proof written: activation writer, the prover's sealing pass and witnesses, proof, receipt write; the verifier (fresh, its own process, every receipt) runs after it on its own clock, standing for a second machine"
+}
