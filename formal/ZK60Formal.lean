@@ -101,3 +101,8 @@ import ZK60Formal.StageCheckDefs
 import ZK60Formal.StageFS
 import ZK60Formal.StageOutWhole
 import ZK60Formal.StageCheckValid
+import ZK60Formal.SlotW16Build
+import ZK60Formal.SlotW16BuildEval
+import ZK60Formal.SlotW16BuildSlots
+import ZK60Formal.SlotW16BuildLayout
+import ZK60Formal.SlotW16Compose

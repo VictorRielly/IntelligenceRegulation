@@ -1,0 +1,116 @@
+== lake build ZK60Formal.SlotW16BuildEval ZK60Formal.SlotW16BuildSlots ZK60Formal.SlotW16BuildLayout ZK60Formal.SlotW16Compose ==
+✖ [3398/3403] Building ZK60Formal.SlotW16BuildEval (9.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/ZK60Formal/SlotW16BuildEval.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean/ZK60Formal/SlotW16BuildEval.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/lib/lean/ZK60Formal/SlotW16BuildEval.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/ir/ZK60Formal/SlotW16BuildEval.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a30bf89c063c9ac1c/formal/.lake/build/ir/ZK60Formal/SlotW16BuildEval.setup.json --json
+error: ZK60Formal/SlotW16BuildEval.lean:79:2: Type mismatch
+  rfl
+has type
+  ?m.43 = ?m.43
+but is expected to have type
+  (logupGo c h0 mu x✝¹ x✝ []).2.length = 3 * ([].length / 2) + 2 * ([].length % 2)
+warning: ZK60Formal/SlotW16BuildEval.lean:98:62: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [logupGo, nodeVals, denB, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal,
+    st, fval, List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len,
+    getD_len_add, List.getD_cons_succ, List.getD_cons_zero, logupSem, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:120:62: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, denB, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal, st, fval,
+    List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len, getD_len_add,
+    List.getD_cons_succ, List.getD_cons_zero, logupSem, denV]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/SlotW16BuildEval.lean:124:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Slot.Build.padGo_len`:
+  [CommRing R]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [CommRing R] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/SlotW16BuildEval.lean:155:56: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, bodyVal, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, stVal, st, fval,
+    List.prod_cons, List.prod_nil, List.append_assoc, List.cons_append, List.nil_append, getD_len, getD_len_add,
+    List.getD_cons_succ, List.getD_cons_zero, padSem, List.map_map, Function.comp_def]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/SlotW16BuildEval.lean:210:11: Insufficient number of fields for `⟨...⟩` constructor: Constructor `Eq.refl` does not have explicit fields, but 2 were provided
+error: ZK60Formal/SlotW16BuildEval.lean:210:33: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression
+  ih
+has type
+  (List.map (SubTerm.map f) (logupGo c h0 mu (k + 1) (o + 3) ls).1,
+      List.map (Body.map f) (logupGo c h0 mu (k + 1) (o + 3) ls).2) =
+    logupGo (Cst.map f c) h0 (f ∘ mu) (k + 1) (o + 3)
+      (List.map (fun l => { konst := f l.konst, terms := List.map (fun p => (f p.1, p.2)) l.terms }) ls)
+which has no fields.
+error: ZK60Formal/SlotW16BuildEval.lean:210:24: unsolved goals
+α β : Type
+f : α → β
+c : Cst α
+h0 : ℕ
+mu : ℕ → α
+k o : ℕ
+head✝¹ head✝ : LkD α
+ls : List (LkD α)
+ih :
+  (List.map (SubTerm.map f) (logupGo c h0 mu (k + 1) (o + 3) ls).1,
+      List.map (Body.map f) (logupGo c h0 mu (k + 1) (o + 3) ls).2) =
+    logupGo (Cst.map f c) h0 (f ∘ mu) (k + 1) (o + 3)
+      (List.map (fun l => { konst := f l.konst, terms := List.map (fun p => (f p.1, p.2)) l.terms }) ls)
+⊢ Body.map f (denB head✝¹) ::
+        Body.map f (denB head✝) ::
+          Body.map f
+              (Body.sum
+                [st c.one [Factor.tab (h0 + k), Factor.node o, Factor.node (o + 1)], st c.negOne [Factor.node o],
+                  st c.negOne [Factor.node (o + 1)]]) ::
+            List.map (Body.map f) [] ++
+      List.map (Body.map f) (logupGo c h0 mu (k + 1) (o + 3) ls).2 =
+    [denB { konst := f head✝¹.konst, terms := List.map (fun p => (f p.1, p.2)) head✝¹.terms },
+        denB { konst := f head✝.konst, terms := List.map (fun p => (f p.1, p.2)) head✝.terms },
+        Body.sum
+          [st (Cst.map f c).one [Factor.tab (h0 + k), Factor.node o, Factor.node (o + 1)],
+            st (Cst.map f c).negOne [Factor.node o], st (Cst.map f c).negOne [Factor.node (o + 1)]]] ++
+      (logupGo (Cst.map f c) h0 (f ∘ mu) (k + 1) (o + 3)
+          (List.map (fun l => { konst := f l.konst, terms := List.map (fun p => (f p.1, p.2)) l.terms }) ls)).2
+error: ZK60Formal/SlotW16BuildEval.lean:219:12: Insufficient number of fields for `⟨...⟩` constructor: Constructor `Eq.refl` does not have explicit fields, but 2 were provided
+error: ZK60Formal/SlotW16BuildEval.lean:220:10: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression
+  ih
+has type
+  (List.map (SubTerm.map f) (padGo c mu zp (j + ps.length) (o + 2) gs).1,
+      List.map (Body.map f) (padGo c mu zp (j + ps.length) (o + 2) gs).2) =
+    padGo (Cst.map f c) (f mu) (f ∘ zp) (j + ps.length) (o + 2) gs
+which has no fields.
+error: ZK60Formal/SlotW16BuildEval.lean:216:27: unsolved goals
+α β : Type
+f : α → β
+c : Cst α
+mu : α
+zp : ℕ → α
+j o s : ℕ
+ps : List ℕ
+gs : List (ℕ × List ℕ)
+ih :
+  (List.map (SubTerm.map f) (padGo c mu zp (j + ps.length) (o + 2) gs).1,
+      List.map (Body.map f) (padGo c mu zp (j + ps.length) (o + 2) gs).2) =
+    padGo (Cst.map f c) (f mu) (f ∘ zp) (j + ps.length) (o + 2) gs
+⊢ Body.map f (Body.affine c.one [(c.negOne, s)]) ::
+        Body.map f (Body.affine c.zero (List.map (fun q => (zp (j + q.2), q.1)) ps.zipIdx)) ::
+          List.map (Body.map f) [] ++
+      List.map (Body.map f) (padGo c mu zp (j + ps.length) (o + 2) gs).2 =
+    [Body.affine (Cst.map f c).one [((Cst.map f c).negOne, s)],
+        Body.affine (Cst.map f c).zero (List.map (fun q => ((f ∘ zp) (j + q.2), q.1)) ps.zipIdx)] ++
+      (padGo (Cst.map f c) (f mu) (f ∘ zp) (j + ps.length) (o + 2) gs).2
+error: ZK60Formal/SlotW16BuildEval.lean:234:2: `simp` made no progress
+Some required targets logged failures:
+- ZK60Formal.SlotW16BuildEval
+error: build failed
+build rc 1
+== lean formal/ZK60Formal/SlotW16BuildCheck.lean ==
+rc 0 for formal/ZK60Formal/SlotW16BuildCheck.lean
+rc build 1 files 0, 23 s

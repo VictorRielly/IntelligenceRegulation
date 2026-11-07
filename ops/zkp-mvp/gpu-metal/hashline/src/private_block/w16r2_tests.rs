@@ -82,6 +82,11 @@ use zkp_core::rng::ZkRng;
 #[path = "lean_l11_export_tests.rs"]
 mod lean_l11_export_tests;
 
+// D63 step L13 (2026-11-07): the Lean lane's W16R2 layout facts at the three W16R2 profiles (test only)
+#[cfg(test)]
+#[path = "lean_l13_export_tests.rs"]
+mod lean_l13_export_tests;
+
 /// each W16R2 profile beside its W16 sibling (the same geometry, rate 1/4)
 const PAIRS: [(&str, &str); 3] = [
     (shape::W16R2_RUNG_H24, shape::W16_RUNG_H24),
