@@ -1,0 +1,52 @@
+2026-11-07T08:32:30Z start
+2026-11-07T08:33:21Z lake build rc=0
+✔ [3501/3502] Built ZK60Formal (9.3s)
+Build completed successfully (3502 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-07T08:33:25Z axiom audit axioms_l14 rc=0
+sorryAx or ofReduceBool mentions: 0
+  65 axioms: [propext, Classical.choice, Quot.sound]
+   5 axioms: [propext, Quot.sound]
+   3 axioms: [propext]
+   1 axioms: [Quot.sound]
+2026-11-07T08:33:27Z axiom audit axioms_l13 rc=0
+sorryAx or ofReduceBool mentions: 0
+  13 axioms: [propext, Classical.choice, Quot.sound]
+  31 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+2026-11-07T08:33:30Z axiom audit axioms_l15 rc=0
+sorryAx or ofReduceBool mentions: 0
+  70 axioms: [propext, Classical.choice, Quot.sound]
+   6 axioms: [propext, Quot.sound]
+   3 axioms: [propext]
+2026-11-07T08:33:33Z axiom audit axioms_l10 rc=0
+sorryAx or ofReduceBool mentions: 0
+ 114 axioms: [propext, Classical.choice, Quot.sound]
+  22 axioms: [propext, Quot.sound]
+  11 axioms: [propext]
+2026-11-07T08:33:35Z axiom audit axioms_l12 rc=0
+sorryAx or ofReduceBool mentions: 0
+  81 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext]
+2026-11-07T08:33:38Z axiom audit axioms_l9 rc=0
+sorryAx or ofReduceBool mentions: 0
+  45 axioms: [propext, Classical.choice, Quot.sound]
+  16 axioms: [propext, Quot.sound]
+  16 axioms: [propext]
+2026-11-07T08:33:41Z axiom audit axioms_l11 rc=0
+sorryAx or ofReduceBool mentions: 0
+  59 axioms: [propext, Classical.choice, Quot.sound]
+  14 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+2026-11-07T08:33:41Z source scan hits other than the header sentence (grep rc 1 = none): rc=1
+2026-11-07T08:37:50Z ExecBlockCheck regression rc=0
+ExecBlockCheck: 273 checks, 0 failed
+2026-11-07T08:37:56Z L11Check rc=0
+L11Check: 404 checks, 0 failed
+2026-11-07T08:38:00Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-07T08:38:15Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-07T08:38:20Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-07T08:38:20Z all done
