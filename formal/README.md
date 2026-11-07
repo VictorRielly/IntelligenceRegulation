@@ -559,8 +559,18 @@ The plain-words version, the modelling choices and the open decisions are in
     - OUT-C's byte LogUp and margin, and OUT's head and selector steps.
     - The run's boundary links, and `IOPExtract`'s inner predicate with the openings as hypotheses.
     - About 2^-111 per stage at the classifier's shape [ESTIMATE]. 83 theorems.
-  - Running: L10 (openings, M, `Binding`), L13 (slot builders and the block's composed ε), L14 (zero knowledge for
-    a block) and L15 (the whole OUT-C/OUT stages, a stage corpus).
+  - **L10, the openings, M and `Binding`** (`ExecOpeningCode.lean`, `ExecOpening.lean`, `ExecOpeningM.lean`,
+    `ExecOpeningFS.lean`, `BindingW16.lean`, `ExecOpeningBlock.lean`; checker `ExecOpeningCheck.lean`).
+    - `pcsVerify_ok_iff` and `maskVerify_ok_iff`.
+    - M's Fiat–Shamir bound is proved on the code chain at ≤ 2^-106 (`mask_rbrWide_code`). It was assumed before.
+    - The L8-5 transfer (`rbrWide_toCode`).
+    - `binding_planes_target` and `binding_classifier_target`.
+    - L9's `BlockParams` opening fields.
+    - The checker: 48 checks, 0 failed, on a real 192 MB corpus kept outside the repo (sha256 committed). 148
+      theorems.
+    - Open: L10-6, the premise `fin = f(ρ)`.
+  - Running: L13 (slot builders and the block's composed ε), L14 (zero knowledge for a block), L15 (the whole
+    OUT-C/OUT stages, a stage corpus) and L16 (the block's knowledge extraction, L10-6).
 - The wording was approved by Victor on 2026-11-04, with the §6 choices.
 - The work still to do: instances for a real profile (the integer model, the constraint system, the D55 protocol),
   and proofs of `ProductionReady` for them (plan L1–L5). Per `productionReady_of`, that is five per-profile theorems

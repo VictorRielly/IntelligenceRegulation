@@ -1385,7 +1385,8 @@ only points to them.
 | L9, the block verifier | `ZK60_LEAN_L9_BLOCK_VERIFIER_20261107.md` | §4.0: the receipt decoder and `verify` (the block). §10.5: the profile's schedule. The block's sumcheck Fiat–Shamir bound on the real schedule, ≤ 2^-61. |
 | L11, the slots and the layout map | `ZK60_LEAN_L11_SLOTS_LAYOUT_20261107.md` | §4.2: d (F44), f (the layout map, for the block), c (the hand-off lemmas). The per-slot soundness densities. |
 | L12, the token stages | `ZK60_LEAN_L12_STAGES_20261107.md` | §4.2: e (IN-C whole; the OUT-C and OUT steps), f (the run's boundary links), g (the endpoints, stated against `opensIn` / `opensOut`). |
-| L10, openings, M and `Binding` | running | §4.4 `Binding`. §4.2 b (M's opening under Fiat–Shamir). The L8-5 transfer. L9's `BlockParams` opening fields. |
+| L10, openings, M and `Binding` | `ZK60_LEAN_L10_OPENINGS_BINDING_20261107.md` | §4.4 `Binding`: `binding_planes_target`, and `binding_classifier_target` for the classifier. §4.2 b: M's opening under Fiat–Shamir is now PROVED on the code chain at ≤ 2^-106, replacing the assumption. The L8-5 transfer (`rbrWide_toCode`). L9's `BlockParams` opening fields. Open: L10-6 (Medium), `fin = f(ρ)`, which is L16's target. |
+| L16, the block's knowledge extraction | running | §4.2 a for one block: L10-6, the claim-to-table map, and `BlockSat` for the extracted planes. |
 | L13, slot builders and composition | running | The proved link from the slot IRs to `W16Rels`. The block's composed ε. |
 | L14, zero knowledge for a block | running | §4.5: a, b, d, e, f for one block receipt. |
 | L15, the whole stages | running | §4.2 e (OUT-C and OUT whole). Their Fiat–Shamir forms. A stage corpus. |

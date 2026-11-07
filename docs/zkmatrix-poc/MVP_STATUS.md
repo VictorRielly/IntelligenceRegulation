@@ -308,8 +308,14 @@ here. The rates count proving and witness work. Verification time is recorded se
   - **L12, the classifier's token stages.** The embedding stage IN-C is proved as one theorem. The head stage OUT-C's
     byte lookup and margin are proved, and the run's boundary links are in place. About 2^-111 per stage
     [ESTIMATE].
-  - **Running:** L10 (openings, M, `Binding`), L13 (the slot builders proved, and the block's composed error), L14 (zero
-    knowledge for one block: Statement 2), and L15 (the whole OUT-C/OUT stages).
+  - **L10, the openings, M's test and `Binding`.**
+    - The opening and M checks are executable Lean and agree with the code on a real receipt: 48 checks, 0 failed.
+    - M's Fiat–Shamir bound is now PROVED on the code's own transcript at 2^-106. Until now it was assumed.
+    - `Binding` is proved at the target, for the token runs and for the classifier.
+    - Open (L10-6, Medium): each slot's final claim is true of the committed tables. That is the knowledge step, and
+      it is L16's target.
+  - **Running:** L13 (the slot builders proved, and the block's composed error), L14 (zero knowledge for one block:
+    Statement 2), L15 (the whole OUT-C/OUT stages) and L16 (the block's knowledge extraction).
   - **Still open before production:** the run level (the D55 tree), the extractor end to end, the `Protocol` instance
     and its assembly into `ProductionReady`, and then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].

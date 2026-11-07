@@ -1,0 +1,65 @@
+2026-11-07T07:20:33Z start
+2026-11-07T07:23:13Z hashline lean_l10_export (test only) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1051 filtered out; finished in 1.68s
+2026-11-07T07:23:13Z regenerated L10 corpus sha256 equals corpus.sha256 (0eedc99a74a903cf5b3191c75c8d44f8562c7b1f829d97f6756be9cf83b01608): rc=0
+2026-11-07T07:23:37Z hashline s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1032 filtered out; finished in 23.25s
+2026-11-07T07:23:37Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1037 filtered out; finished in 0.12s
+2026-11-07T07:23:52Z hashline r19b rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1047 filtered out; finished in 15.51s
+2026-11-07T07:24:21Z lake build rc=0
+✔ [3485/3486] Built ZK60Formal (1.7s)
+Build completed successfully (3486 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-07T07:24:24Z axiom audit axioms_l10 rc=0
+sorryAx or ofReduceBool mentions: 0
+ 114 axioms: [propext, Classical.choice, Quot.sound]
+  22 axioms: [propext, Quot.sound]
+  11 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T07:24:26Z axiom audit axioms_l12 rc=0
+sorryAx or ofReduceBool mentions: 0
+  81 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T07:24:29Z axiom audit axioms_l9 rc=0
+sorryAx or ofReduceBool mentions: 0
+  45 axioms: [propext, Classical.choice, Quot.sound]
+  16 axioms: [propext, Quot.sound]
+  16 axioms: [propext]
+declarations with no axioms: 14
+2026-11-07T07:24:31Z axiom audit axioms_l11 rc=0
+sorryAx or ofReduceBool mentions: 0
+  59 axioms: [propext, Classical.choice, Quot.sound]
+  14 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+declarations with no axioms: 1
+2026-11-07T07:24:34Z axiom audit axioms_l8 rc=0
+sorryAx or ofReduceBool mentions: 0
+  25 axioms: [propext, Classical.choice, Quot.sound]
+  15 axioms: [propext, Quot.sound]
+  17 axioms: [propext]
+declarations with no axioms: 7
+2026-11-07T07:24:37Z axiom audit axioms_l7 rc=0
+sorryAx or ofReduceBool mentions: 0
+  24 axioms: [propext, Classical.choice, Quot.sound]
+   8 axioms: [propext, Quot.sound]
+   4 axioms: [propext]
+declarations with no axioms: 3
+2026-11-07T07:24:37Z source scan hits (grep rc 1 = none): rc=1
+2026-11-07T07:28:09Z L10 checker on the reduced corpus rc=0
+L10Check: 40 checks, 0 failed
+2026-11-07T07:31:44Z negative control (6 single changes must give exactly 8 failed checks)
+L10Check: 41 checks, 8 failed
+2026-11-07T07:35:52Z ExecBlockCheck regression rc=0
+ExecBlockCheck: 273 checks, 0 failed
+2026-11-07T07:35:57Z L11Check rc=0
+L11Check: 404 checks, 0 failed
+2026-11-07T07:36:01Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-07T07:36:16Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-07T07:36:21Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-07T07:36:21Z all done (the regenerated 191.9 MB corpus removed from scratch)
