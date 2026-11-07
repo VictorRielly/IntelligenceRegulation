@@ -101,3 +101,8 @@ import ZK60Formal.StageCheckDefs
 import ZK60Formal.StageFS
 import ZK60Formal.StageOutWhole
 import ZK60Formal.StageCheckValid
+import ZK60Formal.ExecBlockR13
+import ZK60Formal.SlotR13
+import ZK60Formal.OpeningR13
+import ZK60Formal.LayoutR13
+import ZK60Formal.ShapeR13

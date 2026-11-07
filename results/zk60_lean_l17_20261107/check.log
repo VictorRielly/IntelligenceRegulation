@@ -1,0 +1,184 @@
+== lake build ZK60Formal.LayoutR13 ==
+Build completed successfully (3359 jobs).
+build rc 0 for ZK60Formal.LayoutR13 (5 s)
+== lake build ZK60Formal.ShapeR13 ==
+⚠ [3360/3360] Built ZK60Formal.ShapeR13 (2.5s)
+warning: ZK60Formal/ShapeR13.lean:87:34: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Build completed successfully (3360 jobs).
+build rc 0 for ZK60Formal.ShapeR13 (10 s)
+rc build 0 files 0, 10 s
+== check_l17.sh ==
+== the large files (outside the repository) against their committed sha256 ==
+fork_frame.bin: OK
+segment.bin: OK
+open_corpus.txt: OK
+== lake build (full) ==
+lake build rc 0
+✔ [3494/3496] Built ZK60Formal.StageOutWhole (4.3s)
+✔ [3495/3496] Built ZK60Formal (2.8s)
+Build completed successfully (3496 jobs).
+warnings: 1
+errors: 0
+sorry: 0
+== axiom audit ==
+76 theorems
+axioms rc 0
+declarations audited: 76
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  53 axioms: [propext, Classical.choice, Quot.sound]
+   3 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+== source scan of the L17 files ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/ShapeR13.lean:3:model's per-layer calibration is admitted at R13, and the R13 plane list does not move with it.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/ShapeR13.lean:15:* **`derive_windows`**: at LowH24, every calibration `derive` admits puts each shift in its R13 limb window (three limbs
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/ShapeR13.lean:22:* **`shield_layers_admitted`**: each of the real export's 26 layer calibrations (A25's census,
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/ShapeR13.lean:23:  `results/zk60_a25_app_20261107/c1.progress`, with the run's `tn 9, sh_qkv 8, sh_o 9, sh_g 8`) is admitted by `derive`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/ShapeR13.lean:79:/-- **Every calibration `derive` admits at LowH24 has its shifts in the R13 limb windows**: the 24-bit remainders
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/ShapeR13.lean:93:/-- **The R13 windows of a block shape from its admitted calibration** (`LayoutR13.lean`'s `R13Windows`): the shape's
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/ShapeR13.lean:146:/-- **Every one of the 26 real layer calibrations is admitted at R13 (LowH24)**, with its gate denominator in
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1625b90fca168135/formal/ZK60Formal/ShapeR13.lean:149:theorem shield_layers_admitted : shieldLayers.length = 26 ∧
+== the library root imports the L17 library files, not the checkers ==
+104:import ZK60Formal.ExecBlockR13
+105:import ZK60Formal.SlotR13
+106:import ZK60Formal.OpeningR13
+107:import ZK60Formal.LayoutR13
+108:import ZK60Formal.ShapeR13
+the checkers (main) are not imported
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: L11Check on the committed L11 corpus ==
+L11Check: 404 checks, 0 failed
+== CheckR13Slots on the R13 rung's slots corpus ==
+  ASCII: 1
+  head: 1
+  tags: 1
+  slot-index: 23
+  kind: 23
+  schedule: 23
+  terms: 23
+  draws: 23
+  draw-layout: 23
+  hosted: 23
+  claim-points: 15
+  ir-shape: 22
+  ir-degree: 22
+  verify-arm-parts: 10
+  ir-challenges: 155
+  ir-template: 6
+  verify-arm: 12
+  verify-arm-noir: 1
+  slot-count: 1
+DEGREE GAP (info) slot 14: declared degree 5, computed 4
+DEGREE GAP (info) slot 18: declared degree 5, computed 4
+CheckR13Slots: 408 checks, 0 failed
+== CheckR13Slots negative control (seven changes) ==
+mutations: [1, 2, 3, 4, 5, 6, 7]
+FAILED [head] HEADEND a3627353cb69e9fa4ef905b9a75653feb6d44cfefe7ef87017a6179a62e9b92b 3
+FAILED [terms] slot 0
+FAILED [verify-arm-parts] slot 3: refused
+FAILED [draws] slot 4
+FAILED [verify-arm] slot 5
+FAILED [verify-arm-parts] slot 14
+FAILED [verify-arm-parts] slot 20: refused
+CheckR13Slots: 408 checks, 7 failed
+== CheckR13Block on the R13 rung's fork frame and the real D12a segment ==
+  ASCII: 13
+  SHAPE: 1
+  SCHEDULE: 4
+  FRAME: 3
+  TAG: 2
+  DECODE: 3
+  FIELDS: 5
+  SLOT: 1
+  LOGUP: 1
+  SLOTS: 2
+  SLOT-DRAWS: 23
+  SLOT-C: 23
+  SLOT-SCALAR: 23
+  SLOT-CLAIMED: 23
+  SLOT-RHO: 23
+  SLOT-FIN: 23
+  SLOT-TERMS: 23
+  SLOT-HOSTED: 23
+  SLOT-STATE: 23
+  FUNCTIONALS: 1
+  MASK: 4
+  OPEN: 2
+  PCS: 8
+  END: 1
+  FORK: 2
+  TAMPER: 13
+  SEG-SHAPE: 2
+  SEG-FRAME: 2
+  SEG-DECODE: 4
+  SEG-FIELDS: 7
+  SEG-TAMPER: 14
+CheckR13Block: 302 checks, 0 failed
+== CheckR13Block negative control (six block changes, two segment changes) ==
+8 changes written
+FAILED [FIELDS] M's opening
+FAILED [SLOT-DRAWS] define's draws 15
+FAILED [SLOT-RHO] the round challenges (10)
+FAILED [SLOT-STATE] the state after slot 12
+FAILED [PCS] A: the 256 column indices
+FAILED [TAMPER] round-sum: Lean ERR slot 3 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim / Rust ERR slot 4 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim
+FAILED [SEG-FIELDS] the input endpoint's opening
+FAILED [SEG-TAMPER] input-column-index: Lean ERR private block wire: column index / Rust ERR private block wire: column indexx
+CheckR13Block: 302 checks, 8 failed
+== CheckR13Open on the reduced opening corpus, then its negative control, then the full corpus ==
+mksmall: 17 records kept, 2 dropped -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l17_open_small.txt
+CheckR13Open: 29 checks, 0 failed
+negctl: 6 of 6 changes written; expected failed checks 8
+FAIL root 9
+FAIL m-honest: accepted, transcript DIFFERS
+FAIL m-honest: L9's maskTranscript ends where the crate's verifier does
+FAIL m-q0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: accepted
+FAIL m-q0: L9's maskTranscript refused an honest opening
+FAIL a-vec0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claimx
+FAIL chk-a: Lean's check_opening accepts, the crate refused ()
+FAIL chk-h-groups: Lean refused (private block: 9 opening groups, the schedule declares 11), the crate: private block: 9 opening groups, the schedule declares 10
+CheckR13Open: 30 checks, 8 failed
+root 2^9: equal
+root 2^12: equal
+root 2^14: equal
+root 2^16: equal
+M m-honest: accepted, transcript equal [ok] (11522 ms)
+M m-honest: L9's maskTranscript ends where the crate's verifier does [ok]
+M m-q0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: mask: the product polynomial's sum != the combined functional [ok] (15 ms)
+M m-prox3: Lean refused (mask: column index), the crate: mask: column index [ok] (122 ms)
+M m-value0: Lean refused (mask: the product polynomial's sum != the combined functional), the crate: mask: the product polynomial's sum != the combined functional [ok] (14 ms)
+M m-col0: Lean refused (mask: Merkle path for column 2239 fails), the crate: mask: Merkle path for column 2239 fails [ok] (124 ms)
+M m-index1: Lean refused (mask: column index), the crate: mask: column index [ok] (164 ms)
+PCS a-honest: accepted, transcript equal [ok] (576215 ms)
+PCS a-honest: L9's pcsTranscript ends where the crate's verifier does [ok]
+PCS h-honest: accepted, transcript equal [ok] (178568 ms)
+PCS h-honest: L9's pcsTranscript ends where the crate's verifier does [ok]
+PCS a-vec0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claim [ok] (25977 ms)
+PCS a-claim0: Lean refused (pcs zk: group 0: <v, c> != combined claim), the crate: pcs zk: group 0: <v, c> != combined claim [ok] (25870 ms)
+PCS h-pad0: Lean refused (pcs zk: column index 53240 != sampled 62635), the crate: pcs zk: column index 53240 != sampled 62635 [ok] (16457 ms)
+PCS h-col0: Lean refused (pcs zk: Merkle path for column 53240 fails), the crate: pcs zk: Merkle path for column 53240 fails [ok] (16587 ms)
+PCS h-index1: Lean refused (pcs zk: column index 22900 != sampled 22901), the crate: pcs zk: column index 22900 != sampled 22901 [ok] (17238 ms)
+PCS h-ncols: Lean refused (pcs zk: wrong number of columns), the crate: pcs zk: wrong number of columns [ok] (16378 ms)
+PCS h-coef0: Lean refused (pcs zk: column 53240 disagrees with clear vector 0), the crate: pcs zk: column 53240 disagrees with clear vector 0 [ok] (16919 ms)
+CHECK chk-a: Lean's check_opening accepts [ok] (134 ms)
+CHECK chk-h: Lean's check_opening accepts [ok] (62 ms)
+CHECK chk-h-groups: Lean refused (private block: 9 opening groups, the schedule declares 10), the crate: private block: 9 opening groups, the schedule declares 10 [ok] (7 ms)
+CHECK chk-a-prox: Lean refused (private block: mask schedule audit: proximity pair placement), the crate: private block: mask schedule audit: proximity pair placement [ok] (1 ms)
+CheckR13Open: 35 checks, 0 failed
+== hashline's R19b file census and the s25 tests (TEST_ONLY_FILES) ==
+test private_block::tied_tables::derive::tests::r19b_checkpoint_open_refuses_a_symlinked_checkpoint_file ... ok
+test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... ok
+test private_block::s25_tests::r19b_the_module_follower_refuses_include_outside_test_code ... ok
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test private_block::tied_tables::derive::tests::r19b_checkpoint_open_refuses_a_same_size_file_that_is_not_the_pinned_checkpoint ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1053 filtered out; finished in 15.43s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1038 filtered out; finished in 23.28s
+verdicts: large files 0, build 0, axioms 0, L6 0/0, L5 0/0, L1 0/0, L11 0/0, slots 0/neg 0, block 0/neg 0, open small 0/neg 0/full 0, r19b 0, s25 0 (0 = as required); 2171 s
