@@ -122,3 +122,8 @@ import ZK60Formal.SlotR13
 import ZK60Formal.OpeningR13
 import ZK60Formal.LayoutR13
 import ZK60Formal.ShapeR13
+import ZK60Formal.CountW16Chain
+import ZK60Formal.CountW16Slots
+import ZK60Formal.CountW16Target
+import ZK60Formal.OpenKnowChain
+import ZK60Formal.OpenKnowBlock

@@ -1,0 +1,165 @@
+== lake build ZK60Formal.CountW16Chain ==
+Build completed successfully (3426 jobs).
+build rc 0 for ZK60Formal.CountW16Chain, 2 s
+== lake build ZK60Formal.CountW16Slots ==
+warning: ZK60Formal/CountW16Slots.lean:61:0: automatically included section variable(s) unused in theorem `ZK60.Exec.sum_n_div`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3456 jobs).
+build rc 0 for ZK60Formal.CountW16Slots, 6 s
+== lake build ZK60Formal.CountW16Target ==
+warning: ZK60Formal/CountW16Slots.lean:61:0: automatically included section variable(s) unused in theorem `ZK60.Exec.sum_n_div`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3457/3457] Building ZK60Formal.CountW16Target (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Target.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Target.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Target.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Target.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Target.setup.json --json
+warning: ZK60Formal/CountW16Target.lean:165:105: exponent 270 exceeds the threshold 256, exponentiation operation was not evaluated, use `set_option exponentiation.threshold <num>` to set a new threshold
+info: ZK60Formal/CountW16Target.lean:165:105: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/CountW16Target.lean:165:102: unsolved goals
+q T' nr : ℕ
+hq : q < 2 ^ 100
+hT : T' ≤ 2 ^ 22 * (q + 1)
+hnr : nr ≤ 3
+hc : collBound T' Dig ≤ u126 q (2 ^ 14)
+hq1 : q + 1 ≤ 2 ^ 100
+hsq : T' * T' ≤ 2 ^ 144 * (q + 1)
+hlin : (1 + nr) * T' ≤ 2 ^ 144 * (q + 1)
+⊢ 5691412770192565637459361055147028046803926286285565003667419169156946148062134272 +
+      q * 5691412770192565637459361055147028046803926286285565003667419169156946148062134272 =
+    q * 2 ^ 270 * 3 + 2 ^ 270 * 3
+info: ZK60Formal/CountW16Target.lean:166:87: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/CountW16Target.lean:166:20: unsolved goals
+q T' nr : ℕ
+hq : q < 2 ^ 100
+hT : T' ≤ 2 ^ 22 * (q + 1)
+hnr : nr ≤ 3
+hc : collBound T' Dig ≤ u126 q (2 ^ 14)
+hq1 : q + 1 ≤ 2 ^ 100
+hsq : T' * T' ≤ 2 ^ 144 * (q + 1)
+hlin : (1 + nr) * T' ≤ 2 ^ 144 * (q + 1)
+this : (2 * (2 ^ 144 * (q + 1)) + 2 ^ 144 * (q + 1)) * 2 ^ 126 = (q + 1) * (3 * 2 ^ 270)
+⊢ 7588550360256754183279148073529370729071901715047420004889892225542594864082845696 +
+      q * 7588550360256754183279148073529370729071901715047420004889892225542594864082845696 =
+    q * 2 ^ 272 + 2 ^ 272
+error: ZK60Formal/CountW16Target.lean:167:39: unsolved goals
+q T' nr : ℕ
+hq : q < 2 ^ 100
+hT : T' ≤ 2 ^ 22 * (q + 1)
+hnr : nr ≤ 3
+hc : collBound T' Dig ≤ u126 q (2 ^ 14)
+hq1 : q + 1 ≤ 2 ^ 100
+hsq : T' * T' ≤ 2 ^ 144 * (q + 1)
+hlin : (1 + nr) * T' ≤ 2 ^ 144 * (q + 1)
+this : (2 * (2 ^ 144 * (q + 1)) + 2 ^ 144 * (q + 1)) * 2 ^ 126 = (q + 1) * (3 * 2 ^ 270)
+⊢ 3 * 2 ^ 270 ≤ 2 ^ 272
+error: ZK60Formal/CountW16Target.lean:225:8: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.CountW16Target
+error: build failed
+build rc 1 for ZK60Formal.CountW16Target, 9 s
+== lake build ZK60Formal.OpenKnowChain ==
+warning: ZK60Formal/OpenKnowChain.lean:239:0: automatically included section variable(s) unused in theorem `ZK60.Exec.opBCSub_rbr`:
+  [Fintype F]
+  [DecidableEq κ]
+  [DecidableEq Cl]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype F] [DecidableEq κ] [DecidableEq Cl] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3449 jobs).
+build rc 0 for ZK60Formal.OpenKnowChain, 15 s
+== lake build ZK60Formal.OpenKnowBlock ==
+warning: ZK60Formal/CountW16Slots.lean:61:0: automatically included section variable(s) unused in theorem `ZK60.Exec.sum_n_div`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/OpenKnowChain.lean:239:0: automatically included section variable(s) unused in theorem `ZK60.Exec.opBCSub_rbr`:
+  [Fintype F]
+  [DecidableEq κ]
+  [DecidableEq Cl]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype F] [DecidableEq κ] [DecidableEq Cl] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3462/3463] Building ZK60Formal.CountW16Target (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/ZK60Formal/CountW16Target.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Target.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/lib/lean/ZK60Formal/CountW16Target.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Target.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a84acfa5ac322ed31/formal/.lake/build/ir/ZK60Formal/CountW16Target.setup.json --json
+warning: ZK60Formal/CountW16Target.lean:165:105: exponent 270 exceeds the threshold 256, exponentiation operation was not evaluated, use `set_option exponentiation.threshold <num>` to set a new threshold
+info: ZK60Formal/CountW16Target.lean:165:105: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/CountW16Target.lean:165:102: unsolved goals
+q T' nr : ℕ
+hq : q < 2 ^ 100
+hT : T' ≤ 2 ^ 22 * (q + 1)
+hnr : nr ≤ 3
+hc : collBound T' Dig ≤ u126 q (2 ^ 14)
+hq1 : q + 1 ≤ 2 ^ 100
+hsq : T' * T' ≤ 2 ^ 144 * (q + 1)
+hlin : (1 + nr) * T' ≤ 2 ^ 144 * (q + 1)
+⊢ 5691412770192565637459361055147028046803926286285565003667419169156946148062134272 +
+      q * 5691412770192565637459361055147028046803926286285565003667419169156946148062134272 =
+    q * 2 ^ 270 * 3 + 2 ^ 270 * 3
+info: ZK60Formal/CountW16Target.lean:166:87: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/CountW16Target.lean:166:20: unsolved goals
+q T' nr : ℕ
+hq : q < 2 ^ 100
+hT : T' ≤ 2 ^ 22 * (q + 1)
+hnr : nr ≤ 3
+hc : collBound T' Dig ≤ u126 q (2 ^ 14)
+hq1 : q + 1 ≤ 2 ^ 100
+hsq : T' * T' ≤ 2 ^ 144 * (q + 1)
+hlin : (1 + nr) * T' ≤ 2 ^ 144 * (q + 1)
+this : (2 * (2 ^ 144 * (q + 1)) + 2 ^ 144 * (q + 1)) * 2 ^ 126 = (q + 1) * (3 * 2 ^ 270)
+⊢ 7588550360256754183279148073529370729071901715047420004889892225542594864082845696 +
+      q * 7588550360256754183279148073529370729071901715047420004889892225542594864082845696 =
+    q * 2 ^ 272 + 2 ^ 272
+error: ZK60Formal/CountW16Target.lean:167:39: unsolved goals
+q T' nr : ℕ
+hq : q < 2 ^ 100
+hT : T' ≤ 2 ^ 22 * (q + 1)
+hnr : nr ≤ 3
+hc : collBound T' Dig ≤ u126 q (2 ^ 14)
+hq1 : q + 1 ≤ 2 ^ 100
+hsq : T' * T' ≤ 2 ^ 144 * (q + 1)
+hlin : (1 + nr) * T' ≤ 2 ^ 144 * (q + 1)
+this : (2 * (2 ^ 144 * (q + 1)) + 2 ^ 144 * (q + 1)) * 2 ^ 126 = (q + 1) * (3 * 2 ^ 270)
+⊢ 3 * 2 ^ 270 ≤ 2 ^ 272
+error: ZK60Formal/CountW16Target.lean:225:8: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.CountW16Target
+error: build failed
+build rc 1 for ZK60Formal.OpenKnowBlock, 19 s
+rc build 1 files 0, 19 s
