@@ -201,3 +201,8 @@ import ZK60Formal.HonestOracleProg
 import ZK60Formal.StageVerifyExecAssemble
 import ZK60Formal.HonestOracleSlots
 import ZK60Formal.HonestOracleParts
+import ZK60Formal.BindingUCode
+import ZK60Formal.RunChainUOrd
+import ZK60Formal.RunChainUStab
+import ZK60Formal.RunChainUGate
+import ZK60Formal.RunChainUExec
