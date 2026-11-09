@@ -435,8 +435,21 @@ here. The rates count proving and witness work. Verification time is recorded se
     - Left: the A/H half of hexec, the header readers, and the probability glue (lane L28).
     - Coordinator's decision on L22-1: state the block results for the real run, where the profile fixes the header's
       squeeze count.
-  - **Running:** L25 (the honest provers and completeness), L26 (the OpensU instance for L24-1), L27 (the run-chain
-    premises of L24's joint theorem), L28 (the openings' glue).
+  - **L25, the honest provers and completeness** [PROVED; merged 6d1b21ad, checked on the merged tree 8baff9cc:
+    3565 jobs, no warning; `ZK60_LEAN_L25_HONEST_20261107.md`].
+    - The honest provers are written out in Lean. L9's block verifier accepts the honest block core, for any block
+      shape, so at W16R2 and at R13. The executable sumcheck verifier accepts the honest rounds at every oracle.
+    - O10 is discharged for refusal sites written as transcript programs: such a site's challenge point is never one
+      its own computation asked, so its refusal term is exact.
+    - O8 and O9 are reduced to named contracts (each slot's arithmetic, the openings' completeness, the stage
+      verifiers). O12 has only its honest-rounds hypotheses.
+    - Finding L25-1 (Medium, in the Lean model, handled): the code's prover opens its own previous boundary, so the
+      Lean block prover checks that too.
+  - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26 (the OpensU instance
+    for L24-1), L27 (the run-chain premises of L24's joint theorem), L28 (the openings' glue), L29 (the stage
+    verifiers in executable Lean and the honest prover in oracle form) and A28 (the app's commitment kernels and GPU
+    idle time) in mid-work. Nothing was lost: each lane's files were in its worktree, and each was resumed there on
+    2026-11-09. None of the five is merged yet.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
