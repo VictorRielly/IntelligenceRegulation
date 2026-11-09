@@ -1,0 +1,22 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a51f9d1a2272ead49/results/zk60_lean_l26_20261107/plan.txt ==
+build ZK60Formal.BindingU
+build ZK60Formal.BindingUTest
+build ZK60Formal.ProtocolClassifyU
+build ZK60Formal.BindingUDecode
+build ZK60Formal.ProtocolClassifyUEp
+== lake build ZK60Formal.BindingU ==
+Build completed successfully (3458 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.BindingUTest ==
+Build completed successfully (3464 jobs).
+build rc 0 (19 s)
+== lake build ZK60Formal.ProtocolClassifyU ==
+Build completed successfully (3494 jobs).
+build rc 0 (22 s)
+== lake build ZK60Formal.BindingUDecode ==
+Build completed successfully (3466 jobs).
+build rc 0 (26 s)
+== lake build ZK60Formal.ProtocolClassifyUEp ==
+Build completed successfully (3497 jobs).
+build rc 0 (71 s)
+rc 0, 71 s

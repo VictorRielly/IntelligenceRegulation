@@ -1,0 +1,5 @@
+build ZK60Formal.BindingU
+build ZK60Formal.BindingUTest
+build ZK60Formal.ProtocolClassifyU
+build ZK60Formal.BindingUDecode
+build ZK60Formal.ProtocolClassifyUEp

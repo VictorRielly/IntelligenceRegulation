@@ -164,3 +164,8 @@ import ZK60Formal.ZoneCodeFirst
 import ZK60Formal.RunExtractKinds
 import ZK60Formal.RunExtractClassify
 import ZK60Formal.RunExtractOpenU
+import ZK60Formal.BindingU
+import ZK60Formal.BindingUTest
+import ZK60Formal.BindingUDecode
+import ZK60Formal.ProtocolClassifyU
+import ZK60Formal.ProtocolClassifyUEp
