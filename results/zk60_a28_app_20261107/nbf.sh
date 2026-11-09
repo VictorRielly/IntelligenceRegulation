@@ -2,7 +2,7 @@
 # Lane A28, job nbf<N> (one guarded gpu-class job, under a minute): the field-arithmetic variants (a28nb field mode):
 # every variant's add / sub / product / reduction against the tree's on 2^25 canonical pairs plus the edge cases, and
 # 2^24 arbitrary 64-bit pairs for the product and reduction, then their butterfly rates in registers.
-S=/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/a28nb
+S=/Users/victorrielly/zk60-artifacts/a28-tools/a28nb
 WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c
 R=$WT/results/zk60_a28_app_20261107
 O=$R/$1.log

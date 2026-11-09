@@ -267,7 +267,10 @@ fn a28_stagger() -> std::time::Duration {
 /// runs go at once (A22 overlapped `stack-serve`'s sealing with the last request's proof the same
 /// way). Each request is still `prove_with_public` from its first step to its last on one thread:
 /// its own fresh draws, refusals in their order, run directory and files. Only when its run starts
-/// changes. A lane then holds up to two requests' sealing-pass witnesses at once.
+/// changes. A lane then holds up to two requests' sealing-pass witnesses at once. The reader sends
+/// each request to the least loaded lane (an idle lane first, then the lane whose request in flight
+/// began first; never a third to a lane): the A28 candidate without it let a lane's second thread
+/// take a post's second category while other lanes sat idle (`results/zk60_a28_app_20261107`, m1b1).
 pub(super) fn a28_seal_ahead_on() -> bool {
     static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *ON.get_or_init(|| std::env::var("HL_A28_SEAL_AHEAD").map(|v| v != "0").unwrap_or(true))
@@ -294,28 +297,67 @@ where
     let stagger = std::time::Duration::from_millis(stagger_ms);
     let next_start: std::sync::Mutex<Option<Instant>> = std::sync::Mutex::new(None);
     let t0 = Instant::now();
-    let (req_tx, req_rx) = std::sync::mpsc::sync_channel::<(usize, String, f64)>(lanes);
+    // (line number, line, read at, [A28] the dispatch instant counted against its lane)
+    type Req = (usize, String, f64, Option<Instant>);
+    let (req_tx, req_rx) = std::sync::mpsc::sync_channel::<Req>(lanes);
     let req_rx = std::sync::Mutex::new(req_rx);
+    // [A28] with two request threads a lane: one queue a lane, filled by the reader with each request
+    // sent to the least loaded lane (no request in flight first; then the lane whose request in flight
+    // began first, so its run ends soonest), never more than two a lane
+    let (lane_tx, lane_rx): (Vec<std::sync::mpsc::Sender<Req>>, Vec<std::sync::Mutex<std::sync::mpsc::Receiver<Req>>>) = if per_lane > 1 {
+        (0..lanes)
+            .map(|_| {
+                let (tx, rx) = std::sync::mpsc::channel::<Req>();
+                (tx, std::sync::Mutex::new(rx))
+            })
+            .unzip()
+    } else {
+        (Vec::new(), Vec::new())
+    };
+    let load: std::sync::Mutex<Vec<Vec<Instant>>> = std::sync::Mutex::new(vec![Vec::new(); lanes]);
+    let freed = std::sync::Condvar::new();
     let (out_tx, out_rx) = std::sync::mpsc::channel::<(bool, String)>();
     let (mut n, mut ok) = (0usize, 0usize);
     std::thread::scope(|s| {
+        let (load_r, freed_r) = (&load, &freed);
         s.spawn(move || {
             let mut q = 0usize;
             for line in lines {
                 if line.trim().is_empty() {
                     continue;
                 }
-                if req_tx.send((q, line, t0.elapsed().as_secs_f64())).is_err() {
+                let t_read = t0.elapsed().as_secs_f64();
+                let sent = if lane_tx.is_empty() {
+                    req_tx.send((q, line, t_read, None)).is_ok()
+                } else {
+                    let (lane, at) = {
+                        let mut g = load_r.lock().unwrap_or_else(|e| e.into_inner());
+                        loop {
+                            let pick = (0..g.len()).filter(|&i| g[i].len() < per_lane).min_by_key(|&i| (g[i].len(), g[i].iter().min().copied(), i));
+                            if let Some(i) = pick {
+                                let at = Instant::now();
+                                g[i].push(at);
+                                break (i, at);
+                            }
+                            g = freed_r.wait(g).unwrap_or_else(|e| e.into_inner());
+                        }
+                    };
+                    lane_tx[lane].send((q, line, t_read, Some(at))).is_ok()
+                };
+                if !sent {
                     break;
                 }
                 q += 1;
             }
         });
         for (i, pool) in pools.iter().map(|(i, p)| (*i, p)) {
-            let (out_tx, req_rx, serve, next_start) = (out_tx.clone(), &req_rx, &serve, &next_start);
+            let (out_tx, req_rx, serve, next_start, lane_rx, load_r, freed_r) = (out_tx.clone(), &req_rx, &serve, &next_start, &lane_rx, &load, &freed);
             s.spawn(move || loop {
-                let next = req_rx.lock().unwrap_or_else(|e| e.into_inner()).recv();
-                let Ok((q, line, t_read)) = next else { break };
+                let next = match lane_rx.get(i) {
+                    Some(rx) => rx.lock().unwrap_or_else(|e| e.into_inner()).recv(),
+                    None => req_rx.lock().unwrap_or_else(|e| e.into_inner()).recv(),
+                };
+                let Ok((q, line, t_read, dispatched)) = next else { break };
                 if !stagger.is_zero() {
                     // [A28] this request's start: no earlier than the last start plus the stagger
                     let wait = {
@@ -331,6 +373,14 @@ where
                 }
                 let queued = t0.elapsed().as_secs_f64() - t_read;
                 let (good, l) = pool.install(|| serve(q, &line, queued, i));
+                if let Some(at) = dispatched {
+                    // [A28] this request no longer counts against its lane
+                    let mut g = load_r.lock().unwrap_or_else(|e| e.into_inner());
+                    if let Some(k) = g[i].iter().position(|t| *t == at) {
+                        g[i].remove(k);
+                    }
+                    freed_r.notify_all();
+                }
                 if out_tx.send((good, l)).is_err() {
                     break;
                 }

@@ -1,10 +1,4 @@
-# Lane A28, job m2 (diagnostics, single runs on the first candidate, every receipt freshly verified): the scheduling
-# settings one by one on the 8-post stream at the app's setting: seal-ahead off (HL_A28_SEAL_AHEAD=0: the candidate's
-# kernel and host cuts alone); the default (seal-ahead on); + A7's spin-then-block wait (HL_METAL_SPIN_US=200);
-# + a 300 ms request stagger; + the lane threads' user-initiated QoS.
+# Lane A28, job m2: WITHDRAWN before it ran. The first candidate's seal-ahead lanes took requests from one shared
+# queue, so a lane's second thread could take a post's second category while another lane sat idle (m1b1: the
+# first post's latency 85 s). The scheduling settings are measured on the second candidate instead (q2, m3.plan).
 # tag|binary|posts|driver flags|env
-m2off|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q1|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0
-m2def|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q1|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
-m2spin|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q1|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_METAL_SPIN_US=200
-m2stag|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q1|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_METAL_SPIN_US=200 HL_A28_STAGGER_MS=300
-m2qos|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q1|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_METAL_SPIN_US=200 HL_A28_QOS=1

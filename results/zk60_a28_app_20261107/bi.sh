@@ -15,7 +15,7 @@ P=$R/$TAG.progress
 say() { echo "$(date -u +%FT%TZ) $*" >> $P; }
 say "start; A = $A ($(shasum -a 256 $A | cut -c1-16)); B = $B ($(shasum -a 256 $B | cut -c1-16)) extra B env [$*]; free disk $(df -g /Users/victorrielly | tail -1 | awk '{print $4}') GiB"
 if pgrep ds4-bench >/dev/null; then say "ds4-bench running (bytes only; no clock is read here)"; fi
-/private/tmp/zk60-astra-app-refresh-20261104-venv/bin/python $R/byteid.py --tag $TAG --posts $A24P/one.json \
+/Users/victorrielly/zk60-artifacts/a28-tools/venv/bin/python $R/byteid.py --tag $TAG --posts $A24P/one.json \
   --bin A=$A --bin B=$B --bin B0=$B \
   --env A:HL_METAL_QUEUES=thread --env B:HL_METAL_QUEUES=thread --env B0:HL_METAL_QUEUES=thread $BENV \
   --env B0:HL_A28_PRUNE=0 --env B0:HL_A28_HASH=0 --env B0:HL_A28_WQ=0 --env B0:HL_A28_STAGGER_MS=0 --env B0:HL_A28_QOS=0 \

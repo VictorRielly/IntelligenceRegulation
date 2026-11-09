@@ -226,7 +226,7 @@ inline ulong gl_mul_pow2(ulong x, uint e) {
     return neg != 0u ? a27_gl_neg(z) : z;
 }
 
-struct HeadArgs { ulong rows; uint log_n; uint log_src; uint mode; uint max_log; ulong q; ulong scale; uint apply_scale; uint use_hw; uint pow2; uint r4; uint prune; };
+struct HeadArgs { ulong rows; uint log_n; uint log_src; uint mode; uint max_log; ulong q; ulong scale; uint apply_scale; uint use_hw; uint pow2; uint r4; };
 
 // [A27] one head butterfly's product: x times stage s's twiddle k (the power-of-2 form for
 // s <= pow2, the compact table's word with use_hw, the full table's otherwise)
@@ -260,17 +260,20 @@ inline ulong head_input(uint mode, device const ulong *src, device const ulong *
     return 0UL;
 }
 
-kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
-                       device const ulong *pads [[buffer(1)]],
-                       device const ulong *pows [[buffer(2)]],
-                       device ulong *dst [[buffer(3)]],
-                       device const ulong *tw [[buffer(4)]],
-                       constant HeadArgs &args [[buffer(5)]],
-                       device const ulong *hw [[buffer(6)]],
-                       device const uint *hx [[buffer(7)]],
-                       uint2 tid2 [[thread_position_in_threadgroup]],
-                       uint2 nth2 [[threads_per_threadgroup]],
-                       uint2 tg [[threadgroup_position_in_grid]]) {
+// [A28] a template: `k_ntt_head` is the PRUNE = false instance (A27's kernel, the same code), and
+// `k_ntt_head_pruned` the PRUNE = true one (HL_A28_PRUNE, chosen by the host), so neither pays for the other
+template <bool PRUNE>
+kernel void k_ntt_head_t(device const ulong *src [[buffer(0)]],
+                         device const ulong *pads [[buffer(1)]],
+                         device const ulong *pows [[buffer(2)]],
+                         device ulong *dst [[buffer(3)]],
+                         device const ulong *tw [[buffer(4)]],
+                         constant HeadArgs &args [[buffer(5)]],
+                         device const ulong *hw [[buffer(6)]],
+                         device const uint *hx [[buffer(7)]],
+                         uint2 tid2 [[thread_position_in_threadgroup]],
+                         uint2 nth2 [[threads_per_threadgroup]],
+                         uint2 tg [[threadgroup_position_in_grid]]) {
     // all three as uint2 (MSL: thread attributes must share one vector width);
     // the threadgroups are one-dimensional
     uint tid = tid2.x;
@@ -281,8 +284,8 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
     ulong r = ulong(tg.y);
     ulong base = ulong(tg.x) << L;
     uint s0 = 1;
-    if (args.prune != 0u) {
-        // [A28] HL_A28_PRUNE (the host sets it only for a plain or hiding row whose nonzero words all
+    if (PRUNE) {
+        // [A28] HL_A28_PRUNE (the host picks this instance only for a plain or hiding row whose nonzero words all
         // lie below 2^(log_n - 1), with r4 on and L >= 2): the working array is zero at every position
         // whose bit 0 is set, so the first radix-4 pass (stages 1 and 2: stage 1's twiddle 1 on both
         // pairs, stage 2's at k = 0 and k + h = 1) reads only the words at 4b and 4b + 2. Its products of
@@ -364,6 +367,14 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
         row[k] = args.apply_scale != 0u ? gl_mul(x, args.scale) : x;
     }
 }
+template [[host_name("k_ntt_head")]] kernel void k_ntt_head_t<false>(device const ulong *src [[buffer(0)]], device const ulong *pads [[buffer(1)]],
+    device const ulong *pows [[buffer(2)]], device ulong *dst [[buffer(3)]], device const ulong *tw [[buffer(4)]], constant HeadArgs &args [[buffer(5)]],
+    device const ulong *hw [[buffer(6)]], device const uint *hx [[buffer(7)]], uint2 tid2 [[thread_position_in_threadgroup]],
+    uint2 nth2 [[threads_per_threadgroup]], uint2 tg [[threadgroup_position_in_grid]]);
+template [[host_name("k_ntt_head_pruned")]] kernel void k_ntt_head_t<true>(device const ulong *src [[buffer(0)]], device const ulong *pads [[buffer(1)]],
+    device const ulong *pows [[buffer(2)]], device ulong *dst [[buffer(3)]], device const ulong *tw [[buffer(4)]], constant HeadArgs &args [[buffer(5)]],
+    device const ulong *hw [[buffer(6)]], device const uint *hx [[buffer(7)]], uint2 tid2 [[thread_position_in_threadgroup]],
+    uint2 nth2 [[threads_per_threadgroup]], uint2 tg [[threadgroup_position_in_grid]]);
 
 struct TailArgs { ulong rows; uint log_n; uint max_log; ulong scale; uint apply_scale; uint r4; };
 

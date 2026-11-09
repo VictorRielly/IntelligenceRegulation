@@ -8,7 +8,7 @@ R=$WT/results/zk60_a28_app_20261107
 A24P=$WT/results/zk60_a24_app_20261107/posts
 TAG=$1
 if pgrep ds4-bench >/dev/null; then echo "POLLUTED: ds4-bench running at start" > $R/app_$TAG.quiet; else echo "quiet at start (no ds4-bench)" > $R/app_$TAG.quiet; fi
-/private/tmp/zk60-astra-app-refresh-20261104-venv/bin/python $R/app_driver.py --tag $TAG --warm \
+/Users/victorrielly/zk60-artifacts/a28-tools/venv/bin/python $R/app_driver.py --tag $TAG --warm \
   --binary /Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27 \
   --phase one=$A24P/one_app.json --phase long=$A24P/long.json --phase stream8=$A24P/stream8.json > $R/app_$TAG.out 2>&1
 rc=$?

@@ -1,0 +1,15 @@
+[zk60-guard 10:27:33] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; MemAvailable 105.2 GiB < need 180 + margin 1; VRAM 33072 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:28:34] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:29:35] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; MemAvailable 164.5 GiB < need 180 + margin 1; VRAM 11081 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:30:36] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; MemAvailable 125.0 GiB < need 180 + margin 1; VRAM 42592 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:31:37] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; MemAvailable 129.7 GiB < need 180 + margin 1; VRAM 40558 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:32:37] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:33:39] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:34:40] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; MemAvailable 103.7 GiB < need 180 + margin 1; VRAM 44751 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:35:42] admission waiting: budget: 130+180 GiB > 252.5 GiB with live [a28-p1-env(gpu,130G)]; MemAvailable 113.7 GiB < need 180 + margin 1; VRAM 27367 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:36:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:37:44] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:38:45] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:39:05] START a28-q1 class=gpu need=180G cap=230G enforce=watchdog-only waited=692s run=3488a281393d
+[zk60-guard 11:08:27] a28-q1: 1 straggler process(es) outlived the command; killing
+[zk60-guard 11:08:27] END a28-q1 exit=0 child_wall=1761s peak_rss=156.45G min_avail=41.73G peak_vram=50047MiB

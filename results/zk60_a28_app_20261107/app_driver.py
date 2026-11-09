@@ -27,7 +27,7 @@ import time
 WT = Path('/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c')
 MAIN = Path('/Users/victorrielly/IntelligenceRegulation')
 R = WT / 'results/zk60_a28_app_20261107'
-VENV = '/private/tmp/zk60-astra-app-refresh-20261104-venv/bin/python'
+VENV = '/Users/victorrielly/zk60-artifacts/a28-tools/venv/bin/python'
 
 
 def run_phase(client, appmod, texts, timeout):

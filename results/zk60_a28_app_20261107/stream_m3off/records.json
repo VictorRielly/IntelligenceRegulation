@@ -1,0 +1,890 @@
+[
+ {
+  "kind": "writer",
+  "t": 1794080659.682901,
+  "post": 0,
+  "rc": 0,
+  "seconds": 10.115781307220459,
+  "jobs": 3,
+  "cpu_s": 19.864677
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080659.6830232,
+  "post": 0,
+  "category": "sexual",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080659.6830652,
+  "post": 0,
+  "category": "violence",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080659.6830988,
+  "post": 0,
+  "category": "hate",
+  "chunk": 0
+ },
+ {
+  "kind": "writer",
+  "t": 1794080669.677035,
+  "post": 1,
+  "rc": 0,
+  "seconds": 9.993541240692139,
+  "jobs": 3,
+  "cpu_s": 18.826500000000003
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080669.677171,
+  "post": 1,
+  "category": "sexual",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080669.6772108,
+  "post": 1,
+  "category": "violence",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080669.677245,
+  "post": 1,
+  "category": "hate",
+  "chunk": 0
+ },
+ {
+  "kind": "writer",
+  "t": 1794080681.30422,
+  "post": 2,
+  "rc": 0,
+  "seconds": 11.62650990486145,
+  "jobs": 3,
+  "cpu_s": 21.457844999999992
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080681.304348,
+  "post": 2,
+  "category": "sexual",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080681.304383,
+  "post": 2,
+  "category": "violence",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080681.304412,
+  "post": 2,
+  "category": "hate",
+  "chunk": 0
+ },
+ {
+  "kind": "writer",
+  "t": 1794080692.338479,
+  "post": 3,
+  "rc": 0,
+  "seconds": 11.033672094345093,
+  "jobs": 3,
+  "cpu_s": 20.046895000000013
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080692.338641,
+  "post": 3,
+  "category": "sexual",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080692.338683,
+  "post": 3,
+  "category": "violence",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080692.3387148,
+  "post": 3,
+  "category": "hate",
+  "chunk": 0
+ },
+ {
+  "kind": "prove",
+  "t": 1794080695.4741051,
+  "post": 0,
+  "category": "violence",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 35.79,
+  "queued": 0.0,
+  "lane": 2
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080695.4741418,
+  "post": 0,
+  "category": "violence"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080695.504928,
+  "post": 0,
+  "category": "hate",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 35.821,
+  "queued": 0.0,
+  "lane": 3
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080695.504946,
+  "post": 0,
+  "category": "hate"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080695.5093892,
+  "post": 0,
+  "category": "sexual",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 35.826,
+  "queued": 0.0,
+  "lane": 0
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080695.509398,
+  "post": 0,
+  "category": "sexual"
+ },
+ {
+  "kind": "check",
+  "t": 1794080704.6758962,
+  "post": 0,
+  "category": "sexual",
+  "status": "checked",
+  "seconds": 9.166,
+  "verify_seconds": 8.437,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080704.778513,
+  "post": 0,
+  "category": "violence",
+  "status": "checked",
+  "seconds": 9.304,
+  "verify_seconds": 8.575,
+  "queued": 0.0
+ },
+ {
+  "kind": "writer",
+  "t": 1794080704.817461,
+  "post": 4,
+  "rc": 0,
+  "seconds": 12.478288888931274,
+  "jobs": 3,
+  "cpu_s": 21.677274999999995
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080704.817597,
+  "post": 4,
+  "category": "sexual",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080704.817634,
+  "post": 4,
+  "category": "violence",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080704.817666,
+  "post": 4,
+  "category": "hate",
+  "chunk": 0
+ },
+ {
+  "kind": "check",
+  "t": 1794080704.9711528,
+  "post": 0,
+  "category": "hate",
+  "status": "checked",
+  "seconds": 9.465,
+  "verify_seconds": 8.728,
+  "queued": 0.0
+ },
+ {
+  "kind": "prove",
+  "t": 1794080708.6067681,
+  "post": 1,
+  "category": "sexual",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 38.929,
+  "queued": 0.0,
+  "lane": 1
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080708.606786,
+  "post": 1,
+  "category": "sexual"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080708.61628,
+  "post": 1,
+  "category": "violence",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 38.938,
+  "queued": 0.0,
+  "lane": 4
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080708.616291,
+  "post": 1,
+  "category": "violence"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080708.626125,
+  "post": 1,
+  "category": "hate",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 38.949,
+  "queued": 0.0,
+  "lane": 5
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080708.6261382,
+  "post": 1,
+  "category": "hate"
+ },
+ {
+  "kind": "writer",
+  "t": 1794080717.431086,
+  "post": 5,
+  "rc": 0,
+  "seconds": 12.612771987915039,
+  "jobs": 3,
+  "cpu_s": 21.825955000000008
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080717.431239,
+  "post": 5,
+  "category": "sexual",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080717.431277,
+  "post": 5,
+  "category": "violence",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080717.431309,
+  "post": 5,
+  "category": "hate",
+  "chunk": 0
+ },
+ {
+  "kind": "check",
+  "t": 1794080717.931351,
+  "post": 1,
+  "category": "violence",
+  "status": "checked",
+  "seconds": 9.313,
+  "verify_seconds": 8.59,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080717.983455,
+  "post": 1,
+  "category": "sexual",
+  "status": "checked",
+  "seconds": 9.376,
+  "verify_seconds": 8.636,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080718.4539,
+  "post": 1,
+  "category": "hate",
+  "status": "checked",
+  "seconds": 9.827,
+  "verify_seconds": 9.106,
+  "queued": 0.0
+ },
+ {
+  "kind": "writer",
+  "t": 1794080728.669589,
+  "post": 6,
+  "rc": 0,
+  "seconds": 11.23779582977295,
+  "jobs": 3,
+  "cpu_s": 20.659559999999985
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080728.669729,
+  "post": 6,
+  "category": "sexual",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080728.6697621,
+  "post": 6,
+  "category": "violence",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080728.669791,
+  "post": 6,
+  "category": "hate",
+  "chunk": 0
+ },
+ {
+  "kind": "prove",
+  "t": 1794080736.3244202,
+  "post": 2,
+  "category": "hate",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 40.814,
+  "queued": 14.205,
+  "lane": 0
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080736.3244438,
+  "post": 2,
+  "category": "hate"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080736.334131,
+  "post": 2,
+  "category": "violence",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 40.829,
+  "queued": 14.2,
+  "lane": 3
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080736.334144,
+  "post": 2,
+  "category": "violence"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080736.3439748,
+  "post": 2,
+  "category": "sexual",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 40.87,
+  "queued": 14.169,
+  "lane": 2
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080736.343988,
+  "post": 2,
+  "category": "sexual"
+ },
+ {
+  "kind": "writer",
+  "t": 1794080740.2969038,
+  "post": 7,
+  "rc": 0,
+  "seconds": 11.626689195632935,
+  "jobs": 3,
+  "cpu_s": 20.789525999999995
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080740.297048,
+  "post": 7,
+  "category": "sexual",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080740.2970822,
+  "post": 7,
+  "category": "violence",
+  "chunk": 0
+ },
+ {
+  "kind": "prove-submit",
+  "t": 1794080740.297111,
+  "post": 7,
+  "category": "hate",
+  "chunk": 0
+ },
+ {
+  "kind": "check",
+  "t": 1794080745.491518,
+  "post": 2,
+  "category": "hate",
+  "status": "checked",
+  "seconds": 9.166,
+  "verify_seconds": 8.433,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080745.726965,
+  "post": 2,
+  "category": "violence",
+  "status": "checked",
+  "seconds": 9.392,
+  "verify_seconds": 8.671,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080745.945044,
+  "post": 2,
+  "category": "sexual",
+  "status": "checked",
+  "seconds": 9.601,
+  "verify_seconds": 8.875,
+  "queued": 0.0
+ },
+ {
+  "kind": "prove",
+  "t": 1794080748.330545,
+  "post": 3,
+  "category": "sexual",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 39.724,
+  "queued": 16.267,
+  "lane": 1
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080748.330573,
+  "post": 3,
+  "category": "sexual"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080749.1283798,
+  "post": 3,
+  "category": "violence",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 40.512,
+  "queued": 16.277,
+  "lane": 4
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080749.128393,
+  "post": 3,
+  "category": "violence"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080749.257375,
+  "post": 3,
+  "category": "hate",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 40.631,
+  "queued": 16.287,
+  "lane": 5
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080749.25739,
+  "post": 3,
+  "category": "hate"
+ },
+ {
+  "kind": "check",
+  "t": 1794080757.269724,
+  "post": 3,
+  "category": "sexual",
+  "status": "checked",
+  "seconds": 8.939,
+  "verify_seconds": 8.202,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080758.220122,
+  "post": 3,
+  "category": "violence",
+  "status": "checked",
+  "seconds": 9.091,
+  "verify_seconds": 8.345,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080758.608701,
+  "post": 3,
+  "category": "hate",
+  "status": "checked",
+  "seconds": 9.351,
+  "verify_seconds": 8.617,
+  "queued": 0.0
+ },
+ {
+  "kind": "prove",
+  "t": 1794080775.66431,
+  "post": 4,
+  "category": "hate",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 39.32,
+  "queued": 31.526,
+  "lane": 2
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080775.664335,
+  "post": 4,
+  "category": "hate"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080775.6801631,
+  "post": 4,
+  "category": "sexual",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 39.355,
+  "queued": 31.506,
+  "lane": 0
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080775.680181,
+  "post": 4,
+  "category": "sexual"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080775.6836438,
+  "post": 4,
+  "category": "violence",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 39.35,
+  "queued": 31.516,
+  "lane": 3
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080775.68365,
+  "post": 4,
+  "category": "violence"
+ },
+ {
+  "kind": "check",
+  "t": 1794080784.801589,
+  "post": 4,
+  "category": "hate",
+  "status": "checked",
+  "seconds": 9.137,
+  "verify_seconds": 8.421,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080785.04017,
+  "post": 4,
+  "category": "sexual",
+  "status": "checked",
+  "seconds": 9.36,
+  "verify_seconds": 8.629,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080785.16121,
+  "post": 4,
+  "category": "violence",
+  "status": "checked",
+  "seconds": 9.477,
+  "verify_seconds": 8.751,
+  "queued": 0.0
+ },
+ {
+  "kind": "prove",
+  "t": 1794080787.273012,
+  "post": 5,
+  "category": "sexual",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 38.942,
+  "queued": 30.899,
+  "lane": 1
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080787.273033,
+  "post": 5,
+  "category": "sexual"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080787.906979,
+  "post": 5,
+  "category": "violence",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 38.779,
+  "queued": 31.697,
+  "lane": 4
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080787.906989,
+  "post": 5,
+  "category": "violence"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080788.2693172,
+  "post": 5,
+  "category": "hate",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 39.012,
+  "queued": 31.826,
+  "lane": 5
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080788.2693372,
+  "post": 5,
+  "category": "hate"
+ },
+ {
+  "kind": "check",
+  "t": 1794080796.330648,
+  "post": 5,
+  "category": "sexual",
+  "status": "checked",
+  "seconds": 9.057,
+  "verify_seconds": 8.344,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080797.055004,
+  "post": 5,
+  "category": "violence",
+  "status": "checked",
+  "seconds": 9.148,
+  "verify_seconds": 8.416,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080797.4914,
+  "post": 5,
+  "category": "hate",
+  "status": "checked",
+  "seconds": 9.221,
+  "verify_seconds": 8.533,
+  "queued": 0.0
+ },
+ {
+  "kind": "prove",
+  "t": 1794080814.709501,
+  "post": 6,
+  "category": "violence",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 39.03,
+  "queued": 39.355,
+  "lane": 0
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080814.709523,
+  "post": 6,
+  "category": "violence"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080814.7532082,
+  "post": 6,
+  "category": "sexual",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 39.089,
+  "queued": 46.994,
+  "lane": 2
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080814.753227,
+  "post": 6,
+  "category": "sexual"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080814.763356,
+  "post": 6,
+  "category": "hate",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 39.08,
+  "queued": 39.35,
+  "lane": 3
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080814.7633688,
+  "post": 6,
+  "category": "hate"
+ },
+ {
+  "kind": "check",
+  "t": 1794080823.0343392,
+  "post": 6,
+  "category": "violence",
+  "status": "checked",
+  "seconds": 8.324,
+  "verify_seconds": 7.617,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080823.052781,
+  "post": 6,
+  "category": "sexual",
+  "status": "checked",
+  "seconds": 8.299,
+  "verify_seconds": 7.618,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080823.109882,
+  "post": 6,
+  "category": "hate",
+  "status": "checked",
+  "seconds": 8.346,
+  "verify_seconds": 7.664,
+  "queued": 0.0
+ },
+ {
+  "kind": "prove",
+  "t": 1794080824.60682,
+  "post": 7,
+  "category": "sexual",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 37.334,
+  "queued": 46.975,
+  "lane": 1
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080824.606842,
+  "post": 7,
+  "category": "sexual"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080824.693082,
+  "post": 7,
+  "category": "violence",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 36.786,
+  "queued": 39.577,
+  "lane": 4
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080824.6931021,
+  "post": 7,
+  "category": "violence"
+ },
+ {
+  "kind": "prove",
+  "t": 1794080825.176702,
+  "post": 7,
+  "category": "hate",
+  "chunk": 0,
+  "status": "proved",
+  "seconds": 36.907,
+  "queued": 39.141,
+  "lane": 5
+ },
+ {
+  "kind": "check-submit",
+  "t": 1794080825.176714,
+  "post": 7,
+  "category": "hate"
+ },
+ {
+  "kind": "check",
+  "t": 1794080832.615375,
+  "post": 7,
+  "category": "sexual",
+  "status": "checked",
+  "seconds": 8.008,
+  "verify_seconds": 7.307,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080832.648862,
+  "post": 7,
+  "category": "violence",
+  "status": "checked",
+  "seconds": 7.955,
+  "verify_seconds": 7.274,
+  "queued": 0.0
+ },
+ {
+  "kind": "check",
+  "t": 1794080833.1522088,
+  "post": 7,
+  "category": "hate",
+  "status": "checked",
+  "seconds": 7.975,
+  "verify_seconds": 7.296,
+  "queued": 0.0
+ }
+]

@@ -29,7 +29,8 @@ use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
-const KERNELS: [&str; 22] = [
+const KERNELS: [&str; 23] = [
+    "k_ntt_head_pruned",
     "k_hash_chunk",
     "k_hash_merge",
     "k_fs_test",
@@ -195,8 +196,6 @@ struct HeadArgs {
     pow2: u32,
     /// [A27] 1: two stages per pass (radix 4 in registers, [`ntt_r4_on`])
     r4: u32,
-    /// [A28] 1: the first radix-4 pass reads only the words its zero positions leave ([`prune_on`])
-    prune: u32,
 }
 #[repr(C)]
 struct TailArgs {
@@ -294,7 +293,12 @@ fn encode_fused(
 ) {
     let l = log_n.min(TILE_LOG);
     let tile = 1u64 << l;
-    let head = &c.pipes["k_ntt_head"];
+    // [A28] the first radix-4 pass pruned when every nonzero word of the row (the plain row's 2^log_src
+    // coefficients, the hiding row's 2^log_src + q) lies below 2^(log_n - 1): then every working
+    // position whose bit 0 is set holds zero ([`prune_on`]; the kernel's PRUNE instance)
+    let extent = (1u64 << log_src) + if mode == MODE_ZK { q } else { 0 };
+    let prune = prune_on() && ntt_r4_on() && mode != MODE_COPY && l >= 2 && log_n >= 1 && extent <= 1u64 << (log_n - 1);
+    let head = &c.pipes[if prune { "k_ntt_head_pruned" } else { "k_ntt_head" }];
     enc.set_compute_pipeline_state(head);
     enc.set_buffer(0, Some(src), 0);
     enc.set_buffer(1, Some(pads.unwrap_or(src)), 0);
@@ -306,28 +310,10 @@ fn encode_fused(
     enc.set_buffer(7, Some(hx.unwrap_or(tw)), 0);
     let pow2 = if hx.is_some() { l.min(6) } else { 0 };
     let head_scales = scale.is_some() && log_n <= TILE_LOG;
-    // [A28] the first radix-4 pass pruned when every nonzero word of the row (the plain row's 2^log_src
-    // coefficients, the hiding row's 2^log_src + q) lies below 2^(log_n - 1): then every working
-    // position whose bit 0 is set holds zero ([`prune_on`])
-    let extent = (1u64 << log_src) + if mode == MODE_ZK { q } else { 0 };
-    let prune = prune_on() && ntt_r4_on() && mode != MODE_COPY && l >= 2 && log_n >= 1 && extent <= 1u64 << (log_n - 1);
     set_args(
         enc,
         5,
-        &HeadArgs {
-            rows,
-            log_n,
-            log_src,
-            mode,
-            max_log,
-            q,
-            scale: scale.unwrap_or(1),
-            apply_scale: head_scales as u32,
-            use_hw: hw.is_some() as u32,
-            pow2,
-            r4: ntt_r4_on() as u32,
-            prune: prune as u32,
-        },
+        &HeadArgs { rows, log_n, log_src, mode, max_log, q, scale: scale.unwrap_or(1), apply_scale: head_scales as u32, use_hw: hw.is_some() as u32, pow2, r4: ntt_r4_on() as u32 },
     );
     // [A27] with two stages per pass a thread holds four elements (the single stage left over,
     // if any, loops twice per thread)

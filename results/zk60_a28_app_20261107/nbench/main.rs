@@ -23,7 +23,7 @@ fn powm(mut a: u64, mut e: u64) -> u64 {
 }
 
 #[repr(C)]
-struct HeadArgs { rows: u64, log_n: u32, log_src: u32, mode: u32, max_log: u32, q: u64, scale: u64, apply_scale: u32, use_hw: u32, pow2: u32, r4: u32, prune: u32, pad9: u32 }
+struct HeadArgs { rows: u64, log_n: u32, log_src: u32, mode: u32, max_log: u32, q: u64, scale: u64, apply_scale: u32, use_hw: u32, pow2: u32, r4: u32 }
 #[repr(C)]
 struct TailArgs { rows: u64, log_n: u32, max_log: u32, scale: u64, apply_scale: u32, r4: u32 }
 #[repr(C)]
@@ -121,8 +121,9 @@ fn main() {
     };
     let set = |enc: &ComputeCommandEncoderRef, i: u64, b: &Buffer| enc.set_buffer(i, Some(b), 0);
     // the tree's head (r4 = 1, the power-of-2 stages as pinned) or a variant
+    let headp = pipe("k_ntt_head_pruned");
     let head_runp = |enc: &ComputeCommandEncoderRef, p: &ComputePipelineState, srcb: &Buffer, dst: &Buffer, inverse: bool, ln: u32, lsrc: u32, mode: u32, th: u64, pw: u32, r4: u32, scale: Option<u64>, prune: u32| {
-        enc.set_compute_pipeline_state(p);
+        enc.set_compute_pipeline_state(if prune != 0 { &headp } else { p });
         set(enc, 0, srcb);
         set(enc, 1, &bpad);
         set(enc, 2, &bpow);
@@ -130,7 +131,7 @@ fn main() {
         set(enc, 4, if inverse { &bti } else { &btf });
         set(enc, 6, if inverse { &bhi } else { &bhf });
         set(enc, 7, if inverse { &bxi } else { &bxf });
-        let args = HeadArgs { rows: rows as u64, log_n: ln, log_src: lsrc, mode, max_log, q: q as u64, scale: scale.unwrap_or(1), apply_scale: scale.is_some() as u32, use_hw: 1, pow2: pw, r4, prune, pad9: 0 };
+        let args = HeadArgs { rows: rows as u64, log_n: ln, log_src: lsrc, mode, max_log, q: q as u64, scale: scale.unwrap_or(1), apply_scale: scale.is_some() as u32, use_hw: 1, pow2: pw, r4 };
         enc.set_bytes(5, std::mem::size_of::<HeadArgs>() as u64, &args as *const HeadArgs as *const _);
         enc.dispatch_thread_groups(MTLSize::new((1u64 << ln) / 2048, rows as u64, 1), MTLSize::new(th, 1, 1));
     };
