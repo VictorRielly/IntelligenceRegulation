@@ -1,0 +1,13 @@
+2026-11-09T21:47:59Z start; perf HEAD 6ab57dc2
+2026-11-09T21:48:01Z hashline lean_l9_export (test only) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1061 filtered out; finished in 1.29s
+2026-11-09T21:48:01Z regenerated L9 corpus equals the committed corpus.txt: cmp rc=0
+regenerated L9 fork frame bytes: 14258216
+2026-11-09T21:48:06Z hashline lean_l17_export rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1057 filtered out; finished in 4.54s
+2026-11-09T21:48:06Z regenerated block_corpus.txt equals the committed one: cmp rc=0
+2026-11-09T21:48:06Z regenerated slots_corpus.txt equals the committed one: cmp rc=0
+2026-11-09T21:48:06Z regenerated segment_corpus.txt equals the committed one: cmp rc=1
+2026-11-09T21:48:06Z regenerated shape_corpus.txt equals the committed one: cmp rc=0
+2026-11-09T21:48:06Z the three large files' sha256 equal large_files.sha256: cmp rc=1
+2026-11-09T21:48:06Z all done
