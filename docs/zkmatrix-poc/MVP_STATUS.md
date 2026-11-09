@@ -484,10 +484,29 @@ here. The rates count proving and witness work. Verification time is recorded se
     - Premises left at the endpoint, all deterministic: the extractor's openings verify and are canonical; the
       column test's chain link, with one code fact about the extension field (L26-3, Medium, not proved); the decoded
       plane vanishes off the token positions (L26-4, Low).
-  - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26, L27, L28 (the
-    openings' glue), L29 (the stage verifiers in executable Lean and the honest prover in oracle form) and A28 (the
-    app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its worktree,
-    and each was resumed there on 2026-11-09. L26 and L27 are merged (above); L28, L29 and A28 are still running.
+  - **L28, the openings' glue: a block's soundness no longer assumes anything about its openings** [PROVED; merged
+    2026-11-09; `ZK60_LEAN_L28_OPEN_GLUE_20261107.md`].
+    - A block's proof ends by opening three committed tables (`A`, `H` and the mask table `M`). L22 had linked `M`
+      and half of `A` / `H` to the code. L28 finishes both links for any opening geometry, so one proof covers W16R2
+      (32,768 symbols, 280 sampled columns) and R13 (65,536 symbols, 256 sampled columns).
+    - The code's opening check, done on pairs of 64-bit words, is proved to be the model's field equations
+      (`pcsOk_groupsAccept`).
+    - With the real numbers: `block_knowledge_open_w16r2` and `block_knowledge_open_r13`. The chance that the block
+      verifier accepts while the committed data fails the block's equations is at most the approved target, plus one
+      term for the block's input and output claims, which the run checks, not the block.
+    - One block uses 30.3M of the 67.1M budget units at either profile.
+    - Proved R13 opening figures at the unique-decoding radius: 2^-110 for the batching round, below 2^-126 for the
+      column round. The earlier R13 column-round figure (2^-105) was an assumption (L28-6).
+    - **The shape of the result (L28-1, Medium):** it holds for the real run, where the verifier fixes the header's
+      draw count, as decided for L22-1. It narrows neither approved statement. The run-level proof must fix each
+      block's header count and supply the endpoint term.
+    - Premises left: the profile's size object, the claim counts per opening, and the reader of the claims from the
+      verifier's trace (all Low).
+  - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26, L27, L28, L29 (the
+    stage verifiers in executable Lean and the honest prover in oracle form) and A28 (the app's commitment kernels
+    and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its worktree, and each was resumed
+    there on 2026-11-09. L26, L27 and L28 are merged (above). L29 has reported and is being merged; A28 is still
+    running. Lane L30 (the run's gate on L26's instance through L27's transcript machinery) started on 2026-11-09.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
