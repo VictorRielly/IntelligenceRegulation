@@ -182,3 +182,4 @@ import ZK60Formal.StageVerifyExec
 import ZK60Formal.StageVerifyExecComplete
 import ZK60Formal.HonestOracleProg
 import ZK60Formal.StageVerifyExecAssemble
+import ZK60Formal.HonestOracleSlots
