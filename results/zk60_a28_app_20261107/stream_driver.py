@@ -149,6 +149,19 @@ def cpu_s(pid):
     return days * 86400 + secs
 
 
+def faults(pid):
+    """[A28] the process's cumulative page faults (`top -l 1 -stats faults`; diagnostics), or None"""
+    try:
+        out = subprocess.run(['top', '-l', '1', '-pid', str(pid), '-stats', 'faults'], capture_output=True, text=True, timeout=30).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    for line in reversed(out.strip().splitlines()):
+        digits = ''.join(ch for ch in line.strip() if ch.isdigit())
+        if digits and line.strip().rstrip('+-').isdigit():
+            return int(digits)
+    return None
+
+
 def children_cpu_s():
     import resource
     r = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -227,6 +240,7 @@ def main():
     ap.add_argument('--writer-threads', type=int, default=4)
     ap.add_argument('--defer-check', action='store_true')
     ap.add_argument('--sample', default=None, help='START:SECS: macOS sample on both servers (diagnostics)')
+    ap.add_argument('--provers', type=int, default=1, help='[A28] prover server PROCESSES, each with --lanes lanes; post i goes to process i mod N (diagnostics: are the lanes of one process in each other\'s way?)')
     a = ap.parse_args()
     os.umask(0o077)
     tag = a.tag
@@ -246,12 +260,14 @@ def main():
     pols = ','.join(POL.values())
     sw = [SWITCH] if a.profile == 'w16r2' else []
     t_boot = time.time()
-    prover = Server([a.bin, 'serve', '--export', str(EXP), '--tables', str(VEXP / 'token_io'), '--policies', pols,
-                     '--lanes', str(a.lanes), '--lane-threads', str(a.lane_threads), '--witness-cache-gib', str(a.witness_gib)] + sw,
-                    str(out / 'prover.log'), env)
-    prover.ready.wait(900)
-    if not prover.start or prover.start.get('event') != 'serve-start':
-        raise SystemExit(f'the prover refused to start: {prover.start}')
+    provers = [Server([a.bin, 'serve', '--export', str(EXP), '--tables', str(VEXP / 'token_io'), '--policies', pols,
+                       '--lanes', str(a.lanes), '--lane-threads', str(a.lane_threads), '--witness-cache-gib', str(a.witness_gib)] + sw,
+                      str(out / ('prover.log' if k == 0 else f'prover{k}.log')), env) for k in range(max(1, a.provers))]
+    prover = provers[0]
+    for srv in provers:
+        srv.ready.wait(900)
+        if not srv.start or srv.start.get('event') != 'serve-start':
+            raise SystemExit(f'the prover refused to start: {srv.start}')
     # the verifier pins the identity it is given (the R13 one by default); for W16R2 the
     # identity the prover's startup reports, unless one is given (the verifier re-derives its own
     # from its export and refuses to start on a mismatch)
@@ -322,9 +338,19 @@ def main():
             else:
                 category_done(pi, cat, {'status': 'prove-refused'}, time.time())
 
+    def provers_cpu():
+        vals = [cpu_s(srv.p.pid) for srv in provers]
+        return None if any(v is None for v in vals) else sum(vals)
+
+    def provers_faults():
+        vals = [faults(srv.p.pid) for srv in provers]
+        return None if any(v is None for v in vals) else sum(vals)
+
+    # [A28] read BEFORE the clock starts (`top` takes about a second a process)
+    faults_0 = provers_faults()
     t0 = time.time()
     t0_mono = time.monotonic()
-    cpu = {'prover_0': cpu_s(prover.p.pid), 'checker_0': cpu_s(checker.p.pid) if checker else None, 'writer_s': 0.0}
+    cpu = {'prover_0': provers_cpu(), 'checker_0': cpu_s(checker.p.pid) if checker else None, 'writer_s': 0.0}
     if a.sample:
         s_start, s_secs = (float(x) for x in a.sample.split(':'))
         # [A28] the raw samples stay outside the repository (their reports come back in)
@@ -365,7 +391,7 @@ def main():
             raise SystemExit(f'writer failed for post {pi}')
         for c, size in CATS.items():
             for i in range(len(chunks[c])):
-                prover.send({'id': f'p{pi}-{c}-c{i}', 'content_file': str(content), 'policy': POL[c], 'chunk': i,
+                provers[pi % len(provers)].send({'id': f'p{pi}-{c}-c{i}', 'content_file': str(content), 'policy': POL[c], 'chunk': i,
                              'seq_dir': str(d / 'act' / f'{c}-c{i}'), 'out': str(pub / f'p{pi}' / f'{c}-c{i}'),
                              'owner_dir': str(d / f'{c}-c{i}-owner'), 'log': str(d / f'{c}-c{i}-prove.log')},
                             lambda j, t, pi=pi, c=c, i=i: proved(pi, c, i, j, t))
@@ -375,10 +401,12 @@ def main():
         for _ in range(n_proofs):
             proofs_done.acquire()
         t_proofs = time.time()
-        cpu['prover_1'] = cpu_s(prover.p.pid)
+        cpu['prover_1'] = provers_cpu()
+        faults_1 = provers_faults()
         proof_clock = {'wall_s': t_proofs - t0, 'category_proofs': n_proofs, 'proved_tok_per_s': 128 * n_proofs / (t_proofs - t0),
                        'per_post_last_proof_s': [state[pi]['last_proof'] - state[pi]['submitted'] for pi in range(len(ids))]}
-        prover.close()
+        for srv in provers:
+            srv.close()
         t_cb = time.time()
         checker = start_checker()
         t_c0 = time.time()
@@ -397,11 +425,17 @@ def main():
         for _ in ids:
             posts_done.acquire()
         t_end = time.time()
-        cpu['prover_1'] = cpu_s(prover.p.pid)
+        cpu['prover_1'] = provers_cpu()
+        faults_1 = provers_faults()
         cpu['checker_1'] = cpu_s(checker.p.pid)
-        prover.close()
+        for srv in provers:
+            srv.close()
     checker.close()
     gpu_stop.set()
+    faults_out = None
+    if faults_0 is not None and faults_1 is not None and n_proofs:
+        faults_out = {'prover_page_faults': faults_1 - faults_0, 'per_proof': (faults_1 - faults_0) / n_proofs,
+                      'note': 'top -stats faults of the prover process(es), from just before the first post to the last proof (diagnostics)'}
     gser = list(gpu_samples)
     gs = sorted(v for _, v in gser)
     gpu_out = {'samples': len(gs), 'mean_pct': sum(gs) / len(gs), 'p50_pct': gs[len(gs) // 2], 'p90_pct': gs[(9 * len(gs)) // 10],
@@ -434,7 +468,7 @@ def main():
                'wall_s': wall, 'startup_s': t_ready - t_boot, 'prover_start': prover.start, 'checker_start': checker.start,
                'identity_pinned_by_verifier': identity,
                'category_proofs': proofs, 'proved_tok_per_s': 128 * proofs / wall, 'content_tok_per_s': tokens / wall,
-               'per_post': posts, 'steady': steady, 'deferred': proof_clock, 'cpu': cpu_out, 'gpu': gpu_out,
+               'per_post': posts, 'steady': steady, 'deferred': proof_clock, 'cpu': cpu_out, 'gpu': gpu_out, 'faults': faults_out,
                'env': {k: v for k, v in os.environ.items() if k.startswith('HL_')},
                'settings': vars(a), 'hl_gpu': env['HL_GPU'],
                'on_the_clock': ('PROOF-ONLY CLOCK (deferred check): from the first post submitted to the last proof written: activation writer, '

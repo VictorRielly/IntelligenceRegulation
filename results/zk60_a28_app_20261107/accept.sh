@@ -1,6 +1,6 @@
 #!/bin/bash
 # Lane A28 (from A27) native acceptance (one guarded gpu-class job). The release CLI (its SHA-256 is the app's pin); the
-# test build; hashline's A27 unit tests, A26's and A4's, A24's serve tests (seal-ahead on by default), the census tests (s25, hash_domain, r19b), every
+# test build; hashline's A28 unit tests (seal-ahead on and off, the dispatch), A27's, A26's and A4's, A24's serve tests, the census tests (s25, hash_domain, r19b), every
 # token_io::classify test; the L9 and L11 test-only exports (corpora compared byte for byte); zkp-core; the
 # no-feature `cargo check --tests`; then the DEVICE byte gates the kernel changes must keep (A23's merge list
 # for the 8B stack): CPU = Metal at every development accuracy shape, the six trained profiles' recorded
@@ -35,7 +35,7 @@ say "zk60_classify sha256 $(shasum -a 256 $WT/ops/zkp-mvp/gpu-metal/hashline/tar
 say "CLI warnings: $(grep -c '^warning' $R/accept_${TAG}_cli.log) (A26's build: 103 lines)"
 $C --no-run > $R/accept_${TAG}_build.log 2>&1; rc=$?; say "test build rc=$rc"
 if [ $rc -ne 0 ]; then grep -E "^error" -A 14 $R/accept_${TAG}_build.log | head -120 >> $P; say "all done (test build failed)"; exit 1; fi
-for f in a27_ a26_ a24_ a4_ s25_tests hash_domain r19b token_io::classify; do
+for f in a28_ a27_ a26_ a24_ a4_ s25_tests hash_domain r19b token_io::classify; do
   n=$(echo $f | tr ':' '_')
   env HL_R13_LOADER_FIXTURES=$F $C $f -- --test-threads=8 > $R/accept_${TAG}_$n.log 2>&1; say "hashline $f rc=$?"
   grep -E "^test result" $R/accept_${TAG}_$n.log >> $P

@@ -1,0 +1,9 @@
+{
+ "tag": "w1",
+ "tokens": 14,
+ "one process, one category": 6.1,
+ "one process, three categories": 10.26,
+ "three processes of one category at once": 6.02,
+ "two at once, then the third": 11.77,
+ "a category's activation files are the same bytes alone and in a three-category process": true
+}

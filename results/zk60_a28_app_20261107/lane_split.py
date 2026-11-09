@@ -11,7 +11,8 @@ in one of three classes:
 
 Then the largest serial and parallel sections by their nearest named callers.
 
-usage: lane_split.py <sample.txt> <thread name, e.g. a24-lane0-0> [--top 30]
+usage: lane_split.py <sample.txt> <thread name, e.g. a24-lane0-0> [--top 30] [--cycle SECONDS]
+  --cycle: the lane's seconds per request in that run; every share is then also printed as seconds per request
 """
 import argparse
 import collections
@@ -36,6 +37,7 @@ def main():
     ap.add_argument('path')
     ap.add_argument('thread')
     ap.add_argument('--top', type=int, default=30)
+    ap.add_argument('--cycle', type=float, default=None)
     a = ap.parse_args()
     nodes = []
     on = False
@@ -89,13 +91,16 @@ def main():
         else:
             cls['serial'] += own
             serial[f'{key}  [{chain[0][:48]}]'] += own
-    print(f'{a.thread}: {total} samples under prove_with_public')
+    def secs(v):
+        return f'  {a.cycle * v / max(total, 1):6.2f} s' if a.cycle else ''
+
+    print(f'{a.thread}: {total} samples under prove_with_public' + (f'; {a.cycle} s per request' if a.cycle else ''))
     for k in ('gpu wait', 'serial', 'parallel'):
-        print(f'  {k:<9} {cls[k]:7d}  {100 * cls[k] / max(total, 1):5.1f}%')
+        print(f'  {k:<9} {cls[k]:7d}  {100 * cls[k] / max(total, 1):5.1f}%{secs(cls[k])}')
     for title, table in (('serial', serial), ('parallel', par)):
-        print(f'\n{title} sections, by nearest named callers (% of the thread\'s samples):')
+        print(f'\n{title} sections, by nearest named callers (% of the thread\'s samples' + (', seconds per request' if a.cycle else '') + '):')
         for k, v in table.most_common(a.top):
-            print(f'  {v:6d} {100 * v / max(total, 1):5.1f}%  {k}')
+            print(f'  {v:6d} {100 * v / max(total, 1):5.1f}%{secs(v)}  {k}')
 
 
 if __name__ == '__main__':

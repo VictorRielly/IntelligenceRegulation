@@ -1,0 +1,539 @@
+{
+  "tag": "x1d",
+  "profile": "r13",
+  "binary": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2",
+  "posts": 8,
+  "all_checked": true,
+  "wall_s": 185.36915588378906,
+  "startup_s": 63.23974895477295,
+  "prover_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 6,
+    "lane_threads": 10,
+    "startup_seconds": 31.463,
+    "witness_cache_bytes": 17179869184,
+    "seal_ahead": false,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "checker_start": {
+    "event": "serve-start",
+    "command": "classify-check-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 3,
+    "lane_threads": 4,
+    "startup_seconds": 31.73,
+    "min_bits": 95,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "identity_pinned_by_verifier": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+  "category_proofs": 24,
+  "proved_tok_per_s": 16.572336348803827,
+  "content_tok_per_s": 0.7390657811803789,
+  "per_post": [
+    {
+      "post": 0,
+      "tokens": 14,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 54.38571286201477,
+      "done_at_s": 54.39405179023743
+    },
+    {
+      "post": 1,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 61.02667689323425,
+      "done_at_s": 71.45158290863037
+    },
+    {
+      "post": 2,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 74.30324292182922,
+      "done_at_s": 95.50978899002075
+    },
+    {
+      "post": 3,
+      "tokens": 20,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 76.04115414619446,
+      "done_at_s": 109.90782499313354
+    },
+    {
+      "post": 4,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 89.91479587554932,
+      "done_at_s": 135.64049887657166
+    },
+    {
+      "post": 5,
+      "tokens": 17,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 92.03799080848694,
+      "done_at_s": 150.72856187820435
+    },
+    {
+      "post": 6,
+      "tokens": 15,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 103.67281913757324,
+      "done_at_s": 175.69492411613464
+    },
+    {
+      "post": 7,
+      "tokens": 17,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 101.52864718437195,
+      "done_at_s": 185.31917691230774
+    }
+  ],
+  "steady": {
+    "from_post": 4,
+    "span_s": 75.4113519191742,
+    "proofs": 12,
+    "proved_tok_per_s": 20.36828621831741
+  },
+  "deferred": null,
+  "cpu": {
+    "prover_cpu_s": 2570.6299999999997,
+    "checker_cpu_s": 626.62,
+    "writer_cpu_s": 172.081956,
+    "prover_cpu_s_per_proof": 107.10958333333332,
+    "checker_cpu_s_per_proof": 26.109166666666667,
+    "writer_cpu_s_per_proof": 7.170081499999999,
+    "all_cpu_s_per_proof": 140.38883149999998,
+    "note": "ps -o time= (user+system) of each server over the clocked window; the writer by RUSAGE_CHILDREN"
+  },
+  "gpu": {
+    "samples": 92,
+    "mean_pct": 81.15217391304348,
+    "p50_pct": 93,
+    "p90_pct": 98,
+    "note": "ioreg IOAccelerator Device Utilization %, every 2 s over the whole clock (diagnostics)",
+    "series_monotonic": [
+      [
+        3112.521,
+        4
+      ],
+      [
+        3114.549,
+        3
+      ],
+      [
+        3116.578,
+        4
+      ],
+      [
+        3118.602,
+        5
+      ],
+      [
+        3120.635,
+        4
+      ],
+      [
+        3122.663,
+        4
+      ],
+      [
+        3124.702,
+        34
+      ],
+      [
+        3126.736,
+        34
+      ],
+      [
+        3128.77,
+        0
+      ],
+      [
+        3130.801,
+        96
+      ],
+      [
+        3132.835,
+        91
+      ],
+      [
+        3134.864,
+        100
+      ],
+      [
+        3136.896,
+        93
+      ],
+      [
+        3138.935,
+        91
+      ],
+      [
+        3140.977,
+        92
+      ],
+      [
+        3143.013,
+        94
+      ],
+      [
+        3145.042,
+        96
+      ],
+      [
+        3147.075,
+        97
+      ],
+      [
+        3149.104,
+        97
+      ],
+      [
+        3151.135,
+        98
+      ],
+      [
+        3153.177,
+        97
+      ],
+      [
+        3155.21,
+        92
+      ],
+      [
+        3157.246,
+        93
+      ],
+      [
+        3159.297,
+        87
+      ],
+      [
+        3161.329,
+        90
+      ],
+      [
+        3163.365,
+        95
+      ],
+      [
+        3165.402,
+        82
+      ],
+      [
+        3167.433,
+        90
+      ],
+      [
+        3169.465,
+        96
+      ],
+      [
+        3171.495,
+        98
+      ],
+      [
+        3173.526,
+        95
+      ],
+      [
+        3175.564,
+        90
+      ],
+      [
+        3177.599,
+        91
+      ],
+      [
+        3179.676,
+        91
+      ],
+      [
+        3181.713,
+        88
+      ],
+      [
+        3183.745,
+        93
+      ],
+      [
+        3185.776,
+        98
+      ],
+      [
+        3187.81,
+        97
+      ],
+      [
+        3189.841,
+        98
+      ],
+      [
+        3191.879,
+        98
+      ],
+      [
+        3193.913,
+        100
+      ],
+      [
+        3195.942,
+        95
+      ],
+      [
+        3197.982,
+        42
+      ],
+      [
+        3200.019,
+        90
+      ],
+      [
+        3202.052,
+        90
+      ],
+      [
+        3204.101,
+        91
+      ],
+      [
+        3206.133,
+        93
+      ],
+      [
+        3208.167,
+        90
+      ],
+      [
+        3210.196,
+        96
+      ],
+      [
+        3212.225,
+        96
+      ],
+      [
+        3214.293,
+        87
+      ],
+      [
+        3216.332,
+        89
+      ],
+      [
+        3218.395,
+        90
+      ],
+      [
+        3220.435,
+        92
+      ],
+      [
+        3222.47,
+        94
+      ],
+      [
+        3224.513,
+        95
+      ],
+      [
+        3226.547,
+        99
+      ],
+      [
+        3228.581,
+        99
+      ],
+      [
+        3230.612,
+        100
+      ],
+      [
+        3232.64,
+        100
+      ],
+      [
+        3234.67,
+        100
+      ],
+      [
+        3236.702,
+        97
+      ],
+      [
+        3238.737,
+        96
+      ],
+      [
+        3240.776,
+        92
+      ],
+      [
+        3242.805,
+        90
+      ],
+      [
+        3244.845,
+        92
+      ],
+      [
+        3246.876,
+        89
+      ],
+      [
+        3248.908,
+        90
+      ],
+      [
+        3250.939,
+        96
+      ],
+      [
+        3252.973,
+        95
+      ],
+      [
+        3255.029,
+        91
+      ],
+      [
+        3257.061,
+        91
+      ],
+      [
+        3259.098,
+        94
+      ],
+      [
+        3261.135,
+        89
+      ],
+      [
+        3263.17,
+        96
+      ],
+      [
+        3265.199,
+        100
+      ],
+      [
+        3267.233,
+        98
+      ],
+      [
+        3269.261,
+        98
+      ],
+      [
+        3271.291,
+        98
+      ],
+      [
+        3273.323,
+        97
+      ],
+      [
+        3275.353,
+        98
+      ],
+      [
+        3277.382,
+        98
+      ],
+      [
+        3279.413,
+        97
+      ],
+      [
+        3281.442,
+        94
+      ],
+      [
+        3283.474,
+        92
+      ],
+      [
+        3285.507,
+        91
+      ],
+      [
+        3287.54,
+        91
+      ],
+      [
+        3289.569,
+        84
+      ],
+      [
+        3291.598,
+        0
+      ],
+      [
+        3293.627,
+        4
+      ],
+      [
+        3295.657,
+        4
+      ],
+      [
+        3297.685,
+        0
+      ]
+    ],
+    "t0_monotonic": 3112.492161083
+  },
+  "env": {
+    "HL_A28_SEAL_AHEAD": "0",
+    "HL_METAL_QUEUES": "thread"
+  },
+  "settings": {
+    "tag": "x1d",
+    "posts": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json",
+    "profile": "r13",
+    "bin": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2",
+    "identity": null,
+    "lanes": 6,
+    "lane_threads": 10,
+    "check_lanes": 3,
+    "check_threads": 4,
+    "witness_gib": 16.0,
+    "keep": 0,
+    "gap": 0.0,
+    "writer_threads": 4,
+    "defer_check": false,
+    "sample": null,
+    "provers": 1
+  },
+  "hl_gpu": "1",
+  "on_the_clock": "ZK60_THROUGHPUT_TARGET clock: from the first post submitted to the last post's third label accepted: activation writer (Python forward pass), the prover's sealing pass and witnesses, proof, receipt write (fsync per segment), fresh verification in the separate verifier process, input-owner check, category label; NOT on it: server startup (model load), app/publication"
+}

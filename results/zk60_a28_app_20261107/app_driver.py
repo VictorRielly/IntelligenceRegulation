@@ -30,6 +30,24 @@ R = WT / 'results/zk60_a28_app_20261107'
 VENV = '/Users/victorrielly/zk60-artifacts/a28-tools/venv/bin/python'
 
 
+def steps_summary(post_ids):
+    """[A28] each service step's seconds and queued seconds over the phase's category jobs (the service's own
+    logs/steps.json in each job directory; durations only), as mean / max"""
+    from proven_media import config
+    rows = {}
+    for pid in post_ids:
+        for f in sorted((config.JOBS_DIR / pid).glob('*/logs/steps.json')):
+            try:
+                steps = json.loads(f.read_text())
+            except (OSError, ValueError):
+                continue
+            for name, st in steps.items():
+                for k in ('seconds', 'queued_seconds', 'server_seconds', 'verify_seconds'):
+                    if isinstance(st.get(k), (int, float)):
+                        rows.setdefault(f'{name}.{k}', []).append(float(st[k]))
+    return {k: {'n': len(v), 'mean': round(sum(v) / len(v), 2), 'max': round(max(v), 2)} for k, v in sorted(rows.items())}
+
+
 def run_phase(client, appmod, texts, timeout):
     t0 = time.time()
     posts = []
@@ -139,6 +157,7 @@ def main():
         name, path = spec.split('=', 1)
         texts = json.loads(Path(path).read_text())
         res = run_phase(client, appmod, texts, a.timeout)
+        res['steps'] = steps_summary(res['post_ids'])
         summary['phases'][name] = res
         print(json.dumps({'phase': name, **{k: res[k] for k in ('posts', 'published', 'failed', 'wall_s', 'category_proofs', 'proved_tok_per_s', 'steady')}}), flush=True)
         # disk: keep the first post's receipts of each phase, drop the rest (the app is done with them)
