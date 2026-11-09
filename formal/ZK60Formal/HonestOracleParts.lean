@@ -123,7 +123,7 @@ theorem sep_coreHeadProg (key : Option Dig) {A : Type} (a : A) {rA rM : (HIn →
     {rH : List Fp2 → (HIn → Dig) → Dig} (pre : TProg β) (RA : RootProg rA) (RM : RootProg rM)
     (RH : ∀ ch, RootProg (rH ch)) (hp : TProg.Sep key pre) : TProg.Sep key (coreHeadProg P a pre RA RM RH) :=
   sep_bindP key pre _ hp (fun _ => sep_bindP key RA.p _ (RA.sep key) (fun _ =>
-    sep_bindP key RM.p _ (RM.sep key) (fun _ => sep_drawsP key 3 _ (fun ch =>
+    sep_bindP key RM.p _ (RM.sep key) (fun _ => sep_drawsP key _ _ (fun ch =>
       sep_bindP key (RH ch).p _ ((RH ch).sep key) (fun _ => trivial)))))
 
 variable {Coins : Type} [Fintype Coins] [Nonempty Coins] {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
@@ -233,7 +233,7 @@ theorem sep_outcHeadProg (key : Option Dig) {A : Type} (a : A) {rA rM : (HIn →
     {rH : List Fp2 → (HIn → Dig) → Dig} (pre : TProg β) (RA : RootProg rA) (RM : RootProg rM)
     (RH : ∀ ch, RootProg (rH ch)) (hp : TProg.Sep key pre) : TProg.Sep key (outcHeadProg V a pre RA RM RH) :=
   sep_bindP key pre _ hp (fun _ => sep_bindP key RA.p _ (RA.sep key) (fun _ =>
-    sep_bindP key RM.p _ (RM.sep key) (fun _ => sep_drawsP key 2 _ (fun ch =>
+    sep_bindP key RM.p _ (RM.sep key) (fun _ => sep_drawsP key _ _ (fun ch =>
       sep_bindP key (RH ch).p _ ((RH ch).sep key) (fun _ => trivial)))))
 
 variable {Coins : Type} [Fintype Coins] [Nonempty Coins] {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
