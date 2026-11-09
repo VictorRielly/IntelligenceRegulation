@@ -38,7 +38,7 @@ namespace ZK60.HonestOracle
 open scoped ENNReal
 open ZK60 ZK60.Exec ZK60.HonestClassify ZK60.ProtocolClassify
 open ZK60.Circuit (gP GF)
-open ZK60.Exec.Block (BlockParams labA labH labM labRows labLogCols labPbSlot absorbRoot)
+open ZK60.Exec.Block (BlockParams labA labH labM labRows labLogCols labPbSlot labPbScalar absorbRoot)
 open ZK60.Exec.StageV
 
 /-! ## Sequencing transcript programs -/
@@ -60,8 +60,8 @@ variable (H : HIn → Dig)
 theorem final_bindP : ∀ (p : TProg α) (f : α → TProg β) (t : Tr),
     (bindP p f).final H t = (f (p.final H t).2).final H (p.final H t).1
   | .done _, _, _ => rfl
-  | .absorb _ _ k, f, t => final_bindP k f _
-  | .squeeze k, f, t => final_bindP (k _) f _
+  | .absorb _ _ k, f, _ => final_bindP k f _
+  | .squeeze k, f, _ => final_bindP (k _) f _
   | .ext _ k, f, t => final_bindP (k _) f t
 
 theorem sep_bindP (key : Option Dig) : ∀ (p : TProg α) (f : α → TProg β), TProg.Sep key p →
@@ -131,13 +131,15 @@ theorem final_drawsP : ∀ (n : ℕ) (k : List Fp2 → TProg β) (t : Tr),
 theorem sep_drawsP (key : Option Dig) : ∀ (n : ℕ) (k : List Fp2 → TProg β), (∀ rs, TProg.Sep key (k rs)) →
     TProg.Sep key (drawsP n k)
   | 0, _, hk => hk []
-  | n + 1, k, hk => fun dg => sep_drawsP key n _ (fun rs => hk _)
+  | n + 1, _, hk => fun _ => sep_drawsP key n _ (fun _ => hk _)
 
 theorem sqLE_drawsP : ∀ (n m : ℕ) (k : List Fp2 → TProg β), (∀ rs, SqLE m (k rs)) → SqLE (n + m) (drawsP n k)
-  | 0, m, k, hk => by simpa using hk []
-  | n + 1, m, k, hk => by
+  | 0, m, k, hk => by
+    rw [Nat.zero_add]
+    exact hk []
+  | n + 1, m, _, hk => by
     rw [show n + 1 + m = (n + m) + 1 by omega]
-    exact fun dg => sqLE_drawsP n m _ (fun rs => hk _)
+    exact fun _ => sqLE_drawsP n m _ (fun _ => hk _)
 
 /-- **The honest sumcheck as a program** (L25's `scProve`): each round's words absorbed under `"sc-round"`, then its
 challenge; the continuation reads the rounds. -/
@@ -149,20 +151,22 @@ def scP : (n : ℕ) → WProver n → (List (List Fp2) → TProg β) → TProg �
 theorem final_scP : ∀ (n : ℕ) (p : WProver n) (k : List (List Fp2) → TProg β) (t : Tr),
     (scP n p k).final H t = (k (scProve H n p t).1).final H (scProve H n p t).2
   | 0, _, _, _ => rfl
-  | n + 1, p, k, t => final_scP n _ (fun rs => k (p.1 :: rs)) _
+  | n + 1, p, k, _ => final_scP n _ (fun rs => k (p.1 :: rs)) _
 
 theorem sep_scP (key : Option Dig) : ∀ (n : ℕ) (p : WProver n) (k : List (List Fp2) → TProg β),
     (∀ rs, TProg.Sep key (k rs)) → TProg.Sep key (scP n p k)
   | 0, _, _, hk => hk []
-  | n + 1, p, k, hk => fun dg => sep_scP key n _ _ (fun rs => hk _)
+  | n + 1, _, _, hk => fun _ => sep_scP key n _ _ (fun _ => hk _)
 
 theorem sqLE_scP : ∀ (n m : ℕ) (p : WProver n) (k : List (List Fp2) → TProg β), (∀ rs, SqLE m (k rs)) →
     SqLE (n + m) (scP n p k)
-  | 0, m, _, k, hk => by simpa using hk []
-  | n + 1, m, p, k, hk => by
+  | 0, m, _, k, hk => by
+    rw [Nat.zero_add]
+    exact hk []
+  | n + 1, m, _, _, hk => by
     show SqLE (n + 1 + m) (TProg.squeeze _)
     rw [show n + 1 + m = (n + m) + 1 by omega]
-    exact fun dg => sqLE_scP n m _ _ (fun rs => hk _)
+    exact fun _ => sqLE_scP n m _ _ (fun _ => hk _)
 
 /-- **A commitment's root as a program** (the honest commitment's Merkle hashes): it does not touch the transcript, it
 returns the root the honest data commits (`root H`), every outside query it makes is not 47 bytes long (separated from
@@ -220,7 +224,9 @@ theorem startProg_point_fresh (G : QB Lq → Dig) (s : StartProg β) (hdom : s.d
     have h47 : (startMsg s.domain).length ≠ 47 := by
       simp only [startMsg, startTag, List.length_append, List.length_cons, List.length_nil]
       omega
-    exact h47 (by rw [← e2]; simp [TProg.sqPoint, squeezeMsg_length])
+    have e3 : squeezeMsg (TProg.final (liftH G) s.p ⟨liftH G ⟨s.key, startMsg s.domain⟩, 0, s.key⟩).1.state
+        (TProg.final (liftH G) s.p ⟨liftH G ⟨s.key, startMsg s.domain⟩, 0, s.key⟩).1.counter = startMsg s.domain := e2
+    exact h47 (by rw [← e3, squeezeMsg_length])
   · exact TProg.tprog_point_fresh Lq hLq G s.p _ hs (hn _) e
 
 end Start
@@ -267,6 +273,10 @@ theorem final_drawProg (j : ℕ) (pre : TProg α) (t : Tr) :
   rw [final_bindP, final_drawsP]
   rfl
 
+theorem sep_drawProg (key : Option Dig) (j : ℕ) (pre : TProg α) (hp : TProg.Sep key pre) :
+    TProg.Sep key (drawProg j pre) :=
+  sep_bindP key pre _ hp (fun _ => sep_drawsP key j _ (fun _ => trivial))
+
 variable {Coins : Type} [Fintype Coins] [Nonempty Coins] {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
 /-- **The CFS refusal of slot `s` as L18's `Site`** (`tprogSite`): the computation is the prefix and the slot's
@@ -280,11 +290,12 @@ noncomputable def slotCSite (pre : Coins → TProg α) (t0 : Coins → Tr) (hs :
 noncomputable def drawZeroSite (j : ℕ) (pre : Coins → TProg α) (t0 : Coins → Tr) (hs : ∀ c, TProg.Sep (t0 c).key (pre c))
     (hn : ∀ c, TProg.NoWrap (drawProg j (pre c)) (t0 c)) : Site (QB Lq) Coins K :=
   tprogSite Lq hLq (fun c => drawProg j (pre c)) t0 (fun _ => ({0} : Finset K)) 1 (fun _ => by simp)
-    (fun c => sep_bindP _ (pre c) _ (hs c) (fun _ => sep_drawsP _ j _ (fun _ => trivial))) hn
+    (fun c => sep_drawProg _ j (pre c) (hs c)) hn
 
 variable (U : K) (hU : U ^ 2 = algebraMap GF K 7)
 include hU
 
+omit [DecidableEq K] in
 /-- **The site fires EXACTLY when the honest slot prover's CFS guard does** (L25's `slot_c_guard_iff`), at the transcript
 the prefix leaves: every slot's `c = 0` refusal is a `δ = 0` site once the run up to the slot is a transcript program. -/
 theorem slotCSite_fires (pre : Coins → TProg α) (t0 : Coins → Tr) (hs : ∀ c, TProg.Sep (t0 c).key (pre c))
@@ -294,6 +305,7 @@ theorem slotCSite_fires (pre : Coins → TProg α) (t0 : Coins → Tr) (hs : ∀
   unfold slotCSite
   rw [tprogSite_fires, final_slotCProg, slot_c_guard_iff U hU]
 
+omit [DecidableEq K] in
 /-- **`define`'s zero-draw refusal is a site event**: the site of draw `j` fires EXACTLY when draw `j` of slot `s`'s
 `challenge_fp2_vec(draws s)` (at the transcript the prefix leaves) is zero; `nonzero` refuses exactly when one of the
 batching coordinates is (`nonzeroE`). -/
@@ -334,19 +346,28 @@ theorem scUpTo_chal : ∀ (N : ℕ) (p : WProver N) (m : ℕ) (t : Tr), m < N �
 theorem sep_scUpToP (key : Option Dig) : ∀ (N : ℕ) (p : WProver N) (m : ℕ), TProg.Sep key (scUpToP N p m)
   | 0, _, _ => trivial
   | _ + 1, _, 0 => trivial
-  | N + 1, p, m + 1 => fun dg => sep_scUpToP key N _ m
+  | N + 1, _, m + 1 => fun _ => sep_scUpToP key N _ m
 
 variable (P : BlockParams) (s : ℕ) (D : SlotData P)
+
+/-- The slot's program after its CFS challenge `c`, at what `define` returned: the published scalar
+(`absorb_fp2("pb-scalar")`) and the honest rounds up to round `m`'s words; nothing when `define` refused. -/
+def slotEAfter (m : ℕ) (hist : Block.Hist) (acc : Block.Acc) (c : Fp2) : Except String Block.SlotDef → TProg Unit
+  | .ok df => .absorb labPbScalar ([D.scalar s hist acc df c].flatMap Fp2.toBytes)
+      (scUpToP (slotN P s) (D.strat s hist acc df c) m)
+  | .error _ => .done ()
+
+theorem sep_slotEAfter (key : Option Dig) (m : ℕ) (hist : Block.Hist) (acc : Block.Acc) (c : Fp2) :
+    ∀ r : Except String Block.SlotDef, TProg.Sep key (slotEAfter P s D m hist acc c r)
+  | .ok _ => sep_scUpToP key _ _ _
+  | .error _ => trivial
 
 /-- **A slot's prefix up to round `m`'s words** (the extension challenges are the rounds `n … n + e − 1`): after a
 prefix `pre` ending at the slot's entry (its history and accumulator), `define`'s draws, `pb-slot`, the CFS challenge
 `c`, the published scalar (`absorb_fp2("pb-scalar")`), the honest rounds up to round `m`'s words. -/
 def slotEProg (m : ℕ) (pre : TProg (Block.Hist × Block.Acc)) : TProg Unit :=
   bindP (slotCProg P s pre) (fun ad => .squeeze (fun dgc =>
-    match P.define s ad.1.1 ad.2 with
-    | .ok df => .absorb labPbScalar ([D.scalar s ad.1.1 ad.1.2 df (challengeFp2Of dgc)].flatMap Fp2.toBytes)
-        (scUpToP (slotN P s) (D.strat s ad.1.1 ad.1.2 df (challengeFp2Of dgc)) m)
-    | .error _ => .done ()))
+    slotEAfter P s D m ad.1.1 ad.1.2 (challengeFp2Of dgc) (P.define s ad.1.1 ad.2)))
 
 /-- **The prefix's final transcript is the honest slot's** (through L25's `slotT2`, `slotC`, `slotT4`). -/
 theorem final_slotEProg (m : ℕ) (pre : TProg (Block.Hist × Block.Acc)) (t : Tr) (df : Block.SlotDef)
@@ -357,21 +378,16 @@ theorem final_slotEProg (m : ℕ) (pre : TProg (Block.Hist × Block.Acc)) (t : T
             (slotC H P s (pre.final H t).1)))).1 := by
   unfold slotEProg
   rw [final_bindP, final_slotCProg]
-  show (match P.define s (pre.final H t).2.1 ((pre.final H t).1.challengeFp2Vec H (P.draws s)).1 with
-      | .ok df => TProg.absorb labPbScalar _ _
-      | .error _ => TProg.done ()).final H ((slotT2 H P s (pre.final H t).1).squeeze H).2 |>.1 = _
+  show (TProg.final H (slotEAfter P s D m (pre.final H t).2.1 (pre.final H t).2.2
+      (challengeFp2Of ((slotT2 H P s (pre.final H t).1).squeeze H).1)
+      (P.define s (pre.final H t).2.1 ((pre.final H t).1.challengeFp2Vec H (P.draws s)).1))
+      ((slotT2 H P s (pre.final H t).1).squeeze H).2).1 = _
   rw [hdf]
   rfl
 
 theorem sep_slotEProg (key : Option Dig) (m : ℕ) (pre : TProg (Block.Hist × Block.Acc)) (hp : TProg.Sep key pre) :
-    TProg.Sep key (slotEProg P s D m pre) := by
-  refine sep_bindP key _ _ (sep_slotCProg P s key pre hp) (fun ad dg => ?_)
-  show TProg.Sep key (match P.define s ad.1.1 ad.2 with
-    | .ok df => TProg.absorb labPbScalar _ _
-    | .error _ => TProg.done ())
-  split
-  · exact sep_scUpToP key _ _ _
-  · trivial
+    TProg.Sep key (slotEProg P s D m pre) :=
+  sep_bindP key _ _ (sep_slotCProg P s key pre hp) (fun _ _ => sep_slotEAfter P s D key m _ _ _ _)
 
 variable {Coins : Type} [Fintype Coins] [Nonempty Coins] {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
@@ -400,8 +416,11 @@ theorem slotESite_fires (m : ℕ) (hm : m < slotN P s) (pre : Coins → TProg (B
             ((pre c).final (liftH G) (t0 c)).1 df).getD m Fp2.zero) = Fp2.one)) = true := by
   unfold slotESite
   rw [tprogSite_fires, final_slotEProg (liftH G) P s D m (pre c) (t0 c) df hdf]
-  simp only [slotRho, slotSP]
-  rw [scUpTo_chal (liftH G) _ _ m _ hm, degenerate_guard_iff U hU _ (canon_challengeFp2Of _)]
+  generalize (pre c).final (liftH G) (t0 c) = F
+  have hrho : (slotRho (liftH G) P D s F.2.1 F.2.2 F.1 df).getD m Fp2.zero = _ :=
+    scUpTo_chal (liftH G) (slotN P s) (D.strat s F.2.1 F.2.2 df (slotC (liftH G) P s F.1)) m
+      (slotT4 (liftH G) P s F.1 (D.scalar s F.2.1 F.2.2 df (slotC (liftH G) P s F.1))) hm
+  rw [hrho, degenerate_guard_iff U hU _ (canon_challengeFp2Of _)]
 
 end ExtSite
 
@@ -410,9 +429,6 @@ end ExtSite
 section OutcAlpha
 
 variable (Lq : ℕ) (hLq : 47 ≤ Lq) {α : Type} (H : HIn → Dig) (V : OutcV)
-
-/-- The byte table's entries `z + γ·TAG_U8` (stage_out_c.rs:582). -/
-def u8Entry (gamma : Fp2) (z : ℕ) : Fp2 := (kI z).add (gamma.mulBase (Fp.new (UInt64.ofNat tagU8)))
 
 /-- **Stage OUT-C's head up to `α` as a program**: after a prefix `pre` ending at OUT-C's start, the frame
 (`pb-run-stage`, `pb-run-block`), `A`'s root (its Merkle program) and `absorb_root("A")`, `M`'s root and
@@ -432,7 +448,6 @@ theorem final_outcAlphaProg {rA rM : (HIn → Dig) → Dig} (pre : TProg α) (RA
   rw [final_bindP]
   show (absorbRootP RA labA V.bp.aRows V.bp.logCols _).final H (V.frame H (pre.final H t).1) = _
   rw [final_absorbRootP]
-  dsimp only
   rw [final_bindP, RM.final_eq]
   show (drawsP 1 (fun g => TProg.done g)).final H _ = _
   rw [final_drawsP]
@@ -445,11 +460,20 @@ theorem sep_outcAlphaProg (key : Option Dig) {rA rM : (HIn → Dig) → Dig} (pr
 
 variable {Coins : Type} [Fintype Coins] [Nonempty Coins] {K : Type} [Field K] [DecidableEq K] [Algebra GF K] (U : K)
 
-/-- The bad values: the byte table's 256 entries at `γ`. -/
+/-- The bad values: the byte table's 256 entries at `γ` (the head's first challenge). -/
 noncomputable def u8Bad (ch : List Fp2) : Finset K := (Finset.range 256).image (fun z => (u8Entry (ch.getD 0 Fp2.zero) z).toK U)
 
 theorem u8Bad_card (ch : List Fp2) : (u8Bad U ch).card ≤ 256 :=
   Finset.card_image_le.trans (by simp)
+
+/-- The bad values read only `γ`. -/
+theorem u8Bad_congr (ch ch' : List Fp2) (h : ch.getD 0 Fp2.zero = ch'.getD 0 Fp2.zero) : u8Bad U ch = u8Bad U ch' := by
+  unfold u8Bad
+  rw [h]
+
+theorem u8Entry_canon (gamma : Fp2) (z : ℕ) : (u8Entry gamma z).Canon := by
+  unfold u8Entry
+  exact Fp2.canon_add _ _
 
 /-- **Stage OUT-C's D66(3) refusal as L18's `Site`**: at most 256 bad values, `δ = 0` PROVED. -/
 noncomputable def outcAlphaSite {rA rM : (HIn → Dig) → Dig} (pre : Coins → TProg α) (RA : RootProg rA)
@@ -461,22 +485,21 @@ noncomputable def outcAlphaSite {rA rM : (HIn → Dig) → Dig} (pre : Coins →
 variable (hU : U ^ 2 = algebraMap GF K 7)
 include hU
 
-/-- `outcAlphaBad` read in `K`: `α` is one of the byte table's entries at `γ`. -/
-theorem outcAlphaBad_iff (gamma alpha : Fp2) (ha : alpha.Canon) (hg : gamma.Canon) :
-    outcAlphaBad [gamma, alpha] = true ↔ alpha.toK U ∈ u8Bad U [gamma, alpha] := by
+/-- `outcAlphaBad` read in `K`: `α` (the head's second challenge) is one of the byte table's entries at `γ`. -/
+theorem outcAlphaBad_iff (ch : List Fp2) (ha : (ch.getD 1 Fp2.zero).Canon) :
+    outcAlphaBad ch = true ↔ (ch.getD 1 Fp2.zero).toK U ∈ u8Bad U ch := by
   unfold outcAlphaBad u8Bad
   rw [List.any_eq_true, Finset.mem_image]
-  have hent : ∀ z, (u8Entry gamma z).Canon := fun z => Fp2.canon_add _ _
   constructor
   · rintro ⟨z, hz, h⟩
     refine ⟨z, Finset.mem_range.mpr (List.mem_range.mp hz), ?_⟩
-    have h0 := (isZero_iff_toK U hU _ (Fp2.canon_sub _ _ ha (hent z))).mp h
-    rw [Fp2.toK_sub U _ _ ha (hent z), sub_eq_zero] at h0
+    have h0 := (isZero_iff_toK U hU _ (Fp2.canon_sub _ _ ha (u8Entry_canon _ z))).mp h
+    rw [Fp2.toK_sub U _ _ ha (u8Entry_canon _ z), sub_eq_zero] at h0
     exact h0.symm
   · rintro ⟨z, hz, h⟩
     refine ⟨z, List.mem_range.mpr (Finset.mem_range.mp hz), ?_⟩
-    refine (isZero_iff_toK U hU _ (Fp2.canon_sub _ _ ha (hent z))).mpr ?_
-    rw [Fp2.toK_sub U _ _ ha (hent z), sub_eq_zero]
+    refine (isZero_iff_toK U hU _ (Fp2.canon_sub _ _ ha (u8Entry_canon _ z))).mpr ?_
+    rw [Fp2.toK_sub U _ _ ha (u8Entry_canon _ z), sub_eq_zero]
     exact h.symm
 
 /-- **The site fires EXACTLY when stage OUT-C's honest prover refuses at D66(3)** (`outcProve`'s guard on the head's
@@ -490,19 +513,23 @@ theorem outcAlphaSite_fires {rA rM : (HIn → Dig) → Dig} (pre : Coins → TPr
       ↔ outcAlphaBad (outcCh (liftH G) V D ((pre c).final (liftH G) (t0 c)).1).1 = true := by
   unfold outcAlphaSite
   rw [tprogSite_fires, final_outcAlphaProg]
-  set T := ((absorbRoot (liftH G) (V.frame (liftH G) ((pre c).final (liftH G) (t0 c)).1) labA (rA (liftH G)) V.bp.aRows
-    V.bp.logCols).absorb (liftH G) labM (rM (liftH G)).toList) with hT
   have hch : (outcCh (liftH G) V D ((pre c).final (liftH G) (t0 c)).1).1
-      = [((T.challengeFp2Vec (liftH G) 1).1.getD 0 Fp2.zero),
-         challengeFp2Of (liftH G ⟨(T.challengeFp2Vec (liftH G) 1).2.key,
-           squeezeMsg (T.challengeFp2Vec (liftH G) 1).2.state (T.challengeFp2Vec (liftH G) 1).2.counter⟩)] := by
-    simp only [outcCh, hA, hM, ← hT]
-    rfl
-  rw [hch, outcAlphaBad_iff U hU _ _ (canon_challengeFp2Of _) (by
-    show ((T.challengeFp2Vec (liftH G) 1).1.getD 0 Fp2.zero).Canon
-    simp only [Tr.challengeFp2Vec, List.getD_cons_zero]
-    exact canon_challengeFp2Of _)]
-  try exact Iff.rfl
+      = (((absorbRoot (liftH G) (V.frame (liftH G) ((pre c).final (liftH G) (t0 c)).1) labA (rA (liftH G)) V.bp.aRows
+          V.bp.logCols).absorb (liftH G) labM (rM (liftH G)).toList).challengeFp2Vec (liftH G) 2).1 := by
+    unfold outcCh
+    rw [hA, hM]
+  rw [hch]
+  generalize ((absorbRoot (liftH G) (V.frame (liftH G) ((pre c).final (liftH G) (t0 c)).1) labA (rA (liftH G)) V.bp.aRows
+    V.bp.logCols).absorb (liftH G) labM (rM (liftH G)).toList) = T
+  have h1 := challengeFp2Vec_getD (liftH G) 2 1 T (by omega)
+  have h0 : (T.challengeFp2Vec (liftH G) 2).1.getD 0 Fp2.zero = (T.challengeFp2Vec (liftH G) 1).1.getD 0 Fp2.zero := by
+    rw [challengeFp2Vec_getD (liftH G) 2 0 T (by omega), challengeFp2Vec_getD (liftH G) 1 0 T (by omega)]
+  have key : outcAlphaBad (T.challengeFp2Vec (liftH G) 2).1 = true
+      ↔ (challengeFp2Of (liftH G ⟨(T.challengeFp2Vec (liftH G) 1).2.key,
+          squeezeMsg (T.challengeFp2Vec (liftH G) 1).2.state (T.challengeFp2Vec (liftH G) 1).2.counter⟩)).toK U
+        ∈ u8Bad U (T.challengeFp2Vec (liftH G) 1).1 := by
+    rw [outcAlphaBad_iff U hU _ (by rw [h1]; exact canon_challengeFp2Of _), h1, u8Bad_congr U _ _ h0]
+  exact key.symm
 
 end OutcAlpha
 

@@ -111,7 +111,10 @@ def St.check (s : St) (kind : String) (ok : Bool) (what : String) : St :=
   let upd := fun (l : List (String × ℕ × ℕ)) =>
     if l.any (·.1 == kind) then l.map (fun e => if e.1 == kind then (e.1, e.2.1 + 1, e.2.2 + if ok then 0 else 1) else e)
     else l ++ [(kind, 1, if ok then 0 else 1)]
-  { s with n := s.n + 1, failed := s.failed + (if ok then 0 else 1), kinds := upd s.kinds,
+  { s with
+    n := s.n + 1
+    failed := s.failed + (if ok then 0 else 1)
+    kinds := upd s.kinds
     log := s.log ++ [s!"{if ok then "ok  " else "FAIL"} {kind}: {what}"] }
 
 def okE {ε α : Type} : Except ε α → Bool
@@ -192,8 +195,8 @@ def main (args : List String) : IO UInt32 := do
   | .error e => s := s.check "SLOT" false s!"IN-C slot walk refused: {e}"
   | .ok (_, acc, t4, ts) =>
     for i in List.range 4 do
-      let rec := after.getD i []
-      s := s.check "SLOT" ((ts.getD i t0 |> trStr) == s!"{rec.getD 2 ""} {rec.getD 3 ""}") s!"IN-C slot {i}'s transcript"
+      let row := after.getD i []
+      s := s.check "SLOT" ((ts.getD i t0 |> trStr) == s!"{row.getD 2 ""} {row.getD 3 ""}") s!"IN-C slot {i}'s transcript"
     s := s.check "SLOT" (match V.slots H coreIn t1 with
       | .ok r => trStr r.2.2 == trStr t4 && (claimsAll r.2.1.claims).map (fun c => claimStr c.2)
           == (claimsAll acc.claims).map (fun c => claimStr c.2)
@@ -263,8 +266,8 @@ def main (args : List String) : IO UInt32 := do
   | .error e => s := s.check "SLOT" false s!"OUT-C slot walk refused: {e}"
   | .ok (_, acc, t4, ts) =>
     for i in List.range 8 do
-      let rec := oafter.getD i []
-      s := s.check "SLOT" ((ts.getD i ot0 |> trStr) == s!"{rec.getD 2 ""} {rec.getD 3 ""}") s!"OUT-C slot {i}'s transcript"
+      let row := oafter.getD i []
+      s := s.check "SLOT" ((ts.getD i ot0 |> trStr) == s!"{row.getD 2 ""} {row.getD 3 ""}") s!"OUT-C slot {i}'s transcript"
     s := s.check "SLOT" (match StageFS.stageSlots H OV.bp 2 OutcV.bga coreOut ot1 with
       | .ok r => trStr r.2.2.2 == trStr t4 && r.1 == oCh.1
       | .error _ => false) "OUT-C's slot phase (L15's stageSlots) is the slot walk"

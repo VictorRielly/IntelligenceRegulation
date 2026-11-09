@@ -41,6 +41,7 @@ open ZK60 ZK60.ProtocolClassify ZK60.HonestClassify
 open ZK60.Circuit (gP GF)
 open ZK60.Exec.Block (Core SlotProof Dim Geom BlockParams Hist SlotRec Acc slotsLoop slotStep histOf absorbRoot pathsDepth
   labA labH labM posTag CoreCanon CoreShape Cm)
+open ZK60.Exec.StageCheck (kI)
 
 /-! ## The stage's honest slot loop -/
 
@@ -332,10 +333,12 @@ variable (H : HIn → Dig) (V : OutcV)
 def outcCh (D : OutcData V) (t : Tr) : List Fp2 × Tr :=
   ((absorbRoot H (V.frame H t) labA D.aRoot V.bp.aRows V.bp.logCols).absorb H labM D.maskRoot.toList).challengeFp2Vec H 2
 
-/-- D66(3)'s refusal: `α` is an entry `z + g_u8` of the byte table (stage_out_c.rs:582). -/
+/-- The byte table's entries `z + γ·TAG_U8` (stage_out_c.rs:582: `Fp2::from_i64(z).add(g_u8)`). -/
+def u8Entry (gamma : Fp2) (z : ℕ) : Fp2 := (kI z).add (gamma.mulBase (Fp.new (UInt64.ofNat tagU8)))
+
+/-- D66(3)'s refusal: `α` is an entry `z + g_u8` of the byte table (stage_out_c.rs:582), on the head's `[γ, α]`. -/
 def outcAlphaBad (ch : List Fp2) : Bool :=
-  (List.range 256).any (fun z => ((ch.getD 1 Fp2.zero).sub ((kI z).add ((ch.getD 0 Fp2.zero).mulBase
-    (Fp.new (UInt64.ofNat tagU8))))).isZero)
+  (List.range 256).any (fun z => ((ch.getD 1 Fp2.zero).sub (u8Entry (ch.getD 0 Fp2.zero) z)).isZero)
 
 /-- **Stage OUT-C's honest prover** (`stage_out_c::prove`, from its frame on), on the carry it is handed. -/
 def outcProve (D : OutcData V) (cr : Carry) (t : Tr) : Except Unit OutcRun :=
@@ -537,7 +540,7 @@ theorem inc_stageInOK {Γ : Type} (adm : X → Prop) (hOf : Γ → HIn → Dig) 
   | error e => rw [hR] at hrun'; cases hrun'
   | ok R =>
     rw [hR] at hrun'
-    simp only [Except.ok.injEq, Prod.mk.injEq] at hrun'
+    simp only [Except.ok.injEq] at hrun'
     obtain ⟨rfl, rfl, rfl⟩ := hrun'
     obtain ⟨⟨hgt, hdom, henc, hmag, hb, hcan, hsh, hcl, hlen⟩, hdeg, hpA, hpH, hpM, hpE, hsl, hM, hA, hH, hE⟩ :=
       hok g x c bnd t R hx hR
@@ -608,7 +611,7 @@ theorem outc_stageOutOK {Γ : Type} (adm : X → Prop) (hOf : Γ → HIn → Dig
   | error e => rw [hR] at hrun'; cases hrun'
   | ok R =>
     rw [hR] at hrun'
-    simp only [Except.ok.injEq, Prod.mk.injEq] at hrun'
+    simp only [Except.ok.injEq] at hrun'
     obtain ⟨rfl, rfl⟩ := hrun'
     obtain ⟨⟨hgt, hdom, henc, hmag, hb, hcan, hsh, hcl, hlen⟩, hdeg, hpA, hpH, hpM, hpB, hsl, hM, hA, hH, hB⟩ :=
       hok g x c bnd cr t R hx hR
@@ -658,7 +661,8 @@ theorem incProve_refuses (V : IncV) (D : IncData V) (t : Tr) (h : incProve H V D
     · rename_i e he
       cases e
       obtain ⟨i, recs₁, acc₁, t₁, hi, hr⟩ := stSlotsProve_refuses H _ _ _ _ _ _ _ [] 0 {} _ he
-      exact Or.inr (Or.inl ⟨i, recs₁, acc₁, t₁, hi, by simpa using hr⟩)
+      rw [Nat.zero_add] at hr
+      exact Or.inr (Or.inl ⟨i, recs₁, acc₁, t₁, hi, hr⟩)
     · rename_i sps recs acc t4 hs
       refine Or.inr (Or.inr ⟨sps, recs, acc, t4, hs, ?_⟩)
       split_ifs at h with hfs
