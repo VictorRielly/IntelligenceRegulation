@@ -181,3 +181,8 @@ import ZK60Formal.RunChainExtract
 import ZK60Formal.RunChainCover
 import ZK60Formal.RunChainKinds
 import ZK60Formal.RunChainAssemble
+import ZK60Formal.BindingU
+import ZK60Formal.BindingUTest
+import ZK60Formal.BindingUDecode
+import ZK60Formal.ProtocolClassifyU
+import ZK60Formal.ProtocolClassifyUEp

@@ -1,0 +1,2 @@
+[zk60-guard 13:55:48] START lean-l26-iter class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=757c51bc5aeb
+[zk60-guard 13:57:29] END lean-l26-iter exit=0 child_wall=101s peak_rss=11.97G min_avail=225.10G

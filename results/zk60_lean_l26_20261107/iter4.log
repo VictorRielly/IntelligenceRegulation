@@ -1,0 +1,49 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a51f9d1a2272ead49/results/zk60_lean_l26_20261107/plan.txt ==
+build ZK60Formal.ProtocolClassifyUEp
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a51f9d1a2272ead49/results/zk60_lean_l26_20261107/check_l26.sh
+== lake build ZK60Formal.ProtocolClassifyUEp ==
+Build completed successfully (3497 jobs).
+build rc 0 (59 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a51f9d1a2272ead49/results/zk60_lean_l26_20261107/check_l26.sh ==
+check rc 0 (101 s); its log is check.log
+lake build ZK60Formal.BindingUTest rc 0
+lake build ZK60Formal.BindingUDecode rc 0
+lake build ZK60Formal.ProtocolClassifyU rc 0
+lake build ZK60Formal.ProtocolClassifyUEp rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3558/3559] Built ZK60Formal (2.1s)
+Build completed successfully (3559 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L26 files: 0
+== axiom audit ==
+100 declarations: 1 abbrev, 26 def, 3 structure, 70 theorem
+axioms rc 0
+declarations audited: 100
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 1
+  95 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext, Quot.sound]
+   1 axioms: [propext]
+== source scan of the L26 files ==
+none
+== the library root imports the L26 files ==
+imported: BindingU
+imported: BindingUTest
+imported: BindingUDecode
+imported: ProtocolClassifyU
+imported: ProtocolClassifyUEp
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 42 s
+rc 0, 101 s

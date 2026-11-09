@@ -1,0 +1,3 @@
+build ZK60Formal.BindingUDecode
+build ZK60Formal.ProtocolClassifyUEp
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a51f9d1a2272ead49/results/zk60_lean_l26_20261107/check_l26.sh
