@@ -8,9 +8,11 @@
 # (the zk60 resource guard, class cpu). The receipt is fresh-entropy: every run writes a different corpus.
 WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794
 OUT=$WT/results/zk60_lean_l29_20261107
-SCR=/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad
+# (2026-11-09: the first export's segment files were in a session scratch directory under /private/tmp and were lost
+# at the Mac's restart; the segments and the cargo target now live in the artifacts directory, outside the repository.)
+SCR=/Users/victorrielly/zk60-artifacts/resume-20261109
 mkdir -p "$SCR/l29"
-export CARGO_TARGET_DIR=$SCR/target-l29
+export CARGO_TARGET_DIR=$SCR/l29_target
 export LEAN_L29_CORPUS=$OUT/corpus.txt
 export LEAN_L29_SEG_IN=$SCR/l29/l29_seg_in.bin
 export LEAN_L29_SEG_OUT=$SCR/l29/l29_seg_out.bin

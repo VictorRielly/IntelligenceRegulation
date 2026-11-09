@@ -9,7 +9,7 @@
 WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794
 LAKE=/Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lake
 OUT=$WT/results/zk60_lean_l29_20261107
-SCR=/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l29
+SCR=/Users/victorrielly/zk60-artifacts/resume-20261109/l29
 O6=$WT/results/zk60_lean_l6_20261106
 O5=$WT/results/zk60_lean_l5_20261106
 O11=$WT/results/zk60_lean_l11_20261107

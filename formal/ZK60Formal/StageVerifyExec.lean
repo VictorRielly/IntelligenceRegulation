@@ -225,7 +225,7 @@ theorem refuseIf_ok_iff (c : Prop) [Decidable c] (m : String) (u : Unit) : refus
   · simp only [hc, ↓reduceIte, not_true_eq_false, iff_false]
     intro h
     cases h
-  · simp only [hc, ↓reduceIte, not_false_eq_true, iff_true]
+  · simp only [hc, ↓reduceIte, not_false_eq_true]
 
 end Sub
 
@@ -474,19 +474,19 @@ theorem outcSlots_model (V : OutcV) (core : Core) (t : Tr) :
           core.maskRoot.toList).challengeFp2Vec H 2).1, r)
       | .error e => .error e := rfl
 
-/-- **Stage IN-C's slot phase is lane L15's `stageSlots` at the `BlockParams` of its drawn `r_emb`, on everything but
-the claims** (findings L29-1, L29-2): the verdict, the head's challenges, the slot records, the transcript and the
-claim-free accumulator (the `c`s, the scalars, `M`'s functionals) of the executable slot phase are `stageSlots`'s at
-`V.bp (incCtx ch)`, `m = 3 + clog2(d_pad)`, for the challenges `ch` the head draws. -/
-/-- The stripped results, one of them framed with the head's challenges (`stageSlots`' return). -/
-theorem map_match_strip (ch : List Fp2) (x y : Except String (List SlotRec × Acc × Tr))
+/-- A slot loop's result framed with the head's challenges (`stageSlots`' return). -/
+def withCh (ch : List Fp2) (y : Except String (List SlotRec × Acc × Tr)) :
+    Except String (List Fp2 × List SlotRec × Acc × Tr) :=
+  match y with
+  | .ok r => .ok (ch, r)
+  | .error e => .error e
+
+/-- The stripped results, one of them framed with the head's challenges. -/
+theorem map_withCh_strip (ch : List Fp2) (x y : Except String (List SlotRec × Acc × Tr))
     (h : (fun z : List SlotRec × Acc × Tr => (z.1, accStrip z.2.1, z.2.2)) <$> x
       = (fun z : List SlotRec × Acc × Tr => (z.1, accStrip z.2.1, z.2.2)) <$> y) :
     (fun z : List SlotRec × Acc × Tr => ((ch, z.1), accStrip z.2.1, z.2.2)) <$> x
-      = (fun z : List Fp2 × List SlotRec × Acc × Tr => ((z.1, z.2.1), accStrip z.2.2.1, z.2.2.2)) <$>
-          (match y with
-            | .ok r => (.ok (ch, r) : Except String (List Fp2 × List SlotRec × Acc × Tr))
-            | .error e => .error e) := by
+      = (fun z : List Fp2 × List SlotRec × Acc × Tr => ((z.1, z.2.1), accStrip z.2.2.1, z.2.2.2)) <$> withCh ch y := by
   cases x with
   | error e1 =>
     cases y with
@@ -513,12 +513,15 @@ theorem incSlots_model (V : IncV) (core : Core) (t : Tr) :
     (fun x : List SlotRec × Acc × Tr => (((V.headCh H core t).1, x.1), accStrip x.2.1, x.2.2)) <$> V.slots H core t
       = (fun x : List Fp2 × List SlotRec × Acc × Tr => ((x.1, x.2.1), accStrip x.2.2.1, x.2.2.2)) <$>
           StageFS.stageSlots H (V.bp (incCtx V.pub (V.headCh H core t).1)) (incHeadDraws V.pub)
-            (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) core t :=
-  map_match_strip (V.headCh H core t).1 _
+            (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) core t := by
+  have h := map_withCh_strip (V.headCh H core t).1
+    (stSlotsLoop H (V.bp (incCtx V.pub (V.headCh H core t).1)) (incElog V.pub V.geo.bLogN) Fp2.zero Fp2.zero Fp2.zero
+      [] 0 core.slots {} (V.slotT H core t))
     (slotsLoop H (V.bp (incCtx V.pub (V.headCh H core t).1)) Fp2.zero Fp2.zero Fp2.zero [] 0 core.slots {}
       (V.slotT H core t))
     (stSlotsLoop_strip H (V.bp (incCtx V.pub (V.headCh H core t).1)) (incElog V.pub V.geo.bLogN) Fp2.zero Fp2.zero
       Fp2.zero [] 0 core.slots {} ({} : Acc).claims (V.slotT H core t))
+  exact h
 
 end Iff
 
@@ -596,7 +599,9 @@ theorem classifyProtocolExec_verify_iff (R : ClassifyRunPublic S) (Lq L : ℕ) (
             cr₂ t₂
         ∧ decodeStage (outcG s.hdr) (start (liftH G) s).state (posTag (liftH G) t₂) (segs.getD (L + 1) []) = .ok (segL, eL)
         ∧ (outc s.hdr s.verdict).verify (liftH G) cr₂.root cr₂.pending segL t₂ = .ok t₃ ∧ posTag (liftH G) t₃ = eL := by
-  rw [classifyProtocolExec, verify_true_iff, classifyVerifyE_ok_iff]
+  show (classifyProtocol S R Lq (classifyRunV L preA preB start inc incG blk outc outcG) P Cin h64 hr base).verify G () s
+    segs = true ↔ _
+  rw [verify_true_iff, classifyVerifyE_ok_iff]
   show _ ∧ _ ∧ _ ∧ (∃ (cr₁ cr₂ cr₃ : Carry) (t₁ t₂ t₃ : Tr),
       segStep (inSeg (incStageV inc incG)) (liftH G) s (start (liftH G) s).state (segs.headD []) carry0
         (start (liftH G) s) = .ok (cr₁, t₁)
