@@ -1,0 +1,8 @@
+✔ [3564/3571] Built ZK60Formal.RunChainStab (2.1s)
+✔ [3565/3571] Built ZK60Formal.RunChainSched (1.0s)
+✔ [3566/3571] Built ZK60Formal.RunChainExtract (2.7s)
+✔ [3567/3571] Built ZK60Formal.RunChainCover (2.7s)
+✔ [3568/3571] Built ZK60Formal.RunChainKinds (2.8s)
+✔ [3569/3571] Built ZK60Formal.RunChainAssemble (2.3s)
+✔ [3570/3571] Built ZK60Formal (1.7s)
+Build completed successfully (3571 jobs).

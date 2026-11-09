@@ -445,11 +445,28 @@ here. The rates count proving and witness work. Verification time is recorded se
       verifiers). O12 has only its honest-rounds hypotheses.
     - Finding L25-1 (Medium, in the Lean model, handled): the code's prover opens its own previous boundary, so the
       Lean block prover checks that too.
+  - **L27, the run's transcript premises for L24's joint extraction** [PROVED; merged ba15f63a and checked on the
+    merged tree, 2026-11-09: 3571 jobs, no warning; `ZK60_LEAN_L27_RUN_CHAIN_20261107.md`].
+    - A kind of check (the slots, `M`, the openings' two halves, the four relation schedules, LogUp) can be laid on
+      the run's one transcript part by part: stage IN-C, the 26 blocks, stage OUT-C. Every structural premise of L24's
+      count then follows.
+    - L24's stability premise (L24-2) is now a theorem, for every extraction that reads the prover's hash log by
+      cutting it at a commitment root's first appearance. Every extraction in the code does that.
+    - The Merkle extraction failure for the whole run is one event, at most (q+1)·(2^16 + 2^18)/2^126.
+    - The nine kinds' totals stand as L24 counted them: W16R2 31.2M and R13 57.3M units, both ≤ 2^26.
+    - **It does not finish the run's extraction.** Left as premises:
+      - the run's transcript as a Lean object (the two stages are still parameters of L18's instance; lane L29 writes
+        them);
+      - the nine kinds' lists on it;
+      - the per-part cover links;
+      - the endpoint O11d, which is false at L18's instance (L24-1), so the gate must be restated on L26's instance.
+    - Finding L27-2 (Medium): each part's operation and squeeze counts must be profile constants. This is L22-1 at the
+      run's level, to be proved with the run's transcript.
   - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26 (the OpensU instance
-    for L24-1), L27 (the run-chain premises of L24's joint theorem), L28 (the openings' glue), L29 (the stage
-    verifiers in executable Lean and the honest prover in oracle form) and A28 (the app's commitment kernels and GPU
-    idle time) in mid-work. Nothing was lost: each lane's files were in its worktree, and each was resumed there on
-    2026-11-09. None of the five is merged yet.
+    for L24-1), L27, L28 (the openings' glue), L29 (the stage verifiers in executable Lean and the honest prover in
+    oracle form) and A28 (the app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's
+    files were in its worktree, and each was resumed there on 2026-11-09. L27 is merged (above); L26, L28, L29 and A28
+    are still running.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
