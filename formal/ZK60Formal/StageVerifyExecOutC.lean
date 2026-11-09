@@ -13,7 +13,7 @@ hashline's `stage_out_c.rs` writes them (read 2026-11-07; nothing there is chang
 `define` reads the head's challenges through L9's history (`(β, γ, α) = (0, γ, α)`, lane L15's `bgaOf` for OUT-C), so
 stage OUT-C's `BlockParams` is ONE fixed instance (`outcBP`) and its slot phase is L15's `stageSlots` exactly.
 
-Only definitions here; nothing is a sorry, an axiom or a native decision.
+Only definitions here.
 -/
 import ZK60Formal.StageVerifyExecLay
 

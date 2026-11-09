@@ -18,7 +18,7 @@ Proved here:
   the rest of the accumulator (`c`s, scalars, `M` functionals) are L9's `slotsLoop`'s at any width; so lane L15's
   `stageSlots` (the Fiat–Shamir model of a stage's slot phase) reads the same run.
 
-Every premise is an explicit hypothesis; nothing here is a sorry, an axiom or a native decision.
+Every premise is an explicit hypothesis; every proof is complete and kernel-checked.
 -/
 import ZK60Formal.StageFS
 import ZK60Formal.StageCheckDefs

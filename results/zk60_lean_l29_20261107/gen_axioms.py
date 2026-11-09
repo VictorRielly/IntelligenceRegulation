@@ -10,7 +10,8 @@ import sys
 
 src, out = sys.argv[1], sys.argv[2]
 files = ["StageVerifyExecLay.lean", "StageVerifyExecInC.lean", "StageVerifyExecOutC.lean", "StageVerifyExec.lean",
-         "StageVerifyExecComplete.lean", "StageVerifyExecAssemble.lean", "HonestOracleProg.lean"]
+         "StageVerifyExecComplete.lean", "StageVerifyExecAssemble.lean", "HonestOracleProg.lean",
+         "HonestOracleSlots.lean"]
 lines = [f"import ZK60Formal.{f[:-5]}" for f in files] + [
     "",
     "-- D63 Lean lane L29 (2026-11-07): the audit of the executable stages, their completeness and the oracle form",

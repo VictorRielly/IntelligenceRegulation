@@ -1,6 +1,6 @@
-ef90c6310654d0f2cb1861bb86521fac3cbfe3c5220dbf540da759396b308ca0  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/results/zk60_lean_l29_20261107/corpus.txt
-5dda6a7bd7b527b15d9a37f085259be64523aa8ab81ec663ee6e2af2501a9b75  /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l29/l29_seg_in.bin
-b7d881c87cd520b7b6ae9f23e7d50ef69088ac2fb31e0c1937a5ff989d8a1cae  /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l29/l29_seg_out.bin
- 1224328 /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l29/l29_seg_in.bin
- 2489016 /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/l29/l29_seg_out.bin
+3df96fafa2a1950eafa7659e46ba84b5f4d1fff4eddf82d5d4a4be9d534d60de  corpus.txt
+3c4780d55db7386dda4a8d07409626fc3adff0ae090fd39c7ed9d09f466fcbe1  l29_seg_in.bin
+387fa161928338791ec257dfd805f765eb33dcfe2389436f15d3cd0b4d920f40  l29_seg_out.bin
+ 1224328 l29_seg_in.bin
+ 2489016 l29_seg_out.bin
  3713344 total

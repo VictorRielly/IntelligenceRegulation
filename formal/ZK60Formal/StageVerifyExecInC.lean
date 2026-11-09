@@ -14,7 +14,7 @@ logs, and the embedding's fold `E~(·, r)` as a function (`emb_fold`, the public
 weights are not in the repository, D62). The run's geometry (`IncGeo`: the endpoint's data rows and width, `B_in`'s
 row width and reserved pair) is the statement's.
 
-Only definitions here (the theorems are in `StageVerifyExec.lean`); nothing is a sorry, an axiom or a native decision.
+Only definitions here (the theorems are in `StageVerifyExec.lean`).
 -/
 import ZK60Formal.StageVerifyExecLay
 
