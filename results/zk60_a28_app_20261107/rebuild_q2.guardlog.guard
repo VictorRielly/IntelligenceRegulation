@@ -1,0 +1,4 @@
+[zk60-guard 13:55:50] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 13:56:50] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 13:57:31] START a28-rebuild-q2 class=build need=12G cap=24G enforce=watchdog-only waited=101s run=a402a31dae5f
+[zk60-guard 13:58:24] END a28-rebuild-q2 exit=0 child_wall=53s peak_rss=1.80G min_avail=231.93G

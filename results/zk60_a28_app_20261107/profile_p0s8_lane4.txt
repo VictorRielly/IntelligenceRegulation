@@ -1,0 +1,24 @@
+a24-lane4-0: 32238 samples under prove_with_public
+  gpu wait     8128   25.2%
+  serial       7359   22.8%
+  parallel    16751   52.0%
+
+serial sections, by nearest named callers (% of the thread's samples):
+    1294   4.0%  pb::token_io::classify::update_le_words < pb::token_io::classify::ClassifierTables::emb_digest  [blake3_hash_many_neon]
+     693   2.1%  pb::protocol::prove_core_after_with < pb::protocol::prove_core_with  [__bzero]
+     655   2.0%  pb::token_io::classify::update_le_words < pb::token_io::classify::ClassifyRunStatement::check_tables  [blake3_hash_many_neon]
+     631   2.0%  pb::protocol::prove_core_with < pb::token_io::classify_run::prove_classify_run_with  [__bzero]
+     532   1.7%  pb::token_io::classify::update_le_words < pb::token_io::classify::ClassifierTables::emb_digest  [pb::token_io::classify::update_le_words]
+     340   1.1%  pb::run_sink::a21_sha::sha256 < pb::run_sink::digest_hex  [pb::run_sink::a21_sha::sha256]
+     275   0.9%  pb::token_io::classify::update_le_words < pb::token_io::classify::ClassifyRunStatement::check_tables  [pb::token_io::classify::update_le_words]
+     212   0.7%  pb::protocol::prove_core_after_with < pb::protocol::prove_core_with  [_kernelrpc_mach_vm_deallocate_trap]
+
+parallel sections, by nearest named callers (% of the thread's samples):
+    2169   6.7%  pb::witness::accuracy::fill_planes < pb::witness::build_for_block
+    1745   5.4%  pb::A21Stream::hasher_at < pb::A21Stream::subtree
+    1703   5.3%  pb::weights_vanish_off_support < pb::FeedForwardPublic::check_words
+    1536   4.8%  hl::gpu::metal::fold_segments_a8_opts < zkp_core::pcs::open_zk
+    1226   3.8%  pb::protocol::lookup_values < pb::token_io::classify_cli::seal_chain_keeping
+     568   1.8%  zkp_core::rng::block_bytes_in < zkp_core::rng::ZkRng::fill_fp
+     527   1.6%  pb::witness::zeros < pb::witness::accuracy::quantized_with
+     513   1.6%  zkp_core::mle::fold_cols_i8 < pb::accuracy_fold::fold
