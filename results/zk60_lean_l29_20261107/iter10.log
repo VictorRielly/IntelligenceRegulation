@@ -1,0 +1,78 @@
+== lake build ZK60Formal.StageVerifyExecLay ZK60Formal.StageVerifyExecInC ZK60Formal.StageVerifyExecOutC ZK60Formal.StageVerifyExec ZK60Formal.StageVerifyExecComplete ZK60Formal.HonestOracleProg ZK60Formal.StageVerifyExecAssemble ZK60Formal.HonestOracleSlots ==
+Build completed successfully (3490 jobs).
+build rc 0
+rc build 0 files 0, 2 s
+== iteration green: check_l29.sh ==
+== lake build (full) ==
+lake build rc 0
+✔ [3572/3574] Built ZK60Formal.HonestOracleParts (3.4s)
+✔ [3573/3574] Built ZK60Formal (1.8s)
+Build completed successfully (3574 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+== axiom audit ==
+96 theorems
+axioms rc 0
+declarations audited: 96
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  32 axioms: [propext, Classical.choice, Quot.sound]
+  53 axioms: [propext, Quot.sound]
+   5 axioms: [propext]
+on no axiom: 6
+== source scan of the L29 files ==
+none
+== the library root imports the L29 library files; the checker (main) is not imported ==
+178:import ZK60Formal.StageVerifyExecLay
+179:import ZK60Formal.StageVerifyExecInC
+180:import ZK60Formal.StageVerifyExecOutC
+181:import ZK60Formal.StageVerifyExec
+182:import ZK60Formal.StageVerifyExecComplete
+184:import ZK60Formal.StageVerifyExecAssemble
+183:import ZK60Formal.HonestOracleProg
+185:import ZK60Formal.HonestOracleSlots
+186:import ZK60Formal.HonestOracleParts
+checker not imported
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: L11Check on the committed L11 corpus ==
+L11Check: 404 checks, 0 failed
+== regression: StageCheckOutC on the committed L15 corpus ==
+StageCheckOutC: 81 checks, 0 failed
+== regression: ProtocolClassifyCheck on the committed L18 corpus ==
+ProtocolClassifyCheck: 31 checks, 0 failed
+== StageVerifyExecCheck on the committed L29 corpus, WITH the segments' bytes ==
+LABELS: 3 checks, 0 failed
+DERIV: 4 checks, 0 failed
+PARSE: 3 checks, 0 failed
+HEAD: 5 checks, 0 failed
+SLOT: 14 checks, 0 failed
+CLAIMS: 49 checks, 0 failed
+FUNS: 24 checks, 0 failed
+AUDIT: 6 checks, 0 failed
+RESULT: 2 checks, 0 failed
+NEGATIVE: 3 checks, 0 failed
+DECODE: 10 checks, 0 failed
+VERIFY: 4 checks, 0 failed
+StageVerifyExecCheck: 127 checks, 0 failed
+StageVerifyExecCheck rc 0, 300 s
+== negative control: seven single changes to the corpus ==
+mutated 7 records
+FAIL HEAD: IN-C's transcript after H
+FAIL SLOT: IN-C slot 2's transcript
+FAIL CLAIMS: IN-C claim 0
+FAIL HEAD: OUT-C's head challenges (γ, α)
+FAIL FUNS: OUT-C functional 0
+FAIL DECODE: IN-C decoded: the end tag, the roots, the slots
+FAIL VERIFY: IN-C's end tag is the position tag after the stage
+FAIL VERIFY: OUT-C's executable verifier accepts, on the code's final transcript (115335 ms)
+StageVerifyExecCheck: 127 checks, 8 failed
+negative control rc 1 (nonzero required)
+verdicts: build 0, no warning or sorry 0, axioms 0/0, scan 0, imports 0, L6 0/0, L5 0/0, L1 0/0, L11 0/0, L15 0/0, L18 0/0, L29 0/0, negative control (want 8 failed) 0 (0 = as required), 643 s
+check_l29.sh rc 0

@@ -1,0 +1,119 @@
+== lake build ZK60Formal.HonestOracleSlots ==
+✖ [3489/3489] Building ZK60Formal.HonestOracleSlots (2.2s)
+error: ZK60Formal/HonestOracleSlots.lean:162:18: unsolved goals
+case neg.ok.ok.ok
+H : HIn → Dig
+P : BlockParams
+D : SlotData P
+s : ℕ
+hist : Hist
+acc : Block.Acc
+t : Tr
+x✝ : Except String SlotDef
+df : SlotDef
+hdf : P.define s hist (Tr.challengeFp2Vec H t (P.draws s)).1 = Except.ok df
+hc : ¬(slotC H P s t).isZero = true
+hes :
+  ¬((List.drop (slotShape P s).1 (slotRho H P D s hist acc t df)).any fun x => x.isZero || decide (x = Fp2.one)) = true
+u : Unit
+hchk : slotDefChecks P s acc df = Except.ok u
+claimed : Fp2
+hhost : hostedSum acc.scalars (slotSP H P D s hist acc t df).scalar df.hosted = Except.ok claimed
+vals : List Fp2
+htab :
+  tabVals (oneMinusProd (List.drop (slotShape P s).1 (slotRho H P D s hist acc t df)))
+      (List.take (slotShape P s).1 (slotRho H P D s hist acc t df)) (slotSP H P D s hist acc t df).terms df.tabs 0 =
+    Except.ok vals
+⊢ (Tr.absorbFp2 H
+        (scProve H (slotN P s) (D.strat s hist acc df (slotC H P s t))
+            (slotT4 H P s t (slotSP H P D s hist acc t df).scalar)).2
+        labPbTerm (slotSP H P D s hist acc t df).terms,
+      if false = true then Except.error ()
+      else
+        if false = true then Except.error ()
+        else
+          Except.ok
+            (slotSP H P D s hist acc t df,
+              { draws := (Tr.challengeFp2Vec H t (P.draws s)).1, c := slotC H P s t,
+                scalar := (slotSP H P D s hist acc t df).scalar, claimed := claimed,
+                rho := List.take (slotShape P s).1 (slotRho H P D s hist acc t df),
+                es := List.drop (slotShape P s).1 (slotRho H P D s hist acc t df),
+                terms := (slotSP H P D s hist acc t df).terms,
+                fin := scFinalExec (slotSP H P D s hist acc t df).rounds (slotRho H P D s hist acc t df) claimed },
+              slotAcc P s acc df (slotC H P s t) (slotSP H P D s hist acc t df).scalar
+                (((scFinalExec (slotSP H P D s hist acc t df).rounds (slotRho H P D s hist acc t df) claimed).sub
+                      (df.poly vals)).mul
+                  (slotC H P s t).inv)
+                (slotRho H P D s hist acc t df) (slotSP H P D s hist acc t df).terms)) =
+    (Tr.absorbFp2 H
+        (scProve H (slotN P s) (D.strat s hist acc df (slotC H P s t))
+            (slotT4 H P s t (slotSP H P D s hist acc t df).scalar)).2
+        labPbTerm (slotSP H P D s hist acc t df).terms,
+      Except.ok
+        (slotSP H P D s hist acc t df,
+          { draws := (Tr.challengeFp2Vec H t (P.draws s)).1, c := slotC H P s t,
+            scalar := (slotSP H P D s hist acc t df).scalar, claimed := claimed,
+            rho := List.take (slotShape P s).1 (slotRho H P D s hist acc t df),
+            es := List.drop (slotShape P s).1 (slotRho H P D s hist acc t df),
+            terms := (slotSP H P D s hist acc t df).terms,
+            fin := scFinalExec (slotSP H P D s hist acc t df).rounds (slotRho H P D s hist acc t df) claimed },
+          slotAcc P s acc df (slotC H P s t) (slotSP H P D s hist acc t df).scalar
+            (((scFinalExec (slotSP H P D s hist acc t df).rounds (slotRho H P D s hist acc t df) claimed).sub
+                  (df.poly vals)).mul
+              (slotC H P s t).inv)
+            (slotRho H P D s hist acc t df) (slotSP H P D s hist acc t df).terms))
+warning: ZK60Formal/HonestOracleSlots.lean:180:49: This simp argument is unused:
+  ↓reduceIte
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hc, hes, hchk, hhost, htab]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/HonestOracleSlots.lean:304:11: unsolved goals
+case ok
+H : HIn → Dig
+P : BlockParams
+D : SlotData P
+b g a : Fp2
+m : ℕ
+recs : List SlotRec
+s : ℕ
+acc : Block.Acc
+t : Tr
+sp : SlotProof
+r : SlotRec
+acc' : Block.Acc
+t' : Tr
+⊢ (match famProve H (fun x => P) (fun x => D) b g a m (recs ++ [r]) (s + 1) acc' t' with
+    | Except.error a => Except.error ()
+    | Except.ok (sps, recs', acc'', t'') => Except.ok (sp :: sps, recs', acc'', t'')) =
+    match famProve H (fun x => P) (fun x => D) b g a m (recs ++ [r]) (s + 1) acc' t' with
+    | Except.error a => Except.error ()
+    | Except.ok (sps, recs', acc'', t'') => Except.ok (sp :: sps, recs', acc'', t'')
+error: ZK60Formal/HonestOracleSlots.lean:318:11: unsolved goals
+case ok
+H : HIn → Dig
+P : BlockParams
+elog : ℕ → ℕ
+D : SlotData P
+b g a : Fp2
+m : ℕ
+recs : List SlotRec
+s : ℕ
+acc : Block.Acc
+t : Tr
+sp : SlotProof
+r : SlotRec
+acc' : Block.Acc
+t' : Tr
+⊢ (match famProve H (fun s => atLog P (elog s)) (fun s => sdAt D (elog s)) b g a m (recs ++ [r]) (s + 1) acc' t' with
+    | Except.error a => Except.error ()
+    | Except.ok (sps, recs', acc'', t'') => Except.ok (sp :: sps, recs', acc'', t'')) =
+    match famProve H (fun s => atLog P (elog s)) (fun s => sdAt D (elog s)) b g a m (recs ++ [r]) (s + 1) acc' t' with
+    | Except.error a => Except.error ()
+    | Except.ok (sps, recs', acc'', t'') => Except.ok (sp :: sps, recs', acc'', t'')
+Some required targets logged failures:
+- ZK60Formal.HonestOracleSlots
+error: build failed
+build rc 1
+rc build 1 files 0, 21 s

@@ -1,0 +1,303 @@
+== lake build ZK60Formal.StageVerifyExecLay ZK60Formal.StageVerifyExecInC ZK60Formal.StageVerifyExecOutC ZK60Formal.StageVerifyExec ZK60Formal.StageVerifyExecComplete ZK60Formal.HonestOracleProg ZK60Formal.StageVerifyExecAssemble ==
+✖ [3486/3489] Building ZK60Formal.StageVerifyExec (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExec.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/.lake/build/lib/lean/ZK60Formal/StageVerifyExec.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/.lake/build/lib/lean/ZK60Formal/StageVerifyExec.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/.lake/build/ir/ZK60Formal/StageVerifyExec.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/.lake/build/ir/ZK60Formal/StageVerifyExec.setup.json --json
+error: ZK60Formal/StageVerifyExec.lean:423:11: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  Except.ok ((pending, root), t') =
+    Decidable.rec
+      (fun h =>
+        (fun x => do
+            pathsDepth "stage IN-C A" V.blk.path 0 seg.core.aOpen.columns
+            pathsDepth "stage IN-C H" V.blk.path 0 seg.core.hOpen.columns
+            pathsDepth "M" Block.W16R2.maskPath 0 seg.core.maskOpen.columns
+            pathsDepth "input token endpoint" V.ed.path 0 (seg.closes.headD IncV.ozk0).columns
+            let bRoot ← optOk seg.bRoot "classifier: stage IN-C's segment carries no B_in root"
+            let r ← V.slots H seg.core (V.frame H bRoot t)
+            if ¬(r.2.1.fs ++ r.2.1.hostFs).length = V.lay.nFunctionals then do
+                throw "token I/O stage IN-C: functional count differs from the declared schedule"
+                let t5 ←
+                  withPre "stage IN-C M: "
+                      (V.maskVerify H seg.core.maskRoot (r.2.1.fs ++ r.2.1.hostFs) seg.core.maskOpen r.2.2)
+                V.checkOpening H Cm.a r.2.1.claims.a t5
+                let t6 ← withPre "stage IN-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.1.claims.a seg.core.aOpen t5)
+                V.checkOpening H Cm.h (r.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                let t7 ←
+                  withPre "stage IN-C H (the LogUp sum claim is part of this opening): "
+                      (V.pcsVerify H Cm.h seg.core.hRoot (r.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen t6)
+                checkTokenEp H r.2.1.claims.inp V.geo.epDataRows V.pub.epN t7
+                let t8 ←
+                  withPre "input token endpoint: "
+                      (V.epVerify H epRoot r.2.1.claims.inp (seg.closes.headD IncV.ozk0) t7)
+                pure ((r.2.1.claims.out, bRoot), t8)
+              else do
+                let t5 ←
+                  withPre "stage IN-C M: "
+                      (V.maskVerify H seg.core.maskRoot (r.2.1.fs ++ r.2.1.hostFs) seg.core.maskOpen r.2.2)
+                V.checkOpening H Cm.a r.2.1.claims.a t5
+                let t6 ← withPre "stage IN-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.1.claims.a seg.core.aOpen t5)
+                V.checkOpening H Cm.h (r.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                let t7 ←
+                  withPre "stage IN-C H (the LogUp sum claim is part of this opening): "
+                      (V.pcsVerify H Cm.h seg.core.hRoot (r.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen t6)
+                checkTokenEp H r.2.1.claims.inp V.geo.epDataRows V.pub.epN t7
+                let t8 ←
+                  withPre "input token endpoint: "
+                      (V.epVerify H epRoot r.2.1.claims.inp (seg.closes.headD IncV.ozk0) t7)
+                pure ((r.2.1.claims.out, bRoot), t8))
+          h)
+      (fun h =>
+        (fun x => do
+            throw "classifier: stage IN-C's segment parts are not the run schedule's"
+            pathsDepth "stage IN-C A" V.blk.path 0 seg.core.aOpen.columns
+            pathsDepth "stage IN-C H" V.blk.path 0 seg.core.hOpen.columns
+            pathsDepth "M" Block.W16R2.maskPath 0 seg.core.maskOpen.columns
+            pathsDepth "input token endpoint" V.ed.path 0 (seg.closes.headD IncV.ozk0).columns
+            let bRoot ← optOk seg.bRoot "classifier: stage IN-C's segment carries no B_in root"
+            let r ← V.slots H seg.core (V.frame H bRoot t)
+            if ¬(r.2.1.fs ++ r.2.1.hostFs).length = V.lay.nFunctionals then do
+                throw "token I/O stage IN-C: functional count differs from the declared schedule"
+                let t5 ←
+                  withPre "stage IN-C M: "
+                      (V.maskVerify H seg.core.maskRoot (r.2.1.fs ++ r.2.1.hostFs) seg.core.maskOpen r.2.2)
+                V.checkOpening H Cm.a r.2.1.claims.a t5
+                let t6 ← withPre "stage IN-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.1.claims.a seg.core.aOpen t5)
+                V.checkOpening H Cm.h (r.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                let t7 ←
+                  withPre "stage IN-C H (the LogUp sum claim is part of this opening): "
+                      (V.pcsVerify H Cm.h seg.core.hRoot (r.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen t6)
+                checkTokenEp H r.2.1.claims.inp V.geo.epDataRows V.pub.epN t7
+                let t8 ←
+                  withPre "input token endpoint: "
+                      (V.epVerify H epRoot r.2.1.claims.inp (seg.closes.headD IncV.ozk0) t7)
+                pure ((r.2.1.claims.out, bRoot), t8)
+              else do
+                let t5 ←
+                  withPre "stage IN-C M: "
+                      (V.maskVerify H seg.core.maskRoot (r.2.1.fs ++ r.2.1.hostFs) seg.core.maskOpen r.2.2)
+                V.checkOpening H Cm.a r.2.1.claims.a t5
+                let t6 ← withPre "stage IN-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.1.claims.a seg.core.aOpen t5)
+                V.checkOpening H Cm.h (r.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                let t7 ←
+                  withPre "stage IN-C H (the LogUp sum claim is part of this opening): "
+                      (V.pcsVerify H Cm.h seg.core.hRoot (r.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen t6)
+                checkTokenEp H r.2.1.claims.inp V.geo.epDataRows V.pub.epN t7
+                let t8 ←
+                  withPre "input token endpoint: "
+                      (V.epVerify H epRoot r.2.1.claims.inp (seg.closes.headD IncV.ozk0) t7)
+                pure ((r.2.1.claims.out, bRoot), t8))
+          h)
+      instDecidableNot
+at case `Eq.refl`
+error: ZK60Formal/StageVerifyExec.lean:429:10: Insufficient number of fields for `⟨...⟩` constructor: Constructor `Eq.refl` does not have explicit fields, but 31 were provided
+warning: ZK60Formal/StageVerifyExec.lean:421:13: This simp argument is unused:
+  ex_bind_ok_iff
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [guard_ok_iff, optOk_eq_ok, withPre_ok, ne_eq, not_not]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExec.lean:421:29: This simp argument is unused:
+  guard_ok_iff
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [ex_bind_ok_iff, optOk_eq_ok, withPre_ok, ne_eq, not_not]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExec.lean:421:43: This simp argument is unused:
+  optOk_eq_ok
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [ex_bind_ok_iff, guard_ok_iff, withPre_ok, ne_eq, not_not]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExec.lean:421:56: This simp argument is unused:
+  withPre_ok
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [ex_bind_ok_iff, guard_ok_iff, optOk_eq_ok, ne_eq, not_not]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExec.lean:421:75: This simp argument is unused:
+  not_not
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [ex_bind_ok_iff, guard_ok_iff, optOk_eq_ok, withPre_ok, ne_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/StageVerifyExec.lean:457:11: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  Except.ok t' =
+    Decidable.rec
+      (fun h =>
+        (fun x => do
+            pathsDepth "stage OUT-C A" V.blk.path 0 seg.core.aOpen.columns
+            pathsDepth "stage OUT-C H" V.blk.path 0 seg.core.hOpen.columns
+            pathsDepth "M" Block.W16R2.maskPath 0 seg.core.maskOpen.columns
+            pathsDepth "B_out" V.bd.path 0 (seg.closes.headD IncV.ozk0).columns
+            let r ← StageFS.stageSlots H V.bp 2 OutcV.bga seg.core (V.frame H t)
+            if ¬(r.2.2.1.fs ++ r.2.2.1.hostFs).length = V.lay.nFunctionals then do
+                throw "token I/O stage OUT-C: functional count differs from the declared schedule"
+                let t5 ←
+                  withPre "stage OUT-C M: "
+                      (V.maskVerify H seg.core.maskRoot (r.2.2.1.fs ++ r.2.2.1.hostFs) seg.core.maskOpen r.2.2.2)
+                if ¬r.2.2.1.claims.out = [] then do
+                    throw "classifier stage OUT-C: a claim on an output endpoint (there is none)"
+                    V.checkOpening H Cm.a r.2.2.1.claims.a t5
+                    let t6 ←
+                      withPre "stage OUT-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.2.1.claims.a seg.core.aOpen t5)
+                    V.checkOpening H Cm.h (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                    let t7 ←
+                      withPre "stage OUT-C H (the LogUp sum claim is part of this opening): "
+                          (V.pcsVerify H Cm.h seg.core.hRoot (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen
+                            t6)
+                    V.bCheck H (pending ++ r.2.2.1.claims.inp) t7
+                    withPre "B_out: "
+                        (V.bVerify H bRoot (pending ++ r.2.2.1.claims.inp) (seg.closes.headD IncV.ozk0) t7)
+                  else do
+                    V.checkOpening H Cm.a r.2.2.1.claims.a t5
+                    let t6 ←
+                      withPre "stage OUT-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.2.1.claims.a seg.core.aOpen t5)
+                    V.checkOpening H Cm.h (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                    let t7 ←
+                      withPre "stage OUT-C H (the LogUp sum claim is part of this opening): "
+                          (V.pcsVerify H Cm.h seg.core.hRoot (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen
+                            t6)
+                    V.bCheck H (pending ++ r.2.2.1.claims.inp) t7
+                    withPre "B_out: "
+                        (V.bVerify H bRoot (pending ++ r.2.2.1.claims.inp) (seg.closes.headD IncV.ozk0) t7)
+              else do
+                let t5 ←
+                  withPre "stage OUT-C M: "
+                      (V.maskVerify H seg.core.maskRoot (r.2.2.1.fs ++ r.2.2.1.hostFs) seg.core.maskOpen r.2.2.2)
+                if ¬r.2.2.1.claims.out = [] then do
+                    throw "classifier stage OUT-C: a claim on an output endpoint (there is none)"
+                    V.checkOpening H Cm.a r.2.2.1.claims.a t5
+                    let t6 ←
+                      withPre "stage OUT-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.2.1.claims.a seg.core.aOpen t5)
+                    V.checkOpening H Cm.h (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                    let t7 ←
+                      withPre "stage OUT-C H (the LogUp sum claim is part of this opening): "
+                          (V.pcsVerify H Cm.h seg.core.hRoot (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen
+                            t6)
+                    V.bCheck H (pending ++ r.2.2.1.claims.inp) t7
+                    withPre "B_out: "
+                        (V.bVerify H bRoot (pending ++ r.2.2.1.claims.inp) (seg.closes.headD IncV.ozk0) t7)
+                  else do
+                    V.checkOpening H Cm.a r.2.2.1.claims.a t5
+                    let t6 ←
+                      withPre "stage OUT-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.2.1.claims.a seg.core.aOpen t5)
+                    V.checkOpening H Cm.h (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                    let t7 ←
+                      withPre "stage OUT-C H (the LogUp sum claim is part of this opening): "
+                          (V.pcsVerify H Cm.h seg.core.hRoot (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen
+                            t6)
+                    V.bCheck H (pending ++ r.2.2.1.claims.inp) t7
+                    withPre "B_out: "
+                        (V.bVerify H bRoot (pending ++ r.2.2.1.claims.inp) (seg.closes.headD IncV.ozk0) t7))
+          h)
+      (fun h =>
+        (fun x => do
+            throw "classifier: stage OUT-C's segment parts are not the run schedule's"
+            pathsDepth "stage OUT-C A" V.blk.path 0 seg.core.aOpen.columns
+            pathsDepth "stage OUT-C H" V.blk.path 0 seg.core.hOpen.columns
+            pathsDepth "M" Block.W16R2.maskPath 0 seg.core.maskOpen.columns
+            pathsDepth "B_out" V.bd.path 0 (seg.closes.headD IncV.ozk0).columns
+            let r ← StageFS.stageSlots H V.bp 2 OutcV.bga seg.core (V.frame H t)
+            if ¬(r.2.2.1.fs ++ r.2.2.1.hostFs).length = V.lay.nFunctionals then do
+                throw "token I/O stage OUT-C: functional count differs from the declared schedule"
+                let t5 ←
+                  withPre "stage OUT-C M: "
+                      (V.maskVerify H seg.core.maskRoot (r.2.2.1.fs ++ r.2.2.1.hostFs) seg.core.maskOpen r.2.2.2)
+                if ¬r.2.2.1.claims.out = [] then do
+                    throw "classifier stage OUT-C: a claim on an output endpoint (there is none)"
+                    V.checkOpening H Cm.a r.2.2.1.claims.a t5
+                    let t6 ←
+                      withPre "stage OUT-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.2.1.claims.a seg.core.aOpen t5)
+                    V.checkOpening H Cm.h (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                    let t7 ←
+                      withPre "stage OUT-C H (the LogUp sum claim is part of this opening): "
+                          (V.pcsVerify H Cm.h seg.core.hRoot (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen
+                            t6)
+                    V.bCheck H (pending ++ r.2.2.1.claims.inp) t7
+                    withPre "B_out: "
+                        (V.bVerify H bRoot (pending ++ r.2.2.1.claims.inp) (seg.closes.headD IncV.ozk0) t7)
+                  else do
+                    V.checkOpening H Cm.a r.2.2.1.claims.a t5
+                    let t6 ←
+                      withPre "stage OUT-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.2.1.claims.a seg.core.aOpen t5)
+                    V.checkOpening H Cm.h (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                    let t7 ←
+                      withPre "stage OUT-C H (the LogUp sum claim is part of this opening): "
+                          (V.pcsVerify H Cm.h seg.core.hRoot (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen
+                            t6)
+                    V.bCheck H (pending ++ r.2.2.1.claims.inp) t7
+                    withPre "B_out: "
+                        (V.bVerify H bRoot (pending ++ r.2.2.1.claims.inp) (seg.closes.headD IncV.ozk0) t7)
+              else do
+                let t5 ←
+                  withPre "stage OUT-C M: "
+                      (V.maskVerify H seg.core.maskRoot (r.2.2.1.fs ++ r.2.2.1.hostFs) seg.core.maskOpen r.2.2.2)
+                if ¬r.2.2.1.claims.out = [] then do
+                    throw "classifier stage OUT-C: a claim on an output endpoint (there is none)"
+                    V.checkOpening H Cm.a r.2.2.1.claims.a t5
+                    let t6 ←
+                      withPre "stage OUT-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.2.1.claims.a seg.core.aOpen t5)
+                    V.checkOpening H Cm.h (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                    let t7 ←
+                      withPre "stage OUT-C H (the LogUp sum claim is part of this opening): "
+                          (V.pcsVerify H Cm.h seg.core.hRoot (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen
+                            t6)
+                    V.bCheck H (pending ++ r.2.2.1.claims.inp) t7
+                    withPre "B_out: "
+                        (V.bVerify H bRoot (pending ++ r.2.2.1.claims.inp) (seg.closes.headD IncV.ozk0) t7)
+                  else do
+                    V.checkOpening H Cm.a r.2.2.1.claims.a t5
+                    let t6 ←
+                      withPre "stage OUT-C A: " (V.pcsVerify H Cm.a seg.core.aRoot r.2.2.1.claims.a seg.core.aOpen t5)
+                    V.checkOpening H Cm.h (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) t6
+                    let t7 ←
+                      withPre "stage OUT-C H (the LogUp sum claim is part of this opening): "
+                          (V.pcsVerify H Cm.h seg.core.hRoot (r.2.2.1.claims.h ++ [V.lay.logupSumClaim]) seg.core.hOpen
+                            t6)
+                    V.bCheck H (pending ++ r.2.2.1.claims.inp) t7
+                    withPre "B_out: "
+                        (V.bVerify H bRoot (pending ++ r.2.2.1.claims.inp) (seg.closes.headD IncV.ozk0) t7))
+          h)
+      instDecidableOr
+at case `Eq.refl`
+error: ZK60Formal/StageVerifyExec.lean:461:10: Insufficient number of fields for `⟨...⟩` constructor: Constructor `Eq.refl` does not have explicit fields, but 29 were provided
+warning: ZK60Formal/StageVerifyExec.lean:455:13: This simp argument is unused:
+  ex_bind_ok_iff
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [guard_ok_iff, withPre_ok, ne_eq, not_not, not_or, Option.not_isSome_iff_eq_none]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExec.lean:455:29: This simp argument is unused:
+  guard_ok_iff
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [ex_bind_ok_iff, withPre_ok, ne_eq, not_not, not_or, Option.not_isSome_iff_eq_none]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExec.lean:455:43: This simp argument is unused:
+  withPre_ok
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [ex_bind_ok_iff, guard_ok_iff, ne_eq, not_not, not_or, Option.not_isSome_iff_eq_none]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExec.lean:455:62: This simp argument is unused:
+  not_not
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [ex_bind_ok_iff, guard_ok_iff, withPre_ok, ne_eq, not_or, Option.not_isSome_iff_eq_none]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExec.lean:455:71: This simp argument is unused:
+  not_or
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [ex_bind_ok_iff, guard_ok_iff, withPre_ok, ne_eq, not_not, Option.not_isSome_iff_eq_none]
+build rc 1
+rc build 1 files 0, 22 s

@@ -1,0 +1,462 @@
+== lake build ZK60Formal.StageVerifyExecComplete ZK60Formal.HonestOracleProg ZK60Formal.StageVerifyExecAssemble ==
+✖ [3489/3489] Building ZK60Formal.HonestOracleProg (9.5s)
+warning: ZK60Formal/HonestOracleProg.lean:63:22: Variable name `t` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _t
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:64:19: Variable name `t` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _t
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:134:11: Variable name `k` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _k
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:134:24: Variable name `dg` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _dg
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:134:54: Variable name `rs` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _rs
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/HonestOracleProg.lean:137:22: Type mismatch: After simplification, term
+  hk []
+ has type
+  @SqLE β m (k [])
+but is expected to have type
+  @SqLE β m (drawsP 0 k)
+warning: ZK60Formal/HonestOracleProg.lean:152:17: Variable name `t` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _t
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:157:11: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:157:14: Variable name `k` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _k
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:157:27: Variable name `dg` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _dg
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:157:56: Variable name `rs` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _rs
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/HonestOracleProg.lean:161:25: Type mismatch: After simplification, term
+  hk []
+ has type
+  @SqLE β m (k [])
+but is expected to have type
+  @SqLE β m (scP 0 x✝ k)
+error: ZK60Formal/HonestOracleProg.lean:223:22: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  { key := s.key, msg := startMsg s.domain }.msg
+in the target expression
+  (startMsg s.domain).length = 47
+
+Lq : ℕ
+hLq : 47 ≤ Lq
+β : Type
+G : QB Lq → Dig
+s : StartProg β
+hdom : s.domain.length ≠ 35
+hs : TProg.Sep s.key s.p
+hn : ∀ (dg : Dig), s.p.NoWrap { state := dg, counter := 0, key := s.key }
+hmem :
+  (OC.run G
+        (TProg.oc Lq hLq s.p
+          { state := liftH G { key := s.key, msg := startMsg s.domain }, counter := 0, key := s.key })).1 ∈
+    OC.queries G (StartProg.oc Lq hLq s)
+hrun :
+  OC.run G (StartProg.oc Lq hLq s) =
+    OC.run G
+      (TProg.oc Lq hLq s.p { state := liftH G { key := s.key, msg := startMsg s.domain }, counter := 0, key := s.key })
+left✝ :
+  (OC.run G
+          (TProg.oc Lq hLq s.p
+            { state := liftH G { key := s.key, msg := startMsg s.domain }, counter := 0, key := s.key })).1.1 =
+    { key := s.key, msg := startMsg s.domain }.key
+e2 :
+  ↑(TProg.sqPoint Lq hLq
+              (TProg.final (liftH G) s.p
+                  { state := liftH G { key := s.key, msg := startMsg s.domain }, counter := 0, key := s.key }).1,
+            (TProg.final (liftH G) s.p
+                { state := liftH G { key := s.key, msg := startMsg s.domain }, counter := 0, key := s.key }).2).1.2 =
+    { key := s.key, msg := startMsg s.domain }.msg
+h47 : (startMsg s.domain).length ≠ 47
+⊢ (startMsg s.domain).length = 47
+warning: ZK60Formal/HonestOracleProg.lean:290:0: automatically included section variable(s) unused in theorem `ZK60.HonestOracle.slotCSite_fires`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/HonestOracleProg.lean:306:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  Site.fires ?U (tprogSite ?Lq ?hLq ?p ?t ?bad ?k ?hk ?hs ?hn) ?G ?c
+in the target expression
+  Site.fires U (tprogSite Lq hLq (fun c => drawProg j (pre c)) t0 (fun x => {0}) 1 ⋯ ⋯ hn) G c ↔
+    ((Tr.challengeFp2Vec (liftH G) (TProg.final (liftH G) (pre c) (t0 c)).1 (P.draws s)).1.getD j Fp2.zero).isZero =
+      true
+
+Lq : ℕ
+hLq : 47 ≤ Lq
+α : Type
+P : BlockParams
+s : ℕ
+Coins : Type
+inst✝⁴ : Fintype Coins
+inst✝³ : Nonempty Coins
+K : Type
+inst✝² : Field K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+j : ℕ
+hj : j < P.draws s
+pre : Coins → TProg α
+t0 : Coins → Tr
+hs : ∀ (c : Coins), TProg.Sep (t0 c).key (pre c)
+hn : ∀ (c : Coins), (drawProg j (pre c)).NoWrap (t0 c)
+G : QB Lq → Dig
+c : Coins
+⊢ Site.fires U (tprogSite Lq hLq (fun c => drawProg j (pre c)) t0 (fun x => {0}) 1 ⋯ ⋯ hn) G c ↔
+    ((Tr.challengeFp2Vec (liftH G) (TProg.final (liftH G) (pre c) (t0 c)).1 (P.draws s)).1.getD j Fp2.zero).isZero =
+      true
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    drawZeroSite._proof_1 j pre t0 hs
+  has type
+    ∀ (c : Coins), @TProg.Sep (α × List Fp2) (t0 c).key (bindP (pre c) fun a => drawsP j fun dr => TProg.done (a, dr))
+  but is expected to have type
+    ∀ (c : Coins), @TProg.Sep (α × List Fp2) (t0 c).key (drawProg j (pre c))
+  in the application
+    tprogSite Lq hLq (fun c => drawProg j (pre c)) t0 (fun x => {0}) 1 ⋯ ⋯
+warning: ZK60Formal/HonestOracleProg.lean:337:11: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestOracleProg.lean:337:27: Variable name `dg` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _dg
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/HonestOracleProg.lean:347:24: Unknown identifier `labPbScalar`
+error: ZK60Formal/HonestOracleProg.lean:361:31: Unknown identifier `labPbScalar`
+error: ZK60Formal/HonestOracleProg.lean:357:52: unsolved goals
+H : HIn → Dig
+P : BlockParams
+s : ℕ
+D : SlotData P
+m : ℕ
+pre : TProg (Block.Hist × Block.Acc)
+t : Tr
+df : Block.SlotDef
+hdf : P.define s (TProg.final H pre t).2.1 (Tr.challengeFp2Vec H (TProg.final H pre t).1 (P.draws s)).1 = Except.ok df
+⊢ (TProg.final H
+        (TProg.squeeze fun dgc =>
+          match
+            P.define s
+              (slotT2 H P s (TProg.final H pre t).1, (TProg.final H pre t).2,
+                      (Tr.challengeFp2Vec H (TProg.final H pre t).1 (P.draws s)).1).2.1.1
+              (slotT2 H P s (TProg.final H pre t).1, (TProg.final H pre t).2,
+                    (Tr.challengeFp2Vec H (TProg.final H pre t).1 (P.draws s)).1).2.2 with
+          | Except.ok df =>
+            TProg.absorb sorry
+              (List.flatMap Fp2.toBytes
+                [D.scalar s
+                    (slotT2 H P s (TProg.final H pre t).1, (TProg.final H pre t).2,
+                            (Tr.challengeFp2Vec H (TProg.final H pre t).1 (P.draws s)).1).2.1.1
+                    (slotT2 H P s (TProg.final H pre t).1, (TProg.final H pre t).2,
+                            (Tr.challengeFp2Vec H (TProg.final H pre t).1 (P.draws s)).1).2.1.2
+                    df (challengeFp2Of dgc)])
+              (scUpToP (slotN P s)
+                (D.strat s
+                  (slotT2 H P s (TProg.final H pre t).1, (TProg.final H pre t).2,
+                          (Tr.challengeFp2Vec H (TProg.final H pre t).1 (P.draws s)).1).2.1.1
+                  (slotT2 H P s (TProg.final H pre t).1, (TProg.final H pre t).2,
+                          (Tr.challengeFp2Vec H (TProg.final H pre t).1 (P.draws s)).1).2.1.2
+                  df (challengeFp2Of dgc))
+                m)
+          | Except.error a => TProg.done ())
+        (slotT2 H P s (TProg.final H pre t).1, (TProg.final H pre t).2,
+            (Tr.challengeFp2Vec H (TProg.final H pre t).1 (P.draws s)).1).1).1 =
+    (TProg.final H
+        (scUpToP (slotN P s)
+          (D.strat s (TProg.final H pre t).2.1 (TProg.final H pre t).2.2 df (slotC H P s (TProg.final H pre t).1)) m)
+        (slotT4 H P s (TProg.final H pre t).1
+          (D.scalar s (TProg.final H pre t).2.1 (TProg.final H pre t).2.2 df (slotC H P s (TProg.final H pre t).1)))).1
+error: ZK60Formal/HonestOracleProg.lean:362:95: unexpected token '='; expected command
+error: ZK60Formal/HonestOracleProg.lean:370:29: Unknown identifier `labPbScalar`
+error: ZK60Formal/HonestOracleProg.lean:404:6: Tactic `rewrite` failed: motive is not type correct:
+  fun _a =>
+    Fp2.toK U
+          (challengeFp2Of
+            (liftH G
+              {
+                key :=
+                  (TProg.final (liftH G)
+                        (scUpToP (slotN P s)
+                          (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                            (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                            (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                          m)
+                        (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                          (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                            (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                            (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.key,
+                msg :=
+                  squeezeMsg
+                    (TProg.final (liftH G)
+                          (scUpToP (slotN P s)
+                            (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                              (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                              (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                            m)
+                          (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                            (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                              (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                              (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.state
+                    (TProg.final (liftH G)
+                          (scUpToP (slotN P s)
+                            (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                              (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                              (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                            m)
+                          (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                            (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                              (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                              (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.counter })) ∈
+        {0, 1} ↔
+      (_a.isZero || decide (_a = Fp2.one)) = true
+Error: Application type mismatch: The argument
+  instDecidableEqFp2
+    ((slotRho (liftH G) P D s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+          (TProg.final (liftH G) (pre c) (t0 c)).1 df).getD
+      m Fp2.zero)
+    Fp2.one
+has type
+  Decidable
+    ((slotRho (liftH G) P D s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+            (TProg.final (liftH G) (pre c) (t0 c)).1 df).getD
+        m Fp2.zero =
+      Fp2.one)
+but is expected to have type
+  Decidable (_a = Fp2.one)
+in the application
+  @decide (_a = Fp2.one)
+    (instDecidableEqFp2
+      ((slotRho (liftH G) P D s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+            (TProg.final (liftH G) (pre c) (t0 c)).1 df).getD
+        m Fp2.zero)
+      Fp2.one)
+
+Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.
+
+Possible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).
+
+Lq : ℕ
+hLq : 47 ≤ Lq
+P : BlockParams
+s : ℕ
+D : SlotData P
+Coins : Type
+inst✝⁴ : Fintype Coins
+inst✝³ : Nonempty Coins
+K : Type
+inst✝² : Field K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+m : ℕ
+hm : m < slotN P s
+pre : Coins → TProg (Block.Hist × Block.Acc)
+t0 : Coins → Tr
+hs : ∀ (c : Coins), TProg.Sep (t0 c).key (pre c)
+hn : ∀ (c : Coins), (slotEProg P s D m (pre c)).NoWrap (t0 c)
+G : QB Lq → Dig
+c : Coins
+df : Block.SlotDef
+hdf :
+  P.define s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+      (Tr.challengeFp2Vec (liftH G) (TProg.final (liftH G) (pre c) (t0 c)).1 (P.draws s)).1 =
+    Except.ok df
+⊢ Fp2.toK U
+        (challengeFp2Of
+          (liftH G
+            {
+              key :=
+                (TProg.final (liftH G)
+                      (scUpToP (slotN P s)
+                        (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+                          df (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                        m)
+                      (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                        (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                          (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                          (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.key,
+              msg :=
+                squeezeMsg
+                  (TProg.final (liftH G)
+                        (scUpToP (slotN P s)
+                          (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                            (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                            (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                          m)
+                        (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                          (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                            (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                            (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.state
+                  (TProg.final (liftH G)
+                        (scUpToP (slotN P s)
+                          (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                            (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                            (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                          m)
+                        (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                          (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                            (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                            (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.counter })) ∈
+      {0, 1} ↔
+    (((scChal (liftH G)
+                  (scProve (liftH G) (slotN P s)
+                      (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+                        df (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                      (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                        (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                          (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                          (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1
+                  (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                    (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                      (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.getD
+            m Fp2.zero).isZero ||
+        decide
+          ((scChal (liftH G)
+                    (scProve (liftH G) (slotN P s)
+                        (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+                          df (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                        (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                          (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1
+                            (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                            (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1
+                    (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                      (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+                        df (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.getD
+              m Fp2.zero =
+            Fp2.one)) =
+      true
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    instDecidableEqFp2
+      ((slotRho (liftH G) P D s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+            (TProg.final (liftH G) (pre c) (t0 c)).1 df).getD
+        m Fp2.zero)
+      Fp2.one
+  has type
+    Decidable
+      ((slotRho (liftH G) P D s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+              (TProg.final (liftH G) (pre c) (t0 c)).1 df).getD
+          m Fp2.zero =
+        Fp2.one)
+  but is expected to have type
+    Decidable
+      ((scChal (liftH G)
+                (scProve (liftH G) (slotN P s)
+                    (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                      (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                    (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                      (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+                        df (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1
+                (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                  (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                    (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.getD
+          m Fp2.zero =
+        Fp2.one)
+  in the application
+    @decide
+      ((scChal (liftH G)
+                (scProve (liftH G) (slotN P s)
+                    (D.strat s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                      (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1))
+                    (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                      (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+                        df (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1
+                (slotT4 (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1
+                  (D.scalar s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2 df
+                    (slotC (liftH G) P s (TProg.final (liftH G) (pre c) (t0 c)).1)))).1.getD
+          m Fp2.zero =
+        Fp2.one)
+      (instDecidableEqFp2
+        ((slotRho (liftH G) P D s (TProg.final (liftH G) (pre c) (t0 c)).2.1 (TProg.final (liftH G) (pre c) (t0 c)).2.2
+              (TProg.final (liftH G) (pre c) (t0 c)).1 df).getD
+          m Fp2.zero)
+        Fp2.one)
+error: ZK60Formal/HonestOracleProg.lean:415:44: Unknown identifier `kI`
+error: ZK60Formal/HonestOracleProg.lean:435:2: `dsimp` made no progress
+error: ZK60Formal/HonestOracleProg.lean:469:55: Type mismatch
+  Fp2.canon_add ?m.58 ?m.59
+has type
+  (Fp2.add ?m.58 ?m.59).Canon
+but is expected to have type
+  (u8Entry gamma z).Canon
+error: ZK60Formal/HonestOracleProg.lean:473:74: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOracleProg.lean:464:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOracleProg.lean:500:4: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOracleProg.lean:505:2: (deterministic) timeout at `«tactic execution»`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.HonestOracleProg
+error: build failed
+build rc 1
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecCheck.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecCheck.lean:114:90: error: unexpected identifier; expected '}'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecCheck.lean:195:14: error: 'let rec' expressions must be named
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecCheck.lean:266:14: error: 'let rec' expressions must be named
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecCheck.lean
+rc build 1 files 1, 18 s
