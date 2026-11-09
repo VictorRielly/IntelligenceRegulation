@@ -5,7 +5,7 @@
 # determinism control); then each verifier checks the other binaries' receipts (verify + input-owner + label).
 # Every server with HL_METAL_QUEUES=thread (the app's pin).
 #   part a (three lanes of ten threads, one category a lane): A, B (the candidate as built), B0 (the candidate
-#     with EVERY A28 switch off: HL_A28_PRUNE, HL_A28_HASH, HL_A28_WQ, HL_A28_SEAL_AHEAD, no stagger, no QoS), A.
+#     with EVERY A28 switch off: HL_A28_PRUNE, HL_A28_HASH, HL_A28_SEAL_AHEAD, no stagger), A.
 #   part b (ONE lane of thirty threads, so the three categories share a lane): A, Bs (the candidate with
 #     HL_A28_SEAL_AHEAD=1 and a 300 ms stagger: the second category's sealing pass runs beside the first one's
 #     run, the third waits its turn), Bn (the candidate with HL_A28_SEAL_AHEAD=0), A.
@@ -21,8 +21,8 @@ say "start; A = $A ($(shasum -a 256 $A | cut -c1-16)); B = $B ($(shasum -a 256 $
 if pgrep ds4-bench >/dev/null; then say "ds4-bench running (bytes only; no clock is read here)"; fi
 $PY $R/byteid.py --tag ${TAG}a --posts $A24P/one.json --bin A=$A --bin B=$B --bin B0=$B \
   --env A:HL_METAL_QUEUES=thread --env B:HL_METAL_QUEUES=thread --env B0:HL_METAL_QUEUES=thread \
-  --env B0:HL_A28_PRUNE=0 --env B0:HL_A28_HASH=0 --env B0:HL_A28_WQ=0 --env B0:HL_A28_SEAL_AHEAD=0 \
-  --env B0:HL_A28_STAGGER_MS=0 --env B0:HL_A28_QOS=0 \
+  --env B0:HL_A28_PRUNE=0 --env B0:HL_A28_HASH=0 --env B0:HL_A28_SEAL_AHEAD=0 \
+  --env B0:HL_A28_STAGGER_MS=0 \
   --order A,B,B0,A > $R/byteid_${TAG}a.out 2>&1
 say "part a (3 x 10: A, B, B0 every switch off, A) rc=$? $(tail -1 $R/byteid_${TAG}a.out | cut -c1-900)"
 $PY $R/byteid.py --tag ${TAG}b --posts $A24P/one.json --bin A=$A --bin Bs=$B --bin Bn=$B --lanes 1 --lane-threads 30 \

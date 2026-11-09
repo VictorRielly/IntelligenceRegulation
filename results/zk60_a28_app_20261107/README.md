@@ -20,6 +20,16 @@ counted was freshly verified (the verifier server, its own process). Public text
 through the resource guard at its default floors, with no `ds4-bench` running (`*.quiet` files,
 `pgrep ds4-bench`).
 
+## 0. Plain summary
+
+PENDING (written when the final A/B pairs are in). So far:
+
+- The commitment kernels: one proof's GPU time 5.04 -> 4.84 s (-3.9%), the commitments -9% (section 2).
+- Seal-ahead works on one lane (three proofs 6.8 s sooner) but gives +1.3% on the six-lane stream for 60 GiB
+  more memory: it is off by default (section 3.1).
+- More threads a lane, more lanes and two server processes all give the same stream: about one category proof
+  every 6.3 s, whatever the setting (sections 3.2, 3.4).
+
 ## 1. The profile first (A27 as pinned, the 8-post stream at the app's setting)
 
 [MEASURED, `p0.plan`, `profile_p0s8.txt` (the GPU trace, `trace_report.py`), `profile_p0s8_lane0.txt` /
@@ -28,24 +38,16 @@ through the resource guard at its default floors, with no `ds4-bench` running (`
 - **The GPU.** Over the trace's window (173 s, 24 proofs) at least one command buffer executes 65.8% of the
   time: 113.9 s, 4.75 s per proof, the same as one proof alone (5.01 s, A27's `profile_p3solo.txt`). So the
   device serves the lanes' command buffers by sharing its time: 2.4 execute at once on average while it is
-  busy, each takes 2.4x as long as alone, and the work done is the sum of the solo work. The other 34% of the
-  window (59 s) no command buffer executes. Command buffers also wait 106.7 s between commit and start (4.4 s
+  busy, each takes 2.4x as long as alone, and the work done is the sum of the solo work. For 29% of the window
+  no command buffer is even committed and waiting. Command buffers wait 106.7 s between commit and start (4.4 s
   per proof), 23.6 s of it the witness products, which all went through ONE shared queue.
 - **A prover lane's own thread** (the thread that runs a request, 6 lanes x 5 threads): **32% of its time
   waiting for its command buffers, 23% in serial host work (its four other threads idle), 46% in parallel
-  host sections.** Per 38 s request: 12 s waiting for the GPU (2.4x the 5 s the device needs for it), 8.6 s
-  serial, 17.4 s parallel. The serial part is a long tail: `__bzero` of the A and H rows 5.2%, the
+  host sections.** Per 38 s request: 12 s waiting for the GPU (2.4x the 5 s the device needs for it), 8.7 s
+  serial, 17.7 s parallel. The serial part is a long tail: `__bzero` of the A and H rows 5.2%, the
   classifier tables' BLAKE3 digests 4.3% (three per request), the segments' SHA-256 1.6%, page unmapping 1.3%.
   The parallel part: the openings' host folds 6.6%, each block's CS-6 digest 4.2% and CS-1 / CS-4 word checks
   3.8% (the two that A26's `HL_A26_KEPT` would take from the startup; it stays off), the witness planes 2.9%.
-- **A model that fits** [INFERRED, `queue_model.py`]: N lanes that each alternate host work (Z seconds per
-  proof, no queueing) and the one device (S seconds per proof, time-shared) form a closed queueing network.
-  With Z = 11 s serial + 70 CPU-s parallel / threads and S = 5.0 s (fitted on two runs: one lane of 30 threads
-  18.4 s per proof, six lanes of five 38 s) it gives 25.5 s for three lanes of ten (measured 25.8-26.2 s) and,
-  at the app's 6 x 5, a 37.1 s lane cycle with the device 81% utilized and 12.1 s of GPU wait per proof
-  (measured 38 s and 12 s). **What it says:** the stream already runs at about 80% of the device's bound
-  (one proof per 5 s of GPU: 25.6 proved tok/s steady). Host-side and scheduling changes can win at most the
-  remaining 20%, with diminishing returns; every further gain needs less GPU work per proof.
 
 ## 2. What changed
 
@@ -63,22 +65,25 @@ per process). [CODE; tests in sections 4 and 5.]
    column merging them with BLAKE3's chaining-value stack. BLAKE3 is a function: the same leaves.
 3. **`HL_A28_WQ`** (default on; `gpu/metal.rs` `witness_queue`): under `HL_METAL_QUEUES=thread` each thread's
    witness products go to a queue of its own instead of the one shared witness queue.
-4. **`HL_A28_CALLOC`** (default on; `private_block/protocol.rs` `zeroed_rows`, two call sites): A's and H's
-   zero rows from the allocator's zeroed pages instead of a serial fill by the proving thread. `Fp` is
-   `repr(transparent)` over `u64` and its zero is the zero word.
-5. **`HL_A28_SEAL_AHEAD`** (`token_io/classify_serve.rs`, `classify_cli.rs` `SharedProve::run_gate`): a lane
-   takes a second request while its first one runs; the second request's sealing pass runs beside the first
-   one's run and its run waits at the lane's gate. The reader sends each request to the least loaded lane (an
-   idle lane first, never a third to a lane). Each request is still `prove_with_public` from its first step to
-   its last on one thread, with its own fresh draws; only when its run starts changes.
-6. **`HL_A28_STAGGER_MS`**, **`HL_A28_QOS`** (default off; `classify_serve.rs`): a minimum interval between
-   request starts, and the user-initiated quality of service for the lane threads. Diagnostics.
+4. **`HL_A28_SEAL_AHEAD`** (default OFF, `1` turns it on; `token_io/classify_serve.rs`, `classify_cli.rs`
+   `SharedProve::run_gate`): a lane takes a second request while its first one runs; the second request's
+   sealing pass runs beside the first one's run and its run waits at the lane's gate. The reader sends each
+   request to the least loaded lane (an idle lane first, never a third to a lane). Each request is still
+   `prove_with_public` from its first step to its last on one thread, with its own fresh draws; only when its
+   run starts changes. Off by default because of what it costs for what it gives (section 3.1).
+5. **`HL_A28_STAGGER_MS`** (default 0; `classify_serve.rs`): a minimum interval between request starts.
+
+**Tried and taken out again** (the first two candidates had them): `HL_A28_CALLOC` (A's and H's zero rows
+from the allocator's zeroed pages instead of a serial fill: `private_block/protocol.rs` is back at its base, no
+edit) changed nothing, alone (section 3.3) or in the stream; `HL_A28_QOS` (the user-initiated quality of
+service for the lane threads) changed nothing (section 3.1).
 
 **What did not change.** No receipt, statement, transcript, profile, verifier verdict or refusal message. Files
-outside `gpu/` and `token_io/classify_serve.rs`: `private_block/protocol.rs` (`zeroed_rows` and its two call
-sites, implementation only), `token_io/classify_cli.rs` (the run gate: one field of `SharedProve`, one lock
-taken before the run), `token_io/classify_batch.rs` (that field's `None`), `private_block/slot_ir_accuracy.rs`
-(one test). No new source file. `HL_A26_KEPT` / `HL_A26_VERIFY_ONCE` stay off.
+outside `gpu/` and `token_io/classify_serve.rs`: `token_io/classify_cli.rs` (the run gate: one field of
+`SharedProve`, one lock taken before the run), `token_io/classify_batch.rs` (that field's `None`),
+`token_io/classify_serve_tests.rs` and `private_block/slot_ir_accuracy.rs` (tests). No edit to `protocol.rs`,
+`argument*.rs`, `run_fork.rs`, `trained_block.rs`, the PCS or zkp-core; no new source file.
+`HL_A26_KEPT` / `HL_A26_VERIFY_ONCE` stay off.
 
 **The kernels one by one** [MEASURED, `nb3.log`; the zk commitment at the classifier's A shape, 4577 rows x
 2^14 -> 2^16, each kernel alone, GPU timestamps, best of 5, every variant's words compared with the tree's]:
@@ -95,7 +100,21 @@ taken before the run), `token_io/classify_batch.rs` (that field's `None`), `priv
   head runs at 84 G butterflies/s against 105 G/s for butterflies in registers with no memory at all, and
   rewritten adds, subs and products (`nbf1.log`: three forms, all equal word for word on 2^25 pairs) are no
   faster. Deeper passes (A27's suggestion) lose: they trade threadgroup round trips for register pressure.
-- So the commitment has about 4 ms of 42 left in these two changes, and no more in this design.
+  The tail and the hash move 4.8 and 2.4 GB in 9.6 and 4.2 ms: about 500 GB/s, the machine's memory rate.
+- So the commitment has about 4 ms of 42 in these two changes, and no more in this design.
+
+**In a real proof** [MEASURED, `p2.plan`, `profile_p2solo*.txt`: one post's three proofs one after another on
+one lane of 30 threads, the GPU trace on]:
+
+| GPU s per category proof | A27 (`p2soloA`, `p2soloA2`) | A28 kernels (`p2soloB`) | A28, every switch off (`p2soloB0`) |
+|---|---:|---:|---:|
+| **GPU busy** | **5.036 / 5.045** | **4.841 (-3.9%)** | 5.042 |
+| device sumcheck batches | 2.544 / 2.547 | 2.541 | 2.540 |
+| commitments | 2.169 / 2.169 | **1.975 (-9.0%)** | 2.172 |
+| &nbsp;&nbsp; A (4577 rows), per block | 42.41 ms | 38.63 ms | 42.49 ms |
+| &nbsp;&nbsp; H (4390 rows), per block | 40.47 ms | 36.82 ms | 40.50 ms |
+| witness products | 0.458 / 0.466 | 0.492 (their own queues) | 0.469 |
+| one proof's seconds (second and third of the post) | 18.40, 18.46 / 18.66, 18.31 | 18.02, 17.89 | 18.29, 18.29 |
 
 ## 3. Numbers
 
@@ -108,7 +127,8 @@ input-owner check and the label. Server startup is off the clock.
 
 A27 as pinned (`b5b6b9a4…`) against the first candidate (a28-q1, `a55adb13…`: seal-ahead with one shared
 request queue) and the second (a28-q2, `34b62314…`, commit `5794c756`: seal-ahead with the least-loaded lane
-dispatch), the 8-post public stream at the app's setting, order A B B A in one guarded job each, 2026-11-07:
+dispatch; both with seal-ahead ON by default), the 8-post public stream at the app's setting, order A B B A in
+one guarded job each, 2026-11-07:
 
 | run | binary | env (beside `HL_METAL_QUEUES=thread`) | wall | proved tok/s | second half | first post | prover CPU-s per proof | GPU utilization mean / median |
 |---|---|---|---:|---:|---:|---:|---:|---|
@@ -127,17 +147,72 @@ dispatch), the 8-post public stream at the app's setting, order A B B A in one g
 
 - **The first candidate lost** (16.69 against 16.91): its lanes took requests from one shared queue, so a lane's
   second thread took a post's second category while other lanes sat idle, and the first post waited 85 s.
-- **The second candidate at the app's 6 x 5: 17.02 -> 17.25 proved tok/s, +1.3%** (each a28-q2 run faster than
-  each A27 run; the single runs of this stream vary by about 2%). Seal-ahead moves 5.7 s of a request's host
-  work beside the previous run, but the lane's cycle shortens only from 39.0 to 37.6 s: the sealing pass also
-  uses the device (the witness products) and the lanes' cores, and the stream is already at 80% of the device's
-  bound (section 1). It costs 60 GiB (a guarded peak of 163 GiB against 103 GiB) and 11 CPU-s per proof.
-- Without seal-ahead the candidate measured 16.73 (one run): the kernel changes' 4% of GPU work is inside the
-  runs' spread.
+- **Seal-ahead at the app's 6 x 5: 17.02 -> 17.25 proved tok/s, +1.3%** (each a28-q2 run faster than each A27
+  run; the single runs of this stream vary by about 2%). It moves about 5.7 s of a request's host work beside
+  the previous run, but the lane's cycle shortens only from 39.0 to 37.6 s. It costs about 60 GiB (guarded
+  peaks of 156-163 GiB against 100-107 GiB) and 11 CPU-s per proof. **On one lane alone it does what it
+  should** (`p2soloBs`: the post's three proofs end 58.8 s after the post arrives instead of 65.6 s). So it is
+  kept, tested in both modes, and OFF by default.
+- Without seal-ahead the second candidate measured 16.73 (one run): the kernels' 3.9% of GPU work is inside
+  the runs' spread.
 - A7's spin-then-block wait (`HL_METAL_SPIN_US=200`) frees 23 CPU-s per proof at the same speed; the 300 ms
   stagger measured +2% once; the QoS class changed nothing.
 
-### 3.2 PENDING: lane threads, the final candidate, one post, proof only, through the app
+### 3.2 More threads a lane, more lanes [MEASURED, `x1.progress`, `stream_x1*`; a28-q2, single runs]
+
+| run | prover lanes x threads | seal-ahead | wall | proved tok/s | a lane's request | prover CPU-s per proof |
+|---|---|---|---:|---:|---:|---:|
+| (m3off) | 6 x 5 | off | 183.6 s | 16.73 | 39-41 s | 85.0 |
+| x1b | 6 x 8 | off | 178.6 s | 17.20 | 37-39 s | 96.9 |
+| x1d | 6 x 10 | off | 185.4 s | 16.57 | 39-41 s | 107.1 |
+| x1c | 8 x 6 | off | 184.6 s | 16.64 | 48-58 s | 101.2 |
+| x1a | 6 x 8 | on | 184.1 s | 16.69 | | 109.3 |
+
+- **A lane is not short of threads**: with 8 or 10 threads its request takes as long as with 5 and burns more
+  CPU (idle workers spinning). **Nor is the stream short of lanes**: 8 lanes finish 8 proofs in the time 6
+  lanes finish 6. A27 found the same at 8 x 4. Every setting gives about one category proof every 6.3 s. The
+  app keeps 6 x 5.
+
+### 3.3 One proof alone, and what a lane loses in company [MEASURED, `p2.progress`, `x3.progress`, `stream_p2solo*`, `stream_x3*`; a28-q2 without seal-ahead]
+
+| setting | one proof | note |
+|---|---:|---|
+| 1 lane x 30 threads, alone | 17.9-18.0 s | 4.84 s of it GPU |
+| the same with `HL_A28_CALLOC=0` | 17.85-17.98 s | the calloc'd rows change nothing |
+| 1 lane x 5 threads, alone | 19.5-19.7 s | five threads cost 1.6 s |
+| 3 lanes x 5, three at once | 27.7 s | |
+| 3 lanes x 10, three at once (A27's binary, its README) | 25.8-26.2 s | |
+| 6 lanes x 5, six at once (the stream) | 38 s | |
+| 8 lanes x 6, eight at once | 48-58 s | |
+
+- A proof that takes 19.6 s alone on five threads takes 38 s beside five others, on the same five threads.
+  The device's queue explains part of it: the lane's thread waits 12 s for its command buffers in the stream
+  against about 5.4 s alone. The rest is host work that takes about 26 s in the stream against 14 s alone.
+- PENDING: which host sections stretch (job x4: the same lane sampled alone and in the stream, and a
+  memory-traffic probe).
+
+### 3.4 Two server processes of three lanes [MEASURED, `stream_x3c`, `stream_x3e`; single runs]
+
+The six lanes as two `serve` processes of three (post i to process i mod 2): 17.06 and 17.87 proved tok/s
+(one process: 16.7-17.3 in five runs of this candidate). No clear gain, so the lanes of one process are not in
+each other's way through its allocator, its address space or its Metal context. The prover takes about
+1.4 million page faults per proof alone and 2.5 million in the stream.
+
+### 3.5 The activation writer [MEASURED, `writer_time_w1.log`, `writer_time.py`; beside a Lean job]
+
+The pinned Python writer for one 14-token post, 4 BLAS threads a process:
+
+| grouping | seconds |
+|---|---:|
+| one process, one category | 6.1 |
+| one process, the post's three categories (the native stream driver) | 10.3 |
+| three processes of one category, at once | 6.0 |
+| two at once, then the third (the app's service today, `WRITERS_AT_ONCE = 2`) | 11.8 |
+
+A category's activation files are the same bytes in every grouping. In the app a post's third category starts
+its proof 5.7 s after the other two. PENDING: the app with three writers at once.
+
+### 3.6 PENDING: the final candidate (A B B A), one post, proof only, through the app
 
 ## 4. Byte preservation
 
@@ -146,10 +221,10 @@ dispatch), the 8-post public stream at the app's setting, order A B B A in one g
 dylib outside the repository; `byteid.py`), one public post, the activation writer run once, then each binary's
 prover server proves the three categories into its own directories, in the order A (A27's pinned binary), B
 (the candidate), B0 (the candidate with `HL_A28_PRUNE=0 HL_A28_HASH=0 HL_A28_WQ=0`), A again; every server with
-`HL_METAL_QUEUES=thread`, three lanes of ten threads (one category a lane, so no two requests share a lane here). For both candidates: every receipt file of every category identical in all four runs,
-and all six cross-verifications accepted (each binary's verifier on the other two's receipts: verify,
-input-owner, label). PENDING: the same for the final candidate, with `HL_A28_CALLOC=0` and both seal-ahead modes
-in B0.
+`HL_METAL_QUEUES=thread`, three lanes of ten threads (one category a lane, so no two requests share a lane here).
+For both candidates: every receipt file of every category identical in all four runs, and all six
+cross-verifications accepted (each binary's verifier on the other two's receipts: verify, input-owner, label).
+PENDING: the same for the final candidate, and on ONE lane with seal-ahead on and off (`bi3.sh`).
 
 **Gates on a28-q2** [MEASURED, `q2.progress`]: the new commitment test at the classifier's shapes (plain,
 hiding and keyed rows at 2^14 -> 2^16 with 4577 and 4390 rows; leaves, roots and columns, CPU = Metal);
@@ -178,6 +253,7 @@ at commit `5794c756` gives `34b62314…` again, bit for bit.
   GPU traces: `~/zk60-artifacts/a28-traces/`. Samples: `~/zk60-artifacts/a28-tools/samples/`. Private run data
   (`~/zk60-owner-private/a28-*`, 0700) and receipts (`~/zk60-artifacts/a28-media-app-20261107/`) are deleted
   after each job (`xrun.sh`).
-- **Scripts.** `stream_driver.py`, `stream.sh`, `runs.sh` + `*.plan`, `xrun.sh`, `byteid.py` + `bi.sh`,
-  `app_driver.py` + `app1.sh`, `trace_report.py`, `lane_split.py`, `queue_model.py`, `gpu_align.py`, `lanes.py`,
-  `sample_*.py`, `q1.sh`, `accept.sh`, `rebuild_check.sh`, `nbench/` + `nb.sh` / `nbf.sh`.
+- **Scripts.** `stream_driver.py`, `stream.sh`, `runs.sh` + `*.plan`, `xrun.sh`, `xprobe.sh`, `after2.sh`,
+  `byteid.py` + `bi.sh` / `bi3.sh`, `app_driver.py` + `app1.sh`, `trace_report.py`, `lane_split.py`,
+  `membw_probe.py` / `membw_report.py`, `writer_time.py`, `queue_model.py`, `gpu_align.py`, `lanes.py`,
+  `sample_*.py`, `q1.sh`, `q3.sh`, `accept.sh`, `final1.sh`, `rebuild_check.sh`, `nbench/` + `nb.sh` / `nbf.sh`.

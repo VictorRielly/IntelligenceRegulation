@@ -224,29 +224,6 @@ where
     serve_lines_with(lanes, threads, 0, 1, lines, serve, emit)
 }
 
-/// **[A28] `HL_A28_QOS`** (default off; `1`: every lane pool thread asks macOS for the
-/// user-initiated quality of service, so the scheduler keeps it on a performance core while the
-/// verifier's and writer's threads fill the efficiency cores). Only where a thread runs changes,
-/// never what it computes. Diagnostics until measured (`results/zk60_a28_app_20261107`).
-fn a28_qos_on() -> bool {
-    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    *ON.get_or_init(|| std::env::var("HL_A28_QOS").map(|v| v == "1").unwrap_or(false))
-}
-
-fn a28_set_qos_user_initiated() {
-    #[cfg(target_os = "macos")]
-    {
-        extern "C" {
-            fn pthread_set_qos_class_self_np(qos: u32, rel: i32) -> i32;
-        }
-        // QOS_CLASS_USER_INITIATED (sys/qos.h)
-        // SAFETY: a plain call on the calling thread; a refusal leaves the thread's class as it was
-        unsafe {
-            let _ = pthread_set_qos_class_self_np(0x19, 0);
-        }
-    }
-}
-
 /// **[A28] `HL_A28_STAGGER_MS`** (the prover server only; default 0, as before): no two requests start
 /// less than this many milliseconds apart. The three categories of a post arrive together and start
 /// on three lanes at once; they then run in lockstep, their host work and their command buffers at
@@ -258,8 +235,8 @@ fn a28_stagger() -> std::time::Duration {
     std::time::Duration::from_millis(*MS.get_or_init(|| std::env::var("HL_A28_STAGGER_MS").ok().and_then(|v| v.parse::<u64>().ok()).unwrap_or(0).min(10_000)))
 }
 
-/// **[A28] `HL_A28_SEAL_AHEAD`** (the prover server only; default on; `0`: one request per lane at a
-/// time, as before): each lane takes a second request while its first one runs. Each of the lane's
+/// **[A28] `HL_A28_SEAL_AHEAD`** (the prover server only; default OFF: one request per lane at a
+/// time, as before; `1` turns it on): each lane takes a second request while its first one runs. Each of the lane's
 /// two request threads has its own rayon pool of `--lane-threads` threads; the second request's
 /// sealing pass (the activations read, every block's witness built and checked: about a fifth of a
 /// request in the A28 profile) runs beside the first request's run, and its run waits at the lane's
@@ -271,9 +248,15 @@ fn a28_stagger() -> std::time::Duration {
 /// each request to the least loaded lane (an idle lane first, then the lane whose request in flight
 /// began first; never a third to a lane): the A28 candidate without it let a lane's second thread
 /// take a post's second category while other lanes sat idle (`results/zk60_a28_app_20261107`, m1b1).
+///
+/// **Why it is off by default** (the same README, measured on the 8-post stream at six lanes of five
+/// threads, A B B A against A27): +1.3% (17.02 -> 17.25 proved tok/s) for about 60 GiB more memory
+/// at the guarded job's peak (two requests' sealing-pass witnesses a lane) and about 11 CPU-seconds
+/// more per proof. The sealing pass also uses the device (the witness products), and the stream
+/// already runs near the device's bound. Both modes are tested (`classify_serve_tests.rs`, `a28_`).
 pub(super) fn a28_seal_ahead_on() -> bool {
     static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    *ON.get_or_init(|| std::env::var("HL_A28_SEAL_AHEAD").map(|v| v != "0").unwrap_or(true))
+    *ON.get_or_init(|| std::env::var("HL_A28_SEAL_AHEAD").map(|v| v == "1").unwrap_or(false))
 }
 
 /// [`serve_lines`] with a minimum interval between request starts (`stagger_ms`, 0: none) and
@@ -282,16 +265,16 @@ fn serve_lines_with<F>(lanes: usize, threads: usize, stagger_ms: u64, per_lane: 
 where
     F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
 {
-    let qos = a28_qos_on();
     let per_lane = per_lane.clamp(1, 2);
     let pools: Vec<(usize, rayon::ThreadPool)> = (0..lanes * per_lane)
         .map(|j| {
             let (i, slot) = (j / per_lane, j % per_lane);
-            let b = rayon::ThreadPoolBuilder::new()
+            rayon::ThreadPoolBuilder::new()
                 .num_threads(threads)
-                .thread_name(move |t| if slot == 0 { format!("a24-lane{i}-{t}") } else { format!("a28-lane{i}b-{t}") });
-            let b = if qos { b.start_handler(|_| a28_set_qos_user_initiated()) } else { b };
-            b.build().map(|p| (i, p)).map_err(|e| format!("lane pool: {e}"))
+                .thread_name(move |t| if slot == 0 { format!("a24-lane{i}-{t}") } else { format!("a28-lane{i}b-{t}") })
+                .build()
+                .map(|p| (i, p))
+                .map_err(|e| format!("lane pool: {e}"))
         })
         .collect::<Result<_, _>>()?;
     let stagger = std::time::Duration::from_millis(stagger_ms);
@@ -515,12 +498,17 @@ fn served_line(command: &str, q: usize, id: Option<&str>, status: &str, lane: us
 }
 
 fn serve_inner(f: &[(String, String)], lines: impl Iterator<Item = String> + Send, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String> {
+    serve_inner_with(f, lines, emit, a28_seal_ahead_on())
+}
+
+/// [`serve_inner`] with the seal-ahead mode given (`ahead`: [`a28_seal_ahead_on`] in the server; the
+/// tests run both)
+fn serve_inner_with(f: &[(String, String)], lines: impl Iterator<Item = String> + Send, emit: &mut dyn FnMut(&str), ahead: bool) -> Result<(usize, usize), String> {
     let cfg = prove_cfg_of(f)?;
     let srv = ResidentClassifier::start(f)?;
-    emit(&srv.start_line("classify-serve", cfg.lanes, cfg.threads, &format!(",\"witness_cache_bytes\":{},\"seal_ahead\":{}", cfg.witness_budget, a28_seal_ahead_on())));
+    emit(&srv.start_line("classify-serve", cfg.lanes, cfg.threads, &format!(",\"witness_cache_bytes\":{},\"seal_ahead\":{}", cfg.witness_budget, ahead)));
     let t = Instant::now();
     // [A28] seal ahead: two request threads a lane, one run at a time per lane (its gate)
-    let ahead = a28_seal_ahead_on();
     let gates: Vec<std::sync::Mutex<()>> = (0..cfg.lanes).map(|_| std::sync::Mutex::new(())).collect();
     let (n, ok) = serve_lines_with(
         cfg.lanes,
@@ -820,6 +808,16 @@ pub(crate) fn serve_for_tests(args: &[String], lines: Vec<String>) -> Result<Vec
     let f = flags(args, &SERVE_FLAGS, &[])?;
     let mut out = Vec::new();
     serve_inner(&f, lines.into_iter(), &mut |l: &str| out.push(l.to_string()))?;
+    Ok(out)
+}
+
+/// TEST BUILDS ONLY: [`serve_for_tests`] with the seal-ahead mode given ([A28]: both modes are tested
+/// whatever `HL_A28_SEAL_AHEAD` says in the test process)
+#[cfg(test)]
+pub(crate) fn serve_for_tests_ahead(args: &[String], lines: Vec<String>, ahead: bool) -> Result<Vec<String>, String> {
+    let f = flags(args, &SERVE_FLAGS, &[])?;
+    let mut out = Vec::new();
+    serve_inner_with(&f, lines.into_iter(), &mut |l: &str| out.push(l.to_string()), ahead)?;
     Ok(out)
 }
 

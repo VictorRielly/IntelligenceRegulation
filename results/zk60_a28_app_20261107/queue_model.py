@@ -1,22 +1,31 @@
 #!/usr/bin/env python3
-"""Lane A28: the stream as a closed queueing network (a model, [INFERRED]; every input is a measured number).
+"""Lane A28: how much of a lane's slowdown in the stream does the device's queue explain? (a model, [INFERRED];
+its inputs are measured numbers).
 
-N prover lanes each cycle through host work (think time Z seconds per category proof, no queueing: every lane
-has its own threads) and the GPU (S seconds of device work per proof on ONE shared device that serves its
-command buffers by time-slicing: A27's and A28's traces show the union of executing command buffers in the
-stream equal to the sum of the solo proofs' GPU time). Exact mean-value analysis for a processor-sharing
-station:
+N prover lanes each alternate host work (Z seconds per category proof) and the one device (S seconds of
+command-buffer execution per proof, shared by time-slicing: the traces show the union of executing command
+buffers in the stream equal to the sum of the solo proofs' GPU time). If the lanes shared NOTHING but the
+device, the host work would take in company what it takes alone, and the exact mean-value analysis of a
+closed network with one processor-sharing station gives the lane's cycle:
 
     R(n) = S (1 + Q(n-1));  X(n) = n / (Z + R(n));  Q(n) = X(n) R(n)
 
-Z is fitted from the measured proof times at different thread counts as Z = serial + parallel / threads
-(A27's runs: one lane of 30 threads 18.4 s with 5.0 s of GPU alone; six lanes of five threads 38 s).
+Inputs (a28-q2, section 3.3 of the README): one proof alone on a lane of five threads takes 19.6 s, 4.84 s of
+it on the device (plus about 0.6 s of command-buffer latency), so Z = 14.2 s and S = 5.4 s.
 
-usage: queue_model.py [--serial 11] [--parallel 70] [--gpu 5.0]
-  prints the lane cycle, the steady proofs/s and proved tok/s, the GPU's utilization and the 8-post stream
-  (wall = first two writers 20 s + rounds + the last check 8 s) for a list of settings.
+Measured against it: three at once 27.7 s, six at once 38 s, eight at once 48-58 s. The model gives 23.1, 33.5
+and 43.4 s: the device's queue alone explains most of what a lane loses in company (14 of the 18 s at six
+lanes), and it puts the device at 97% busy with six lanes. It gets the total within 12% but not the split: in
+the sampled stream a lane waits 12-15 s for the device (the model: 19 s) and its host work takes 26-30 s (alone:
+14 s): every host section, serial ones included, runs 1.3x to 3x slower beside the other lanes
+(lane_split.py), and a slower host asks less of the device. Either way more lanes cannot help: the model's
+steady stream is flat from six lanes on, as measured.
+
+usage: queue_model.py [--host 14.2] [--gpu 5.4]
 """
 import argparse
+
+MEASURED = {1: '19.6', 3: '27.7', 6: '38', 8: '48-58'}
 
 
 def mva(n_lanes, z, s):
@@ -31,23 +40,15 @@ def mva(n_lanes, z, s):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--serial', type=float, default=11.0, help='serial host seconds per proof')
-    ap.add_argument('--parallel', type=float, default=70.0, help='parallel host CPU-seconds per proof')
-    ap.add_argument('--gpu', type=float, default=5.0, help='GPU seconds per proof alone')
-    ap.add_argument('--proofs', type=int, default=24)
-    ap.add_argument('--fixed', type=float, default=28.0, help='stream seconds outside the rounds (two writers, the last check)')
+    ap.add_argument('--host', type=float, default=14.2, help='host seconds per proof alone')
+    ap.add_argument('--gpu', type=float, default=5.4, help='device seconds per proof alone (execution plus latency)')
     a = ap.parse_args()
-    print(f'serial {a.serial} s, parallel {a.parallel} CPU-s, GPU {a.gpu} s per proof')
-    print('lanes x threads   Z s   GPU wait s   cycle s   steady tok/s   GPU util   8-post stream s   tok/s')
-    for lanes, threads in ((1, 30), (3, 10), (6, 5), (6, 8), (6, 10), (8, 4), (8, 6), (6, 1000)):
-        z = a.serial + a.parallel / threads
-        x, r = mva(lanes, z, a.gpu)
-        cycle = lanes / x
-        rounds = a.proofs / lanes
-        wall = a.fixed + rounds * cycle
-        t = 'inf' if threads >= 1000 else str(threads)
-        print(f'{lanes:>5} x {t:<8} {z:5.1f}   {r:9.1f}   {cycle:7.1f}   {128 * x:12.1f}   {100 * x * a.gpu:7.0f}%   {wall:15.0f}   {128 * a.proofs / wall:5.1f}')
-    print(f'the device alone bounds the steady stream at {128 / a.gpu:.1f} proved tok/s (one proof per {a.gpu} s of GPU)')
+    print(f'host {a.host} s and device {a.gpu} s per proof alone; lanes that share only the device:')
+    print('lanes   device wait s   cycle s   measured cycle s   steady proved tok/s   device busy')
+    for lanes in (1, 3, 6, 8, 12):
+        x, r = mva(lanes, a.host, a.gpu)
+        print(f'{lanes:>5}   {r:13.1f}   {lanes / x:7.1f}   {MEASURED.get(lanes, "-"):>16}   {128 * x:19.1f}   {100 * x * a.gpu:10.0f}%')
+    print(f'the device alone bounds the steady stream at {128 / a.gpu:.1f} proved tok/s; the measured stream runs at about 20 steady (one proof every 6.3 s)')
 
 
 if __name__ == '__main__':

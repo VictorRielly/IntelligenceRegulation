@@ -1014,22 +1014,6 @@ pub(super) const WRITE_H_PAR_MIN: usize = 1 << 16;
 /// [M4i] the word count from which [`write_planes`] runs in parallel
 pub(super) const PLANES_PAR_MIN: usize = 1 << 16;
 
-/// **[A28] `HL_A28_CALLOC`** (default on; `0`: `vec![Fp::ZERO; len]`, as before): `A`'s and `H`'s
-/// zero-initialised rows from the allocator's zeroed memory (`vec![0u64; len]`, `calloc`: fresh
-/// pages arrive zeroed) instead of a serial fill of every word by the proving thread (the A28
-/// profile: 5.3% of a prover lane's own time in `__bzero` here, 0.6 GB a block). `Fp` is
-/// `repr(transparent)` over `u64` and its zero is the zero word: the same vector, every word zero.
-pub(super) fn zeroed_rows(len: usize) -> Vec<Fp> {
-    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    if !*ON.get_or_init(|| std::env::var("HL_A28_CALLOC").map(|v| v != "0").unwrap_or(true)) {
-        return vec![Fp::ZERO; len];
-    }
-    let mut v = std::mem::ManuallyDrop::new(vec![0u64; len]);
-    // SAFETY: `Fp` is `#[repr(transparent)]` over `u64` (the same size and alignment) and `Fp(0)` is
-    // `Fp::ZERO`; the allocation's pointer, length and capacity move to the new vector unchanged
-    unsafe { Vec::from_raw_parts(v.as_mut_ptr() as *mut Fp, v.len(), v.capacity()) }
-}
-
 /// **[ZK60-METAL M4i]** `A`'s witness planes into their rows: `dst[off + i] =
 /// Fp::from_i64(plane[i])` for every `(off, plane)` job. When every range is in
 /// bounds and the ranges are pairwise disjoint (the layout's planes always are),
@@ -2282,7 +2266,7 @@ pub(crate) fn prove_core_before_with(
     let zko = ZkOpts::standard(&params);
 
     // ---- A: planes, the three committed histograms, every mask row drawn BEFORE the commitment ----
-    let mut a_data = zeroed_rows(lay.a_rows * n);
+    let mut a_data = vec![Fp::ZERO; lay.a_rows * n];
     // [ZK60-METAL M4i] the same words in the same places, in one parallel pass
     let plane_jobs: Vec<(usize, &[i64])> = committed.iter().map(|p| (lay.a_off[*p], wit.planes[*p].as_slice())).collect();
     write_planes(&mut a_data, &plane_jobs);
@@ -2483,7 +2467,7 @@ pub(crate) fn prove_core_after_with(
     let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
-    let mut h_data = zeroed_rows(lay.h_rows * n);
+    let mut h_data = vec![Fp::ZERO; lay.h_rows * n];
     // **STAGE 28.** The 256 byte-table denominators, inverted once for the
     // whole of `H`: what was an element-wise batch inversion over every looked
     // word is a table build plus one indexed lookup per word. Same words, same

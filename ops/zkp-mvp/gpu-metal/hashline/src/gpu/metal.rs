@@ -4781,42 +4781,6 @@ fn result_plane(c: &Ctx, out_len: usize, view: bool) -> (Vec<i64>, Option<Buffer
     (v, b)
 }
 
-/// **[A28] `HL_A28_WQ`** (default on; `0`: every thread's witness products on the one witness queue,
-/// as A4 made it): under per-thread queues (`HL_METAL_QUEUES=thread`, the app's setting) each thread
-/// also gets a witness queue of its own, made at its first product and released when the thread
-/// ends. The A28 profile of the 8-post stream found the six prover lanes' sealing passes queued
-/// behind each other on the one witness queue: 23.6 s of commit-to-start waits over 24 proofs
-/// (`results/zk60_a28_app_20261107`). No byte can move: each product's command buffer is waited for
-/// by the thread that made it before it reads the output, whichever queue carries it (A7's argument).
-fn wq_on() -> bool {
-    static ON: OnceLock<bool> = OnceLock::new();
-    *ON.get_or_init(|| std::env::var("HL_A28_WQ").map(|v| v != "0").unwrap_or(true))
-}
-
-thread_local! {
-    /// [A28] this thread's own witness queue ([`wq_on`]); `None` if Metal gave none
-    static OWN_WQUEUE: std::cell::OnceCell<Option<CommandQueue>> = const { std::cell::OnceCell::new() };
-}
-
-/// [A28] the queue a witness product goes to and its number on the timeline (99: the shared witness
-/// queue; 300 + the thread's serial: its own)
-fn witness_queue(c: &Ctx, wc: &WCtx) -> (CommandQueue, u32) {
-    if queue_mode() == Q_THREAD && wq_on() {
-        let own = OWN_WQUEUE.with(|q| {
-            q.get_or_init(|| {
-                use metal::foreign_types::ForeignType;
-                let made = objc::rc::autoreleasepool(|| c.device.new_command_queue());
-                (!made.as_ptr().is_null()).then_some(made)
-            })
-            .clone()
-        });
-        if let Some(q) = own {
-            return (q, 300 + thread_serial());
-        }
-    }
-    (wc.queue.clone(), 99)
-}
-
 /// pack, present, run, write back (shapes already checked)
 #[allow(clippy::too_many_arguments)]
 fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i64], xs: usize, w: &[i8], k: usize, n: usize, os: usize, out_len: usize, in_out: bool) -> Result<Option<Vec<i64>>, String> {
@@ -4873,9 +4837,7 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
     // one command buffer on the witness queue (`run`'s shape, with the GPU's own clock)
     let tl = tl_on();
     let begin = if tl { host_time_s() } else { 0.0 };
-    // [A28] this thread's own witness queue under per-thread queues (HL_A28_WQ), else the one queue
-    let (wq, wq_id) = witness_queue(c, wc);
-    let cb = wq.new_command_buffer();
+    let cb = wc.queue.new_command_buffer();
     let enc = cb.new_compute_command_encoder();
     enc.set_compute_pipeline_state(wc.pipe(route));
     enc.set_buffer(0, Some(&xb), 0);
@@ -4893,7 +4855,7 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
     }
     if tl {
         trace_detail(|| format!("t={t} k={k} n={n} in_out={}", in_out as u8));
-        tl_record(cb, "wprod", wq_id, begin, committed);
+        tl_record(cb, "wprod", 99, begin, committed);
     }
     // GPUStartTime / GPUEndTime of the completed command buffer (a failed message counts as zero)
     let gpu_s = {
