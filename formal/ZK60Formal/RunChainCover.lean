@@ -9,11 +9,15 @@ boundary planes `B_k` and `B_{k+1}`, and the transfer of a block's chain events 
   there (its reader frozen) and alive there is alive at the end of the run's chain. This is how L20/L21/L22/L23's
   per-block deterministic links (`hexec`, `hsem`, `hcoverR`, `hcoverH`, `hsplit`, stated on a block's chain with its
   header) become statements about the run's chain;
-* **`jointCover_of_parts`**: the run's cover from the parts: on acceptance, outside the extraction failure, (alive) every
-  kind's sub-protocols of every part alive at the end of the run's chain, and (doom) stage IN-C's conclusion failing,
-  block `k`'s `BlockOn` on the planes `B_k`, `B_{k+1}` failing, stage OUT-C's failing, or the endpoint's failing each
-  making some kind's sub-protocol of that part enter its window doomed: then `¬ JointOk` lies in the extraction failure
-  or in some kind's event (`KindRun.ev_of_parts`);
+* **`cover3_of_runParts`**: the cover of stage IN-C, the blocks and stage OUT-C from the parts, with NO premise about
+  the input endpoint: on acceptance, outside the extraction failure, (alive) every kind's sub-protocols of every part
+  alive at the end of the run's chain, and (doom) stage IN-C's conclusion failing, block `k`'s `BlockOn` on the planes
+  `B_k`, `B_{k+1}` failing, or stage OUT-C's failing each making some kind's sub-protocol of that part enter its window
+  doomed: then `¬ (InOk ∧ BlocksOk ∧ OutOk)` lies in the extraction failure or in some kind's event
+  (`KindRun.ev_of_parts`), the kinds taken in any list holding them. Generic in the protocol: this is the form the
+  gate with the endpoint discharged separately consumes (lane L26's `classifyProtocolU`, its premise `h3`);
+* **`jointCover_of_runParts`**: the run's cover of all four parts, the endpoint's failing also making some kind's
+  sub-protocol enter doomed (`hdep`): then `¬ JointOk` lies in the extraction failure or in some kind's event;
 * **`block_doom_w16`**, **`block_doom_r13`**: block `k`'s doom premise from the block's own case analysis (L21's
   `block_knowledge_acc_mt`: the openings' claims and `M`'s functionals (`OpenTrue`), the slots' claimed sums, the slot
   relations, the lookups) with `B_k` and `B_{k+1}` the block's extracted input and output planes: `BlockOn` fails only
@@ -117,14 +121,75 @@ section Cover
 
 variable {S : BlockShape} {Lq : ℕ} {Coins : Type}
 
+/-- **The cover of stage IN-C, the blocks and stage OUT-C from per-part covers, without the endpoint** (D63 lane
+L27). The run's parts: stage IN-C is part `0`, block `k` part `k + 1`, stage OUT-C part `L + 1` (D12a). On an accepted
+receipt outside the extraction failure `Ex`: (`halive`) every kind's sub-protocols of every part are alive at the end
+of the run's chain; (`hdin`, `hdblk`, `hdout`) if stage IN-C's conclusion, block `k`'s `BlockOn` on the extracted planes
+`B_k` and `B_{k+1}`, or stage OUT-C's conclusion for the statement's verdict fails, some kind's sub-protocol of that
+part entered its window doomed on the run's chain. Then an accepted receipt on which one of the three conclusions fails
+lies in `Ex` or in the event of one of the kinds, read in any list `Ls` that holds them (`hsub`: the run's kinds may
+sit beside others, such as the endpoint's own). No premise mentions the input endpoint, and the protocol is any
+`Protocol` on the classify model. -/
+theorem cover3_of_runParts (R : ClassifyRunPublic S) (P : Protocol (QB Lq) Dig Coins (classifyModel S R))
+    (E : List (QB Lq × Dig) → P.Stmt → P.Receipt → RunExt S P.Salt)
+    (tr : (QB Lq → Dig) → P.Stmt × P.Receipt → List (TItem × Dig))
+    (Ks : List (KindRun tr)) (hnp : ∀ K ∈ Ks, K.np = R.Ps.length + 2)
+    (Ls : List (FirstKind Lq (P.Stmt × P.Receipt))) (hsub : ∀ K ∈ Ks, K.toFirstKind ∈ Ls)
+    (Ex : OC (QB Lq) Dig (P.Stmt × P.Receipt) → (QB Lq → Dig) → Prop)
+    (halive : ∀ (A : OC (QB Lq) Dig (P.Stmt × P.Receipt)) (G : QB Lq → Dig),
+      P.verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ Ex A G →
+      ∀ K ∈ Ks, ∀ i, i < R.Ps.length + 2 → allSt K.RC.W (K.cs i (A.runLog G).2) (tr G (A.run G)))
+    (hdin : ∀ (A : OC (QB Lq) Dig (P.Stmt × P.Receipt)) (G : QB Lq → Dig),
+      P.verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ Ex A G →
+      ¬ InOk R (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2) →
+      ∃ K ∈ Ks, ∃ c ∈ K.cs 0 (A.runLog G).2, EntD K.RC.W c (tr G (A.run G)))
+    (hdblk : ∀ (A : OC (QB Lq) Dig (P.Stmt × P.Receipt)) (G : QB Lq → Dig) (k : ℕ) (hk : k < R.Ps.length),
+      P.verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ Ex A G →
+      ¬ BlockOn R.Ps[k] ((E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes k)
+        ((E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes (k + 1)) →
+      ∃ K ∈ Ks, ∃ c ∈ K.cs (k + 1) (A.runLog G).2, EntD K.RC.W c (tr G (A.run G)))
+    (hdout : ∀ (A : OC (QB Lq) Dig (P.Stmt × P.Receipt)) (G : QB Lq → Dig),
+      P.verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ Ex A G →
+      ¬ OutOk R (P.ypub (A.runLog G).1.1) (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2) →
+      ∃ K ∈ Ks, ∃ c ∈ K.cs (R.Ps.length + 1) (A.runLog G).2, EntD K.RC.W c (tr G (A.run G))) :
+    ∀ (A : OC (QB Lq) Dig (P.Stmt × P.Receipt)) (G : QB Lq → Dig),
+      P.verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ (InOk R (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)
+          ∧ BlocksOk R (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)
+          ∧ OutOk R (P.ypub (A.runLog G).1.1) (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)) →
+        Ex A G ∨ ∃ K ∈ Ls, K.Ev A G := by
+  intro A G hv hbad
+  by_cases hx : Ex A G
+  · exact Or.inl hx
+  · right
+    have hev : ∀ K ∈ Ks, ∀ i, i < R.Ps.length + 2 → (∃ c ∈ K.cs i (A.runLog G).2, EntD K.RC.W c (tr G (A.run G)))
+        → ∃ K' ∈ Ls, K'.Ev A G := by
+      intro K hK i hi hc
+      refine ⟨K.toFirstKind, hsub K hK, K.ev_of_parts A G ⟨i, by rw [hnp K hK]; exact hi, hc⟩
+        (fun j hj => halive A G hv hx K hK j (by rw [← hnp K hK]; exact hj))⟩
+    by_cases hin : InOk R (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)
+    · by_cases hblk : BlocksOk R (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2)
+      · have hout : ¬ OutOk R (P.ypub (A.runLog G).1.1) (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2) :=
+          fun h => hbad ⟨hin, hblk, h⟩
+        obtain ⟨K, hK, hc⟩ := hdout A G hv hx hout
+        exact hev K hK _ (by omega) hc
+      · unfold BlocksOk at hblk
+        simp only [not_forall] at hblk
+        obtain ⟨k, hk, hk'⟩ := hblk
+        obtain ⟨K, hK, hc⟩ := hdblk A G k hk hv hx hk'
+        exact hev K hK _ (by omega) hc
+    · obtain ⟨K, hK, hc⟩ := hdin A G hv hx hin
+      exact hev K hK 0 (by omega) hc
+
 /-- **The classify run's ONE cover from per-part covers** (D63 lane L27). The run's parts: stage IN-C is part `0`,
 block `k` part `k + 1`, stage OUT-C part `L + 1` (D12a). On an accepted receipt outside the extraction failure `Ex`:
 (`halive`) every kind's sub-protocols of every part are alive at the end of the run's chain; (`hdin`, `hdblk`, `hdout`,
 `hdep`) if stage IN-C's conclusion, block `k`'s `BlockOn` on the extracted planes `B_k` and `B_{k+1}`, stage OUT-C's
 conclusion for the statement's verdict, or the input endpoint's opening fails, some kind's sub-protocol of that part
 (of some part, for the endpoint) entered its window doomed on the run's chain. Then `¬ JointOk` on an accepted receipt
-lies in `Ex` or in some kind's event: `classify_productionReady_joint_target`'s `hcover`. -/
-theorem jointCover_of_parts (R : ClassifyRunPublic S) (P : Protocol (QB Lq) Dig Coins (classifyModel S R))
+lies in `Ex` or in some kind's event: `classify_productionReady_joint_target`'s `hcover`. (Named `jointCover_of_parts`
+until 2026-11-09; renamed because lane L26's `ProtocolClassifyU.lean` declares that name in this namespace, L27-6.) -/
+theorem jointCover_of_runParts (R : ClassifyRunPublic S) (P : Protocol (QB Lq) Dig Coins (classifyModel S R))
     (E : List (QB Lq × Dig) → P.Stmt → P.Receipt → RunExt S P.Salt)
     (tr : (QB Lq → Dig) → P.Stmt × P.Receipt → List (TItem × Dig))
     (Ks : List (KindRun tr)) (hnp : ∀ K ∈ Ks, K.np = R.Ps.length + 2)

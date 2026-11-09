@@ -6,11 +6,14 @@ extraction failure at the run's queries and the per-part covers, at W16R2 and at
 * **`classify_productionReady_runChain`**: the gate `ProductionReady … εcTarget εsTarget εsTarget εzkTarget` from
   `ClassifyOpen` (every field but O11), the run's ONE transcript `tr`, a list of kinds on it part by part
   (`KindRun`: each with its own parse of `tr`, chains of `≤ 2^21` items, `np = L + 2`) with their constants, an extra
-  event with its bound, the per-part covers (`jointCover_of_parts`'s `halive`, `hdin`, `hdblk`, `hdout`, `hdep`), the
+  event with its bound, the per-part covers (`jointCover_of_runParts`'s `halive`, `hdin`, `hdblk`, `hdout`, `hdep`), the
   constants totalling `≤ 2^26`. Every
   `FirstKind` field of L24's theorem (windows in order, no releases, the rbr lemmas, the header, the WEAK stability at
   the escaping step) is now PROVED from the parts (`KindRun.toFirstKind`); `hcover` from the parts
-  (`jointCover_of_parts`);
+  (`jointCover_of_runParts`);
+* `kindsFK_ℓ`, `kindsFK_lin`, `kindsFK_mem`: the kinds' chain bounds, linear parts and membership carried to their
+  `FirstKind`s, for any protocol's gate (with `cover3_of_runParts`, what a gate whose endpoint is discharged separately
+  takes from this lane: lane L26's `classifyProtocolU`);
 * `εxRun`, `hEx_w16r2`, `hEx_r13`: the extra event is the extraction failure at the run's queries (`EvXR`), its bound
   `(q + 1)·(2^16 + 2^18)/2^126` for `q + 1 ≤ 2^102` (`extract_fail_run_w16r2`, `_r13`) and `1` beyond;
 * **`classify_productionReady_run_w16r2`**, **`classify_productionReady_run_r13`**: the nine kinds of L24 (the slots,
@@ -51,6 +54,32 @@ theorem kindsFK_fst {Lq : ℕ} {α : Type} {tr : (QB Lq → Dig) → α → List
     (Ks : List (KindRun tr × ℕ)) :
     (kindsFK Ks).map Prod.fst = (Ks.map Prod.fst).map KindRun.toFirstKind := by
   simp [kindsFK, List.map_map, Function.comp_def]
+
+/-- The kinds' chain bounds carried to their `FirstKind`s. -/
+theorem kindsFK_ℓ {Lq : ℕ} {α : Type} {tr : (QB Lq → Dig) → α → List (TItem × Dig)}
+    (Ks : List (KindRun tr × ℕ)) (hℓ : ∀ p ∈ Ks, p.1.RC.ℓ ≤ 2 ^ 21) : ∀ p ∈ kindsFK Ks, p.1.ℓ ≤ 2 ^ 21 := by
+  intro p hp
+  unfold kindsFK at hp
+  obtain ⟨p', hp', rfl⟩ := List.mem_map.mp hp
+  exact hℓ p' hp'
+
+/-- The kinds' linear parts carried to their `FirstKind`s. -/
+theorem kindsFK_lin {Lq : ℕ} {α : Type} {tr : (QB Lq → Dig) → α → List (TItem × Dig)}
+    (Ks : List (KindRun tr × ℕ)) (hlin : ∀ q : ℕ, ∀ p ∈ Ks, (q : ℝ≥0∞) * p.1.εmax + p.1.B ≤ u126 q p.2) :
+    ∀ q : ℕ, ∀ p ∈ kindsFK Ks, (q : ℝ≥0∞) * p.1.εmax + p.1.B ≤ u126 q p.2 := by
+  intro q p hp
+  unfold kindsFK at hp
+  obtain ⟨p', hp', rfl⟩ := List.mem_map.mp hp
+  exact hlin q p' hp'
+
+/-- The run's kinds, as `FirstKind`s, are among the kinds of any list that extends theirs (`cover3_of_runParts`'s
+`hsub` when the run's kinds sit beside others, such as the endpoint's own). -/
+theorem kindsFK_mem {Lq : ℕ} {α : Type} {tr : (QB Lq → Dig) → α → List (TItem × Dig)}
+    (Ks : List (KindRun tr × ℕ)) (X : List (FirstKind Lq α × ℕ)) :
+    ∀ K ∈ Ks.map Prod.fst, K.toFirstKind ∈ (kindsFK Ks ++ X).map Prod.fst := by
+  intro K hK
+  rw [List.map_append, kindsFK_fst]
+  exact List.mem_append_left _ (List.mem_map_of_mem hK)
 
 /-- **THE GATE through the run's chain** (D63 lane L27): `ClassifyOpen`'s fields but O11, one run chain, the kinds part
 by part (each its parse of the run's ONE transcript `tr`) with their constants, the extra event (the extraction failure)
@@ -98,7 +127,7 @@ theorem classify_productionReady_runChain (R : ClassifyRunPublic S) (Lq : ℕ) (
     (hzk : ∀ q R', εzk q R' ≤ εzkTarget q R') :
     ProductionReady (classifyModel S R) (classifyArith S R) (classifyProtocol S R Lq V P Cin h64 hr hon.base)
       εcTarget εsTarget εsTarget εzkTarget := by
-  have hcov := jointCover_of_parts R (classifyProtocol S R Lq V P Cin h64 hr hon.base) E tr (Ks.map Prod.fst)
+  have hcov := jointCover_of_runParts R (classifyProtocol S R Lq V P Cin h64 hr hon.base) E tr (Ks.map Prod.fst)
     (fun K hK => by
       obtain ⟨p, hp, rfl⟩ := List.mem_map.mp hK
       exact hnp p hp) Ex halive hdin hdblk hdout hdep

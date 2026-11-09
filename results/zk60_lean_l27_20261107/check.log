@@ -7,20 +7,20 @@ lake build ZK60Formal.RunChainKinds rc 0
 lake build ZK60Formal.RunChainAssemble rc 0
 == lake build (full) ==
 lake build rc 0
-✔ [3565/3566] Built ZK60Formal (1.8s)
+✔ [3565/3566] Built ZK60Formal (1.7s)
 Build completed successfully (3566 jobs).
 warnings: 0
 errors: 0
 sorry: 0
 warnings in the L27 files: 0
 == axiom audit ==
-101 theorems
+105 theorems
 axioms rc 0
-declarations audited: 101
+declarations audited: 105
 sorryAx: 0
 ofReduceBool: 0
 other axioms: 0
-  73 axioms: [propext, Classical.choice, Quot.sound]
+  77 axioms: [propext, Classical.choice, Quot.sound]
   11 axioms: [propext, Quot.sound]
   13 axioms: [propext]
 == source scan of the L27 files ==

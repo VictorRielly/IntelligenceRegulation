@@ -70,7 +70,8 @@ import ZK60Formal.RunChainKinds
 #print axioms ZK60.ProtocolClassify.subSt_of_prefix
 #print axioms ZK60.ProtocolClassify.allSt_of_prefix
 #print axioms ZK60.ProtocolClassify.exists_entD_of_prefix
-#print axioms ZK60.ProtocolClassify.jointCover_of_parts
+#print axioms ZK60.ProtocolClassify.cover3_of_runParts
+#print axioms ZK60.ProtocolClassify.jointCover_of_runParts
 #print axioms ZK60.ProtocolClassify.block_doom_w16
 #print axioms ZK60.ProtocolClassify.block_doom_r13
 -- RunChainKinds.lean
@@ -102,6 +103,9 @@ import ZK60Formal.RunChainKinds
 #print axioms ZK60.ProtocolClassify.chalSub_facts
 -- RunChainAssemble.lean
 #print axioms ZK60.ProtocolClassify.kindsFK_fst
+#print axioms ZK60.ProtocolClassify.kindsFK_ℓ
+#print axioms ZK60.ProtocolClassify.kindsFK_lin
+#print axioms ZK60.ProtocolClassify.kindsFK_mem
 #print axioms ZK60.ProtocolClassify.classify_productionReady_runChain
 #print axioms ZK60.ProtocolClassify.εxRun_le
 #print axioms ZK60.ProtocolClassify.hEx_w16r2

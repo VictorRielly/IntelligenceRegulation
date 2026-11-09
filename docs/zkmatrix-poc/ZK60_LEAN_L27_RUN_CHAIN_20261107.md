@@ -7,6 +7,12 @@ no new dependency. Six new library files under `formal/ZK60Formal/`, imported by
 `RunChainAssemble.lean`. No Rust and no production source changed. `Statements.lean` and every existing Lean file are
 unchanged. Evidence: `results/zk60_lean_l27_20261107/`.
 
+The lane was cut off on 2026-11-07 (a usage limit) with its last file checked but not committed, and resumed on
+2026-11-09 after the Mac's restart. The resumed session committed that state, renamed one theorem whose name another
+lane also uses (L27-6), added the cover without the endpoint (`cover3_of_runParts`, with `kindsFK_ℓ`, `kindsFK_lin`,
+`kindsFK_mem`) and ran the final check (§6). perf has since moved to `8baff9cc` (L25 merged); the files it gained
+(`HonestClassify*`) are not imported by this lane's files and share no declaration name with them.
+
 Labels: **PROVED** (a Lean theorem, axioms at most `propext`, `Classical.choice`, `Quot.sound`), **HYPOTHESIS** (a
 named premise of a proved theorem), **ESTIMATE** (arithmetic not proved in Lean).
 
@@ -36,22 +42,28 @@ Merkle extraction failure at the run's queries. This lane discharges what lives 
    `(q + 1)·(2^16 + 2^18)/2^126`, exactly L24's figure, for the 26 blocks at W16R2's or R13's opening geometry plus up
    to 3.8 million further Merkle queries for the boundaries and stages (`extract_fail_run_w16r2`, `_r13`). Outside it,
    every column the run verifier checks is the extracted one (`opened_eq_extracted_run`).
-5. **The run's one cover reduces to per-part covers** (`jointCover_of_parts`): on acceptance every check of every
-   kind is alive at the end, and each part's failure makes one of that part's checks start with a false claim. Block
-   `k`'s part reads the planes `B_k` and `B_{k+1}`, and its failure reduces to the four checks of L21's case analysis
-   (`block_doom_w16`, `block_doom_r13`). A block's own results (L20 to L23) apply on the run's chain because a block's
-   transcript is a prefix of the run's (`cChain_prefix`, `entD_of_prefix`, `subSt_of_prefix`).
+5. **The run's one cover reduces to per-part covers** (`cover3_of_runParts`, `jointCover_of_runParts`): on acceptance
+   every check of every kind is alive at the end, and each part's failure makes one of that part's checks start with a
+   false claim. Block `k`'s part reads the planes `B_k` and `B_{k+1}`, and its failure reduces to the four checks of
+   L21's case analysis (`block_doom_w16`, `block_doom_r13`). A block's own results (L20 to L23) apply on the run's chain
+   because a block's transcript is a prefix of the run's (`cChain_prefix`, `entD_of_prefix`, `subSt_of_prefix`).
+   The first form covers stage IN-C, the blocks and stage OUT-C and asks nothing about the input endpoint; it is the
+   form lane L26's gate takes (the endpoint handled there by its own two checks).
 6. **The gate at W16R2 and at R13 through the run's chain** (`classify_productionReady_run_w16r2`, `_r13`): your
    targets, from `ClassifyOpen`'s other fields, the run's chain, the nine kinds and the per-part covers.
 
-**What is not done** (§3). The run's chain itself is not yet built from the run verifier (L18 models the two stages as
-abstract parameters, so the run's list of transcript operations is not yet a Lean object); the per-part links (each
-block's and stage's "false conclusion ⇒ some check starts doomed", and "accepted ⇒ every check alive") are named
-premises with their per-block sources given; and the input endpoint (O11d) waits on your ruling on L24-1 (lane L26).
+**What is not done** (§3). This lane does not finish the run's extraction: it reduces it to deterministic premises.
+The run's chain itself is not yet built from the run verifier (L18 models the two stages as abstract parameters, so the
+run's list of transcript operations is not yet a Lean object); the nine kinds' lists on it are therefore not written
+out, only every fact they need; the per-part links (each block's and stage's "false conclusion ⇒ some check starts
+doomed", and "accepted ⇒ every check alive") are named premises with their per-block sources given; and the input
+endpoint (O11d) waits on your ruling on L24-1 (lane L26). The two gates of item 6 are stated at L18's instance, whose
+endpoint premise is false (L24-1), so they become usable only at lane L26's instance: that restatement is short and is
+left for after L26 is merged (L27-5).
 
 **No finding needs your decision.** The findings (§5) are a premise L24 stated a little too strongly (L27-1, Low, met
 here), the run-level form of L22-1 (L27-2, Medium: every part's squeeze count must be a profile constant, as the D12a
-frame makes it), and bookkeeping.
+frame makes it), and bookkeeping (one of them a theorem name two lanes chose, renamed here, L27-6).
 
 ## 2. What is proved
 
@@ -117,7 +129,8 @@ earlier blocks, its frame), every window is at its run position: `defPos P h k`,
 |---|---|
 | **`cChain_prefix`** | the chain of a run's first heads (a block's view: its run prefix as its header) is a prefix of the run's chain |
 | **`entD_of_prefix`**, **`rdAlive_of_prefix`**, **`subSt_of_prefix`**, **`allSt_of_prefix`**, `exists_entD_of_prefix` | a doom on a prefix is a doom on the run's chain; a sub-protocol read alive and frozen (all rounds read) on a prefix, never released, is alive at the end of the run's chain |
-| **`jointCover_of_parts`** | `classify_productionReady_joint_target`'s `hcover` from per-part covers: `halive` (on acceptance outside `Ex`, every kind's sub-protocols of every part alive at the end of `tr`), and `hdin`, `hdblk` (block `k`'s `BlockOn` on `B_k`, `B_{k+1}`), `hdout`, `hdep` (each failing part makes one of its sub-protocols of some kind enter doomed) |
+| **`cover3_of_runParts`** | the cover of stage IN-C, the blocks and stage OUT-C from per-part covers, for any `Protocol` on the classify model and with no premise about the endpoint: `halive` (on acceptance outside `Ex`, every kind's sub-protocols of every part alive at the end of `tr`), and `hdin`, `hdblk` (block `k`'s `BlockOn` on `B_k`, `B_{k+1}`), `hdout` (each failing part makes one of its sub-protocols of some kind enter doomed) give: accepted with `¬ (InOk ∧ BlocksOk ∧ OutOk)` lies in `Ex` or in the event of a kind, in any list `Ls` holding the run's kinds. This is premise `h3` of lane L26's `classifyU_productionReady_ep_target` |
+| **`jointCover_of_runParts`** | `classify_productionReady_joint_target`'s `hcover` (all four parts): the same premises and `hdep` (the endpoint's failure makes some sub-protocol enter doomed). Named `jointCover_of_parts` until 2026-11-09 (L27-6) |
 | **`block_doom_w16`**, **`block_doom_r13`** | block `k`'s `hdblk` from L21's case analysis: with `B_k`, `B_{k+1}` the block's extracted planes, `BlockOn` failing ⇒ one of the four links fires (the openings' and `M`'s claims, the slots' claimed sums, the slot relations, the lookups; L16's `blockSat_of_slots`, L17's `blockSat_of_slots_r13`, L18's `blockOn_of_blockSat`) |
 
 ### 2.6 `RunChainAssemble.lean`: the gate through the run's chain
@@ -125,6 +138,7 @@ earlier blocks, its frame), every window is at its run position: `defPos P h k`,
 | Theorem / definition | Statement |
 |---|---|
 | `kindsFK`, `kindsFK_fst` | the kinds with their constants as L24's `FirstKind`s |
+| `kindsFK_ℓ`, `kindsFK_lin`, `kindsFK_mem` | the kinds' chain bounds (`≤ 2^21`) and linear parts carried to their `FirstKind`s, and their membership in any longer list of kinds: with `cover3_of_runParts`, what another protocol's gate takes from this lane |
 | **`classify_productionReady_runChain`** | `ProductionReady … εcTarget εsTarget εsTarget εzkTarget` from `ClassifyOpen` (every field but O11), the run's transcript `tr`, any list of kinds on it (chains `≤ 2^21`, `np = L + 2`) with their constants, an extra event with its bound, the per-part covers, constants `≤ 2^26` |
 | `εxRun`, `εxRun_le`, `hEx_w16r2`, `hEx_r13` | the extra event: the run's extraction failure, within `(q + 1)·(2^16 + 2^18)/2^126` for `q + 1 ≤ 2^102`, `1` beyond |
 | `nine_lin_w16r2`, `nine_lin_r13`, `nine_bud_w16r2`, `nine_bud_r13` | the nine kinds' linear parts from their forms, and the budgets (`31,177,585` and `57,261,913`, each `≤ 2^26`) |
@@ -161,8 +175,23 @@ run's chain is now proved.
 4. **The run's Merkle work's extra part**: `Vx` (the boundary and stage openings' column checks as an oracle
    computation, `nx ≤ 3,800,000` queries), `rx` (their roots, `nrx ≤ 2^99`), and `coreOf` (block `k`'s decoded segment).
 5. **O11d, the endpoint** (`hdep`): false for the current `opensIn` (L24-1); with a unique-decoding `opensIn` (lane L26,
-   pending Victor's ruling) it is the endpoint opening's `opA`/`opB` kinds and the decoding link.
-6. **Everything else in `ClassifyOpen`** (O1–O10, O12), as L18 left it.
+   pending Victor's ruling) it is the endpoint opening's `opA`/`opB` kinds and the decoding link. Lane L26's gate
+   (`classifyU_productionReady_ep_target`, in L26's worktree on 2026-11-09, not yet merged) discharges the endpoint
+   from its own column test and asks the other three parts' cover as its premise `h3`, which is
+   `cover3_of_runParts`'s conclusion. **The gates through the run's chain at L26's instance** (the nine kinds beside
+   L26's two, `kindsFK_mem`, `kindsFK_ℓ`, `kindsFK_lin`, L26's eleven-kind budgets) are not written: they need L26's
+   files, which this lane may not import before they are merged (L27-5).
+6. **Everything else in `ClassifyOpen`** (O1–O10, O12), as L18 left it (lane L25, merged on perf since, reduces O8,
+   O9 and discharges O10 for transcript-program sites; not used here).
+
+So of `classify_productionReady_joint_target`'s own premises: `hℓ` (each kind's chain `≤ 2^21`) is carried as the
+same bound on each kind's parse; `hlin`, `hx`, `hbud` and `hEx` are **discharged** at both profiles (the constants
+from the kinds' forms, the extraction failure's bound proved); every structural field of each `FirstKind` is
+**discharged** from the parts (`hstab` included); `hcover` is **reduced** to `halive`, `hdin`, `hdblk`, `hdout`,
+`hdep`; and `O` (the rest of `ClassifyOpen`), `hbij`, `hzk` pass through unchanged. New premises this lane introduces
+in exchange: the transcript `tr` with each kind's parse (`htr`, `StepsOK`, `hcont`, the header), the nine `KindRun`s
+with their forms (`SqForm` / `PowForm` at the profile's constants, `np = L + 2`), and the Merkle work's extra part
+(`Vx`, `nx ≤ 3,800,000`, `rx`, `nrx ≤ 2^99`, `coreOf`).
 
 ## 4. The numbers
 
@@ -208,8 +237,22 @@ same prover queries, and its chain a prefix of the run's (`cChain_prefix`). So t
 transfer by `entD_of_prefix` and `allSt_of_prefix` (every block sub-protocol's rounds lie inside the block), with
 L22-1's squeeze count the profile's.
 
-**L27-5 (Info): the endpoint stays open.** `hdep` (O11d) is a premise of both gates; it is false for the current
-`opensIn` (L24-1), which lane L26 is replacing pending Victor's ruling.
+**L27-5 (Low; for the coordinator): the endpoint stays open, so the two gates here are not yet usable.** `hdep` (O11d)
+is a premise of `classify_productionReady_run_w16r2` and `_r13`, which are stated at L18's `classifyProtocol`. There it
+is false (L24-1: the instance's `opensIn` asks all `N` columns to open), so no one can supply it and the two gates
+prove nothing about a real run until the instance changes. Lane L26 builds that instance (`classifyProtocolU`) and a
+gate that discharges the endpoint itself, pending Victor's ruling on L24-1. What carries over from this lane without
+change is protocol-independent: the kinds (`KindRun.toFirstKind`), the extraction failure (`hEx_w16r2`, `hEx_r13`),
+the constants (`nine_lin_*`), and the three-part cover (`cover3_of_runParts`, which is exactly L26's premise `h3`).
+The restatement of the two gates at `classifyProtocolU` is a short step for whoever merges both lanes.
+
+**L27-6 (Low; for the coordinator): two lanes chose the name `ZK60.ProtocolClassify.jointCover_of_parts`.** This lane's
+`RunChainCover.lean` (committed 2026-11-07, `9fce8ae5`) and lane L26's `ProtocolClassifyU.lean` (uncommitted in its
+worktree on 2026-11-09) both declared it, with different statements. The library root imports both files, so the
+merged build would have stopped on a duplicate declaration. Found on resume by comparing this lane's 120 declaration
+names with every Lean file of every worktree (35 worktrees); it was the only clash. Fixed here: this lane's theorem is
+now `jointCover_of_runParts`; L26's keeps its name. The lanes cannot see each other's uncommitted names, so the same
+comparison is worth running at each merge.
 
 ## 6. Checks
 

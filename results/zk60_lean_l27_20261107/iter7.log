@@ -1,0 +1,49 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5ce0e251b8140046/results/zk60_lean_l27_20261107/plan.txt ==
+build ZK60Formal.RunChainCover ZK60Formal.RunChainAssemble
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5ce0e251b8140046/results/zk60_lean_l27_20261107/check_l27.sh
+== lake build ZK60Formal.RunChainCover ZK60Formal.RunChainAssemble ==
+Build completed successfully (3501 jobs).
+build rc 0 (18 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5ce0e251b8140046/results/zk60_lean_l27_20261107/check_l27.sh ==
+check rc 0 (59 s); its log is check.log
+lake build ZK60Formal.RunChainCover rc 0
+lake build ZK60Formal.RunChainKinds rc 0
+lake build ZK60Formal.RunChainAssemble rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3565/3566] Built ZK60Formal (1.7s)
+Build completed successfully (3566 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L27 files: 0
+== axiom audit ==
+105 theorems
+axioms rc 0
+declarations audited: 105
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+  77 axioms: [propext, Classical.choice, Quot.sound]
+  11 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+== source scan of the L27 files ==
+none
+== the library root imports the L27 files ==
+imported: RunChainStab
+imported: RunChainSched
+imported: RunChainExtract
+imported: RunChainCover
+imported: RunChainKinds
+imported: RunChainAssemble
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 41 s
+rc 0, 59 s

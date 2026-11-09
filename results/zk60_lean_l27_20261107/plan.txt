@@ -1,2 +1,2 @@
-build ZK60Formal.RunChainKinds
+build ZK60Formal.RunChainCover ZK60Formal.RunChainAssemble
 check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5ce0e251b8140046/results/zk60_lean_l27_20261107/check_l27.sh
