@@ -858,3 +858,6 @@ mod gate19;
 
 // D63 Lean lane L18 (2026-11-07): the classify run's framing replayed on a real classifier receipt (test only; the file is in `src/`)
 #[cfg(test)] #[path = "../../lean_l18_export_tests.rs"] mod lean_l18_export_tests;
+
+// D63 Lean lane L29 (2026-11-07): stage IN-C's and stage OUT-C's verifiers replayed on a real classifier receipt (test only; the file is in `src/`)
+#[cfg(test)] #[path = "../../lean_l29_export_tests.rs"] mod lean_l29_export_tests;

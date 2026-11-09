@@ -175,3 +175,10 @@ import ZK60Formal.HonestClassifyBlock
 import ZK60Formal.HonestClassifyRun
 import ZK60Formal.HonestClassifyCount
 import ZK60Formal.HonestClassifyLinks
+import ZK60Formal.StageVerifyExecLay
+import ZK60Formal.StageVerifyExecInC
+import ZK60Formal.StageVerifyExecOutC
+import ZK60Formal.StageVerifyExec
+import ZK60Formal.StageVerifyExecComplete
+import ZK60Formal.HonestOracleProg
+import ZK60Formal.StageVerifyExecAssemble
