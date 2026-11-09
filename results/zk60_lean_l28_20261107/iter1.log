@@ -1,0 +1,718 @@
+== lake build ZK60Formal.LinkW16Pcs ==
+✖ [3475/3475] Building ZK60Formal.LinkW16Pcs (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Pcs.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.setup.json --json
+warning: ZK60Formal/LinkW16Pcs.lean:251:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/LinkW16Pcs.lean:259:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/LinkW16Pcs.lean:367:4: No goals to be solved
+error: ZK60Formal/LinkW16Pcs.lean:372:4: No goals to be solved
+error: ZK60Formal/LinkW16Pcs.lean:409:11: Application type mismatch: The argument
+  (zkRhosAux H rows xs t1).1
+has type
+  List (List Fp2)
+but is expected to have type
+  List (List Fp2 × Fp2)
+in the application
+  groupComb rows x.2 (Tr.challengeFp2Vec H t x.2.length).1 :: (zkRhosAux H rows xs t1).1
+error: ZK60Formal/LinkW16Pcs.lean:480:73: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+i : Fin rows
+hs :
+  (∑ i_1,
+      if ((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i_1 *
+          Fp2.toK U (((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).2.1.getD (↑i) Fp2.zero)
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) *
+        Fp2.toK U (((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD (↑i) Fp2.zero)
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ¬((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨
+      Fp2.toK U (((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.1[↑i]?.getD Fp2.zero) = 0
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+i : Fin rows
+hs :
+  (∑ i_1,
+      if ((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i_1 *
+          Fp2.toK U (((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).2.1.getD (↑i) Fp2.zero)
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) *
+        Fp2.toK U (((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD (↑i) Fp2.zero)
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ¬((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨
+      Fp2.toK U (((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.1[↑i]?.getD Fp2.zero) = 0
+error: ZK60Formal/LinkW16Pcs.lean:499:63: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+hs :
+  (∑ i,
+      if ((memsOf gs).getD ↑i (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i * Fp2.toK U ((memsOf gs).getD ↑i (0, [], Fp2.zero)).2.2
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) * Fp2.toK U ((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).2
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ¬((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨ Fp2.toK U ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.2 = 0
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+hs :
+  (∑ i,
+      if ((memsOf gs).getD ↑i (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i * Fp2.toK U ((memsOf gs).getD ↑i (0, [], Fp2.zero)).2.2
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) * Fp2.toK U ((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).2
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ¬((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨ Fp2.toK U ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.2 = 0
+error: ZK60Formal/LinkW16Pcs.lean:531:45: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ∑ i, ?f ↑i
+in the target expression
+  ∑ t, (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t =
+    ∑ t ∈ Finset.range (2 ^ lc), Fp2.toK U (v.getD t Fp2.zero) * Fp2.toK U (cw.getD t Fp2.zero)
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+lc Q : ℕ
+v cw : List Fp2
+e :
+  ∀ (t : Fin (2 ^ lc + Q)),
+    vecK U (2 ^ lc + Q) v t * cwK U lc Q cw t =
+      (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t
+⊢ ∑ t, (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t =
+    ∑ t ∈ Finset.range (2 ^ lc), Fp2.toK U (v.getD t Fp2.zero) * Fp2.toK U (cw.getD t Fp2.zero)
+error: ZK60Formal/LinkW16Pcs.lean:697:10: Unknown constant `List.getD_eq_default`
+error: ZK60Formal/LinkW16Pcs.lean:719:104: unsolved goals
+w0 m : ℕ
+o : Block.OpeningZk
+⊢ stpsOps [] = []
+warning: ZK60Formal/LinkW16Pcs.lean:720:64: This simp argument is unused:
+  stpsOps_singleton
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [pcsStps, pcsPre, stpsOps_cons, stpsOps_append, Stp.ops]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Pcs
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Pcs (16 s)
+== lake build ZK60Formal.LinkW16Head ==
+✖ [3475/3476] Building ZK60Formal.LinkW16Pcs (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Pcs.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.setup.json --json
+warning: ZK60Formal/LinkW16Pcs.lean:251:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/LinkW16Pcs.lean:259:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/LinkW16Pcs.lean:367:4: No goals to be solved
+error: ZK60Formal/LinkW16Pcs.lean:372:4: No goals to be solved
+error: ZK60Formal/LinkW16Pcs.lean:409:11: Application type mismatch: The argument
+  (zkRhosAux H rows xs t1).1
+has type
+  List (List Fp2)
+but is expected to have type
+  List (List Fp2 × Fp2)
+in the application
+  groupComb rows x.2 (Tr.challengeFp2Vec H t x.2.length).1 :: (zkRhosAux H rows xs t1).1
+error: ZK60Formal/LinkW16Pcs.lean:480:73: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+i : Fin rows
+hs :
+  (∑ i_1,
+      if ((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i_1 *
+          Fp2.toK U (((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).2.1.getD (↑i) Fp2.zero)
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) *
+        Fp2.toK U (((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD (↑i) Fp2.zero)
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ¬((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨
+      Fp2.toK U (((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.1[↑i]?.getD Fp2.zero) = 0
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+i : Fin rows
+hs :
+  (∑ i_1,
+      if ((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i_1 *
+          Fp2.toK U (((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).2.1.getD (↑i) Fp2.zero)
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) *
+        Fp2.toK U (((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD (↑i) Fp2.zero)
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ¬((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨
+      Fp2.toK U (((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.1[↑i]?.getD Fp2.zero) = 0
+error: ZK60Formal/LinkW16Pcs.lean:499:63: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+hs :
+  (∑ i,
+      if ((memsOf gs).getD ↑i (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i * Fp2.toK U ((memsOf gs).getD ↑i (0, [], Fp2.zero)).2.2
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) * Fp2.toK U ((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).2
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ¬((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨ Fp2.toK U ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.2 = 0
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+hs :
+  (∑ i,
+      if ((memsOf gs).getD ↑i (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i * Fp2.toK U ((memsOf gs).getD ↑i (0, [], Fp2.zero)).2.2
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) * Fp2.toK U ((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).2
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ¬((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨ Fp2.toK U ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.2 = 0
+error: ZK60Formal/LinkW16Pcs.lean:531:45: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ∑ i, ?f ↑i
+in the target expression
+  ∑ t, (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t =
+    ∑ t ∈ Finset.range (2 ^ lc), Fp2.toK U (v.getD t Fp2.zero) * Fp2.toK U (cw.getD t Fp2.zero)
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+lc Q : ℕ
+v cw : List Fp2
+e :
+  ∀ (t : Fin (2 ^ lc + Q)),
+    vecK U (2 ^ lc + Q) v t * cwK U lc Q cw t =
+      (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t
+⊢ ∑ t, (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t =
+    ∑ t ∈ Finset.range (2 ^ lc), Fp2.toK U (v.getD t Fp2.zero) * Fp2.toK U (cw.getD t Fp2.zero)
+error: ZK60Formal/LinkW16Pcs.lean:697:10: Unknown constant `List.getD_eq_default`
+error: ZK60Formal/LinkW16Pcs.lean:719:104: unsolved goals
+w0 m : ℕ
+o : Block.OpeningZk
+⊢ stpsOps [] = []
+warning: ZK60Formal/LinkW16Pcs.lean:720:64: This simp argument is unused:
+  stpsOps_singleton
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [pcsStps, pcsPre, stpsOps_cons, stpsOps_append, Stp.ops]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Pcs
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Head (20 s)
+== lake build ZK60Formal.LinkW16Glue ==
+✖ [3473/3473] Building ZK60Formal.LinkW16Glue (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Glue.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Glue.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Glue.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Glue.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Glue.setup.json --json
+error: ZK60Formal/LinkW16Glue.lean:299:34: Application type mismatch: The argument
+  add_le_add_right htot εend
+has type
+  εend +
+      (↑q * maskE + 3 * maskE + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                  (↑q * εAa + εAa + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                    (↑q * εBa + εBa + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig)) +
+                (↑q * εAh + εAh + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                  (↑q * εBh + εBh + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig)) +
+              (collBound T' Dig + ↑(2 * T' * T' + (1 + nr) * T') / ↑(Fintype.card Dig)) +
+            (↑(q * dmax + blockND P.geom.slots) / ↑(gP ^ 2) * (1 + ↑gP / ↑(2 ^ 128)) ^ 2 +
+                collBound (q + blockLen P.draws P.geom.slots hdrLen + 1) Dig +
+              collBound (q + blockLen P.draws P.geom.slots hdrLen + 1 + 1) Dig) +
+          u126 q (nR * (dd + NDd + 2 ^ 14 + 2 ^ 14)) +
+        u126 q (nH * (dd + NDd + 2 ^ 14 + 2 ^ 14) + (26370000 + 2 ^ 14 + 2 ^ 14))) ≤
+    εend + εsTarget q
+but is expected to have type
+  ?m.1876 ≤ εsTarget q + εend
+in the application
+  le_trans (le_of_eq ?m.1877) (add_le_add_right htot εend)
+Some required targets logged failures:
+- ZK60Formal.LinkW16Glue
+error: build failed
+build rc 1 for ZK60Formal.LinkW16Glue (23 s)
+== lake build ZK60Formal.LinkW16GlueW16 ==
+✖ [3485/3488] Building ZK60Formal.LinkW16Glue (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Glue.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Glue.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Glue.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Glue.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Glue.setup.json --json
+error: ZK60Formal/LinkW16Glue.lean:299:34: Application type mismatch: The argument
+  add_le_add_right htot εend
+has type
+  εend +
+      (↑q * maskE + 3 * maskE + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                  (↑q * εAa + εAa + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                    (↑q * εBa + εBa + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig)) +
+                (↑q * εAh + εAh + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                  (↑q * εBh + εBh + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig)) +
+              (collBound T' Dig + ↑(2 * T' * T' + (1 + nr) * T') / ↑(Fintype.card Dig)) +
+            (↑(q * dmax + blockND P.geom.slots) / ↑(gP ^ 2) * (1 + ↑gP / ↑(2 ^ 128)) ^ 2 +
+                collBound (q + blockLen P.draws P.geom.slots hdrLen + 1) Dig +
+              collBound (q + blockLen P.draws P.geom.slots hdrLen + 1 + 1) Dig) +
+          u126 q (nR * (dd + NDd + 2 ^ 14 + 2 ^ 14)) +
+        u126 q (nH * (dd + NDd + 2 ^ 14 + 2 ^ 14) + (26370000 + 2 ^ 14 + 2 ^ 14))) ≤
+    εend + εsTarget q
+but is expected to have type
+  ?m.1876 ≤ εsTarget q + εend
+in the application
+  le_trans (le_of_eq ?m.1877) (add_le_add_right htot εend)
+✖ [3486/3488] Building ZK60Formal.LinkW16Pcs (2.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Pcs.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.setup.json --json
+warning: ZK60Formal/LinkW16Pcs.lean:251:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/LinkW16Pcs.lean:259:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/LinkW16Pcs.lean:367:4: No goals to be solved
+error: ZK60Formal/LinkW16Pcs.lean:372:4: No goals to be solved
+error: ZK60Formal/LinkW16Pcs.lean:409:11: Application type mismatch: The argument
+  (zkRhosAux H rows xs t1).1
+has type
+  List (List Fp2)
+but is expected to have type
+  List (List Fp2 × Fp2)
+in the application
+  groupComb rows x.2 (Tr.challengeFp2Vec H t x.2.length).1 :: (zkRhosAux H rows xs t1).1
+error: ZK60Formal/LinkW16Pcs.lean:480:73: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+i : Fin rows
+hs :
+  (∑ i_1,
+      if ((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i_1 *
+          Fp2.toK U (((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).2.1.getD (↑i) Fp2.zero)
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) *
+        Fp2.toK U (((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD (↑i) Fp2.zero)
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ¬((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨
+      Fp2.toK U (((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.1[↑i]?.getD Fp2.zero) = 0
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+i : Fin rows
+hs :
+  (∑ i_1,
+      if ((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i_1 *
+          Fp2.toK U (((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).2.1.getD (↑i) Fp2.zero)
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) *
+        Fp2.toK U (((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD (↑i) Fp2.zero)
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ¬((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨
+      Fp2.toK U (((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.1[↑i]?.getD Fp2.zero) = 0
+error: ZK60Formal/LinkW16Pcs.lean:499:63: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+hs :
+  (∑ i,
+      if ((memsOf gs).getD ↑i (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i * Fp2.toK U ((memsOf gs).getD ↑i (0, [], Fp2.zero)).2.2
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) * Fp2.toK U ((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).2
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ¬((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨ Fp2.toK U ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.2 = 0
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+hs :
+  (∑ i,
+      if ((memsOf gs).getD ↑i (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i * Fp2.toK U ((memsOf gs).getD ↑i (0, [], Fp2.zero)).2.2
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) * Fp2.toK U ((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).2
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ¬((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨ Fp2.toK U ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.2 = 0
+error: ZK60Formal/LinkW16Pcs.lean:531:45: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ∑ i, ?f ↑i
+in the target expression
+  ∑ t, (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t =
+    ∑ t ∈ Finset.range (2 ^ lc), Fp2.toK U (v.getD t Fp2.zero) * Fp2.toK U (cw.getD t Fp2.zero)
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+lc Q : ℕ
+v cw : List Fp2
+e :
+  ∀ (t : Fin (2 ^ lc + Q)),
+    vecK U (2 ^ lc + Q) v t * cwK U lc Q cw t =
+      (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t
+⊢ ∑ t, (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t =
+    ∑ t ∈ Finset.range (2 ^ lc), Fp2.toK U (v.getD t Fp2.zero) * Fp2.toK U (cw.getD t Fp2.zero)
+error: ZK60Formal/LinkW16Pcs.lean:697:10: Unknown constant `List.getD_eq_default`
+error: ZK60Formal/LinkW16Pcs.lean:719:104: unsolved goals
+w0 m : ℕ
+o : Block.OpeningZk
+⊢ stpsOps [] = []
+warning: ZK60Formal/LinkW16Pcs.lean:720:64: This simp argument is unused:
+  stpsOps_singleton
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [pcsStps, pcsPre, stpsOps_cons, stpsOps_append, Stp.ops]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Glue
+- ZK60Formal.LinkW16Pcs
+error: build failed
+build rc 1 for ZK60Formal.LinkW16GlueW16 (27 s)
+== lake build ZK60Formal.LinkW16GlueW16T ==
+✖ [3495/3499] Building ZK60Formal.LinkW16Glue (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Glue.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Glue.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Glue.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Glue.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Glue.setup.json --json
+error: ZK60Formal/LinkW16Glue.lean:299:34: Application type mismatch: The argument
+  add_le_add_right htot εend
+has type
+  εend +
+      (↑q * maskE + 3 * maskE + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                  (↑q * εAa + εAa + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                    (↑q * εBa + εBa + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig)) +
+                (↑q * εAh + εAh + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig +
+                  (↑q * εBh + εBh + collBound (q + ℓo + 1) Dig + collBound (q + ℓo + 1 + 1) Dig)) +
+              (collBound T' Dig + ↑(2 * T' * T' + (1 + nr) * T') / ↑(Fintype.card Dig)) +
+            (↑(q * dmax + blockND P.geom.slots) / ↑(gP ^ 2) * (1 + ↑gP / ↑(2 ^ 128)) ^ 2 +
+                collBound (q + blockLen P.draws P.geom.slots hdrLen + 1) Dig +
+              collBound (q + blockLen P.draws P.geom.slots hdrLen + 1 + 1) Dig) +
+          u126 q (nR * (dd + NDd + 2 ^ 14 + 2 ^ 14)) +
+        u126 q (nH * (dd + NDd + 2 ^ 14 + 2 ^ 14) + (26370000 + 2 ^ 14 + 2 ^ 14))) ≤
+    εend + εsTarget q
+but is expected to have type
+  ?m.1876 ≤ εsTarget q + εend
+in the application
+  le_trans (le_of_eq ?m.1877) (add_le_add_right htot εend)
+✖ [3496/3499] Building ZK60Formal.LinkW16Pcs (2.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Pcs.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.setup.json --json
+warning: ZK60Formal/LinkW16Pcs.lean:251:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/LinkW16Pcs.lean:259:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/LinkW16Pcs.lean:367:4: No goals to be solved
+error: ZK60Formal/LinkW16Pcs.lean:372:4: No goals to be solved
+error: ZK60Formal/LinkW16Pcs.lean:409:11: Application type mismatch: The argument
+  (zkRhosAux H rows xs t1).1
+has type
+  List (List Fp2)
+but is expected to have type
+  List (List Fp2 × Fp2)
+in the application
+  groupComb rows x.2 (Tr.challengeFp2Vec H t x.2.length).1 :: (zkRhosAux H rows xs t1).1
+error: ZK60Formal/LinkW16Pcs.lean:480:73: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+i : Fin rows
+hs :
+  (∑ i_1,
+      if ((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i_1 *
+          Fp2.toK U (((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).2.1.getD (↑i) Fp2.zero)
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) *
+        Fp2.toK U (((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD (↑i) Fp2.zero)
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ¬((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨
+      Fp2.toK U (((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.1[↑i]?.getD Fp2.zero) = 0
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+i : Fin rows
+hs :
+  (∑ i_1,
+      if ((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i_1 *
+          Fp2.toK U (((memsOf gs).getD ↑i_1 (0, [], Fp2.zero)).2.1.getD (↑i) Fp2.zero)
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) *
+        Fp2.toK U (((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD (↑i) Fp2.zero)
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ¬((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨
+      Fp2.toK U (((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.1[↑i]?.getD Fp2.zero) = 0
+error: ZK60Formal/LinkW16Pcs.lean:499:63: unsolved goals
+case pos
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+hs :
+  (∑ i,
+      if ((memsOf gs).getD ↑i (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i * Fp2.toK U ((memsOf gs).getD ↑i (0, [], Fp2.zero)).2.2
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) * Fp2.toK U ((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).2
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ¬((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨ Fp2.toK U ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.2 = 0
+
+case neg
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows lc Q : ℕ
+gs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < gs.length, ∀ m ∈ (gs.getD g ([], [])).2, m.1.length = rows
+g : ℕ
+hg : g < gs.length
+hs :
+  (∑ i,
+      if ((memsOf gs).getD ↑i (0, [], Fp2.zero)).1 = g then
+        chK U (sqDs H t (nMem gs + rows)) ↑i * Fp2.toK U ((memsOf gs).getD ↑i (0, [], Fp2.zero)).2.2
+      else 0) =
+    ∑ j ∈ Finset.range (gs.getD g ([], [])).2.length,
+      chK U (sqDs H t (nMem gs + rows)) (offOf gs g + j) * Fp2.toK U ((gs.getD g ([], [])).2.getD j ([], Fp2.zero)).2
+p : Fin (nMem gs)
+x✝ : p ∈ Finset.univ
+h✝ : ¬((memsOf gs).getD ↑p (0, [], Fp2.zero)).1 = g
+⊢ ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).1 = g →
+    chK U (sqDs H t (nMem gs + rows)) ↑p = 0 ∨ Fp2.toK U ((memsOf gs)[↑p]?.getD (0, [], Fp2.zero)).2.2 = 0
+error: ZK60Formal/LinkW16Pcs.lean:531:45: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ∑ i, ?f ↑i
+in the target expression
+  ∑ t, (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t =
+    ∑ t ∈ Finset.range (2 ^ lc), Fp2.toK U (v.getD t Fp2.zero) * Fp2.toK U (cw.getD t Fp2.zero)
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+lc Q : ℕ
+v cw : List Fp2
+e :
+  ∀ (t : Fin (2 ^ lc + Q)),
+    vecK U (2 ^ lc + Q) v t * cwK U lc Q cw t =
+      (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t
+⊢ ∑ t, (fun t => Fp2.toK U (v.getD t Fp2.zero) * if t < 2 ^ lc then Fp2.toK U (cw.getD t Fp2.zero) else 0) ↑t =
+    ∑ t ∈ Finset.range (2 ^ lc), Fp2.toK U (v.getD t Fp2.zero) * Fp2.toK U (cw.getD t Fp2.zero)
+error: ZK60Formal/LinkW16Pcs.lean:697:10: Unknown constant `List.getD_eq_default`
+error: ZK60Formal/LinkW16Pcs.lean:719:104: unsolved goals
+w0 m : ℕ
+o : Block.OpeningZk
+⊢ stpsOps [] = []
+warning: ZK60Formal/LinkW16Pcs.lean:720:64: This simp argument is unused:
+  stpsOps_singleton
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [pcsStps, pcsPre, stpsOps_cons, stpsOps_append, Stp.ops]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Glue
+- ZK60Formal.LinkW16Pcs
+error: build failed
+build rc 1 for ZK60Formal.LinkW16GlueW16T (32 s)
+rc build 1 files 0, 32 s

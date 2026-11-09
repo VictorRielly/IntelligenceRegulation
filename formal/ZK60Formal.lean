@@ -186,3 +186,9 @@ import ZK60Formal.BindingUTest
 import ZK60Formal.BindingUDecode
 import ZK60Formal.ProtocolClassifyU
 import ZK60Formal.ProtocolClassifyUEp
+import ZK60Formal.LinkW16Pcs
+import ZK60Formal.LinkW16Head
+import ZK60Formal.LinkW16Glue
+import ZK60Formal.LinkW16GlueW16
+import ZK60Formal.LinkW16GlueW16T
+import ZK60Formal.LinkW16GlueR13

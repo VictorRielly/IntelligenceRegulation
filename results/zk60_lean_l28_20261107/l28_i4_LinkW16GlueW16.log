@@ -1,0 +1,905 @@
+✖ [3488/3488] Building ZK60Formal.LinkW16GlueW16 (2.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16GlueW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16GlueW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16GlueW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16GlueW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16GlueW16.setup.json --json
+warning: ZK60Formal/LinkW16GlueW16.lean:82:39: Variable name `k` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _k
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/LinkW16GlueW16.lean:134:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/LinkW16GlueW16.lean:152:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/LinkW16GlueW16.lean:174:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/LinkW16GlueW16.lean:216:85: Unused tactic linter: `omega` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/LinkW16GlueW16.lean:217:57: Unused tactic linter: `omega` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/LinkW16GlueW16.lean:216:85: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/LinkW16GlueW16.lean:217:57: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/LinkW16GlueW16.lean:218:53: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/LinkW16GlueW16.lean:222:78: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/LinkW16GlueW16.lean:223:60: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/LinkW16GlueW16.lean:226:82: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/LinkW16GlueW16.lean:227:58: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+error: ZK60Formal/LinkW16GlueW16.lean:240:73: unsolved goals
+P : Block.BlockParams
+pr : OProf P
+H : HIn → Dig
+t0 : Tr
+o : List Op × Block.Core
+⊢ opTrace H t0 o.1 ++ opTrace H (runOps H t0 o.1) (Block.rootOps P o.2) ++
+        opTrace H (runOps H t0 (o.1 ++ Block.rootOps P o.2)) (Block.fullOps P 0 o.2.slots) ++
+      opTrace H (runOps H t0 (o.1 ++ Block.rootOps P o.2 ++ Block.fullOps P 0 o.2.slots))
+        (stpsOps (mStps pr.S o.2.maskOpen) ++
+          (stpsOps (pcsStps (pr.nA + pr.rA) pr.mI o.2.aOpen) ++ stpsOps (pcsStps (pr.nH + pr.rH) pr.mI o.2.hOpen))) =
+    opTrace H t0 o.1 ++ opTrace H (runOps H t0 o.1) (Block.rootOps P o.2) ++
+        opTrace H (runOps H t0 (o.1 ++ Block.rootOps P o.2)) (Block.fullOps P 0 o.2.slots) ++
+      (opTrace H (runOps H t0 (o.1 ++ Block.rootOps P o.2 ++ Block.fullOps P 0 o.2.slots))
+          (stpsOps (mStps pr.S o.2.maskOpen)) ++
+        (opTrace H
+            (runOps H (runOps H t0 (o.1 ++ Block.rootOps P o.2 ++ Block.fullOps P 0 o.2.slots))
+              (stpsOps (mStps pr.S o.2.maskOpen)))
+            (stpsOps (pcsStps (pr.nA + pr.rA) pr.mI o.2.aOpen)) ++
+          opTrace H
+            (runOps H
+              (runOps H (runOps H t0 (o.1 ++ Block.rootOps P o.2 ++ Block.fullOps P 0 o.2.slots))
+                (stpsOps (mStps pr.S o.2.maskOpen)))
+              (stpsOps (pcsStps (pr.nA + pr.rA) pr.mI o.2.aOpen)))
+            (stpsOps (pcsStps (pr.nH + pr.rH) pr.mI o.2.hOpen))))
+error: ZK60Formal/LinkW16GlueW16.lean:441:28: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+a b : Fin (2 ^ 15)
+h : ptsW a = ptsW b
+h' : (algebraMap GF K) (w16r2Pts a) = (algebraMap GF K) (w16r2Pts b)
+⊢ ¬7 = 0
+warning: ZK60Formal/LinkW16GlueW16.lean:486:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.UxW_stable`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/LinkW16GlueW16.lean:560:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.mask_alt`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/LinkW16GlueW16.lean:619:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Link.pcsOk_groupsAccept'`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/LinkW16GlueW16.lean:691:19: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ↑(idxCode 15 ?m.498 (vecOf dg0 ?m.502 (List.map halves (sqDs ?m.500 ?m.501 ?m.502))) k)
+in the target expression
+  ↑(idxCode 15 ⋯ (vecOf dg0 70 (List.map halves (sqDs (liftH G) tP 70))) k) =
+    (idxOf (2 ^ 15) w16r2Prm.nQ (sqDs (liftH G) tP ((w16r2Prm.nQ + 3) / 4))).getD (↑k) 0
+
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hbij : Function.Bijective (Hiding.fp2 U)
+P : Block.BlockParams
+pr : OProf P
+L : ℕ
+h64 : 64 ≤ L
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+accRd : List (TItem × Dig) → Block.Acc
+A : OC (QB L) Dig (List Op × Block.Core)
+G : QB L → Dig
+rows nC ipos vpos aO aB : ℕ
+sel : Block.Acc → List Block.ZClaim
+pre rest : List (TItem × Dig)
+tA tH : Tr
+o : Block.OpeningZk
+hpl : pre.length = aO
+hvpos : vpos = aO + (nC + rows)
+haB : aB = aO + (nC + rows + o.groupVecs.length)
+hch :
+  chW pr L key domain hs hL G (OC.run G A) = pre ++ opTrace (liftH G) tA (stpsOps (pcsStps (nC + rows) 70 o)) ++ rest
+hpre : tRem pr.W pre = some 0
+hw0 : 0 < nC + rows
+hW1 : pr.W tA.counter = nC + rows
+cl : List Block.ZClaim
+root : Dig
+hok :
+  PcsOk (liftH G) pr.tag w16r2Prm (cosetPt (rootFp 15)) (colEncLag (rootFp 14) (2 ^ 14) 280) root rows 14
+    (List.map toZClaim cl) (toOZ o) tA tH
+hcnt : cl.length = nC
+hrd : sel (accRd (List.take pr.aM pre)) = cl
+hcan : Block.HidingCanon o
+hcolX :
+  ∀ k < 280,
+    k < o.columns.length →
+      ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.2.length = 15 →
+        verifyPath (liftH G) pr.tag root ((toOZ o).columns.getD k (0, [], zeroDig, [])).1
+              (saltLeaf (liftH G) pr.tag (colDigest (liftH G) pr.tag ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1)
+                ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.1)
+              ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.2 =
+            true →
+          ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1.length = rows →
+            Option.map Subtype.val
+                (colX pr.tag L h64 key domain hs hL 15 ipos (OC.runLog G A).2 pre
+                  ((toOZ o).columns.getD k (0, [], zeroDig, [])).1) =
+              some ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1
+hg : ¬GOW U pr L h64 key domain hs hL accRd rows nC ipos aO sel A G
+tP : Tr :=
+  Tr.absorb (liftH G)
+    (runOps (liftH G) (runOps (liftH G) tA (List.replicate (nC + rows) Op.squeeze)) (stpsOps (vecStps o.groupVecs)))
+    Block.labPcsProx (List.flatMap Fp2.toBytes o.proxVec)
+hW2 : pr.W tP.counter = 70
+htP :
+  tP =
+    Tr.absorb (liftH G)
+      (runOps (liftH G) (runOps (liftH G) tA (List.replicate (nC + rows) Op.squeeze)) (stpsOps (vecStps o.groupVecs)))
+      Block.labPcsProx (List.flatMap Fp2.toBytes o.proxVec)
+hnC : nMem (groupZclaims (List.map toZClaim cl) rows 14) = nC
+hnn : w16r2Prm.nn = 2 ^ 15
+htP' :
+  Tr.absorbFp2 (liftH G)
+      (absorbVecs (liftH G) (toOZ o).groupVecs
+        (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows 14) tA).2.2)
+      pcsProxLabel (toOZ o).proxVec =
+    tP
+k : Fin w16r2Prm.nQ
+⊢ ↑(idxCode 15 ⋯ (vecOf dg0 70 (List.map halves (sqDs (liftH G) tP 70))) k) =
+    (idxOf (2 ^ 15) w16r2Prm.nQ (sqDs (liftH G) tP ((w16r2Prm.nQ + 3) / 4))).getD (↑k) 0
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    k
+  has type
+    Fin w16r2Prm.nQ
+  but is expected to have type
+    Fin 280
+  in the application
+    idxCode 15 ⋯ (vecOf dg0 70 (List.map halves (sqDs (liftH G) tP 70))) k
+error: ZK60Formal/LinkW16GlueW16.lean:705:22: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  idxOf w16r2Prm.nn w16r2Prm.nQ
+    (sqDs (liftH G)
+      (Tr.absorbFp2 (liftH G)
+        (absorbVecs (liftH G) (toOZ o).groupVecs
+          (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows w16r2Prm.logCols) tA).2.2)
+        pcsProxLabel (toOZ o).proxVec)
+      ((w16r2Prm.nQ + 3) / 4))
+in the target expression
+  idx.getD (↑k) 0 =
+    (idxOf w16r2Prm.nn w16r2Prm.nQ
+          (sqDs (liftH G)
+            (Tr.absorbFp2 (liftH G)
+              (absorbVecs (liftH G) (toOZ o).groupVecs
+                (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows 14) tA).2.2)
+              pcsProxLabel (toOZ o).proxVec)
+            ((w16r2Prm.nQ + 3) / 4))).getD
+      (↑k) 0
+
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hbij : Function.Bijective (Hiding.fp2 U)
+P : Block.BlockParams
+pr : OProf P
+L : ℕ
+h64 : 64 ≤ L
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+accRd : List (TItem × Dig) → Block.Acc
+A : OC (QB L) Dig (List Op × Block.Core)
+G : QB L → Dig
+rows nC ipos vpos aO aB : ℕ
+sel : Block.Acc → List Block.ZClaim
+pre rest : List (TItem × Dig)
+tA tH : Tr
+o : Block.OpeningZk
+hpl : pre.length = aO
+hvpos : vpos = aO + (nC + rows)
+haB : aB = aO + (nC + rows + o.groupVecs.length)
+hch :
+  chW pr L key domain hs hL G (OC.run G A) = pre ++ opTrace (liftH G) tA (stpsOps (pcsStps (nC + rows) 70 o)) ++ rest
+hpre : tRem pr.W pre = some 0
+hw0 : 0 < nC + rows
+hW1 : pr.W tA.counter = nC + rows
+cl : List Block.ZClaim
+root : Dig
+hcnt : cl.length = nC
+hrd : sel (accRd (List.take pr.aM pre)) = cl
+hcan : Block.HidingCanon o
+hcolX :
+  ∀ k < 280,
+    k < o.columns.length →
+      ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.2.length = 15 →
+        verifyPath (liftH G) pr.tag root ((toOZ o).columns.getD k (0, [], zeroDig, [])).1
+              (saltLeaf (liftH G) pr.tag (colDigest (liftH G) pr.tag ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1)
+                ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.1)
+              ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.2 =
+            true →
+          ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1.length = rows →
+            Option.map Subtype.val
+                (colX pr.tag L h64 key domain hs hL 15 ipos (OC.runLog G A).2 pre
+                  ((toOZ o).columns.getD k (0, [], zeroDig, [])).1) =
+              some ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1
+hg : ¬GOW U pr L h64 key domain hs hL accRd rows nC ipos aO sel A G
+tP : Tr :=
+  Tr.absorb (liftH G)
+    (runOps (liftH G) (runOps (liftH G) tA (List.replicate (nC + rows) Op.squeeze)) (stpsOps (vecStps o.groupVecs)))
+    Block.labPcsProx (List.flatMap Fp2.toBytes o.proxVec)
+hW2 : pr.W tP.counter = 70
+htP :
+  tP =
+    Tr.absorb (liftH G)
+      (runOps (liftH G) (runOps (liftH G) tA (List.replicate (nC + rows) Op.squeeze)) (stpsOps (vecStps o.groupVecs)))
+      Block.labPcsProx (List.flatMap Fp2.toBytes o.proxVec)
+hnC : nMem (groupZclaims (List.map toZClaim cl) rows 14) = nC
+hnn : w16r2Prm.nn = 2 ^ 15
+htP' :
+  Tr.absorbFp2 (liftH G)
+      (absorbVecs (liftH G) (toOZ o).groupVecs
+        (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows 14) tA).2.2)
+      pcsProxLabel (toOZ o).proxVec =
+    tP
+hJ :
+  ∀ (k : Fin w16r2Prm.nQ),
+    ↑(idxCode 15 ⋯ (vecOf dg0 70 (List.map halves (sqDs (liftH G) tP 70))) k) =
+      (idxOf w16r2Prm.nn w16r2Prm.nQ
+            (sqDs (liftH G)
+              (Tr.absorbFp2 (liftH G)
+                (absorbVecs (liftH G) (toOZ o).groupVecs
+                  (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows 14) tA).2.2)
+                pcsProxLabel (toOZ o).proxVec)
+              ((w16r2Prm.nQ + 3) / 4))).getD
+        (↑k) 0
+k : Fin w16r2Prm.nQ
+r : Fin rows
+hpath : ∀ c ∈ (toOZ o).columns, c.2.2.2.length = w16r2Prm.nn.log2
+idx : List ℕ
+hidx :
+  Tr.challengeIndices (liftH G)
+      (Tr.absorbFp2 (liftH G)
+        (absorbVecs (liftH G) (toOZ o).groupVecs
+          (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows w16r2Prm.logCols) tA).2.2)
+        pcsProxLabel (toOZ o).proxVec)
+      w16r2Prm.nQ w16r2Prm.nn =
+    some (idx, tH)
+hcl : (toOZ o).columns.length = idx.length
+hco :
+  ∀ k < (toOZ o).columns.length,
+    ColOk (liftH G) pr.tag root rows
+      (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows w16r2Prm.logCols) tA).1
+      (fun j => colEncLag (rootFp 14) (2 ^ 14) 280 (cosetPt (rootFp 15) j) ((toOZ o).groupVecs ++ [(toOZ o).proxVec]))
+      ((toOZ o).columns.getD k (0, [], zeroDig, [])) (idx.getD k 0)
+hidx' :
+  idx =
+      idxOf w16r2Prm.nn w16r2Prm.nQ
+        (sqDs (liftH G)
+          (Tr.absorbFp2 (liftH G)
+            (absorbVecs (liftH G) (toOZ o).groupVecs
+              (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows w16r2Prm.logCols) tA).2.2)
+            pcsProxLabel (toOZ o).proxVec)
+          ((w16r2Prm.nQ + 3) / 4)) ∧
+    idx.length = w16r2Prm.nQ
+hkl : ↑k < (toOZ o).columns.length
+hc :
+  ColOk (liftH G) pr.tag root rows
+    (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows w16r2Prm.logCols) tA).1
+    (fun j => colEncLag (rootFp 14) (2 ^ 14) 280 (cosetPt (rootFp 15) j) ((toOZ o).groupVecs ++ [(toOZ o).proxVec]))
+    ((toOZ o).columns.getD ↑k (0, [], zeroDig, [])) (idx.getD (↑k) 0)
+⊢ idx.getD (↑k) 0 =
+    (idxOf w16r2Prm.nn w16r2Prm.nQ
+          (sqDs (liftH G)
+            (Tr.absorbFp2 (liftH G)
+              (absorbVecs (liftH G) (toOZ o).groupVecs
+                (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows 14) tA).2.2)
+              pcsProxLabel (toOZ o).proxVec)
+            ((w16r2Prm.nQ + 3) / 4))).getD
+      (↑k) 0
+error: ZK60Formal/LinkW16GlueW16.lean:736:8: Type mismatch: After simplification, term
+  this
+ has type
+  @Eq ℕ
+    ((toOZ o).groupVecs[(oclOf U rows 14 280 nC (groupZclaims (List.map toZClaim cl) rows 14)).grp p]?.getD []).length
+    16664
+but is expected to have type
+  @Eq ℕ (o.groupVecs[(oclOf U rows 14 280 nC (groupZclaims (List.map toZClaim cl) rows 14)).grp p]?.getD []).length
+    16664
+error: ZK60Formal/LinkW16GlueW16.lean:751:105: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hbij : Function.Bijective (Hiding.fp2 U)
+P : Block.BlockParams
+pr : OProf P
+L : ℕ
+h64 : 64 ≤ L
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+accRd : List (TItem × Dig) → Block.Acc
+A : OC (QB L) Dig (List Op × Block.Core)
+G : QB L → Dig
+rows nC ipos vpos aO aB : ℕ
+sel : Block.Acc → List Block.ZClaim
+pre rest : List (TItem × Dig)
+tA tH : Tr
+o : Block.OpeningZk
+hpl : pre.length = aO
+hvpos : vpos = aO + (nC + rows)
+haB : aB = aO + (nC + rows + o.groupVecs.length)
+hch :
+  chW pr L key domain hs hL G (OC.run G A) = pre ++ opTrace (liftH G) tA (stpsOps (pcsStps (nC + rows) 70 o)) ++ rest
+hpre : tRem pr.W pre = some 0
+hw0 : 0 < nC + rows
+hW1 : pr.W tA.counter = nC + rows
+cl : List Block.ZClaim
+root : Dig
+hcnt : cl.length = nC
+hrd : sel (accRd (List.take pr.aM pre)) = cl
+hcan : Block.HidingCanon o
+hcolX :
+  ∀ k < 280,
+    k < o.columns.length →
+      ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.2.length = 15 →
+        verifyPath (liftH G) pr.tag root ((toOZ o).columns.getD k (0, [], zeroDig, [])).1
+              (saltLeaf (liftH G) pr.tag (colDigest (liftH G) pr.tag ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1)
+                ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.1)
+              ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.2 =
+            true →
+          ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1.length = rows →
+            Option.map Subtype.val
+                (colX pr.tag L h64 key domain hs hL 15 ipos (OC.runLog G A).2 pre
+                  ((toOZ o).columns.getD k (0, [], zeroDig, [])).1) =
+              some ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.1
+hg : ¬GOW U pr L h64 key domain hs hL accRd rows nC ipos aO sel A G
+tP : Tr :=
+  Tr.absorb (liftH G)
+    (runOps (liftH G) (runOps (liftH G) tA (List.replicate (nC + rows) Op.squeeze)) (stpsOps (vecStps o.groupVecs)))
+    Block.labPcsProx (List.flatMap Fp2.toBytes o.proxVec)
+hW2 : pr.W tP.counter = 70
+htP :
+  tP =
+    Tr.absorb (liftH G)
+      (runOps (liftH G) (runOps (liftH G) tA (List.replicate (nC + rows) Op.squeeze)) (stpsOps (vecStps o.groupVecs)))
+      Block.labPcsProx (List.flatMap Fp2.toBytes o.proxVec)
+hnC : nMem (groupZclaims (List.map toZClaim cl) rows 14) = nC
+hnn : w16r2Prm.nn = 2 ^ 15
+htP' :
+  Tr.absorbFp2 (liftH G)
+      (absorbVecs (liftH G) (toOZ o).groupVecs
+        (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows 14) tA).2.2)
+      pcsProxLabel (toOZ o).proxVec =
+    tP
+hJ :
+  ∀ (k : Fin w16r2Prm.nQ),
+    ↑(idxCode 15 ⋯ (vecOf dg0 70 (List.map halves (sqDs (liftH G) tP 70))) k) =
+      (idxOf w16r2Prm.nn w16r2Prm.nQ
+            (sqDs (liftH G)
+              (Tr.absorbFp2 (liftH G)
+                (absorbVecs (liftH G) (toOZ o).groupVecs
+                  (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows 14) tA).2.2)
+                pcsProxLabel (toOZ o).proxVec)
+              ((w16r2Prm.nQ + 3) / 4))).getD
+        (↑k) 0
+hcols :
+  ∀ (k : Fin w16r2Prm.nQ) (r : Fin rows),
+    UxW pr.tag L h64 key domain hs hL 15 ipos rows (OC.runLog G A).2 pre r
+        (idxCode 15 ⋯ (vecOf dg0 70 (List.map halves (sqDs (liftH G) tP 70))) k) =
+      (algebraMap GF K) (((toOZ o).columns.getD ↑k (0, [], zeroDig, [])).2.1.getD (↑r) Fp.zero).toGF
+hGA :
+  GroupsAccept (encLin ptsW RW) (UxW pr.tag L h64 key domain hs hL 15 ipos rows (OC.runLog G A).2 pre)
+    (oclOf U rows 14 280 nC (groupZclaims (List.map toZClaim cl) rows 14)).rw
+    (oclOf U rows 14 280 nC (groupZclaims (List.map toZClaim cl) rows 14)).cw
+    (oclOf U rows 14 280 nC (groupZclaims (List.map toZClaim cl) rows 14)).grp
+    (oclOf U rows 14 280 nC (groupZclaims (List.map toZClaim cl) rows 14)).val
+    (fun g x x_1 => vecK U (2 ^ 14 + 280) ((toOZ o).groupVecs.getD g []))
+    (fun x x_1 => vecK U (2 ^ 14 + 280) (toOZ o).proxVec) (fun p => chK U (sqDs (liftH G) tA (nC + rows)) ↑p)
+    (fun i => chK U (sqDs (liftH G) tA (nC + rows)) (nC + ↑i))
+    (idxCode 15 ⋯ (vecOf dg0 70 (List.map halves (sqDs (liftH G) tP 70))))
+h3 : (toOZ o).groupVecs.length = (groupZclaims (List.map toZClaim cl) rows w16r2Prm.logCols).length
+hgrp :
+  ∀ g < (toOZ o).groupVecs.length,
+    ((toOZ o).groupVecs.getD g []).length = w16r2Prm.n + w16r2Prm.qPad ∧
+      dotF (List.take w16r2Prm.n ((toOZ o).groupVecs.getD g []))
+          ((List.map (fun x => x.1) (groupZclaims (List.map toZClaim cl) rows w16r2Prm.logCols)).getD g []) =
+        (zkRhosAux (liftH G) rows (groupZclaims (List.map toZClaim cl) rows w16r2Prm.logCols) tA).2.1.getD g Fp2.zero
+h4 : (toOZ o).proxVec.length = w16r2Prm.n + w16r2Prm.qPad
+hlr :
+  (sqDs (liftH G) tA (nC + rows)).length = nC + rows →
+    lrCode gP (Equiv.ofBijective (Hiding.fp2 U) hbij) finSumFinEquiv.symm
+        (vecOf dg0 (nC + rows) (List.map halves (sqDs (liftH G) tA (nC + rows)))) =
+      (fun p => chK U (sqDs (liftH G) tA (nC + rows)) ↑p, fun i => chK U (sqDs (liftH G) tA (nC + rows)) (nC + ↑i))
+hdec : proxDec U (2 ^ 14 + 280) (List.flatMap Fp2.toBytes o.proxVec) = some (vecK U (2 ^ 14 + 280) o.proxVec)
+hcl : clOfO U pr accRd rows nC sel pre = oclOf U rows 14 280 nC (groupZclaims (List.map toZClaim cl) rows 14)
+hv :
+  ∀ g ∈ Set.range (oclOf U rows 14 280 nC (groupZclaims (List.map toZClaim cl) rows 14)).grp,
+    (fun g x x_1 => vecK U (2 ^ 14 + 280) (o.groupVecs.getD g [])) g =
+      (fun g x x_1 =>
+          vRd U (2 ^ 14 + 280) vpos
+            (pre ++ opTrace (liftH G) tA (List.replicate (nC + rows) Op.squeeze ++ stpsOps (vecStps o.groupVecs))) g)
+        g
+hacc :
+  GroupsAccept (encLin ptsW RW) (UxW pr.tag L h64 key domain hs hL 15 ipos rows (OC.runLog G A).2 pre)
+    (clOfO U pr accRd rows nC sel pre).rw (clOfO U pr accRd rows nC sel pre).cw (clOfO U pr accRd rows nC sel pre).grp
+    (clOfO U pr accRd rows nC sel pre).val
+    (fun g x x_1 =>
+      vRd U (2 ^ 14 + 280) vpos
+        (pre ++ opTrace (liftH G) tA (List.replicate (nC + rows) Op.squeeze ++ stpsOps (vecStps o.groupVecs))) g)
+    (fun x x_1 => vecK U (2 ^ 14 + 280) (toOZ o).proxVec) (fun p => chK U (sqDs (liftH G) tA (nC + rows)) ↑p)
+    (fun i => chK U (sqDs (liftH G) tA (nC + rows)) (nC + ↑i))
+    (idxCode 15 ⋯ (vecOf dg0 70 (List.map halves (sqDs (liftH G) tP 70))))
+⊢ (sqDs (liftH G) tA (nC + rows)).length = nC + rows
+warning: ZK60Formal/LinkW16GlueW16.lean:837:4: Variable name `c` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _c
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/LinkW16GlueW16.lean:960:116: unexpected identifier; expected ')', ',' or ':'
+error: ZK60Formal/LinkW16GlueW16.lean:956:20: Tactic `rcases` failed: `Op.squeeze` is not a free variable
+error: ZK60Formal/LinkW16GlueW16.lean:898:60: unsolved goals
+P : Block.BlockParams
+pr : OProf P
+L : ℕ
+hL20 : 2 ^ 20 ≤ L
+hL64 : L < 2 ^ 64
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+rowsOf : Block.Cm → ℕ
+hPm : P.maskVerify = maskField pr.tag pr.S
+hPp : P.pcsVerify = pcsField pr.tag rowsOf
+hrA : rowsOf Block.Cm.a = pr.rA
+hrH : rowsOf Block.Cm.h = pr.rH
+hm70 : pr.mI = 70
+hgt : P.geom.slots.length = P.geom.terms.length
+hgeomL :
+  ∀ k < P.geom.slots.length,
+    1 ≤ (Block.slotShape P k).2.2 ∧ 56 + 16 * ((Block.slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * Block.slotTerms P k ≤ L
+A : OC (QB L) Dig (List Op × Block.Core)
+hcnt :
+  ∀ (G : QB L → Dig) (bga : Fp2 × Fp2 × Fp2) (rs : List Block.SlotRec) (acc : Block.Acc),
+    Block.BlockAcc key domain P pr.hdrLen G (OC.run G A) bga rs acc →
+      acc.claims.a.length = pr.nA ∧ (acc.claims.h ++ [P.logupSumClaim]).length = pr.nH
+h64 : 64 ≤ L
+G : QB L → Dig
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+hsq : sqN (OC.run G A).1 = pr.hdrSq
+hcA : acc.claims.a.length = pr.nA
+hcH : (acc.claims.h ++ [P.logupSumClaim]).length = pr.nH
+hlen : (OC.run G A).1.length = pr.hdrLen
+hfitH : ∀ op ∈ (OC.run G A).1, op.len ≤ L
+hcan : Block.CoreCanon (OC.run G A).2
+hshape : Block.CoreShape P.geom (OC.run G A).2
+t'' : Tr
+hbs :
+  Block.blockSlots (liftH G) P (OC.run G A).2 (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1) =
+    Except.ok (bga, rs, acc, t'')
+io : List Block.ZClaim × List Block.ZClaim
+tF : Tr
+hbv :
+  Block.blockVerify (liftH G) P (OC.run G A).2 (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1) =
+    Except.ok (io, tF)
+hd1 : ∀ i < (OC.run G A).2.slots.length, 1 ≤ (Block.slotShape P i).2.2
+tA tH : Tr
+hnf : (acc.fs ++ acc.hostFs).length = P.nFunctionals
+hpa :
+  pcsField pr.tag rowsOf (liftH G) Block.Cm.a (OC.run G A).2.aRoot acc.claims.a (OC.run G A).2.aOpen tA = Except.ok tH
+hph :
+  pcsField pr.tag rowsOf (liftH G) Block.Cm.h (OC.run G A).2.hRoot (acc.claims.h ++ [P.logupSumClaim])
+      (OC.run G A).2.hOpen tH =
+    Except.ok tF
+hmv :
+  maskField pr.tag pr.S (liftH G) (OC.run G A).2.maskRoot (acc.fs ++ acc.hostFs) (OC.run G A).2.maskOpen t'' =
+    Except.ok tA
+hbs' :
+  Block.blockSlots (liftH G) P (OC.run G A).2 (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1) =
+    Except.ok (bga, rs, acc, t'')
+htM :
+  t'' =
+    runOps (liftH G) (Tr.newKeyed (liftH G) domain key)
+      ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots)
+hMok :
+  MaskOk (liftH G) pr.tag (rootFp 9) (rootFp 12) (OC.run G A).2.maskRoot pr.S (List.map toMF (acc.fs ++ acc.hostFs))
+    (toMO (OC.run G A).2.maskOpen) t'' tA
+th : Fp2
+rs'' : List Fp2
+idx : List ℕ
+hmt : Block.maskTranscript (liftH G) pr.S mQ mDom (OC.run G A).2.maskOpen t'' = Except.ok (th, rs'', idx, tA)
+htA : tA = runOps (liftH G) t'' (stpsOps (mStps pr.S (OC.run G A).2.maskOpen))
+hAok :
+  PcsOk (liftH G) pr.tag w16r2Prm (cosetPt (rootFp 15)) (colEncLag (rootFp 14) (2 ^ 14) 280) (OC.run G A).2.aRoot pr.rA
+    14 (List.map toZClaim acc.claims.a) (toOZ (OC.run G A).2.aOpen) tA tH
+hHok :
+  PcsOk (liftH G) pr.tag w16r2Prm (cosetPt (rootFp 15)) (colEncLag (rootFp 14) (2 ^ 14) 280) (OC.run G A).2.hRoot pr.rH
+    14 (List.map toZClaim (acc.claims.h ++ [P.logupSumClaim])) (toOZ (OC.run G A).2.hOpen) tH tF
+la ra : List Fp2
+ia : List ℕ
+hta :
+  Block.pcsTranscript (liftH G)
+      (List.map (fun x => x.2.length) (groupZclaims (List.map toZClaim acc.claims.a) (rowsOf Block.Cm.a) 14))
+      (rowsOf Block.Cm.a) w16r2Prm.nQ w16r2Prm.nn (OC.run G A).2.aOpen tA =
+    Except.ok (la, ra, ia, tH)
+htH : tH = runOps (liftH G) tA (stpsOps (pcsStps (pr.nA + pr.rA) 70 (OC.run G A).2.aOpen))
+lh rh : List Fp2
+ih : List ℕ
+hth :
+  Block.pcsTranscript (liftH G)
+      (List.map (fun x => x.2.length)
+        (groupZclaims (List.map toZClaim (acc.claims.h ++ [P.logupSumClaim])) (rowsOf Block.Cm.h) 14))
+      (rowsOf Block.Cm.h) w16r2Prm.nQ w16r2Prm.nn (OC.run G A).2.hOpen tH =
+    Except.ok (lh, rh, ih, tF)
+htF : tF = runOps (liftH G) tH (stpsOps (pcsStps (pr.nH + pr.rH) 70 (OC.run G A).2.hOpen))
+hfl : fullLen P 0 (OC.run G A).2.slots = shapeLen P 0 P.geom.slots
+hfs : fullSq P 0 (OC.run G A).2.slots = shapeSq P 0 P.geom.slots
+hX0 : ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots).length = pr.aM
+hsqX : sqN ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots) = pr.cM
+hM1 : (toMO (OC.run G A).2.maskOpen).q.length = 2 * mMsg
+hM2 : (toMO (OC.run G A).2.maskOpen).prox.length = 2 * mMsg
+hAgrp :
+  ∀ g < (toOZ (OC.run G A).2.aOpen).groupVecs.length,
+    ((toOZ (OC.run G A).2.aOpen).groupVecs.getD g []).length = w16r2Prm.n + w16r2Prm.qPad ∧
+      dotF (List.take w16r2Prm.n ((toOZ (OC.run G A).2.aOpen).groupVecs.getD g []))
+          ((List.map (fun x => x.1) (groupZclaims (List.map toZClaim acc.claims.a) pr.rA w16r2Prm.logCols)).getD g []) =
+        (zkRhosAux (liftH G) pr.rA (groupZclaims (List.map toZClaim acc.claims.a) pr.rA w16r2Prm.logCols) tA).2.1.getD g
+          Fp2.zero
+hA4 : (toOZ (OC.run G A).2.aOpen).proxVec.length = w16r2Prm.n + w16r2Prm.qPad
+hHgrp :
+  ∀ g < (toOZ (OC.run G A).2.hOpen).groupVecs.length,
+    ((toOZ (OC.run G A).2.hOpen).groupVecs.getD g []).length = w16r2Prm.n + w16r2Prm.qPad ∧
+      dotF (List.take w16r2Prm.n ((toOZ (OC.run G A).2.hOpen).groupVecs.getD g []))
+          ((List.map (fun x => x.1)
+                (groupZclaims (List.map toZClaim (acc.claims.h ++ [P.logupSumClaim])) pr.rH w16r2Prm.logCols)).getD
+            g []) =
+        (zkRhosAux (liftH G) pr.rH
+                  (groupZclaims (List.map toZClaim (acc.claims.h ++ [P.logupSumClaim])) pr.rH w16r2Prm.logCols)
+                  tH).2.1.getD
+          g Fp2.zero
+hH4 : (toOZ (OC.run G A).2.hOpen).proxVec.length = w16r2Prm.n + w16r2Prm.qPad
+hfit : ∀ op ∈ stpsOps (vS pr (OC.run G A)), op.len ≤ L
+⊢ chW pr L key domain hs hL G (OC.run G A) =
+      opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (vS pr (OC.run G A))) ∧
+    ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots).length = pr.aM ∧
+      (acc.fs ++ acc.hostFs).length = P.nFunctionals
+error: ZK60Formal/LinkW16GlueW16.lean:1087:116: unexpected identifier; expected ')', ',' or ':'
+error: ZK60Formal/LinkW16GlueW16.lean:1083:20: Tactic `rcases` failed: `Op.squeeze` is not a free variable
+error: ZK60Formal/LinkW16GlueW16.lean:1023:121: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hbij : Function.Bijective (Hiding.fp2 U)
+P : Block.BlockParams
+pr : OProf P
+L : ℕ
+hL20 : 2 ^ 20 ≤ L
+hL64 : L < 2 ^ 64
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+accRd : List (TItem × Dig) → Block.Acc
+rowsOf : Block.Cm → ℕ
+hPm : P.maskVerify = maskField pr.tag pr.S
+hPp : P.pcsVerify = pcsField pr.tag rowsOf
+hrA : rowsOf Block.Cm.a = pr.rA
+hrH : rowsOf Block.Cm.h = pr.rH
+hm70 : pr.mI = 70
+hgt : P.geom.slots.length = P.geom.terms.length
+hgeomL :
+  ∀ k < P.geom.slots.length,
+    1 ≤ (Block.slotShape P k).2.2 ∧ 56 + 16 * ((Block.slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * Block.slotTerms P k ≤ L
+hrows : 8 * pr.rA ≤ L ∧ 8 * pr.rH ≤ L ∧ 8 * (2 * pr.S + 4) ≤ L
+A : OC (QB L) Dig (List Op × Block.Core)
+hcnt :
+  ∀ (G : QB L → Dig) (bga : Fp2 × Fp2 × Fp2) (rs : List Block.SlotRec) (acc : Block.Acc),
+    Block.BlockAcc key domain P pr.hdrLen G (OC.run G A) bga rs acc →
+      acc.claims.a.length = pr.nA ∧ (acc.claims.h ++ [P.logupSumClaim]).length = pr.nH
+hRd :
+  ∀ (G : QB L → Dig) (bga : Fp2 × Fp2 × Fp2) (rs : List Block.SlotRec) (acc : Block.Acc),
+    Block.BlockAcc key domain P pr.hdrLen G (OC.run G A) bga rs acc →
+      sqN (OC.run G A).1 = pr.hdrSq →
+        (accRd (slotTrace P key domain G (OC.run G A))).fs ++ (accRd (slotTrace P key domain G (OC.run G A))).hostFs =
+            acc.fs ++ acc.hostFs ∧
+          (accRd (slotTrace P key domain G (OC.run G A))).claims.a = acc.claims.a ∧
+            (accRd (slotTrace P key domain G (OC.run G A))).claims.h = acc.claims.h
+h64 : 64 ≤ L
+G : QB L → Dig
+hsq : sqN (OC.run G A).1 = pr.hdrSq
+hX : ¬EvXB pr.tag L ⋯ key domain hs hL 280 280 256 15 15 12 A G
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+hcA : acc.claims.a.length = pr.nA
+hcH : (acc.claims.h ++ [P.logupSumClaim]).length = pr.nH
+hrd1 :
+  (accRd (slotTrace P key domain G (OC.run G A))).fs ++ (accRd (slotTrace P key domain G (OC.run G A))).hostFs =
+    acc.fs ++ acc.hostFs
+hrd2 : (accRd (slotTrace P key domain G (OC.run G A))).claims.a = acc.claims.a
+hrd3 : (accRd (slotTrace P key domain G (OC.run G A))).claims.h = acc.claims.h
+hlen : (OC.run G A).1.length = pr.hdrLen
+hfitH : ∀ op ∈ (OC.run G A).1, op.len ≤ L
+hcan : Block.CoreCanon (OC.run G A).2
+hshape : Block.CoreShape P.geom (OC.run G A).2
+t'' : Tr
+hbs :
+  Block.blockSlots (liftH G) P (OC.run G A).2 (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1) =
+    Except.ok (bga, rs, acc, t'')
+io : List Block.ZClaim × List Block.ZClaim
+tF : Tr
+hbv :
+  Block.blockVerify (liftH G) P (OC.run G A).2 (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1) =
+    Except.ok (io, tF)
+hd1 : ∀ i < (OC.run G A).2.slots.length, 1 ≤ (Block.slotShape P i).2.2
+tA tH : Tr
+hnf : (acc.fs ++ acc.hostFs).length = P.nFunctionals
+hpa :
+  pcsField pr.tag rowsOf (liftH G) Block.Cm.a (OC.run G A).2.aRoot acc.claims.a (OC.run G A).2.aOpen tA = Except.ok tH
+hph :
+  pcsField pr.tag rowsOf (liftH G) Block.Cm.h (OC.run G A).2.hRoot (acc.claims.h ++ [P.logupSumClaim])
+      (OC.run G A).2.hOpen tH =
+    Except.ok tF
+hmv :
+  maskField pr.tag pr.S (liftH G) (OC.run G A).2.maskRoot (acc.fs ++ acc.hostFs) (OC.run G A).2.maskOpen t'' =
+    Except.ok tA
+hbs' :
+  Block.blockSlots (liftH G) P (OC.run G A).2 (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (OC.run G A).1) =
+    Except.ok (bga, rs, acc, t'')
+htM :
+  t'' =
+    runOps (liftH G) (Tr.newKeyed (liftH G) domain key)
+      ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots)
+hMok :
+  MaskOk (liftH G) pr.tag (rootFp 9) (rootFp 12) (OC.run G A).2.maskRoot pr.S (List.map toMF (acc.fs ++ acc.hostFs))
+    (toMO (OC.run G A).2.maskOpen) t'' tA
+th : Fp2
+rs'' : List Fp2
+idx : List ℕ
+hmt : Block.maskTranscript (liftH G) pr.S mQ mDom (OC.run G A).2.maskOpen t'' = Except.ok (th, rs'', idx, tA)
+htA : tA = runOps (liftH G) t'' (stpsOps (mStps pr.S (OC.run G A).2.maskOpen))
+hAok :
+  PcsOk (liftH G) pr.tag w16r2Prm (cosetPt (rootFp 15)) (colEncLag (rootFp 14) (2 ^ 14) 280) (OC.run G A).2.aRoot pr.rA
+    14 (List.map toZClaim acc.claims.a) (toOZ (OC.run G A).2.aOpen) tA tH
+hHok :
+  PcsOk (liftH G) pr.tag w16r2Prm (cosetPt (rootFp 15)) (colEncLag (rootFp 14) (2 ^ 14) 280) (OC.run G A).2.hRoot pr.rH
+    14 (List.map toZClaim (acc.claims.h ++ [P.logupSumClaim])) (toOZ (OC.run G A).2.hOpen) tH tF
+la ra : List Fp2
+ia : List ℕ
+hta :
+  Block.pcsTranscript (liftH G)
+      (List.map (fun x => x.2.length) (groupZclaims (List.map toZClaim acc.claims.a) (rowsOf Block.Cm.a) 14))
+      (rowsOf Block.Cm.a) w16r2Prm.nQ w16r2Prm.nn (OC.run G A).2.aOpen tA =
+    Except.ok (la, ra, ia, tH)
+htH : tH = runOps (liftH G) tA (stpsOps (pcsStps (pr.nA + pr.rA) 70 (OC.run G A).2.aOpen))
+lh rh : List Fp2
+ih : List ℕ
+hth :
+  Block.pcsTranscript (liftH G)
+      (List.map (fun x => x.2.length)
+        (groupZclaims (List.map toZClaim (acc.claims.h ++ [P.logupSumClaim])) (rowsOf Block.Cm.h) 14))
+      (rowsOf Block.Cm.h) w16r2Prm.nQ w16r2Prm.nn (OC.run G A).2.hOpen tH =
+    Except.ok (lh, rh, ih, tF)
+htF : tF = runOps (liftH G) tH (stpsOps (pcsStps (pr.nH + pr.rH) 70 (OC.run G A).2.hOpen))
+hfl : fullLen P 0 (OC.run G A).2.slots = shapeLen P 0 P.geom.slots
+hfs : fullSq P 0 (OC.run G A).2.slots = shapeSq P 0 P.geom.slots
+hX0 : ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots).length = pr.aM
+hsqX : sqN ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots) = pr.cM
+hM1 : (toMO (OC.run G A).2.maskOpen).q.length = 2 * mMsg
+hM2 : (toMO (OC.run G A).2.maskOpen).prox.length = 2 * mMsg
+hAgrp :
+  ∀ g < (toOZ (OC.run G A).2.aOpen).groupVecs.length,
+    ((toOZ (OC.run G A).2.aOpen).groupVecs.getD g []).length = w16r2Prm.n + w16r2Prm.qPad ∧
+      dotF (List.take w16r2Prm.n ((toOZ (OC.run G A).2.aOpen).groupVecs.getD g []))
+          ((List.map (fun x => x.1) (groupZclaims (List.map toZClaim acc.claims.a) pr.rA w16r2Prm.logCols)).getD g []) =
+        (zkRhosAux (liftH G) pr.rA (groupZclaims (List.map toZClaim acc.claims.a) pr.rA w16r2Prm.logCols) tA).2.1.getD g
+          Fp2.zero
+hA4 : (toOZ (OC.run G A).2.aOpen).proxVec.length = w16r2Prm.n + w16r2Prm.qPad
+hHgrp :
+  ∀ g < (toOZ (OC.run G A).2.hOpen).groupVecs.length,
+    ((toOZ (OC.run G A).2.hOpen).groupVecs.getD g []).length = w16r2Prm.n + w16r2Prm.qPad ∧
+      dotF (List.take w16r2Prm.n ((toOZ (OC.run G A).2.hOpen).groupVecs.getD g []))
+          ((List.map (fun x => x.1)
+                (groupZclaims (List.map toZClaim (acc.claims.h ++ [P.logupSumClaim])) pr.rH w16r2Prm.logCols)).getD
+            g []) =
+        (zkRhosAux (liftH G) pr.rH
+                  (groupZclaims (List.map toZClaim (acc.claims.h ++ [P.logupSumClaim])) pr.rH w16r2Prm.logCols)
+                  tH).2.1.getD
+          g Fp2.zero
+hH4 : (toOZ (OC.run G A).2.hOpen).proxVec.length = w16r2Prm.n + w16r2Prm.qPad
+hfit : ∀ op ∈ stpsOps (vS pr (OC.run G A)), op.len ≤ L
+⊢ (GOW U pr L ⋯ key domain hs hL accRd pr.rA pr.nA pr.hdrLen pr.aA (fun acc => acc.claims.a) A G ∨
+      EvOW U hbij pr L ⋯ key domain hs hL accRd pr.rA pr.nA pr.hdrLen (pr.aA + (pr.nA + pr.rA)) pr.aA pr.aBA
+        (fun acc => acc.claims.a) A G) ∧
+    (GOW U pr L ⋯ key domain hs hL accRd pr.rH pr.nH (pr.hdrLen + 7) pr.aH
+          (fun acc => acc.claims.h ++ [P.logupSumClaim]) A G ∨
+        EvOW U hbij pr L ⋯ key domain hs hL accRd pr.rH pr.nH (pr.hdrLen + 7) (pr.aH + (pr.nH + pr.rH)) pr.aH pr.aBH
+          (fun acc => acc.claims.h ++ [P.logupSumClaim]) A G) ∧
+      (GMW U pr L ⋯ key domain hs hL accRd A G ∨ EvMW U hbij pr L ⋯ key domain hs hL accRd A G)
+error: ZK60Formal/LinkW16GlueW16.lean:1381:10: typeclass instance problem is stuck
+  Algebra GF ?m.783
+
+Note: Lean will not try to resolve this typeclass instance problem because the second and fourth type arguments to `Algebra` contain metavariables. These arguments must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
+error: ZK60Formal/LinkW16GlueW16.lean:1414:10: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  colX pr.tag L h64 key domain hs hL 12 (pr.hdrLen + 3) ?m.972
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots))
+    ?j
+in the target expression
+  (Option.map Subtype.val
+          (colX pr.tag L h64 key domain hs hL 12 (pr.hdrLen + 3) (OC.runLog G A).2
+            (slotTrace P key domain G (OC.run G A)) ↑j)).getD
+      [] =
+    (Option.map Subtype.val
+          (colXc pr.tag L h64 12 (Block.cutsOf key domain hs hL A G).2.1 (Block.rootsOf (OC.run G A).2).2.1 ↑j)).getD
+      []
+
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+P : Block.BlockParams
+pr : OProf P
+L : ℕ
+hL20 : 2 ^ 20 ≤ L
+hL64 : L < 2 ^ 64
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+accRd : List (TItem × Dig) → Block.Acc
+rowsOf : Block.Cm → ℕ
+hPm : P.maskVerify = maskField pr.tag pr.S
+hPp : P.pcsVerify = pcsField pr.tag rowsOf
+hrA : rowsOf Block.Cm.a = pr.rA
+hrH : rowsOf Block.Cm.h = pr.rH
+hm70 : pr.mI = 70
+hgt : P.geom.slots.length = P.geom.terms.length
+hgeomL :
+  ∀ k < P.geom.slots.length,
+    1 ≤ (Block.slotShape P k).2.2 ∧ 56 + 16 * ((Block.slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * Block.slotTerms P k ≤ L
+A : OC (QB L) Dig (List Op × Block.Core)
+hcnt :
+  ∀ (G : QB L → Dig) (bga : Fp2 × Fp2 × Fp2) (rs : List Block.SlotRec) (acc : Block.Acc),
+    Block.BlockAcc key domain P pr.hdrLen G (OC.run G A) bga rs acc →
+      acc.claims.a.length = pr.nA ∧ (acc.claims.h ++ [P.logupSumClaim]).length = pr.nH
+hRd :
+  ∀ (G : QB L → Dig) (bga : Fp2 × Fp2 × Fp2) (rs : List Block.SlotRec) (acc : Block.Acc),
+    Block.BlockAcc key domain P pr.hdrLen G (OC.run G A) bga rs acc →
+      sqN (OC.run G A).1 = pr.hdrSq →
+        (accRd (slotTrace P key domain G (OC.run G A))).fs ++ (accRd (slotTrace P key domain G (OC.run G A))).hostFs =
+            acc.fs ++ acc.hostFs ∧
+          (accRd (slotTrace P key domain G (OC.run G A))).claims.a = acc.claims.a ∧
+            (accRd (slotTrace P key domain G (OC.run G A))).claims.h = acc.claims.h
+csX : Block.Cuts3 L → Block.RootsO → Block.Cm → Block.ZClaim → K
+msX : Block.Cuts3 L → Block.RootsO → List (ℕ × List Fp2) → K
+hcsA :
+  ∀ (cu : Block.Cuts3 L) (rt : Block.RootsO) (z : Block.ZClaim),
+    csX cu rt Block.Cm.a z = claimSem U pr.rA 14 280 (decodeRows encW 8052 (UxC pr.tag L ⋯ 15 pr.rA cu.1 rt.1)) z
+hcsH :
+  ∀ (cu : Block.Cuts3 L) (rt : Block.RootsO) (z : Block.ZClaim),
+    csX cu rt Block.Cm.h z = claimSem U pr.rH 14 280 (decodeRows encW 8052 (UxC pr.tag L ⋯ 15 pr.rH cu.2.2 rt.2.2)) z
+hms :
+  ∀ (cu : Block.Cuts3 L) (rt : Block.RootsO) (ts : List (ℕ × List Fp2)),
+    msX cu rt ts = msOfTab U pr.S (colsC pr.tag L ⋯ cu.2.1 rt.2.1) ts
+h64 : 64 ≤ L
+G : QB L → Dig
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+hacc : Block.BlockAcc key domain P pr.hdrLen G (OC.run G A) bga rs acc
+hsq : sqN (OC.run G A).1 = pr.hdrSq
+hnb :
+  ¬Block.OpenBlk U P (csX (Block.cutsOf key domain hs hL A G) (Block.rootsOf (OC.run G A).2))
+      (msX (Block.cutsOf key domain hs hL A G) (Block.rootsOf (OC.run G A).2)) acc
+ga : GOW U pr L ⋯ key domain hs hL accRd pr.rA pr.nA pr.hdrLen pr.aA (fun acc => acc.claims.a) A G
+gh :
+  GOW U pr L ⋯ key domain hs hL accRd pr.rH pr.nH (pr.hdrLen + 7) pr.aH (fun acc => acc.claims.h ++ [P.logupSumClaim]) A
+    G
+gm : GMW U pr L ⋯ key domain hs hL accRd A G
+hcA : acc.claims.a.length = pr.nA
+hcH : (acc.claims.h ++ [P.logupSumClaim]).length = pr.nH
+hrd1 :
+  (accRd (slotTrace P key domain G (OC.run G A))).fs ++ (accRd (slotTrace P key domain G (OC.run G A))).hostFs =
+    acc.fs ++ acc.hostFs
+hrd2 : (accRd (slotTrace P key domain G (OC.run G A))).claims.a = acc.claims.a
+hrd3 : (accRd (slotTrace P key domain G (OC.run G A))).claims.h = acc.claims.h
+hch :
+  chW pr L key domain hs hL G (OC.run G A) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (vS pr (OC.run G A)))
+hX0 : ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots).length = pr.aM
+hnf : (acc.fs ++ acc.hostFs).length = P.nFunctionals
+hlen : (OC.run G A).1.length = pr.hdrLen
+habsA :
+  Block.absAt
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots))
+      pr.hdrLen =
+    some (List.Vector.toList (OC.run G A).2.aRoot)
+habsM :
+  Block.absAt
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots))
+      (pr.hdrLen + 3) =
+    some (List.Vector.toList (OC.run G A).2.maskRoot)
+habsH :
+  Block.absAt
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots))
+      (pr.hdrLen + 7) =
+    some (List.Vector.toList (OC.run G A).2.hRoot)
+hXl : (slotTrace P key domain G (OC.run G A)).length = pr.aM
+rest : List (TItem × Dig)
+hrest : chW pr L key domain hs hL G (OC.run G A) = slotTrace P key domain G (OC.run G A) ++ rest
+htk :
+  ∀ (a : ℕ),
+    pr.aM ≤ a →
+      List.take pr.aM (List.take a (chW pr L key domain hs hL G (OC.run G A))) = slotTrace P key domain G (OC.run G A)
+habs :
+  ∀ (a i : ℕ),
+    pr.aM ≤ a →
+      i < pr.aM →
+        Block.absAt (List.take a (chW pr L key domain hs hL G (OC.run G A))) i =
+          Block.absAt (slotTrace P key domain G (OC.run G A)) i
+haA : pr.aM ≤ pr.aA
+haH : pr.aM ≤ pr.aH
+hhd : pr.hdrLen + 7 < pr.aM
+mf : Block.MaskFunctional
+hmf : mf ∈ acc.fs ++ acc.hostFs
+htkM : List.take pr.aM (chW pr L key domain hs hL G (OC.run G A)) = slotTrace P key domain G (OC.run G A)
+j : Fin (2 ^ 12)
+⊢ (Option.map Subtype.val
+          (colX pr.tag L h64 key domain hs hL 12 (pr.hdrLen + 3) (OC.runLog G A).2
+            (slotTrace P key domain G (OC.run G A)) ↑j)).getD
+      [] =
+    (Option.map Subtype.val
+          (colXc pr.tag L h64 12 (Block.cutsOf key domain hs hL A G).2.1 (Block.rootsOf (OC.run G A).2).2.1 ↑j)).getD
+      []
+Some required targets logged failures:
+- ZK60Formal.LinkW16GlueW16
+error: build failed

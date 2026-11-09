@@ -1,0 +1,106 @@
+/-
+D63 lane L28 (2026-11-09), part 6: **one R13 block's knowledge statement with the openings' premises discharged**
+(the media app's real profile).
+
+R13's regular opening has `log_cols 14`, rate `1/4`, `Q = q_pad = 256` (L17's `r13Prm`): the codeword length is `2^16`,
+the tree depth `16`, the index squeezes `64`, and the unique-decoding radius is `e = 24448`
+(`2e + (2^14 + 256) = 2^16`, tight). `M` is W16R2's (L17). So the R13 instance is `LinkW16GlueW16.lean`'s generic
+machinery at the geometry `(h, Q, e) = (16, 256, 24448)`, with L17's `pcsFieldR13` (acceptance is `PcsOk` at `r13Prm`,
+`r13OpenCheck_ok_iff`) and `r13_colEnc_spec`, and R13's numbers:
+
+* **`opA_eps_r13`**: `opA`'s error at R13, `2^16/p² · bias ≤ 2^-110` (W16R2: `2^-111`), for a variable `p` (L7-4);
+* **`opB_eps_r13u`**: `opB`'s error at R13's unique-decoding radius, `((2^16 − 24449)/2^16)^256 ≤ 2^-126` (in fact
+  `2^-172`, L17's `r13_col_far_nat`);
+* `r13_budget_open`: the R13 rung block's budget at these exponents is `30,322,419` units, under `2^25`;
+* **`block_knowledge_open_r13`**: for EVERY `q`,
+  `Pr[BlockAcc ∧ sqN header = hdrSq ∧ ¬BlockSat] ≤ εsTarget q + εend`, L23's `block_knowledge_target_r13` with the
+  openings' and `M`'s premises (`hM`, `hEA`, `hEH`, `hX`, `hsem`, `hexec`) DISCHARGED, on the real run (L22-1) and with
+  the endpoint claims as a run-level term (L22-5). The statement is generated from L23's
+  (results/zk60_lean_l28_20261107/l28_mk_r13.py).
+
+Only `propext`, `Classical.choice`, `Quot.sound`.
+-/
+import ZK60Formal.LinkW16GlueW16
+import ZK60Formal.CoverW16R13
+import ZK60Formal.OpeningR13
+
+set_option autoImplicit false
+
+namespace ZK60.Exec.Link
+
+open ZK60.Sound
+open ZK60.Exec
+open ZK60.Circuit (gP GF)
+open scoped ENNReal
+
+/-! ## R13's per-round errors -/
+
+section R13Numbers
+
+/-- **`opB`'s error at R13's unique-decoding radius** (`N = 2^16`, `e = 24448`, `Q = 256`): at most `2^-126` (in fact
+`2^-172`, L17's `r13_col_far_nat`; L17-4's margin, now on the chain). -/
+theorem opB_eps_r13u :
+    (((Fintype.card (Fin (2 ^ 16)) - (24448 + 1) : ℕ) : ℝ≥0∞) / Fintype.card (Fin (2 ^ 16))) ^ 256 * 1
+      ≤ (2⁻¹ : ℝ≥0∞) ^ 126 := by
+  rw [mul_one, Fintype.card_fin, inv_two_pow_eq, natCast_div_pow]
+  refine natCast_div_le_div (by positivity) (by norm_num) ?_
+  calc (2 ^ 16 - (24448 + 1)) ^ 256 * 2 ^ 126 ≤ (2 ^ 16 - (24448 + 1)) ^ 256 * 2 ^ 172 :=
+        Nat.mul_le_mul_left _ (Nat.pow_le_pow_right (by norm_num) (by norm_num))
+    _ ≤ 1 * (2 ^ 16) ^ 256 := ZK60.Exec.R13.r13_col_far_nat
+
+/-- **`opA`'s error at R13** (`A = N = 2^16` at the δ/2 radius, `|F| = p²`, `p` within `2^32` below `2^64`, the
+`(λ, ρ)` bias over at most `2^61` squeezes at most `2`): at most `2^-110`. Stated for a variable `p` (L7-4). -/
+theorem opA_eps_r13 {F : Type} [Fintype F] (p : ℕ) (hp1 : p ≤ 2 ^ 64) (hp2 : 2 ^ 64 - 2 ^ 32 ≤ p)
+    (hF : Fintype.card F = p ^ 2) {w0 : ℕ} (hw0 : w0 ≤ 2 ^ 61) :
+    ((2 ^ 16 : ℕ) : ℝ≥0∞) / Fintype.card F * (1 + (p : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ (2 * w0)
+      ≤ (2⁻¹ : ℝ≥0∞) ^ 110 := by
+  have hb : (1 + (p : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ (2 * w0) ≤ ((2 : ℕ) : ℝ≥0∞) := by
+    exact_mod_cast fp2_bias_pow_le_two hp1 (by omega)
+  have hp0 : 0 < p := by omega
+  calc ((2 ^ 16 : ℕ) : ℝ≥0∞) / Fintype.card F * (1 + (p : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ (2 * w0)
+      ≤ ((2 ^ 16 : ℕ) : ℝ≥0∞) / ((p ^ 2 : ℕ) : ℝ≥0∞) * ((2 : ℕ) : ℝ≥0∞) := by
+        rw [hF]
+        exact mul_le_mul' le_rfl hb
+    _ = ((2 ^ 16 * 2 : ℕ) : ℝ≥0∞) / ((p ^ 2 * 1 : ℕ) : ℝ≥0∞) := by
+        rw [← natCast_div_mul_div, Nat.cast_one, div_one]
+    _ ≤ (2⁻¹ : ℝ≥0∞) ^ 110 := by
+        rw [inv_two_pow_eq]
+        refine natCast_div_le_div (mul_ne_zero (pow_ne_zero 2 (by omega)) one_ne_zero) (by norm_num) ?_
+        calc 2 ^ 16 * 2 * 2 ^ 110 = 2 ^ 127 := by norm_num
+          _ ≤ (2 ^ 64 - 2 ^ 32) ^ 2 := by norm_num
+          _ ≤ p ^ 2 := Nat.pow_le_pow_left hp2 2
+          _ = 1 * (p ^ 2 * 1) := by ring
+
+/-- **The R13 rung block's budget at the proved opening exponents** (`M` `2^-106`, `opA` `2^-110`, `opB` `2^-126`):
+exactly `30,322,419` units of `2^-126` per query, under `2^25` (L23's `r13_budget` at `105 / 105` allows
+`38,579,953`: the unique-decoding radius makes `opB` cost one unit, not `2^21`). -/
+theorem r13_budget_open :
+    3 * 2 ^ (126 - 106) + 2 * (2 ^ (126 - 110) + 2 ^ (126 - 126)) + 2 ^ 18 + 2 ^ 16 + 5 + 924
+        + 4 * (80 + 80 * 375 + 2 ^ 14 + 2 ^ 14) + (1 * (80 + 80 * 375 + 2 ^ 14 + 2 ^ 14) + (26370000 + 2 ^ 14 + 2 ^ 14))
+      = 30322419 ∧ 30322419 ≤ 2 ^ 25 := by
+  constructor <;> norm_num
+
+end R13Numbers
+
+end ZK60.Exec.Link
+
+namespace ZK60.Exec.Block
+
+open ZK60.Sound
+open ZK60.Sound.SlotW16 (SlotPoly)
+open ZK60.Circuit (gP GF)
+open scoped ENNReal
+
+section Open
+
+variable {K : Type} [Field K] [Algebra GF K] {L : ℕ}
+variable {S : ZK60.Block.BlockShape} {Ct Cw Cg Cj Cd Cf : Type} [Fintype Ct] [Fintype Cw] [Fintype Cg] [Fintype Cj]
+  [Fintype Cd] [Fintype Cf] [DecidableEq Ct] [DecidableEq Cw] [DecidableEq Cg] [DecidableEq Cj] [DecidableEq Cd]
+  [DecidableEq Cf]
+
+/-- **One R13 rung block's knowledge error on the real run is at most the approved target plus the endpoint term, for
+EVERY `q`, with the openings' and `M`'s premises discharged** (D63 lane L28; the media app's real profile). As
+`block_knowledge_open_w16r2`, at the R13 rung's schedule (L17, L23's `block_knowledge_target_r13`), with L17's fields
+(`maskField`, `pcsFieldR13`), R13's opening geometry (`2^16` columns of depth `16`, `256` queries and pads, `64` index
+squeezes, radius `24448`), R13's relations and lookups of the extracted R13 planes, and the shifts in their limb
+windows (`R13Windows`). -/

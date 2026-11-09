@@ -1,0 +1,19 @@
+== lake build ZK60Formal.LinkW16Sem ==
+Build completed successfully (3473 jobs).
+build rc 0 for ZK60Formal.LinkW16Sem (6 s)
+== lake build ZK60Formal.ExtractInstW16 ==
+Build completed successfully (3465 jobs).
+build rc 0 for ZK60Formal.ExtractInstW16 (8 s)
+== lake build ZK60Formal.RelW16Pos ==
+Build completed successfully (3468 jobs).
+build rc 0 for ZK60Formal.RelW16Pos (10 s)
+== lake build ZK60Formal.OpeningR13 ==
+Build completed successfully (3456 jobs).
+build rc 0 for ZK60Formal.OpeningR13 (13 s)
+== lake build ZK60Formal.CoverW16Inst ==
+Build completed successfully (3486 jobs).
+build rc 0 for ZK60Formal.CoverW16Inst (14 s)
+== lake build ZK60Formal.CoverW16R13 ==
+Build completed successfully (3490 jobs).
+build rc 0 for ZK60Formal.CoverW16R13 (16 s)
+rc build 0 files 0, 16 s

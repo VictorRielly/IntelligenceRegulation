@@ -1,0 +1,52 @@
+✖ [3476/3476] Building ZK60Formal.LinkW16Head (1.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Head.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Head.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Head.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Head.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Head.setup.json --json
+error: ZK60Formal/LinkW16Head.lean:108:53: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  Block.absAt (?l ++ ?l') (List.length ?l + ?i)
+in the target expression
+  vecK U m
+      (decFp2s m
+        ((Block.absAt
+              (opTrace H tA (List.replicate (opTrace H tA (List.replicate w0 Op.squeeze)).length Op.squeeze) ++
+                (opTrace H
+                    (runOps H tA (List.replicate (opTrace H tA (List.replicate w0 Op.squeeze)).length Op.squeeze))
+                    (stpsOps (vecStps vs)) ++
+                  rest))
+              ((opTrace H tA (List.replicate w0 Op.squeeze)).length + g)).getD
+          [])) =
+    vecK U m (vs.getD g [])
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+H : HIn → Dig
+pre rest : List (TItem × Dig)
+tA : Tr
+w0 : ℕ
+vs : List (List Fp2)
+g : ℕ
+hg : g < vs.length
+hc : ∀ x ∈ vs.getD g [], x.Canon
+m : ℕ
+hl : (vs.getD g []).length = m
+e1 :
+  pre ++ opTrace H tA (List.replicate w0 Op.squeeze ++ stpsOps (vecStps vs)) ++ rest =
+    pre ++
+      (opTrace H tA (List.replicate w0 Op.squeeze) ++
+        (opTrace H (runOps H tA (List.replicate w0 Op.squeeze)) (stpsOps (vecStps vs)) ++ rest))
+hlen : (opTrace H tA (List.replicate w0 Op.squeeze)).length = w0
+hlt : g < (opTrace H (runOps H tA (List.replicate w0 Op.squeeze)) (stpsOps (vecStps vs))).length
+⊢ vecK U m
+      (decFp2s m
+        ((Block.absAt
+              (opTrace H tA (List.replicate (opTrace H tA (List.replicate w0 Op.squeeze)).length Op.squeeze) ++
+                (opTrace H
+                    (runOps H tA (List.replicate (opTrace H tA (List.replicate w0 Op.squeeze)).length Op.squeeze))
+                    (stpsOps (vecStps vs)) ++
+                  rest))
+              ((opTrace H tA (List.replicate w0 Op.squeeze)).length + g)).getD
+          [])) =
+    vecK U m (vs.getD g [])
+Some required targets logged failures:
+- ZK60Formal.LinkW16Head
+error: build failed

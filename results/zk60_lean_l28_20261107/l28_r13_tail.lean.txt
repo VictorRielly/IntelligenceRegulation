@@ -1,0 +1,57 @@
+  -- the openings (lane L28), at R13's geometry `(16, 256, 24448)`: the kinds' bounds, the extraction failure,
+  -- `hsem`, `hexec`
+  have hbij := ZK60.Hiding.fp2_bijective hK2 hU seven_not_square
+  have hF2 : Fintype.card K = gP ^ 2 := card_of_pairs gP (Equiv.ofBijective _ hbij)
+  have hp1 : gP ≤ 2 ^ 64 := by norm_num [gP]
+  have hp2 : 2 ^ 64 - 2 ^ 32 ≤ gP := by norm_num [gP]
+  have h64 : 64 ≤ L := by omega
+  have hgeomL : ∀ k, k < P.geom.slots.length → 1 ≤ (slotShape P k).2.2
+      ∧ 56 + 16 * ((slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * slotTerms P k ≤ L :=
+    fun k hk => ⟨(hgeom k hk).1, (hgeom k hk).2.2.1, (hgeom k hk).2.2.2⟩
+  have hm : (256 + 3) / 4 = pr.mI := by omega
+  have hQm : 256 ≤ pr.mI * 4 := by omega
+  have hPp' : ∀ (H : HIn → Dig) (cm : Cm) (root : Dig) (cl : List ZClaim) (o : OpeningZk) (t t' : Tr),
+      P.pcsVerify H cm root cl o t = .ok t' →
+        PcsOk H pr.tag ZK60.Exec.R13.r13Prm (cosetPt (rootFp 16)) (colEncLag (rootFp 14) (2 ^ 14) 256) root (rowsOf cm)
+          14 (cl.map toZClaim) (toOZ o) t t' := by
+    intro H cm root cl o t t' h
+    rw [hPp, ZK60.Exec.R13.pcsFieldR13, mapErr_ok, ZK60.Exec.R13.r13OpenCheck_ok_iff] at h
+    exact h
+  have hM := Link.evMW_bound U hbij pr L h64 key domain hs hL accRd hL64 hk (by unfold Link.OProf.aM; omega) q A hA
+  have hEA := Link.evOW_bound U hbij pr L h64 key domain hs hL accRd hL64 16 256 24448 (by norm_num) (by norm_num)
+    (by norm_num) hQm pr.rA pr.nA pr.hdrLen (pr.aA + (pr.nA + pr.rA)) pr.aA pr.aBA (by omega)
+    (by unfold Link.OProf.aA Link.OProf.aM; omega) (by unfold Link.OProf.aBA; omega) (fun acc => acc.claims.a) q A hA
+  have hEH := Link.evOW_bound U hbij pr L h64 key domain hs hL accRd hL64 16 256 24448 (by norm_num) (by norm_num)
+    (by norm_num) hQm pr.rH pr.nH (pr.hdrLen + 7) (pr.aH + (pr.nH + pr.rH)) pr.aH pr.aBH (by omega)
+    (by unfold Link.OProf.aH Link.OProf.aBA Link.OProf.aA Link.OProf.aM; omega) (by unfold Link.OProf.aBH; omega)
+    (fun acc => acc.claims.h ++ [P.logupSumClaim]) q A hA
+  have hX := Link.extract_fail_block pr.tag L h64 key domain hs hL 256 256 256 16 16 12 q A hA
+  have hsem := Link.hsem_geo U pr L hL20 hL64 key domain hs hL accRd rowsOf ZK60.Exec.R13.r13Prm 16 256 24448
+    (colEncLag (rootFp 14) (2 ^ 14) 256) rfl rfl ZK60.Exec.R13.r13Prm_nn (by decide) (by norm_num) (by norm_num) hm hPm
+    hPp' hrA hrH hgt hgeomL A hcnt hRd csX msX hcsA hcsH hms
+  have hexec := Link.hexec_geo U hU hbij pr L hL20 hL64 key domain hs hL accRd rowsOf ZK60.Exec.R13.r13Prm 16 256 24448
+    (colEncLag (rootFp 14) (2 ^ 14) 256) rfl rfl rfl ZK60.Exec.R13.r13Prm_nn (by decide) (by norm_num) (by norm_num) hm
+    hQm (ZK60.Exec.R13.r13_colEnc_spec U) hPm hPp' hrA hrH hgt hgeomL hrows A hcnt hRd
+  exact block_knowledge_target_R U hU hK2 key domain hs hL hL64 (by omega) P pr.hdrLen F csX msX hpolyC hEval hdeg 5
+    (by norm_num) hgeom hgt hℓs hℓd hℓk
+    (fun cu rt => ZK60.Layout.R13.R13Rels S Pb Lay B (xtE cu rt))
+    (fun cu rt => ZK60.Layout.R13.R13Lookups S Pb Lay B (xtE cu rt))
+    (fun cu rt => ZK60.Block.BlockSat Pb (fun p => (xtE cu rt).X (Lay.dPos p)) (fun p => (xtE cu rt).X2 (Lay.dPos p))
+      (ZK60.Layout.toWit Lay ((xtE cu rt).toW16 S)))
+    (fun cu rt hr hl => ZK60.Layout.R13.blockSat_of_slots_r13 Pb Lay B (xtE cu rt) hW13 h24 hr hl) q A hA
+    (fun G => Link.sqN (A.run G).1 = pr.hdrSq)
+    (Link.GOW U pr L h64 key domain hs hL accRd 16 256 24448 pr.rA pr.nA pr.hdrLen pr.aA (fun acc => acc.claims.a) A)
+    (Link.GOW U pr L h64 key domain hs hL accRd 16 256 24448 pr.rH pr.nH (pr.hdrLen + 7) pr.aH
+      (fun acc => acc.claims.h ++ [P.logupSumClaim]) A)
+    (Link.GMW U pr L h64 key domain hs hL accRd A)
+    (Link.EvOW U hbij pr L h64 key domain hs hL accRd 16 256 24448 hQm pr.rA pr.nA pr.hdrLen (pr.aA + (pr.nA + pr.rA))
+      pr.aA pr.aBA (fun acc => acc.claims.a) A)
+    (Link.EvOW U hbij pr L h64 key domain hs hL accRd 16 256 24448 hQm pr.rH pr.nH (pr.hdrLen + 7)
+      (pr.aH + (pr.nH + pr.rH)) pr.aH pr.aBH (fun acc => acc.claims.h ++ [P.logupSumClaim]) A)
+    (Link.EvMW U hbij pr L h64 key domain hs hL accRd A)
+    (Link.EvXB pr.tag L h64 key domain hs hL 256 256 256 16 16 12 A) (2 ^ 20) le_rfl 106 110 126 (by norm_num)
+    (by norm_num) (by norm_num) _ _ _ _ _ (maskEps_le hF2 hkF pr.hS) (Link.opA_eps_r13 gP hp1 hp2 hF2 pr.hwA')
+    Link.opB_eps_r13u (Link.opA_eps_r13 gP hp1 hp2 hF2 pr.hwH') Link.opB_eps_r13u hM hEA hEH _ 3 (Link.xfail_T_r13 q)
+    le_rfl hX hsem hexec εend hEnd 80 (80 * 375) 4 1 (w16r2DR P spR) (w16r2DH P spH) hksR hdgR'
+    (fun i hi => (hfR i hi).1) (fun i hi => (hfR i hi).2) hNDR hcR Alk T mlk hN he hksH (fun _ _ _ _ => le_rfl)
+    (fun _ _ => hfH.1) (fun _ _ => hfH.2) hNDH (EvHlpOf U key domain hs hL P pr.hdrLen F csX msX A HGd) hcH hsp hbud
