@@ -56,17 +56,20 @@ takes the next step on the honest prover's oracle form.
     the transcript, records and accumulator of L25's honest prover;
   - writes the head of each kind of part (a block's core, stage IN-C, stage OUT-C) as a program;
   - and PROVES, for each of the three kinds of part: whenever the part's honest prover refuses, one of a short list
-    of events holds, and the challenge events on that list are sites with `δ = 0` and at most 2 bad values (a slot's
-    `c = 0`, a degenerate extension challenge), or 256 (stage OUT-C's LogUp refusal).
+    of events holds. The slot challenge events on that list (a slot's `c = 0`, a degenerate extension challenge) are
+    sites with `δ = 0` and at most 2 bad values, and so is stage OUT-C's LogUp refusal (256 bad values). Two challenge
+    events are on the list by name only, not yet as sites: a slot definition's own refusal (a zero batching draw) and
+    stage IN-C's LogUp refusal (finding L29-3).
 
 **What it does not do.**
 - O8 is not closed outright: the openings' completeness (L10) and each slot's arithmetic stay contracts, for the
   stages as for the blocks.
 - O9 is not closed outright. Each part's refusals are covered GIVEN the run up to that part as a transcript program.
   Chaining the parts needs the openings' provers (`mask_open`, `open_zk`) as transcript programs, which no lane has
-  modelled; three kinds of refusal are named but not turned into sites (a zero batching draw inside `define`, per
-  instance; `check_opening`'s challenge refusals, L25-2; stage IN-C's LogUp refusal, finding L29-3 below); and the
-  deterministic schedule checks must be excluded for the registered profile (L25-4).
+  modelled; three kinds of refusal are named in the theorems but not yet tied to a site (a zero batching draw inside
+  `define`: the site and its firing condition are proved, the link "`define` refuses only then" per instance is not;
+  `check_opening`'s challenge refusals, L25-2; stage IN-C's LogUp refusal, finding L29-3 below); and the deterministic
+  schedule checks must be excluded for the registered profile (L25-4).
 - O12's honest-prover hypotheses (L19) are NOT discharged, none of them. They need the prover as L14's `FSModel`
   (points causal in values, the receipt read off the view, the column digests as programmed points). The transcript
   programs here are the first half of that; the second half was not reached.
@@ -149,6 +152,10 @@ CODE: `stage_in_c::prove` :282-395, `stage_out_c::prove` :517-653.
 | `drawProg`, `drawZeroSite`, **`drawZeroSite_fires`** | a zero draw of `define` (a batching coefficient, `ν`, `ζ`): `k = 1`, `δ = 0` |
 | `scUpToP`, `scUpTo_chal`, `slotEAfter`, `slotEProg`, **`slotESite`**, **`slotESite_fires`** | round `m`'s degenerate value: `k = 2`, `δ = 0`, firing exactly when the honest slot's challenge of round `m` is `0` or `1` |
 | `outcAlphaProg`, `u8Bad`, **`outcAlphaSite`**, `outcAlphaBad_iff`, **`outcAlphaSite_fires`** | stage OUT-C's D66(3) refusal: a site with at most 256 bad values, `δ = 0`, firing exactly when `outcProve`'s guard does |
+
+`slotCSite`, `drawZeroSite` and `slotESite` take ONE `BlockParams` and one slot data for every coin. A real prover's
+slot data depends on its coins, and stage IN-C's parameters on the head's challenges; §2.6's `depCSite` / `depESite`
+read both off the prefix's data and are the forms the part theorems (§2.7) use.
 
 ### 2.6 The honest slot loop as one program (`HonestOracleSlots.lean`)
 
@@ -338,7 +345,8 @@ and BLAKE3 with the corpus's). The committed `corpus.txt` goes with the segments
 `segments.sha256`; they are outside the repository (each is over 1 MB), so a later run of `check_l29.sh` without them
 runs the checker without `DECODE`, `VERIFY` and the two segment-level `NEGATIVE` cases (111 checks) and expects 5
 negative-control failures; the merged-tree
-check should re-export (`export_corpus.sh`) first.
+check should re-export (`export_corpus.sh`) first. Both scripts take the tree and the outside directory from the
+environment (`L29_WT`, `L29_SCR`).
 
 Not run here: the block-verifier corpus checkers `ExecBlockCheck` / `CheckR13Block` (this lane changes no file they
 read) and hashline's `token_io::classify` tests (no production source is changed; the export test itself runs the

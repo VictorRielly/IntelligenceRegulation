@@ -11,7 +11,7 @@
 # segment's length and BLAKE3, which the Lean checker compares).
 # (2026-11-09: the first export's segment files were in a session scratch directory under /private/tmp and were lost
 # at the Mac's restart; the segments and the cargo target now live in the artifacts directory, outside the repository.)
-WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794
+WT=${L29_WT:-/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794}
 OUT=$WT/results/zk60_lean_l29_20261107
 SCR=${L29_SCR:-/Users/victorrielly/zk60-artifacts/resume-20261109}
 M=$WT/ops/zkp-mvp/gpu-metal/hashline/Cargo.toml
