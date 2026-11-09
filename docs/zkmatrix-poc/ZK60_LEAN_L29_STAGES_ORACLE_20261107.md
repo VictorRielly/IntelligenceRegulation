@@ -39,7 +39,7 @@ takes the next step on the honest prover's oracle form.
 - **It agrees with the code on a real receipt.** A test-only export proves an honest classifier run on the development
   rung, verifies it with the production verifier, and replays both stage verifiers step by step beside it. Lean then
   runs ITS OWN stage verifiers on the same data, including the two real segments' bytes (1.2 MB and 2.5 MB) through
-  the full executable verifier with lane L10's executable openings: **CHECKS_TOTAL checks, 0 failed** [TESTED]. Seven
+  the full executable verifier with lane L10's executable openings: **127 checks, 0 failed** [TESTED]. Seven
   deliberate corruptions of the data cause exactly the eight failures they must.
 - **The stages' completeness in L25's form** (`StageInOK`, `StageOutOK`). The honest IN-C and OUT-C provers are written
   in Lean in the code's order, and PROVED: the executable stage verifier accepts the honest segment (and the segment
@@ -276,4 +276,70 @@ every program.
 
 ## 7. Checks
 
-CHECKS_SECTION
+All through the zk60 resource guard (class cpu, need 14 GiB, cap 24 GiB, `run_guarded.py`), logs and `.done` markers in
+`results/zk60_lean_l29_20261107/`. The heavy lock was shared with lanes L26, L27, L28 and A28's GPU runs: the final
+check waited 3,381 s for admission.
+
+- `iter1.log` … `iter3.log` (2026-11-07, the first session): `StageVerifyExecLay.lean`'s first errors; the later files
+  had not been compiled when the session was cut off.
+- `iter4.log` … `iter11.log` (2026-11-09): the compile round. The errors fixed on the way: a `do` block with
+  `if … then throw` in its middle elaborates with a join point that `simp only [ex_bind_ok_iff]` cannot open (the two
+  verifiers rewritten as explicit bind chains with a guard `refuseIf`); a `match` in a theorem statement generalised
+  over a hypothesis (replaced by the named function `withCh`); `rw` under a `Decidable` instance (the round-`m` site:
+  the rewrite done before the term is unfolded); a slot index `0 + i` inside a dependent type; a structure update's
+  fields on a continuation line at a smaller column; a local named like a keyword; an anonymous-constructor `trivial`
+  elaborated before its continuation was known.
+- `export.log` (`export_corpus.sh`, ONE guarded job, 188 s, peak RSS 4.6 GiB): the test-only
+  `lean_l29_export_the_classify_stages` **ok** (the honest run on the development rung, `L = 1`, verdict 1, accepted by
+  the production `verify_classify_run`; each stage replay asserted to end on the production stage verifier's
+  transcript and end tag); `corpus.txt` 163,315 B; the two segments (IN-C 1,224,328 B, OUT-C 2,489,016 B) written
+  outside the repository, their sha256 in `segments.sha256`; then hashline's two census tests with the new test-only
+  file present: **`s25_tests` 20 passed, `hash_domain` 15 passed, 0 failed** (`rust_s25_tests.log`,
+  `rust_hash_domain.log`).
+- `check.log` (`check_l29.sh`, ONE guarded job, 645 s, peak RSS 3.9 GiB; run as the second half of `iter10.log`):
+
+| Gate | Result |
+|---|---|
+| full `lake build` of the library (`full.log`) | green, **3,574 jobs, 0 warnings, 0 errors, no `sorry`** |
+| axiom audit (`gen_axioms.py` → `axioms_l29.lean` → `axioms.log`: every `theorem` of the nine L29 library files) | **96 theorems** (Lay 5, Exec 13, Complete 10, Assemble 1, HonestOracleProg 33, HonestOracleSlots 23, HonestOracleParts 11): 32 on `[propext, Classical.choice, Quot.sound]`, 53 on `[propext, Quot.sound]`, 5 on `[propext]`, 6 on none; no `sorryAx`, no `Lean.ofReduceBool`, no other axiom |
+| source scan of the nine library files and the checker (`sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`, `implemented_by`, `extern`, `bv_decide`, `ofReduceBool`) | **none** |
+| the root imports the nine L29 library files; the checker is not imported | yes (lines 178–186) |
+| regressions on their committed corpora: L6Check / L5Check / fixture L1 / L11Check / StageCheckOutC / ProtocolClassifyCheck | **1,206 / 5,553 / 101,956 / 404 / 81 / 31 checks, 0 failed** |
+| **`StageVerifyExecCheck`** on the corpus WITH the two segments' bytes of the same export (`l29check.log`, 300 s) | **127 checks, 0 failed** |
+| the negative control (`mutate_corpus.py`, `negative_control.log`) | **exactly the 8 failures required**, exit code 1 |
+
+**The agreement check, by kind** (per stage; Lean's own definitions, BLAKE3 in Lean) [TESTED]:
+
+| Kind | Checks | What is compared with the code |
+|---|---|---|
+| `LABELS` | 3 | the magics `HLPCLIN1` / `HLPCLOT1` and the run's labels |
+| `DERIV` | 4 | the domain logs and the layout numbers (A rows 10 / 76, H rows 14 / 38, `M` rows 12 / 20, functionals 8 / 14 for IN-C / OUT-C on the rung) |
+| `PARSE` | 3 | 4 and 8 slot proofs, 1 claim pending on `B_out` |
+| `HEAD` | 5 | from the recorded start transcript, Lean's frame, roots and challenges: the head's challenges (IN-C: `β, γ, α` and 9 coordinates of `r_emb`; OUT-C: `γ, α`) and the transcript after `absorb_root("H")`; IN-C's table `τ` has `4096` rows |
+| `SLOT` | 14 | slot by slot (4 + 8), L9's `slotStep` with Lean's executable `define` at the slot's IO row width accepts the recorded slot proof and lands on the code's transcript; the whole slot phase (`IncV.slots`, L15's `stageSlots`) too |
+| `CLAIMS` | 49 | every claim the slots leave, per commitment, value for value (IN-C 8: A 3, H 3, the token endpoint 1, `B_in` 1; OUT-C 39) and the two counts |
+| `FUNS` | 24 | every `M` functional, value for value (8 and 14) and the two counts |
+| `AUDIT` | 6 | L10's `check_opening` of `A` and `H`, `check_token_endpoint_opening` (IN-C), `boundary::check_opening` (OUT-C) accept at the code's transcripts |
+| `RESULT` | 2 | IN-C leaves 1 claim on `B_in` with the code's root; OUT-C leaves no claim on an output endpoint |
+| `DECODE` | 10 | each segment's length and BLAKE3; the counted length; the start tag is the transcript's position tag; `decodeStage` accepts and returns the corpus's end tag, roots and slots; `encStage` of the decoded segment is the bytes |
+| `VERIFY` | 4 | the FULL executable verifier (`IncV.verify`, `OutcV.verify` with L10's executable `M` test and openings at the tier's parameters) accepts each real segment and lands on the code's final transcript (58.8 s and 116.2 s in the Lean interpreter); the end tag is its position tag |
+| `NEGATIVE` | 3 | inside the checker: IN-C slot 0's scalar plus one, one byte of IN-C's segment changed, a pending claim's value plus one for OUT-C: each refused by the Lean verifier |
+
+**The negative control** (seven single changes to the corpus, `mutate_corpus.py`; the same segments): the transcript
+counter after IN-C's `H`; the counter after IN-C's slot 2; IN-C's first claim's value; OUT-C's first functional's
+value; OUT-C's `γ`; OUT-C's final transcript counter; one hex digit of IN-C's end tag. The checker reports exactly
+`HEAD` (2), `SLOT` (1), `CLAIMS` (1), `FUNS` (1), `DECODE` (1), `VERIFY` (2): **127 checks, 8 failed**.
+
+**What the check does not cover.** One receipt, on the development rung (`L = 1`, `T = 32`, `d = 384`, vocabulary
+300), not Shieldstral T128; the honest run only (the verifier's refusals are exercised by the three `NEGATIVE` cases
+and L10's own corpus, not exhaustively). The corpus and the segments are fresh-entropy: a new export gives other
+values, and a corpus is only valid with the segments of the same export (the checker compares each segment's length
+and BLAKE3 with the corpus's). The committed `corpus.txt` goes with the segments whose sha256 are in
+`segments.sha256`; they are outside the repository (each is over 1 MB), so a later run of `check_l29.sh` without them
+runs the checker without `DECODE`, `VERIFY` and the two segment-level `NEGATIVE` cases (111 checks) and expects 5
+negative-control failures; the merged-tree
+check should re-export (`export_corpus.sh`) first.
+
+Not run here: the block-verifier corpus checkers `ExecBlockCheck` / `CheckR13Block` (this lane changes no file they
+read) and hashline's `token_io::classify` tests (no production source is changed; the export test itself runs the
+production prover and verifier).

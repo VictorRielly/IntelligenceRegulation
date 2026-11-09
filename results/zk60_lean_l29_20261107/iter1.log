@@ -1,0 +1,53 @@
+== lake build ZK60Formal.StageFS ZK60Formal.StageCheckDefs ==
+Build completed successfully (3429 jobs).
+build rc 0
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean:273:6: error: Tactic `rfl` failed: The left-hand side
+  Except.error e✝
+is not definitionally equal to the right-hand side
+  match slotStep H (atLog P e) s (histOf b g a recs) sp acc t with
+  | Except.error e => Except.error e
+  | Except.ok (r, acc', t') => slotsLoop H (atLog P e) b g a (recs ++ [r]) (s + 1) sps acc' t'
+
+case h_1
+H : HIn → Dig
+P : BlockParams
+e : ℕ
+b g a : Fp2
+recs : List SlotRec
+s : ℕ
+sp : SlotProof
+sps : List SlotProof
+acc : Block.Acc
+t : Tr
+x✝ : Except String (SlotRec × Block.Acc × Tr)
+e✝ : String
+heq✝ : slotStep H (atLog P e) s (histOf b g a recs) sp acc t = Except.error e✝
+⊢ Except.error e✝ =
+    match slotStep H (atLog P e) s (histOf b g a recs) sp acc t with
+    | Except.error e => Except.error e
+    | Except.ok (r, acc', t') => slotsLoop H (atLog P e) b g a (recs ++ [r]) (s + 1) sps acc' t'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean:274:6: error: Type mismatch
+  stSlotsLoop_const P e b g a ?m.72 ?m.73 sps ?m.74 ?m.75
+has type
+  stSlotsLoop H P (fun x => e) b g a ?m.72 ?m.73 sps ?m.74 ?m.75 =
+    slotsLoop H (atLog P e) b g a ?m.72 ?m.73 sps ?m.74 ?m.75
+but is expected to have type
+  stSlotsLoop H P (fun x => e) b g a (recs ++ [r✝]) (s + 1) sps acc'✝ t'✝ =
+    match slotStep H (atLog P e) s (histOf b g a recs) sp acc t with
+    | Except.error e => Except.error e
+    | Except.ok (r, acc', t') => slotsLoop H (atLog P e) b g a (recs ++ [r]) (s + 1) sps acc' t'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean:282:14: error(lean.invalidField): Invalid field `strip`: The environment does not contain `ZK60.Exec.Block.Acc.strip`, so it is not possible to project the field `strip` from an expression
+  x.2.1
+of type `Block.Acc`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean:310:54: error(lean.invalidField): Invalid field `strip`: The environment does not contain `ZK60.Exec.Block.Acc.strip`, so it is not possible to project the field `strip` from an expression
+  x.2.1
+of type `Block.Acc`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean:312:58: error(lean.invalidField): Invalid field `strip`: The environment does not contain `ZK60.Exec.Block.Acc.strip`, so it is not possible to project the field `strip` from an expression
+  x.2.1
+of type `Block.Acc`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean:323:6: error: No goals to be solved
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean:335:8: error: `simp` made no progress
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean:329:17: warning: declaration uses `sorry`
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5e8655cfe4c9f794/formal/ZK60Formal/StageVerifyExecLay.lean
+rc build 0 files 1, 19 s

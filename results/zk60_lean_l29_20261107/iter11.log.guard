@@ -1,0 +1,8 @@
+[zk60-guard 14:24:17] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 14:25:18] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 14:26:19] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 14:27:20] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 14:28:21] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 14:29:21] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 14:30:22] START lean-l29-iter11 class=cpu need=14G cap=24G enforce=watchdog-only waited=365s run=f2bb7acb6df7
+[zk60-guard 14:30:40] END lean-l29-iter11 exit=1 child_wall=18s peak_rss=3.78G min_avail=105.66G

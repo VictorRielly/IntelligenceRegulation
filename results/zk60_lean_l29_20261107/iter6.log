@@ -1,0 +1,34 @@
+== lake build ZK60Formal.StageVerifyExec ZK60Formal.StageVerifyExecComplete ZK60Formal.HonestOracleProg ZK60Formal.StageVerifyExecAssemble ==
+✖ [3487/3489] Building ZK60Formal.StageVerifyExecComplete (3.7s)
+error: ZK60Formal/StageVerifyExecComplete.lean:337:61: Unknown identifier `kI`
+warning: ZK60Formal/StageVerifyExecComplete.lean:540:32: This simp argument is unused:
+  Prod.mk.injEq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Except.ok.injEq] at hrun'
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/StageVerifyExecComplete.lean:611:32: This simp argument is unused:
+  Prod.mk.injEq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Except.ok.injEq] at hrun'
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/StageVerifyExecComplete.lean:661:55: Type mismatch: After simplification, term
+  hr
+ has type
+  slotProve H (atLog (V.bp (incCtx V.pub (incCh H V D t).1)) (incElog V.pub V.geo.bLogN (0 + i)))
+      (sdAt (D.slot (incCh H V D t).1) (incElog V.pub V.geo.bLogN (0 + i))) i (histOf Fp2.zero Fp2.zero Fp2.zero recs₁)
+      acc₁ t₁ =
+    Except.error ()
+but is expected to have type
+  slotProve H (atLog (V.bp (incCtx V.pub (incCh H V D t).1)) (incElog V.pub V.geo.bLogN i))
+      (sdAt (D.slot (incCh H V D t).1) (incElog V.pub V.geo.bLogN i)) i (histOf Fp2.zero Fp2.zero Fp2.zero recs₁) acc₁
+      t₁ =
+    Except.error ()
+Some required targets logged failures:
+- ZK60Formal.StageVerifyExecComplete
+error: build failed
+build rc 1
+rc build 1 files 0, 8 s

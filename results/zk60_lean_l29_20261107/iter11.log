@@ -1,0 +1,19 @@
+== lake build ZK60Formal.HonestOracleParts ==
+✖ [3490/3490] Building ZK60Formal.HonestOracleParts (2.1s)
+error: ZK60Formal/HonestOracleParts.lean:127:60: Type mismatch
+  trivial
+has type
+  True
+but is expected to have type
+  TProg.Sep key (?m.39 ch x✝)
+error: ZK60Formal/HonestOracleParts.lean:237:60: Type mismatch
+  trivial
+has type
+  True
+but is expected to have type
+  TProg.Sep key (?m.39 ch x✝)
+Some required targets logged failures:
+- ZK60Formal.HonestOracleParts
+error: build failed
+build rc 1
+rc build 1 files 0, 18 s
