@@ -1,0 +1,107 @@
+✖ [3488/3488] Building ZK60Formal.LinkW16GlueW16 (5.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16GlueW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16GlueW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16GlueW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16GlueW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16GlueW16.setup.json --json
+error: ZK60Formal/LinkW16GlueW16.lean:1313:7: unsolved goals
+K : Type
+inst✝² : Field K
+inst✝¹ : Fintype K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hbij : Function.Bijective (Hiding.fp2 U)
+P : Block.BlockParams
+pr : OProf P
+L : ℕ
+hL20 : 2 ^ 20 ≤ L
+hL64 : L < 2 ^ 64
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+accRd : List (TItem × Dig) → Block.Acc
+rowsOf : Block.Cm → ℕ
+prm : PcsPrm
+h Q e : ℕ
+ev : Fp → List (List Fp2) → List Fp2
+hlc : prm.logCols = 14
+hqp : prm.qPad = Q
+hnQ : prm.nQ = Q
+hnn : prm.nn = 2 ^ h
+hpow : isPow2 prm.nn = true
+hQ0 : 0 < Q
+hQ15 : 2 ^ 14 + Q ≤ 2 ^ 15
+hm : (Q + 3) / 4 = pr.mI
+hQm : Q ≤ pr.mI * 4
+hspec : ColEncSpec U RW Q (cosetPt (rootFp h)) ev
+hPm : P.maskVerify = maskField pr.tag pr.S
+hPp :
+  ∀ (H : HIn → Dig) (cm : Block.Cm) (root : Dig) (cl : List Block.ZClaim) (o : Block.OpeningZk) (t t' : Tr),
+    P.pcsVerify H cm root cl o t = Except.ok t' →
+      PcsOk H pr.tag prm (cosetPt (rootFp h)) ev root (rowsOf cm) 14 (List.map toZClaim cl) (toOZ o) t t'
+hrA : rowsOf Block.Cm.a = pr.rA
+hrH : rowsOf Block.Cm.h = pr.rH
+hgt : P.geom.slots.length = P.geom.terms.length
+hgeomL :
+  ∀ k < P.geom.slots.length,
+    1 ≤ (Block.slotShape P k).2.2 ∧ 56 + 16 * ((Block.slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * Block.slotTerms P k ≤ L
+hrows : 8 * pr.rA ≤ L ∧ 8 * pr.rH ≤ L ∧ 8 * (2 * pr.S + 4) ≤ L
+A : OC (QB L) Dig (List Op × Block.Core)
+hcnt :
+  ∀ (G : QB L → Dig) (bga : Fp2 × Fp2 × Fp2) (rs : List Block.SlotRec) (acc : Block.Acc),
+    Block.BlockAcc key domain P pr.hdrLen G (OC.run G A) bga rs acc →
+      acc.claims.a.length = pr.nA ∧ (acc.claims.h ++ [P.logupSumClaim]).length = pr.nH
+hRd :
+  ∀ (G : QB L → Dig) (bga : Fp2 × Fp2 × Fp2) (rs : List Block.SlotRec) (acc : Block.Acc),
+    Block.BlockAcc key domain P pr.hdrLen G (OC.run G A) bga rs acc →
+      sqN (OC.run G A).1 = pr.hdrSq →
+        (accRd (slotTrace P key domain G (OC.run G A))).fs ++ (accRd (slotTrace P key domain G (OC.run G A))).hostFs =
+            acc.fs ++ acc.hostFs ∧
+          (accRd (slotTrace P key domain G (OC.run G A))).claims.a = acc.claims.a ∧
+            (accRd (slotTrace P key domain G (OC.run G A))).claims.h = acc.claims.h
+h64 : 64 ≤ L
+G : QB L → Dig
+hsq : sqN (OC.run G A).1 = pr.hdrSq
+hX : ¬EvXB pr.tag L ⋯ key domain hs hL Q Q 256 h h 12 A G
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+hcA : acc.claims.a.length = pr.nA
+hcH : (acc.claims.h ++ [P.logupSumClaim]).length = pr.nH
+hrd1 :
+  (accRd (slotTrace P key domain G (OC.run G A))).fs ++ (accRd (slotTrace P key domain G (OC.run G A))).hostFs =
+    acc.fs ++ acc.hostFs
+hrd2 : (accRd (slotTrace P key domain G (OC.run G A))).claims.a = acc.claims.a
+hrd3 : (accRd (slotTrace P key domain G (OC.run G A))).claims.h = acc.claims.h
+tM tA tH tF : Tr
+R : RunAcc pr L key domain hs hL prm h ev (OC.run G A) G acc tM tA tH tF
+hlen : (OC.run G A).1.length = pr.hdrLen
+hcan : Block.CoreCanon (OC.run G A).2
+hshape : Block.CoreShape P.geom (OC.run G A).2
+hgA : (OC.run G A).2.aOpen.groupVecs.length = P.geom.aGroups
+hgH : (OC.run G A).2.hOpen.groupVecs.length = P.geom.hGroups
+hroots :
+  Block.absAt
+        (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+          ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots))
+        pr.hdrLen =
+      some (List.Vector.toList (OC.run G A).2.aRoot) ∧
+    Block.absAt
+          (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+            ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots))
+          (pr.hdrLen + 3) =
+        some (List.Vector.toList (OC.run G A).2.maskRoot) ∧
+      Block.absAt
+          (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+            ((OC.run G A).1 ++ Block.rootOps P (OC.run G A).2 ++ Block.fullOps P 0 (OC.run G A).2.slots))
+          (pr.hdrLen + 7) =
+        some (List.Vector.toList (OC.run G A).2.hRoot)
+habsA : Block.absAt (slotTrace P key domain G (OC.run G A)) pr.hdrLen = some (List.Vector.toList (OC.run G A).2.aRoot)
+habsM :
+  Block.absAt (slotTrace P key domain G (OC.run G A)) (pr.hdrLen + 3) =
+    some (List.Vector.toList (OC.run G A).2.maskRoot)
+habsH :
+  Block.absAt (slotTrace P key domain G (OC.run G A)) (pr.hdrLen + 7) = some (List.Vector.toList (OC.run G A).2.hRoot)
+hhd : pr.hdrLen + 7 < (slotTrace P key domain G (OC.run G A)).length
+⊢ HIn → Dig
+Some required targets logged failures:
+- ZK60Formal.LinkW16GlueW16
+error: build failed

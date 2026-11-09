@@ -6,8 +6,11 @@ Mathlib v4.34.1, no new dependency. New library files under `formal/ZK60Formal/`
 `LinkW16GlueR13.lean`. No Rust and no production source changed. `Statements.lean` and every existing Lean file are
 unchanged. Evidence: `results/zk60_lean_l28_20261107/`.
 
-The lane was started on 2026-11-07, cut off by a usage limit before its first build finished, and resumed on
-2026-11-09 from the uncommitted drafts. **STATUS: work in progress. §7 says what is checked so far.**
+The lane was started on 2026-11-07, cut off by a usage limit as its first build finished, and resumed on 2026-11-09
+from the uncommitted drafts (five files, never compiled). The resumed session compiled them, made the instance file
+generic in the opening's geometry so that one proof serves W16R2 and R13, and added the R13 instance. **STATUS: done;
+the check of §7 is green.** Not in this tree: L25 (merged into perf after this lane's base) and the lanes running
+beside it (L26, L27, L29); the merged-tree check is the coordinator's.
 
 Labels: **PROVED** (a Lean theorem, no `sorry`, axioms at most `propext`, `Classical.choice`, `Quot.sound`),
 **HYPOTHESIS** (a named premise, with the shape a later lane must prove), **LEFT** (not done).
@@ -23,42 +26,43 @@ data passes the bound's good test, every value the verifier was told is true" (`
 openings' assumptions from the block's security statement, first for the test profile W16R2 and then for R13, the
 profile the media app really runs.
 
-**What is now proved** (once §7's check is green; until then read "drafted").
+**What is now proved.**
 1. **The opening verifier's arithmetic is the model's.** The code checks an opening with integer arithmetic on pairs of
    64-bit numbers; the security model states the same checks as equations in a field. PROVED (`pcsOk_groupsAccept`):
    whenever the code's opening check accepts, the model's acceptance condition holds, with the same random
    coefficients and the same sampled columns, for ANY opening parameters.
 2. **Both facts are finished, for any opening geometry.** PROVED (`hexec_geo`, `hsem_geo`): for a block profile and an
    opening geometry (how long the codewords are, how many columns are sampled, how many errors are tolerated), on
-   every run the block verifier accepts. One proof covers W16R2 (codewords of 32,768 symbols, 280 sampled columns) and
+   every run with the profile's header that the block verifier accepts. One proof covers W16R2 (codewords of 32,768 symbols, 280 sampled columns) and
    R13 (65,536 symbols, 256 sampled columns).
 3. **The numbers are plugged in.** PROVED (`evMW_bound`, `evOW_bound`, with L22's `extract_fail_block`): the chance that
    a cheating prover gets a bad opening past the verifier is bounded per opening kind, at the real transcript, with
    R13's numbers as well as W16R2's (`opA_eps_r13`: 2^-110 per attempt for the batching round; `opB_eps_r13u`: below
-   2^-126 for the column round).
+   2^-126 for the column round). With these, one R13 block uses 30,322,419 of the 67,108,864 budget units the
+   approved target allows, and one W16R2 block 30,263,665 (§3.1).
 4. **The block statement no longer assumes anything about the openings' soundness.** PROVED
    (`block_knowledge_open_w16r2`, `block_knowledge_open_r13`): the chance that the block verifier accepts while the
-   committed data does not satisfy the block's equations is at most the approved target, plus one term for two values
-   the block verifier does not check itself (see below).
+   committed data does not satisfy the block's equations is at most the approved target, plus one term for the
+   block's input and output claims, which the block verifier does not check itself (see below).
 
 **Two things you should know about the shape of the result.**
 - **The result is stated for the real run, not for every imaginable header.** L22 found that `hexec` is false if the
   prover may choose how many random numbers the header draws (L22-1). In the real system the verifier fixes the
   header, so the coordinator decided to state the result with the header's draw count fixed. That is what is proved.
   It narrows none of the two approved statements.
-- **Two input/output values are checked elsewhere.** The block's opening premise, as L21 wrote it, also covers the
-  block's input and output claims. The block verifier does not open those; the run around it does (L22-5). So the
-  result carries a separate term `εend` for them, which the run-level lane (L27) must supply.
+- **The block's input and output claims are checked elsewhere.** The block's opening premise, as L21 wrote it, also
+  covers the claims about the block's input and output. The block verifier does not open those; the run around it
+  does (L22-5). So the result carries a separate term `εend` for them, which the run-level lane (L27) must supply.
 
-**So is `hOpen` discharged?** Not in the literal form L21 wrote, and it cannot be: that form is false for
-prover-chosen headers and includes the two values above. What is discharged is the form the real run needs: on runs
-with the profile's header, every soundness premise about the openings (`hM`, `hEA`, `hEH`, `hX`, `hsem`, `hexec`) is
-now a theorem, at W16R2 and at R13. §3 lists exactly which premises are left; none of them is a soundness assumption
-about the openings.
+**So is `hOpen` discharged?** Not in the literal form L21 wrote, and that form cannot be reached this way: the fact
+`hexec` it rests on is false when the prover chooses the header (L22-1), and it includes the input and output claims
+(L22-5). What is discharged is the form the real run needs: on runs with the profile's header, every soundness
+premise about the openings (`hM`, `hEA`, `hEH`, `hX`, `hsem`, `hexec`) is now a theorem, at W16R2 and at R13. §3 lists
+exactly which premises are left; none of them is a soundness assumption about the openings.
 
 **What is not done.** §6. In short: three bookkeeping premises about the profile (how many claims each opening
 carries, a reader that recovers the verifier's claim list from its transcript, and the size bounds of a concrete
-profile), and the run-level term for the two input/output values.
+profile), and the run-level term for the input and output claims.
 
 ## 2. What is proved
 
@@ -118,8 +122,8 @@ W16R2 is `(15, 280, 8052)`; R13 is `(16, 256, 24448)`.
 ### 2.5 `LinkW16GlueW16T.lean` and `LinkW16GlueR13.lean`: the two instances
 
 - **`block_knowledge_open_w16r2`**: `Pr[BlockAcc ∧ sqN header = hdrSq ∧ ¬BlockSat] ≤ εsTarget q + εend` for EVERY `q`,
-  at the W16R2 rung, with L10's fields (`maskField`, `pcsField`).
-- `opA_eps_r13` (`2^-110`, for a variable `p`, L7-4), `opB_eps_r13u` (`2^-126`).
+  at the W16R2 rung, with L10's fields (`maskField`, `pcsField`). `w16r2_budget_open`: its budget count.
+- `opA_eps_r13` (`2^-110`, for a variable `p`, L7-4), `opB_eps_r13u` (`2^-126`), `r13_budget_open`.
 - **`block_knowledge_open_r13`**: the same at the R13 rung, with L17's fields (`maskField`, `pcsFieldR13`), R13's
   relations and lookups, and R13's opening geometry. Its statement is generated from L23's
   `block_knowledge_target_r13` (`results/zk60_lean_l28_20261107/l28_mk_r13.py`).
@@ -137,8 +141,9 @@ W16R2 is `(15, 280, 8052)`; R13 is `(16, 256, 24448)`.
 | `hsem` | PROVED for `OpenBlk` (`hsem_geo`) | PROVED (the same) |
 | `hexec` | PROVED on `BlockAcc ∧ header` (`hexec_geo`) | PROVED (the same) |
 
-`hOpen` in L21's literal form (on all of `BlockAcc`, with the endpoint claims inside `OpenTrue`) is NOT proved and
-cannot be (L22-1, L22-5). What is proved is `block_open_R`'s form: on `BlockAcc ∧ sqN header = hdrSq`,
+`hOpen` in L21's literal form (on all of `BlockAcc`, with the endpoint claims inside `OpenTrue`) is NOT proved, and
+it cannot be reached through `hexec` and `hsem` as L20 states them (L22-1, L22-5). What is proved is `block_open_R`'s
+form: on `BlockAcc ∧ sqN header = hdrSq`,
 `Pr[¬OpenTrue] ≤ (εM + εA + εH + εX) + εend`.
 
 The premises the two theorems still take, beyond L23's own (the slot polynomials over the extracted data and the
@@ -157,6 +162,24 @@ per-outcome algebra, unchanged):
    of `csX` and `msX`, not assumptions about the prover.
 6. **`hrows`**, `hk`, `hkF`: the opened columns fit the oracle's input bound, `0 < nFunctionals ≤ 2^20`.
 7. **`hEnd`** (HYPOTHESIS, run level, L22-5): `Pr[BlockAcc ∧ header ∧ ¬EndTrue] ≤ εend`.
+
+### 3.1 The numbers
+
+| | W16R2 | R13 |
+|---|---|---|
+| geometry `(h, Q, e)` | `(15, 280, 8052)` | `(16, 256, 24448)` |
+| codeword length, tree depth | `2^15`, `15` | `2^16`, `16` |
+| index squeezes `mI = ⌈Q/4⌉` | `70` | `64` |
+| `2e + (2^14 + Q)` against `2^h` | `32,768 = 2^15` (tight) | `65,536 = 2^16` (tight) |
+| `M`, per attempt (`maskEps_le`) | `2^-106` | `2^-106` |
+| `opA`, per attempt | `2^-111` (`opA_eps_w16r2`) | `2^-110` (`opA_eps_r13`) |
+| `opB`, per attempt | `2^-113` (`opB_eps_w16r2`) | `2^-126` (`opB_eps_r13u`; the true figure is `2^-172`) |
+| extraction failure, `T'` | `q + 13,104` (`xfail_T_w16r2`) | `q + 12,800` (`xfail_T_r13`) |
+| chain items per run, `ℓo` | at most `2^20` | at most `2^20` |
+| block budget (`hbud` of `block_total_le_target`, limit `2^26 = 67,108,864`) | `30,263,665` (`w16r2_budget_open`) | `30,322,419` (`r13_budget_open`) |
+
+Both block budgets are under `2^25`. L23's `r13_budget` allowed `38,579,953` because it assumed each regular round at
+`2^-105` (L28-6).
 
 ## 4. The per-kind results, for lane L27
 
@@ -178,7 +201,7 @@ several blocks can union them per kind with its own counts.
 ## 5. Findings
 
 - **L28-1 (Medium, shape of the result; follows L22-1 and L22-5).** `hOpen` as `block_knowledge_target_mt` states it
-  is not provable: it ranges over runs whose header squeeze count differs from the profile's (where the step parse,
+  is not discharged: it ranges over runs whose header squeeze count differs from the profile's (where the step parse,
   hence `hexec`, fails) and its `OpenTrue` contains the endpoint claims, which the block verifier does not open. The
   lane therefore re-composes L23's theorem on `BlockAcc ∧ R` with `OpenBlk` and an endpoint term
   (`block_knowledge_target_R`) rather than citing `block_knowledge_target_mt`. Every bound composed is the existing
@@ -198,9 +221,13 @@ several blocks can union them per kind with its own counts.
   the opening parameters (it needs only `log_cols = 14`, `nQ = qPad = Q`, `nn = 2^h`, a column evaluator meeting
   `ColEncSpec`, and `pcsVerify` accepting only when `PcsOk` holds). The code facts come from `encLin_minDist` and
   `encLin_caOn` at `2e + (2^14 + Q) ≤ 2^h`, which is an equality at both W16R2 and R13 (the radius is tight).
-- **L28-6 (Info).** R13's `opA` round is one bit weaker than W16R2's (`2^-110` against `2^-111`, the codeword is twice
-  as long) and its `opB` round is far stronger (`2^-172`, stated as `2^-126` because the budget lemma takes exponents
-  up to 126). Both are inside L23's `r13_budget` (it needs `≥ 105`).
+- **L28-6 (Low, a figure other lanes use).** At R13's unique-decoding radius `e = 24448` the regular opening's rounds
+  are `opA ≤ 2^-110` (one bit weaker than W16R2's `2^-111`: the codeword is twice as long) and `opB ≤ 2^-172`, stated
+  as `2^-126` because the budget lemma takes exponents up to 126. L20's `opB_eps_r13` (`2^-105`, the δ/3 radius
+  `e = 16298`) was an assumption for L17 to confirm; L24 §3 priced R13's `opB` with it ("`opB` at `2^-105` costs `2.1` M
+  per kind"). With the proved figures a regular opening's two rounds cost `2^16 + 1` units, not `2^21 + 2^21`, and one
+  R13 block is `30,322,419` units (`r13_budget_open`), under `2^25`. L27 should use these figures for R13's per-kind
+  constants.
 - **L28-7 (Info, method).** `PcsOk` mentions the parameters through projections (`prm.logCols`, `prm.nn`), and a
   statement with the numbers written out does not rewrite against it. `pcsOk_named` restates `PcsOk` with the numbers
   named, for any parameters; the instances then pass `rfl` proofs.
@@ -215,4 +242,38 @@ several blocks can union them per kind with its own counts.
 
 ## 7. Checks
 
-(to be filled when `check_l28.sh` has run)
+All in `results/zk60_lean_l28_20261107/`, each run as one job through the zk60 resource guard (class `cpu`,
+`run_guarded.py`, need 14 GiB, cap 24 GiB).
+
+- 2026-11-07: `warm.log` (the build cache was valid: 16 s) and `iter1.log` (`stage.sh`; the first build, admitted after
+  62 minutes behind A28's GPU jobs: 8 errors in `LinkW16Pcs`, 1 in `LinkW16Glue`; the session was cut off as it ended).
+- 2026-11-09: `iter2.log` to `iter7.log` (`l28_iter.sh`, with one log per module, `l28_i<N>_<module>.log`): the files
+  brought to green. What was fixed:
+  - `rw` closing a goal by `rfl`, so the tactics after it had no goal (`groupComb_K`);
+  - `simp` rewriting `List.getD` to `getElem?` while a hypothesis kept the `getD` form (`groupWeights_oclOf`: `show`,
+    then `by_cases`);
+  - a higher-order pattern `∑ i, ?f ↑i` that `rw` cannot match (`sum_vecK_cwK`);
+  - `rw` taking another instance of its pattern than the one meant (`List.drop_of_length_le`,
+    `Block.opTrace_append`, `List.mem_append`, `runOps_append`): explicit arguments, or a lemma stated for the case
+    (`drop_append_len`, `mem_vS_ops`, `vS_ops_length`);
+  - `← hlen` rewriting every `w0` (`absAt_append_right'`);
+  - the parameters' projections against written-out numbers (`pcsOk_named`, L28-7);
+  - a `by` block continued on a line to the left of its first tactic (a parse error);
+  - two copies of one 90-line derivation in the draft, replaced by one lemma (`run_acc`);
+  - a hash argument left unassigned where unification went through a counter that does not depend on it
+    (`ctr_squeeze`);
+  - Lean 4.34's deprecations (`if_pos` / `if_neg`) and its unused-section-variable linter.
+
+  Each build took 7 to 28 s once admitted, peak RSS 3.8 to 3.9 GiB. Waiting dominated: 12 to 23 minutes per job behind
+  A28's GPU jobs and the other Lean lanes.
+- **`check.log`** (`check_l28.sh`, job `lean-l28-check`, exit 0, 43 s, peak RSS 3.69 GiB, admitted after 23 minutes):
+  - the six L28 modules built one target at a time, then the full build (`full.log`): **3,566 jobs, rc 0, 0 warnings,
+    0 errors, no `sorry`**;
+  - the axiom audit (`axioms_l28.lean`, written by `gen_axioms.py`: every `theorem` of the six files; `axioms.log`):
+    **121 theorems**; 76 on `[propext, Classical.choice, Quot.sound]`, 28 on `[propext, Quot.sound]`, 17 on
+    `[propext]`; no `sorryAx`, no `ofReduceBool`, no other axiom;
+  - the source scan of the six files for the forbidden words: none;
+  - the library root imports all six;
+  - regressions: `L6Check` 1,206, `L5Check` 5,553, `L11Check` 404, the fixture L1 check 101,956; 0 failed.
+- Not run by this lane: `ExecBlockCheck` and `CheckR13Block` (not in the brief's list; no file they read was
+  changed), and the merged-tree check on perf.

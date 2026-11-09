@@ -1,0 +1,98 @@
+✖ [3475/3475] Building ZK60Formal.LinkW16Pcs (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/ZK60Formal/LinkW16Pcs.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/lib/lean/ZK60Formal/LinkW16Pcs.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4163c065a4c5517f/formal/.lake/build/ir/ZK60Formal/LinkW16Pcs.setup.json --json
+error: ZK60Formal/LinkW16Pcs.lean:450:74: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  b ≥ 0
+  b ≥ 1
+  a ≥ 0
+where
+ a := ↑x.2.length
+ b := ↑rows
+ c := ↑(List.map (fun x => x.2.length) xs).sum
+error: ZK60Formal/LinkW16Pcs.lean:450:82: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  [] ++ ?as
+in the target expression
+  List.map challengeFp2Of [] =
+    List.map challengeFp2Of
+      (List.drop (nMem (x :: xs)) (sqDs H t x.2.length) ++
+        List.drop (nMem (x :: xs) - (sqDs H t x.2.length).length) (sqDs H t1 (nMem xs + rows)))
+
+case refine_3
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+H : HIn → Dig
+rows : ℕ
+x : List Fp2 × List (List Fp2 × Fp2)
+xs : List (List Fp2 × List (List Fp2 × Fp2))
+t : Tr
+hm : ∀ g < (x :: xs).length, ∀ m ∈ ((x :: xs).getD g ([], [])).2, m.1.length = rows
+t1 : Tr := (Tr.challengeFp2Vec H t x.2.length).2
+ht1 : t1 = (Tr.challengeFp2Vec H t x.2.length).2
+ht1' : t1 = runOps H t (List.replicate x.2.length Op.squeeze)
+ih :
+  (∀ g < xs.length,
+      ((zkRhosAux H rows xs t1).1.getD g []).length = rows ∧
+        ∀ i < rows,
+          Fp2.toK U (((zkRhosAux H rows xs t1).1.getD g []).getD i Fp2.zero) =
+            ∑ j ∈ Finset.range (xs.getD g ([], [])).2.length,
+              Fp2.toK U (challengeFp2Of ((sqDs H t1 (nMem xs + rows)).getD (offOf xs g + j) zeroDig)) *
+                Fp2.toK U (((xs.getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD i Fp2.zero)) ∧
+    (∀ g < xs.length,
+        Fp2.toK U ((zkRhosAux H rows xs t1).2.1.getD g Fp2.zero) =
+          ∑ j ∈ Finset.range (xs.getD g ([], [])).2.length,
+            Fp2.toK U (challengeFp2Of ((sqDs H t1 (nMem xs + rows)).getD (offOf xs g + j) zeroDig)) *
+              Fp2.toK U ((xs.getD g ([], [])).2.getD j ([], Fp2.zero)).2) ∧
+      (zkRhosAux H rows xs t1).1.getD xs.length [] =
+        List.map challengeFp2Of (List.drop (nMem xs) (sqDs H t1 (nMem xs + rows)))
+hds : sqDs H t (nMem (x :: xs) + rows) = sqDs H t x.2.length ++ sqDs H t1 (nMem xs + rows)
+hz :
+  zkRhosAux H rows (x :: xs) t =
+    ((groupComb rows x.2 (Tr.challengeFp2Vec H t x.2.length).1).1 :: (zkRhosAux H rows xs t1).1,
+      (groupComb rows x.2 (Tr.challengeFp2Vec H t x.2.length).1).2 :: (zkRhosAux H rows xs t1).2.1,
+      (zkRhosAux H rows xs t1).2.2)
+hlam : (Tr.challengeFp2Vec H t x.2.length).1 = List.map challengeFp2Of (sqDs H t x.2.length)
+hlamL : (List.map challengeFp2Of (sqDs H t x.2.length)).length = x.2.length
+hgc :
+  (groupComb rows x.2 (List.map challengeFp2Of (sqDs H t x.2.length))).1.length = rows ∧
+    (∀ i < rows,
+        Fp2.toK U ((groupComb rows x.2 (List.map challengeFp2Of (sqDs H t x.2.length))).1.getD i Fp2.zero) =
+          ∑ j ∈ Finset.range x.2.length,
+            Fp2.toK U ((List.map challengeFp2Of (sqDs H t x.2.length)).getD j Fp2.zero) *
+              Fp2.toK U ((x.2.getD j ([], Fp2.zero)).1.getD i Fp2.zero)) ∧
+      Fp2.toK U (groupComb rows x.2 (List.map challengeFp2Of (sqDs H t x.2.length))).2 =
+        ∑ j ∈ Finset.range x.2.length,
+          Fp2.toK U ((List.map challengeFp2Of (sqDs H t x.2.length)).getD j Fp2.zero) *
+            Fp2.toK U (x.2.getD j ([], Fp2.zero)).2
+hl0 :
+  ∀ j ∈ Finset.range x.2.length,
+    (List.map challengeFp2Of (sqDs H t x.2.length)).getD j Fp2.zero =
+      challengeFp2Of ((sqDs H t (nMem (x :: xs) + rows)).getD (offOf (x :: xs) 0 + j) zeroDig)
+hsh :
+  ∀ (g j : ℕ),
+    (sqDs H t (nMem (x :: xs) + rows)).getD (offOf (x :: xs) (g + 1) + j) zeroDig =
+      (sqDs H t1 (nMem xs + rows)).getD (offOf xs g + j) zeroDig
+⊢ List.map challengeFp2Of [] =
+    List.map challengeFp2Of
+      (List.drop (nMem (x :: xs)) (sqDs H t x.2.length) ++
+        List.drop (nMem (x :: xs) - (sqDs H t x.2.length).length) (sqDs H t1 (nMem xs + rows)))
+warning: ZK60Formal/LinkW16Pcs.lean:450:43: This simp argument is unused:
+  List.map_cons
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nMem, List.sum_cons]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/LinkW16Pcs.lean:450:58: This simp argument is unused:
+  List.sum_cons
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nMem, List.map_cons]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.LinkW16Pcs
+error: build failed
