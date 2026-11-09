@@ -1,0 +1,5 @@
+declarations in RunChain*.lean: 124
+declared twice inside the lane: none
+worktrees read: 35
+other Lean files read (with repeats across worktrees): 2173
+clashes: 0

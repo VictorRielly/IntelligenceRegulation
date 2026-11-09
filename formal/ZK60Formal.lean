@@ -175,3 +175,9 @@ import ZK60Formal.HonestClassifyBlock
 import ZK60Formal.HonestClassifyRun
 import ZK60Formal.HonestClassifyCount
 import ZK60Formal.HonestClassifyLinks
+import ZK60Formal.RunChainStab
+import ZK60Formal.RunChainSched
+import ZK60Formal.RunChainExtract
+import ZK60Formal.RunChainCover
+import ZK60Formal.RunChainKinds
+import ZK60Formal.RunChainAssemble

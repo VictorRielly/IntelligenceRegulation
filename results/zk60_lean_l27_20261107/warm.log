@@ -1,0 +1,6 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a5ce0e251b8140046/results/zk60_lean_l27_20261107/plan.txt ==
+build ZK60Formal.LinkW16Parse ZK60Formal.LinkW16Trace ZK60Formal.LinkW16Mask ZK60Formal.LinkW16MaskChain ZK60Formal.LinkW16Sem ZK60Formal.ExtractInstW16 ZK60Formal.RunExtractClassify ZK60Formal.RunExtractOpenU ZK60Formal.CoverW16Target ZK60Formal.CoverW16R13 ZK60Formal.StageRunExtract ZK60Formal.StageFS
+== lake build ZK60Formal.LinkW16Parse ZK60Formal.LinkW16Trace ZK60Formal.LinkW16Mask ZK60Formal.LinkW16MaskChain ZK60Formal.LinkW16Sem ZK60Formal.ExtractInstW16 ZK60Formal.RunExtractClassify ZK60Formal.RunExtractOpenU ZK60Formal.CoverW16Target ZK60Formal.CoverW16R13 ZK60Formal.StageRunExtract ZK60Formal.StageFS ==
+Build completed successfully (3514 jobs).
+build rc 0 (24 s)
+rc 0, 24 s
