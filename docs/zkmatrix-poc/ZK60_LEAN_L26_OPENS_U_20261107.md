@@ -277,9 +277,40 @@ the colliding position by hashing; `N ≤ 2^20` keeps it inside the target for e
 
 ## 7. Checks
 
-INTERIM (2026-11-09, iteration 4, one guarded cpu job, `iter4.log`): the five modules and the full Lean build green
-(3559 jobs, no warning, no `sorry`); 100 declarations audited (70 theorems, 26 definitions, 3 structures, 1
-abbreviation), none on `sorryAx` or `Lean.ofReduceBool`; source scan none; regressions L6Check 1,206, L5Check 5,553,
-L11Check 404, fixture L1 101,956, 0 failed. That run does not yet cover `BindingUDecode.lean`'s three uniqueness
-theorems (`word_eq_of_colOf_eq`, `rows_eq_of_colOf_agree`, `decodeIn_eq`), which were added after it; the final run is
-queued on the guard's lock and this section is replaced when it lands.
+One guarded job (`results/zk60_lean_l26_20261107/check_l26.sh`, run through `run_guarded.py`, the zk60 resource guard,
+class cpu; iteration 6, 2026-11-09; the guard's record: exit 0, 101 s, peak 11.95 GiB). Its log is `check.log`; the
+whole iteration is `iter6.log`. The script exits 0 only when every line below holds.
+
+| Check | Result |
+|---|---|
+| the five L26 modules, one at a time | each `rc 0`, no warning |
+| full `lake build` of the library on the lane's tree | green, `3559` jobs, `0` warnings, `0` errors, `0` `sorry` |
+| axiom audit (`axioms_l26.lean`, generated from the five files) | `103` declarations audited of `103` generated: `73` theorems, `26` definitions, `3` structures, `1` abbreviation |
+| their axioms | `99` on `[propext, Classical.choice, Quot.sound]`, `1` on `[propext, Quot.sound]` (`HdrXU`), `1` on `[propext]` (`jointU_totals`), `2` on none (`ChainU`, `ChainU.chain`); `sorryAx` `0`, `Lean.ofReduceBool` `0`, any other axiom `0` |
+| source scan of the five files for the forbidden words | none |
+| the library root imports the five files | all five |
+| `Statements.lean` and L18's `ProtocolClassify.lean` against the base `2ba55340` | unchanged |
+| existing files under `formal/` modified, deleted or renamed (the root's five added import lines apart) | `0` |
+| regression: `L6Check` on the committed L6 corpus | `1,206` checks, `0` failed |
+| regression: `L5Check` on the committed L5 corpus | `5,553` checks, `0` failed |
+| regression: `L11Check` on L11's committed W16R2 rung corpus | `404` checks, `0` failed |
+| regression: the fixture L1 check | `101,956` checks, `0` failed |
+
+By file: `BindingU.lean` 12 theorems, `BindingUTest.lean` 15, `BindingUDecode.lean` 15, `ProtocolClassifyU.lean` 12,
+`ProtocolClassifyUEp.lean` 19; 2,005 lines in all.
+
+Notes on the evidence.
+- The audit covers the definitions too (the instance `classifyProtocolU` is one), not only the theorems.
+- Lean prints the report of a long name over several lines. An earlier run of the check (iteration 4, `iter4.log`)
+  therefore counted "other axioms: 1" for `classifyU_productionReady_joint_target`, which is on the usual three. The
+  script now joins such lines (`axioms_flat.log`) before counting.
+- The iterations: `iter1.log` and `iter2.log` are the first session's (2026-11-07; iteration 2 ran just after it was
+  cut off and shows the two compile errors fixed on resuming); `iter3.log` the five modules green; `iter4.log` and
+  `iter6.log` the check. Iteration 5 was the same plan queued with the guard's default five-second admission poll;
+  later jobs of other lanes took the lock ahead of it for 37 minutes (the guard's first-come queue is off), so the plan
+  was queued again as iteration 6 with a one-second poll (`ZK60_GUARD_POLL_SECS=1`, this job only) and iteration 5's
+  plan file was emptied, so that it does nothing when admitted.
+- Not checked here: the tree after merging perf (`f71f611b` on 2026-11-09: L22, L23, L25 and later lanes). Since this
+  lane's base, perf changed no existing file under `formal/` except the root's import lines, and none of this lane's
+  103 names is declared there or in the running lanes' files (compared by name). The merged-tree build is the
+  coordinator's check.

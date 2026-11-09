@@ -1,5 +1,1 @@
-build ZK60Formal.BindingU
-build ZK60Formal.BindingUTest
-build ZK60Formal.ProtocolClassifyU
-build ZK60Formal.BindingUDecode
-build ZK60Formal.ProtocolClassifyUEp
+# no step: iteration 5's plan moved to plan_final.txt (iteration 6, queued with a one-second admission poll)

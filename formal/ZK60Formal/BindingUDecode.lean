@@ -15,6 +15,11 @@ columns that open are the `j` with `ops j = some _`; the extracted matrix reads 
   good state) gives such decoded rows and such a set (the extracted columns canonical, as the code's decoder demands);
 * `decodeIn`, `decodeIn_spec`, **`opensU_of_closeIn`**: the decoded rows as a function of the extraction (by choice),
   and the link in one step;
+* `word_eq_of_colOf_eq`, `rows_eq_of_colOf_agree`, **`decodeIn_eq`**: for `2e + n + Q ≤ N` the decoding is unique: any
+  decoded rows that agree with the opened columns on all but `e` columns are `decodeIn`'s (the choice is no choice);
+* `closeIn_base`: the extension-field closeness of the embedded matrix gives the base-field closeness, from one code
+  fact (finding L26-3's link);
+* `w16r2TokenCommit_plane`, `r13TokenCommit_plane`: the two token-words endpoints have the token-words plane;
 * `posPlane_eq_of_zero`: for the token-words plane (`posPlane`), the decoded data rows ARE the plane of the words read
   canonically at the token positions, given that they vanish elsewhere (SIC_IO's identity on the decoded data).
 
@@ -199,6 +204,54 @@ theorem decodeIn_spec (ops : Fin C.N → Option (MerkleOpening Dig Dig (ColR C.R
     rw [dite_eq_left h]
   rw [hd]
   exact h.choose_spec.choose_spec
+
+/-- Equal columns of decoded rows at a position give equal row words there, row by row (as L24's
+`word_eq_of_column_eq`). -/
+theorem word_eq_of_colOf_eq {Mg Mg' : Fin C.R → Fin C.n → GF} {Pd Pd' : Fin C.R → Fin C.Q → GF} {j : Fin C.N}
+    (h : C.colOf Mg Pd j = C.colOf Mg' Pd' j) (i : Fin C.R) :
+    encWord C.pts C.form (Mg i) (Pd i) j = encWord C.pts C.form (Mg' i) (Pd' i) j := by
+  have h1 := congrArg Subtype.val h
+  have h2 := congrFun (List.ofFn_injective h1) i
+  have h3 := congrArg Fp.toGF h2
+  simp only [Fp.toGF_ofGF] at h3
+  exact h3
+
+/-- **Decoded rows whose columns agree on at least `n + Q` positions are equal** (every row, message and pad: each
+row's word is a polynomial of degree `< n + Q` at distinct points, and the encoder is injective). -/
+theorem rows_eq_of_colOf_agree {Mg Mg' : Fin C.R → Fin C.n → GF} {Pd Pd' : Fin C.R → Fin C.Q → GF}
+    (J : Finset (Fin C.N)) (hJ : C.n + C.Q ≤ J.card) (h : ∀ j ∈ J, C.colOf Mg Pd j = C.colOf Mg' Pd' j) :
+    Mg = Mg' ∧ Pd = Pd' := by
+  have hrow : ∀ i, Mg i = Mg' i ∧ Pd i = Pd' i := by
+    intro i
+    refine encPoly_inj C.form C.hn (Polynomial.eq_of_natDegree_lt_card_of_eval_eq _ _
+      (f := fun j : J => C.pts j.1) (fun a b hab => Subtype.ext (C.hpts hab)) (fun j => ?_) ?_)
+    · exact C.word_eq_of_colOf_eq (h j.1 j.2) i
+    · rw [Fintype.card_coe]
+      exact max_lt (lt_of_lt_of_le (encPoly_natDegree_lt C.form C.hn _ _) hJ)
+        (lt_of_lt_of_le (encPoly_natDegree_lt C.form C.hn _ _) hJ)
+  exact ⟨funext fun i => (hrow i).1, funext fun i => (hrow i).2⟩
+
+/-- **The decoding is unique at the radius** (D63 lane L26): for `2e + n + Q ≤ N`, ANY decoded rows that agree with
+the extractor's opened columns on all but at most `e` columns are `decodeIn`'s. So the value the extractor reads off
+the commitment does not depend on a choice: the opened columns determine it. -/
+theorem decodeIn_eq (ops : Fin C.N → Option (MerkleOpening Dig Dig (ColR C.R))) (e : ℕ)
+    (he : 2 * e + (C.n + C.Q) ≤ C.N) (Mg : Fin C.R → Fin C.n → GF) (Pd : Fin C.R → Fin C.Q → GF)
+    (S : Finset (Fin C.N)) (hS : C.N ≤ S.card + e)
+    (hag : ∀ j ∈ S, ∃ o, ops j = some o ∧ o.col = C.colOf Mg Pd j) : C.decodeIn ops e = (Mg, Pd) := by
+  classical
+  obtain ⟨S', hS', hag'⟩ := C.decodeIn_spec ops e ⟨Mg, Pd, S, hS, hag⟩
+  have h1 := Finset.card_union_add_card_inter S S'
+  have h2 : (S ∪ S').card ≤ C.N := by simpa using Finset.card_le_univ (S ∪ S')
+  have hcard : C.n + C.Q ≤ (S ∩ S').card := by omega
+  have hcol : ∀ j ∈ S ∩ S', C.colOf Mg Pd j = C.colOf (C.decodeIn ops e).1 (C.decodeIn ops e).2 j := by
+    intro j hj
+    rw [Finset.mem_inter] at hj
+    obtain ⟨o, ho, hc⟩ := hag j hj.1
+    obtain ⟨o', ho', hc'⟩ := hag' j hj.2
+    have hoo : o = o' := Option.some.inj (ho.symm.trans ho')
+    rw [← hc, ← hc', hoo]
+  obtain ⟨hM, hP⟩ := C.rows_eq_of_colOf_agree (S ∩ S') hcard hcol
+  exact Prod.ext hM.symm hP.symm
 
 /-- **The decoding link in one step** (D63 lane L26): the extracted matrix close inside the set of columns that open,
 the extracted openings verifying with canonical columns, and the decoded data rows `v`'s plane for an admissible `v`:
