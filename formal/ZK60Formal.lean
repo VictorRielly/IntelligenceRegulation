@@ -170,3 +170,9 @@ import ZK60Formal.LinkW16Mask
 import ZK60Formal.LinkW16MaskChain
 import ZK60Formal.LinkW16Sem
 import ZK60Formal.ExtractInstW16
+import ZK60Formal.RunChainStab
+import ZK60Formal.RunChainSched
+import ZK60Formal.RunChainExtract
+import ZK60Formal.RunChainCover
+import ZK60Formal.RunChainKinds
+import ZK60Formal.RunChainAssemble
