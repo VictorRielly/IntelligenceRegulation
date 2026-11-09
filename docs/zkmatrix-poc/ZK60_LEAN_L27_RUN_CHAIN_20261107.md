@@ -36,12 +36,15 @@ Merkle extraction failure at the run's queries. This lane discharges what lives 
    (`cutAt_proverLog_esc`, `cutEq_esc`). Every extraction in the code does this (the slots' tables, the relation and
    LogUp data, `M`'s rows, the openings' columns: `cuts3_cutEq`, `defSq_cutEq`, `lkSq_cutEq`, `colX_cutEq`).
 3. **The nine kinds' actual checks fit.** The code's sub-protocols of each kind (`slotSub`, `maskCSubX`, `opACSub`,
-   `opBCSub`, the define draws and LogUp as squeeze runs) meet these premises at any position of the run's transcript,
-   with the per-kind constants L24 budgeted (`RunChainKinds.lean`, `nine_lin_w16r2`, `nine_lin_r13`).
+   `opBCSub`, the define draws and LogUp as squeeze runs) meet these premises at any position of the run's transcript
+   (for the two opening kinds the soundness and error are L20's lemmas, used as they are), with the per-kind constants
+   L24 budgeted (`RunChainKinds.lean`, `nine_lin_w16r2`, `nine_lin_r13`). The lists themselves, kind by kind over the
+   run, are not written yet (see below).
 4. **The Merkle extraction failure for the whole run is one event with a proved bound**: at most
    `(q + 1)·(2^16 + 2^18)/2^126`, exactly L24's figure, for the 26 blocks at W16R2's or R13's opening geometry plus up
-   to 3.8 million further Merkle queries for the boundaries and stages (`extract_fail_run_w16r2`, `_r13`). Outside it,
-   every column the run verifier checks is the extracted one (`opened_eq_extracted_run`).
+   to 3.8 million further Merkle queries for the boundaries and stages (`extract_fail_run_w16r2`, `_r13`), for a
+   prover of up to `2^102` hash queries (the target itself reaches 1 at `2^100` queries). Outside it, every column the
+   blocks' part of the run verifier checks is the extracted one (`opened_eq_extracted_run`).
 5. **The run's one cover reduces to per-part covers** (`cover3_of_runParts`, `jointCover_of_runParts`): on acceptance
    every check of every kind is alive at the end, and each part's failure makes one of that part's checks start with a
    false claim. Block `k`'s part reads the planes `B_k` and `B_{k+1}`, and its failure reduces to the four checks of
@@ -55,7 +58,9 @@ Merkle extraction failure at the run's queries. This lane discharges what lives 
 **What is not done** (§3). This lane does not finish the run's extraction: it reduces it to deterministic premises.
 The run's chain itself is not yet built from the run verifier (L18 models the two stages as abstract parameters, so the
 run's list of transcript operations is not yet a Lean object); the nine kinds' lists on it are therefore not written
-out, only every fact they need; the per-part links (each block's and stage's "false conclusion ⇒ some check starts
+out, only the facts their checks need (for the two opening kinds only the agreement at two logs is new here; their
+soundness and error are L20's `opACSub_rbr`, `opBCSub_rbr`, `opA_eps_le`, and their window order inside a block is
+not restated); the per-part links (each block's and stage's "false conclusion ⇒ some check starts
 doomed", and "accepted ⇒ every check alive") are named premises with their per-block sources given; and the input
 endpoint (O11d) waits on your ruling on L24-1 (lane L26). The two gates of item 6 are stated at L18's instance, whose
 endpoint premise is false (L24-1), so they become usable only at lane L26's instance: that restatement is short and is
@@ -146,8 +151,9 @@ earlier blocks, its frame), every window is at its run position: `defPos P h k`,
 
 ## 3. What remains
 
-Exactly the premises of `classify_productionReady_run_w16r2` / `_r13`. All are deterministic: every probability on the
-run's chain is now proved.
+Exactly the premises of `classify_productionReady_run_w16r2` / `_r13`. What is left on the run's chain is
+deterministic work: each probabilistic statement it needs has a proved lemma (the count, the extraction failure, and
+the round-by-round soundness of each constructor, which a `KindRun` takes as its field `hR` and §2.3 or L20 supplies).
 
 1. **The run's transcript and its parses** (`tr`, each kind's `RunChain` with `htr`). The run verifier's list of
    transcript operations as a function of the statement and receipt (the run header, stage IN-C, every block's D12a
@@ -159,9 +165,10 @@ run's chain is now proved.
    and the profile's counts (L27-2).
 2. **Each kind's parts** (`KindRun.cs i`): the stages' sub-protocols of each kind (L24-6: IN-C's and OUT-C's slots,
    their single challenges, their `M` and openings, define schedules for their relations), and the blocks' at their
-   run windows. §2.3 gives every constructor's facts; what remains is writing the lists with the profile's counts and
-   checking the forms' side conditions (`e ≤ emax`, `n·e ≤ ND`, `opA`'s `A ≤ 2^15`, `|K| = p²`), the numbers L20, L21
-   and L23 already checked per block.
+   run windows. §2.3 gives the constructors' facts (for `opA` and `opB` only their agreement at two logs; their
+   soundness and error are L20's `opACSub_rbr`, `opBCSub_rbr`, `opA_eps_le`); what remains is writing the lists with
+   the profile's counts, the openings' window order inside a block, and checking the forms' side conditions
+   (`e ≤ emax`, `n·e ≤ ND`, `opA`'s `A ≤ 2^15`, `|K| = p²`), the numbers L20, L21 and L23 already checked per block.
 3. **The covers** (`halive`, `hdin`, `hdblk`, `hdout`):
    - blocks: `block_doom_w16` / `_r13` reduce `hdblk` to four per-block links on the run's chain, each L20–L23's link
      through the block's view (`cChain_prefix`, `entD_of_prefix`, `allSt_of_prefix`): L22's `hsem` (`mGood_mTrue`,
@@ -256,4 +263,30 @@ comparison is worth running at each merge.
 
 ## 6. Checks
 
-To be completed after the final check.
+`results/zk60_lean_l27_20261107/check_l27.sh`, run as ONE job under the resource guard (class cpu, need 14 GiB, cap
+24 GiB) through `run_guarded.py` and `iter.sh`. The final run is iteration 7, 2026-11-09 (guard run `5c9295140d23`,
+waited 5 s for the shared lock, 59 s, peak 3.82 GiB): `iter7.log`, `iter7.log.guard`, `check.log`.
+
+| Check | Result |
+|---|---|
+| `lake build` of the six L27 modules, one at a time (`prebuild_*.log`) | rc 0 each |
+| full `lake build` (`full.log`) | **3566 jobs, 0 warnings, 0 errors, no `sorry`**; 0 warnings in the L27 files |
+| axiom audit, every `theorem` of the six files (`gen_axioms.py`, `axioms_l27.lean`, `axioms.log`) | **105 theorems** (Stab 16, Sched 25, Extract 14, Cover 10, Kinds 26, Assemble 14): 77 on `propext`, `Classical.choice`, `Quot.sound`; 11 on `propext`, `Quot.sound`; 13 on `propext`; 4 on no axiom. `sorryAx` 0, `Lean.ofReduceBool` 0, any other axiom 0 |
+| source scan of the six files for the forbidden words | none |
+| the library root imports the six files | all six |
+| regression: `L6Check` on the committed L6 corpus | 1,206 checks, 0 failed |
+| regression: `L5Check` on the committed L5 corpus | 5,553 checks, 0 failed |
+| regression: `L11Check` on L11's committed W16R2 rung corpus | 404 checks, 0 failed |
+| regression: the fixture L1 check | 101,956 checks, 0 failed |
+| declaration names against every other Lean file of every worktree (`l27_nameclash.py`, `l27_nameclash.log`; not part of `check_l27.sh`) | 124 declarations against 2,173 files in 35 worktrees: 0 clashes after the rename (1 before, L27-6) |
+
+The six files hold 2,018 lines. Iteration 6 (2026-11-07, `iter6.log`) ran the same script green on the state before
+the rename and the four added theorems: 3566 jobs, 101 theorems, the same regressions.
+
+**Not checked here.** The merged tree: this branch stands on perf at `2ba55340` with lane L22's branch merged, and
+perf is now at `8baff9cc`. The coordinator's merged-tree check covers it (the root's import lines will conflict and
+both sides are kept). The files perf gained since (`HonestClassify*`) are not imported by the L27 files, and the name
+comparison above read them. `ExecBlockCheck` and `CheckR13Block` are not in this lane's script (no L27 file is
+imported by them).
+
+Iterations 1 to 5 (`iter1.log` … `iter5.log`) are the lane's build history, failures included.
