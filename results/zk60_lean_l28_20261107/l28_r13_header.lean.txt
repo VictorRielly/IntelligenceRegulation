@@ -11,6 +11,7 @@ machinery at the geometry `(h, Q, e) = (16, 256, 24448)`, with L17's `pcsFieldR1
 * **`opA_eps_r13`**: `opA`'s error at R13, `2^16/p² · bias ≤ 2^-110` (W16R2: `2^-111`), for a variable `p` (L7-4);
 * **`opB_eps_r13u`**: `opB`'s error at R13's unique-decoding radius, `((2^16 − 24449)/2^16)^256 ≤ 2^-126` (in fact
   `2^-172`, L17's `r13_col_far_nat`);
+* `r13_budget_open`: the R13 rung block's budget at these exponents is `30,322,419` units, under `2^25`;
 * **`block_knowledge_open_r13`**: for EVERY `q`,
   `Pr[BlockAcc ∧ sqN header = hdrSq ∧ ¬BlockSat] ≤ εsTarget q + εend`, L23's `block_knowledge_target_r13` with the
   openings' and `M`'s premises (`hM`, `hEA`, `hEH`, `hX`, `hsem`, `hexec`) DISCHARGED, on the real run (L22-1) and with
@@ -69,6 +70,15 @@ theorem opA_eps_r13 {F : Type} [Fintype F] (p : ℕ) (hp1 : p ≤ 2 ^ 64) (hp2 :
           _ ≤ (2 ^ 64 - 2 ^ 32) ^ 2 := by norm_num
           _ ≤ p ^ 2 := Nat.pow_le_pow_left hp2 2
           _ = 1 * (p ^ 2 * 1) := by ring
+
+/-- **The R13 rung block's budget at the proved opening exponents** (`M` `2^-106`, `opA` `2^-110`, `opB` `2^-126`):
+exactly `30,322,419` units of `2^-126` per query, under `2^25` (L23's `r13_budget` at `105 / 105` allows
+`38,579,953`: the unique-decoding radius makes `opB` cost one unit, not `2^21`). -/
+theorem r13_budget_open :
+    3 * 2 ^ (126 - 106) + 2 * (2 ^ (126 - 110) + 2 ^ (126 - 126)) + 2 ^ 18 + 2 ^ 16 + 5 + 924
+        + 4 * (80 + 80 * 375 + 2 ^ 14 + 2 ^ 14) + (1 * (80 + 80 * 375 + 2 ^ 14 + 2 ^ 14) + (26370000 + 2 ^ 14 + 2 ^ 14))
+      = 30322419 ∧ 30322419 ≤ 2 ^ 25 := by
+  constructor <;> norm_num
 
 end R13Numbers
 

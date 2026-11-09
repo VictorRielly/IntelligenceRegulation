@@ -777,6 +777,7 @@ section AltO
 variable {K : Type} [Field K] [Fintype K] [DecidableEq K] [Algebra GF K] (U : K) (hU : U ^ 2 = algebraMap GF K 7)
   (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
 
+omit [Fintype K] [DecidableEq K] in
 include hU in
 /-- **A regular opening's alternative on an accepted run** (`hexec` for `A` / `H`, at a geometry `(h, Q, e)`): its good
 predicate, or its chain event. Given the chain as `pre` (the opening's window), the opening's steps and the rest, the
@@ -853,9 +854,11 @@ theorem opening_alt {P : Block.BlockParams} (pr : OProf P) (L : ℕ) (h64 : 64 �
     have hp : ((toOZ o).columns.getD k (0, [], zeroDig, [])).2.2.2.length = h := by
       rw [hpath _ (mem_of_getD_lt _ _ hkl _), Nat.log2_two_pow]
     have hx := hcolX k k.isLt hkl' hp hc.2.2.1 hc.2.1
-    unfold UxW
-    rw [← hk1, hx]
-    rfl
+    show algebraMap GF K ((((colX pr.tag L h64 key domain hs hL h ipos (A.runLog G).2 pre
+      (idxCode h hQm (vecOf dg0 pr.mI ((sqDs (liftH G) tP pr.mI).map halves)) k)).map Subtype.val).getD []).getD r
+        Fp.zero).toGF = _
+    rw [← hk1]
+    exact congrArg (fun o : Option (List Fp) => algebraMap GF K ((o.getD []).getD r Fp.zero).toGF) hx
   have hGA := pcsOk_groupsAccept' U hU (liftH G) pr.tag prm (cosetPt (rootFp h)) ev 14 Q (2 ^ h) rows pr.mI hlc hqp hnQ
     hm hpow hQ0 RW hspec root (cl.map toZClaim) (toOZ o) tA tH hok (ptsG h) (fun _ => rfl)
     (idxCode h hQm (vecOf dg0 pr.mI ((sqDs (liftH G) tP pr.mI).map halves))) hJ
@@ -1057,7 +1060,7 @@ theorem run_acc {P : Block.BlockParams} (pr : OProf P) (L : ℕ) (hL20 : 2 ^ 20 
     (hacc : Block.BlockAcc key domain P pr.hdrLen G (A.run G) bga rs acc) (hsq : sqN (A.run G).1 = pr.hdrSq) :
     ∃ tM tA tH tF, RunAcc pr L key domain hs hL prm h ev (A.run G) G acc tM tA tH tF := by
   obtain ⟨hcA, hcH⟩ := hcnt G bga rs acc hacc
-  obtain ⟨⟨hlen, hfitH, hcan, hshape, t'', hbs⟩, io, tF, hbv⟩ := hacc
+  obtain ⟨⟨hlen, hfitH, -, hshape, t'', hbs⟩, io, tF, hbv⟩ := hacc
   have hd1 : ∀ i, i < (A.run G).2.slots.length → 1 ≤ (Block.slotShape P i).2.2 :=
     fun i hi => (hgeomL i (by rw [← hshape.1]; exact hi)).1
   -- the verifier's run, decomposed
@@ -1182,6 +1185,7 @@ section Hexec
 variable {K : Type} [Field K] [Fintype K] [DecidableEq K] [Algebra GF K] (U : K) (hU : U ^ 2 = algebraMap GF K 7)
   (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
 
+omit [DecidableEq K] in
 include hU in
 /-- **`hexec` at a geometry `(h, Q, e)`** (L20-3, deterministic): on the block verifier's acceptance with the profile's
 header (the run's restriction, L22-1) and outside the extraction failure at the verifier's queries, each opening's and
@@ -1306,7 +1310,10 @@ theorem hexec_geo {P : Block.BlockParams} (pr : OProf P) (L : ℕ) (hL20 : 2 ^ 2
       (by rw [R.chain]; simp only [List.append_assoc]) (acc.fs ++ acc.hostFs) hcan.2.1 R.mok
       (by rw [R.cM]; exact pr.W_r0 _ rfl)
       (by rw [ctr_squeeze _ _ _ R.cM]; exact pr.W_r1 _ rfl)
-      (by rw [ctr_runOps _ _ _ (pr.cM + 1) (ctr_squeeze _ _ _ R.cM), sqN_replicate]; exact pr.W_r2 _ (by omega))
+      (by
+        rw [ctr_runOps (liftH G) ((tM.squeeze (liftH G)).2.absorb (liftH G) Block.labMaskQ
+          ((A.run G).2.maskOpen.q.flatMap Fp2.toBytes)) _ (pr.cM + 1) (ctr_squeeze (liftH G) tM pr.cM R.cM), sqN_replicate]
+        exact pr.W_r2 _ (by omega))
       R.remM R.nf hrd1 ?_
     intro j hj
     obtain ⟨-, -, -, idx', hidx', hcl', hco'⟩ := R.mok
@@ -1343,8 +1350,8 @@ theorem hexec_geo {P : Block.BlockParams} (pr : OProf P) (L : ℕ) (hL20 : 2 ^ 2
     show ((colX pr.tag L h64 key domain hs hL 12 (pr.hdrLen + 3) (A.runLog G).2 (slotTrace P key domain G (A.run G))
       ((idxOf mDom mQ (sqDs (liftH G) (runOps (liftH G) tM (stpsOps (mPre pr.S (A.run G).2.maskOpen))) 64)).getD j
         0)).map Subtype.val).getD [] = _
-    rw [← hj1, hx]
-    rfl
+    rw [← hj1]
+    exact congrArg (fun o : Option (List Fp) => o.getD []) hx
 
 end Hexec
 
@@ -1399,6 +1406,7 @@ theorem mGood_mTrue' (S : ℕ) (fs : List Block.MaskFunctional) (k : ℕ) (hk : 
   subst hk
   exact mGood_mTrue U S fs cols hg
 
+omit [DecidableEq K] in
 /-- **`hsem` at a geometry `(h, Q, e)`** (L20-3, deterministic): on the block verifier's acceptance with the profile's
 header, the openings' and `M`'s good predicates make the block's own part `OpenBlk` true of the extracted data: every
 claim of `A` and of `H` (its LogUp sum claim included, L21-3) and every functional `M` received (the hosts' included,
@@ -1445,7 +1453,7 @@ theorem hsem_geo {P : Block.BlockParams} (pr : OProf P) (L : ℕ) (hL20 : 2 ^ 20
   apply hnb
   obtain ⟨hcA, hcH⟩ := hcnt G bga rs acc hacc
   obtain ⟨hrd1, hrd2, hrd3⟩ := hRd G bga rs acc hacc hsq
-  obtain ⟨tM, tA, tH, tF, R⟩ := run_acc pr L hL20 hL64 key domain hs hL rowsOf prm h Q ev hqp hnQ hnn hpow hQ0 hQ15 hm
+  obtain ⟨_, _, _, _, R⟩ := run_acc pr L hL20 hL64 key domain hs hL rowsOf prm h Q ev hqp hnQ hnn hpow hQ0 hQ15 hm
     hPm hPp hrA hrH hgt hgeomL A hcnt G bga rs acc hacc hsq
   have hlen := hacc.1.1
   have hroots := Block.rootsAt_trace (liftH G) P (A.run G).2 (A.run G).1 (Block.fullOps P 0 (A.run G).2.slots)
@@ -1487,8 +1495,7 @@ theorem hsem_geo {P : Block.BlockParams} (pr : OProf P) (L : ℕ) (hL20 : 2 ^ 20
     rw [colX_eq_colXc pr.tag L h64 key domain hs hL h (pr.hdrLen + 7) _ _ (A.run G).2.hRoot
       (by rw [habs _ _ haH hhd]; exact habsH)]
     rfl
-  unfold GOW clOfO at ga gh
-  beta_reduce at ga gh
+  simp only [GOW, clOfO] at ga gh
   rw [htk _ haA, hrd2, hUA] at ga
   rw [htk _ haH, hrd3, hUH] at gh
   refine ⟨fun c hc => ?_, fun c hc => ?_, fun mf hmf => ?_, ?_⟩
@@ -1526,6 +1533,7 @@ section Cover
 variable {K : Type} [Field K] [Fintype K] [DecidableEq K] [Algebra GF K] (U : K) (hU : U ^ 2 = algebraMap GF K 7)
   (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
 
+omit [DecidableEq K] in
 include hU in
 /-- **The per-kind cover at a geometry `(h, Q, e)`** (`hsem_geo` and `hexec_geo` together, as an inclusion of events;
 the form a run-level count over the blocks' kinds needs, L24-7): on the block verifier's acceptance with the profile's

@@ -10,6 +10,7 @@ bounds and links (`hM`, `hEA`, `hEH`, `hX`, `hsem`, `hexec`). Here those premise
 header's squeeze count the profile's, and the endpoint claims are a run-level term (L22-5, `εend`). The composition is
 L23's, re-done on that event (`block_knowledge_target_R`).
 
+* `w16r2_budget_open`: the W16R2 rung block's budget at these exponents is `30,263,665` units, under `2^25`;
 * **`block_knowledge_open_w16r2`**: for EVERY `q`,
   `Pr[BlockAcc ∧ sqN header = hdrSq ∧ ¬BlockSat] ≤ εsTarget q + εend`, given L23's remaining premises (the slot
   polynomials and the per-outcome algebra) and this lane's: the profile's fields and counts, the accumulator's reader
@@ -28,6 +29,14 @@ open ZK60.Sound
 open ZK60.Sound.SlotW16 (SlotPoly)
 open ZK60.Circuit (gP GF)
 open scoped ENNReal
+
+/-- **The W16R2 rung block's budget at the proved opening exponents** (`M` `2^-106`, `opA` `2^-111`, `opB` `2^-113`):
+exactly `30,263,665` units of `2^-126` per query, under `2^25`. -/
+theorem w16r2_budget_open :
+    3 * 2 ^ (126 - 106) + 2 * (2 ^ (126 - 111) + 2 ^ (126 - 113)) + 2 ^ 18 + 2 ^ 16 + 5 + 924
+        + 4 * (80 + 80 * 351 + 2 ^ 14 + 2 ^ 14) + (1 * (80 + 80 * 351 + 2 ^ 14 + 2 ^ 14) + (26370000 + 2 ^ 14 + 2 ^ 14))
+      = 30263665 ∧ 30263665 ≤ 2 ^ 25 := by
+  constructor <;> norm_num
 
 section Open
 

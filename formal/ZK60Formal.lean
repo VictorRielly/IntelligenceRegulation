@@ -170,3 +170,9 @@ import ZK60Formal.LinkW16Mask
 import ZK60Formal.LinkW16MaskChain
 import ZK60Formal.LinkW16Sem
 import ZK60Formal.ExtractInstW16
+import ZK60Formal.LinkW16Pcs
+import ZK60Formal.LinkW16Head
+import ZK60Formal.LinkW16Glue
+import ZK60Formal.LinkW16GlueW16
+import ZK60Formal.LinkW16GlueW16T
+import ZK60Formal.LinkW16GlueR13
