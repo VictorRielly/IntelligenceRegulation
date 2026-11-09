@@ -16,7 +16,9 @@ discharged from the endpoint's column test (`BindingUTest.lean`) and the decodin
 * **`classifyU_productionReady_ep_target`**: the gate at the approved targets at `classifyProtocolU`, through the joint
   extraction, with the endpoint's part of the cover DISCHARGED (`jointCover_of_parts`, `epCoverU`);
 * the numbers: `partConst_eleven`, `jointU_budget_w16r2` (`31,480,689 ≤ 2^25`), `jointU_budget_r13`
-  (`57,589,594 ≤ 2^26`), **`jointU_w16r2_target`**, **`jointU_r13_target`**: L24's nine kinds and the test's two.
+  (`57,589,594 ≤ 2^26`), **`jointU_w16r2_target`**, **`jointU_r13_target`**: L24's nine kinds and the test's two;
+* `xKindA_lin`, `xKindB_lin`, `XTest.εA_w16r2`, `XTest.εA_r13`, `XTest.εB_w16r2`, `XTest.εB_r13`: the test's two kinds
+  at their constants (the premises `hxA`, `hxB` of the two targets, from the test's parameters).
 
 Every premise is an explicit hypothesis.
 -/
@@ -546,5 +548,74 @@ theorem xKind_lin_le (q j : ℕ) (hj : j ≤ 126) (εmax B : ℝ≥0∞) (hε : 
   lin_kind_le q 1 j hj le_rfl εmax B hε (by rw [Nat.cast_one, one_mul]; exact hB)
 
 end Numbers
+
+/-! ## The column test's two kinds at their constants -/
+
+section XKindNumbers
+
+variable {Lq : ℕ} {α : Type}
+variable {F κ μ Cl : Type} [Field F] [Fintype F] [DecidableEq F] [Fintype κ] [DecidableEq κ] [Fintype Cl]
+  [DecidableEq Cl] {h : ℕ}
+
+/-- **The first half's kind at its constant**: its `εmax` and its `B` are the half's error `εA` (one round), so
+`εA ≤ 2^-j` gives the kind's linear part `≤ (q + 1)·2^(126 − j)/2^126`: the premise `hxA` of `jointU_w16r2_target`
+(`j = 111`) and of `jointU_r13_target` (`j = 110`). -/
+theorem xKindA_lin (D : ChainU Lq α) (T : XTest F κ μ Cl h)
+    (Ux : List (QB Lq × Dig) → List (TItem × Dig) → κ → Fin (2 ^ h) → F)
+    (Xx : List (QB Lq × Dig) → List (TItem × Dig) → Finset (Fin (2 ^ h))) (hwin : D.s < T.aA)
+    (hstab : StabU D (T.cA Ux Xx)) (q j : ℕ) (hj : j ≤ 126) (hε : T.εA ≤ (2⁻¹ : ℝ≥0∞) ^ j) :
+    (q : ℝ≥0∞) * (xKindA D T Ux Xx hwin hstab).εmax + (xKindA D T Ux Xx hwin hstab).B
+      ≤ u126 q (1 * 2 ^ (126 - j)) :=
+  xKind_lin_le q j hj T.εA T.εA hε le_rfl
+
+/-- **The second half's kind at its constant**: `εB ≤ 2^-j` gives the kind's linear part
+`≤ (q + 1)·2^(126 − j)/2^126`: the premise `hxB` of `jointU_w16r2_target` (`j = 113`) and of `jointU_r13_target`
+(`j = 126`). -/
+theorem xKindB_lin (D : ChainU Lq α) (T : XTest F κ μ Cl h)
+    (Ux : List (QB Lq × Dig) → List (TItem × Dig) → κ → Fin (2 ^ h) → F)
+    (Xx : List (QB Lq × Dig) → List (TItem × Dig) → Finset (Fin (2 ^ h))) (hwin : D.s < T.aB)
+    (hstab : StabU D (T.cB D.W Ux Xx)) (q j : ℕ) (hj : j ≤ 126) (hε : T.εB ≤ (2⁻¹ : ℝ≥0∞) ^ j) :
+    (q : ℝ≥0∞) * (xKindB D T Ux Xx hwin hstab).εmax + (xKindB D T Ux Xx hwin hstab).B
+      ≤ u126 q (1 * 2 ^ (126 - j)) :=
+  xKind_lin_le q j hj T.εB T.εB hε le_rfl
+
+/-- **The first half's error at W16R2's parameters** (`N = 2^15`, `|F| = p²`, the `(λ, ρ)` bias
+`(1 + p/2^128)^(2·w0)`): `≤ 2^-111`. Stated for a variable `p` (L7-4). -/
+theorem XTest.εA_w16r2 (T : XTest F κ μ Cl 15) (p : ℕ) (hp1 : p ≤ 2 ^ 64) (hp2 : 2 ^ 64 - 2 ^ 32 ≤ p)
+    (hF : Fintype.card F = p ^ 2) (hw0 : T.w0 ≤ 2 ^ 61)
+    (hβ : T.βLR = (1 + (p : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ (2 * T.w0)) : T.εA ≤ (2⁻¹ : ℝ≥0∞) ^ 111 := by
+  unfold XTest.εA
+  rw [hβ]
+  exact xA_eps_w16r2 p hp1 hp2 hF hw0
+
+/-- **The first half's error at R13's parameters** (`N = 2^16`): `≤ 2^-110`. -/
+theorem XTest.εA_r13 (T : XTest F κ μ Cl 16) (p : ℕ) (hp1 : p ≤ 2 ^ 64) (hp2 : 2 ^ 64 - 2 ^ 32 ≤ p)
+    (hF : Fintype.card F = p ^ 2) (hw0 : T.w0 ≤ 2 ^ 61)
+    (hβ : T.βLR = (1 + (p : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ (2 * T.w0)) : T.εA ≤ (2⁻¹ : ℝ≥0∞) ^ 110 := by
+  unfold XTest.εA
+  rw [hβ]
+  exact xA_eps_r13 p hp1 hp2 hF hw0
+
+/-- **The second half's error at W16R2's parameters** (`N = 2^15`, `e = 8052`, `Q = 280`, the indices exactly
+uniform): `≤ 2^-113`. -/
+theorem XTest.εB_w16r2 (T : XTest F κ μ Cl 15) (he : T.e = 8052) (hQ : T.nQ = 280) (hβ : T.βJ = 1) :
+    T.εB ≤ (2⁻¹ : ℝ≥0∞) ^ 113 := by
+  unfold XTest.εB
+  rw [he, hQ, hβ]
+  exact xB_eps_w16r2
+
+/-- **The second half's error at R13's parameters** (`N = 2^16`, `e = 24,448`, `Q = 256`): `≤ 2^-172`, so `≤ 2^-126`
+(one unit of the count). -/
+theorem XTest.εB_r13 (T : XTest F κ μ Cl 16) (he : T.e = 24448) (hQ : T.nQ = 256) (hβ : T.βJ = 1) :
+    T.εB ≤ (2⁻¹ : ℝ≥0∞) ^ 172 ∧ T.εB ≤ (2⁻¹ : ℝ≥0∞) ^ 126 := by
+  have h172 : T.εB ≤ (2⁻¹ : ℝ≥0∞) ^ 172 := by
+    unfold XTest.εB
+    rw [he, hQ, hβ]
+    exact xB_eps_r13
+  refine ⟨h172, h172.trans ?_⟩
+  rw [inv_two_pow_eq, inv_two_pow_eq]
+  exact natCast_div_le_div (by positivity) (by positivity) (by norm_num)
+
+end XKindNumbers
 
 end ZK60.ProtocolClassify
