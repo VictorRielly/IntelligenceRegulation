@@ -462,11 +462,32 @@ here. The rates count proving and witness work. Verification time is recorded se
       - the endpoint O11d, which is false at L18's instance (L24-1), so the gate must be restated on L26's instance.
     - Finding L27-2 (Medium): each part's operation and squeeze counts must be profile constants. This is L22-1 at the
       run's level, to be proved with the run's transcript.
-  - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26 (the OpensU instance
-    for L24-1), L27, L28 (the openings' glue), L29 (the stage verifiers in executable Lean and the honest prover in
-    oracle form) and A28 (the app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's
-    files were in its worktree, and each was resumed there on 2026-11-09. L27 is merged (above); L26, L28, L29 and A28
-    are still running.
+  - **L26, the classify instance with the input opening at the unique-decoding radius, built beside the original**
+    [PROVED; merged 2026-11-09; `ZK60_LEAN_L26_OPENS_U_20261107.md`]. This is the fix proposed for L24-1.
+    - `classifyProtocolU` is L18's instance with one change: the input commitment "opens" to an input when all but at
+      most `e` columns sit in the hash tree and carry that input's encoding. `e` is the code's unique-decoding radius:
+      24,448 of 65,536 columns at R13, 8,052 of 32,768 at W16R2. The verifier, the prover, the statement and the
+      receipt are the same terms, so no code changes.
+    - `Binding` holds at the target for every q, and is stronger than before: no commitment opens to two inputs even
+      when each opening may miss `e` columns.
+    - The endpoint obligation O11d, false at the original instance, is proved at this one. The verifier's sampled
+      columns miss more than `e` bad ones with probability at most 2^-172 at R13 and 2^-113 at W16R2 per query.
+    - `Complete` and `ZeroKnowledge` carry over with the same bounds.
+    - The run's totals with the two new kinds: W16R2 31.5M ≤ 2^25 units, R13 57.6M ≤ 2^26 (86% of the budget).
+    - **For Victor (L24-1): choose A or B.**
+      - A, recommended: adopt `classifyProtocolU` at the largest radius. One consequence (L26-1, Low): an accepted
+        receipt guarantees an opening that may miss up to `e` columns, so a later audit that re-opens the input
+        commitment must accept such an opening. Honest provers open every column.
+      - B: keep the all-columns opening. Then O11d stays false and the classify run cannot be proved production-ready
+        at that instance.
+      - Nothing is switched until the ruling. Both instances are in the tree.
+    - Premises left at the endpoint, all deterministic: the extractor's openings verify and are canonical; the
+      column test's chain link, with one code fact about the extension field (L26-3, Medium, not proved); the decoded
+      plane vanishes off the token positions (L26-4, Low).
+  - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26, L27, L28 (the
+    openings' glue), L29 (the stage verifiers in executable Lean and the honest prover in oracle form) and A28 (the
+    app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its worktree,
+    and each was resumed there on 2026-11-09. L26 and L27 are merged (above); L28, L29 and A28 are still running.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
