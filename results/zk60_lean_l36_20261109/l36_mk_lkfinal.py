@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""D63 lane L36 (2026-11-09): write formal/ZK60Formal/BlockAlgLkFinal.lean, the block statements with the lookup
+bridge `hbr` discharged from a cover of the logical lookups.
+
+Each theorem is an existing statement of this lane with ONLY these changes (nothing else is changed):
+  * the premise `hbr` is replaced by `hTtab` (every entry of the table enumeration is a tuple of the block's table)
+    and `hcov` (on every outcome, every logical query of the lookups' conclusion is an entry of the extracted lookup
+    list);
+  * in the proof (which calls the statement it comes from's callee, unchanged), the argument `hbr` is the lambda that
+    applies `hbr_w16_of_cover` / `hbr_r13_of_cover` to them;
+  * the theorem's name.
+The statements:
+  block_knowledge_alg_w16r2         (BlockAlgFinal.lean) -> block_knowledge_alg_w16r2_lk
+  block_knowledge_alg_r13_spec      (BlockAlgR13.lean)   -> block_knowledge_alg_r13_lk
+  block_knowledge_alg_r13_shield_spec26 (BlockAlgLk26.lean) -> block_knowledge_alg_r13_shield_lk26
+
+usage: python3 -I l36_mk_lkfinal.py <formal/ZK60Formal dir>
+"""
+import re
+import sys
+import textwrap
+
+src = sys.argv[1]
+
+
+def theorem_text(fname, thm, stop):
+    lines = open(f"{src}/{fname}").read().split("\n")
+    start = next(i for i, l in enumerate(lines) if l.startswith(f"theorem {thm} "))
+    end = next(i for i in range(start + 1, len(lines)) if lines[i].startswith(stop))
+    return "\n".join(lines[start:end]).rstrip() + "\n"
+
+
+def sub(text, pairs):
+    for a, b, n in pairs:
+        found = len(re.findall(a, text, flags=re.S))
+        assert found == n, (a, found, n)
+        text = re.sub(a, lambda m: b, text, flags=re.S)
+    return text
+
+
+HBR = r"    \(hbr : ∀ G bga rs acc,.*?∃ l, ∀ j, T j ≠ Alk \(cutsOf key domain hs hL A G\)\.1 l\)\n"
+OUTC = "(xtE (cutsOf key domain hs hL A G) (rootsOf (A.run G).2))"
+
+W16_PREM = f"""    (hTtab : ∀ j, ∃ t0, ZK60.Circuit.CodeTable fams Pb.exp Pb.act S.nG t0 ∧ T j = tupK t0)
+    (hcov : ∀ G q, W16Query Pb Lay B {OUTC} q →
+      ∃ l, Alk (cutsOf key domain hs hL A G).1 l = tupK q)
+"""
+R13_PREM = f"""    (hTtab : ∀ j, ∃ t0, ZK60.Circuit.CodeTable ZK60.Layout.R13.r13Fams Pb.exp Pb.act S.nG t0 ∧ T j = tupK t0)
+    (hcov : ∀ G q, R13Query Pb Lay B {OUTC} q →
+      ∃ l, Alk (cutsOf key domain hs hL A G).1 l = tupK q)
+"""
+W16_ARG = ("hN he\n    (fun G _ _ _ _ hn => hbr_w16_of_cover (Alk (cutsOf key domain hs hL A G).1) T hTtab (hcov G) hn) "
+           "hhr")
+R13_ARG = ("hN he\n    (fun G _ _ _ _ _ hn => hbr_r13_of_cover (Alk (cutsOf key domain hs hL A G).1) T hTtab (hcov G) hn) "
+           "hhr")
+
+CHAIN = [
+    ("BlockAlgFinal.lean", "block_knowledge_alg_w16r2", "/-- **One R13 rung block's",
+     "**One W16R2 rung block's knowledge statement with the relation layers' algebra and the lookup bridge `hbr` "
+     "discharged** (`block_knowledge_alg_w16r2` with `hbr` replaced by `hTtab` and `hcov`).",
+     [(r"\bblock_knowledge_alg_w16r2\b", "block_knowledge_alg_w16r2_lk", 1), (HBR, W16_PREM, 1),
+      (r"\bhN he hbr hhr\b", W16_ARG, 1)]),
+    ("BlockAlgR13.lean", "block_knowledge_alg_r13_spec", "/-- **One Shieldstral",
+     "**One R13 rung block's knowledge statement with the relation layers' algebra, the reindexing and the lookup "
+     "bridge `hbr` discharged** (`block_knowledge_alg_r13_spec` with `hbr` replaced by `hTtab` and `hcov`).",
+     [(r"\bblock_knowledge_alg_r13_spec\b", "block_knowledge_alg_r13_lk", 1), (HBR, R13_PREM, 1),
+      (r"\bhN he hbr hhr\b", R13_ARG, 1)]),
+    ("BlockAlgLk26.lean", "block_knowledge_alg_r13_shield_spec26", "end Spec26",
+     "**The Shieldstral T128 R13 block's knowledge statement (the media app's classifier block) with the relation "
+     "layers' algebra, the reindexing and the lookup bridge `hbr` discharged, at LogUp's bound `e ≤ 2^26`** "
+     "(`block_knowledge_alg_r13_shield_spec26` with `hbr` replaced by `hTtab` and `hcov`).",
+     [(r"\bblock_knowledge_alg_r13_shield_spec26\b", "block_knowledge_alg_r13_shield_lk26", 1), (HBR, R13_PREM, 1),
+      (r"\bhN he hbr hhr\b", R13_ARG, 1)]),
+]
+
+HEAD = '''/-
+D63 lane L36 (2026-11-09), part 6c: **the block statements with the lookup bridge `hbr` discharged** from a cover of
+the logical lookups (`BlockAlgLkW16.lean`, `BlockAlgLkR13.lean`).
+
+* **`block_knowledge_alg_w16r2_lk`**: the W16R2 rung block;
+* **`block_knowledge_alg_r13_lk`**: the R13 rung block, with the R13 reindexing included (`R13Spec`);
+* **`block_knowledge_alg_r13_shield_lk26`**: the Shieldstral T128 R13 block (the media app's classifier block), with
+  the reindexing included and LogUp's bound `e ≤ 2^26` (finding L36-1 repaired).
+
+Against the statements they come from, the premise `hbr` is replaced by:
+* `hTtab`: every entry of the table enumeration `T` is the image of a tuple of the block's table;
+* `hcov`: on every outcome, every logical query of `W16Lookups` / `R13Lookups` at the extracted planes is an entry of
+  the extracted lookup list `Alk`.
+
+Generated by results/zk60_lean_l36_20261109/l36_mk_lkfinal.py from the existing statements (statement and proof), with
+only `hbr`, its use and the name changed. Only `propext`, `Classical.choice`, `Quot.sound`.
+-/
+import ZK60Formal.BlockAlgLk26
+import ZK60Formal.BlockAlgLkW16
+
+set_option autoImplicit false
+
+namespace ZK60.Exec.Block
+
+open ZK60.Sound
+open ZK60.Sound.SlotW16 (SlotPoly)
+open ZK60.Circuit (gP GF)
+open ZK60.Exec.Slot.W16R2 (segLn)
+open scoped ENNReal
+
+section LkFinal
+
+variable {K : Type} [Field K] [Algebra GF K] {L : ℕ}
+variable {S : ZK60.Block.BlockShape} {Ct Cw Cg Cj Cd Cf : Type} [Fintype Ct] [Fintype Cw] [Fintype Cg] [Fintype Cj]
+  [Fintype Cd] [Fintype Cf] [DecidableEq Ct] [DecidableEq Cw] [DecidableEq Cg] [DecidableEq Cj] [DecidableEq Cd]
+  [DecidableEq Cf]
+
+'''
+
+out = [HEAD]
+for fname, thm, stop, doc, pairs in CHAIN:
+    body = sub(theorem_text(fname, thm, stop), pairs)
+    out.append(textwrap.fill(f"/-- {doc} -/", width=118, break_long_words=False, break_on_hyphens=False) + "\n"
+               + body + "\n")
+out.append("end LkFinal\n\nend ZK60.Exec.Block\n")
+open(f"{src}/BlockAlgLkFinal.lean", "w").write("".join(out))
+print("wrote", f"{src}/BlockAlgLkFinal.lean")

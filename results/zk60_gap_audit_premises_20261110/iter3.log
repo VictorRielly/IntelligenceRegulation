@@ -1,0 +1,14 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/plan3.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_b_probes.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_b_probes.lean ==
+'GapAudit.gap_o11_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_zk_passthrough' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_segComplete_refuser' depends on axioms: [propext, Quot.sound]
+'GapAudit.gap_circuitIff_free' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_units' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_epsC_lt_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_epsS_lt_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_epsZk_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_block_end_free' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_b_probes.lean (4 s)
+rc 0, 4 s

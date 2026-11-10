@@ -1,0 +1,5 @@
+declarations in {BlockAlg}*.lean: 160
+declared twice inside the lane: none
+worktrees read: 46
+other Lean files read (with repeats across worktrees): 4917
+clashes: 0

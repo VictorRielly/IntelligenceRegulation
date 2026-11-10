@@ -1,0 +1,664 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/plan5.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_c_compose.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean ==
+'GapAudit.gap_rtInc_counts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_rtInc_never_accepts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_rtRunClassify_never_accepts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_rtOutc_counts' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean (4 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_c_compose.lean ==
+⋯ : ∀ (hr : 8 * (R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ClsStmt.inRoot tagc).R ≤ Lq)
+  (hon : HonestIn Coins (R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ClsStmt.inRoot tagc)) (U : K)
+  (hbij : Function.Bijective (Hiding.fp2 U)) (hs : decodeLink (startMsg domain) = none)
+  (hL : (startMsg domain).length ≤ Lq) (hL64 : Lq < 2 ^ 64)
+  (hv :
+    (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck bndOpen key domain
+          hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX hbp hO).pf.Valid)
+  (D : RtKData K Lq)
+  (hD :
+    D.Valid (Block.absOfC (chainEncB key domain hs Lq hL))
+      (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck bndOpen key
+          domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX hbp hO).pf)
+  {ι : Type} [inst : Fintype ι] (site : (S.Tok → ℕ) → ι → Site (QB Lq) Coins K) (kOf : ι → ℕ) (δOf : ι → ℝ≥0∞)
+  (E : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt S Salt) {εin εblk εout εep : ℕ → ℝ≥0∞}
+  {εzk : ℕ → ℕ → ℝ≥0∞},
+  ClassifyOpen Rp Lq
+      (gapV L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) P
+      (R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ClsStmt.inRoot tagc) h64 hr hon U site kOf δOf E
+      εin εblk εout εep εzk →
+    ∀ {F Cl : Type} [inst : Field F] [inst_1 : Fintype F] [inst_2 : DecidableEq F] [inst_3 : Algebra Circuit.GF F]
+      [inst_4 : Fintype Cl] [inst_5 : DecidableEq Cl] (T : XTest F (Fin Rr) (Fin (2 ^ 14 + 256)) Cl 16),
+      T.enc = encLin (fun j => (algebraMap Circuit.GF F) (R13.r13Pts j)) (rowFormK14 F) →
+        (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck bndOpen key
+                  domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX hbp
+                  hO).pf.hdrLen ≤
+            T.aA →
+          (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck bndOpen key
+                    domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX hbp
+                    hO).pf.hdrLen ≤
+              T.aB →
+            ∀ (Ux : List (QB Lq × Dig) → List (TItem × Dig) → Fin Rr → Fin (2 ^ 16) → F)
+              (Xx : List (QB Lq × Dig) → List (TItem × Dig) → Finset (Fin (2 ^ 16))),
+              CutReads
+                  (Block.absOfC
+                    (rtRC2 key domain hs Lq hL
+                        (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck
+                            bndOpen key domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp pX gX hgeo
+                            hgX hbp hO).pf
+                        (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck
+                            bndOpen key domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp pX gX hgeo
+                            hgX hbp hO).rd
+                        hL64 hv).C)
+                  Ux →
+                CutReads
+                    (Block.absOfC
+                      (rtRC2 key domain hs Lq hL
+                          (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN
+                              bndCheck bndOpen key domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp
+                              pX gX hgeo hgX hbp hO).pf
+                          (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN
+                              bndCheck bndOpen key domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp
+                              pX gX hgeo hgX hbp hO).rd
+                          hL64 hv).C)
+                    Xx →
+                  ∀ pr ≤ 2 ^ 64,
+                    2 ^ 64 - 2 ^ 32 ≤ pr →
+                      Fintype.card F = pr ^ 2 →
+                        T.w0 ≤ 2 ^ 61 →
+                          T.βLR = (1 + ↑pr / ↑(2 ^ 128)) ^ (2 * T.w0) →
+                            T.e = 24448 →
+                              T.nQ = 256 →
+                                T.βJ = 1 →
+                                  ∀ (tag : MTag) (C : Sound.ChainEnc (ItB Lq) (QB Lq) Dig)
+                                    (coreOf : ClsStmt Hdr × ClsReceipt → ℕ → List Op × Block.Core)
+                                    (Vx : ClsStmt Hdr × ClsReceipt → OC (QB Lq) Dig Unit) (nx : ℕ),
+                                    (∀ (o : ClsStmt Hdr × ClsReceipt), (Vx o).Bounded nx) →
+                                      nx ≤ 3800000 →
+                                        ∀ (rx : ClsStmt Hdr × ClsReceipt → List Dig) (nrx : ℕ),
+                                          (∀ (o : ClsStmt Hdr × ClsReceipt), (rx o).length ≤ nrx) →
+                                            nrx ≤ 2 ^ 99 →
+                                              (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+                                                  (classifyProtocolU S Rp Lq
+                                                            (gapV L preA preB start inc incG outc outcG Pk sgeom check
+                                                              paths digest bRows bLogN bndCheck bndOpen)
+                                                            P
+                                                            (R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt
+                                                              path ClsStmt.inRoot tagc)
+                                                            h64 hr hon.base 24448).verify
+                                                        G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+                                                      true →
+                                                    ¬EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf Vx rx A G →
+                                                      AliveOrd
+                                                        (rtKo key domain hs Lq hL
+                                                          (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check
+                                                              paths digest bRows bLogN bndCheck bndOpen key domain hL20
+                                                              hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp
+                                                              pX gX hgeo hgX hbp hO).pf
+                                                          (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check
+                                                              paths digest bRows bLogN bndCheck bndOpen key domain hL20
+                                                              hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp
+                                                              pX gX hgeo hgX hbp hO).rd
+                                                          hL64 hv U hbij D hD)
+                                                        (Rp.Ps.length + 2) (OC.runLog G A).2
+                                                        (rtTr key domain Lq
+                                                          (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check
+                                                              paths digest bRows bLogN bndCheck bndOpen key domain hL20
+                                                              hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp
+                                                              pX gX hgeo hgX hbp hO).pf
+                                                          (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom check
+                                                              paths digest bRows bLogN bndCheck bndOpen key domain hL20
+                                                              hdr hdrLen hdrSq hstart hhdr cx0 pin pout I O pend hI bp
+                                                              pX gX hgeo hgX hbp hO).rd
+                                                          G (OC.run G A))) →
+                                                (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+                                                    (classifyProtocolU S Rp Lq
+                                                              (gapV L preA preB start inc incG outc outcG Pk sgeom check
+                                                                paths digest bRows bLogN bndCheck bndOpen)
+                                                              P
+                                                              (R13.r13TokenCommit Rr dR hpos place msg msg_place pad
+                                                                salt path ClsStmt.inRoot tagc)
+                                                              h64 hr hon.base 24448).verify
+                                                          G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+                                                        true →
+                                                      ¬EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf Vx rx A G →
+                                                        ¬InOk Rp
+                                                              (E (OC.runLog G A).2 (OC.runLog G A).1.1
+                                                                (OC.runLog G A).1.2) →
+                                                          ∃
+                                                            K' ∈
+                                                              rtKo key domain hs Lq hL
+                                                                (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom
+                                                                    check paths digest bRows bLogN bndCheck bndOpen key
+                                                                    domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin
+                                                                    pout I O pend hI bp pX gX hgeo hgX hbp hO).pf
+                                                                (gapRn Lq L preA preB start inc incG outc outcG Pk sgeom
+                                                                    check paths digest bRows bLogN bndCheck bndOpen key
+                                                                    domain hL20 hdr hdrLen hdrSq hstart hhdr cx0 pin
+                                                                    pout I O pend hI bp pX gX hgeo hgX hbp hO).rd
+                                                                hL64 hv U hbij D hD,
+                                                            ∃ c ∈ K'.cs 0 (OC.runLog G A).2,
+                                                              EntD K'.RC.W c
+                                                                (rtTr key domain Lq
+                                                                  (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                      sgeom check paths digest bRows bLogN bndCheck
+                                                                      bndOpen key domain hL20 hdr hdrLen hdrSq hstart
+                                                                      hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX
+                                                                      hbp hO).pf
+                                                                  (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                      sgeom check paths digest bRows bLogN bndCheck
+                                                                      bndOpen key domain hL20 hdr hdrLen hdrSq hstart
+                                                                      hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX
+                                                                      hbp hO).rd
+                                                                  G (OC.run G A))) →
+                                                  (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig)
+                                                      (k : ℕ) (hk : k < Rp.Ps.length),
+                                                      (classifyProtocolU S Rp Lq
+                                                                (gapV L preA preB start inc incG outc outcG Pk sgeom
+                                                                  check paths digest bRows bLogN bndCheck bndOpen)
+                                                                P
+                                                                (R13.r13TokenCommit Rr dR hpos place msg msg_place pad
+                                                                  salt path ClsStmt.inRoot tagc)
+                                                                h64 hr hon.base 24448).verify
+                                                            G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+                                                          true →
+                                                        ¬EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf Vx rx A G →
+                                                          ¬BlockOn Rp.Ps[k]
+                                                                ((E (OC.runLog G A).2 (OC.runLog G A).1.1
+                                                                      (OC.runLog G A).1.2).planes
+                                                                  k)
+                                                                ((E (OC.runLog G A).2 (OC.runLog G A).1.1
+                                                                      (OC.runLog G A).1.2).planes
+                                                                  (k + 1)) →
+                                                            ∃
+                                                              K' ∈
+                                                                rtKo key domain hs Lq hL
+                                                                  (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                      sgeom check paths digest bRows bLogN bndCheck
+                                                                      bndOpen key domain hL20 hdr hdrLen hdrSq hstart
+                                                                      hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX
+                                                                      hbp hO).pf
+                                                                  (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                      sgeom check paths digest bRows bLogN bndCheck
+                                                                      bndOpen key domain hL20 hdr hdrLen hdrSq hstart
+                                                                      hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX
+                                                                      hbp hO).rd
+                                                                  hL64 hv U hbij D hD,
+                                                              ∃ c ∈ K'.cs (k + 1) (OC.runLog G A).2,
+                                                                EntD K'.RC.W c
+                                                                  (rtTr key domain Lq
+                                                                    (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                        sgeom check paths digest bRows bLogN bndCheck
+                                                                        bndOpen key domain hL20 hdr hdrLen hdrSq hstart
+                                                                        hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX
+                                                                        hbp hO).pf
+                                                                    (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                        sgeom check paths digest bRows bLogN bndCheck
+                                                                        bndOpen key domain hL20 hdr hdrLen hdrSq hstart
+                                                                        hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX
+                                                                        hbp hO).rd
+                                                                    G (OC.run G A))) →
+                                                    (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt))
+                                                        (G : QB Lq → Dig),
+                                                        (classifyProtocolU S Rp Lq
+                                                                  (gapV L preA preB start inc incG outc outcG Pk sgeom
+                                                                    check paths digest bRows bLogN bndCheck bndOpen)
+                                                                  P
+                                                                  (R13.r13TokenCommit Rr dR hpos place msg msg_place pad
+                                                                    salt path ClsStmt.inRoot tagc)
+                                                                  h64 hr hon.base 24448).verify
+                                                              G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+                                                            true →
+                                                          ¬EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf Vx rx A G →
+                                                            ¬OutOk Rp
+                                                                  ((classifyProtocolU S Rp Lq
+                                                                        (gapV L preA preB start inc incG outc outcG Pk
+                                                                          sgeom check paths digest bRows bLogN bndCheck
+                                                                          bndOpen)
+                                                                        P
+                                                                        (R13.r13TokenCommit Rr dR hpos place msg
+                                                                          msg_place pad salt path ClsStmt.inRoot tagc)
+                                                                        h64 hr hon.base 24448).ypub
+                                                                    (OC.runLog G A).1.1)
+                                                                  (E (OC.runLog G A).2 (OC.runLog G A).1.1
+                                                                    (OC.runLog G A).1.2) →
+                                                              ∃
+                                                                K' ∈
+                                                                  rtKo key domain hs Lq hL
+                                                                    (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                        sgeom check paths digest bRows bLogN bndCheck
+                                                                        bndOpen key domain hL20 hdr hdrLen hdrSq hstart
+                                                                        hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX
+                                                                        hbp hO).pf
+                                                                    (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                        sgeom check paths digest bRows bLogN bndCheck
+                                                                        bndOpen key domain hL20 hdr hdrLen hdrSq hstart
+                                                                        hhdr cx0 pin pout I O pend hI bp pX gX hgeo hgX
+                                                                        hbp hO).rd
+                                                                    hL64 hv U hbij D hD,
+                                                                ∃ c ∈ K'.cs (Rp.Ps.length + 1) (OC.runLog G A).2,
+                                                                  EntD K'.RC.W c
+                                                                    (rtTr key domain Lq
+                                                                      (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                          sgeom check paths digest bRows bLogN bndCheck
+                                                                          bndOpen key domain hL20 hdr hdrLen hdrSq
+                                                                          hstart hhdr cx0 pin pout I O pend hI bp pX gX
+                                                                          hgeo hgX hbp hO).pf
+                                                                      (gapRn Lq L preA preB start inc incG outc outcG Pk
+                                                                          sgeom check paths digest bRows bLogN bndCheck
+                                                                          bndOpen key domain hL20 hdr hdrLen hdrSq
+                                                                          hstart hhdr cx0 pin pout I O pend hI bp pX gX
+                                                                          hgeo hgX hbp hO).rd
+                                                                      G (OC.run G A))) →
+                                                      ∀
+                                                        (mk :
+                                                          (R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt
+                                                              path ClsStmt.inRoot tagc).SaltMk)
+                                                        (ops :
+                                                          List (QB Lq × Dig) →
+                                                            ClsStmt Hdr →
+                                                              Fin (2 ^ 16) →
+                                                                Option (Sound.MerkleOpening Dig Dig (ColR Rr))),
+                                                        (∀ (lg : List (QB Lq × Dig)) (s : ClsStmt Hdr)
+                                                            (pf : ClsReceipt),
+                                                            ((E lg s pf).epW = fun t =>
+                                                                ((R13.r13TokenCommit Rr dR hpos place msg msg_place pad
+                                                                          salt path ClsStmt.inRoot tagc).decodeIn
+                                                                      (ops lg s) 24448).1
+                                                                  ((R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                                        pad salt path ClsStmt.inRoot tagc).place
+                                                                    (pos t).1)
+                                                                  (pos t).2) ∧
+                                                              (E lg s pf).r =
+                                                                mk.bld
+                                                                  ((R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                                          pad salt path ClsStmt.inRoot tagc).decodeIn
+                                                                      (ops lg s) 24448).1
+                                                                  ((R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                                          pad salt path ClsStmt.inRoot tagc).decodeIn
+                                                                      (ops lg s) 24448).2
+                                                                  ((R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                                        pad salt path ClsStmt.inRoot tagc).exSalt
+                                                                    (ops lg s))
+                                                                  ((R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                                        pad salt path ClsStmt.inRoot tagc).exPath
+                                                                    (ops lg s))) →
+                                                          (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt))
+                                                              (G : QB Lq → Dig) (j : Fin (2 ^ 16))
+                                                              (o : Sound.MerkleOpening Dig Dig (ColR Rr)),
+                                                              ops (OC.runLog G A).2 (OC.runLog G A).1.1 j = some o →
+                                                                (merkleEncB
+                                                                      (R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                                          pad salt path ClsStmt.inRoot tagc).tag
+                                                                      Lq
+                                                                      (R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                                          pad salt path ClsStmt.inRoot tagc).R
+                                                                      h64 hr).Opens
+                                                                  G
+                                                                  (R13.r13TokenCommit Rr dR hpos place msg msg_place pad
+                                                                      salt path ClsStmt.inRoot tagc).depth
+                                                                  ((R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                                        pad salt path ClsStmt.inRoot tagc).root
+                                                                    (OC.runLog G A).1.1)
+                                                                  (↑j) o) →
+                                                            (∀ (lg : List (QB Lq × Dig)) (s : ClsStmt Hdr)
+                                                                (j : Fin (2 ^ 16))
+                                                                (o : Sound.MerkleOpening Dig Dig (ColR Rr)),
+                                                                ops lg s j = some o → ∀ a ∈ ↑o.col, a.Canon) →
+                                                              (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt))
+                                                                  (G : QB Lq → Dig),
+                                                                  (classifyProtocolU S Rp Lq
+                                                                            (gapV L preA preB start inc incG outc outcG
+                                                                              Pk sgeom check paths digest bRows bLogN
+                                                                              bndCheck bndOpen)
+                                                                            P
+                                                                            (R13.r13TokenCommit Rr dR hpos place msg
+                                                                              msg_place pad salt path ClsStmt.inRoot
+                                                                              tagc)
+                                                                            h64 hr hon.base 24448).verify
+                                                                        G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+                                                                      true →
+                                                                    ¬EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf Vx
+                                                                          rx A G →
+                                                                      tRem
+                                                                            (rtRC2 key domain hs Lq hL
+                                                                                (gapRn Lq L preA preB start inc incG
+                                                                                    outc outcG Pk sgeom check paths
+                                                                                    digest bRows bLogN bndCheck bndOpen
+                                                                                    key domain hL20 hdr hdrLen hdrSq
+                                                                                    hstart hhdr cx0 pin pout I O pend hI
+                                                                                    bp pX gX hgeo hgX hbp hO).pf
+                                                                                (gapRn Lq L preA preB start inc incG
+                                                                                    outc outcG Pk sgeom check paths
+                                                                                    digest bRows bLogN bndCheck bndOpen
+                                                                                    key domain hL20 hdr hdrLen hdrSq
+                                                                                    hstart hhdr cx0 pin pout I O pend hI
+                                                                                    bp pX gX hgeo hgX hbp hO).rd
+                                                                                hL64 hv).W
+                                                                            (List.take T.aA
+                                                                              (rtTr key domain Lq
+                                                                                (gapRn Lq L preA preB start inc incG
+                                                                                    outc outcG Pk sgeom check paths
+                                                                                    digest bRows bLogN bndCheck bndOpen
+                                                                                    key domain hL20 hdr hdrLen hdrSq
+                                                                                    hstart hhdr cx0 pin pout I O pend hI
+                                                                                    bp pX gX hgeo hgX hbp hO).pf
+                                                                                (gapRn Lq L preA preB start inc incG
+                                                                                    outc outcG Pk sgeom check paths
+                                                                                    digest bRows bLogN bndCheck bndOpen
+                                                                                    key domain hL20 hdr hdrLen hdrSq
+                                                                                    hstart hhdr cx0 pin pout I O pend hI
+                                                                                    bp pX gX hgeo hgX hbp hO).rd
+                                                                                G (OC.run G A))) =
+                                                                          some 0 ∧
+                                                                        T.aB ≤
+                                                                            (rtTr key domain Lq
+                                                                                (gapRn Lq L preA preB start inc incG
+                                                                                    outc outcG Pk sgeom check paths
+                                                                                    digest bRows bLogN bndCheck bndOpen
+                                                                                    key domain hL20 hdr hdrLen hdrSq
+                                                                                    hstart hhdr cx0 pin pout I O pend hI
+                                                                                    bp pX gX hgeo hgX hbp hO).pf
+                                                                                (gapRn Lq L preA preB start inc incG
+                                                                                    outc outcG Pk sgeom check paths
+                                                                                    digest bRows bLogN bndCheck bndOpen
+                                                                                    key domain hL20 hdr hdrLen hdrSq
+                                                                                    hstart hhdr cx0 pin pout I O pend hI
+                                                                                    bp pX gX hgeo hgX hbp hO).rd
+                                                                                G (OC.run G A)).length ∧
+                                                                          tRem
+                                                                              (rtRC2 key domain hs Lq hL
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).pf
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).rd
+                                                                                  hL64 hv).W
+                                                                              (List.take T.aB
+                                                                                (rtTr key domain Lq
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).pf
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).rd
+                                                                                  G (OC.run G A))) =
+                                                                            some 0) →
+                                                                (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt))
+                                                                    (G : QB Lq → Dig),
+                                                                    (classifyProtocolU S Rp Lq
+                                                                              (gapV L preA preB start inc incG outc
+                                                                                outcG Pk sgeom check paths digest bRows
+                                                                                bLogN bndCheck bndOpen)
+                                                                              P
+                                                                              (R13.r13TokenCommit Rr dR hpos place msg
+                                                                                msg_place pad salt path ClsStmt.inRoot
+                                                                                tagc)
+                                                                              h64 hr hon.base 24448).verify
+                                                                          G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+                                                                        true →
+                                                                      ¬EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf
+                                                                            Vx rx A G →
+                                                                        Xx (OC.runLog G A).2
+                                                                              (List.take T.aA
+                                                                                (rtTr key domain Lq
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).pf
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).rd
+                                                                                  G (OC.run G A))) =
+                                                                            exX
+                                                                              (ops (OC.runLog G A).2
+                                                                                (OC.runLog G A).1.1) ∧
+                                                                          Ux (OC.runLog G A).2
+                                                                              (List.take T.aA
+                                                                                (rtTr key domain Lq
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).pf
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).rd
+                                                                                  G (OC.run G A))) =
+                                                                            fun i j =>
+                                                                            (algebraMap Circuit.GF F)
+                                                                              (exU
+                                                                                (ops (OC.runLog G A).2
+                                                                                  (OC.runLog G A).1.1)
+                                                                                i j)) →
+                                                                  (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt))
+                                                                      (G : QB Lq → Dig),
+                                                                      (classifyProtocolU S Rp Lq
+                                                                                (gapV L preA preB start inc incG outc
+                                                                                  outcG Pk sgeom check paths digest
+                                                                                  bRows bLogN bndCheck bndOpen)
+                                                                                P
+                                                                                (R13.r13TokenCommit Rr dR hpos place msg
+                                                                                  msg_place pad salt path ClsStmt.inRoot
+                                                                                  tagc)
+                                                                                h64 hr hon.base 24448).verify
+                                                                            G () (OC.runLog G A).1.1
+                                                                            (OC.runLog G A).1.2 =
+                                                                          true →
+                                                                        ¬EvXR tag Lq h64 C 256 256 256 16 16 12 26
+                                                                              coreOf Vx rx A G →
+                                                                          subSt
+                                                                            (rtRC2 key domain hs Lq hL
+                                                                                (gapRn Lq L preA preB start inc incG
+                                                                                    outc outcG Pk sgeom check paths
+                                                                                    digest bRows bLogN bndCheck bndOpen
+                                                                                    key domain hL20 hdr hdrLen hdrSq
+                                                                                    hstart hhdr cx0 pin pout I O pend hI
+                                                                                    bp pX gX hgeo hgX hbp hO).pf
+                                                                                (gapRn Lq L preA preB start inc incG
+                                                                                    outc outcG Pk sgeom check paths
+                                                                                    digest bRows bLogN bndCheck bndOpen
+                                                                                    key domain hL20 hdr hdrLen hdrSq
+                                                                                    hstart hhdr cx0 pin pout I O pend hI
+                                                                                    bp pX gX hgeo hgX hbp hO).rd
+                                                                                hL64 hv).W
+                                                                            (T.cB
+                                                                              (rtRC2 key domain hs Lq hL
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).pf
+                                                                                  (gapRn Lq L preA preB start inc incG
+                                                                                      outc outcG Pk sgeom check paths
+                                                                                      digest bRows bLogN bndCheck
+                                                                                      bndOpen key domain hL20 hdr hdrLen
+                                                                                      hdrSq hstart hhdr cx0 pin pout I O
+                                                                                      pend hI bp pX gX hgeo hgX hbp
+                                                                                      hO).rd
+                                                                                  hL64 hv).W
+                                                                              Ux Xx (OC.runLog G A).2)
+                                                                            (rtTr key domain Lq
+                                                                              (gapRn Lq L preA preB start inc incG outc
+                                                                                  outcG Pk sgeom check paths digest
+                                                                                  bRows bLogN bndCheck bndOpen key
+                                                                                  domain hL20 hdr hdrLen hdrSq hstart
+                                                                                  hhdr cx0 pin pout I O pend hI bp pX gX
+                                                                                  hgeo hgX hbp hO).pf
+                                                                              (gapRn Lq L preA preB start inc incG outc
+                                                                                  outcG Pk sgeom check paths digest
+                                                                                  bRows bLogN bndCheck bndOpen key
+                                                                                  domain hL20 hdr hdrLen hdrSq hstart
+                                                                                  hhdr cx0 pin pout I O pend hI bp pX gX
+                                                                                  hgeo hgX hbp hO).rd
+                                                                              G (OC.run G A))) →
+                                                                    (∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt))
+                                                                        (G : QB Lq → Dig),
+                                                                        (classifyProtocolU S Rp Lq
+                                                                                  (gapV L preA preB start inc incG outc
+                                                                                    outcG Pk sgeom check paths digest
+                                                                                    bRows bLogN bndCheck bndOpen)
+                                                                                  P
+                                                                                  (R13.r13TokenCommit Rr dR hpos place
+                                                                                    msg msg_place pad salt path
+                                                                                    ClsStmt.inRoot tagc)
+                                                                                  h64 hr hon.base 24448).verify
+                                                                              G () (OC.runLog G A).1.1
+                                                                              (OC.runLog G A).1.2 =
+                                                                            true →
+                                                                          ¬EvXR tag Lq h64 C 256 256 256 16 16 12 26
+                                                                                coreOf Vx rx A G →
+                                                                            (¬∀ (k : Fin dR) (i : Fin (2 ^ 14)),
+                                                                                  (¬∃ t, pos t = (k, i)) →
+                                                                                    ((R13.r13TokenCommit Rr dR hpos
+                                                                                                place msg msg_place pad
+                                                                                                salt path ClsStmt.inRoot
+                                                                                                tagc).decodeIn
+                                                                                            (ops (OC.runLog G A).2
+                                                                                              (OC.runLog G A).1.1)
+                                                                                            24448).1
+                                                                                        ((R13.r13TokenCommit Rr dR hpos
+                                                                                              place msg msg_place pad
+                                                                                              salt path ClsStmt.inRoot
+                                                                                              tagc).place
+                                                                                          k)
+                                                                                        i =
+                                                                                      0) →
+                                                                              ∃
+                                                                                K' ∈
+                                                                                  rtKo key domain hs Lq hL
+                                                                                    (gapRn Lq L preA preB start inc incG
+                                                                                        outc outcG Pk sgeom check paths
+                                                                                        digest bRows bLogN bndCheck
+                                                                                        bndOpen key domain hL20 hdr
+                                                                                        hdrLen hdrSq hstart hhdr cx0 pin
+                                                                                        pout I O pend hI bp pX gX hgeo
+                                                                                        hgX hbp hO).pf
+                                                                                    (gapRn Lq L preA preB start inc incG
+                                                                                        outc outcG Pk sgeom check paths
+                                                                                        digest bRows bLogN bndCheck
+                                                                                        bndOpen key domain hL20 hdr
+                                                                                        hdrLen hdrSq hstart hhdr cx0 pin
+                                                                                        pout I O pend hI bp pX gX hgeo
+                                                                                        hgX hbp hO).rd
+                                                                                    hL64 hv U hbij D hD,
+                                                                                K'.Dm (Rp.Ps.length + 2)
+                                                                                  (OC.runLog G A).2
+                                                                                  (rtTr key domain Lq
+                                                                                    (gapRn Lq L preA preB start inc incG
+                                                                                        outc outcG Pk sgeom check paths
+                                                                                        digest bRows bLogN bndCheck
+                                                                                        bndOpen key domain hL20 hdr
+                                                                                        hdrLen hdrSq hstart hhdr cx0 pin
+                                                                                        pout I O pend hI bp pX gX hgeo
+                                                                                        hgX hbp hO).pf
+                                                                                    (gapRn Lq L preA preB start inc incG
+                                                                                        outc outcG Pk sgeom check paths
+                                                                                        digest bRows bLogN bndCheck
+                                                                                        bndOpen key domain hL20 hdr
+                                                                                        hdrLen hdrSq hstart hhdr cx0 pin
+                                                                                        pout I O pend hI bp pX gX hgeo
+                                                                                        hgX hbp hO).rd
+                                                                                    G (OC.run G A))) →
+                                                                      (∀ (q R' : ℕ), εzk q R' ≤ εzkTarget q R') →
+                                                                        ProductionReady (classifyModel S Rp)
+                                                                          (classifyArith S Rp)
+                                                                          (classifyProtocolU S Rp Lq
+                                                                            (gapV L preA preB start inc incG outc outcG
+                                                                              Pk sgeom check paths digest bRows bLogN
+                                                                              bndCheck bndOpen)
+                                                                            P
+                                                                            (R13.r13TokenCommit Rr dR hpos place msg
+                                                                              msg_place pad salt path ClsStmt.inRoot
+                                                                              tagc)
+                                                                            h64 hr hon.base 24448)
+                                                                          εcTarget εsTarget εsTarget εzkTarget
+@rtRunClassify : {Hdr : Type} →
+  (L : ℕ) →
+    (preA preB : Hdr → Except String Unit) →
+      (start : (HIn → Dig) → ClsStmt Hdr → Tr) →
+        (inc : Hdr → IncV) →
+          (incG : Hdr → StageGeom) →
+            (outc : Hdr → ℕ → OutcV) →
+              (outcG : Hdr → StageGeom) →
+                (Pk : ℕ → Block.BlockParams) →
+                  (sgeom : ClsStmt Hdr → ℕ → Block.SegGeom) →
+                    (check : ClsStmt Hdr → ℕ → Except String Unit) →
+                      (paths : ClsStmt Hdr → Block.Segment → Except String Unit) →
+                        (digest : ClsStmt Hdr → ℕ → Dig) →
+                          (bRows bLogN : ℕ → ℕ) →
+                            (bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit) →
+                              (bndOpen :
+                                  (HIn → Dig) →
+                                    ClsStmt Hdr →
+                                      ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr) →
+                                (key : Option Dig) →
+                                  (domain : List UInt8) →
+                                    (Lq : ℕ) →
+                                      2 ^ 20 ≤ Lq →
+                                        (hdr : ClsStmt Hdr → List Op) →
+                                          (hdrLen hdrSq : ℕ) →
+                                            (∀ (H : HIn → Dig) (s : ClsStmt Hdr),
+                                                start H s = runOps H (Tr.newKeyed H domain key) (hdr s)) →
+                                              (∀ (s : ClsStmt Hdr),
+                                                  preA s.hdr = Except.ok () →
+                                                    preB s.hdr = Except.ok () →
+                                                      (hdr s).length = hdrLen ∧
+                                                        Link.sqN (hdr s) = hdrSq ∧ ∀ op ∈ hdr s, op.len ≤ Lq) →
+                                                IncCtx →
+                                                  (pin pout : RtPart) →
+                                                    (I : RtInc Lq inc incG pin) →
+                                                      (O : RtOutc Lq outc outcG pout) →
+                                                        (pend : ℕ → ℕ) →
+                                                          I.nOut = pend 1 →
+                                                            (bp : (k : ℕ) → RtBlk Lq (Pk k)) →
+                                                              ((k : ℕ) →
+                                                                  RtPcs fun s H root cl o t =>
+                                                                    bndOpen H s k root cl o t) →
+                                                                (gX : ℕ → ℕ) →
+                                                                  (∀ (k : ℕ) (s : ClsStmt Hdr),
+                                                                      (sgeom s k).g = (Pk k).geom) →
+                                                                    (∀ (k : ℕ) (s : ClsStmt Hdr),
+                                                                        (sgeom s k).incoming.1 = gX k) →
+                                                                      (∀ (k : ℕ), (bp k).nOut = pend (k + 2)) →
+                                                                        pend (L + 1) + O.nIn + O.pX.rows = pout.wX →
+                                                                          RtRun
+                                                                            (classifyRunV L preA preB start inc incG
+                                                                              (d12aBlockProf Pk sgeom check paths digest
+                                                                                bRows bLogN bndCheck bndOpen)
+                                                                              outc outcG)
+                                                                            key domain Lq
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_c_compose.lean (6 s)
+rc 0, 6 s

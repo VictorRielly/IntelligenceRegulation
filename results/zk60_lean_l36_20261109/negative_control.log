@@ -1,0 +1,16 @@
+  PROFILE: 3
+  LOGS: 3
+  HELPERS: 3
+  LOOKUPS: 18
+  PAIRING: 18
+  COUNT: 6
+  ALG-NUMBERS: 3
+  BOUND: 2
+FAILED [LOOKUPS] W16R2 rung: lookups of S: 10 against 9
+FAILED [COUNT] W16R2 rung: the corpus's count 1032192 against 1015808
+FAILED [COUNT] W16R2 rung: the corpus's count 1032192 against the theorem's 1015808
+FAILED [ALG-NUMBERS] W16R2 rung: lt, lh, lq, lf, log Ht, log S - log Ht: [5, 3, 10, 10, 9, 5] against [5, 4, 10, 10, 9, 5]
+FAILED [HELPERS] R13 rung: helpers [0, 0, 1, 16, 7, 7, 9, 7, 0] against [0, 0, 1, 17, 7, 7, 9, 7, 0]
+FAILED [LOGS] Shieldstral T128 R13: logs [7, 12, 14, 19, 19, 17, 19, 21, 13] against [7, 12, 14, 19, 19, 17, 19, 21, 14]
+FAILED [ALG-NUMBERS] Shieldstral T128 R13: lt, lh, lq, lf, log Ht, log S - log Ht: [7, 5, 12, 13, 12, 7] against [7, 5, 12, 14, 12, 7]
+BlockAlgCheck: 56 checks, 7 failed

@@ -1,0 +1,18 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/results/zk60_lean_l36_20261109/plan.txt ==
+build ZK60Formal.BlockAlgInst
+build ZK60Formal.BlockAlgLkR13
+build ZK60Formal.BlockAlgLkW16
+build ZK60Formal.BlockAlgLkFinal
+== lake build ZK60Formal.BlockAlgInst ==
+Build completed successfully (3519 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.BlockAlgLkR13 ==
+Build completed successfully (3523 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.BlockAlgLkW16 ==
+Build completed successfully (3524 jobs).
+build rc 0 (23 s)
+== lake build ZK60Formal.BlockAlgLkFinal ==
+Build completed successfully (3526 jobs).
+build rc 0 (42 s)
+rc 0, 42 s

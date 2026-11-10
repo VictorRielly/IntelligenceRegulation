@@ -1,0 +1,3 @@
+[zk60-guard 23:35:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 23:36:16] START gap-prem-iter3 class=cpu need=14G cap=24G enforce=watchdog-only waited=46s run=95f3d51f69f1
+[zk60-guard 23:36:20] END gap-prem-iter3 exit=0 child_wall=4s peak_rss=3.55G min_avail=228.40G

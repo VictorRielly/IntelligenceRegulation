@@ -1,0 +1,10 @@
+✔ [3620/3629] Built ZK60Formal.RunTrBase (11s)
+✔ [3621/3629] Built ZK60Formal.RunTrSched (2.0s)
+✔ [3622/3629] Built ZK60Formal.RunTrVerify (2.2s)
+✔ [3623/3629] Built ZK60Formal.RunTrKinds (2.9s)
+✔ [3624/3629] Built ZK60Formal.RunTrWin (2.1s)
+✔ [3625/3629] Built ZK60Formal.RunTrParts (2.5s)
+✔ [3626/3629] Built ZK60Formal.RunTrGate (2.4s)
+✔ [3627/3629] Built ZK60Formal.RunTrStages (2.3s)
+✔ [3628/3629] Built ZK60Formal (1.7s)
+Build completed successfully (3629 jobs).
