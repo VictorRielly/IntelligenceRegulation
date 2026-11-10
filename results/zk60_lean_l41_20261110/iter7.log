@@ -1,0 +1,301 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/results/zk60_lean_l41_20261110/plan7.txt ==
+build ZK60Formal.BlockJoinW16
+build ZK60Formal.BlockJoinTzc
+build ZK60Formal.BlockJoinTzcForm
+build ZK60Formal.BlockJoinDt
+build ZK60Formal.BlockJoinFinal
+== lake build ZK60Formal.BlockJoinW16 ==
+Build completed successfully (3543 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.BlockJoinTzc ==
+✖ [3546/3546] Building ZK60Formal.BlockJoinTzc (4.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/ZK60Formal/BlockJoinTzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinTzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinTzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinTzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinTzc.setup.json --json
+error: ZK60Formal/BlockJoinTzc.lean:127:58: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 1
+  c - d ≤ -1
+  a ≥ 1
+where
+ a := ↑(rowLog P Cm.a)
+ c := ↑n
+ d := ↑{ cm := Cm.a, slices := [(off, Fp2.one)], log := L, coords := rhoAll L, maskRow := m, extRound := ext }.log
+error: ZK60Formal/BlockJoinTzc.lean:160:2: `simp` made no progress
+warning: ZK60Formal/BlockJoinTzc.lean:159:49: This simp argument is unused:
+  paT_eval
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tabs2, List.map_cons, List.map_nil, TabS.eval]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/BlockJoinTzc.lean:228:4: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:242:2: unsolved goals
+case refine_1
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+⊢ (algebraMap GF K) 2 = 2
+error: ZK60Formal/BlockJoinTzc.lean:280:21: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:375:21: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:383:27: Unknown identifier `irEval`
+error: ZK60Formal/BlockJoinTzc.lean:397:6: `simp` made no progress
+error: ZK60Formal/BlockJoinTzc.lean:402:6: `simp` made no progress
+error: ZK60Formal/BlockJoinTzc.lean:408:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?g (∑ x ∈ ?s, ?f x)
+in the target expression
+  ∑ c,
+      Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a =>
+            bit (Fin.append t c ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 (Fin.append t c) * aPl U P D off 14 (Fin.append t c))) =
+    (eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun i => bit (t i)) *
+      (fun t => (algebraMap GF K) (∑ c, B.gD (t, c) * plD U P D off (t, c) * plD U P D off (t, c))) t
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hist : Hist
+s off m : ℕ
+dr : List Fp2
+pub : ℕ → List Fp2
+hgD :
+  ∀ (t : CtW) (c : CwW),
+    Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) = (algebraMap GF K) (B.gD (t, c))
+e : ℕ
+f : (Fin (14 + e) → K) → K
+hf : ∀ (x : Fin (14 + e) → K), f x = sorry
+ev : Sym → Fp2 := Sym.eval hist s dr
+hev : ev = Sym.eval hist s dr
+hir : ∀ (v : List K), sorry = v.getD 2 0 * (v.getD 0 0 * (v.getD 1 0 * v.getD 1 0))
+hlen : (List.map ev (dr5 s)).length = 5
+hrow :
+  ∀ (b : Fin 14 → Bool),
+    (∑ y, f fun i => bit (Fin.append b y i)) =
+      Fp2.toK U ((pub 0).getD (msbIndex 14 b) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a => bit (b ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 b * aPl U P D off 14 b))
+t : CtW
+x✝ : t ∈ univ
+⊢ ∑ c,
+      Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a =>
+            bit (Fin.append t c ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 (Fin.append t c) * aPl U P D off 14 (Fin.append t c))) =
+    (eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun i => bit (t i)) *
+      (fun t => (algebraMap GF K) (∑ c, B.gD (t, c) * plD U P D off (t, c) * plD U P D off (t, c))) t
+Some required targets logged failures:
+- ZK60Formal.BlockJoinTzc
+error: build failed
+build rc 1 (12 s)
+== lake build ZK60Formal.BlockJoinTzcForm ==
+✖ [3546/3547] Building ZK60Formal.BlockJoinTzc (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/ZK60Formal/BlockJoinTzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinTzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinTzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinTzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinTzc.setup.json --json
+error: ZK60Formal/BlockJoinTzc.lean:127:58: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 1
+  c - d ≤ -1
+  a ≥ 1
+where
+ a := ↑(rowLog P Cm.a)
+ c := ↑n
+ d := ↑{ cm := Cm.a, slices := [(off, Fp2.one)], log := L, coords := rhoAll L, maskRow := m, extRound := ext }.log
+error: ZK60Formal/BlockJoinTzc.lean:160:2: `simp` made no progress
+warning: ZK60Formal/BlockJoinTzc.lean:159:49: This simp argument is unused:
+  paT_eval
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tabs2, List.map_cons, List.map_nil, TabS.eval]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/BlockJoinTzc.lean:228:4: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:242:2: unsolved goals
+case refine_1
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+⊢ (algebraMap GF K) 2 = 2
+error: ZK60Formal/BlockJoinTzc.lean:280:21: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:375:21: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:383:27: Unknown identifier `irEval`
+error: ZK60Formal/BlockJoinTzc.lean:397:6: `simp` made no progress
+error: ZK60Formal/BlockJoinTzc.lean:402:6: `simp` made no progress
+error: ZK60Formal/BlockJoinTzc.lean:408:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?g (∑ x ∈ ?s, ?f x)
+in the target expression
+  ∑ c,
+      Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a =>
+            bit (Fin.append t c ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 (Fin.append t c) * aPl U P D off 14 (Fin.append t c))) =
+    (eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun i => bit (t i)) *
+      (fun t => (algebraMap GF K) (∑ c, B.gD (t, c) * plD U P D off (t, c) * plD U P D off (t, c))) t
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hist : Hist
+s off m : ℕ
+dr : List Fp2
+pub : ℕ → List Fp2
+hgD :
+  ∀ (t : CtW) (c : CwW),
+    Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) = (algebraMap GF K) (B.gD (t, c))
+e : ℕ
+f : (Fin (14 + e) → K) → K
+hf : ∀ (x : Fin (14 + e) → K), f x = sorry
+ev : Sym → Fp2 := Sym.eval hist s dr
+hev : ev = Sym.eval hist s dr
+hir : ∀ (v : List K), sorry = v.getD 2 0 * (v.getD 0 0 * (v.getD 1 0 * v.getD 1 0))
+hlen : (List.map ev (dr5 s)).length = 5
+hrow :
+  ∀ (b : Fin 14 → Bool),
+    (∑ y, f fun i => bit (Fin.append b y i)) =
+      Fp2.toK U ((pub 0).getD (msbIndex 14 b) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a => bit (b ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 b * aPl U P D off 14 b))
+t : CtW
+x✝ : t ∈ univ
+⊢ ∑ c,
+      Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a =>
+            bit (Fin.append t c ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 (Fin.append t c) * aPl U P D off 14 (Fin.append t c))) =
+    (eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun i => bit (t i)) *
+      (fun t => (algebraMap GF K) (∑ c, B.gD (t, c) * plD U P D off (t, c) * plD U P D off (t, c))) t
+Some required targets logged failures:
+- ZK60Formal.BlockJoinTzc
+error: build failed
+build rc 1 (17 s)
+== lake build ZK60Formal.BlockJoinDt ==
+Build completed successfully (3545 jobs).
+build rc 0 (24 s)
+== lake build ZK60Formal.BlockJoinFinal ==
+✖ [3555/3557] Building ZK60Formal.BlockJoinTzc (3.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/ZK60Formal/BlockJoinTzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinTzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinTzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinTzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinTzc.setup.json --json
+error: ZK60Formal/BlockJoinTzc.lean:127:58: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 1
+  c - d ≤ -1
+  a ≥ 1
+where
+ a := ↑(rowLog P Cm.a)
+ c := ↑n
+ d := ↑{ cm := Cm.a, slices := [(off, Fp2.one)], log := L, coords := rhoAll L, maskRow := m, extRound := ext }.log
+error: ZK60Formal/BlockJoinTzc.lean:160:2: `simp` made no progress
+warning: ZK60Formal/BlockJoinTzc.lean:159:49: This simp argument is unused:
+  paT_eval
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tabs2, List.map_cons, List.map_nil, TabS.eval]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/BlockJoinTzc.lean:228:4: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:242:2: unsolved goals
+case refine_1
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+⊢ (algebraMap GF K) 2 = 2
+error: ZK60Formal/BlockJoinTzc.lean:280:21: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:375:21: Unknown identifier `irEval`
+
+Note: It is not possible to treat `irEval` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockJoinTzc.lean:383:27: Unknown identifier `irEval`
+error: ZK60Formal/BlockJoinTzc.lean:397:6: `simp` made no progress
+error: ZK60Formal/BlockJoinTzc.lean:402:6: `simp` made no progress
+error: ZK60Formal/BlockJoinTzc.lean:408:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?g (∑ x ∈ ?s, ?f x)
+in the target expression
+  ∑ c,
+      Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a =>
+            bit (Fin.append t c ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 (Fin.append t c) * aPl U P D off 14 (Fin.append t c))) =
+    (eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun i => bit (t i)) *
+      (fun t => (algebraMap GF K) (∑ c, B.gD (t, c) * plD U P D off (t, c) * plD U P D off (t, c))) t
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hist : Hist
+s off m : ℕ
+dr : List Fp2
+pub : ℕ → List Fp2
+hgD :
+  ∀ (t : CtW) (c : CwW),
+    Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) = (algebraMap GF K) (B.gD (t, c))
+e : ℕ
+f : (Fin (14 + e) → K) → K
+hf : ∀ (x : Fin (14 + e) → K), f x = sorry
+ev : Sym → Fp2 := Sym.eval hist s dr
+hev : ev = Sym.eval hist s dr
+hir : ∀ (v : List K), sorry = v.getD 2 0 * (v.getD 0 0 * (v.getD 1 0 * v.getD 1 0))
+hlen : (List.map ev (dr5 s)).length = 5
+hrow :
+  ∀ (b : Fin 14 → Bool),
+    (∑ y, f fun i => bit (Fin.append b y i)) =
+      Fp2.toK U ((pub 0).getD (msbIndex 14 b) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a => bit (b ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 b * aPl U P D off 14 b))
+t : CtW
+x✝ : t ∈ univ
+⊢ ∑ c,
+      Fp2.toK U ((pub 0).getD (msbIndex 14 (Fin.append t c)) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun a =>
+            bit (Fin.append t c ⟨↑a, ⋯⟩)) *
+          (aPl U P D off 14 (Fin.append t c) * aPl U P D off 14 (Fin.append t c))) =
+    (eqPoly (fun a => Fp2.toK U ((List.map ev (dr5 s)).getD (↑a) Fp2.zero)) fun i => bit (t i)) *
+      (fun t => (algebraMap GF K) (∑ c, B.gD (t, c) * plD U P D off (t, c) * plD U P D off (t, c))) t
+Some required targets logged failures:
+- ZK60Formal.BlockJoinTzc
+error: build failed
+build rc 1 (28 s)
+rc 1, 28 s

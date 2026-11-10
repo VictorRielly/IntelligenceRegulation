@@ -15,9 +15,10 @@ that they are, for every regular opening whose radius is the unique-decoding rad
   `0`.)
 * **`decode_encG_base`**: the same at the code's encoder `encG h Q` (the coset `7·G_{2^h}`, the interpolant rows on
   `G_{2^14}`);
-* **`xAof_base`**, **`xHof_base`**: at W16R2's geometry `(h, Q, e) = (15, 280, 8052)` (`d = 16,105 > 2·8,052`), every
-  entry of the `A` and `H` matrices L31's `csXof` reads is `algebraMap GF K` of a base value; **`xAof_base_r13`**,
-  **`xHof_base_r13`**: the same at R13's geometry `(16, 280, e)` for every `e` with `2e < 48,873`.
+* **`xAof_base`**, **`xHof_base`** (any geometry within the radius), **`xAof_base_w16`**, **`xHof_base_w16`**: at
+  W16R2's geometry `(h, Q, e) = (15, 280, 8052)` (`d = 16,105 > 2·8,052`), every entry of the `A` and `H` matrices L31's
+  `csXof` reads is `algebraMap GF K` of a base value; **`xAof_base_r13`**, **`xHof_base_r13`**: the same at R13's block
+  geometry `(16, 256, 24448)` (`d = 48,897 > 2·24,448 = 48,896`, by one).
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
@@ -131,10 +132,9 @@ theorem xHof_base (tag : MTag) (L : ℕ) (h64 : 64 ≤ L) (h Q e rH : ℕ) (hh :
 /-- W16R2's geometry `(15, 280, 8052)` is within the unique-decoding radius: `2·8,052 < 16,105`. -/
 theorem w16r2_unique_radius : 2 * 8052 < 2 ^ 15 - (2 ^ 14 + 280 - 1) := by norm_num
 
-/-- R13's geometry `(16, 280, e)` is within the unique-decoding radius for every `e ≤ 24,436`. -/
-theorem r13_unique_radius (e : ℕ) (he : e ≤ 24436) : 2 * e < 2 ^ 16 - (2 ^ 14 + 280 - 1) := by
-  norm_num
-  omega
+/-- R13's block geometry `(16, 256, 24448)` (the R13 rung's and the Shieldstral block's `A` and `H` openings, L31) is
+within the unique-decoding radius, by one: `2·24,448 = 48,896 < 48,897`. -/
+theorem r13_unique_radius : 2 * 24448 < 2 ^ 16 - (2 ^ 14 + 256 - 1) := by norm_num
 
 /-- **W16R2's `A` matrix entries are base values.** -/
 theorem xAof_base_w16 (tag : MTag) (L : ℕ) (h64 : 64 ≤ L) (rA : ℕ) (cu : Cuts3 L) (rt : RootsO) (i : Fin rA)
@@ -147,6 +147,18 @@ theorem xHof_base_w16 (tag : MTag) (L : ℕ) (h64 : 64 ≤ L) (rH : ℕ) (cu : C
     (t : Fin (2 ^ 14 + 280)) :
     ∃ g : GF, Link.xHof (K := K) tag L h64 15 280 8052 rH cu rt i t = algebraMap GF K g :=
   xHof_base tag L h64 15 280 8052 rH (by norm_num) w16r2_unique_radius cu rt i t
+
+/-- **R13's `A` matrix entries are base values** (the R13 rung and the Shieldstral block, any row count). -/
+theorem xAof_base_r13 (tag : MTag) (L : ℕ) (h64 : 64 ≤ L) (rA : ℕ) (cu : Cuts3 L) (rt : RootsO) (i : Fin rA)
+    (t : Fin (2 ^ 14 + 256)) :
+    ∃ g : GF, Link.xAof (K := K) tag L h64 16 256 24448 rA cu rt i t = algebraMap GF K g :=
+  xAof_base tag L h64 16 256 24448 rA (by norm_num) r13_unique_radius cu rt i t
+
+/-- **R13's `H` matrix entries are base values.** -/
+theorem xHof_base_r13 (tag : MTag) (L : ℕ) (h64 : 64 ≤ L) (rH : ℕ) (cu : Cuts3 L) (rt : RootsO) (i : Fin rH)
+    (t : Fin (2 ^ 14 + 256)) :
+    ∃ g : GF, Link.xHof (K := K) tag L h64 16 256 24448 rH cu rt i t = algebraMap GF K g :=
+  xHof_base tag L h64 16 256 24448 rH (by norm_num) r13_unique_radius cu rt i t
 
 end Code
 

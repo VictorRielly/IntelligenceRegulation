@@ -271,3 +271,4 @@ import ZK60Formal.BlockJoinTzc
 import ZK60Formal.BlockJoinTzcForm
 import ZK60Formal.BlockJoinDt
 import ZK60Formal.BlockJoinFinal
+import ZK60Formal.BlockJoinBatch

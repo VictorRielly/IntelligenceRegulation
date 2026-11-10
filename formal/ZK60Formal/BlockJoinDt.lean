@@ -16,6 +16,7 @@ Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.BlockJoinW16
 import ZK60Formal.BlockAlgRels
+import ZK60Formal.BlockDefineW16Rung
 
 set_option autoImplicit false
 
@@ -95,6 +96,24 @@ def encW : (k : ℕ) → (Fin (segLn (ZK60.Exec.Slot.W16R2.draws shRungW16 k) .t
 
 /-- **`Dom::Ht`'s cube encoding.** -/
 def encHtW (b : Fin 9 → Bool) : W16Pos CtW CwW CgW CjW CdW CfW := .ht (splitHt b)
+
+/-! ## The pad plane counts -/
+
+/-- **The hosts' pad plane counts at the rung**: the zero-rule planes of the padded domains (`DefW16.zeroPl`): `Dom::D`'s
+19 planes at `SC_DZC`, `Dom::F`'s 9 at `SC_FZC`; the other hosts' domains do not pad. -/
+def mpadW (k : ℕ) : ℕ := if k = 14 then 19 else if k = 18 then 9 else 0
+
+theorem mpadW_zeroPl : [mpadW 14, mpadW 18]
+    = [(DefW16.zeroPl DefW16.cfgRungW16 .D).length, (DefW16.zeroPl DefW16.cfgRungW16 .F).length]
+      ∧ DefW16.zeroPl DefW16.cfgRungW16 .T = [] ∧ DefW16.zeroPl DefW16.cfgRungW16 .Q = []
+      ∧ DefW16.zeroPl DefW16.cfgRungW16 .Kv = [] ∧ DefW16.zeroPl DefW16.cfgRungW16 .S = []
+      ∧ DefW16.zeroPl DefW16.cfgRungW16 .Ht = [] := by
+  decide +kernel
+
+theorem mpadW_hm0 : ∀ k ∈ algHosts, segLn (ZK60.Exec.Slot.W16R2.draws shRungW16 k) .zeta = 0 → mpadW k = 0 := by
+  decide
+
+theorem mpadW_hm78 : ∀ k ∈ algHosts, mpadW k ≤ 78 := by decide
 
 /-! ## The algebra data -/
 
