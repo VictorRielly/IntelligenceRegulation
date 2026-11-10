@@ -169,3 +169,42 @@
 'ZK60.ProtocolClassify.RunShapeP.rt_productionReady_r13P' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.RunShapeP.shieldRun_length' depends on axioms: [propext, Quot.sound]
 'ZK60.ProtocolClassify.RunShapeP.shield_classifyOpenP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyLeakP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyLeakP_served' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyLeakP_toRunP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.served_eqP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.clsLeakP_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyP_leaksAtMost' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_leaksAtMost' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUExecP_leaksAtMost' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUExecP_productionReadyL_run_r13' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReadyL_r13P' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReadyL_r13P_exec' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_joint_target_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_ep_target_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_runChain_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_run_r13_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_run_r13_token_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReadyL_r13P_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUExecP_productionReadyL_run_r13_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReadyL_r13P_exec_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

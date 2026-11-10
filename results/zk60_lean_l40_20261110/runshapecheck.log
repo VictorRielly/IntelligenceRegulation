@@ -1,23 +1,23 @@
 [0 ms] low-h24: start
-[459 ms] low-h24: every stage compared
-[1247 ms] low-h24: blockSpecC and runSpecPC run
-[1669 ms] low-h24: negative control ZK60.RunShape.Check.Mut.wq done
-[2091 ms] low-h24: negative control ZK60.RunShape.Check.Mut.sq done
-[2512 ms] low-h24: negative control ZK60.RunShape.Check.Mut.cnA done
-[2933 ms] low-h24: negative control ZK60.RunShape.Check.Mut.input done
-[3110 ms] low-h24: negative control ZK60.RunShape.Check.Mut.exp done
-[3531 ms] low-h24: negative control ZK60.RunShape.Check.Mut.act done
-[3985 ms] low-h24: negative control ZK60.RunShape.Check.Mut.gamma done
+[456 ms] low-h24: every stage compared
+[1253 ms] low-h24: blockSpecC and runSpecPC run
+[1681 ms] low-h24: negative control ZK60.RunShape.Check.Mut.wq done
+[2108 ms] low-h24: negative control ZK60.RunShape.Check.Mut.sq done
+[2535 ms] low-h24: negative control ZK60.RunShape.Check.Mut.cnA done
+[2991 ms] low-h24: negative control ZK60.RunShape.Check.Mut.input done
+[3196 ms] low-h24: negative control ZK60.RunShape.Check.Mut.exp done
+[3657 ms] low-h24: negative control ZK60.RunShape.Check.Mut.act done
+[4089 ms] low-h24: negative control ZK60.RunShape.Check.Mut.gamma done
 [0 ms] low: start
-[447 ms] low: every stage compared
-[1234 ms] low: blockSpecC and runSpecPC run
-[1655 ms] low: negative control ZK60.RunShape.Check.Mut.wq done
-[2076 ms] low: negative control ZK60.RunShape.Check.Mut.sq done
-[2497 ms] low: negative control ZK60.RunShape.Check.Mut.cnA done
-[2917 ms] low: negative control ZK60.RunShape.Check.Mut.input done
-[3094 ms] low: negative control ZK60.RunShape.Check.Mut.exp done
-[3514 ms] low: negative control ZK60.RunShape.Check.Mut.act done
-[3935 ms] low: negative control ZK60.RunShape.Check.Mut.gamma done
+[449 ms] low: every stage compared
+[1249 ms] low: blockSpecC and runSpecPC run
+[1677 ms] low: negative control ZK60.RunShape.Check.Mut.wq done
+[2104 ms] low: negative control ZK60.RunShape.Check.Mut.sq done
+[2530 ms] low: negative control ZK60.RunShape.Check.Mut.cnA done
+[2956 ms] low: negative control ZK60.RunShape.Check.Mut.input done
+[3135 ms] low: negative control ZK60.RunShape.Check.Mut.exp done
+[3562 ms] low: negative control ZK60.RunShape.Check.Mut.act done
+[3987 ms] low: negative control ZK60.RunShape.Check.Mut.gamma done
 low-h24 shape = the trace's shifts line (tn q k v score pv ao up down fp gate prod wrho): 13 checked, 0 failed
 low-h24 folded gate multipliers = the trace's gate_mult: 32 checked, 0 failed
 low-h24 product coefficients = the trace's product_mult: 32 checked, 0 failed

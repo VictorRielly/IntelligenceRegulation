@@ -15,9 +15,9 @@ O11=$WT/results/zk60_lean_l11_20261107
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
-BASE=16acb7c8
-MODS="RunShape RunShapeShield RunShapeExec RunShapeProtocol RunShapeGate RunShapeShieldOpen"
-FILES="$L/RunShape.lean $L/RunShapeShield.lean $L/RunShapeExec.lean $L/RunShapeProtocol.lean $L/RunShapeGate.lean $L/RunShapeShieldOpen.lean $L/RunShapeCheck.lean"
+BASE=14d9d748
+MODS="RunShape RunShapeShield RunShapeExec RunShapeProtocol RunShapeGate RunShapeShieldOpen RunShapeLeak RunShapeGateL"
+FILES="$L/RunShape.lean $L/RunShapeShield.lean $L/RunShapeExec.lean $L/RunShapeProtocol.lean $L/RunShapeGate.lean $L/RunShapeShieldOpen.lean $L/RunShapeLeak.lean $L/RunShapeGateL.lean $L/RunShapeCheck.lean"
 start=$(date +%s)
 echo "== lake build of the L40 modules, one at a time =="
 for m in $MODS; do

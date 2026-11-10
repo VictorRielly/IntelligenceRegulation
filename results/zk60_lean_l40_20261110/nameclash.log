@@ -1,5 +1,5 @@
-declarations in {RunShape,CircuitRunP}*.lean: 177
+declarations in {RunShape,CircuitRunP}*.lean: 196
 declared twice inside the lane: none
-worktrees read: 38
-other Lean files read (with repeats across worktrees): 3281
+worktrees read: 39
+other Lean files read (with repeats across worktrees): 3603
 clashes: 0

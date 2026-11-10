@@ -5,24 +5,26 @@ lake build ZK60Formal.RunShapeExec rc 0
 lake build ZK60Formal.RunShapeProtocol rc 0
 lake build ZK60Formal.RunShapeGate rc 0
 lake build ZK60Formal.RunShapeShieldOpen rc 0
+lake build ZK60Formal.RunShapeLeak rc 0
+lake build ZK60Formal.RunShapeGateL rc 0
 == lake build (full) ==
 lake build rc 0
-✔ [3646/3647] Built ZK60Formal (2.0s)
-Build completed successfully (3647 jobs).
+✔ [3664/3665] Built ZK60Formal (1.6s)
+Build completed successfully (3665 jobs).
 warnings: 0
 errors: 0
 sorry: 0
 warnings in the L40 modules' own builds: 0
 == axiom audit ==
-153 declarations: 6 abbrev, 1 class, 47 def, 4 instance, 7 structure, 88 theorem
+172 declarations: 6 abbrev, 1 class, 48 def, 4 instance, 7 structure, 106 theorem
 axioms rc 0
-declarations audited: 153 (generated: 153)
+declarations audited: 172 (generated: 172)
 no axiom at all: 25
 sorryAx: 0
 ofReduceBool: 0
 other axioms: 0
 lines that are not a report: 0
- 109 axioms: [propext, Classical.choice, Quot.sound]
+ 128 axioms: [propext, Classical.choice, Quot.sound]
   11 axioms: [propext, Quot.sound]
    8 axioms: [propext]
 == source scan of the L40 files ==
@@ -34,8 +36,10 @@ imported: RunShapeExec
 imported: RunShapeProtocol
 imported: RunShapeGate
 imported: RunShapeShieldOpen
+imported: RunShapeLeak
+imported: RunShapeGateL
 checker not imported
-== unchanged: Statements.lean and every existing Lean file against the lane's base 16acb7c8 ==
+== unchanged: Statements.lean and every existing Lean file against the lane's base 14d9d748 ==
 Statements.lean unchanged
 existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
 lines removed from the root's imports: 0
@@ -56,4 +60,4 @@ L11Check: 404 checks, 0 failed
 L1 TOTAL: 101956 checks, 0 failed
 regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
 lane checker verdicts: RunShapeCheck 0/0, export check 0 (0 = green)
-total 64 s
+total 395 s

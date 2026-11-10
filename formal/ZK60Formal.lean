@@ -273,3 +273,5 @@ import ZK60Formal.RunShapeExec
 import ZK60Formal.RunShapeProtocol
 import ZK60Formal.RunShapeGate
 import ZK60Formal.RunShapeShieldOpen
+import ZK60Formal.RunShapeLeak
+import ZK60Formal.RunShapeGateL

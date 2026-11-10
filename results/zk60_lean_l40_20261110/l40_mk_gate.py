@@ -136,3 +136,67 @@ emit("RunTrGate.lean", "rt_productionReady_r13")
 out.append("end GateR13\n\nend ZK60.ProtocolClassify.RunShapeP\n")
 open(f"{src}/RunShapeGate.lean", "w").write("\n".join(out))
 print("wrote RunShapeGate.lean")
+
+
+# ---- D76 (Victor's ruling, merged by lane L42): the same gates in the approved form `ProductionReadyL`, at the
+# per-block allowed leakage `classifyLeakP` (RunShapeLeak.lean). Read from L42's StatementsD76Gate.lean (the three
+# gates with the instance-leak premise `hzk` on every q, R) and StatementsD76Range.lean (the chain with `hzk` on D76's
+# range only), and rewritten by the same substitutions plus the D76 names.
+
+def rewriteL(text):
+    text = rewrite(text)
+    for r in ["R", "Rp"]:
+        text = text.replace(f"classifyLeak S {r}", f"classifyLeakP {r}")
+    text = re.sub(r"\b(classifyU|classifyUExec)_productionReadyL_(\w+?)_range\b", r"\1P_productionReadyL_\2_range", text)
+    text = re.sub(r"\brt_productionReadyL_r13_exec_range\b", "rt_productionReadyL_r13P_exec_range", text)
+    text = re.sub(r"\brt_productionReadyL_r13_range\b", "rt_productionReadyL_r13P_range", text)
+    text = re.sub(r"\brt_productionReadyL_r13_exec\b", "rt_productionReadyL_r13P_exec", text)
+    text = re.sub(r"\brt_productionReadyL_r13\b", "rt_productionReadyL_r13P", text)
+    text = re.sub(r"\bclassifyUExec_productionReadyL_run_r13\b", "classifyUExecP_productionReadyL_run_r13", text)
+    text = re.sub(r"\bclassifyU_productionReady_joint\b", "classifyUP_productionReady_joint", text)
+    # the per-block joint gate takes no extractor (its obligations `ClassifyOpenP` do not name one)
+    text = re.sub(r"(classifyUP_productionReady_joint R Lq V P Cin h64 hr hon U hbij site kOf δOf) E O", r"\1 O", text)
+    text = re.sub(r"\bjointExtract_of_kinds\b", "jointExtractP_of_kinds", text)
+    text = re.sub(r"\bclassifyU_leaksAtMost\b", "classifyUP_leaksAtMost", text)
+    text = re.sub(r"\bclassifyUExec_leaksAtMost\b", "classifyUExecP_leaksAtMost", text)
+    text = text.replace("`classifyLeak S R`", "`classifyLeakP R`")
+    return text
+
+
+def section(fname, name):
+    txt = open(f"{src}/{fname}").read()
+    i = txt.index(f"\nsection {name}\n") + 1
+    j = txt.index(f"\nend {name}\n", i) + len(f"\nend {name}\n")
+    return txt[i:j]
+
+
+def checkL(text, what):
+    check_clean(text, what)
+    for bad in ["classifyLeak S", "classifyU_leaksAtMost", "classifyUExec_leaksAtMost"]:
+        if bad in text:
+            raise SystemExit(f"{what}: unconverted '{bad}'")
+
+
+outL = [open(f"{src}/../../results/zk60_lean_l40_20261110/l40_gateL_header.lean.txt").read()]
+outL.append("/-! ## The gates with the instance-leak premise `hzk` on every q, R (L42's StatementsD76Gate.lean) -/\n\n"
+            "section Gates\n\nvariable [Fintype Coins] [Nonempty Coins] [Inhabited Coins]\n"
+            "variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]\n")
+t = rewriteL(block("StatementsD76Gate.lean", "classifyUExec_productionReadyL_run_r13"))
+checkL(t, "classifyUExecL")
+outL += [t, "", "end Gates\n", open(f"{src}/../../results/zk60_lean_l40_20261110/l40_gate_rt_header.lean.txt").read()]
+for nm in ["rt_productionReadyL_r13", "rt_productionReadyL_r13_exec"]:
+    t = rewriteL(block("StatementsD76Gate.lean", nm))
+    checkL(t, nm)
+    outL += [t, ""]
+outL.append("end GateR13\n\nend D76Gates\n\n/-! ## The chain with the zero-knowledge premise on D76's range only (L42's "
+            "StatementsD76Range.lean) -/\n")
+for nm in ["classifyU_productionReadyL_joint_target_range", "classifyU_productionReadyL_ep_target_range",
+           "classifyU_productionReadyL_runChain_range", "classifyU_productionReadyL_run_r13_range",
+           "classifyU_productionReadyL_run_r13_token_range", "rt_productionReadyL_r13_range",
+           "classifyUExec_productionReadyL_run_r13_range", "rt_productionReadyL_r13_exec_range"]:
+    t = rewriteL(section("StatementsD76Range.lean", nm))
+    checkL(t, nm)
+    outL += [t, ""]
+outL.append("end ZK60.ProtocolClassify.RunShapeP\n")
+open(f"{src}/RunShapeGateL.lean", "w").write("\n".join(outL))
+print("wrote RunShapeGateL.lean")
