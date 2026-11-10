@@ -385,12 +385,21 @@ here. The rates count proving and witness work. Verification time is recorded se
       openings at rate 1/4, `Binding` and the layout map all hold at R13. Every bound meets its target.
     - All 26 real Shieldstral layer calibrations pass R13's check, with a constant plane list (proved).
     - Checked on real R13 receipts: 408, 302 and 35 checks, 0 failed.
+  - **Correction, 2026-11-09 (finding L31-1, High for the Lean chain; not a protocol weakness).** The block theorems
+    of L16, L20, L21, L23 and L28 below all carry one premise, `SlotEval`, that no real block can meet. They are true
+    as stated but say nothing about a real block. Lane L31 stated the repaired premise and re-proved the chain for it;
+    cite `block_knowledge_final_w16r2` / `_r13` / `_r13_shield` and the `…N` theorems instead (the L31 bullet below).
+    The counts and bounds in the bullets below stand; the proofs are the same proofs.
   - **L16 and L20, the block's knowledge statement.**
     - For any block shape: an accepted block yields extracted planes that satisfy the block's constraints, except with
       probability ≤ εsTarget for every q.
     - L20's per-position count brought the constant term from 2^-82.6 to 2^-104.2.
     - Premises left: two deterministic code-to-model links (lane L22), and the slot relations plus LogUp within a
       budget (lane L21).
+  - **Correction, 2026-11-09 (findings L33-1 and L33-3, Medium).** The L14 and L19 results below hold for a prover
+    that never refuses. The real prover can refuse at a challenge, and then outputs one constant refusal. With that
+    accounted for (lane L33, below), what is proved is: one block receipt meets the target for up to 2^118 receipts,
+    and a whole classify run as one receipt for up to 2^110. "For every R" and "2^112" below are superseded.
   - **L19, zero knowledge for any number of receipts (block level).**
     - `hHV` is now a theorem, resting on named honest-prover properties.
     - With a per-kind query count, one block receipt (W16R2 or R13) meets εzkTarget for EVERY R. L14's 2^96 cap is
@@ -523,6 +532,58 @@ here. The rates count proving and witness work. Verification time is recorded se
     (the app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its
     worktree, and each was resumed there on 2026-11-09. L26, L27, L28 and L29 are merged and checked (above; perf and
     main at 5fe92b4c, the full Lean build 3591 jobs); A28 is still running.
+  - **L31, the block instance: a flaw in the block chain's premise found and repaired; the bookkeeping premises
+    discharged; the slot polynomials only half done** [PROVED; MEASURED for the agreement check; merged 2026-11-09;
+    `ZK60_LEAN_L31_BLOCK_INSTANCE_20261109.md`].
+    - **Finding L31-1 (High for the Lean chain; not a protocol weakness).** Since L16, every block theorem took a
+      premise `SlotEval`: each slot's polynomial, evaluated at the challenges, equals the code's terminal expression.
+      As written it asked this for challenge vectors of any length, and the code's expression reads the extra
+      entries. No real slot polynomial can satisfy it. So the block theorems of L16 to L28 were true but empty at a
+      real block.
+    - **The repair.** `SlotEvalN` asks the identity only at the sumcheck's own challenges. The whole chain is
+      re-proved for it in new files, by the same proofs. Coordinator's decision: every lane cites the repaired chain;
+      the older block theorems are superseded; editing `SlotEval` in place is a later cleanup.
+    - **Final block statements:** `block_knowledge_final_w16r2`, `_r13` and `_r13_shield` (the app's block, at the
+      Shieldstral T128 schedule, which no earlier lane had): the block verifier accepts while the committed data
+      fails the block's equations with probability at most the approved target plus the endpoint term. The app's
+      block uses 30.4M of the 67.1M budget units.
+    - **Discharged:** L28's bookkeeping premises. The block profile objects are built with their bounds proved, the
+      reader of the verifier's claims is proved on its own trace, and the claim counts follow from the commitment
+      schedule.
+    - **Checked against real receipts:** 82 checks, 0 failed, on the W16R2 and R13 rung receipts; a negative control
+      of 8 single changes fails exactly 8. The app block's two claim counts (146 and 54) are derived by rule: no
+      Shieldstral R13 block receipt is in the repository (L31-3, Low).
+    - **Not done:**
+      - the tables part of the slot polynomials (the block's `define` as a Lean definition);
+      - the per-outcome algebra (the certified polynomials vanish on acceptance; the start claims give the block's
+        relations; the lookup list covers the block's lookups);
+      - the certified slot polynomials with their degrees.
+
+      These stay premises of the final statements, and are the next lane's work (L35).
+  - **L33, the classify run's zero knowledge with the prover's refusals accounted for: reduced to named premises,
+    not finished** [PROVED, given the premises; merged 2026-11-09; `ZK60_LEAN_L33_ZK_HONEST_20261109.md`].
+    - **Finding L33-1 (Medium).** L14's and L19's one-receipt step assumed a prover that always answers. The real
+      prover refuses at some challenges, after earlier steps have already absorbed masked data, and a refusal is one
+      constant message. The old step cannot be applied to it. L33 re-proves the step with a refusal guard. It needs
+      one new premise, which the code's refusal classes give: whether an attempt is refused depends only on the
+      challenges and public data.
+    - **Finding L33-3 (Medium, for Victor, together with L19-2).** With refusals counted, this proof gives the
+      approved target for a whole classify run as one receipt for up to 2^110 receipts (L19 said 2^112), and for one
+      block receipt for up to 2^118 (L19 said every number). These are proved from L19's estimated query counts. No
+      target was changed. A sharper count of the refused cases may restore L19's figures; it was not attempted.
+    - **Finding L33-2 (Low, modelling).** L19 compared any two inputs. For a statement that carries the verdict, only
+      inputs with the same verdict can be compared. The law is restated that way.
+    - **Proved:**
+      - a prover written as an oracle program is L14's prover model, with the same output;
+      - an honest block's view has a law that does not depend on the hidden data, from L25's honest rounds;
+      - `classify_zk_of_model`: the run's zero-knowledge obligation (O12) in its exact form, from named premises;
+      - its transfer to the corrected instance.
+    - **No leak found by reading the code:** no receipt byte and no refusal was found to depend on hidden data beyond
+      the declared leak (the token count, the width, the layer count and the served bit). This is a reading of the
+      prover's sources, not a proof.
+    - **Premises left:** the run's prover assembled as one program (it needs L32's opening provers); what a receipt
+      shows; the masks', pads' and salts' properties as theorems about a Lean object that does not exist yet; the
+      query counts by kind, which are still estimates.
   - **L30, the classify run's gate on the corrected instance, through the run's transcript** [PROVED; merged
     2026-11-09; `ZK60_LEAN_L30_RUN_GATE_U_20261109.md`].
     - `classifyProtocolUExec` is the instance the final assembly will use: L29's executable stages AND L26's
@@ -544,11 +605,11 @@ here. The rates count proving and witness work. Verification time is recorded se
       - `ClassifyOpen`'s other fields (completeness, zero knowledge, the weights' validity);
       - the rulings L24-1 and L19-2.
   - **Running since 2026-11-09, on what the merged lanes left open for the classify run:**
-    - L31: a block's remaining extraction premises (the concrete profile, the claims' reader, the block's `define`
-      and the slot polynomials over the extracted data, the per-outcome algebra);
+    - L35 (after L31): the block's `define` as a Lean definition and the tables part of the slot polynomials. L36,
+      not yet started: the per-outcome algebra;
     - L32: completeness at run level (the openings' and `M`'s executable completeness, the run's prefix as a
       transcript program, the refusal sites and their exact count against 2^-40);
-    - L33: the run's zero knowledge (the honest prover in oracle form and the honest-prover properties L19 named).
+    - L33 is merged (above). Its remaining premises wait for L32's opening provers.
     - L34 (started after L30's check passed; perf and main at the L30 check commit, the full Lean build 3597 jobs):
       the run's transcript as a Lean object with the kinds' lists on it, and the ordered cover's premises (L30's
       remaining list).
