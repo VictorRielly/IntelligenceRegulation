@@ -55,5 +55,5 @@ grep -E "^FAIL|^StageVerifyExecCheck" ${X}_l29check.log >> $P
   PYTHONPATH=$R/apps/proven-media PYTHONDONTWRITEBYTECODE=1 /Users/victorrielly/zk60-artifacts/a28-tools/venv/bin/python \
   -m unittest discover -s $R/apps/proven-media/tests > ${X}_app.log 2>&1; say "app suite rc=$?"
 tail -3 ${X}_app.log >> $P
-ls $R/ops/zkp-mvp/gpu-metal/results 2>/dev/null | sed 's/^/test-output directory left by the lib suite (untracked, to delete): /' >> $P
+ls $R/ops/zkp-mvp/gpu-metal/results 2>/dev/null | wc -l | sed 's/^ */entries under ops\/zkp-mvp\/gpu-metal\/results (untracked test output, old and new; nothing is deleted): /' >> $P
 say "all done"

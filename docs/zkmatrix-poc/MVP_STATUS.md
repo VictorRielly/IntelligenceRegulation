@@ -29,6 +29,7 @@ here. The rates count proving and witness work. Verification time is recorded se
 | **the media app (Shieldstral classifier, R13 blocks, T128, 3 category proofs per post), through the app end to end: every receipt freshly verified, publication included (A24, 2026-11-07, merged 9be693d0; development mode `shieldstral-fast`, privacy statement pending, not production)** | 0.17 proved tok/s (r16b, CPU 2 threads; Astra 2026-11-05) | **one post 5.5 tok/s (70 s); an 8-post stream 11.4 tok/s** (269 s; second half 15.4) [MEASURED, public posts, single runs on the shared Mac] |
 | **the media app with lane A26's binary (the same receipts byte for byte; the CPU work per category proof cut by a third; development mode `shieldstral-fast`, privacy statement pending, not production)** | A24: native stream 11.25 tok/s, one post 55.2 s; app stream 11.4 | **native stream 14.10 tok/s (+25%, A/B pairs both orders), one post 46.7 s (+18%); through the app: stream 13.8 tok/s, one post 54.4 s (7.1 tok/s); proof only 15.5** [MEASURED; app rows single runs] |
 | **the media app with lane A27's binary (the same receipts byte for byte; the GPU work per category proof cut by 28%; development mode `shieldstral-fast`, privacy statement pending, not production)** | A26: native stream 14.27 tok/s, one post 46.9 s, proof only 14.7 | **native stream 16.86 tok/s (+18%, A/B pairs both orders, every pair), one post 44.2 s (+6%), proof only 17.7 (+21%); through the app: stream 16.3 tok/s, one post 47.8 s (8.0 tok/s)** [MEASURED; app rows single runs] |
+| **the media app with lane A28's binary (the same receipts byte for byte; the commitments' GPU time cut by 9%, one proof's by 3.9%; two server settings; development mode `shieldstral-fast`, privacy statement pending, not production)** | A27 re-measured beside it: native stream 16.42 tok/s, one post 43.3 s, proof only 17.75 | **native stream 16.66 tok/s with the binary alone (+1.5%), 16.90 with the two settings (+2.9%; A B C C B A, mirrored order); one post 42.0 s (−3%); proof only 17.82 (no difference); through the app: stream 16.8 tok/s, one post 49.9 s (7.7 tok/s), one long post 125.5 s** [MEASURED; app rows single runs, not pairs: A27's app run of 2026-11-07 measured 16.3 tok/s, 47.8 s and 127.0 s] |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -347,6 +348,36 @@ here. The rates count proving and witness work. Verification time is recorded se
   - One note for the privacy gate: the three-product fold's two-product fast path is taken per element, so for an
     extension table of private data a fold's time can depend slightly on whether neighbouring hidden values are
     equal (`HL_A27_FOLD=0` removes it; README section 6).
+- **The media app's commitment kernels at the device's limits, and scheduling measured out (A28, 2026-11-09/10)**
+  [MEASURED; `results/zk60_a28_app_20261107/README.md`]. The A27 figures here are A28's own re-measurements of A27's
+  binary in the same jobs; the machine measured about 3% slower than on 2026-11-07.
+  - Two byte-identical kernel changes: the commitment's forward transform skips the zero half of its first pass, and
+    the column hash runs as BLAKE3's own tree in two passes. The commitments' GPU time fell 9%, and one proof's GPU
+    time 5.04 → 4.84 s. Deeper radix passes and rewritten field arithmetic lost or tied: nothing is left in the
+    commitment kernels in this design.
+  - Scheduling does not fill the GPU's idle gaps. Seal-ahead works on one lane but gives +1.3% on six for 60 GiB more
+    memory; it is built, tested and off by default. More threads a lane, more lanes and two server processes give
+    the same stream: about one category proof every 6 to 6.5 s.
+  - Why: a proof that takes 19.6 s alone takes 38 s beside five others. It waits 12 to 15 s for the one shared
+    device instead of 5.4 s, and its host work is 1.3× to 3× slower in company.
+  - A B C C B A against A27, every receipt freshly verified: the 8-post stream 16.42 → 16.66 proved tok/s with the
+    binary alone (+1.5%), 16.90 with a spin-then-block wait and a 300 ms stagger (+2.9%; the prover's CPU per proof
+    84 → 65 CPU-s); one post 43.3 → 42.0 s. Through the app (single runs): no change beyond the runs' spread.
+  - **Byte identity on the real export** (A26's fixed-entropy harness): A27's binary, A28's, A28 with every switch
+    off, and A28 with seal-ahead on and off make identical receipts, every file of every category. The six trained
+    profiles' digests hold on CPU and Metal; the 8B stack's server tests pass on the device. The app pins the A28
+    binary; identity `e4f97455…` unchanged; 219 app tests OK.
+  - **30 tok/s is not reached (about 1.8× short, as after A27), and no byte-preserving scheduling change will reach
+    it.** What is left, with A28's estimates [INFERRED]:
+    - rows of W16R2's size, which needs Victor's ruling on the trained-model route (D75 (3)): about 22 to 25 tok/s
+      on this stream;
+    - a second GPU: about 1.9×;
+    - the prover's re-checks from the startup records (`HL_A26_KEPT`, D75 (5)): about +5%;
+    - the device sumcheck slots: about +3%.
+
+    The byte-preserving levers together are about +10 to 15%, so roughly 19 tok/s.
+  - For the privacy gate: the two kernels branch on shapes only; `gpu/metal.rs` and `gpu/metal_kernels.metal` have
+    new digests to re-read. Seal-ahead, if someone turns it on, holds two requests' witnesses per lane.
 - **D63 Lean, per profile at W16R2 (2026-11-07, Victor away: "focus on completing the lean proofs")** [PROVED; each
   lane checked on the merged tree; docs `ZK60_LEAN_L9/L11/L12_*_20261107.md`].
   - The W16R3 freeze needs Victor's approval, so the per-profile proofs now target **W16R2**, the profile that the
@@ -530,8 +561,9 @@ here. The rates count proving and witness work. Verification time is recorded se
       still inside the proved margin; the sites are not yet built in Lean.
   - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26, L27, L28, L29 and A28
     (the app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its
-    worktree, and each was resumed there on 2026-11-09. L26, L27, L28 and L29 are merged and checked (above; perf and
-    main at 5fe92b4c, the full Lean build 3591 jobs); A28 is still running.
+    worktree, and each was resumed there on 2026-11-09. All five are merged: L26, L27, L28 and L29 (above), and A28
+    (its row and bullet are with the other media app rows near the top). By the L32 check the full Lean build is
+    3621 jobs, with no warning.
   - **L31, the block instance: a flaw in the block chain's premise found and repaired; the bookkeeping premises
     discharged; the slot polynomials only half done** [PROVED; MEASURED for the agreement check; merged 2026-11-09;
     `ZK60_LEAN_L31_BLOCK_INSTANCE_20261109.md`].
@@ -626,8 +658,10 @@ here. The rates count proving and witness work. Verification time is recorded se
       not yet started: the per-outcome algebra;
     - L36: the block's per-outcome algebra (the certified polynomials vanish on acceptance; the start claims give
       the block's relations; the lookup side);
-    - L32 and L33 are merged (above). Their follow-ups are not started: the honest prover's slot arithmetic and the
-      run's chain (completeness), and the run's prover as one program with the masks' properties (zero knowledge).
+    - L37, after L32: completeness continued (the run's refusal chain, the commitments' honest claims, then the
+      honest prover's slot arithmetic, the stages first);
+    - L38, after L33: zero knowledge continued (the prover's masks, pads and salts as a Lean object, the run's
+      prover as one program, the query counts made exact, and a sharper count for L33-3's caps).
     - L34 (started after L30's check passed; perf and main at the L30 check commit, the full Lean build 3597 jobs):
       the run's transcript as a Lean object with the kinds' lists on it, and the ordered cover's premises (L30's
       remaining list).

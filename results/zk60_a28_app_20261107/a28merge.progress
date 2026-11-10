@@ -1,0 +1,24 @@
+2026-11-10T03:00:41Z start; HEAD 4d1f055f
+2026-11-10T03:12:01Z hashline whole lib suite rc=101 (the 3 known failures expected)
+test result: FAILED. 973 passed; 3 failed; 89 ignored; 0 measured; 0 filtered out; finished in 515.30s
+test private_block::review_tests::a_toy_receipt_made_before_f12_is_refused ... FAILED
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... FAILED
+test private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name ... FAILED
+2026-11-10T03:12:02Z zkp-core suite rc=0
+test result: ok. 83 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.28s
+2026-11-10T03:12:03Z L9 corpus byte-identical: cmp rc=0
+2026-11-10T03:12:04Z L11 corpus byte-identical: cmp rc=0
+2026-11-10T03:12:05Z L13 layout byte-identical: cmp rc=0
+2026-11-10T03:12:10Z L17 block_corpus.txt byte-identical: cmp rc=0
+2026-11-10T03:12:10Z L17 slots_corpus.txt byte-identical: cmp rc=0
+2026-11-10T03:12:10Z L17 shape_corpus.txt byte-identical: cmp rc=0
+2026-11-10T03:12:10Z L17 fork_frame.bin and open_corpus.txt sha256 as committed: cmp rc=0
+2026-11-10T03:12:11Z hashline lean_l29_export (test only) rc=0
+2026-11-10T03:17:24Z StageVerifyExecCheck on this tree's fresh export rc=0
+StageVerifyExecCheck: 127 checks, 0 failed
+2026-11-10T03:17:32Z app suite rc=0
+Ran 219 tests in 7.115s
+
+OK
+(coordinator, corrected after the run: the script listed all 51 entries of ops/zkp-mvp/gpu-metal/results here as "left by the lib suite". 3 of them were written in this run (r12-tied-4017, r12b-tests, r13-array-tests); 47 of the 51 are untracked test output, old and new, and 4 hold tracked files. Nothing was deleted.)
+2026-11-10T03:17:32Z all done
