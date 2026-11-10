@@ -1,0 +1,3 @@
+build ZK60Formal.BlockR13HostBase
+build ZK60Formal.BlockR13StmtBase
+build ZK60Formal.BlockR13StmtJoin

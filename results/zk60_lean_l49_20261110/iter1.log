@@ -1,0 +1,377 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/plan1.txt ==
+build ZK60Formal.BlockR13HostBase
+build ZK60Formal.BlockR13StmtBase
+build ZK60Formal.BlockR13StmtJoin
+== lake build ZK60Formal.BlockR13HostBase ==
+✖ [3574/3574] Building ZK60Formal.BlockR13HostBase (3.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostBase.setup.json --json
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.T = (DefR13.cfgShieldR13 L).sh.lt
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.D = nD (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Q = nQ (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Kv = nK (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.S = nS (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Ht = nHt (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.F = nF (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lq = nH (DefR13.cfgShieldR13 L) + (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lkvw = (DefR13.cfgShieldR13 L).sh.lkv + (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lkv ≤ (DefR13.cfgShieldR13 L).sh.lh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  0 < (DefR13.cfgShieldR13 L).sh.lt
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  0 < (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).p.h24 = true
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  DefR13.lsOf (DefR13.cfgShieldR13 L).p = 1 + 1
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).logCols = 14
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:121:65: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  DefR13.ids (DefR13.cfgShieldR13 L) = DefR13.idsR13 true 2
+warning: ZK60Formal/BlockR13HostBase.lean:252:28: `if_true` has been deprecated: Use `ite_true` instead
+error: ZK60Formal/BlockR13HostBase.lean:253:14: Application type mismatch: The argument
+  rfl
+has type
+  ?m.739 = ?m.739
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:19: Application type mismatch: The argument
+  rfl
+has type
+  ?m.743 = ?m.743
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:24: Application type mismatch: The argument
+  rfl
+has type
+  ?m.747 = ?m.747
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:57: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:455:2: Expected type must not contain free variables
+  [mpadR 14, mpadR 18] =
+      [(DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.D).length, (DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.F).length] ∧
+    DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.T = [] ∧
+      DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Q = [] ∧
+        DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Kv = [] ∧
+          DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.S = [] ∧ DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Ht = []
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:509:4: Expected type must not contain free variables
+  ∀ k < 23, R13.shieldDraws k = Slot.R13.drawLen (DefR13.cfgShieldR13 L).sh k
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:513:4: Expected type must not contain free variables
+  ∀ k < 23, R13.shieldSlots.getD k (0, 0, 0) = Slot.W16R2.sched (DefR13.cfgShieldR13 L).sh k
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:516:8: (kernel) declaration has metavariables 'ZK60.Exec.Block.Join.R13H.shOk_rung'
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:520:8: (kernel) declaration has metavariables 'ZK60.Exec.Block.Join.R13H.shOk_shield'
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostBase
+error: build failed
+build rc 1 (6 s)
+== lake build ZK60Formal.BlockR13StmtBase ==
+✖ [3574/3575] Building ZK60Formal.BlockR13HostBase (2.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostBase.setup.json --json
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.T = (DefR13.cfgShieldR13 L).sh.lt
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.D = nD (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Q = nQ (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Kv = nK (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.S = nS (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Ht = nHt (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.F = nF (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lq = nH (DefR13.cfgShieldR13 L) + (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lkvw = (DefR13.cfgShieldR13 L).sh.lkv + (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lkv ≤ (DefR13.cfgShieldR13 L).sh.lh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  0 < (DefR13.cfgShieldR13 L).sh.lt
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  0 < (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).p.h24 = true
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  DefR13.lsOf (DefR13.cfgShieldR13 L).p = 1 + 1
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).logCols = 14
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:121:65: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  DefR13.ids (DefR13.cfgShieldR13 L) = DefR13.idsR13 true 2
+warning: ZK60Formal/BlockR13HostBase.lean:252:28: `if_true` has been deprecated: Use `ite_true` instead
+error: ZK60Formal/BlockR13HostBase.lean:253:14: Application type mismatch: The argument
+  rfl
+has type
+  ?m.739 = ?m.739
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:19: Application type mismatch: The argument
+  rfl
+has type
+  ?m.743 = ?m.743
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:24: Application type mismatch: The argument
+  rfl
+has type
+  ?m.747 = ?m.747
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:57: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:455:2: Expected type must not contain free variables
+  [mpadR 14, mpadR 18] =
+      [(DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.D).length, (DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.F).length] ∧
+    DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.T = [] ∧
+      DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Q = [] ∧
+        DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Kv = [] ∧
+          DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.S = [] ∧ DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Ht = []
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:509:4: Expected type must not contain free variables
+  ∀ k < 23, R13.shieldDraws k = Slot.R13.drawLen (DefR13.cfgShieldR13 L).sh k
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:513:4: Expected type must not contain free variables
+  ∀ k < 23, R13.shieldSlots.getD k (0, 0, 0) = Slot.W16R2.sched (DefR13.cfgShieldR13 L).sh k
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:516:8: (kernel) declaration has metavariables 'ZK60.Exec.Block.Join.R13H.shOk_rung'
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:520:8: (kernel) declaration has metavariables 'ZK60.Exec.Block.Join.R13H.shOk_shield'
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostBase
+error: build failed
+build rc 1 (10 s)
+== lake build ZK60Formal.BlockR13StmtJoin ==
+✖ [3574/3576] Building ZK60Formal.BlockR13HostBase (2.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostBase.setup.json --json
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.T = (DefR13.cfgShieldR13 L).sh.lt
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.D = nD (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Q = nQ (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Kv = nK (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.S = nS (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.Ht = nHt (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.logs Dom.F = nF (DefR13.cfgShieldR13 L)
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lq = nH (DefR13.cfgShieldR13 L) + (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lkvw = (DefR13.cfgShieldR13 L).sh.lkv + (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).sh.lkv ≤ (DefR13.cfgShieldR13 L).sh.lh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  0 < (DefR13.cfgShieldR13 L).sh.lt
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  0 < (DefR13.cfgShieldR13 L).sh.ldh
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).p.h24 = true
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  DefR13.lsOf (DefR13.cfgShieldR13 L).p = 1 + 1
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:114:18: Expected type must not contain free variables
+  (DefR13.cfgShieldR13 L).logCols = 14
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:121:65: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  DefR13.ids (DefR13.cfgShieldR13 L) = DefR13.idsR13 true 2
+warning: ZK60Formal/BlockR13HostBase.lean:252:28: `if_true` has been deprecated: Use `ite_true` instead
+error: ZK60Formal/BlockR13HostBase.lean:253:14: Application type mismatch: The argument
+  rfl
+has type
+  ?m.739 = ?m.739
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:19: Application type mismatch: The argument
+  rfl
+has type
+  ?m.743 = ?m.743
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:24: Application type mismatch: The argument
+  rfl
+has type
+  ?m.747 = ?m.747
+but is expected to have type
+  True
+in the application
+  And.intro rfl
+error: ZK60Formal/BlockR13HostBase.lean:253:57: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:455:2: Expected type must not contain free variables
+  [mpadR 14, mpadR 18] =
+      [(DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.D).length, (DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.F).length] ∧
+    DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.T = [] ∧
+      DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Q = [] ∧
+        DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Kv = [] ∧
+          DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.S = [] ∧ DefR13.zeroPl (DefR13.cfgShieldR13 L) Dom.Ht = []
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:509:4: Expected type must not contain free variables
+  ∀ k < 23, R13.shieldDraws k = Slot.R13.drawLen (DefR13.cfgShieldR13 L).sh k
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:513:4: Expected type must not contain free variables
+  ∀ k < 23, R13.shieldSlots.getD k (0, 0, 0) = Slot.W16R2.sched (DefR13.cfgShieldR13 L).sh k
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:517:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:516:8: (kernel) declaration has metavariables 'ZK60.Exec.Block.Join.R13H.shOk_rung'
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:522:18: `simp` made no progress
+error: ZK60Formal/BlockR13HostBase.lean:520:8: (kernel) declaration has metavariables 'ZK60.Exec.Block.Join.R13H.shOk_shield'
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostBase
+error: build failed
+build rc 1 (14 s)
+rc 1, 14 s
