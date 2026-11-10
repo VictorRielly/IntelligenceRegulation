@@ -1,0 +1,2 @@
+[zk60-guard 10:13:51] START lean-l49-fzc class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=d69ba30416bb
+[zk60-guard 10:14:07] END lean-l49-fzc exit=1 child_wall=16s peak_rss=3.78G min_avail=226.07G
