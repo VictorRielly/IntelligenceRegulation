@@ -258,11 +258,97 @@ columns, CPU = Metal); `tests/zk60_metal_commit.rs` 5 passed; the two A28 serve 
 at commit `5794c756` gives a28-q2 (`34b62314…`) again, bit for bit. PENDING: the same check for a28-q3 at
 `85b256c4` (`final1.sh`).
 
-## 5. PENDING: tests (the native acceptance, the full lib suite, the app suite)
+## 5. Tests
 
-## 6. PENDING: open issues and privacy notes
+**Native** (`accept.sh` with `FULL=1`, inside `final1.sh`; `accept_f1.progress`, at commit `81f0e172`, whose
+sources are milestone 3's, `85b256c4`) [MEASURED]:
+- the release CLI builds (103 warning lines, as A26's and A27's): `80f2b704…`, the kept candidate a28-q3;
+- `a28_` 2 (seal-ahead on and off on one lane with the unchanged CLI checks and a refusal that frees its lane;
+  the dispatch), `a27_` 3, `a26_` 3, `a24_` 5, `a4_` 5, `s25_tests` 20, `hash_domain` 15, `r19b` 5, every
+  `token_io::classify` test (88, 12 ignored as before): all passed; the census lists unchanged (no new file);
+- the L9 and L11 test-only exports regenerate their committed corpora byte for byte;
+- zkp-core: 83 passed; `cargo check --tests` without the gpu-metal feature: clean;
+- **the device byte gates** (A23's merge list, as A27 ran it): the A28 commitment test at the classifier's
+  shapes, CPU = Metal; every development accuracy shape's block proof, CPU digest = Metal digest; **the six
+  trained profiles' recorded digests on the CPU and on Metal** (R13 Shieldstral `5a6193d3`, R13 8B `f590b01f`,
+  W16 Shieldstral `79f987ef`, W16 8B `a8258241`, W16R2 Shieldstral `0e88d84f`, W16R2 8B `90003b76`); the W16R2
+  rung golden (CPU and Metal) and its A18, A17 and A12 every-setting variants; the 8B block under every A18
+  setting (core proof `90003b760eb7ad80`); A11's per-fork pools and A7's one and six queues on the device; A12's
+  device tables word for word; **the 8B stack's servers** (A22's R13 export through `stack-serve` =
+  `stack-prove` on the device, A23's with shared blocks, A23's resident 8B stream replaying); the Metal
+  commitment tests against the CPU (`tests/zk60_metal_commit.rs` 5 passed);
+- **the full hashline lib suite** (release, gpu-metal, `HL_R13_LOADER_FIXTURES`): **984 passed, 3 failed, 132
+  ignored. The three failures are exactly the known ones** (`a_toy_receipt_made_before_f12_is_refused`,
+  `accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces`,
+  `review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name`). (A27: 981 passed, 131 ignored;
+  since then this lane's two serve tests and its commitment test, which is one of the ignored device tests.)
 
-## 7. PENDING: what is left to reach 30 proved tok/s
+**App** (the coordinator's command, the rebuilt venv): **219 tests OK** with the A28 pin (A27's 218 and one
+new: the A28 pin, never A27's, A26's or A24's; the same identity and run profile; no `HL_A28_*` or `HL_A27_*`
+switch set by the app, so seal-ahead stays off; A26's two ruling switches still not set; the lanes and the
+guard declaration unchanged) [MEASURED, `app_tests1.log`]. PENDING: again after the service's settings change.
+
+## 6. Open issues, and notes for the privacy reviewer
+
+1. **Privacy.** Unchanged from A24, A26 and A27: this binary, its GPU execution and its server form are not
+   covered by D58; "privacy statement pending", public posts only, `production: false`. D63 holds;
+   `D55_REAL_CONTENT_PRIVACY_GATE_PASSED` untouched. `gpu/metal.rs` and `gpu/metal_kernels.metal` have new
+   digests again: as A7 and A27 noted, they must be re-read at those digests before any GPU-made bundle counts
+   for the privacy gate.
+2. **No new dependence of timing on private data.** The pruned head is chosen from the row's shape (its width,
+   its source length and the hiding count: public) and skips positions that are zero for every input of that
+   shape. The two-pass hash runs one thread per (column, 1024-byte chunk) and one merge per column: the number
+   of compressions depends on the row count only. Neither branches on a value. A27's note on
+   `HL_A27_FOLD` stands as it was.
+3. **Seal-ahead (off by default; a note for whoever turns it on).** With `HL_A28_SEAL_AHEAD=1` a lane holds two
+   requests at once: the second request's activations and sealing-pass witnesses are in memory beside the first
+   request's run (the same process and the same data owner as before: D73 (5) already requires one data owner
+   per process), and a request's latency depends on its lane's previous request as well as on the other lanes.
+   Each request still makes its own fresh draws inside its own `prove_with_public`; a request refused in its
+   sealing pass creates nothing and frees its lane (tested). It needs about 60 GiB more memory at six lanes: the
+   app's guard declaration (110 / 180 GiB) would have to grow with it.
+4. **The app's service now runs three activation writers at once** (three Python processes, one category chunk
+   each: the same pinned writer, the same bytes per category; section 3.4) and keeps twelve category jobs in
+   flight instead of nine. PENDING: confirmed by the app run.
+5. **A26's two switches** (`HL_A26_KEPT`, `HL_A26_VERIFY_ONCE`) stay off, waiting for Victor's reading of
+   D72/D74 for the classifier servers. This lane's profile prices the first: the blocks' CS-6 digests and
+   CS-1 / CS-4 word checks are 2.6 s of a request alone and 4 to 6 s in the stream (section 7).
+6. **Diagnostics added to this lane's own scripts only**: `stream_driver.py --provers` and the page-fault
+   count, `membw_probe.py`, the lane sampling. Nothing of them is in the binary or the app.
+
+## 7. What is left to reach 30 proved tok/s
+
+PENDING (the final numbers). The estimates, each [INFERRED] from this lane's measurements:
+
+30 tok/s is one category proof every 4.27 s. The stream makes one every 6.2 s in its rounds whatever the
+scheduling (section 3.2), with 4.84 s of device work and 14 to 16 s of host work per proof alone, both of which
+stretch in company (section 3.3). Scheduling is exhausted; the levers are less work per proof, or more
+hardware. Largest first:
+
+1. **Rows of W16R2's size (the protocol lever; needs Victor's ruling, then the privacy gate).** About 1.8x
+   fewer committed rows at rate 1/2: the commitments' encode-and-hash work falls about 3.6x (A25's count), from
+   1.98 s to about 0.55 s per proof, and the rows the host builds, zeroes, uploads and folds shrink with them.
+   One proof's device work would be about 3.4 s (-30%) and its host work perhaps 12 s. If the stream follows the
+   work per proof: about 23 to 25 proved tok/s on the 8-post stream, about 28 to 30 in its steady rounds.
+2. **A second GPU or machine.** The receipts are files and the verifier uses no GPU: about 1.9x.
+3. **The startup records for the prover's re-checks (A26's `HL_A26_KEPT`; D72 and D74 grant the same for
+   `stack-serve`).** The blocks' CS-6 digests and CS-1 / CS-4 word checks are 2.6 s of a request alone, 4 to 6 s
+   in the stream, of 29 to 31 s of host work: about +5% on the stream. The classifier tables' digests (three
+   BLAKE3 passes over the 805 MB embedding per request, 1.9 s alone and 2 to 3.7 s in the stream, serial) are
+   the same kind of re-check: another +3% with a ruling, or about +2% without one by hashing the same digest as
+   BLAKE3's tree on the lane's threads (as A21 did for the blocks; `token_io/classify.rs`, not this lane's
+   file).
+4. **The device sumcheck slots: 2.54 s of a proof's 4.84 s of GPU now.** A27's list stands (a fold fused into
+   the next round, base-field round-0 tables): perhaps 10% of the slots, 5% of the device work, +3% on the
+   stream.
+5. **The commitment kernels: nothing left in this design.** The forward transform is at the device's 64-bit
+   arithmetic rate and its tail and hash at about 500 GB/s (section 2). A 4096-word tile was not built (it
+   would save one of the tail's three radix passes, about 1 ms of 38).
+6. **Fewer command buffers.** A proof makes about 670 (286 slot batches, 216 witness products, 84 commitments,
+   84 gathers) and each waits 0.5 to 1.5 ms for the device to start it even alone: 0.6 s per proof. A block's
+   witness products in one command buffer and a commitment's gather with the next one's would take about half
+   of it: +1 to 2%.
+7. **One post's latency.** PENDING (the app's writers).
 
 ## 8. Operational notes
 

@@ -1,0 +1,90 @@
+2026-11-10T00:18:43Z start
+2026-11-10T00:18:43Z release CLI rc=0
+2026-11-10T00:18:43Z zk60_classify sha256 80f2b70481fba51df6118b25a19e2d0c4c6e1ddb4e10b00c96e0ca2252935157
+2026-11-10T00:18:43Z CLI warnings: 103 (A26's build: 103 lines)
+2026-11-10T00:18:43Z test build rc=0
+2026-11-10T00:18:48Z hashline a28_ rc=0
+test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 1116 filtered out; finished in 4.91s
+test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 1116 filtered out; finished in 4.91s
+2026-11-10T00:18:48Z hashline a27_ rc=0
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 1115 filtered out; finished in 0.06s
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 1115 filtered out; finished in 0.06s
+2026-11-10T00:18:51Z hashline a26_ rc=0
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1116 filtered out; finished in 3.41s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1116 filtered out; finished in 3.41s
+2026-11-10T00:18:54Z hashline a24_ rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 2.65s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 2.65s
+2026-11-10T00:19:06Z hashline a4_ rc=0
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 1113 filtered out; finished in 12.19s
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 1113 filtered out; finished in 12.19s
+2026-11-10T00:19:30Z hashline s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1099 filtered out; finished in 23.26s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1099 filtered out; finished in 23.26s
+2026-11-10T00:19:30Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1104 filtered out; finished in 0.11s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1104 filtered out; finished in 0.11s
+2026-11-10T00:19:45Z hashline r19b rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 15.28s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 15.28s
+2026-11-10T00:20:07Z hashline token_io::classify rc=0
+test result: ok. 88 passed; 0 failed; 12 ignored; 0 measured; 1019 filtered out; finished in 21.73s
+test private_block::token_io::classify_cli::batch::r18::r18_a_failed_batch_leaves_no_receipt_statement_or_decommitment_behind ... ok
+test result: ok. 88 passed; 0 failed; 12 ignored; 0 measured; 1019 filtered out; finished in 21.73s
+2026-11-10T00:20:09Z hashline lean_l9_export rc=0
+2026-11-10T00:20:09Z L9 corpus byte-identical: cmp rc=0
+2026-11-10T00:20:10Z hashline lean_l11_export rc=0
+2026-11-10T00:20:10Z L11 corpus byte-identical: cmp rc=0
+2026-11-10T00:20:34Z zkp-core suite rc=0
+test result: ok. 83 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.29s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-10T00:20:49Z no-feature cargo check --tests rc=0
+2026-11-10T00:20:49Z a28 classifier commitment shapes CPU = Metal rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 0.85s
+2026-11-10T00:20:55Z M4 development shapes CPU = Metal rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 5.73s
+2026-11-10T00:21:18Z trained digests, six profiles rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 22.43s
+2026-11-10T00:21:18Z recorded digest 5a6193d3: CPU and Metal
+2026-11-10T00:21:18Z recorded digest f590b01f: CPU and Metal
+2026-11-10T00:21:18Z recorded digest 79f987ef: CPU and Metal
+2026-11-10T00:21:18Z recorded digest a8258241: CPU and Metal
+2026-11-10T00:21:18Z recorded digest 0e88d84f: CPU and Metal
+2026-11-10T00:21:18Z recorded digest 90003b76: CPU and Metal
+2026-11-10T00:21:19Z w16r2 rung golden (CPU and Metal) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 1.22s
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu 96e4f0b6f34f78762df36c5fc9a19b8578f067521de101244c7cd43f996479f0 metal 96e4f0b6f34f78762df36c5fc
+2026-11-10T00:22:03Z a18 rung golden under every setting rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 43.66s
+2026-11-10T00:22:14Z a18 8B block under every setting rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 10.98s
+2026-11-10T00:22:14Z 8B core proof 90003b760eb7ad80 present (a18 8B block)
+2026-11-10T00:22:22Z a17 rung golden under every setting rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 8.57s
+2026-11-10T00:22:26Z a12 rung golden in every table mode rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 2.70s
+2026-11-10T00:22:29Z a11 per-fork pools on the device rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 2.06s
+2026-11-10T00:22:31Z a7 one and six queues rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 1.53s
+2026-11-10T00:22:34Z a12 device tables word for word rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 2.33s
+2026-11-10T00:22:55Z a22 the R13 export through the server = stack-prove (device) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 20.21s
+2026-11-10T00:23:53Z a23 the server with shared blocks = stack-prove (device) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 56.36s
+2026-11-10T00:24:16Z a23 resident 8B stream (blocks shared) rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 22.42s
+2026-11-10T00:24:17Z integration test zk60_metal_commit rc=0
+test result: ok. 5 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.40s
+2026-11-10T00:24:21Z integration test zk60_tagged_gpu_commit rc=0
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-10T00:35:02Z full lib suite rc=101 (A27: 981 passed, the 3 known A23 failures)
+test result: FAILED. 984 passed; 3 failed; 132 ignored; 0 measured; 0 filtered out; finished in 641.01s
+    private_block::review_tests::a_toy_receipt_made_before_f12_is_refused
+    private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+    private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+2026-11-10T00:35:02Z all done
