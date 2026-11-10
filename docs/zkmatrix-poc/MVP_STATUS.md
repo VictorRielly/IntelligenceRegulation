@@ -414,6 +414,15 @@ here. The rates count proving and witness work. Verification time is recorded se
   - One note for the privacy gate: the three-product fold's two-product fast path is taken per element, so for an
     extension table of private data a fold's time can depend slightly on whether neighbouring hidden values are
     equal (`HL_A27_FOLD=0` removes it; README section 6).
+- **One calibration for all 26 Shieldstral layers works for the faster W16R2 format (A29, 2026-11-10; Victor's route
+  (b), D77 (2))** [MEASURED; `results/zk60_a29_uniform_calibration_20261110/README.md`].
+  - The W16R2 acceptance check admits all 26 layers with one layout. Today's export has 8 refused and 3 layouts.
+  - On the 4,872 held-out rows: no refusals (today's export: 6). Agreement and F1 against the float model are the same
+    as today's export within noise.
+  - D32 has no ruled metric for the classifier. "No worse than today's export": pass. "Within 2% of the float
+    model's F1 in every group": neither export passes, in the same two groups on the refusal-free head.
+  - Next, for the speed gain (A28's estimate: about 22–25 proved tok/s against 16.9): the profile with review, the
+    W16R2 privacy gate on GPU-made bundles, the Lean re-proof, and the app's speed measured on it.
 - **The media app's commitment kernels at the device's limits, and scheduling measured out (A28, 2026-11-09/10)**
   [MEASURED; `results/zk60_a28_app_20261107/README.md`]. The A27 figures here are A28's own re-measurements of A27's
   binary in the same jobs; the machine measured about 3% slower than on 2026-11-07.
