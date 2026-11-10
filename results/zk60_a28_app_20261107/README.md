@@ -234,29 +234,75 @@ The pinned Python writer for one 14-token post, 4 BLAS threads a process:
 A category's activation files are the same bytes in every grouping. In the app a post's third category starts
 its proof 5.7 s after the other two. PENDING: the app with three writers at once.
 
-### 3.5 PENDING: the final candidate (A B C C B A against A27), one post, proof only, through the app
+### 3.5 The final candidate on the stream, A B C C B A [MEASURED, `final2.progress`, `stream_f2*`]
+
+A = A27 as pinned (`b5b6b9a4…`, `HL_METAL_QUEUES=thread`: the app's setting until now); B = the final candidate
+a28-q3 (`80f2b704…`) with the same setting; C = a28-q3 with A7's spin-then-block wait and a 300 ms stagger
+between request starts (`HL_METAL_SPIN_US=200 HL_A28_STAGGER_MS=300`). A24's 8-post public stream (137 content
+tokens, 24 category proofs), 6 x 5 prover and 3 x 4 verifier lanes, 16 GiB witness cache, one guarded job,
+2026-11-10, no `ds4-bench` at any point:
+
+| run | arm | wall | proved tok/s | second half | first post's latency | a lane's request (median) | CPU-s per proof: prover / verifier / writer / all | cores busy | GPU utilization mean / median |
+|---|---|---:|---:|---:|---:|---:|---|---:|---|
+| f2a1 | A (A27) | 189.1 s | 16.24 | 20.85 | 58 s | 39.6 s | 83.4 / 25.3 / 7.1 / 115.8 | 14.7 | 79% / 94% |
+| f2b1 | B (A28) | 187.4 s | **16.39** | 20.13 | 57 s | 39.6 s | 84.4 / 25.2 / 7.0 / 116.6 | 14.9 | 79% / 91% |
+| f2c1 | C (A28, wait + stagger) | 179.5 s | **17.11** | 21.71 | 53 s | 36.5 s | 65.2 / 25.1 / 7.1 / 97.4 | 13.0 | 79% / 92% |
+| f2c2 | C | 184.2 s | **16.68** | 21.14 | 55 s | 39.4 s | 65.5 / 25.2 / 7.1 / 97.9 | 12.8 | 79% / 92% |
+| f2b2 | B | 181.4 s | **16.93** | 21.14 | 58 s | 38.6 s | 82.0 / 25.4 / 7.1 / 114.4 | 15.1 | 80% / 94% |
+| f2a2 | A | 185.2 s | 16.59 | 20.83 | 57 s | 39.0 s | 84.6 / 25.4 / 7.0 / 117.0 | 15.2 | 79% / 93% |
+
+- **The stream, A27 -> A28 with the same setting: 16.42 -> 16.66 proved tok/s, +1.5%** (each A28 run faster
+  than the A27 run beside it: +0.9% and +2.0%; the job's runs drifted faster by about 2% from its first to its
+  last, which the mirrored order cancels in the means). That is what 3.9% less GPU work per proof buys here.
+- **With the wait and the stagger: 16.90, +2.9% over A27**, and 18.5 CPU-s less per proof (the prover -22%):
+  about three cores freed. The two C runs differ by 2.6%, as much as C differs from B: the speed gain is
+  inside the runs' spread, the CPU saving is not.
+- All 24 proofs of every run freshly verified, owner-checked and labelled. The guarded job's peak: 101 GiB (as
+  A27's; seal-ahead off).
+- **The absolute level is lower than on 2026-11-07** (A27 measured 16.96 then, in the four runs of the two
+  A B B A jobs of section 3.1; 16.42 now). The
+  machine was rebooted in between; on 2026-11-09/10 an aerial wallpaper was decoding video beside every run
+  (WindowServer and the video decoder, about 0.2 core). Each comparison here is inside one job.
+
+### 3.6 PENDING: one post, proof only, through the app
 
 ## 4. Byte preservation
 
-**The real Shieldstral export under fixed public test entropy** [MEASURED, `bi_q1.progress`, `bi_q2.progress`,
-`byteid_bi_q*/summary.json`]: A26's fixed-entropy harness (`results/zk60_a26_app_20261107/fixed_entropy.c`, its
-dylib outside the repository; `byteid.py`), one public post, the activation writer run once, then each binary's
-prover server proves the three categories into its own directories, in the order A (A27's pinned binary), B
-(the candidate), B0 (the candidate with its kernel switches off), A again; every server with
-`HL_METAL_QUEUES=thread`, three lanes of ten threads (one category a lane). For both earlier candidates: every
-receipt file of every category identical in all four runs, and all six cross-verifications accepted (each
-binary's verifier on the other two's receipts: verify, input-owner, label).
-PENDING: the same for the final candidate, and on ONE lane with seal-ahead on and off (`bi3.sh`).
+**The real Shieldstral export under fixed public test entropy, the final candidate** [MEASURED,
+`bi_f1.progress`, `byteid_bi_f1a/summary.json`, `byteid_bi_f1b/summary.json`; `bi3.sh`]: A26's fixed-entropy
+harness (`results/zk60_a26_app_20261107/fixed_entropy.c`, its dylib outside the repository; `byteid.py`), one
+public post, the activation writer run once, then each binary's prover server proves the three categories into
+its own directories; every server with `HL_METAL_QUEUES=thread`.
+- **Part a, three lanes of ten threads (one category a lane):** A (A27's pinned binary `b5b6b9a4…`), B (a28-q3
+  `80f2b704…` as built), B0 (a28-q3 with `HL_A28_PRUNE=0 HL_A28_HASH=0`, seal-ahead and the stagger off), A
+  again. **Every receipt file of every category identical in all four runs** (30 of 30 per category: 28
+  segments, the unverified statement, and the owner decommitment compared by hash only); A against A is the
+  harness's own determinism control.
+- **Part b, ONE lane of thirty threads (the three categories share the lane):** A, Bs (a28-q3 with
+  `HL_A28_SEAL_AHEAD=1 HL_A28_STAGGER_MS=300`: the second category's sealing pass runs beside the first one's
+  run; its start line says `"seal_ahead":true`), Bn (a28-q3 with `HL_A28_SEAL_AHEAD=0`), A again. **Identical
+  again, 30 of 30 per category in all four runs.**
+- **All twelve cross-verifications accepted** (in each part, each binary's verifier on the other two's
+  receipts: verify, input-owner, label).
+- Receipts deleted after (public content only; under fixed entropy they hide nothing).
 
-**Gates on the final candidate a28-q3** (`80f2b704…`) [MEASURED, `q3.progress`]: the commitment test at the
-classifier's shapes (plain, hiding and keyed rows at 2^14 -> 2^16 with 4577 and 4390 rows; leaves, roots and
-columns, CPU = Metal); `tests/zk60_metal_commit.rs` 5 passed; the two A28 serve tests and the five A24 ones;
-`s25_tests` 20, `hash_domain` 15; the six trained profiles' recorded digests on CPU and Metal (`5a6193d3`,
-`f590b01f`, `79f987ef`, `a8258241`, `0e88d84f`, `90003b76`).
+**The earlier candidates** [MEASURED, `bi_q1.progress`, `bi_q2.progress`]: the same part-a comparison held for
+a28-q1 and a28-q2 (which also carried the calloc'd rows and the per-thread witness queues, since removed).
 
-**A candidate is its committed tree's build** [MEASURED, `rebuild_q2.progress`]: the hashline crate recompiled
-at commit `5794c756` gives a28-q2 (`34b62314…`) again, bit for bit. PENDING: the same check for a28-q3 at
-`85b256c4` (`final1.sh`).
+**Gates on the final candidate** [MEASURED, `q3.progress`, `accept_f1.progress`]: section 5's device byte
+gates: the commitment test at the classifier's shapes (plain, hiding and keyed rows at 2^14 -> 2^16 with 4577
+and 4390 rows; leaves, roots and columns, CPU = Metal), the six trained profiles' recorded digests on CPU and
+Metal, the W16R2 rung goldens, the 8B block and the 8B stack's servers.
+
+**A candidate is its committed tree's build** [MEASURED, `rebuild_q2.progress`]: the hashline crate
+recompiled at commit `5794c756` gives a28-q2 (`34b62314…`) again, bit for bit. PENDING: the same forced
+rebuild for a28-q3 (`rebuild_q3.progress`); `final1.progress` records that the CLI in the tree at the
+acceptance is `80f2b704…`.
+
+**Why no verdict or refusal can move.** The verifier is not touched (the device runs only in the prover). The
+two kernels write the same words (the transform's zero products omitted; BLAKE3's own tree in two passes), and
+the commitment tests compare every leaf, root and column with the CPU. Seal-ahead and the stagger change only
+when a request's run starts; each request runs `prove`'s own function with its own draws and refusals.
 
 ## 5. Tests
 
