@@ -1,0 +1,43 @@
+== plan plan1.txt ==
+build ZK60Formal.RunCoverPRk ZK60Formal.BlockAlgLkR13
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean
+== lake build ZK60Formal.RunCoverPRk ZK60Formal.BlockAlgLkR13 ==
+Build completed successfully (3612 jobs).
+build rc 0 (2 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean:62:13: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean:67:0: warning: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rd_entD_sq`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean:137:0: warning: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rd_defSq_doom`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean:151:0: warning: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rd_lkSq_doom`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean:242:2: warning: `push_neg` has been deprecated. Prefer using `push Not` instead.
+If you'd rather continue using `push_neg` in your project, you can implement it as follows:
+```
+open Lean.Parser.Tactic in
+macro "push_neg" cfg:optConfig loc:(location)? : tactic =>
+  `(tactic| push $cfg:optConfig Not $[$loc]?)
+```
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean:328:4: warning: `push_neg` has been deprecated. Prefer using `push Not` instead.
+If you'd rather continue using `push_neg` in your project, you can implement it as follows:
+```
+open Lean.Parser.Tactic in
+macro "push_neg" cfg:optConfig loc:(location)? : tactic =>
+  `(tactic| push $cfg:optConfig Not $[$loc]?)
+```
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean (6 s)
+rc 0, 6 s
