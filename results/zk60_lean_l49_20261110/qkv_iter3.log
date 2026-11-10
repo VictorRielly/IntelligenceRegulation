@@ -1,0 +1,580 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/qkv_plan3.txt ==
+build ZK60Formal.BlockR13HostQkvBase ZK60Formal.BlockR13HostQkvCfg ZK60Formal.BlockR13HostQkvZc ZK60Formal.BlockR13HostQkvMm ZK60Formal.BlockR13HostQkvNamed ZK60Formal.BlockR13HostQkvCube ZK60Formal.BlockR13HostQkvForm
+== lake build ZK60Formal.BlockR13HostQkvBase ZK60Formal.BlockR13HostQkvCfg ZK60Formal.BlockR13HostQkvZc ZK60Formal.BlockR13HostQkvMm ZK60Formal.BlockR13HostQkvNamed ZK60Formal.BlockR13HostQkvCube ZK60Formal.BlockR13HostQkvForm ==
+✖ [3578/3583] Building ZK60Formal.BlockR13HostQkvZc (3.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvZc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvZc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvZc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvZc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvZc.setup.json --json
+error: ZK60Formal/BlockR13HostQkvZc.lean:262:56: Application type mismatch: The argument
+  hf
+has type
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval
+        (Slot.Ir.map (Fp2.toK U)
+          (Slot.Ir.map (Sym.eval hist s dr)
+            (r13QzcIr DefW16.cstS Rr rope s1 s2 (DefR13.lksS c shaped d) (drs s 0 11) (drs s 11 2)
+              (fun j => Sym.zero.pow j) [])))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist s dr) pub)
+            (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (zcTabs c s d q0 hf✝ p1 p2))))
+of sort `Prop` but is expected to have type
+  ℕ
+of sort `Type` in the application
+  zcV U c P D d s q0 hf
+error: ZK60Formal/BlockR13HostQkvZc.lean:265:37: Application type mismatch: The argument
+  hf
+has type
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval
+        (Slot.Ir.map (Fp2.toK U)
+          (Slot.Ir.map (Sym.eval hist s dr)
+            (r13QzcIr DefW16.cstS Rr rope s1 s2 (DefR13.lksS c shaped d) (drs s 0 11) (drs s 11 2)
+              (fun j => Sym.zero.pow j) [])))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist s dr) pub)
+            (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (zcTabs c s d q0 hf✝ p1 p2))))
+of sort `Prop` but is expected to have type
+  ℕ
+of sort `Type` in the application
+  zcV U c P D d s q0 hf
+error: ZK60Formal/BlockR13HostQkvZc.lean:267:68: Application type mismatch: The argument
+  hf
+has type
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval
+        (Slot.Ir.map (Fp2.toK U)
+          (Slot.Ir.map (Sym.eval hist s dr)
+            (r13QzcIr DefW16.cstS Rr rope s1 s2 (DefR13.lksS c shaped d) (drs s 0 11) (drs s 11 2)
+              (fun j => Sym.zero.pow j) [])))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist s dr) pub)
+            (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (zcTabs c s d q0 hf✝ p1 p2))))
+of sort `Prop` but is expected to have type
+  ℕ
+of sort `Type` in the application
+  zcV U c P D d s q0 hf
+error: ZK60Formal/BlockR13HostQkvZc.lean:273:69: Application type mismatch: The argument
+  hf
+has type
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval
+        (Slot.Ir.map (Fp2.toK U)
+          (Slot.Ir.map (Sym.eval hist s dr)
+            (r13QzcIr DefW16.cstS Rr rope s1 s2 (DefR13.lksS c shaped d) (drs s 0 11) (drs s 11 2)
+              (fun j => Sym.zero.pow j) [])))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist s dr) pub)
+            (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (zcTabs c s d q0 hf✝ p1 p2))))
+of sort `Prop` but is expected to have type
+  ℕ
+of sort `Type` in the application
+  zcV U c P D d s q0 hf
+error: ZK60Formal/BlockR13HostQkvZc.lean:274:50: Application type mismatch: The argument
+  hf
+has type
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval
+        (Slot.Ir.map (Fp2.toK U)
+          (Slot.Ir.map (Sym.eval hist s dr)
+            (r13QzcIr DefW16.cstS Rr rope s1 s2 (DefR13.lksS c shaped d) (drs s 0 11) (drs s 11 2)
+              (fun j => Sym.zero.pow j) [])))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist s dr) pub)
+            (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (zcTabs c s d q0 hf✝ p1 p2))))
+of sort `Prop` but is expected to have type
+  ℕ
+of sort `Type` in the application
+  zcV U c P D d s q0 hf
+error: ZK60Formal/BlockR13HostQkvZc.lean:278:73: Application type mismatch: The argument
+  hf
+has type
+  ∀ (x : Fin (c.sh.logs d + e) → K),
+    f x =
+      irEval
+        (Slot.Ir.map (Fp2.toK U)
+          (Slot.Ir.map ev
+            (r13QzcIr DefW16.cstS Rr rope s1 s2 (DefR13.lksS c shaped d) (drs s 0 11) (drs s 11 2)
+              (fun j => Sym.zero.pow j) [])))
+        (List.map (tabK U P D (c.sh.logs d) e x)
+          (List.map (TabS.eval ev pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (zcTabs c s d q0 hf✝ p1 p2))))
+of sort `Prop` but is expected to have type
+  ℕ
+of sort `Type` in the application
+  zcTabs c s d q0 hf
+error: ZK60Formal/BlockR13HostQkvZc.lean:285:37: Application type mismatch: The argument
+  hf
+has type
+  ∀ (x : Fin (c.sh.logs d + e) → K),
+    f x =
+      irEval
+        (Slot.Ir.map (Fp2.toK U)
+          (Slot.Ir.map ev
+            (r13QzcIr DefW16.cstS Rr rope s1 s2 (DefR13.lksS c shaped d) (drs s 0 11) (drs s 11 2)
+              (fun j => Sym.zero.pow j) [])))
+        (List.map (tabK U P D (c.sh.logs d) e x)
+          (List.map (TabS.eval ev pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (zcTabs c s d q0 hf✝ p1 p2))))
+of sort `Prop` but is expected to have type
+  ℕ
+of sort `Type` in the application
+  zc_off U c d s q0 hf
+error: ZK60Formal/BlockR13HostQkvZc.lean:274:109: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+d : Dom
+s q0 hf✝ : ℕ
+p1 p2 : List Sym
+Rr : QzcR13
+hg : Rr.gate = none
+rope s1 s2 : ℕ
+shaped : ℕ → ℕ
+aB hB ioIn ioOut ak hk : ℕ
+P : BlockParams
+D : CmData K P
+hrlA : 0 < rowLog P Cm.a
+hrlH : 0 < rowLog P Cm.h
+hpos : 0 < c.sh.logs d
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+h1 : p1.length = c.sh.logs d
+h2 : p2.length = c.sh.logs d
+e : ℕ
+f : (Fin (c.sh.logs d + e) → K) → K
+ev : Sym → Fp2 := Sym.eval hist s dr
+hf :
+  ∀ (x : Fin (c.sh.logs d + e) → K),
+    f x =
+      irEval
+        (Slot.Ir.map (Fp2.toK U)
+          (Slot.Ir.map ev
+            (r13QzcIr DefW16.cstS Rr rope s1 s2 (DefR13.lksS c shaped d) (drs s 0 11) (drs s 11 2)
+              (fun j => Sym.zero.pow j) [])))
+        (List.map (tabK U P D (c.sh.logs d) e x)
+          (List.map (TabS.eval ev pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (zcTabs c s d q0 hf✝ p1 p2))))
+hev : ev = Sym.eval hist s dr
+⊢ cubeSum f =
+    ∑ t,
+      hostPoly (fun a => Fp2.toK U ((List.map ev (drs s 13 (c.sh.logs d))).getD (↑a) Fp2.zero))
+        (fun t =>
+          logupSem (cstK U) (zcV U c P D d s q0 sorry p1 p2 ev pub t) Rr.h0
+              (fun k => (List.map (Fp2.toK U) (List.map ev (drs s 0 11))).getD (4 + k) 0) 0
+              (lksF U c shaped d hist s dr) +
+            gV (zcV U c P D d s q0 sorry p1 p2 ev pub t) none *
+              batchV (List.map (Fp2.toK U) (List.map ev (drs s 0 11)))
+                (r13QzcClauses (cstK U) Rr rope (zcV U c P D d s q0 sorry p1 p2 ev pub t)))
+        ![(List.map (Fp2.toK U) (List.map ev (drs s 11 2))).getD 0 0,
+          (List.map (Fp2.toK U) (List.map ev (drs s 11 2))).getD 1 0]
+        ![fun a => Fp2.toK U ((List.map ev p1).getD (↑a) Fp2.zero), fun a =>
+          Fp2.toK U ((List.map ev p2).getD (↑a) Fp2.zero)]
+        (fun x => 1)
+        (fun i t =>
+          if i = 0 then reqV8 (cstK U) (zcV U c P D d s q0 sorry p1 p2 ev pub t) s1 Rr.src Rr.r1
+          else reqV8 (cstK U) (zcV U c P D d s q0 sorry p1 p2 ev pub t) s2 Rr.oth Rr.r2)
+        t
+✖ [3581/3583] Building ZK60Formal.BlockR13HostQkvMm (4.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvMm.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvMm.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvMm.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvMm.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvMm.setup.json --json
+error: ZK60Formal/BlockR13HostQkvMm.lean:169:4: Tactic `rfl` failed: The left-hand side
+  ∑ c_1,
+    aPl U P D (DefR13.aOff c 11) (c.sh.lt + c.sh.ld)
+        (Fin.append (fun i => y (Fin.castAdd (c.sh.lkv + c.sh.ldh) i)) c_1) *
+      (algebraMap GF K) ((if ↑0 = 0 then B.Wk else B.Wv) c_1 (splitGD c fun i => y (Fin.natAdd c.sh.lt i)))
+is not definitionally equal to the right-hand side
+  (algebraMap GF K)
+    (match 16, ↑0, W16Pos.kv (splitK c y) with
+    | 2, 0, W16Pos.t t => ∑ c_1, B.gD (t, c_1) * plD U c P D (offR c 8) (t, c_1) * plD U c P D (offR c 8) (t, c_1)
+    | 2, 1, W16Pos.t t => ∑ c_1, B.gD (t, c_1) * plD U c P D (offR c 26) (t, c_1) * plD U c P D (offR c 26) (t, c_1)
+    | 14, 0, W16Pos.d x => ∑ c_1, plQ U c P D (offR c 56) (x.1, c_1) * B.Wo c_1 x.2
+    | 14, 1, W16Pos.d x => ∑ c_1, plF U c P D (offR c (86 + 2 * ls + 10)) (x.1, c_1) * B.Wd c_1 x.2
+    | 15, 0, W16Pos.q x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wq c_1 x.2
+    | 15, 1, W16Pos.q x => ∑ j, plS U c P D (offR c 81) (x.2.1, x.1, j) * plK U c P D (offR c 66) (j, x.2.1.1, x.2.2)
+    | 16, 0, W16Pos.kv x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wk c_1 x.2
+    | 16, 1, W16Pos.kv x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wv c_1 x.2
+    | 17, 1, W16Pos.s x =>
+      ∑ c_1, plQ U c P D (offR c 52) (x.2.1, x.1, c_1) * plK U c P D (offR c 71) (x.2.2, x.1.1, c_1)
+    | 18, 0, W16Pos.f x => ∑ c_1, plD U c P D (offR c 29) (x.1, c_1) * B.Wg c_1 x.2
+    | 18, 1, W16Pos.f x => ∑ c_1, plD U c P D (offR c 29) (x.1, c_1) * B.Wu c_1 x.2
+    | x, x_1, x_2 => 0)
+
+case e_P.inl
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrlA : 0 < rowLog P Cm.a
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+hcfg : QkvCfg c ls
+hpf : ProfR c.sh P
+pubs : PubTabs
+ioIn ioOut s : ℕ
+hs : s = 6 ∨ s = 7
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+r5 r : SlotRec
+hr5 : rs[5]? = some r5
+hr : rs[s]? = some r
+mrow : ℕ
+hprog :
+  (DefR13.progR13 c ioIn ioOut).getD s SlotS.empty =
+    { tabs := [fxT (DefR13.aOff c 11) (c.sh.lt + c.sh.ld) (drs 5 0 c.sh.lt) c.sh.ld mrow 0, TabS.pub 0],
+      ir := mmIr DefW16.cstS 0 1, hosted := [], nonzero := [] }
+h5s : 5 < s
+hpt :
+  (Fin.append
+      (fun i =>
+        Fp2.toK U
+          ((List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 5 r5.draws) (drs 5 0 c.sh.lt)).getD (↑i) Fp2.zero))
+      fun a => Fp2.toK U (r.draws.getD (0 + ↑a) Fp2.zero)) =
+    fun t =>
+    if ↑t < c.sh.lt then Fp2.toK U (r5.draws.getD (↑t) Fp2.zero) else Fp2.toK U (r.draws.getD (↑t - c.sh.lt) Fp2.zero)
+y : Fin (c.sh.lt + (c.sh.lkv + c.sh.ldh)) → Bool
+hW :
+  ∀ (cc : Fin c.sh.ld → Bool),
+    Fp2.toK U ((pubs s (histOf bga.1 bga.2.1 bga.2.2 (List.take s rs)) r.draws 0).getD (msbIndex c.sh.ld cc) Fp2.zero) =
+      ∑ y,
+        W16.eqDr U r.draws 0 (c.sh.lkv + c.sh.ldh) y *
+          (algebraMap GF K) ((if ↑0 = 0 then B.Wk else B.Wv) cc (splitGD c y))
+⊢ ∑ c_1,
+      aPl U P D (DefR13.aOff c 11) (c.sh.lt + c.sh.ld)
+          (Fin.append (fun i => y (Fin.castAdd (c.sh.lkv + c.sh.ldh) i)) c_1) *
+        (algebraMap GF K) ((if ↑0 = 0 then B.Wk else B.Wv) c_1 (splitGD c fun i => y (Fin.natAdd c.sh.lt i))) =
+    (algebraMap GF K)
+      (match 16, ↑0, W16Pos.kv (splitK c y) with
+      | 2, 0, W16Pos.t t => ∑ c_1, B.gD (t, c_1) * plD U c P D (offR c 8) (t, c_1) * plD U c P D (offR c 8) (t, c_1)
+      | 2, 1, W16Pos.t t => ∑ c_1, B.gD (t, c_1) * plD U c P D (offR c 26) (t, c_1) * plD U c P D (offR c 26) (t, c_1)
+      | 14, 0, W16Pos.d x => ∑ c_1, plQ U c P D (offR c 56) (x.1, c_1) * B.Wo c_1 x.2
+      | 14, 1, W16Pos.d x => ∑ c_1, plF U c P D (offR c (86 + 2 * ls + 10)) (x.1, c_1) * B.Wd c_1 x.2
+      | 15, 0, W16Pos.q x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wq c_1 x.2
+      | 15, 1, W16Pos.q x => ∑ j, plS U c P D (offR c 81) (x.2.1, x.1, j) * plK U c P D (offR c 66) (j, x.2.1.1, x.2.2)
+      | 16, 0, W16Pos.kv x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wk c_1 x.2
+      | 16, 1, W16Pos.kv x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wv c_1 x.2
+      | 17, 1, W16Pos.s x =>
+        ∑ c_1, plQ U c P D (offR c 52) (x.2.1, x.1, c_1) * plK U c P D (offR c 71) (x.2.2, x.1.1, c_1)
+      | 18, 0, W16Pos.f x => ∑ c_1, plD U c P D (offR c 29) (x.1, c_1) * B.Wg c_1 x.2
+      | 18, 1, W16Pos.f x => ∑ c_1, plD U c P D (offR c 29) (x.1, c_1) * B.Wu c_1 x.2
+      | x, x_1, x_2 => 0)
+error: ZK60Formal/BlockR13HostQkvMm.lean:171:4: Tactic `rfl` failed: The left-hand side
+  ∑ c_1,
+    aPl U P D (DefR13.aOff c 11) (c.sh.lt + c.sh.ld)
+        (Fin.append (fun i => y (Fin.castAdd (c.sh.lkv + c.sh.ldh) i)) c_1) *
+      (algebraMap GF K) ((if ↑1 = 0 then B.Wk else B.Wv) c_1 (splitGD c fun i => y (Fin.natAdd c.sh.lt i)))
+is not definitionally equal to the right-hand side
+  (algebraMap GF K)
+    (match 16, ↑1, W16Pos.kv (splitK c y) with
+    | 2, 0, W16Pos.t t => ∑ c_1, B.gD (t, c_1) * plD U c P D (offR c 8) (t, c_1) * plD U c P D (offR c 8) (t, c_1)
+    | 2, 1, W16Pos.t t => ∑ c_1, B.gD (t, c_1) * plD U c P D (offR c 26) (t, c_1) * plD U c P D (offR c 26) (t, c_1)
+    | 14, 0, W16Pos.d x => ∑ c_1, plQ U c P D (offR c 56) (x.1, c_1) * B.Wo c_1 x.2
+    | 14, 1, W16Pos.d x => ∑ c_1, plF U c P D (offR c (86 + 2 * ls + 10)) (x.1, c_1) * B.Wd c_1 x.2
+    | 15, 0, W16Pos.q x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wq c_1 x.2
+    | 15, 1, W16Pos.q x => ∑ j, plS U c P D (offR c 81) (x.2.1, x.1, j) * plK U c P D (offR c 66) (j, x.2.1.1, x.2.2)
+    | 16, 0, W16Pos.kv x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wk c_1 x.2
+    | 16, 1, W16Pos.kv x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wv c_1 x.2
+    | 17, 1, W16Pos.s x =>
+      ∑ c_1, plQ U c P D (offR c 52) (x.2.1, x.1, c_1) * plK U c P D (offR c 71) (x.2.2, x.1.1, c_1)
+    | 18, 0, W16Pos.f x => ∑ c_1, plD U c P D (offR c 29) (x.1, c_1) * B.Wg c_1 x.2
+    | 18, 1, W16Pos.f x => ∑ c_1, plD U c P D (offR c 29) (x.1, c_1) * B.Wu c_1 x.2
+    | x, x_1, x_2 => 0)
+
+case e_P.inr
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrlA : 0 < rowLog P Cm.a
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+hcfg : QkvCfg c ls
+hpf : ProfR c.sh P
+pubs : PubTabs
+ioIn ioOut s : ℕ
+hs : s = 6 ∨ s = 7
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+r5 r : SlotRec
+hr5 : rs[5]? = some r5
+hr : rs[s]? = some r
+mrow : ℕ
+hprog :
+  (DefR13.progR13 c ioIn ioOut).getD s SlotS.empty =
+    { tabs := [fxT (DefR13.aOff c 11) (c.sh.lt + c.sh.ld) (drs 5 0 c.sh.lt) c.sh.ld mrow 0, TabS.pub 0],
+      ir := mmIr DefW16.cstS 0 1, hosted := [], nonzero := [] }
+h5s : 5 < s
+hpt :
+  (Fin.append
+      (fun i =>
+        Fp2.toK U
+          ((List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 5 r5.draws) (drs 5 0 c.sh.lt)).getD (↑i) Fp2.zero))
+      fun a => Fp2.toK U (r.draws.getD (0 + ↑a) Fp2.zero)) =
+    fun t =>
+    if ↑t < c.sh.lt then Fp2.toK U (r5.draws.getD (↑t) Fp2.zero) else Fp2.toK U (r.draws.getD (↑t - c.sh.lt) Fp2.zero)
+y : Fin (c.sh.lt + (c.sh.lkv + c.sh.ldh)) → Bool
+hW :
+  ∀ (cc : Fin c.sh.ld → Bool),
+    Fp2.toK U ((pubs s (histOf bga.1 bga.2.1 bga.2.2 (List.take s rs)) r.draws 0).getD (msbIndex c.sh.ld cc) Fp2.zero) =
+      ∑ y,
+        W16.eqDr U r.draws 0 (c.sh.lkv + c.sh.ldh) y *
+          (algebraMap GF K) ((if ↑1 = 0 then B.Wk else B.Wv) cc (splitGD c y))
+⊢ ∑ c_1,
+      aPl U P D (DefR13.aOff c 11) (c.sh.lt + c.sh.ld)
+          (Fin.append (fun i => y (Fin.castAdd (c.sh.lkv + c.sh.ldh) i)) c_1) *
+        (algebraMap GF K) ((if ↑1 = 0 then B.Wk else B.Wv) c_1 (splitGD c fun i => y (Fin.natAdd c.sh.lt i))) =
+    (algebraMap GF K)
+      (match 16, ↑1, W16Pos.kv (splitK c y) with
+      | 2, 0, W16Pos.t t => ∑ c_1, B.gD (t, c_1) * plD U c P D (offR c 8) (t, c_1) * plD U c P D (offR c 8) (t, c_1)
+      | 2, 1, W16Pos.t t => ∑ c_1, B.gD (t, c_1) * plD U c P D (offR c 26) (t, c_1) * plD U c P D (offR c 26) (t, c_1)
+      | 14, 0, W16Pos.d x => ∑ c_1, plQ U c P D (offR c 56) (x.1, c_1) * B.Wo c_1 x.2
+      | 14, 1, W16Pos.d x => ∑ c_1, plF U c P D (offR c (86 + 2 * ls + 10)) (x.1, c_1) * B.Wd c_1 x.2
+      | 15, 0, W16Pos.q x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wq c_1 x.2
+      | 15, 1, W16Pos.q x => ∑ j, plS U c P D (offR c 81) (x.2.1, x.1, j) * plK U c P D (offR c 66) (j, x.2.1.1, x.2.2)
+      | 16, 0, W16Pos.kv x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wk c_1 x.2
+      | 16, 1, W16Pos.kv x => ∑ c_1, plD U c P D (offR c 11) (x.1, c_1) * B.Wv c_1 x.2
+      | 17, 1, W16Pos.s x =>
+        ∑ c_1, plQ U c P D (offR c 52) (x.2.1, x.1, c_1) * plK U c P D (offR c 71) (x.2.2, x.1.1, c_1)
+      | 18, 0, W16Pos.f x => ∑ c_1, plD U c P D (offR c 29) (x.1, c_1) * B.Wg c_1 x.2
+      | 18, 1, W16Pos.f x => ∑ c_1, plD U c P D (offR c 29) (x.1, c_1) * B.Wu c_1 x.2
+      | x, x_1, x_2 => 0)
+warning: ZK60Formal/BlockR13HostQkvMm.lean:168:27: This simp argument is unused:
+  map_sum
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13Mm, xtR, map_mul, alg_plDR U P D hX]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvMm.lean:168:36: This simp argument is unused:
+  map_mul
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13Mm, xtR, map_sum, alg_plDR U P D hX]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvMm.lean:168:45: This simp argument is unused:
+  alg_plDR U P D hX
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13Mm, xtR, map_sum, map_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvMm.lean:170:27: This simp argument is unused:
+  map_sum
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13Mm, xtR, map_mul, alg_plDR U P D hX]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvMm.lean:170:36: This simp argument is unused:
+  map_mul
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13Mm, xtR, map_sum, alg_plDR U P D hX]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvMm.lean:170:45: This simp argument is unused:
+  alg_plDR U P D hX
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13Mm, xtR, map_sum, map_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvMm.lean:228:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.R13H.Qkv.xr_g`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockR13HostQkvMm.lean:234:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.R13H.Qkv.xr_t`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/BlockR13HostQkvMm.lean:264:48: Application type mismatch: The argument
+  U
+has type
+  K
+but is expected to have type
+  W16Cfg
+in the application
+  xr_g U
+error: ZK60Formal/BlockR13HostQkvMm.lean:264:28: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  f ≥ 0
+  f - h ≤ -1
+  d ≥ 0
+  b ≥ 0
+  b - d ≥ 0
+  b - d - f ≥ 1
+  b ≥ 0
+where
+ b := ↑(nH c)
+ d := ↑(c.sh.lh - c.sh.lkv)
+ f := ↑↑i
+ h := ↑?m.226
+error: ZK60Formal/BlockR13HostQkvMm.lean:267:44: No goals to be solved
+error: ZK60Formal/BlockR13HostQkvMm.lean:278:48: Application type mismatch: The argument
+  U
+has type
+  K
+but is expected to have type
+  W16Cfg
+in the application
+  xr_t U
+error: ZK60Formal/BlockR13HostQkvMm.lean:278:28: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  h ≥ 0
+  f ≥ 0
+  f - j ≥ 1
+  d ≥ 0
+  b ≥ 0
+  b - d ≥ 0
+  b - d - h + j ≤ -1
+  b ≥ 0
+where
+ b := ↑(nH c)
+ d := ↑(c.sh.lh - c.sh.lkv)
+ f := ↑c.sh.lt
+ h := ↑?m.511
+ j := ↑(nH c + (c.sh.lt + ↑i) - (c.sh.lkv + (c.sh.lh - c.sh.lkv + c.sh.lt)))
+error: ZK60Formal/BlockR13HostQkvMm.lean:299:15: Application type mismatch: The argument
+  U
+has type
+  K
+but is expected to have type
+  W16Cfg
+in the application
+  xr_t U
+error: ZK60Formal/BlockR13HostQkvMm.lean:305:48: Application type mismatch: The argument
+  U
+has type
+  K
+but is expected to have type
+  W16Cfg
+in the application
+  xr_g U
+error: ZK60Formal/BlockR13HostQkvMm.lean:305:28: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  f ≥ 0
+  f ≥ 0
+  d ≥ 0
+  d - f ≥ 1
+  b ≥ 0
+  b - f ≥ 1
+where
+ b := ↑c.sh.lkv
+ d := ↑?m.250
+ f := ↑(c.sh.lt + ↑i - c.sh.lt)
+ h := ↑c.sh.lt
+error: ZK60Formal/BlockR13HostQkvMm.lean:308:44: No goals to be solved
+error: ZK60Formal/BlockR13HostQkvMm.lean:380:25: don't know how to synthesize placeholder for argument `n`
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+hrlA : 0 < rowLog P Cm.a
+e : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+m1 m2 : ℕ
+f : (Fin (c.sh.lkv + c.sh.lt + e) → K) → K
+ev : Sym → Fp2 := ⋯
+hf :
+  ∀ (x : Fin (c.sh.lkv + c.sh.lt + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map ev (bilIr DefW16.cstS (some 0) 1 2)))
+        (List.map (tabK U P D (c.sh.lkv + c.sh.lt) e x)
+          (List.map (TabS.eval ev pub)
+            [TabS.eq (drs 9 0 c.sh.lkv) 0,
+              TabS.priv
+                { cm := Cm.a, slices := [(DefR13.aOff c 81, false)], log := nS c, coords := ppCR c, maskRow := m1,
+                  extRound := 0 },
+              TabS.priv
+                { cm := Cm.a, slices := [(DefR13.aOff c 66, false)], log := nK c, coords := vCR c, maskRow := m2,
+                  extRound := 1 }]))
+hev : ev = Sym.eval hist 9 dr
+hle : c.sh.lkv ≤ c.sh.lh
+hir :
+  ∀ (v : List K),
+    irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map ev (bilIr DefW16.cstS (some 0) 1 2))) v =
+      v.getD 0 0 * (v.getD 1 0 * v.getD 2 0)
+hnS : 0 < nS c
+hnK : 0 < nK c
+g : Fin c.sh.lkv → Bool
+x✝¹ : g ∈ univ
+t' : Fin c.sh.lt → Bool
+x✝ : t' ∈ univ
+⊢ ℕ
+warning: ZK60Formal/BlockR13HostQkvMm.lean:342:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.R13H.Qkv.pv_cubeR`:
+  G
+  hrlA
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit G hrlA in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3583/3583] Building ZK60Formal.BlockR13HostQkvCfg (16s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvCfg.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvCfg.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvCfg.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvCfg.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvCfg.setup.json --json
+error: ZK60Formal/BlockR13HostQkvCfg.lean:43:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/BlockR13HostQkvCfg.lean:43:99: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  DefR13.rawSlot (DefR13.cfgShieldR13 L) 15 = rawQ (DefR13.cfgShieldR13 L)
+error: ZK60Formal/BlockR13HostQkvCfg.lean:44:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/BlockR13HostQkvCfg.lean:44:100: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  DefR13.rawSlot (DefR13.cfgShieldR13 L) 16 = rawKv (DefR13.cfgShieldR13 L)
+error: ZK60Formal/BlockR13HostQkvCfg.lean:48:98: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  DefR13.rawSlot (DefR13.cfgShieldR13 L) 9 = rawPv (DefR13.cfgShieldR13 L)
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostQkvZc
+- ZK60Formal.BlockR13HostQkvMm
+- ZK60Formal.BlockR13HostQkvCfg
+error: build failed
+build rc 1 (29 s)
+rc 1, 29 s
