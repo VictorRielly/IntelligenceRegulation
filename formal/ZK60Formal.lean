@@ -205,3 +205,7 @@ import ZK60Formal.BlockInstRead
 import ZK60Formal.BlockInstProf
 import ZK60Formal.BlockInstRung
 import ZK60Formal.BlockInstShield
+import ZK60Formal.SlotPolyInstMask
+import ZK60Formal.SlotPolyInstEval
+import ZK60Formal.BlockInstChainN
+import ZK60Formal.BlockInstFinal

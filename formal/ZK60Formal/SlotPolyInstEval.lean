@@ -62,6 +62,33 @@ theorem SlotEval.toN {U : K} {P : BlockParams} {cs : Cm → ZClaim → K} {ms : 
   fun core bga rs k r sp df vals rhoFull hsp hr _ hdf _ _ _ hrho hes hvals htrue =>
     h core bga rs k r sp df vals rhoFull hsp hr hdf hrho hes hvals htrue
 
+/-- **What L16's `SlotEval` forces** (finding L31-1): its right side cannot depend on anything the polynomial does not
+see. Two readings of slot `k` with the same trace data and the same first `n + e` challenges, each meeting
+`SlotEval`'s premises, have the same right side, whatever their `rhoFull` hold beyond the slot's point. (At a real
+block the right side does depend on it: `eval_weights` multiplies ALL of `rhoFull`.) -/
+theorem slotEval_rhs_indep {U : K} {P : BlockParams} {cs : Cm → ZClaim → K} {ms : List (ℕ × List Fp2) → K}
+    {f : (k : ℕ) → Seen → (Fin ((slotShape P k).1 + (slotShape P k).2.1) → K) → K} (h : SlotEval U P cs ms f)
+    (core core' : Core) (bga : Fp2 × Fp2 × Fp2) (rs rs' : List SlotRec) (k : ℕ) (r r' : SlotRec) (sp sp' : SlotProof)
+    (df df' : SlotDef) (vals vals' rhoFull rhoFull' : List Fp2)
+    (hsp : core.slots[k]? = some sp) (hr : rs[k]? = some r)
+    (hdf : P.define k (histOf bga.1 bga.2.1 bga.2.2 (rs.take k)) r.draws = .ok df)
+    (hrho : r.rho = rhoFull.take (slotShape P k).1) (hes : r.es = rhoFull.drop (slotShape P k).1)
+    (hvals : tabVals (oneMinusProd r.es) r.rho sp.terms df.tabs 0 = .ok vals)
+    (htrue : ∀ q ∈ slotClaimList P r.rho r.es sp.terms df.tabs 0, cs q.1 q.2 = q.2.value.toK U)
+    (hsp' : core'.slots[k]? = some sp') (hr' : rs'[k]? = some r')
+    (hdf' : P.define k (histOf bga.1 bga.2.1 bga.2.2 (rs'.take k)) r'.draws = .ok df')
+    (hrho' : r'.rho = rhoFull'.take (slotShape P k).1) (hes' : r'.es = rhoFull'.drop (slotShape P k).1)
+    (hvals' : tabVals (oneMinusProd r'.es) r'.rho sp'.terms df'.tabs 0 = .ok vals')
+    (htrue' : ∀ q ∈ slotClaimList P r'.rho r'.es sp'.terms df'.tabs 0, cs q.1 q.2 = q.2.value.toK U)
+    (hseen : seenOf bga rs k = seenOf bga rs' k)
+    (hx : ∀ i : Fin ((slotShape P k).1 + (slotShape P k).2.1),
+      ((r.rho ++ r.es).getD i Fp2.zero).toK U = ((r'.rho ++ r'.es).getD i Fp2.zero).toK U) :
+    (df.poly vals).toK U + r.c.toK U * ms [(k, Cfs.evalWeights rhoFull (slotShape P k).2.2)]
+      = (df'.poly vals').toK U + r'.c.toK U * ms [(k, Cfs.evalWeights rhoFull' (slotShape P k).2.2)] := by
+  rw [← h core bga rs k r sp df vals rhoFull hsp hr hdf hrho hes hvals htrue,
+    ← h core' bga rs' k r' sp' df' vals' rhoFull' hsp' hr' hdf' hrho' hes' hvals' htrue', hseen]
+  exact congrArg (f k (seenOf bga rs' k)) (funext hx)
+
 /-- **The terminal premise is discharged by the claims' and `M`'s truth, for a slot polynomial that meets the
 interface with the run's facts** (L16's `blockSlots_terminal` for `SlotEvalN`): on an accepting slot phase of a
 canonical core with the shape's slots and degrees at least `1`, every slot's terminal check `fin = f(ρ)` holds. -/
