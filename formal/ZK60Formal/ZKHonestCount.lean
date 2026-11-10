@@ -53,8 +53,9 @@ theorem exposed_card {C D Q : Type} [Fintype C] [Fintype D] [DecidableEq Q] {k :
     intro p hp p' hp' heq
     have hp2 := (Finset.mem_product.mp (Finset.mem_coe.mp hp)).2
     have hp2' := (Finset.mem_product.mp (Finset.mem_coe.mp hp')).2
-    have h1 : p.2.1 = p'.2.1 := congrArg Prod.fst heq
-    have h2 : Function.update p.2.2 j p.1 = Function.update p'.2.2 j p'.1 := congrArg Prod.snd heq
+    have heq' : (p.2.1, Function.update p.2.2 j p.1) = (p'.2.1, Function.update p'.2.2 j p'.1) := heq
+    have h1 : p.2.1 = p'.2.1 := (Prod.mk.inj heq').1
+    have h2 : Function.update p.2.2 j p.1 = Function.update p'.2.2 j p'.1 := (Prod.mk.inj heq').2
     have h3 : p.1 = p'.1 := by
       have h := congrFun h2 j
       rwa [Function.update_self, Function.update_self] at h

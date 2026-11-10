@@ -23,8 +23,12 @@ need = str(min(14, int(cap)))  # the guard refuses a cap below the need (a lower
 guard = ["python3", "/Users/victorrielly/IntelligenceRegulation/scripts/zk60_resource_guard.py", "run",
          "--class", "cpu", "--need-gib", need, "--cap-gib", cap, "--wait-secs", "14400",
          "--label", label, "--log", log, "--done", done, "--"] + cmd
+# A one-second admission poll (the guard's default is five): this lane's first queued job lost four releases of the
+# heavy lock in a row to jobs queued after it (2026-11-10, iter3). Lane L26 queued the same way.
+env = dict(os.environ)
+env.setdefault("ZK60_GUARD_POLL_SECS", "1")
 p = subprocess.Popen(guard, stdin=subprocess.DEVNULL, stdout=open(log + ".guard", "w"), stderr=subprocess.STDOUT,
-                     start_new_session=True)
+                     start_new_session=True, env=env)
 print("started", p.pid, flush=True)
 while not os.path.exists(done):
     time.sleep(3)

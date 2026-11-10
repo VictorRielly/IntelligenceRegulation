@@ -1,5 +1,3 @@
-build ZK60Formal.ZKHonestStep
-build ZK60Formal.ZKHonestView
 build ZK60Formal.ZKHonestCount
 build ZK60Formal.ZKHonestRun
 build ZK60Formal.ZKHonestBound

@@ -238,7 +238,7 @@ theorem classify_adm_standin (R : ClassifyRunPublic S) (Lq : ℕ) (V : RunV Hdr)
           (classifyProtocol S R Lq V P Cin h64 hr base).leak x))
       ↔ (classifyModel S R).admissible x := by
   have hspec := standin_spec (classifyProtocol S R Lq V P Cin h64 hr base) () x
-  have hl := congrArg Prod.snd hspec
+  have hl := (Prod.mk.inj hspec).2
   have e1 := leak_served R Lq V P Cin h64 hr base
     (standin (classifyProtocol S R Lq V P Cin h64 hr base) ()
       ((classifyModel S R).publicPart ((classifyModel S R).forward () x),
@@ -259,7 +259,7 @@ theorem classify_standin_verdict (R : ClassifyRunPublic S) (Lq : ℕ) (V : RunV 
         ((classifyModel S R).publicPart ((classifyModel S R).forward () x),
           (classifyProtocol S R Lq V P Cin h64 hr base).leak x))).getD 0
       = (classifySpec R x).getD 0 :=
-  congrArg Prod.fst (standin_spec (classifyProtocol S R Lq V P Cin h64 hr base) () x)
+  (Prod.mk.inj (standin_spec (classifyProtocol S R Lq V P Cin h64 hr base) () x)).1
 
 variable [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
 

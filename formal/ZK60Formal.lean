@@ -203,3 +203,7 @@ import ZK60Formal.HonestOracleSlots
 import ZK60Formal.HonestOracleParts
 import ZK60Formal.ZKHonestProg
 import ZK60Formal.ZKHonestStep
+import ZK60Formal.ZKHonestView
+import ZK60Formal.ZKHonestCount
+import ZK60Formal.ZKHonestRun
+import ZK60Formal.ZKHonestBound
