@@ -1,0 +1,10 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/plan3.txt ==
+build ZK60Formal.StatementsD76Gate
+build ZK60Formal.StatementsD76Range
+== lake build ZK60Formal.StatementsD76Gate ==
+Build completed successfully (3581 jobs).
+build rc 0 (16 s)
+== lake build ZK60Formal.StatementsD76Range ==
+Build completed successfully (3582 jobs).
+build rc 0 (40 s)
+rc 0, 40 s

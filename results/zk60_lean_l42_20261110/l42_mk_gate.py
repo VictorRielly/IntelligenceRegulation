@@ -175,7 +175,8 @@ hand.
 * **`classifyU_zkL_target_of_refErr`**, **`classifyUExec_zkL_target_of_refErr`**: lane L33's receipt cap meets the
   approved zero-knowledge and semantic-hiding statements AT THE TARGET under D76's range (`R ≤ 2^64` lies inside L33's
   `R ≤ 2^110`): the only premise is L33's own (`ZeroKnowledge` of the classify run at the error of a refusing prover,
-  `refErr RunK.kinds`).
+  `refErr RunK.kinds`); **`hzk_range_of_refErr`**: at L33's error, the zero-knowledge premise `hzk` of the `_range`
+  gates (`StatementsD76Range.lean`) holds.
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
@@ -285,6 +286,14 @@ theorem classifyUExec_zkL_target_of_refErr (R : ClassifyRunPublic S) (Lq : ℕ) 
           (classifyLeak S R) (fun q => εzkTarget q 1) :=
   classifyU_zkL_target_of_refErr R Lq (classifyRunV Lb preA preB start inc incG blk outc outcG) P Cin h64 hr base e
     hzk
+
+/-- **The `_range` gates' zero-knowledge premise `hzk` holds at lane L33's error** (`StatementsD76Range.lean`):
+`min (refErr RunK.kinds q R) 1`, the error of L33's `classify_zk_cap110` (a `ClassifyOpen` field O12 at that error), is
+within `εzkTarget q R` for every `q` and every `R ≤ 2^64` (`runK_ref_cap_110`, as `2^64 ≤ 2^110`). The instance-leak
+gates ask it for every `R`, which L33's error does not meet between `2^110` and `2^120`. -/
+theorem hzk_range_of_refErr (q R : ℕ) (_hq : q ≤ 2 ^ 64) (hR : R ≤ 2 ^ 64) :
+    min (ZKHonest.refErr ZKCount.RunK.kinds q R) 1 ≤ εzkTarget q R :=
+  (min_le_left _ _).trans (ZKHonest.runK_ref_cap_110 q R (hR.trans (ZK60.D76.pow64_le (by norm_num))))
 
 end Cap
 

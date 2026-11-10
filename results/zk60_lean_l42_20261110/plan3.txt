@@ -1,0 +1,2 @@
+build ZK60Formal.StatementsD76Gate
+build ZK60Formal.StatementsD76Range
