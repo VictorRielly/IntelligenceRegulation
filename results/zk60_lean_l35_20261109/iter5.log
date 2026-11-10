@@ -1,0 +1,44 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l35_20261109/plan5.txt ==
+build ZK60Formal.BlockDefineW16Final
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l11_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l9_20261107/corpus.txt
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean /Users/victorrielly/zk60-artifacts/l35_20261109/l35_mut_corpus11.txt /Users/victorrielly/zk60-artifacts/l35_20261109/l35_mut_corpus9.txt
+== lake build ZK60Formal.BlockDefineW16Final ==
+Build completed successfully (3530 jobs).
+build rc 0 (5 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l11_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l9_20261107/corpus.txt ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean:193:69: error: Application type mismatch: The argument
+  fun f => List.map f ((parseCsvNat la).getD [])
+has type
+  (ℕ → ?m.41) → List ?m.41
+but is expected to have type
+  List String
+in the application
+  s.cmp "sites-a" "SITES a" (List.map toString (siteRows Cm.a prog)) fun f => List.map f ((parseCsvNat la).getD [])
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean:194:69: error: Application type mismatch: The argument
+  fun f => List.map f ((parseCsvNat lh).getD [])
+has type
+  (ℕ → ?m.53) → List ?m.53
+but is expected to have type
+  List String
+in the application
+  s.cmp "sites-h" "SITES h" (List.map toString (siteRows Cm.h prog)) fun f => List.map f ((parseCsvNat lh).getD [])
+rc 1 for run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l11_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l9_20261107/corpus.txt (7 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean /Users/victorrielly/zk60-artifacts/l35_20261109/l35_mut_corpus11.txt /Users/victorrielly/zk60-artifacts/l35_20261109/l35_mut_corpus9.txt ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean:193:69: error: Application type mismatch: The argument
+  fun f => List.map f ((parseCsvNat la).getD [])
+has type
+  (ℕ → ?m.41) → List ?m.41
+but is expected to have type
+  List String
+in the application
+  s.cmp "sites-a" "SITES a" (List.map toString (siteRows Cm.a prog)) fun f => List.map f ((parseCsvNat la).getD [])
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean:194:69: error: Application type mismatch: The argument
+  fun f => List.map f ((parseCsvNat lh).getD [])
+has type
+  (ℕ → ?m.53) → List ?m.53
+but is expected to have type
+  List String
+in the application
+  s.cmp "sites-h" "SITES h" (List.map toString (siteRows Cm.h prog)) fun f => List.map f ((parseCsvNat lh).getD [])
+rc 1 for run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean /Users/victorrielly/zk60-artifacts/l35_20261109/l35_mut_corpus11.txt /Users/victorrielly/zk60-artifacts/l35_20261109/l35_mut_corpus9.txt (10 s)
+rc 1, 10 s
