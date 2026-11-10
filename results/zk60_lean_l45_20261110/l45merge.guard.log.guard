@@ -1,0 +1,3 @@
+[zk60-guard 08:17:09] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 08:17:24] START lean-l45merge class=cpu need=24G cap=36G enforce=watchdog-only waited=15s run=0ce002439a30
+[zk60-guard 08:30:53] END lean-l45merge exit=0 child_wall=809s peak_rss=6.43G min_avail=226.43G

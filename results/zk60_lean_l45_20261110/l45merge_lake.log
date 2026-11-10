@@ -1,0 +1,11 @@
+✔ [3704/3714] Built ZK60Formal.RunStageRd (3.3s)
+✔ [3705/3714] Built ZK60Formal.RunStageRdRun (2.2s)
+✔ [3706/3714] Built ZK60Formal.RunStageRdHal (2.7s)
+✔ [3707/3714] Built ZK60Formal.RunExtractWork (2.4s)
+✔ [3708/3714] Built ZK60Formal.RunExtractStage (1.0s)
+✔ [3709/3714] Built ZK60Formal.RunExtractBlk (2.7s)
+✔ [3710/3714] Built ZK60Formal.RunExtractParts (2.1s)
+✔ [3711/3714] Built ZK60Formal.RunExtractCarry (1.0s)
+✔ [3712/3714] Built ZK60Formal.RunExtractTop (2.9s)
+✔ [3713/3714] Built ZK60Formal (1.8s)
+Build completed successfully (3714 jobs).
