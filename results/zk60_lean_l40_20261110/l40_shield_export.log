@@ -1,0 +1,25 @@
+shieldExport (from the export): 26 layers
+L40 SHIELD EXPORT: 1485 checks, 0 failed
+FAIL profile.json is the app's (PROFILE_SHA) 
+negative control profile_sha: 1 failed of 1485 -> caught
+FAIL T 128 
+negative control T: 1 failed of 1485 -> caught
+FAIL L0 f_e 9 != 9
+negative control const: 1 failed of 1485 -> caught
+FAIL L0 group ids below nG 
+negative control gid: 1 failed of 1485 -> caught
+FAIL L0 calibration = shieldExport (8, 7, 16, 8, 19, 848, 1716, 3) vs (8, 7, 16, 8, 19, 848, 1716, 3)
+negative control cal: 1 failed of 1485 -> caught
+FAIL L0 gamma_a |g| <= 127 
+negative control gamma: 1 failed of 1485 -> caught
+FAIL L0 m_q in [0, 2^14] 
+negative control mult: 1 failed of 1485 -> caught
+FAIL L0 folded m_g in [0, 2^14] 
+negative control mg: 1 failed of 1485 -> caught
+FAIL L0 rope_cos |.| <= 2^7 
+negative control rope: 1 failed of 1485 -> caught
+FAIL L0 exp in [0, 2^9] 
+negative control exp: 1 failed of 1485 -> caught
+FAIL L0 scaled act |a| <= 2^31 
+negative control act: 1 failed of 1485 -> caught
+L40 SHIELD EXPORT NEGATIVE CONTROL: 11 single changes, 11 caught

@@ -1,0 +1,28 @@
+
+/-! ## The instance with both changes (L30), one shape per block -/
+
+section Exec
+
+/-- **THE `Protocol` INSTANCE with both changes, one shape per block** (L30's `classifyProtocolUExec` at
+`classifyModelP R`): the radius-`e` instance at the run verifier with L29's executable stages. -/
+noncomputable def classifyProtocolUExecP (R : ClassifyRunPublicP S) (Lq : ℕ) (Lb : ℕ)
+    (preA preB : Hdr → Except String Unit) (start : (HIn → Dig) → ClsStmt Hdr → Tr) (inc : Hdr → IncV)
+    (incG : Hdr → StageGeom) (blk : BlockProfV (ClsStmt Hdr)) (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom)
+    (P : RunP Hdr (S.Tok → ℕ) Coins) (Cin : PlaneCommit (S.Tok → ℕ) (ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq)
+    (hr : 8 * Cin.R ≤ Lq) (base : Coins → Salt) (e : ℕ) : Protocol (QB Lq) Dig Coins (classifyModelP R) :=
+  classifyProtocolUP R Lq (classifyRunV Lb preA preB start inc incG blk outc outcG) P Cin h64 hr base e
+
+/-- **Its verifier IS L30's `classifyProtocolUExec`'s** at any one-shape run data (the verifier never reads the
+model), so L29's `classifyProtocolExec_verify_iff` unfolds its acceptance into the run's steps. -/
+theorem classifyProtocolUExecP_verify (R : ClassifyRunPublicP S) (R0 : ClassifyRunPublic S) (Lq : ℕ) (Lb : ℕ)
+    (preA preB : Hdr → Except String Unit) (start : (HIn → Dig) → ClsStmt Hdr → Tr) (inc : Hdr → IncV)
+    (incG : Hdr → StageGeom) (blk : BlockProfV (ClsStmt Hdr)) (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom)
+    (P : RunP Hdr (S.Tok → ℕ) Coins) (Cin : PlaneCommit (S.Tok → ℕ) (ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq)
+    (hr : 8 * Cin.R ≤ Lq) (base : Coins → Salt) (e : ℕ) (G : QB Lq → Dig) (s : ClsStmt Hdr) (rc : ClsReceipt) :
+    (classifyProtocolUExecP R Lq Lb preA preB start inc incG blk outc outcG P Cin h64 hr base e).verify G () s rc
+      = (classifyProtocolUExec R0 Lq Lb preA preB start inc incG blk outc outcG P Cin h64 hr base e).verify G () s rc :=
+  rfl
+
+variable [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
+variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
+

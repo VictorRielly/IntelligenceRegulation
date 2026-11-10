@@ -251,3 +251,8 @@ import ZK60Formal.BlockAlgLkR13
 import ZK60Formal.BlockAlgLkW16
 import ZK60Formal.BlockAlgLkFinal
 import ZK60Formal.BlockAlgSat
+import ZK60Formal.RunShape
+import ZK60Formal.RunShapeShield
+import ZK60Formal.RunShapeExec
+import ZK60Formal.RunShapeProtocol
+import ZK60Formal.RunShapeGate
