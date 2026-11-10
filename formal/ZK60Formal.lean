@@ -351,3 +351,9 @@ import ZK60Formal.BindingEP
 import ZK60Formal.ProtocolClassifyEP
 import ZK60Formal.RunOpenGeoStageX
 import ZK60Formal.RunOpenGeoEP
+import ZK60Formal.RunAliveRed
+import ZK60Formal.RunAliveSl
+import ZK60Formal.RunAliveDef
+import ZK60Formal.RunAliveRun
+import ZK60Formal.RunAliveHal
+import ZK60Formal.RunAliveTop
