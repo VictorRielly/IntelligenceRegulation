@@ -1,0 +1,8 @@
+build ZK60Formal.RunBndSched
+build ZK60Formal.RunBndHal
+build ZK60Formal.RunBndSem
+build ZK60Formal.RunBndArgs
+build ZK60Formal.RunBndShield
+build ZK60Formal.RunBndChain
+build ZK60Formal.RunBndTop
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/results/zk60_lean_l56_20261110/check_l56.sh

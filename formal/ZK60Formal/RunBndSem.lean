@@ -48,7 +48,7 @@ theorem colX_eq_cut (d i : ℕ) (log : List (QB L × Dig)) (hdr : List (TItem ×
     Link.colX tag L h64 key domain hs hL d i log hdr j
       = Link.colXc tag L h64 d (Block.cutO (Block.absOfC (chainEncB key domain hs L hL)) (Block.absAt hdr i) log)
           (Block.absAt hdr i) j := by
-  unfold Link.colX Link.colXc Link.rootAt
+  unfold Link.colX Link.colXc
   rfl
 
 /-- **The matrix extracted for the root the header absorbs at `i` is the cut-level one** (`UxW` is `UxC` at the root
@@ -59,7 +59,7 @@ theorem UxW_eq_cut {K : Type} [Field K] [Algebra GF K] (d i rows : ℕ) {N : ℕ
       = Link.UxC tag L h64 d rows (Block.cutO (Block.absOfC (chainEncB key domain hs L hL)) (Block.absAt hdr i) log)
           (Block.absAt hdr i) := by
   funext r j
-  unfold Link.UxW Link.UxC
+  simp only [Link.UxW, Link.UxC]
   rw [colX_eq_cut tag L h64 key domain hs hL d i log hdr j]
 
 end Cut

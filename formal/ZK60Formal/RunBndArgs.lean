@@ -176,4 +176,104 @@ theorem bnd_slotEval_args (rdx : List UInt8 → Option Dig) (pf : RtProf) (ps : 
 
 end Args
 
+/-! ## `hsl_evB` on the classify run from the slot polynomials alone -/
+
+section Run
+
+variable {K : Type} [Field K] [Algebra GF K] (U : K) (tag : MTag)
+  {Hdr : Type} {key : Option Dig} {domain : List UInt8} {Lq : ℕ}
+  (h64 : 64 ≤ Lq) (hs : decodeLink (startMsg domain) = none) (hL : (startMsg domain).length ≤ Lq)
+  (Lb : ℕ) (preA preB : Hdr → Except String Unit) (start : (HIn → Dig) → ClsStmt Hdr → Tr)
+  (inc : Hdr → IncV) (incG : Hdr → StageGeom) (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom)
+  (Pk : ℕ → Block.BlockParams) (sgeom : ClsStmt Hdr → ℕ → Block.SegGeom)
+  (check : ClsStmt Hdr → ℕ → Except String Unit) (paths : ClsStmt Hdr → Block.Segment → Except String Unit)
+  (digest : ClsStmt Hdr → ℕ → Dig) (bRows bLogN : ℕ → ℕ)
+  (bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit)
+  (bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr)
+
+/-- **`hsl_evB` ON THE CLASSIFY RUN FROM A PROPERTY OF THE SLOT POLYNOMIALS ALONE.** On the classify run with L45's
+parts' data (block `k`'s `A`, `M`, `H` roots at `off (k + 1) + 5`, `+ 8`, `+ 12`: `rxDblk`), if every block's slot
+polynomial `Fsl k` meets `SlotEval` over `csArgs`, `msArgs` of its OWN arguments (`hargs`: no run, no adversary, no
+transcript in it), then at every reading of every block on any transcript it meets `SlotEval` over the run's `wrCsB`,
+`wrMs` (the form of the top theorem's `hsl_evB`). -/
+theorem bnd_hsl_evB_of_args
+    (R : RtRun (classifyRunV Lb preA preB start inc incG
+      (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) key domain Lq)
+    (cx0 : IncCtx) (pin pout : RtPart) (bp : ∀ k, RtBlk Lq (Pk k)) (wXk gXk mXk : ℕ → ℕ)
+    (hσ : R.σs = rtParts (classifyRunV Lb preA preB start inc incG
+      (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG)
+      (rtIncSeg inc incG cx0 pin)
+      (fun k => rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k
+        (rtBlockPart (Pk k) (bp k).S ((bp k).nA + (bp k).pA.rows) (bp k).pA.m ((bp k).nH + (bp k).pH.rows) (bp k).pH.m
+          (wXk k) (gXk k) (mXk k)))
+      (rtOutcSeg outc outcG pout))
+    (rdx : List UInt8 → Option Dig) (base : ℕ → RkPart K Lq) (din dout : RxMAH) (Sf kMf rAf rHf nAf nHf : ℕ → ℕ)
+    (acc : ℕ → List (TItem × Dig) → Block.Acc) (lsc : ℕ → Block.ZClaim) (eL : ℕ)
+    (Fsl : (k : ℕ) → Block.Cuts3 Lq → Block.RootsO → Block.HdrX Lq → (j : ℕ) → Block.Seen →
+      (Fin ((Block.slotShape (Pk k) j).1 + (Block.slotShape (Pk k) j).2.1) → K) → K)
+    (hargs : ∀ k, k < Lb → ∀ (c3 : Block.Cuts3 Lq) (rt : Block.RootsO) (hx : Block.HdrX Lq),
+      Block.SlotEval U (Pk k)
+        (csArgs U tag Lq h64
+          ((ebData U tag Lq h64 key domain hs hL rdx R.pf
+            (rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout)
+            acc lsc eL).opA (k + 1))
+          ((ebData U tag Lq h64 key domain hs hL rdx R.pf
+            (rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout)
+            acc lsc eL).opH (k + 1))
+          ((ebData U tag Lq h64 key domain hs hL rdx R.pf
+            (rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout)
+            acc lsc eL).opX (k + 1))
+          ((ebData U tag Lq h64 key domain hs hL rdx R.pf
+            (rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout)
+            acc lsc eL).opX (k + 1 + 1))
+          c3 rt hx (R.pf.off k + 2) (R.pf.off (k + 1) + 2))
+        (msArgs U tag Lq h64 (Sf k) c3 rt) (fun j sn pt => Fsl k c3 rt hx j sn pt))
+    (G : QB Lq → Dig) (lg : List (QB Lq × Dig)) (τ : List (TItem × Dig)) :
+    ∀ k, k < Lb → ∀ (hdr : List Op) (core : Block.Core) (bga : Fp2 × Fp2 × Fp2) (rs : List Block.SlotRec)
+      (acc' : Block.Acc) (T' : List Op),
+      Block.SlotsAcc key domain (Pk k) (R.pf.off (k + 1) + 5) G (hdr, core) bga rs acc' →
+      τ = opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (Block.allOps (Pk k) (hdr, core) ++ T') →
+      Block.SlotEval U (Pk k)
+        (wrCsB U tag Lq h64 (ebData U tag Lq h64 key domain hs hL rdx R.pf
+            (rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout)
+            acc lsc eL) R.pf k lg τ
+          (Block.hdrX (Block.absOfC (chainEncB key domain hs Lq hL)) lg (R.pf.off (k + 1) + 5) τ))
+        (wrMs U tag Lq h64 key domain hs hL
+          (rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout)
+          R.pf (k + 1) lg τ)
+        (fun j sn pt => Fsl k (Block.cuts3 (Block.absOfC (chainEncB key domain hs Lq hL)) lg (Block.rootsOf core))
+          (Block.rootsOf core) (Block.hdrX (Block.absOfC (chainEncB key domain hs Lq hL)) lg (R.pf.off (k + 1) + 5) τ)
+          j sn pt) := by
+  intro k hk hdr core bga rs acc' T' hsa htr
+  have hps : rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout (k + 1)
+      = rxSet (base (k + 1)) (rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) :=
+    rxPs_blk base Lb din _ dout k hk
+  obtain ⟨pA, pH, pM⟩ := rx_dblk_pos R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)
+  have hσb := ra_blk_seg Lb preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck
+    bndOpen R cx0 pin pout bp wXk gXk mXk hσ k hk
+  have hpart : R.pf.part (k + 1) = rtBlockPart (Pk k) (bp k).S ((bp k).nA + (bp k).pA.rows) (bp k).pA.m
+      ((bp k).nH + (bp k).pH.rows) (bp k).pH.m (wXk k) (gXk k) (mXk k) := rx_part_of R (k + 1) _ hσb
+  have hmp : R.pf.off (k + 1) + 5 + 3 < R.pf.off (k + 1) + (R.pf.part (k + 1)).pre := by
+    rw [hpart]
+    show R.pf.off (k + 1) + 5 + 3 < R.pf.off (k + 1) + (15 + shapeLen (Pk k) 0 (Pk k).geom.slots)
+    omega
+  have hrt : Block.rootsAt (R.pf.off (k + 1) + 5) τ = Block.rootsOf core := by
+    have hl : hdr.length = R.pf.off (k + 1) + 5 := hsa.1
+    have e : Block.allOps (Pk k) (hdr, core) ++ T'
+        = hdr ++ Block.rootOps (Pk k) core ++ (Block.fullOps (Pk k) 0 core.slots ++ T') := by
+      simp [Block.allOps, List.append_assoc]
+    rw [htr, ← hl, e]
+    exact Block.rootsAt_trace _ _ _ _ _ _
+  have hS : (rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout
+      (k + 1)).S = Sf k := by
+    rw [hps]
+    rfl
+  have h := bnd_slotEval_args U tag Lq h64 key domain hs hL rdx R.pf
+    (rxPs base Lb din (fun k => rxDblk R.pf k (Sf k) (kMf k) (rAf k) (rHf k) (nAf k) (nHf k)) dout) acc lsc eL lg τ k
+    core (Pk k) (Fsl k) (by rw [hps]; exact pA) (by rw [hps]; exact pH) (by rw [hps]; exact pM) hmp hrt
+    (by rw [hS]; exact hargs k hk)
+  exact h
+
+end Run
+
 end ZK60.ProtocolClassify

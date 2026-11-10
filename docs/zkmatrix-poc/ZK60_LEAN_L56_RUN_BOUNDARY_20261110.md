@@ -104,6 +104,7 @@ All in namespace `ZK60.ProtocolClassify` unless said (the block schedule in `ZK6
 | `csArgs`, `msArgs`, `rx_dblk_pos`, `wrOSem_cut` | the claims' and functionals' semantics from the slot polynomial's arguments only |
 | **`bnd_args_cs`**, **`bnd_args_ms`** | at every reading, `wrCsB` and `wrMs` ARE `csArgs`, `msArgs` of the arguments the slot polynomial receives |
 | **`bnd_slotEval_args`** | `hsl_evB` at a reading follows from `SlotEval` of `Fsl k` over `csArgs`, `msArgs` of its own arguments |
+| **`bnd_hsl_evB_of_args`** | on the classify run (L45's parts' data: `rxDblk`), `hsl_evB` at EVERY reading of every block follows from that property of the polynomials alone (`hargs`: no run, no adversary, no transcript) |
 
 ### 2.3 Block `k` is layer `k` (`RunBndShield.lean`)
 
@@ -120,22 +121,131 @@ All in namespace `ZK60.ProtocolClassify` unless said (the block schedule in `ZK6
 | `bnd_productionReadyL_epP_exec_alive`, `_code`, `_codeT` | lane L52's three restated with the new schedule (`Fsl`'s type, `hslB`, `hsl_blk`'s `RaTermAtB`, `ra_hal_slB`); proofs the originals' |
 | **`bnd_productionReadyL_epP_wire`** | lane L54's `wr_productionReadyL_epP_codeT` restated: `hsl_ev` → `hsl_evB` (over `wrCsB`), new `hgXB`; `hsl_blk` PROVED as L54 did, through `wrCs_eq_B` |
 | **`bnd_productionReadyL_epP_shield`** | the same with `hdefS` and `hLb` replaced by `hPk : ShieldRunAt Pk Rp.blks Lb` (finding L54-2) |
+| **`bnd_productionReadyL_epP_args`** | the same with `hsl_evB` (an adversary, a transcript, a reading) replaced by `hsl_args`: each `Fsl k` meets `SlotEval` over `csArgs`, `msArgs` of its OWN arguments; `hsl_evB` PROVED from it (`bnd_hsl_evB_of_args`) |
 
 ## 3. The numbers
 
-TBD
+| Figure | Value | Label |
+|---|---|---|
+| slots per R13 block / of them reading a boundary commitment | 23 / 2 (`SC_IO_IN` = 21, `SC_IO_OUT` = 22, layout.rs:998-999) | MEASURED (source) |
+| where the run absorbs block `k`'s input / output boundary root | run position `off k + 2` / `off (k + 1) + 2`: the third absorb of part `k`'s / part `k + 1`'s frame | CHECKED (receipt, source); the Lean positions PROVED to be the ones `wrCs` reads under `hgXB` (`wrCs_eq_B`) |
+| the block's header (what `hdrX` covers) | run positions `0 … off (k + 1) + 4` (the block's roots start at `off (k + 1) + 5`) | PROVED (`ra_blk_acc`'s `hdr`, `hdrX_allOps`) |
+| the block's `A`, `M`, `H` roots | `off (k + 1) + 5`, `+ 8`, `+ 12` (`rxDblk`) | PROVED (`rx_dblk_pos`) |
+| frame absorbs per part (IN-C and blocks) | 5: `pb-run-stage`, `pb-run-block`, `B` (32-byte root), `rows`, `log-cols` | CHECKED (receipt: 3 parts; source: block loop, IN-C, `absorb_root`) |
+| the real receipt | development rung `private-classify-run-rung-tc-t32-public-row-dev/2`, `L = 2` (two blocks), 4 segments, verdict 1; corpus 2,806 B, sha256 `b20885853ac552c2e8885e3106471e8e042234e73d2ea835c769cc35b10981bc` | MEASURED |
+| code-side negative controls on the receipt | 11 of 11 refused by the production code: per block, the boundary root second in the frame (a sumcheck round fails), the block's own root and the previous part's `A` root (a Merkle path fails), the block's incoming claims left out and its outgoing claims in their place (the boundary schedule audit fails); stage OUT-C against the last block's `A` root (a Merkle path fails) | MEASURED (`l56_corpus.txt`) |
+| the corpus checker | 57 checks, 0 failed; 12 of 12 single changes to the corpus refused | CHECKED (`bndcheck.log`) |
+| the source checker | 44 checks, 0 failed; 41 of 41 single changes (39 removals at the matched place, 2 swaps) refused | CHECKED (`srccheck.log`) |
+| the export job | 189 s (compile 2 m 41 s, the test 2.02 s), peak RSS 4.51 GiB, after 247 s waiting for the heavy lock; `s25_tests` 20 passed, `hash_domain` 15 passed | MEASURED (guard record, `exp1.log`) |
+| the top theorems' explicit binders | L54's `wr_…`: 125; `bnd_…_wire`: 126 (`hsl_ev` → `hsl_evB`, `hgXB` new); `bnd_…_shield`: 125 (`hdefS`, `hLb` → `hPk`); `bnd_…_args`: 125 (`hsl_evB` → `hsl_args`) | CHECKED (the generators' parser) |
+BUILDNUMBERS
 
 ## 4. What is left, premise by premise
 
-TBD
+### 4.1 The premises this lane changed or introduced
+
+| Premise | What it says | Met by the real objects? |
+|---|---|---|
+| `Fsl` (an object) | each block's slot polynomials, now `Cuts3 → RootsO → HdrX → j → Seen → point → K` | its type now receives every table the slots read (PROVED: `bnd_args_cs`, `bnd_args_ms`) |
+| `hslB` | the kinds data's block slots are `blockSchedXB (Pk k) (off (k + 1) + 5) absOf (Fsl k)` | YES by the choice of `base` (`D.sls (k + 1) = (base (k + 1)).sls`); `hD`'s slot conditions for it: `slCut` PROVED (`blockSchedXB_cut`), `slDeg`, `slWin` as for L16's schedule (the same `s`, `d`, `n`: `blockSchedXB_s`, `_d`, `_n`, `slotsLenX_blockSchedXB`) |
+| `hsl_evB` (replaces L54's `hsl_ev`) | at every reading, `Fsl k` at the core's roots and the run's header data meets `SlotEval` over `wrCsB`, `wrMs` | TYPE: YES, PROVED: it follows from `hsl_args`, a property of `Fsl k` as a function of its own arguments (`bnd_hsl_evB_of_args`). The identity itself (the masked slot polynomial over those tables meets `SlotEval`): ARGUED, as for every slot (lane L11 / L13's builder interface; built at W16R2, not yet at R13) |
+| `hsl_args` (in `bnd_…_args`, replaces `hsl_evB`) | each `Fsl k` meets `SlotEval` over `csArgs`, `msArgs` of its own arguments | ARGUED (as above): the masked slot polynomial over the tables `csArgs` / `msArgs` decode is a function of exactly these arguments, so it is of `Fsl k`'s type by construction |
+| `hgXB` (new) | the closing opening of part `j + 1` reads its root at `off j + 2` (`(base (j + 1)).gX.ipos`, `j ≤ Lb`) | YES by the choice of `base`, at the code's positions: CHECKED on the receipt (every closing opening opens the root the previous part's frame absorbed third) and in the source (`RUNLOOP`, `INFRAME`, `ROOT`). L55's `hopX1` needs the SAME choice (finding L56-1) |
+| `hPk` (in `bnd_…_shield`, `_args`; replaces `hdefS`, `hLb`) | `ShieldRunAt Pk Rp.blks Lb`: block `k` carries layer `k`'s calibration and `Pk k` is the code's verifier at it with block `k`'s public data | PARTLY CHECKED: block `k` is verified at layer record `k`'s calibration, gate and digest, in order (`STAGES`, source); the export's layers are `shieldExport` in order (lane L40, CHECKED); `IsShieldR13`, `hdef`, `hk3`, `hk19`, `hk20`, `hls` CHECKED at the rung by lanes L44 / L49, ARGUED at Shieldstral (the same code paths); `LayR` ARGUED (lane L49) |
+| `hdefS` (kept in `bnd_…_wire`) | each `define` is a slot program's `defineS` | PROVED from `hPk` (`ShieldRunAt.hdefS`) |
+
+### 4.2 Every premise of `bnd_productionReadyL_epP_args` still left, by name
+
+Objects: as lane L54 §4.2 (`Rp`, `Lq`, `Lb`, … `Fsl` (widened), `AlkL`, `TL`, `mlkL`, `mk`, `ops` and the section's `Rr`,
+`dR`, `pos`, `place`, `msg`, `pad`, `salt`, `path`, `tagc`).
+
+Hypotheses (70): `h64`, `hr`, `hon`, `hbij`, `hs`, `hL`, `hL64`, `hv`, `hw`, `hRn`, `hD`, `hU`, `hσ`, `hgeo`, `hIA`,
+`hIH`, `hOA`, `hOH`, `hBA`, `hBH`, `htI`, `htO`, `htB`, `hfIA`, `hfIH`, `hfOA`, `hfOH`, `hfBA`, `hfBH`, `hfIM`, `hfOM`,
+`hfBM`, `hlscIn`, `hlscOut`, `hmIn`, `hkIn`, `hkOut`, `hDe`, `hW` (L45-1), `hopX1` (L55), `hgX0`, `hnX0`, `hXep`,
+`hfitX`, `hRr`, `hL81`, **`hslB`** (re-pinned), **`hPk`**, **`hgXB`**, **`hsl_args`** (this lane), `hsl_stg`, `hR0_blk`,
+`hR0_stg`, `hR1_blk`, `hR1_stg`, `hH0_blk`, `hH0_stg`, `hH1_blk`, `hH1_stg`, `hLU_blk`, `hLU_stg`, `hdin`, `hblk`,
+`hdout`, `hE`, `hops`, `hcan`, `hread`, `hdzero`, `hzk`. Against L54's theorem: `hsl_ev` and `hdefS` and `hLb` gone,
+`hPk`, `hgXB`, `hsl_args` new, `hslB` re-pinned, every other premise unchanged. (`bnd_…_wire` keeps `hdefS`, `hLb`,
+`hsl_evB`; `bnd_…_shield` keeps `hsl_evB`.)
+
+Lane L53's stage discharges (`hR1_stg`, `hH0_stg`, `hH1_stg` gone; `hdin`, `hdout` reduced) and lane L55's (`hW`,
+`hopX1` gone) are in parallel restated theorems (`RunStgTopD.lean`, `RunCloseBTopF.lean`) generated from the same L52
+theorem; no line has the others' changes (finding L56-2).
 
 ## 5. Not done, and what the next lane needs
 
-TBD
+### 5.1 Deliverable 3 (finding L46-3): where it stands
+
+Done here: (a) the tie of each block's boundary claims to the run's closing openings' extraction: the block's claims
+on its input (output) boundary are read on the matrix the closing opening of part `k + 1` (`k + 2`) extracts, at the
+SAME root and the SAME log cut, and that is a header entry the block's slot polynomials receive (PROVED: `wrCs_eq_B`,
+`bnd_args_cs`); (b) L46-3's first code fact, "consecutive blocks read boundary `k + 1` through the same commitment
+geometry": `boundary_spec(j)` is built from the run's shape and `j` alone, and `block_layout(k)` takes its IO mask rows
+from boundaries `k` and `k + 1` (CHECKED in the source: `BSPEC`, `STAGES`); (c) its second fact, "the IO slot's table
+is extracted at the same root and cut as the closing opening that opens it": PROVED as (a), with the positions CHECKED.
+
+LEFT: `DIO`, `hIOΦ`, `hdefIO`, `hIO`: the IO slots' certified polynomial (`progR13`'s `ioIr cstS 0 1 2` on
+`[eq, aPlane x / x2, epTab inp / out]`), its start claim ("the `A` plane equals the boundary table on the gated D
+positions") and the run extractor `E` with `planes j` the decoded boundary `j` read through the D layout. With this
+lane's `bndTab` (the decoded boundary table from a header entry), the natural definition is
+`E.planes (k + 1) := the D-layout reading of bndTab (D.opX (k + 2)) (hdrX … (off (k + 1) + 2))` (and part `0`'s input
+plane from the endpoint); then `hIO` follows from the IO slot's start claim and the gates (`gD = 1` at logical
+positions), as L46 §5 item 1 says.
+
+### 5.2 What blocks `hblk` now (L54 §5.3, updated)
+
+1. ~~The block's verifier free~~: `hPk` ties `Pk k` to layer `k` with every premise L49's block theorem asks of a
+   verifier (this lane).
+2. The boundary data: at the run the boundary tables are header entries (`hdrX`), not functions of `Cuts3`, `RootsO`.
+   L49's block statement models them as `csE`, `XE : Cuts3 → RootsO → …` (`BlockInstProf.lean`'s `csXof`); to apply it
+   per block at the run, widen `csE`, `XE` with `HdrX` exactly as this lane widened `Fsl` (finding L56-3).
+3. `DIO`, `hIO` (5.1). 4. `hdefR`, `hlu` (placement), as L54 §5.3 item 4. 5. Layout, as L54 §5.3 item 5.
+
+### 5.3 For the coordinator: lane L55's pins agree
+
+`hgXB` fixes the closing openings' root positions for parts `1 … Lb + 1` at `off j + 2`. Lane L55 (merged on perf as
+`0992e5ce` while this lane ran; not in this lane's tree) pins the same openings' geometries: `hgX1 : (base 1).gX =
+rkR13 … (off 0 + 2)`, `hgXk : (base (k + 2)).gX = rkR13 … (off (k + 1) + 2)` for `k + 1 < Lb`, `hgXo : (base (Lb + 1)).gX
+= rkR13 … (off Lb + 2)`. Their `ipos` fields are exactly `hgXB`'s positions, so on the merged tree `hgXB` follows from
+L55's three pins (the `ipos` of `rkR13 rows p` is `p` by definition). The two lanes CHECKED the positions independently
+(L55's `RunCloseBGeoCheck`, this lane's receipt and source checks).
 
 ## 6. Findings
 
-TBD
+No statement of `Statements.lean` changed. No target weakened. No existing Lean file changed. Every premise this lane
+introduced is shown met by the real objects or reduced to a stated, meetable property (§4.1).
+
+**L56-1 (Medium; for the coordinator): the closing openings' root positions were free in L54's theorem.** It left
+`(base i).gX.ipos` for parts `i = 1 … Lb + 1` unconstrained; the code opens, at part `i`, the root part `i - 1`'s
+frame absorbed third (run position `off (i - 1) + 2`; CHECKED on a real receipt, five refused variants per block, and
+in the source). This lane pins it (`hgXB`) because the boundary semantics must read the closing openings' tables; lane
+L55 (merged meanwhile) pins the same geometries for `hopX1` at the same positions (§5.3), so the two agree and `hgXB`
+follows from L55's pins on the merged tree.
+
+**L56-2 (Medium; for the coordinator): three restated top-theorem lines.** Lane L53's `RunStgTopD`, lane L55's
+`RunCloseBTopF` and lane L54's `RunWireTop` (with this lane's `RunBndTop` on it) are each generated from lane L52's
+`eb_productionReadyL_epP_codeT`; none carries the others' discharges. A merging lane should regenerate them into one
+(this lane's generators change only `Fsl`'s type, `hslB`, `hsl_blk` / `hsl_ev`, and add `hgXB`, `hPk`, `hsl_args`;
+each change is asserted to apply once, so they can be re-run on another line's text; `hgXB` then follows from L55's
+`hgX1`, `hgXk`, `hgXo`).
+
+**L56-3 (Medium; for L49's successor and the `hblk` lane): lane L49's block statement has the same type limitation.**
+`block_knowledge_r13_shield`'s `csE`, `XE : Cuts3 → RootsO → …` (the endpoint, i.e. boundary, claims' semantics) see
+only the block's `A`, `M`, `H` cuts and roots; at the run the boundary tables are header entries (`hdrX`). Using L49's
+theorem per block at the run needs `csE`, `XE` widened with `HdrX` (this lane's repair, at block level), or an
+instantiation per reading. Lane L54 named this; it is not repaired here (L49's files are not this lane's).
+
+**L56-4 (Info): the new schedule costs nothing at the run.** Its slots have L16's shapes and windows
+(`blockSchedXB_s`, `_d`, `_n`, `slotsLenX_blockSchedXB`), its statements are cut readers (`blockSlotXB_cut`), and the
+alive proof is L50's with one more argument, frozen with the header (`hdrX_allOps`).
+
+**L56-5 (Info): the code refuses a block's outgoing claims at its input boundary before the PCS.** On the receipt, the
+negative controls "no incoming claims" and "outgoing claims in their place" are refused by the boundary schedule audit
+(`check_opening`: "a reserved pair is unused or shared between claims"), the root variants by the PCS's Merkle paths,
+the frame variant by the first sumcheck round. Each IO claim is pinned to its boundary by the audit's reserved mask
+pairs as well as by the opening.
+
+**L56-6 (Info, process): lock waits.** LOCKWAITS
 
 ## 7. Checks
 
