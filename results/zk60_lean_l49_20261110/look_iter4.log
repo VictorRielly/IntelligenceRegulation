@@ -1,0 +1,47 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/look_plan4.txt ==
+build ZK60Formal.BlockR13LookSum
+build ZK60Formal.BlockR13LookCov
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg
+== lake build ZK60Formal.BlockR13LookSum ==
+warning: ZK60Formal/BlockR13LookSum.lean:114:45: This simp argument is unused:
+  List.length_nil
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.getD_eq_getElem?_getD, List.append_assoc, List.singleton_append, List.getElem?_append,
+    List.length_replicate, List.length_cons, List.length_append, List.getElem?_replicate, List.getElem?_cons,
+    List.getElem?_nil]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13LookSum.lean:114:62: This simp argument is unused:
+  List.length_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.getD_eq_getElem?_getD, List.append_assoc, List.singleton_append, List.getElem?_append,
+    List.length_replicate, List.length_cons, List.length_nil, List.getElem?_replicate, List.getElem?_cons,
+    List.getElem?_nil]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Build completed successfully (3582 jobs).
+build rc 0 (26 s)
+== lake build ZK60Formal.BlockR13LookCov ==
+Build completed successfully (3584 jobs).
+build rc 0 (34 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg ==
+corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt: R13_RUNG_H24, SUMCLAIM 108 parts, 108 PART lines; Lean 108 parts
+checks: 113 passed, 0 failed
+negative control CAUGHT (1 failed): a part's offset (part 37 + 16384)
+negative control CAUGHT (1 failed): a part's log size (part 40: 14)
+negative control CAUGHT (1 failed): a table helper's sign (part 100: +1)
+negative control CAUGHT (1 failed): an imaginary half's coefficient (part 7: 1)
+negative control CAUGHT (1 failed): a part's point (part 3: one coordinate)
+negative control CAUGHT (2 failed): a missing part (the last)
+negative control CAUGHT (2 failed): two parts swapped (64, 66)
+negative control CAUGHT (1 failed): the value (1)
+negative control CAUGHT (1 failed): the header (the W16R2 rung's)
+negative control CAUGHT (6 failed): Lean: the table helpers' sign +1
+negative control CAUGHT (2 failed): Lean: H_U's sign -1
+negative control CAUGHT (54 failed): Lean: the imaginary halves' coefficient sign (not sign·u)
+negative control CAUGHT (14 failed): Lean: Dom::Q's helpers at log size 14
+negative controls: 13 of 13 caught
+rc 0 for run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg (48 s)
+rc 0, 48 s
