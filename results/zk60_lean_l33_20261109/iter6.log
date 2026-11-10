@@ -1,0 +1,49 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acf8501c364823cda/results/zk60_lean_l33_20261109/plan.txt ==
+build ZK60Formal.ZKHonestBound
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acf8501c364823cda/results/zk60_lean_l33_20261109/check_l33.sh
+== lake build ZK60Formal.ZKHonestBound ==
+Build completed successfully (3532 jobs).
+build rc 0 (7 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acf8501c364823cda/results/zk60_lean_l33_20261109/check_l33.sh ==
+check rc 0 (65 s); its log is check.log
+75 declarations: 19 def, 1 inductive, 1 instance, 54 theorem
+axioms rc 0
+declarations audited: 75 (generated: 75)
+no axiom at all: 24
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  29 axioms: [propext, Classical.choice, Quot.sound]
+  10 axioms: [propext, Quot.sound]
+  11 axioms: [propext]
+   1 axioms: [Quot.sound]
+== source scan of the L33 files ==
+none
+== the library root imports the L33 files ==
+imported: ZKHonestProg
+imported: ZKHonestStep
+imported: ZKHonestView
+imported: ZKHonestCount
+imported: ZKHonestRun
+imported: ZKHonestBound
+== unchanged: Statements.lean and every existing Lean file against the lane's base 0231da18 ==
+Statements.lean unchanged
+existing files under formal/, ops/, apps/ modified, deleted or renamed since the base (the root's import lines apart): 0
+lines removed from the root's imports: 0
+== name clashes with every worktree's Lean files ==
+declared twice inside the lane: none
+worktrees read: 41
+other Lean files read (with repeats across worktrees): 3585
+clashes: 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 58 s
+rc 0, 65 s

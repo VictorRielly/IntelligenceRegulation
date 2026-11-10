@@ -215,3 +215,9 @@ import ZK60Formal.SlotPolyInstMask
 import ZK60Formal.SlotPolyInstEval
 import ZK60Formal.BlockInstChainN
 import ZK60Formal.BlockInstFinal
+import ZK60Formal.ZKHonestProg
+import ZK60Formal.ZKHonestStep
+import ZK60Formal.ZKHonestView
+import ZK60Formal.ZKHonestCount
+import ZK60Formal.ZKHonestRun
+import ZK60Formal.ZKHonestBound
