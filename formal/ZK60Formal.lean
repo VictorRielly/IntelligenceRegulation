@@ -293,3 +293,6 @@ import ZK60Formal.BlockJoinFinal
 import ZK60Formal.BlockJoinBatch
 import ZK60Formal.BlockHostBase
 import ZK60Formal.BlockHostPub
+import ZK60Formal.BlockR13Prog
+import ZK60Formal.BlockR13ProgCnt
+import ZK60Formal.BlockR13ProgOk
