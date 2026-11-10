@@ -73,3 +73,15 @@
 'ZK60.ProtocolClassify.RunShapeP.eb_productionReadyL_epP_codeT' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'ZK60.Sound.MerkleEnc.ebNode' does not depend on any axioms
+'ZK60.Sound.MerkleEnc.ebDescP' depends on axioms: [propext]
+'ZK60.Sound.MerkleEnc.ebOpenX' depends on axioms: [propext]
+'ZK60.Sound.MerkleEnc.eb_findPre_H' depends on axioms: [propext, Quot.sound]
+'ZK60.Sound.MerkleEnc.ebDescP_climb' depends on axioms: [propext, Quot.sound]
+'ZK60.Sound.MerkleEnc.ebOpenX_opens' depends on axioms: [propext, Quot.sound]
+'ZK60.Sound.MerkleEnc.ebDescP_descend' depends on axioms: [propext, Quot.sound]
+'ZK60.Sound.MerkleEnc.ebOpenX_col' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.ebOps' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ebOps_some' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.eb_hops' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.eb_hcan' depends on axioms: [propext, Classical.choice, Quot.sound]
