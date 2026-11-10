@@ -1,0 +1,17 @@
+== plan results/zk60_lean_l47_20261110/r13_plan3.txt ==
+build ZK60Formal.BlockR13JoinForm
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_axioms.lean
+== lake build ZK60Formal.BlockR13JoinForm ==
+Build completed successfully (3573 jobs).
+build rc 0 (5 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_axioms.lean ==
+'ZK60.Exec.Block.Join.R13T.numProg_getD' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13T.progR13_slot19' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13T.rawSlot19_rung' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13T.rawSlot19_shield' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13T.tabR_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13T.tabR_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13T.tabR13_formAt_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13T.tabR13_formAt_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_axioms.lean (8 s)
+rc 0, 8 s

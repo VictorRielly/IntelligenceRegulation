@@ -1,0 +1,38 @@
+== plan results/zk60_lean_l47_20261110/r13_plan1.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_probe.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_probe.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_probe.lean:26:81: error: Application type mismatch: The argument
+  cfgShieldR13
+has type
+  ZK60.RunShape.Shield.ShieldLayer → DefW16.W16Cfg
+but is expected to have type
+  ZK60.RunShape.Shield.ShieldLayer → W16Cfg
+in the application
+  Option.map cfgShieldR13
+"12 tabs\n  0: eq[[d19.0, d19.1, d19.2, d19.3, d19.4, d19.5, d19.6, d19.7, d19.8, d19.9, d19.10, d19.11, d19.12, d19.13] @0]\n  1: priv[A [(2228224, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m0 e0]\n  2: priv[H [(2129920, false), (2146304, true)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m0 e0]\n  3: pub0\n  4: priv[A [(2244608, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m0 e0]\n  5: priv[H [(2162688, false), (2179072, true)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m0 e0]\n  6: pub0\n  7: priv[A [(2260992, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m0 e0]\n  8: priv[H [(2195456, false), (2211840, true)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m0 e0]\n  9: pub0\n  10: pub0\n  11: pub0\n  hosted []\n  nonzero [d19.18]"
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_probe.lean:29:0: error: Aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
+
+To attempt to evaluate anyway despite the risks, use the '#eval!' command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_probe.lean:30:98: error(lean.invalidField): Invalid field notation: Type of
+  c
+is not known; cannot resolve field `sh`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `PartSpec.sh`
+  • `DefW16.W16Cfg.sh`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_probe.lean:31:0: error: Aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
+
+To attempt to evaluate anyway despite the risks, use the '#eval!' command.
+(106, 106, 2228224, 50, 2129920, 2146304)
+[(ZK60.Exec.Slot.W16R2.Seg.tau, 14), (ZK60.Exec.Slot.W16R2.Seg.mu, 4), (ZK60.Exec.Slot.W16R2.Seg.zeta, 1)]
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_probe.lean:34:54: error(lean.invalidField): Invalid field notation: Type of
+  c
+is not known; cannot resolve field `sh`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `PartSpec.sh`
+  • `DefW16.W16Cfg.sh`
+(19, 19)
+15
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13tab_probe.lean (4 s)
+rc 1, 4 s
