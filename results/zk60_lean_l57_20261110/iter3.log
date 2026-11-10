@@ -1,0 +1,610 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/results/zk60_lean_l57_20261110/plan3.txt ==
+build ZK60Formal.RunStgAlgRun ZK60Formal.RunStgAlgCount
+build ZK60Formal.RunStgAlgTop
+build ZK60Formal.RunStgAlgPoly
+build ZK60Formal.RunStgAlgTopR
+== lake build ZK60Formal.RunStgAlgRun ZK60Formal.RunStgAlgCount ==
+Build completed successfully (3640 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.RunStgAlgTop ==
+Build completed successfully (3647 jobs).
+build rc 0 (8 s)
+== lake build ZK60Formal.RunStgAlgPoly ==
+✖ [3645/3645] Building ZK60Formal.RunStgAlgPoly (2.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/ZK60Formal/RunStgAlgPoly.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/lib/lean/ZK60Formal/RunStgAlgPoly.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/lib/lean/ZK60Formal/RunStgAlgPoly.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/ir/ZK60Formal/RunStgAlgPoly.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/ir/ZK60Formal/RunStgAlgPoly.setup.json --json
+error: ZK60Formal/RunStgAlgPoly.lean:85:2: Tactic `split_ifs` failed: no if-then-else conditions to split
+
+sel : Fp2
+rho T point : List Fp2
+start k : ℕ
+v : Fp2
+k' : ℕ
+h :
+  (match Block.Tab.eq point start, k with
+    | Block.Tab.eq point start, k =>
+      if start + point.length ≤ rho.length then
+        match eqPoint point (List.take point.length (List.drop start rho)) with
+        | some v => Except.ok (sel.mul v, k)
+        | none => Except.error "panic: eq_point lengths"
+      else Except.error "panic: rho slice out of range"
+    | Block.Tab.pub v, k =>
+      match evalMleExt v rho with
+      | some x => Except.ok (sel.mul x, k)
+      | none => Except.error "panic: eval_mle_ext length"
+    | Block.Tab.priv p, k => Except.ok (T.getD k Fp2.zero, k + 1)) =
+    Except.ok (v, k')
+⊢ k' = k
+error: ZK60Formal/RunStgAlgPoly.lean:96:38: Application type mismatch: The argument
+  h
+has type
+  (if start✝ + point✝.length ≤ rho.length then
+      match eqPoint point✝ (List.take point✝.length (List.drop start✝ rho)) with
+      | some v => Except.ok (sel.mul v, x✝²)
+      | none => Except.error "panic: eq_point lengths"
+    else Except.error "panic: rho slice out of range") =
+    Except.ok (v, k')
+but is expected to have type
+  Except.ok (?m.117, ?m.118) = Except.ok (?m.119, ?m.120)
+in the application
+  Except.ok.inj h
+error: ZK60Formal/RunStgAlgPoly.lean:97:4: Dependent elimination failed: Failed to solve equation
+  Except.ok (v, k') =
+    match evalMleExt v✝ rho with
+    | some x => Except.ok (sel.mul x, x✝²)
+    | none => Except.error "panic: eval_mle_ext length"
+error: ZK60Formal/RunStgAlgPoly.lean:93:70: unsolved goals
+case h_3
+sel : Fp2
+rho T w : List Fp2
+v : Fp2
+k' x✝² : ℕ
+x✝¹ : Block.Tab
+x✝ : ℕ
+p✝ : Block.Priv
+heq✝ : Block.Tab.pub w = Block.Tab.priv p✝
+h : Except.ok (T.getD x✝² Fp2.zero, x✝² + 1) = Except.ok (v, k')
+⊢ k' = x✝²
+error: ZK60Formal/RunStgAlgPoly.lean:132:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:135:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:136:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:137:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:140:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:141:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:152:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:155:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:156:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:157:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:160:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:161:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:174:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:177:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:178:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:179:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:182:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:183:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+Some required targets logged failures:
+- ZK60Formal.RunStgAlgPoly
+error: build failed
+build rc 1 (13 s)
+== lake build ZK60Formal.RunStgAlgTopR ==
+✖ [3653/3654] Building ZK60Formal.RunStgAlgPoly (3.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/ZK60Formal/RunStgAlgPoly.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/lib/lean/ZK60Formal/RunStgAlgPoly.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/lib/lean/ZK60Formal/RunStgAlgPoly.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/ir/ZK60Formal/RunStgAlgPoly.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/.lake/build/ir/ZK60Formal/RunStgAlgPoly.setup.json --json
+error: ZK60Formal/RunStgAlgPoly.lean:85:2: Tactic `split_ifs` failed: no if-then-else conditions to split
+
+sel : Fp2
+rho T point : List Fp2
+start k : ℕ
+v : Fp2
+k' : ℕ
+h :
+  (match Block.Tab.eq point start, k with
+    | Block.Tab.eq point start, k =>
+      if start + point.length ≤ rho.length then
+        match eqPoint point (List.take point.length (List.drop start rho)) with
+        | some v => Except.ok (sel.mul v, k)
+        | none => Except.error "panic: eq_point lengths"
+      else Except.error "panic: rho slice out of range"
+    | Block.Tab.pub v, k =>
+      match evalMleExt v rho with
+      | some x => Except.ok (sel.mul x, k)
+      | none => Except.error "panic: eval_mle_ext length"
+    | Block.Tab.priv p, k => Except.ok (T.getD k Fp2.zero, k + 1)) =
+    Except.ok (v, k')
+⊢ k' = k
+error: ZK60Formal/RunStgAlgPoly.lean:96:38: Application type mismatch: The argument
+  h
+has type
+  (if start✝ + point✝.length ≤ rho.length then
+      match eqPoint point✝ (List.take point✝.length (List.drop start✝ rho)) with
+      | some v => Except.ok (sel.mul v, x✝²)
+      | none => Except.error "panic: eq_point lengths"
+    else Except.error "panic: rho slice out of range") =
+    Except.ok (v, k')
+but is expected to have type
+  Except.ok (?m.117, ?m.118) = Except.ok (?m.119, ?m.120)
+in the application
+  Except.ok.inj h
+error: ZK60Formal/RunStgAlgPoly.lean:97:4: Dependent elimination failed: Failed to solve equation
+  Except.ok (v, k') =
+    match evalMleExt v✝ rho with
+    | some x => Except.ok (sel.mul x, x✝²)
+    | none => Except.error "panic: eval_mle_ext length"
+error: ZK60Formal/RunStgAlgPoly.lean:93:70: unsolved goals
+case h_3
+sel : Fp2
+rho T w : List Fp2
+v : Fp2
+k' x✝² : ℕ
+x✝¹ : Block.Tab
+x✝ : ℕ
+p✝ : Block.Priv
+heq✝ : Block.Tab.pub w = Block.Tab.priv p✝
+h : Except.ok (T.getD x✝² Fp2.zero, x✝² + 1) = Except.ok (v, k')
+⊢ k' = x✝²
+error: ZK60Formal/RunStgAlgPoly.lean:132:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:135:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:136:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:137:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:140:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:141:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:152:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:155:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:156:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:157:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:160:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:161:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:174:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:177:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:178:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+error: ZK60Formal/RunStgAlgPoly.lean:179:20: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:182:22: Invalid dotted identifier notation: The expected type of `.error` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.error`
+  [apply] `EST.Out.error`
+  [apply] `EStateM.Result.error`
+  [apply] `Lean.Exception.error`
+  [apply] `Lean.MessageSeverity.error`
+  [apply] `Lean.Parser.error`
+  [apply] `Lean.TraceResult.error`
+  [apply] `Lean.Lsp.DiagnosticSeverity.error`
+  [apply] `Lean.Lsp.MessageType.error`
+  [apply] `Lean.Macro.Exception.error`
+  [apply] `Mathlib.Tactic.BehaviorIfUnchanged.error`
+  [apply] `Std.Internal.Parsec.ParseResult.error`
+  [apply] `Lean.Meta.Tactic.TryThis.SuggestionStyle.error`
+error: ZK60Formal/RunStgAlgPoly.lean:183:20: Invalid dotted identifier notation: The expected type of `.ok` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Except.ok`
+  [apply] `EST.Out.ok`
+  [apply] `EStateM.Result.ok`
+  [apply] `PlaneCommit.ok`
+  [apply] `Lean.Meta.Grind.CheckCoverageResult.ok`
+Some required targets logged failures:
+- ZK60Formal.RunStgAlgPoly
+error: build failed
+build rc 1 (17 s)
+rc 1, 17 s

@@ -1,0 +1,62 @@
+== lake build of the L57 modules, one at a time ==
+lake build ZK60Formal.RunStgAlgHost rc 0
+lake build ZK60Formal.RunStgAlgList rc 0
+lake build ZK60Formal.RunStgAlgRun rc 0
+lake build ZK60Formal.RunStgAlgCount rc 0
+lake build ZK60Formal.RunStgAlgPoly rc 0
+lake build ZK60Formal.RunStgAlgTop rc 0
+lake build ZK60Formal.RunStgAlgTopR rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3816/3817] Built ZK60Formal (11s)
+Build completed successfully (3817 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the modules' own builds: 0
+== axiom audit (the L57 files) ==
+90 declarations: 1 abbrev, 26 def, 63 theorem
+axioms rc 0
+declarations audited: 90 (generated: 90)
+no axiom at all: 6
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  46 axioms: [propext, Classical.choice, Quot.sound]
+  31 axioms: [propext, Quot.sound]
+   7 axioms: [propext]
+== source scan of the L57 files ==
+none
+== the library root imports the L57 files ==
+imported: RunStgAlgHost
+imported: RunStgAlgList
+imported: RunStgAlgRun
+imported: RunStgAlgCount
+imported: RunStgAlgPoly
+imported: RunStgAlgTop
+imported: RunStgAlgTopR
+== existing files changed against perf's fceca671 ==
+Statements.lean unchanged
+existing files under formal/ changed (the root's imports apart): 0
+lines removed from the root's imports: 0
+files changed under ops/: 0
+== name clashes with the other worktrees' Lean files ==
+worktrees read: 42
+other Lean files read (with repeats across worktrees): 5371
+clashes: 0
+== the generated file is its generator's output ==
+RunStgAlgTop.lean: identical
+== the IN-C count at the app's profile against the code (l57_count_check.py) ==
+L57 count check: 23 checks, 0 failed
+L57 count check negative control: 9 single changes, 9 caught
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+verdicts: generated file 0, count check 0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 67 s

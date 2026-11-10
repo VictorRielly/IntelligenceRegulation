@@ -1,0 +1,4 @@
+build ZK60Formal.RunStgAlgRun ZK60Formal.RunStgAlgCount
+build ZK60Formal.RunStgAlgTop
+build ZK60Formal.RunStgAlgPoly
+build ZK60Formal.RunStgAlgTopR

@@ -443,3 +443,10 @@ import ZK60Formal.RunBndShield
 import ZK60Formal.RunBndDef
 import ZK60Formal.RunBndChain
 import ZK60Formal.RunBndTop
+import ZK60Formal.RunStgAlgHost
+import ZK60Formal.RunStgAlgList
+import ZK60Formal.RunStgAlgRun
+import ZK60Formal.RunStgAlgCount
+import ZK60Formal.RunStgAlgPoly
+import ZK60Formal.RunStgAlgTop
+import ZK60Formal.RunStgAlgTopR

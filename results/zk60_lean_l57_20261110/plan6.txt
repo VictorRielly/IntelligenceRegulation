@@ -1,0 +1,2 @@
+build ZK60Formal.RunStgAlgHost
+build ZK60Formal.RunStgAlgTopR

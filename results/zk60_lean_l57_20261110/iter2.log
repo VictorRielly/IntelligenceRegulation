@@ -1,0 +1,9 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/results/zk60_lean_l57_20261110/plan2.txt ==
+build ZK60Formal.RunStgAlgHost ZK60Formal.RunStgAlgList
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/ZK60Formal/RunStgAlgRun.lean
+== lake build ZK60Formal.RunStgAlgHost ZK60Formal.RunStgAlgList ==
+Build completed successfully (3635 jobs).
+build rc 0 (14 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/ZK60Formal/RunStgAlgRun.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab99468347f0d6d75/formal/ZK60Formal/RunStgAlgRun.lean (17 s)
+rc 0, 17 s
