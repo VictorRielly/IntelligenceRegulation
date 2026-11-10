@@ -1,0 +1,3 @@
+build ZK60Formal.RunTrBase
+build ZK60Formal.RunTrSched
+build ZK60Formal.RunTrVerify
