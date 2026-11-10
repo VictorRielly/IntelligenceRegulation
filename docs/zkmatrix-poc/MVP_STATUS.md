@@ -33,9 +33,16 @@ item was re-checked against the source by the coordinator.
     absorbs. So L48's premise `hInAbs` is false at the real run (PROVED), and so is the route to the input
     commitment's closing opening and to the link `hBal`.
   - **Is the protocol affected?** No. The root is bound before every challenge (ARGUED); the gap is in the model.
-  - **Repair:** B, Lean only, is under way: the extraction is generalized to read the root where the code puts it.
-    The core is PROVED by L51, and lane L52 is finishing it. The estimated cost is one more extraction event (R13
-    budget 55.85 M of 67.1 M units; ESTIMATE).
+  - **REPAIRED the same day, Lean only (repair B; lanes L51 and L52, merged and checked).** The extraction now reads
+    the root where the code puts it. Several premises are now PROVED at the code's real header: the input
+    commitment's closing opening, its column test built from that opening, and the links `hwin` and `hBal`. The extra
+    extraction event's cost is PROVED: the R13 budget is 55,852,891 of 67,108,864 units (83.2 %).
+  - **The app's top theorem to cite is now `eb_productionReadyL_epP_codeT`.** It has 124 binders against L50's 136.
+  - **Still open at the input endpoint:** one checked extractor for the test's columns and the openings, with its
+    failure event; `hread`, `hE`, `mk`; and `hdzero`, which waits on lane L53's stage lists.
+  - **L52-5 answered from the code:** both receipt readers refuse any field word that is not fully reduced
+    (`private_block/wire.rs:211-216`, `token_io.rs:1512-1515` and `:1601-1610`). So the Lean extractor is right to
+    drop such columns.
   - **For Victor:** whether to also fold a one-line code change into W16R3. It would absorb the root on its own, so a
     later re-proof can use the simpler model. That is D79, open. The Lean side of that change is already PROVED.
   - **Also done by L51:** the run header is now the code's in Lean, checked against a real receipt by replaying it
