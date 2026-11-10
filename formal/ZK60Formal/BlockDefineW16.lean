@@ -370,7 +370,7 @@ def rawSlot (s : ℕ) : SlotS :=
         [aTab (aOff c I.pp) (logOf c I.pp)
             (rhoC 0 lkv ++ rhj.map CoordS.fixed ++ rt.map CoordS.fixed ++ rhoC lkv (lkv + lt)) 0,
           aTab (aOff c I.v) (logOf c I.v) (rhoC lkv (lkv + lt) ++ rhoC 0 lkv ++ r3.map CoordS.fixed) 1]
-    ⟨(if gq then [TabS.eqrg 0] else []) ++ ab, bilIr cstS (optIx gq 0) o (o + 1), [], []⟩
+    ⟨(if gq then [TabS.eq rg 0] else []) ++ ab, bilIr cstS (optIx gq 0) o (o + 1), [], []⟩
   else if s = scDZC then
     let mu := seg c s 0
     let nu := seg c s 1
