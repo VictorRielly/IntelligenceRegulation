@@ -208,3 +208,5 @@ import ZK60Formal.HonestOpenSites
 import ZK60Formal.HonestRunBlock
 import ZK60Formal.HonestRunProg
 import ZK60Formal.HonestRunCount
+import ZK60Formal.HonestRunCover
+import ZK60Formal.HonestRunStageIn

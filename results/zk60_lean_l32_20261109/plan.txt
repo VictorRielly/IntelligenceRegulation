@@ -5,3 +5,5 @@ build ZK60Formal.HonestOpenSites
 build ZK60Formal.HonestRunBlock
 build ZK60Formal.HonestRunProg
 build ZK60Formal.HonestRunCount
+build ZK60Formal.HonestRunCover
+build ZK60Formal.HonestRunStageIn

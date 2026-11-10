@@ -25,7 +25,7 @@ are the coins'): no hash query outside the transcript. With these, the prefix of
 once the part's start is (L29's `coreHeadProg` / `famPre`, then `maskProg`, `pcsProg`); chaining the parts of the run
 is the remaining step (it needs the commitments' Merkle programs as `RootProg`s and the frames between the parts).
 -/
-import ZK60Formal.HonestRunBlock
+import ZK60Formal.HonestOpenM
 import ZK60Formal.HonestOracleParts
 
 set_option autoImplicit false

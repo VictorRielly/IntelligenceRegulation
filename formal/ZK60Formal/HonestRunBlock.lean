@@ -24,7 +24,7 @@ What is here:
 
 Every premise is an explicit hypothesis.
 -/
-import ZK60Formal.HonestOpenSites
+import ZK60Formal.HonestOpenFields
 import ZK60Formal.HonestClassifyBlock
 
 set_option autoImplicit false

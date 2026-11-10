@@ -27,7 +27,6 @@ Every premise is an explicit hypothesis. The schedule audit's own refusals (`aud
 coefficient, a claim's pair weights dependent) are functions of the slots' challenges; they are not built as sites
 here (they stay named events of `check_opening`, finding L32-4).
 -/
-import ZK60Formal.HonestOpenFields
 import ZK60Formal.HonestOracleProg
 
 set_option autoImplicit false

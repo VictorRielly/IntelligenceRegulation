@@ -226,6 +226,10 @@ theorem coefPoly_polyWords (p : K[X]) (hp : p.natDegree < 2 * mMsg) :
   rw [e]
   exact coefPoly_coeffs p hp
 
+/- `polyWords` is `List.ofFn` over `1024` positions: nothing below reads it but through the four lemmas above, and
+the unifier must not unfold it (it would walk the `1024` positions). -/
+attribute [irreducible] polyWords
+
 end Words
 
 /-! ## The honest `M` opening prover -/
@@ -301,13 +305,19 @@ theorem maskProve_shape (M : MTable) (S : ℕ) (fs : List MaskFunctional) (t : T
       ∧ ∀ c ∈ (maskProve H tag U hbij ω512 ω4096 M S fs t).1.columns,
           c.1 < mDom ∧ c.2.1.length = 2 * S + 4 ∧ (∀ x ∈ c.2.1, x.Canon) ∧ c.2.2.2.length = 12 := by
   obtain ⟨idx, t3, -, hlen, hlt, hop⟩ := maskProve_eq H tag U hbij ω512 ω4096 M S fs t
-  rw [hop]
-  refine ⟨polyWords_length U hbij _, polyWords_canon U hbij _, polyWords_length U hbij _, polyWords_canon U hbij _,
-    ?_, fun c hc => ?_⟩
-  · show (idx.map (fun j => ((j, mCol S (cosetPt ω4096) M j, M.salts j,
-      pathOf H tag 12 (mTab S (cosetPt ω4096) M) j) : OCol))).length = mQ
-    rw [List.length_map, hlen]
-  · obtain ⟨j, hj, rfl⟩ := List.mem_map.mp hc
+  have hq : (maskProve H tag U hbij ω512 ω4096 M S fs t).1.q = mQw H U hbij ω512 M S fs t := by simp only [hop]
+  have hp : (maskProve H tag U hbij ω512 ω4096 M S fs t).1.prox = mPw H U hbij ω512 M S fs t := by simp only [hop]
+  have hc : (maskProve H tag U hbij ω512 ω4096 M S fs t).1.columns
+      = idx.map (fun j => ((j, mCol S (cosetPt ω4096) M j, M.salts j,
+          pathOf H tag 12 (mTab S (cosetPt ω4096) M) j) : OCol)) := by simp only [hop]
+  have hql : (mQw H U hbij ω512 M S fs t).length = 2 * mMsg := polyWords_length U hbij _
+  have hqc : ∀ x ∈ mQw H U hbij ω512 M S fs t, x.Canon := polyWords_canon U hbij _
+  have hpl : (mPw H U hbij ω512 M S fs t).length = 2 * mMsg := polyWords_length U hbij _
+  have hpc : ∀ x ∈ mPw H U hbij ω512 M S fs t, x.Canon := polyWords_canon U hbij _
+  rw [hq, hp, hc]
+  refine ⟨hql, hqc, hpl, hpc, ?_, fun c hc' => ?_⟩
+  · rw [List.length_map, hlen]
+  · obtain ⟨j, hj, rfl⟩ := List.mem_map.mp hc'
     exact ⟨hlt j hj, mCol_length S _ M j, mCol_canon S _ M j, pathOf_length H tag 12 _ j⟩
 
 variable (hU : U ^ 2 = algebraMap GF K 7)
@@ -385,8 +395,13 @@ theorem maskVerify_of_prove (h512 : IsPrimitiveRoot ω512.toGF 512) (h4096 : IsP
   obtain ⟨-, hvc, -, -, -⟩ := cw_fold_spec U hU (mTheta H t) fs _ Fp2.zero (mTheta H t) (zeros_shape S mMsg)
     Fp2.canon_zero
   have hvc' : (combinedWeights S fs (mTheta H t)).2.Canon := hvc
-  refine ⟨polyWords_length U hbij _, ?_, polyWords_length U hbij _, idx, hidx, ?_, ?_⟩
-  · refine (sum_iff_K U hU (mQw H U hbij ω512 M S fs t) (polyWords_canon U hbij _)
+  have hql : (mQw H U hbij ω512 M S fs t).length = 2 * mMsg := polyWords_length U hbij _
+  have hqc : ∀ x ∈ mQw H U hbij ω512 M S fs t, x.Canon := polyWords_canon U hbij _
+  have hpl : (mPw H U hbij ω512 M S fs t).length = 2 * mMsg := polyWords_length U hbij _
+  unfold MaskOk
+  dsimp only
+  refine ⟨hql, ?_, hpl, idx, hidx, ?_, ?_⟩
+  · refine (sum_iff_K U hU (mQw H U hbij ω512 M S fs t) hqc
       (combinedWeights S fs (mTheta H t)).2 hvc').mpr ?_
     have h0 : ((mQw H U hbij ω512 M S fs t).getD 0 Fp2.zero).toK U
         = (qPoly U (algebraMap GF K ω512.toGF) M S fs ((mTheta H t).toK U)).coeff 0 :=
