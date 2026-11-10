@@ -23,8 +23,9 @@ item was re-checked against the source by the coordinator.
   readers, the extraction, and the remaining six conditions.
 - **2026-11-10, the doom half begun (L46, merged and checked):** the per-block doom cover `hdblk` is PROVED at the
   app's per-block model. If a block's relations fail, some check in that block's part of the run started from a false
-  claim. The proof goes through the run's transcript and L36's algebra. The app's top theorem is now
-  `rd_productionReadyL_r13P_exec_blk`. Still open: the two stage covers and the three input-commitment links, and the
+  claim. The proof goes through the run's transcript and L36's algebra. The app's top theorem was then
+  `rd_productionReadyL_r13P_exec_blk`; since L48 it is `og_productionReadyL_epP_exec_blk`, at the real opening
+  widths (see L45-2 below). Still open: the two stage covers and the three input-commitment links, and the
   boundary IO slots' polynomials (L46-3), which tie each block to the run's boundary planes.
 - **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
   enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
@@ -98,8 +99,19 @@ item was re-checked against the source by the coordinator.
   - **Also affected:** lane L26's corrected input-opening instance, which Victor adopted in D77, was built on the block
     geometry. The ruling stands (the unique-decoding radius at its largest). Its numbers do not: at the real geometry
     the radius is about 768 of 2,048 columns, not 24,448 of 65,536. The register records this correction as D77a.
-  - **Repair:** lane L48 is making each opening's width a parameter, checking the real geometries against the code,
-    and rebuilding the input-commitment instance at its real geometry.
+  - **REPAIRED the same day by lane L48 (merged 2026-11-10).**
+    - Each opening's width is now a parameter. Every old theorem still holds at the block width.
+    - The real widths are named and checked against the code: the stages at 2^12, rate 1/4; the input commitment at
+      2^8, rate 1/8. The comparison ran 29 checks, 0 failed, and all 21 deliberately altered copies were refused.
+    - The input commitment was rebuilt at its real width. Radius 768 is PROVED and is the largest possible. The
+      column test is ≤ 2^-173 per query, which confirms D77a's estimate. Victor's D77 (1) instance is now
+      `classifyProtocolUExecEp`.
+    - **The app's top theorem to cite is now `og_productionReadyL_epP_exec_blk`.** It has the stages at 2^12, the
+      blocks at 2^14, the input commitment at radius 768, and L46's per-block cover. The older
+      `rx_productionReadyL_r13P_exec_own` is still true, but the real run cannot meet its premises (L48-4).
+    - **Still open there:** the closing openings after part 0, the endpoint's reading of the run, the six remaining
+      alive conditions, the covers `hdin`, `hdout` and `hdzero`, and a new small premise `hInAbs`. The header's
+      absorption of the input root is not modelled yet (L48-3, Medium).
 - **L45, the alive half continued (merged 2026-11-10):** the stages' accumulator readers, and the run's own Merkle
   work and extraction. The extraction premise is gone, and every part's A, H and M opening facts are proved (at the
   block geometry; see L45-2 above).

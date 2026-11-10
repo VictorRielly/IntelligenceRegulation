@@ -1,0 +1,1 @@
+RunOpenGeoEP.lean written; substitutions: R13.r13TokenCommit x6, Fin dR × Fin (2 ^ 14) x5, Fin Rr → Fin (2 ^ 14) → GF x5, Fin (2 ^ 16) x33, (Fin (2 ^ 14 + 256)) Cl 16 x7, XTest F κ μ Cl 16 x1, R13.r13Pts x8, R13.r13Form x1, rowFormK14_ext_r13 F x1, rowFormK14 F x8, 24448 x143, 2 * 768 + (2 ^ 14 + 256) ≤ 2 ^ 16 x1, 2 ^ 16 ≤ 2 ^ 20 x1, T.εA_r13 x1, T.εB_r13 x1

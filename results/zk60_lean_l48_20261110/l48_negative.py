@@ -13,7 +13,8 @@ import shutil
 import subprocess
 import sys
 
-WT = "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea"
+# The tree to check: the lane's worktree by default; the coordinator's merged check sets L48_TREE to the main checkout.
+WT = os.environ.get("L48_TREE", "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea")
 LAKE = "/Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lake"
 CHECK = WT + "/formal/ZK60Formal/RunOpenGeoCheck.lean"
 CORPUS = WT + "/results/zk60_lean_l29_20261107/corpus.txt"
