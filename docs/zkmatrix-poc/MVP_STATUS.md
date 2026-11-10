@@ -38,6 +38,15 @@ item was re-checked against the source by the coordinator.
   says; it was compared on one synthetic block and one width-16 rung (GB-8).
 - `CircuitIff` adds nothing to the gate on its own; its content reaches the protocol only through `KnowledgeSound`
   (GB-9).
+- **2026-11-10, Victor ruled every open question (D76, D77, D78):** the allowed leakage is written into the approved
+  statements and the zero-knowledge range is q, R ≤ 2^64 (lane L42 amending `Statements.lean`); the corrected input
+  opening at the largest radius is the production instance; a single-calibration Shieldstral export for W16R2,
+  accuracy check first; W16R3 gets C1, C2, C3, C5, C7 and the token stages, not C4 or C9; the prover shortcut
+  `HL_A26_KEPT` is on for the app, the verifier shortcut is not.
+- **Block level, 2026-11-10 (L35 and L36 merged and checked; the full Lean build 3652 jobs):** the block's `define` is
+  a Lean slot program checked against a real development receipt (143 checks, 0 failed), and the block's relations
+  and lookups follow from the slot claims. L41 is joining the two halves into one block statement whose only
+  remaining premises are run-level and public data.
 - **A fifth weaker-than-claimed result, found and repaired by lane L36 (L36-1).** Every block statement since L21
   assumed the 8B block's lookup count (35.2M), but the app's Shieldstral block makes 64.3M lookups. So L31's
   statement for the app's block said nothing about it. L36 re-proved the chain at a bound of 2^26, which the app's
