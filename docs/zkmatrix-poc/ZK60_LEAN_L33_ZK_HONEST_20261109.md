@@ -1,9 +1,10 @@
 # D63 lane L33: zero knowledge of the classify run with the honest prover as an oracle program (2026-11-09)
 
 Lean lane L33 (Claude), on its own worktree branched from perf at `0231da18` (lanes L9–L29 merged). Lean 4.34.1,
-Mathlib v4.34.1, no new dependency. Five new library files under `formal/ZK60Formal/`, imported by the library root:
-`ZKHonestProg.lean`, `ZKHonestStep.lean`, `ZKHonestView.lean`, `ZKHonestCount.lean`, `ZKHonestRun.lean`. No Rust, no
-production source, no existing Lean file changed (only the root's import lines); `Statements.lean` is unchanged.
+Mathlib v4.34.1, no new dependency. Six new library files under `formal/ZK60Formal/`, imported by the library root:
+`ZKHonestProg.lean`, `ZKHonestStep.lean`, `ZKHonestView.lean`, `ZKHonestCount.lean`, `ZKHonestRun.lean`,
+`ZKHonestBound.lean`. No Rust, no production source, no existing Lean file changed (only the root's import lines);
+`Statements.lean` is unchanged.
 Evidence: `results/zk60_lean_l33_20261109/`.
 
 Labels: **PROVED** (a Lean theorem, axioms at most `propext`, `Classical.choice`, `Quot.sound`), **CODE** (read off the
@@ -23,9 +24,9 @@ stands. The real prover sometimes refuses and starts again (a challenge came out
 attempts). When it refuses it publishes only the constant word "refused". L14's and L19's one-receipt step asks two
 things that cannot both hold at such a moment: that the verifier can recompute every transcript point from the receipt,
 and that the points it cannot recompute are unpredictable from the prover's coins alone. A refused receipt shows
-nothing, and the points before the refusal are not unpredictable from the coins alone (one of them absorbs only a slot
-number). The refusals are far too frequent to be written off as an error term (`2^-57` against a target near
-`2^-120`).
+nothing, and the points before the refusal are not unpredictable enough from the coins alone (one of them carries a
+single masked number, about 128 bits, where the count needs about 249). The refusals are far too frequent to be
+written off as an error term (`2^-57` against a target near `2^-120`).
 - Nothing L14 or L19 proved is false. Their theorems are true of a prover that never refuses.
 - I re-proved the one-receipt step for a prover that refuses (`fs_step_ref`). It needs one new fact about the prover,
   which the code has (lane L4's classes, rulings D65(2) and D66(3)): whether an attempt is refused depends on the
@@ -137,6 +138,13 @@ All PROVED; the counts and the axiom audit are in §7.
 | **`classify_zk_cap`**, **`classify_zk_cap110`** | the error within `εzkTarget` for every `q` and `R ≤ 2^r`; at L19's run counts, `R ≤ 2^110` or `R ≥ 2^120` |
 | **`classifyU_zk_cap110`** | the same for L26's `classifyProtocolU` (`zkU_of_zk`) |
 
+### 2.6 Bounds of a transcript program (`ZKHonestBound.lean`)
+
+| Theorem / definition | Meaning |
+|---|---|
+| `qle_mono`, `ptLE_mono`, **`ptLE_of_qle`** | the bounds can be raised; a program of at most `n` questions has at most `n` points |
+| `askP_qle`, `TOps`, **`ofT_qle`**, **`ofT_ptLE`**, **`ofStart_qle`**, **`ofStart_ptLE`** | a transcript program of at most `n` operations is, as a prover program, an `n`-question program of at most `n` points (`n + 1` from the transcript's creation): `zk_of_prog`'s `hq` and `hk` for L25 / L29's programs |
+
 **The chain to the approved statement, now.** `classify_zk_of_model` (from `zk_of_refModel`, from `oneStepW_ref`, from
 `fs_step_ref`, with L19's `zeroKnowledge_of_oneStepW` and L14's programming lemma unchanged) → `classify_zk_cap110`
 (`ref_cap_R`, L19's `wBudget_le`) → `classifyU_zk_cap110`. `ClassifyOpen`'s field O12 is the first conjunct of
@@ -216,9 +224,11 @@ one-receipt step of L14 and L19 cannot be instantiated by a prover that refuses.
   (argument.rs:1187 `c = 0`, :1478 a degenerate `e`, :1856 a zero batching challenge; protocol.rs:269, :315, :320;
   the LogUp refusals), and every refusal reads the same constant (D65(2)).
 - At a value vector where such a guard fires, the receipt is the constant for every coin. A transcript point before
-  the refusal that absorbed a masked scalar is not a function of (receipt, oracle, values), so it cannot be visible.
-  As a hidden point it must be unpredictable from the coins at fixed values; a `pb-slot` absorb (data: the slot
-  index, argument.rs:1171) has no coin entropy at all. So `vis_pts` and `hUw` cannot both hold there.
+  the refusal that absorbed a masked scalar (an earlier slot's `pb-scalar`, argument.rs:1287) is not a function of
+  (receipt, oracle, values), so it cannot be visible. As a hidden point it must be unpredictable from the coins at
+  fixed values, and it carries ONE masked scalar: about 128 bits, where the budget needs about 249 [ESTIMATE of the
+  entropy; the impossibility is the reason for `fs_step_ref`, not a Lean theorem]. So `vis_pts` and `hUw` cannot both
+  hold there with rates that meet the target.
 - Consequence: `oneStepW_of_fsModel`, `zk_every_R`, `W16R2K.every_R`, `R13K.every_R`, `RunK.cap_112` are true but
   have no instance among provers that refuse. They are not wrong.
 - Done here: `fs_step_ref` / `oneStepW_ref` with a guard `G`. Where it fires, the oracle the distinguisher sees is the

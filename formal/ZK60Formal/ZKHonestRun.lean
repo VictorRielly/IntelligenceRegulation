@@ -99,15 +99,15 @@ def ofT : TProg β → Tr → ℕ → PProg (QB Lq) Dig (Tr × β)
 theorem ofT_run (G : QB Lq → Dig) : ∀ (p : TProg β) (t : Tr) (nd : ℕ),
     (ofT Lq p t nd).run G = TProg.final (liftH G) p t
   | .done _, _, _ => rfl
-  | .absorb l d k, t, nd => by
+  | .absorb _ _ k, _, _ => by
     show (askP Lq _ _ _).run G = _
     rw [askP_run]
     exact ofT_run G k _ _
-  | .squeeze k, t, nd => by
+  | .squeeze k, _, _ => by
     show (askP Lq _ _ _).run G = _
     rw [askP_run]
     exact ofT_run G (k _) _ _
-  | .ext q k, t, nd => by
+  | .ext _ k, t, nd => by
     show (askP Lq _ _ _).run G = _
     rw [askP_run]
     exact ofT_run G (k _) t nd

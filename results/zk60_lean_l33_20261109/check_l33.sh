@@ -16,8 +16,8 @@ R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
 BASE=0231da18
-MODS="ZKHonestProg ZKHonestStep ZKHonestView ZKHonestCount ZKHonestRun"
-FILES="$L/ZKHonestProg.lean $L/ZKHonestStep.lean $L/ZKHonestView.lean $L/ZKHonestCount.lean $L/ZKHonestRun.lean"
+MODS="ZKHonestProg ZKHonestStep ZKHonestView ZKHonestCount ZKHonestRun ZKHonestBound"
+FILES="$L/ZKHonestProg.lean $L/ZKHonestStep.lean $L/ZKHonestView.lean $L/ZKHonestCount.lean $L/ZKHonestRun.lean $L/ZKHonestBound.lean"
 start=$(date +%s)
 echo "== lake build of the L33 modules, one at a time =="
 for m in $MODS; do

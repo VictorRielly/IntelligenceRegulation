@@ -7,9 +7,10 @@ L14's `fs_step` and L19's `fs_step_w` ask two things of the receipt model that a
 vector, a query set read off the receipt catches a hidden point for few coins). At a value vector where a challenge
 refusal fires (`c = 0`, a degenerate `e`, a LogUp `α` in the table, …) the receipt is the constant refusal (D65(2)):
 it shows nothing, so the transcript points before the refusal are not computable from it (they absorbed masked
-scalars), and as hidden points they have too little freshness in the coins alone (a `pb-slot` absorb has none). The
-refusals happen with probability about `2^-57` per receipt (L25), far above the zero-knowledge target, so they cannot be
-charged as a bad event either. Here the step is re-proved with a refusal GUARD:
+scalars), and as hidden points they have too little freshness in the coins alone (an earlier slot's `pb-scalar` absorb
+carries one masked scalar: about 128 bits of the coins, where the budget needs about 249). The refusals happen with
+probability about `2^-57` per receipt (L25), far above the zero-knowledge target, so they cannot be charged as a bad
+event either. Here the step is re-proved with a refusal GUARD:
 
 * `G v`: at the values `v` the receipt is the constant refusal `o₀` for every input and coin (`hrefG`: the refusal is
   a function of the challenges and public data alone, L4's class (C)), and nothing is visible there (`hvisG`);
