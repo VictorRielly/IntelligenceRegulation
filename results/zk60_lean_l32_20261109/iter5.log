@@ -1,0 +1,105 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a56025bec34e68f4b/results/zk60_lean_l32_20261109/plan.txt ==
+build ZK60Formal.HonestOpenPcs
+build ZK60Formal.HonestOpenM
+build ZK60Formal.HonestOpenFields
+build ZK60Formal.HonestOpenSites
+build ZK60Formal.HonestRunBlock
+build ZK60Formal.HonestRunProg
+build ZK60Formal.HonestRunCount
+build ZK60Formal.HonestRunCover
+build ZK60Formal.HonestRunStageIn
+build ZK60Formal.HonestRunStageOut
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a56025bec34e68f4b/results/zk60_lean_l32_20261109/check_l32.sh
+== lake build ZK60Formal.HonestOpenPcs ==
+Build completed successfully (3478 jobs).
+build rc 0 for ZK60Formal.HonestOpenPcs (6 s)
+== lake build ZK60Formal.HonestOpenM ==
+Build completed successfully (3480 jobs).
+build rc 0 for ZK60Formal.HonestOpenM (7 s)
+== lake build ZK60Formal.HonestOpenFields ==
+Build completed successfully (3499 jobs).
+build rc 0 for ZK60Formal.HonestOpenFields (8 s)
+== lake build ZK60Formal.HonestOpenSites ==
+Build completed successfully (3489 jobs).
+build rc 0 for ZK60Formal.HonestOpenSites (10 s)
+== lake build ZK60Formal.HonestRunBlock ==
+Build completed successfully (3501 jobs).
+build rc 0 for ZK60Formal.HonestRunBlock (11 s)
+== lake build ZK60Formal.HonestRunProg ==
+Build completed successfully (3506 jobs).
+build rc 0 for ZK60Formal.HonestRunProg (24 s)
+== lake build ZK60Formal.HonestRunCount ==
+Build completed successfully (3490 jobs).
+build rc 0 for ZK60Formal.HonestRunCount (26 s)
+== lake build ZK60Formal.HonestRunCover ==
+Build completed successfully (3491 jobs).
+build rc 0 for ZK60Formal.HonestRunCover (27 s)
+== lake build ZK60Formal.HonestRunStageIn ==
+Build completed successfully (3503 jobs).
+build rc 0 for ZK60Formal.HonestRunStageIn (29 s)
+== lake build ZK60Formal.HonestRunStageOut ==
+Build completed successfully (3503 jobs).
+build rc 0 for ZK60Formal.HonestRunStageOut (30 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a56025bec34e68f4b/results/zk60_lean_l32_20261109/check_l32.sh ==
+check rc 0 (82 s); its log is check.log
+lake build ZK60Formal.HonestRunStageIn rc 0
+lake build ZK60Formal.HonestRunStageOut rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3600/3601] Built ZK60Formal (3.1s)
+Build completed successfully (3601 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L32 modules' own builds: 0
+== axiom audit ==
+192 declarations: 60 def, 6 structure, 126 theorem
+  HonestOpenPcs.lean: 19 def, 1 structure, 35 theorem
+  HonestOpenM.lean: 18 def, 2 structure, 21 theorem
+  HonestOpenFields.lean: 6 def, 18 theorem
+  HonestOpenSites.lean: 3 def, 15 theorem
+  HonestRunBlock.lean: 2 def, 1 structure, 2 theorem
+  HonestRunProg.lean: 5 def, 16 theorem
+  HonestRunCount.lean: 2 def, 7 theorem
+  HonestRunCover.lean: 1 def, 9 theorem
+  HonestRunStageIn.lean: 2 def, 1 structure, 2 theorem
+  HonestRunStageOut.lean: 2 def, 1 structure, 1 theorem
+axioms rc 0
+declarations audited: 192 (generated: 192)
+no axiom at all: 20
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+ 115 axioms: [propext, Classical.choice, Quot.sound]
+  54 axioms: [propext, Quot.sound]
+   3 axioms: [propext]
+== source scan of the L32 files ==
+none
+== the library root imports the L32 files ==
+imported: HonestOpenPcs
+imported: HonestOpenM
+imported: HonestOpenFields
+imported: HonestOpenSites
+imported: HonestRunBlock
+imported: HonestRunProg
+imported: HonestRunCount
+imported: HonestRunCover
+imported: HonestRunStageIn
+imported: HonestRunStageOut
+== unchanged: Statements.lean and every existing Lean file against the lane's base 6e788dcb ==
+Statements.lean unchanged
+existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
+lines removed from the root's imports: 0
+files changed under ops/ or apps/ (no Rust, no app file is this lane's): 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 52 s
+rc 0, 82 s

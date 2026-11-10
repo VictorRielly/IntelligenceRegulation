@@ -221,3 +221,13 @@ import ZK60Formal.ZKHonestView
 import ZK60Formal.ZKHonestCount
 import ZK60Formal.ZKHonestRun
 import ZK60Formal.ZKHonestBound
+import ZK60Formal.HonestOpenPcs
+import ZK60Formal.HonestOpenM
+import ZK60Formal.HonestOpenFields
+import ZK60Formal.HonestOpenSites
+import ZK60Formal.HonestRunBlock
+import ZK60Formal.HonestRunProg
+import ZK60Formal.HonestRunCount
+import ZK60Formal.HonestRunCover
+import ZK60Formal.HonestRunStageIn
+import ZK60Formal.HonestRunStageOut

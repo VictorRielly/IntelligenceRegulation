@@ -1,0 +1,114 @@
+== lake build ZK60Formal.HonestOpenPcs ==
+✖ [3478/3478] Building ZK60Formal.HonestOpenPcs (11s)
+warning: ZK60Formal/HonestOpenPcs.lean:57:20: This simp argument is unused:
+  h2
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [isPow2, h1]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/HonestOpenPcs.lean:435:35: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (zkRhosAux H T.rows.length (pGroups prm T claims) t).1.length
+in the target expression
+  g < (pRhos H prm T claims t).1.length
+
+H : HIn → Dig
+prm : PcsPrm
+T : Table
+claims : List ZClaim
+t : Tr
+g : ℕ
+hg : g < (pGroups prm T claims).length + 1
+⊢ g < (pRhos H prm T claims t).1.length
+error: ZK60Formal/HonestOpenPcs.lean:578:65: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  Fp2.toK U (combAt ((zkRhosAux H T.rows.length (pGroups prm T claims) t).1.getD g []) T.rows k)
+in the target expression
+  Fp2.toK U (combAt ((pRhos H prm T claims t).1.getD g []) T.rows k) *
+      Fp2.toK U (((pGroups prm T claims).getD g ([], [])).1.getD k Fp2.zero) =
+    (∑ i ∈ Finset.range T.rows.length,
+        (∑ j ∈ Finset.range ((pGroups prm T claims).getD g ([], [])).2.length,
+            Fp2.toK U
+                (challengeFp2Of
+                  ((sqDs H t (nMem (pGroups prm T claims) + T.rows.length)).getD (offOf (pGroups prm T claims) g + j)
+                    zeroDig)) *
+              Fp2.toK U ((((pGroups prm T claims).getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD i Fp2.zero)) *
+          (algebraMap GF K) ((T.rows.getD i []).getD k Fp.zero).toGF) *
+      Fp2.toK U (((pGroups prm T claims).getD g ([], [])).1.getD k Fp2.zero)
+
+case refine_1
+H : HIn → Dig
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+prm : PcsPrm
+T : Table
+claims : List ZClaim
+htrue : ∀ c ∈ claims, ClaimTrue U prm.n prm.logCols T.rows c
+t : Tr
+g : ℕ
+hg : g < (pGroups prm T claims).length
+h1 :
+  ∀ g < (pGroups prm T claims).length,
+    ((zkRhosAux H T.rows.length (pGroups prm T claims) t).1.getD g []).length = T.rows.length ∧
+      ∀ i < T.rows.length,
+        Fp2.toK U (((zkRhosAux H T.rows.length (pGroups prm T claims) t).1.getD g []).getD i Fp2.zero) =
+          ∑ j ∈ Finset.range ((pGroups prm T claims).getD g ([], [])).2.length,
+            Fp2.toK U
+                (challengeFp2Of
+                  ((sqDs H t (nMem (pGroups prm T claims) + T.rows.length)).getD (offOf (pGroups prm T claims) g + j)
+                    zeroDig)) *
+              Fp2.toK U ((((pGroups prm T claims).getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD i Fp2.zero)
+h2 :
+  ∀ g < (pGroups prm T claims).length,
+    Fp2.toK U ((zkRhosAux H T.rows.length (pGroups prm T claims) t).2.1.getD g Fp2.zero) =
+      ∑ j ∈ Finset.range ((pGroups prm T claims).getD g ([], [])).2.length,
+        Fp2.toK U
+            (challengeFp2Of
+              ((sqDs H t (nMem (pGroups prm T claims) + T.rows.length)).getD (offOf (pGroups prm T claims) g + j)
+                zeroDig)) *
+          Fp2.toK U (((pGroups prm T claims).getD g ([], [])).2.getD j ([], Fp2.zero)).2
+hρlen : ((zkRhosAux H T.rows.length (pGroups prm T claims) t).1.getD g []).length = T.rows.length
+hρK :
+  ∀ i < T.rows.length,
+    Fp2.toK U (((zkRhosAux H T.rows.length (pGroups prm T claims) t).1.getD g []).getD i Fp2.zero) =
+      ∑ j ∈ Finset.range ((pGroups prm T claims).getD g ([], [])).2.length,
+        Fp2.toK U
+            (challengeFp2Of
+              ((sqDs H t (nMem (pGroups prm T claims) + T.rows.length)).getD (offOf (pGroups prm T claims) g + j)
+                zeroDig)) *
+          Fp2.toK U ((((pGroups prm T claims).getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD i Fp2.zero)
+hwK :
+  Fp2.toK U ((zkRhosAux H T.rows.length (pGroups prm T claims) t).2.1.getD g Fp2.zero) =
+    ∑ j ∈ Finset.range ((pGroups prm T claims).getD g ([], [])).2.length,
+      Fp2.toK U
+          (challengeFp2Of
+            ((sqDs H t (nMem (pGroups prm T claims) + T.rows.length)).getD (offOf (pGroups prm T claims) g + j)
+              zeroDig)) *
+        Fp2.toK U (((pGroups prm T claims).getD g ([], [])).2.getD j ([], Fp2.zero)).2
+hcw : (List.map (fun x => x.1) (pGroups prm T claims)).getD g [] = ((pGroups prm T claims).getD g ([], [])).1
+hcwl : ((pGroups prm T claims).getD g ([], [])).1.length = prm.n
+hgt :
+  ∀ m ∈ ((groupZclaims claims T.rows.length prm.logCols).getD g ([], [])).2,
+    MemTrue U prm.n T.rows ((groupZclaims claims T.rows.length prm.logCols).getD g ([], [])).1 m
+hlen1 : (List.take prm.n (combVec (prm.n + prm.qPad) ((pRhos H prm T claims t).1.getD g []) T.rows)).length = prm.n
+k : ℕ
+hk : k ∈ Finset.range prm.n
+hk' : k < prm.n
+⊢ Fp2.toK U (combAt ((pRhos H prm T claims t).1.getD g []) T.rows k) *
+      Fp2.toK U (((pGroups prm T claims).getD g ([], [])).1.getD k Fp2.zero) =
+    (∑ i ∈ Finset.range T.rows.length,
+        (∑ j ∈ Finset.range ((pGroups prm T claims).getD g ([], [])).2.length,
+            Fp2.toK U
+                (challengeFp2Of
+                  ((sqDs H t (nMem (pGroups prm T claims) + T.rows.length)).getD (offOf (pGroups prm T claims) g + j)
+                    zeroDig)) *
+              Fp2.toK U ((((pGroups prm T claims).getD g ([], [])).2.getD j ([], Fp2.zero)).1.getD i Fp2.zero)) *
+          (algebraMap GF K) ((T.rows.getD i []).getD k Fp.zero).toGF) *
+      Fp2.toK U (((pGroups prm T claims).getD g ([], [])).1.getD k Fp2.zero)
+Some required targets logged failures:
+- ZK60Formal.HonestOpenPcs
+error: build failed
+build rc 1 for ZK60Formal.HonestOpenPcs (18 s)
+rc build 1 files 0, 18 s
