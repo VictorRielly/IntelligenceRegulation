@@ -1,0 +1,85 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/plan7.txt ==
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/check_l49.sh
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/check_l49.sh ==
+check rc 0 (147 s); its log is check.log
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+ 394 axioms: [propext, Classical.choice, Quot.sound]
+  99 axioms: [propext, Quot.sound]
+ 307 axioms: [propext]
+== source scan of the L49 library files, checkers and test-only Rust ==
+none
+== the library root imports the L49 files ==
+imported: BlockR13HostBase
+imported: BlockR13HostDzc
+imported: BlockR13HostDzcIr
+imported: BlockR13HostDzcSlot
+imported: BlockR13HostDzcVals
+imported: BlockR13HostFzc
+imported: BlockR13HostFzcCfg
+imported: BlockR13HostFzcForm
+imported: BlockR13HostPub
+imported: BlockR13HostQkvBase
+imported: BlockR13HostQkvCfg
+imported: BlockR13HostQkvCube
+imported: BlockR13HostQkvForm
+imported: BlockR13HostQkvIr
+imported: BlockR13HostQkvMm
+imported: BlockR13HostQkvNamed
+imported: BlockR13HostQkvZc
+imported: BlockR13HostSzc
+imported: BlockR13HostSzcCfg
+imported: BlockR13HostSzcCube
+imported: BlockR13HostSzcIr
+imported: BlockR13HostSzcProg
+imported: BlockR13HostSzcTabs
+imported: BlockR13HostSzcVals
+imported: BlockR13HostTzc
+imported: BlockR13HostTzcForm
+imported: BlockR13LookBase
+imported: BlockR13LookCov
+imported: BlockR13LookHelp
+imported: BlockR13LookHelpPub
+imported: BlockR13LookHelpR13
+imported: BlockR13LookHelpSlot
+imported: BlockR13LookLk
+imported: BlockR13LookRelBase
+imported: BlockR13LookRelCore
+imported: BlockR13LookRelFinal
+imported: BlockR13LookRelHost
+imported: BlockR13LookRelSzc
+imported: BlockR13LookSum
+imported: BlockR13StmtBase
+imported: BlockR13StmtDone
+imported: BlockR13StmtHelp
+imported: BlockR13StmtHosts
+imported: BlockR13StmtJoin
+imported: BlockR13StmtLook
+== unchanged: Statements.lean and every existing Lean file, against the lane's base d707fcc2 ==
+Statements.lean unchanged
+existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
+lines removed from the root's imports: 0
+files changed under ops/ since the base (test-only Rust only):
+ops/zkp-mvp/gpu-metal/hashline/src/lean_l49_export_tests.rs
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/w16r2_tests.rs
+files under ops/ other than the two test-only files: 0
+== name clashes with the other worktrees' Lean files ==
+clashes: 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== the lane's agreement checks against the code ==
+checks: 106 passed, 0 failed, 7 fold tables skipped (no weights in this corpus)
+negative controls: 25 of 25 caught
+checks: 113 passed, 0 failed
+negative controls: 13 of 13 caught
+agreement verdicts: host tables 0, sum claim 0 (0 = as required)
+verdicts: L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 147 s
+rc 0, 147 s

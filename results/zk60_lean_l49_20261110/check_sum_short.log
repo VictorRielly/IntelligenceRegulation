@@ -1,0 +1,16 @@
+corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt: R13_RUNG_H24, SUMCLAIM 108 parts, 108 PART lines; Lean 108 parts
+checks: 113 passed, 0 failed
+negative control CAUGHT (1 failed): a part's offset (part 37 + 16384)
+negative control CAUGHT (1 failed): a part's log size (part 40: 14)
+negative control CAUGHT (1 failed): a table helper's sign (part 100: +1)
+negative control CAUGHT (1 failed): an imaginary half's coefficient (part 7: 1)
+negative control CAUGHT (1 failed): a part's point (part 3: one coordinate)
+negative control CAUGHT (2 failed): a missing part (the last)
+negative control CAUGHT (2 failed): two parts swapped (64, 66)
+negative control CAUGHT (1 failed): the value (1)
+negative control CAUGHT (1 failed): the header (the W16R2 rung's)
+negative control CAUGHT (6 failed): Lean: the table helpers' sign +1
+negative control CAUGHT (2 failed): Lean: H_U's sign -1
+negative control CAUGHT (54 failed): Lean: the imaginary halves' coefficient sign (not sign·u)
+negative control CAUGHT (14 failed): Lean: Dom::Q's helpers at log size 14
+negative controls: 13 of 13 caught
