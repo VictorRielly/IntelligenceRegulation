@@ -1,0 +1,1 @@
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a186601888931e210/results/zk60_lean_l30_20261109/check_l30.sh

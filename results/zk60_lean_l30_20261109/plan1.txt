@@ -1,0 +1,4 @@
+build ZK60Formal.BindingUCode
+build ZK60Formal.RunChainUOrd
+build ZK60Formal.RunChainUStab
+build ZK60Formal.RunChainUGate
