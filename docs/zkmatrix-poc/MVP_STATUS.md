@@ -21,6 +21,11 @@ item was re-checked against the source by the coordinator.
   (`hal_opA`) is proved outright. Two more (`hal_opB`, `hal_M`) are proved at every block, up to the extraction step.
   The app's top theorem in the approved form is `rc_productionReadyL_r13P_exec_rk`. Lane L45 continues: the stages'
   readers, the extraction, and the remaining six conditions.
+- **2026-11-10, the doom half begun (L46, merged and checked):** the per-block doom cover `hdblk` is PROVED at the
+  app's per-block model. If a block's relations fail, some check in that block's part of the run started from a false
+  claim. The proof goes through the run's transcript and L36's algebra. The app's top theorem is now
+  `rd_productionReadyL_r13P_exec_blk`. Still open: the two stage covers and the three input-commitment links, and the
+  boundary IO slots' polynomials (L46-3), which tie each block to the run's boundary planes.
 - **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
   enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
 - **The plan, in order:**
