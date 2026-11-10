@@ -27,6 +27,24 @@ item was re-checked against the source by the coordinator.
   `rd_productionReadyL_r13P_exec_blk`; since L48 it is `og_productionReadyL_epP_exec_blk`, at the real opening
   widths (see L45-2 below). Still open: the two stage covers and the three input-commitment links, and the
   boundary IO slots' polynomials (L46-3), which tie each block to the run's boundary planes.
+- **A ninth unmeetable premise (L51-1, High, 2026-11-10; confirmed in the code by the coordinator).**
+  - **What is wrong:** the code absorbs the classifier's input root only once, as the last 32 bytes of an 84-byte
+    header message (`expected-IO`, classify.rs:1147-1153 and :1283). The Lean model read roots only from 32-byte
+    absorbs. So L48's premise `hInAbs` is false at the real run (PROVED), and so is the route to the input
+    commitment's closing opening and to the link `hBal`.
+  - **Is the protocol affected?** No. The root is bound before every challenge (ARGUED); the gap is in the model.
+  - **Repair:** B, Lean only, is under way: the extraction is generalized to read the root where the code puts it.
+    The core is PROVED by L51, and lane L52 is finishing it. The estimated cost is one more extraction event (R13
+    budget 55.85 M of 67.1 M units; ESTIMATE).
+  - **For Victor:** whether to also fold a one-line code change into W16R3. It would absorb the root on its own, so a
+    later re-proof can use the simpler model. That is D79, open. The Lean side of that change is already PROVED.
+  - **Also done by L51:** the run header is now the code's in Lean, checked against a real receipt by replaying it
+    under BLAKE3 to the code's own binding (29 checks, 0 failed; 20 negative-control cases as required).
+- **2026-11-10, the alive half continued (L50, merged).** The six remaining alive conditions are reduced, at all 26
+  blocks, to three block-level facts read at each block's place in the run. Those facts are argued to follow from
+  L16's, L36's and L47's block results, but they are not yet wired in. The stage parts are still premises. The app's
+  top theorem is now `ra_productionReadyL_epP_exec_alive`. Lane L53 is taking the two stages: which stage steps the
+  run lists, their alive conditions and their doom covers. Finding L50-1 showed these must be chosen together.
 - **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
   enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
 - **The plan, in order:**
@@ -111,7 +129,9 @@ item was re-checked against the source by the coordinator.
       `rx_productionReadyL_r13P_exec_own` is still true, but the real run cannot meet its premises (L48-4).
     - **Still open there:** the closing openings after part 0, the endpoint's reading of the run, the six remaining
       alive conditions, the covers `hdin`, `hdout` and `hdzero`, and a new small premise `hInAbs`. The header's
-      absorption of the input root is not modelled yet (L48-3, Medium).
+      absorption of the input root is not modelled yet (L48-3, Medium). `hInAbs` then turned out to be false at the
+      code (L51-1, above). L50's `ra_productionReadyL_epP_exec_alive` restates this theorem with the alive
+      conditions reduced.
 - **L45, the alive half continued (merged 2026-11-10):** the stages' accumulator readers, and the run's own Merkle
   work and extraction. The extraction premise is gone, and every part's A, H and M opening facts are proved (at the
   block geometry; see L45-2 above).

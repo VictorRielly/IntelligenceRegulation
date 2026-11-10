@@ -15,7 +15,8 @@ import shutil
 import subprocess
 import sys
 
-WT = "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4"
+# The tree to check: the lane's worktree by default; the coordinator's merged check sets L51_TREE to the main checkout.
+WT = os.environ.get("L51_TREE", "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4")
 LAKE = "/Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lake"
 CHECK = WT + "/formal/ZK60Formal/RunAbsCheck.lean"
 CORPUS = WT + "/results/zk60_lean_l51_20261110/l51_corpus.txt"
