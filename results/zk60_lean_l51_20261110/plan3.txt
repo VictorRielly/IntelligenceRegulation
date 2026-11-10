@@ -1,0 +1,3 @@
+build ZK60Formal.RunAbsHdr ZK60Formal.RunAbsX ZK60Formal.RunEndptWin
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/results/zk60_lean_l51_20261110/l51_corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/ops/zkp-mvp/gpu-metal
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsTop.lean

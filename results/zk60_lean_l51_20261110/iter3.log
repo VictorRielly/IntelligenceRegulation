@@ -1,0 +1,49 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/results/zk60_lean_l51_20261110/plan3.txt ==
+build ZK60Formal.RunAbsHdr ZK60Formal.RunAbsX ZK60Formal.RunEndptWin
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/results/zk60_lean_l51_20261110/l51_corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/ops/zkp-mvp/gpu-metal
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsTop.lean
+== lake build ZK60Formal.RunAbsHdr ZK60Formal.RunAbsX ZK60Formal.RunEndptWin ==
+Build completed successfully (3575 jobs).
+build rc 0 (6 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/results/zk60_lean_l51_20261110/l51_corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/ops/zkp-mvp/gpu-metal ==
+ok   CORPUS: the corpus is L51's export (hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2)
+ok   CORPUS: 8 header absorbs (HDRN 8)
+ok   CORPUS: the Fiat-Shamir key d3d8739216c3fb1cb38c9cc85dc87156c6266919f64534a29b4194fe6d97c3a3
+ok   LABELS: the model's eight labels are the source strings' bytes
+ok   LABELS: the expected-IO tag and the repair's label are the strings' bytes
+ok   LABELS: the corpus's labels in order: [run-shape, expected-IO, public-statement, parameters, calibration, schedule, classify-verdict, classify-chunk]
+ok   MODEL: clsHdrOps (the statement's words, input root, verdict) is the corpus's eight (label, data)
+ok   MODEL: expected-IO's data is abExpMsg (in_spec digest, input root): 84 bytes
+ok   MODEL: run-shape 88 bytes (11 u64), chunk 56 bytes (7 u64), verdict byte 1
+ok   MODEL: clsHdrOps_fit's bound at Lq = 2^20: 64 + 88 + 1909 + 56 + 84
+ok   REPLAY: Tr.newKeyed (the run profile, the key) is the code's fresh transcript
+ok   REPLAY: the Lean header lands on the run binding 12c980b091836b4821e351f34028b3921d15e448425deda31a5fabe888ea2f43 (counter 0)
+ok   REPLAY: clsStart (st.transcript() in Lean) is the binding
+ok   POS: position 1 absorbs abExpMsg (ab_inAbs)
+ok   POS: no header position absorbs the 32-byte input root (L48's hInAbs false at 0..7 on this receipt)
+ok   POS: rootAt at position 1 is none (ab_rootAt_none)
+ok   POS: position 6 absorbs the verdict byte (ab_verdictAbs)
+ok   POS: stage IN-C's 32-byte absorbs before the endpoint opening (embedding digest, B_in, A, H, M roots) are not the input root
+ok   FIX: the repaired header absorbs the 32-byte input root at position 2 (ab_inAbs_fix)
+ok   FIX: the repaired header is another binding (a protocol change)
+ok   SOURCE: classify.rs: ClassifyRunStatement::transcript is found
+ok   SOURCE: transcript(): the eight absorbs
+ok   SOURCE: transcript(): in this order (at [424, 471, 530, 596, 665, 721, 779, 836])
+ok   SOURCE: transcript(): exactly eight absorbs, no challenge
+ok   SOURCE: transcript(): on the tagged transcript of the run profile
+ok   SOURCE: expected_bytes(): the tag, the input endpoint spec's digest, the input root, nothing else
+ok   SOURCE: classify_run.rs: the run starts on st.transcript() and hands st.in_root() to stage IN-C
+FAIL SOURCE: stage_in_c.rs verify: ep_root is only the endpoint commitment's root (no absorb of it)
+ok   SOURCE: stage_in_c.rs verify: no absorb of the input root
+CORPUS: 3 checks, 0 failed
+LABELS: 3 checks, 0 failed
+MODEL: 4 checks, 0 failed
+REPLAY: 3 checks, 0 failed
+POS: 5 checks, 0 failed
+FIX: 2 checks, 0 failed
+SOURCE: 9 checks, 1 failed
+RunAbsCheck: 29 checks, 1 failed
+run rc 1 (11 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsTop.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsTop.lean (14 s)
+rc 1, 14 s
