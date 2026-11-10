@@ -126,21 +126,21 @@ variable {K : Type} [Field K] [Algebra GF K] {L : ℕ} {P : BlockParams} (U : K)
   (dt : AlgData K L sh)
 
 /-- A challenge an earlier slot drew, read off the history (`0` when absent). -/
-def drawAt (hist : Hist) (s q : ℕ) : K := ((hist.draws.getD s []).getD q Fp2.zero).toK U
+def algDrawAt (hist : Hist) (s q : ℕ) : K := ((hist.draws.getD s []).getD q Fp2.zero).toK U
 
 /-- The history before slot `k` shows an earlier slot's draws. -/
-theorem drawAt_hist (b g a : Fp2) (rs : List SlotRec) (k j q : ℕ) (r : SlotRec) (hjk : j < k)
+theorem algDrawAt_hist (b g a : Fp2) (rs : List SlotRec) (k j q : ℕ) (r : SlotRec) (hjk : j < k)
     (hr : rs[j]? = some r) :
-    drawAt U (histOf b g a (rs.take k)) j q = (r.draws.getD q Fp2.zero).toK U := by
+    algDrawAt U (histOf b g a (rs.take k)) j q = (r.draws.getD q Fp2.zero).toK U := by
   have e : ((rs.take k).map SlotRec.draws).getD j [] = r.draws := by
     rw [List.getD_eq_getElem?_getD, List.getElem?_map, List.getElem?_take_of_lt hjk, hr]
     rfl
-  unfold drawAt histOf
+  unfold algDrawAt histOf
   simp only
   rw [e]
 
 /-- `SC_RS`'s `λ` (its last draw), read off the history. -/
-def algLam (hist : Hist) : K := drawAt U hist 4 sh.nHt
+def algLam (hist : Hist) : K := algDrawAt U hist 4 sh.nHt
 
 /-- **A host's hosted function** `i` on its cube: its gated term `gh`; for `SC_SZC` hosting `SC_RS`, the scaled
 `λ`-batched row difference `2^b·(rsA + λ·rsB)` of the row coordinates. -/
@@ -157,10 +157,10 @@ def algM (k : ℕ) (cu : Cuts3 L) (rt : RootsO) (i : Fin 2) : (Fin (segLn (sh.dl
 
 /-- **A host's hosted claim point** `i` (L11's `claimPoint`), read off the history. -/
 def algPt (k : ℕ) (hist : Hist) (i : Fin 2) (t : Fin (segLn (sh.dl k) .tau)) : K :=
-  if k = 17 ∧ i = 0 then (if (t : ℕ) < sh.nHt then drawAt U hist 4 t else 0)
+  if k = 17 ∧ i = 0 then (if (t : ℕ) < sh.nHt then algDrawAt U hist 4 t else 0)
   else if k = 16 ∨ (k = 18 ∧ i = 1) then
-    (if (t : ℕ) < sh.pa then drawAt U hist (partSrc k) t else drawAt U hist (hostedOf k i) ((t : ℕ) - sh.pa))
-  else drawAt U hist (hostedOf k i) (sh.ip k i t)
+    (if (t : ℕ) < sh.pa then algDrawAt U hist (partSrc k) t else algDrawAt U hist (hostedOf k i) ((t : ℕ) - sh.pa))
+  else algDrawAt U hist (hostedOf k i) (sh.ip k i t)
 
 theorem algH_gh (k : ℕ) (cu : Cuts3 L) (rt : RootsO) (hist : Hist) (i : Fin 2) (h : ¬ (k = 17 ∧ i = 0)) :
     algH U sh dt k cu rt hist i = dt.gh k cu rt i := by
@@ -191,7 +191,7 @@ def privSp (k : ℕ) (hk : k ∈ algHosts) (i : Fin 2) (hd1 : ¬ (k = 16 ∨ (k 
 /-- **A private slot whose claim point starts with an earlier slot's coordinates** (layer 1). -/
 def partSp (k : ℕ) (i : Fin 2) (hp : k = 16 ∨ (k = 18 ∧ i = 1)) (cu : Cuts3 L) (rt : RootsO) (hist : Hist) :
     SlotPoly K (P.draws (hostedOf k i)) :=
-  SlotPoly.partWhole (partD sh dt k i hp cu rt) (fun t : Fin sh.pa => drawAt U hist (partSrc k) t)
+  SlotPoly.partWhole (partD sh dt k i hp cu rt) (fun t : Fin sh.pa => algDrawAt U hist (partSrc k) t)
 
 /-- **`SC_RS`** (layer 1). -/
 def rsSp (cu : Cuts3 L) (rt : RootsO) : SlotPoly K (P.draws 4) :=
@@ -364,7 +364,7 @@ theorem privSp_van (k : ℕ) (hk : k ∈ algHosts) (i : Fin 2) (hd1 : ¬ (k = 16
   funext t
   unfold algPt
   simp only [hd1, hd2, ↓reduceIte]
-  exact drawAt_hist U bga.1 bga.2.1 bga.2.2 rs k (hostedOf k i) _ r hlt hr
+  exact algDrawAt_hist U bga.1 bga.2.1 bga.2.2 rs k (hostedOf k i) _ r hlt hr
 
 /-- **A private slot whose point starts with an earlier slot's coordinates vanishes at its drawn point** once its
 host's start claim holds. -/
@@ -386,15 +386,15 @@ theorem partSp_van (k : ℕ) (i : Fin 2) (hp : k = 16 ∨ (k = 18 ∧ i = 1)) (h
   unfold algPt
   simp only [hd2, hp, ↓reduceIte]
   rw [SlotW16.append_cast_ite (sh.hpart k i hp)
-    (fun t : Fin sh.pa => drawAt U (histOf bga.1 bga.2.1 bga.2.2 (rs.take (hostedOf k i))) (partSrc k) t)
+    (fun t : Fin sh.pa => algDrawAt U (histOf bga.1 bga.2.1 bga.2.2 (rs.take (hostedOf k i))) (partSrc k) t)
     (fun t : Fin (P.draws (hostedOf k i)) => (r.draws.getD t.val Fp2.zero).toK U)
     (fun q => (rq.draws.getD q Fp2.zero).toK U) (fun q => (r.draws.getD q Fp2.zero).toK U)
-    (fun j => drawAt_hist U bga.1 bga.2.1 bga.2.2 rs (hostedOf k i) (partSrc k) _ rq hsrc hrq) (fun _ => rfl) t]
+    (fun j => algDrawAt_hist U bga.1 bga.2.1 bga.2.2 rs (hostedOf k i) (partSrc k) _ rq hsrc hrq) (fun _ => rfl) t]
   by_cases ht : (t : ℕ) < sh.pa
   · simp only [ht, ↓reduceIte]
-    exact drawAt_hist U bga.1 bga.2.1 bga.2.2 rs k (partSrc k) _ rq (lt_trans hsrc hlt) hrq
+    exact algDrawAt_hist U bga.1 bga.2.1 bga.2.2 rs k (partSrc k) _ rq (lt_trans hsrc hlt) hrq
   · simp only [ht, ↓reduceIte]
-    exact drawAt_hist U bga.1 bga.2.1 bga.2.2 rs k (hostedOf k i) _ r hlt hr
+    exact algDrawAt_hist U bga.1 bga.2.1 bga.2.2 rs k (hostedOf k i) _ r hlt hr
 
 /-- **`SC_RS` vanishes at its drawn point and `λ`** once `SC_SZC`'s start claim holds. -/
 theorem rsSp_van (cu : Cuts3 L) (rt : RootsO) (bga : Fp2 × Fp2 × Fp2) (rs : List SlotRec) (r : SlotRec)
@@ -415,7 +415,7 @@ theorem rsSp_van (cu : Cuts3 L) (rt : RootsO) (bga : Fp2 × Fp2 × Fp2) (rs : Li
     simp only [eq_self, and_self, ↓reduceIte]
   rw [eH, eM] at hG2
   have hlam : algLam U sh (histOf bga.1 bga.2.1 bga.2.2 (rs.take 17)) = (r.draws.getD sh.nHt Fp2.zero).toK U :=
-    drawAt_hist U bga.1 bga.2.1 bga.2.2 rs 17 4 _ r (by decide) hr
+    algDrawAt_hist U bga.1 bga.2.1 bga.2.2 rs 17 4 _ r (by decide) hr
   show (SlotPoly.rsLast (dt.rsA cu rt) (dt.rsB cu rt)).Φ
     (fun j => (r.draws.getD (Fin.cast sh.hrs j).val Fp2.zero).toK U) = 0
   refine SlotW16.rs_van (sh.hS 17 rfl) (dt.rsA cu rt) (dt.rsB cu rt) dt.rsScale _ dt.hsc
@@ -429,7 +429,7 @@ theorem rsSp_van (cu : Cuts3 L) (rt : RootsO) (bga : Fp2 × Fp2 × Fp2) (rs : Li
     (fun _ => rfl) (fun _ => rfl) t]
   by_cases ht : (t : ℕ) < sh.nHt
   · simp only [ht, ↓reduceIte]
-    exact drawAt_hist U bga.1 bga.2.1 bga.2.2 rs 17 4 _ r (by decide) hr
+    exact algDrawAt_hist U bga.1 bga.2.1 bga.2.2 rs 17 4 _ r (by decide) hr
   · simp only [ht, ↓reduceIte]
 
 /-- **The drawing slot's layer vanishes at its drawn challenges** once the later slot's partial claim holds
@@ -440,9 +440,9 @@ theorem crossSp5_van (i : Fin 2) (hb : P.draws (hostedOf 16 i) ≤ sh.cq) (cu : 
     (crossSp5 sh dt i hb cu rt).Φ (fun t => (r.draws.getD t.val Fp2.zero).toK U) = 0 := by
   show (SlotPoly.crossFirst (partD sh dt 16 i (Or.inl rfl) cu rt) hb).Φ
     (fun j => (r.draws.getD (Fin.cast sh.hq5 j).val Fp2.zero).toK U) = 0
-  refine SlotW16.cross_van _ hb _ (fun t : Fin sh.pa => drawAt U (histOf b g a (rs.take (hostedOf 16 i))) 5 t) ?_ hG
+  refine SlotW16.cross_van _ hb _ (fun t : Fin sh.pa => algDrawAt U (histOf b g a (rs.take (hostedOf 16 i))) 5 t) ?_ hG
   funext t
-  exact drawAt_hist U b g a rs (hostedOf 16 i) 5 _ r hlt hr
+  exact algDrawAt_hist U b g a rs (hostedOf 16 i) 5 _ r hlt hr
 
 /-- The same for `SC_GMM` and `SC_FZC`'s `SC_UMM`. -/
 theorem crossSp11_van (cu : Cuts3 L) (rt : RootsO) (b g a : Fp2) (rs : List SlotRec) (r : SlotRec)
@@ -451,9 +451,9 @@ theorem crossSp11_van (cu : Cuts3 L) (rt : RootsO) (b g a : Fp2) (rs : List Slot
     (crossSp11 sh dt cu rt).Φ (fun t => (r.draws.getD t.val Fp2.zero).toK U) = 0 := by
   show (SlotPoly.crossFirst (partD sh dt 18 1 (Or.inr ⟨rfl, rfl⟩) cu rt) sh.hb12).Φ
     (fun j => (r.draws.getD (Fin.cast sh.hq11 j).val Fp2.zero).toK U) = 0
-  refine SlotW16.cross_van _ sh.hb12 _ (fun t : Fin sh.pa => drawAt U (histOf b g a (rs.take 12)) 11 t) ?_ hG
+  refine SlotW16.cross_van _ sh.hb12 _ (fun t : Fin sh.pa => algDrawAt U (histOf b g a (rs.take 12)) 11 t) ?_ hG
   funext t
-  exact drawAt_hist U b g a rs 12 11 _ r (by decide) hr
+  exact algDrawAt_hist U b g a rs 12 11 _ r (by decide) hr
 
 variable [Fintype K] [DecidableEq K] (hcard : 78 < Fintype.card K)
 

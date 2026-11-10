@@ -245,3 +245,8 @@ import ZK60Formal.BlockAlgInst
 import ZK60Formal.BlockAlgRels
 import ZK60Formal.BlockAlgFinal
 import ZK60Formal.BlockAlgShapes
+import ZK60Formal.BlockAlgR13
+import ZK60Formal.BlockAlgLk26
+import ZK60Formal.BlockAlgLkR13
+import ZK60Formal.BlockAlgLkW16
+import ZK60Formal.BlockAlgLkFinal

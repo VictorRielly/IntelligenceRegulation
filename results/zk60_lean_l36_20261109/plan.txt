@@ -1,2 +1,4 @@
-build ZK60Formal.BlockAlgShapes
-lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/ZK60Formal/BlockAlgCheck.lean
+build ZK60Formal.BlockAlgInst
+build ZK60Formal.BlockAlgLkR13
+build ZK60Formal.BlockAlgLkW16
+build ZK60Formal.BlockAlgLkFinal
