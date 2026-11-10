@@ -1,0 +1,38 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/results/zk60_lean_l56_20261110/plan1.txt ==
+build ZK60Formal.RunBndSched
+build ZK60Formal.RunBndHal
+build ZK60Formal.RunBndSem
+== lake build ZK60Formal.RunBndSched ==
+✖ [3617/3617] Building ZK60Formal.RunBndSched (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/ZK60Formal/RunBndSched.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean/ZK60Formal/RunBndSched.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean/ZK60Formal/RunBndSched.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/ir/ZK60Formal/RunBndSched.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/ir/ZK60Formal/RunBndSched.setup.json --json
+error: ZK60Formal/RunBndSched.lean:103:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:109:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:115:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:121:0: cannot omit referenced section variable `inst✝¹`
+Some required targets logged failures:
+- ZK60Formal.RunBndSched
+error: build failed
+build rc 1 (7 s)
+== lake build ZK60Formal.RunBndHal ==
+✖ [3631/3632] Building ZK60Formal.RunBndSched (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/ZK60Formal/RunBndSched.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean/ZK60Formal/RunBndSched.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean/ZK60Formal/RunBndSched.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/ir/ZK60Formal/RunBndSched.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/ir/ZK60Formal/RunBndSched.setup.json --json
+error: ZK60Formal/RunBndSched.lean:103:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:109:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:115:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:121:0: cannot omit referenced section variable `inst✝¹`
+Some required targets logged failures:
+- ZK60Formal.RunBndSched
+error: build failed
+build rc 1 (10 s)
+== lake build ZK60Formal.RunBndSem ==
+✖ [3746/3750] Building ZK60Formal.RunBndSched (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/ZK60Formal/RunBndSched.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean/ZK60Formal/RunBndSched.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/lib/lean/ZK60Formal/RunBndSched.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/ir/ZK60Formal/RunBndSched.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/formal/.lake/build/ir/ZK60Formal/RunBndSched.setup.json --json
+error: ZK60Formal/RunBndSched.lean:103:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:109:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:115:0: cannot omit referenced section variable `inst✝¹`
+error: ZK60Formal/RunBndSched.lean:121:0: cannot omit referenced section variable `inst✝¹`
+Some required targets logged failures:
+- ZK60Formal.RunBndSched
+error: build failed
+build rc 1 (18 s)
+rc 1, 18 s

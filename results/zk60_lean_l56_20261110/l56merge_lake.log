@@ -1,0 +1,10 @@
+✔ [3824/3833] Built ZK60Formal.RunBndSched (2.6s)
+✔ [3825/3833] Built ZK60Formal.RunBndShield (2.5s)
+✔ [3826/3833] Built ZK60Formal.RunBndHal (1.9s)
+✔ [3827/3833] Built ZK60Formal.RunBndSem (2.4s)
+✔ [3828/3833] Built ZK60Formal.RunBndDef (2.4s)
+✔ [3829/3833] Built ZK60Formal.RunBndArgs (2.7s)
+✔ [3830/3833] Built ZK60Formal.RunBndChain (6.1s)
+✔ [3831/3833] Built ZK60Formal.RunBndTop (4.1s)
+✔ [3832/3833] Built ZK60Formal (1.8s)
+Build completed successfully (3833 jobs).

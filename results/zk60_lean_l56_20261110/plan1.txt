@@ -1,0 +1,3 @@
+build ZK60Formal.RunBndSched
+build ZK60Formal.RunBndHal
+build ZK60Formal.RunBndSem

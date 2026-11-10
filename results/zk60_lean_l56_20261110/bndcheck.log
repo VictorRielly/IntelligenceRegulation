@@ -1,0 +1,16 @@
+l56_bnd_check: /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/results/zk60_lean_l56_20261110/l56_corpus.txt: 57 checks, 0 failures
+  block 0 (part 1): input boundary = part 0 frame position 2 = run position off 0 + 2; output boundary = part 1 frame position 2 = off 1 + 2; opened by part 1 (pending 1, incoming 1) and part 2
+  block 1 (part 2): input boundary = part 1 frame position 2 = run position off 1 + 2; output boundary = part 2 frame position 2 = off 2 + 2; opened by part 2 (pending 1, incoming 1) and part 3
+  negative frame: B at position 1 of part 1              refused (part 1: frame absorb 1 is b'B', not b'pb-run-block')
+  negative frame: part 0's position 2 labelled A         refused (part 0: frame absorb 2 is b'A', not b'B')
+  negative frame: part 2's stage index wrong             refused (part 2: pb-run-stage is not the part's index)
+  negative open: block 0 against its own root            refused (part 1: the closing opening's root is not part 0's frame position 2)
+  negative open: block 0 against stage IN-C's A root     refused (part 1: the closing opening's root is not part 0's frame position 2)
+  negative open: block 1 against B_in                    refused (part 2: the closing opening's root is not part 1's frame position 2)
+  negative open: stage OUT-C against block 0's root      refused (part 3: the closing opening's root is not part 2's frame position 2)
+  negative claims: block 1's pending count               refused (part 2: the opening's pending claims are not part 1's outgoing claims)
+  negative claims: block 0 hands no incoming claim       refused (part 1: the block hands its opening no incoming claim)
+  negative neg: block 1's OutHere control missing        refused (block part 2: negative control OutHere not refused)
+  negative neg: refused count                            refused (the refused count is not 5 L + 1)
+  negative frame: part 1's fifth absorb missing          refused (part 1: not five frame absorbs)
+l56_bnd_check negative: 12 of 12 single changes refused

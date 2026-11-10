@@ -1,0 +1,210 @@
+'ZK60.RunShape.BlockCal' does not depend on any axioms
+'ZK60.RunShape.BlockCal.shapeAt' does not depend on any axioms
+'ZK60.RunShape.BlockCal.over' does not depend on any axioms
+'ZK60.RunShape.BlockCal.ofShape' does not depend on any axioms
+'ZK60.RunShape.BlockCal.ofShape_over' does not depend on any axioms
+'ZK60.RunShape.BlockCal.ofShape_over_eq' does not depend on any axioms
+'ZK60.RunShape.carrier' does not depend on any axioms
+'ZK60.RunShape.RunBlock' does not depend on any axioms
+'ZK60.RunShape.RunBlock.Valid' depends on axioms: [propext]
+'ZK60.RunShape.runSpecP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.RunSatP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.runSpecP_class' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.run_iffP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.runBlock_circuitIff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.runModelP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.runArithP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.run_circuitIffP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.ClassifyRunPublicP' does not depend on any axioms
+'ZK60.RunShape.ClassifyRunPublicP.Valid' depends on axioms: [propext]
+'ZK60.RunShape.classifySpecP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.ClassifyRunSatP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifyRunP_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifyModelP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifySatP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifyArithP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifySpecP_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifyRunP_circuitIff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.RunBlock.ofPub' does not depend on any axioms
+'ZK60.RunShape.toRunP' does not depend on any axioms
+'ZK60.RunShape.runSpecP_ofPub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.runSatP_ofPub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifySpecP_toRunP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifyModelP_toRunP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.classifyRunSatP_toRunP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.toRunP_valid' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.classifyRun_circuitIff_viaP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.run_iff_viaP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.ShieldLayer' does not depend on any axioms
+'ZK60.RunShape.Shield.shieldExport' does not depend on any axioms
+'ZK60.RunShape.Shield.shieldExport_l17' does not depend on any axioms
+'ZK60.RunShape.Shield.shieldGrp' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.shieldCal' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.shieldS0' does not depend on any axioms
+'ZK60.RunShape.Shield.shieldShape' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.shieldPrec' does not depend on any axioms
+'ZK60.RunShape.Shield.shield_derive' does not depend on any axioms
+'ZK60.RunShape.Shield.shieldCal_prec' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.LayerOk' depends on axioms: [propext]
+'ZK60.RunShape.Shield.shield_layers_ok' depends on axioms: [propext]
+'ZK60.RunShape.Shield.shieldShape_valid' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.shield_shapes_valid' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.shieldShape_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.shield_shapes_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.shield_not_r13Windows2' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.shapePart' does not depend on any axioms
+'ZK60.RunShape.Shield.shield_cals_distinct' does not depend on any axioms
+'ZK60.RunShape.Shield.shield_not_one_shape' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.ShieldRun' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.shieldRun_valid' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.shield_circuitIff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.shield_circuitIff_policy' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.zeroPub' depends on axioms: [propext]
+'ZK60.RunShape.Shield.zeroPub_valid' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.shieldZeroBlocks' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.shieldZeroBlocks_cal' depends on axioms: [propext, Quot.sound]
+'ZK60.RunShape.Shield.shield_run_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.Tab' does not depend on any axioms
+'ZK60.RunShape.Exec.tabFin' does not depend on any axioms
+'ZK60.RunShape.Exec.tabBool' depends on axioms: [propext]
+'ZK60.RunShape.Exec.tabProd' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.tabArr' depends on axioms: [propext]
+'ZK60.RunShape.Exec.tabArr_size' depends on axioms: [propext]
+'ZK60.RunShape.Exec.tabGet' does not depend on any axioms
+'ZK60.RunShape.Exec.tabGet_tabArr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.liftOC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.liftOC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.liftOM' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.liftOM_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.decNormOK' does not depend on any axioms
+'ZK60.RunShape.Exec.normTokC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.normTokC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.softmaxFC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.softmaxFC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.normAC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.normMC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.smSpecC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.normAC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.normMC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.smSpecC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.blockSpecC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.blockSpecC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.runSpecPC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.runSpecPC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.inSpecC' does not depend on any axioms
+'ZK60.RunShape.Exec.inSpecC_eq' does not depend on any axioms
+'ZK60.RunShape.Exec.fnormTokC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.fnormTokC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.outCSpecC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.outCSpecC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.classifySpecPC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.classifySpecPC_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Exec.forward_eq_twin' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.clsLeakP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyProtocolP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyProtocolUP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.verify_true_iffP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.verifyUP_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.verifyP_eq_old' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.prove_unservedP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.leak_servedP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.opensIn_iffP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.clsStmtOfP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.prove_servedP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.proveUP_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.completeUP_of_completeP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.zkUP_of_zkP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_binding_target' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyP_binding_target' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.InOkP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.BlocksOkP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.OutOkP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.EpOkP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.JointOkP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.JointExtractP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.RunOnP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.runSatP_of_blocks' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.runOnP_of_blocks' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classify_run_linkP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classify_inner_of_stagesP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.iopExtract_of_jointP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.jointExtractP_of_kinds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.admissible_canonP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyP_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyP_complete_sites' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyP_complete_target' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ClassifyOpenP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ClassifyOpenP.valid' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyP_productionReady_joint' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReady_joint' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReady_joint_target' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.jointCover_of_partsP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.cover3_of_runParts_ordP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.epCoverUP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReady_ep_target' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReady_runChain' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReady_run_r13' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReady_run_r13_token' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyProtocolUExecP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyProtocolUExecP_verify' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUExecP_productionReady_run_r13' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReady_r13P' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.shieldRun_length' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.shield_classifyOpenP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyLeakP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyLeakP_served' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyLeakP_toRunP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.served_eqP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.clsLeakP_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyP_leaksAtMost' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_leaksAtMost' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUExecP_leaksAtMost' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUExecP_productionReadyL_run_r13' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReadyL_r13P' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReadyL_r13P_exec' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_joint_target_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_ep_target_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_runChain_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_run_r13_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUP_productionReadyL_run_r13_token_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReadyL_r13P_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.classifyUExecP_productionReadyL_run_r13_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rt_productionReadyL_r13P_exec_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

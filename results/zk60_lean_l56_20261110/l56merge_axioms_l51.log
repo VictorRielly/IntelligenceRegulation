@@ -1,0 +1,67 @@
+'ZK60.ProtocolClassify.abLabShape' does not depend on any axioms
+'ZK60.ProtocolClassify.abLabExp' does not depend on any axioms
+'ZK60.ProtocolClassify.abLabPub' does not depend on any axioms
+'ZK60.ProtocolClassify.abLabPar' does not depend on any axioms
+'ZK60.ProtocolClassify.abLabCal' does not depend on any axioms
+'ZK60.ProtocolClassify.abLabSch' does not depend on any axioms
+'ZK60.ProtocolClassify.abLabVer' does not depend on any axioms
+'ZK60.ProtocolClassify.abLabChk' does not depend on any axioms
+'ZK60.ProtocolClassify.abExpTag' does not depend on any axioms
+'ZK60.ProtocolClassify.abLabInRoot' does not depend on any axioms
+'ZK60.ProtocolClassify.ClsHdrW' does not depend on any axioms
+'ZK60.ProtocolClassify.abExpMsg' does not depend on any axioms
+'ZK60.ProtocolClassify.abExpMsg_length' depends on axioms: [propext]
+'ZK60.ProtocolClassify.clsHdrOps' does not depend on any axioms
+'ZK60.ProtocolClassify.clsHdrOf' does not depend on any axioms
+'ZK60.ProtocolClassify.clsStart' does not depend on any axioms
+'ZK60.ProtocolClassify.clsHdrOps_length' does not depend on any axioms
+'ZK60.ProtocolClassify.clsHdrOps_sqN' does not depend on any axioms
+'ZK60.ProtocolClassify.clsHdrOps_fit' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.ab_hstart' does not depend on any axioms
+'ZK60.ProtocolClassify.ab_hhdr' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.ab_tr_hdr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_absAt_hdr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_inAbs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_verdictAbs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_off0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.abExpMsg_ne' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.ab_hInAbs_false' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_rootAt_none' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_colX_of_none' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_colX_none' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_rhOpW_none' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_hopX0_at1_empty' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_hopX0_at1_empty'' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.clsHdrOpsFix' does not depend on any axioms
+'ZK60.ProtocolClassify.clsHdrFixOf' does not depend on any axioms
+'ZK60.ProtocolClassify.clsHdrOpsFix_length' does not depend on any axioms
+'ZK60.ProtocolClassify.clsHdrOpsFix_sqN' does not depend on any axioms
+'ZK60.ProtocolClassify.ab_inAbs_fix' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_off0_fix' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_hopX0_fix' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_cutAt_cons' depends on axioms: [propext]
+'ZK60.ProtocolClassify.ab_cut_coarse' depends on axioms: [propext]
+'ZK60.ProtocolClassify.ab_cut_coarse_eq' depends on axioms: [propext]
+'ZK60.ProtocolClassify.absMOf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.colXM' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.colXM_digOf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.colXM_cutEq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.colXM_cutReads' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.abRdIn' does not depend on any axioms
+'ZK60.ProtocolClassify.abRdIn_expMsg' depends on axioms: [propext]
+'ZK60.ProtocolClassify.ab_rdIn_at1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.EvXM' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.extract_fail_xm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.extract_fail_xm_u126' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ab_xok_in' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epPreX' does not depend on any axioms
+'ZK60.ProtocolClassify.epPreBX' does not depend on any axioms
+'ZK60.ProtocolClassify.epPreX_split' depends on axioms: [propext]
+'ZK60.ProtocolClassify.epPreBX_split' depends on axioms: [propext]
+'ZK60.ProtocolClassify.epPreX_len' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.epPreBX_len' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.ep_win_part' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ep_win_run' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ep_hwin' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ep_hwin_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ab_productionReadyL_epP_fix' depends on axioms: [propext, Classical.choice, Quot.sound]

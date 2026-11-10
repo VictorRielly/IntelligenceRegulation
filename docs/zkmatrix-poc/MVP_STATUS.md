@@ -27,6 +27,22 @@ item was re-checked against the source by the coordinator.
   `rd_productionReadyL_r13P_exec_blk`; since L48 it is `og_productionReadyL_epP_exec_blk`, at the real opening
   widths (see L45-2 below). Still open: the two stage covers and the three input-commitment links, and the
   boundary IO slots' polynomials (L46-3), which tie each block to the run's boundary planes.
+- **An eleventh unmeetable premise, found and repaired the same day (L55-1, High; confirmed in the code by the
+  coordinator).**
+  - **What is wrong:** the code refuses any verdict other than 0 or 1 (classify.rs:1018-1019,
+    classify_cli.rs:464). The Lean verdict was any natural number with no such refusal.
+  - **Why it matters:** the header absorbs only one byte of the verdict. Without the refusal, the verdict link `hW`
+    is false (PROVED), and so is the stage cover `hdout` (ARGUED).
+  - **Repair, Lean only:** the code's refusal is put in front of the model's check (`vdChk`). It equals the old check
+    on every statement the code can build.
+- **2026-11-10, the closing openings and the verdict PROVED (L55, merged).**
+  - **What is proved:** the verdict link `hW` at the code's header, and every closing opening after part 0 (the 26
+    block boundaries and the output endpoint). Each is at its real geometry: 38 rows, 2^14 columns, rate 1/4, 256
+    checks.
+  - **Checked against the code:** the geometry, on the real Shieldstral shape export and a real classifier run (24
+    checks, 0 failed; 25 single-change copies all refused). No new extraction event was needed.
+  - **The app's top theorem to cite is now `cb_productionReadyL_epP_codeF`.** Lane L58 is closing the input
+    endpoint's extractor group in it.
 - **A tenth unmeetable premise (L54-1, High, 2026-11-10; confirmed in the source by the coordinator).**
   - **What is wrong:** each block's two boundary slots read the boundary tables (BlockR13Prog.lean:657-659). The
     slot-polynomial argument in L50's alive facts can only see the A, M and H data (RunAliveSl.lean:174). So the
@@ -34,7 +50,14 @@ item was re-checked against the source by the coordinator.
   - **Is the protocol affected?** No. This is a modelling gap again.
   - **What still stands:** L49's block theorem. It takes the boundary data as an explicit input, and the gap appears
     only when it is plugged into the run.
-  - **Repair:** lane L56, Lean only, gives the slot polynomial the boundary data.
+  - **REPAIRED by lane L56 (merged 2026-11-10).** The slot polynomial now also receives the header's boundary data,
+    and the premise is PROVED meetable. The positions it reads are CHECKED on a real two-block receipt and in the
+    source.
+  - **L56 also did:** tied block k to layer k of the export as a premise, CHECKED in the source (L54-2).
+  - **L56 found a twelfth unmeetable premise (L56-7, High):** the boundary slots' define draws had the same
+    obstruction. It is repaired for the run's kinds data.
+  - **Still to widen the same way:** L46's per-block doom model at the boundary IO slots (L46-3), and L49's block
+    statement's boundary inputs (L56-3). Wiring `hblk` from L49's theorem waits on both.
 - **2026-11-10, the run-level wiring begun (L54) and the stages chosen (L53).**
   - **L54:** the run-level link "no doomed opening means every claim is true" (`hsem`) is PROVED on an accepted run.
     From it, the slot condition at the blocks follows, except at the two boundary slots (L54-1 above). All 26 layers'

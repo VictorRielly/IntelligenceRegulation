@@ -1,0 +1,85 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/results/zk60_lean_l56_20261110/plan2.txt ==
+build ZK60Formal.RunBndSched
+build ZK60Formal.RunBndHal
+build ZK60Formal.RunBndSem
+build ZK60Formal.RunBndArgs
+build ZK60Formal.RunBndShield
+build ZK60Formal.RunBndChain
+build ZK60Formal.RunBndTop
+== lake build ZK60Formal.RunBndSched ==
+warning: ZK60Formal/RunBndSched.lean:62:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:64:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSched.lean:140:23: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:141:23: `if_neg` has been deprecated: Use `ite_eq_right` instead
+Build completed successfully (3617 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.RunBndHal ==
+warning: ZK60Formal/RunBndSched.lean:62:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:64:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSched.lean:140:23: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:141:23: `if_neg` has been deprecated: Use `ite_eq_right` instead
+Build completed successfully (3632 jobs).
+build rc 0 (11 s)
+== lake build ZK60Formal.RunBndSem ==
+warning: ZK60Formal/RunBndSched.lean:62:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:64:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSched.lean:140:23: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:141:23: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSem.lean:95:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rxPs_gX`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBndSem.lean:128:27: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSem.lean:132:4: `if_pos` has been deprecated: Use `ite_eq_left` instead
+Build completed successfully (3750 jobs).
+build rc 0 (40 s)
+== lake build ZK60Formal.RunBndArgs ==
+warning: ZK60Formal/RunBndSched.lean:62:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:64:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSched.lean:140:23: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:141:23: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSem.lean:95:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rxPs_gX`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBndSem.lean:128:27: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSem.lean:132:4: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndArgs.lean:76:34: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndArgs.lean:143:63: `if_pos` has been deprecated: Use `ite_eq_left` instead
+Build completed successfully (3751 jobs).
+build rc 0 (69 s)
+== lake build ZK60Formal.RunBndShield ==
+Build completed successfully (3630 jobs).
+build rc 0 (89 s)
+== lake build ZK60Formal.RunBndChain ==
+warning: ZK60Formal/RunBndSched.lean:62:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:64:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSched.lean:140:23: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:141:23: `if_neg` has been deprecated: Use `ite_eq_right` instead
+Build completed successfully (3648 jobs).
+build rc 0 (96 s)
+== lake build ZK60Formal.RunBndTop ==
+warning: ZK60Formal/RunBndSched.lean:62:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:64:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSched.lean:140:23: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSched.lean:141:23: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBndSem.lean:95:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rxPs_gX`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBndSem.lean:128:27: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndSem.lean:132:4: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndArgs.lean:76:34: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunBndArgs.lean:143:63: `if_pos` has been deprecated: Use `ite_eq_left` instead
+Build completed successfully (3754 jobs).
+build rc 0 (102 s)
+rc 0, 102 s
