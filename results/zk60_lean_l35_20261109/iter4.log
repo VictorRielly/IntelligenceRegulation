@@ -1,0 +1,14 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l35_20261109/plan4.txt ==
+build ZK60Formal.BlockDefineFinal
+build ZK60Formal.BlockDefineW16
+build ZK60Formal.BlockDefineW16Rung
+== lake build ZK60Formal.BlockDefineFinal ==
+Build completed successfully (3521 jobs).
+build rc 0 (20 s)
+== lake build ZK60Formal.BlockDefineW16 ==
+Build completed successfully (3522 jobs).
+build rc 0 (44 s)
+== lake build ZK60Formal.BlockDefineW16Rung ==
+Build completed successfully (3523 jobs).
+build rc 0 (51 s)
+rc 0, 51 s

@@ -239,6 +239,17 @@ import ZK60Formal.RunTrParts
 import ZK60Formal.RunTrStages
 import ZK60Formal.RunTrGate
 import ZK60Formal.RunTrWin
+import ZK60Formal.BlockDefineAff
+import ZK60Formal.BlockDefineClaim
+import ZK60Formal.BlockDefineTab
+import ZK60Formal.BlockDefineSym
+import ZK60Formal.BlockDefinePoly
+import ZK60Formal.BlockDefineFinal
+import ZK60Formal.BlockDefineW16
+import ZK60Formal.BlockDefineW16Rung
+import ZK60Formal.BlockDefineW16Final
+import ZK60Formal.BlockDefineUnfold
+import ZK60Formal.BlockDefineAlg
 import ZK60Formal.BlockAlgUnmask
 import ZK60Formal.BlockAlgKinds
 import ZK60Formal.BlockAlgInst
