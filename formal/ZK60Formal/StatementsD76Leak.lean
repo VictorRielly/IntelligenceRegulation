@@ -25,7 +25,7 @@ The verdict itself is the model's public output part (`classifyModel`'s `publicP
 noncomputable def classifyLeak (S : BlockShape) (R : ClassifyRunPublic S) (x : S.Tok → ℕ) : ℕ × ℕ × ℕ × Bool :=
   (S.T, S.d, R.Ps.length, (classifySpec R x).isSome)
 
-/-- Its last component is the served bit: `true` exactly when the integer model admits the item. -/
+/-- Its last component is the served bit: `true` exactly when the item is admissible for the integer model. -/
 theorem classifyLeak_served (S : BlockShape) (R : ClassifyRunPublic S) (x : S.Tok → ℕ) :
     (classifyLeak S R x).2.2.2 = true ↔ (classifyModel S R).admissible x :=
   Option.isSome_iff_exists

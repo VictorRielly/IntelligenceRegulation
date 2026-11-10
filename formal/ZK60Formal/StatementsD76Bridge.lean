@@ -27,7 +27,6 @@ instance-leak forms `ZeroKnowledge`, `SemanticHiding`, `ProductionReady` (the si
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
-import ZK60Formal.StatementsD76Draft
 import ZK60Formal.Assembly
 
 set_option autoImplicit false

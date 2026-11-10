@@ -22,6 +22,12 @@ MODS="StatementsD76Leak StatementsD76Bridge StatementsD76Leaky StatementsD76Gate
 FILES="$L/Statements.lean"
 for m in $MODS; do FILES="$FILES $L/$m.lean"; done
 start=$(date +%s)
+# Amending Statements.lean rebuilds the whole library. At lake's default parallelism (one job per core, 32) the first
+# attempt peaked at 27.35 GiB and the guard stopped it at its 24 GiB cap (check.log.guard of 00:50:36, kept as
+# check_attempt1.log.guard), and at LEAN_NUM_THREADS=10 at 28.01 GiB (check_attempt2.log.guard). Lake has no job flag;
+# the runtime's task pool size LEAN_NUM_THREADS bounds its jobs (3 lean processes at 3, peak 16.31 GiB).
+export LEAN_NUM_THREADS=${L42_THREADS:-3}
+echo "LEAN_NUM_THREADS=$LEAN_NUM_THREADS"
 echo "== lake build of the L42 modules, one at a time =="
 for m in Statements $MODS; do
   "$LAKE" -d "$WT/formal" build ZK60Formal.$m > "$OUT/prebuild_$m.log" 2>&1
@@ -84,6 +90,18 @@ echo "diff: $(grep -c '^+[^+]' "$OUT/statements_d76.diff") lines added, $(grep -
 python3 -I "$OUT/l42_statements_check.py" "$OUT/l42_Statements_base.lean" "$L/Statements.lean"
 stc=$?
 echo "Statements.lean check rc $stc"
+echo "-- negative control: two single changes (an old definition edited; a field inserted into Protocol), each refused"
+python3 -I "$OUT/l42_statements_mutate.py" "$L/Statements.lean" "$OUT"
+nneg=0
+for m in 1 2; do
+  python3 -I "$OUT/l42_statements_check.py" "$OUT/l42_Statements_base.lean" "$OUT/l42_mut${m}_Statements.lean" \
+    > "$OUT/l42_mut${m}_check.log" 2>&1
+  r=$?
+  echo "mutant $m: check rc $r (1 expected)"
+  [ $r -eq 1 ] && nneg=$(( nneg + 1 ))
+done
+echo "mutants refused: $nneg of 2"
+[ $nneg -eq 2 ] || stc=1
 echo "== existing files under formal/ changed since the base (the root's import lines and Statements.lean apart) =="
 nmod=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE -- formal \
   | grep -v -c -E '^formal/ZK60Formal.lean$|^formal/ZK60Formal/Statements.lean$')

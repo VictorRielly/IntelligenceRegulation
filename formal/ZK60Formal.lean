@@ -262,3 +262,8 @@ import ZK60Formal.BlockAlgLkR13
 import ZK60Formal.BlockAlgLkW16
 import ZK60Formal.BlockAlgLkFinal
 import ZK60Formal.BlockAlgSat
+import ZK60Formal.StatementsD76Leak
+import ZK60Formal.StatementsD76Bridge
+import ZK60Formal.StatementsD76Leaky
+import ZK60Formal.StatementsD76Gate
+import ZK60Formal.StatementsD76Range

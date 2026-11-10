@@ -3,6 +3,7 @@
 whole declarations. Read-only.
 
 usage: python3 -I l42_statements_check.py <old Statements.lean> <new Statements.lean>
+(either may be given as `REF:formal/ZK60Formal/Statements.lean`, read with `git show`)
 
 The Lean code of each version is its text with every comment removed (block comments `/- … -/`, which include the doc
 comments `/-- … -/` and `/-! … -/`, and line comments `-- …`), blank lines dropped. The check:
@@ -12,7 +13,9 @@ comments `/-- … -/` and `/-! … -/`, and line comments `-- …`), blank lines
      `theorem`), so nothing was inserted INTO an old declaration;
 and lists the added declarations. Exit code 0 only when 1 and 2 hold.
 """
+import os
 import re
+import subprocess
 import sys
 
 
@@ -38,8 +41,16 @@ def code_lines(text):
     return lines
 
 
-old = code_lines(open(sys.argv[1], encoding="utf-8").read())
-new = code_lines(open(sys.argv[2], encoding="utf-8").read())
+def read(spec):
+    """A file path, or `REF:PATH` read with `git show` in the repository of this script."""
+    if os.path.exists(spec):
+        return open(spec, encoding="utf-8").read()
+    repo = os.path.dirname(os.path.abspath(__file__))
+    return subprocess.run(["git", "-C", repo, "show", spec], capture_output=True, text=True, check=True).stdout
+
+
+old = code_lines(read(sys.argv[1]))
+new = code_lines(read(sys.argv[2]))
 print(f"code lines: old {len(old)}, new {len(new)}")
 # 1. greedy subsequence match, recording the added blocks
 j, added, block = 0, [], []
