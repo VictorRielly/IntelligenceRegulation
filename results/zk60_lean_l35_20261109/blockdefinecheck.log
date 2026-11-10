@@ -1,0 +1,12 @@
+  ir-nodes: 23
+  ir-terms: 23
+  tables: 23
+  hosted: 23
+  planes: 23
+  planes-aligned: 23
+  slot-count: 1
+  planes-count: 1
+  sites-a: 1
+  sites-h: 1
+  sites-hu: 1
+BlockDefineCheck: 143 checks, 0 failed

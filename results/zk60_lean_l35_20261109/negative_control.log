@@ -1,0 +1,22 @@
+  ir-nodes: 23
+  ir-terms: 23
+  tables: 23
+  hosted: 23
+  planes: 23
+  planes-aligned: 23
+  slot-count: 1
+  planes-count: 1
+  sites-a: 1
+  sites-h: 1
+  sites-hu: 1
+FAILED [ir-terms] slot 0: lengths 1/1; first difference at 0: Lean T 1:0 2 t0.t1.t1 | code T 2:0 2 t0.t1.t1
+FAILED [planes] slot 0: lengths 1/1; first difference at 0: Lean a 131072 | code a 147456
+FAILED [ir-nodes] slot 2: lengths 15/15; first difference at 0: Lean A 0:0 1:0@t5;256:0@t6;65536:0@t7 | code A 1:0 1:0@t5;256:0@t6;65536:0@t7
+FAILED [hosted] slot 2: lengths 2/2; first difference at 0: Lean 0:7711730738308337213:12854392662148770048 | code 0:7711730738308337214:12854392662148770048
+FAILED [tables] slot 3: lengths 5/5; first difference at 1: Lean priv | code pub
+FAILED [tables] slot 4: lengths 4/4; first difference at 0: Lean eq 0 9359047169605247389:2295331859681687413,6119849064882587371:17467801086593521058,3094600933257397447:2199657354429191550,6346669679442974269:2364486071636796360,9014035602159189427:27692066992166699,8764553783575455385:3041771700289621470,1231161
+FAILED [tables] slot 21: lengths 3/3; first difference at 0: Lean eq 0 12640720513856256517:10516647369022765443,1521405319140726965:7188963776478804813,16531703027233600423:15014299438385683969,18076513549489624776:13640556809955478857,15024924466910114344:8684331832864656949,16927540493961743817:84846020643998532
+FAILED [sites-a] SITES a: lengths 228/228; first difference at 0: Lean 90 | code 91
+FAILED [sites-h] SITES h: lengths 92/92; first difference at 91: Lean 199 | code 200
+FAILED [sites-hu] SITES hu: lengths 2/2; first difference at 0: Lean 106 | code 105
+BlockDefineCheck: 143 checks, 10 failed

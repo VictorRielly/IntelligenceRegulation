@@ -32,8 +32,9 @@ the W16R2 block and prove those facts, then do R13.
    L13's builder. A small evaluator (`defineS`) turns the data into the verifier's `define`.
 2. **It agrees with the code on a real receipt** (MEASURED). On the real W16R2 rung receipt, for every one of the 23
    slots: every coefficient of the polynomial (as a value), every table in order, every challenge point, every hosted
-   coefficient; and the mask rows reserved in the `A` and `H` commitments. 96 checks, 0 failed. A negative control
-   with 9 deliberate single changes fails exactly 9 checks.
+   coefficient, the plane read by 156 of the 162 private tables; and the mask rows reserved in the `A` and `H`
+   commitments. 143 checks, 0 failed. A negative control with 10 deliberate single changes fails exactly 10 checks.
+   Not compared (no corpus carries them): the private tables' coordinates and extension rounds (finding L35-7).
 3. **The tables part of the slot polynomials is built and its facts are proved, for ANY block whose `define` is
    given as such data** (PROVED): the polynomial `polyS` over the committed matrices; its key identity at the
    verifier's point (`polyS_slotEvalN`, L31's `hPoly`); its degree (`polyS_indDeg`, L31's `hdegP`); its outputs are
@@ -57,8 +58,9 @@ the W16R2 block and prove those facts, then do R13.
 
 **What is not done.** The R13 slot program (R13's `SC_TAB` IR is still not transcribed, L17-9), so the R13 and
 Shieldstral statements are proved only for "any program that passes the check with the right counts"; the
-Shieldstral counts 146 / 54 are therefore not confirmed here. And the per-outcome algebra (lane L36), which still
-sits as premises in every statement.
+Shieldstral counts 146 / 54 are therefore not confirmed here. The value of the tables on the Boolean cube, which
+L36's remaining premise `hform` needs, and the tables `dt` that L36's `hspec` reads (section 6.1). The helper layer
+and the run-level premises, as before.
 
 **Findings that need a decision.** L35-8 (High for one statement, repaired): `block_knowledge_define_r13_shield`
 (on L31's Shieldstral statement) inherits L31's lookup bound `he ≤ 35,153,256`, which the app's block cannot meet
@@ -347,4 +349,27 @@ All in `results/zk60_lean_l35_20261109/`, each run as one job through the zk60 r
 
 ### 7.1 The full check
 
-FILLED IN WHEN `check_final.log` IS DONE.
+`check_final.log` (`check_l35.sh`, job `lean-l35-final`, exit 0, 83 s, peak RSS 3.72 GiB), on the tree with L36
+merged (base `16acb7c8`):
+- the eleven L35 modules built one target at a time, then the full build (`full.log`): **3,652 jobs, rc 0,
+  0 warnings, 0 errors, no `sorry`**; 0 warnings in the L35 modules' own builds;
+- the axiom audit (`axioms_l35.lean`, written by `gen_axioms.py`: every `theorem`, `def`, `abbrev` and `structure` of
+  the eleven files; `axioms.log`): **270 declarations (157 theorems, 103 definitions, 2 abbreviations, 8
+  structures)**; 103 on `[propext, Classical.choice, Quot.sound]`, 60 on `[propext, Quot.sound]`, 62 on `[propext]`,
+  45 on none; no `sorryAx`, no `ofReduceBool`, no other axiom;
+- the source scan of the eleven library files and `BlockDefineCheck.lean` for the forbidden words: none;
+- the library root imports the eleven files and not the checker; `Statements.lean` unchanged; no existing file under
+  `formal/` modified, deleted or renamed; no line removed from the root's imports; no file under `ops/` changed;
+- the name-clash scan against the Lean files of all worktrees (`l35_nameclash.py`, `nameclash.log`): 0 clashes;
+- **`BlockDefineCheck`** on L11's W16R2 rung receipt corpus and L9's corpus (`blockdefinecheck.log`): **143 checks,
+  0 failed**: per slot (23 each) the IR's nodes, its terms, the tables, the hosted coefficients, the planes, their
+  alignment; the slot count; the plane count (156); `SITES a`, `SITES h`, `SITES hu`;
+- its negative control (`l35_mutate.py`: ten single changes, to a node and a term coefficient, a table kind, an `eq`
+  start, an `eq` point word, a hosted coefficient, a plane label, the three site lists; copies written outside the
+  repository; `negative_control.log`): **exactly 10 failed**, one per change;
+- regressions: `L6Check` 1,206, `L5Check` 5,553, `L11Check` 404, the fixture L1 check 101,956; 0 failed.
+
+The generated files (`BlockDefineFinal.lean`, `BlockDefineW16Final.lean`, `BlockDefineAlg.lean`) are the output of
+`l35_mk_final.py` on this tree (re-running it reproduces them byte for byte). Not run by this lane: `ExecBlockCheck`,
+`CheckR13Block`, `BlockInstCheck`, `BlockAlgCheck` (no file they read was changed), and the merged-tree check on perf,
+which is the coordinator's.
