@@ -1,0 +1,13 @@
+== plan results/zk60_lean_l47_20261110/cov_plan4.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_cov_axioms.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_cov_axioms.lean ==
+'ZK60.Exec.Block.Join.W16.Look.planeZ_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.aPl_flat' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.exists_lk' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.cov_gen' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.cov_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.covLimb' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.cover_xtW' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.hcov_w16' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_cov_axioms.lean (2 s)
+rc 0, 2 s
