@@ -521,8 +521,18 @@ here. The rates count proving and witness work. Verification time is recorded se
       still inside the proved margin; the sites are not yet built in Lean.
   - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26, L27, L28, L29 and A28
     (the app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its
-    worktree, and each was resumed there on 2026-11-09. L26, L27, L28 and L29 are merged (above); A28 is still
-    running. Lane L30 (the run's gate on L26's instance through L27's transcript machinery) started on 2026-11-09.
+    worktree, and each was resumed there on 2026-11-09. L26, L27, L28 and L29 are merged and checked (above; perf and
+    main at 5fe92b4c, the full Lean build 3591 jobs); A28 is still running.
+  - **Running since 2026-11-09, on what the merged lanes left open for the classify run:**
+    - L30: the run's gate on L26's instance through L27's transcript machinery, and L26-3's code fact;
+    - L31: a block's remaining extraction premises (the concrete profile, the claims' reader, the block's `define`
+      and the slot polynomials over the extracted data, the per-outcome algebra);
+    - L32: completeness at run level (the openings' and `M`'s executable completeness, the run's prefix as a
+      transcript program, the refusal sites and their exact count against 2^-40);
+    - L33: the run's zero knowledge (the honest prover in oracle form and the honest-prover properties L19 named).
+    - Not started: the run's transcript as a Lean object with the kinds' lists on it (after L30), and one instance
+      with both the executable stages and the corrected input opening.
+    - The lanes' standing rules are in `results/zk60_lean_resume_20261109/LANE_RULES.md`.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
   - Token-I/O runs (embedding in, LM head and argmax out) are registered for the older trained-statement profiles
