@@ -1,0 +1,39 @@
+  header: 4
+  rows-of: 1
+  a-off: 1
+  h-off: 1
+  schedule: 23
+  table-count: 23
+  table-lines: 23
+  eq-start: 27
+  eq-point: 27
+  priv-cm: 204
+  priv-log: 204
+  priv-maskrow: 204
+  priv-extround: 204
+  priv-slices: 204
+  priv-coords: 204
+  claim-cm: 204
+  claim-value: 204
+  claim-parts: 204
+  pub-length: 27
+  claim-count: 23
+  terminal-count: 23
+  slot-count: 1
+  priv-count: 1
+BlockR13ProgExportCheck: 2041 checks, 0 failed
+NEG slice offset: caught (1 failed: [priv-slices] slot 0 table 1: Lean 131072:1,0 | code 131073:1,0)
+NEG log size: caught (1 failed: [priv-log] slot 0 table 1: Lean 14 | code 15)
+NEG coordinate: caught (1 failed: [priv-coords] slot 0 table 1: Lean r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13 | code r0,r2,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13)
+NEG mask row: caught (1 failed: [priv-maskrow] slot 0 table 1: Lean 139 | code 141)
+NEG extension round: caught (1 failed: [priv-extround] slot 0 table 1: Lean 0 | code 1)
+NEG public length: caught (1 failed: [pub-length] slot 0 table 2: Lean 16384 | code 32768)
+NEG a_off: caught (1 failed: [a-off] AOFF: lengths 109/109; first difference at 1: Lean 16384 | code 16385)
+NEG h_off: caught (1 failed: [h-off] HOFF: lengths 108/108; first difference at 1: Lean 16384 | code 16385)
+NEG rows_of: caught (1 failed: [rows-of] ROWS: lengths 9/9; first difference at 1: Lean 1 | code 2)
+NEG claim part offset: caught (1 failed: [claim-parts] slot 0 table 1: Lean 131072:14:7675137365018778369,3483956428358926905:1250741179421851897,8757987000712427981,10585420770054079067,31288876880141)
+NEG claim value: caught (1 failed: [claim-value] slot 0 table 1: Lean 9121937173715863680,9378915573849604199 | code 9121937173715863681,9378915573849604199)
+NEG eq point: caught (1 failed: [eq-point] slot 0 table 0: Lean 3616048008156253083,6929574135786637584,3710651874463353189,5153425812148393693,9594020176683422808,13374124672117596408,1725227)
+NEG the first private table 5's log size: caught (1 failed: [priv-log] slot 2 table 5: Lean 5 | code 6)
+NEG table 26's slice: caught (1 failed: [priv-slices] slot 14 table 26: Lean 475136:1,0 | code 475137:1,0)
+BlockR13ProgExportCheck negative controls: 14 of 14 caught

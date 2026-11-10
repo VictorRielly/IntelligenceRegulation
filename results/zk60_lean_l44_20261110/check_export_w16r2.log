@@ -1,0 +1,39 @@
+  header: 4
+  rows-of: 1
+  a-off: 1
+  h-off: 1
+  schedule: 23
+  table-count: 23
+  table-lines: 23
+  eq-start: 27
+  eq-point: 27
+  priv-cm: 162
+  priv-log: 162
+  priv-maskrow: 162
+  priv-extround: 162
+  priv-slices: 162
+  priv-coords: 162
+  claim-cm: 162
+  claim-value: 162
+  claim-parts: 162
+  pub-length: 49
+  claim-count: 23
+  terminal-count: 23
+  slot-count: 1
+  priv-count: 1
+BlockHelperExportCheck: 1685 checks, 0 failed
+NEG slice offset: caught (1 failed: [priv-slices] slot 0 table 1: Lean 131072:1,0 | code 131073:1,0)
+NEG log size: caught (1 failed: [priv-log] slot 0 table 1: Lean 14 | code 15)
+NEG coordinate: caught (1 failed: [priv-coords] slot 0 table 1: Lean r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13 | code r0,r2,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13)
+NEG mask row: caught (1 failed: [priv-maskrow] slot 0 table 1: Lean 90 | code 92)
+NEG extension round: caught (1 failed: [priv-extround] slot 0 table 1: Lean 0 | code 1)
+NEG public length: caught (1 failed: [pub-length] slot 0 table 2: Lean 16384 | code 32768)
+NEG a_off: caught (1 failed: [a-off] AOFF: lengths 75/75; first difference at 1: Lean 16384 | code 16385)
+NEG h_off: caught (1 failed: [h-off] HOFF: lengths 92/92; first difference at 1: Lean 16384 | code 16385)
+NEG rows_of: caught (1 failed: [rows-of] ROWS: lengths 9/9; first difference at 1: Lean 1 | code 2)
+NEG claim part offset: caught (1 failed: [claim-parts] slot 0 table 1: Lean 131072:14:7786891090791092255,12742614106888932356:17509065554517472674,5736198439787491471,13400309010880408156,335335086181)
+NEG claim value: caught (1 failed: [claim-value] slot 0 table 1: Lean 4277397806011351362,5101610025924127053 | code 4277397806011351363,5101610025924127053)
+NEG eq point: caught (1 failed: [eq-point] slot 0 table 0: Lean 2179458315235834593,16928462665303990536,6471048731041402420,17708113609576677078,1919281793913632998,15898899251120128072,14172)
+NEG the first private table 5's log size: caught (1 failed: [priv-log] slot 2 table 5: Lean 5 | code 6)
+NEG an H helper's slice: caught (1 failed: [priv-slices] slot 14 table 26: Lean 32768:1,0;49152:0,1 | code 32769:1,0;49152:0,1)
+BlockHelperExportCheck negative controls: 14 of 14 caught
