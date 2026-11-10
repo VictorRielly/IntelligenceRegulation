@@ -421,3 +421,9 @@ import ZK60Formal.RunStgTop
 import ZK60Formal.RunStgDoom
 import ZK60Formal.RunStgTopD
 import ZK60Formal.RunStgAlgHost
+import ZK60Formal.RunStgAlgList
+import ZK60Formal.RunStgAlgRun
+import ZK60Formal.RunStgAlgCount
+import ZK60Formal.RunStgAlgPoly
+import ZK60Formal.RunStgAlgTop
+import ZK60Formal.RunStgAlgTopR

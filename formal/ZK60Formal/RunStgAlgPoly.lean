@@ -83,9 +83,8 @@ theorem stg_tabVal_eq_idx (sel : Fp2) (rho T point : List Fp2) (start k : ℕ) (
     (h : Block.tabVal sel rho T (.eq point start) k = .ok (v, k')) : k' = k := by
   simp only [Block.tabVal] at h
   split_ifs at h
-  · split at h
-    · exact (Prod.mk.inj (Except.ok.inj h)).2.symm
-    · cases h
+  split at h
+  · exact (Prod.mk.inj (Except.ok.inj h)).2.symm
   · cases h
 
 /-- A public table's verifier value does not move the private-table count. -/
