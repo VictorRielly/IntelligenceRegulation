@@ -1,0 +1,75 @@
+'ZK60.ZKHonest.PProg' does not depend on any axioms
+'ZK60.ZKHonest.PProg.oc' does not depend on any axioms
+'ZK60.ZKHonest.PProg.run' does not depend on any axioms
+'ZK60.ZKHonest.PProg.oc_run' does not depend on any axioms
+'ZK60.ZKHonest.PProg.QLE' does not depend on any axioms
+'ZK60.ZKHonest.PProg.oc_bounded' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.PProg.res' does not depend on any axioms
+'ZK60.ZKHonest.PProg.ptAt' does not depend on any axioms
+'ZK60.ZKHonest.PProg.ptAt_lt' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.PProg.ptAt_congr' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.PProg.DepIn' does not depend on any axioms
+'ZK60.ZKHonest.PProg.ptAt_sep' does not depend on any axioms
+'ZK60.ZKHonest.PProg.PtLE' does not depend on any axioms
+'ZK60.ZKHonest.PProg.ptAt_some_lt' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.PProg.res_eq_run' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.PProg.ptsOf' does not depend on any axioms
+'ZK60.ZKHonest.PProg.outOf' does not depend on any axioms
+'ZK60.ZKHonest.PProg.ptsOf_causal' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.PProg.ptsOf_sep' depends on axioms: [Quot.sound]
+'ZK60.ZKHonest.PProg.outOf_chain' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.PProg.model' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.PProg.model_prove' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.progVis_of_no_vis' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.hid_card_ref' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.fs_step_of_hid' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.fs_step_ref' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.oneStepW_ref' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.zk_of_refModel' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.hHV_rel_of_view' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.hHV_rel_of_layers' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.honest_roundSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.honest_hfac' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.honest_mHonest' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.honest_block_view_law_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.w16Hosts' does not depend on any axioms
+'ZK60.ZKHonest.w16_hhosted' depends on axioms: [propext, Quot.sound]
+'ZK60.ZKHonest.exposed_card' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.hit_card_by_label' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.hKw_exposed' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.three_le_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.refErr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.ref_cap_R' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.runK_ref_cap_110' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.w16r2K_ref_cap_118' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.r13K_ref_cap_118' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.PProg.andThen' does not depend on any axioms
+'ZK60.ZKHonest.PProg.run_andThen' does not depend on any axioms
+'ZK60.ZKHonest.askP' depends on axioms: [propext]
+'ZK60.ZKHonest.askP_run' depends on axioms: [propext]
+'ZK60.ZKHonest.ofT' depends on axioms: [propext]
+'ZK60.ZKHonest.ofT_run' depends on axioms: [propext]
+'ZK60.ZKHonest.ofStart' depends on axioms: [propext]
+'ZK60.ZKHonest.ofStart_run' depends on axioms: [propext]
+'ZK60.ZKHonest.zk_of_prog' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.classifyInputInhabited' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.classify_adm_standin' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.classify_standin_verdict' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.classify_zk_of_model' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.classify_zk_cap' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.classify_zk_cap110' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.classifyU_zk_cap110' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.PProg.qle_mono' does not depend on any axioms
+'ZK60.ZKHonest.PProg.ptLE_mono' does not depend on any axioms
+'ZK60.ZKHonest.PProg.ptLE_of_qle' does not depend on any axioms
+'ZK60.ZKHonest.PProg.NoDep' does not depend on any axioms
+'ZK60.ZKHonest.PProg.res_noDep' does not depend on any axioms
+'ZK60.ZKHonest.PProg.HeadOK' does not depend on any axioms
+'ZK60.ZKHonest.PProg.res_headOK' does not depend on any axioms
+'ZK60.ZKHonest.PProg.hres_of_headOK' does not depend on any axioms
+'ZK60.ZKHonest.askP_qle' depends on axioms: [propext]
+'ZK60.ZKHonest.TOps' does not depend on any axioms
+'ZK60.ZKHonest.ofT_qle' depends on axioms: [propext]
+'ZK60.ZKHonest.ofT_ptLE' depends on axioms: [propext]
+'ZK60.ZKHonest.ofStart_qle' depends on axioms: [propext]
+'ZK60.ZKHonest.ofStart_ptLE' depends on axioms: [propext]

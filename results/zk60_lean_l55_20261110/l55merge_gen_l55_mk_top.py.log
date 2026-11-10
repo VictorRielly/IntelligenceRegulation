@@ -1,0 +1,1 @@
+RunVerdictTop.lean: 354 lines; 124 explicit binders of L52's theorem; 127 of the new one; gone: ['Win', 'Wout', 'hW'] new: ['F', 'Vi', 'hLb1', 'hchk', 'hinc', 'houtc'] ; Win replaced 3 times, Wout 3

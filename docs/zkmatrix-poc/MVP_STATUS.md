@@ -27,6 +27,22 @@ item was re-checked against the source by the coordinator.
   `rd_productionReadyL_r13P_exec_blk`; since L48 it is `og_productionReadyL_epP_exec_blk`, at the real opening
   widths (see L45-2 below). Still open: the two stage covers and the three input-commitment links, and the
   boundary IO slots' polynomials (L46-3), which tie each block to the run's boundary planes.
+- **An eleventh unmeetable premise, found and repaired the same day (L55-1, High; confirmed in the code by the
+  coordinator).**
+  - **What is wrong:** the code refuses any verdict other than 0 or 1 (classify.rs:1018-1019,
+    classify_cli.rs:464). The Lean verdict was any natural number with no such refusal.
+  - **Why it matters:** the header absorbs only one byte of the verdict. Without the refusal, the verdict link `hW`
+    is false (PROVED), and so is the stage cover `hdout` (ARGUED).
+  - **Repair, Lean only:** the code's refusal is put in front of the model's check (`vdChk`). It equals the old check
+    on every statement the code can build.
+- **2026-11-10, the closing openings and the verdict PROVED (L55, merged).**
+  - **What is proved:** the verdict link `hW` at the code's header, and every closing opening after part 0 (the 26
+    block boundaries and the output endpoint). Each is at its real geometry: 38 rows, 2^14 columns, rate 1/4, 256
+    checks.
+  - **Checked against the code:** the geometry, on the real Shieldstral shape export and a real classifier run (24
+    checks, 0 failed; 25 single-change copies all refused). No new extraction event was needed.
+  - **The app's top theorem to cite is now `cb_productionReadyL_epP_codeF`.** Lane L58 is closing the input
+    endpoint's extractor group in it.
 - **A tenth unmeetable premise (L54-1, High, 2026-11-10; confirmed in the source by the coordinator).**
   - **What is wrong:** each block's two boundary slots read the boundary tables (BlockR13Prog.lean:657-659). The
     slot-polynomial argument in L50's alive facts can only see the A, M and H data (RunAliveSl.lean:174). So the

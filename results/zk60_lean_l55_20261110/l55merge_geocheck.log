@@ -1,0 +1,29 @@
+ok   R13: the export is L49's R13 Shieldstral T128 shape (R13_SHIELD_T128_H24)
+ok   R13: its log_cols 14 (= endpoint_log_n, the boundaries' row width); Lean ogR13.lc 14
+ok   R13: its tokens 128, t_pad 128, d_pad 4096 (the boundary plane); Lean 128, 128, 4096
+ok   R13: a boundary's rows at it: 128·4096/2^14 + 2·2 + 2 = 38; Lean cbBndRows_r13 38
+ok   DEV: the corpus is L29's export (hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2)
+ok   DEV: B_out: log_n 10, data rows 16 = 2^14/2^10, sites 2, rows 22 = cbBndRows 22
+ok   DEV: B_out's Dim (checks, n+q_pad, enc cols, path) = (256, 1280, 4096, 12): the geometry (log_n + log2 rate, log_n, checks) (256, (1280, (4096, 12)))
+ok   DEV: B_out's checks 256, log inverse rate 2: the R13 boundary's 256, 2
+ok   SOURCE: shape.rs: R13_SHIELD_T128_H24 registered at tokens (some 128), width (some 3072), log_cols (some 14)
+ok   SOURCE: shape.rs: the R13 profile is not among W16R2_PROFILES (is_w16r2_profile is membership there)
+ok   SOURCE: shape.rs: trained_geometry builds an R13 accuracy shape at rate 1/4 with NO endpoint override
+ok   SOURCE: shape.rs: endpoint_log_n defaults to log_cols, endpoint_inv_rate to inv_rate
+ok   SOURCE: shape.rs: opened_cols = COL_CHECKS = 256 outside W16R2; Lean ogR13.Q 256
+ok   SOURCE: classify.rs: boundary_spec(j) is the t_pad × d_pad plane, TWO sites, the shape's endpoint_log_n, endpoint_inv_rate, opened_cols
+ok   SOURCE: boundary.rs: new_with_tag's argument order; a declared row count other than the derived one is refused
+ok   SOURCE: boundary.rs: len = rows·cols, data_rows = len >> log_n, commitment_rows = data_rows + 2·sites + 2 (cbBndRows)
+ok   SOURCE: boundary.rs: a boundary's PCS parameters are its log_n, inv_rate, checks
+ok   SOURCE: classify_run.rs: B_in is boundary_spec(0), B_(k+1) is boundary_spec(k + 1), carried as prev
+ok   SOURCE: classify_run.rs: block k opens the PREVIOUS boundary (its root, rows, log_n) at its params, pads = checks
+ok   SOURCE: classify_run.rs: stage OUT-C is handed the LAST boundary's spec and root (B_out = B_L)
+ok   SOURCE: stage_out_c.rs: B_out is opened at its spec's params, rows and log_n, pads = checks
+ok   SOURCE: shape.rs: the R13 shape's endpoint_rows = 128·4096/2^14 + MASK_ROWS 5 = 37, and boundary_spec declares endpoint_rows + 1 = 38
+ok   LEAN: cbBndRows at R13 is 38, the shape's declared endpoint_rows + 1 (so the code's own refusal at boundary.rs:149 passes)
+ok   LEAN: ogR13 = the boundary geometry (16, 14, 256, 24448, 64): 2^14 columns, rate 1/4, 256 checks, largest radius
+R13: 4 checks, 0 failed
+DEV: 4 checks, 0 failed
+SOURCE: 14 checks, 0 failed
+LEAN: 2 checks, 0 failed
+RunCloseBGeoCheck: 24 checks, 0 failed

@@ -1,0 +1,175 @@
+'ZK60.Exec.Block.Join.decodeRows_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.ptsB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.ptsB_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.RWB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.RWB_ext' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.decode_encG_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.xAof_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.xHof_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.w16r2_unique_radius' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.r13_unique_radius' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.xAof_base_w16' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.xHof_base_w16' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.xAof_base_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.xHof_base_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.bit_false' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.bit_true' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.bit_cons' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.eq_mleAt_of_affAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.cubeSum_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.bpt' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.cpt' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.xg_bpt_lt' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.xg_bpt_ext' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.xg_ge' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.xrK_bpt' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.yeK_bpt' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.selK_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.cmK_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.selK_off' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.xrK_cpt' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.privZ' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.partRowK_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.keyColK_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.privZ_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.tabK_priv_sel' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.planeZ' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.rhoAll' does not depend on any axioms
+'ZK60.Exec.Block.Join.rhoAll_vars' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.ptK_rhoAll' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.privZ_mle' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.tabK_eq_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.tabK_eq_off' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.tabK_pub_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.tabK_pub_off' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.tabK_priv_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.baseR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.bit_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.eqPoly_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.bitsK_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.partRowK_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.keyColK_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.claimK_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.planeZ_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.cubeSum_host' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.hostPoly_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.hostPoly_ext' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.formAt_host_of' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.slotFns_of_accT' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.kind_of_accT' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.eqPoly_len' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.castB' does not depend on any axioms
+'ZK60.Exec.Block.Join.sum_bool_cast' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.castB_rfl' does not depend on any axioms
+'ZK60.Exec.Block.Join.castB_castB' does not depend on any axioms
+'ZK60.Exec.Block.Join.xrK_cpt_fin' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.tabK_eqFull_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.tabK_eqHead_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.rhoAll_eq' does not depend on any axioms
+'ZK60.Exec.Block.Join.tabK_rho_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.rhoC_eval' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.aTab_eval' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.CtW' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.CwW' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.CgW' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.CjW' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.CdW' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.CfW' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.piB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.piB_alg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.alg_piB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.aPl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.aPl_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.planeZ_aPl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.idsR' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.offW' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.offW_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.idsR_eq' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.idsR_limbs' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.plT' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.plD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.plQ' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.plK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.plS' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.plH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.plF' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.plL' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.remR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.xtW' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.aPl_alg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.RungS' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.dr5' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.dr5_length' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.paT' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.tabs0' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.tabs1' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.tabs2' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.rrTzc' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.muTzc' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.nuTzc' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.slot2_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.slot0_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.slot1_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.cstK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.cstS_map' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.cstK_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.cstK_p256' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.cstK_p16' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.tabK_pa_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.tabK_paHead_cpt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.eqT_eval' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.pubT_eval' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.paT_eval' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.tzc_vals' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.alg_plT' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.alg_plL' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.alg_plD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.relCl2_alg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.relGh2_alg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.tzc_irEval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.cstK_tzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.valsTzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.valsTzc_off' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.tzc_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.sum_append_D' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.append_head5' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.ss_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.slotShape_rung' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.eval_dr' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.dr5_getD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.formAt_tzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.splitD' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.splitQ' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.splitK' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.splitS' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.splitHt' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.splitF' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.splitD_append' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.splitQ_append' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.splitK_append' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.splitS_append' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.splitHt_append' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.splitF_append' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.encW' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.encHtW' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.mpadW' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.mpadW_zeroPl' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.mpadW_hm0' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.mpadW_hm78' does not depend on any axioms
+'ZK60.Exec.Block.Join.W16.thirtytwo_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.dtW' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.relCount_room' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.hspecW' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.dXof_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.block_knowledge_join_w16r2_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.wsum' does not depend on any axioms
+'ZK60.Exec.Block.Join.wsum_append' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.wsum_eq_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.lkRels' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.logupSem_eq_wsum' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.lkRels_length' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.padPls' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.zipIdx_wsum' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.wsum_mul' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.padGroup_wsum' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.padSem_eq_wsum' depends on axioms: [propext, Quot.sound]
