@@ -7,7 +7,13 @@ Labels: **PROVED** (a Lean theorem, no `sorry`, axioms at most `propext`, `Class
 **CHECKED** (a script or Lean checker run against the code, with its log and a negative control), **MEASURED**,
 **ARGUED** (reading the code or the Lean, not a theorem), **ESTIMATE**, **LEFT** (not done).
 
-STATUS_PLACEHOLDER
+**STATUS.** Deliverable 1 DONE, green, committed: `hW` PROVED at the code's header (`vd_hW`), with finding L55-1 (High:
+the Lean verifier omits the code's refusal of a verdict above `1`; without it `hW` cannot be met, and neither can
+`hdout`; repaired in Lean, no code change). Deliverable 2 DONE, green, committed: both closing geometries (the
+boundaries and `B_out`) CHECKED against the code with a negative control (24 checks, 26 controls), and `hopX1` PROVED at
+EVERY part `1 … Lb + 1` (`B_in`, the blocks' boundaries, `B_out`), with the carry tied to the previous part; no new
+extraction event. Deliverable 3 NOT started (§5.2). Deliverable 4 DONE: the top theorem restated in a generated chain,
+ending at `cb_productionReadyL_epP_codeF`, with `hW` and `hopX1` gone; every premise still left listed by name (§5.3).
 
 ## 1. In plain words, for Victor
 
@@ -152,6 +158,15 @@ Hypotheses: `h64`, `hr`, `hon`, `hbij`, `hs`, `hL`, `hL64`, `hv`, `hRn`, `hD`, `
 `hH0_stg`, `hH1_blk`, `hH1_stg`, `hLU_blk`, `hLU_stg` (L53, L54), `hdin`, `hdout` (L53; `hdout` needs `hchk`'s refusal,
 finding L55-1), `hblk` (L54), `hE`, `hops`, `hcan`, `hread`, `hdzero` (§5.2; `hdzero` L53's lists), `hzk`.
 
+### 5.4 What the next lane needs
+
+1. **Deliverable 3** (§5.2): the input endpoint's extractor (`ops`, `Xx`, `Ux` from L52's tag-checked `ebOpenX`), its
+   failure event and bound, `hread`, `hE`, `mk`. Start from `cb_productionReadyL_epP_codeF`.
+2. **Whoever instantiates the top theorem** must take the run's `check` as `vdChk check0` (finding L55-1), the
+   boundary opening as `cbBndOpen tag 38` with `pXk := cbBndPcs tag 38`, and `base` with the closing geometries of
+   §5.1 (`rkR13 38 (off (i − 1) + 2)` at parts `i ≥ 1`, with the counts given there).
+3. **Lane L53 (`hdout`)**: with `hchk` the accepted verdict is `0` or `1`; without it `hdout` is false (L55-1).
+
 ## 6. Findings
 
 **L55-1 (High; for the coordinator, lane L53 (`hdout`) and whoever instantiates the top theorem): the Lean run
@@ -185,4 +200,34 @@ the closing opening's claims and root could not be read from them. `cb_two` and 
 
 ## 7. Checks
 
-CHECKS_PLACEHOLDER
+`results/zk60_lean_l55_20261110/check_l55.sh`, one guarded cpu job (`lean-l55-check`, need 24 GiB, cap 36 GiB,
+`LEAN_NUM_THREADS=4`), run as the last step of `iter4` on perf `2e5cde97` plus this lane (commit `86d10afd` plus the
+`Lb ≤ 26` fix): the guard's record exit 0, 269 s, peak 13.37 GiB. All figures MEASURED; logs in the evidence directory
+(`check.log`, `full.log`, `axioms_flat.log`, `nameclash.log`, `geocheck.log`, `negative.log`, `abscheck.log`, the
+regression logs). The modules were built first in guarded iterations (`iter1` … `iter4`, logs kept: iter1 caught a
+missing import, iter2 a missing `open`, iter3 an `omega` that needed the `Lb ≤ 26` premise I had dropped as unused).
+
+| Check | Result |
+|---|---|
+| each L55 module built alone (twelve) | 12 of 12 green, 0 warnings |
+| full `lake build` | green, 3,815 jobs, 0 warnings, 0 errors, no `sorry` |
+| axiom audit (`gen_axioms.py`) of every declaration of the twelve files | 38 of 38 (31 theorems, 7 definitions): 24 on `propext`, `Classical.choice`, `Quot.sound`; 4 on `propext`, `Quot.sound`; 7 on `propext`; 3 on none; `sorryAx` 0, `ofReduceBool` 0, other axioms 0 |
+| source scan for the forbidden words (the twelve files, the checker, the three generators, the negative control) | none |
+| root imports | the twelve modules imported (the checker not); no import line removed |
+| existing files changed | none under `formal/` but the root's imports; `Statements.lean` unchanged; nothing under `ops/` |
+| name clashes (`l55_nameclash.py`, prefixes `RunVerdict`, `RunCloseB`; 46 names; 42 worktrees, 5,335 other Lean files) | 0 |
+| the generated files against their generators | `RunVerdictTop`, `RunCloseBTop`, `RunCloseBTopF`: identical |
+| the boundary geometry against the code (`RunCloseBGeoCheck.lean`) | 24 checks, 0 failed (below) |
+| its controls (`l55_negative.py`) | 26 cases: the unchanged copy passes; 11 corpus changes and 14 source changes, each refused |
+| L51's agreement check of the code's header, re-run (`RunAbsCheck.lean`) | 29 checks, 0 failed |
+| regressions | L6Check 1,206, L5Check 5,553, L11Check 404, fixture L1 101,956 checks; 0 failed in each |
+
+The geometry check:
+
+| Kind | What | Result |
+|---|---|---|
+| R13 | lane L49's export of the app's R13 Shieldstral T128 shape from the production code: the profile, `log_cols 14`, tokens `128`, `t_pad 128`, `d_pad 4096`; a boundary's rows there `38` | 4 of 4 |
+| DEV | `B_out`'s spec on L29's real classifier run (development rung): `log_n 10`, `16` data rows of the `2^14` plane, `2` sites, `22` rows (`cbBndRows`), `Dim::of` `(256, 1280, 4096, 12)` = the geometry's, rate `1/4`, `256` checks | 4 of 4 |
+| SOURCE | the R13 registration and `trained_geometry` (rate `4`, no endpoint override, not W16R2), the endpoint defaults, `COL_CHECKS = 256`, `boundary_spec` (the plane, `2` sites, `endpoint_log_n`, `endpoint_inv_rate`, `opened_cols`), `BoundarySpec`'s rows, refusal and params, the verifier's `B_in` / `B_{k+1}` / `prev`, block `k` opening the PREVIOUS boundary, OUT-C handed the last boundary, `B_out` opened at its params, `MASK_ROWS = 5` and the R13 `endpoint_rows = 37` | 14 of 14 |
+| LEAN | `cbBndRows 128 4096 14 2 = 38` = `endpoint_rows + 1`; `ogR13` is the boundary geometry | 2 of 2 |
+| total | | **24 checks, 0 failed** |
