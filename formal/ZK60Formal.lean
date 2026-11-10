@@ -423,3 +423,15 @@ import ZK60Formal.RunStgTopD
 import ZK60Formal.RunWireSem
 import ZK60Formal.RunWireTerm
 import ZK60Formal.RunWireTop
+import ZK60Formal.RunVerdictW
+import ZK60Formal.RunVerdictTop
+import ZK60Formal.RunCloseBGeo
+import ZK60Formal.RunCloseBPcs
+import ZK60Formal.RunCloseBRun
+import ZK60Formal.RunCloseBBlk
+import ZK60Formal.RunCloseBMid
+import ZK60Formal.RunCloseBTop
+import ZK60Formal.RunCloseBEnd
+import ZK60Formal.RunCloseBInc
+import ZK60Formal.RunCloseBEnds
+import ZK60Formal.RunCloseBTopF

@@ -1,0 +1,4 @@
+build ZK60Formal.RunCloseBMid
+build ZK60Formal.RunCloseBTop
+build ZK60Formal.RunCloseBTopF
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a33fed333d77ee386/results/zk60_lean_l55_20261110/check_l55.sh
