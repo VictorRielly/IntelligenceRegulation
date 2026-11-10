@@ -1,0 +1,54 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/help_plan5.txt ==
+build ZK60Formal.BlockR13LookHelpPub
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/help_axioms.lean
+== lake build ZK60Formal.BlockR13LookHelpPub ==
+Build completed successfully (3579 jobs).
+build rc 0 (5 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/help_axioms.lean ==
+'ZK60.Exec.Block.Join.R13H.Help.drH' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Help.drH_length' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.rawTabs3M' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.rawSlot3R' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.rawTabs20M' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.rawSlot20R' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.numTabs3' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.numTabs20' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.progR13_slotH' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.HelpCfg' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.helpCfg_rung' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.rawSlot3_shield' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.rawSlot20_shield' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.helpCfg_shield' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.HelpProf' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.helpProf_rung' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.helpProf_shield' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Help.lzcR_vals' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.valsLR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.cLzcR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.wLzcR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.lzcR_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.spLzcR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.spLzcR_dg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.spLzcR_Gd' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.lzcR_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.zsR_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.spZsR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.spZsR_dg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.zsR_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.spXkR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.spXR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.spHR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.HGdR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.hgdR_of' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.helperR_dg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.helperR_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.helpProf_of' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.hgdR_of_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.helperR_dg_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.helperR_formAt_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.hrest19L' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.hrest20L' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.hgateL_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Help.hgateL_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/help_axioms.lean (8 s)
+rc 0, 8 s
