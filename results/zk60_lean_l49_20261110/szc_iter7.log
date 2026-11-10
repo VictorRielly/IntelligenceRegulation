@@ -1,0 +1,394 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/szc_plan7.txt ==
+build ZK60Formal.BlockR13HostSzc
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_szc_axioms.lean
+== lake build ZK60Formal.BlockR13HostSzc ==
+✖ [3582/3582] Building ZK60Formal.BlockR13HostSzc (1.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostSzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostSzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostSzc.setup.json --json
+error: ZK60Formal/BlockR13HostSzc.lean:71:65: Application type mismatch: The argument
+  κ
+has type
+  ℕ
+but is expected to have type
+  Fin (segLn ((algShapeR c P hc).dl 17) Seg.mu - segLn ((algShapeR c P hc).dl 17) Seg.zeta)
+in the application
+  dt.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha) κ
+error: ZK60Formal/BlockR13HostSzc.lean:70:26: failed to synthesize instance of type class
+  Fintype ℕ
+
+Hint: Adding the command `deriving instance Fintype for Nat` may allow Lean to derive the missing instance.
+error: ZK60Formal/BlockR13HostSzc.lean:106:63: Application type mismatch: The argument
+  κ
+has type
+  ℕ
+but is expected to have type
+  Fin (segLn ((algShapeR c P hc).dl 17) Seg.mu - segLn ((algShapeR c P hc).dl 17) Seg.zeta)
+in the application
+  dt.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha) κ
+error: ZK60Formal/BlockR13HostSzc.lean:105:19: failed to synthesize instance of type class
+  Fintype ℕ
+
+Hint: Adding the command `deriving instance Fintype for Nat` may allow Lean to derive the missing instance.
+error: ZK60Formal/BlockR13HostSzc.lean:133:6: Unknown identifier `hbat`
+error: ZK60Formal/BlockR13HostSzc.lean:77:82: unsolved goals
+case refine_1
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hcard : 78 < Fintype.card K
+L : ℕ
+c : W16Cfg
+ls : ℕ
+P : BlockParams
+hc : ShOkR c.sh P
+hcfg : SzcCfg c ls
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hist : Hist
+dr : List Fp2
+hk : 17 ∈ algHosts
+hseg :
+  ∀ (g : Seg) (i : ℕ),
+    segOff ((algShapeR c P hc).dl 17) g + i < segSum ((algShapeR c P hc).dl 17) →
+      segAt ((algShapeR c P hc).dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j)) g i =
+        Fp2.toK U (dr.getD (segOff ((algShapeR c P hc).dl 17) g + i) Fp2.zero)
+hbd :
+  ∀ (g : Seg),
+    segOff ((algShapeR c P hc).dl 17) g + segLn ((algShapeR c P hc).dl 17) g ≤ segSum ((algShapeR c P hc).dl 17)
+hz : segLn ((algShapeR c P hc).dl 17) Seg.zeta = 0
+hM0 : mleAt (algM (algShapeR c P hc) dt 17 cu rt 0) (algPt U (algShapeR c P hc) 17 hist 0) = 0
+htau :
+  (fun t =>
+      segAt ((algShapeR c P hc).dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j)) Seg.tau
+        ↑t) =
+    fun t => Fp2.toK U (dr.getD (↑t) Fp2.zero)
+hnu0 :
+  segAt ((algShapeR c P hc).dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j)) Seg.nu ↑0 =
+    Fp2.toK U (dr.getD (c.sh.logs Slot.W16R2.Dom.S + (13 + ls)) Fp2.zero)
+hnu1 :
+  segAt ((algShapeR c P hc).dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j)) Seg.nu ↑1 =
+    Fp2.toK U (dr.getD (c.sh.logs Slot.W16R2.Dom.S + (13 + ls) + 1) Fp2.zero)
+⊢ (Fin (segLn ((algShapeR c P hc).dl 17) Seg.tau) → Bool) → Fintype ℕ
+
+case refine_2
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hcard : 78 < Fintype.card K
+L : ℕ
+c : W16Cfg
+ls : ℕ
+P : BlockParams
+hc : ShOkR c.sh P
+hcfg : SzcCfg c ls
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hist : Hist
+dr : List Fp2
+hk : 17 ∈ algHosts
+hseg :
+  ∀ (g : Seg) (i : ℕ),
+    segOff ((algShapeR c P hc).dl 17) g + i < segSum ((algShapeR c P hc).dl 17) →
+      segAt ((algShapeR c P hc).dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j)) g i =
+        Fp2.toK U (dr.getD (segOff ((algShapeR c P hc).dl 17) g + i) Fp2.zero)
+hbd :
+  ∀ (g : Seg),
+    segOff ((algShapeR c P hc).dl 17) g + segLn ((algShapeR c P hc).dl 17) g ≤ segSum ((algShapeR c P hc).dl 17)
+hz : segLn ((algShapeR c P hc).dl 17) Seg.zeta = 0
+hM0 : mleAt (algM (algShapeR c P hc) dt 17 cu rt 0) (algPt U (algShapeR c P hc) 17 hist 0) = 0
+hbat :
+  batched (dt.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha)) (dt.pw 17 cu rt)
+      ((if segLn ((algShapeR c P hc).dl 17) Seg.zeta = 1 then
+            segAt ((algShapeR c P hc).dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j))
+              Seg.zeta 0
+          else 0,
+          if segLn ((algShapeR c P hc).dl 17) Seg.zeta = 1 then
+            segAt ((algShapeR c P hc).dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j))
+              Seg.mu (segLn ((algShapeR c P hc).dl 17) Seg.mu - segLn ((algShapeR c P hc).dl 17) Seg.zeta)
+          else 0),
+        fun κ =>
+        segAt ((algShapeR c P hc).dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j)) Seg.mu
+          ↑κ) =
+    fun b =>
+    ∑ κ,
+      Fp2.toK U (dr.getD (c.sh.logs Slot.W16R2.Dom.S + κ) Fp2.zero) *
+        dt.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha) sorry b
+⊢ (mleAt
+        (batched (dt.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha)) (dt.pw 17 cu rt)
+          ((if segLn ((algShapeR c P hc).dl 17) Seg.zeta = 1 then
+                segAt ((algShapeR c P hc).dl 17) (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Seg.zeta 0
+              else 0,
+              if segLn ((algShapeR c P hc).dl 17) Seg.zeta = 1 then
+                segAt ((algShapeR c P hc).dl 17) (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Seg.mu
+                  (segLn ((algShapeR c P hc).dl 17) Seg.mu - segLn ((algShapeR c P hc).dl 17) Seg.zeta)
+              else 0),
+            fun κ =>
+            segAt ((algShapeR c P hc).dl 17) (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Seg.mu ↑κ))
+        fun t =>
+        segAt ((algShapeR c P hc).dl 17) (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Seg.tau ↑t) +
+      (segAt ((algShapeR c P hc).dl 17) (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Seg.nu ↑0 *
+          (mleAt (fun b => 1 * algH U (algShapeR c P hc) dt 17 cu rt hist 0 b) (algPt U (algShapeR c P hc) 17 hist 0) -
+            0) +
+        segAt ((algShapeR c P hc).dl 17) (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Seg.nu ↑1 *
+          (mleAt (fun b => 1 * dt.gh 17 cu rt 1 b) (algPt U (algShapeR c P hc) 17 hist 1) -
+            mleAt (dt.mm 17 cu rt 1) (algPt U (algShapeR c P hc) 17 hist 1))) =
+    (mleAt
+          (fun b =>
+            ∑ κ,
+              Fp2.toK U (dr.getD (c.sh.logs Slot.W16R2.Dom.S + κ) Fp2.zero) *
+                dt.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha) sorry b)
+          fun t => Fp2.toK U (dr.getD (↑t) Fp2.zero)) +
+        Fp2.toK U (dr.getD (c.sh.logs Slot.W16R2.Dom.S + (13 + ls)) Fp2.zero) *
+          mleAt (algH U (algShapeR c P hc) dt 17 cu rt hist 0) (algPt U (algShapeR c P hc) 17 hist 0) +
+      Fp2.toK U (dr.getD (c.sh.logs Slot.W16R2.Dom.S + (13 + ls) + 1) Fp2.zero) *
+        (mleAt (dt.gh 17 cu rt 1) (algPt U (algShapeR c P hc) 17 hist 1) -
+          mleAt (dt.mm 17 cu rt 1) (algPt U (algShapeR c P hc) 17 hist 1))
+error: ZK60Formal/BlockR13HostSzc.lean:169:10: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  mleAt (fun z => ?f fun t => z (Fin.cast ⋯ t)) ?y
+in the target expression
+  mleAt
+      (fun z =>
+        (fun w =>
+            (fun r => dt.rsScale * (A r + algDrawAt U hist 4 (c.sh.logs Slot.W16R2.Dom.Ht) * B r)) fun i =>
+              w (Fin.castAdd c.sh.lt i))
+          fun t => z (Fin.cast ⋯ t))
+      (algPt U (algShapeR c P hc) 17 hist 0) =
+    dt.rsScale * (mleAt A p + algDrawAt U hist 4 (c.sh.logs Slot.W16R2.Dom.Ht) * mleAt B p)
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+L : ℕ
+c : W16Cfg
+P : BlockParams
+hc : ShOkR c.sh P
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hist : Hist
+A B : (Fin (c.sh.logs Slot.W16R2.Dom.Ht) → Bool) → K
+hA : ∀ (b : Fin (algShapeR c P hc).nHt → Bool), dt.rsA cu rt b = A b
+hB : ∀ (b : Fin (algShapeR c P hc).nHt → Bool), dt.rsB cu rt b = B b
+p : Fin (c.sh.logs Slot.W16R2.Dom.Ht) → K
+hp : ∀ (t : Fin (c.sh.logs Slot.W16R2.Dom.Ht)), algDrawAt U hist 4 ↑t = p t
+e1 :
+  algH U (algShapeR c P hc) dt 17 cu rt hist 0 = fun z =>
+    (fun w =>
+        (fun r => dt.rsScale * (A r + algDrawAt U hist 4 (c.sh.logs Slot.W16R2.Dom.Ht) * B r)) fun i =>
+          w (Fin.castAdd c.sh.lt i))
+      fun t => z (Fin.cast ⋯ t)
+e2 : (fun t => algPt U (algShapeR c P hc) 17 hist 0 (Fin.cast ⋯ t)) = Fin.append p fun x => 0
+⊢ mleAt
+      (fun z =>
+        (fun w =>
+            (fun r => dt.rsScale * (A r + algDrawAt U hist 4 (c.sh.logs Slot.W16R2.Dom.Ht) * B r)) fun i =>
+              w (Fin.castAdd c.sh.lt i))
+          fun t => z (Fin.cast ⋯ t))
+      (algPt U (algShapeR c P hc) 17 hist 0) =
+    dt.rsScale * (mleAt A p + algDrawAt U hist 4 (c.sh.logs Slot.W16R2.Dom.Ht) * mleAt B p)
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    Eq.symm hc.hS17
+  has type
+    @Eq ℕ (c.sh.logs Slot.W16R2.Dom.Ht + c.sh.lt) (segLn (Slot.R13.draws c.sh 17) Seg.tau)
+  but is expected to have type
+    @Eq ℕ (c.sh.logs Slot.W16R2.Dom.Ht + c.sh.lt) (segLn ((algShapeR c P hc).dl 17) Seg.tau)
+  in the application
+    Fin.cast ⋯
+error: ZK60Formal/BlockR13HostSzc.lean:262:6: Unknown identifier `szcR_hostPhi`
+error: ZK60Formal/BlockR13HostSzc.lean:207:84: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+P : BlockParams
+hc : ShOkR c.sh P
+hpf : ProfR c.sh P
+hcfg : SzcCfg c ls
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (DefR13.progR13 c ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hS : PrecR c S
+hW : R13.R13Windows S ls
+hLay : LayR Lay
+hpub : PubR U c pubs Pb Lay B
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2)
+    (κ : Fin (segLn ((algShapeR c P hc).dl 17) Seg.mu - segLn ((algShapeR c P hc).dl 17) Seg.zeta))
+    (b : Fin (segLn ((algShapeR c P hc).dl 17) Seg.tau) → Bool),
+    dt.cl 17 cu rt bga κ b =
+      if ↑κ < r13Count 17 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 17 (clIx 17 ↑κ) (encR G 17 b))
+      else xcSzcR U G P D B bga (↑κ) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 17) Seg.tau) → Bool),
+    dt.gh 17 cu rt i b = (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 17 (↑i) (encR G 17 b))
+hmm :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 17) Seg.tau) → Bool),
+    dt.mm 17 cu rt i b = (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 17 (↑i) (encR G 17 b))
+hrsA :
+  ∀ (b : Fin (algShapeR c P hc).nHt → Bool),
+    dt.rsA cu rt b = (algebraMap GF K) (r13RsA Pb Lay B (xtR U c P D ls) (encHtR G b))
+hrsB :
+  ∀ (b : Fin (algShapeR c P hc).nHt → Bool),
+    dt.rsB cu rt b = (algebraMap GF K) (r13RsB Pb Lay B (xtR U c P D ls) (encHtR G b))
+hsc : dt.rsScale = ↑c.sh.perRow
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hk : 17 ∈ algHosts
+hls : ls ≤ 2
+hfp : c.p.fp ≤ 15
+hsc' : c.p.score ≤ 24
+hlQ : 0 < c.sh.logs Slot.W16R2.Dom.Q
+hlK : 0 < c.sh.logs Slot.W16R2.Dom.Kv
+hkv : c.sh.lkv ≤ c.sh.lh
+hpr2 : ↑c.sh.perRow = 2 ^ c.sh.lt
+ak17 hk17 : ℕ
+hslot17 :
+  (DefR13.progR13 c ioIn ioOut).getD 17 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak17 hk17 (rawSzcR c ls)
+ak4 hk4 : ℕ
+hslot4 :
+  (DefR13.progR13 c ioIn ioOut).getD 4 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak4 hk4 (rawRsR c)
+ak8 hk8 : ℕ
+hslot8 :
+  (DefR13.progR13 c ioIn ioOut).getD 8 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak8 hk8 (rawScR c)
+r : SlotRec
+hr : rs[17]? = some r
+hlen : 17 < rs.length
+r4 : SlotRec
+hr4 : rs[4]? = some r4
+r8 : SlotRec
+hr8 : rs[8]? = some r8
+hs17 : (slotShape P 17).1 = c.sh.logs Slot.W16R2.Dom.S
+hs4 : (slotShape P 4).1 = c.sh.logs Slot.W16R2.Dom.S
+hs8 : (slotShape P 8).1 = c.sh.lkv + c.sh.ldh
+hsp17 :
+  cubeSum (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs 17 (seenOf bga rs 17)) =
+    mleAt
+          (fun b =>
+            ∑ κ ∈ range (13 + ls),
+              (List.map (Fp2.toK U)
+                      (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws)
+                        (drsR 17 (c.sh.logs Slot.W16R2.Dom.S) (13 + ls)))).getD
+                  κ 0 *
+                if κ < 5 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 17 κ (W16Pos.s (xS G b)))
+                else
+                  xcSzcR U G P D B
+                    ((histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).beta,
+                      (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).gamma,
+                      (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).alpha)
+                    κ b)
+          (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) 17 0
+            (c.sh.logs Slot.W16R2.Dom.S)) +
+        (List.map (Fp2.toK U)
+                (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws)
+                  (drsR 17 (c.sh.logs Slot.W16R2.Dom.S + (13 + ls)) 2))).getD
+            0 0 *
+          (2 ^ c.sh.lt *
+            (mleAt (fun r => aPl U P D (DefR13.aOff c 5) (c.sh.logs Slot.W16R2.Dom.Ht) r)
+                (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) 4 0
+                  (c.sh.logs Slot.W16R2.Dom.Ht)) +
+              Fp2.toK U
+                (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws
+                  (Sym.dr 4 (c.sh.logs Slot.W16R2.Dom.Ht))))) +
+      (List.map (Fp2.toK U)
+              (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws)
+                (drsR 17 (c.sh.logs Slot.W16R2.Dom.S + (13 + ls)) 2))).getD
+          1 0 *
+        mleAt (fun b => (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 17 1 (W16Pos.s (xS G b))))
+          (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) 8 0
+            (c.sh.logs Slot.W16R2.Dom.S))
+hsp4 :
+  cubeSum (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs 4 (seenOf bga rs 4)) =
+    mleAt
+        (fun r =>
+          ∑ j,
+            (algebraMap GF K) (B.mask (xS G (castB ⋯ (Fin.append r j)))) *
+              aPl U P D (DefR13.aOff c 80) (c.sh.logs Slot.W16R2.Dom.S) (castB ⋯ (Fin.append r j)))
+        (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 4 rs)) 4 r4.draws) 4 0
+          (c.sh.logs Slot.W16R2.Dom.Ht)) +
+      Fp2.toK U
+          (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 4 rs)) 4 r4.draws
+            (Sym.dr 4 (c.sh.logs Slot.W16R2.Dom.Ht))) *
+        mleAt (fun r => ∑ j, aPl U P D (DefR13.aOff c 79) (c.sh.logs Slot.W16R2.Dom.S) (castB ⋯ (Fin.append r j)))
+          (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 4 rs)) 4 r4.draws) 4 0
+            (c.sh.logs Slot.W16R2.Dom.Ht))
+hsp8 :
+  cubeSum (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs 8 (seenOf bga rs 8)) =
+    ∑ g,
+      ∑ d,
+        (eqPoly (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 8 rs)) 8 r8.draws) 8 0 c.sh.lkv)
+            fun i => bit (g i)) *
+          ((∑ t,
+              ∑ jj,
+                ((eqPoly
+                      (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 8 rs)) 8 r8.draws) 8 c.sh.lh
+                        c.sh.lt)
+                      fun i => bit (t i)) *
+                    eqPoly
+                      (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 8 rs)) 8 r8.draws) 8 c.sh.lkv
+                        (c.sh.lh - c.sh.lkv))
+                      fun i => bit (jj i)) *
+                  aPl U P D (DefR13.aOff c 52) (c.sh.logs Slot.W16R2.Dom.Q)
+                    (castB ⋯ (Fin.append t (Fin.append (Fin.append g jj) d)))) *
+            ∑ t',
+              (eqPoly
+                  (W16.Szc.ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 8 rs)) 8 r8.draws) 8
+                    (c.sh.lh + c.sh.lt) c.sh.lt)
+                  fun i => bit (t' i)) *
+                aPl U P D (DefR13.aOff c 71) (c.sh.logs Slot.W16R2.Dom.Kv) (castB ⋯ (Fin.append t' (Fin.append g d))))
+⊢ ((hostSp U (algShapeR c P hc) dt hcard 17 hk cu rt (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs))).Φ fun i =>
+      Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 17 -
+      (Fp2.toK U
+            (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws
+              ((Sym.dr 17 (c.sh.logs Slot.W16R2.Dom.S + (13 + ls))).mul (Sym.base ↑c.sh.perRow))) *
+          spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 4 +
+        Fp2.toK U
+            (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws
+              (Sym.dr 17 (c.sh.logs Slot.W16R2.Dom.S + (13 + ls) + 1))) *
+          spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 8)
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostSzc
+error: build failed
+build rc 1 (6 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_szc_axioms.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_szc_axioms.lean:1:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzc.olean' of module ZK60Formal.BlockR13HostSzc does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_szc_axioms.lean (7 s)
+rc 1, 7 s
