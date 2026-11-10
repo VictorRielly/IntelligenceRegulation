@@ -115,7 +115,8 @@ CASES = [
      src_sub(SRC[0], "        v.extend_from_slice(&self.in_spec.digest());\n        v.extend_from_slice(&self.in_root);",
              "        v.extend_from_slice(&self.in_root);\n        v.extend_from_slice(&self.in_spec.digest());")),
     ("source: the run not on st.transcript()",
-     src_sub(SRC[1], "let mut tr = st.transcript()?;", "let mut tr = st.transcript_v2()?;")),
+     src_sub(SRC[1], "    let mut tr = st.transcript()?;\n    let binding = tr.state();",
+             "    let mut tr = st.transcript_v2()?;\n    let binding = tr.state();")),
     ("source: stage IN-C absorbs the endpoint root",
      src_sub(SRC[2], "    let ep_data_rows = ep_spec.data_rows();",
              "    protocol::absorb_root(tr, b\"In\", ep_root, ep_spec.commitment_rows(), cp.tier.ep_log_n);\n"

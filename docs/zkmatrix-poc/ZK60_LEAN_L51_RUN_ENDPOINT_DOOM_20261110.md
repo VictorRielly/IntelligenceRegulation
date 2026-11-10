@@ -10,7 +10,8 @@ Labels: **PROVED** (a Lean theorem, no `sorry`, axioms at most `propext`, `Class
 **STATUS.** Deliverable 1 DONE, green and committed, with a High finding: L48's premise `hInAbs` cannot be met by the
 code (finding L51-1), so the brief's "prove `hInAbs`" became "prove it false at the code's header, and give the two
 repairs". Deliverable 2 PARTLY (`hwin` PROVED; the rest is blocked by L51-1 or LEFT, §5). Deliverable 3 NOT started.
-Deliverable 4: no restated top theorem (§5.3 says why and lists every premise left).
+Deliverable 4 DONE at the REPAIRED header (`ab_productionReadyL_epP_fix`: `hopX` at part `0` and `hwin` discharged);
+at the code's header only `hwin` is discharged (`ep_hwin_top`), §5.3.
 
 ## 1. In plain words, for Victor
 
@@ -43,8 +44,10 @@ system. The same reason blocks two of the input test's links (`hread`, `hBal`) u
   theorem]. That restatement (a new opening kind for part `0`, its "alive" lemma, the kinds data, the count) is a lane.
 
 **What else is done.** The header is now the code's in Lean (`clsHdrOps`, `clsStart`), with the two header premises of
-L34's run schedule (`hstart`, `hhdr`) PROVED for it. The input test's window premise `hwin` is PROVED on the run's
-transcript.
+L34's run schedule (`hstart`, `hhdr`) PROVED for it; a Lean checker rebuilds the header from a real receipt's words and,
+hashing with BLAKE3 in Lean, lands on the code's own run binding. The input test's window premise `hwin` is PROVED on the
+run's transcript. The app's top theorem is restated at the repaired header with `hopX` at part `0` and `hwin` gone
+(`ab_productionReadyL_epP_fix`), so repair A's effect on the proof is not a promise but a theorem.
 
 **What is not done.** The run-level doom covers `hdin`, `hdout` (deliverable 3) and the endpoint links `hBal`,
 `hdzero`, `hops`, `hcan`, `mk`, `hE` (deliverable 2): §5 says exactly what each needs.
@@ -226,4 +229,39 @@ words are not measured.
 
 ## 7. Checks
 
-PLACEHOLDER
+`results/zk60_lean_l51_20261110/check_l51.sh`, one guarded cpu job (`lean-l51-check`, need 24 GiB, cap 36 GiB,
+`LEAN_NUM_THREADS=4`), on perf `2f34ebe5` plus this lane: the run of record exit 0, 175 s, peak 3.70 GiB (the guard's
+record). All figures MEASURED; logs in the evidence directory
+(`check_run.log`, `full.log`, `axioms_flat.log`, `nameclash.log`, `abscheck.log`, `negative.log`, the regression logs).
+The modules were built first in guarded iterations (`iter1` … `iter3`, logs kept). Two earlier runs of the check are
+kept (`check_run1.log`, `negative_run1.log`, `negative_run2.log`): the first audited 67 of 68 lines (a docstring line
+beginning with the word `theorem` was read as a declaration; reworded) and both had negative case 18 pass when it must
+fail (the mutation hit the prover's `st.transcript()` call, not the verifier's; retargeted).
+
+| Check | Result |
+|---|---|
+| each L51 module built alone (four) | 4 of 4 green, 0 warnings |
+| full `lake build` | green, 3,745 jobs, 0 warnings, 0 errors, no `sorry` |
+| axiom audit (`gen_axioms.py`) of every declaration of the four files | 67 of 67 (44 theorems, 22 definitions, 1 structure): 30 on `propext`, `Classical.choice`, `Quot.sound`; 5 on `propext`, `Quot.sound`; 7 on `propext`; 25 on none; `sorryAx` 0, `ofReduceBool` 0, other axioms 0 |
+| source scan for the forbidden words (the four files, the checker, the Rust export) | none |
+| root imports | the four modules imported (the checker not); no import line removed |
+| existing files changed | none under `formal/` but the root's imports; `Statements.lean` unchanged; under `ops/` only the new test-only export and its declaration line (and comment) in the test-only `classify_capture_tests.rs` |
+| name clashes (`l51_nameclash.py`, prefixes `RunEndpt`, `RunDoomIO`, `RunAbs`; 41 worktrees, 4,655 other Lean files) | 0 |
+| `RunAbsTop.lean` against `l51_mk_top.py`'s output | identical |
+| the Rust export (`exp_export.sh`, guarded) | green: the honest run accepted by the production verifier, the rebuilt header asserted equal to the production binding and counter and key, a one-byte root change asserted to move it; 168 s; census tests `s25_tests` 20/20, `hash_domain` 15/15 |
+| agreement with the code (`RunAbsCheck.lean` on the export and the production sources) | 29 checks, 0 failed (below) |
+| its controls (`l51_negative.py`) | 20 cases: the unchanged copy passes; 13 corpus changes and 6 source changes, each refused |
+| regressions | L6Check 1,206, L5Check 5,553, L11Check 404, fixture L1 101,956 checks; 0 failed in each |
+
+The agreement check:
+
+| Kind | What | Result |
+|---|---|---|
+| CORPUS | the export is L51's; eight header absorbs; the Fiat-Shamir key | 3 of 3 |
+| LABELS | the Lean labels are the source strings' bytes and the corpus's, in order | 3 of 3 |
+| MODEL | `clsHdrOps` of the statement's words, input root and verdict IS the corpus's eight (label, data); `expected-IO` is `abExpMsg` (84 B); word sizes; the fit bound | 4 of 4 |
+| REPLAY | under BLAKE3 in Lean, `Tr.newKeyed` of the profile is the code's fresh state, and the Lean header (and `clsStart`) lands on the run binding with no squeeze | 3 of 3 |
+| POS | position `1` absorbs `abExpMsg`; no header position absorbs the 32-byte root; `rootAt 1 = none`; position `6` the verdict byte; stage IN-C's 32-byte absorbs before the endpoint opening are not the root | 5 of 5 |
+| FIX | the repaired header absorbs the root at `2` and is another binding | 2 of 2 |
+| SOURCE | `transcript()`'s eight absorbs, in order, nothing else, on the profile's tagged transcript; `expected_bytes`' three parts; `verify_classify_run_with` starts on `st.transcript()` and hands `st.in_root()` to IN-C; IN-C's `verify` uses `ep_root` only as a parameter, the commitment and a test-only hook, and absorbs no root | 9 of 9 |
+| total | | **29 checks, 0 failed** |

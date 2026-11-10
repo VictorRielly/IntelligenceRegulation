@@ -1,0 +1,21 @@
+ok   case 00 (positive: unchanged): exit 0, RunAbsCheck: 29 checks, 0 failed
+ok   case 01 (corpus: one byte of the input root): exit 1, RunAbsCheck: 29 checks, 4 failed; first refusal: FAIL MODEL: clsHdrOps (the statement's words, input root, verdict) is the corpus's eight (label, data)
+ok   case 02 (corpus: one byte of the input endpoint spec's digest): exit 1, RunAbsCheck: 29 checks, 4 failed; first refusal: FAIL MODEL: clsHdrOps (the statement's words, input root, verdict) is the corpus's eight (label, data)
+ok   case 03 (corpus: one byte of the binding): exit 1, RunAbsCheck: 29 checks, 2 failed; first refusal: FAIL REPLAY: the Lean header lands on the run binding 12c980b091826b4821e351f34028b3921d15e448425deda31a5fabe888ea2f43 (counter 0)
+ok   case 04 (corpus: the verdict 1 -> 0): exit 1, RunAbsCheck: 29 checks, 4 failed; first refusal: FAIL MODEL: clsHdrOps (the statement's words, input root, verdict) is the corpus's eight (label, data)
+ok   case 05 (corpus: expected-IO's last byte (the root's)): exit 1, RunAbsCheck: 29 checks, 2 failed; first refusal: FAIL MODEL: clsHdrOps (the statement's words, input root, verdict) is the corpus's eight (label, data)
+ok   case 06 (corpus: one byte of the parameter line): exit 1, RunAbsCheck: 29 checks, 2 failed; first refusal: FAIL REPLAY: the Lean header lands on the run binding 12c980b091836b4821e351f34028b3921d15e448425deda31a5fabe888ea2f43 (counter 0)
+ok   case 07 (corpus: one byte of the chunk): exit 1, RunAbsCheck: 29 checks, 2 failed; first refusal: FAIL REPLAY: the Lean header lands on the run binding 12c980b091836b4821e351f34028b3921d15e448425deda31a5fabe888ea2f43 (counter 0)
+ok   case 08 (corpus: a label (run-shape -> run-shapd)): exit 1, RunAbsCheck: 29 checks, 2 failed; first refusal: FAIL LABELS: the corpus's labels in order: [run-shapd, expected-IO, public-statement, parameters, calibration, schedule, classify-verdict, classify-chunk]
+ok   case 09 (corpus: calibration and schedule swapped): exit 1, RunAbsCheck: 29 checks, 4 failed; first refusal: FAIL LABELS: the corpus's labels in order: [run-shape, expected-IO, public-statement, parameters, schedule, calibration, classify-verdict, classify-chunk]
+ok   case 10 (corpus: the chunk absorb dropped): exit 1, RunAbsCheck: 29 checks, 6 failed; first refusal: FAIL CORPUS: 7 header absorbs (HDRN 8)
+ok   case 11 (corpus: another Fiat-Shamir key): exit 1, RunAbsCheck: 29 checks, 3 failed; first refusal: FAIL REPLAY: Tr.newKeyed (the run profile, the key) is the code's fresh transcript
+ok   case 12 (corpus: the fresh state): exit 1, RunAbsCheck: 29 checks, 1 failed; first refusal: FAIL REPLAY: Tr.newKeyed (the run profile, the key) is the code's fresh transcript
+ok   case 13 (corpus: B_in's root is the input root): exit 1, RunAbsCheck: 29 checks, 1 failed; first refusal: FAIL POS: stage IN-C's 32-byte absorbs before the endpoint opening (embedding digest, B_in, A, H, M roots) are not the input root
+ok   case 14 (source: expected-IO and public-statement swapped): exit 1, RunAbsCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: transcript(): in this order (at [424, 537, 471, 596, 665, 721, 779, 836])
+ok   case 15 (source: a ninth header absorb (the repair)): exit 1, RunAbsCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: transcript(): exactly eight absorbs, no challenge
+ok   case 16 (source: expected_bytes without the spec digest): exit 1, RunAbsCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: expected_bytes(): the tag, the input endpoint spec's digest, the input root, nothing else
+ok   case 17 (source: expected_bytes with the root before the digest): exit 1, RunAbsCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: expected_bytes(): the tag, the input endpoint spec's digest, the input root, nothing else
+BAD  case 18 (source: the run not on st.transcript()): exit 0, RunAbsCheck: 29 checks, 0 failed
+ok   case 19 (source: stage IN-C absorbs the endpoint root): exit 1, RunAbsCheck: 29 checks, 2 failed; first refusal: FAIL SOURCE: stage_in_c.rs verify: ep_root is the parameter, the endpoint commitment's root, and a test-only capture hook (no absorb)
+l51_negative: 20 cases, SOME CASE MISBEHAVED

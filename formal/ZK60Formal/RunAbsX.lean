@@ -21,8 +21,8 @@ the prover's log at the first EXACT absorption of the root (`absD`). Neither see
   extracted one (`rx_xok` for `colXM`).
 
 What repair B still needs (NOT done here): an opening kind of the run whose extracted matrix is `colXM` (L43's
-`rkOpen` reads `colX`), `rh_opB_alive` for it, `rkData` with part `0`'s closing opening of that kind, and the top
-theorem with `EvXM` added to its extraction event and `u126 q (2^16 + 2^18)` to its bound.
+`rkOpen` reads `colX`), `rh_opB_alive` for it, `rkData` with part `0`'s closing opening of that kind, and the app's
+top theorem with `EvXM` added to its extraction event and `u126 q (2^16 + 2^18)` to its bound.
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/

@@ -194,8 +194,11 @@ def main (args : List String) : IO UInt32 := do
       posOf eb "v.extend_from_slice(&self.in_spec.digest());" < posOf eb "v.extend_from_slice(&self.in_root);" &&
       (eb.splitOn "extend_from_slice").length == 4)
     "expected_bytes(): the tag, the input endpoint spec's digest, the input root, nothing else"
-  s := s.check "SOURCE" (has crun "let mut tr = st.transcript()?;" && has crun "&st.in_spec, &st.in_root(), &ntt, &mut tr, &tag)?;")
-    "classify_run.rs: the run starts on st.transcript() and hands st.in_root() to stage IN-C"
+  let vr := between crun "pub(crate) fn verify_classify_run_with(" "\n}\n"
+  s := s.check "SOURCE" (has vr "    let mut tr = st.transcript()?;" &&
+      has vr "&st.in_spec, &st.in_root(), &ntt, &mut tr, &tag)?;" &&
+      posOf vr "    let mut tr = st.transcript()?;" < posOf vr "&st.in_spec, &st.in_root(), &ntt, &mut tr, &tag)?;")
+    "classify_run.rs verify_classify_run_with: the run starts on st.transcript(), then hands st.in_root() to stage IN-C"
   let sv := between sic "pub(crate) fn verify(" "\n}\n"
   s := s.check "SOURCE" (sv != "" && (sv.splitOn "ep_root").length == 4 && has sv "    ep_root: &Digest," &&
       has sv "&protocol::commitment(*ep_root, ep_spec.commitment_rows(), cp.tier.ep_log_n)" &&
