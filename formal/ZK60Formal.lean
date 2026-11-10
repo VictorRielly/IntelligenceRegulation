@@ -201,3 +201,5 @@ import ZK60Formal.HonestOracleProg
 import ZK60Formal.StageVerifyExecAssemble
 import ZK60Formal.HonestOracleSlots
 import ZK60Formal.HonestOracleParts
+import ZK60Formal.ZKHonestProg
+import ZK60Formal.ZKHonestStep
