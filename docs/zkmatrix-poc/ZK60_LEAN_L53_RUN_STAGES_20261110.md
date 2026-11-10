@@ -174,6 +174,24 @@ lookup fails, the head's `stgLkSq` header state is false. What is missing: the s
 ⇒ `InOkP`" (L12's `inc_stage_sound`, on L29's `incSlots_model`) as a stage-level cover fact at the reading, and the same
 for OUT-C (L15's `outc_stage_sound`). The lists are now fixed, so this is the next lane's work.
 
+### 5.4 Every binder of `stg_productionReadyL_epP_exec_lists`, by name
+
+163 named binders (`l53_binders.py`, CHECKED against the file). Objects and data (no claim of their own): `Rp`, `Lq`,
+`Lb`, `preA`, `preB`, `start`, `inc`, `incG`, `Pk`, `sgeom`, `check`, `paths`, `digest`, `bRows`, `bLogN`, `bndCheck`,
+`bndOpen`, `outc`, `outcG`, `P`, `U`, `key`, `domain`, `Rn`, `D`, `ι`, `site`, `kOf`, `δOf`, `E`, `εzk`, `O`, `F`, `Cl`,
+`T`, `Ux`, `Xx`, `pr`, `tag`, `cx0`, `pin`, `pout`, `Iin`, `Oout`, `bp`, `wXk`, `gXk`, `mXk`, `Win`, `Wout`, `lscIn`,
+`lscOut`, `mIn`, `kIn`, `kOut`, `base`, `eL`, `Fsl`, `ιL`, `πL`, `κL`, `AlkL`, `TL`, `mlkL`, `mk`, `ops`, and this lane's
+`P0in`, `P0out`, `hostIn`, `hostOut`, `FstI`, `FstO`, `ΦI`, `ΦO`, `dgI`, `dgO`, `eI`, `eO`, `ΛI`, `ΛO`.
+
+Premises: `h64`, `hr`, `hon`, `hbij`, `hs`, `hL`, `hL64`, `hv`, `hD`, `hTenc`, `hTaA`, `hTaB`, `hUc`, `hXc`, `hp1`,
+`hp2`, `hF`, `hw0`, `hβLR`, `hTe`, `hTQ`, `hβJ`, `hU`, `hσ`, `hLb`, `hgeo`, `hIA`, `hIH`, `hOA`, `hOH`, `hBA`, `hBH`,
+`htI`, `htO`, `htB`, `hfIA`, `hfIH`, `hfOA`, `hfOH`, `hfBA`, `hfBH`, `hfIM`, `hfOM`, `hfBM`, `hlscIn`, `hlscOut`, `hmIn`,
+`hkIn`, `hkOut`, `hDe`, `hW`, `hopX`, `hL81`, `hslB`, `hsl_blk`, `hR0_blk`, `hR1_blk`, `hH0_blk`, `hH1_blk`, `hLU_blk`,
+`hdin`, `hblk`, `hdout`, `hE`, `hops`, `hcan`, `hwin`, `hread`, `hBal`, `hdzero`, `hzk` (all L50's, unchanged: L50 §4,
+L48 §5, L46 §4, L51 §5), and this lane's `hb0`, `hbL`, `hPin`, `hPout`, `hhIn`, `hhOut`, `hTI_stg`, `hTO_stg`,
+`hDI_stg`, `hDO_stg`, `hLI_stg`, `hLO_stg` (§5.1). Gone against L50's theorem: `hsl_stg`, `hR0_stg`, `hR1_stg`,
+`hH0_stg`, `hH1_stg`, `hLU_stg`.
+
 ## 6. Findings
 
 **L53-1 (Medium; for the coordinator and lane L52): the stage lists are fixed, and the choice is the code's.** §4.
