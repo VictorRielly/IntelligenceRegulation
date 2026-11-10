@@ -1,0 +1,2954 @@
+{
+  "schema": "zk60-shieldstral-verdict-fidelity/1",
+  "sets": {
+    "toxicchat/cat_sexual": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 200,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0076583395393718945,
+            "0.5": 0.3344670526034088,
+            "0.9": 0.885973927605951,
+            "0.95": 1.2652510404787944,
+            "0.99": 2.871603624342906,
+            "1": 3.237442783515861
+          },
+          "margin_within_integer_error": 0,
+          "boundary_or_disagreement_items": [],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 200,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0007039738705914012,
+            "0.5": 0.2670814517152875,
+            "0.9": 0.9662643234322564,
+            "0.95": 1.5117498388795578,
+            "0.99": 3.336980004962774,
+            "1": 3.4603039699812914
+          },
+          "margin_within_integer_error": 0,
+          "boundary_or_disagreement_items": [],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 527,
+        "above_native_T256": 19
+      }
+    },
+    "toxicchat/mod_sexual": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 200,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0017274972879128825,
+            "0.5": 0.2935909693176415,
+            "0.9": 0.9671738807839086,
+            "0.95": 1.2621143860869937,
+            "0.99": 2.7069128149822532,
+            "1": 4.164991114418876
+          },
+          "margin_within_integer_error": 0,
+          "boundary_or_disagreement_items": [],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 200,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.7692307692307693,
+              "recall": 0.7142857142857143,
+              "f1": 0.7407407407407407,
+              "tp_weight": 20.0,
+              "fp_weight": 6.0,
+              "fn_weight": 8.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.001338276693747531,
+            "0.5": 0.26874675831196404,
+            "0.9": 0.9278741871393341,
+            "0.95": 1.4044695020245699,
+            "0.99": 3.0481836665011675,
+            "1": 4.669911777131465
+          },
+          "margin_within_integer_error": 0,
+          "boundary_or_disagreement_items": [],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 526,
+        "above_native_T256": 19
+      }
+    },
+    "toxicchat/cat_violence": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 200,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 0.995,
+            "agreement_weighted": 0.995,
+            "float": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.5,
+              "recall": 0.07142857142857142,
+              "f1": 0.125,
+              "tp_weight": 2.0,
+              "fp_weight": 2.0,
+              "fn_weight": 26.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 0.995,
+            "agreement_weighted": 0.995,
+            "float": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.5,
+              "recall": 0.07142857142857142,
+              "f1": 0.125,
+              "tp_weight": 2.0,
+              "fp_weight": 2.0,
+              "fn_weight": 26.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.010110783770191034,
+            "0.5": 0.38996644122027124,
+            "0.9": 1.3353651359031464,
+            "0.95": 1.941406489023849,
+            "0.99": 3.6244871526329816,
+            "1": 4.602919010900553
+          },
+          "margin_within_integer_error": 1,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "f6d30f4dcf076c9b39ff7a79b4db34505cac279368899202f9ff343949bbd1ed",
+              "float_margin": 0.42160987854003906,
+              "integer_margin": -0.1374009920541418,
+              "absolute_error": 0.5590108705941809,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 200,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0017249923110060905,
+            "0.5": 0.32809595375665435,
+            "0.9": 1.6687158184984148,
+            "0.95": 2.3099762447472956,
+            "0.99": 3.8830925235740836,
+            "1": 5.005174675719181
+          },
+          "margin_within_integer_error": 0,
+          "boundary_or_disagreement_items": [],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 527,
+        "above_native_T256": 19
+      }
+    },
+    "toxicchat/mod_violence": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 200,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0009338502363060996,
+            "0.5": 0.3863409767288082,
+            "0.9": 1.195630173688044,
+            "0.95": 1.9436254622706077,
+            "0.99": 3.8485490006469414,
+            "1": 4.281443466711382
+          },
+          "margin_within_integer_error": 2,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "53ebacca1bc008fc661bea0ab2fba86cf7dd8ab31b5a74ae351ec9c649c64854",
+              "float_margin": -0.41562843322753906,
+              "integer_margin": -0.9178912274233523,
+              "absolute_error": 0.5022627941958132,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "46735b15569238ef94bc0bbe72575ecd3836f42ab652baa497d13cb2cf1be6a6",
+              "float_margin": -0.8177108764648438,
+              "integer_margin": -1.6463992664626554,
+              "absolute_error": 0.8286883899978117,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 200,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.4,
+              "recall": 0.07142857142857142,
+              "f1": 0.12121212121212122,
+              "tp_weight": 2.0,
+              "fp_weight": 3.0,
+              "fn_weight": 26.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0030862770594772826,
+            "0.5": 0.3326559331334571,
+            "0.9": 1.5492831560646079,
+            "0.95": 2.319262457777003,
+            "0.99": 3.8672645835792094,
+            "1": 4.690699441224583
+          },
+          "margin_within_integer_error": 0,
+          "boundary_or_disagreement_items": [],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 526,
+        "above_native_T256": 19
+      }
+    },
+    "toxicchat/cat_hate": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 200,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.004432843551349208,
+            "0.5": 0.33346478202336316,
+            "0.9": 1.0284060865649,
+            "0.95": 1.8080099522855797,
+            "0.99": 3.027117236518474,
+            "1": 3.564148831836924
+          },
+          "margin_within_integer_error": 1,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "6bc5067ea3ae4d754bb0fce1d872d21763f632b8ba4efd2fc31d2ce7d71b81c5",
+              "float_margin": -0.03369331359863281,
+              "integer_margin": -0.815234719866412,
+              "absolute_error": 0.7815414062677792,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 200,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0015725347390045386,
+            "0.5": 0.21787906238348764,
+            "0.9": 1.20866886679458,
+            "0.95": 1.905112515070394,
+            "0.99": 3.3897948970215475,
+            "1": 3.605761079785224
+          },
+          "margin_within_integer_error": 1,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "6bc5067ea3ae4d754bb0fce1d872d21763f632b8ba4efd2fc31d2ce7d71b81c5",
+              "float_margin": -0.03369331359863281,
+              "integer_margin": -0.4370742214494372,
+              "absolute_error": 0.4033809078508044,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 533,
+        "above_native_T256": 20
+      }
+    },
+    "toxicchat/mod_hate": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 200,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 0.995,
+            "agreement_weighted": 0.995,
+            "float": {
+              "precision": 0.6,
+              "recall": 0.10714285714285714,
+              "f1": 0.18181818181818182,
+              "tp_weight": 3.0,
+              "fp_weight": 2.0,
+              "fn_weight": 25.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 0.995,
+            "agreement_weighted": 0.995,
+            "float": {
+              "precision": 0.6,
+              "recall": 0.10714285714285714,
+              "f1": 0.18181818181818182,
+              "tp_weight": 3.0,
+              "fp_weight": 2.0,
+              "fn_weight": 25.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.001202996633866249,
+            "0.5": 0.31591334928711,
+            "0.9": 1.071632228750173,
+            "0.95": 1.7316869558997356,
+            "0.99": 3.2990215554372253,
+            "1": 4.706207200719222
+          },
+          "margin_within_integer_error": 1,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "6bc5067ea3ae4d754bb0fce1d872d21763f632b8ba4efd2fc31d2ce7d71b81c5",
+              "float_margin": 0.11621665954589844,
+              "integer_margin": -0.5127551072799997,
+              "absolute_error": 0.6289717668258982,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 200,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 200,
+            "agreement": 0.995,
+            "agreement_weighted": 0.995,
+            "float": {
+              "precision": 0.6,
+              "recall": 0.10714285714285714,
+              "f1": 0.18181818181818182,
+              "tp_weight": 3.0,
+              "fp_weight": 2.0,
+              "fn_weight": 25.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            }
+          },
+          "accepted_only": {
+            "n": 200,
+            "agreement": 0.995,
+            "agreement_weighted": 0.995,
+            "float": {
+              "precision": 0.6,
+              "recall": 0.10714285714285714,
+              "f1": 0.18181818181818182,
+              "tp_weight": 3.0,
+              "fp_weight": 2.0,
+              "fn_weight": 25.0,
+              "n": 200
+            },
+            "integer": {
+              "precision": 0.75,
+              "recall": 0.10714285714285714,
+              "f1": 0.1875,
+              "tp_weight": 3.0,
+              "fp_weight": 1.0,
+              "fn_weight": 25.0,
+              "n": 200
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.00472515196772072,
+            "0.5": 0.2703623073324386,
+            "0.9": 1.3077762856321606,
+            "0.95": 1.9293235101926287,
+            "0.99": 3.05494714547189,
+            "1": 5.148883168171232
+          },
+          "margin_within_integer_error": 1,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "6bc5067ea3ae4d754bb0fce1d872d21763f632b8ba4efd2fc31d2ce7d71b81c5",
+              "float_margin": 0.11621665954589844,
+              "integer_margin": -0.20188406093400388,
+              "absolute_error": 0.31810072047990234,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 532,
+        "above_native_T256": 19
+      }
+    },
+    "openai_mod/cat_sexual": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 612,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9901960784313726,
+            "agreement_weighted": 0.9884170718530524,
+            "float": {
+              "precision": 0.5969988705426773,
+              "recall": 0.9736842105263158,
+              "f1": 0.7401727069649585,
+              "tp_weight": 74.0,
+              "fp_weight": 49.95333333333333,
+              "fn_weight": 2.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6656939631588547,
+              "recall": 0.9605263157894737,
+              "f1": 0.7863837121620166,
+              "tp_weight": 73.0,
+              "fp_weight": 36.66,
+              "fn_weight": 3.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9901960784313726,
+            "agreement_weighted": 0.9884170718530524,
+            "float": {
+              "precision": 0.5969988705426773,
+              "recall": 0.9736842105263158,
+              "f1": 0.7401727069649585,
+              "tp_weight": 74.0,
+              "fp_weight": 49.95333333333333,
+              "fn_weight": 2.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6656939631588547,
+              "recall": 0.9605263157894737,
+              "f1": 0.7863837121620166,
+              "tp_weight": 73.0,
+              "fp_weight": 36.66,
+              "fn_weight": 3.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 4.61113892473719e-05,
+            "0.5": 0.28519442615307433,
+            "0.9": 0.8153363453694913,
+            "0.95": 1.1127307579945844,
+            "0.99": 5.145068517294341,
+            "1": 8.680845447582968
+          },
+          "margin_within_integer_error": 7,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "855",
+              "float_margin": -0.1914653778076172,
+              "integer_margin": -0.512085127990244,
+              "absolute_error": 0.3206197501826268,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1571",
+              "float_margin": 0.015687942504882812,
+              "integer_margin": -0.9144130370680245,
+              "absolute_error": 0.9301009795729073,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "323",
+              "float_margin": 0.7601699829101562,
+              "integer_margin": -0.12066220096912658,
+              "absolute_error": 0.8808321838792829,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "673",
+              "float_margin": 0.08077049255371094,
+              "integer_margin": -0.39953217103090066,
+              "absolute_error": 0.4803026635846116,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "932",
+              "float_margin": 0.023580551147460938,
+              "integer_margin": -0.21772723243230718,
+              "absolute_error": 0.24130778357976812,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "387",
+              "float_margin": 0.30451011657714844,
+              "integer_margin": -0.1440651477554359,
+              "absolute_error": 0.4485752643325843,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "386",
+              "float_margin": 0.3751869201660156,
+              "integer_margin": -0.12474087808149616,
+              "absolute_error": 0.49992779824751177,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 612,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9967320261437909,
+            "agreement_weighted": 0.9966990815775255,
+            "float": {
+              "precision": 0.5969988705426773,
+              "recall": 0.9736842105263158,
+              "f1": 0.7401727069649585,
+              "tp_weight": 74.0,
+              "fp_weight": 49.95333333333333,
+              "fn_weight": 2.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6071545782737119,
+              "recall": 0.9736842105263158,
+              "f1": 0.7479280371942592,
+              "tp_weight": 74.0,
+              "fp_weight": 47.879999999999995,
+              "fn_weight": 2.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9967320261437909,
+            "agreement_weighted": 0.9966990815775255,
+            "float": {
+              "precision": 0.5969988705426773,
+              "recall": 0.9736842105263158,
+              "f1": 0.7401727069649585,
+              "tp_weight": 74.0,
+              "fp_weight": 49.95333333333333,
+              "fn_weight": 2.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6071545782737119,
+              "recall": 0.9736842105263158,
+              "f1": 0.7479280371942592,
+              "tp_weight": 74.0,
+              "fp_weight": 47.879999999999995,
+              "fn_weight": 2.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0009223213575673128,
+            "0.5": 0.19644918164892822,
+            "0.9": 0.6184237172214159,
+            "0.95": 1.016984627863844,
+            "0.99": 5.34524490950298,
+            "1": 8.961573903531278
+          },
+          "margin_within_integer_error": 3,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "1571",
+              "float_margin": 0.015687942504882812,
+              "integer_margin": -0.3837146947697064,
+              "absolute_error": 0.3994026372745892,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "926",
+              "float_margin": -0.1824169158935547,
+              "integer_margin": 0.15007868006091002,
+              "absolute_error": 0.3324955959544647,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "932",
+              "float_margin": 0.023580551147460938,
+              "integer_margin": 0.4073522892827109,
+              "absolute_error": 0.38377173813524995,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 242,
+        "above_native_T256": 0
+      }
+    },
+    "openai_mod/mod_sexual": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 612,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9918300653594772,
+            "agreement_weighted": 0.9925877903835764,
+            "float": {
+              "precision": 0.6121773659827928,
+              "recall": 0.9736842105263158,
+              "f1": 0.7517269402681837,
+              "tp_weight": 74.0,
+              "fp_weight": 46.879999999999995,
+              "fn_weight": 2.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6443914081145584,
+              "recall": 0.9473684210526315,
+              "f1": 0.7670454545454545,
+              "tp_weight": 72.0,
+              "fp_weight": 39.733333333333334,
+              "fn_weight": 4.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9918300653594772,
+            "agreement_weighted": 0.9925877903835764,
+            "float": {
+              "precision": 0.6121773659827928,
+              "recall": 0.9736842105263158,
+              "f1": 0.7517269402681837,
+              "tp_weight": 74.0,
+              "fp_weight": 46.879999999999995,
+              "fn_weight": 2.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6443914081145584,
+              "recall": 0.9473684210526315,
+              "f1": 0.7670454545454545,
+              "tp_weight": 72.0,
+              "fp_weight": 39.733333333333334,
+              "fn_weight": 4.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.00025026384836124294,
+            "0.5": 0.2725702099598557,
+            "0.9": 0.829641142060702,
+            "0.95": 1.2346838682338521,
+            "0.99": 5.676190546925783,
+            "1": 8.189683282411107
+          },
+          "margin_within_integer_error": 10,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "855",
+              "float_margin": -0.2806053161621094,
+              "integer_margin": -1.0248812180459468,
+              "absolute_error": 0.7442759018838374,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1571",
+              "float_margin": 0.3118324279785156,
+              "integer_margin": -0.4263616342379556,
+              "absolute_error": 0.7381940622164712,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "926",
+              "float_margin": -0.0006122589111328125,
+              "integer_margin": -0.021571194898360034,
+              "absolute_error": 0.02095893598722722,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "323",
+              "float_margin": 0.7079296112060547,
+              "integer_margin": -0.10687773345436422,
+              "absolute_error": 0.8148073446604189,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "368",
+              "float_margin": -0.9810562133789062,
+              "integer_margin": -2.1951782335857204,
+              "absolute_error": 1.2141220202068141,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "932",
+              "float_margin": -0.05950927734375,
+              "integer_margin": -0.46889106425894167,
+              "absolute_error": 0.40938178691519167,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1022",
+              "float_margin": -0.46771240234375,
+              "integer_margin": -0.9867155627074392,
+              "absolute_error": 0.5190031603636892,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "387",
+              "float_margin": 0.5052585601806641,
+              "integer_margin": -0.0017052398412134935,
+              "absolute_error": 0.5069638000218776,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "386",
+              "float_margin": 0.33407020568847656,
+              "integer_margin": -0.15183405654090176,
+              "absolute_error": 0.4859042622293783,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "347",
+              "float_margin": 0.5685596466064453,
+              "integer_margin": -0.3823746428897881,
+              "absolute_error": 0.9509342894962334,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 612,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9950980392156863,
+            "agreement_weighted": 0.9942085359265261,
+            "float": {
+              "precision": 0.6121773659827928,
+              "recall": 0.9736842105263158,
+              "f1": 0.7517269402681837,
+              "tp_weight": 74.0,
+              "fp_weight": 46.879999999999995,
+              "fn_weight": 2.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6071545782737119,
+              "recall": 0.9736842105263158,
+              "f1": 0.7479280371942592,
+              "tp_weight": 74.0,
+              "fp_weight": 47.879999999999995,
+              "fn_weight": 2.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9950980392156863,
+            "agreement_weighted": 0.9942085359265261,
+            "float": {
+              "precision": 0.6121773659827928,
+              "recall": 0.9736842105263158,
+              "f1": 0.7517269402681837,
+              "tp_weight": 74.0,
+              "fp_weight": 46.879999999999995,
+              "fn_weight": 2.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6071545782737119,
+              "recall": 0.9736842105263158,
+              "f1": 0.7479280371942592,
+              "tp_weight": 74.0,
+              "fp_weight": 47.879999999999995,
+              "fn_weight": 2.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.00011501895212973068,
+            "0.5": 0.20407433601544422,
+            "0.9": 0.6061912153310735,
+            "0.95": 1.1321183073010677,
+            "0.99": 6.0975432541981025,
+            "1": 8.635160012912289
+          },
+          "margin_within_integer_error": 4,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "1571",
+              "float_margin": 0.3118324279785156,
+              "integer_margin": -0.05044335560335772,
+              "absolute_error": 0.36227578358187335,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "926",
+              "float_margin": -0.0006122589111328125,
+              "integer_margin": 0.21750752166856296,
+              "absolute_error": 0.21811978057969578,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "673",
+              "float_margin": 0.21343994140625,
+              "integer_margin": 0.6169500678710632,
+              "absolute_error": 0.4035101264648132,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "932",
+              "float_margin": -0.05950927734375,
+              "integer_margin": 0.2594540992178463,
+              "absolute_error": 0.3189633765615963,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 241,
+        "above_native_T256": 0
+      }
+    },
+    "openai_mod/cat_violence": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 612,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.988562091503268,
+            "agreement_weighted": 0.9943273905996759,
+            "float": {
+              "precision": 0.6000413821642873,
+              "recall": 0.7631578947368421,
+              "f1": 0.6718406116066258,
+              "tp_weight": 58.0,
+              "fp_weight": 38.66,
+              "fn_weight": 18.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6022752621012715,
+              "recall": 0.7105263157894737,
+              "f1": 0.6519377037305324,
+              "tp_weight": 54.0,
+              "fp_weight": 35.66,
+              "fn_weight": 22.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.988562091503268,
+            "agreement_weighted": 0.9943273905996759,
+            "float": {
+              "precision": 0.6000413821642873,
+              "recall": 0.7631578947368421,
+              "f1": 0.6718406116066258,
+              "tp_weight": 58.0,
+              "fp_weight": 38.66,
+              "fn_weight": 18.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.6022752621012715,
+              "recall": 0.7105263157894737,
+              "f1": 0.6519377037305324,
+              "tp_weight": 54.0,
+              "fp_weight": 35.66,
+              "fn_weight": 22.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0002894019296517669,
+            "0.5": 0.31875540656643064,
+            "0.9": 0.9105985760583591,
+            "0.95": 1.3629073400324634,
+            "0.99": 4.887985499923555,
+            "1": 7.073020268408179
+          },
+          "margin_within_integer_error": 10,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "187",
+              "float_margin": 0.5876598358154297,
+              "integer_margin": -0.24272672561122602,
+              "absolute_error": 0.8303865614266557,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "588",
+              "float_margin": 0.5064525604248047,
+              "integer_margin": -0.47119322713757056,
+              "absolute_error": 0.9776457875623752,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "425",
+              "float_margin": -0.545013427734375,
+              "integer_margin": -1.766111736151357,
+              "absolute_error": 1.221098308416982,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "344",
+              "float_margin": -0.022180557250976562,
+              "integer_margin": -0.8482240724476311,
+              "absolute_error": 0.8260435151966545,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "320",
+              "float_margin": -0.10774993896484375,
+              "integer_margin": -1.0173564240548867,
+              "absolute_error": 0.9096064850900429,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1461",
+              "float_margin": 0.2999114990234375,
+              "integer_margin": -0.7569679039754181,
+              "absolute_error": 1.0568794029988555,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "632",
+              "float_margin": 0.06566810607910156,
+              "integer_margin": -1.3103333782576088,
+              "absolute_error": 1.3760014843367103,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "488",
+              "float_margin": 0.5202846527099609,
+              "integer_margin": -0.23154199156389363,
+              "absolute_error": 0.7518266442738546,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "766",
+              "float_margin": 0.045413970947265625,
+              "integer_margin": -0.9157084491522065,
+              "absolute_error": 0.9611224200994721,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "39",
+              "float_margin": 0.20582008361816406,
+              "integer_margin": -0.7418915880961,
+              "absolute_error": 0.9477116717142641,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 612,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9934640522875817,
+            "agreement_weighted": 0.9967585089141004,
+            "float": {
+              "precision": 0.6000413821642873,
+              "recall": 0.7631578947368421,
+              "f1": 0.6718406116066258,
+              "tp_weight": 58.0,
+              "fp_weight": 38.66,
+              "fn_weight": 18.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.604360025901144,
+              "recall": 0.7368421052631579,
+              "f1": 0.664057867899917,
+              "tp_weight": 56.0,
+              "fp_weight": 36.66,
+              "fn_weight": 20.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9934640522875817,
+            "agreement_weighted": 0.9967585089141004,
+            "float": {
+              "precision": 0.6000413821642873,
+              "recall": 0.7631578947368421,
+              "f1": 0.6718406116066258,
+              "tp_weight": 58.0,
+              "fp_weight": 38.66,
+              "fn_weight": 18.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.604360025901144,
+              "recall": 0.7368421052631579,
+              "f1": 0.664057867899917,
+              "tp_weight": 56.0,
+              "fp_weight": 36.66,
+              "fn_weight": 20.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0009460400237610855,
+            "0.5": 0.21757014676871922,
+            "0.9": 0.6756920957257743,
+            "0.95": 1.1692167311821617,
+            "0.99": 4.768397489991434,
+            "1": 7.084904738982106
+          },
+          "margin_within_integer_error": 7,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "425",
+              "float_margin": -0.545013427734375,
+              "integer_margin": -1.1528023604880602,
+              "absolute_error": 0.6077889327536852,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "344",
+              "float_margin": -0.022180557250976562,
+              "integer_margin": -0.340858278092417,
+              "absolute_error": 0.3186777208414404,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "320",
+              "float_margin": -0.10774993896484375,
+              "integer_margin": -0.49096793693908747,
+              "absolute_error": 0.3832179979742437,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1461",
+              "float_margin": 0.2999114990234375,
+              "integer_margin": -0.12224905708487788,
+              "absolute_error": 0.4221605561083154,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "632",
+              "float_margin": 0.06566810607910156,
+              "integer_margin": -0.5466834132921959,
+              "absolute_error": 0.6123515193712975,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "766",
+              "float_margin": 0.045413970947265625,
+              "integer_margin": -0.2763531570131292,
+              "absolute_error": 0.3217671279603948,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "39",
+              "float_margin": 0.20582008361816406,
+              "integer_margin": -0.17835840657122615,
+              "absolute_error": 0.3841784901893902,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 242,
+        "above_native_T256": 0
+      }
+    },
+    "openai_mod/mod_violence": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 612,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9869281045751634,
+            "agreement_weighted": 0.9918368449486763,
+            "float": {
+              "precision": 0.585704831237591,
+              "recall": 0.7763157894736842,
+              "f1": 0.6676725763862693,
+              "tp_weight": 59.0,
+              "fp_weight": 41.733333333333334,
+              "fn_weight": 17.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.5956320317670417,
+              "recall": 0.7105263157894737,
+              "f1": 0.6480259210368415,
+              "tp_weight": 54.0,
+              "fp_weight": 36.66,
+              "fn_weight": 22.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9869281045751634,
+            "agreement_weighted": 0.9918368449486763,
+            "float": {
+              "precision": 0.585704831237591,
+              "recall": 0.7763157894736842,
+              "f1": 0.6676725763862693,
+              "tp_weight": 59.0,
+              "fp_weight": 41.733333333333334,
+              "fn_weight": 17.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.5956320317670417,
+              "recall": 0.7105263157894737,
+              "f1": 0.6480259210368415,
+              "tp_weight": 54.0,
+              "fp_weight": 36.66,
+              "fn_weight": 22.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0002166331775672603,
+            "0.5": 0.3111439158047018,
+            "0.9": 0.9451107449459378,
+            "0.95": 1.3151143830133092,
+            "0.99": 4.64635228290617,
+            "1": 8.634248049125528
+          },
+          "margin_within_integer_error": 12,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "203",
+              "float_margin": -0.7986946105957031,
+              "integer_margin": -1.7074636022603424,
+              "absolute_error": 0.9087689916646393,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "588",
+              "float_margin": 0.7624053955078125,
+              "integer_margin": -0.27969497115527653,
+              "absolute_error": 1.042100366663089,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1274",
+              "float_margin": -0.3883838653564453,
+              "integer_margin": -1.2038031074668147,
+              "absolute_error": 0.8154192421103694,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "425",
+              "float_margin": -0.5798778533935547,
+              "integer_margin": -1.9485135977873658,
+              "absolute_error": 1.368635744393811,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "344",
+              "float_margin": 0.026409149169921875,
+              "integer_margin": -1.1442551343701441,
+              "absolute_error": 1.170664283540066,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "320",
+              "float_margin": 0.018070220947265625,
+              "integer_margin": -0.5532799450111581,
+              "absolute_error": 0.5713501659584237,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1461",
+              "float_margin": 0.4436683654785156,
+              "integer_margin": -0.47782174564260105,
+              "absolute_error": 0.9214901111211167,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "632",
+              "float_margin": 0.10890388488769531,
+              "integer_margin": -0.7397444470212179,
+              "absolute_error": 0.8486483319089132,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "488",
+              "float_margin": 0.5557613372802734,
+              "integer_margin": -0.5114792956537627,
+              "absolute_error": 1.0672406329340363,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "247",
+              "float_margin": -0.7831439971923828,
+              "integer_margin": -1.5771330299448998,
+              "absolute_error": 0.793989032752517,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "766",
+              "float_margin": 0.07472610473632812,
+              "integer_margin": -0.48659740522251377,
+              "absolute_error": 0.5613235099588418,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "39",
+              "float_margin": 0.29976844787597656,
+              "integer_margin": -0.8029149411180838,
+              "absolute_error": 1.1026833889940604,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 612,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9918300653594772,
+            "agreement_weighted": 0.9942679632631009,
+            "float": {
+              "precision": 0.585704831237591,
+              "recall": 0.7763157894736842,
+              "f1": 0.6676725763862693,
+              "tp_weight": 59.0,
+              "fp_weight": 41.733333333333334,
+              "fn_weight": 17.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.5979073243647235,
+              "recall": 0.7368421052631579,
+              "f1": 0.6601438170458565,
+              "tp_weight": 56.0,
+              "fp_weight": 37.66,
+              "fn_weight": 20.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9918300653594772,
+            "agreement_weighted": 0.9942679632631009,
+            "float": {
+              "precision": 0.585704831237591,
+              "recall": 0.7763157894736842,
+              "f1": 0.6676725763862693,
+              "tp_weight": 59.0,
+              "fp_weight": 41.733333333333334,
+              "fn_weight": 17.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.5979073243647235,
+              "recall": 0.7368421052631579,
+              "f1": 0.6601438170458565,
+              "tp_weight": 56.0,
+              "fp_weight": 37.66,
+              "fn_weight": 20.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0005536522644389308,
+            "0.5": 0.21021279099195134,
+            "0.9": 0.6889788188852954,
+            "0.95": 1.330528856826281,
+            "0.99": 4.715617358949906,
+            "1": 8.390308230607866
+          },
+          "margin_within_integer_error": 6,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "425",
+              "float_margin": -0.5798778533935547,
+              "integer_margin": -1.2403731400104727,
+              "absolute_error": 0.660495286616918,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "344",
+              "float_margin": 0.026409149169921875,
+              "integer_margin": -0.43224908032280135,
+              "absolute_error": 0.4586582294927232,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "320",
+              "float_margin": 0.018070220947265625,
+              "integer_margin": -0.27274764287210373,
+              "absolute_error": 0.29081786381936936,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "632",
+              "float_margin": 0.10890388488769531,
+              "integer_margin": -0.03528379567741289,
+              "absolute_error": 0.1441876805651082,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "766",
+              "float_margin": 0.07472610473632812,
+              "integer_margin": -0.012320445325076694,
+              "absolute_error": 0.08704655006140483,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "39",
+              "float_margin": 0.29976844787597656,
+              "integer_margin": -0.1810486147396996,
+              "absolute_error": 0.48081706261567614,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 241,
+        "above_native_T256": 0
+      }
+    },
+    "openai_mod/cat_hate": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 612,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9787581699346405,
+            "agreement_weighted": 0.9810642895732036,
+            "float": {
+              "precision": 0.4467658040705329,
+              "recall": 0.7976878612716763,
+              "f1": 0.5727487791043537,
+              "tp_weight": 138.0,
+              "fp_weight": 170.88666666666668,
+              "fn_weight": 35.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.45909849749582643,
+              "recall": 0.7630057803468208,
+              "f1": 0.5732650047772084,
+              "tp_weight": 132.0,
+              "fp_weight": 155.52,
+              "fn_weight": 41.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9787581699346405,
+            "agreement_weighted": 0.9810642895732036,
+            "float": {
+              "precision": 0.4467658040705329,
+              "recall": 0.7976878612716763,
+              "f1": 0.5727487791043537,
+              "tp_weight": 138.0,
+              "fp_weight": 170.88666666666668,
+              "fn_weight": 35.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.45909849749582643,
+              "recall": 0.7630057803468208,
+              "f1": 0.5732650047772084,
+              "tp_weight": 132.0,
+              "fp_weight": 155.52,
+              "fn_weight": 41.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 1.3485098353527292e-05,
+            "0.5": 0.3422761074048044,
+            "0.9": 0.7492390986611905,
+            "0.95": 0.8610861680345845,
+            "0.99": 1.911817691775353,
+            "1": 4.627214402854834
+          },
+          "margin_within_integer_error": 29,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "804",
+              "float_margin": -0.16031837463378906,
+              "integer_margin": -0.6776893971674026,
+              "absolute_error": 0.5173710225336136,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1017",
+              "float_margin": -0.09631156921386719,
+              "integer_margin": -0.37205411085184814,
+              "absolute_error": 0.27574254163798095,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "94",
+              "float_margin": -0.7380771636962891,
+              "integer_margin": -1.571313475795053,
+              "absolute_error": 0.833236312098764,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "760",
+              "float_margin": 0.22586822509765625,
+              "integer_margin": -0.38102577501121065,
+              "absolute_error": 0.606894000108867,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1208",
+              "float_margin": -0.06578445434570312,
+              "integer_margin": -0.3589467500660943,
+              "absolute_error": 0.29316229572039115,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "486",
+              "float_margin": 0.3891639709472656,
+              "integer_margin": -0.35273340489753474,
+              "absolute_error": 0.7418973758448004,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "587",
+              "float_margin": -0.11556816101074219,
+              "integer_margin": -0.5909110424057116,
+              "absolute_error": 0.4753428813949694,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "86",
+              "float_margin": 0.1546497344970703,
+              "integer_margin": -0.11308929676311055,
+              "absolute_error": 0.26773903126018084,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "42",
+              "float_margin": -0.7038478851318359,
+              "integer_margin": -1.4339196111801642,
+              "absolute_error": 0.7300717260483283,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "583",
+              "float_margin": 0.07115745544433594,
+              "integer_margin": -0.3726439064500108,
+              "absolute_error": 0.4438013618943467,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "438",
+              "float_margin": 0.3181495666503906,
+              "integer_margin": -0.09499451036026517,
+              "absolute_error": 0.4131440770106558,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "328",
+              "float_margin": -0.5515689849853516,
+              "integer_margin": -2.1585164679295366,
+              "absolute_error": 1.606947482944185,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "774",
+              "float_margin": -0.12514114379882812,
+              "integer_margin": -0.34057577539220596,
+              "absolute_error": 0.21543463159337783,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1448",
+              "float_margin": -0.8232536315917969,
+              "integer_margin": -1.6679098781273674,
+              "absolute_error": 0.8446562465355705,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "368",
+              "float_margin": -0.3895606994628906,
+              "integer_margin": -1.1739141909605293,
+              "absolute_error": 0.7843534914976387,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1461",
+              "float_margin": -0.5612106323242188,
+              "integer_margin": -1.3513678278953365,
+              "absolute_error": 0.7901571955711177,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "473",
+              "float_margin": 0.2525463104248047,
+              "integer_margin": -1.108446879564474,
+              "absolute_error": 1.3609931899892787,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1356",
+              "float_margin": 0.21192550659179688,
+              "integer_margin": -0.02228750254325849,
+              "absolute_error": 0.23421300913505536,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1388",
+              "float_margin": -0.259735107421875,
+              "integer_margin": -0.9759032373610614,
+              "absolute_error": 0.7161681299391864,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "656",
+              "float_margin": 0.6660804748535156,
+              "integer_margin": -0.12201997814676993,
+              "absolute_error": 0.7881004530002855,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1478",
+              "float_margin": -0.31328773498535156,
+              "integer_margin": -1.1511135127910748,
+              "absolute_error": 0.8378257778057232,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1390",
+              "float_margin": -0.46129798889160156,
+              "integer_margin": -1.0397490563271228,
+              "absolute_error": 0.5784510674355212,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1549",
+              "float_margin": 1.1408138275146484,
+              "integer_margin": -1.4610092259199434,
+              "absolute_error": 2.601823053434592,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "818",
+              "float_margin": -0.11952972412109375,
+              "integer_margin": 0.36147164542137067,
+              "absolute_error": 0.4810013695424644,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "770",
+              "float_margin": 0.11459159851074219,
+              "integer_margin": -0.1529673193820844,
+              "absolute_error": 0.2675589178928266,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "691",
+              "float_margin": 0.4833354949951172,
+              "integer_margin": -0.13991163253091277,
+              "absolute_error": 0.62324712752603,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "521",
+              "float_margin": -0.7511634826660156,
+              "integer_margin": -1.6249991301063609,
+              "absolute_error": 0.8738356474403453,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "299",
+              "float_margin": -0.23236846923828125,
+              "integer_margin": -0.9030554626188135,
+              "absolute_error": 0.6706869933805323,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1350",
+              "float_margin": 0.2769908905029297,
+              "integer_margin": -0.1836331267669164,
+              "absolute_error": 0.4606240172698461,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 612,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9950980392156863,
+            "agreement_weighted": 0.9958887088060506,
+            "float": {
+              "precision": 0.4467658040705329,
+              "recall": 0.7976878612716763,
+              "f1": 0.5727487791043537,
+              "tp_weight": 138.0,
+              "fp_weight": 170.88666666666668,
+              "fn_weight": 35.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.4479856993372864,
+              "recall": 0.791907514450867,
+              "f1": 0.5722480576981983,
+              "tp_weight": 137.0,
+              "fp_weight": 168.81333333333333,
+              "fn_weight": 36.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9950980392156863,
+            "agreement_weighted": 0.9958887088060506,
+            "float": {
+              "precision": 0.4467658040705329,
+              "recall": 0.7976878612716763,
+              "f1": 0.5727487791043537,
+              "tp_weight": 138.0,
+              "fp_weight": 170.88666666666668,
+              "fn_weight": 35.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.4479856993372864,
+              "recall": 0.791907514450867,
+              "f1": 0.5722480576981983,
+              "tp_weight": 137.0,
+              "fp_weight": 168.81333333333333,
+              "fn_weight": 36.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.000281464753292493,
+            "0.5": 0.18176011991256202,
+            "0.9": 0.49493533898417785,
+            "0.95": 0.6407078793278813,
+            "0.99": 1.9256524524320628,
+            "1": 4.988641454749336
+          },
+          "margin_within_integer_error": 10,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "1017",
+              "float_margin": -0.09631156921386719,
+              "integer_margin": -0.20304329230367799,
+              "absolute_error": 0.1067317230898108,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "861",
+              "float_margin": 0.30925750732421875,
+              "integer_margin": 0.7186299921888042,
+              "absolute_error": 0.40937248486458544,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "328",
+              "float_margin": -0.5515689849853516,
+              "integer_margin": -1.4556749200677066,
+              "absolute_error": 0.904105935082355,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "473",
+              "float_margin": 0.2525463104248047,
+              "integer_margin": -0.8098645988607326,
+              "absolute_error": 1.0624109092855374,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1356",
+              "float_margin": 0.21192550659179688,
+              "integer_margin": 0.5291197433956828,
+              "absolute_error": 0.3171942368038859,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1549",
+              "float_margin": 1.1408138275146484,
+              "integer_margin": -1.6262691057540168,
+              "absolute_error": 2.7670829332686653,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "818",
+              "float_margin": -0.11952972412109375,
+              "integer_margin": 0.620694075407253,
+              "absolute_error": 0.7402237995283467,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "286",
+              "float_margin": 0.25022125244140625,
+              "integer_margin": 0.7663409668229054,
+              "absolute_error": 0.5161197143814992,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "299",
+              "float_margin": -0.23236846923828125,
+              "integer_margin": -0.5111114368094317,
+              "absolute_error": 0.27874296757115047,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "508",
+              "float_margin": 0.23378944396972656,
+              "integer_margin": 0.582651345515646,
+              "absolute_error": 0.34886190154591945,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 248,
+        "above_native_T256": 0
+      }
+    },
+    "openai_mod/mod_hate": {
+      "full_A1_set": true,
+      "heads": {
+        "refusal_free": {
+          "n": 612,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9738562091503268,
+            "agreement_weighted": 0.9752728254997297,
+            "float": {
+              "precision": 0.4314358433174002,
+              "recall": 0.8034682080924855,
+              "f1": 0.5614120117936912,
+              "tp_weight": 139.0,
+              "fp_weight": 183.18,
+              "fn_weight": 34.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.44948921679909193,
+              "recall": 0.7630057803468208,
+              "f1": 0.5657142857142857,
+              "tp_weight": 132.0,
+              "fp_weight": 161.66666666666669,
+              "fn_weight": 41.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9738562091503268,
+            "agreement_weighted": 0.9752728254997297,
+            "float": {
+              "precision": 0.4314358433174002,
+              "recall": 0.8034682080924855,
+              "f1": 0.5614120117936912,
+              "tp_weight": 139.0,
+              "fp_weight": 183.18,
+              "fn_weight": 34.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.44948921679909193,
+              "recall": 0.7630057803468208,
+              "f1": 0.5657142857142857,
+              "tp_weight": 132.0,
+              "fp_weight": 161.66666666666669,
+              "fn_weight": 41.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.001720311789610296,
+            "0.5": 0.3131126402788237,
+            "0.9": 0.799038975620786,
+            "0.95": 0.9769953844300426,
+            "0.99": 2.09021951614362,
+            "1": 4.9448652135200994
+          },
+          "margin_within_integer_error": 25,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "804",
+              "float_margin": -0.18096351623535156,
+              "integer_margin": -0.6081434086589778,
+              "absolute_error": 0.4271798924236262,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1017",
+              "float_margin": 0.04819488525390625,
+              "integer_margin": -0.13898150170843268,
+              "absolute_error": 0.18717638696233893,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1635",
+              "float_margin": -1.4139652252197266,
+              "integer_margin": -2.835861966152996,
+              "absolute_error": 1.4218967409332692,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "760",
+              "float_margin": 0.28832054138183594,
+              "integer_margin": -0.0614848547135975,
+              "absolute_error": 0.34980539609543343,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1208",
+              "float_margin": 0.06428718566894531,
+              "integer_margin": -0.4494990839121011,
+              "absolute_error": 0.5137862695810465,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "486",
+              "float_margin": 0.5668182373046875,
+              "integer_margin": -0.39158685812392996,
+              "absolute_error": 0.9584050954286174,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "587",
+              "float_margin": 0.023897171020507812,
+              "integer_margin": -0.477139293334153,
+              "absolute_error": 0.5010364643546608,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "583",
+              "float_margin": 0.22005271911621094,
+              "integer_margin": -0.3528438802059519,
+              "absolute_error": 0.5728965993221629,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "328",
+              "float_margin": -0.22604942321777344,
+              "integer_margin": -2.1247430970305183,
+              "absolute_error": 1.898693673812745,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "774",
+              "float_margin": 0.24514007568359375,
+              "integer_margin": -0.006273928402207639,
+              "absolute_error": 0.2514140040858014,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "368",
+              "float_margin": -0.11867713928222656,
+              "integer_margin": -0.968079090921387,
+              "absolute_error": 0.8494019516391604,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1461",
+              "float_margin": -0.37994956970214844,
+              "integer_margin": -0.9725586864917222,
+              "absolute_error": 0.5926091167895737,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "473",
+              "float_margin": 0.5907306671142578,
+              "integer_margin": -0.8607968752894309,
+              "absolute_error": 1.4515275424036886,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1356",
+              "float_margin": 0.24840545654296875,
+              "integer_margin": -0.040915065030244765,
+              "absolute_error": 0.28932052157321353,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1388",
+              "float_margin": 0.08093070983886719,
+              "integer_margin": -0.39159933114262224,
+              "absolute_error": 0.47253004098148943,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1478",
+              "float_margin": -0.2511920928955078,
+              "integer_margin": -1.0805019721143683,
+              "absolute_error": 0.8293098792188605,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1390",
+              "float_margin": -0.3787498474121094,
+              "integer_margin": -0.9660976628091306,
+              "absolute_error": 0.5873478153970212,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1549",
+              "float_margin": 1.6263847351074219,
+              "integer_margin": -3.318480478412678,
+              "absolute_error": 4.9448652135200994,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "818",
+              "float_margin": -0.19718360900878906,
+              "integer_margin": 0.395353709768993,
+              "absolute_error": 0.592537318777782,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "770",
+              "float_margin": 0.1452484130859375,
+              "integer_margin": -0.28281322582834195,
+              "absolute_error": 0.42806163891427945,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "691",
+              "float_margin": 0.5342960357666016,
+              "integer_margin": -0.008100334710717388,
+              "absolute_error": 0.5423963704773189,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "521",
+              "float_margin": -0.6713829040527344,
+              "integer_margin": -1.565912658701304,
+              "absolute_error": 0.8945297546485695,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "299",
+              "float_margin": -0.07934379577636719,
+              "integer_margin": -0.6979117241871853,
+              "absolute_error": 0.6185679284108181,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1350",
+              "float_margin": 0.3119983673095703,
+              "integer_margin": -0.29409952588502564,
+              "absolute_error": 0.606097893194596,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "508",
+              "float_margin": 0.05903053283691406,
+              "integer_margin": -0.22980646010585606,
+              "absolute_error": 0.2888369929427701,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 612,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 612,
+            "agreement": 0.9934640522875817,
+            "agreement_weighted": 0.9950783360345757,
+            "float": {
+              "precision": 0.4314358433174002,
+              "recall": 0.8034682080924855,
+              "f1": 0.5614120117936912,
+              "tp_weight": 139.0,
+              "fp_weight": 183.18,
+              "fn_weight": 34.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.43067314946768376,
+              "recall": 0.791907514450867,
+              "f1": 0.5579236011185621,
+              "tp_weight": 137.0,
+              "fp_weight": 181.10666666666668,
+              "fn_weight": 36.0,
+              "n": 612
+            }
+          },
+          "accepted_only": {
+            "n": 612,
+            "agreement": 0.9934640522875817,
+            "agreement_weighted": 0.9950783360345757,
+            "float": {
+              "precision": 0.4314358433174002,
+              "recall": 0.8034682080924855,
+              "f1": 0.5614120117936912,
+              "tp_weight": 139.0,
+              "fp_weight": 183.18,
+              "fn_weight": 34.0,
+              "n": 612
+            },
+            "integer": {
+              "precision": 0.43067314946768376,
+              "recall": 0.791907514450867,
+              "f1": 0.5579236011185621,
+              "tp_weight": 137.0,
+              "fp_weight": 181.10666666666668,
+              "fn_weight": 36.0,
+              "n": 612
+            }
+          },
+          "truth_scope": "category labels, missing labels count as zero",
+          "absolute_margin_error_quantiles": {
+            "0": 0.0015318377105657532,
+            "0.5": 0.16264750252457616,
+            "0.9": 0.5068830605651073,
+            "0.95": 0.7254577287843134,
+            "0.99": 2.2569700441698197,
+            "1": 5.322653449206068
+          },
+          "margin_within_integer_error": 11,
+          "boundary_or_disagreement_items": [
+            {
+              "id": "1208",
+              "float_margin": 0.06428718566894531,
+              "integer_margin": -0.060326369238728896,
+              "absolute_error": 0.1246135549076742,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "587",
+              "float_margin": 0.023897171020507812,
+              "integer_margin": 0.16310955485103065,
+              "absolute_error": 0.13921238383052284,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "328",
+              "float_margin": -0.22604942321777344,
+              "integer_margin": -1.1496982340896784,
+              "absolute_error": 0.923648810871905,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "368",
+              "float_margin": -0.11867713928222656,
+              "integer_margin": -0.5449897327866716,
+              "absolute_error": 0.42631259350444506,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "473",
+              "float_margin": 0.5907306671142578,
+              "integer_margin": -0.42066431607805227,
+              "absolute_error": 1.0113949831923101,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "1356",
+              "float_margin": 0.24840545654296875,
+              "integer_margin": 0.5580791809112132,
+              "absolute_error": 0.3096737243682445,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1478",
+              "float_margin": -0.2511920928955078,
+              "integer_margin": -0.5157345650137979,
+              "absolute_error": 0.2645424721182901,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "1549",
+              "float_margin": 1.6263847351074219,
+              "integer_margin": -2.955391000123591,
+              "absolute_error": 4.5817757352310124,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "818",
+              "float_margin": -0.19718360900878906,
+              "integer_margin": 0.5584907562077447,
+              "absolute_error": 0.7556743652165337,
+              "within_error": true,
+              "disagrees": true,
+              "refused": false
+            },
+            {
+              "id": "299",
+              "float_margin": -0.07934379577636719,
+              "integer_margin": -0.3937739490602021,
+              "absolute_error": 0.3144301532838349,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            },
+            {
+              "id": "508",
+              "float_margin": 0.05903053283691406,
+              "integer_margin": 0.13959092928838346,
+              "absolute_error": 0.0805603964514694,
+              "within_error": true,
+              "disagrees": false,
+              "refused": false
+            }
+          ],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 247,
+        "above_native_T256": 0
+      }
+    }
+  },
+  "float_source_sha256": {
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_cat_sexual.jsonl": "f85c3b01ab2046312576fa527baaa459fd08997fa2e27013b6a7594969effa85",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_mod_sexual.jsonl": "67e055c1bc42dfd0df60dc3d6cbb8051eca65b756d9fd1049272aa4c7024d052",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_cat_violence.jsonl": "f48967b56de140accb038aa80261b87a2c1f07d033e0364ceca7a18313cb005b",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_mod_violence.jsonl": "ce8e7f2542c59ff8ffb8b2f2bcd6f009efaa5db0e0ebf26fc5f189ffd37d5dcd",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_cat_hate.jsonl": "2467fae597b0888509b3fba71a7627ab21e4fa85d6713c8564d360e1eee610b1",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_mod_hate.jsonl": "f18549a00a74977c837225c2af57d07bd3202996516eb72b41ea0e61e6a2c7aa",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_cat_sexual_le168_strat300.jsonl": "1be6f2929d1c6fff850ef102cb38c07f404a2dc733d8e9a5cd76a62fb63cd3a4",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_mod_sexual_le168_strat300.jsonl": "bb515c30e9c61c2d832fb28452936d7d27424935b6592196bcdd75d06aaca461",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_cat_violence_le168_strat300.jsonl": "21af02e86a16e49dc717dfea888cf77292c780f249009d3c4a93193c95ec2563",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_mod_violence_le168_strat300.jsonl": "1ecb8db482f4a6e2bb53c1e4fd93c866d397659e3438ec9fd0809a1379407ee4",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_cat_hate_le168_strat300.jsonl": "8712c263b08e93859913eb38047762c6ffc42384fb21dd729f35abd2535f9a77",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_mod_hate_le168_strat300.jsonl": "cc8cded375e68fbb1a2836795a2409d01e4877f851d8b72f7f8c3a00b62998c7"
+  },
+  "integer_source_sha256": "ffccb2c4b8673bd7e0f1e555b31b5d97d85db8b18bbd051a03872415890aa907",
+  "analysis_source_sha256": "a345850090a11b9bd4417d107867d09f34c328f2b1f40deda35027911c21e667",
+  "all_12_A1_sets_complete": true,
+  "scope": "paired numerical fidelity, no native proof or privacy acceptance; subset results are explicitly marked"
+}
