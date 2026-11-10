@@ -1,0 +1,10 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/results/zk60_lean_l45_20261110/plan8.txt ==
+build ZK60Formal.RunExtractParts
+build ZK60Formal.RunExtractTop
+== lake build ZK60Formal.RunExtractParts ==
+Build completed successfully (3562 jobs).
+build rc 0 (19 s)
+== lake build ZK60Formal.RunExtractTop ==
+Build completed successfully (3608 jobs).
+build rc 0 (25 s)
+rc 0, 25 s

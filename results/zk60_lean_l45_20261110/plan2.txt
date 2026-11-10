@@ -1,0 +1,4 @@
+build ZK60Formal.RunStageRd
+build ZK60Formal.RunStageRdRun
+build ZK60Formal.RunStageRdHal
+build ZK60Formal.RunExtractWork

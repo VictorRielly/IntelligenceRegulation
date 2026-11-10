@@ -1,0 +1,47 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/results/zk60_lean_l45_20261110/plan7.txt ==
+build ZK60Formal.RunExtractParts
+build ZK60Formal.RunExtractTop
+build ZK60Formal.RunExtractCarry
+== lake build ZK60Formal.RunExtractParts ==
+warning: ZK60Formal/RunExtractParts.lean:260:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rx_parts_M`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3562 jobs).
+build rc 0 (22 s)
+== lake build ZK60Formal.RunExtractTop ==
+warning: ZK60Formal/RunExtractParts.lean:260:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rx_parts_M`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3608/3608] Building ZK60Formal.RunExtractTop (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/ZK60Formal/RunExtractTop.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunExtractTop.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunExtractTop.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunExtractTop.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunExtractTop.setup.json --json
+error: ZK60Formal/RunExtractTop.lean:289:47: Invalid argument name `U` for function `rx_parts_M`
+
+Hint: Perhaps you meant one of the following parameter names:
+  • `K`: U̵K̲
+  • `Hdr`: U̵H̲d̲r̲
+  • `key`: U̵k̲e̲y̲
+  • `domain`: U̵d̲o̲m̲a̲i̲n̲
+  • `Lq`: U̵L̲q̲
+Some required targets logged failures:
+- ZK60Formal.RunExtractTop
+error: build failed
+build rc 1 (27 s)
+== lake build ZK60Formal.RunExtractCarry ==
+warning: ZK60Formal/RunExtractParts.lean:260:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rx_parts_M`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3563 jobs).
+build rc 0 (43 s)
+rc 1, 43 s

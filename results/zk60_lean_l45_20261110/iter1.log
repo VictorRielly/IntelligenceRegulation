@@ -1,0 +1,44 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/results/zk60_lean_l45_20261110/plan1.txt ==
+build ZK60Formal.RunStageRd
+== lake build ZK60Formal.RunStageRd ==
+✖ [3553/3553] Building ZK60Formal.RunStageRd (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/ZK60Formal/RunStageRd.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunStageRd.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunStageRd.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunStageRd.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunStageRd.setup.json --json
+error: ZK60Formal/RunStageRd.lean:202:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  []
+in the target expression
+  ∀ o ∈ os, Block.HidingCanon o
+
+os : List Block.OpeningZk
+bs rest : List UInt8
+h : rdCloses [] bs = Except.ok (os, rest)
+h' : Block.Rd.ret [] bs = Except.ok (os, rest)
+e1 : os = []
+⊢ ∀ o ∈ os, Block.HidingCanon o
+error: ZK60Formal/RunStageRd.lean:211:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  o :: os'
+in the target expression
+  ∀ o ∈ os, Block.HidingCanon o
+
+c : Block.Dim × ℕ × ℕ
+cs : List (Block.Dim × ℕ × ℕ)
+os : List Block.OpeningZk
+bs rest : List UInt8
+h : rdCloses (c :: cs) bs = Except.ok (os, rest)
+h' :
+  (Block.rdHiding c.1 c.2.1 c.2.2).bnd (fun o => (rdCloses cs).bnd fun os => Block.Rd.ret (o :: os)) bs =
+    Except.ok (os, rest)
+o : Block.OpeningZk
+m1 : List UInt8
+e1 : Block.rdHiding c.1 c.2.1 c.2.2 bs = Except.ok (o, m1)
+e2 : (rdCloses cs).bnd (fun os => Block.Rd.ret (o :: os)) m1 = Except.ok (os, rest)
+os' : List Block.OpeningZk
+m2 : List UInt8
+e3 : rdCloses cs m1 = Except.ok (os', m2)
+e4 : Block.Rd.ret (o :: os') m2 = Except.ok (os, rest)
+e5 : os = o :: os'
+⊢ ∀ o ∈ os, Block.HidingCanon o
+Some required targets logged failures:
+- ZK60Formal.RunStageRd
+error: build failed
+build rc 1 (4 s)
+rc 1, 4 s
