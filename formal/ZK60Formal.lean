@@ -362,3 +362,7 @@ import ZK60Formal.RunAliveRun
 import ZK60Formal.RunAliveHal
 import ZK60Formal.RunAliveTop
 import ZK60Formal.RunStgList
+import ZK60Formal.RunStgAlive
+import ZK60Formal.RunStgRun
+import ZK60Formal.RunStgHal
+import ZK60Formal.RunStgTop
