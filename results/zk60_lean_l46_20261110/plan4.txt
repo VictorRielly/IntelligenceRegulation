@@ -1,0 +1,2 @@
+build ZK60Formal.RunDoomBlk
+build ZK60Formal.RunDoomTop

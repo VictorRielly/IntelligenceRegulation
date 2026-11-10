@@ -1,0 +1,38 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/exp_plan1.txt ==
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHelperExportCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/l44_w16r2_corpus.txt neg
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHelperExportCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/l44_w16r2_corpus.txt neg ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHelperExportCheck.lean:197:47: error: Application type mismatch: The argument
+  cl
+has type
+  Block.ZClaim
+but is expected to have type
+  ZClaim
+in the application
+  claimStr cl
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHelperExportCheck.lean:211:105: error: unexpected token '('; expected '}'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHelperExportCheck.lean:226:70: error: Application type mismatch: The argument
+  line.take 200
+has type
+  String.Slice
+but is expected to have type
+  String
+in the application
+  c.st.check "PARSE" false (line.take 200)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHelperExportCheck.lean:299:51: error: Application type mismatch: The argument
+  b.drop 1
+has type
+  String.Slice
+but is expected to have type
+  String
+in the application
+  incN (b.drop 1)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHelperExportCheck.lean:299:108: error: Application type mismatch: The argument
+  b.drop 1
+has type
+  String.Slice
+but is expected to have type
+  String
+in the application
+  incFirst (b.drop 1)
+rc 1 for run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHelperExportCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/l44_w16r2_corpus.txt neg (3 s)
+rc 1, 3 s

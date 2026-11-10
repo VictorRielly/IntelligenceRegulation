@@ -1,0 +1,34 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/plan2.txt ==
+build ZK60Formal.BlockHostBase
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostPub.lean
+== lake build ZK60Formal.BlockHostBase ==
+Build completed successfully (3559 jobs).
+build rc 0 (4 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostPub.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostPub.lean:199:26: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostPub.lean:199:37: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostPub.lean:200:37: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  splitD (Fin.append ?x.1 ?x.2)
+in the target expression
+  (algebraMap GF K) (B.gD (splitD (Fin.append t c))) = (algebraMap GF K) (B.gD (t, c))
+
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+rest : PubTabs
+s : ℕ
+hs : s = 0 ∨ s = 1
+hist : Hist
+dr : List Fp2
+t : CtW
+c : CwW
+h : pubsW16 Pb Lay B rest s hist dr 0 = cubeTab 14 fun b => B.gD (splitD b)
+⊢ (algebraMap GF K) (B.gD (splitD (Fin.append t c))) = (algebraMap GF K) (B.gD (t, c))
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostPub.lean (7 s)
+rc 1, 7 s

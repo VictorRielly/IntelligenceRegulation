@@ -1,0 +1,27 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/lk_plan6.txt ==
+build ZK60Formal.BlockLkGd
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/lk_axioms.lean
+== lake build ZK60Formal.BlockLkGd ==
+Build completed successfully (3562 jobs).
+build rc 0 (3 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/lk_axioms.lean ==
+'ZK60.Exec.Block.Join.W16.Lk.formAt_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.spHW_dg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.spHW_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.slot20_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Lk.fhU_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Lk.zs_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.zs_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.slot3_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Lk.lksL_pos' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Lk.lzc_vals' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.lzc_irEval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.lzc_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.spLzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.lzc_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.spXW' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.hgd_of' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.helper_dg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Lk.helper_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/lk_axioms.lean (7 s)
+rc 0, 7 s

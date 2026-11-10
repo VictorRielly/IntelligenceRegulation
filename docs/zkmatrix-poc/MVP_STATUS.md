@@ -16,6 +16,16 @@ item was re-checked against the source by the coordinator.
   (`rc_productionReadyL_r13_exec_top_range`), but proved none of the covers. Finding L39-2: the per-block soundness
   theorems cannot be plugged in as a run-level premise directly; the link goes through the run's transcript. Lane L43
   is proving the "alive" half of the covers; the doom half and the endpoint follow after L41's block join.
+- **2026-11-10, the alive half of the covers begun (L43, merged and checked):** the data the covers talk about is
+  built from the verifier's own readers, and at the app's per-block model one of the nine ordered conditions
+  (`hal_opA`) is proved outright. Two more (`hal_opB`, `hal_M`) are proved at every block, up to the extraction step.
+  The app's top theorem in the approved form is `rc_productionReadyL_r13P_exec_rk`. Lane L45 continues: the stages'
+  readers, the extraction, and the remaining six conditions.
+- **2026-11-10, the doom half begun (L46, merged and checked):** the per-block doom cover `hdblk` is PROVED at the
+  app's per-block model. If a block's relations fail, some check in that block's part of the run started from a false
+  claim. The proof goes through the run's transcript and L36's algebra. The app's top theorem is now
+  `rd_productionReadyL_r13P_exec_blk`. Still open: the two stage covers and the three input-commitment links, and the
+  boundary IO slots' polynomials (L46-3), which tie each block to the run's boundary planes.
 - **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
   enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
 - **The plan, in order:**
@@ -53,6 +63,12 @@ item was re-checked against the source by the coordinator.
   opening at the largest radius is the production instance; a single-calibration Shieldstral export for W16R2,
   accuracy check first; W16R3 gets C1, C2, C3, C5, C7 and the token stages, not C4 or C9; the prover shortcut
   `HL_A26_KEPT` is on for the app, the verifier shortcut is not.
+- **Block level, later on 2026-11-10 (L41 and L44 merged and checked; the full Lean build 3703 jobs):** the one-block
+  statement is joined at all six host slots of the W16R2 rung (`block_knowledge_host_w16r2_rung`). The block's
+  table layout is checked against a real receipt through a test-only Rust export: 1,685 checks, 0 failed. The R13
+  slot program is written and confirms the app block's derived counts (146 / 54): 2,041 checks, 0 failed. Left at
+  block level: one table slot's identity and the lookup side (lane L47), then the same at R13 and at all 26 real
+  layers.
 - **Block level, 2026-11-10 (L35 and L36 merged and checked; the full Lean build 3652 jobs):** the block's `define` is
   a Lean slot program checked against a real development receipt (143 checks, 0 failed), and the block's relations
   and lookups follow from the slot claims. L41 is joining the two halves into one block statement whose only
@@ -414,6 +430,15 @@ here. The rates count proving and witness work. Verification time is recorded se
   - One note for the privacy gate: the three-product fold's two-product fast path is taken per element, so for an
     extension table of private data a fold's time can depend slightly on whether neighbouring hidden values are
     equal (`HL_A27_FOLD=0` removes it; README section 6).
+- **One calibration for all 26 Shieldstral layers works for the faster W16R2 format (A29, 2026-11-10; Victor's route
+  (b), D77 (2))** [MEASURED; `results/zk60_a29_uniform_calibration_20261110/README.md`].
+  - The W16R2 acceptance check admits all 26 layers with one layout. Today's export has 8 refused and 3 layouts.
+  - On the 4,872 held-out rows: no refusals (today's export: 6). Agreement and F1 against the float model are the same
+    as today's export within noise.
+  - D32 has no ruled metric for the classifier. "No worse than today's export": pass. "Within 2% of the float
+    model's F1 in every group": neither export passes, in the same two groups on the refusal-free head.
+  - Next, for the speed gain (A28's estimate: about 22–25 proved tok/s against 16.9): the profile with review, the
+    W16R2 privacy gate on GPU-made bundles, the Lean re-proof, and the app's speed measured on it.
 - **The media app's commitment kernels at the device's limits, and scheduling measured out (A28, 2026-11-09/10)**
   [MEASURED; `results/zk60_a28_app_20261107/README.md`]. The A27 figures here are A28's own re-measurements of A27's
   binary in the same jobs; the machine measured about 3% slower than on 2026-11-07.

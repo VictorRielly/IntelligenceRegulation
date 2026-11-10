@@ -1,0 +1,1825 @@
+{
+ "float_source_sha256": {
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_cat_hate_le168_strat300.jsonl": "8712c263b08e93859913eb38047762c6ffc42384fb21dd729f35abd2535f9a77",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_cat_sexual_le168_strat300.jsonl": "1be6f2929d1c6fff850ef102cb38c07f404a2dc733d8e9a5cd76a62fb63cd3a4",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_cat_violence_le168_strat300.jsonl": "21af02e86a16e49dc717dfea888cf77292c780f249009d3c4a93193c95ec2563",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_mod_hate_le168_strat300.jsonl": "cc8cded375e68fbb1a2836795a2409d01e4877f851d8b72f7f8c3a00b62998c7",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_mod_sexual_le168_strat300.jsonl": "bb515c30e9c61c2d832fb28452936d7d27424935b6592196bcdd75d06aaca461",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/openai_mod_mod_violence_le168_strat300.jsonl": "1ecb8db482f4a6e2bb53c1e4fd93c866d397659e3438ec9fd0809a1379407ee4",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_cat_hate.jsonl": "2467fae597b0888509b3fba71a7627ab21e4fa85d6713c8564d360e1eee610b1",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_cat_sexual.jsonl": "f85c3b01ab2046312576fa527baaa459fd08997fa2e27013b6a7594969effa85",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_cat_violence.jsonl": "f48967b56de140accb038aa80261b87a2c1f07d033e0364ceca7a18313cb005b",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_mod_hate.jsonl": "f18549a00a74977c837225c2af57d07bd3202996516eb72b41ea0e61e6a2c7aa",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_mod_sexual.jsonl": "67e055c1bc42dfd0df60dc3d6cbb8051eca65b756d9fd1049272aa4c7024d052",
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_mod_violence.jsonl": "ce8e7f2542c59ff8ffb8b2f2bcd6f009efaa5db0e0ebf26fc5f189ffd37d5dcd"
+ },
+ "paired": {
+  "openai_mod/cat_hate|calibrated|current_vs_uniform": {
+   "baseline_refused": 2,
+   "candidate_refused": 0,
+   "common_accepted": 610,
+   "common_baseline": {
+    "float_f1": 0.5691726071732489,
+    "integer_f1": 0.5761024182076814,
+    "n": 610,
+    "weighted_agreement": 0.9908928571428571
+   },
+   "common_candidate": {
+    "float_f1": 0.5691726071732489,
+    "integer_f1": 0.5686445199517003,
+    "n": 610,
+    "weighted_agreement": 0.9958820346320347
+   },
+   "common_decision_changes": 2,
+   "newly_refused_count": 0,
+   "recovered_count": 2,
+   "total": 612
+  },
+  "openai_mod/cat_hate|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.5727487791043537,
+    "integer_f1": 0.5759448438222559,
+    "n": 612,
+    "weighted_agreement": 0.9933981631550513
+   },
+   "common_candidate": {
+    "float_f1": 0.5727487791043537,
+    "integer_f1": 0.5722480576981983,
+    "n": 612,
+    "weighted_agreement": 0.9958887088060508
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_hate|refusal_free|current_vs_uniform": {
+   "baseline_refused": 2,
+   "candidate_refused": 0,
+   "common_accepted": 610,
+   "common_baseline": {
+    "float_f1": 0.5691726071732489,
+    "integer_f1": 0.5804507724573893,
+    "n": 610,
+    "weighted_agreement": 0.9768560606060606
+   },
+   "common_candidate": {
+    "float_f1": 0.5691726071732489,
+    "integer_f1": 0.5695259791465872,
+    "n": 610,
+    "weighted_agreement": 0.9810335497835497
+   },
+   "common_decision_changes": 3,
+   "newly_refused_count": 0,
+   "recovered_count": 2,
+   "total": 612
+  },
+  "openai_mod/cat_hate|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.5727487791043537,
+    "integer_f1": 0.5794344028366342,
+    "n": 612,
+    "weighted_agreement": 0.9826850351161533
+   },
+   "common_candidate": {
+    "float_f1": 0.5727487791043537,
+    "integer_f1": 0.5732650047772084,
+    "n": 612,
+    "weighted_agreement": 0.9810642895732036
+   },
+   "common_decision_changes": 4,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_sexual|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7364894005241682,
+    "n": 612,
+    "weighted_agreement": 0.9942085359265261
+   },
+   "common_candidate": {
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7479280371942592,
+    "n": 612,
+    "weighted_agreement": 0.9966990815775257
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_sexual|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7364894005241682,
+    "n": 612,
+    "weighted_agreement": 0.9942085359265261
+   },
+   "common_candidate": {
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7479280371942592,
+    "n": 612,
+    "weighted_agreement": 0.9966990815775257
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_sexual|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7863837121620166,
+    "n": 612,
+    "weighted_agreement": 0.9884170718530524
+   },
+   "common_candidate": {
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7863837121620166,
+    "n": 612,
+    "weighted_agreement": 0.9884170718530524
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_sexual|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.788660343173825,
+    "n": 612,
+    "weighted_agreement": 0.9884170718530524
+   },
+   "common_candidate": {
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7863837121620166,
+    "n": 612,
+    "weighted_agreement": 0.9884170718530524
+   },
+   "common_decision_changes": 2,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_violence|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.664057867899917,
+    "n": 612,
+    "weighted_agreement": 0.9967585089141004
+   },
+   "common_candidate": {
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.664057867899917,
+    "n": 612,
+    "weighted_agreement": 0.9967585089141004
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_violence|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.664057867899917,
+    "n": 612,
+    "weighted_agreement": 0.9967585089141004
+   },
+   "common_candidate": {
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.664057867899917,
+    "n": 612,
+    "weighted_agreement": 0.9967585089141004
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_violence|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.6398647832910781,
+    "n": 612,
+    "weighted_agreement": 0.9943273905996759
+   },
+   "common_candidate": {
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.6519377037305324,
+    "n": 612,
+    "weighted_agreement": 0.9943273905996759
+   },
+   "common_decision_changes": 2,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/cat_violence|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.6480259210368415,
+    "n": 612,
+    "weighted_agreement": 0.9951377633711507
+   },
+   "common_candidate": {
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.6519377037305324,
+    "n": 612,
+    "weighted_agreement": 0.9943273905996759
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/mod_hate|calibrated|current_vs_uniform": {
+   "baseline_refused": 2,
+   "candidate_refused": 0,
+   "common_accepted": 610,
+   "common_baseline": {
+    "float_f1": 0.5578403029439309,
+    "integer_f1": 0.5607862002611504,
+    "n": 610,
+    "weighted_agreement": 0.9933874458874458
+   },
+   "common_candidate": {
+    "float_f1": 0.5578403029439309,
+    "integer_f1": 0.5542933785892207,
+    "n": 610,
+    "weighted_agreement": 0.9950703463203464
+   },
+   "common_decision_changes": 2,
+   "newly_refused_count": 0,
+   "recovered_count": 2,
+   "total": 612
+  },
+  "openai_mod/mod_hate|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.5614120117936912,
+    "integer_f1": 0.564378706291323,
+    "n": 612,
+    "weighted_agreement": 0.9933981631550513
+   },
+   "common_candidate": {
+    "float_f1": 0.5614120117936912,
+    "integer_f1": 0.5579236011185621,
+    "n": 612,
+    "weighted_agreement": 0.995078336034576
+   },
+   "common_decision_changes": 2,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/mod_hate|refusal_free|current_vs_uniform": {
+   "baseline_refused": 2,
+   "candidate_refused": 0,
+   "common_accepted": 610,
+   "common_baseline": {
+    "float_f1": 0.5578403029439309,
+    "integer_f1": 0.5650611071171819,
+    "n": 610,
+    "weighted_agreement": 0.9760443722943724
+   },
+   "common_candidate": {
+    "float_f1": 0.5578403029439309,
+    "integer_f1": 0.5619596541786744,
+    "n": 610,
+    "weighted_agreement": 0.975232683982684
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 2,
+   "total": 612
+  },
+  "openai_mod/mod_hate|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.5614120117936912,
+    "integer_f1": 0.5768485700756216,
+    "n": 612,
+    "weighted_agreement": 0.9752133981631551
+   },
+   "common_candidate": {
+    "float_f1": 0.5614120117936912,
+    "integer_f1": 0.5657142857142857,
+    "n": 612,
+    "weighted_agreement": 0.9752728254997299
+   },
+   "common_decision_changes": 4,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/mod_sexual|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7364894005241682,
+    "n": 612,
+    "weighted_agreement": 0.9966990815775257
+   },
+   "common_candidate": {
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7479280371942592,
+    "n": 612,
+    "weighted_agreement": 0.9942085359265261
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/mod_sexual|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7364894005241682,
+    "n": 612,
+    "weighted_agreement": 0.9966990815775257
+   },
+   "common_candidate": {
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7479280371942592,
+    "n": 612,
+    "weighted_agreement": 0.9942085359265261
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/mod_sexual|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7759524641733659,
+    "n": 612,
+    "weighted_agreement": 0.995018908698001
+   },
+   "common_candidate": {
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7670454545454545,
+    "n": 612,
+    "weighted_agreement": 0.9925877903835764
+   },
+   "common_decision_changes": 3,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/mod_sexual|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.769501054111033,
+    "n": 612,
+    "weighted_agreement": 0.9942085359265261
+   },
+   "common_candidate": {
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7670454545454545,
+    "n": 612,
+    "weighted_agreement": 0.9925877903835764
+   },
+   "common_decision_changes": 2,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/mod_violence|calibrated|current_vs_uniform": {
+   "baseline_refused": 2,
+   "candidate_refused": 0,
+   "common_accepted": 610,
+   "common_baseline": {
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6641034603285565,
+    "n": 610,
+    "weighted_agreement": 0.9942586580086581
+   },
+   "common_candidate": {
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6601438170458565,
+    "n": 610,
+    "weighted_agreement": 0.9942586580086581
+   },
+   "common_decision_changes": 2,
+   "newly_refused_count": 0,
+   "recovered_count": 2,
+   "total": 612
+  },
+  "openai_mod/mod_violence|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6641034603285565,
+    "n": 612,
+    "weighted_agreement": 0.9942679632631011
+   },
+   "common_candidate": {
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6601438170458565,
+    "n": 612,
+    "weighted_agreement": 0.9942679632631011
+   },
+   "common_decision_changes": 2,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "openai_mod/mod_violence|refusal_free|current_vs_uniform": {
+   "baseline_refused": 2,
+   "candidate_refused": 0,
+   "common_accepted": 610,
+   "common_baseline": {
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6480259210368415,
+    "n": 610,
+    "weighted_agreement": 0.9918235930735931
+   },
+   "common_candidate": {
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6480259210368415,
+    "n": 610,
+    "weighted_agreement": 0.9918235930735931
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 2,
+   "total": 612
+  },
+  "openai_mod/mod_violence|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 612,
+   "common_baseline": {
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6480259210368415,
+    "n": 612,
+    "weighted_agreement": 0.9918368449486764
+   },
+   "common_candidate": {
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6480259210368415,
+    "n": 612,
+    "weighted_agreement": 0.9918368449486764
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 612
+  },
+  "toxicchat/cat_hate|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_hate|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_hate|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_hate|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_sexual|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_sexual|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_sexual|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_sexual|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_violence|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_violence|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_violence|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_candidate": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/cat_violence|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_candidate": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_hate|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.18181818181818182,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_hate|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.18181818181818182,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_hate|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.18181818181818182,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_hate|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.18181818181818182,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.1875,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_sexual|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_sexual|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_sexual|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_sexual|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_violence|calibrated|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_violence|calibrated|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_candidate": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 0,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_violence|refusal_free|current_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_candidate": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  },
+  "toxicchat/mod_violence|refusal_free|l12_candidate_vs_uniform": {
+   "baseline_refused": 0,
+   "candidate_refused": 0,
+   "common_accepted": 200,
+   "common_baseline": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "n": 200,
+    "weighted_agreement": 0.995
+   },
+   "common_candidate": {
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "n": 200,
+    "weighted_agreement": 1.0
+   },
+   "common_decision_changes": 1,
+   "newly_refused_count": 0,
+   "recovered_count": 0,
+   "total": 200
+  }
+ },
+ "runs": {
+  "current": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/mac_evaluation/full",
+  "l12_candidate": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/mac_score_full_evaluation/full",
+  "uniform": "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/eval_u1"
+ },
+ "scope": "held-out with respect to the A29 design (chosen on the 192 calibration sequences only); the 4,872 rows were seen before by the current export lane (L12 candidate chosen after them)",
+ "table": {
+  "openai_mod/cat_hate|calibrated": {
+   "current": {
+    "accepted": 610,
+    "agreement_weighted": 0.9908928571428571,
+    "float_f1": 0.5691726071732489,
+    "integer_f1": 0.5761024182076814,
+    "max_abs_margin_error": 5.495391651240746,
+    "median_abs_margin_error": 0.1437516488288746,
+    "refused": 2,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9933981631550513,
+    "float_f1": 0.5727487791043537,
+    "integer_f1": 0.5759448438222559,
+    "max_abs_margin_error": 5.45988033069985,
+    "median_abs_margin_error": 0.1495637931611551,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9958887088060506,
+    "float_f1": 0.5727487791043537,
+    "integer_f1": 0.5722480576981983,
+    "max_abs_margin_error": 4.988641454749336,
+    "median_abs_margin_error": 0.18176011991256202,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/cat_hate|refusal_free": {
+   "current": {
+    "accepted": 610,
+    "agreement_weighted": 0.9768560606060605,
+    "float_f1": 0.5691726071732489,
+    "integer_f1": 0.5804507724573893,
+    "max_abs_margin_error": 5.052610269074046,
+    "median_abs_margin_error": 0.27617150267692736,
+    "refused": 2,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9826850351161533,
+    "float_f1": 0.5727487791043537,
+    "integer_f1": 0.5794344028366342,
+    "max_abs_margin_error": 4.993260082416639,
+    "median_abs_margin_error": 0.28733328628661514,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9810642895732036,
+    "float_f1": 0.5727487791043537,
+    "integer_f1": 0.5732650047772084,
+    "max_abs_margin_error": 4.627214402854834,
+    "median_abs_margin_error": 0.3422761074048044,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/cat_sexual|calibrated": {
+   "current": {
+    "accepted": 612,
+    "agreement_weighted": 0.9942085359265261,
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7364894005241682,
+    "max_abs_margin_error": 9.60160394777166,
+    "median_abs_margin_error": 0.20063887909267653,
+    "refused": 0,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9942085359265261,
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7364894005241682,
+    "max_abs_margin_error": 9.6712830467248,
+    "median_abs_margin_error": 0.21331918316452114,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9966990815775255,
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7479280371942592,
+    "max_abs_margin_error": 8.961573903531278,
+    "median_abs_margin_error": 0.19644918164892822,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/cat_sexual|refusal_free": {
+   "current": {
+    "accepted": 612,
+    "agreement_weighted": 0.9884170718530524,
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7863837121620166,
+    "max_abs_margin_error": 9.699438482348203,
+    "median_abs_margin_error": 0.2618913213054799,
+    "refused": 0,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9884170718530524,
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.788660343173825,
+    "max_abs_margin_error": 9.945921368445612,
+    "median_abs_margin_error": 0.27434870400983735,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9884170718530524,
+    "float_f1": 0.7401727069649585,
+    "integer_f1": 0.7863837121620166,
+    "max_abs_margin_error": 8.680845447582968,
+    "median_abs_margin_error": 0.28519442615307433,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/cat_violence|calibrated": {
+   "current": {
+    "accepted": 612,
+    "agreement_weighted": 0.9967585089141004,
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.664057867899917,
+    "max_abs_margin_error": 7.449557318457701,
+    "median_abs_margin_error": 0.1689704366182978,
+    "refused": 0,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9967585089141004,
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.664057867899917,
+    "max_abs_margin_error": 7.389441292571026,
+    "median_abs_margin_error": 0.1734381702729626,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9967585089141004,
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.664057867899917,
+    "max_abs_margin_error": 7.084904738982106,
+    "median_abs_margin_error": 0.21757014676871922,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/cat_violence|refusal_free": {
+   "current": {
+    "accepted": 612,
+    "agreement_weighted": 0.9943273905996759,
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.6398647832910781,
+    "max_abs_margin_error": 7.646995170113539,
+    "median_abs_margin_error": 0.26161366722366974,
+    "refused": 0,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9951377633711508,
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.6480259210368415,
+    "max_abs_margin_error": 7.431516644765465,
+    "median_abs_margin_error": 0.2678133671204046,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9943273905996759,
+    "float_f1": 0.6718406116066258,
+    "integer_f1": 0.6519377037305324,
+    "max_abs_margin_error": 7.073020268408179,
+    "median_abs_margin_error": 0.31875540656643064,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/mod_hate|calibrated": {
+   "current": {
+    "accepted": 610,
+    "agreement_weighted": 0.9933874458874458,
+    "float_f1": 0.5578403029439309,
+    "integer_f1": 0.5607862002611504,
+    "max_abs_margin_error": 5.150341372702672,
+    "median_abs_margin_error": 0.14727986671010104,
+    "refused": 2,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9933981631550513,
+    "float_f1": 0.5614120117936912,
+    "integer_f1": 0.564378706291323,
+    "max_abs_margin_error": 5.161075131479767,
+    "median_abs_margin_error": 0.15362237299911083,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9950783360345757,
+    "float_f1": 0.5614120117936912,
+    "integer_f1": 0.5579236011185621,
+    "max_abs_margin_error": 5.322653449206068,
+    "median_abs_margin_error": 0.16264750252457616,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/mod_hate|refusal_free": {
+   "current": {
+    "accepted": 610,
+    "agreement_weighted": 0.9760443722943721,
+    "float_f1": 0.5578403029439309,
+    "integer_f1": 0.5650611071171818,
+    "max_abs_margin_error": 4.928739382210818,
+    "median_abs_margin_error": 0.27265838327717473,
+    "refused": 2,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9752133981631549,
+    "float_f1": 0.5614120117936912,
+    "integer_f1": 0.5768485700756216,
+    "max_abs_margin_error": 4.82611138441089,
+    "median_abs_margin_error": 0.2961681153818434,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9752728254997297,
+    "float_f1": 0.5614120117936912,
+    "integer_f1": 0.5657142857142857,
+    "max_abs_margin_error": 4.9448652135200994,
+    "median_abs_margin_error": 0.3131126402788237,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/mod_sexual|calibrated": {
+   "current": {
+    "accepted": 612,
+    "agreement_weighted": 0.9966990815775255,
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7364894005241682,
+    "max_abs_margin_error": 8.857749617401147,
+    "median_abs_margin_error": 0.16832063882796167,
+    "refused": 0,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9966990815775255,
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7364894005241682,
+    "max_abs_margin_error": 8.940136526664338,
+    "median_abs_margin_error": 0.19210048518095776,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9942085359265261,
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7479280371942592,
+    "max_abs_margin_error": 8.635160012912289,
+    "median_abs_margin_error": 0.20407433601544422,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/mod_sexual|refusal_free": {
+   "current": {
+    "accepted": 612,
+    "agreement_weighted": 0.995018908698001,
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7759524641733659,
+    "max_abs_margin_error": 8.375059068075313,
+    "median_abs_margin_error": 0.26850342689800133,
+    "refused": 0,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9942085359265261,
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.769501054111033,
+    "max_abs_margin_error": 8.407889835133158,
+    "median_abs_margin_error": 0.2675677823652336,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9925877903835764,
+    "float_f1": 0.7517269402681837,
+    "integer_f1": 0.7670454545454545,
+    "max_abs_margin_error": 8.189683282411107,
+    "median_abs_margin_error": 0.2725702099598557,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/mod_violence|calibrated": {
+   "current": {
+    "accepted": 610,
+    "agreement_weighted": 0.9942586580086579,
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6641034603285565,
+    "max_abs_margin_error": 7.786218017762581,
+    "median_abs_margin_error": 0.17865627567395137,
+    "refused": 2,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9942679632631009,
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6641034603285565,
+    "max_abs_margin_error": 7.798563194051079,
+    "median_abs_margin_error": 0.1841964262927025,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9942679632631009,
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6601438170458565,
+    "max_abs_margin_error": 8.390308230607866,
+    "median_abs_margin_error": 0.21021279099195134,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "openai_mod/mod_violence|refusal_free": {
+   "current": {
+    "accepted": 610,
+    "agreement_weighted": 0.9918235930735929,
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6480259210368415,
+    "max_abs_margin_error": 7.791134350622099,
+    "median_abs_margin_error": 0.2840307242858451,
+    "refused": 2,
+    "total": 612
+   },
+   "l12_candidate": {
+    "accepted": 612,
+    "agreement_weighted": 0.9918368449486763,
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6480259210368415,
+    "max_abs_margin_error": 7.784883586397463,
+    "median_abs_margin_error": 0.26449612542920153,
+    "refused": 0,
+    "total": 612
+   },
+   "uniform": {
+    "accepted": 612,
+    "agreement_weighted": 0.9918368449486763,
+    "float_f1": 0.6676725763862693,
+    "integer_f1": 0.6480259210368415,
+    "max_abs_margin_error": 8.634248049125528,
+    "median_abs_margin_error": 0.3111439158047018,
+    "refused": 0,
+    "total": 612
+   }
+  },
+  "toxicchat/cat_hate|calibrated": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "max_abs_margin_error": 4.215311227503754,
+    "median_abs_margin_error": 0.256938812360767,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "max_abs_margin_error": 4.294888699322183,
+    "median_abs_margin_error": 0.24910317947613247,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "max_abs_margin_error": 3.605761079785224,
+    "median_abs_margin_error": 0.21787906238348764,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/cat_hate|refusal_free": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "max_abs_margin_error": 4.058866154015655,
+    "median_abs_margin_error": 0.2837733426749893,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "max_abs_margin_error": 4.055074356333208,
+    "median_abs_margin_error": 0.32376756506439985,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.1875,
+    "integer_f1": 0.1875,
+    "max_abs_margin_error": 3.564148831836924,
+    "median_abs_margin_error": 0.33346478202336316,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/cat_sexual|calibrated": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 4.14694706893372,
+    "median_abs_margin_error": 0.2798575874603444,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 4.2868727773690605,
+    "median_abs_margin_error": 0.2855503516445994,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 3.4603039699812914,
+    "median_abs_margin_error": 0.2670814517152875,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/cat_sexual|refusal_free": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 3.431553309655298,
+    "median_abs_margin_error": 0.29666270897854186,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 3.6660816982660815,
+    "median_abs_margin_error": 0.3156977351549912,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 3.237442783515861,
+    "median_abs_margin_error": 0.3344670526034088,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/cat_violence|calibrated": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "max_abs_margin_error": 5.031697462522798,
+    "median_abs_margin_error": 0.35524210840171566,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "max_abs_margin_error": 4.903170905943575,
+    "median_abs_margin_error": 0.3899595761824268,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "max_abs_margin_error": 5.005174675719181,
+    "median_abs_margin_error": 0.32809595375665435,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/cat_violence|refusal_free": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 0.995,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "max_abs_margin_error": 4.592963760124316,
+    "median_abs_margin_error": 0.4176798343191539,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 0.995,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "max_abs_margin_error": 4.532120960305379,
+    "median_abs_margin_error": 0.4124429120882471,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 0.995,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "max_abs_margin_error": 4.602919010900553,
+    "median_abs_margin_error": 0.38996644122027124,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/mod_hate|calibrated": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.18181818181818182,
+    "max_abs_margin_error": 5.0251794097852684,
+    "median_abs_margin_error": 0.23745063518963927,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.18181818181818182,
+    "max_abs_margin_error": 5.027516615991631,
+    "median_abs_margin_error": 0.2444690925354367,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 0.995,
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.1875,
+    "max_abs_margin_error": 5.148883168171232,
+    "median_abs_margin_error": 0.2703623073324386,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/mod_hate|refusal_free": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.18181818181818182,
+    "max_abs_margin_error": 4.595259699451553,
+    "median_abs_margin_error": 0.2707109822188749,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.18181818181818182,
+    "max_abs_margin_error": 4.774621708246276,
+    "median_abs_margin_error": 0.2819396953654798,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 0.995,
+    "float_f1": 0.18181818181818182,
+    "integer_f1": 0.1875,
+    "max_abs_margin_error": 4.706207200719222,
+    "median_abs_margin_error": 0.31591334928711,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/mod_sexual|calibrated": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 4.157135035342962,
+    "median_abs_margin_error": 0.3214861285925861,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 4.137943547401407,
+    "median_abs_margin_error": 0.31472686359014235,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 4.669911777131465,
+    "median_abs_margin_error": 0.26874675831196404,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/mod_sexual|refusal_free": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 3.690854254869932,
+    "median_abs_margin_error": 0.2977004082837049,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 3.596454885687269,
+    "median_abs_margin_error": 0.2941845117055877,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.7407407407407407,
+    "integer_f1": 0.7407407407407407,
+    "max_abs_margin_error": 4.164991114418876,
+    "median_abs_margin_error": 0.2935909693176415,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/mod_violence|calibrated": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "max_abs_margin_error": 5.371244010069136,
+    "median_abs_margin_error": 0.31720819283650825,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "max_abs_margin_error": 5.401375174599016,
+    "median_abs_margin_error": 0.31744105406324863,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "max_abs_margin_error": 4.690699441224583,
+    "median_abs_margin_error": 0.3326559331334571,
+    "refused": 0,
+    "total": 200
+   }
+  },
+  "toxicchat/mod_violence|refusal_free": {
+   "current": {
+    "accepted": 200,
+    "agreement_weighted": 0.995,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "max_abs_margin_error": 5.099137153119982,
+    "median_abs_margin_error": 0.35220159658593087,
+    "refused": 0,
+    "total": 200
+   },
+   "l12_candidate": {
+    "accepted": 200,
+    "agreement_weighted": 0.995,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.125,
+    "max_abs_margin_error": 5.146108759655227,
+    "median_abs_margin_error": 0.3569650227290815,
+    "refused": 0,
+    "total": 200
+   },
+   "uniform": {
+    "accepted": 200,
+    "agreement_weighted": 1.0,
+    "float_f1": 0.12121212121212122,
+    "integer_f1": 0.12121212121212122,
+    "max_abs_margin_error": 4.281443466711382,
+    "median_abs_margin_error": 0.3863409767288082,
+    "refused": 0,
+    "total": 200
+   }
+  }
+ },
+ "totals": {
+  "current": {
+   "refused_rows_by_head": {
+    "calibrated": 6,
+    "refusal_free": 6
+   },
+   "stack_refused_items": 6
+  },
+  "l12_candidate": {
+   "refused_rows_by_head": {
+    "calibrated": 0,
+    "refusal_free": 0
+   },
+   "stack_refused_items": 0
+  },
+  "uniform": {
+   "refused_rows_by_head": {
+    "calibrated": 0,
+    "refusal_free": 0
+   },
+   "stack_refused_items": 0
+  }
+ }
+}

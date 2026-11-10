@@ -1,0 +1,834 @@
+{
+ "at": "2026-11-10T09:52:21.036321+00:00",
+ "changed_payloads": [
+  "layer_00/m_g.bin",
+  "layer_00/m_o.bin",
+  "layer_00/wg_t.bin",
+  "layer_00/wo.bin",
+  "layer_01/m_g.bin",
+  "layer_01/m_k.bin",
+  "layer_01/m_o.bin",
+  "layer_01/wk.bin",
+  "layer_01/wo.bin",
+  "layer_02/m_g.bin",
+  "layer_02/m_k.bin",
+  "layer_02/m_o.bin",
+  "layer_02/wk.bin",
+  "layer_02/wo.bin",
+  "layer_03/m_k.bin",
+  "layer_03/m_o.bin",
+  "layer_03/wk.bin",
+  "layer_03/wo.bin",
+  "layer_04/m_k.bin",
+  "layer_04/m_o.bin",
+  "layer_04/wo.bin",
+  "layer_05/m_o.bin",
+  "layer_05/wo.bin",
+  "layer_07/m_k.bin",
+  "layer_07/m_o.bin",
+  "layer_07/wo.bin",
+  "layer_08/m_k.bin",
+  "layer_08/m_o.bin",
+  "layer_08/wo.bin",
+  "layer_10/m_d.bin",
+  "layer_10/m_g.bin",
+  "layer_10/m_k.bin",
+  "layer_10/wd_t.bin",
+  "layer_12/exp.bin",
+  "layer_14/m_g.bin",
+  "layer_14/wg_t.bin",
+  "layer_16/m_k.bin",
+  "layer_16/m_o.bin",
+  "layer_16/wo.bin",
+  "layer_18/m_o.bin",
+  "layer_18/wo.bin",
+  "layer_20/m_o.bin",
+  "layer_20/wo.bin",
+  "layer_22/m_o.bin",
+  "layer_22/wo.bin",
+  "layer_23/m_g.bin",
+  "layer_23/m_k.bin",
+  "layer_23/wk.bin",
+  "layer_24/m_g.bin",
+  "layer_24/m_k.bin",
+  "layer_24/wk.bin",
+  "layer_25/m_g.bin",
+  "layer_25/m_k.bin",
+  "layer_25/wk.bin"
+ ],
+ "layers": [
+  {
+   "after": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 16,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -5,
+     -13
+    ]
+   },
+   "before": {
+    "exp_e_s": 2,
+    "gate": 19,
+    "sh_ao": 8,
+    "sh_h": 16,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -13
+    ]
+   },
+   "g_exact_rows": 9215,
+   "g_power": 1,
+   "g_refit_clipped_words": 10,
+   "g_refit_rows": 1,
+   "g_refit_source_reproduced": 1.0,
+   "layer": 0,
+   "o_exact_rows": 1490,
+   "o_power": -1,
+   "o_refit_clipped_words": 0,
+   "o_refit_rows": 1582,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7,
+    "gate_base": [
+     -5,
+     -13
+    ],
+    "sh_h": 16
+   },
+   "product_finer_bits": 0
+  },
+  {
+   "after": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "before": {
+    "exp_e_s": 2,
+    "gate": 19,
+    "sh_ao": 8,
+    "sh_h": 14,
+    "sh_s": 8,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "g_exact_rows": 9216,
+   "g_power": 1,
+   "k_exact_rows": 495,
+   "k_power": -1,
+   "k_refit_clipped_words": 0,
+   "k_refit_rows": 529,
+   "k_refit_source_reproduced": 1.0,
+   "layer": 1,
+   "o_exact_rows": 1531,
+   "o_power": -1,
+   "o_refit_clipped_words": 0,
+   "o_refit_rows": 1541,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7,
+    "gate_base": [
+     -4,
+     -12
+    ],
+    "s_k": 7,
+    "sh_h": 15
+   },
+   "product_finer_bits": 0
+  },
+  {
+   "after": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 16,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 2,
+    "gate": 18,
+    "sh_ao": 8,
+    "sh_h": 16,
+    "sh_s": 8,
+    "sh_z": 6,
+    "silu_member": [
+     -1,
+     -9
+    ]
+   },
+   "g_exact_rows": 9216,
+   "g_power": 2,
+   "k_exact_rows": 529,
+   "k_power": -1,
+   "k_refit_clipped_words": 0,
+   "k_refit_rows": 495,
+   "k_refit_source_reproduced": 1.0,
+   "layer": 2,
+   "o_exact_rows": 1536,
+   "o_power": -1,
+   "o_refit_clipped_words": 0,
+   "o_refit_rows": 1536,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7,
+    "gate_base": [
+     -3,
+     -11
+    ],
+    "s_k": 7,
+    "sh_h": 16,
+    "sh_z": 8
+   },
+   "product_finer_bits": 2
+  },
+  {
+   "after": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "before": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 8,
+    "sh_h": 15,
+    "sh_s": 8,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "k_exact_rows": 476,
+   "k_power": -1,
+   "k_refit_clipped_words": 0,
+   "k_refit_rows": 548,
+   "k_refit_source_reproduced": 1.0,
+   "layer": 3,
+   "o_exact_rows": 1509,
+   "o_power": -1,
+   "o_refit_clipped_words": 0,
+   "o_refit_rows": 1563,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7,
+    "s_k": 7
+   }
+  },
+  {
+   "after": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "before": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 8,
+    "sh_h": 15,
+    "sh_s": 6,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "k_exact_rows": 1024,
+   "k_power": 1,
+   "layer": 4,
+   "o_exact_rows": 1478,
+   "o_power": -1,
+   "o_refit_clipped_words": 0,
+   "o_refit_rows": 1594,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7,
+    "s_k": 7
+   }
+  },
+  {
+   "after": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "before": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 8,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "layer": 5,
+   "o_exact_rows": 1537,
+   "o_power": -1,
+   "o_refit_clipped_words": 0,
+   "o_refit_rows": 1535,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7
+   }
+  },
+  {
+   "layer": 6,
+   "plan": {}
+  },
+  {
+   "after": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "before": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 8,
+    "sh_h": 15,
+    "sh_s": 6,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "k_exact_rows": 1024,
+   "k_power": 1,
+   "layer": 7,
+   "o_exact_rows": 1473,
+   "o_power": -1,
+   "o_refit_clipped_words": 0,
+   "o_refit_rows": 1599,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7,
+    "s_k": 7
+   }
+  },
+  {
+   "after": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "before": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 8,
+    "sh_h": 15,
+    "sh_s": 6,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "k_exact_rows": 1024,
+   "k_power": 1,
+   "layer": 8,
+   "o_exact_rows": 1526,
+   "o_power": -1,
+   "o_refit_clipped_words": 0,
+   "o_refit_rows": 1546,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7,
+    "s_k": 7
+   }
+  },
+  {
+   "layer": 9,
+   "plan": {}
+  },
+  {
+   "after": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 16,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "before": {
+    "exp_e_s": 1,
+    "gate": 19,
+    "sh_ao": 7,
+    "sh_h": 16,
+    "sh_s": 6,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "d_exact_rows": 1537,
+   "d_power": -1,
+   "d_refit_clipped_words": 0,
+   "d_refit_rows": 1535,
+   "d_refit_source_reproduced": 1.0,
+   "g_exact_rows": 9216,
+   "g_power": 1,
+   "k_exact_rows": 1024,
+   "k_power": 1,
+   "layer": 10,
+   "plan": {
+    "d_half": true,
+    "gate_base": [
+     -4,
+     -12
+    ],
+    "s_k": 7,
+    "sh_h": 16
+   },
+   "product_finer_bits": 1
+  },
+  {
+   "layer": 11,
+   "plan": {}
+  },
+  {
+   "after": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 14,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 14,
+    "sh_s": 6,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "layer": 12,
+   "plan": {
+    "s_paired": 7
+   },
+   "score_paired": {
+    "e_s": [
+     1,
+     2
+    ],
+    "equals_astra_l12_candidate": true
+   }
+  },
+  {
+   "layer": 13,
+   "plan": {}
+  },
+  {
+   "after": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 14,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "before": {
+    "exp_e_s": 2,
+    "gate": 19,
+    "sh_ao": 7,
+    "sh_h": 13,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "g_exact_rows": 9212,
+   "g_power": 1,
+   "g_refit_clipped_words": 9,
+   "g_refit_rows": 4,
+   "g_refit_source_reproduced": 1.0,
+   "layer": 14,
+   "plan": {
+    "gate_base": [
+     -4,
+     -12
+    ],
+    "sh_h": 14
+   },
+   "product_finer_bits": 0
+  },
+  {
+   "layer": 15,
+   "plan": {}
+  },
+  {
+   "after": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 14,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 1,
+    "gate": 20,
+    "sh_ao": 6,
+    "sh_h": 14,
+    "sh_s": 6,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "k_exact_rows": 1024,
+   "k_power": 1,
+   "layer": 16,
+   "o_exact_rows": 3067,
+   "o_power": 1,
+   "o_refit_clipped_words": 5,
+   "o_refit_rows": 5,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7,
+    "s_k": 7
+   }
+  },
+  {
+   "layer": 17,
+   "plan": {}
+  },
+  {
+   "after": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 2,
+    "gate": 20,
+    "sh_ao": 6,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "layer": 18,
+   "o_exact_rows": 3068,
+   "o_power": 1,
+   "o_refit_clipped_words": 3,
+   "o_refit_rows": 4,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7
+   }
+  },
+  {
+   "layer": 19,
+   "plan": {}
+  },
+  {
+   "after": {
+    "exp_e_s": 3,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 16,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 3,
+    "gate": 20,
+    "sh_ao": 6,
+    "sh_h": 16,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "layer": 20,
+   "o_exact_rows": 3042,
+   "o_power": 1,
+   "o_refit_clipped_words": 31,
+   "o_refit_rows": 30,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7
+   }
+  },
+  {
+   "layer": 21,
+   "plan": {}
+  },
+  {
+   "after": {
+    "exp_e_s": 4,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 4,
+    "gate": 20,
+    "sh_ao": 6,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "layer": 22,
+   "o_exact_rows": 3064,
+   "o_power": 1,
+   "o_refit_clipped_words": 8,
+   "o_refit_rows": 8,
+   "o_refit_source_reproduced": 1.0,
+   "plan": {
+    "ao": 7
+   }
+  },
+  {
+   "after": {
+    "exp_e_s": 4,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 16,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 4,
+    "gate": 19,
+    "sh_ao": 7,
+    "sh_h": 16,
+    "sh_s": 8,
+    "sh_z": 8,
+    "silu_member": [
+     -2,
+     -11
+    ]
+   },
+   "g_exact_rows": 9216,
+   "g_power": 1,
+   "k_exact_rows": 503,
+   "k_power": -1,
+   "k_refit_clipped_words": 0,
+   "k_refit_rows": 521,
+   "k_refit_source_reproduced": 1.0,
+   "layer": 23,
+   "plan": {
+    "gate_base": [
+     -3,
+     -11
+    ],
+    "s_k": 7,
+    "sh_h": 16
+   },
+   "product_finer_bits": 0
+  },
+  {
+   "after": {
+    "exp_e_s": 6,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 6,
+    "gate": 19,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 8,
+    "sh_z": 8,
+    "silu_member": [
+     -2,
+     -11
+    ]
+   },
+   "g_exact_rows": 9216,
+   "g_power": 1,
+   "k_exact_rows": 764,
+   "k_power": -1,
+   "k_refit_clipped_words": 0,
+   "k_refit_rows": 260,
+   "k_refit_source_reproduced": 1.0,
+   "layer": 24,
+   "plan": {
+    "gate_base": [
+     -3,
+     -11
+    ],
+    "s_k": 7,
+    "sh_h": 15
+   },
+   "product_finer_bits": 0
+  },
+  {
+   "after": {
+    "exp_e_s": 6,
+    "gate": 20,
+    "sh_ao": 7,
+    "sh_h": 14,
+    "sh_s": 7,
+    "sh_z": 8,
+    "silu_member": [
+     -2,
+     -11
+    ]
+   },
+   "before": {
+    "exp_e_s": 6,
+    "gate": 19,
+    "sh_ao": 7,
+    "sh_h": 15,
+    "sh_s": 8,
+    "sh_z": 5,
+    "silu_member": [
+     -1,
+     -9
+    ]
+   },
+   "g_exact_rows": 9216,
+   "g_power": 1,
+   "k_exact_rows": 447,
+   "k_power": -1,
+   "k_refit_clipped_words": 0,
+   "k_refit_rows": 577,
+   "k_refit_source_reproduced": 1.0,
+   "layer": 25,
+   "plan": {
+    "gate_base": [
+     -2,
+     -11
+    ],
+    "s_k": 7,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "product_finer_bits": 3
+  }
+ ],
+ "profile_sha256": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+ "seconds": 49.3,
+ "source_profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+ "uniform": {
+  "gate": 20,
+  "sh_ao": 7,
+  "sh_s": 7,
+  "sh_z": 8
+ },
+ "variant": "shieldstral-s2-uniform-cal-a29-low-h24-t128-dev1"
+}

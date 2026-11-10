@@ -1,0 +1,149 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_plan8.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean
+build ZK60Formal.BlockHostQkv
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/l44_qkv_axioms.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean (5 s)
+== lake build ZK60Formal.BlockHostQkv ==
+Build completed successfully (3560 jobs).
+build rc 0 (7 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/l44_qkv_axioms.lean ==
+'ZK60.Exec.Block.Join.W16.Qkv.formAt_qzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Qkv.formAt_kvzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Qkv.xcQzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Qkv.xcKvzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Qkv.qzc_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Qkv.kvzc_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Qkv.qmm_spSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Qkv.pv_spSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Qkv.kvmm_spSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+@ZK60.Exec.Block.Join.W16.Qkv.formAt_qzc : ∀ {K : Type} [inst : Field K] [inst_1 : Algebra ZK60.Circuit.GF K]
+  [inst_2 : Fintype K] [inst_3 : DecidableEq K] (U : K),
+  U ^ 2 = (algebraMap ZK60.Circuit.GF K) 7 →
+    ∀ (hcard : 78 < Fintype.card K) {L : ℕ} {S : ZK60.Block.BlockShape} (Pb : ZK60.Block.BlockPublic S)
+      (Lay :
+        ZK60.Layout.W16Layout S ZK60.Exec.Block.Join.W16.CtW ZK60.Exec.Block.Join.W16.CwW ZK60.Exec.Block.Join.W16.CgW
+          ZK60.Exec.Block.Join.W16.CjW ZK60.Exec.Block.Join.W16.CdW ZK60.Exec.Block.Join.W16.CfW)
+      (B : ZK60.Layout.W16Pub S Pb Lay) (P : ZK60.Exec.Block.BlockParams)
+      (hdr : P.draws = ZK60.Exec.Block.W16R2.rungDraws),
+      P.geom.slots = ZK60.Exec.Block.W16R2.rungSlots →
+        ∀ (ioIn ioOut : ℕ) (pubs : ZK60.Exec.Block.PubTabs),
+          P.define =
+              ZK60.Exec.Block.defineS (ZK60.Exec.Block.DefW16.progW16 ZK60.Exec.Block.DefW16.cfgRungW16 ioIn ioOut)
+                pubs →
+            ∀ (D : ZK60.Exec.Block.CmData K P),
+              (∀ (i : Fin (D.rows ZK60.Exec.Block.Cm.a))
+                  (t : Fin (2 ^ ZK60.Exec.Block.rowLog P ZK60.Exec.Block.Cm.a + D.Q ZK60.Exec.Block.Cm.a)),
+                  D.X ZK60.Exec.Block.Cm.a i t ∈ ZK60.Exec.Block.Join.baseR K) →
+                0 < ZK60.Exec.Block.rowLog P ZK60.Exec.Block.Cm.a →
+                  ZK60.Exec.Block.Join.W16.RungS S →
+                    ZK60.Exec.Block.Join.W16.LayW16 Lay →
+                      ZK60.Exec.Block.Join.W16.PubW16 U pubs Pb Lay B →
+                        ∀
+                          (dt :
+                            ZK60.Exec.Block.AlgData K L
+                              (ZK60.Exec.Block.algShapeW16Rung P hdr ZK60.Exec.Block.Join.W16.mpadW
+                                ZK60.Exec.Block.Join.W16.mpadW_hm0 ZK60.Exec.Block.Join.W16.mpadW_hm78))
+                          (cu : ZK60.Exec.Block.Cuts3 L) (rt : ZK60.Exec.Block.RootsO),
+                          (∀ (bga : ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2) (κ : Fin 4) (b : Fin 15 → Bool),
+                              dt.cl 15 cu rt bga κ b =
+                                if ↑κ < 1 then
+                                  (algebraMap ZK60.Circuit.GF K)
+                                    (ZK60.Exec.Block.relCl Pb Lay B (ZK60.Exec.Block.Join.W16.xtW U P D) 15 (↑κ)
+                                      (ZK60.Exec.Block.W16Pos.q (ZK60.Exec.Block.Join.W16.splitQ b)))
+                                else ZK60.Exec.Block.Join.W16.Qkv.xcQzc U P D Pb Lay B bga (↑κ) b) →
+                            (∀ (i : Fin 2) (b : Fin 15 → Bool),
+                                dt.gh 15 cu rt i b =
+                                  (algebraMap ZK60.Circuit.GF K)
+                                    (ZK60.Exec.Block.relGh Pb Lay B (ZK60.Exec.Block.Join.W16.xtW U P D) 15 (↑i)
+                                      (ZK60.Exec.Block.W16Pos.q (ZK60.Exec.Block.Join.W16.splitQ b)))) →
+                              (∀ (i : Fin 2) (b : Fin 15 → Bool),
+                                  dt.mm 15 cu rt i b =
+                                    (algebraMap ZK60.Circuit.GF K)
+                                      (ZK60.Exec.Block.relMm Pb Lay B (ZK60.Exec.Block.Join.W16.xtW U P D) 15 (↑i)
+                                        (ZK60.Exec.Block.W16Pos.q (ZK60.Exec.Block.Join.W16.splitQ b)))) →
+                                ∀ (bga : ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                  (rs : List ZK60.Exec.Block.SlotRec),
+                                  (∀ (j : ℕ) (r : ZK60.Exec.Block.SlotRec),
+                                      rs[j]? = some r →
+                                        ∃ df,
+                                          P.define j (ZK60.Exec.Block.histOf bga.1 bga.2.1 bga.2.2 (List.take j rs))
+                                                r.draws =
+                                              Except.ok df ∧
+                                            (P.kind j = ZK60.Exec.Block.SlotKind.host ↔ df.hosted ≠ [])) →
+                                    ZK60.Exec.Block.FormAt U P
+                                      (ZK60.Exec.Block.polyS U P D
+                                        (ZK60.Exec.Block.DefW16.progW16 ZK60.Exec.Block.DefW16.cfgRungW16 ioIn ioOut)
+                                        pubs)
+                                      (fun k h =>
+                                        (ZK60.Exec.Block.algSp U
+                                            (ZK60.Exec.Block.algShapeW16Rung P hdr ZK60.Exec.Block.Join.W16.mpadW
+                                              ZK60.Exec.Block.Join.W16.mpadW_hm0 ZK60.Exec.Block.Join.W16.mpadW_hm78)
+                                            dt hcard 0 cu rt k h).Φ)
+                                      bga rs 15
+@ZK60.Exec.Block.Join.W16.Qkv.formAt_kvzc : ∀ {K : Type} [inst : Field K] [inst_1 : Algebra ZK60.Circuit.GF K]
+  [inst_2 : Fintype K] [inst_3 : DecidableEq K] (U : K),
+  U ^ 2 = (algebraMap ZK60.Circuit.GF K) 7 →
+    ∀ (hcard : 78 < Fintype.card K) {L : ℕ} {S : ZK60.Block.BlockShape} (Pb : ZK60.Block.BlockPublic S)
+      (Lay :
+        ZK60.Layout.W16Layout S ZK60.Exec.Block.Join.W16.CtW ZK60.Exec.Block.Join.W16.CwW ZK60.Exec.Block.Join.W16.CgW
+          ZK60.Exec.Block.Join.W16.CjW ZK60.Exec.Block.Join.W16.CdW ZK60.Exec.Block.Join.W16.CfW)
+      (B : ZK60.Layout.W16Pub S Pb Lay) (P : ZK60.Exec.Block.BlockParams)
+      (hdr : P.draws = ZK60.Exec.Block.W16R2.rungDraws),
+      P.geom.slots = ZK60.Exec.Block.W16R2.rungSlots →
+        ∀ (ioIn ioOut : ℕ) (pubs : ZK60.Exec.Block.PubTabs),
+          P.define =
+              ZK60.Exec.Block.defineS (ZK60.Exec.Block.DefW16.progW16 ZK60.Exec.Block.DefW16.cfgRungW16 ioIn ioOut)
+                pubs →
+            ∀ (D : ZK60.Exec.Block.CmData K P),
+              (∀ (i : Fin (D.rows ZK60.Exec.Block.Cm.a))
+                  (t : Fin (2 ^ ZK60.Exec.Block.rowLog P ZK60.Exec.Block.Cm.a + D.Q ZK60.Exec.Block.Cm.a)),
+                  D.X ZK60.Exec.Block.Cm.a i t ∈ ZK60.Exec.Block.Join.baseR K) →
+                0 < ZK60.Exec.Block.rowLog P ZK60.Exec.Block.Cm.a →
+                  ZK60.Exec.Block.Join.W16.RungS S →
+                    ZK60.Exec.Block.Join.W16.LayW16 Lay →
+                      ZK60.Exec.Block.Join.W16.PubW16 U pubs Pb Lay B →
+                        ∀
+                          (dt :
+                            ZK60.Exec.Block.AlgData K L
+                              (ZK60.Exec.Block.algShapeW16Rung P hdr ZK60.Exec.Block.Join.W16.mpadW
+                                ZK60.Exec.Block.Join.W16.mpadW_hm0 ZK60.Exec.Block.Join.W16.mpadW_hm78))
+                          (cu : ZK60.Exec.Block.Cuts3 L) (rt : ZK60.Exec.Block.RootsO),
+                          (∀ (bga : ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2) (κ : Fin 4) (b : Fin 14 → Bool),
+                              dt.cl 16 cu rt bga κ b =
+                                if ↑κ < 1 then
+                                  (algebraMap ZK60.Circuit.GF K)
+                                    (ZK60.Exec.Block.relCl Pb Lay B (ZK60.Exec.Block.Join.W16.xtW U P D) 16 (↑κ)
+                                      (ZK60.Exec.Block.W16Pos.kv (ZK60.Exec.Block.Join.W16.splitK b)))
+                                else ZK60.Exec.Block.Join.W16.Qkv.xcKvzc U P D Pb Lay B bga (↑κ) b) →
+                            (∀ (i : Fin 2) (b : Fin 14 → Bool),
+                                dt.gh 16 cu rt i b =
+                                  (algebraMap ZK60.Circuit.GF K)
+                                    (ZK60.Exec.Block.relGh Pb Lay B (ZK60.Exec.Block.Join.W16.xtW U P D) 16 (↑i)
+                                      (ZK60.Exec.Block.W16Pos.kv (ZK60.Exec.Block.Join.W16.splitK b)))) →
+                              (∀ (i : Fin 2) (b : Fin 14 → Bool),
+                                  dt.mm 16 cu rt i b =
+                                    (algebraMap ZK60.Circuit.GF K)
+                                      (ZK60.Exec.Block.relMm Pb Lay B (ZK60.Exec.Block.Join.W16.xtW U P D) 16 (↑i)
+                                        (ZK60.Exec.Block.W16Pos.kv (ZK60.Exec.Block.Join.W16.splitK b)))) →
+                                ∀ (bga : ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                  (rs : List ZK60.Exec.Block.SlotRec),
+                                  (∀ (j : ℕ) (r : ZK60.Exec.Block.SlotRec),
+                                      rs[j]? = some r →
+                                        ∃ df,
+                                          P.define j (ZK60.Exec.Block.histOf bga.1 bga.2.1 bga.2.2 (List.take j rs))
+                                                r.draws =
+                                              Except.ok df ∧
+                                            (P.kind j = ZK60.Exec.Block.SlotKind.host ↔ df.hosted ≠ [])) →
+                                    ZK60.Exec.Block.FormAt U P
+                                      (ZK60.Exec.Block.polyS U P D
+                                        (ZK60.Exec.Block.DefW16.progW16 ZK60.Exec.Block.DefW16.cfgRungW16 ioIn ioOut)
+                                        pubs)
+                                      (fun k h =>
+                                        (ZK60.Exec.Block.algSp U
+                                            (ZK60.Exec.Block.algShapeW16Rung P hdr ZK60.Exec.Block.Join.W16.mpadW
+                                              ZK60.Exec.Block.Join.W16.mpadW_hm0 ZK60.Exec.Block.Join.W16.mpadW_hm78)
+                                            dt hcard 0 cu rt k h).Φ)
+                                      bga rs 16
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/l44_qkv_axioms.lean (21 s)
+rc 0, 21 s
