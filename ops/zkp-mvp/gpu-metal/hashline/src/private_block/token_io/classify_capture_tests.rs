@@ -864,3 +864,6 @@ mod gate19;
 
 // D63 Lean lane L51 (2026-11-10): the classify run header rebuilt on a real classifier receipt (test only; the file is in `src/`)
 #[cfg(test)] #[path = "../../lean_l51_export_tests.rs"] mod lean_l51_export_tests;
+
+// D63 Lean lane L56 (2026-11-10): where the classify run absorbs each block's two boundary roots, and which opening checks each boundary claim, on a real classifier receipt (test only; the file is in `src/`)
+#[cfg(test)] #[path = "../../lean_l56_export_tests.rs"] mod lean_l56_export_tests;
