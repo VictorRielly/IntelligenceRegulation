@@ -15,5 +15,8 @@ if pgrep ds4-bench >/dev/null; then echo "POLLUTED: ds4-bench running at start" 
 rc=$?
 pgrep ds4-bench >/dev/null && echo "POLLUTED: ds4-bench running at end" >> $R/app_$TAG.quiet
 echo "rc=$rc" >> $R/app_$TAG.quiet
+# the service ends after the driver's STOP (its guard writes service.guard.done): wait for it, then delete
+for i in $(seq 1 90); do [ -f /Users/victorrielly/zk60-owner-private/a28-app-$TAG/fast-service/service.guard.done ] && break; sleep 2; done
+tail -1 $WT/results/zk60_resource_guard/history.jsonl > $R/app_$TAG.service_guard.json 2>/dev/null
 rm -rf /Users/victorrielly/zk60-owner-private/a28-app-$TAG /Users/victorrielly/zk60-artifacts/a28-app-$TAG
 echo "$rc" > $R/app_$TAG.done

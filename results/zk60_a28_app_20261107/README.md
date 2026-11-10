@@ -264,7 +264,30 @@ tokens, 24 category proofs), 6 x 5 prover and 3 x 4 verifier lanes, 16 GiB witne
   machine was rebooted in between; on 2026-11-09/10 an aerial wallpaper was decoding video beside every run
   (WindowServer and the video decoder, about 0.2 core). Each comparison here is inside one job.
 
-### 3.6 PENDING: one post, proof only, through the app
+### 3.6 PENDING: one post and proof only (job final3)
+
+### 3.7 Through the app [MEASURED, `app_a1/summary.json`, `app_a1.out`; PENDING `app_b1`; single runs]
+
+The real app in process (`app_driver.py`), `PM_PROVER=shieldstral-fast` with the A28 pin (`80f2b704…`), A24's
+three phases on one warm service (one guarded gpu-class job: both servers, the writers). `app_a1` keeps A27's
+service settings (two writers at once, nine jobs in flight): the binary's effect alone. A27's own app run
+(`results/zk60_a27_app_20261107/app_a2`, 2026-11-07, before the reboot) beside it:
+
+| phase | posts | category proofs | A27 app (its README) | A28 binary, A27's service settings (`app_a1`) | A28 binary, three writers, twelve in flight (`app_b1`) |
+|---|---:|---:|---:|---:|---:|
+| one short public post | 1 | 3 | 47.8 s, 8.03 tok/s | 48.9 s, 7.84 tok/s | PENDING |
+| one long public post (3 chunks per category) | 1 | 9 | 127.0 s, 9.07 tok/s | 124.2 s, 9.27 tok/s | PENDING |
+| a stream: 8 short public posts at once | 8 | 24 | 187.9 s, 16.34 tok/s (second half 23.6) | 183.1 s, 16.78 tok/s (second half 25.6) | PENDING |
+
+- All 10 posts published (36 category jobs, 0 failed); every label "no", `bound_by_proof: true`; every record
+  `shieldstral-fast`, "privacy statement pending", `production: false`, run profile `/2`; each post's signed
+  manifest (3 or 9 entries). The service's heartbeat names the binary `80f2b704…`; its guarded peak was 93.5 GiB.
+- **Where a post's time goes in the app** (`app_a1`, the service's own step times): one post = the writer 5.9 s
+  (and 5.5 s of waiting for a writer slot for its third category), the proof 24.2 s, verification with the
+  input-owner check and the label 8.0 s, and about 4 s of the app's queue ticks, re-checks and publication. In
+  the long post the ninth category job waits 26.4 s for a writer slot and the label of a three-chunk category
+  verifies its three chunks again (21.9 s: A26's `HL_A26_VERIFY_ONCE`, off, is about this). In the stream the
+  jobs wait 4.6 s for a writer slot on average, 26.7 s at most.
 
 ## 4. Byte preservation
 
