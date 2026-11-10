@@ -19,8 +19,9 @@ label, log, done = sys.argv[1], sys.argv[2], sys.argv[3]
 cmd = sys.argv[4:]
 if os.path.exists(done):
     os.remove(done)
-cap = os.environ.get("L43_CAP_GIB", "24")
-need = os.environ.get("L43_NEED_GIB", str(min(14, int(cap))))
+full = label.endswith("-check")  # the full check rebuilds near the root: cap 36, need 24 (finding L42-8)
+cap = os.environ.get("L43_CAP_GIB", "36" if full else "24")
+need = os.environ.get("L43_NEED_GIB", "24" if full else str(min(14, int(cap))))
 guard = ["python3", "/Users/victorrielly/IntelligenceRegulation/scripts/zk60_resource_guard.py", "run",
          "--class", "cpu", "--need-gib", need, "--cap-gib", cap, "--wait-secs", "14400",
          "--label", label, "--log", log, "--done", done, "--"] + cmd

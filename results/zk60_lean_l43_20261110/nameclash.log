@@ -1,0 +1,5 @@
+declarations in {RunKindsData,RunHal,RunCoverPAlive,RunCoverPSomeL,RunCoverPRk}*.lean: 67
+declared twice inside the lane: none
+worktrees read: 41
+other Lean files read (with repeats across worktrees): 4265
+clashes: 0
