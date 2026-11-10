@@ -22,6 +22,10 @@ What it checks, with the Lean definitions only:
 * the code's slot kinds of slots 3, 19, 20 are `standalone`;
 * `protocol::logup_sum_claim` against `DefW16.logupSumW16 cfgRungW16`: every part's offset, log size, coefficient (as
   words) and point, and the value.
+**The R13 mode** (a corpus of the R13 rung `R13_RUNG_H24`, written by `lean_l47_export_the_r13_lookup_side` on L44's
+R13 receipt): the same checks at R13's lookup side, against `R13T.restR13 exp act nG` (BlockR13JoinTab.lean: `SC_TAB`'s
+three value columns and two gates, `SC_ZS`'s ones), the code's kinds of slots 19 and 20, and the table counts of slots
+19 and 20 against `DefR13.progR13 DefR13.cfgRungR13`; no sum claim (no Lean R13 sum claim is written).
 With the argument `neg` it then runs the negative controls: single changes, to the code's tables (an entry of one
 table per group: `SC_LZC`'s gate, the bytes, exp, ACT and a range column, two of `SC_TAB`'s gates, `SC_ZS`'s ones; a
 fingerprint; a head entry), to the public data (an exp value, an ACT word, the group count, `β`), to a slot kind, to a
@@ -29,6 +33,7 @@ slot's table count and to the sum claim (a part's offset, a part's coefficient, 
 imported by the library root (it defines `main`).
 -/
 import ZK60Formal.BlockTabBase
+import ZK60Formal.BlockR13JoinTab
 
 namespace ZK60.Exec.L47
 
@@ -183,6 +188,21 @@ def histC (c : Corp) : Hist := ⟨c.beta, c.gamma, c.alpha, []⟩
 /-- The lookup side's public tables, slot and index. -/
 def tabKeys : List (ℕ × ℕ) := [(3, 0)] ++ (List.range 27).map (fun i => (19, i)) ++ [(20, 0)]
 
+/-- **The R13 mode**: a corpus of the R13 rung (`R13_RUNG_H24`), compared with `R13T.restR13` and `progR13`. -/
+def isR13 (c : Corp) : Bool := c.name == "R13_RUNG_H24"
+
+/-- R13's lookup-side tables: `SC_TAB`'s three value columns and two gates, `SC_ZS`'s ones. -/
+def tabKeysR13 : List (ℕ × ℕ) := (List.range 5).map (fun i => (19, i)) ++ [(20, 0)]
+
+def keysOf (c : Corp) : List (ℕ × ℕ) := if isR13 c then tabKeysR13 else tabKeys
+
+/-- The lookup-side slots of the corpus's rung. -/
+def lkSlots (c : Corp) : List ℕ := if isR13 c then [19, 20] else [3, 19, 20]
+
+/-- The rung's slot program. -/
+def progOf (c : Corp) : List SlotS :=
+  if isR13 c then DefR13.progR13 DefR13.cfgRungR13 0 0 else progW16 cfgRungW16 0 0
+
 /-- **The Lean tables**: `restE` at the corpus's public data and challenges, with their two fingerprints. -/
 structure LTab where
   key : ℕ × ℕ
@@ -191,8 +211,9 @@ structure LTab where
   fp2 : Fp2
 
 def leanTabs (c : Corp) : List LTab :=
-  tabKeys.map fun k =>
-    let v := restE (expF c) (actF c) c.ng k.1 (histC c) [] k.2
+  (keysOf c).map fun k =>
+    let v := if isR13 c then ZK60.Exec.Block.Join.R13T.restR13 (expF c) (actF c) c.ng k.1 (histC c) [] k.2
+      else restE (expF c) (actF c) c.ng k.1 (histC c) [] k.2
     ⟨k, v.toArray, fprint v c.rho1, fprint v c.rho2⟩
 
 /-! ## The checks -/
@@ -221,7 +242,9 @@ def checkAll (c : Corp) (lt : List LTab) : St := Id.run do
   let mut st : St := {}
   st := st.check "parse" c.bad.isEmpty s!"unparsed lines: {c.bad}"
   -- the header
-  st := st.check "header" (c.nSlots == W16R2.rungSlots.length) s!"slots {c.nSlots}"
+  st := st.check "header"
+    (c.nSlots == (if isR13 c then ZK60.Exec.Block.R13.rungSlots.length else W16R2.rungSlots.length))
+    s!"slots {c.nSlots}"
   st := st.check "header" (c.logCols == cfgRungW16.logCols) s!"log_cols {c.logCols}"
   -- the public data
   st := st.check "data" (256 ≤ c.expLen ∧ c.exp.size = 256) s!"exp {c.expLen} {c.exp.size}"
@@ -229,26 +252,27 @@ def checkAll (c : Corp) (lt : List LTab) : St := Id.run do
   st := st.check "data" (c.act.all fun t => t.size = 4096) "every ACT table has 4096 words"
   -- the slot kinds (`hk3`, `hk19`, `hk20`)
   st := st.check "kinds" (c.kinds.size == c.nSlots) s!"kinds {c.kinds.size}"
-  for s in [3, 19, 20] do
+  for s in lkSlots c do
     st := st.check "kinds" (c.kinds.getD s "" == kindStr .standalone) s!"slot {s}: code {c.kinds.getD s ""}"
-  -- the LogUp sum claim (`hls`)
-  let lc := logupSumW16 cfgRungW16
-  st := st.check "sumclaim" (c.sumN == lc.parts.length ∧ c.parts.size == lc.parts.length)
-    s!"parts {c.sumN} / {c.parts.size} vs Lean {lc.parts.length}"
-  st := st.check "sumclaim" (c.sumVal == lc.value) s!"value {w2 c.sumVal} vs Lean {w2 lc.value}"
-  for (p, j) in lc.parts.zipIdx do
-    let q := c.parts.getD j (0, 0, Fp2.zero, [Fp2.zero])
-    st := st.check "sumclaim" (q.1 == p.offset ∧ q.2.1 == p.logSize ∧ q.2.2.1 == p.coef ∧ q.2.2.2 == p.point)
-      s!"part {j}: code {q.1}:{q.2.1}:{w2 q.2.2.1}:{w2s q.2.2.2} | Lean {p.offset}:{p.logSize}:{w2 p.coef}:{w2s p.point}"
+  -- the LogUp sum claim (`hls`; at W16R2 only: no Lean R13 sum claim is written)
+  if !isR13 c then
+    let lc := logupSumW16 cfgRungW16
+    st := st.check "sumclaim" (c.sumN == lc.parts.length ∧ c.parts.size == lc.parts.length)
+      s!"parts {c.sumN} / {c.parts.size} vs Lean {lc.parts.length}"
+    st := st.check "sumclaim" (c.sumVal == lc.value) s!"value {w2 c.sumVal} vs Lean {w2 lc.value}"
+    for (p, j) in lc.parts.zipIdx do
+      let q := c.parts.getD j (0, 0, Fp2.zero, [Fp2.zero])
+      st := st.check "sumclaim" (q.1 == p.offset ∧ q.2.1 == p.logSize ∧ q.2.2.1 == p.coef ∧ q.2.2.2 == p.point)
+        s!"part {j}: code {q.1}:{q.2.1}:{w2 q.2.2.1}:{w2s q.2.2.2} | Lean {p.offset}:{p.logSize}:{w2 p.coef}:{w2s p.point}"
   -- the slot programs' table counts
-  for s in [3, 19, 20] do
-    let sl := (progW16 cfgRungW16 0 0).getD s SlotS.empty
+  for s in lkSlots c do
+    let sl := (progOf c).getD s SlotS.empty
     let np := (sl.tabs.filter fun t => match t with | .pub _ => true | _ => false).length
     let code := (c.slots.find? fun q => q.1 == s).getD (0, 0, 0)
     st := st.check "slots" (code.2.1 == sl.tabs.length ∧ code.2.2 == np)
       s!"slot {s}: code {code.2.1} tables / {code.2.2} public, Lean {sl.tabs.length} / {np}"
   -- the public tables
-  st := st.check "tables" (c.pubs.size == tabKeys.length) s!"public tables {c.pubs.size} vs {tabKeys.length}"
+  st := st.check "tables" (c.pubs.size == (keysOf c).length) s!"public tables {c.pubs.size} vs {(keysOf c).length}"
   for t in lt do
     match c.pubs.find? (fun r => r.s == t.key.1 ∧ r.i == t.key.2) with
     | none => st := st.check "tables" false s!"slot {t.key.1} table {t.key.2}: not in the corpus"
@@ -268,7 +292,7 @@ def checkAll (c : Corp) (lt : List LTab) : St := Id.run do
       | some i =>
         st := st.check "entries" false
           s!"slot {t.key.1} table {t.key.2}: first difference at {i}: code {w2 (r.2.2.getD i Fp2.zero)}, Lean {w2 (t.vals.getD i Fp2.zero)}"
-  st := st.check "done" (c.done == some (tabKeys.length, tabKeys.length * 2 ^ 14)) s!"done {c.done}"
+  st := st.check "done" (c.done == some ((keysOf c).length, (keysOf c).length * 2 ^ 14)) s!"done {c.done}"
   return st
 
 /-! ## The negative controls -/
@@ -290,6 +314,24 @@ def muts (c : Corp) : List (String × Bool × Corp) :=
   let full := !c.full.isEmpty
   let tabMut (s i : ℕ) : Corp :=
     if full then setFull c s i 1000 else setPub c s i fun r => { r with fp1 := Fp2.add r.fp1 Fp2.one }
+  if isR13 c then
+  [("SC_TAB's bytes column, one entry", false, tabMut 19 0),
+   ("SC_TAB's exp column, one entry", false, tabMut 19 1),
+   ("SC_TAB's ACT column, one entry", false, tabMut 19 2),
+   ("SC_TAB's supp(Tab) gate, one entry", false, tabMut 19 3),
+   ("SC_TAB's ACT support, one entry", false, tabMut 19 4),
+   ("SC_ZS's ones, one entry", false, tabMut 20 0),
+   ("a fingerprint (rho2) of the exp column", false, setPub c 19 1 fun r => { r with fp2 := Fp2.add r.fp2 Fp2.one }),
+   ("a head entry of the ACT support", false, setPub c 19 4 bumpHead),
+   ("an exp value (exp[5] + 1)", true, { c with exp := c.exp.modify 5 (· + 1) }),
+   ("an ACT word (group 0, gate 7, + 1)", true, { c with act := c.act.modify 0 fun t => t.modify 7 (· + 1) }),
+   ("the group count (− 1)", true, { c with ng := c.ng - 1 }),
+   ("beta (+ 1)", true, { c with beta := Fp2.add c.beta Fp2.one }),
+   ("slot 19's kind (host)", false, { c with kinds := c.kinds.set! 19 "host" }),
+   ("slot 20's kind (private)", false, { c with kinds := c.kinds.set! 20 "private" }),
+   ("slot 19's table count", false,
+     { c with slots := c.slots.map fun q => if q.1 == 19 then (q.1, q.2.1 + 1, q.2.2) else q })]
+  else
   [("SC_LZC's gate, one entry", false, tabMut 3 0),
    ("SC_TAB's bytes column, one entry", false, tabMut 19 0),
    ("SC_TAB's exp column, one entry", false, tabMut 19 1),

@@ -287,8 +287,8 @@ test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_cod
 test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... ok
 test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
 test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... ok
-test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... ok
 test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... ok
+test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... ok
 test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... ok
 test private_block::s25_tests::r19_the_module_follower_fails_on_every_module_line_it_cannot_classify ... ok
 test private_block::s25_tests::r19b_the_module_follower_refuses_include_outside_test_code ... ok
@@ -301,5 +301,5 @@ test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement
 test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ... ok
 test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... ok
 
-test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1048 filtered out; finished in 22.93s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1049 filtered out; finished in 22.93s
 

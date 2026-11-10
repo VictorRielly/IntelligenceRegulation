@@ -1,0 +1,107 @@
+== source scan of the checker and the export for the forbidden words ==
+scan: none
+== corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13_short.txt ==
+6cab9c6a7b2235d78d9448d3b86156a259d632fdbce96349c3d686e58e0ede9f  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13_short.txt
+6cab9c6a7b2235d78d9448d3b86156a259d632fdbce96349c3d686e58e0ede9f  l47_r13_short.txt
+== lean --run BlockTabExportCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13_short.txt neg ==
+corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13_short.txt: R13_RUNG_H24, 6 public tables, 0 in full, 108 sum-claim parts
+checks: 43 passed, 0 failed
+  parse: 1
+  header: 2
+  data: 3
+  kinds: 3
+  slots: 2
+  tables: 1
+  length: 6
+  fingerprint: 12
+  ends: 12
+  done: 1
+negative control CAUGHT (1 failed): SC_TAB's bytes column, one entry
+negative control CAUGHT (1 failed): SC_TAB's exp column, one entry
+negative control CAUGHT (1 failed): SC_TAB's ACT column, one entry
+negative control CAUGHT (1 failed): SC_TAB's supp(Tab) gate, one entry
+negative control CAUGHT (1 failed): SC_TAB's ACT support, one entry
+negative control CAUGHT (1 failed): SC_ZS's ones, one entry
+negative control CAUGHT (1 failed): a fingerprint (rho2) of the exp column
+negative control CAUGHT (1 failed): a head entry of the ACT support
+negative control CAUGHT (3 failed): an exp value (exp[5] + 1)
+negative control CAUGHT (3 failed): an ACT word (group 0, gate 7, + 1)
+negative control CAUGHT (5 failed): the group count (− 1)
+negative control CAUGHT (6 failed): beta (+ 1)
+negative control CAUGHT (1 failed): slot 19's kind (host)
+negative control CAUGHT (1 failed): slot 20's kind (private)
+negative control CAUGHT (1 failed): slot 19's table count
+negative controls: 15 of 15 caught
+checker rc 0, 18 s
+== corpus /Users/victorrielly/zk60-artifacts/l47/l47_r13_full.txt ==
+3372a4e21357cf0e3a45ff652d240d2ed68927c7f799a30c971091fac2278455  /Users/victorrielly/zk60-artifacts/l47/l47_r13_full.txt
+3372a4e21357cf0e3a45ff652d240d2ed68927c7f799a30c971091fac2278455  l47_r13_full.txt
+== lean --run BlockTabExportCheck.lean /Users/victorrielly/zk60-artifacts/l47/l47_r13_full.txt neg ==
+corpus /Users/victorrielly/zk60-artifacts/l47/l47_r13_full.txt: R13_RUNG_H24, 6 public tables, 6 in full, 108 sum-claim parts
+checks: 49 passed, 0 failed
+  parse: 1
+  header: 2
+  data: 3
+  kinds: 3
+  slots: 2
+  tables: 1
+  length: 6
+  fingerprint: 12
+  ends: 12
+  entries: 6
+  done: 1
+negative control CAUGHT (1 failed): SC_TAB's bytes column, one entry
+negative control CAUGHT (1 failed): SC_TAB's exp column, one entry
+negative control CAUGHT (1 failed): SC_TAB's ACT column, one entry
+negative control CAUGHT (1 failed): SC_TAB's supp(Tab) gate, one entry
+negative control CAUGHT (1 failed): SC_TAB's ACT support, one entry
+negative control CAUGHT (1 failed): SC_ZS's ones, one entry
+negative control CAUGHT (1 failed): a fingerprint (rho2) of the exp column
+negative control CAUGHT (1 failed): a head entry of the ACT support
+negative control CAUGHT (4 failed): an exp value (exp[5] + 1)
+negative control CAUGHT (4 failed): an ACT word (group 0, gate 7, + 1)
+negative control CAUGHT (7 failed): the group count (− 1)
+negative control CAUGHT (8 failed): beta (+ 1)
+negative control CAUGHT (1 failed): slot 19's kind (host)
+negative control CAUGHT (1 failed): slot 20's kind (private)
+negative control CAUGHT (1 failed): slot 19's table count
+negative controls: 15 of 15 caught
+checker rc 0, 36 s
+== corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_w16r2_short.txt ==
+d182c53b7988c925642d6fd9a89e94d1830e2ae5d5258eec7a79fa7b2c6b04c5  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_w16r2_short.txt
+d182c53b7988c925642d6fd9a89e94d1830e2ae5d5258eec7a79fa7b2c6b04c5  l47_w16r2_short.txt
+== lean --run BlockTabExportCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_w16r2_short.txt neg ==
+corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_w16r2_short.txt: W16R2_RUNG_H24, 29 public tables, 0 in full, 92 sum-claim parts
+checks: 254 passed, 0 failed
+  parse: 1
+  header: 2
+  data: 3
+  kinds: 4
+  sumclaim: 94
+  slots: 3
+  tables: 1
+  length: 29
+  fingerprint: 58
+  ends: 58
+  done: 1
+negative control CAUGHT (1 failed): SC_LZC's gate, one entry
+negative control CAUGHT (1 failed): SC_TAB's bytes column, one entry
+negative control CAUGHT (1 failed): SC_TAB's exp column, one entry
+negative control CAUGHT (1 failed): SC_TAB's ACT column, one entry
+negative control CAUGHT (1 failed): SC_TAB's range column 5, one entry
+negative control CAUGHT (1 failed): SC_TAB's supp(Tab) gate, one entry
+negative control CAUGHT (1 failed): SC_TAB's narrow gate 2, one entry
+negative control CAUGHT (1 failed): SC_ZS's ones, one entry
+negative control CAUGHT (1 failed): a fingerprint (rho2) of the range column 9
+negative control CAUGHT (1 failed): a head entry of the ACT gate
+negative control CAUGHT (3 failed): an exp value (exp[5] + 1)
+negative control CAUGHT (3 failed): an ACT word (group 0, gate 7, + 1)
+negative control CAUGHT (5 failed): the group count (− 1)
+negative control CAUGHT (6 failed): beta (+ 1)
+negative control CAUGHT (1 failed): slot 19's kind (host)
+negative control CAUGHT (1 failed): slot 3's table count
+negative control CAUGHT (1 failed): a sum-claim part's offset (part 7)
+negative control CAUGHT (1 failed): a sum-claim part's coefficient (part 60)
+negative control CAUGHT (1 failed): the sum claim's value
+negative controls: 19 of 19 caught
+checker rc 0, 118 s

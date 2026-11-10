@@ -85,7 +85,7 @@ const LOOKUP_SLOTS: [usize; 3] = [3, 19, 20];
 const ENDS: usize = 64;
 
 /// one block receipt's record: (the full record, the record without the full tables)
-fn export(profile: &str) -> (String, String) {
+fn export(profile: &str, lookup: &[usize]) -> (String, String) {
     let (sh, blk, w) = rung_case(profile);
     let core = prove(&sh, &blk, copy(&w)).expect("the honest rung core");
     verify(&sh, &blk, &core).expect("the honest rung core verifies (production verify_core)");
@@ -136,7 +136,7 @@ fn export(profile: &str) -> (String, String) {
     let (mut n_tabs, mut n_entries) = (0usize, 0usize);
     for s in 0..sh.n_slots() {
         let def = define(s, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("slot {s}: {e}"));
-        if LOOKUP_SLOTS.contains(&s) {
+        if lookup.contains(&s) {
             let pubs: Vec<&Vec<Fp2>> = def.tabs.iter().filter_map(|t| if let Tab::Pub(v) = t { Some(v) } else { None }).collect();
             out.both(format!("SLOT {s} {} {}", def.tabs.len(), pubs.len()));
             for (i, v) in pubs.iter().enumerate() {
@@ -291,8 +291,20 @@ fn lean_l47_export_the_host_tables() {
 }
 
 #[test]
+fn lean_l47_export_the_r13_lookup_side() {
+    // R13's lookup side: SC_TAB (19; three value columns and two gates, no range sub-plane) and SC_ZS (20)
+    let (full, short) = export(shape::R13_RUNG_H24, &[19, 20]);
+    if let Ok(path) = std::env::var("LEAN_L47_R13_CORPUS") {
+        std::fs::write(path, full.as_bytes()).unwrap();
+    }
+    if let Ok(path) = std::env::var("LEAN_L47_R13_CORPUS_SHORT") {
+        std::fs::write(path, short.as_bytes()).unwrap();
+    }
+}
+
+#[test]
 fn lean_l47_export_the_lookup_side() {
-    let (full, short) = export(shape::W16R2_RUNG_H24);
+    let (full, short) = export(shape::W16R2_RUNG_H24, &LOOKUP_SLOTS);
     if let Ok(path) = std::env::var("LEAN_L47_CORPUS") {
         std::fs::write(path, full.as_bytes()).unwrap();
     }

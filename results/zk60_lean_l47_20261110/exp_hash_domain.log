@@ -286,15 +286,15 @@ test private_block::hash_domain::tests::the_shape_free_dangerous_row_counts_are_
 test private_block::hash_domain::tests::the_runs_own_parameter_line_enters_the_length_set ... ok
 test private_block::hash_domain::tests::the_completed_guard_refuses_geometries_the_constructions_can_actually_reach ... ok
 test private_block::hash_domain::tests::the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors ... ok
-test private_block::hash_domain::tests::the_computed_length_set_is_pinned_at_every_shape ... ok
 test private_block::hash_domain::tests::the_constructors_guard_refuses_every_shape_free_dangerous_count ... ok
 test private_block::hash_domain::tests::the_constructors_guard_is_unchanged_under_the_legacy_rule ... ok
+test private_block::hash_domain::tests::the_computed_length_set_is_pinned_at_every_shape ... ok
 test private_block::hash_domain::tests::every_dangerous_row_count_is_refused_by_name_at_every_shape ... ok
 test private_block::hash_domain::tests::no_commitment_of_any_shape_collides_and_the_toy_is_clear ... ok
 test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
-test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_core_verifier_by_name ... ok
 test private_block::hash_domain::tests::a_frame_one_path_entry_short_is_refused_at_decode ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_core_verifier_by_name ... ok
 test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_whole_verifier_by_name ... ok
 
-test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1053 filtered out; finished in 0.11s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1054 filtered out; finished in 0.10s
 
