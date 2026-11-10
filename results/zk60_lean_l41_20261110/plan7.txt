@@ -1,0 +1,5 @@
+build ZK60Formal.BlockJoinW16
+build ZK60Formal.BlockJoinTzc
+build ZK60Formal.BlockJoinTzcForm
+build ZK60Formal.BlockJoinDt
+build ZK60Formal.BlockJoinFinal

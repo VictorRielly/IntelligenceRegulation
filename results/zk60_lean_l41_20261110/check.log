@@ -1,0 +1,61 @@
+== lake build of the L41 modules, one at a time ==
+lake build ZK60Formal.BlockJoinGF rc 0
+lake build ZK60Formal.BlockJoinCube rc 0
+lake build ZK60Formal.BlockJoinHost rc 0
+lake build ZK60Formal.BlockJoinVals rc 0
+lake build ZK60Formal.BlockJoinW16 rc 0
+lake build ZK60Formal.BlockJoinTzc rc 0
+lake build ZK60Formal.BlockJoinTzcForm rc 0
+lake build ZK60Formal.BlockJoinDt rc 0
+lake build ZK60Formal.BlockJoinFinal rc 0
+lake build ZK60Formal.BlockJoinBatch rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3661/3662] Built ZK60Formal (2.1s)
+Build completed successfully (3662 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L41 modules' own builds: 0
+== axiom audit ==
+175 declarations: 8 abbrev, 44 def, 1 structure, 122 theorem
+axioms rc 0
+declarations audited: 175 (generated: 175)
+no axiom at all: 36
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  96 axioms: [propext, Classical.choice, Quot.sound]
+  26 axioms: [propext, Quot.sound]
+  17 axioms: [propext]
+== source scan of the L41 library files ==
+none
+== the library root imports the L41 files ==
+imported: BlockJoinGF
+imported: BlockJoinCube
+imported: BlockJoinHost
+imported: BlockJoinVals
+imported: BlockJoinW16
+imported: BlockJoinTzc
+imported: BlockJoinTzcForm
+imported: BlockJoinDt
+imported: BlockJoinFinal
+imported: BlockJoinBatch
+== unchanged: Statements.lean and every existing Lean file, against the lane's base 347cc00d ==
+Statements.lean unchanged
+existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
+lines removed from the root's imports: 0
+files changed under ops/ (no Rust in this lane): 0
+== name clashes with the other worktrees' Lean files ==
+clashes: 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+verdicts: L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 51 s
