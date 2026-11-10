@@ -1,0 +1,709 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/qkv_plan7.txt ==
+build ZK60Formal.BlockR13HostQkvForm
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/qkv_axioms.lean
+== lake build ZK60Formal.BlockR13HostQkvForm ==
+✖ [3582/3582] Building ZK60Formal.BlockR13HostQkvForm (12s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvForm.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvForm.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvForm.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvForm.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvForm.setup.json --json
+error: ZK60Formal/BlockR13HostQkvForm.lean:210:10: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  dite ?m.2277 ?m.2281 ?m.2282
+in the target expression
+  (fun v =>
+        if h : segOff ((algShapeR c P hc).dl 15) Seg.nu + ↑v < segSum ((algShapeR c P hc).dl 15) then
+          (fun j => Fp2.toK U (r.draws.getD (↑(Fin.cast ⋯ j)) Fp2.zero))
+            ⟨segOff ((algShapeR c P hc).dl 15) Seg.nu + ↑v, h⟩
+        else 0)
+      0 =
+    Fp2.toK U (Sym.eval hist 15 r.draws (Sym.dr 15 11))
+
+case refine_2.refine_1
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+_hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+P : BlockParams
+hc : ShOkR c.sh P
+hpf : ProfR c.sh P
+hcfg : QkvCfg c ls
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (DefR13.progR13 c ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hrlH : 0 < rowLog P Cm.h
+hS : PrecR c S
+_hW : R13.R13Windows S ls
+hLay : LayR Lay
+hpub : PubR U c pubs Pb Lay B
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2)
+    (κ : Fin (segLn ((algShapeR c P hc).dl 15) Seg.mu - segLn ((algShapeR c P hc).dl 15) Seg.zeta))
+    (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.cl 15 cu rt bga κ b =
+      if ↑κ < r13Count 15 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 15 (clIx 15 ↑κ) (encR G 15 b))
+      else xcQzcR U c P D bga (↑κ) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.gh 15 cu rt i b = (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+hmm :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.mm 15 cu rt i b = (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hoMu : segOff ((algShapeR c P hc).dl 15) Seg.mu = 0
+hoNu : segOff ((algShapeR c P hc).dl 15) Seg.nu = 11
+hoTau : segOff ((algShapeR c P hc).dl 15) Seg.tau = 13
+hzeta : segLn ((algShapeR c P hc).dl 15) Seg.zeta = 0
+hlnMu : segLn ((algShapeR c P hc).dl 15) Seg.mu = 11
+hsum : segSum ((algShapeR c P hc).dl 15) = 13 + c.sh.logs Slot.W16R2.Dom.Q
+hQ : c.sh.logs Slot.W16R2.Dom.Q = c.sh.lt + (c.sh.lkv + (c.sh.lh - c.sh.lkv) + c.sh.ldh)
+hlq : c.sh.lq = c.sh.lkv + (c.sh.lh - c.sh.lkv) + c.sh.ldh
+hle : c.sh.lkv ≤ c.sh.lh
+hs15 : (slotShape P 15).1 = c.sh.logs Slot.W16R2.Dom.Q
+ak hk' : ℕ
+hslot :
+  (DefR13.progR13 c ioIn ioOut).getD 15 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (DefR13.rawSlot c 15)
+hprog15 :
+  (DefR13.progR13 c ioIn ioOut).getD 15 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (rawQ c)
+hp5 : ((DefR13.progR13 c ioIn ioOut).getD 5 SlotS.empty).hosted = []
+hp9 : ((DefR13.progR13 c ioIn ioOut).getD 9 SlotS.empty).hosted = []
+r : SlotRec
+hr : rs[15]? = some r
+hlen : 15 < rs.length
+r5 : SlotRec
+hr5 : rs[5]? = some r5
+r9 : SlotRec
+hr9 : rs[9]? = some r9
+hcan : ∀ (j : ℕ) (rj : SlotRec), rs[j]? = some rj → ∀ x ∈ rj.draws, x.Canon
+hsp5 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 5 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 0 (W16Pos.q (splitQ c (castB ⋯ b))))) fun t =>
+      Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+hsp9 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 9 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 1 (W16Pos.q (splitQ c (castB ⋯ b))))) fun t =>
+      Fp2.toK U (r9.draws.getD (ipStd c.sh.lt c.sh.lh 15 1 ↑t) Fp2.zero)
+hist : Hist := histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)
+hsp15 :
+  cubeSum (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs 15 (seenOf bga rs 15)) =
+    ∑ t,
+      hostPoly
+        (fun a =>
+          Fp2.toK U ((List.map (Sym.eval hist 15 r.draws) (drs 15 13 (c.sh.logs Slot.W16R2.Dom.Q))).getD (↑a) Fp2.zero))
+        (fun t =>
+          ∑ κ,
+            (List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 0 11))).getD (↑κ) 0 *
+              if ↑κ < 4 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 15 (↑κ) (encR G 15 t))
+              else xcQzcR U c P D (hist.beta, hist.gamma, hist.alpha) (↑κ) t)
+        ![(List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 11 2))).getD 0 0,
+          (List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 11 2))).getD 1 0]
+        ![fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 15 r.draws) (drs 5 0 c.sh.lt ++ drs 5 c.sh.lt c.sh.lq)).getD (↑a) Fp2.zero),
+          fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 15 r.draws)
+                  (drs 9 c.sh.lh c.sh.lt ++ drs 9 0 c.sh.lh ++ drs 9 (c.sh.lh + c.sh.lt) c.sh.ldh)).getD
+              (↑a) Fp2.zero)]
+        (fun x => 1) (fun i t => (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 t))) t
+hhist : hist = histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)
+hM :
+  ∀ (i : Fin 2),
+    algM (algShapeR c P hc) dt 15 cu rt i = fun b =>
+      (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+hp0 : algPt U (algShapeR c P hc) 15 hist 0 = fun t => Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+hp1 : algPt U (algShapeR c P hc) 15 hist 1 = fun t => Fp2.toK U (r9.draws.getD (ipStd c.sh.lt c.sh.lh 15 1 ↑t) Fp2.zero)
+⊢ (fun v =>
+        if h : segOff ((algShapeR c P hc).dl 15) Seg.nu + ↑v < segSum ((algShapeR c P hc).dl 15) then
+          (fun j => Fp2.toK U (r.draws.getD (↑(Fin.cast ⋯ j)) Fp2.zero))
+            ⟨segOff ((algShapeR c P hc).dl 15) Seg.nu + ↑v, h⟩
+        else 0)
+      0 =
+    Fp2.toK U (Sym.eval hist 15 r.draws (Sym.dr 15 11))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    Eq.refl true
+  has type
+    @Eq Bool true true
+  but is expected to have type
+    @Eq Bool (decide (15 ∈ algHosts)) true
+  in the application
+    id (Eq.refl true)
+error: ZK60Formal/BlockR13HostQkvForm.lean:215:10: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  dite ?m.2284 ?m.2288 ?m.2289
+in the target expression
+  (fun v =>
+        if h : segOff ((algShapeR c P hc).dl 15) Seg.nu + ↑v < segSum ((algShapeR c P hc).dl 15) then
+          (fun j => Fp2.toK U (r.draws.getD (↑(Fin.cast ⋯ j)) Fp2.zero))
+            ⟨segOff ((algShapeR c P hc).dl 15) Seg.nu + ↑v, h⟩
+        else 0)
+      1 =
+    Fp2.toK U (Sym.eval hist 15 r.draws (Sym.dr 15 12))
+
+case refine_2.refine_2
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+_hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+P : BlockParams
+hc : ShOkR c.sh P
+hpf : ProfR c.sh P
+hcfg : QkvCfg c ls
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (DefR13.progR13 c ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hrlH : 0 < rowLog P Cm.h
+hS : PrecR c S
+_hW : R13.R13Windows S ls
+hLay : LayR Lay
+hpub : PubR U c pubs Pb Lay B
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2)
+    (κ : Fin (segLn ((algShapeR c P hc).dl 15) Seg.mu - segLn ((algShapeR c P hc).dl 15) Seg.zeta))
+    (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.cl 15 cu rt bga κ b =
+      if ↑κ < r13Count 15 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 15 (clIx 15 ↑κ) (encR G 15 b))
+      else xcQzcR U c P D bga (↑κ) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.gh 15 cu rt i b = (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+hmm :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.mm 15 cu rt i b = (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hoMu : segOff ((algShapeR c P hc).dl 15) Seg.mu = 0
+hoNu : segOff ((algShapeR c P hc).dl 15) Seg.nu = 11
+hoTau : segOff ((algShapeR c P hc).dl 15) Seg.tau = 13
+hzeta : segLn ((algShapeR c P hc).dl 15) Seg.zeta = 0
+hlnMu : segLn ((algShapeR c P hc).dl 15) Seg.mu = 11
+hsum : segSum ((algShapeR c P hc).dl 15) = 13 + c.sh.logs Slot.W16R2.Dom.Q
+hQ : c.sh.logs Slot.W16R2.Dom.Q = c.sh.lt + (c.sh.lkv + (c.sh.lh - c.sh.lkv) + c.sh.ldh)
+hlq : c.sh.lq = c.sh.lkv + (c.sh.lh - c.sh.lkv) + c.sh.ldh
+hle : c.sh.lkv ≤ c.sh.lh
+hs15 : (slotShape P 15).1 = c.sh.logs Slot.W16R2.Dom.Q
+ak hk' : ℕ
+hslot :
+  (DefR13.progR13 c ioIn ioOut).getD 15 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (DefR13.rawSlot c 15)
+hprog15 :
+  (DefR13.progR13 c ioIn ioOut).getD 15 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (rawQ c)
+hp5 : ((DefR13.progR13 c ioIn ioOut).getD 5 SlotS.empty).hosted = []
+hp9 : ((DefR13.progR13 c ioIn ioOut).getD 9 SlotS.empty).hosted = []
+r : SlotRec
+hr : rs[15]? = some r
+hlen : 15 < rs.length
+r5 : SlotRec
+hr5 : rs[5]? = some r5
+r9 : SlotRec
+hr9 : rs[9]? = some r9
+hcan : ∀ (j : ℕ) (rj : SlotRec), rs[j]? = some rj → ∀ x ∈ rj.draws, x.Canon
+hsp5 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 5 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 0 (W16Pos.q (splitQ c (castB ⋯ b))))) fun t =>
+      Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+hsp9 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 9 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 1 (W16Pos.q (splitQ c (castB ⋯ b))))) fun t =>
+      Fp2.toK U (r9.draws.getD (ipStd c.sh.lt c.sh.lh 15 1 ↑t) Fp2.zero)
+hist : Hist := histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)
+hsp15 :
+  cubeSum (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs 15 (seenOf bga rs 15)) =
+    ∑ t,
+      hostPoly
+        (fun a =>
+          Fp2.toK U ((List.map (Sym.eval hist 15 r.draws) (drs 15 13 (c.sh.logs Slot.W16R2.Dom.Q))).getD (↑a) Fp2.zero))
+        (fun t =>
+          ∑ κ,
+            (List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 0 11))).getD (↑κ) 0 *
+              if ↑κ < 4 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 15 (↑κ) (encR G 15 t))
+              else xcQzcR U c P D (hist.beta, hist.gamma, hist.alpha) (↑κ) t)
+        ![(List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 11 2))).getD 0 0,
+          (List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 11 2))).getD 1 0]
+        ![fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 15 r.draws) (drs 5 0 c.sh.lt ++ drs 5 c.sh.lt c.sh.lq)).getD (↑a) Fp2.zero),
+          fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 15 r.draws)
+                  (drs 9 c.sh.lh c.sh.lt ++ drs 9 0 c.sh.lh ++ drs 9 (c.sh.lh + c.sh.lt) c.sh.ldh)).getD
+              (↑a) Fp2.zero)]
+        (fun x => 1) (fun i t => (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 t))) t
+hhist : hist = histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)
+hM :
+  ∀ (i : Fin 2),
+    algM (algShapeR c P hc) dt 15 cu rt i = fun b =>
+      (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+hp0 : algPt U (algShapeR c P hc) 15 hist 0 = fun t => Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+hp1 : algPt U (algShapeR c P hc) 15 hist 1 = fun t => Fp2.toK U (r9.draws.getD (ipStd c.sh.lt c.sh.lh 15 1 ↑t) Fp2.zero)
+⊢ (fun v =>
+        if h : segOff ((algShapeR c P hc).dl 15) Seg.nu + ↑v < segSum ((algShapeR c P hc).dl 15) then
+          (fun j => Fp2.toK U (r.draws.getD (↑(Fin.cast ⋯ j)) Fp2.zero))
+            ⟨segOff ((algShapeR c P hc).dl 15) Seg.nu + ↑v, h⟩
+        else 0)
+      1 =
+    Fp2.toK U (Sym.eval hist 15 r.draws (Sym.dr 15 12))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    Eq.refl true
+  has type
+    @Eq Bool true true
+  but is expected to have type
+    @Eq Bool (decide (15 ∈ algHosts)) true
+  in the application
+    id (Eq.refl true)
+error: ZK60Formal/BlockR13HostQkvForm.lean:210:31: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  segOff ((algShapeR c P hc).dl 15) Seg.nu
+in the target expression
+  ?m.2277
+
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+_hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+P : BlockParams
+hc : ShOkR c.sh P
+hpf : ProfR c.sh P
+hcfg : QkvCfg c ls
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (DefR13.progR13 c ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hrlH : 0 < rowLog P Cm.h
+hS : PrecR c S
+_hW : R13.R13Windows S ls
+hLay : LayR Lay
+hpub : PubR U c pubs Pb Lay B
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2)
+    (κ : Fin (segLn ((algShapeR c P hc).dl 15) Seg.mu - segLn ((algShapeR c P hc).dl 15) Seg.zeta))
+    (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.cl 15 cu rt bga κ b =
+      if ↑κ < r13Count 15 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 15 (clIx 15 ↑κ) (encR G 15 b))
+      else xcQzcR U c P D bga (↑κ) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.gh 15 cu rt i b = (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+hmm :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.mm 15 cu rt i b = (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hoMu : segOff ((algShapeR c P hc).dl 15) Seg.mu = 0
+hoNu : segOff ((algShapeR c P hc).dl 15) Seg.nu = 11
+hoTau : segOff ((algShapeR c P hc).dl 15) Seg.tau = 13
+hzeta : segLn ((algShapeR c P hc).dl 15) Seg.zeta = 0
+hlnMu : segLn ((algShapeR c P hc).dl 15) Seg.mu = 11
+hsum : segSum ((algShapeR c P hc).dl 15) = 13 + c.sh.logs Slot.W16R2.Dom.Q
+hQ : c.sh.logs Slot.W16R2.Dom.Q = c.sh.lt + (c.sh.lkv + (c.sh.lh - c.sh.lkv) + c.sh.ldh)
+hlq : c.sh.lq = c.sh.lkv + (c.sh.lh - c.sh.lkv) + c.sh.ldh
+hle : c.sh.lkv ≤ c.sh.lh
+hs15 : (slotShape P 15).1 = c.sh.logs Slot.W16R2.Dom.Q
+ak hk' : ℕ
+hslot :
+  (DefR13.progR13 c ioIn ioOut).getD 15 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (DefR13.rawSlot c 15)
+hprog15 :
+  (DefR13.progR13 c ioIn ioOut).getD 15 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (rawQ c)
+hp5 : ((DefR13.progR13 c ioIn ioOut).getD 5 SlotS.empty).hosted = []
+hp9 : ((DefR13.progR13 c ioIn ioOut).getD 9 SlotS.empty).hosted = []
+r : SlotRec
+hr : rs[15]? = some r
+hlen : 15 < rs.length
+r5 : SlotRec
+hr5 : rs[5]? = some r5
+r9 : SlotRec
+hr9 : rs[9]? = some r9
+hcan : ∀ (j : ℕ) (rj : SlotRec), rs[j]? = some rj → ∀ x ∈ rj.draws, x.Canon
+hsp5 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 5 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 0 (W16Pos.q (splitQ c (castB ⋯ b))))) fun t =>
+      Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+hsp9 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 9 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 1 (W16Pos.q (splitQ c (castB ⋯ b))))) fun t =>
+      Fp2.toK U (r9.draws.getD (ipStd c.sh.lt c.sh.lh 15 1 ↑t) Fp2.zero)
+hist : Hist := histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)
+hsp15 :
+  cubeSum (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs 15 (seenOf bga rs 15)) =
+    ∑ t,
+      hostPoly
+        (fun a =>
+          Fp2.toK U ((List.map (Sym.eval hist 15 r.draws) (drs 15 13 (c.sh.logs Slot.W16R2.Dom.Q))).getD (↑a) Fp2.zero))
+        (fun t =>
+          ∑ κ,
+            (List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 0 11))).getD (↑κ) 0 *
+              if ↑κ < 4 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 15 (↑κ) (encR G 15 t))
+              else xcQzcR U c P D (hist.beta, hist.gamma, hist.alpha) (↑κ) t)
+        ![(List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 11 2))).getD 0 0,
+          (List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 11 2))).getD 1 0]
+        ![fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 15 r.draws) (drs 5 0 c.sh.lt ++ drs 5 c.sh.lt c.sh.lq)).getD (↑a) Fp2.zero),
+          fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 15 r.draws)
+                  (drs 9 c.sh.lh c.sh.lt ++ drs 9 0 c.sh.lh ++ drs 9 (c.sh.lh + c.sh.lt) c.sh.ldh)).getD
+              (↑a) Fp2.zero)]
+        (fun x => 1) (fun i t => (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 t))) t
+hhist : hist = histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)
+hM :
+  ∀ (i : Fin 2),
+    algM (algShapeR c P hc) dt 15 cu rt i = fun b =>
+      (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+hp0 : algPt U (algShapeR c P hc) 15 hist 0 = fun t => Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+hp1 : algPt U (algShapeR c P hc) 15 hist 1 = fun t => Fp2.toK U (r9.draws.getD (ipStd c.sh.lt c.sh.lh 15 1 ↑t) Fp2.zero)
+⊢ ?m.2277
+error: ZK60Formal/BlockR13HostQkvForm.lean:215:31: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  segOff ((algShapeR c P hc).dl 15) Seg.nu
+in the target expression
+  ?m.2284
+
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+_hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+P : BlockParams
+hc : ShOkR c.sh P
+hpf : ProfR c.sh P
+hcfg : QkvCfg c ls
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (DefR13.progR13 c ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hrlH : 0 < rowLog P Cm.h
+hS : PrecR c S
+_hW : R13.R13Windows S ls
+hLay : LayR Lay
+hpub : PubR U c pubs Pb Lay B
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2)
+    (κ : Fin (segLn ((algShapeR c P hc).dl 15) Seg.mu - segLn ((algShapeR c P hc).dl 15) Seg.zeta))
+    (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.cl 15 cu rt bga κ b =
+      if ↑κ < r13Count 15 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 15 (clIx 15 ↑κ) (encR G 15 b))
+      else xcQzcR U c P D bga (↑κ) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.gh 15 cu rt i b = (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+hmm :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 15) Seg.tau) → Bool),
+    dt.mm 15 cu rt i b = (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hoMu : segOff ((algShapeR c P hc).dl 15) Seg.mu = 0
+hoNu : segOff ((algShapeR c P hc).dl 15) Seg.nu = 11
+hoTau : segOff ((algShapeR c P hc).dl 15) Seg.tau = 13
+hzeta : segLn ((algShapeR c P hc).dl 15) Seg.zeta = 0
+hlnMu : segLn ((algShapeR c P hc).dl 15) Seg.mu = 11
+hsum : segSum ((algShapeR c P hc).dl 15) = 13 + c.sh.logs Slot.W16R2.Dom.Q
+hQ : c.sh.logs Slot.W16R2.Dom.Q = c.sh.lt + (c.sh.lkv + (c.sh.lh - c.sh.lkv) + c.sh.ldh)
+hlq : c.sh.lq = c.sh.lkv + (c.sh.lh - c.sh.lkv) + c.sh.ldh
+hle : c.sh.lkv ≤ c.sh.lh
+hs15 : (slotShape P 15).1 = c.sh.logs Slot.W16R2.Dom.Q
+ak hk' : ℕ
+hslot :
+  (DefR13.progR13 c ioIn ioOut).getD 15 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (DefR13.rawSlot c 15)
+hprog15 :
+  (DefR13.progR13 c ioIn ioOut).getD 15 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (rawQ c)
+hp5 : ((DefR13.progR13 c ioIn ioOut).getD 5 SlotS.empty).hosted = []
+hp9 : ((DefR13.progR13 c ioIn ioOut).getD 9 SlotS.empty).hosted = []
+r : SlotRec
+hr : rs[15]? = some r
+hlen : 15 < rs.length
+r5 : SlotRec
+hr5 : rs[5]? = some r5
+r9 : SlotRec
+hr9 : rs[9]? = some r9
+hcan : ∀ (j : ℕ) (rj : SlotRec), rs[j]? = some rj → ∀ x ∈ rj.draws, x.Canon
+hsp5 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 5 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 0 (W16Pos.q (splitQ c (castB ⋯ b))))) fun t =>
+      Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+hsp9 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 9 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 1 (W16Pos.q (splitQ c (castB ⋯ b))))) fun t =>
+      Fp2.toK U (r9.draws.getD (ipStd c.sh.lt c.sh.lh 15 1 ↑t) Fp2.zero)
+hist : Hist := histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)
+hsp15 :
+  cubeSum (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs 15 (seenOf bga rs 15)) =
+    ∑ t,
+      hostPoly
+        (fun a =>
+          Fp2.toK U ((List.map (Sym.eval hist 15 r.draws) (drs 15 13 (c.sh.logs Slot.W16R2.Dom.Q))).getD (↑a) Fp2.zero))
+        (fun t =>
+          ∑ κ,
+            (List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 0 11))).getD (↑κ) 0 *
+              if ↑κ < 4 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 15 (↑κ) (encR G 15 t))
+              else xcQzcR U c P D (hist.beta, hist.gamma, hist.alpha) (↑κ) t)
+        ![(List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 11 2))).getD 0 0,
+          (List.map (Fp2.toK U) (List.map (Sym.eval hist 15 r.draws) (drs 15 11 2))).getD 1 0]
+        ![fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 15 r.draws) (drs 5 0 c.sh.lt ++ drs 5 c.sh.lt c.sh.lq)).getD (↑a) Fp2.zero),
+          fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 15 r.draws)
+                  (drs 9 c.sh.lh c.sh.lt ++ drs 9 0 c.sh.lh ++ drs 9 (c.sh.lh + c.sh.lt) c.sh.ldh)).getD
+              (↑a) Fp2.zero)]
+        (fun x => 1) (fun i t => (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 t))) t
+hhist : hist = histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)
+hM :
+  ∀ (i : Fin 2),
+    algM (algShapeR c P hc) dt 15 cu rt i = fun b =>
+      (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 15 (↑i) (encR G 15 b))
+hp0 : algPt U (algShapeR c P hc) 15 hist 0 = fun t => Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+hp1 : algPt U (algShapeR c P hc) 15 hist 1 = fun t => Fp2.toK U (r9.draws.getD (ipStd c.sh.lt c.sh.lh 15 1 ↑t) Fp2.zero)
+⊢ ?m.2284
+error: ZK60Formal/BlockR13HostQkvForm.lean:371:10: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  dite ?m.2410 ?m.2414 ?m.2415
+in the target expression
+  (fun v =>
+        if h : segOff ((algShapeR c P hc).dl 16) Seg.nu + ↑v < segSum ((algShapeR c P hc).dl 16) then
+          (fun j => Fp2.toK U (r.draws.getD (↑(Fin.cast ⋯ j)) Fp2.zero))
+            ⟨segOff ((algShapeR c P hc).dl 16) Seg.nu + ↑v, h⟩
+        else 0)
+      0 =
+    Fp2.toK U (Sym.eval hist 16 r.draws (Sym.dr 16 11))
+
+case refine_2.refine_1
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+_hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+P : BlockParams
+hc : ShOkR c.sh P
+hpf : ProfR c.sh P
+hcfg : QkvCfg c ls
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (DefR13.progR13 c ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hrlH : 0 < rowLog P Cm.h
+hS : PrecR c S
+_hW : R13.R13Windows S ls
+hLay : LayR Lay
+hpub : PubR U c pubs Pb Lay B
+dt : AlgData K L (algShapeR c P hc)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2)
+    (κ : Fin (segLn ((algShapeR c P hc).dl 16) Seg.mu - segLn ((algShapeR c P hc).dl 16) Seg.zeta))
+    (b : Fin (segLn ((algShapeR c P hc).dl 16) Seg.tau) → Bool),
+    dt.cl 16 cu rt bga κ b =
+      if ↑κ < r13Count 16 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 16 (clIx 16 ↑κ) (encR G 16 b))
+      else xcKvzcR U c P D bga (↑κ) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 16) Seg.tau) → Bool),
+    dt.gh 16 cu rt i b = (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 16 (↑i) (encR G 16 b))
+hmm :
+  ∀ (i : Fin 2) (b : Fin (segLn ((algShapeR c P hc).dl 16) Seg.tau) → Bool),
+    dt.mm 16 cu rt i b = (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 16 (↑i) (encR G 16 b))
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hoMu : segOff ((algShapeR c P hc).dl 16) Seg.mu = 0
+hoNu : segOff ((algShapeR c P hc).dl 16) Seg.nu = 11
+hoTau : segOff ((algShapeR c P hc).dl 16) Seg.tau = 13
+hzeta : segLn ((algShapeR c P hc).dl 16) Seg.zeta = 0
+hlnMu : segLn ((algShapeR c P hc).dl 16) Seg.mu = 11
+hsum : segSum ((algShapeR c P hc).dl 16) = 13 + c.sh.logs Slot.W16R2.Dom.Kv
+hK : c.sh.logs Slot.W16R2.Dom.Kv = c.sh.lt + (c.sh.lkv + c.sh.ldh)
+hkw : c.sh.lkvw = c.sh.lkv + c.sh.ldh
+hs16 : (slotShape P 16).1 = c.sh.logs Slot.W16R2.Dom.Kv
+ak hk' : ℕ
+hslot :
+  (DefR13.progR13 c ioIn ioOut).getD 16 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (DefR13.rawSlot c 16)
+hprog16 :
+  (DefR13.progR13 c ioIn ioOut).getD 16 SlotS.empty =
+    DefW16.numSlot (DefR13.aDataRows c) (DefR13.hDataRows c) ioIn ioOut ak hk' (rawKv c)
+hp6 : ((DefR13.progR13 c ioIn ioOut).getD 6 SlotS.empty).hosted = []
+hp7 : ((DefR13.progR13 c ioIn ioOut).getD 7 SlotS.empty).hosted = []
+r : SlotRec
+hr : rs[16]? = some r
+hlen : 16 < rs.length
+r5 : SlotRec
+hr5 : rs[5]? = some r5
+r6 : SlotRec
+hr6 : rs[6]? = some r6
+r7 : SlotRec
+hr7 : rs[7]? = some r7
+hcan : ∀ (j : ℕ) (rj : SlotRec), rs[j]? = some rj → ∀ x ∈ rj.draws, x.Canon
+hsp6 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 6 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 16 (↑0) (W16Pos.kv (splitK c (castB ⋯ b)))))
+      fun t =>
+      if ↑t < c.sh.lt then Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+      else Fp2.toK U (r6.draws.getD (↑t - c.sh.lt) Fp2.zero)
+hsp7 :
+  spSum P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs) bga rs 7 =
+    mleAt (fun b => (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 16 (↑1) (W16Pos.kv (splitK c (castB ⋯ b)))))
+      fun t =>
+      if ↑t < c.sh.lt then Fp2.toK U (r5.draws.getD (↑t) Fp2.zero)
+      else Fp2.toK U (r7.draws.getD (↑t - c.sh.lt) Fp2.zero)
+hist : Hist := histOf bga.1 bga.2.1 bga.2.2 (List.take 16 rs)
+hsp16 :
+  cubeSum (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs 16 (seenOf bga rs 16)) =
+    ∑ t,
+      hostPoly
+        (fun a =>
+          Fp2.toK U
+            ((List.map (Sym.eval hist 16 r.draws) (drs 16 13 (c.sh.logs Slot.W16R2.Dom.Kv))).getD (↑a) Fp2.zero))
+        (fun t =>
+          ∑ κ,
+            (List.map (Fp2.toK U) (List.map (Sym.eval hist 16 r.draws) (drs 16 0 11))).getD (↑κ) 0 *
+              if ↑κ < 4 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 16 (↑κ) (encR G 16 t))
+              else xcKvzcR U c P D (hist.beta, hist.gamma, hist.alpha) (↑κ) t)
+        ![(List.map (Fp2.toK U) (List.map (Sym.eval hist 16 r.draws) (drs 16 11 2))).getD 0 0,
+          (List.map (Fp2.toK U) (List.map (Sym.eval hist 16 r.draws) (drs 16 11 2))).getD 1 0]
+        ![fun a =>
+          Fp2.toK U ((List.map (Sym.eval hist 16 r.draws) (drs 5 0 c.sh.lt ++ drs 6 0 c.sh.lkvw)).getD (↑a) Fp2.zero),
+          fun a =>
+          Fp2.toK U ((List.map (Sym.eval hist 16 r.draws) (drs 5 0 c.sh.lt ++ drs 7 0 c.sh.lkvw)).getD (↑a) Fp2.zero)]
+        (fun x => 1) (fun i t => (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 16 (↑i) (encR G 16 t))) t
+hhist : hist = histOf bga.1 bga.2.1 bga.2.2 (List.take 16 rs)
+hM :
+  ∀ (i : Fin 2),
+    algM (algShapeR c P hc) dt 16 cu rt i = fun b =>
+      (algebraMap GF K) (r13Mm Pb Lay B (xtR U c P D ls) 16 (↑i) (encR G 16 b))
+hp0 :
+  algPt U (algShapeR c P hc) 16 hist 0 = fun t =>
+    if ↑t < c.sh.lt then Fp2.toK U (r5.draws.getD (↑t) Fp2.zero) else Fp2.toK U (r6.draws.getD (↑t - c.sh.lt) Fp2.zero)
+hp1 :
+  algPt U (algShapeR c P hc) 16 hist 1 = fun t =>
+    if ↑t < c.sh.lt then Fp2.toK U (r5.draws.getD (↑t) Fp2.zero) else Fp2.toK U (r7.draws.getD (↑t - c.sh.lt) Fp2.zero)
+⊢ (fun v =>
+        if h : segOff ((algShapeR c P hc).dl 16) Seg.nu + ↑v < segSum ((algShapeR c P hc).dl 16) then
+          (fun j => Fp2.toK U (r.draws.getD (↑(Fin.cast ⋯ j)) Fp2.zero))
+            ⟨segOff ((algShapeR c P hc).dl 16) Seg.nu + ↑v, h⟩
+        else 0)
+      0 =
+    Fp2.toK U (Sym.eval hist 16 r.draws (Sym.dr 16 11))
+
+build rc 1 (19 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/qkv_axioms.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/qkv_axioms.lean:1:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvForm.olean' of module ZK60Formal.BlockR13HostQkvForm does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/qkv_axioms.lean (20 s)
+rc 1, 20 s
