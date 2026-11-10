@@ -1,0 +1,13 @@
+== plan results/zk60_lean_l47_20261110/tab_plan3.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_tab_axioms.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_tab_axioms.lean ==
+'ZK60.Exec.Block.Join.W16.Tab.slot19_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Tab.tab_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Tab.tab_formAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Tab.hTform_w16' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Tab.hTdeg_w16' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Tab.grp19_flat' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Tab.aOff_tab' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Tab.hOff_tab' depends on axioms: [propext]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_tab_axioms.lean (3 s)
+rc 0, 3 s
