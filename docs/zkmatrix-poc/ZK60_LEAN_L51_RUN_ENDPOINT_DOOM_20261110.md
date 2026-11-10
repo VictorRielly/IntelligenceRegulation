@@ -27,9 +27,10 @@ parameter digest, then the root). Nothing else in the transcript before the inpu
 
 **What that means (finding L51-1, High).** The root IS bound before every challenge, so the protocol is fine. But the
 Lean model's extraction reads a root only from an absorb of exactly 32 bytes. With the code as it is, `hInAbs` is false
-at every position, and I PROVED that the part of the top theorem that needed it (`hopX` at part `0`, the input
-commitment's opening) can never be met through L48's route. This is the ninth premise found unmeetable at the real
-system. The same reason blocks two of the input test's links (`hread`, `hBal`) under the run's extraction event.
+where the root is absorbed (PROVED), at the header's other positions and at stage IN-C's root absorbs on the real
+receipt (CHECKED), and I PROVED that the part of the top theorem that needed it (`hopX` at part `0`, the input commitment's
+opening) can never be met through L48's route. This is the ninth premise found unmeetable at the real system. The same
+reason blocks the input test's link `hBal` under the run's extraction event.
 
 **Two repairs, your choice.**
 - **A (code, one line):** absorb the input root on its own as well, right after `expected-IO`
@@ -116,7 +117,7 @@ at most `propext`, `Classical.choice`, `Quot.sound` (§7).
 |---|---|---|
 | the run header's operations | `8` absorbs, `0` squeezes (`run-shape`, `expected-IO`, `public-statement`, `parameters`, `calibration`, `schedule`, `classify-verdict`, `classify-chunk`) | PROVED (`clsHdrOps_length`, `clsHdrOps_sqN`); CHECKED (source text and receipt) |
 | where the input root is absorbed | transcript position `1` (the header's second absorb), as bytes `52 … 83` of `expected-IO`'s `84` (`20` tag + `32` spec digest + `32` root) | PROVED (`ab_inAbs`, `abExpMsg_length`); CHECKED on the receipt |
-| positions absorbing the 32-byte input root before the endpoint opening | none (the header's eight; stage IN-C's 32-byte absorbs: embedding digest, `B_in`, `A`, `M`, `H` roots) | PROVED at position `1`; CHECKED on the receipt for all; ARGUED in general (the source) |
+| positions absorbing the 32-byte input root before the endpoint opening | none: not the header's eight, not stage IN-C's frame digest and `B_in`, `A`, `M`, `H` roots; the slots' and openings' absorbs carry field elements the prover computes, not a root | PROVED at position `1`; CHECKED on the receipt for the header and IN-C's digests and roots; ARGUED for the rest (the source) |
 | part `0` starts at | transcript position `8` (repaired header: `9`) | PROVED (`ab_off0`, `ab_off0_fix`) |
 | the header's words on the receipt (dev rung, `L = 1`, verdict 1) | `run-shape` 88 B, `expected-IO` 84 B, three 32-byte digests, `parameters` 1,909 B, verdict 1 B, chunk 56 B | MEASURED (corpus) |
 | the header's fit | `64 + 88 + 1,909 + 56 + 84 = 2,201 ≤ 2^20` | MEASURED; the bound's form PROVED (`clsHdrOps_fit`) |
@@ -140,7 +141,7 @@ Rust changed.
 | Premise | Status after this lane | Met by the real objects? |
 |---|---|---|
 | `og_hopX0`'s `hInAbs` | REFUTED at the code's header (`ab_hInAbs_false`); PROVED at the repaired header (`ab_inAbs_fix`) | NO today (finding L51-1); YES with repair A |
-| `hopX`, part `0` (the input endpoint's closing opening) | through L48's route: CLOSED at the code's header (`ab_hopX0_at1_empty'`); PROVED at the repaired header (`ab_hopX0_fix`, in `ab_productionReadyL_epP_fix`) | NO today by L48's route [PROVED at position `1`; ARGUED at every other position: no other entry before the endpoint opening absorbs the 32-byte root, CHECKED on the receipt]; YES with repair A; with repair B the opening kind must read `colXM` (§5.2) |
+| `hopX`, part `0` (the input endpoint's closing opening) | through L48's route: CLOSED at the code's header (`ab_hopX0_at1_empty'`); PROVED at the repaired header (`ab_hopX0_fix`, in `ab_productionReadyL_epP_fix`) | NO today by L48's route [PROVED at position `1`; at the other positions CHECKED on the receipt for the header and IN-C's digests and roots, ARGUED for the field-element absorbs]; YES with repair A; with repair B the opening kind must read `colXM` (§5.2) |
 | `hopX`, parts `1` on | L50's | — |
 | the run schedule's header (`rcRunClassifyAt`'s `hdr`, `hstart`, `hhdr`; the top theorem's `start`, `Rn`) | PROVED for the code's header (`ab_hstart`, `ab_hhdr` with `hdr := clsHdrOf hw`, `start := clsStart …`, `hdrLen = 8`, `hdrSq = 0`) | YES: CHECKED (§7: the Lean header replays to the production binding); the words' fit (`64 + 88 + 1,909 + 56 + 84 ≤ Lq`) MEASURED on the receipt |
 | `hwin` | PROVED (`ep_hwin_top`), given the test's windows are part `0`'s closing opening's (`hTwA`, `hTwB`) | YES once `T` is built from part `0`'s opening (its windows are those by construction) |
@@ -193,11 +194,12 @@ start claims exist in Lean yet; that is the work.
 **L51-1 (High; for Victor and the coordinator): L48's `hInAbs` cannot be met by the code, so neither can `hopX` at
 part `0` by L48's route, nor `hBal`.** The code's run header absorbs the input root only inside `expected-IO`
 (`"classify-expected/v1" ‖ in_spec.digest() ‖ in_root`, 84 bytes, classify.rs:1147-1153, 1283), and nothing before the
-endpoint opening absorbs it alone (stage IN-C hands it to the opening's verifier, which absorbs no root). The Lean run
+endpoint opening absorbs it alone (stage IN-C hands it to the opening's verifier, which absorbs no root; the other
+32-byte absorbs are other commitments' roots and digests, CHECKED on the receipt, and field elements). The Lean run
 extraction (`colX`, L22) and the run's extraction failure (`EvXR`, L27) both read a root only from an absorb of exactly
 its 32 bytes. PROVED: `hInAbs` is false where the root is absorbed (`ab_hInAbs_false`), and no `RhOpW` exists for an
-opening reading its root there (`ab_rhOpW_none`, `ab_hopX0_at1_empty'`). CHECKED on a real receipt: no position before
-the endpoint opening absorbs the 32-byte root. The protocol itself is sound on this point [ARGUED]: the root is bound
+opening reading its root there (`ab_rhOpW_none`, `ab_hopX0_at1_empty'`). CHECKED on a real receipt: no header position and none of
+stage IN-C's digest and root absorbs is the 32-byte root. The protocol itself is sound on this point [ARGUED]: the root is bound
 before every challenge, inside `expected-IO`. The gap is the model's. This is the ninth premise found unmeetable at the
 real system (after L45-2). Two repairs (§1): A, one absorb in the code (`tr.absorb(b"input-root", &self.in_root);`
 after classify.rs:1283; a protocol change: every classifier receipt's binding moves, so a new profile version, goldens
@@ -221,7 +223,8 @@ absorbed at position `6`, which is what L45-1's `hW` for OUT-C needs read back (
 
 **L51-4 (Info): the receipt is the development rung's.** As for L48-6: the corpus is a classifier run at the rung
 `private-classify-run-rung-tc-t32-public-row-dev/2`. The header's STRUCTURE is the same for every classifier profile
-(`transcript()` has no profile branch, CHECKED in the source); only the words differ. The R13 T128 profile's header
+(`transcript()` has exactly these eight absorbs, CHECKED in the source; no branch on the profile, ARGUED); only the
+words differ. The R13 T128 profile's header
 words are not measured.
 
 **L51-5 (Info; Lean method): `if_pos` / `if_neg` are deprecated in this toolchain** (warnings break the check):
