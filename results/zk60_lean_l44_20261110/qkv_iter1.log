@@ -1,0 +1,49 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_plan1.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_probe.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_probe.lean ==
+"slot 5: 2 tabs\n  0: priv[A [(147456, false)] log14 [x[d5.0], x[d5.1], x[d5.2], x[d5.3], x[d5.4], r0, r1, r2, r3, r4, r5, r6, r7, r8] m146 e0]\n  1: pub0\n  hosted []\n  nonzero []"
+"slot 6: 2 tabs\n  0: priv[A [(147456, false)] log14 [x[d5.0], x[d5.1], x[d5.2], x[d5.3], x[d5.4], r0, r1, r2, r3, r4, r5, r6, r7, r8] m148 e0]\n  1: pub0\n  hosted []\n  nonzero []"
+"slot 7: 2 tabs\n  0: priv[A [(147456, false)] log14 [x[d5.0], x[d5.1], x[d5.2], x[d5.3], x[d5.4], r0, r1, r2, r3, r4, r5, r6, r7, r8] m150 e0]\n  1: pub0\n  hosted []\n  nonzero []"
+"slot 9: 3 tabs\n  0: eq[[d9.0, d9.1, d9.2] @0]\n  1: priv[A [(819200, false)] log14 [r0, r1, r2, x[d9.3], x[d9.4], x[d9.5], x[d9.6], x[d9.7], x[d9.8], r3, r4, r5, r6, r7] m156 e0]\n  2: priv[A [(671744, false)] log14 [r3, r4, r5, r6, r7, r0, r1, r2, x[d9.9], x[d9.10], x[d9.11], x[d9.12], x[d9.13], x[d9.14]] m158 e1]\n  hosted []\n  nonzero []"
+"slot 16: 15 tabs\n  0: eq[[d16.6, d16.7, d16.8, d16.9, d16.10, d16.11, d16.12, d16.13, d16.14, d16.15, d16.16, d16.17, d16.18, d16.19] @0]\n  1: eq[[d5.0, d5.1, d5.2, d5.3, d5.4, d6.0, d6.1, d6.2, d6.3, d6.4, d6.5, d6.6, d6.7, d6.8] @0]\n  2: eq[[d5.0, d5.1, d5.2, d5.3, d5.4, d7.0, d7.1, d7.2, d7.3, d7.4, d7.5, d7.6, d7.7, d7.8] @0]\n  3: pub0\n  4: pub1\n  5: priv[A [(638976, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m224 e0]\n  6: priv[A [(655360, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m226 e0]\n  7: priv[A [(671744, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m228 e0]\n  8: priv[A [(688128, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m230 e0]\n  9: priv[A [(704512, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m232 e0]\n  10: priv[A [(720896, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m234 e0]\n  11: priv[A [(638976, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, f8, r9, r10, r11, r12, r13] m236 e0]\n  12: priv[H [(557056, false), (573440, true)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m136 e0]\n  13: priv[H [(589824, false), (606208, true)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m138 e0]\n  14: priv[H [(622592, false), (638976, true)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m140 e0]\n  hosted [(6, d16.4), (7, d16.5)]\n  nonzero [d16.4, d16.5]"
+6
+6
+[("(α-(b32768+γ216))", [("b-1", 5)]), ("(α-(b0+γ215))", [("b-1", 6)]), ("(α-(b32768+γ216))", [("b-1", 7)]),
+  ("(α-(b0+γ207))", [("b-1", 8)]), ("(α-(b32768+γ216))", [("b-1", 9)]), ("(α-(b0+γ212))", [("b-1", 10)])]
+[("(α-(b32768+γ216))", [("b-1", 5)]), ("(α-(b0+γ215))", [("b-1", 6)]), ("(α-(b32768+γ216))", [("b-1", 7)]),
+  ("(α-(b0+γ216))", [("b-1", 8)]), ("(α-(b32768+γ216))", [("b-1", 9)]), ("(α-(b0+γ207))", [("b-1", 10)])]
+false
+false
+3
+6
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_probe.lean:57:0: error: Not a definitional equality: the left-hand side
+  (progW16 cfgRungW16 ioIn ioOut).getD 15 SlotS.empty
+is not definitionally equal to the right-hand side
+  { tabs := tabs15,
+    ir :=
+      qzcIr cstS
+        { tau := 0, p1 := 1, p2 := 2, cos := 3, sin := 4, src := 5, rot := 7, oth := 9, flip := 11, rr := [8],
+          r1 := [6], r2 := [10], h0 := 12, gate := none }
+        { rope := 7, s1 := 15, s2 := 12 } (lksS cfgRungW16 (fun q => 5 + (q - 27)) Slot.W16R2.Dom.Q) (drs 15 0 4)
+        (drs 15 4 2) (fun j => Sym.zero.pow j) [],
+    hosted := [(5, Sym.dr 15 4), (9, Sym.dr 15 5)], nonzero := [Sym.dr 15 4, Sym.dr 15 5] }
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_probe.lean:60:63: error: Type mismatch
+  rfl
+has type
+  ?m.107 = ?m.107
+but is expected to have type
+  (progW16 cfgRungW16 ioIn ioOut).getD 15 SlotS.empty =
+    { tabs := tabs15,
+      ir :=
+        qzcIr cstS
+          { tau := 0, p1 := 1, p2 := 2, cos := 3, sin := 4, src := 5, rot := 7, oth := 9, flip := 11, rr := [8],
+            r1 := [6], r2 := [10], h0 := 12, gate := none }
+          { rope := 7, s1 := 15, s2 := 12 } (lksS cfgRungW16 (fun q => 5 + (q - 27)) Slot.W16R2.Dom.Q) (drs 15 0 4)
+          (drs 15 4 2) (fun j => Sym.zero.pow j) [],
+      hosted := [(5, Sym.dr 15 4), (9, Sym.dr 15 5)], nonzero := [Sym.dr 15 4, Sym.dr 15 5] }
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_probe.lean (16 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:20:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/.lake/build/lib/lean/ZK60Formal/BlockHostBase.olean' of module ZK60Formal.BlockHostBase does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean (17 s)
+rc 1, 18 s
