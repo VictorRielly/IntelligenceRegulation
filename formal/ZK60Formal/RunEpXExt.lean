@@ -444,6 +444,12 @@ theorem exUx_cut {K : Type} [Field K] [Algebra GF K] (rd : List UInt8 → Option
     = algebraMap GF K (exU (epxH tag L h64 key domain hs hL rd d i rows (N := N) P' hdr) r j)
   rw [e]
 
+/-- **At a header that shows the root `r`, the header reader IS the extractor at `r`** (at a position `j : ℕ`). -/
+theorem epxHn_at_root (rd : List UInt8 → Option Dig) (d i rows : ℕ) (log : List (QB L × Dig))
+    (hdr : List (TItem × Dig)) (r : Dig) (h : (Block.absAt hdr i).bind rd = some r) (j : ℕ) :
+    epxHn tag L h64 key domain hs hL rd d i rows log hdr j = epxAt tag L h64 key domain hs hL rd d rows r log j := by
+  simp only [epxHn, h]
+
 /-- **At a header that shows the root `r`, the header reader IS the extractor at `r`.** -/
 theorem epxH_at_root (rd : List UInt8 → Option Dig) (d i rows : ℕ) {N : ℕ} (log : List (QB L × Dig))
     (hdr : List (TItem × Dig)) (r : Dig) (h : (Block.absAt hdr i).bind rd = some r) :
