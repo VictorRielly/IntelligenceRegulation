@@ -25,7 +25,8 @@ shared with the Lean lanes. Every heavy run went through the resource guard at i
 - **30 proved tok/s is not reached, and this lane moved the stream by little.** The 8-post stream, every receipt
   freshly verified, A/B in mirrored order in one job: A27 16.42 proved tok/s, the A28 binary 16.66 (+1.5%), the
   A28 binary with two server settings 16.90 (**+2.9%**). One post with those settings: 43.3 -> 42.0 s (-3%).
-  Proof only: 17.75 -> 17.82 (no difference). Through the app: APP_SUMMARY (sections 3.5 to 3.7).
+  Proof only: 17.75 -> 17.82 (no difference). Through the app: the stream 16.8 proved tok/s (A27's run: 16.3), one long post
+  125.5 s (127.0 s) (sections 3.5 to 3.7).
 - **The commitment kernels are now at the device's limits** (part 1 of the brief). Two byte-identical changes:
   the forward transform skips the zero half of its first pass, and the column hash runs in two passes. The
   commitments' GPU time fell 9% (A 42.4 -> 38.6 ms, H 40.5 -> 36.8 ms per block) and **one proof's GPU time
@@ -42,11 +43,12 @@ shared with the Lean lanes. Every heavy run went through the resource guard at i
   instead of 16 s: every host section, serial ones included, runs 1.3x to 3x slower in company. The same
   work in another order does not go faster; less work per proof does, and the 3.9% this lane found is what
   the stream shows.
-- **What paid besides the kernels: two settings and the app's writers.** A7's spin-then-block wait and a 300 ms
-  stagger between request starts (so a post's three categories do not run in lockstep): the stream +1.4% on
-  top of the binary, one post -3%, **the prover's CPU per proof -22%** (84 -> 65 CPU-s). In the app's service:
-  three activation writers at once instead of two and twelve jobs in flight instead of nine (a post's third
-  category no longer waits 5.5 s for a writer).
+- **What paid besides the kernels: two server settings, mostly in CPU.** A7's spin-then-block wait and a 300 ms
+  stagger between request starts (so a post's three categories do not run in lockstep): natively the stream
+  +1.4% on top of the binary (inside the runs' spread), one post -3%, and **the prover's CPU per proof -22%**
+  (84 -> 65 CPU-s); through the app the stream is the same with them (16.79 against 16.78). The app's servers
+  run with both. Three activation writers at once and twelve jobs in flight in the app's service helped one
+  short post (-4.7%) and hurt a long one (+5%) and the stream (-1.9%): the service keeps A27's settings.
 - **Measured and taken out again:** zero rows from calloc (`protocol.rs` is back at its base), per-thread witness
   queues, a QoS class for the lane threads (section 2).
 - **The receipts did not change, byte for byte**: on the real Shieldstral export under fixed test entropy,
@@ -266,7 +268,8 @@ The pinned Python writer for one 14-token post, 4 BLAS threads a process:
 | two at once, then the third (the app's service, `WRITERS_AT_ONCE = 2`) | 11.8 |
 
 A category's activation files are the same bytes in every grouping. In the app a post's third category starts
-its proof 5.7 s after the other two. PENDING: the app with three writers at once.
+its proof 5.5 s after the other two. Three writers at once were tried in the app (section 3.7): one short post
+gained, a long post lost, the stream did not move; the service keeps two.
 
 ### 3.5 The final candidate on the stream, A B C C B A [MEASURED, `final2.progress`, `stream_f2*`]
 
@@ -335,28 +338,40 @@ tokens, its three category proofs at once; A B B A, then the two server settings
 - **So the app's servers get both settings** (`NATIVE_SETTINGS`: `HL_METAL_SPIN_US=200`,
   `HL_A28_STAGGER_MS=300`): the stream +2.9% (section 3.5), one post -3%, the prover's CPU per proof -22%.
 
-### 3.7 Through the app [MEASURED, `app_a1/summary.json`, `app_a1.out`; PENDING `app_b1`; single runs]
+### 3.7 Through the app [MEASURED, `app_a1`, `app_b1`, `app_b2`, `app_b3` (`summary.json`, `.out`); single runs]
 
 The real app in process (`app_driver.py`), `PM_PROVER=shieldstral-fast` with the A28 pin (`80f2b704…`), A24's
-three phases on one warm service (one guarded gpu-class job: both servers, the writers). `app_a1` keeps A27's
-service settings (two writers at once, nine jobs in flight): the binary's effect alone. A27's own app run
-(`results/zk60_a27_app_20261107/app_a2`, 2026-11-07, before the reboot) beside it:
+three phases on one warm service (one guarded gpu-class job: both servers, the writers). Three runs on
+2026-11-10 with three settings, and A27's own app run (`results/zk60_a27_app_20261107/app_a2`, 2026-11-07,
+before the reboot) beside them:
 
-| phase | posts | category proofs | A27 app (its README) | A28 binary, A27's service settings (`app_a1`) | A28 binary, three writers, twelve in flight (`app_b1`) |
-|---|---:|---:|---:|---:|---:|
-| one short public post | 1 | 3 | 47.8 s, 8.03 tok/s | 48.9 s, 7.84 tok/s | PENDING |
-| one long public post (3 chunks per category) | 1 | 9 | 127.0 s, 9.07 tok/s | 124.2 s, 9.27 tok/s | PENDING |
-| a stream: 8 short public posts at once | 8 | 24 | 187.9 s, 16.34 tok/s (second half 23.6) | 183.1 s, 16.78 tok/s (second half 25.6) | PENDING |
+| phase | A27 app (its README) | `app_a1`: A28 binary, A27's settings | `app_b1`: + three writers at once, twelve jobs in flight, the wait and the stagger | **`app_b2`: the pinned configuration** (A27's service settings, the wait and the stagger) |
+|---|---:|---:|---:|---:|
+| one short public post (3 proofs) | 47.8 s, 8.03 tok/s | 48.9 s, 7.84 tok/s | 46.6 s, 8.24 tok/s | 54.0 s, 7.12 tok/s (see below) |
+| one long public post (9 proofs) | 127.0 s, 9.07 tok/s | 124.2 s, 9.27 tok/s | 130.6 s, 8.82 tok/s | **125.5 s, 9.18 tok/s** |
+| a stream: 8 short public posts at once (24 proofs) | 187.9 s, 16.34 tok/s | 183.1 s, 16.78 tok/s | 186.6 s, 16.46 tok/s | **182.9 s, 16.79 tok/s** |
 
-- All 10 posts published (36 category jobs, 0 failed); every label "no", `bound_by_proof: true`; every record
-  `shieldstral-fast`, "privacy statement pending", `production: false`, run profile `/2`; each post's signed
-  manifest (3 or 9 entries). The service's heartbeat names the binary `80f2b704…`; its guarded peak was 93.5 GiB.
+- In every run all 10 posts were published (36 category jobs, 0 failed); every label "no",
+  `bound_by_proof: true`; every record `shieldstral-fast`, "privacy statement pending", `production: false`,
+  run profile `/2`; each post's signed manifest (3 or 9 entries). The service's heartbeat names the binary
+  `80f2b704…`; its guarded peak was 93.5 to 106 GiB.
+- **Through the app the stream is 16.8 proved tok/s with the A28 binary, with or without the two server
+  settings** (16.78 and 16.79; A27's run measured 16.34 three days and one reboot earlier, so about +2.7%,
+  not a pair).
+- **Three writers at once and twelve jobs in flight did not pay** (`app_b1`): one short post 48.9 -> 46.6 s
+  (its third category no longer waits 5.5 s for a writer slot), but one long post 124.2 -> 130.6 s and the
+  stream 16.78 -> 16.46: the six lanes are loaded sooner, every proof then takes longer (34.0 -> 38.8 s in the
+  stream) and jobs wait at the prover instead (2.1 -> 13.8 s). The service keeps A27's two and nine.
 - **Where a post's time goes in the app** (`app_a1`, the service's own step times): one post = the writer 5.9 s
   (and 5.5 s of waiting for a writer slot for its third category), the proof 24.2 s, verification with the
   input-owner check and the label 8.0 s, and about 4 s of the app's queue ticks, re-checks and publication. In
   the long post the ninth category job waits 26.4 s for a writer slot and the label of a three-chunk category
   verifies its three chunks again (21.9 s: A26's `HL_A26_VERIFY_ONCE`, off, is about this). In the stream the
   jobs wait 4.6 s for a writer slot on average, 26.7 s at most.
+- **One post through the app, the pinned configuration:** `app_b2`'s first phase took 54.0 s with every step
+  slower than in `app_a1`, the Python writer (6.9 against 5.9 s) and the verifier (8.8 against 8.0 s) included,
+  which the settings do not touch: the machine was busier during that minute. PENDING: `app_b3`, four single
+  posts one after another on one warm service.
 
 ## 4. Byte preservation
 
@@ -386,10 +401,9 @@ gates: the commitment test at the classifier's shapes (plain, hiding and keyed r
 and 4390 rows; leaves, roots and columns, CPU = Metal), the six trained profiles' recorded digests on CPU and
 Metal, the W16R2 rung goldens, the 8B block and the 8B stack's servers.
 
-**A candidate is its committed tree's build** [MEASURED, `rebuild_q2.progress`]: the hashline crate
-recompiled at commit `5794c756` gives a28-q2 (`34b62314…`) again, bit for bit. PENDING: the same forced
-rebuild for a28-q3 (`rebuild_q3.progress`); `final1.progress` records that the CLI in the tree at the
-acceptance is `80f2b704…`.
+**The pinned binary is its committed tree's build** [MEASURED, `rebuild_q3.progress`, `rebuild_q2.progress`]:
+the hashline crate recompiled at commit `79e9a621` (whose sources are milestone 3's, `85b256c4`) gives a28-q3
+(`80f2b704…`) again, bit for bit; the same check held for a28-q2 (`34b62314…`) at `5794c756`.
 
 **Why no verdict or refusal can move.** The verifier is not touched (the device runs only in the prover). The
 two kernels write the same words (the transform's zero products omitted; BLAKE3's own tree in two passes), and
@@ -418,13 +432,14 @@ sources are milestone 3's, `85b256c4`) [MEASURED]:
 - **the full hashline lib suite** (release, gpu-metal, `HL_R13_LOADER_FIXTURES`): **984 passed, 3 failed, 132
   ignored. The three failures are exactly the known ones** (`a_toy_receipt_made_before_f12_is_refused`,
   `accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces`,
-  `review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name`). (A27: 981 passed, 131 ignored;
-  since then this lane's two serve tests and its commitment test, which is one of the ignored device tests.)
+  `review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name`). (A27's own run before its merge:
+  981 passed, 131 ignored; this lane adds two serve tests and one ignored device test, its commitment test.)
 
 **App** (the coordinator's command, the rebuilt venv): **219 tests OK** with the A28 pin (A27's 218 and one
-new: the A28 pin, never A27's, A26's or A24's; the same identity and run profile; no `HL_A28_*` or `HL_A27_*`
-switch set by the app, so seal-ahead stays off; A26's two ruling switches still not set; the lanes and the
-guard declaration unchanged) [MEASURED, `app_tests1.log`]. PENDING: again after the service's settings change.
+new: the A28 pin, never A27's, A26's or A24's; the same identity and run profile; seal-ahead not set, so it
+stays off; no `HL_A27_*` switch; A26's two ruling switches still not set; the lanes, the writers and the
+guard declaration unchanged; of the A28 switches only the measured stagger is set, with A7's wait) [MEASURED,
+`app_tests4.log`, the final settings; `app_tests1.log` to `app_tests3.log`, the settings tried on the way].
 
 ## 6. Open issues, and notes for the privacy reviewer
 
@@ -445,10 +460,8 @@ guard declaration unchanged) [MEASURED, `app_tests1.log`]. PENDING: again after 
    Each request still makes its own fresh draws inside its own `prove_with_public`; a request refused in its
    sealing pass creates nothing and frees its lane (tested). It needs about 60 GiB more memory at six lanes: the
    app's guard declaration (110 / 180 GiB) would have to grow with it.
-4. **The app's service now runs three activation writers at once** (three Python processes, one category chunk
-   each: the same pinned writer, the same bytes per category; section 3.4) and keeps twelve category jobs in
-   flight instead of nine: up to three more posts' activations and owner files exist on disk (owner-only, as
-   before) while their jobs wait for a lane.
+4. **The app's service is as A27 left it** (two activation writers at once, nine category jobs in flight):
+   three writers and twelve jobs were measured through the app and did not pay (section 3.7).
 5. **The servers' two new settings.** `HL_A28_STAGGER_MS=300` delays a request's start until 300 ms after the
    previous start: a function of the requests' arrival times only (and D73 (5) already says a request's
    latency shows how long other requests held the machine: one data owner per process).
@@ -518,9 +531,12 @@ on this stream, not 30. 30 needs the protocol lever (1) with (3), or a second GP
   (`nbench/`: `main.rs`, `field.rs`, `variants.metal`, `Cargo.toml`) is kept here as source; its build
   directory was lost (`nb.sh` / `nbf.sh` expect it rebuilt under `~/zk60-artifacts/a28-tools/a28nb`).
   The second candidate's acceptance job had finished after the cut-off; its results were read on the resume.
-- **Guard.** Default floors (disk floor 40 GiB; 139-145 GiB free). The Lean lanes' jobs and this lane's
-  alternated on the heavy lock; this lane's jobs waited up to 25 minutes for it. No `ds4-bench` was seen in any
-  run (`*.quiet` files).
+- **Guard.** Default floors (disk floor 40 GiB). Free disk was 115 to 145 GiB except during the app runs, whose
+  published bundles took it down to about 65 GiB until each run's cleanup (the lowest seen: 69 GiB). The Lean
+  lanes' jobs and this lane's alternated on the heavy lock; this lane's jobs waited up to 25 minutes for it and
+  left a 90 s pause before each of their own (`after2.sh`). No `ds4-bench` was seen in any run (`*.quiet`
+  files). The lane's guarded peaks: 101 GiB for a stream job of the final candidate, 156 to 163 GiB with
+  seal-ahead on.
 - **Paths outside git.** Binaries: `~/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28` (the final
   candidate, read only, `80f2b704…`), `.a28-q3` (the same file), `.a28-q2` (`34b62314…`), `.a28-q1`
   (`a55adb13…`). GPU traces: `~/zk60-artifacts/a28-traces/`. Samples: `~/zk60-artifacts/a28-tools/samples/`.
@@ -528,7 +544,14 @@ on this stream, not 30. 30 needs the protocol lever (1) with (3), or a second GP
   receipts (`~/zk60-artifacts/a28-media-app-20261107/`) are deleted after each job (`xrun.sh`, `bi3.sh`,
   `app1.sh`).
 - **Scripts.** `stream_driver.py` (`--provers`, page faults), `stream.sh`, `runs.sh` + `*.plan`, `xrun.sh`,
-  `xprobe.sh`, `after2.sh`, `after_app.sh`, `byteid.py` + `bi.sh` / `bi3.sh`, `app_driver.py` + `app1.sh`,
-  `trace_report.py`, `lane_split.py`, `membw_probe.py` / `membw_report.py`, `writer_time.py`,
-  `queue_model.py`, `gpu_align.py`, `lanes.py`, `sample_*.py`, `q1.sh`, `q3.sh`, `accept.sh`, `final1.sh`,
-  `rebuild_check.sh`, `nbench/` + `nb.sh` / `nbf.sh`.
+  `xprobe.sh`, `after2.sh`, `after_app.sh`, `byteid.py` + `bi.sh` / `bi3.sh`, `app_driver.py` + `app1.sh` /
+  `app3.sh`, `app_summary.py`, `ab_table.py`, `one_table.py`, `trace_report.py`, `lane_split.py`,
+  `membw_probe.py` / `membw_report.py`, `writer_time.py`, `queue_model.py`, `gpu_align.py`, `lanes.py`,
+  `sample_*.py`, `q1.sh`, `q3.sh`, `accept.sh`, `final1.sh`, `rebuild_check.sh`, `nbench/` + `nb.sh` / `nbf.sh`.
+  `MVP_STATUS_A28.md`: the row and bullet for `docs/zkmatrix-poc/MVP_STATUS.md`.
+- **Jobs, in order** (each one guarded job; `*.progress`): 2026-11-07 `p0` (profile), `p1`, `nb0`-`nb3`, `nbf1`
+  (kernel bench), `q1` (first candidate), `q2` (second candidate, read on the resume); 2026-11-09/10
+  `rebuild_q2`, `x1` (lane threads), `p2` (solo traces), `x3` (threads alone, two processes), `x4` (samples,
+  memory probe, the stream's trace), `q3` (the final candidate's quick gates), `final1` (acceptance, byte
+  identity), `final2` (the stream, A B C C B A), `app_a1`, `rebuild_q3`, `final3` (proof only, one post),
+  `app_b1`, `app_b2`, `app_b3`.
