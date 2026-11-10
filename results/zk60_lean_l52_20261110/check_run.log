@@ -1,0 +1,61 @@
+== lake build of the L52 modules, one at a time ==
+lake build ZK60Formal.RunEpBOpen rc 0
+lake build ZK60Formal.RunEpBInc rc 0
+lake build ZK60Formal.RunEpBChain rc 0
+lake build ZK60Formal.RunEpBTop rc 0
+lake build ZK60Formal.RunEpBTest rc 0
+lake build ZK60Formal.RunEpBTopT rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3756/3757] Built ZK60Formal (11s)
+Build completed successfully (3757 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the modules' own builds: 0
+== axiom audit (the L52 files) ==
+51 declarations: 10 def, 1 structure, 40 theorem
+axioms rc 0
+declarations audited: 51 (generated: 51)
+no axiom at all: 2
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  47 axioms: [propext, Classical.choice, Quot.sound]
+   2 axioms: [propext, Quot.sound]
+== source scan of the L52 files and generators ==
+none
+== the library root imports the L52 files ==
+imported: RunEpBOpen
+imported: RunEpBInc
+imported: RunEpBChain
+imported: RunEpBTop
+imported: RunEpBTest
+imported: RunEpBTopT
+== existing files changed against perf's 912441c0 ==
+Statements.lean unchanged
+existing files under formal/ changed (the root's imports apart): 0
+lines removed from the root's imports: 0
+files changed under ops/: 0
+== name clashes with the other worktrees' Lean files ==
+worktrees read: 41
+other Lean files read (with repeats across worktrees): 4695
+clashes: 0
+== the generated files are their generators' output ==
+RunEpBInc.lean: identical
+RunEpBChain.lean: identical
+RunEpBTop.lean: identical
+RunEpBTopT.lean: identical
+== lane L51's agreement check of the code's header, re-run (RunAbsCheck.lean) ==
+RunAbsCheck: 29 checks, 0 failed
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+verdicts: generated files 0, abscheck 0/0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 74 s
