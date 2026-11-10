@@ -1,0 +1,58 @@
+D63 lane L49: the contract of a host sub-agent (SC_TZC, SC_DZC, SC_QZC + SC_KVZC, SC_SZC, SC_FZC at R13)
+
+Why. The app's block theorem block_knowledge_define_alg_r13_shield_lk26 (BlockDefineAlg.lean, lane L35/L36) and the
+R13 rung's block_knowledge_define_alg_r13_lk take L36's premise `hform`: for every host k in algHosts = [2, 14, 15,
+16, 17, 18], on every accepting outcome, `FormAt U P Poly (fun k h => (algSp U sh dt hcard 0 cu rt k h).Φ) bga rs k`.
+At the W16R2 rung lanes L41 (SC_TZC: BlockJoinTzc.lean, BlockJoinTzcForm.lean) and L44 (the five others:
+BlockHostDzc.lean, BlockHostQkv.lean, BlockHostSzc.lean, BlockHostFzc.lean, tools in BlockHostBase.lean,
+BlockJoinCube/Host/Vals/Batch.lean) proved it host by host. Your job is the same at R13, generic in the
+configuration c (the R13 rung and every Shieldstral layer at once), on the foundation BlockR13HostBase.lean:
+  xtR U c P D ls        the extracted planes (R13Data), plane q read at DefR13.aOff c q, the ids of
+                        DefR13.idsR13 true (ls + 1) (theorem xtR_ids);
+  algShapeR c P hc      the AlgShape (draw lists ZK60.Exec.Slot.R13.draws c.sh; pad counts mpadR: 39 at 14, 16 at 18);
+  encR G k, encHtR G    the cube encodings (castB to the product widths nD c, nQ c, ...; then splitD, splitQ, ...);
+  PubR U c pubs Pb Lay B  the public tables as public data (gates, gammas, cos/sin, mask, group column, the seven
+                        folded weights); LayR Lay (axes that do not pad, the RoPE flip); PrecR c S (the integer
+                        model's constants are c.p's); ProfR c.sh P (per-slot draws = R13 drawLen, slotShape =
+                        sched); ShOkR c.sh P; GeoR c ls; dXof_base_r13; progR13_slot; clIx (the IR's batch order).
+Facts that hold at every Shieldstral layer must be proved for a symbolic layer where possible; note that `decide`
+refuses a goal with a free variable: restate the goal about the closed shape `ZK60.Exec.Slot.R13.shShieldR13`
+(`(DefR13.cfgShieldR13 L).sh` reduces to it; see the foundation's geoShield / shOk_sh_shield), or enumerate the 26
+layers.
+The relation tables you must hit are R13's: ZK60.Exec.Block.r13Cl / r13Gh / r13Mm / r13RsA / r13RsB and r13Count
+(BlockAlgR13.lean), over ZK60.Layout.R13.R13Data with the byte-limb sums `lv` (LayoutR13.lean). The slot programs are
+DefR13.rawSlot c k with R13's IR builders r13DzcIr, r13QzcIr, r13SzcIr, r13FzcIr (BlockR13Prog.lean) and the shared
+arms (tzcIr, ssIr, rsIr, mmIr, bilIr) at R13's plane ids. Evaluate the R13 IRs in a ring as dzcIr_eval / fzcIr_eval do
+(SlotW16BuildSlots.lean, via zcIr_vals in SlotW16BuildEval.lean; limbsB is Σ 256^k·t_k).
+
+Your main theorem, for your host k (and its two hosted slots), mirrors L44's formAt_fzc (BlockHostFzc.lean:643):
+  theorem formAt_<host>R (U : K) (hU : U ^ 2 = algebraMap GF K 7) (hcard : 78 < Fintype.card K) {L : ℕ}
+      {S : ZK60.Block.BlockShape} (Pb : ZK60.Block.BlockPublic S) {c : W16Cfg} {ls : ℕ} (G : GeoR c ls)
+      (Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)) (B : W16Pub S Pb Lay)
+      (P : BlockParams) (hc : ShOkR c.sh P) (hpf : ProfR c.sh P) (hcfg : <YourCfg> c ls)
+      (ioIn ioOut : ℕ) (pubs : PubTabs) (hdef : P.define = defineS (DefR13.progR13 c ioIn ioOut) pubs)
+      (D : CmData K P) (hX : ∀ i t, D.X .a i t ∈ baseR K) (hrl : 0 < rowLog P .a)   -- and hrlH if you read H
+      (hS : PrecR c S) (hW : ZK60.Layout.R13.R13Windows S ls) (hLay : LayR Lay) (hpub : PubR U c pubs Pb Lay B)
+      (dt : AlgData K L (algShapeR c P hc)) (cu : Cuts3 L) (rt : RootsO)
+      (hcl : ∀ bga κ b, dt.cl k cu rt bga κ b = if (κ : ℕ) < r13Count k
+          then algebraMap GF K (r13Cl Pb Lay B (xtR U c P D ls) k (clIx k κ) (encR G k b)) else xc<Host>R ... bga κ b)
+      -- clIx (foundation): the IR's batch order. It is the identity except at SC_DZC, whose IR batches
+      -- d0, d1, wX, wY, wAO, wX1, d2, d3, d4, wYM, wZ, wX2, d5 (r13Cl 14 indices 0,1,6,7,8,9,2,3,4,10,11,12,5).
+      (hpw : ∀ j b, dt.pw k cu rt j b = pw<Host>R ... j b)          -- only where mpadR k ≠ 0
+      (hgh : ∀ i b, dt.gh k cu rt i b = algebraMap GF K (r13Gh Pb Lay B (xtR U c P D ls) k i (encR G k b)))
+      (hmm : ∀ i b, dt.mm k cu rt i b = algebraMap GF K (r13Mm Pb Lay B (xtR U c P D ls) k i (encR G k b)))
+      (bga : Fp2 × Fp2 × Fp2) (rs : List SlotRec)
+      (hslots : ∀ j r, rs[j]? = some r → ∃ df, P.define j (histOf bga.1 bga.2.1 bga.2.2 (rs.take j)) r.draws = .ok df
+        ∧ (P.kind j = SlotKind.host ↔ df.hosted ≠ [])) :
+      FormAt U P (polyS U P D (DefR13.progR13 c ioIn ioOut) pubs)
+        (fun k h => (algSp U (algShapeR c P hc) dt hcard 0 cu rt k h).Φ) bga rs k
+(SC_SZC also takes dt.rsA / dt.rsB hypotheses as the foundation's dtR defines them, and dt.rsScale = per_row.)
+Keep exactly this shape (you may add premises only of the kinds above: facts about c in <YourCfg>, public-data facts
+already in PubR/LayR/PrecR/R13Windows, the verifier's profile). The lane assembles the six identities into `hform`
+with dt := dtR G Pb Lay B P hc (xtR ...) hpr xcR pwcR, where xcR / pwcR dispatch to your xc<Host>R / pw<Host>R:
+so define xc<Host>R ... bga κ b and pw<Host>R ... j b with b : Fin (tauLen c k) → Bool, reading only the committed
+planes, the public data and (α, β, γ) = bga (as L44's xcFzc / pwFzc: LogUp's helper relations over
+DefR13.lksS c shaped d, SC_SZC's exp tuple, SC_FZC's ACT tuple, the zero-rule planes times 1 − supp).
+Also prove your <YourCfg> at the rung (`<sub>Cfg_rung : <YourCfg> DefR13.cfgRungR13 2`) and at every Shieldstral
+layer (`<sub>Cfg_shield : ∀ L ∈ ZK60.RunShape.Shield.shieldExport, <YourCfg> (DefR13.cfgShieldR13 L) 1`, or for
+every L).

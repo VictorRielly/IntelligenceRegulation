@@ -1,0 +1,3 @@
+build ZK60Formal.BlockR13HostFzc
+build ZK60Formal.BlockR13HostFzcCfg
+build ZK60Formal.BlockR13HostFzcForm

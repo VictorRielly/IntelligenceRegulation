@@ -1,0 +1,176 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/tzc_plan2.txt ==
+build ZK60Formal.BlockR13HostTzc
+build ZK60Formal.BlockR13HostTzcForm
+== lake build ZK60Formal.BlockR13HostTzc ==
+✖ [3575/3575] Building ZK60Formal.BlockR13HostTzc (16s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostTzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostTzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostTzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostTzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostTzc.setup.json --json
+warning: ZK60Formal/BlockR13HostTzc.lean:296:24: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [L256, List.zipIdx_cons, List.zipIdx_nil, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil,
+    hv.dsq, hv.l10, hv.l11, hv.l12, k0, k1, k2', r13Gh, gT_oneR B hLay t, hS.ceps, map_mul, map_sub, map_add, map_pow,
+    map_ofNat, map_intCast, one_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostTzc.lean:309:24: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [L256, List.zipIdx_cons, List.zipIdx_nil, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil,
+    hv.dsqm, hv.m10, hv.m11, hv.m12, k0, k1, k2', r13Gh, gT_oneR B hLay t, hS.ceps, map_mul, map_sub, map_add, map_pow,
+    map_ofNat, map_intCast, one_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostTzc.lean:324:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.R13H.Tzc.gV_none_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockR13HostTzc.lean:432:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.R13H.Tzc.ss_key`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/BlockR13HostTzc.lean:492:108: unsolved goals
+case P
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+S : Block.BlockShape
+c : W16Cfg
+Pb : Block.BlockPublic S
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hlt : 0 < c.sh.lt
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+s q : ℕ
+dr : List Fp2
+pub : ℕ → List Fp2
+hgD :
+  ∀ (t : CtR c) (w : CwR c),
+    Fp2.toK U ((pub 0).getD (msbIndex (nD c) (Fin.append t w)) Fp2.zero) = (algebraMap GF K) (B.gD (t, w))
+e : ℕ
+f : (Fin (nD c + e) → K) → K
+hf :
+  ∀ (x : Fin (nD c + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist s dr) (ssIr cstS 0 1 (some 2))))
+        (valsOf U P D (nD c) e (Sym.eval hist s dr) pub (numTabs aB hB ioIn ioOut ak hk 0 (rawSsR c s q).tabs) x)
+hir :
+  ∀ (v : List K),
+    irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist s dr) (ssIr cstS 0 1 (some 2)))) v =
+      v.getD 2 0 * (v.getD 0 0 * (v.getD 1 0 * v.getD 1 0))
+hle : c.sh.lt ≤ nD c
+hpos : 0 < nD c
+hrow :
+  ∀ (b : Fin (nD c) → Bool),
+    (∑ y, f fun i => bit (Fin.append b y i)) =
+      Fp2.toK U ((pub 0).getD (msbIndex (nD c) b) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U (dr.getD (↑a) Fp2.zero)) fun a => bit (b ⟨↑a, ⋯⟩)) *
+          (aPl U P D (DefR13.aOff c q) (nD c) b * aPl U P D (DefR13.aOff c q) (nD c) b))
+t : Fin c.sh.lt → Bool
+x✝¹ : t ∈ univ
+w : Fin c.sh.ld → Bool
+x✝ : w ∈ univ
+a : Fin c.sh.lt
+⊢ BlockParams
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostTzc
+error: build failed
+build rc 1 (22 s)
+== lake build ZK60Formal.BlockR13HostTzcForm ==
+✖ [3575/3576] Building ZK60Formal.BlockR13HostTzc (6.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostTzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostTzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostTzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostTzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostTzc.setup.json --json
+warning: ZK60Formal/BlockR13HostTzc.lean:296:24: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [L256, List.zipIdx_cons, List.zipIdx_nil, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil,
+    hv.dsq, hv.l10, hv.l11, hv.l12, k0, k1, k2', r13Gh, gT_oneR B hLay t, hS.ceps, map_mul, map_sub, map_add, map_pow,
+    map_ofNat, map_intCast, one_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostTzc.lean:309:24: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [L256, List.zipIdx_cons, List.zipIdx_nil, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil,
+    hv.dsqm, hv.m10, hv.m11, hv.m12, k0, k1, k2', r13Gh, gT_oneR B hLay t, hS.ceps, map_mul, map_sub, map_add, map_pow,
+    map_ofNat, map_intCast, one_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostTzc.lean:324:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.R13H.Tzc.gV_none_mul`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockR13HostTzc.lean:432:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.R13H.Tzc.ss_key`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/BlockR13HostTzc.lean:494:108: unsolved goals
+case P
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+S : Block.BlockShape
+c : W16Cfg
+Pb : Block.BlockPublic S
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hlt : 0 < c.sh.lt
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+s q : ℕ
+dr : List Fp2
+pub : ℕ → List Fp2
+hgD :
+  ∀ (t : CtR c) (w : CwR c),
+    Fp2.toK U ((pub 0).getD (msbIndex (nD c) (Fin.append t w)) Fp2.zero) = (algebraMap GF K) (B.gD (t, w))
+e : ℕ
+f : (Fin (nD c + e) → K) → K
+hf :
+  ∀ (x : Fin (nD c + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist s dr) (ssIr cstS 0 1 (some 2))))
+        (valsOf U P D (nD c) e (Sym.eval hist s dr) pub (numTabs aB hB ioIn ioOut ak hk 0 (rawSsR c s q).tabs) x)
+hir :
+  ∀ (v : List K),
+    irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist s dr) (ssIr cstS 0 1 (some 2)))) v =
+      v.getD 2 0 * (v.getD 0 0 * (v.getD 1 0 * v.getD 1 0))
+hle : c.sh.lt ≤ nD c
+hpos : 0 < nD c
+hrow :
+  ∀ (b : Fin (nD c) → Bool),
+    (∑ y, f fun i => bit (Fin.append b y i)) =
+      Fp2.toK U ((pub 0).getD (msbIndex (nD c) b) Fp2.zero) *
+        ((eqPoly (fun a => Fp2.toK U (dr.getD (↑a) Fp2.zero)) fun a => bit (b ⟨↑a, ⋯⟩)) *
+          (aPl U P D (DefR13.aOff c q) (nD c) b * aPl U P D (DefR13.aOff c q) (nD c) b))
+t : Fin c.sh.lt → Bool
+x✝¹ : t ∈ univ
+w : Fin c.sh.ld → Bool
+x✝ : w ∈ univ
+a : Fin c.sh.lt
+⊢ BlockParams
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostTzc
+error: build failed
+build rc 1 (31 s)
+rc 1, 31 s

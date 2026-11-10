@@ -1,0 +1,296 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/qkv_plan2.txt ==
+build ZK60Formal.BlockR13HostQkvIr
+build ZK60Formal.BlockR13HostQkvBase
+build ZK60Formal.BlockR13HostQkvZc
+build ZK60Formal.BlockR13HostQkvMm
+build ZK60Formal.BlockR13HostQkvNamed
+build ZK60Formal.BlockR13HostQkvCfg
+== lake build ZK60Formal.BlockR13HostQkvIr ==
+Build completed successfully (3529 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.BlockR13HostQkvBase ==
+✖ [3577/3577] Building ZK60Formal.BlockR13HostQkvBase (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.setup.json --json
+error: ZK60Formal/BlockR13HostQkvBase.lean:257:27: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  g ≥ 0
+  g - h ≤ -1
+  f ≥ 0
+  d ≥ 0
+  d - h ≤ 0
+  d ≥ 0
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑(c.sh.lh - c.sh.lkv)
+ f := ↑c.sh.lt
+ g := ↑(nH c)
+ h := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:266:52: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≤ 0
+  g ≥ 0
+  f ≥ 0
+  f - j ≥ 1
+  d ≥ 0
+  a ≥ 1
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(nH c)
+ g := ↑(c.sh.lh - c.sh.lkv)
+ j := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:267:54: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≥ 1
+  f ≥ 0
+  f - j ≤ 0
+  f ≥ 0
+  d ≥ 0
+  a ≥ 1
+  a - g + j ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(c.sh.lh - c.sh.lkv)
+ g := ↑(nH c)
+ j := ↑c.sh.lh
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostQkvBase
+error: build failed
+build rc 1 (9 s)
+== lake build ZK60Formal.BlockR13HostQkvZc ==
+✖ [3577/3578] Building ZK60Formal.BlockR13HostQkvBase (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.setup.json --json
+error: ZK60Formal/BlockR13HostQkvBase.lean:257:27: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  g ≥ 0
+  g - h ≤ -1
+  f ≥ 0
+  d ≥ 0
+  d - h ≤ 0
+  d ≥ 0
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑(c.sh.lh - c.sh.lkv)
+ f := ↑c.sh.lt
+ g := ↑(nH c)
+ h := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:266:52: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≤ 0
+  g ≥ 0
+  f ≥ 0
+  f - j ≥ 1
+  d ≥ 0
+  a ≥ 1
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(nH c)
+ g := ↑(c.sh.lh - c.sh.lkv)
+ j := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:267:54: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≥ 1
+  f ≥ 0
+  f - j ≤ 0
+  f ≥ 0
+  d ≥ 0
+  a ≥ 1
+  a - g + j ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(c.sh.lh - c.sh.lkv)
+ g := ↑(nH c)
+ j := ↑c.sh.lh
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostQkvBase
+error: build failed
+build rc 1 (13 s)
+== lake build ZK60Formal.BlockR13HostQkvMm ==
+✖ [3577/3578] Building ZK60Formal.BlockR13HostQkvBase (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.setup.json --json
+error: ZK60Formal/BlockR13HostQkvBase.lean:257:27: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  g ≥ 0
+  g - h ≤ -1
+  f ≥ 0
+  d ≥ 0
+  d - h ≤ 0
+  d ≥ 0
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑(c.sh.lh - c.sh.lkv)
+ f := ↑c.sh.lt
+ g := ↑(nH c)
+ h := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:266:52: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≤ 0
+  g ≥ 0
+  f ≥ 0
+  f - j ≥ 1
+  d ≥ 0
+  a ≥ 1
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(nH c)
+ g := ↑(c.sh.lh - c.sh.lkv)
+ j := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:267:54: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≥ 1
+  f ≥ 0
+  f - j ≤ 0
+  f ≥ 0
+  d ≥ 0
+  a ≥ 1
+  a - g + j ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(c.sh.lh - c.sh.lkv)
+ g := ↑(nH c)
+ j := ↑c.sh.lh
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostQkvBase
+error: build failed
+build rc 1 (16 s)
+== lake build ZK60Formal.BlockR13HostQkvNamed ==
+✖ [3577/3579] Building ZK60Formal.BlockR13HostQkvBase (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.setup.json --json
+error: ZK60Formal/BlockR13HostQkvBase.lean:257:27: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  g ≥ 0
+  g - h ≤ -1
+  f ≥ 0
+  d ≥ 0
+  d - h ≤ 0
+  d ≥ 0
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑(c.sh.lh - c.sh.lkv)
+ f := ↑c.sh.lt
+ g := ↑(nH c)
+ h := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:266:52: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≤ 0
+  g ≥ 0
+  f ≥ 0
+  f - j ≥ 1
+  d ≥ 0
+  a ≥ 1
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(nH c)
+ g := ↑(c.sh.lh - c.sh.lkv)
+ j := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:267:54: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≥ 1
+  f ≥ 0
+  f - j ≤ 0
+  f ≥ 0
+  d ≥ 0
+  a ≥ 1
+  a - g + j ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(c.sh.lh - c.sh.lkv)
+ g := ↑(nH c)
+ j := ↑c.sh.lh
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostQkvBase
+error: build failed
+build rc 1 (20 s)
+== lake build ZK60Formal.BlockR13HostQkvCfg ==
+✖ [3577/3578] Building ZK60Formal.BlockR13HostQkvBase (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostQkvBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostQkvBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostQkvBase.setup.json --json
+error: ZK60Formal/BlockR13HostQkvBase.lean:257:27: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  g ≥ 0
+  g - h ≤ -1
+  f ≥ 0
+  d ≥ 0
+  d - h ≤ 0
+  d ≥ 0
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑(c.sh.lh - c.sh.lkv)
+ f := ↑c.sh.lt
+ g := ↑(nH c)
+ h := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:266:52: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≤ 0
+  g ≥ 0
+  f ≥ 0
+  f - j ≥ 1
+  d ≥ 0
+  a ≥ 1
+  a ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(nH c)
+ g := ↑(c.sh.lh - c.sh.lkv)
+ j := ↑c.sh.lh
+error: ZK60Formal/BlockR13HostQkvBase.lean:267:54: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  g ≥ 0
+  g - j ≥ 1
+  f ≥ 0
+  f - j ≤ 0
+  f ≥ 0
+  d ≥ 0
+  a ≥ 1
+  a - g + j ≥ 1
+where
+ a := ↑c.sh.ldh
+ d := ↑c.sh.lt
+ f := ↑(c.sh.lh - c.sh.lkv)
+ g := ↑(nH c)
+ j := ↑c.sh.lh
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostQkvBase
+error: build failed
+build rc 1 (23 s)
+rc 1, 23 s

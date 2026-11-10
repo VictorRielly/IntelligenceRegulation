@@ -1,0 +1,2111 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/fzc_plan1.txt ==
+build ZK60Formal.BlockR13HostFzc
+build ZK60Formal.BlockR13HostFzcCfg
+build ZK60Formal.BlockR13HostFzcForm
+== lake build ZK60Formal.BlockR13HostFzc ==
+✖ [3576/3576] Building ZK60Formal.BlockR13HostFzc (2.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostFzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostFzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostFzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostFzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostFzc.setup.json --json
+error: ZK60Formal/BlockR13HostFzc.lean:242:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:242:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:273:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:273:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:289:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:289:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:300:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:300:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:326:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:326:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:359:9: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:359:75: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+warning: ZK60Formal/BlockR13HostFzc.lean:386:2: declaration uses `sorry`
+error: ZK60Formal/BlockR13HostFzc.lean:428:9: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:428:75: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:442:37: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.286 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b)
+    (?m.287 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b)
+    (?m.288 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+build rc 1 (7 s)
+== lake build ZK60Formal.BlockR13HostFzcCfg ==
+✖ [3576/3577] Building ZK60Formal.BlockR13HostFzc (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostFzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostFzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostFzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostFzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostFzc.setup.json --json
+error: ZK60Formal/BlockR13HostFzc.lean:242:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:242:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:273:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:273:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:289:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:289:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:300:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:300:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:326:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:326:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:359:9: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:359:75: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+warning: ZK60Formal/BlockR13HostFzc.lean:386:2: declaration uses `sorry`
+error: ZK60Formal/BlockR13HostFzc.lean:428:9: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:428:75: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:442:37: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.286 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b)
+    (?m.287 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b)
+    (?m.288 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+build rc 1 (11 s)
+== lake build ZK60Formal.BlockR13HostFzcForm ==
+✖ [3576/3577] Building ZK60Formal.BlockR13HostFzc (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostFzc.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostFzc.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostFzc.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostFzc.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostFzc.setup.json --json
+error: ZK60Formal/BlockR13HostFzc.lean:242:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:242:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:273:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:273:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:289:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:289:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:300:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:300:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:326:11: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:326:77: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:359:9: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:359:75: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:378:8: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.50 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b)
+    (?m.51 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) (?m.52 hrl aB hB ioIn ioOut ak hk e ev pub hg0 hg1 b) B ev b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+warning: ZK60Formal/BlockR13HostFzc.lean:386:2: declaration uses `sorry`
+error: ZK60Formal/BlockR13HostFzc.lean:428:9: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:428:75: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:450:28: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.298 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.299 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.300 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:449:17: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.295 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.296 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.297 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:448:28: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.292 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.293 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.294 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ sorry
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `Pb`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockPublic (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:447:17: don't know how to synthesize implicit argument `S`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.289 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.290 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b)
+    (?m.291 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ i b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+aB hB ioIn ioOut ak hk : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hg0 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+hg1 :
+  ∀ (b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool),
+    Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.F) b) Fp2.zero) = (algebraMap GF K) sorry
+f : (Fin (n + e) → K) → K
+hf :
+  ∀ (x : Fin (n + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 18 dr) (irFR c ls)))
+        (List.map (tabK U P D n e x)
+          (List.map (TabS.eval (Sym.eval hist 18 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabsFR c ls))))
+b✝ : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+i : Fin 2
+b : Fin (c.sh.logs Slot.W16R2.Dom.F) → Bool
+⊢ Block.BlockShape
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockR13HostFzc.lean:442:37: don't know how to synthesize implicit argument `Lay`
+  @vFR K inst✝¹ inst✝ U c ls ⋯ P D (?m.286 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b)
+    (?m.287 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b)
+    (?m.288 hrl hnlk n e hn aB hB ioIn ioOut ak hk hist dr pub hg0 hg1 f hf b✝ b) B (Sym.eval hist 18 dr) b
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : sorry
+B : sorry
+hrl : 0 < rowLog P Cm.a
+hnlk : (DefR13.lookups c Slot.W16R2.Dom.F).length = 14
+n e : ℕ
+hn : n = c.sh.logs Slot.W16R2.Dom.F
+build rc 1 (16 s)
+rc 1, 16 s

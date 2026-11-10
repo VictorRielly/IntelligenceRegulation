@@ -180,6 +180,7 @@ fn seeded_digest(sh: &Shape, blk: &BlockPublic, w: Witness) -> String {
 // (finding L35-7); a child of this module so that it uses the harness above (the file is in `src/`)
 #[cfg(test)] #[path = "../lean_l44_export_tests.rs"] mod lean_l44_export_tests;
 #[cfg(test)] #[path = "../lean_l47_export_tests.rs"] mod lean_l47_export_tests;
+#[cfg(test)] #[path = "../lean_l49_export_tests.rs"] mod lean_l49_export_tests;
 
 /// the bytes of one block core: `(total, A opening, H opening, M opening, slots)`
 fn core_bytes(core: &CoreProof) -> (usize, usize, usize, usize, usize) {

@@ -1,0 +1,24 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/tzc_plan4.txt ==
+build ZK60Formal.BlockR13HostTzc
+build ZK60Formal.BlockR13HostTzcForm
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_tzc_axioms.lean
+== lake build ZK60Formal.BlockR13HostTzc ==
+Build completed successfully (3575 jobs).
+build rc 0 (2 s)
+== lake build ZK60Formal.BlockR13HostTzcForm ==
+Build completed successfully (3576 jobs).
+build rc 0 (17 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_tzc_axioms.lean ==
+'ZK60.Exec.Block.Join.R13H.Tzc.formAt_tzcR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcCfg_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcCfg_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcCfg_shieldExport' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcR_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.ssR_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcR_ent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcR_Z' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcR_H0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcR_H1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Tzc.tzcR_irEval' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_tzc_axioms.lean (22 s)
+rc 0, 22 s

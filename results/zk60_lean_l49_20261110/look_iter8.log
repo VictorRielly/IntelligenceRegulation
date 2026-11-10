@@ -1,0 +1,10 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/look_plan8.txt ==
+build ZK60Formal.BlockR13LookRelHost
+build ZK60Formal.BlockR13LookRelCore
+== lake build ZK60Formal.BlockR13LookRelHost ==
+Build completed successfully (3599 jobs).
+build rc 0 (7 s)
+== lake build ZK60Formal.BlockR13LookRelCore ==
+Build completed successfully (3592 jobs).
+build rc 0 (12 s)
+rc 0, 12 s

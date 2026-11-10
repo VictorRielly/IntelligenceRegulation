@@ -1,0 +1,99 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/szc_plan4.txt ==
+build ZK60Formal.BlockR13HostSzcTabs ZK60Formal.BlockR13HostSzcCfg
+build ZK60Formal.BlockR13HostSzc
+== lake build ZK60Formal.BlockR13HostSzcTabs ZK60Formal.BlockR13HostSzcCfg ==
+warning: ZK60Formal/BlockR13HostSzcTabs.lean:650:5: Variable name `hlH` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hlH
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+Build completed successfully (3569 jobs).
+build rc 0 (24 s)
+== lake build ZK60Formal.BlockR13HostSzc ==
+warning: ZK60Formal/BlockR13HostSzcTabs.lean:650:5: Variable name `hlH` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hlH
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✖ [3580/3582] Building ZK60Formal.BlockR13HostSzcVals (3.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostSzcVals.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzcVals.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzcVals.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostSzcVals.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostSzcVals.setup.json --json
+error: ZK60Formal/BlockR13HostSzcVals.lean:53:6: Unknown identifier `G.logS`
+error: ZK60Formal/BlockR13HostSzcVals.lean:52:39: unsolved goals
+c : W16Cfg
+⊢ nHt c ≤ c.sh.logs Slot.W16R2.Dom.S
+error: ZK60Formal/BlockR13HostSzcVals.lean:58:6: Unknown identifier `G.logHt`
+error: ZK60Formal/BlockR13HostSzcVals.lean:57:51: unsolved goals
+c : W16Cfg
+⊢ c.sh.logs Slot.W16R2.Dom.Ht ≤ c.sh.logs Slot.W16R2.Dom.S
+error: ZK60Formal/BlockR13HostSzcVals.lean:80:37: Function expected at
+  hHtS
+but this term has type
+  nHt ?m.34 ≤ (W16Cfg.sh ?m.34).logs Slot.W16R2.Dom.S
+
+Note: Expected a function because this term is being applied to the argument
+  G
+warning: ZK60Formal/BlockR13HostSzcVals.lean:86:42: This simp argument is unused:
+  castB
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostSzcVals.lean:88:42: This simp argument is unused:
+  castB
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostSzcVals.lean:90:40: This simp argument is unused:
+  castB
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/BlockR13HostSzcVals.lean:111:43: Function expected at
+  hHtS
+but this term has type
+  nHt ?m.73 ≤ (W16Cfg.sh ?m.73).logs Slot.W16R2.Dom.S
+
+Note: Expected a function because this term is being applied to the argument
+  G
+error: ZK60Formal/BlockR13HostSzcVals.lean:105:110: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+off : ℕ
+b : Fin (c.sh.logs Slot.W16R2.Dom.S) → Bool
+i : Fin (nHt c)
+⊢ b ⟨↑i, ⋯⟩ = if h : ↑(Fin.cast ⋯ i) < c.sh.logs Slot.W16R2.Dom.S then b ⟨↑(Fin.cast ⋯ i), h⟩ else false
+error: ZK60Formal/BlockR13HostSzcVals.lean:272:4: Type mismatch
+  Eq.trans
+    (W16.Szc.lkRels_cons3 U e0 e1 e2 ?m.546
+      (List.map (LkD.map ?m.550) (List.map (LkD.map ?m.549) (DefR13.lksS c shapedR Slot.W16R2.Dom.S)))
+      (lksSR_pos c ?m.549 ?m.550))
+    ?m.555
+has type
+  lkRels (cstK U) (e0 :: e1 :: e2 :: ?m.546) 16 0
+      (List.map (LkD.map ?m.550) (List.map (LkD.map ?m.549) (DefR13.lksS c shapedR Slot.W16R2.Dom.S))) =
+    ?m.554
+but is expected to have type
+  lkRels (cstK U) (valsR U G P D B e0 e1 e2 b) (17 + 2 * ls) 0
+      (List.map (LkD.map (Fp2.toK U))
+        (List.map (LkD.map (Sym.eval hist 17 dr)) (DefR13.lksS c shapedR Slot.W16R2.Dom.S))) =
+    lkRels (cstK U) (valsR U G P D B 0 0 0 b) (17 + 2 * ls) 0 (lksKR U c (hist.beta, hist.gamma, hist.alpha))
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostSzcVals
+error: build failed
+build rc 1 (30 s)
+rc 1, 30 s

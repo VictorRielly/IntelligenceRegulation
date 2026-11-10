@@ -1,0 +1,61 @@
+D63 lane L49: rules for every sub-agent of the lane (2026-11-10)
+
+You work for Lean lane L49 of the IntelligenceRegulation project (a PUBLIC repo), in the lane's git worktree
+  WT = /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf
+(branch worktree-agent-a09954f00024476bf, perf's HEAD with lane L47 merged). Several sub-agents work in this SAME
+worktree at the same time, each on its own files. Evidence directory: OUT = WT/results/zk60_lean_l49_20261110.
+
+0. Read first: WT/results/zk60_lean_resume_20261109/LANE_RULES.md (the standing rules; where this file and it differ,
+   this file wins), then the lane's foundation WT/formal/ZK60Formal/BlockR13HostBase.lean (namespace
+   ZK60.Exec.Block.Join.R13H) in full, then your assignment's template files.
+
+1. Files. Create and edit ONLY the files your assignment names as yours (plus your own logs, plans and probes in OUT,
+   all prefixed with your tag). Never edit BlockR13HostBase.lean, the root formal/ZK60Formal.lean (the lane adds the
+   root imports at the end), another sub-agent's files, or any existing file of the repository. If the foundation
+   lacks a lemma, prove it in your own file. If a foundation definition is wrong or cannot be met by the real system,
+   say so in your report (a finding) and work around it locally; do not patch it.
+
+2. Namespace: ZK60.Exec.Block.Join.R13H.<Sub> with your Sub, so declaration names never clash between sub-agents.
+
+3. Builds only through the resource guard, one job per iteration, in the background:
+     write OUT/<tag>_planN.txt  (lines: `build ZK60Formal.<Module>`, or `lean <absolute path of a probe .lean>`)
+     python3 OUT/run_guarded.py lean-l49-<tag> OUT/<tag>_iterN.log OUT/<tag>_iterN.done /bin/bash OUT/iter.sh OUT/<tag>_planN.txt
+   with run_in_background, then wait for the completion notification (never poll in a loop, never sleep). Read the
+   log afterwards. Never run lake, lean or cargo directly. The heavy lock is shared with the other sub-agents, the
+   coordinator's merged-tree checks and other projects: make every iteration count (probe a doubtful tactic in a
+   small probe file OUT/l49_<tag>_probe.lean first). `lake build ZK60Formal.<YourModule>` works without a root
+   import. A module of yours that imports another module of yours is built with it.
+
+4. Commit after every green iteration (a work-in-progress commit is fine; say so in its message):
+     git add <your files ...>
+     git commit -m "<message>" -- <your files ...>
+   ALWAYS the `--` pathspec form, so that no other sub-agent's staged file is swept into your commit. Run git plainly
+   from WT (no cd, no -C). Include your logs and plans. Message: first line "D63 lane L49 (<tag>): ...", a short body,
+   and end with exactly these two trailer lines:
+     Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+     Claude-Session: https://claude.ai/code/session_01B4wbWkXGUwPN4DJA32rK5f
+   If .git/index.lock exists, wait a little and retry. Never `git add -A`/`git add .`, never stash, reset, checkout,
+   rebase, push or merge. Do not commit files over 1 MB, secrets, personal data or model weights.
+
+5. Proof hygiene (LANE_RULES): none of sorry, axiom, native_decide, admit, maxRecDepth, maxHeartbeats,
+   implemented_by, @[extern], bv_decide, ofReduceBool, not even in comments. Axioms at most propext,
+   Classical.choice, Quot.sound. Use ite_eq_left/right, dite_eq_left/right, Fin.val_castAdd/natAdd (the deprecated
+   if_pos/if_neg/dif_pos/dif_neg/Fin.coe_castAdd/natAdd give warnings: L44-D1). Zero warnings in your modules.
+   Premises are hypotheses, never axioms. Never weaken a statement.
+
+6. Generic in the configuration. The R13 rung (DefR13.cfgRungR13, ls = 2) and the Shieldstral T128 R13 block
+   (DefR13.cfgShieldR13 L, ls = 1, for every one of its 26 layers L in ZK60.RunShape.Shield.shieldExport) differ in
+   axis widths, softmax limb count and precision. State your main theorems for `c : W16Cfg`, `ls : ℕ`,
+   `G : GeoR c ls`, with every further fact about `c` you need (raw-slot equalities
+   `DefR13.rawSlot c k = <your explicit raw slot> c`, helper counts, padOn, ...) collected in ONE premise structure of
+   your own (`<Sub>Cfg c ...`), PROVED at the rung and at every Shieldstral layer (try symbolic `L` by `rfl` first;
+   otherwise `∀ L ∈ shieldExport` with `rcases hL with rfl | ... <;> rfl` one layer at a time, as L47's
+   rawSlot19_shield). Evaluate only raw slots, never whole programs (L47-6; L44-R4: a whole-program kernel decision at
+   Shieldstral reached 33 GiB). The numbered program's slot is the raw slot numbered: foundation `progR13_slot`.
+   Every premise you introduce must be met by the real objects: for each, say whether it is PROVED at both
+   configurations, CHECKED against the code, or ARGUED.
+
+7. Your report (your last message, under about 60 lines): the theorems (names, one-line meanings); your main
+   theorem's exact premises and how each is met; your commits; exactly what you could not finish; findings numbered
+   L49-<TAG>-n with a severity (High/Medium/Low/Info) and whom they are for. Label every figure PROVED, CHECKED,
+   MEASURED or ESTIMATE.

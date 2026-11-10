@@ -1,0 +1,161 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/look_plan5.txt ==
+build ZK60Formal.BlockR13LookSum
+build ZK60Formal.BlockR13LookCov
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/look_axioms.lean
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/zk60-artifacts/l47/l47_r13_full.txt neg
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg
+== lake build ZK60Formal.BlockR13LookSum ==
+Build completed successfully (3582 jobs).
+build rc 0 (10 s)
+== lake build ZK60Formal.BlockR13LookCov ==
+Build completed successfully (3584 jobs).
+build rc 0 (13 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/look_axioms.lean ==
+'ZK60.Exec.Block.Join.R13H.Look.bLk' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.pLk' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkLe' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.lkDe' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkQe' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkKe' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkSe' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkFe' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.LookCfg' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lookCfg_rung' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.cfgShield_shL' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.ids_shieldL' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lookCfg_shield' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.Dm.dom' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.Dm.log' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.Dm.np' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.Dm.fh' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.Sg.log' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.Sg.hp' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.SgIx' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.PrIx' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.TbIx' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.sum_sg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.sum_dm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.card_sgIx' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.card_prIx' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.card_tbIx' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.card_sgIx_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.card_prIx_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.card_sgIx_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.card_prIx_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkN_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkN_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.domList' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.domList_length' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkLen' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.nHelp_eq' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hDoms_eq' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.fh_eq' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.logupSumR13' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.dofAR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.dofAR_aPl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkTupR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkAtR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.expTupR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.actTupR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.sgTupR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.AlkR13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.mlkR13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.TR13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hN_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hN_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.he_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.he_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.tabTupE_code' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hTtab_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hnG_shield' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hTtab_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lt_of_getD' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.getD_appL' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.getD_appR' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.getD_mapRange' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkS0' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkSe_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkS0_len' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkSe_head' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkSe_sr' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkSe_srPin' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkS0_sr_len' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkSe_sg' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkSe_sgPin' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.lkL'' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkD'' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkQ'' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkK'' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkS'' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lkF'' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.exists_lkR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.aPl_castB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covR1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covP' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covByte' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covBytes' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covPin' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covSym' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covLimbR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covExp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.covAct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.cover_xtR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hcov_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hcov_rung' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hcov_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.sgR' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lsR' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.logupSumR13_parts' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.sgR_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.sgR_canon' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.log14' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.lsR_ge' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.logupSumR13_empty' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.domAt' does not depend on any axioms
+'ZK60.Exec.Block.Join.R13H.Look.domList_getD' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.PSpR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.fR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.sum_flatMap2R' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.R13H.Look.listSum_range' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.logupSumR13_planes' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.toK_negOneR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.fR_dom' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.R13H.Look.hhr_sumR' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/look_axioms.lean (21 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/zk60-artifacts/l47/l47_r13_full.txt neg ==
+corpus /Users/victorrielly/zk60-artifacts/l47/l47_r13_full.txt: R13_RUNG_H24, SUMCLAIM 108 parts, 108 PART lines; Lean 108 parts
+checks: 113 passed, 0 failed
+negative control CAUGHT (1 failed): a part's offset (part 37 + 16384)
+negative control CAUGHT (1 failed): a part's log size (part 40: 14)
+negative control CAUGHT (1 failed): a table helper's sign (part 100: +1)
+negative control CAUGHT (1 failed): an imaginary half's coefficient (part 7: 1)
+negative control CAUGHT (1 failed): a part's point (part 3: one coordinate)
+negative control CAUGHT (2 failed): a missing part (the last)
+negative control CAUGHT (2 failed): two parts swapped (64, 66)
+negative control CAUGHT (1 failed): the value (1)
+negative control CAUGHT (1 failed): the header (the W16R2 rung's)
+negative control CAUGHT (6 failed): Lean: the table helpers' sign +1
+negative control CAUGHT (2 failed): Lean: H_U's sign -1
+negative control CAUGHT (54 failed): Lean: the imaginary halves' coefficient sign (not sign·u)
+negative control CAUGHT (14 failed): Lean: Dom::Q's helpers at log size 14
+negative controls: 13 of 13 caught
+rc 0 for run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/zk60-artifacts/l47/l47_r13_full.txt neg (25 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg ==
+corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt: R13_RUNG_H24, SUMCLAIM 108 parts, 108 PART lines; Lean 108 parts
+checks: 113 passed, 0 failed
+negative control CAUGHT (1 failed): a part's offset (part 37 + 16384)
+negative control CAUGHT (1 failed): a part's log size (part 40: 14)
+negative control CAUGHT (1 failed): a table helper's sign (part 100: +1)
+negative control CAUGHT (1 failed): an imaginary half's coefficient (part 7: 1)
+negative control CAUGHT (1 failed): a part's point (part 3: one coordinate)
+negative control CAUGHT (2 failed): a missing part (the last)
+negative control CAUGHT (2 failed): two parts swapped (64, 66)
+negative control CAUGHT (1 failed): the value (1)
+negative control CAUGHT (1 failed): the header (the W16R2 rung's)
+negative control CAUGHT (6 failed): Lean: the table helpers' sign +1
+negative control CAUGHT (2 failed): Lean: H_U's sign -1
+negative control CAUGHT (54 failed): Lean: the imaginary halves' coefficient sign (not sign·u)
+negative control CAUGHT (14 failed): Lean: Dom::Q's helpers at log size 14
+negative controls: 13 of 13 caught
+rc 0 for run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg (32 s)
+rc 0, 32 s
