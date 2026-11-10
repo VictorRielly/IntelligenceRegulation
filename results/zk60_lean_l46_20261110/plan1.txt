@@ -1,0 +1,2 @@
+build ZK60Formal.RunCoverPRk ZK60Formal.BlockAlgLkR13
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a630e4aa243e2aae2/formal/ZK60Formal/RunDoomBlk.lean

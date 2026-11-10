@@ -1,0 +1,10 @@
+== plan plan3.txt ==
+build ZK60Formal.RunDoomBlk
+build ZK60Formal.RunDoomTop
+== lake build ZK60Formal.RunDoomBlk ==
+Build completed successfully (3613 jobs).
+build rc 0 (17 s)
+== lake build ZK60Formal.RunDoomTop ==
+Build completed successfully (3614 jobs).
+build rc 0 (21 s)
+rc 0, 21 s

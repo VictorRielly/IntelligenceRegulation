@@ -313,3 +313,5 @@ import ZK60Formal.BlockLkLzc
 import ZK60Formal.BlockLkGd
 import ZK60Formal.BlockHostQkv
 import ZK60Formal.BlockHostFinal
+import ZK60Formal.RunDoomBlk
+import ZK60Formal.RunDoomTop
