@@ -1,0 +1,164 @@
+== plan results/zk60_lean_l47_20261110/rel_plan3.txt ==
+build ZK60Formal.BlockLookSum
+build ZK60Formal.BlockLookRelW16
+build ZK60Formal.BlockLookRelFinal
+== lake build ZK60Formal.BlockLookSum ==
+Build completed successfully (3572 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.BlockLookRelW16 ==
+Build completed successfully (3575 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.BlockLookRelFinal ==
+✖ [3576/3576] Building ZK60Formal.BlockLookRelFinal (1.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelFinal.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelFinal.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelFinal.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelFinal.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelFinal.setup.json --json
+error: ZK60Formal/BlockLookRelFinal.lean:50:36: don't know how to synthesize implicit argument `L`
+  @mlkW K inst✝¹ inst✝ U P (?m.278 P D hln Pb Lay B nG bga hα hβ hD hQ hK hS hF hLz hT hcl hzs Alk hA m j) (fun x => D)
+    [] j
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+P : BlockParams
+D : CmData K P
+hln : rowLog P Cm.h = 14
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+nG : ℕ
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+hD : ∀ (κ : ℕ), 6 ≤ κ → κ < 16 → ∀ (b : Fin 14 → Bool), Dzc.xcDzc U P D Pb Lay B bga κ b = 0
+hQ : ∀ (κ : ℕ), 1 ≤ κ → κ < 4 → ∀ (b : Fin 15 → Bool), Qkv.xcQzc U P D Pb Lay B bga κ b = 0
+hK : ∀ (κ : ℕ), 1 ≤ κ → κ < 4 → ∀ (b : Fin 14 → Bool), Qkv.xcKvzc U P D Pb Lay B bga κ b = 0
+hS : ∀ (κ : ℕ), 4 ≤ κ → κ < 10 → ∀ (b : Fin 14 → Bool), Szc.xcSzc U P D Pb Lay B bga κ b = 0
+hF : ∀ (κ : ℕ), 1 ≤ κ → κ < 6 → ∀ (b : Fin 15 → Bool), Fzc.xcFzc U P D Pb Lay B bga κ b = 0
+hLz : ∀ (b : Fin 14 → Bool), Lk.cLzc U P D gateLW bga b = 0
+hT : ∀ (k : Fin 17) (b : Fin 14 → Bool), cTabW U P D Pb nG bga k b = 0
+hcl : Link.claimSem U (D.rows Cm.h) (rowLog P Cm.h) (D.Q Cm.h) (D.X Cm.h) (logupSumW16 cfgRungW16) = 0
+hzs : ∑ b, hPl U P D 1736704 1753088 14 b = 0
+Alk : SgIx ⊕ PrIx ⊕ PrIx → Tup K
+hA : ∀ (l : SgIx ⊕ PrIx ⊕ PrIx), Alk l = AlkW U P Pb Lay B (fun x => D) [] l
+m : TbIx → K
+j : TbIx
+⊢ ℕ
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockLookRelFinal.lean:50:58: don't know how to synthesize implicit argument `α`
+  @List.nil (QB (?m.278 P D hln Pb Lay B nG bga hα hβ hD hQ hK hS hF hLz hT hcl hzs Alk hA m j) × Dig)
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+P : BlockParams
+D : CmData K P
+hln : rowLog P Cm.h = 14
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+nG : ℕ
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+hD : ∀ (κ : ℕ), 6 ≤ κ → κ < 16 → ∀ (b : Fin 14 → Bool), Dzc.xcDzc U P D Pb Lay B bga κ b = 0
+hQ : ∀ (κ : ℕ), 1 ≤ κ → κ < 4 → ∀ (b : Fin 15 → Bool), Qkv.xcQzc U P D Pb Lay B bga κ b = 0
+hK : ∀ (κ : ℕ), 1 ≤ κ → κ < 4 → ∀ (b : Fin 14 → Bool), Qkv.xcKvzc U P D Pb Lay B bga κ b = 0
+hS : ∀ (κ : ℕ), 4 ≤ κ → κ < 10 → ∀ (b : Fin 14 → Bool), Szc.xcSzc U P D Pb Lay B bga κ b = 0
+hF : ∀ (κ : ℕ), 1 ≤ κ → κ < 6 → ∀ (b : Fin 15 → Bool), Fzc.xcFzc U P D Pb Lay B bga κ b = 0
+hLz : ∀ (b : Fin 14 → Bool), Lk.cLzc U P D gateLW bga b = 0
+hT : ∀ (k : Fin 17) (b : Fin 14 → Bool), cTabW U P D Pb nG bga k b = 0
+hcl : Link.claimSem U (D.rows Cm.h) (rowLog P Cm.h) (D.Q Cm.h) (D.X Cm.h) (logupSumW16 cfgRungW16) = 0
+hzs : ∑ b, hPl U P D 1736704 1753088 14 b = 0
+Alk : SgIx ⊕ PrIx ⊕ PrIx → Tup K
+hA : ∀ (l : SgIx ⊕ PrIx ⊕ PrIx), Alk l = AlkW U P Pb Lay B (fun x => D) [] l
+m : TbIx → K
+j : TbIx
+⊢ Type
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockLookRelFinal.lean:50:50: Failed to infer binder type
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockLookRelFinal.lean:49:60: don't know how to synthesize implicit argument `L`
+  @AlkW K inst✝¹ inst✝ U P (?m.277 P D hln Pb Lay B nG bga hα hβ hD hQ hK hS hF hLz hT hcl hzs Alk l) S Pb Lay B
+    (fun x => D) [] l
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+P : BlockParams
+D : CmData K P
+hln : rowLog P Cm.h = 14
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+nG : ℕ
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+hD : ∀ (κ : ℕ), 6 ≤ κ → κ < 16 → ∀ (b : Fin 14 → Bool), Dzc.xcDzc U P D Pb Lay B bga κ b = 0
+hQ : ∀ (κ : ℕ), 1 ≤ κ → κ < 4 → ∀ (b : Fin 15 → Bool), Qkv.xcQzc U P D Pb Lay B bga κ b = 0
+hK : ∀ (κ : ℕ), 1 ≤ κ → κ < 4 → ∀ (b : Fin 14 → Bool), Qkv.xcKvzc U P D Pb Lay B bga κ b = 0
+hS : ∀ (κ : ℕ), 4 ≤ κ → κ < 10 → ∀ (b : Fin 14 → Bool), Szc.xcSzc U P D Pb Lay B bga κ b = 0
+hF : ∀ (κ : ℕ), 1 ≤ κ → κ < 6 → ∀ (b : Fin 15 → Bool), Fzc.xcFzc U P D Pb Lay B bga κ b = 0
+hLz : ∀ (b : Fin 14 → Bool), Lk.cLzc U P D gateLW bga b = 0
+hT : ∀ (k : Fin 17) (b : Fin 14 → Bool), cTabW U P D Pb nG bga k b = 0
+hcl : Link.claimSem U (D.rows Cm.h) (rowLog P Cm.h) (D.Q Cm.h) (D.X Cm.h) (logupSumW16 cfgRungW16) = 0
+hzs : ∑ b, hPl U P D 1736704 1753088 14 b = 0
+Alk : SgIx ⊕ PrIx ⊕ PrIx → Tup K
+l : SgIx ⊕ PrIx ⊕ PrIx
+⊢ ℕ
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockLookRelFinal.lean:49:91: don't know how to synthesize implicit argument `α`
+  @List.nil (QB (?m.277 P D hln Pb Lay B nG bga hα hβ hD hQ hK hS hF hLz hT hcl hzs Alk l) × Dig)
+context:
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+P : BlockParams
+D : CmData K P
+hln : rowLog P Cm.h = 14
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+nG : ℕ
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+hD : ∀ (κ : ℕ), 6 ≤ κ → κ < 16 → ∀ (b : Fin 14 → Bool), Dzc.xcDzc U P D Pb Lay B bga κ b = 0
+hQ : ∀ (κ : ℕ), 1 ≤ κ → κ < 4 → ∀ (b : Fin 15 → Bool), Qkv.xcQzc U P D Pb Lay B bga κ b = 0
+hK : ∀ (κ : ℕ), 1 ≤ κ → κ < 4 → ∀ (b : Fin 14 → Bool), Qkv.xcKvzc U P D Pb Lay B bga κ b = 0
+hS : ∀ (κ : ℕ), 4 ≤ κ → κ < 10 → ∀ (b : Fin 14 → Bool), Szc.xcSzc U P D Pb Lay B bga κ b = 0
+hF : ∀ (κ : ℕ), 1 ≤ κ → κ < 6 → ∀ (b : Fin 15 → Bool), Fzc.xcFzc U P D Pb Lay B bga κ b = 0
+hLz : ∀ (b : Fin 14 → Bool), Lk.cLzc U P D gateLW bga b = 0
+hT : ∀ (k : Fin 17) (b : Fin 14 → Bool), cTabW U P D Pb nG bga k b = 0
+hcl : Link.claimSem U (D.rows Cm.h) (rowLog P Cm.h) (D.Q Cm.h) (D.X Cm.h) (logupSumW16 cfgRungW16) = 0
+hzs : ∑ b, hPl U P D 1736704 1753088 14 b = 0
+Alk : SgIx ⊕ PrIx ⊕ PrIx → Tup K
+l : SgIx ⊕ PrIx ⊕ PrIx
+⊢ Type
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockLookRelFinal.lean:49:83: Failed to infer binder type
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: ZK60Formal/BlockLookRelFinal.lean:176:9: Unknown identifier `hhr_core`
+error: ZK60Formal/BlockLookRelFinal.lean:179:2: No goals to be solved
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelFinal
+error: build failed
+build rc 1 (23 s)
+rc 1, 23 s

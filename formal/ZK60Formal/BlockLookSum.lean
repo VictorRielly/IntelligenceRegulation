@@ -204,9 +204,9 @@ theorem zcB_right (m : ℕ) (x : Fin m → Bool) (y : Fin 14 → Bool) (a : Fin 
   simp only [h, ↓reduceDIte]
   exact congrArg bit (Fin.append_right x y a)
 
+omit [Algebra GF K] in
 /-- **At the Boolean points a slice's row weight times its column weight, summed over the cube, is the row's
 indicator** (a slice of `2^(m + 14)` entries on rows of `2^14`). -/
-omit [Algebra GF K] in
 theorem core_rowKey (m off off' i t : ℕ) :
     ∑ c : Fin (m + 14) → Bool,
         partRowK 14 off (m + 14) (fun a => if h : a < m + 14 then (bit (c ⟨a, h⟩) : K) else 0) i

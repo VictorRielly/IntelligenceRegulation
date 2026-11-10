@@ -1,0 +1,214 @@
+== plan results/zk60_lean_l47_20261110/rel_plan3.txt ==
+build ZK60Formal.BlockLookSum
+build ZK60Formal.BlockLookRelW16
+build ZK60Formal.BlockLookRelFinal
+== lake build ZK60Formal.BlockLookSum ==
+Build completed successfully (3572 jobs).
+build rc 0 (1 s)
+== lake build ZK60Formal.BlockLookRelW16 ==
+✖ [3575/3575] Building ZK60Formal.BlockLookRelW16 (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelW16.setup.json --json
+warning: ZK60Formal/BlockLookRelW16.lean:221:4: `Fin.coe_castSucc` has been deprecated: Use `Fin.val_castSucc` instead
+error: ZK60Formal/BlockLookRelW16.lean:224:2: ring failed, ring expressions not equal
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+P : BlockParams
+D : CmData K P
+hln : rowLog P Cm.h = 14
+hcl : (List.map (fun hp => Fp2.toK U (sgW hp) * PSp U P D hp (lsW hp)) (List.range 46)).sum = 0
+hzs : ∑ b, hPl U P D 1736704 1753088 14 b = 0
+hzs' : PSp U P D 45 14 = 0
+hcl' :
+  PSp U P D 0 14 + PSp U P D 1 14 + PSp U P D 2 14 + PSp U P D 3 14 + PSp U P D 4 14 + PSp U P D 5 14 + PSp U P D 6 14 +
+                                                                                  PSp U P D 7 14 +
+                                                                                PSp U P D 8 14 +
+                                                                              PSp U P D 9 14 +
+                                                                            PSp U P D 10 14 +
+                                                                          PSp U P D 11 15 +
+                                                                        PSp U P D 12 15 +
+                                                                      PSp U P D 13 15 +
+                                                                    PSp U P D 14 14 +
+                                                                  PSp U P D 15 14 +
+                                                                PSp U P D 16 14 +
+                                                              PSp U P D 17 14 +
+                                                            PSp U P D 18 14 +
+                                                          PSp U P D 19 14 +
+                                                        PSp U P D 20 14 +
+                                                      PSp U P D 21 14 +
+                                                    PSp U P D 22 14 +
+                                                  PSp U P D 23 15 +
+                                                PSp U P D 24 15 +
+                                              PSp U P D 25 15 +
+                                            PSp U P D 26 15 +
+                                          PSp U P D 27 15 +
+                                        -PSp U P D 28 14 +
+                                      -PSp U P D 29 14 +
+                                    -PSp U P D 30 14 +
+                                  -PSp U P D 31 14 +
+                                -PSp U P D 32 14 +
+                              -PSp U P D 33 14 +
+                            -PSp U P D 34 14 +
+                          -PSp U P D 35 14 +
+                        -PSp U P D 36 14 +
+                      -PSp U P D 37 14 +
+                    -PSp U P D 38 14 +
+                  -PSp U P D 39 14 +
+                -PSp U P D 40 14 +
+              -PSp U P D 41 14 +
+            -PSp U P D 42 14 +
+          -PSp U P D 43 14 +
+        -PSp U P D 44 14 +
+      0 =
+    0
+hS :
+  ∑ i, hPl U P D (hOff cfgRungW16 i.fst.hp).1 (hOff cfgRungW16 i.fst.hp).2 i.fst.log i.snd =
+    PSp U P D 10 14 + (PSp U P D 21 14 + (PSp U P D 26 15 + (PSp U P D 22 14 + PSp U P D 27 15)))
+hPr :
+  ∑ k, hPl U P D (hOff cfgRungW16 (k.fst.fh + ↑k.snd.1)).1 (hOff cfgRungW16 (k.fst.fh + ↑k.snd.1)).2 k.fst.log k.snd.2 =
+    ∑ d, ∑ j, PSp U P D (d.fh + ↑j) d.log
+hTb : ∑ j, helpTabW U P D (↑j.1) j.2 = ∑ k, PSp U P D (28 + ↑k) 14
+⊢ ↑Finset.univ.card * PSp U P D 0 14 - PSp U P D 0 14 + ∑ j, PSp U P D (1 + ↑j) 14 + ∑ j, PSp U P D (11 + ↑j) 15 +
+                                                      ∑ j, PSp U P D (14 + ↑j) 14 +
+                                                    ∑ j, PSp U P D (17 + ↑j) 14 +
+                                                  ∑ j, PSp U P D (23 + ↑j) 15 -
+                                                PSp U P D 1 14 -
+                                              PSp U P D 2 14 -
+                                            PSp U P D 3 14 -
+                                          PSp U P D 4 14 -
+                                        PSp U P D 5 14 -
+                                      PSp U P D 6 14 -
+                                    PSp U P D 7 14 -
+                                  PSp U P D 8 14 -
+                                PSp U P D 9 14 -
+                              PSp U P D 11 15 -
+                            PSp U P D 12 15 -
+                          PSp U P D 13 15 -
+                        PSp U P D 14 14 -
+                      PSp U P D 15 14 -
+                    PSp U P D 16 14 -
+                  PSp U P D 17 14 -
+                PSp U P D 18 14 -
+              PSp U P D 19 14 -
+            PSp U P D 20 14 -
+          PSp U P D 23 15 -
+        PSp U P D 24 15 -
+      PSp U P D 25 15 =
+    0
+warning: ZK60Formal/BlockLookRelW16.lean:221:4: This simp argument is unused:
+  Fin.coe_castSucc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [LkDom.np, LkDom.fh, LkDom.log, Fin.sum_univ_succ, Fin.sum_univ_zero, Fin.val_zero, Fin.val_succ]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelW16
+error: build failed
+build rc 1 (5 s)
+== lake build ZK60Formal.BlockLookRelFinal ==
+✖ [3575/3576] Building ZK60Formal.BlockLookRelW16 (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelW16.setup.json --json
+warning: ZK60Formal/BlockLookRelW16.lean:221:4: `Fin.coe_castSucc` has been deprecated: Use `Fin.val_castSucc` instead
+error: ZK60Formal/BlockLookRelW16.lean:224:2: ring failed, ring expressions not equal
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+P : BlockParams
+D : CmData K P
+hln : rowLog P Cm.h = 14
+hcl : (List.map (fun hp => Fp2.toK U (sgW hp) * PSp U P D hp (lsW hp)) (List.range 46)).sum = 0
+hzs : ∑ b, hPl U P D 1736704 1753088 14 b = 0
+hzs' : PSp U P D 45 14 = 0
+hcl' :
+  PSp U P D 0 14 + PSp U P D 1 14 + PSp U P D 2 14 + PSp U P D 3 14 + PSp U P D 4 14 + PSp U P D 5 14 + PSp U P D 6 14 +
+                                                                                  PSp U P D 7 14 +
+                                                                                PSp U P D 8 14 +
+                                                                              PSp U P D 9 14 +
+                                                                            PSp U P D 10 14 +
+                                                                          PSp U P D 11 15 +
+                                                                        PSp U P D 12 15 +
+                                                                      PSp U P D 13 15 +
+                                                                    PSp U P D 14 14 +
+                                                                  PSp U P D 15 14 +
+                                                                PSp U P D 16 14 +
+                                                              PSp U P D 17 14 +
+                                                            PSp U P D 18 14 +
+                                                          PSp U P D 19 14 +
+                                                        PSp U P D 20 14 +
+                                                      PSp U P D 21 14 +
+                                                    PSp U P D 22 14 +
+                                                  PSp U P D 23 15 +
+                                                PSp U P D 24 15 +
+                                              PSp U P D 25 15 +
+                                            PSp U P D 26 15 +
+                                          PSp U P D 27 15 +
+                                        -PSp U P D 28 14 +
+                                      -PSp U P D 29 14 +
+                                    -PSp U P D 30 14 +
+                                  -PSp U P D 31 14 +
+                                -PSp U P D 32 14 +
+                              -PSp U P D 33 14 +
+                            -PSp U P D 34 14 +
+                          -PSp U P D 35 14 +
+                        -PSp U P D 36 14 +
+                      -PSp U P D 37 14 +
+                    -PSp U P D 38 14 +
+                  -PSp U P D 39 14 +
+                -PSp U P D 40 14 +
+              -PSp U P D 41 14 +
+            -PSp U P D 42 14 +
+          -PSp U P D 43 14 +
+        -PSp U P D 44 14 +
+      0 =
+    0
+hS :
+  ∑ i, hPl U P D (hOff cfgRungW16 i.fst.hp).1 (hOff cfgRungW16 i.fst.hp).2 i.fst.log i.snd =
+    PSp U P D 10 14 + (PSp U P D 21 14 + (PSp U P D 26 15 + (PSp U P D 22 14 + PSp U P D 27 15)))
+hPr :
+  ∑ k, hPl U P D (hOff cfgRungW16 (k.fst.fh + ↑k.snd.1)).1 (hOff cfgRungW16 (k.fst.fh + ↑k.snd.1)).2 k.fst.log k.snd.2 =
+    ∑ d, ∑ j, PSp U P D (d.fh + ↑j) d.log
+hTb : ∑ j, helpTabW U P D (↑j.1) j.2 = ∑ k, PSp U P D (28 + ↑k) 14
+⊢ ↑Finset.univ.card * PSp U P D 0 14 - PSp U P D 0 14 + ∑ j, PSp U P D (1 + ↑j) 14 + ∑ j, PSp U P D (11 + ↑j) 15 +
+                                                      ∑ j, PSp U P D (14 + ↑j) 14 +
+                                                    ∑ j, PSp U P D (17 + ↑j) 14 +
+                                                  ∑ j, PSp U P D (23 + ↑j) 15 -
+                                                PSp U P D 1 14 -
+                                              PSp U P D 2 14 -
+                                            PSp U P D 3 14 -
+                                          PSp U P D 4 14 -
+                                        PSp U P D 5 14 -
+                                      PSp U P D 6 14 -
+                                    PSp U P D 7 14 -
+                                  PSp U P D 8 14 -
+                                PSp U P D 9 14 -
+                              PSp U P D 11 15 -
+                            PSp U P D 12 15 -
+                          PSp U P D 13 15 -
+                        PSp U P D 14 14 -
+                      PSp U P D 15 14 -
+                    PSp U P D 16 14 -
+                  PSp U P D 17 14 -
+                PSp U P D 18 14 -
+              PSp U P D 19 14 -
+            PSp U P D 20 14 -
+          PSp U P D 23 15 -
+        PSp U P D 24 15 -
+      PSp U P D 25 15 =
+    0
+warning: ZK60Formal/BlockLookRelW16.lean:221:4: This simp argument is unused:
+  Fin.coe_castSucc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [LkDom.np, LkDom.fh, LkDom.log, Fin.sum_univ_succ, Fin.sum_univ_zero, Fin.val_zero, Fin.val_succ]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelW16
+error: build failed
+build rc 1 (9 s)
+rc 1, 9 s
