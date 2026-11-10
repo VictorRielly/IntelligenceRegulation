@@ -1,0 +1,46 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a48b6de5386be5a86/results/zk60_lean_l31_20261109/plan.txt ==
+build ZK60Formal.BlockInstRead
+build ZK60Formal.BlockInstProf
+build ZK60Formal.BlockInstRung
+build ZK60Formal.BlockInstShield
+== lake build ZK60Formal.BlockInstRead ==
+warning: ZK60Formal/BlockInstRead.lean:116:31: This simp argument is unused:
+  runOps_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [opTrace_append, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Build completed successfully (3489 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.BlockInstProf ==
+warning: ZK60Formal/BlockInstRead.lean:116:31: This simp argument is unused:
+  runOps_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [opTrace_append, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Build completed successfully (3506 jobs).
+build rc 0 (23 s)
+== lake build ZK60Formal.BlockInstRung ==
+warning: ZK60Formal/BlockInstRead.lean:116:31: This simp argument is unused:
+  runOps_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [opTrace_append, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Build completed successfully (3507 jobs).
+build rc 0 (30 s)
+== lake build ZK60Formal.BlockInstShield ==
+warning: ZK60Formal/BlockInstRead.lean:116:31: This simp argument is unused:
+  runOps_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [opTrace_append, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Build completed successfully (3507 jobs).
+build rc 0 (34 s)
+rc 0, 34 s

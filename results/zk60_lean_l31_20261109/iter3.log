@@ -1,0 +1,18 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a48b6de5386be5a86/results/zk60_lean_l31_20261109/plan.txt ==
+build ZK60Formal.SlotPolyInstMask
+build ZK60Formal.SlotPolyInstEval
+build ZK60Formal.BlockInstChainN
+build ZK60Formal.BlockInstFinal
+== lake build ZK60Formal.SlotPolyInstMask ==
+Build completed successfully (3510 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.SlotPolyInstEval ==
+Build completed successfully (3511 jobs).
+build rc 0 (8 s)
+== lake build ZK60Formal.BlockInstChainN ==
+Build completed successfully (3513 jobs).
+build rc 0 (13 s)
+== lake build ZK60Formal.BlockInstFinal ==
+Build completed successfully (3515 jobs).
+build rc 0 (17 s)
+rc 0, 17 s

@@ -1,0 +1,5 @@
+declarations in {BlockInst,SlotPolyInst}*.lean: 133
+declared twice inside the lane: none
+worktrees read: 40
+other Lean files read (with repeats across worktrees): 3331
+clashes: 0
