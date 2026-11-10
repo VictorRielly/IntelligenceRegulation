@@ -1,0 +1,1 @@
+build ZK60Formal.BlockDefineAlg ZK60Formal.BlockJoinGF

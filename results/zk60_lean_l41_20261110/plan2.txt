@@ -1,0 +1,2 @@
+build ZK60Formal.BlockJoinGF
+build ZK60Formal.BlockJoinCube
