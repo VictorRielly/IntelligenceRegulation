@@ -281,3 +281,12 @@ import ZK60Formal.RunShapeShieldOpen
 import ZK60Formal.RunShapeLeak
 import ZK60Formal.RunShapeGateL
 import ZK60Formal.RunCoverSomeL
+import ZK60Formal.RunKindsData
+import ZK60Formal.RunHalOpB
+import ZK60Formal.RunHalM
+import ZK60Formal.RunHalOpA
+import ZK60Formal.RunKindsDataBlk
+import ZK60Formal.RunHalBlk
+import ZK60Formal.RunCoverPAlive
+import ZK60Formal.RunCoverPSomeL
+import ZK60Formal.RunCoverPRk

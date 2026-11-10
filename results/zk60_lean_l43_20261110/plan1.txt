@@ -1,0 +1,9 @@
+build ZK60Formal.RunKindsData
+build ZK60Formal.RunHalOpB
+build ZK60Formal.RunHalM
+build ZK60Formal.RunHalOpA
+build ZK60Formal.RunKindsDataBlk
+build ZK60Formal.RunHalBlk
+build ZK60Formal.RunCoverPAlive
+build ZK60Formal.RunCoverPSomeL
+build ZK60Formal.RunCoverPRk

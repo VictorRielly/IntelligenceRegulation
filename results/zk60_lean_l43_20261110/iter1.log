@@ -1,0 +1,356 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/results/zk60_lean_l43_20261110/plan1.txt ==
+build ZK60Formal.RunKindsData
+build ZK60Formal.RunHalOpB
+build ZK60Formal.RunHalM
+build ZK60Formal.RunHalOpA
+build ZK60Formal.RunKindsDataBlk
+build ZK60Formal.RunHalBlk
+build ZK60Formal.RunCoverPAlive
+build ZK60Formal.RunCoverPSomeL
+build ZK60Formal.RunCoverPRk
+== lake build ZK60Formal.RunKindsData ==
+warning: ZK60Formal/RunKindsData.lean:298:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rkData_valid`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3541 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.RunHalOpB ==
+warning: ZK60Formal/RunKindsData.lean:298:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rkData_valid`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalOpB.lean:83:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_opB_alive`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3542 jobs).
+build rc 0 (11 s)
+== lake build ZK60Formal.RunHalM ==
+warning: ZK60Formal/RunKindsData.lean:298:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rkData_valid`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalOpB.lean:83:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_opB_alive`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalM.lean:72:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_M_alive`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3543 jobs).
+build rc 0 (15 s)
+== lake build ZK60Formal.RunHalOpA ==
+warning: ZK60Formal/RunKindsData.lean:298:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rkData_valid`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3542 jobs).
+build rc 0 (19 s)
+== lake build ZK60Formal.RunKindsDataBlk ==
+warning: ZK60Formal/RunKindsData.lean:298:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rkData_valid`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3551/3551] Building ZK60Formal.RunKindsDataBlk (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/ZK60Formal/RunKindsDataBlk.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean/ZK60Formal/RunKindsDataBlk.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean/ZK60Formal/RunKindsDataBlk.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/ir/ZK60Formal/RunKindsDataBlk.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/ir/ZK60Formal/RunKindsDataBlk.setup.json --json
+error: ZK60Formal/RunKindsDataBlk.lean:38:2: Unknown identifier `Block.tAccRd`
+error: ZK60Formal/RunKindsDataBlk.lean:148:16: Unknown identifier `Block.tAccRd_trace`
+error: ZK60Formal/RunKindsDataBlk.lean:94:77: unsolved goals
+Hdr : Type
+V : RunV Hdr
+key : Option Dig
+domain : List UInt8
+Lq : ℕ
+Pk : ℕ → Block.BlockParams
+sgeom : ClsStmt Hdr → ℕ → Block.SegGeom
+check : ClsStmt Hdr → ℕ → Except String Unit
+paths : ClsStmt Hdr → Block.Segment → Except String Unit
+digest : ClsStmt Hdr → ℕ → Dig
+bRows bLogN : ℕ → ℕ
+bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit
+bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr
+R : RtRun V key domain Lq
+hv : R.pf.Valid
+G : QB Lq → Dig
+s : ClsStmt Hdr
+segs : ClsReceipt
+hE : classifyVerifyE V (liftH G) s segs = Except.ok ()
+i k : ℕ
+p : RtPart
+hσi : R.σs[i]? = some (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p)
+bp : RtBlk Lq (Pk k)
+hgeo : ∀ (s : ClsStmt Hdr), (sgeom s k).g = (Pk k).geom
+cr cr' : Carry
+t t'' : Tr
+hinv : R.Inv i cr
+ht : t = runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i))
+hstep :
+  segStep (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p).v (liftH G) s
+      (V.start (liftH G) s).state (List.getD segs i []) cr t =
+    Except.ok (cr', t'')
+hrdi :
+  (R.rd (s, segs)).2[i]? =
+    some ((rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p).rd s (List.getD segs i []))
+hgood : RtGood Lq R.pf (R.rd (s, segs))
+sg : Block.Segment
+e' root : Dig
+ic oc : List Block.ZClaim
+t₂ : Tr
+hdec :
+  Block.decodeSegment (sgeom s k) (V.start (liftH G) s).state (Block.posTag (liftH G) t) (List.getD segs i []) =
+    Except.ok (sg, e')
+hroot : sg.bRoot = some root
+hbv :
+  Block.blockVerify (liftH G) (Pk k) sg.core
+      (blockFrame (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) (liftH G) s k root t) =
+    Except.ok ((ic, oc), t₂)
+hbo : bndOpen (liftH G) s k cr.root (cr.pending ++ ic) sg.inOpen t₂ = Except.ok t''
+hcr : cr' = { pending := oc, root := root }
+hgt' : (sgeom s k).g.slots.length = (sgeom s k).g.terms.length
+hspec :
+  List.getD segs i [] =
+      Block.encSeg (V.start (liftH G) s).state (sgeom s k).l (sgeom s k).k (Block.posTag (liftH G) t) sg e' ∧
+    Block.CoreCanon sg.core ∧
+      Block.CoreShape (sgeom s k).g sg.core ∧
+        Block.HidingCanon sg.inOpen ∧
+          (∀ o ∈ sg.outOpen, Block.HidingCanon o) ∧
+            sg.bRoot.isSome = (sgeom s k).commits ∧
+              sg.outOpen.isSome = (sgeom s k).closes ∧ (List.getD segs i []).length = (sgeom s k).len
+hshape : Block.CoreShape (Pk k).geom sg.core
+hrd :
+  rtBlockRd Pk sgeom digest bRows bLogN k s (List.getD segs i []) =
+    rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg
+hrdi' : (R.rd (s, segs)).2[i]? = some (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hpi : R.pf.parts[i]? = some p
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+tM tA tH : Tr
+hbs :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (blockFrame (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) (liftH G) s k root t) =
+    Except.ok (bga, rs, acc, tM)
+hnf : (acc.fs ++ acc.hostFs).length = (Pk k).nFunctionals
+hmv : (Pk k).maskVerify (liftH G) sg.core.maskRoot (acc.fs ++ acc.hostFs) sg.core.maskOpen tM = Except.ok tA
+hpa : (Pk k).pcsVerify (liftH G) Block.Cm.a sg.core.aRoot acc.claims.a sg.core.aOpen tA = Except.ok tH
+hph :
+  (Pk k).pcsVerify (liftH G) Block.Cm.h sg.core.hRoot (acc.claims.h ++ [(Pk k).logupSumClaim]) sg.core.hOpen tH =
+    Except.ok t₂
+hic : acc.claims.inp = ic
+hoc : acc.claims.out = oc
+hgd : sg.bRoot.getD zeroDig = root
+hbs' :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (runOps (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i)))
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)))) =
+    Except.ok (bga, rs, acc, tM)
+hdr : List (TItem × Dig)
+hhdr : List.take (R.pf.off i + p.pre) hdr = List.take (R.pf.off i + p.pre) (R.tr G (s, segs))
+hpd : RtPartOk Lq p (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hplen :
+  (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+        (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)).length =
+    p.pre
+tk :
+  List.take (R.pf.off i + p.pre) (rtTr key domain Lq R.pf R.rd G (s, segs)) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (stpsOps (rtPre R.pf (R.rd (s, segs)) i) ++
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)) ++
+          (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)))
+hlen : (stpsOps (rtPre R.pf (R.rd (s, segs)) i)).length = R.pf.off i
+hbs'' :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (runOps (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (stpsOps (rtPre R.pf (R.rd (s, segs)) i) ++ rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)))) =
+    Except.ok (bga, rs, acc, tM)
+⊢ rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr = acc
+Some required targets logged failures:
+- ZK60Formal.RunKindsDataBlk
+error: build failed
+build rc 1 (22 s)
+== lake build ZK60Formal.RunHalBlk ==
+warning: ZK60Formal/RunKindsData.lean:298:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rkData_valid`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalOpB.lean:83:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_opB_alive`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalM.lean:72:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_M_alive`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3553/3554] Building ZK60Formal.RunKindsDataBlk (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/ZK60Formal/RunKindsDataBlk.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean/ZK60Formal/RunKindsDataBlk.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean/ZK60Formal/RunKindsDataBlk.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/ir/ZK60Formal/RunKindsDataBlk.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/ir/ZK60Formal/RunKindsDataBlk.setup.json --json
+error: ZK60Formal/RunKindsDataBlk.lean:38:2: Unknown identifier `Block.tAccRd`
+error: ZK60Formal/RunKindsDataBlk.lean:148:16: Unknown identifier `Block.tAccRd_trace`
+error: ZK60Formal/RunKindsDataBlk.lean:94:77: unsolved goals
+Hdr : Type
+V : RunV Hdr
+key : Option Dig
+domain : List UInt8
+Lq : ℕ
+Pk : ℕ → Block.BlockParams
+sgeom : ClsStmt Hdr → ℕ → Block.SegGeom
+check : ClsStmt Hdr → ℕ → Except String Unit
+paths : ClsStmt Hdr → Block.Segment → Except String Unit
+digest : ClsStmt Hdr → ℕ → Dig
+bRows bLogN : ℕ → ℕ
+bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit
+bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr
+R : RtRun V key domain Lq
+hv : R.pf.Valid
+G : QB Lq → Dig
+s : ClsStmt Hdr
+segs : ClsReceipt
+hE : classifyVerifyE V (liftH G) s segs = Except.ok ()
+i k : ℕ
+p : RtPart
+hσi : R.σs[i]? = some (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p)
+bp : RtBlk Lq (Pk k)
+hgeo : ∀ (s : ClsStmt Hdr), (sgeom s k).g = (Pk k).geom
+cr cr' : Carry
+t t'' : Tr
+hinv : R.Inv i cr
+ht : t = runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i))
+hstep :
+  segStep (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p).v (liftH G) s
+      (V.start (liftH G) s).state (List.getD segs i []) cr t =
+    Except.ok (cr', t'')
+hrdi :
+  (R.rd (s, segs)).2[i]? =
+    some ((rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p).rd s (List.getD segs i []))
+hgood : RtGood Lq R.pf (R.rd (s, segs))
+sg : Block.Segment
+e' root : Dig
+ic oc : List Block.ZClaim
+t₂ : Tr
+hdec :
+  Block.decodeSegment (sgeom s k) (V.start (liftH G) s).state (Block.posTag (liftH G) t) (List.getD segs i []) =
+    Except.ok (sg, e')
+hroot : sg.bRoot = some root
+hbv :
+  Block.blockVerify (liftH G) (Pk k) sg.core
+      (blockFrame (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) (liftH G) s k root t) =
+    Except.ok ((ic, oc), t₂)
+hbo : bndOpen (liftH G) s k cr.root (cr.pending ++ ic) sg.inOpen t₂ = Except.ok t''
+hcr : cr' = { pending := oc, root := root }
+hgt' : (sgeom s k).g.slots.length = (sgeom s k).g.terms.length
+hspec :
+  List.getD segs i [] =
+      Block.encSeg (V.start (liftH G) s).state (sgeom s k).l (sgeom s k).k (Block.posTag (liftH G) t) sg e' ∧
+    Block.CoreCanon sg.core ∧
+      Block.CoreShape (sgeom s k).g sg.core ∧
+        Block.HidingCanon sg.inOpen ∧
+          (∀ o ∈ sg.outOpen, Block.HidingCanon o) ∧
+            sg.bRoot.isSome = (sgeom s k).commits ∧
+              sg.outOpen.isSome = (sgeom s k).closes ∧ (List.getD segs i []).length = (sgeom s k).len
+hshape : Block.CoreShape (Pk k).geom sg.core
+hrd :
+  rtBlockRd Pk sgeom digest bRows bLogN k s (List.getD segs i []) =
+    rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg
+hrdi' : (R.rd (s, segs)).2[i]? = some (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hpi : R.pf.parts[i]? = some p
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+tM tA tH : Tr
+hbs :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (blockFrame (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) (liftH G) s k root t) =
+    Except.ok (bga, rs, acc, tM)
+hnf : (acc.fs ++ acc.hostFs).length = (Pk k).nFunctionals
+hmv : (Pk k).maskVerify (liftH G) sg.core.maskRoot (acc.fs ++ acc.hostFs) sg.core.maskOpen tM = Except.ok tA
+hpa : (Pk k).pcsVerify (liftH G) Block.Cm.a sg.core.aRoot acc.claims.a sg.core.aOpen tA = Except.ok tH
+hph :
+  (Pk k).pcsVerify (liftH G) Block.Cm.h sg.core.hRoot (acc.claims.h ++ [(Pk k).logupSumClaim]) sg.core.hOpen tH =
+    Except.ok t₂
+hic : acc.claims.inp = ic
+hoc : acc.claims.out = oc
+hgd : sg.bRoot.getD zeroDig = root
+hbs' :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (runOps (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i)))
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)))) =
+    Except.ok (bga, rs, acc, tM)
+hdr : List (TItem × Dig)
+hhdr : List.take (R.pf.off i + p.pre) hdr = List.take (R.pf.off i + p.pre) (R.tr G (s, segs))
+hpd : RtPartOk Lq p (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hplen :
+  (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+        (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)).length =
+    p.pre
+tk :
+  List.take (R.pf.off i + p.pre) (rtTr key domain Lq R.pf R.rd G (s, segs)) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (stpsOps (rtPre R.pf (R.rd (s, segs)) i) ++
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)) ++
+          (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)))
+hlen : (stpsOps (rtPre R.pf (R.rd (s, segs)) i)).length = R.pf.off i
+hbs'' :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (runOps (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (stpsOps (rtPre R.pf (R.rd (s, segs)) i) ++ rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)))) =
+    Except.ok (bga, rs, acc, tM)
+⊢ rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr = acc
+Some required targets logged failures:
+- ZK60Formal.RunKindsDataBlk
+error: build failed
+build rc 1 (26 s)
+== lake build ZK60Formal.RunCoverPAlive ==
+Build completed successfully (3553 jobs).
+build rc 0 (29 s)
+== lake build ZK60Formal.RunCoverPSomeL ==
+Build completed successfully (3589 jobs).
+build rc 0 (35 s)
+== lake build ZK60Formal.RunCoverPRk ==
+warning: ZK60Formal/RunKindsData.lean:298:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rkData_valid`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalOpB.lean:83:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_opB_alive`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalM.lean:72:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_M_alive`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3595 jobs).
+build rc 0 (39 s)
+rc 1, 39 s
