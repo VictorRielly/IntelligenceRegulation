@@ -1,0 +1,9 @@
+BlockDefineAff
+BlockDefineClaim
+BlockDefineTab
+BlockDefineSym
+BlockDefinePoly
+BlockDefineFinal
+BlockDefineW16
+BlockDefineW16Rung
+BlockDefineW16Final
