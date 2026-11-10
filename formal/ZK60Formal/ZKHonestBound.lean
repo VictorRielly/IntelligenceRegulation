@@ -4,6 +4,9 @@ D63 lane L33 (2026-11-09), part 6: **the question and point bounds of a transcri
 
 * `qle_mono`, `ptLE_mono`, **`ptLE_of_qle`**: the bounds are monotone, and a program of at most `n` questions has at
   most `n` points;
+* `NoDep`, `res_noDep`, `HeadOK`, `res_headOK`, **`hres_of_headOK`**: `zk_of_prog`'s premise `hres` (the receipt does
+  not read the public answers) from the program's shape: after its leading public questions it asks a point and
+  continues the same way whatever they answered;
 * `askP_qle`: one tagged question;
 * `TOps`: a transcript program (`TProg`) with at most `n` operations (absorbs, squeezes, outside questions) on every
   path;
@@ -45,6 +48,45 @@ theorem ptLE_of_qle : ∀ (p : PProg Q D α) (n : ℕ), QLE p n → PtLE p n
   | .ret _, _, _ => trivial
   | .dep _ k, n, h => fun d => ptLE_mono (k d) (n - 1) n (ptLE_of_qle (k d) (n - 1) (h.2 d)) (Nat.sub_le n 1)
   | .pt _ k, n, h => ⟨h.1, fun d => ptLE_of_qle (k d) (n - 1) (h.2 d)⟩
+
+/-! ### When the receipt does not read the public answers (`zk_of_prog`'s `hres`) -/
+
+/-- No public question on any path. -/
+def NoDep : PProg Q D α → Prop
+  | .ret _ => True
+  | .dep _ _ => False
+  | .pt _ k => ∀ d, NoDep (k d)
+
+/-- A program with no public question does not read the oracle in its value-driven walk. -/
+theorem res_noDep (H H' : Q → D) (v : ℕ → D) : ∀ (p : PProg Q D α) (i : ℕ), NoDep p →
+    res H v p i = res H' v p i
+  | .ret _, _, _ => rfl
+  | .dep _ _, _, h => False.elim h
+  | .pt _ k, i, h => res_noDep H H' v (k (v i)) (i + 1) (h _)
+
+/-- **The public answers reach the result only through a point**: after its leading public questions the program
+asks a point, and from there it is the SAME program `k` of the point's answer whatever the public answers were, with
+no further public question (the classify run: the transcript's creation and the first header absorb are public; the
+next absorb carries the fresh input root, and the transcript after it holds only its answer). -/
+def HeadOK (k : D → PProg Q D α) : PProg Q D α → Prop
+  | .ret _ => False
+  | .dep _ K => ∀ d, HeadOK k (K d)
+  | .pt _ K => K = k ∧ ∀ d, NoDep (k d)
+
+/-- Under the head condition the value-driven result is the continuation's, at any oracle. -/
+theorem res_headOK (k : D → PProg Q D α) (H H' : Q → D) (v : ℕ → D) : ∀ (p : PProg Q D α) (i : ℕ), HeadOK k p →
+    res H v p i = res H' v (k (v i)) (i + 1)
+  | .ret _, _, h => False.elim h
+  | .dep z K, i, h => res_headOK k H H' v (K (H z)) i (h _)
+  | .pt _ K, i, h => by
+    show res H v (K (v i)) (i + 1) = res H' v (k (v i)) (i + 1)
+    rw [h.1]
+    exact res_noDep H H' v (k (v i)) (i + 1) (h.2 _)
+
+/-- **`hres` from the head condition**: the result of the value-driven walk does not depend on the oracle. -/
+theorem hres_of_headOK (k : D → PProg Q D α) (p : PProg Q D α) (hp : HeadOK k p) (H H' : Q → D) (v : ℕ → D) :
+    res H v p 0 = res H' v p 0 :=
+  (res_headOK k H H v p 0 hp).trans (res_headOK k H' H v p 0 hp).symm
 
 end PProg
 

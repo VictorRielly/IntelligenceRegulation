@@ -144,6 +144,7 @@ All PROVED; the counts and the axiom audit are in §7.
 |---|---|
 | `qle_mono`, `ptLE_mono`, **`ptLE_of_qle`** | the bounds can be raised; a program of at most `n` questions has at most `n` points |
 | `askP_qle`, `TOps`, **`ofT_qle`**, **`ofT_ptLE`**, **`ofStart_qle`**, **`ofStart_ptLE`** | a transcript program of at most `n` operations is, as a prover program, an `n`-question program of at most `n` points (`n + 1` from the transcript's creation): `zk_of_prog`'s `hq` and `hk` for L25 / L29's programs |
+| `NoDep`, `res_noDep`, `HeadOK`, `res_headOK`, **`hres_of_headOK`** | `zk_of_prog`'s `hres` from the program's shape: after its leading public questions the program asks a point and goes on the same way whatever the public answers were |
 
 **The chain to the approved statement, now.** `classify_zk_of_model` (from `zk_of_refModel`, from `oneStepW_ref`, from
 `fs_step_ref`, with L19's `zeroKnowledge_of_oneStepW` and L14's programming lemma unchanged) → `classify_zk_cap110`
@@ -172,9 +173,10 @@ charged at that rate too, and the split "guard fires / does not fire" doubles it
 1. **The prover as a program.** `pOC`, `hrun`, `hbd` and `FM`, `hP`. `zk_of_prog` builds all five from ONE object: a
    family of programs `prog` with `hprog` (its run is the protocol's prover on admissible inputs), `hk` (at most `k`
    points), `hq` (at most `qp` questions), `hdep` (its public questions lie in `dep`), `hres` (the receipt does not
-   read the public answers). Needed for it: the run assembled as a program (stage IN-C, each block, stage OUT-C; the
-   openings' provers, L32; the position tags and `check_opening`'s replays, finding L33-4; the commitments' Merkle
-   programs).
+   read the public answers). Tools: `ofT_qle` / `ofT_ptLE` give `hq` / `hk` for a transcript program, and
+   `hres_of_headOK` gives `hres` from the program's shape. Needed for it: the run assembled as a program (stage IN-C,
+   each block, stage OUT-C; the openings' provers, L32; the position tags and `check_opening`'s replays, finding
+   L33-4; the commitments' Merkle programs).
 2. **What the receipt shows.** `vis`, `vp`, `hvis`: a visible point is computable from the receipt, the oracle and the
    values (every transcript point, node, position tag and opened leaf of a served receipt).
 3. **The refusals are challenge-only.** `G`, `hvisG`, `hrefG`: at the values where a refusal fires, every admissible
@@ -294,4 +296,28 @@ has.
 All through the zk60 resource guard (class cpu, need 14 GiB, cap 24 GiB, `run_guarded.py`), logs and `.done` markers
 in `results/zk60_lean_l33_20261109/`.
 
-CHECKS_PLACEHOLDER
+The heavy lock was shared with lanes L30, L31, L32, the coordinator's merged-tree check and lane A28's GPU runs: one
+queued iteration waited 1,339 s for admission; the guard's default five-second admission poll lost the lock five times
+in a row to later jobs, so `run_guarded.py` now sets a one-second poll, as lane L26 did.
+
+- `iter1.log` … `iter6.log`: the modules while they were written (`iter.sh`, one guarded job each; 5 to 65 s of
+  work, peak RSS 3.6 to 3.8 GiB). `ZKHonestProg.lean` and `ZKHonestView.lean` built at their first attempt. The two
+  errors fixed on the way: a missing `DecidableEq` instance in `progVis_of_no_vis` (iter1), and a `congrArg Prod.fst`
+  on an equation of two function applications, read by the elaborator as a projection of the wrong pair, replaced by
+  `Prod.mk.inj` (iter4). `iter3` was the job that never won the lock; it has no log.
+- `check.log` (`check_l33.sh`, run as the second step of `iter6.log`; 58 s, peak RSS 3.7 GiB):
+
+| Gate | Result |
+|---|---|
+| full `lake build` of the library (`full.log`) | green, **3,597 jobs, 0 warnings, 0 errors, no `sorry`** |
+| axiom audit (`gen_axioms.py` → `axioms_l33.lean` → `axioms.log`: every `theorem`, `def`, `inductive` and `instance` of the six L33 files) | **75 declarations: 54 theorems** (Prog 11, Step 6, View 7, Count 8, Run 11, Bound 11), 19 definitions, 1 inductive, 1 instance: 29 on `[propext, Classical.choice, Quot.sound]`, 10 on `[propext, Quot.sound]`, 11 on `[propext]`, 1 on `[Quot.sound]`, 24 on none; no `sorryAx`, no `Lean.ofReduceBool`, no other axiom |
+| source scan of the six L33 files (`sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`, `implemented_by`, `extern`, `bv_decide`, `ofReduceBool`) | **none** |
+| the root imports the six L33 files | yes |
+| `Statements.lean` and every existing file under `formal/`, `ops/`, `apps/` against the lane's base `0231da18` | unchanged (0 modified, 0 lines removed from the root's imports) |
+| name clashes (`l33_nameclash.py`: this lane's 76 declaration names against 3,585 Lean files in 41 worktrees) | **0** |
+| regressions on their committed corpora: L6Check / L5Check / L11Check / fixture L1 | **1,206 / 5,553 / 404 / 101,956 checks, 0 failed** |
+
+What the checks do not cover. This lane has no executable checker against the Rust code: it adds no model of the
+code's bytes. Its code facts (the refusal sites, the header's absorbs, the position tags) are READ, with file and line,
+not tested. The counts by kind behind the caps are lane L19's ESTIMATES.
+
