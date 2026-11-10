@@ -1,0 +1,17 @@
+== plan results/zk60_lean_l47_20261110/plan2.txt ==
+build ZK60Formal.BlockTabBase
+build ZK60Formal.BlockLookBase
+== lake build ZK60Formal.BlockTabBase ==
+Build completed successfully (3564 jobs).
+build rc 0 (10 s)
+== lake build ZK60Formal.BlockLookBase ==
+warning: ZK60Formal/BlockLookBase.lean:305:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.he_w16`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3570 jobs).
+build rc 0 (19 s)
+rc 0, 19 s

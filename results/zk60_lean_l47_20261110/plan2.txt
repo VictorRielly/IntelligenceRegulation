@@ -1,0 +1,2 @@
+build ZK60Formal.BlockTabBase
+build ZK60Formal.BlockLookBase
