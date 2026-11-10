@@ -1,0 +1,10 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/plan2.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean ==
+'ZK60.GapAudit.leaky_publishes_input' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady_targets' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady_classify' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.GapAudit.circuit_field_free' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean (17 s)
+rc 0, 17 s

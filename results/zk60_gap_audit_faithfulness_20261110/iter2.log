@@ -1,0 +1,46 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/plan2.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean:71:10: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Decidable
+    (M.admissible x ∧
+      M.publicPart (M.forward W x) = M.publicPart (M.forward W x) ∧
+        M.hiddenPart (M.forward W x) = M.hiddenPart (M.forward W x))
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean:98:16: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Decidable
+    (M.admissible (OC.runLog H A).1.1.x ∧
+      (OC.runLog H A).1.1.pub = M.publicPart (M.forward W (OC.runLog H A).1.1.x) ∧
+        (OC.runLog H A).1.1.hid = M.hiddenPart (M.forward W (OC.runLog H A).1.1.x))
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean:100:13: error: Function expected at
+  zero_le
+but this term has type
+  0 ≤ ?m.150
+
+Note: Expected a function because this term is being applied to the argument
+  _
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean:114:15: error: Function expected at
+  zero_le
+but this term has type
+  0 ≤ ?m.128
+
+Note: Expected a function because this term is being applied to the argument
+  _
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean:124:15: error: Function expected at
+  zero_le
+but this term has type
+  0 ≤ ?m.237
+
+Note: Expected a function because this term is being applied to the argument
+  _
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean:152:19: warning: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+'ZK60.GapAudit.leaky_publishes_input' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady_targets' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady_classify' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'ZK60.GapAudit.circuit_field_free' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean (21 s)
+rc 1, 21 s
