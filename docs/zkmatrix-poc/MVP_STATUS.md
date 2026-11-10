@@ -560,6 +560,23 @@ here. The rates count proving and witness work. Verification time is recorded se
       - the certified slot polynomials with their degrees.
 
       These stay premises of the final statements, and are the next lane's work (L35).
+  - **L32, completeness at run level: the openings are done, the slots' arithmetic is not** [PROVED; merged
+    2026-11-09; `ZK60_LEAN_L32_COMPLETE_RUN_20261109.md`].
+    - The code's opening verifier and mask verifier, as written in Lean, accept the honest prover's openings at every
+      hash function and transcript, with error 0. A block's core at R13 and both stages are accepted once the slots'
+      arithmetic holds; every opening premise of L25's and L29's theorems is gone.
+    - The opening refusals are exact counted sites: one opening on n claims has n + 2 sites and exactly p + n + 1 bad
+      values. The dependent-proximity refusal (L18-3) is now a theorem, not an estimate.
+    - With stage IN-C counted as L29-3 corrected it, the run's total refusal probability stays inside the approved
+      2^-40.
+    - **No completeness obligation is closed outright.** Left: each slot's arithmetic along the honest run (not
+      started: it is the statement that the honest witness satisfies every check); the chain of the three parts over
+      the whole run; a few refusal sites still named, not built.
+    - Finding L32-1 (Medium, in the Lean contracts, no statement change): the parts' completeness contracts ask for
+      one honest data object for every starting transcript, but one opened table depends on the challenges. The
+      honest data must be built per starting transcript; L32 does so, and the run's parts need the same.
+    - Finding L32-2 (Low, code): `open_zk` would panic, not refuse, on a mask-site mismatch. By reading the code this
+      cannot happen after `check_opening` has accepted; that is not proved.
   - **L33, the classify run's zero knowledge with the prover's refusals accounted for: reduced to named premises,
     not finished** [PROVED, given the premises; merged 2026-11-09; `ZK60_LEAN_L33_ZK_HONEST_20261109.md`].
     - **Finding L33-1 (Medium).** L14's and L19's one-receipt step assumed a prover that always answers. The real
@@ -607,9 +624,10 @@ here. The rates count proving and witness work. Verification time is recorded se
   - **Running since 2026-11-09, on what the merged lanes left open for the classify run:**
     - L35 (after L31): the block's `define` as a Lean definition and the tables part of the slot polynomials. L36,
       not yet started: the per-outcome algebra;
-    - L32: completeness at run level (the openings' and `M`'s executable completeness, the run's prefix as a
-      transcript program, the refusal sites and their exact count against 2^-40);
-    - L33 is merged (above). Its remaining premises wait for L32's opening provers.
+    - L36: the block's per-outcome algebra (the certified polynomials vanish on acceptance; the start claims give
+      the block's relations; the lookup side);
+    - L32 and L33 are merged (above). Their follow-ups are not started: the honest prover's slot arithmetic and the
+      run's chain (completeness), and the run's prover as one program with the masks' properties (zero knowledge).
     - L34 (started after L30's check passed; perf and main at the L30 check commit, the full Lean build 3597 jobs):
       the run's transcript as a Lean object with the kinds' lists on it, and the ordered cover's premises (L30's
       remaining list).
