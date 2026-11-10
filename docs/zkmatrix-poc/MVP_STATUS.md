@@ -1,5 +1,28 @@
 # Where the MVP stands, in plain words
 
+**2026-11-10: what the Lean work does NOT yet establish (gap audit, faithfulness half,
+`ZK60_LEAN_GAP_AUDIT_FAITHFULNESS_20261110.md`; the premise register is still running).** Read the Lean bullets
+further down against this list. Each item was re-checked against the source.
+- **No end-to-end theorem about the real app exists yet.** Every top theorem is "proved, given named premises". Its
+  verifier is a skeleton over abstract parts (GB-3), and no runnable whole-run Lean verifier exists (GB-4).
+- **The approved statements do not pin the leakage (GB-1, High; a ruling for Victor, D75 (6)).** A protocol that
+  publishes the input can meet `ProductionReady`; this is proved with a toy protocol. The real instance's declared
+  leakage matches the approved English, but only a human reading the instance establishes that.
+- **The run model cannot represent the real Shieldstral classifier (GB-2, High).** It uses one block shape for all 26
+  layers, and the real export has 17 different shift sets. So no gate theorem applies to the app's real model yet.
+  Earlier lines calling the Lean instance "Shieldstral T128" overstate it.
+- **Every Lean-versus-Rust test is on small development receipts** (T = 32, one or two blocks, synthetic weights).
+  No Shieldstral T128 receipt and no 26-block run has been checked (GB-6). Several verifier checks have no Lean
+  mirror and no test (GB-5).
+- **The integer model was not compared with the 8B, Shieldstral or TinyLlama goldens** as the statements document
+  says; it was compared on one synthetic block and one width-16 rung (GB-8).
+- `CircuitIff` adds nothing to the gate on its own; its content reaches the protocol only through `KnowledgeSound`
+  (GB-9).
+- **Against FlashProve:** FlashProve has one closed theorem about one concrete Lean verifier. Ours is a gate over
+  abstract parts. Closing the difference needs a concrete classify-run verifier with per-block shapes, the public
+  data as a value, the parts proved at that instance, an executable form run on real receipts, and the leakage fixed
+  by a ruling.
+
 **2026-11-05: efficiency first (Victor). Plan: `ZK60_EFFICIENCY_PLAN_20261105.md`. Phase A results so far
 (byte-preserving, measured on the Mac, every receipt verified; `results/zk60_effplan_20261105/`):**
 These timings use synthetic diagonal public weights at the true 8B geometry, so dense-weight work is not yet measured
