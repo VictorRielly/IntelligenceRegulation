@@ -1,8 +1,3 @@
-build ZK60Formal.BlockInstRead
-build ZK60Formal.BlockInstProf
-build ZK60Formal.BlockInstRung
-build ZK60Formal.BlockInstShield
-check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a48b6de5386be5a86/results/zk60_lean_l31_20261109/check_l31.sh
 build ZK60Formal.SlotPolyInstMask
 build ZK60Formal.SlotPolyInstEval
 build ZK60Formal.BlockInstChainN

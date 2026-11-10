@@ -5,6 +5,8 @@ fully qualified name both build alone and fail once the library root imports bot
 
 usage: python3 -I l31_nameclash.py <this worktree> <main checkout> [file prefixes, comma separated; default BlockInst,SlotPolyInst]
 
+The root-level name `main` is left out (every agreement checker defines it; the root imports none of them).
+
 Prints the count of this lane's declarations, any name declared twice inside the lane, and one line per clash; exits 1
 if there is a clash.
 """
@@ -36,6 +38,7 @@ def decls(path):
         if m:
             n = m.group(1)
             out.add(n[len("_root_."):] if n.startswith("_root_.") else ".".join(stack + [n]))
+    out.discard("main")  # a checker's entry point: the checkers are never imported by the root
     return out
 
 

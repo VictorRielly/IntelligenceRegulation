@@ -64,23 +64,23 @@ theorem mrow_term (S : ℕ) (cols : Fin (2 ^ 12) → List Fp) (t : ℕ × List F
       have e1 : mRowX U S cols t.1 (j : ℕ)
           = (mDecA (mDataOf U S 0 [] cols).La (mRhOf U S cols) ⟨t.1, h⟩).eval (mPts (mOmega (K := K)) j) := by
         unfold mRowX
-        exact dif_pos ⟨h, j.isLt⟩
-      rw [e1, if_pos rfl]
+        exact dite_eq_left ⟨h, j.isLt⟩
+      rw [e1, ite_eq_left rfl]
     · intro s _ hs
       refine Finset.sum_eq_zero (fun j _ => ?_)
-      rw [if_neg (fun e => hs (Fin.ext e.symm)), zero_mul]
+      rw [ite_eq_right (fun e => hs (Fin.ext e.symm)), zero_mul]
     · intro hn
       exact absurd (Finset.mem_univ _) hn
   · have hl : ∀ s : Fin S, ∑ j : Fin 512, (if t.1 = (s : ℕ) then (t.2.getD (j : ℕ) Fp2.zero).toK U else 0)
         * (mDecA (mDataOf U S 0 [] cols).La (mRhOf U S cols) s).eval (mPts (mOmega (K := K)) j) = 0 := by
       intro s
       refine Finset.sum_eq_zero (fun j _ => ?_)
-      rw [if_neg (fun e => h (by rw [e]; exact s.isLt)), zero_mul]
+      rw [ite_eq_right (fun e => h (by rw [e]; exact s.isLt)), zero_mul]
     rw [Finset.sum_eq_zero (fun s _ => hl s)]
     refine (Finset.sum_eq_zero (fun j _ => ?_)).symm
     have e0 : mRowX U S cols t.1 (j : ℕ) = 0 := by
       unfold mRowX
-      exact dif_neg (fun hh => h hh.1)
+      exact dite_eq_right (fun hh => h hh.1)
     rw [e0, mul_zero]
 
 /-- **`M`'s semantics reads a functional linearly on the extracted mask rows** (L23's `MLin`): the value of a
@@ -126,7 +126,8 @@ theorem mdot_eq_dot (hU : U ^ 2 = algebraMap GF K 7) (R : ℕ → ℕ → K) (Wd
       = ∑ i ∈ Finset.range c.length, (w.getD i Fp2.zero).toK U * R k i :=
     Finset.sum_congr rfl (fun i hi => by rw [hc i (Finset.mem_range.mp hi)])
   rw [h1]
-  exact (Finset.sum_subset (Finset.range_subset.mpr hW) (fun i _ hi => by
+  exact (Finset.sum_subset (fun x hx => Finset.mem_range.mpr (lt_of_lt_of_le (Finset.mem_range.mp hx) hW))
+    (fun i _ hi => by
     have hi' : c.length ≤ i := by simpa using hi
     show (w.getD i Fp2.zero).toK U * R k i = 0
     rw [List.getD_eq_getElem?_getD, List.getElem?_eq_none_iff.mpr (by omega), Option.getD_none, Fp2.toK_zero,
