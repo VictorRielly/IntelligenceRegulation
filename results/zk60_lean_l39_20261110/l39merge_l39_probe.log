@@ -1,0 +1,5 @@
+'L39Probe.l39_empty_outside_in' depends on axioms: [propext]
+'L39Probe.l39_empty_outside_out' depends on axioms: [propext]
+'L39Probe.l39_real_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
+'L39Probe.l39_real_counts_not_audit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'L39Probe.l39_tokenEp_matches' depends on axioms: [propext, Classical.choice, Quot.sound]

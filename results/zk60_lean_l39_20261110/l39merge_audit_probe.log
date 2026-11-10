@@ -1,0 +1,48 @@
+/Users/victorrielly/IntelligenceRegulation/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean:35:9: error: Tactic `rcases` failed: `x✝ : { aRoot := core0.aRoot, hRoot := core0.hRoot, maskRoot := core0.maskRoot, slots := [],
+          maskOpen := core0.maskOpen, aOpen := core0.aOpen, hOpen := core0.hOpen }.slots.length =
+    (V hd).geom.slots.length →
+  { }.claims.a.length = I.nA ∧
+    ({ }.claims.h ++ [(V hd).lay.logupSumClaim]).length = I.nH ∧
+      { }.claims.inp.length = I.nIn ∧ { }.claims.out.length = I.nOut` is not an inductive datatype
+/Users/victorrielly/IntelligenceRegulation/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean:50:13: error: Invalid projection: Projections cannot be used on functions, and
+  I.hcnt hd H seg.core ((V hd).frame H root t) recs acc t4 hs
+has function type
+  seg.core.slots.length = (V hd).geom.slots.length →
+    acc.claims.a.length = I.nA ∧
+      (acc.claims.h ++ [(V hd).lay.logupSumClaim]).length = I.nH ∧
+        acc.claims.inp.length = I.nIn ∧ acc.claims.out.length = I.nOut
+/Users/victorrielly/IntelligenceRegulation/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean:45:64: error: unsolved goals
+Hdr : Type
+Lq : ℕ
+V : Hdr → IncV
+G : Hdr → StageGeom
+p : RtPart
+I : RtInc Lq V G p
+core0 : Block.Core
+hd : Hdr
+H : HIn → Dig
+epRoot : Dig
+seg : StageSeg
+t : Tr
+pending : List Block.ZClaim
+root : Dig
+t' : Tr
+hv : (V hd).verify H epRoot seg t = Except.ok ((pending, root), t')
+recs : List Block.SlotRec
+acc : Block.Acc
+t4 t5 t6 t7 : Tr
+hs : (V hd).slots H seg.core ((V hd).frame H root t) = Except.ok (recs, acc, t4)
+hep : checkTokenEp H acc.claims.inp (V hd).geo.epDataRows (V hd).pub.epN t7 = Except.ok ()
+hz : I.nIn = 0
+⊢ False
+/Users/victorrielly/IntelligenceRegulation/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean:76:9: error: Tactic `rcases` failed: `x✝ : { aRoot := core0.aRoot, hRoot := core0.hRoot, maskRoot := core0.maskRoot, slots := [],
+          maskOpen := core0.maskOpen, aOpen := core0.aOpen, hOpen := core0.hOpen }.slots.length =
+    (V hd v).geom.slots.length →
+  { }.claims.a.length = O.nA ∧
+    ({ }.claims.h ++ [(V hd v).lay.logupSumClaim]).length = O.nH ∧
+      { }.claims.inp.length = O.nIn` is not an inductive datatype
+'GapAudit.gap_rtInc_counts' depends on axioms: [propext, sorryAx, Quot.sound]
+'GapAudit.gap_rtInc_never_accepts' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'GapAudit.gap_rtRunClassify_never_accepts' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'GapAudit.gap_rtOutc_counts' depends on axioms: [propext, sorryAx, Quot.sound]
+'GapAudit.gap_route_inconsistent' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]

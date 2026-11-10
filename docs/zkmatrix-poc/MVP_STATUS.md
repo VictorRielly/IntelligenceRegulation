@@ -9,13 +9,17 @@ item was re-checked against the source by the coordinator.
   knowledge O12), 20 bookkeeping ones that a concrete instance would discharge, 6 modelling assumptions (the random
   oracle; the Lean verifier and prover equal to the Rust ones; the integer model equal to the code; public weights;
   an unrestricted extractor), 2 rulings and 4 public-data facts.
-- **GA-1 (High, proved by the auditor): the top theorem, applied the way lane L34 says, is empty.** L34's contract
-  for stage IN-C fixes the claim counts without checking the number of slots, so only a stage that never accepts can
-  meet it. The fix is one guard on two fields; it is the next lane's first job.
+- **REPAIRED 2026-11-10: GA-1, the top theorem applied the way lane L34 said was empty (lane L39).** The stage
+  contracts now check the number of slots, and the repaired contracts are proved to be met by the REAL stage
+  verifiers and by the honest segments; the audit's proof of emptiness no longer builds. L39 also restated the
+  soundness covers in a weaker, correct form and the top theorem in the approved form
+  (`rc_productionReadyL_r13_exec_top_range`), but proved none of the covers. Finding L39-2: the per-block soundness
+  theorems cannot be plugged in as a run-level premise directly; the link goes through the run's transcript. Lane L43
+  is proving the "alive" half of the covers; the doom half and the endpoint follow after L41's block join.
 - **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
   enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
 - **The plan, in order:**
-  1. repair GA-1 (hours; lane L39 running);
+  1. DONE 2026-11-10 (L39): repair GA-1;
   2. DONE 2026-11-10 (L40): a run model with one shape per block, so the real Shieldstral classifier is
      representable (GB-2);
   3. prove the soundness covers, wiring in the per-block results (L31, L35, L36);
