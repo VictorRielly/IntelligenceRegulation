@@ -1,0 +1,2 @@
+[zk60-guard 11:11:55] START lean-l49-pub-shield class=cpu need=24G cap=48G enforce=watchdog-only waited=0s run=ffd62ab53525
+[zk60-guard 11:15:28] END lean-l49-pub-shield exit=0 child_wall=213s peak_rss=7.51G min_avail=219.89G
