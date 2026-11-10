@@ -45,3 +45,50 @@ L11Check: 404 checks, 0 failed
 L1 TOTAL: 101956 checks, 0 failed
 verdicts: L6 0, L5 0, L11 0, L1 0 (0 = as required)
 total 178 s
+== lake build of the L46 modules, one at a time ==
+lake build ZK60Formal.RunDoomBlk rc 0
+lake build ZK60Formal.RunDoomTop rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3704/3705] Built ZK60Formal (13s)
+Build completed successfully (3705 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L46 modules' own builds: 0
+== axiom audit ==
+17 declarations: 1 def, 1 structure, 15 theorem
+axioms rc 0
+declarations audited: 17 (generated: 17)
+no axiom at all: 0
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  13 axioms: [propext, Classical.choice, Quot.sound]
+   3 axioms: [propext, Quot.sound]
+   1 axioms: [propext]
+== source scan of the L46 library files ==
+none
+== the library root imports the L46 files ==
+imported: RunDoomBlk
+imported: RunDoomTop
+== the generated file is its generator's output ==
+RunDoomTop.lean identical to l46_mk_top.py's output: 0 (0 = identical)
+== unchanged: Statements.lean and every existing Lean file, against the lane's base 31af9ac1 ==
+Statements.lean unchanged
+existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
+lines removed from the root's imports: 0
+files changed under ops/ since the base: 0
+== name clashes with the other worktrees' Lean files ==
+clashes: 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+verdicts: L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 58 s

@@ -13,4 +13,5 @@
 'ZK60.ProtocolClassify.RdBlkR13' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.rd_blk_doom_of' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.rd_hdblk' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_cover_of_sq' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.RunShapeP.rd_productionReadyL_r13P_exec_blk' depends on axioms: [propext, Classical.choice, Quot.sound]

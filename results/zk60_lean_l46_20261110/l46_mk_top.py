@@ -3,7 +3,7 @@
 
 The app's top theorem `rc_productionReadyL_r13P_exec_rk` is copied with exactly these changes:
   * its name becomes `rd_productionReadyL_r13P_exec_blk`, its docstring is replaced;
-  * its premise `hdblk` (the block cover) is replaced by `absOf`, `hcard` and `hblk` (every block's bundle
+  * its premise `hdblk` (the block cover) is replaced by `hblk` (every block's bundle
     `RdBlkR13` at its own shape on every accepted outcome outside the extraction failure);
   * its proof applies `rc_productionReadyL_r13P_exec_rk` with every argument by name and
     `hdblk := rd_hdblk ...` (RunDoomBlk.lean).
@@ -34,12 +34,12 @@ VERIFY = ("(classifyProtocolUExecP Rp Lq Lb preA preB start inc incG blk outc ou
 EVX = "¬ EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf Vx rx A G"
 assert old_hdblk.count(VERIFY) == 1 and old_hdblk.count(EVX) == 1
 new_hblk = (
-    "    (absOf : QB Lq → Option (List UInt8)) (hcard : 78 < Fintype.card K)\n"
     "    (hblk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (k : ℕ) (hk : k < Rp.blks.length),\n"
     "      " + VERIFY + " →\n"
     "      " + EVX + " →\n"
     "      Nonempty (ZK60.ProtocolClassify.RdBlkR13 U D k (A.runLog G).2\n"
-    "        (rtTr key domain Lq (RtRun.pf Rn) (RtRun.rd Rn) G (A.run G)) absOf hcard Rp.blks[k].pub\n"
+    "        (rtTr key domain Lq (RtRun.pf Rn) (RtRun.rd Rn) G (A.run G))\n"
+    "        (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) (ZK60.Exec.Block.card_K_gt K) Rp.blks[k].pub\n"
     "        ((E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes k)\n"
     "        ((E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes (k + 1))))\n")
 stmt = stmt[:h0] + new_hblk + stmt[h1:]
@@ -69,7 +69,9 @@ proof = (
     "  exact rc_productionReadyL_r13P_exec_rk\n"
     + "\n".join(lines) + "\n"
     "    (hdblk := fun A G k hk hv' hx' => ZK60.ProtocolClassify.rd_hdblk key domain hs Lq hL (RtRun.pf Rn) (RtRun.rd Rn)\n"
-    "      hL64 hv U hbij D hD Rp ((RtRun.parts_length Rn).trans (congrArg (fun n => n + 2) O.blocks.2)) absOf hcard\n"
+    "      hL64 hv U hbij D hD Rp ((RtRun.parts_length Rn).trans (congrArg (fun n => n + 2) O.blocks.2))\n"
+    "      (Exec.Block.absOfC (chainEncB key domain hs Lq hL))\n"
+    "      (ZK60.Exec.Block.card_K_gt K)\n"
     "      (fun A G => " + VERIFY + "\n"
     "        ∧ " + EVX + ")\n"
     "      (fun A G => (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes)\n"

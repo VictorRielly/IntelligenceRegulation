@@ -28,6 +28,7 @@ Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunCoverPRk
 import ZK60Formal.BlockAlgLkR13
+import ZK60Formal.BlockAlgFinal
 
 set_option autoImplicit false
 set_option linter.constructorNameAsVariable false
@@ -455,6 +456,23 @@ theorem rd_hdblk {S : BlockShape} (Rp : ClassifyRunPublicP S) (hnp : pf.parts.le
   obtain ⟨bd⟩ := hlink A G k hk hacc
   exact rd_blk_doom_of key domain hs Lq hL pf rd hL64 hv U hbij D hD (Rp.blks.length + 2) k (by omega) (by omega)
     _ _ absOf hcard _ _ _ bd hno
+
+/-- **A cover from squeeze runs** (the form `hdin`, `hdout` and `hdzero` reduce to; deliverables 2 and 3): if on
+every outcome of an event `Acc` where a conclusion `Bad` fails, some part `j` of the run has a squeeze run in its define
+or LogUp lists whose window is on the transcript and whose header state is false, then that is a doomed entrant of
+the run's kinds in the cover's form (`∃ K' ∈ rtKo …, K'.Dm …` is the same statement). -/
+theorem rd_cover_of_sq (n : ℕ) (Acc Bad : OC (QB Lq) Dig α → (QB Lq → Dig) → Prop)
+    (hsq : ∀ (A : OC (QB Lq) Dig α) (G : QB Lq → Dig), Acc A G → Bad A G →
+      ∃ j, j < pf.parts.length ∧ j < n ∧ ∃ sx : SqX K Lq,
+        (sx ∈ D.r0 j ∨ sx ∈ D.r1 j ∨ sx ∈ D.h0 j ∨ sx ∈ D.h1 j ∨ sx ∈ D.lu j)
+        ∧ sx.a ≤ (rtTr key domain Lq pf rd G (A.run G)).length
+        ∧ ¬ sx.St (A.runLog G).2 ((rtTr key domain Lq pf rd G (A.run G)).take sx.a) []) :
+    ∀ (A : OC (QB Lq) Dig α) (G : QB Lq → Dig), Acc A G → Bad A G →
+      ∃ K' ∈ rtKo key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+        K'.Dm n (A.runLog G).2 (rtTr key domain Lq pf rd G (A.run G)) := by
+  intro A G hacc hbad
+  obtain ⟨j, hj, hjn, sx, hmem, ha, hst⟩ := hsq A G hacc hbad
+  exact rd_some_sq key domain hs Lq hL pf rd hL64 hv U hbij D hD n j hj hjn _ _ sx hmem ha hst
 
 end Hdblk
 

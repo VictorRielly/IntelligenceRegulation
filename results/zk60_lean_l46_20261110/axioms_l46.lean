@@ -21,5 +21,6 @@ import ZK60Formal.RunDoomTop
 #print axioms ZK60.ProtocolClassify.RdBlkR13
 #print axioms ZK60.ProtocolClassify.rd_blk_doom_of
 #print axioms ZK60.ProtocolClassify.rd_hdblk
+#print axioms ZK60.ProtocolClassify.rd_cover_of_sq
 -- RunDoomTop.lean
 #print axioms ZK60.ProtocolClassify.RunShapeP.rd_productionReadyL_r13P_exec_blk

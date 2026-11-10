@@ -77,12 +77,13 @@ on at most `propext`, `Classical.choice`, `Quot.sound` (§7).
 | **`RdBlkR13`** | block `k`'s R13 objects and links at one outcome, as one structure (its layout types are fields: they differ per block) |
 | `rd_blk_doom_of` | `rd_blk_doom` from the bundle |
 | **`rd_hdblk`** | **`hdblk`**: for any acceptance event and any extracted planes, if on every accepted outcome every block `k` has its bundle at its own shape `Rp.blks[k]`, then the premise `hdblk` of the app's top theorem holds, in its exact (unfolded some-part) form |
+| `rd_cover_of_sq` | the form `hdin`, `hdout`, `hdzero` reduce to: if wherever a conclusion fails some part has a squeeze run (define or LogUp list) with its window on the transcript and a false header state, the cover's conclusion `∃ K' ∈ rtKo …, K'.Dm …` holds (§5 items 3, 4) |
 
 ### 2.3 The app's top theorem with `hdblk` discharged (`RunDoomTop.lean`, generated)
 
 | Theorem | Meaning |
 |---|---|
-| **`rd_productionReadyL_r13P_exec_blk`** | L43's `rc_productionReadyL_r13P_exec_rk` (D76's approved form, one shape per block, `D := rkData …`) with `hdblk` REPLACED by `hblk`: on every accepted outcome outside the run's extraction failure `EvXR`, every block `k` has its `RdBlkR13` bundle on the run extractor's planes `k`, `k + 1`. The proof is `rc_productionReadyL_r13P_exec_rk` with every argument by name and `hdblk := rd_hdblk …`; the part count `pf.parts.length = Rp.blks.length + 2` comes from `RtRun.parts_length` and `O.blocks` |
+| **`rd_productionReadyL_r13P_exec_blk`** | L43's `rc_productionReadyL_r13P_exec_rk` (D76's approved form, one shape per block, `D := rkData …`) with `hdblk` REPLACED by `hblk`: on every accepted outcome outside the run's extraction failure `EvXR`, every block `k` has its `RdBlkR13` bundle on the run extractor's planes `k`, `k + 1`, with the define draws' cut reader fixed to the run's own (`absOfC (chainEncB key domain hs Lq hL)`, the one `rkData_valid` uses) and `78 < |K|` PROVED inside (`card_K_gt`). The proof is `rc_productionReadyL_r13P_exec_rk` with every argument by name and `hdblk := rd_hdblk …`; the part count `pf.parts.length = Rp.blks.length + 2` comes from `RtRun.parts_length` and `O.blocks` |
 
 `l46_mk_top.py` copies L43's statement and changes only the name, the docstring, the `hdblk` block (asserted to occur
 once, with its verify and `EvXR` lines) and the proof. The check compares the file with the generator's output.
@@ -127,9 +128,7 @@ As L43 §4 for `rc_productionReadyL_r13P_exec_rk`, except:
 | Premise | Class | Status after this lane |
 |---|---|---|
 | `hdblk` | — | GONE: discharged by `rd_hdblk` |
-| `absOf` | (a) bookkeeping | the cut reader of the define draws; at the real objects `absOfC (chainEncB key domain hs Lq hL)` (the one `rkData_valid` uses) |
-| `hcard : 78 < Fintype.card K` | — | PROVED true of every `K` here (`card_K_gt`); kept as a premise in this version (§5) |
-| **`hblk`** | (a), (e) | NEW: one `RdBlkR13` per block on every accepted outcome outside `EvXR` (§4.1) |
+| **`hblk`** | (a), (e) | NEW: one `RdBlkR13` per block on every accepted outcome outside `EvXR` (§4.1); its cut reader is the run's own and `78 < |K|` is PROVED (`card_K_gt`), so neither is a premise |
 
 Unchanged from L43: `hopW`, `hMW` (the stages' `A`, `H`, `M` and every closing opening `X`, L43-3, L43-6), the
 extraction `RhXOk` / `RhXMOk` (GA-8, L43-2), `hal_slots`, `hal_R0`, `hal_R1`, `hal_H0`, `hal_H1`, `hal_LU`, `hdin`,
@@ -138,24 +137,22 @@ extraction `RhXOk` / `RhXMOk` (GA-8, L43-2), `hal_slots`, `hal_R0`, `hal_R1`, `h
 
 ## 5. Not done, and what the next lane needs
 
-1. **`hcard`** can be removed from the top theorem with `card_K_gt K` (BlockAlgFinal.lean) in its statement; not done
-   here (a one-line change of the generator).
-2. **The boundary slots' schedule `DIO` and `hIO`** (finding L46-3): a certified polynomial for `SC_IO_IN`, `SC_IO_OUT`
+1. **The boundary slots' schedule `DIO` and `hIO`** (finding L46-3): a certified polynomial for `SC_IO_IN`, `SC_IO_OUT`
    (`progR13`'s `ioIr cstS 0 1 2` on `[eq, aPlane x / x2, epTab inp / out]`), its start claim "the A plane equals the
    endpoint table on the gated D positions", and the run extractor `E` with `planes j` the decoded boundary `j` read
    through the D layout. Then `hIO` follows from the gates (`gD = 1` at logical positions).
-3. **`hdefR`, `hdefIO`, `hlu` at the real `ps`**: the draw lane's `ps (k+1)` (finding L46-2) and the carry of
+2. **`hdefR`, `hdefIO`, `hlu` at the real `ps`**: the draw lane's `ps (k+1)` (finding L46-2) and the carry of
    `tHistD_trace` to the run's transcript (as `rk_blk_run` carries `tAccRd`).
-4. **`hdin`, `hdout`** (deliverable 3): the same pattern as `rd_blk_doom` at parts `0` and `L + 1`: IN-C's and
+3. **`hdin`, `hdout`** (deliverable 3): the same pattern as `rd_blk_doom` at parts `0` and `L + 1`: IN-C's and
    OUT-C's conclusions (`InOkP`, `OutOkP`) from their slots' start claims (L12 `inc_stage_sound`, L15
    `outc_stage_sound`, L29's `incSlots_model`, `outcSlots_model`), and a doomed define draw or LogUp run of the stage
    part when one fails, through `rd_some_sq`. What is missing is the stages' define and LogUp sub-protocols as `SqX`
    (the stages have no `defSq`; their slot loop is `stSlotsLoop`, L43-6), which is L45's stage-reader work.
-5. **`hdzero`** (deliverable 2): IN-C's `SIC_IO` zero-check is a stage define draw whose start claim is "the decoded
+4. **`hdzero`** (deliverable 2): IN-C's `SIC_IO` zero-check is a stage define draw whose start claim is "the decoded
    endpoint plane vanishes off the token positions" (with L26's `decodeIn_eq` identifying the decoded plane); then
-   `rd_some_sq` at part `0` gives the doom. Needs the same stage `SqX` as item 4, and `hdzero`'s `K'.Dm` is `RcSome`'s
-   content.
-6. **`hBal`, `hread`** (deliverable 2): `xB_subSt_of_opB` needs the test `T` to BE part 0's closing opening (`rkData`'s
+   `rd_some_sq` at part `0` gives the doom. Needs the same stage `SqX` as item 3; `rd_cover_of_sq` then gives `hdzero`'s
+   conclusion.
+5. **`hBal`, `hread`** (deliverable 2): `xB_subSt_of_opB` needs the test `T` to BE part 0's closing opening (`rkData`'s
    `opX 0`, whose `opB` is alive by `hopW`), but `T` is an `XTest` over `F` with its own claim type and matrix reader,
    while `opX 0` is an `RtOpen` over `K` with `rkPend`'s claims. Identifying them (or restating the endpoint test as
    `opX 0`) and putting the endpoint opening's column checks into `Vx` (L45, GA-8) come first.
@@ -194,8 +191,25 @@ theorem constrains `E.planes`, so the choice is free.
 that is not definitionally the field, and the elaborator refuses it ("synthesized type class instance is not
 definitionally equal", iter2); `attribute [local instance] RdBlkR13.fCt …` works (iter3).
 
-**L46-6 (Info): deliverables 2 and 3 not started in Lean.** §5 items 4 to 6.
+**L46-6 (Info): deliverables 2 and 3 not started in Lean beyond `rd_cover_of_sq`.** §5 items 3 to 5.
 
 ## 7. Checks
 
-See `results/zk60_lean_l46_20261110/check.log` (filled in after the run, below).
+`results/zk60_lean_l46_20261110/check_l46.sh`, one guarded cpu job (`lean-l46-check`, need 24 GiB, cap 36 GiB,
+`LEAN_NUM_THREADS=4`), exit 0, 59 s, peak 3.64 GiB, on perf `31af9ac1` plus this lane (the final state). All figures
+MEASURED; logs in the evidence directory (`check_run.log`: both runs, the second at the end; `full.log`,
+`axioms_flat.log`, `nameclash.log`, the regression logs). The first run (`check_run1.log`, before `rd_cover_of_sq` and
+the removal of `absOf`, `hcard` from the top theorem) was green too: 178 s, peak 5.17 GiB, 16 declarations. The modules
+were built in four guarded iterations (`iter1` to `iter4`, logs kept; `iter2` is the instance failure of L46-5).
+
+| Check | Result |
+|---|---|
+| each module built alone (`RunDoomBlk`, `RunDoomTop`) | 2 of 2 green, 0 warnings |
+| full `lake build` | green, 3,705 jobs, 0 warnings, 0 errors, no `sorry` |
+| axiom audit of every declaration of the two files (`gen_axioms.py`) | 17 of 17 (15 theorems, 1 definition, 1 structure): 13 on `propext`, `Classical.choice`, `Quot.sound`; 3 on `propext`, `Quot.sound`; 1 on `propext`; `sorryAx` 0, `ofReduceBool` 0, other axioms 0 |
+| source scan for the forbidden words | none |
+| root imports | both modules imported; no import line removed |
+| `RunDoomTop.lean` against `l46_mk_top.py`'s output | identical |
+| existing files changed | none besides the root's import lines; `Statements.lean` unchanged against `31af9ac1`; nothing under `ops/` |
+| name clashes (`l46_nameclash.py`, prefixes `RunDoom`, `RunEndpoint`; 40 worktrees, 4,113 other Lean files) | 0 (17 declarations; none declared twice) |
+| regressions | L6Check 1,206, L5Check 5,553, L11Check 404, fixture L1 101,956 checks; 0 failed in each |

@@ -167,12 +167,12 @@ theorem rd_productionReadyL_r13P_exec_blk (Rp : ClassifyRunPublicP S) (Lq : ℕ)
       ¬ InOkP Rp (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2) →
       ∃ K' ∈ rtKo key domain hs Lq hL (RtRun.pf Rn) (RtRun.rd Rn) hL64 hv U hbij D hD,
         ∃ i, i < Rp.blks.length + 2 ∧ ∃ c ∈ K'.cs i (A.runLog G).2, EntD K'.RC.W c (rtTr key domain Lq (RtRun.pf Rn) (RtRun.rd Rn) G (A.run G)))
-    (absOf : QB Lq → Option (List UInt8)) (hcard : 78 < Fintype.card K)
     (hblk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (k : ℕ) (hk : k < Rp.blks.length),
       (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG blk outc outcG P (CinR) h64 hr hon.base 24448).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
       ¬ EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf Vx rx A G →
       Nonempty (ZK60.ProtocolClassify.RdBlkR13 U D k (A.runLog G).2
-        (rtTr key domain Lq (RtRun.pf Rn) (RtRun.rd Rn) G (A.run G)) absOf hcard Rp.blks[k].pub
+        (rtTr key domain Lq (RtRun.pf Rn) (RtRun.rd Rn) G (A.run G))
+        (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) (ZK60.Exec.Block.card_K_gt K) Rp.blks[k].pub
         ((E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes k)
         ((E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes (k + 1))))
     (hdout : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
@@ -238,7 +238,9 @@ theorem rd_productionReadyL_r13P_exec_blk (Rp : ClassifyRunPublicP S) (Lq : ℕ)
     (mk := mk) (ops := ops) (hE := hE) (hops := hops) (hcan := hcan) (hwin := hwin) (hread := hread) (hBal := hBal)
     (hdzero := hdzero) (hzk := hzk)
     (hdblk := fun A G k hk hv' hx' => ZK60.ProtocolClassify.rd_hdblk key domain hs Lq hL (RtRun.pf Rn) (RtRun.rd Rn)
-      hL64 hv U hbij D hD Rp ((RtRun.parts_length Rn).trans (congrArg (fun n => n + 2) O.blocks.2)) absOf hcard
+      hL64 hv U hbij D hD Rp ((RtRun.parts_length Rn).trans (congrArg (fun n => n + 2) O.blocks.2))
+      (Exec.Block.absOfC (chainEncB key domain hs Lq hL))
+      (ZK60.Exec.Block.card_K_gt K)
       (fun A G => (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG blk outc outcG P (CinR) h64 hr hon.base 24448).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true
         ∧ ¬ EvXR tag Lq h64 C 256 256 256 16 16 12 26 coreOf Vx rx A G)
       (fun A G => (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes)

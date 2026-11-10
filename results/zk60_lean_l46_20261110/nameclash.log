@@ -1,5 +1,5 @@
-declarations in {RunDoom,RunEndpoint}*.lean: 16
+declarations in {RunDoom,RunEndpoint}*.lean: 17
 declared twice inside the lane: none
 worktrees read: 40
-other Lean files read (with repeats across worktrees): 4112
+other Lean files read (with repeats across worktrees): 4113
 clashes: 0
