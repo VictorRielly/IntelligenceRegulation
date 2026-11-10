@@ -215,3 +215,11 @@ import ZK60Formal.SlotPolyInstMask
 import ZK60Formal.SlotPolyInstEval
 import ZK60Formal.BlockInstChainN
 import ZK60Formal.BlockInstFinal
+import ZK60Formal.RunTrBase
+import ZK60Formal.RunTrSched
+import ZK60Formal.RunTrVerify
+import ZK60Formal.RunTrKinds
+import ZK60Formal.RunTrParts
+import ZK60Formal.RunTrStages
+import ZK60Formal.RunTrGate
+import ZK60Formal.RunTrWin
