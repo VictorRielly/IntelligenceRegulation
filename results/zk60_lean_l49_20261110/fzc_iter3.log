@@ -1,0 +1,6 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/fzc_plan3.txt ==
+build ZK60Formal.BlockR13HostFzcCfg ZK60Formal.BlockR13HostFzcForm
+== lake build ZK60Formal.BlockR13HostFzcCfg ZK60Formal.BlockR13HostFzcForm ==
+Build completed successfully (3578 jobs).
+build rc 0 (18 s)
+rc 0, 18 s
