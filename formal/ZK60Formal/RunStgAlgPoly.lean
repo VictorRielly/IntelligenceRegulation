@@ -20,9 +20,13 @@ expression with the private tables' values and `g` read off the extracted data i
   and the claims' semantics `csv` the view gives, plus `c` times the CFS mask polynomial of the extracted mask rows `Rv`
   (L31's `maskPoly`);
 * `StgTrueAt`: at every reading of the stage, with its accumulator: the header reader reads the reading's schedule, the
-  accumulator's claims are true of the data (`ClaimsTrue`), `M`'s functionals are true (`MTrue`), `M`'s semantics is
-  linear on the extracted rows (`MLin`): the run-level link lane L50 left for the blocks (§5 item a), at the stages;
-* **`stgFR_termAt`**: `StgTrueAt` gives `StgTermAtV` for `stgFR` (L16's `blockSlots_terminal` at the stages).
+  accumulator's claims are true of the data (`ClaimsTrue`), `M`'s functionals are true (`MTrue`): the run-level link
+  lane L50 left for the blocks (§5 item a), at the stages;
+* **`stgFR_termAt`**: `StgTrueAt` gives `StgTermAtV` for `stgFR` (L16's `blockSlots_terminal` at the stages), with
+  `M`'s semantics linear on the extracted rows (`MLin`);
+* `stgCsv`, **`stgCsv_value`**, `stgMsv`, `stgRv`, **`stgMsv_mlin`**: the extracted data at the stage's roots over the
+  view (L36's `csXof`, L28's `msOfTab`, L31's `mRowX` at the stage's positions);
+* **`stgFstI`**, **`stgFstO`**: the real `FstI`, `FstO`.
 
 `FstI := stgFR … (fun v ch => (Win (v.2.take n0)).bp (incCtx … ch)) …`, `FstO` likewise: the polynomials are the code's
 own, over the data the view's extraction gives; what is left is `StgTrueAt` (the openings' and `M`'s truth at the

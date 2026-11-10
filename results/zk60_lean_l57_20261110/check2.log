@@ -1,0 +1,22 @@
+== lake build of the L57 modules, one at a time ==
+lake build ZK60Formal.RunStgAlgHost rc 1
+lake build ZK60Formal.RunStgAlgList rc 0
+lake build ZK60Formal.RunStgAlgRun rc 1
+lake build ZK60Formal.RunStgAlgCount rc 0
+lake build ZK60Formal.RunStgAlgPoly rc 1
+lake build ZK60Formal.RunStgAlgTop rc 1
+lake build ZK60Formal.RunStgAlgTopR rc 1
+== lake build (full) ==
+lake build rc 1
+- ZK60Formal.RunStgAlgHost
+error: build failed
+warnings: 0
+errors: 6
+sorry: 0
+warnings in the modules' own builds: 0
+error: ZK60Formal/RunStgAlgHost.lean:228:29: unexpected token '/--'; expected 'lemma'
+error: ZK60Formal/RunStgAlgHost.lean:277:38: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+error: ZK60Formal/RunStgAlgHost.lean:277:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+error: ZK60Formal/RunStgAlgHost.lean:287:38: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+error: ZK60Formal/RunStgAlgHost.lean:287:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+error: build failed

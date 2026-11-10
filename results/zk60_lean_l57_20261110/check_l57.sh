@@ -103,6 +103,11 @@ python3 -I "$OUT/l57_mk_top.py" "$WT" > /dev/null && cmp -s "$OUT/l57_saved_top.
   && echo "RunStgAlgTop.lean: identical" || { echo "RunStgAlgTop.lean: DIFFERS"; gok=1; }
 cp "$OUT/l57_saved_top.lean" "$L/RunStgAlgTop.lean"
 rm -f "$OUT/l57_saved_top.lean"
+cp "$L/RunStgAlgTopR.lean" "$OUT/l57_saved_topr.lean"
+python3 -I "$OUT/l57_mk_topr.py" "$WT" > /dev/null && cmp -s "$OUT/l57_saved_topr.lean" "$L/RunStgAlgTopR.lean" \
+  && echo "RunStgAlgTopR.lean: identical" || { echo "RunStgAlgTopR.lean: DIFFERS"; gok=1; }
+cp "$OUT/l57_saved_topr.lean" "$L/RunStgAlgTopR.lean"
+rm -f "$OUT/l57_saved_topr.lean"
 echo "== the IN-C count at the app's profile against the code (l57_count_check.py) =="
 python3 -I "$OUT/l57_count_check.py" "$WT" > "$OUT/countcheck.log" 2>&1
 cc=$?

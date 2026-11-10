@@ -13,10 +13,10 @@ It reads this lane's `stgAlg_productionReadyL_epP_exec_view` (RunStgAlgTop.lean)
       the run-level facts at the stage (`StgTrueAt`: the reader reads the schedule, the claims and `M`'s functionals
       true of the extracted data);
     - new side premises: `hIOI`, `hIOO` (the IO semantics reads a claim's functional only), `hNin`, `hNout` (every slot
-      has a variable and its mask coefficients fit `M`'s 512 columns), `hpolyIn`, `hpolyOut` (the definitions'
-      polynomials return canonical words);
+      has a variable and its mask coefficients fit `M`'s 512 columns);
   * the proof applies `stgAlg_productionReadyL_epP_exec_view` with every binder passed by name, `FstI`, `FstO` := the
-    real polynomials and `hTI_stg`, `hTO_stg` := `stgFR_termAt` (with `stgCsv_value`, `stgMsv_mlin`).
+    real polynomials and `hTI_stg`, `hTO_stg` := `stgFR_termAt` (with `stgCsv_value`, `stgMsv_mlin`, and the closures'
+    canonicity PROVED: `stg_hpolyIn`, `stg_hpolyOut`).
 usage: python3 l57_mk_topr.py <WT>
 """
 import sys
@@ -127,9 +127,7 @@ NEWB = ("(csIOI csIOO : StgVw Lq → Exec.Block.Cm → Exec.Block.ZClaim → K)\
         "    (hIOI : ∀ v (cm : Exec.Block.Cm) (z : Exec.Block.ZClaim) (a : Fp2), csIOI v cm { z with value := a } = csIOI v cm z)\n"
         "    (hIOO : ∀ v (cm : Exec.Block.Cm) (z : Exec.Block.ZClaim) (a : Fp2), csIOO v cm { z with value := a } = csIOO v cm z)\n"
         "    (hNin : ∀ k, k < P0in.geom.slots.length → 0 < stgN P0in k ∧ stgN P0in k * (Exec.Block.slotShape P0in k).2.2 + 2 ≤ 512)\n"
-        "    (hNout : ∀ k, k < P0out.geom.slots.length → 0 < stgN P0out k ∧ stgN P0out k * (Exec.Block.slotShape P0out k).2.2 + 2 ≤ 512)\n"
-        "    (hpolyIn : ∀ hd cx k hist dr df, ((inc hd).bp cx).define k hist dr = .ok df → ∀ vs, (Exec.Block.SlotDef.poly df vs).Canon)\n"
-        "    (hpolyOut : ∀ hd v k hist dr df, (outc hd v).bp.define k hist dr = .ok df → ∀ vs, (Exec.Block.SlotDef.poly df vs).Canon)")
+        "    (hNout : ∀ k, k < P0out.geom.slots.length → 0 < stgN P0out k ∧ stgN P0out k * (Exec.Block.slotShape P0out k).2.2 + 2 ≤ 512)")
 
 out = ""
 pos = 0
@@ -170,14 +168,15 @@ def term_term(h):
     if h == "hTI_stg":
         return (f"(hTI_stg := fun A G hv' hx' h1 h2 h3 => {P}stgFR_termAt U hbij hU key domain P0in {POFI} mIn {HIN} "
                 f"{BGAI} {ABS} {PVI} {CSI} {MSI} {RVI} 512 G {LG} {TR} (fun _ => hPin (A.run G).1.hdr _) "
-                f"(fun _ k hk => (Iin.hgeomL (A.run G).1.hdr _ k hk).1) hNin (fun _ => hpolyIn (A.run G).1.hdr _) "
+                f"(fun _ k hk => (Iin.hgeomL (A.run G).1.hdr _ k hk).1) hNin "
+                f"(fun _ => {P}stg_hpolyIn inc (A.run G).1.hdr _) "
                 f"({P}stgCsv_value U tag h64 {GEO} Iin.pA.rows Iin.pH.rows ((RtRun.pf Rn).off 0 + 5) "
                 f"((RtRun.pf Rn).off 0 + 5 + 4 + mIn) csIOI hIOI) "
                 f"(fun v => {P}stgMsv_mlin U tag h64 pin.S ((RtRun.pf Rn).off 0 + 5 + 3) v) (hTrI A G hv' hx' h1 h2 h3))")
     return (f"(hTO_stg := fun A G hv' hx' h1 h2 h3 => {P}stgFR_termAt U hbij hU key domain P0out {POFO} 2 {HOUT} "
             f"{BGAO} {ABS} {PVO} {CSO} {MSO} {RVO} 512 G {LG} {TR} (fun _ => hPout (A.run G).1.hdr (A.run G).1.verdict) "
             f"(fun _ k hk => (Oout.hgeomL (A.run G).1.hdr (A.run G).1.verdict k hk).1) hNout "
-            f"(fun _ => hpolyOut (A.run G).1.hdr (A.run G).1.verdict) "
+            f"(fun _ => {P}stg_hpolyOut outc (A.run G).1.hdr (A.run G).1.verdict) "
             f"({P}stgCsv_value U tag h64 {GEO} Oout.pA.rows Oout.pH.rows ((RtRun.pf Rn).off (Lb + 1) + 2) "
             f"((RtRun.pf Rn).off (Lb + 1) + 2 + 4 + 2) csIOO hIOO) "
             f"(fun v => {P}stgMsv_mlin U tag h64 pout.S ((RtRun.pf Rn).off (Lb + 1) + 2 + 3) v) "
