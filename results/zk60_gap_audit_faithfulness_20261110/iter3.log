@@ -1,0 +1,14 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/plan2.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean:63:2: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Decidable (M.admissible s.x ∧ s.pub = M.publicPart (M.forward W s.x) ∧ s.hid = M.hiddenPart (M.forward W s.x))
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+'ZK60.GapAudit.leaky_publishes_input' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady_targets' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'ZK60.GapAudit.leaky_productionReady_classify' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'ZK60.GapAudit.circuit_field_free' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-adbd2745a7354c11d/results/zk60_gap_audit_faithfulness_20261110/GB_Toys.lean (3 s)
+rc 1, 3 s

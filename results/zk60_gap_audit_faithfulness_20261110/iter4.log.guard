@@ -1,0 +1,2 @@
+[zk60-guard 23:36:43] START gap-faith-iter4 class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=be80d1f5b728
+[zk60-guard 23:37:00] END gap-faith-iter4 exit=0 child_wall=17s peak_rss=3.50G min_avail=228.48G
