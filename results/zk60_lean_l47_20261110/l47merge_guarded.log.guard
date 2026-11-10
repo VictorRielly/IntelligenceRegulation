@@ -1,0 +1,2 @@
+[zk60-guard 09:00:15] START l47merge class=cpu need=24G cap=36G enforce=watchdog-only waited=0s run=63e59511c8fb
+[zk60-guard 09:20:22] END l47merge exit=0 child_wall=1208s peak_rss=13.21G min_avail=222.64G

@@ -31,7 +31,9 @@ say "start; HEAD $(git -C $R rev-parse --short HEAD); lane files: $*"
 $LAKE -d $R/formal build > ${M}_lake.log 2>&1; say "lake build rc=$?"
 tail -2 ${M}_lake.log >> $P
 grep -ciE "warning|sorry" ${M}_lake.log | sed 's/^/lines naming a warning or sorry in the build log: /' >> $P
-for n in 40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9; do
+# 2026-11-10: the list ran 40..9 only, so the merged checks of L41-L46 audited L9-L40 and not the lanes themselves
+# (each lane's own check audited it in its worktree). It now runs 80..9, so every lane's audit file is found.
+for n in $(seq 80 -1 9); do
   A=$(ls $R/results/zk60_lean_l${n}_2026*/axioms_l${n}.lean 2>/dev/null | head -1)
   [ -n "$A" ] && [ -f "$A" ] || continue
   b=axioms_l${n}

@@ -63,6 +63,23 @@ item was re-checked against the source by the coordinator.
   opening at the largest radius is the production instance; a single-calibration Shieldstral export for W16R2,
   accuracy check first; W16R3 gets C1, C2, C3, C5, C7 and the token stages, not C4 or C9; the prover shortcut
   `HL_A26_KEPT` is on for the app, the verifier shortcut is not.
+- **Block level at the W16R2 development rung: no block-level premise left (L47, merged and checked 2026-11-10).**
+  - **What is proved:** the one-block statement at the W16R2 rung (`block_knowledge_look_w16r2_rung`). The table
+    slot's identity, the lookup side's tables, multiplicities and helper relations are now proved from the committed
+    data.
+  - **Checked against the code:** the public tables were compared by value on real rung receipts: 254 and 94 checks,
+    0 failed, and every negative control was caught.
+  - **What it still assumes:** run-level premises (the random oracle, the commitment, the code's rung verifier) and
+    public data.
+  - **This is a development shape, not the app's block.** At R13, the app's format, only the table slot's identity is
+    done (at the rung and at all 26 Shieldstral layers).
+  - **Next:** lane L49 is building the rest of the app's block at R13 (the hosts, the lookup side, then the statement
+    at each of the 26 layers).
+  - **Finding L47-4:** the lookup count lane L36 used left out two tuple kinds. The corrected count at the app's block,
+    66,977,792 with the table term, still fits under 2^26 (margin 131,072; ESTIMATE, L49 is to prove it), so L36-1's
+    bound holds.
+  - **Correction to my earlier checks:** the merged-tree checks of L41–L46 audited the axioms of lanes L9–L40 only. Each
+    of L41–L46 was audited in its own worktree. From L47 on, the merged check audits every lane, L41–L47 included.
 - **Block level, later on 2026-11-10 (L41 and L44 merged and checked; the full Lean build 3703 jobs):** the one-block
   statement is joined at all six host slots of the W16R2 rung (`block_knowledge_host_w16r2_rung`). The block's
   table layout is checked against a real receipt through a test-only Rust export: 1,685 checks, 0 failed. The R13
