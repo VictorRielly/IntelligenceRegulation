@@ -29,6 +29,7 @@ here. The rates count proving and witness work. Verification time is recorded se
 | **the media app (Shieldstral classifier, R13 blocks, T128, 3 category proofs per post), through the app end to end: every receipt freshly verified, publication included (A24, 2026-11-07, merged 9be693d0; development mode `shieldstral-fast`, privacy statement pending, not production)** | 0.17 proved tok/s (r16b, CPU 2 threads; Astra 2026-11-05) | **one post 5.5 tok/s (70 s); an 8-post stream 11.4 tok/s** (269 s; second half 15.4) [MEASURED, public posts, single runs on the shared Mac] |
 | **the media app with lane A26's binary (the same receipts byte for byte; the CPU work per category proof cut by a third; development mode `shieldstral-fast`, privacy statement pending, not production)** | A24: native stream 11.25 tok/s, one post 55.2 s; app stream 11.4 | **native stream 14.10 tok/s (+25%, A/B pairs both orders), one post 46.7 s (+18%); through the app: stream 13.8 tok/s, one post 54.4 s (7.1 tok/s); proof only 15.5** [MEASURED; app rows single runs] |
 | **the media app with lane A27's binary (the same receipts byte for byte; the GPU work per category proof cut by 28%; development mode `shieldstral-fast`, privacy statement pending, not production)** | A26: native stream 14.27 tok/s, one post 46.9 s, proof only 14.7 | **native stream 16.86 tok/s (+18%, A/B pairs both orders, every pair), one post 44.2 s (+6%), proof only 17.7 (+21%); through the app: stream 16.3 tok/s, one post 47.8 s (8.0 tok/s)** [MEASURED; app rows single runs] |
+| **the media app with lane A28's binary (the same receipts byte for byte; the commitments' GPU time cut by 9%, one proof's by 3.9%; two server settings; development mode `shieldstral-fast`, privacy statement pending, not production)** | A27 re-measured beside it: native stream 16.42 tok/s, one post 43.3 s, proof only 17.75 | **native stream 16.66 tok/s with the binary alone (+1.5%), 16.90 with the two settings (+2.9%; A B C C B A, mirrored order); one post 42.0 s (−3%); proof only 17.82 (no difference); through the app: stream 16.8 tok/s, one post 49.9 s (7.7 tok/s), one long post 125.5 s** [MEASURED; app rows single runs, not pairs: A27's app run of 2026-11-07 measured 16.3 tok/s, 47.8 s and 127.0 s] |
 
 - The CLI's witness cache is now sized to the machine (A3).
 - A row census: 52% of a block's committed rows are LogUp helpers, the target of the B4 and B5 protocol levers.
@@ -347,6 +348,36 @@ here. The rates count proving and witness work. Verification time is recorded se
   - One note for the privacy gate: the three-product fold's two-product fast path is taken per element, so for an
     extension table of private data a fold's time can depend slightly on whether neighbouring hidden values are
     equal (`HL_A27_FOLD=0` removes it; README section 6).
+- **The media app's commitment kernels at the device's limits, and scheduling measured out (A28, 2026-11-09/10)**
+  [MEASURED; `results/zk60_a28_app_20261107/README.md`]. The A27 figures here are A28's own re-measurements of A27's
+  binary in the same jobs; the machine measured about 3% slower than on 2026-11-07.
+  - Two byte-identical kernel changes: the commitment's forward transform skips the zero half of its first pass, and
+    the column hash runs as BLAKE3's own tree in two passes. The commitments' GPU time fell 9%, and one proof's GPU
+    time 5.04 → 4.84 s. Deeper radix passes and rewritten field arithmetic lost or tied: nothing is left in the
+    commitment kernels in this design.
+  - Scheduling does not fill the GPU's idle gaps. Seal-ahead works on one lane but gives +1.3% on six for 60 GiB more
+    memory; it is built, tested and off by default. More threads a lane, more lanes and two server processes give
+    the same stream: about one category proof every 6 to 6.5 s.
+  - Why: a proof that takes 19.6 s alone takes 38 s beside five others. It waits 12 to 15 s for the one shared
+    device instead of 5.4 s, and its host work is 1.3× to 3× slower in company.
+  - A B C C B A against A27, every receipt freshly verified: the 8-post stream 16.42 → 16.66 proved tok/s with the
+    binary alone (+1.5%), 16.90 with a spin-then-block wait and a 300 ms stagger (+2.9%; the prover's CPU per proof
+    84 → 65 CPU-s); one post 43.3 → 42.0 s. Through the app (single runs): no change beyond the runs' spread.
+  - **Byte identity on the real export** (A26's fixed-entropy harness): A27's binary, A28's, A28 with every switch
+    off, and A28 with seal-ahead on and off make identical receipts, every file of every category. The six trained
+    profiles' digests hold on CPU and Metal; the 8B stack's server tests pass on the device. The app pins the A28
+    binary; identity `e4f97455…` unchanged; 219 app tests OK.
+  - **30 tok/s is not reached (about 1.8× short, as after A27), and no byte-preserving scheduling change will reach
+    it.** What is left, with A28's estimates [INFERRED]:
+    - rows of W16R2's size, which needs Victor's ruling on the trained-model route (D75 (3)): about 22 to 25 tok/s
+      on this stream;
+    - a second GPU: about 1.9×;
+    - the prover's re-checks from the startup records (`HL_A26_KEPT`, D75 (5)): about +5%;
+    - the device sumcheck slots: about +3%.
+
+    The byte-preserving levers together are about +10 to 15%, so roughly 19 tok/s.
+  - For the privacy gate: the two kernels branch on shapes only; `gpu/metal.rs` and `gpu/metal_kernels.metal` have
+    new digests to re-read. Seal-ahead, if someone turns it on, holds two requests' witnesses per lane.
 - **D63 Lean, per profile at W16R2 (2026-11-07, Victor away: "focus on completing the lean proofs")** [PROVED; each
   lane checked on the merged tree; docs `ZK60_LEAN_L9/L11/L12_*_20261107.md`].
   - The W16R3 freeze needs Victor's approval, so the per-profile proofs now target **W16R2**, the profile that the
@@ -385,12 +416,21 @@ here. The rates count proving and witness work. Verification time is recorded se
       openings at rate 1/4, `Binding` and the layout map all hold at R13. Every bound meets its target.
     - All 26 real Shieldstral layer calibrations pass R13's check, with a constant plane list (proved).
     - Checked on real R13 receipts: 408, 302 and 35 checks, 0 failed.
+  - **Correction, 2026-11-09 (finding L31-1, High for the Lean chain; not a protocol weakness).** The block theorems
+    of L16, L20, L21, L23 and L28 below all carry one premise, `SlotEval`, that no real block can meet. They are true
+    as stated but say nothing about a real block. Lane L31 stated the repaired premise and re-proved the chain for it;
+    cite `block_knowledge_final_w16r2` / `_r13` / `_r13_shield` and the `…N` theorems instead (the L31 bullet below).
+    The counts and bounds in the bullets below stand; the proofs are the same proofs.
   - **L16 and L20, the block's knowledge statement.**
     - For any block shape: an accepted block yields extracted planes that satisfy the block's constraints, except with
       probability ≤ εsTarget for every q.
     - L20's per-position count brought the constant term from 2^-82.6 to 2^-104.2.
     - Premises left: two deterministic code-to-model links (lane L22), and the slot relations plus LogUp within a
       budget (lane L21).
+  - **Correction, 2026-11-09 (findings L33-1 and L33-3, Medium).** The L14 and L19 results below hold for a prover
+    that never refuses. The real prover can refuse at a challenge, and then outputs one constant refusal. With that
+    accounted for (lane L33, below), what is proved is: one block receipt meets the target for up to 2^118 receipts,
+    and a whole classify run as one receipt for up to 2^110. "For every R" and "2^112" below are superseded.
   - **L19, zero knowledge for any number of receipts (block level).**
     - `hHV` is now a theorem, resting on named honest-prover properties.
     - With a per-kind query count, one block receipt (W16R2 or R13) meets εzkTarget for EVERY R. L14's 2^96 cap is
@@ -521,8 +561,78 @@ here. The rates count proving and witness work. Verification time is recorded se
       still inside the proved margin; the sites are not yet built in Lean.
   - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26, L27, L28, L29 and A28
     (the app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its
-    worktree, and each was resumed there on 2026-11-09. L26, L27, L28 and L29 are merged and checked (above; perf and
-    main at 5fe92b4c, the full Lean build 3591 jobs); A28 is still running.
+    worktree, and each was resumed there on 2026-11-09. All five are merged: L26, L27, L28 and L29 (above), and A28
+    (its row and bullet are with the other media app rows near the top). By the L32 check the full Lean build is
+    3621 jobs, with no warning.
+  - **L31, the block instance: a flaw in the block chain's premise found and repaired; the bookkeeping premises
+    discharged; the slot polynomials only half done** [PROVED; MEASURED for the agreement check; merged 2026-11-09;
+    `ZK60_LEAN_L31_BLOCK_INSTANCE_20261109.md`].
+    - **Finding L31-1 (High for the Lean chain; not a protocol weakness).** Since L16, every block theorem took a
+      premise `SlotEval`: each slot's polynomial, evaluated at the challenges, equals the code's terminal expression.
+      As written it asked this for challenge vectors of any length, and the code's expression reads the extra
+      entries. No real slot polynomial can satisfy it. So the block theorems of L16 to L28 were true but empty at a
+      real block.
+    - **The repair.** `SlotEvalN` asks the identity only at the sumcheck's own challenges. The whole chain is
+      re-proved for it in new files, by the same proofs. Coordinator's decision: every lane cites the repaired chain;
+      the older block theorems are superseded; editing `SlotEval` in place is a later cleanup.
+    - **Final block statements:** `block_knowledge_final_w16r2`, `_r13` and `_r13_shield` (the app's block, at the
+      Shieldstral T128 schedule, which no earlier lane had): the block verifier accepts while the committed data
+      fails the block's equations with probability at most the approved target plus the endpoint term. The app's
+      block uses 30.4M of the 67.1M budget units.
+    - **Discharged:** L28's bookkeeping premises. The block profile objects are built with their bounds proved, the
+      reader of the verifier's claims is proved on its own trace, and the claim counts follow from the commitment
+      schedule.
+    - **Checked against real receipts:** 82 checks, 0 failed, on the W16R2 and R13 rung receipts; a negative control
+      of 8 single changes fails exactly 8. The app block's two claim counts (146 and 54) are derived by rule: no
+      Shieldstral R13 block receipt is in the repository (L31-3, Low).
+    - **Not done:**
+      - the tables part of the slot polynomials (the block's `define` as a Lean definition);
+      - the per-outcome algebra (the certified polynomials vanish on acceptance; the start claims give the block's
+        relations; the lookup list covers the block's lookups);
+      - the certified slot polynomials with their degrees.
+
+      These stay premises of the final statements, and are the next lane's work (L35).
+  - **L32, completeness at run level: the openings are done, the slots' arithmetic is not** [PROVED; merged
+    2026-11-09; `ZK60_LEAN_L32_COMPLETE_RUN_20261109.md`].
+    - The code's opening verifier and mask verifier, as written in Lean, accept the honest prover's openings at every
+      hash function and transcript, with error 0. A block's core at R13 and both stages are accepted once the slots'
+      arithmetic holds; every opening premise of L25's and L29's theorems is gone.
+    - The opening refusals are exact counted sites: one opening on n claims has n + 2 sites and exactly p + n + 1 bad
+      values. The dependent-proximity refusal (L18-3) is now a theorem, not an estimate.
+    - With stage IN-C counted as L29-3 corrected it, the run's total refusal probability stays inside the approved
+      2^-40.
+    - **No completeness obligation is closed outright.** Left: each slot's arithmetic along the honest run (not
+      started: it is the statement that the honest witness satisfies every check); the chain of the three parts over
+      the whole run; a few refusal sites still named, not built.
+    - Finding L32-1 (Medium, in the Lean contracts, no statement change): the parts' completeness contracts ask for
+      one honest data object for every starting transcript, but one opened table depends on the challenges. The
+      honest data must be built per starting transcript; L32 does so, and the run's parts need the same.
+    - Finding L32-2 (Low, code): `open_zk` would panic, not refuse, on a mask-site mismatch. By reading the code this
+      cannot happen after `check_opening` has accepted; that is not proved.
+  - **L33, the classify run's zero knowledge with the prover's refusals accounted for: reduced to named premises,
+    not finished** [PROVED, given the premises; merged 2026-11-09; `ZK60_LEAN_L33_ZK_HONEST_20261109.md`].
+    - **Finding L33-1 (Medium).** L14's and L19's one-receipt step assumed a prover that always answers. The real
+      prover refuses at some challenges, after earlier steps have already absorbed masked data, and a refusal is one
+      constant message. The old step cannot be applied to it. L33 re-proves the step with a refusal guard. It needs
+      one new premise, which the code's refusal classes give: whether an attempt is refused depends only on the
+      challenges and public data.
+    - **Finding L33-3 (Medium, for Victor, together with L19-2).** With refusals counted, this proof gives the
+      approved target for a whole classify run as one receipt for up to 2^110 receipts (L19 said 2^112), and for one
+      block receipt for up to 2^118 (L19 said every number). These are proved from L19's estimated query counts. No
+      target was changed. A sharper count of the refused cases may restore L19's figures; it was not attempted.
+    - **Finding L33-2 (Low, modelling).** L19 compared any two inputs. For a statement that carries the verdict, only
+      inputs with the same verdict can be compared. The law is restated that way.
+    - **Proved:**
+      - a prover written as an oracle program is L14's prover model, with the same output;
+      - an honest block's view has a law that does not depend on the hidden data, from L25's honest rounds;
+      - `classify_zk_of_model`: the run's zero-knowledge obligation (O12) in its exact form, from named premises;
+      - its transfer to the corrected instance.
+    - **No leak found by reading the code:** no receipt byte and no refusal was found to depend on hidden data beyond
+      the declared leak (the token count, the width, the layer count and the served bit). This is a reading of the
+      prover's sources, not a proof.
+    - **Premises left:** the run's prover assembled as one program (it needs L32's opening provers); what a receipt
+      shows; the masks', pads' and salts' properties as theorems about a Lean object that does not exist yet; the
+      query counts by kind, which are still estimates.
   - **L30, the classify run's gate on the corrected instance, through the run's transcript** [PROVED; merged
     2026-11-09; `ZK60_LEAN_L30_RUN_GATE_U_20261109.md`].
     - `classifyProtocolUExec` is the instance the final assembly will use: L29's executable stages AND L26's
@@ -544,11 +654,14 @@ here. The rates count proving and witness work. Verification time is recorded se
       - `ClassifyOpen`'s other fields (completeness, zero knowledge, the weights' validity);
       - the rulings L24-1 and L19-2.
   - **Running since 2026-11-09, on what the merged lanes left open for the classify run:**
-    - L31: a block's remaining extraction premises (the concrete profile, the claims' reader, the block's `define`
-      and the slot polynomials over the extracted data, the per-outcome algebra);
-    - L32: completeness at run level (the openings' and `M`'s executable completeness, the run's prefix as a
-      transcript program, the refusal sites and their exact count against 2^-40);
-    - L33: the run's zero knowledge (the honest prover in oracle form and the honest-prover properties L19 named).
+    - L35 (after L31): the block's `define` as a Lean definition and the tables part of the slot polynomials. L36,
+      not yet started: the per-outcome algebra;
+    - L36: the block's per-outcome algebra (the certified polynomials vanish on acceptance; the start claims give
+      the block's relations; the lookup side);
+    - L37, after L32: completeness continued (the run's refusal chain, the commitments' honest claims, then the
+      honest prover's slot arithmetic, the stages first);
+    - L38, after L33: zero knowledge continued (the prover's masks, pads and salts as a Lean object, the run's
+      prover as one program, the query counts made exact, and a sharper count for L33-3's caps).
     - L34 (started after L30's check passed; perf and main at the L30 check commit, the full Lean build 3597 jobs):
       the run's transcript as a Lean object with the kinds' lists on it, and the ordered cover's premises (L30's
       remaining list).

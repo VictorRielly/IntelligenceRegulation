@@ -1,0 +1,3 @@
+build ZK60Formal.RunTrKinds
+build ZK60Formal.RunTrStages
+build ZK60Formal.RunTrGate

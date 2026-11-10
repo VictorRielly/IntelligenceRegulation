@@ -1,0 +1,14 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acf8501c364823cda/results/zk60_lean_l33_20261109/plan.txt ==
+build ZK60Formal.ZKHonestCount
+build ZK60Formal.ZKHonestRun
+build ZK60Formal.ZKHonestBound
+== lake build ZK60Formal.ZKHonestCount ==
+Build completed successfully (3446 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.ZKHonestRun ==
+Build completed successfully (3531 jobs).
+build rc 0 (9 s)
+== lake build ZK60Formal.ZKHonestBound ==
+Build completed successfully (3532 jobs).
+build rc 0 (16 s)
+rc 0, 16 s

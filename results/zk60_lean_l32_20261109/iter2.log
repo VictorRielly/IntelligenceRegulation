@@ -1,0 +1,110 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a56025bec34e68f4b/results/zk60_lean_l32_20261109/plan.txt ==
+build ZK60Formal.HonestOpenPcs
+build ZK60Formal.HonestOpenM
+build ZK60Formal.HonestOpenFields
+build ZK60Formal.HonestOpenSites
+build ZK60Formal.HonestRunBlock
+build ZK60Formal.HonestRunProg
+build ZK60Formal.HonestRunCount
+build ZK60Formal.HonestRunCover
+build ZK60Formal.HonestRunStageIn
+== lake build ZK60Formal.HonestOpenPcs ==
+Build completed successfully (3478 jobs).
+build rc 0 for ZK60Formal.HonestOpenPcs (4 s)
+== lake build ZK60Formal.HonestOpenM ==
+✖ [3480/3480] Building ZK60Formal.HonestOpenM (3.1s)
+error: ZK60Formal/HonestOpenM.lean:305:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/HonestOpenM.lean:388:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestOpenM
+error: build failed
+build rc 1 for ZK60Formal.HonestOpenM (9 s)
+== lake build ZK60Formal.HonestOpenFields ==
+✖ [3498/3499] Building ZK60Formal.HonestOpenM (2.0s)
+error: ZK60Formal/HonestOpenM.lean:305:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/HonestOpenM.lean:388:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestOpenM
+error: build failed
+build rc 1 for ZK60Formal.HonestOpenFields (13 s)
+== lake build ZK60Formal.HonestOpenSites ==
+✖ [3503/3505] Building ZK60Formal.HonestOpenM (2.2s)
+error: ZK60Formal/HonestOpenM.lean:305:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/HonestOpenM.lean:388:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestOpenM
+error: build failed
+build rc 1 for ZK60Formal.HonestOpenSites (16 s)
+== lake build ZK60Formal.HonestRunBlock ==
+✖ [3503/3506] Building ZK60Formal.HonestOpenM (1.0s)
+error: ZK60Formal/HonestOpenM.lean:305:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/HonestOpenM.lean:388:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestOpenM
+error: build failed
+build rc 1 for ZK60Formal.HonestRunBlock (20 s)
+== lake build ZK60Formal.HonestRunProg ==
+✖ [3505/3509] Building ZK60Formal.HonestOpenM (1.0s)
+error: ZK60Formal/HonestOpenM.lean:305:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/HonestOpenM.lean:388:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestOpenM
+error: build failed
+build rc 1 for ZK60Formal.HonestRunProg (24 s)
+== lake build ZK60Formal.HonestRunCount ==
+✖ [3505/3510] Building ZK60Formal.HonestOpenM (1.0s)
+error: ZK60Formal/HonestOpenM.lean:305:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/HonestOpenM.lean:388:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestOpenM
+error: build failed
+build rc 1 for ZK60Formal.HonestRunCount (27 s)
+== lake build ZK60Formal.HonestRunCover ==
+✖ [3505/3511] Building ZK60Formal.HonestOpenM (2.2s)
+error: ZK60Formal/HonestOpenM.lean:305:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/HonestOpenM.lean:388:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestOpenM
+error: build failed
+build rc 1 for ZK60Formal.HonestRunCover (30 s)
+== lake build ZK60Formal.HonestRunStageIn ==
+✖ [3503/3507] Building ZK60Formal.HonestOpenM (2.0s)
+error: ZK60Formal/HonestOpenM.lean:305:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/HonestOpenM.lean:388:10: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestOpenM
+error: build failed
+build rc 1 for ZK60Formal.HonestRunStageIn (34 s)
+rc 1, 34 s

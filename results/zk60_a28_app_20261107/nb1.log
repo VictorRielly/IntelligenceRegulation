@@ -1,0 +1,39 @@
+quiet (no ds4-bench)
+pipeline head16: max threads/tg 1024, exec width 32, static tg mem 16384
+pipeline head8: max threads/tg 1024, exec width 32, static tg mem 16384
+pipeline tail_reg5: max threads/tg 1024, exec width 32, static tg mem 0
+pipeline tail_reg3: max threads/tg 1024, exec width 32, static tg mem 0
+pipeline hash_chunk: max threads/tg 1024, exec width 32, static tg mem 0
+pipeline hash_merge: max threads/tg 1024, exec width 32, static tg mem 0
+inverse words: head16 + tail_reg3 == tree true
+inverse words: head8 + tail_reg3 == tree true
+forward head words: head16 == tree true
+forward head words: head8 == tree true
+forward tail words: tail_reg5 == tree true
+leaves: chunk + merge == tree true (chunks per column 36)
+alu probes: 1649770496 butterflies each (18747392 threads x 88)
+inverse head (tree, r4)               5.227 ms
+inverse head16                        7.294 ms
+inverse head8                         5.743 ms
+inverse tail (tree, r4)               2.239 ms
+inverse tail_reg3 tg 64               2.176 ms
+inverse tail_reg3 tg 128              2.184 ms
+inverse tail_reg3 tg 256              2.173 ms
+inverse tail_reg3 tg 512              2.176 ms
+forward head (tree, r4)              19.589 ms
+forward head16                       28.931 ms
+forward head8                        21.129 ms
+forward tail (tree, r4)               9.562 ms
+forward tail_reg5 tg 64              12.447 ms
+forward tail_reg5 tg 128             12.479 ms
+forward tail_reg5 tg 256             12.504 ms
+forward tail_reg5 tg 512             12.498 ms
+hash (tree)                           5.468 ms
+hash chunk+merge tg 64                4.232 ms
+hash chunk+merge tg 128               4.239 ms
+hash chunk+merge tg 256               4.260 ms
+hash chunk only tg 256                3.947 ms
+alu: butterfly (mul+add+sub)         15.742 ms
+alu: add+sub only                    10.353 ms
+alu: mul only                        13.159 ms
+rc=0

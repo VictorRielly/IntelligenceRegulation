@@ -1,0 +1,7 @@
+2026-11-09T21:57:31Z start at 5794c756; tracked changes under ops/: 0
+2026-11-09T21:57:31Z before: target binary 34b62314de42b09d
+2026-11-09T21:58:24Z release CLI rc=0; compiled hashline: 1
+2026-11-09T21:58:24Z rebuilt 34b62314de42b09d0a6813e97e9b20a647ff1b11ea97db67ada11445fe4ae7a8
+2026-11-09T21:58:24Z kept    34b62314de42b09d0a6813e97e9b20a647ff1b11ea97db67ada11445fe4ae7a8 (/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2)
+2026-11-09T21:58:24Z IDENTICAL: the kept candidate is the committed tree's build
+2026-11-09T21:58:24Z all done

@@ -1,0 +1,302 @@
+{
+  "tag": "bi_q2",
+  "env": {
+    "A": {
+      "HL_METAL_QUEUES": "thread"
+    },
+    "B": {
+      "HL_METAL_QUEUES": "thread"
+    },
+    "B0": {
+      "HL_METAL_QUEUES": "thread",
+      "HL_A28_PRUNE": "0",
+      "HL_A28_HASH": "0",
+      "HL_A28_WQ": "0",
+      "HL_A28_STAGGER_MS": "0",
+      "HL_A28_QOS": "0"
+    }
+  },
+  "binaries": {
+    "A": {
+      "path": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27",
+      "sha256": "b5b6b9a43563c069cec3391e8295867d0cd56e4f83036c992ba066708a9ae072"
+    },
+    "B": {
+      "path": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2",
+      "sha256": "34b62314de42b09d0a6813e97e9b20a647ff1b11ea97db67ada11445fe4ae7a8"
+    },
+    "B0": {
+      "path": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2",
+      "sha256": "34b62314de42b09d0a6813e97e9b20a647ff1b11ea97db67ada11445fe4ae7a8"
+    }
+  },
+  "order": [
+    "A",
+    "B",
+    "B0",
+    "A"
+  ],
+  "runs": [
+    {
+      "run": "0-A",
+      "binary": "A",
+      "status": {
+        "violence": "proved",
+        "hate": "proved",
+        "sexual": "proved"
+      },
+      "files_per_category": {
+        "sexual": 30,
+        "violence": 30,
+        "hate": 30
+      },
+      "segment_sha256_digest": {
+        "sexual": "8c2453e003186912e1e90b289cdab6ac3f3025e7177809413eb34d78d25d8605",
+        "violence": "7ce54a47b59f38bac2b2099862d51bbd774d5bdfa387fb841f5519b8d73a7759",
+        "hate": "47dd5c3a8f5498e99ce8f19d858c01bc0fa5a8134a396925ff7da16c3bc4a1a6"
+      }
+    },
+    {
+      "run": "1-B",
+      "binary": "B",
+      "status": {
+        "violence": "proved",
+        "hate": "proved",
+        "sexual": "proved"
+      },
+      "files_per_category": {
+        "sexual": 30,
+        "violence": 30,
+        "hate": 30
+      },
+      "segment_sha256_digest": {
+        "sexual": "8c2453e003186912e1e90b289cdab6ac3f3025e7177809413eb34d78d25d8605",
+        "violence": "7ce54a47b59f38bac2b2099862d51bbd774d5bdfa387fb841f5519b8d73a7759",
+        "hate": "47dd5c3a8f5498e99ce8f19d858c01bc0fa5a8134a396925ff7da16c3bc4a1a6"
+      }
+    },
+    {
+      "run": "2-B0",
+      "binary": "B0",
+      "status": {
+        "violence": "proved",
+        "sexual": "proved",
+        "hate": "proved"
+      },
+      "files_per_category": {
+        "sexual": 30,
+        "violence": 30,
+        "hate": 30
+      },
+      "segment_sha256_digest": {
+        "sexual": "8c2453e003186912e1e90b289cdab6ac3f3025e7177809413eb34d78d25d8605",
+        "violence": "7ce54a47b59f38bac2b2099862d51bbd774d5bdfa387fb841f5519b8d73a7759",
+        "hate": "47dd5c3a8f5498e99ce8f19d858c01bc0fa5a8134a396925ff7da16c3bc4a1a6"
+      }
+    },
+    {
+      "run": "3-A",
+      "binary": "A",
+      "status": {
+        "hate": "proved",
+        "sexual": "proved",
+        "violence": "proved"
+      },
+      "files_per_category": {
+        "sexual": 30,
+        "violence": 30,
+        "hate": 30
+      },
+      "segment_sha256_digest": {
+        "sexual": "8c2453e003186912e1e90b289cdab6ac3f3025e7177809413eb34d78d25d8605",
+        "violence": "7ce54a47b59f38bac2b2099862d51bbd774d5bdfa387fb841f5519b8d73a7759",
+        "hate": "47dd5c3a8f5498e99ce8f19d858c01bc0fa5a8134a396925ff7da16c3bc4a1a6"
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "against": "0-A",
+      "run": "1-B",
+      "per_category": {
+        "sexual": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        },
+        "violence": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        },
+        "hate": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        }
+      },
+      "byte_identical": true
+    },
+    {
+      "against": "0-A",
+      "run": "2-B0",
+      "per_category": {
+        "sexual": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        },
+        "violence": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        },
+        "hate": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        }
+      },
+      "byte_identical": true
+    },
+    {
+      "against": "0-A",
+      "run": "3-A",
+      "per_category": {
+        "sexual": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        },
+        "violence": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        },
+        "hate": {
+          "files": 30,
+          "equal": 30,
+          "differ": []
+        }
+      },
+      "byte_identical": true
+    }
+  ],
+  "cross_verification": [
+    {
+      "verifier": "A",
+      "receipts_of": "1-B",
+      "results": {
+        "sexual": {
+          "status": "checked",
+          "verify_seconds": 7.181
+        },
+        "hate": {
+          "status": "checked",
+          "verify_seconds": 7.211
+        },
+        "violence": {
+          "status": "checked",
+          "verify_seconds": 7.336
+        }
+      },
+      "all_checked": true
+    },
+    {
+      "verifier": "A",
+      "receipts_of": "2-B0",
+      "results": {
+        "hate": {
+          "status": "checked",
+          "verify_seconds": 7.221
+        },
+        "sexual": {
+          "status": "checked",
+          "verify_seconds": 7.282
+        },
+        "violence": {
+          "status": "checked",
+          "verify_seconds": 7.283
+        }
+      },
+      "all_checked": true
+    },
+    {
+      "verifier": "B",
+      "receipts_of": "0-A",
+      "results": {
+        "sexual": {
+          "status": "checked",
+          "verify_seconds": 7.094
+        },
+        "hate": {
+          "status": "checked",
+          "verify_seconds": 7.195
+        },
+        "violence": {
+          "status": "checked",
+          "verify_seconds": 7.377
+        }
+      },
+      "all_checked": true
+    },
+    {
+      "verifier": "B",
+      "receipts_of": "2-B0",
+      "results": {
+        "hate": {
+          "status": "checked",
+          "verify_seconds": 7.142
+        },
+        "sexual": {
+          "status": "checked",
+          "verify_seconds": 7.293
+        },
+        "violence": {
+          "status": "checked",
+          "verify_seconds": 7.294
+        }
+      },
+      "all_checked": true
+    },
+    {
+      "verifier": "B0",
+      "receipts_of": "0-A",
+      "results": {
+        "violence": {
+          "status": "checked",
+          "verify_seconds": 7.225
+        },
+        "sexual": {
+          "status": "checked",
+          "verify_seconds": 7.238
+        },
+        "hate": {
+          "status": "checked",
+          "verify_seconds": 7.263
+        }
+      },
+      "all_checked": true
+    },
+    {
+      "verifier": "B0",
+      "receipts_of": "1-B",
+      "results": {
+        "hate": {
+          "status": "checked",
+          "verify_seconds": 7.282
+        },
+        "sexual": {
+          "status": "checked",
+          "verify_seconds": 7.347
+        },
+        "violence": {
+          "status": "checked",
+          "verify_seconds": 7.354
+        }
+      },
+      "all_checked": true
+    }
+  ],
+  "note": "fixed public test entropy (fixed_entropy.c); public content only; receipts deleted after"
+}

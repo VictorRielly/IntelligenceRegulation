@@ -1,0 +1,98 @@
+/Users/victorrielly/zk60-artifacts/a28-tools/samples/p0s8/sample_prover.txt: 2425359 thread-samples
+    1899219   78.3%  blocked (kernel wait / I/O)
+     478378   19.7%  running
+      47762    2.0%  yield (idle spin)
+
+running, by top-of-stack function (self), top 45 (% of running):
+     183427   38.3%  rayon::iter::plumbing::bridge_producer_consumer::helper
+      55343   11.6%  hashline::gpu::metal::wait_done
+      50411   10.5%  blake3_hash_many_neon
+      35489    7.4%  hashline::private_block::protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$
+      21255    4.4%  core::ops::function::impls:: for $RF$F::call_mut
+      20759    4.3%  blake3::platform::Platform::compress_xof
+      12726    2.7%  _platform_memmove
+      12278    2.6%  hashline::private_block::protocol::helper_one
+      10783    2.3%  __bzero
+       9173    1.9%  hashline::private_block::protocol::write_helpers_u8::_$u7b$$u7b$closure$u7d$$u7d$
+       9033    1.9%  hashline::private_block::witness::accuracy::assign_with::_$u7b$$u7b$closure$u7d$$u7d$::_$u7b$$u7b$closure$u7d$$u7d$
+       7381    1.5%  zkp_core::field::batch_inverse2
+       5381    1.1%  blake3::portable::compress_in_place
+       4877    1.0%  hashline::private_block::argument::define::_$u7b$$u7b$closure$u7d$$u7d$
+       3703    0.8%  hashline::private_block::token_io::classify::update_le_words
+       2862    0.6%  iokit_user_client_trap
+       2606    0.5%  _kernelrpc_mach_vm_deallocate_trap
+       2507    0.5%  hashline::private_block::run_sink::a21_sha::sha256
+       1917    0.4%  __psynch_cvsignal
+       1846    0.4%  hashline::private_block::A21Stream::hasher_at
+       1608    0.3%  objc_msgSend
+       1519    0.3%  -[_MTLCommandBuffer status]
+       1271    0.3%  zkp_core::mle::eq_table_msb
+       1229    0.3%  hashline::private_block::argument::B::supp
+        990    0.2%  rayon_core::registry::WorkerThread::wait_until_cold
+        972    0.2%  zkp_core::ntt::NttTables::transform
+        940    0.2%  hashline::private_block::argument::total_at::_$u7b$$u7b$closure$u7d$$u7d$
+        904    0.2%  start_wqthread
+        756    0.2%  crossbeam_epoch::internal::Global::try_advance
+        719    0.2%  crossbeam_deque::deque::Stealer$LT$T::steal
+        681    0.1%  hashline::private_block::argument::accuracy::tab::_$u7b$$u7b$closure$u7d$$u7d$
+        651    0.1%  zkp_core::pcs::OpeningZk::write_bytes
+        635    0.1%  hashline::private_block::argument::PadTerm::eval
+        620    0.1%  _pthread_mutex_droplock
+        615    0.1%  rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+        575    0.1%  hashline::private_block::argument::mask_eval_eq::_$u7b$$u7b$closure$u7d$$u7d$
+        525    0.1%  zkp_core::pcs::group_zclaims
+        336    0.1%  hashline::private_block::protocol::exp_deltas
+        316    0.1%  hashline::private_block::argument::rope_tables_at
+        310    0.1%  as alloc::vec::spec_from_iter_nested::SpecFromIterNested$LT$T$C$I::from_iter
+        301    0.1%  as rayon_core::job::Job::execute
+        280    0.1%  blake3::Hasher::update
+        250    0.1%  zkp_core::rng::ZkRng::next_u64
+        225    0.0%  hashline::private_block::argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+        224    0.0%  _platform_memset
+
+inclusive (% of all thread-samples), top 45:
+    2257430   93.1%  std::sys::backtrace::__rust_begin_short_backtrace
+    2225181   91.7%  thread_start
+    2225181   91.7%  _pthread_start
+    2225181   91.7%  _RNvNvMs0_NtNtNtCsgL88BVMLsDE_3std3sys6thread4unixNtB7_6Thread3new12thread_start
+    2225181   91.7%  core::ops::function::FnOnce::call_once$u7b$$u7b$vtable.shim$u7d$$u7d$
+    1999383   82.4%  rayon_core::registry::WorkerThread::wait_until_cold
+    1668095   68.8%  _pthread_cond_wait
+    1667251   68.7%  __psynch_cvwait
+     520595   21.5%  as rayon_core::job::Job::execute
+     415318   17.1%  rayon_core::join::join_context::_$u7b$$u7b$closure$u7d$$u7d$
+     371922   15.3%  rayon::iter::plumbing::bridge_producer_consumer::helper
+     193494    8.0%  rayon_core::registry::Registry::in_worker_cold
+     193493    8.0%  rayon_core::thread_pool::ThreadPool::install::_$u7b$$u7b$closure$u7d$$u7d$
+     193493    8.0%  rayon_core::latch::LockLatch::wait_and_reset
+     193458    8.0%  hashline::private_block::token_io::classify_cli::prove_with_public
+     167929    6.9%  start_wqthread
+     167025    6.9%  _pthread_wqthread
+     163946    6.8%  __workq_kernreturn
+     147125    6.1%  hashline::private_block::token_io::classify_run::prove_classify_run_with
+     118303    4.9%  hashline::private_block::protocol::prove_core_with
+      90120    3.7%  hashline::private_block::protocol::prove_core_after_with
+      58457    2.4%  hashline::gpu::metal::wait_done
+      53735    2.2%  blake3::Hasher::update
+      51604    2.1%  blake3::compress_subtree_to_parent_node
+      50929    2.1%  blake3::compress_subtree_wide
+      50799    2.1%  as core::iter::traits::iterator::Iterator::next
+      50417    2.1%  blake3_hash_many_neon
+      48716    2.0%  hashline::private_block::argument::argument_with
+      47805    2.0%  cthread_yield
+      47762    2.0%  swtch_pri
+      46045    1.9%  _dispatch_semaphore_wait_slow
+      46045    1.9%  _dispatch_sema4_wait
+      46045    1.9%  semaphore_wait_trap
+      45324    1.9%  hashline::private_block::A21Stream::subtree
+      44445    1.8%  hashline::private_block::A21Stream::hasher_at
+      37868    1.6%  hashline::private_block::argument::run_slot::_$u7b$$u7b$closure$u7d$$u7d$
+      37727    1.6%  hashline::private_block::token_io::classify_cli::seal_chain_keeping
+      35743    1.5%  hashline::private_block::protocol::lookup_values_at::_$u7b$$u7b$closure$u7d$$u7d$
+      32492    1.3%  hashline::gpu::metal::TailedRounds::masked_prove
+      32249    1.3%  start
+      32249    1.3%  main
+      32249    1.3%  zk60_classify::main
+      32249    1.3%  hashline::private_block::token_io::classify_cli::serve::classify_serve_command
+      32249    1.3%  std::sync::mpmc::list::Channel$LT$T::recv::_$u7b$$u7b$closure$u7d$$u7d$
+      26688    1.1%  hashline::gpu::metal::run_tagged::_$u7b$$u7b$closure$u7d$$u7d$

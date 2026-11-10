@@ -635,6 +635,11 @@ struct SharedProve<'a> {
     /// [A24] with `blocks`: the bytes of sealing-pass witnesses the run may reuse (0: each
     /// block's witness rebuilt by the run, as `prove` does)
     witness_budget: u64,
+    /// **[A28]** a resident server lane's run gate (`classify-serve` with `HL_A28_SEAL_AHEAD`): held
+    /// from just before the run (`prove_classify_run_with`) to the end of the request, so the next
+    /// request's sealing pass may run beside this request's run while at most one request of the
+    /// lane runs at a time. Only WHEN the run starts changes; `None`: no gate, as before
+    run_gate: Option<&'a std::sync::Mutex<()>>,
 }
 
 fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
@@ -749,6 +754,9 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
         None => &mut blocks,
     };
     cli_phase("prove", "stage OUT-C values, input endpoint seal, statement", &mut tp);
+    // [A28] a server lane's run gate: wait here (every refusal of the sealing pass behind us, nothing
+    // of the run begun) until the lane's previous request has finished, and hold it to the end
+    let _run_turn = shared.as_ref().and_then(|s| s.run_gate).map(|g| g.lock().unwrap_or_else(|e| e.into_inner()));
     let t = Instant::now();
     // [A26] with a resident server's kept blocks, the prover may take their startup records
     // (`HL_A26_KEPT`); `None` for every other caller

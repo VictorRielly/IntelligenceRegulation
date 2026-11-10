@@ -1,0 +1,2 @@
+[zk60-guard 19:00:41] START a28merge class=cpu need=30G cap=64G enforce=watchdog-only waited=0s run=7b6cdd0cc151
+[zk60-guard 19:17:32] END a28merge exit=0 child_wall=1011s peak_rss=11.93G min_avail=219.15G

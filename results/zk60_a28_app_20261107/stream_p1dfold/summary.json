@@ -1,0 +1,541 @@
+{
+  "tag": "p1dfold",
+  "profile": "r13",
+  "binary": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27",
+  "posts": 8,
+  "all_checked": true,
+  "wall_s": 187.42282390594482,
+  "startup_s": 64.17396998405457,
+  "prover_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 6,
+    "lane_threads": 5,
+    "startup_seconds": 32.449,
+    "witness_cache_bytes": 17179869184,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "checker_start": {
+    "event": "serve-start",
+    "command": "classify-check-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 3,
+    "lane_threads": 4,
+    "startup_seconds": 31.657,
+    "min_bits": 95,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "identity_pinned_by_verifier": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+  "category_proofs": 24,
+  "proved_tok_per_s": 16.39074652690984,
+  "content_tok_per_s": 0.730967537170133,
+  "per_post": [
+    {
+      "post": 0,
+      "tokens": 14,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 56.87551474571228,
+      "done_at_s": 56.88446879386902
+    },
+    {
+      "post": 1,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 58.55097985267639,
+      "done_at_s": 68.90249395370483
+    },
+    {
+      "post": 2,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 76.86574077606201,
+      "done_at_s": 97.28035974502563
+    },
+    {
+      "post": 3,
+      "tokens": 20,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 77.32952785491943,
+      "done_at_s": 109.36012578010559
+    },
+    {
+      "post": 4,
+      "tokens": 18,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 94.46614193916321,
+      "done_at_s": 137.5236940383911
+    },
+    {
+      "post": 5,
+      "tokens": 17,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 94.14802408218384,
+      "done_at_s": 149.33760285377502
+    },
+    {
+      "post": 6,
+      "tokens": 15,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 111.4240071773529,
+      "done_at_s": 179.09197306632996
+    },
+    {
+      "post": 7,
+      "tokens": 17,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 108.752445936203,
+      "done_at_s": 187.3822786808014
+    }
+  ],
+  "steady": {
+    "from_post": 4,
+    "span_s": 78.0221529006958,
+    "proofs": 12,
+    "proved_tok_per_s": 19.686716437509403
+  },
+  "deferred": null,
+  "cpu": {
+    "prover_cpu_s": 1865.85,
+    "checker_cpu_s": 602.9599999999999,
+    "writer_cpu_s": 165.123952,
+    "prover_cpu_s_per_proof": 77.74374999999999,
+    "checker_cpu_s_per_proof": 25.12333333333333,
+    "writer_cpu_s_per_proof": 6.8801646666666665,
+    "all_cpu_s_per_proof": 109.747248,
+    "note": "ps -o time= (user+system) of each server over the clocked window; the writer by RUSAGE_CHILDREN"
+  },
+  "gpu": {
+    "samples": 93,
+    "mean_pct": 81.75268817204301,
+    "p50_pct": 93,
+    "p90_pct": 99,
+    "note": "ioreg IOAccelerator Device Utilization %, every 2 s over the whole clock (diagnostics)",
+    "series_monotonic": [
+      [
+        648973.559,
+        0
+      ],
+      [
+        648975.59,
+        0
+      ],
+      [
+        648977.617,
+        0
+      ],
+      [
+        648979.649,
+        0
+      ],
+      [
+        648981.677,
+        0
+      ],
+      [
+        648983.713,
+        0
+      ],
+      [
+        648985.747,
+        26
+      ],
+      [
+        648987.781,
+        31
+      ],
+      [
+        648989.817,
+        0
+      ],
+      [
+        648991.845,
+        91
+      ],
+      [
+        648993.881,
+        93
+      ],
+      [
+        648995.93,
+        92
+      ],
+      [
+        648997.983,
+        93
+      ],
+      [
+        649000.019,
+        93
+      ],
+      [
+        649002.053,
+        91
+      ],
+      [
+        649004.092,
+        97
+      ],
+      [
+        649006.124,
+        100
+      ],
+      [
+        649008.16,
+        98
+      ],
+      [
+        649010.196,
+        99
+      ],
+      [
+        649012.23,
+        99
+      ],
+      [
+        649014.262,
+        99
+      ],
+      [
+        649016.3,
+        100
+      ],
+      [
+        649018.329,
+        98
+      ],
+      [
+        649020.36,
+        99
+      ],
+      [
+        649022.403,
+        88
+      ],
+      [
+        649024.445,
+        88
+      ],
+      [
+        649026.48,
+        90
+      ],
+      [
+        649028.519,
+        90
+      ],
+      [
+        649030.561,
+        89
+      ],
+      [
+        649032.592,
+        99
+      ],
+      [
+        649034.633,
+        91
+      ],
+      [
+        649036.672,
+        83
+      ],
+      [
+        649038.717,
+        92
+      ],
+      [
+        649040.76,
+        88
+      ],
+      [
+        649042.789,
+        98
+      ],
+      [
+        649044.827,
+        100
+      ],
+      [
+        649046.869,
+        98
+      ],
+      [
+        649048.906,
+        98
+      ],
+      [
+        649050.946,
+        98
+      ],
+      [
+        649052.979,
+        98
+      ],
+      [
+        649055.016,
+        97
+      ],
+      [
+        649057.05,
+        99
+      ],
+      [
+        649059.086,
+        98
+      ],
+      [
+        649061.12,
+        99
+      ],
+      [
+        649063.162,
+        89
+      ],
+      [
+        649065.201,
+        91
+      ],
+      [
+        649067.246,
+        92
+      ],
+      [
+        649069.284,
+        90
+      ],
+      [
+        649071.319,
+        97
+      ],
+      [
+        649073.356,
+        97
+      ],
+      [
+        649075.393,
+        93
+      ],
+      [
+        649077.432,
+        89
+      ],
+      [
+        649079.467,
+        85
+      ],
+      [
+        649081.5,
+        91
+      ],
+      [
+        649083.532,
+        97
+      ],
+      [
+        649085.563,
+        98
+      ],
+      [
+        649087.588,
+        99
+      ],
+      [
+        649089.618,
+        98
+      ],
+      [
+        649091.65,
+        99
+      ],
+      [
+        649093.688,
+        99
+      ],
+      [
+        649095.725,
+        98
+      ],
+      [
+        649097.762,
+        99
+      ],
+      [
+        649099.802,
+        99
+      ],
+      [
+        649101.84,
+        97
+      ],
+      [
+        649103.878,
+        90
+      ],
+      [
+        649105.923,
+        90
+      ],
+      [
+        649107.988,
+        87
+      ],
+      [
+        649110.026,
+        87
+      ],
+      [
+        649112.056,
+        99
+      ],
+      [
+        649114.1,
+        71
+      ],
+      [
+        649116.143,
+        88
+      ],
+      [
+        649118.184,
+        91
+      ],
+      [
+        649120.222,
+        90
+      ],
+      [
+        649122.262,
+        93
+      ],
+      [
+        649124.301,
+        99
+      ],
+      [
+        649126.343,
+        97
+      ],
+      [
+        649128.379,
+        97
+      ],
+      [
+        649130.414,
+        99
+      ],
+      [
+        649132.447,
+        98
+      ],
+      [
+        649134.475,
+        99
+      ],
+      [
+        649136.51,
+        97
+      ],
+      [
+        649138.54,
+        98
+      ],
+      [
+        649140.576,
+        95
+      ],
+      [
+        649142.609,
+        99
+      ],
+      [
+        649144.689,
+        92
+      ],
+      [
+        649146.724,
+        90
+      ],
+      [
+        649148.76,
+        100
+      ],
+      [
+        649150.795,
+        92
+      ],
+      [
+        649152.829,
+        88
+      ],
+      [
+        649154.863,
+        0
+      ],
+      [
+        649156.898,
+        0
+      ],
+      [
+        649158.932,
+        0
+      ],
+      [
+        649160.964,
+        0
+      ]
+    ],
+    "t0_monotonic": 648973.530062875
+  },
+  "env": {
+    "HL_METAL_DEVICE_FOLD": "1",
+    "HL_METAL_QUEUES": "thread"
+  },
+  "settings": {
+    "tag": "p1dfold",
+    "posts": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json",
+    "profile": "r13",
+    "bin": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a27",
+    "identity": null,
+    "lanes": 6,
+    "lane_threads": 5,
+    "check_lanes": 3,
+    "check_threads": 4,
+    "witness_gib": 16.0,
+    "keep": 0,
+    "gap": 0.0,
+    "writer_threads": 4,
+    "defer_check": false,
+    "sample": null
+  },
+  "hl_gpu": "1",
+  "on_the_clock": "ZK60_THROUGHPUT_TARGET clock: from the first post submitted to the last post's third label accepted: activation writer (Python forward pass), the prover's sealing pass and witnesses, proof, receipt write (fsync per segment), fresh verification in the separate verifier process, input-owner check, category label; NOT on it: server startup (model load), app/publication"
+}

@@ -1,0 +1,4 @@
+{"phase": "one", "posts": 1, "published": 1, "failed": 0, "wall_s": 48.936931133270264, "category_proofs": 3, "proved_tok_per_s": 7.846834509386179, "steady": null}
+{"phase": "one_b", "posts": 1, "published": 1, "failed": 0, "wall_s": 51.56509590148926, "category_proofs": 3, "proved_tok_per_s": 7.446897815018117, "steady": null}
+{"phase": "one_c", "posts": 1, "published": 1, "failed": 0, "wall_s": 49.68371295928955, "category_proofs": 3, "proved_tok_per_s": 7.728890961000572, "steady": null}
+{"phase": "one_d", "posts": 1, "published": 1, "failed": 0, "wall_s": 49.43182420730591, "category_proofs": 3, "proved_tok_per_s": 7.7682749151556845, "steady": null}

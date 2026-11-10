@@ -1,0 +1,82 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/results/zk60_lean_l34_20261109/plan1.txt ==
+build ZK60Formal.RunTrBase
+build ZK60Formal.RunTrSched
+build ZK60Formal.RunTrVerify
+== lake build ZK60Formal.RunTrBase ==
+Build completed successfully (3525 jobs).
+build rc 0 (13 s)
+== lake build ZK60Formal.RunTrSched ==
+✖ [3526/3526] Building ZK60Formal.RunTrSched (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/ZK60Formal/RunTrSched.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean/ZK60Formal/RunTrSched.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean/ZK60Formal/RunTrSched.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/ir/ZK60Formal/RunTrSched.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/ir/ZK60Formal/RunTrSched.setup.json --json
+error: ZK60Formal/RunTrSched.lean:413:32: don't know how to synthesize placeholder for argument `hW64`
+context:
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+Lq : ℕ
+hL : (startMsg domain).length ≤ Lq
+α : Type
+pf : RtProf
+rd : α → List Op × List RtData
+hL64 : Lq < 2 ^ 64
+hv : pf.Valid
+G : QB Lq → Dig
+o : α
+⊢ ∀ (k : UInt64), rtW pf.sqs k ≤ 2 ^ 64
+error: ZK60Formal/RunTrSched.lean:413:30: don't know how to synthesize placeholder for argument `hW`
+context:
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+Lq : ℕ
+hL : (startMsg domain).length ≤ Lq
+α : Type
+pf : RtProf
+rd : α → List Op × List RtData
+hL64 : Lq < 2 ^ 64
+hv : pf.Valid
+G : QB Lq → Dig
+o : α
+⊢ ∀ (k : UInt64), 0 < rtW pf.sqs k
+Some required targets logged failures:
+- ZK60Formal.RunTrSched
+error: build failed
+build rc 1 (18 s)
+== lake build ZK60Formal.RunTrVerify ==
+✖ [3532/3533] Building ZK60Formal.RunTrSched (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/ZK60Formal/RunTrSched.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean/ZK60Formal/RunTrSched.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean/ZK60Formal/RunTrSched.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/ir/ZK60Formal/RunTrSched.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/ir/ZK60Formal/RunTrSched.setup.json --json
+error: ZK60Formal/RunTrSched.lean:413:32: don't know how to synthesize placeholder for argument `hW64`
+context:
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+Lq : ℕ
+hL : (startMsg domain).length ≤ Lq
+α : Type
+pf : RtProf
+rd : α → List Op × List RtData
+hL64 : Lq < 2 ^ 64
+hv : pf.Valid
+G : QB Lq → Dig
+o : α
+⊢ ∀ (k : UInt64), rtW pf.sqs k ≤ 2 ^ 64
+error: ZK60Formal/RunTrSched.lean:413:30: don't know how to synthesize placeholder for argument `hW`
+context:
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+Lq : ℕ
+hL : (startMsg domain).length ≤ Lq
+α : Type
+pf : RtProf
+rd : α → List Op × List RtData
+hL64 : Lq < 2 ^ 64
+hv : pf.Valid
+G : QB Lq → Dig
+o : α
+⊢ ∀ (k : UInt64), 0 < rtW pf.sqs k
+Some required targets logged failures:
+- ZK60Formal.RunTrSched
+error: build failed
+build rc 1 (21 s)
+rc 1, 21 s

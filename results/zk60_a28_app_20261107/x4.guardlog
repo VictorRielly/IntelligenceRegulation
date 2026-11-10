@@ -1,0 +1,1 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a28_app_20261107/xprobe.sh: line 15: 61486 Terminated: 15          $PY $R/membw_probe.py $R/$1.membw.tsv --seconds 3000

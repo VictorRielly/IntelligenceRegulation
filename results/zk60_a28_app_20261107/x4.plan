@@ -1,0 +1,10 @@
+# Lane A28 (resumed 2026-11-09), job x4 (diagnostics; xprobe.sh: the one-thread memory-traffic probe runs beside
+# both runs, x4.membw.tsv): a28-q2 without seal-ahead with the GPU trace on. First one post's three proofs one
+# after another on one lane of FIVE threads with macOS sample on the prover for 45 s (the same lane as in the
+# stream, alone: its host sections against the stream's, lane_split.py), then the 8-post stream at the app's
+# setting, sampled too. The probe's rate against
+# the trace's GPU spans and the lanes' host phases says whether the lanes and the device share the machine's
+# memory traffic. Also the stream's GPU profile after A28 (trace_report.py).
+# tag|binary|posts|driver flags|env
+x4solo|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/one.json|--lanes 1 --lane-threads 5 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0 --sample 14:45|HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0 HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/x4solo
+x4s8|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0 --sample 60:60|HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0 HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/x4s8

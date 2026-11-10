@@ -1,0 +1,30 @@
+2026-11-07T19:13:58Z start at 1e401f81 + the working tree; free disk 129 GiB
+2026-11-07T19:14:50Z release CLI rc=0
+2026-11-07T19:14:50Z candidate a28-q2 sha256 34b62314de42b09d0a6813e97e9b20a647ff1b11ea97db67ada11445fe4ae7a8
+2026-11-07T19:17:37Z test build rc=0
+2026-11-07T19:17:38Z a28 classifier commitment shapes CPU = Metal rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1116 filtered out; finished in 0.98s
+2026-11-07T19:18:28Z zk60_metal_commit rc=0
+test result: ok. 5 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.40s
+2026-11-07T19:18:31Z hashline a24_ rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1112 filtered out; finished in 2.70s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1112 filtered out; finished in 2.70s
+2026-11-07T19:18:54Z hashline s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1097 filtered out; finished in 23.19s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1097 filtered out; finished in 23.19s
+2026-11-07T19:18:55Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1102 filtered out; finished in 0.12s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1102 filtered out; finished in 0.12s
+2026-11-07T19:18:55Z hashline token_io::classify_serve rc=0
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1117 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1117 filtered out; finished in 0.00s
+2026-11-07T19:19:19Z trained digests rc=0
+2026-11-07T19:19:19Z recorded digest 5a6193d3: CPU and Metal
+2026-11-07T19:19:19Z recorded digest f590b01f: CPU and Metal
+2026-11-07T19:19:19Z recorded digest 79f987ef: CPU and Metal
+2026-11-07T19:19:19Z recorded digest a8258241: CPU and Metal
+2026-11-07T19:19:19Z recorded digest 0e88d84f: CPU and Metal
+2026-11-07T19:19:19Z recorded digest 90003b76: CPU and Metal
+2026-11-07T19:26:59Z byte identity done: 2026-11-07T19:26:58Z byteid rc=0 {"comparisons": [{"against": "0-A", "run": "1-B", "byte_identical": true}, {"against": "0-A", "run": "2-B0", "byte_identical": true}, {"against": "0-A", "run": "3-A", "byte_identical": true}], "cross": [{"verifier": "A", "receipts_of": "1-B", "all_checked": true}, {"verifier": "A", "receipts_of": "2-B0", "all_checked": true}, {"verifier": "B", "receipts_of": "0-A", "all_checked": true}, {"verifier": "B", "receipts_of": "2-B0", "all_checked": true}, {"verifier": "B0", "receipts_of": "0-A", "all_checked": true}, {"verifier": "B0", "receipts_of": "1-B", "all_checked": true}]}
+2026-11-07T19:59:15Z stream plan done
+2026-11-07T19:59:16Z all done; free disk 129 GiB

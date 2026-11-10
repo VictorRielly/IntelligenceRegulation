@@ -1,0 +1,18 @@
+probe: 859 samples over 436 s; all: mean   92.9  median   97.2  p10   56.1  GiB/s  (859 samples)
+
+stream_x4solo: clock 80.6 s, 3 proofs; proving window 10.6..75.9 s
+  during the servers' startup (65-75 s before the clock)   mean   69.8  median   64.2  p10   48.6  GiB/s  (20 samples)
+  over the proving window                                 mean  102.2  median  105.8  p10   82.6  GiB/s  (129 samples)
+    no command buffer executing                           mean  102.2  median  105.6  p10   83.4  GiB/s  (91 samples)
+    one executing                                         mean  102.1  median  107.7  p10   80.8  GiB/s  (37 samples)
+    two or more executing                                 mean  104.9  median  104.9  p10  104.9  GiB/s  (1 samples)
+
+stream_x4s8: clock 192.1 s, 24 proofs; proving window 10.3..184.1 s
+  during the servers' startup (65-75 s before the clock)   mean  101.6  median  108.2  p10   77.8  GiB/s  (19 samples)
+  over the proving window                                 mean   74.4  median   73.6  p10   54.0  GiB/s  (342 samples)
+    no command buffer executing                           mean   76.3  median   75.6  p10   54.5  GiB/s  (116 samples)
+    one executing                                         mean   76.0  median   73.5  p10   53.2  GiB/s  (45 samples)
+    two or more executing                                 mean   72.9  median   72.8  p10   53.9  GiB/s  (181 samples)
+
+the first 30 samples (the idle machine, before the first server starts): mean   78.5  median   71.1  p10   49.7  GiB/s  (30 samples)
+the last 30 samples (after the last run):                                mean   64.2  median   56.0  p10   48.4  GiB/s  (30 samples)

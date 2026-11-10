@@ -1,0 +1,2 @@
+build ZK60Formal.RunTrGate
+build ZK60Formal.RunTrWin

@@ -851,6 +851,60 @@ mod tests {
         }
     }
 
+    /// **[A28] the classifier's commitment shapes on Metal equal the CPU's** (the pruned first
+    /// radix-4 pass of the forward head, `HL_A28_PRUNE`, and the two-pass column hash, `HL_A28_HASH`,
+    /// both on by default): the keyed hiding commitment's salted root and every opened column at the
+    /// R13 Shieldstral block's shapes (rows x 2^14 -> 2^16 at q = 256: 4577 rows (36 BLAKE3 chunks a
+    /// column), 38 and 129 rows; 76 rows x 2^12 -> 2^14; 6 rows x 2^8 -> 2^11), and a plain rate-1/2
+    /// commitment (the pruned pass at its edge: the row's words fill exactly the lower half).
+    /// Ignored (it sets `HL_GPU=1` for its process and makes a 2.4 GB CPU encoding): run alone with
+    /// `--ignored --exact` (the A28 acceptance does).
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    #[ignore]
+    fn a28_the_classifier_commitment_shapes_on_metal_equal_the_cpu() {
+        use zkp_core::hashtag::HashTag;
+        use zkp_core::pcs::{self, Cpu, PcsParams, Store, ZkOpts};
+        use zkp_core::rng::ZkRng;
+        std::env::set_var("HL_GPU", "1");
+        crate::gpu::metal_probe_field(&[Fp::ONE], &[Fp::ONE]).expect("a Metal device");
+        let ntt = crate::ntt::NttTables::new(16);
+        let tag = HashTag::for_profile("hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2");
+        let mut z = 0x6A09_E667_F3BC_C908u64;
+        let mut next = move || {
+            z ^= z << 13;
+            z ^= z >> 7;
+            z ^= z << 17;
+            z
+        };
+        let backend = crate::gpu::backend();
+        for &(log_cols, ir, rows, q) in &[(14u32, 4usize, 4577usize, 256usize), (14, 4, 38, 256), (14, 4, 129, 256), (12, 4, 76, 256), (8, 8, 6, 256)] {
+            let p = PcsParams { log_cols, inv_rate: ir, num_col_checks: q };
+            let zk = ZkOpts { q_pad: q, coset: Fp::new(7) };
+            let data: Vec<Fp> = (0..rows * p.cols()).map(|_| Fp::new(next())).collect();
+            let mut r1 = ZkRng::new(rows as u64, b"a28-commit-test");
+            let mut r2 = ZkRng::new(rows as u64, b"a28-commit-test");
+            let cpu = pcs::commit_zk_owned_with_tag(&Cpu, &p, data.clone(), &ntt, &zk, &mut r1, &tag);
+            let dev = pcs::commit_zk_owned_with_tag(&backend, &p, data, &ntt, &zk, &mut r2, &tag);
+            assert!(matches!(dev.cm.store, Store::Device(_)), "{rows} x 2^{log_cols}: the Metal backend declined");
+            assert_eq!(dev.commitment().root, cpu.commitment().root, "{rows} x 2^{log_cols} -> rate 1/{ir}: the salted root");
+            let idx: Vec<usize> = (0..12).map(|i| (i * 5003 + 17) % p.enc_cols()).collect();
+            let (Store::Device(d), Store::Host { encoded }) = (&dev.cm.store, &cpu.cm.store) else { panic!("stores") };
+            let cols = d.columns(&idx).expect("columns");
+            for (c, &j) in idx.iter().enumerate() {
+                let want: Vec<Fp> = (0..rows).map(|i| encoded[i * p.enc_cols() + j]).collect();
+                assert_eq!(cols[c], want, "{rows} x 2^{log_cols}: encoded column {j}");
+            }
+        }
+        // a plain rate-1/2 commitment: the coefficients fill the lower half of the forward input exactly
+        let p = PcsParams { log_cols: 12, inv_rate: 2, num_col_checks: 8 };
+        let data: Vec<Fp> = (0..300 * p.cols()).map(|_| Fp::new(next())).collect();
+        let cpu = pcs::commit_with(&Cpu, &p, &data, &ntt);
+        let dev = pcs::commit_with(&backend, &p, &data, &ntt);
+        assert!(matches!(dev.store, Store::Device(_)), "plain: the Metal backend declined");
+        assert_eq!(dev.commitment().root, cpu.commitment().root, "plain rate 1/2: the root");
+    }
+
     /// **[A27] the NTT head's stages 1..6 multiply by powers of 2**: at the commitments'
     /// tables (2^16, 2^17, 2^19) every stage-1..6 twiddle the head reads is found among
     /// the 192 powers of 2 (forward and inverse), so the power-of-2 form is in effect

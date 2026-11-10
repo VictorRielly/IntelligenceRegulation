@@ -1,0 +1,63 @@
+== lake build of the L34 modules, one at a time ==
+lake build ZK60Formal.RunTrBase rc 0
+lake build ZK60Formal.RunTrSched rc 0
+lake build ZK60Formal.RunTrVerify rc 0
+lake build ZK60Formal.RunTrKinds rc 0
+lake build ZK60Formal.RunTrParts rc 0
+lake build ZK60Formal.RunTrStages rc 0
+lake build ZK60Formal.RunTrGate rc 0
+lake build ZK60Formal.RunTrWin rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3612/3613] Built ZK60Formal (1.8s)
+Build completed successfully (3613 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L34 modules' own builds: 0
+== axiom audit ==
+213 declarations: 81 def, 16 structure, 116 theorem
+axioms rc 0
+declarations audited: 213 (generated: 213)
+no axiom at all: 45
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  92 axioms: [propext, Classical.choice, Quot.sound]
+  40 axioms: [propext, Quot.sound]
+  36 axioms: [propext]
+theorems by file:
+  RunTrBase.lean: 18 theorems, 185 lines
+  RunTrSched.lean: 35 theorems, 501 lines
+  RunTrVerify.lean: 9 theorems, 295 lines
+  RunTrKinds.lean: 15 theorems, 684 lines
+  RunTrParts.lean: 11 theorems, 496 lines
+  RunTrStages.lean: 19 theorems, 613 lines
+  RunTrGate.lean: 1 theorems, 179 lines
+  RunTrWin.lean: 8 theorems, 154 lines
+== source scan of the L34 files ==
+none
+== the library root imports the L34 files ==
+imported: RunTrBase
+imported: RunTrSched
+imported: RunTrVerify
+imported: RunTrKinds
+imported: RunTrParts
+imported: RunTrStages
+imported: RunTrGate
+imported: RunTrWin
+== unchanged: Statements.lean and every existing Lean file against perf at b938ae87 ==
+Statements.lean unchanged
+existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
+lines removed from the root's imports: 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 71 s
