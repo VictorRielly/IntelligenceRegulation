@@ -1,0 +1,3 @@
+build ZK60Formal.BlockDefineW16Final
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l11_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l9_20261107/corpus.txt
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/formal/ZK60Formal/BlockDefineCheck.lean /Users/victorrielly/zk60-artifacts/l35_20261109/l35_mut_corpus11.txt /Users/victorrielly/zk60-artifacts/l35_20261109/l35_mut_corpus9.txt

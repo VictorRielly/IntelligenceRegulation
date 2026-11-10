@@ -118,8 +118,12 @@ def native_environment():
 
 # [A26] the servers' device settings, measured on the M3 Ultra (results/zk60_a26_app_20261107):
 # one Metal command queue per prover thread (A7's opt-in; the stream is GPU-bound and its lanes'
-# command buffers then run side by side). Every A26 work cut is on by default in the binary; the
-# two that wait for the security owner's reading stay off (HL_A26_KEPT, HL_A26_VERIFY_ONCE).
+# command buffers then run side by side). Every A26 work cut is on by default in the binary except
+# two switches. D78 (Victor, 2026-11-10) turned on the PROVER's shortcut HL_A26_KEPT (the classifier
+# server's resident blocks: CS-6 compares the digest kept with the block, CS-1 / CS-4 take the
+# startup pass at an equal shape, under D72's and D74's conditions; the verifier is unchanged;
+# byte identity with it on: results/zk60_a26kept_20261110). The VERIFIER's shortcut
+# HL_A26_VERIFY_ONCE is not approved and stays off.
 # [A27] every A27 kernel change is on by default in the binary (each has an HL_A27_*=0 switch the
 # app does not set). None of these moves a byte.
 # [A28] the two A28 commitment kernels are on by default in the binary (HL_A28_PRUNE, HL_A28_HASH;
@@ -132,7 +136,8 @@ def native_environment():
 # runs' spread) and one post -3%; through the app the stream is the same with or without them.
 # They change when a thread waits and when a request starts, never a byte (the byte-identity run
 # covers the stagger).
-NATIVE_SETTINGS = {'HL_METAL_QUEUES': 'thread', 'HL_METAL_SPIN_US': '200', 'HL_A28_STAGGER_MS': '300'}
+NATIVE_SETTINGS = {'HL_METAL_QUEUES': 'thread', 'HL_METAL_SPIN_US': '200', 'HL_A28_STAGGER_MS': '300',
+                   'HL_A26_KEPT': '1'}
 
 
 def privacy_statement():

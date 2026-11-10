@@ -1,0 +1,121 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/plan2.txt ==
+build ZK60Formal.StatementsD76Bridge
+build ZK60Formal.StatementsD76Leaky
+build ZK60Formal.StatementsD76Gate
+== lake build ZK60Formal.StatementsD76Bridge ==
+Build completed successfully (3010 jobs).
+build rc 0 (3 s)
+== lake build ZK60Formal.StatementsD76Leaky ==
+✖ [3457/3457] Building ZK60Formal.StatementsD76Leaky (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/ZK60Formal/StatementsD76Leaky.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Leaky.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Leaky.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Leaky.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Leaky.setup.json --json
+warning: ZK60Formal/StatementsD76Leaky.lean:264:4: Try this: 
+  haveI̵
+
+The goal is a proposition, so `have` is preferred over `haveI`.
+The difference between `have` and `haveI` is that `haveI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+warning: ZK60Formal/StatementsD76Leaky.lean:264:20: Try this: 
+  haveI̵
+
+The goal is a proposition, so `have` is preferred over `haveI`.
+The difference between `have` and `haveI` is that `haveI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+warning: ZK60Formal/StatementsD76Leaky.lean:264:35: Try this: 
+  haveI̵
+
+The goal is a proposition, so `have` is preferred over `haveI`.
+The difference between `have` and `haveI` is that `haveI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+error: ZK60Formal/StatementsD76Leaky.lean:270:12: unsolved goals
+case inl
+Q D Coins : Type
+inst✝⁶ : Fintype Q
+inst✝⁵ : DecidableEq Q
+inst✝⁴ : Fintype D
+inst✝³ : Nonempty D
+inst✝² : Fintype Coins
+inst✝¹ : Nonempty Coins
+inst✝ : Inhabited Coins
+M : IntModel
+P : Protocol Q D Coins M
+L : Type
+Λ : M.Input → L
+εzk : ℕ → ℕ → ℝ≥0∞
+W : M.Weights
+x₀ x₁ : M.Input
+hne : x₀ ≠ x₁
+hΛ : Λ x₀ = Λ x₁
+hpub : M.publicPart (M.forward W x₀) = M.publicPart (M.forward W x₁)
+read : P.Stmt × P.Receipt → M.Input
+hread : ∀ (H : Q → D) (c : Coins), read (P.prove H W x₀ c) = x₀ ∧ read (P.prove H W x₁ c) = x₁
+S : SimulatorL M P L
+hS :
+  ∀ (W : M.Weights) (q R : ℕ) (Dist : OC (Q ⊕ M.Input) (D ⊕ P.Stmt × P.Receipt) Bool),
+    q ≤ 2 ^ 64 →
+      R ≤ 2 ^ 64 →
+        Dist.Within q R →
+          realProb M P W (q + R) Dist ≤ idealProbL M P Λ S W (q + R) Dist + εzk q R ∧
+            idealProbL M P Λ S W (q + R) Dist ≤ realProb M P W (q + R) Dist + εzk q R
+h64 : 1 ≤ 2 ^ 64
+hA : realProb M P W (0 + 1) (readDist P read x₀) ≤ idealProbL M P Λ S W (0 + 1) (readDist P read x₀) + εzk 0 1
+hB : realProb M P W (0 + 1) (readDist P read x₁) ≤ idealProbL M P Λ S W (0 + 1) (readDist P read x₁) + εzk 0 1
+hrA : realProb M P W (0 + 1) (readDist P read x₀) = 1
+hrB : realProb M P W (0 + 1) (readDist P read x₁) = 1
+this✝¹ : Fintype S.SCoins
+this✝ : Nonempty S.SCoins
+this : Inhabited S.SCoins
+sc : Fin (0 + 1) → S.SCoins
+val✝ : D
+⊢ (match (S.step (S.init W) (Sum.inr (M.publicPart (M.forward W x₁), Λ x₁)) (extend sc 0)).1 with
+      | Sum.inl val => false
+      | Sum.inr sr => decide (read sr = x₁)) =
+      true →
+    (match (S.step (S.init W) (Sum.inr (M.publicPart (M.forward W x₁), Λ x₁)) (extend sc 0)).1 with
+        | Sum.inl val => false
+        | Sum.inr sr => decide (read sr = x₀)) =
+        true →
+      x₀ = x₁
+error: ZK60Formal/StatementsD76Leaky.lean:273:31: Application type mismatch: The argument
+  h0
+has type
+  (match (S.step (S.init W) (Sum.inr (M.publicPart (M.forward W x₁), Λ x₁)) (extend sc 0)).1 with
+    | Sum.inl val => false
+    | Sum.inr sr => decide (read sr = x₁)) =
+    true
+but is expected to have type
+  decide ?m.436 = true
+in the application
+  of_decide_eq_true h0
+error: ZK60Formal/StatementsD76Leaky.lean:388:2: Type mismatch
+  leaky_not_productionReadyL_target ?m.30 ?m.31 ?m.32 ?m.33 ?m.34 ?m.38
+    (have this :=
+      Eq.mpr (id (congrArg (fun _a => _a.getD 0 = (classifySpec R x₁).getD 0) h))
+        (Eq.refl ((classifySpec R x₁).getD 0));
+    ?m.50)
+has type
+  ¬ProductionReadyL ?m.26 ?m.27 (leaky ?m.26) ?m.30 εcTarget εsTarget εsTarget εzkTarget
+but is expected to have type
+  ¬ProductionReadyL (classifyModel S R) (classifyArith S R) (leaky (classifyModel S R)) (classifyLeak S R) εcTarget
+      εsTarget εsTarget εzkTarget
+Some required targets logged failures:
+- ZK60Formal.StatementsD76Leaky
+error: build failed
+build rc 1 (6 s)
+== lake build ZK60Formal.StatementsD76Gate ==
+✖ [3581/3581] Building ZK60Formal.StatementsD76Gate (2.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/ZK60Formal/StatementsD76Gate.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Gate.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Gate.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Gate.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Gate.setup.json --json
+error: ZK60Formal/StatementsD76Gate.lean:54:32: failed to synthesize instance of type class
+  Decidable ((classifyModel S R).admissible x)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+Some required targets logged failures:
+- ZK60Formal.StatementsD76Gate
+error: build failed
+build rc 1 (11 s)
+rc 1, 11 s

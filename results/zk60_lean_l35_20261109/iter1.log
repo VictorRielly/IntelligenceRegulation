@@ -1,0 +1,91 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1e520d082439d10c/results/zk60_lean_l35_20261109/plan1.txt ==
+build ZK60Formal.BlockDefineAff
+build ZK60Formal.BlockDefineClaim
+== lake build ZK60Formal.BlockDefineAff ==
+warning: ZK60Formal/BlockDefineAff.lean:42:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.constAt_const`:
+  [Field K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockDefineAff.lean:59:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.ConstAt.ite`:
+  [Field K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockDefineAff.lean:129:12: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineAff.lean:134:12: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineAff.lean:178:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.constAt_coord`:
+  [Field K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockDefineAff.lean:256:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineAff.lean:257:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineAff.lean:259:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineAff.lean:261:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineAff.lean:352:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineAff.lean:354:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineAff.lean:356:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineAff.lean:358:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+Build completed successfully (3512 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.BlockDefineClaim ==
+warning: ZK60Formal/BlockDefineClaim.lean:61:13: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:61:30: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:63:13: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:63:30: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:96:25: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:106:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:106:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:106:32: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:107:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:111:15: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:111:33: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:115:15: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:115:33: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:151:37: `if_false` has been deprecated: Use `ite_false` instead
+warning: ZK60Formal/BlockDefineClaim.lean:165:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:165:18: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:175:13: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:175:65: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:176:13: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:176:67: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:177:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:177:18: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:184:13: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:184:46: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:185:13: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:185:48: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:273:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:273:18: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:276:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:276:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:278:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:278:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:279:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:279:18: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:281:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:281:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:282:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:282:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:293:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:293:18: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:311:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:311:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:312:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:312:18: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:322:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:322:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:322:32: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:323:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:323:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:397:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:397:21: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockDefineClaim.lean:399:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockDefineClaim.lean:399:21: `if_neg` has been deprecated: Use `ite_eq_right` instead
+Build completed successfully (3512 jobs).
+build rc 0 (8 s)
+rc 0, 8 s

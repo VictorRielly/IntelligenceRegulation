@@ -1,0 +1,4 @@
+[zk60-guard 00:51:48] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:52:14] START lean-l42-check class=cpu need=14G cap=24G enforce=watchdog-only waited=25s run=34c9749b2092
+[zk60-guard 00:52:25] KILL lean-l42-check: job RSS 28.01 GiB > cap 24 GiB
+[zk60-guard 00:52:25] END lean-l42-check exit=75 child_wall=11s peak_rss=28.01G min_avail=225.25G

@@ -1,0 +1,5 @@
+build ZK60Formal.BlockDefineSym
+build ZK60Formal.BlockDefinePoly
+build ZK60Formal.BlockDefineFinal
+build ZK60Formal.BlockDefineW16
+build ZK60Formal.BlockDefineW16Rung

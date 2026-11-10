@@ -55,7 +55,7 @@
       "servers": {"prover_lanes": 6, "prover_lane_threads": 5, "witness_cache_gib": 16, "check_lanes": 3,
                   "check_lane_threads": 4, "writer_threads": 4, "writers_at_once": 2},
       "guard_resources": {"service": {"need_gib": 110, "cap_gib": 180, "max_seconds": 21600}},
-      "native_settings": {"HL_METAL_QUEUES": "thread", "HL_METAL_SPIN_US": "200", "HL_A28_STAGGER_MS": "300"},
+      "native_settings": {"HL_METAL_QUEUES": "thread", "HL_METAL_SPIN_US": "200", "HL_A28_STAGGER_MS": "300", "HL_A26_KEPT": "1"},
       "privacy_status": "privacy statement pending",
       "production": false,
       "measurement_note": "Lanes A24, A26, A27 (2026-11-07) and A28 (2026-11-09), M3 Ultra, public posts only; see results/zk60_a24_app_20261107/README.md, results/zk60_a26_app_20261107/README.md, results/zk60_a27_app_20261107/README.md and results/zk60_a28_app_20261107/README.md."

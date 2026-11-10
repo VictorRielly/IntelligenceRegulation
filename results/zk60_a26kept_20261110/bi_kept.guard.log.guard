@@ -1,0 +1,12 @@
+[zk60-guard 00:10:29] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:11:30] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:12:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:13:32] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:14:32] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:15:03] waiting for admission lock (0s)
+[zk60-guard 00:15:34] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:16:35] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:17:36] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:18:37] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:19:12] START a26kept-bi class=gpu need=60G cap=120G enforce=watchdog-only waited=523s run=26dafd6f79b5
+[zk60-guard 00:23:43] END a26kept-bi exit=0 child_wall=271s peak_rss=55.15G min_avail=158.87G peak_vram=24173MiB

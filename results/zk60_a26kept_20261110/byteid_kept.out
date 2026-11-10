@@ -1,0 +1,1 @@
+{"comparisons": [{"against": "0-A", "run": "1-K", "byte_identical": true}, {"against": "0-A", "run": "2-A", "byte_identical": true}], "cross": [{"verifier": "A", "receipts_of": "1-K", "all_checked": true}, {"verifier": "K", "receipts_of": "0-A", "all_checked": true}]}
