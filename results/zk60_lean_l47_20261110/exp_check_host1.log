@@ -1,0 +1,9 @@
+== source scan of the checker and the export for the forbidden words ==
+scan: none
+== corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_host_short.txt ==
+38ae2529bf2fe528a235384bbdf2687333dd49166100d9c87b4280d7702a0f2e  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_host_short.txt
+38ae2529bf2fe528a235384bbdf2687333dd49166100d9c87b4280d7702a0f2e  l47_host_short.txt
+== lean --run BlockHostExportCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_host_short.txt neg ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockHostExportCheck.lean:498:78: error(lean.unknownIdentifier): Unknown identifier `Fp2.zero`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockHostExportCheck.lean:498:88: error(lean.unknownIdentifier): Unknown identifier `Fp2.zero`
+checker rc 1, 3 s

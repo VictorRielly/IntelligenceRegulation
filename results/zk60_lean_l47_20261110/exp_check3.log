@@ -1,0 +1,41 @@
+== source scan of the checker and the export for the forbidden words ==
+scan: none
+== corpus /Users/victorrielly/zk60-artifacts/l47/l47_w16r2_full.txt ==
+ad65bdeb9b8655faa7c909da38f7bb49f842f136db7f66e1e6d92ef6c077e20f  /Users/victorrielly/zk60-artifacts/l47/l47_w16r2_full.txt
+ad65bdeb9b8655faa7c909da38f7bb49f842f136db7f66e1e6d92ef6c077e20f  l47_w16r2_full.txt
+== lean --run BlockTabExportCheck.lean /Users/victorrielly/zk60-artifacts/l47/l47_w16r2_full.txt neg ==
+corpus /Users/victorrielly/zk60-artifacts/l47/l47_w16r2_full.txt: W16R2_RUNG_H24, 29 public tables, 29 in full, 92 sum-claim parts
+checks: 283 passed, 0 failed
+  parse: 1
+  header: 2
+  data: 3
+  kinds: 4
+  sumclaim: 94
+  slots: 3
+  tables: 1
+  length: 29
+  fingerprint: 58
+  ends: 58
+  entries: 29
+  done: 1
+negative control CAUGHT (1 failed): SC_LZC's gate, one entry
+negative control CAUGHT (1 failed): SC_TAB's bytes column, one entry
+negative control CAUGHT (1 failed): SC_TAB's exp column, one entry
+negative control CAUGHT (1 failed): SC_TAB's ACT column, one entry
+negative control CAUGHT (1 failed): SC_TAB's range column 5, one entry
+negative control CAUGHT (1 failed): SC_TAB's supp(Tab) gate, one entry
+negative control CAUGHT (1 failed): SC_TAB's narrow gate 2, one entry
+negative control CAUGHT (1 failed): SC_ZS's ones, one entry
+negative control CAUGHT (1 failed): a fingerprint (rho2) of the range column 9
+negative control CAUGHT (1 failed): a head entry of the ACT gate
+negative control CAUGHT (4 failed): an exp value (exp[5] + 1)
+negative control CAUGHT (4 failed): an ACT word (group 0, gate 7, + 1)
+negative control CAUGHT (7 failed): the group count (− 1)
+negative control CAUGHT (8 failed): beta (+ 1)
+negative control CAUGHT (1 failed): slot 19's kind (host)
+negative control CAUGHT (1 failed): slot 3's table count
+negative control CAUGHT (1 failed): a sum-claim part's offset (part 7)
+negative control CAUGHT (1 failed): a sum-claim part's coefficient (part 60)
+negative control CAUGHT (1 failed): the sum claim's value
+negative controls: 19 of 19 caught
+checker rc 0, 87 s

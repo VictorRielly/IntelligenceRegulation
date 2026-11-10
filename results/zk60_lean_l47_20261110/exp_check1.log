@@ -1,0 +1,11 @@
+== source scan of the checker and the export for the forbidden words ==
+scan: none
+== corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_w16r2_short.txt ==
+d182c53b7988c925642d6fd9a89e94d1830e2ae5d5258eec7a79fa7b2c6b04c5  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_w16r2_short.txt
+d182c53b7988c925642d6fd9a89e94d1830e2ae5d5258eec7a79fa7b2c6b04c5  l47_w16r2_short.txt
+== lean --run BlockTabExportCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_w16r2_short.txt neg ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockTabExportCheck.lean:104:63: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  HAppend (List String) (List String.Slice) ?m.7
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+checker rc 1, 4 s

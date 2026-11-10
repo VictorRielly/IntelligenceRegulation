@@ -1,0 +1,221 @@
+== plan results/zk60_lean_l47_20261110/rel_plan2.txt ==
+build ZK60Formal.BlockLookRelBase
+build ZK60Formal.BlockLookSum
+build ZK60Formal.BlockLookRelHost
+build ZK60Formal.BlockLookRelPer
+build ZK60Formal.BlockLookRelW16
+build ZK60Formal.BlockLookRelFinal
+== lake build ZK60Formal.BlockLookRelBase ==
+Build completed successfully (3571 jobs).
+build rc 0 (3 s)
+== lake build ZK60Formal.BlockLookSum ==
+warning: ZK60Formal/BlockLookSum.lean:209:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.core_rowKey`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:209:42: Variable name `ht` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _ht
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+Build completed successfully (3572 jobs).
+build rc 0 (14 s)
+== lake build ZK60Formal.BlockLookRelHost ==
+Build completed successfully (3572 jobs).
+build rc 0 (20 s)
+== lake build ZK60Formal.BlockLookRelPer ==
+✖ [3573/3573] Building ZK60Formal.BlockLookRelPer (2.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelPer.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelPer.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelPer.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelPer.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelPer.setup.json --json
+error: ZK60Formal/BlockLookRelPer.lean:190:44: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+b : Fin 14 → Bool
+h0 :
+  szcExp (cstK U) Szc.RSz Szc.KSz (Szc.valsX U P D B b)
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS))
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS)) =
+    0
+hamd :
+  Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS) = Fp2.toK U bga.2.2 - Fp2.toK U bga.2.1 * 129
+hnb : Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS) = -Fp2.toK U bga.1
+⊢ (algebraMap GF K) 127 = 127
+error: ZK60Formal/BlockLookRelPer.lean:193:40: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+b : Fin 14 → Bool
+h0 :
+  szcExp (cstK U) Szc.RSz Szc.KSz (Szc.valsX U P D B b)
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS))
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS)) =
+    0
+hamd :
+  Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS) = Fp2.toK U bga.2.2 - Fp2.toK U bga.2.1 * 129
+hnb : Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS) = -Fp2.toK U bga.1
+hb1 : (cstK U).base (-127) = -127
+⊢ (algebraMap GF K) 127 = 127
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelPer
+error: build failed
+build rc 1 (23 s)
+== lake build ZK60Formal.BlockLookRelW16 ==
+warning: ZK60Formal/BlockLookSum.lean:209:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.core_rowKey`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:209:42: Variable name `ht` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _ht
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✖ [3574/3575] Building ZK60Formal.BlockLookRelPer (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelPer.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelPer.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelPer.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelPer.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelPer.setup.json --json
+error: ZK60Formal/BlockLookRelPer.lean:190:44: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+b : Fin 14 → Bool
+h0 :
+  szcExp (cstK U) Szc.RSz Szc.KSz (Szc.valsX U P D B b)
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS))
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS)) =
+    0
+hamd :
+  Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS) = Fp2.toK U bga.2.2 - Fp2.toK U bga.2.1 * 129
+hnb : Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS) = -Fp2.toK U bga.1
+⊢ (algebraMap GF K) 127 = 127
+error: ZK60Formal/BlockLookRelPer.lean:193:40: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+b : Fin 14 → Bool
+h0 :
+  szcExp (cstK U) Szc.RSz Szc.KSz (Szc.valsX U P D B b)
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS))
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS)) =
+    0
+hamd :
+  Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS) = Fp2.toK U bga.2.2 - Fp2.toK U bga.2.1 * 129
+hnb : Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS) = -Fp2.toK U bga.1
+hb1 : (cstK U).base (-127) = -127
+⊢ (algebraMap GF K) 127 = 127
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelPer
+error: build failed
+build rc 1 (28 s)
+== lake build ZK60Formal.BlockLookRelFinal ==
+warning: ZK60Formal/BlockLookSum.lean:209:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.core_rowKey`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:209:42: Variable name `ht` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _ht
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✖ [3574/3576] Building ZK60Formal.BlockLookRelPer (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelPer.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelPer.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelPer.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelPer.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelPer.setup.json --json
+error: ZK60Formal/BlockLookRelPer.lean:190:44: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+b : Fin 14 → Bool
+h0 :
+  szcExp (cstK U) Szc.RSz Szc.KSz (Szc.valsX U P D B b)
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS))
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS)) =
+    0
+hamd :
+  Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS) = Fp2.toK U bga.2.2 - Fp2.toK U bga.2.1 * 129
+hnb : Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS) = -Fp2.toK U bga.1
+⊢ (algebraMap GF K) 127 = 127
+error: ZK60Formal/BlockLookRelPer.lean:193:40: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+bga : Fp2 × Fp2 × Fp2
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+b : Fin 14 → Bool
+h0 :
+  szcExp (cstK U) Szc.RSz Szc.KSz (Szc.valsX U P D B b)
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS))
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS)) =
+    0
+hamd :
+  Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.amdS) = Fp2.toK U bga.2.2 - Fp2.toK U bga.2.1 * 129
+hnb : Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] Szc.nbS) = -Fp2.toK U bga.1
+hb1 : (cstK U).base (-127) = -127
+⊢ (algebraMap GF K) 127 = 127
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelPer
+error: build failed
+build rc 1 (31 s)
+rc 1, 31 s

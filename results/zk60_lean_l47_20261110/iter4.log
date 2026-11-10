@@ -1,0 +1,156 @@
+== plan results/zk60_lean_l47_20261110/plan2.txt ==
+build ZK60Formal.BlockTabBase
+build ZK60Formal.BlockLookBase
+== lake build ZK60Formal.BlockTabBase ==
+Build completed successfully (3564 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.BlockLookBase ==
+✖ [3565/3565] Building ZK60Formal.BlockLookBase (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookBase.setup.json --json
+error: ZK60Formal/BlockLookBase.lean:114:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  absOf Lg[List.findIdx (fun e => decide (absOf e.1 = some r)) Lg].1
+in the target expression
+  absOf Lg[List.findIdx (isAbsAt absOf r) Lg].1 = (rootsOf (OC.run G A).2).1
+
+case pos
+L : ℕ
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+β : Type
+A : OC (QB L) Dig (β × Core)
+G : QB L → Dig
+absOf : QB L → Option (List UInt8) := absOfC (chainEncB key domain hs L hL)
+habs : absOf = absOfC (chainEncB key domain hs L hL)
+Lg : List (QB L × Dig) := (OC.runLog G A).2
+hLg : Lg = (OC.runLog G A).2
+r : List UInt8 := List.Vector.toList (OC.run G A).2.aRoot
+hr : r = List.Vector.toList (OC.run G A).2.aRoot
+hcut : (cutsOf key domain hs hL A G).1 = List.take (List.findIdx (isAbsAt absOf r) Lg) Lg
+hsplit : Lg = List.take (List.findIdx (isAbsAt absOf r) Lg) Lg ++ List.drop (List.findIdx (isAbsAt absOf r) Lg) Lg
+hn :
+  ocNext A (List.take (List.findIdx (isAbsAt absOf r) Lg) Lg) =
+    match List.drop (List.findIdx (isAbsAt absOf r) Lg) Lg with
+    | [] => some (Sum.inr (OC.run G A))
+    | e :: tail => some (Sum.inl e.1)
+hlt : List.findIdx (isAbsAt absOf r) Lg < Lg.length
+hp : absOf Lg[List.findIdx (fun e => decide (absOf e.1 = some r)) Lg].1 = some r
+⊢ absOf Lg[List.findIdx (isAbsAt absOf r) Lg].1 = (rootsOf (OC.run G A).2).1
+error: ZK60Formal/BlockLookBase.lean:154:24: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  @Membership.mem ?m.6 (Finset ?m.6) SetLike.instMembership { val := ?m.8, nodup := ?m.9 } ?m.7
+in the target expression
+  @Membership.mem LkDom (Finset LkDom) SetLike.instMembership { val := ↑LkDom.enumList, nodup := LkDom.enumList_nodup }
+    x✝
+
+x✝ : LkDom
+⊢ x✝ ∈ { val := ↑LkDom.enumList, nodup := LkDom.enumList_nodup }
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    LkDom.enumList_nodup
+  has type
+    LkDom.enumList.Nodup
+  but is expected to have type
+    (↑LkDom.enumList).Nodup
+  in the application
+    { val := ↑LkDom.enumList, nodup := LkDom.enumList_nodup }
+error: ZK60Formal/BlockLookBase.lean:175:24: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  @Membership.mem ?m.6 (Finset ?m.6) SetLike.instMembership { val := ?m.8, nodup := ?m.9 } ?m.7
+in the target expression
+  @Membership.mem SgKind (Finset SgKind) SetLike.instMembership
+    { val := ↑SgKind.enumList, nodup := SgKind.enumList_nodup } x✝
+
+x✝ : SgKind
+⊢ x✝ ∈ { val := ↑SgKind.enumList, nodup := SgKind.enumList_nodup }
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    SgKind.enumList_nodup
+  has type
+    SgKind.enumList.Nodup
+  but is expected to have type
+    (↑SgKind.enumList).Nodup
+  in the application
+    { val := ↑SgKind.enumList, nodup := SgKind.enumList_nodup }
+error: ZK60Formal/BlockLookBase.lean:226:22: Unknown identifier `Szc.hd9`
+error: ZK60Formal/BlockLookBase.lean:281:50: unsolved goals
+⊢ 17 * 2 ^ 14 = 278528
+error: ZK60Formal/BlockLookBase.lean:297:53: failed to synthesize instance of type class
+  DecidableEq (Tup K)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/BlockLookBase.lean:298:12: failed to synthesize instance of type class
+  DecidableEq (Tup K)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+warning: ZK60Formal/BlockLookBase.lean:345:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/BlockLookBase.lean:350:4: unsolved goals
+case pos.refine_2
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+nG : ℕ
+hnG : 0 < nG
+k : ℕ
+hk : k < 17
+i : ℕ
+h0 : k = 0
+⊢ ↑(i % 256) = ↑(↑i % 256)
+warning: ZK60Formal/BlockLookBase.lean:351:6: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockLookBase.lean:353:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/BlockLookBase.lean:357:4: unsolved goals
+case pos.refine_2
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+nG : ℕ
+hnG : 0 < nG
+k : ℕ
+hk : k < 17
+i : ℕ
+h0 : ¬k = 0
+h1 : k = 1
+⊢ ↑(i % 256) = ↑(↑i % 256)
+warning: ZK60Formal/BlockLookBase.lean:358:6: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockLookBase.lean:360:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockLookBase.lean:362:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+error: ZK60Formal/BlockLookBase.lean:367:6: unsolved goals
+case pos.refine_2
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+nG : ℕ
+hnG : 0 < nG
+k : ℕ
+hk : k < 17
+i : ℕ
+h0 : ¬k = 0
+h1 : ¬k = 1
+h2 : k = 2
+hi : i < nG * 4096
+⊢ ↑(i % 4096) = ↑(↑i % 4096)
+warning: ZK60Formal/BlockLookBase.lean:368:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockLookBase.lean:370:6: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/BlockLookBase.lean:378:2: unsolved goals
+case neg.refine_2
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+nG : ℕ
+hnG : 0 < nG
+k : ℕ
+hk : k < 17
+i : ℕ
+h0 : ¬k = 0
+h1 : ¬k = 1
+h2 : ¬k = 2
+hmem : (tagW ((subW cfgRungW16).getD (k - 3) 0), (subW cfgRungW16).getD (k - 3) 0) ∈ famsW
+hlt :
+  (tabSubS cfgRungW16).getD (k - 3) 0 * 2 ^ 14 + supW ((subW cfgRungW16).getD (k - 3) 0) ≤
+    2 ^ (subW cfgRungW16).getD (k - 3) 0
+hpos : 0 < supW ((subW cfgRungW16).getD (k - 3) 0)
+⊢ ↑(i % supW ((subW cfgRungW16)[k - 3]?.getD 0)) = ↑(↑i % ↑(supW ((subW cfgRungW16)[k - 3]?.getD 0)))
+Some required targets logged failures:
+- ZK60Formal.BlockLookBase
+error: build failed
+build rc 1 (22 s)
+rc 1, 22 s

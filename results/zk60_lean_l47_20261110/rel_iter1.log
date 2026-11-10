@@ -1,0 +1,301 @@
+== plan results/zk60_lean_l47_20261110/rel_plan1.txt ==
+build ZK60Formal.BlockLookBase
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean
+build ZK60Formal.BlockLookRelBase
+build ZK60Formal.BlockLookSum
+build ZK60Formal.BlockLookRelHost
+build ZK60Formal.BlockLookRelPer
+== lake build ZK60Formal.BlockLookBase ==
+Build completed successfully (3570 jobs).
+build rc 0 (4 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean:7:6: error(lean.unknownIdentifier): Unknown identifier `segLn`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean:7:59: error(lean.unknownIdentifier): Unknown identifier `segLn`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean:8:4: error(lean.unknownIdentifier): Unknown identifier `segLn`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean:9:24: error(lean.invalidField): Invalid field `name`: The environment does not contain `Function.name`, so it is not possible to project the field `name` from an expression
+  algShapeW16Rung
+of type
+  (P : BlockParams) →
+    P.draws = W16R2.rungDraws →
+      (mpad : ℕ → ℕ) →
+        (∀ k ∈ algHosts, Slot.W16R2.segLn (Slot.W16R2.draws Slot.W16R2.shRungW16 k) Seg.zeta = 0 → mpad k = 0) →
+          (∀ k ∈ algHosts, mpad k ≤ 78) → AlgShape P
+algShapeW16Rung : (P : BlockParams) →
+  P.draws = W16R2.rungDraws →
+    (mpad : ℕ → ℕ) →
+      (∀ k ∈ algHosts, Slot.W16R2.segLn (Slot.W16R2.draws Slot.W16R2.shRungW16 k) Seg.zeta = 0 → mpad k = 0) →
+        (∀ k ∈ algHosts, mpad k ≤ 78) → AlgShape P
+def ZK60.Exec.Block.relCount : ℕ → ℕ :=
+fun k =>
+  if k = 2 then 6
+  else if k = 14 then 6 else if k = 15 then 1 else if k = 16 then 1 else if k = 17 then 4 else if k = 18 then 1 else 0
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean:12:10: error: Function expected at
+  segLn
+but this term has type
+  ?m.1
+
+Note: Expected a function because this term is being applied to the argument
+  (ZK60.Exec.Slot.W16R2.draws shRungW16 14)
+
+Hint: The identifier `segLn` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean:13:44: error: Function expected at
+  segLn
+but this term has type
+  ?m.1
+
+Note: Expected a function because this term is being applied to the argument
+  (ZK60.Exec.Slot.W16R2.draws shRungW16 14)
+
+Hint: The identifier `segLn` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean:14:44: error: Function expected at
+  segLn
+but this term has type
+  ?m.1
+
+Note: Expected a function because this term is being applied to the argument
+  (ZK60.Exec.Slot.W16R2.draws shRungW16 15)
+
+Hint: The identifier `segLn` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+[(0, 14, 0), (1, 14, 0), (2, 14, 0), (3, 14, 0), (4, 14, 0), (5, 14, 0), (6, 14, 0), (7, 14, 0), (8, 14, 0), (9, 14, 0),
+  (10, 14, 0), (11, 14, 0), (12, 14, 0), (13, 14, 0), (14, 14, 0), (15, 14, 0), (16, 14, 0), (17, 14, 0), (18, 14, 0),
+  (19, 14, 0), (20, 14, 0), (21, 14, 0), (22, 15, 0), (24, 15, 0), (26, 15, 0), (28, 15, 0), (30, 15, 0), (32, 15, 0),
+  (34, 14, 0), (35, 14, 0), (36, 14, 0), (37, 14, 0), (38, 14, 0), (39, 14, 0), (40, 14, 0), (41, 14, 0), (42, 14, 0),
+  (43, 14, 0), (44, 14, 0), (45, 14, 0), (46, 14, 0), (47, 14, 0), (48, 14, 0), (49, 14, 0), (50, 14, 0), (51, 14, 0),
+  (52, 15, 0), (54, 15, 0), (56, 15, 0), (58, 15, 0), (60, 15, 0), ⋯]
+[14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 14, 14,
+  14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14]
+[[(6, 1)], [(7, 1)]]
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_probe1.lean (19 s)
+== lake build ZK60Formal.BlockLookRelBase ==
+✖ [3571/3571] Building ZK60Formal.BlockLookRelBase (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelBase.setup.json --json
+error: ZK60Formal/BlockLookRelBase.lean:53:12: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  2 * (j + 1) + 1
+in the target expression
+  c.one * (v.getD (h0 + (k + 1) + j) 0 * (denV v (ls.getD (2 * j) d) * denV v (ls.getD (2 * j + 1) d))) +
+        c.negOne * denV v (ls.getD (2 * j) d) +
+      c.negOne * denV v (ls.getD (2 * j + 1) d) =
+    c.one *
+          (v.getD (h0 + k + (j + 1)) 0 *
+            (denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d))) +
+        c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) +
+      c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d)
+
+R : Type
+inst✝ : CommRing R
+c : Cst R
+v : List R
+h0 : ℕ
+d : LkD R
+j k : ℕ
+l₁ l₂ : LkD R
+ls : List (LkD R)
+h : 2 * (j + 1) + 1 < (l₁ :: l₂ :: ls).length
+h' : 2 * j + 1 < ls.length
+e1 : 2 * (j + 1) = 2 * j + 1 + 1
+e2 : 2 * (j + 1) + 1 = 2 * j + 1 + 1 + 1
+e3 : h0 + (k + 1) + j = h0 + k + (j + 1)
+⊢ c.one * (v.getD (h0 + (k + 1) + j) 0 * (denV v (ls.getD (2 * j) d) * denV v (ls.getD (2 * j + 1) d))) +
+        c.negOne * denV v (ls.getD (2 * j) d) +
+      c.negOne * denV v (ls.getD (2 * j + 1) d) =
+    c.one *
+          (v.getD (h0 + k + (j + 1)) 0 *
+            (denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d))) +
+        c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) +
+      c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d)
+error: ZK60Formal/BlockLookRelBase.lean:96:6: Unknown constant `List.getD_map`
+error: ZK60Formal/BlockLookRelBase.lean:95:114: unsolved goals
+K : Type
+f : Sym → Fp2
+g : Fp2 → K
+shaped : ℕ → ℕ
+ls : List LkW
+i : ℕ
+⊢ (List.map (LkD.map g) (List.map (LkD.map f) (List.map (lkSymW shaped) ls))).getD i
+      (LkD.map g (LkD.map f (lkSymW shaped { terms := [], cst := 0, tag := 0 }))) =
+    LkD.map g (LkD.map f (lkSymW shaped (ls.getD i { terms := [], cst := 0, tag := 0 })))
+warning: ZK60Formal/BlockLookRelBase.lean:136:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.denV_lkSym`:
+  hU
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit hU in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelBase
+error: build failed
+build rc 1 (24 s)
+== lake build ZK60Formal.BlockLookSum ==
+✖ [3571/3572] Building ZK60Formal.BlockLookRelBase (10s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelBase.setup.json --json
+error: ZK60Formal/BlockLookRelBase.lean:53:12: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  2 * (j + 1) + 1
+in the target expression
+  c.one * (v.getD (h0 + (k + 1) + j) 0 * (denV v (ls.getD (2 * j) d) * denV v (ls.getD (2 * j + 1) d))) +
+        c.negOne * denV v (ls.getD (2 * j) d) +
+      c.negOne * denV v (ls.getD (2 * j + 1) d) =
+    c.one *
+          (v.getD (h0 + k + (j + 1)) 0 *
+            (denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d))) +
+        c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) +
+      c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d)
+
+R : Type
+inst✝ : CommRing R
+c : Cst R
+v : List R
+h0 : ℕ
+d : LkD R
+j k : ℕ
+l₁ l₂ : LkD R
+ls : List (LkD R)
+h : 2 * (j + 1) + 1 < (l₁ :: l₂ :: ls).length
+h' : 2 * j + 1 < ls.length
+e1 : 2 * (j + 1) = 2 * j + 1 + 1
+e2 : 2 * (j + 1) + 1 = 2 * j + 1 + 1 + 1
+e3 : h0 + (k + 1) + j = h0 + k + (j + 1)
+⊢ c.one * (v.getD (h0 + (k + 1) + j) 0 * (denV v (ls.getD (2 * j) d) * denV v (ls.getD (2 * j + 1) d))) +
+        c.negOne * denV v (ls.getD (2 * j) d) +
+      c.negOne * denV v (ls.getD (2 * j + 1) d) =
+    c.one *
+          (v.getD (h0 + k + (j + 1)) 0 *
+            (denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d))) +
+        c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) +
+      c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d)
+error: ZK60Formal/BlockLookRelBase.lean:96:6: Unknown constant `List.getD_map`
+error: ZK60Formal/BlockLookRelBase.lean:95:114: unsolved goals
+K : Type
+f : Sym → Fp2
+g : Fp2 → K
+shaped : ℕ → ℕ
+ls : List LkW
+i : ℕ
+⊢ (List.map (LkD.map g) (List.map (LkD.map f) (List.map (lkSymW shaped) ls))).getD i
+      (LkD.map g (LkD.map f (lkSymW shaped { terms := [], cst := 0, tag := 0 }))) =
+    LkD.map g (LkD.map f (lkSymW shaped (ls.getD i { terms := [], cst := 0, tag := 0 })))
+warning: ZK60Formal/BlockLookRelBase.lean:136:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.denV_lkSym`:
+  hU
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit hU in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelBase
+error: build failed
+build rc 1 (37 s)
+== lake build ZK60Formal.BlockLookRelHost ==
+✖ [3571/3572] Building ZK60Formal.BlockLookRelBase (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelBase.setup.json --json
+error: ZK60Formal/BlockLookRelBase.lean:53:12: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  2 * (j + 1) + 1
+in the target expression
+  c.one * (v.getD (h0 + (k + 1) + j) 0 * (denV v (ls.getD (2 * j) d) * denV v (ls.getD (2 * j + 1) d))) +
+        c.negOne * denV v (ls.getD (2 * j) d) +
+      c.negOne * denV v (ls.getD (2 * j + 1) d) =
+    c.one *
+          (v.getD (h0 + k + (j + 1)) 0 *
+            (denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d))) +
+        c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) +
+      c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d)
+
+R : Type
+inst✝ : CommRing R
+c : Cst R
+v : List R
+h0 : ℕ
+d : LkD R
+j k : ℕ
+l₁ l₂ : LkD R
+ls : List (LkD R)
+h : 2 * (j + 1) + 1 < (l₁ :: l₂ :: ls).length
+h' : 2 * j + 1 < ls.length
+e1 : 2 * (j + 1) = 2 * j + 1 + 1
+e2 : 2 * (j + 1) + 1 = 2 * j + 1 + 1 + 1
+e3 : h0 + (k + 1) + j = h0 + k + (j + 1)
+⊢ c.one * (v.getD (h0 + (k + 1) + j) 0 * (denV v (ls.getD (2 * j) d) * denV v (ls.getD (2 * j + 1) d))) +
+        c.negOne * denV v (ls.getD (2 * j) d) +
+      c.negOne * denV v (ls.getD (2 * j + 1) d) =
+    c.one *
+          (v.getD (h0 + k + (j + 1)) 0 *
+            (denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d))) +
+        c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) +
+      c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d)
+error: ZK60Formal/BlockLookRelBase.lean:96:6: Unknown constant `List.getD_map`
+error: ZK60Formal/BlockLookRelBase.lean:95:114: unsolved goals
+K : Type
+f : Sym → Fp2
+g : Fp2 → K
+shaped : ℕ → ℕ
+ls : List LkW
+i : ℕ
+⊢ (List.map (LkD.map g) (List.map (LkD.map f) (List.map (lkSymW shaped) ls))).getD i
+      (LkD.map g (LkD.map f (lkSymW shaped { terms := [], cst := 0, tag := 0 }))) =
+    LkD.map g (LkD.map f (lkSymW shaped (ls.getD i { terms := [], cst := 0, tag := 0 })))
+warning: ZK60Formal/BlockLookRelBase.lean:136:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.denV_lkSym`:
+  hU
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit hU in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelBase
+error: build failed
+build rc 1 (41 s)
+== lake build ZK60Formal.BlockLookRelPer ==
+✖ [3571/3573] Building ZK60Formal.BlockLookRelBase (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelBase.setup.json --json
+error: ZK60Formal/BlockLookRelBase.lean:53:12: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  2 * (j + 1) + 1
+in the target expression
+  c.one * (v.getD (h0 + (k + 1) + j) 0 * (denV v (ls.getD (2 * j) d) * denV v (ls.getD (2 * j + 1) d))) +
+        c.negOne * denV v (ls.getD (2 * j) d) +
+      c.negOne * denV v (ls.getD (2 * j + 1) d) =
+    c.one *
+          (v.getD (h0 + k + (j + 1)) 0 *
+            (denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d))) +
+        c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) +
+      c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d)
+
+R : Type
+inst✝ : CommRing R
+c : Cst R
+v : List R
+h0 : ℕ
+d : LkD R
+j k : ℕ
+l₁ l₂ : LkD R
+ls : List (LkD R)
+h : 2 * (j + 1) + 1 < (l₁ :: l₂ :: ls).length
+h' : 2 * j + 1 < ls.length
+e1 : 2 * (j + 1) = 2 * j + 1 + 1
+e2 : 2 * (j + 1) + 1 = 2 * j + 1 + 1 + 1
+e3 : h0 + (k + 1) + j = h0 + k + (j + 1)
+⊢ c.one * (v.getD (h0 + (k + 1) + j) 0 * (denV v (ls.getD (2 * j) d) * denV v (ls.getD (2 * j + 1) d))) +
+        c.negOne * denV v (ls.getD (2 * j) d) +
+      c.negOne * denV v (ls.getD (2 * j + 1) d) =
+    c.one *
+          (v.getD (h0 + k + (j + 1)) 0 *
+            (denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d))) +
+        c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1) d) +
+      c.negOne * denV v ((l₁ :: l₂ :: ls).getD (2 * j + 1 + 1 + 1) d)
+error: ZK60Formal/BlockLookRelBase.lean:96:6: Unknown constant `List.getD_map`
+error: ZK60Formal/BlockLookRelBase.lean:95:114: unsolved goals
+K : Type
+f : Sym → Fp2
+g : Fp2 → K
+shaped : ℕ → ℕ
+ls : List LkW
+i : ℕ
+⊢ (List.map (LkD.map g) (List.map (LkD.map f) (List.map (lkSymW shaped) ls))).getD i
+      (LkD.map g (LkD.map f (lkSymW shaped { terms := [], cst := 0, tag := 0 }))) =
+    LkD.map g (LkD.map f (lkSymW shaped (ls.getD i { terms := [], cst := 0, tag := 0 })))
+warning: ZK60Formal/BlockLookRelBase.lean:136:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.denV_lkSym`:
+  hU
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit hU in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelBase
+error: build failed
+build rc 1 (44 s)
+rc 1, 44 s

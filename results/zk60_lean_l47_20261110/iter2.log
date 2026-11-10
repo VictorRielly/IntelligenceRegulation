@@ -1,0 +1,172 @@
+== plan results/zk60_lean_l47_20261110/plan2.txt ==
+build ZK60Formal.BlockTabBase
+build ZK60Formal.BlockLookBase
+== lake build ZK60Formal.BlockTabBase ==
+✖ [3564/3564] Building ZK60Formal.BlockTabBase (12s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockTabBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockTabBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockTabBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockTabBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockTabBase.setup.json --json
+error: ZK60Formal/BlockTabBase.lean:92:9: ambiguous term, use fully qualified name, possible interpretations [@Finset.fold, @Sound.fold]
+error: ZK60Formal/BlockTabBase.lean:134:28: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockTabBase.lean:134:70: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockTabBase.lean:221:69: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+U : K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+hcard : 78 < Fintype.card K
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+nG : ℕ
+bga : Fp2 × Fp2 × Fp2
+ω : (K × K) × (Fin 17 → K)
+τ : Fin 14 → K
+x✝ : 0 < 22 ∨ ω.1 = (0, 0)
+k : Fin 17
+⊢ 31 ≤ 14 + ↑k → (if 14 + ↑k = 31 then ω.1.2 else ω.1.1) = ω.2 k
+error: ZK60Formal/BlockTabBase.lean:238:81: No goals to be solved
+error: ZK60Formal/BlockTabBase.lean:238:102: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+U : K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+hcard : 78 < Fintype.card K
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+nG : ℕ
+bga : Fp2 × Fp2 × Fp2
+x : Fin (P.draws 19) → K
+b : Fin 14 → Bool
+i : Fin 14
+⊢ 14 ≤ W16R2.rungDraws 19
+error: ZK60Formal/BlockTabBase.lean:240:51: No goals to be solved
+error: ZK60Formal/BlockTabBase.lean:240:77: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  0 ≤ c ≤ 16
+  c - d ≥ -14
+  a ≥ 79
+where
+ a := ↑(Fintype.card K)
+ c := ↑↑k
+ d := ↑(W16R2.rungDraws 19)
+error: ZK60Formal/BlockTabBase.lean:241:38: No goals to be solved
+error: ZK60Formal/BlockTabBase.lean:241:46: failed to synthesize instance of type class
+  OfNat (Fin (W16R2.rungDraws 19)) 31
+numerals are polymorphic in Lean, but the numeral `31` cannot be used in a context where the expected type is
+  Fin (W16R2.rungDraws 19)
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/BlockTabBase.lean:242:55: No goals to be solved
+error: ZK60Formal/BlockTabBase.lean:242:63: failed to synthesize instance of type class
+  OfNat (Fin (W16R2.rungDraws 19)) 32
+numerals are polymorphic in Lean, but the numeral `32` cannot be used in a context where the expected type is
+  Fin (W16R2.rungDraws 19)
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/BlockTabBase.lean:234:8: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.BlockTabBase
+error: build failed
+build rc 1 (20 s)
+== lake build ZK60Formal.BlockLookBase ==
+✖ [3564/3565] Building ZK60Formal.BlockTabBase (2.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockTabBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockTabBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockTabBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockTabBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockTabBase.setup.json --json
+error: ZK60Formal/BlockTabBase.lean:92:9: ambiguous term, use fully qualified name, possible interpretations [@Finset.fold, @Sound.fold]
+error: ZK60Formal/BlockTabBase.lean:134:28: Unknown identifier `W16Layout`
+
+Note: It is not possible to treat `W16Layout` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockTabBase.lean:134:70: Unknown identifier `W16Pub`
+
+Note: It is not possible to treat `W16Pub` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockTabBase.lean:221:69: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+U : K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+hcard : 78 < Fintype.card K
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+nG : ℕ
+bga : Fp2 × Fp2 × Fp2
+ω : (K × K) × (Fin 17 → K)
+τ : Fin 14 → K
+x✝ : 0 < 22 ∨ ω.1 = (0, 0)
+k : Fin 17
+⊢ 31 ≤ 14 + ↑k → (if 14 + ↑k = 31 then ω.1.2 else ω.1.1) = ω.2 k
+error: ZK60Formal/BlockTabBase.lean:238:81: No goals to be solved
+error: ZK60Formal/BlockTabBase.lean:238:102: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+U : K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+hcard : 78 < Fintype.card K
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+nG : ℕ
+bga : Fp2 × Fp2 × Fp2
+x : Fin (P.draws 19) → K
+b : Fin 14 → Bool
+i : Fin 14
+⊢ 14 ≤ W16R2.rungDraws 19
+error: ZK60Formal/BlockTabBase.lean:240:51: No goals to be solved
+error: ZK60Formal/BlockTabBase.lean:240:77: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  0 ≤ c ≤ 16
+  c - d ≥ -14
+  a ≥ 79
+where
+ a := ↑(Fintype.card K)
+ c := ↑↑k
+ d := ↑(W16R2.rungDraws 19)
+error: ZK60Formal/BlockTabBase.lean:241:38: No goals to be solved
+error: ZK60Formal/BlockTabBase.lean:241:46: failed to synthesize instance of type class
+  OfNat (Fin (W16R2.rungDraws 19)) 31
+numerals are polymorphic in Lean, but the numeral `31` cannot be used in a context where the expected type is
+  Fin (W16R2.rungDraws 19)
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/BlockTabBase.lean:242:55: No goals to be solved
+error: ZK60Formal/BlockTabBase.lean:242:63: failed to synthesize instance of type class
+  OfNat (Fin (W16R2.rungDraws 19)) 32
+numerals are polymorphic in Lean, but the numeral `32` cannot be used in a context where the expected type is
+  Fin (W16R2.rungDraws 19)
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/BlockTabBase.lean:234:8: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.BlockTabBase
+error: build failed
+build rc 1 (25 s)
+rc 1, 25 s

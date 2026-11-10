@@ -1,0 +1,257 @@
+== plan results/zk60_lean_l47_20261110/rel_plan2.txt ==
+build ZK60Formal.BlockLookRelBase
+build ZK60Formal.BlockLookSum
+build ZK60Formal.BlockLookRelHost
+build ZK60Formal.BlockLookRelPer
+build ZK60Formal.BlockLookRelW16
+build ZK60Formal.BlockLookRelFinal
+== lake build ZK60Formal.BlockLookRelBase ==
+Build completed successfully (3571 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.BlockLookSum ==
+✖ [3572/3572] Building ZK60Formal.BlockLookSum (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookSum.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookSum.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookSum.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookSum.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookSum.setup.json --json
+error: ZK60Formal/BlockLookSum.lean:81:49: Type mismatch
+  rfl
+has type
+  ?m.154 = ?m.154
+but is expected to have type
+  True
+error: ZK60Formal/BlockLookSum.lean:95:12: Unknown constant `List.getD_eq_default`
+warning: ZK60Formal/BlockLookSum.lean:154:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.list_rows_swap`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:192:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.zcB_left`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:199:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.zcB_right`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/BlockLookSum.lean:238:75: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+m off off' i t : ℕ
+ht : t < 2 ^ 14
+e : m + 14 - 14 = m
+hrow :
+  ∀ (x : Fin m → Bool) (y : Fin 14 → Bool) (u : ℕ),
+    eqPoly (fun a => zcB (Fin.append x y) ↑a) (bitsK m u) = if x = msbBits m u then 1 else 0
+hcol :
+  ∀ (x : Fin m → Bool) (y : Fin 14 → Bool),
+    eqPoly (fun a => zcB (Fin.append x y) (m + ↑a)) (bitsK 14 t) = if y = msbBits 14 t then 1 else 0
+hc : off / 2 ^ 14 ≤ i ∧ i < off / 2 ^ 14 + 2 ^ m
+x : Fin m → Bool
+x✝ : x ∈ Finset.univ
+hx : x ≠ msbBits m (i - off / 2 ^ 14)
+⊢ ¬x = msbBits m (i - off / 16384)
+warning: ZK60Formal/BlockLookSum.lean:238:84: This simp argument is unused:
+  hx
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/BlockLookSum.lean:246:22: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?a * ∑ i ∈ ?s, ?f i
+in the target expression
+  ∑ c, (p c + a * q c) * (x * k c) = x * (∑ c, p c * k c + ∑ i, a * (q i * k i))
+
+K : Type
+inst✝² : Field K
+inst✝¹ : Algebra GF K
+ι : Type
+inst✝ : Fintype ι
+p q k : ι → K
+a x : K
+⊢ ∑ c, (p c + a * q c) * (x * k c) = x * (∑ c, p c * k c + ∑ i, a * (q i * k i))
+Some required targets logged failures:
+- ZK60Formal.BlockLookSum
+error: build failed
+build rc 1 (9 s)
+== lake build ZK60Formal.BlockLookRelHost ==
+✖ [3572/3572] Building ZK60Formal.BlockLookRelHost (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelHost.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelHost.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelHost.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelHost.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelHost.setup.json --json
+error: ZK60Formal/BlockLookRelHost.lean:97:4: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `?m.478` is a value of type
+  ?m.477
+error: ZK60Formal/BlockLookRelHost.lean:117:35: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `?m.259` is a value of type
+  ?m.258
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelHost
+error: build failed
+build rc 1 (26 s)
+== lake build ZK60Formal.BlockLookRelPer ==
+✖ [3572/3573] Building ZK60Formal.BlockLookRelHost (3.6s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelHost.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelHost.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelHost.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelHost.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelHost.setup.json --json
+error: ZK60Formal/BlockLookRelHost.lean:97:4: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `?m.478` is a value of type
+  ?m.477
+error: ZK60Formal/BlockLookRelHost.lean:117:35: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `?m.259` is a value of type
+  ?m.258
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelHost
+error: build failed
+build rc 1 (32 s)
+== lake build ZK60Formal.BlockLookRelW16 ==
+✖ [3572/3575] Building ZK60Formal.BlockLookRelHost (2.5s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelHost.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelHost.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelHost.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelHost.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelHost.setup.json --json
+error: ZK60Formal/BlockLookRelHost.lean:97:4: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `?m.478` is a value of type
+  ?m.477
+error: ZK60Formal/BlockLookRelHost.lean:117:35: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `?m.259` is a value of type
+  ?m.258
+✖ [3574/3575] Building ZK60Formal.BlockLookSum (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookSum.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookSum.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookSum.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookSum.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookSum.setup.json --json
+error: ZK60Formal/BlockLookSum.lean:81:49: Type mismatch
+  rfl
+has type
+  ?m.154 = ?m.154
+but is expected to have type
+  True
+error: ZK60Formal/BlockLookSum.lean:95:12: Unknown constant `List.getD_eq_default`
+warning: ZK60Formal/BlockLookSum.lean:154:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.list_rows_swap`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:192:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.zcB_left`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:199:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.zcB_right`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/BlockLookSum.lean:238:75: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+m off off' i t : ℕ
+ht : t < 2 ^ 14
+e : m + 14 - 14 = m
+hrow :
+  ∀ (x : Fin m → Bool) (y : Fin 14 → Bool) (u : ℕ),
+    eqPoly (fun a => zcB (Fin.append x y) ↑a) (bitsK m u) = if x = msbBits m u then 1 else 0
+hcol :
+  ∀ (x : Fin m → Bool) (y : Fin 14 → Bool),
+    eqPoly (fun a => zcB (Fin.append x y) (m + ↑a)) (bitsK 14 t) = if y = msbBits 14 t then 1 else 0
+hc : off / 2 ^ 14 ≤ i ∧ i < off / 2 ^ 14 + 2 ^ m
+x : Fin m → Bool
+x✝ : x ∈ Finset.univ
+hx : x ≠ msbBits m (i - off / 2 ^ 14)
+⊢ ¬x = msbBits m (i - off / 16384)
+warning: ZK60Formal/BlockLookSum.lean:238:84: This simp argument is unused:
+  hx
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/BlockLookSum.lean:246:22: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?a * ∑ i ∈ ?s, ?f i
+in the target expression
+  ∑ c, (p c + a * q c) * (x * k c) = x * (∑ c, p c * k c + ∑ i, a * (q i * k i))
+
+K : Type
+inst✝² : Field K
+inst✝¹ : Algebra GF K
+ι : Type
+inst✝ : Fintype ι
+p q k : ι → K
+a x : K
+⊢ ∑ c, (p c + a * q c) * (x * k c) = x * (∑ c, p c * k c + ∑ i, a * (q i * k i))
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelHost
+- ZK60Formal.BlockLookSum
+error: build failed
+build rc 1 (36 s)
+== lake build ZK60Formal.BlockLookRelFinal ==
+✖ [3572/3576] Building ZK60Formal.BlockLookSum (3.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookSum.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookSum.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookSum.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookSum.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookSum.setup.json --json
+error: ZK60Formal/BlockLookSum.lean:81:49: Type mismatch
+  rfl
+has type
+  ?m.154 = ?m.154
+but is expected to have type
+  True
+error: ZK60Formal/BlockLookSum.lean:95:12: Unknown constant `List.getD_eq_default`
+warning: ZK60Formal/BlockLookSum.lean:154:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.list_rows_swap`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:192:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.zcB_left`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockLookSum.lean:199:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Look.zcB_right`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/BlockLookSum.lean:238:75: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+m off off' i t : ℕ
+ht : t < 2 ^ 14
+e : m + 14 - 14 = m
+hrow :
+  ∀ (x : Fin m → Bool) (y : Fin 14 → Bool) (u : ℕ),
+    eqPoly (fun a => zcB (Fin.append x y) ↑a) (bitsK m u) = if x = msbBits m u then 1 else 0
+hcol :
+  ∀ (x : Fin m → Bool) (y : Fin 14 → Bool),
+    eqPoly (fun a => zcB (Fin.append x y) (m + ↑a)) (bitsK 14 t) = if y = msbBits 14 t then 1 else 0
+hc : off / 2 ^ 14 ≤ i ∧ i < off / 2 ^ 14 + 2 ^ m
+x : Fin m → Bool
+x✝ : x ∈ Finset.univ
+hx : x ≠ msbBits m (i - off / 2 ^ 14)
+⊢ ¬x = msbBits m (i - off / 16384)
+warning: ZK60Formal/BlockLookSum.lean:238:84: This simp argument is unused:
+  hx
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/BlockLookSum.lean:246:22: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ?a * ∑ i ∈ ?s, ?f i
+in the target expression
+  ∑ c, (p c + a * q c) * (x * k c) = x * (∑ c, p c * k c + ∑ i, a * (q i * k i))
+
+K : Type
+inst✝² : Field K
+inst✝¹ : Algebra GF K
+ι : Type
+inst✝ : Fintype ι
+p q k : ι → K
+a x : K
+⊢ ∑ c, (p c + a * q c) * (x * k c) = x * (∑ c, p c * k c + ∑ i, a * (q i * k i))
+✖ [3573/3576] Building ZK60Formal.BlockLookRelHost (3.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelHost.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelHost.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelHost.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelHost.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelHost.setup.json --json
+error: ZK60Formal/BlockLookRelHost.lean:97:4: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `?m.478` is a value of type
+  ?m.477
+error: ZK60Formal/BlockLookRelHost.lean:117:35: Invalid rewrite argument: Expected an equality or iff proof or definition name, but `?m.259` is a value of type
+  ?m.258
+Some required targets logged failures:
+- ZK60Formal.BlockLookSum
+- ZK60Formal.BlockLookRelHost
+error: build failed
+build rc 1 (42 s)
+rc 1, 42 s

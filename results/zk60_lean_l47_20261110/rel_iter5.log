@@ -1,0 +1,74 @@
+== plan results/zk60_lean_l47_20261110/rel_plan3.txt ==
+build ZK60Formal.BlockLookSum
+build ZK60Formal.BlockLookRelW16
+build ZK60Formal.BlockLookRelFinal
+== lake build ZK60Formal.BlockLookSum ==
+Build completed successfully (3572 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.BlockLookRelW16 ==
+✖ [3575/3575] Building ZK60Formal.BlockLookRelW16 (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelW16.setup.json --json
+error: ZK60Formal/BlockLookRelW16.lean:95:2: 'show' tactic failed, pattern
+  List.flatMap ?m.28 (List.range (hDoms cfgRungW16).length) = ?m.30
+is not definitionally equal to target
+  (logupSumW16 cfgRungW16).parts =
+    List.flatMap
+      (fun hp =>
+        [{ offset := (hOff cfgRungW16 hp).1, logSize := lsW hp, coef := sgW hp, point := [] },
+          { offset := (hOff cfgRungW16 hp).2, logSize := lsW hp, coef := (sgW hp).mul fp2U, point := [] }])
+      (List.range 46)
+error: ZK60Formal/BlockLookRelW16.lean:187:24: Unknown identifier `hU`
+error: ZK60Formal/BlockLookRelW16.lean:186:50: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hln : rowLog P Cm.h = 14
+hcl : Link.claimSem U (D.rows Cm.h) (rowLog P Cm.h) (D.Q Cm.h) (D.X Cm.h) (logupSumW16 cfgRungW16) = 0
+hzs : ∑ b, hPl U P D 1736704 1753088 14 b = 0
+⊢ ∑ i, hPl U P D (hOff cfgRungW16 i.fst.hp).1 (hOff cfgRungW16 i.fst.hp).2 i.fst.log i.snd +
+        ∑ k,
+          hPl U P D (hOff cfgRungW16 (k.fst.fh + ↑k.snd.1)).1 (hOff cfgRungW16 (k.fst.fh + ↑k.snd.1)).2 k.fst.log
+            k.snd.2 -
+      ∑ j, helpTabW U P D (↑j.1) j.2 =
+    0
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelW16
+error: build failed
+build rc 1 (10 s)
+== lake build ZK60Formal.BlockLookRelFinal ==
+✖ [3575/3576] Building ZK60Formal.BlockLookRelW16 (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelW16.setup.json --json
+error: ZK60Formal/BlockLookRelW16.lean:95:2: 'show' tactic failed, pattern
+  List.flatMap ?m.28 (List.range (hDoms cfgRungW16).length) = ?m.30
+is not definitionally equal to target
+  (logupSumW16 cfgRungW16).parts =
+    List.flatMap
+      (fun hp =>
+        [{ offset := (hOff cfgRungW16 hp).1, logSize := lsW hp, coef := sgW hp, point := [] },
+          { offset := (hOff cfgRungW16 hp).2, logSize := lsW hp, coef := (sgW hp).mul fp2U, point := [] }])
+      (List.range 46)
+error: ZK60Formal/BlockLookRelW16.lean:187:24: Unknown identifier `hU`
+error: ZK60Formal/BlockLookRelW16.lean:186:50: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hln : rowLog P Cm.h = 14
+hcl : Link.claimSem U (D.rows Cm.h) (rowLog P Cm.h) (D.Q Cm.h) (D.X Cm.h) (logupSumW16 cfgRungW16) = 0
+hzs : ∑ b, hPl U P D 1736704 1753088 14 b = 0
+⊢ ∑ i, hPl U P D (hOff cfgRungW16 i.fst.hp).1 (hOff cfgRungW16 i.fst.hp).2 i.fst.log i.snd +
+        ∑ k,
+          hPl U P D (hOff cfgRungW16 (k.fst.fh + ↑k.snd.1)).1 (hOff cfgRungW16 (k.fst.fh + ↑k.snd.1)).2 k.fst.log
+            k.snd.2 -
+      ∑ j, helpTabW U P D (↑j.1) j.2 =
+    0
+Some required targets logged failures:
+- ZK60Formal.BlockLookRelW16
+error: build failed
+build rc 1 (13 s)
+rc 1, 13 s

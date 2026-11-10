@@ -1,0 +1,6 @@
+build ZK60Formal.BlockLookRelBase
+build ZK60Formal.BlockLookSum
+build ZK60Formal.BlockLookRelHost
+build ZK60Formal.BlockLookRelPer
+build ZK60Formal.BlockLookRelW16
+build ZK60Formal.BlockLookRelFinal

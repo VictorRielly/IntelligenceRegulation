@@ -179,6 +179,7 @@ fn seeded_digest(sh: &Shape, blk: &BlockPublic, w: Witness) -> String {
 // D63 Lean lane L44 (2026-11-10): every slot's tables, claims and the plane offsets of a W16R2 and an R13 rung receipt
 // (finding L35-7); a child of this module so that it uses the harness above (the file is in `src/`)
 #[cfg(test)] #[path = "../lean_l44_export_tests.rs"] mod lean_l44_export_tests;
+#[cfg(test)] #[path = "../lean_l47_export_tests.rs"] mod lean_l47_export_tests;
 
 /// the bytes of one block core: `(total, A opening, H opening, M opening, slots)`
 fn core_bytes(core: &CoreProof) -> (usize, usize, usize, usize, usize) {

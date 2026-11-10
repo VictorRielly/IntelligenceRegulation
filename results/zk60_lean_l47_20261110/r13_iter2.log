@@ -1,0 +1,27 @@
+== plan results/zk60_lean_l47_20261110/r13_plan2.txt ==
+build ZK60Formal.BlockR13JoinForm
+== lake build ZK60Formal.BlockR13JoinForm ==
+✖ [3573/3573] Building ZK60Formal.BlockR13JoinForm (3.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockR13JoinForm.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockR13JoinForm.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockR13JoinForm.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockR13JoinForm.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockR13JoinForm.setup.json --json
+error: ZK60Formal/BlockR13JoinForm.lean:67:2: No goals to be solved
+warning: ZK60Formal/BlockR13JoinForm.lean:262:41: This simp argument is unused:
+  List.getD_cons_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tabSem, padSem_eq_wsum _ (cstW_map_std U), padPls, wsum, List.map_cons, List.map_nil,
+    List.cons_append, List.nil_append, List.getD_cons_succ]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13JoinForm.lean:262:62: This simp argument is unused:
+  List.getD_cons_succ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [tabSem, padSem_eq_wsum _ (cstW_map_std U), padPls, wsum, List.map_cons, List.map_nil,
+    List.cons_append, List.nil_append, List.getD_cons_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.BlockR13JoinForm
+error: build failed
+build rc 1 (6 s)
+rc 1, 6 s

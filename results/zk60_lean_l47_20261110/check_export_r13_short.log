@@ -1,0 +1,28 @@
+corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_r13_short.txt: R13_RUNG_H24, 6 public tables, 0 in full, 108 sum-claim parts
+checks: 43 passed, 0 failed
+  parse: 1
+  header: 2
+  data: 3
+  kinds: 3
+  slots: 2
+  tables: 1
+  length: 6
+  fingerprint: 12
+  ends: 12
+  done: 1
+negative control CAUGHT (1 failed): SC_TAB's bytes column, one entry
+negative control CAUGHT (1 failed): SC_TAB's exp column, one entry
+negative control CAUGHT (1 failed): SC_TAB's ACT column, one entry
+negative control CAUGHT (1 failed): SC_TAB's supp(Tab) gate, one entry
+negative control CAUGHT (1 failed): SC_TAB's ACT support, one entry
+negative control CAUGHT (1 failed): SC_ZS's ones, one entry
+negative control CAUGHT (1 failed): a fingerprint (rho2) of the exp column
+negative control CAUGHT (1 failed): a head entry of the ACT support
+negative control CAUGHT (3 failed): an exp value (exp[5] + 1)
+negative control CAUGHT (3 failed): an ACT word (group 0, gate 7, + 1)
+negative control CAUGHT (5 failed): the group count (− 1)
+negative control CAUGHT (6 failed): beta (+ 1)
+negative control CAUGHT (1 failed): slot 19's kind (host)
+negative control CAUGHT (1 failed): slot 20's kind (private)
+negative control CAUGHT (1 failed): slot 19's table count
+negative controls: 15 of 15 caught

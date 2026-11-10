@@ -1,0 +1,31 @@
+== plan results/zk60_lean_l47_20261110/rel_plan5.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_axioms.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_axioms.lean ==
+'ZK60.Exec.Block.Join.W16.Look.relLk_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relLk_single' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.denV_lkSym' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.bga_canon_of_accT' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.claimSem_empty' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.core_rowKey' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.sum_planeZ2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.host_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.host_single' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.lkOK_all' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Look.dzc_planes' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relL_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relD_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relD_single' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relQ_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relK_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relS_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relS_single' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relF_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relF_single' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relExp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.relAct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.logupSum_planes' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.hhr_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.hhr_core' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Look.hhr_w16' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_rel_axioms.lean (18 s)
+rc 0, 18 s

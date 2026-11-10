@@ -1,0 +1,6 @@
+== plan results/zk60_lean_l47_20261110/cov_plan3.txt ==
+build ZK60Formal.BlockLookCov2
+== lake build ZK60Formal.BlockLookCov2 ==
+Build completed successfully (3573 jobs).
+build rc 0 (21 s)
+rc 0, 21 s

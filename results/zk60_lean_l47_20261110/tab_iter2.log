@@ -1,0 +1,10 @@
+== plan results/zk60_lean_l47_20261110/tab_plan2.txt ==
+build ZK60Formal.BlockTabSlot
+build ZK60Formal.BlockTabForm
+== lake build ZK60Formal.BlockTabSlot ==
+Build completed successfully (3565 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.BlockTabForm ==
+Build completed successfully (3571 jobs).
+build rc 0 (8 s)
+rc 0, 8 s

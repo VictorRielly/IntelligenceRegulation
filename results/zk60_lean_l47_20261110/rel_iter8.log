@@ -1,0 +1,705 @@
+== plan results/zk60_lean_l47_20261110/rel_plan4.txt ==
+build ZK60Formal.BlockLookRelFinal
+== lake build ZK60Formal.BlockLookRelFinal ==
+✖ [3576/3576] Building ZK60Formal.BlockLookRelFinal (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookRelFinal.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelFinal.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookRelFinal.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelFinal.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookRelFinal.setup.json --json
+error: ZK60Formal/BlockLookRelFinal.lean:180:4: unsolved goals
+case refine_1.inl.D
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+L : ℕ
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL20 : 2 ^ 20 ≤ L
+P : BlockParams
+tag : MTag
+rowsOf : Cm → ℕ
+hP : Link.IsRungW16 P tag rowsOf
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (progW16 cfgRungW16 ioIn ioOut) pubs
+hlc : P.logCols = 14
+hls : P.logupSumClaim = logupSumW16 cfgRungW16
+hdrLen : ℕ
+csE : Cuts3 L → RootsO → Cm → ZClaim → K
+rE QE : Cm → ℕ
+XE : Cuts3 L → RootsO → (cm : Cm) → Fin (rE cm) → Fin (2 ^ rowLog P cm + QE cm) → K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+A : OC (QB L) Dig (List Op × Core)
+G : QB L → Dig
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+acc : Acc
+hT :
+  AccT U key domain hs hL P hdrLen
+    (maskedFX U tag hL20 P (polyXof U tag hL20 P hlc 15 280 8052 320 202 rE QE XE (progW16 cfgRungW16 ioIn ioOut) pubs))
+    (Link.csRungW16 U tag hL20 csE) (Link.msRung U tag hL20) A G bga rs acc
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+hHost :
+  ∀ k ∈ algHosts,
+    (∀
+        (κ :
+          Fin
+            (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.mu -
+              segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.zeta))
+        (b : Fin (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.tau) → Bool),
+        (dtW Pb Lay B P ⋯ mpadW mpadW_hm0 mpadW_hm78
+                (fun cu rt => xtW U P (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt))
+                (xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)
+                (pwcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)).cl
+            k (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+          0) ∧
+      ∀ (j : Fin ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).mpad k))
+        (b : Fin (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.tau) → Bool),
+        (dtW Pb Lay B P ⋯ mpadW mpadW_hm0 mpadW_hm78
+                (fun cu rt => xtW U P (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt))
+                (xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)
+                (pwcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)).pw
+            k (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) j b =
+          0
+hLz :
+  (∀ (b : Fin 14 → Bool),
+      Lk.cLzc U P
+          ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+            (rootsOf (OC.run G A).2))
+          gateLW bga b =
+        0) ∧
+    ∀ (j : Fin 2) (b : Fin 14 → Bool),
+      Lk.wLzc U P
+          ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+            (rootsOf (OC.run G A).2))
+          gateLW j b =
+        0
+hTab :
+  ((fun cu rt bga => spTabW U ⋯ P ⋯ (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb S.nG bga)
+      (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga).Gd
+hHU :
+  ∑ b,
+      hPl U P
+        ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+          (rootsOf (OC.run G A).2))
+        1736704 1753088 14 b =
+    0
+hx :
+  ∀ k ∈ algHosts,
+    ∀
+      κ <
+        segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.mu -
+          segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.zeta,
+      relCount k ≤ κ →
+        ∀ (b : Fin (segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.tau) → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B k
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hD :
+  ∀ (κ : ℕ),
+    6 ≤ κ →
+      κ < 16 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 14
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hQ :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 4 →
+        ∀ (b : Fin 15 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 15
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hK :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 4 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 16
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hS :
+  ∀ (κ : ℕ),
+    4 ≤ κ →
+      κ < 10 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 17
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hF :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 6 →
+        ∀ (b : Fin 15 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 18
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hcl0 :
+  Link.csRungW16 U tag hL20 csE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) Cm.h (logupSumW16 cfgRungW16) =
+    Fp2.toK U (logupSumW16 cfgRungW16).value
+hcl :
+  Link.claimSem U
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).rows
+        Cm.h)
+      (rowLog P Cm.h)
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).Q Cm.h)
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).X Cm.h)
+      (logupSumW16 cfgRungW16) =
+    0
+hTab' :
+  (∀ (k : Fin 17) (b : Fin 14 → Bool),
+      cTabW U P
+          (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)) Pb
+          S.nG bga k b =
+        0) ∧
+    ∀ (j : Fin 22) (b : Fin 14 → Bool),
+      wTabW U P
+          (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)) S.nG
+          j b =
+        0
+b : Fin SgKind.D.log → Bool
+⊢ {
+      x :=
+        (List.map
+              (fun t =>
+                ↑t.2 *
+                  aPl U P
+                    (dofA tag hL20 P hlc rE QE XE (absOfC (chainEncB key domain hs L hL)) A
+                      (cutsOf key domain hs hL A G).1)
+                    (aOff cfgRungW16 t.1) LkDom.D.log b)
+              ((lookupsN cfgRungW16 LkDom.D.dom).getD 18 { terms := [], cst := 0, tag := 0 }).terms).sum +
+          ↑((lookupsN cfgRungW16 LkDom.D.dom).getD 18 { terms := [], cst := 0, tag := 0 }).cst,
+      tag := ↑(tagW ((lookupsN cfgRungW16 LkDom.D.dom).getD 18 { terms := [], cst := 0, tag := 0 }).tag), y := 0,
+      z := 0 } =
+    {
+      x :=
+        (List.map
+              (fun t =>
+                ↑t.2 *
+                  aPl U P
+                    (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G)
+                      (rootsOf (OC.run G A).2))
+                    (aOff cfgRungW16 t.1) LkDom.D.log b)
+              ((lookupsN cfgRungW16 LkDom.D.dom).getD 18 { terms := [], cst := 0, tag := 0 }).terms).sum +
+          ↑((lookupsN cfgRungW16 LkDom.D.dom).getD 18 { terms := [], cst := 0, tag := 0 }).cst,
+      tag := ↑(tagW ((lookupsN cfgRungW16 LkDom.D.dom).getD 18 { terms := [], cst := 0, tag := 0 }).tag), y := 0,
+      z := 0 }
+
+case refine_1.inl.S
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+L : ℕ
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL20 : 2 ^ 20 ≤ L
+P : BlockParams
+tag : MTag
+rowsOf : Cm → ℕ
+hP : Link.IsRungW16 P tag rowsOf
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (progW16 cfgRungW16 ioIn ioOut) pubs
+hlc : P.logCols = 14
+hls : P.logupSumClaim = logupSumW16 cfgRungW16
+hdrLen : ℕ
+csE : Cuts3 L → RootsO → Cm → ZClaim → K
+rE QE : Cm → ℕ
+XE : Cuts3 L → RootsO → (cm : Cm) → Fin (rE cm) → Fin (2 ^ rowLog P cm + QE cm) → K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+A : OC (QB L) Dig (List Op × Core)
+G : QB L → Dig
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+acc : Acc
+hT :
+  AccT U key domain hs hL P hdrLen
+    (maskedFX U tag hL20 P (polyXof U tag hL20 P hlc 15 280 8052 320 202 rE QE XE (progW16 cfgRungW16 ioIn ioOut) pubs))
+    (Link.csRungW16 U tag hL20 csE) (Link.msRung U tag hL20) A G bga rs acc
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+hHost :
+  ∀ k ∈ algHosts,
+    (∀
+        (κ :
+          Fin
+            (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.mu -
+              segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.zeta))
+        (b : Fin (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.tau) → Bool),
+        (dtW Pb Lay B P ⋯ mpadW mpadW_hm0 mpadW_hm78
+                (fun cu rt => xtW U P (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt))
+                (xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)
+                (pwcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)).cl
+            k (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+          0) ∧
+      ∀ (j : Fin ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).mpad k))
+        (b : Fin (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.tau) → Bool),
+        (dtW Pb Lay B P ⋯ mpadW mpadW_hm0 mpadW_hm78
+                (fun cu rt => xtW U P (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt))
+                (xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)
+                (pwcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)).pw
+            k (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) j b =
+          0
+hLz :
+  (∀ (b : Fin 14 → Bool),
+      Lk.cLzc U P
+          ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+            (rootsOf (OC.run G A).2))
+          gateLW bga b =
+        0) ∧
+    ∀ (j : Fin 2) (b : Fin 14 → Bool),
+      Lk.wLzc U P
+          ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+            (rootsOf (OC.run G A).2))
+          gateLW j b =
+        0
+hTab :
+  ((fun cu rt bga => spTabW U ⋯ P ⋯ (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb S.nG bga)
+      (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga).Gd
+hHU :
+  ∑ b,
+      hPl U P
+        ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+          (rootsOf (OC.run G A).2))
+        1736704 1753088 14 b =
+    0
+hx :
+  ∀ k ∈ algHosts,
+    ∀
+      κ <
+        segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.mu -
+          segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.zeta,
+      relCount k ≤ κ →
+        ∀ (b : Fin (segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.tau) → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B k
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hD :
+  ∀ (κ : ℕ),
+    6 ≤ κ →
+      κ < 16 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 14
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hQ :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 4 →
+        ∀ (b : Fin 15 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 15
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hK :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 4 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 16
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hS :
+  ∀ (κ : ℕ),
+    4 ≤ κ →
+      κ < 10 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 17
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hF :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 6 →
+        ∀ (b : Fin 15 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 18
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hcl0 :
+  Link.csRungW16 U tag hL20 csE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) Cm.h (logupSumW16 cfgRungW16) =
+    Fp2.toK U (logupSumW16 cfgRungW16).value
+hcl :
+  Link.claimSem U
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).rows
+        Cm.h)
+      (rowLog P Cm.h)
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).Q Cm.h)
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).X Cm.h)
+      (logupSumW16 cfgRungW16) =
+    0
+hTab' :
+  (∀ (k : Fin 17) (b : Fin 14 → Bool),
+      cTabW U P
+          (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)) Pb
+          S.nG bga k b =
+        0) ∧
+    ∀ (j : Fin 22) (b : Fin 14 → Bool),
+      wTabW U P
+          (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)) S.nG
+          j b =
+        0
+b : Fin SgKind.S.log → Bool
+⊢ {
+      x :=
+        (List.map
+              (fun t =>
+                ↑t.2 *
+                  aPl U P
+                    (dofA tag hL20 P hlc rE QE XE (absOfC (chainEncB key domain hs L hL)) A
+                      (cutsOf key domain hs hL A G).1)
+                    (aOff cfgRungW16 t.1) LkDom.S.log b)
+              ((lookupsN cfgRungW16 LkDom.S.dom).getD 8 { terms := [], cst := 0, tag := 0 }).terms).sum +
+          ↑((lookupsN cfgRungW16 LkDom.S.dom).getD 8 { terms := [], cst := 0, tag := 0 }).cst,
+      tag := ↑(tagW ((lookupsN cfgRungW16 LkDom.S.dom).getD 8 { terms := [], cst := 0, tag := 0 }).tag), y := 0,
+      z := 0 } =
+    {
+      x :=
+        (List.map
+              (fun t =>
+                ↑t.2 *
+                  aPl U P
+                    (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G)
+                      (rootsOf (OC.run G A).2))
+                    (aOff cfgRungW16 t.1) LkDom.S.log b)
+              ((lookupsN cfgRungW16 LkDom.S.dom).getD 8 { terms := [], cst := 0, tag := 0 }).terms).sum +
+          ↑((lookupsN cfgRungW16 LkDom.S.dom).getD 8 { terms := [], cst := 0, tag := 0 }).cst,
+      tag := ↑(tagW ((lookupsN cfgRungW16 LkDom.S.dom).getD 8 { terms := [], cst := 0, tag := 0 }).tag), y := 0,
+      z := 0 }
+
+case refine_1.inl.F
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+L : ℕ
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL20 : 2 ^ 20 ≤ L
+P : BlockParams
+tag : MTag
+rowsOf : Cm → ℕ
+hP : Link.IsRungW16 P tag rowsOf
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (progW16 cfgRungW16 ioIn ioOut) pubs
+hlc : P.logCols = 14
+hls : P.logupSumClaim = logupSumW16 cfgRungW16
+hdrLen : ℕ
+csE : Cuts3 L → RootsO → Cm → ZClaim → K
+rE QE : Cm → ℕ
+XE : Cuts3 L → RootsO → (cm : Cm) → Fin (rE cm) → Fin (2 ^ rowLog P cm + QE cm) → K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+A : OC (QB L) Dig (List Op × Core)
+G : QB L → Dig
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+acc : Acc
+hT :
+  AccT U key domain hs hL P hdrLen
+    (maskedFX U tag hL20 P (polyXof U tag hL20 P hlc 15 280 8052 320 202 rE QE XE (progW16 cfgRungW16 ioIn ioOut) pubs))
+    (Link.csRungW16 U tag hL20 csE) (Link.msRung U tag hL20) A G bga rs acc
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+hHost :
+  ∀ k ∈ algHosts,
+    (∀
+        (κ :
+          Fin
+            (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.mu -
+              segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.zeta))
+        (b : Fin (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.tau) → Bool),
+        (dtW Pb Lay B P ⋯ mpadW mpadW_hm0 mpadW_hm78
+                (fun cu rt => xtW U P (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt))
+                (xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)
+                (pwcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)).cl
+            k (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+          0) ∧
+      ∀ (j : Fin ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).mpad k))
+        (b : Fin (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.tau) → Bool),
+        (dtW Pb Lay B P ⋯ mpadW mpadW_hm0 mpadW_hm78
+                (fun cu rt => xtW U P (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt))
+                (xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)
+                (pwcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)).pw
+            k (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) j b =
+          0
+hLz :
+  (∀ (b : Fin 14 → Bool),
+      Lk.cLzc U P
+          ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+            (rootsOf (OC.run G A).2))
+          gateLW bga b =
+        0) ∧
+    ∀ (j : Fin 2) (b : Fin 14 → Bool),
+      Lk.wLzc U P
+          ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+            (rootsOf (OC.run G A).2))
+          gateLW j b =
+        0
+hTab :
+  ((fun cu rt bga => spTabW U ⋯ P ⋯ (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb S.nG bga)
+      (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga).Gd
+hHU :
+  ∑ b,
+      hPl U P
+        ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+          (rootsOf (OC.run G A).2))
+        1736704 1753088 14 b =
+    0
+hx :
+  ∀ k ∈ algHosts,
+    ∀
+      κ <
+        segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.mu -
+          segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.zeta,
+      relCount k ≤ κ →
+        ∀ (b : Fin (segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.tau) → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B k
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hD :
+  ∀ (κ : ℕ),
+    6 ≤ κ →
+      κ < 16 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 14
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hQ :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 4 →
+        ∀ (b : Fin 15 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 15
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hK :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 4 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 16
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hS :
+  ∀ (κ : ℕ),
+    4 ≤ κ →
+      κ < 10 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 17
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hF :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 6 →
+        ∀ (b : Fin 15 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 18
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hcl0 :
+  Link.csRungW16 U tag hL20 csE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) Cm.h (logupSumW16 cfgRungW16) =
+    Fp2.toK U (logupSumW16 cfgRungW16).value
+hcl :
+  Link.claimSem U
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).rows
+        Cm.h)
+      (rowLog P Cm.h)
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).Q Cm.h)
+      ((dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)).X Cm.h)
+      (logupSumW16 cfgRungW16) =
+    0
+hTab' :
+  (∀ (k : Fin 17) (b : Fin 14 → Bool),
+      cTabW U P
+          (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)) Pb
+          S.nG bga k b =
+        0) ∧
+    ∀ (j : Fin 22) (b : Fin 14 → Bool),
+      wTabW U P
+          (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2)) S.nG
+          j b =
+        0
+b : Fin SgKind.F.log → Bool
+⊢ {
+      x :=
+        (List.map
+              (fun t =>
+                ↑t.2 *
+                  aPl U P
+                    (dofA tag hL20 P hlc rE QE XE (absOfC (chainEncB key domain hs L hL)) A
+                      (cutsOf key domain hs hL A G).1)
+                    (aOff cfgRungW16 t.1) LkDom.F.log b)
+              ((lookupsN cfgRungW16 LkDom.F.dom).getD 6 { terms := [], cst := 0, tag := 0 }).terms).sum +
+          ↑((lookupsN cfgRungW16 LkDom.F.dom).getD 6 { terms := [], cst := 0, tag := 0 }).cst,
+      tag := ↑(tagW ((lookupsN cfgRungW16 LkDom.F.dom).getD 6 { terms := [], cst := 0, tag := 0 }).tag), y := 0,
+      z := 0 } =
+    {
+      x :=
+        (List.map
+              (fun t =>
+                ↑t.2 *
+                  aPl U P
+                    (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE (cutsOf key domain hs hL A G)
+                      (rootsOf (OC.run G A).2))
+                    (aOff cfgRungW16 t.1) LkDom.F.log b)
+              ((lookupsN cfgRungW16 LkDom.F.dom).getD 6 { terms := [], cst := 0, tag := 0 }).terms).sum +
+          ↑((lookupsN cfgRungW16 LkDom.F.dom).getD 6 { terms := [], cst := 0, tag := 0 }).cst,
+      tag := ↑(tagW ((lookupsN cfgRungW16 LkDom.F.dom).getD 6 { terms := [], cst := 0, tag := 0 }).tag), y := 0,
+      z := 0 }
+
+case refine_1.inl.Exp
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+L : ℕ
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL20 : 2 ^ 20 ≤ L
+P : BlockParams
+tag : MTag
+rowsOf : Cm → ℕ
+hP : Link.IsRungW16 P tag rowsOf
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (progW16 cfgRungW16 ioIn ioOut) pubs
+hlc : P.logCols = 14
+hls : P.logupSumClaim = logupSumW16 cfgRungW16
+hdrLen : ℕ
+csE : Cuts3 L → RootsO → Cm → ZClaim → K
+rE QE : Cm → ℕ
+XE : Cuts3 L → RootsO → (cm : Cm) → Fin (rE cm) → Fin (2 ^ rowLog P cm + QE cm) → K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+A : OC (QB L) Dig (List Op × Core)
+G : QB L → Dig
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+acc : Acc
+hT :
+  AccT U key domain hs hL P hdrLen
+    (maskedFX U tag hL20 P (polyXof U tag hL20 P hlc 15 280 8052 320 202 rE QE XE (progW16 cfgRungW16 ioIn ioOut) pubs))
+    (Link.csRungW16 U tag hL20 csE) (Link.msRung U tag hL20) A G bga rs acc
+hα : bga.2.2.Canon
+hβ : bga.1.Canon
+hHost :
+  ∀ k ∈ algHosts,
+    (∀
+        (κ :
+          Fin
+            (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.mu -
+              segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.zeta))
+        (b : Fin (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.tau) → Bool),
+        (dtW Pb Lay B P ⋯ mpadW mpadW_hm0 mpadW_hm78
+                (fun cu rt => xtW U P (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt))
+                (xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)
+                (pwcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)).cl
+            k (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+          0) ∧
+      ∀ (j : Fin ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).mpad k))
+        (b : Fin (segLn ((algShapeW16Rung P ⋯ mpadW mpadW_hm0 mpadW_hm78).dl k) Slot.W16R2.Seg.tau) → Bool),
+        (dtW Pb Lay B P ⋯ mpadW mpadW_hm0 mpadW_hm78
+                (fun cu rt => xtW U P (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt))
+                (xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)
+                (pwcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B)).pw
+            k (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) j b =
+          0
+hLz :
+  (∀ (b : Fin 14 → Bool),
+      Lk.cLzc U P
+          ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+            (rootsOf (OC.run G A).2))
+          gateLW bga b =
+        0) ∧
+    ∀ (j : Fin 2) (b : Fin 14 → Bool),
+      Lk.wLzc U P
+          ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+            (rootsOf (OC.run G A).2))
+          gateLW j b =
+        0
+hTab :
+  ((fun cu rt bga => spTabW U ⋯ P ⋯ (dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb S.nG bga)
+      (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga).Gd
+hHU :
+  ∑ b,
+      hPl U P
+        ((fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) (cutsOf key domain hs hL A G)
+          (rootsOf (OC.run G A).2))
+        1736704 1753088 14 b =
+    0
+hx :
+  ∀ k ∈ algHosts,
+    ∀
+      κ <
+        segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.mu -
+          segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.zeta,
+      relCount k ≤ κ →
+        ∀ (b : Fin (segLn (Slot.W16R2.draws shRungW16 k) Slot.W16R2.Seg.tau) → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B k
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hD :
+  ∀ (κ : ℕ),
+    6 ≤ κ →
+      κ < 16 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 14
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hQ :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 4 →
+        ∀ (b : Fin 15 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 15
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hK :
+  ∀ (κ : ℕ),
+    1 ≤ κ →
+      κ < 4 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 16
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+hS :
+  ∀ (κ : ℕ),
+    4 ≤ κ →
+      κ < 10 →
+        ∀ (b : Fin 14 → Bool),
+          xcW U P (fun cu rt => dXof tag hL20 P hlc 15 280 8052 320 202 rE QE XE cu rt) Pb Lay B 17
+              (cutsOf key domain hs hL A G) (rootsOf (OC.run G A).2) bga κ b =
+            0
+build rc 1 (17 s)
+rc 1, 17 s
