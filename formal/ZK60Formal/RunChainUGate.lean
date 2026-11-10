@@ -102,8 +102,8 @@ with its bound (the Merkle extraction failure), and:
 * the cover of stage IN-C, the blocks and stage OUT-C on a list `Ko` of the run's kinds IN ORDER: `halive` (the kinds
   of `Ko` alive in order, `AliveOrd`) and the per-part dooms `hdin`, `hdblk`, `hdout`;
 * L26's endpoint premises: the extractor's openings (`hops`, `hcan`), the endpoint read by decoding (`hE`, `mk`), the
-  token-words plane (`pos`, `hplane`), the column test's cover (`hX`) and the decoded plane's zeros (`hzero`), their
-  events among the kinds of `Ks` and `X`;
+  token-words plane (`pos`, `hplane`), the column test's cover (`hX`: an event of a kind of `Ks` or `X`) and the
+  decoded plane's zeros (`hdzero`: a doomed entrant of a kind of `Ko`, L26's `hzero` through the ordered cover);
 * the constants of `Ks` and `X` and the extra event totalling `≤ 2^26`.
 Then `ProductionReady … (classifyProtocolU …) εcTarget εsTarget εsTarget εzkTarget`. -/
 theorem classifyU_productionReady_runChain (R : ClassifyRunPublic S) (Lq : ℕ) (V : RunV Hdr)
@@ -153,11 +153,11 @@ theorem classifyU_productionReady_runChain (R : ClassifyRunPublic S) (Lq : ℕ) 
       ¬ Ex A G →
       ¬ CloseIn (LinearMap.range (encLin (Q := Cin.Q) Cin.pts Cin.form)) e (exX (ops (A.runLog G).2 (A.runLog G).1.1))
           (exU (ops (A.runLog G).2 (A.runLog G).1.1)) → ∃ K' ∈ (kindsFK Ks ++ X).map Prod.fst, K'.Ev A G)
-    (hzero : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+    (hdzero : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
       (classifyProtocolU S R Lq V P Cin h64 hr hon.base e).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
       ¬ Ex A G →
       ¬ (∀ k i, (¬ ∃ t, pos t = (k, i)) → (Cin.decodeIn (ops (A.runLog G).2 (A.runLog G).1.1) e).1 (Cin.place k) i = 0)
-        → ∃ K' ∈ (kindsFK Ks ++ X).map Prod.fst, K'.Ev A G)
+        → ∃ K' ∈ Ko, K'.Dm (R.Ps.length + 2) (A.runLog G).2 (tr G (A.run G)))
     (cx : ℕ) (hlin : ∀ q : ℕ, ∀ p ∈ Ks, (q : ℝ≥0∞) * p.1.εmax + p.1.B ≤ u126 q p.2)
     (hlinX : ∀ q : ℕ, ∀ p ∈ X, (q : ℝ≥0∞) * p.1.εmax + p.1.B ≤ u126 q p.2)
     (hx : ∀ q : ℕ, q + 1 ≤ 2 ^ 102 → εx q ≤ u126 q cx) (hbud : partConst (kindsFK Ks ++ X) cx ≤ 2 ^ 26)
@@ -170,6 +170,13 @@ theorem classifyU_productionReady_runChain (R : ClassifyRunPublic S) (Lq : ℕ) 
     exact hnp p hp
   have h3 := cover3_of_runParts_ord R (classifyProtocolU S R Lq V P Cin h64 hr hon.base e) E tr Ko hnpo
     ((kindsFK Ks ++ X).map Prod.fst) (fun K' hK' => kindsFK_mem Ks X K' (hKo K' hK')) Ex halive hdin hdblk hdout
+  have hzero : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+      (classifyProtocolU S R Lq V P Cin h64 hr hon.base e).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ Ex A G →
+      ¬ (∀ k i, (¬ ∃ t, pos t = (k, i)) → (Cin.decodeIn (ops (A.runLog G).2 (A.runLog G).1.1) e).1 (Cin.place k) i = 0)
+        → ∃ K' ∈ (kindsFK Ks ++ X).map Prod.fst, K'.Ev A G :=
+    fun A G hv hx hz => kindEv_of_dm_ord Ko (R.Ps.length + 2) hnpo ((kindsFK Ks ++ X).map Prod.fst)
+      (fun K' hK' => kindsFK_mem Ks X K' (hKo K' hK')) A G (halive A G hv hx) (hdzero A G hv hx hz)
   exact classifyU_productionReady_ep_target R Lq V P Cin h64 hr hon U hbij site kOf δOf E O e he hN20
     (kindsFK Ks ++ X) Ex εx hEx h3 pos hplane mk ops hE hops hcan hX hzero cx
     (fun p hp => (List.mem_append.mp hp).elim (kindsFK_ℓ Ks hℓ p) (hℓX p))
@@ -353,10 +360,7 @@ theorem classifyU_productionReady_run_w16r2 (R : ClassifyRunPublic S) (Lq : ℕ)
           List.mem_append_right _ List.mem_cons_self, rfl⟩, hev⟩
       · exact ⟨xRunB RCx T Ux Xx hwB hUc hXc, List.mem_map.mpr ⟨(xRunB RCx T Ux Xx hwB hUc hXc, 2 ^ 13),
           List.mem_append_right _ (List.mem_cons_of_mem _ List.mem_cons_self), rfl⟩, hev⟩)
-    (fun A G hv hx hz => kindEv_of_dm_ord Ko (R.Ps.length + 2)
-      (fun K' hK' => hnp K' (hKo K' hK')) _
-      (fun K' hK' => kindsFK_mem _ _ K' (hKo K' hK')) A G (halive A G hv hx) (hdzero A G hv hx hz))
-    (2 ^ 16 + 2 ^ 18)
+    hdzero (2 ^ 16 + 2 ^ 18)
     (nine_lin_w16r2 Ksl KM KA KB KR₀ KR₁ KH₀ KH₁ KLU hsl hM hA hB hR₀ hR₁ hH₀ hH₁ eL heL hLU)
     (fun q p hp => by
       simp only [List.mem_cons, List.not_mem_nil, or_false] at hp
@@ -472,10 +476,7 @@ theorem classifyU_productionReady_run_r13 (R : ClassifyRunPublic S) (Lq : ℕ) (
           List.mem_append_right _ List.mem_cons_self, rfl⟩, hev⟩
       · exact ⟨xRunB RCx T Ux Xx hwB hUc hXc, List.mem_map.mpr ⟨(xRunB RCx T Ux Xx hwB hUc hXc, 1),
           List.mem_append_right _ (List.mem_cons_of_mem _ List.mem_cons_self), rfl⟩, hev⟩)
-    (fun A G hv hx hz => kindEv_of_dm_ord Ko (R.Ps.length + 2)
-      (fun K' hK' => hnp K' (hKo K' hK')) _
-      (fun K' hK' => kindsFK_mem _ _ K' (hKo K' hK')) A G (halive A G hv hx) (hdzero A G hv hx hz))
-    (2 ^ 16 + 2 ^ 18)
+    hdzero (2 ^ 16 + 2 ^ 18)
     (nine_lin_r13u Ksl KM KA KB KR₀ KR₁ KH₀ KH₁ KLU hsl hM hA hB hR₀ hR₁ hH₀ hH₁ eL heL hLU)
     (fun q p hp => by
       simp only [List.mem_cons, List.not_mem_nil, or_false] at hp

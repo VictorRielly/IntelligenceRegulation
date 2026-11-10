@@ -1,7 +1,7 @@
 #!/bin/bash
 # D63 lane L30 (2026-11-09): the full Lean build (the L30 modules first, one at a time), the axiom audit of every
-# theorem, definition and structure of the five L30 files, the source scan, the root imports, the generated file
-# against its generator, and the regressions (L6Check and L5Check on their committed corpora, L11Check on L11's
+# theorem, definition and structure of the six L30 files, the source scan, the root imports, the two generated files
+# against their generators, and the regressions (L6Check and L5Check on their committed corpora, L11Check on L11's
 # committed W16R2 rung corpus, the fixture L1 check; arguments as in results/zk60_lean_l26_20261107/check_l26.sh), as
 # ONE guarded job. Run through run_guarded.py (the zk60 resource guard, class cpu). Its exit code is 0 only when every
 # verdict below is green.
@@ -15,15 +15,19 @@ R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
 BASE=998be85f
-MODS="BindingUCode RunChainUOrd RunChainUStab RunChainUGate RunChainUExec"
-FILES="$L/BindingUCode.lean $L/RunChainUOrd.lean $L/RunChainUStab.lean $L/RunChainUGate.lean $L/RunChainUExec.lean"
+MODS="BindingUCode RunChainUOrd RunChainUStab RunChainUGate RunChainUExec RunChainUToken"
+FILES="$L/BindingUCode.lean $L/RunChainUOrd.lean $L/RunChainUStab.lean $L/RunChainUGate.lean $L/RunChainUExec.lean $L/RunChainUToken.lean"
 start=$(date +%s)
-echo "== the generated file is its generator's output =="
+echo "== the two generated files are their generators' output =="
 gen=0
 python3 -I "$OUT/l30_mk_exec.py" "$L" "$OUT/l30_exec_regen.lean" > "$OUT/l30_mk_exec.log" 2>&1 || gen=1
 cmp -s "$L/RunChainUExec.lean" "$OUT/l30_exec_regen.lean" && echo "RunChainUExec.lean: identical to the generator's output" \
   || { echo "RunChainUExec.lean DIFFERS from the generator's output"; gen=1; }
 rm -f "$OUT/l30_exec_regen.lean"
+python3 -I "$OUT/l30_mk_token.py" "$L" "$OUT/l30_token_regen.lean" > "$OUT/l30_mk_token.log" 2>&1 || gen=1
+cmp -s "$L/RunChainUToken.lean" "$OUT/l30_token_regen.lean" && echo "RunChainUToken.lean: identical to the generator's output" \
+  || { echo "RunChainUToken.lean DIFFERS from the generator's output"; gen=1; }
+rm -f "$OUT/l30_token_regen.lean"
 echo "== lake build of the L30 modules, one at a time =="
 for m in $MODS; do
   "$LAKE" -d "$WT/formal" build ZK60Formal.$m > "$OUT/prebuild_$m.log" 2>&1

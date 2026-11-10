@@ -17,7 +17,9 @@ The per-block results of L20 to L23 and L28 are already in the ordered form (`he
   alive at the end;
 * **`AliveOrd`**: for a list of kinds IN ORDER, each kind is alive at the end PROVIDED no earlier kind of the list has
   a doomed entrant (`opB` and `M` first: alive on acceptance; then `opA`; then the slots; then the relations' draws,
-  the helpers' draws, LogUp); `aliveOrd_of_all`: L27's flat premise is the special case;
+  the helpers' draws, LogUp); `aliveOrd_of_all`: L27's flat premise is the special case; `aliveOrd_nil`,
+  **`aliveOrd_cons`**: the order built one kind at a time (the first kind alive, and the rest alive in order if the
+  first has no doomed entrant);
 * **`exists_dm_al`**: if some kind of the list has a doomed entrant, the FIRST such kind is alive at the end;
 * **`kindEv_of_dm_ord`**: so some kind's event (L24's `FirstKind.Ev`) holds;
 * **`cover3_of_runParts_ord`**: `cover3_of_runParts` with `halive` replaced by the ordered premise; its conclusion is
@@ -65,6 +67,29 @@ theorem aliveOrd_of_all (Ks : List (KindRun tr)) (n : ℕ) (lg : List (QB Lq × 
     (h : ∀ K ∈ Ks, K.Al n lg τ) : AliveOrd Ks n lg τ :=
   fun _ K hK _ => h K (List.mem_of_getElem? hK)
 
+/-- The empty list of kinds is alive in order. -/
+theorem aliveOrd_nil (n : ℕ) (lg : List (QB Lq × Dig)) (τ : List (TItem × Dig)) :
+    AliveOrd ([] : List (KindRun tr)) n lg τ := by
+  intro _ _ hK _
+  simp at hK
+
+/-- **The order, one kind at a time**: the first kind is alive at the end, and IF it has no doomed entrant the rest
+of the list is alive in order. This is how the premise `halive` is built: `opB` (alive on acceptance), then `opA`
+(alive when no `opB` entered doomed, L20's `opening_split`), and so on. -/
+theorem aliveOrd_cons (K : KindRun tr) (Ks : List (KindRun tr)) (n : ℕ) (lg : List (QB Lq × Dig))
+    (τ : List (TItem × Dig)) (hK : K.Al n lg τ) (hKs : ¬ K.Dm n lg τ → AliveOrd Ks n lg τ) :
+    AliveOrd (K :: Ks) n lg τ := by
+  intro j K' hj hprev
+  cases j with
+  | zero =>
+    have h0 : K = K' := by simpa using hj
+    subst h0
+    exact hK
+  | succ j =>
+    have hj' : Ks[j]? = some K' := by simpa using hj
+    exact hKs (hprev 0 K (Nat.succ_pos j) rfl) j K' hj'
+      (fun i K'' hi hK'' => hprev (i + 1) K'' (Nat.succ_lt_succ hi) (by simpa using hK''))
+
 /-- **The first kind with a doomed entrant is alive at the end**: if the kinds are alive in order and some kind has a
 doomed entrant, then some kind has a doomed entrant AND is alive at the end. -/
 theorem exists_dm_al (Ks : List (KindRun tr)) (n : ℕ) (lg : List (QB Lq × Dig)) (τ : List (TItem × Dig))
@@ -75,7 +100,7 @@ theorem exists_dm_al (Ks : List (KindRun tr)) (n : ℕ) (lg : List (QB Lq × Dig
   have hex : ∃ j : ℕ, ∃ K : KindRun tr, Ks[j]? = some K ∧ K.Dm n lg τ := ⟨j₀, K₀, hj₀, hd₀⟩
   obtain ⟨K, hK, hdK⟩ := Nat.find_spec hex
   exact ⟨K, List.mem_of_getElem? hK, hdK,
-    hal (Nat.find hex) K hK (fun j' K' hj' hK' hd' => Nat.find_min hex hj' ⟨K', hK', hd'⟩)⟩
+    hal (Nat.find hex) K hK (fun _ K' hj' hK' hd' => Nat.find_min hex hj' ⟨K', hK', hd'⟩)⟩
 
 /-- **A doomed entrant gives a kind's event** (D63 lane L30): the kinds alive in order on the run's transcript, some
 kind with a doomed entrant: the event (L24's `FirstKind.Ev`) of some kind holds, read in any list `Ls` that holds the

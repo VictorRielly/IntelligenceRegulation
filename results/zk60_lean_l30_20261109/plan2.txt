@@ -2,3 +2,4 @@ build ZK60Formal.RunChainUOrd
 build ZK60Formal.RunChainUStab
 build ZK60Formal.RunChainUGate
 build ZK60Formal.RunChainUExec
+build ZK60Formal.RunChainUToken

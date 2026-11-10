@@ -1,0 +1,22 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a186601888931e210/results/zk60_lean_l30_20261109/plan2.txt ==
+build ZK60Formal.RunChainUOrd
+build ZK60Formal.RunChainUStab
+build ZK60Formal.RunChainUGate
+build ZK60Formal.RunChainUExec
+build ZK60Formal.RunChainUToken
+== lake build ZK60Formal.RunChainUOrd ==
+Build completed successfully (3498 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.RunChainUStab ==
+Build completed successfully (3504 jobs).
+build rc 0 (7 s)
+== lake build ZK60Formal.RunChainUGate ==
+Build completed successfully (3512 jobs).
+build rc 0 (12 s)
+== lake build ZK60Formal.RunChainUExec ==
+Build completed successfully (3518 jobs).
+build rc 0 (16 s)
+== lake build ZK60Formal.RunChainUToken ==
+Build completed successfully (3513 jobs).
+build rc 0 (20 s)
+rc 0, 20 s
