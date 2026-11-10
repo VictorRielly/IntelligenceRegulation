@@ -1,0 +1,135 @@
+{
+ "models": [
+  {
+   "equal": true,
+   "layer": 0
+  },
+  {
+   "equal": true,
+   "layer": 1
+  },
+  {
+   "equal": true,
+   "layer": 2
+  },
+  {
+   "equal": true,
+   "layer": 3
+  },
+  {
+   "equal": true,
+   "layer": 4
+  },
+  {
+   "equal": true,
+   "layer": 5
+  },
+  {
+   "equal": true,
+   "layer": 6
+  },
+  {
+   "equal": true,
+   "layer": 7
+  },
+  {
+   "equal": true,
+   "layer": 8
+  },
+  {
+   "equal": true,
+   "layer": 9
+  },
+  {
+   "equal": true,
+   "layer": 10
+  },
+  {
+   "equal": true,
+   "layer": 11
+  },
+  {
+   "equal": true,
+   "layer": 12
+  },
+  {
+   "equal": true,
+   "layer": 13
+  },
+  {
+   "equal": true,
+   "layer": 14
+  },
+  {
+   "equal": true,
+   "layer": 15
+  },
+  {
+   "equal": true,
+   "layer": 16
+  },
+  {
+   "equal": true,
+   "layer": 17
+  },
+  {
+   "equal": true,
+   "layer": 18
+  },
+  {
+   "equal": true,
+   "layer": 19
+  },
+  {
+   "equal": true,
+   "layer": 20
+  },
+  {
+   "equal": true,
+   "layer": 21
+  },
+  {
+   "equal": true,
+   "layer": 22
+  },
+  {
+   "equal": true,
+   "layer": 23
+  },
+  {
+   "equal": true,
+   "layer": 24
+  },
+  {
+   "equal": true,
+   "layer": 25
+  }
+ ],
+ "residual_parity": [
+  {
+   "bytes_equal": true,
+   "diagnostics_equal": true,
+   "items": 64,
+   "layer": 0,
+   "seconds": 6.32,
+   "tokens": 8685
+  },
+  {
+   "bytes_equal": true,
+   "diagnostics_equal": true,
+   "items": 64,
+   "layer": 12,
+   "seconds": 6.14,
+   "tokens": 8685
+  },
+  {
+   "bytes_equal": true,
+   "diagnostics_equal": true,
+   "items": 64,
+   "layer": 25,
+   "seconds": 6.17,
+   "tokens": 8685
+  }
+ ],
+ "scope": "harness equivalence on the current export; no new model"
+}
