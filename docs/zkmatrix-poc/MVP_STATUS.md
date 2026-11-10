@@ -549,8 +549,9 @@ here. The rates count proving and witness work. Verification time is recorded se
     - L32: completeness at run level (the openings' and `M`'s executable completeness, the run's prefix as a
       transcript program, the refusal sites and their exact count against 2^-40);
     - L33: the run's zero knowledge (the honest prover in oracle form and the honest-prover properties L19 named).
-    - L34, next: the run's transcript as a Lean object with the kinds' lists on it, and the ordered cover's
-      premises (L30's remaining list).
+    - L34 (started after L30's check passed; perf and main at the L30 check commit, the full Lean build 3597 jobs):
+      the run's transcript as a Lean object with the kinds' lists on it, and the ordered cover's premises (L30's
+      remaining list).
     - The lanes' standing rules are in `results/zk60_lean_resume_20261109/LANE_RULES.md`.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
