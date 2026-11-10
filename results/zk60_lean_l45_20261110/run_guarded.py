@@ -7,7 +7,7 @@ usage: run_guarded.py <label> <logfile> <donefile> <cmd...>
 
 The jobs of this lane (WT = this worktree, OUT = WT/results/zk60_lean_l45_20261110):
   run_guarded.py lean-l45-iter OUT/iterN.log OUT/iterN.done /bin/bash OUT/iter.sh [plan]
-  run_guarded.py lean-l45-check OUT/check.log OUT/check.done /bin/bash OUT/check_l43.sh
+  run_guarded.py lean-l45-check OUT/check.log OUT/check.done /bin/bash OUT/check_l45.sh
 Full builds after a change near the root: L45_CAP_GIB=36 (need 24), finding L42-8.
 """
 import os

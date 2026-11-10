@@ -1,0 +1,5 @@
+declarations in {RunStageRd,RunExtract}*.lean: 152
+declared twice inside the lane: none
+worktrees read: 40
+other Lean files read (with repeats across worktrees): 4110
+clashes: 0
