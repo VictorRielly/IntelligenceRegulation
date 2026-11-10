@@ -6,7 +6,7 @@ the machine measured about 3% slower than on 2026-11-07, when A27's row was writ
 
 ## The table row (after the A27 row)
 
-| **the media app with lane A28's binary (the same receipts byte for byte; the commitments' GPU time cut by 9%, one proof's by 3.9%; two server settings; development mode `shieldstral-fast`, privacy statement pending, not production)** | A27 re-measured beside it: native stream 16.42 tok/s, one post 43.3 s, proof only 17.75 | **native stream 16.66 tok/s with the binary alone (+1.5%), 16.90 with the two settings (+2.9%; A B C C B A, mirrored order); one post 42.0 s (-3%); proof only 17.82 (no difference); through the app: stream 16.8 tok/s, one long post 125.5 s, one post APP_ONE** [MEASURED; app rows single runs] |
+| **the media app with lane A28's binary (the same receipts byte for byte; the commitments' GPU time cut by 9%, one proof's by 3.9%; two server settings; development mode `shieldstral-fast`, privacy statement pending, not production)** | A27 re-measured beside it: native stream 16.42 tok/s, one post 43.3 s, proof only 17.75 | **native stream 16.66 tok/s with the binary alone (+1.5%), 16.90 with the two settings (+2.9%; A B C C B A, mirrored order); one post 42.0 s (-3%); proof only 17.82 (no difference); through the app: stream 16.8 tok/s, one post 49.9 s (7.7 tok/s), one long post 125.5 s** [MEASURED; app rows single runs, not pairs: A27's app run of 2026-11-07 measured 16.3 tok/s, 47.8 s and 127.0 s] |
 
 ## The bullet (after the A27 bullet)
 
@@ -27,7 +27,8 @@ the machine measured about 3% slower than on 2026-11-07, when A27's row was writ
   - A B C C B A against A27, every receipt freshly verified: the 8-post stream 16.42 -> 16.66 proved tok/s with
     the binary alone (+1.5%), 16.90 with A7's spin-then-block wait and a 300 ms stagger between request starts
     (+2.9%; the prover's CPU per proof 84 -> 65 CPU-s); one post 43.3 -> 42.0 s; proof only 17.75 -> 17.82.
-    Through the app (single runs): the stream 16.8 tok/s, one long post 125.5 s.
+    Through the app (single runs): the stream 16.8 tok/s, one post 49.9 s, one long post 125.5 s (A27's run
+    three days earlier: 16.3, 47.8 s, 127.0 s): no change beyond the runs' spread.
   - **Byte identity on the real export** (A26's fixed-entropy harness): A27's binary, A28's, A28 with every
     switch off, and A28 on one lane with seal-ahead on and off make identical receipts, every file of every
     category; the six trained profiles' recorded digests (the 8B profiles included) hold on CPU and Metal, and

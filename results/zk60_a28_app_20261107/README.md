@@ -24,8 +24,9 @@ shared with the Lean lanes. Every heavy run went through the resource guard at i
 - **30 proved tok/s is not reached, and this lane moved the stream by little.** The 8-post stream, every receipt
   freshly verified, A/B in mirrored order in one job: A27 16.42 proved tok/s, the A28 binary 16.66 (+1.5%), the
   A28 binary with two server settings 16.90 (**+2.9%**). One post with those settings: 43.3 -> 42.0 s (-3%).
-  Proof only: 17.75 -> 17.82 (no difference). Through the app: the stream 16.8 proved tok/s (A27's run three
-  days earlier: 16.3), one long post 125.5 s (127.0 s) (sections 3.5 to 3.7).
+  Proof only: 17.75 -> 17.82 (no difference). Through the app (single runs; A27's run three days and a reboot
+  earlier in brackets): the stream 16.8 proved tok/s (16.3), one long post 125.5 s (127.0 s), one post 49.9 s
+  (47.8 s) (sections 3.5 to 3.7).
 - **The commitment kernels are now at the device's limits** (part 1 of the brief). Two byte-identical changes:
   the forward transform skips the zero half of its first pass, and the column hash runs in two passes. The
   commitments' GPU time fell 9% (A 42.4 -> 38.6 ms, H 40.5 -> 36.8 ms per block) and **one proof's GPU time
@@ -45,8 +46,8 @@ shared with the Lean lanes. Every heavy run went through the resource guard at i
 - **What paid besides the kernels: two server settings, mostly in CPU.** A7's spin-then-block wait and a 300 ms
   stagger between request starts (so a post's three categories do not run in lockstep): natively the stream
   +1.4% on top of the binary (inside the runs' spread), one post -3%, and **the prover's CPU per proof -22%**
-  (84 -> 65 CPU-s); through the app the stream is the same with them (16.79 against 16.78). The app's servers
-  run with both. Three activation writers at once and twelve jobs in flight in the app's service helped one
+  (84 -> 65 CPU-s); through the app the stream and one post are the same with them (16.79 against 16.78
+  tok/s; 49.9 against 48.9 s). The app's servers run with both, for the CPU. Three activation writers at once and twelve jobs in flight in the app's service helped one
   short post (-4.7%) and hurt a long one (+5%) and the stream (-1.9%): the service keeps A27's settings.
 - **Measured and taken out again:** zero rows from calloc (`protocol.rs` is back at its base), per-thread witness
   queues, a QoS class for the lane threads (section 2).
@@ -342,23 +343,24 @@ tokens, its three category proofs at once; A B B A, then the two server settings
   category, it gains more than that because the three lanes no longer run in lockstep. The wait alone gave
   42.1 and 43.9 s.
 - **So the app's servers get both settings** (`NATIVE_SETTINGS`: `HL_METAL_SPIN_US=200`,
-  `HL_A28_STAGGER_MS=300`): with the binary, the stream +2.9% over A27 (section 3.5), one post -3%, the
-  prover's CPU per proof -22%.
+  `HL_A28_STAGGER_MS=300`): with the binary, the native stream +2.9% over A27 (section 3.5), one post -3%, the
+  prover's CPU per proof -22%. Through the app the speed is the same with them as without (section 3.7): they
+  are kept for the CPU.
 
 ### 3.7 Through the app [MEASURED, `app_a1`, `app_b1`, `app_b2`, `app_b3` (`summary.json`, `.out`); single runs]
 
 The real app in process (`app_driver.py`), `PM_PROVER=shieldstral-fast` with the A28 pin (`80f2b704…`), A24's
 three phases on one warm service (one guarded gpu-class job: both servers, the writers). Three runs on
-2026-11-10 with three settings, and A27's own app run (`results/zk60_a27_app_20261107/app_a2`, 2026-11-07,
+2026-11-10 with three settings (and a fourth of single posts only), and A27's own app run (`results/zk60_a27_app_20261107/app_a2`, 2026-11-07,
 before the reboot) beside them:
 
 | phase | A27 app (its README) | `app_a1`: A28 binary, A27's settings | `app_b1`: + three writers at once, twelve jobs in flight, the wait and the stagger | **`app_b2`: the pinned configuration** (A27's service settings, the wait and the stagger) |
 |---|---:|---:|---:|---:|
-| one short public post (3 proofs) | 47.8 s, 8.03 tok/s | 48.9 s, 7.84 tok/s | 46.6 s, 8.24 tok/s | 54.0 s, 7.12 tok/s (see below) |
+| one short public post (3 proofs) | 47.8 s, 8.03 tok/s | 48.9 s, 7.84 tok/s | 46.6 s, 8.24 tok/s | **49.9 s, 7.70 tok/s** (`app_b3`, four posts: 48.9-51.6 s; `app_b2`: 54.0 s, see below) |
 | one long public post (9 proofs) | 127.0 s, 9.07 tok/s | 124.2 s, 9.27 tok/s | 130.6 s, 8.82 tok/s | **125.5 s, 9.18 tok/s** |
 | a stream: 8 short public posts at once (24 proofs) | 187.9 s, 16.34 tok/s | 183.1 s, 16.78 tok/s | 186.6 s, 16.46 tok/s | **182.9 s, 16.79 tok/s** |
 
-- In every run all 10 posts were published (36 category jobs, 0 failed); every label "no",
+- In every run all 10 posts were published (36 category jobs, 0 failed; `app_b3`: 4 posts, 12 jobs); every label "no",
   `bound_by_proof: true`; every record `shieldstral-fast`, "privacy statement pending", `production: false`,
   run profile `/2`; each post's signed manifest (3 or 9 entries). The service's heartbeat names the binary
   `80f2b704…`; its guarded peak was 93.5 to 106 GiB.
@@ -375,10 +377,13 @@ before the reboot) beside them:
   the long post the ninth category job waits 26.4 s for a writer slot and the label of a three-chunk category
   verifies its three chunks again (21.9 s: A26's `HL_A26_VERIFY_ONCE`, off, is about this). In the stream the
   jobs wait 4.6 s for a writer slot on average, 26.7 s at most.
-- **One post through the app, the pinned configuration:** `app_b2`'s first phase took 54.0 s with every step
-  slower than in `app_a1`, the Python writer (6.9 against 5.9 s) and the verifier (8.8 against 8.0 s) included,
-  which the settings do not touch: the machine was busier during that minute. PENDING: `app_b3`, four single
-  posts one after another on one warm service.
+- **One post through the app, the pinned configuration: 49.9 s** (`app_b3`: four single public posts one after
+  another on one warm service: 48.9, 51.6, 49.7 and 49.4 s; the writer 5.9-6.3 s, the three proofs 23.3-25.1 s,
+  the checks 7.9-8.0 s). `app_a1` measured 48.9 s without the two settings and A27's run 47.8 s: no change
+  through the app (the native gain of the settings on one post, 3% at three lanes of ten, does not show
+  here, where the writer slots already stagger the post's categories). `app_b2`'s first phase took 54.0 s with
+  every step slower than in `app_a1`, the Python writer (6.9 against 5.9 s) and the verifier (8.8 against
+  8.0 s) included, which the settings do not touch: the machine was busier during that minute.
 
 ## 4. Byte preservation
 
@@ -521,7 +526,7 @@ Largest first:
 7. **Two server processes of three lanes** measured 17.06 and 17.87 against 16.7 to 17.3 for one process
    (single runs): perhaps +3%, perhaps nothing. An A B B A pair would settle it (`x5.plan`, not run); the
    app's service would then hold two prover servers.
-8. **One post's latency** (42 s natively, APP_ONE through the app) is the writer (6 s for the three categories
+8. **One post's latency** (42 s natively, 50 s through the app) is the writer (6 s for the three categories
    at once), the three proofs (23 to 24 s), the verification (8 s), and in the app about 4 s of queue ticks
    (2 s each), re-checks and publication. A resident writer (the model loaded once instead of per job) would
    take most of the 6 s; a 0.5 s queue tick about 1.5 s; verifying a category's chunks once (A26's
