@@ -27,7 +27,7 @@ receipts byte for byte (fixed test entropy on the real export, against A27's bin
 statement identity, profile and verdicts, with a little less GPU work per proof (the commitment's
 forward transform skips the zero half of its first pass; the column hash in two passes). The
 build's seal-ahead mode (HL_A28_SEAL_AHEAD) is off by default and the app does not set it. The
-service runs three activation writers at once and keeps twelve category jobs in flight.
+servers wait for the GPU by spinning 200 us and then blocking, and start requests 300 ms apart.
 """
 import os
 from pathlib import Path
@@ -73,20 +73,19 @@ TEKKEN = reviewed.TEKKEN
 # 12.7 proved tok/s against 10.1 with three lanes of ten), three verifier lanes of four, the
 # sealing pass's witnesses kept up to 16 GiB per request. The app keeps up to JOBS_IN_FLIGHT
 # category jobs at the service, so the prover lanes stay busy while others write or verify.
-# [A28] (results/zk60_a28_app_20261107/README.md) THREE activation writers at once instead of two:
-# a post's three category chunks are written together (three processes at once 6.0 s; two and
-# then the third 11.8 s: with two, a post's third category started its proof 5.5 s after the other
-# two), and TWELVE jobs in flight instead of nine (a prover lane that frees finds a written job
-# waiting: the stream's jobs waited up to 27 s for a writer slot). More threads a lane, more lanes
-# and two requests a lane were measured and did not pay: six lanes of five stay.
+# [A28] (results/zk60_a28_app_20261107/README.md) measured and left as they were: three writers
+# at once with twelve jobs in flight made one short post 5% faster (its third category no longer
+# waits for a writer slot) but one long post 5% slower and the 8-post stream no faster (the six
+# lanes are loaded sooner and every proof then takes longer); more threads a lane, more lanes and
+# two requests a lane did not pay either.
 PROVER_LANES = 6
 PROVER_LANE_THREADS = 5
 WITNESS_CACHE_GIB = 16
 CHECK_LANES = 3
 CHECK_LANE_THREADS = 4
 WRITER_THREADS = 4
-WRITERS_AT_ONCE = 3
-JOBS_IN_FLIGHT = 2 * PROVER_LANES
+WRITERS_AT_ONCE = 2
+JOBS_IN_FLIGHT = PROVER_LANES + CHECK_LANES
 # The whole service is one guarded gpu-class job for its life (both servers, the writers).
 # Measured peak of the guarded tree: 102.5 GiB (six prover lanes, a stream); need/cap add margin.
 SERVICE_NEED_GIB = 110
@@ -125,8 +124,13 @@ def native_environment():
 # app does not set). None of these moves a byte.
 # [A28] the two A28 commitment kernels are on by default in the binary (HL_A28_PRUNE, HL_A28_HASH;
 # the app sets neither); its seal-ahead mode stays off (HL_A28_SEAL_AHEAD: +1.3% on the stream for
-# about 60 GiB more memory, results/zk60_a28_app_20261107).
-NATIVE_SETTINGS = {'HL_METAL_QUEUES': 'thread'}
+# about 60 GiB more memory, results/zk60_a28_app_20261107). Two settings measured there (A B C C B A
+# against A27 on the stream, pairs on one post): A7's spin-then-block wait for a command buffer
+# (HL_METAL_SPIN_US=200: the prover's CPU per proof -22%) and a 300 ms minimum between request
+# starts (HL_A28_STAGGER_MS=300: a post's three categories no longer run in lockstep). Together
+# +2.9% on the stream and -3% on one post's latency. They change when a thread waits and when a
+# request starts, never a byte (the byte-identity run covers the stagger).
+NATIVE_SETTINGS = {'HL_METAL_QUEUES': 'thread', 'HL_METAL_SPIN_US': '200', 'HL_A28_STAGGER_MS': '300'}
 
 
 def privacy_statement():

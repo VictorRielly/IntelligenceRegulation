@@ -174,11 +174,12 @@ class FastModeTests(unittest.TestCase):
 
     def test_a28_pins_its_binary_and_leaves_seal_ahead_off(self):
         """[A28] the pinned binary is lane A28's (never A27's b5b6b9a4..., A26's or A24's), with the
-        same statement identity and run profile; the app sets none of the A28 switches (the two
-        commitment kernels HL_A28_PRUNE and HL_A28_HASH are on by default in the binary; seal-ahead,
-        HL_A28_SEAL_AHEAD, is off by default and stays off: it costs about 60 GiB), no A27 switch, no
-        GPU trace, and still neither of A26's two switches that wait for the security owner; the
-        service's resource declaration is unchanged"""
+        same statement identity and run profile; of the A28 switches the app sets only the measured
+        stagger between request starts (the two commitment kernels HL_A28_PRUNE and HL_A28_HASH are on
+        by default in the binary; seal-ahead, HL_A28_SEAL_AHEAD, is off by default and stays off: it
+        costs about 60 GiB), with A7's spin-then-block wait; no A27 switch, no GPU trace, and still
+        neither of A26's two switches that wait for the security owner; the service's resource
+        declaration is unchanged"""
         pin = fast_runtime_pin()
         self.assertRegex(pin, r'^[0-9a-f]{64}$')
         for older in ('b5b6b9a43563c069cec3391e8295867d0cd56e4f83036c992ba066708a9ae072',
@@ -195,15 +196,18 @@ class FastModeTests(unittest.TestCase):
         (models / 'model.safetensors').write_bytes(b'TEST FIXTURE\n')
         with patch.object(fast, 'NATIVE_MODELS', self.root / 'models'):
             env = fast.native_environment()
-        self.assertFalse([k for k in env if k.startswith(('HL_A28_', 'HL_A27_'))], 'the app sets no A28 or A27 switch')
+        self.assertEqual(fast.NATIVE_SETTINGS, {'HL_METAL_QUEUES': 'thread', 'HL_METAL_SPIN_US': '200', 'HL_A28_STAGGER_MS': '300'})
+        self.assertEqual(sorted(k for k in env if k.startswith(('HL_A28_', 'HL_A27_'))), ['HL_A28_STAGGER_MS'],
+                         'of the A28 and A27 switches only the measured stagger is set: seal-ahead stays off, no trace')
+        self.assertEqual((env['HL_METAL_SPIN_US'], env['HL_A28_STAGGER_MS']), ('200', '300'))
         for off in ('HL_A26_KEPT', 'HL_A26_VERIFY_ONCE'):
             self.assertNotIn(off, env, f'{off} waits for the security owner')
         self.assertIn('A28', fast.CLI_DESCRIPTION)
         self.assertEqual((fast.PROVER_LANES, fast.PROVER_LANE_THREADS, fast.CHECK_LANES, fast.CHECK_LANE_THREADS), (6, 5, 3, 4),
                          'more threads a lane, more lanes and seal-ahead were measured and did not pay')
         self.assertEqual((fast.SERVICE_NEED_GIB, fast.SERVICE_CAP_GIB), (110, 180))
-        # three writers at once (a post's three category chunks together) and the writers ahead of the lanes
-        self.assertEqual((fast.WRITERS_AT_ONCE, fast.WRITER_THREADS, fast.JOBS_IN_FLIGHT), (3, 4, 12))
+        # three writers at once and twelve jobs in flight were measured too: no gain on the stream, a long post slower
+        self.assertEqual((fast.WRITERS_AT_ONCE, fast.WRITER_THREADS, fast.JOBS_IN_FLIGHT), (2, 4, 9))
         self.assertGreaterEqual(fast.JOBS_IN_FLIGHT, fast.PROVER_LANES + fast.CHECK_LANES)
 
     def test_preparation_pins_the_candidate_and_submits_one_spool_request_per_job(self):
