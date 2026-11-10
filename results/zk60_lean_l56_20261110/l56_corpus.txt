@@ -1,0 +1,40 @@
+L56 BOUNDARIES hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2 L=2 segments=4
+FRAME 0 0 70622d72756e2d7374616765 0000000000000000
+FRAME 0 1 70622d72756e2d626c6f636b a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b
+FRAME 0 2 42 88fbff81c0afe2893c3410cffb0823e2141ffdc91a8929852c6ff55de42ea097
+FRAME 0 3 726f7773 1600000000000000
+FRAME 0 4 6c6f672d636f6c73 0a00000000000000
+AROOT 0 c15444c7d8a1765d510451e05765a4fb04a4828a543914004fa90f0c70cbd467
+CARRY 0 out=1
+NEG 1 RootFirst refused: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+NEG 1 OwnRoot refused: the boundary opening: pcs zk: Merkle path for column 2129 fails
+NEG 1 PrevARoot refused: the boundary opening: pcs zk: Merkle path for column 2129 fails
+NEG 1 NoIncoming refused: private block: mask schedule audit: a reserved pair is unused or shared between claims
+NEG 1 OutHere refused: private block: mask schedule audit: a reserved pair is unused or shared between claims
+FRAME 1 0 70622d72756e2d7374616765 0100000000000000
+FRAME 1 1 70622d72756e2d626c6f636b 731a722a776216a17173effbdd2767a432b44d8c19b2708d4142075295062879
+FRAME 1 2 42 501bd45f5980461be8f09da3fae8242e6b47d02d81219a6c2b9c601cea086d10
+FRAME 1 3 726f7773 1600000000000000
+FRAME 1 4 6c6f672d636f6c73 0a00000000000000
+AROOT 1 c27bd607bfefccbeef17c7b090933f900957948d66e6d4d70cc05788f76474e1
+OPEN 1 root=88fbff81c0afe2893c3410cffb0823e2141ffdc91a8929852c6ff55de42ea097 pending=1 in=1
+CARRY 1 out=1
+END 1 563f93fc26c29732c728693b3228073d846e25cd20b768a14912ca839f53b9d1
+NEG 2 RootFirst refused: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+NEG 2 OwnRoot refused: the boundary opening: pcs zk: Merkle path for column 2051 fails
+NEG 2 PrevARoot refused: the boundary opening: pcs zk: Merkle path for column 2051 fails
+NEG 2 NoIncoming refused: private block: mask schedule audit: a reserved pair is unused or shared between claims
+NEG 2 OutHere refused: private block: mask schedule audit: a reserved pair is unused or shared between claims
+FRAME 2 0 70622d72756e2d7374616765 0200000000000000
+FRAME 2 1 70622d72756e2d626c6f636b 8f9f4bf354ce70edef76bd2645e95deedf4eea5b3af94b029915609bd982289b
+FRAME 2 2 42 4a840237e4ca87f7f7bd78a76b2945e25a0119dbe635144a39505272d5c15db0
+FRAME 2 3 726f7773 1600000000000000
+FRAME 2 4 6c6f672d636f6c73 0a00000000000000
+AROOT 2 006f9f694b32d13cc8056f2025ff8c867d55ed69eccb196f747798d59a8024a8
+OPEN 2 root=501bd45f5980461be8f09da3fae8242e6b47d02d81219a6c2b9c601cea086d10 pending=1 in=1
+CARRY 2 out=1
+END 2 5098d8927455ab01097dd109d1208f0241eefe5f28a59f050de4e143270b0b4f
+NEG 3 PrevARoot refused: B_out: pcs zk: Merkle path for column 707 fails
+OPEN 3 root=4a840237e4ca87f7f7bd78a76b2945e25a0119dbe635144a39505272d5c15db0 pending=1 in=0
+REFUSED 11
+DONE 4
