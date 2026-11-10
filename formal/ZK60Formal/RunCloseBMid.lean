@@ -35,7 +35,7 @@ variable {K : Type} [Field K] [Algebra GF K] (U : K) (tag : MTag)
 
 /-- **THE TOP THEOREM'S `hopX1` AT PARTS `2 … Lb`** (a block part after a block part), in its own form. -/
 theorem cb_hopX1_mid (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
-    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (Lb : ℕ)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (Lb : ℕ) (hLb : Lb ≤ 26)
     (bp : ∀ k, RtBlk Lq (Pk k)) (pp : ℕ → RtPart)
     (hσb : ∀ k, k < Lb → R.σs[k + 1]? = some (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k (pp k)))
     (hgeo : ∀ s k, (sgeom s k).g = (Pk k).geom)

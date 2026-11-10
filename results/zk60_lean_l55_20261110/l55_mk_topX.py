@@ -146,7 +146,7 @@ proof = (
     "      obtain ⟨k, rfl⟩ : ∃ k, i = k + 1 + 1 := ⟨i - 2, by omega⟩\n"
     "      have hk : k + 1 < Lb := by omega\n"
     "      exact ZK60.ProtocolClassify.cb_hopX1_mid U tag h64 hs hL Pk sgeom check paths digest bRows bLogN bndCheck\n"
-    "        bndOpen Rn hv G (A.run G).1 (A.run G).2 hE0 Lb bp\n"
+    "        bndOpen Rn hv G (A.run G).1 (A.run G).2 hE0 Lb hLb bp\n"
     "        " + PP + "\n"
     "        hσb (fun s k => hgeo k s) (fun _ => rfl) (fun _ => rfl) (fun _ => rfl) (fun _ => rfl) (fun _ => rfl) pXk hXk\n"
     "        hwXk hmXk hfitXk base " + DIN + "\n        " + DBLK + "\n        " + DOUT + "\n"

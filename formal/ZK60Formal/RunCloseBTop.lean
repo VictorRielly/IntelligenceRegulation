@@ -374,7 +374,7 @@ theorem cb_productionReadyL_epP_codeX (Rp : ClassifyRunPublicP S) (Lq : ℕ) (Lb
       obtain ⟨k, rfl⟩ : ∃ k, i = k + 1 + 1 := ⟨i - 2, by omega⟩
       have hk : k + 1 < Lb := by omega
       exact ZK60.ProtocolClassify.cb_hopX1_mid U tag h64 hs hL Pk sgeom check paths digest bRows bLogN bndCheck
-        bndOpen Rn hv G (A.run G).1 (A.run G).2 hE0 Lb bp
+        bndOpen Rn hv G (A.run G).1 (A.run G).2 hE0 Lb hLb bp
         (fun k => rtBlockPart (Pk k) (bp k).S ((bp k).nA + (bp k).pA.rows) (bp k).pA.m ((bp k).nH + (bp k).pH.rows)
         (bp k).pH.m (wXk k) (gXk k) (mXk k))
         hσb (fun s k => hgeo k s) (fun _ => rfl) (fun _ => rfl) (fun _ => rfl) (fun _ => rfl) (fun _ => rfl) pXk hXk
