@@ -1,0 +1,6 @@
+== plan results/zk60_lean_l47_20261110/rel_plan4.txt ==
+build ZK60Formal.BlockLookRelFinal
+== lake build ZK60Formal.BlockLookRelFinal ==
+Build completed successfully (3576 jobs).
+build rc 0 (4 s)
+rc 0, 4 s
