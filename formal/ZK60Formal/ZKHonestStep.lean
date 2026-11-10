@@ -26,8 +26,8 @@ charged as a bad event either. Here the step is re-proved with a refusal GUARD:
   honest prover of a receipt model with a guard. The model is needed on ADMISSIBLE inputs only (its input type is the
   subtype), and its honest-verifier law only where the guard does not fire;
 * **`zk_of_refModel`**: `ZeroKnowledge` (Statements.lean's, the stand-in simulator) with the error
-  `Σ_{j<R} wStep δp ωp δh ωh εc q R j`; **`zk_ref_cap`**: with a receipt's counts by kind `Z` (L19's `ZKKinds`), that
-  error is within the approved `εzkTarget q R` for every `q` and every `R ≤ 2^r` (L19's `ZKKinds.cap_R`).
+  `Σ_{j<R} wStep δp ωp δh ωh εc q R j`, the two after-request rates `δh`, `ωh` carrying the guard's factor `2`
+  (`ZKHonestCount.lean`'s `ref_cap_R` is the budget against the approved target).
 
 Every premise is an explicit hypothesis.
 -/
@@ -491,21 +491,5 @@ theorem zk_of_refModel {Q D Coins : Type} [DecidableEq Q] [Inhabited D] [Fintype
   rw [e]
   exact fsStepW_le_wStep q R j (Km W) (Wp W) (Kc W) (2 * KUm W) (2 * Wpa W) _ _ δp ωp δh ωh εc
     (hrδp W) (hrωp W) (hrεc W) (hrδh W) (hrωh W)
-
-/-- **Within the approved target up to a receipt cap** (L19's `ZKKinds.cap_R`, the form `RunK.cap_112` instantiates):
-for a receipt's counts by kind `Z` with `mT ≤ 2^a`, `qpT·mT ≤ 2^b`, the other counts at most `2^c` with `2c + 252` bits
-of column freshness, `pts ≤ 2^p`, and `r + b ≤ 133`, `a + r + 132 ≤ 256`, `r ≤ 120`: zero knowledge of the refusing
-protocol whose rates are `Z`'s, with an error within `εzkTarget q R` for every `q` and every `R ≤ 2^r`. -/
-theorem zk_ref_cap {Q D Coins : Type} [DecidableEq Q] [Fintype Q] [Fintype D] [Nonempty D]
-    [Fintype Coins] [Nonempty Coins] [Inhabited Coins] {M : IntModel} {P : Protocol Q D Coins M}
-    (Z : ZKKinds) (hzk : ZeroKnowledge M P (fun q R => ∑ j ∈ range R, wStep Z.δp Z.ωp Z.δh Z.ωh Z.εc q R j))
-    (c p a b r : ℕ) (hm : Z.mT ≤ 2 ^ a) (hb : Z.qpT * Z.mT ≤ 2 ^ b) (hb13 : 13 ≤ b)
-    (hC : Z.cols ≤ 2 ^ c) (hLN : Z.leaves + Z.nodes ≤ 2 ^ c)
-    (hqC : Z.qpC ≤ 2 ^ c) (hqL : Z.qpL ≤ 2 ^ c) (hqN : Z.qpN ≤ 2 ^ c)
-    (hcol : 2 * c + 252 ≤ Z.hcol) (hcond : 2 * c + 252 ≤ Z.hcond) (h512 : 2 * c + 252 ≤ 512)
-    (hp : Z.pts ≤ 2 ^ p) (hp' : 2 * p + 124 ≤ 256) (hrb : r + b ≤ 133) (har : a + r + 132 ≤ 256) (hr : r ≤ 120) :
-    ZeroKnowledge M P (fun q R => ∑ j ∈ range R, wStep Z.δp Z.ωp Z.δh Z.ωh Z.εc q R j)
-      ∧ ∀ q R, R ≤ 2 ^ r → ∑ j ∈ range R, wStep Z.δp Z.ωp Z.δh Z.ωh Z.εc q R j ≤ εzkTarget q R :=
-  ⟨hzk, fun q R hR => ZKKinds.cap_R Z c p a b r hm hb hb13 hC hLN hqC hqL hqN hcol hcond h512 hp hp' hrb har hr q R hR⟩
 
 end ZK60.ZKHonest
