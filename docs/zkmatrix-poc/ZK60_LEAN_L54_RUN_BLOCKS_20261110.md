@@ -104,7 +104,7 @@ at most `propext`, `Classical.choice`, `Quot.sound` (§7).
 |---|---|---|
 | `hsl_blk` | (L50) every block slot's terminal identity at the block's reading | GONE: PROVED from `hsl_ev`, `hdefS` and the run-level `hsem` |
 | `hdefS` (new) | each block's `define` is a slot program's `defineS` | YES, ARGUED: at layer `Ly` the verifier's `define` is `defineS (progR13 (cfgShieldR13 Ly) …) (pubsR13L …)` (L49's `hdef`; the program CHECKED by L44 at the R13 rung, every host public table CHECKED by value by L49 at the rung; the same code paths at Shieldstral). It is weaker than L49's `hdef` (any program) |
-| `hsl_ev` (new) | each block's slot polynomial `Fsl k` at every reading's roots meets L16's `SlotEval` over the run's extracted data (`wrCs`, `wrMs`): at an accepted slot with its claims true, `Fsl k` at the slot's point is `poly(table values) + c·(the M functional)` | PARTLY. At the 21 slots that read only `A`, `H`, public and `eq` tables: ARGUED yes, by the masked slot polynomial over the extracted tables (L16's CFS form; L11 / L13 built it at W16R2, not yet at R13). At the 2 boundary slots `SC_IO_IN`, `SC_IO_OUT`: NO with `Fsl`'s present type (finding L54-1): their polynomial reads the boundary commitments' tables, which `Fsl k : Cuts3 → RootsO → …` (the `A`, `M`, `H` cuts and roots only) does not receive. The same holds of the old `hsl_blk` (it is implied by `hsl_ev`), so this lane introduced no new obstacle: it located the one that was there |
+| `hsl_ev` (new) | each block's slot polynomial `Fsl k` at every reading's roots meets L16's `SlotEval` over the run's extracted data (`wrCs`, `wrMs`): at an accepted slot with its claims true, `Fsl k` at the slot's point is `poly(table values) + c·(the M functional)` | PARTLY. At the 21 slots that read only `A`, `H`, `M`, public and `eq` tables: ARGUED yes, by the masked slot polynomial over the tables extracted at the reading's own roots and cuts (`wrCs .a`, `.h` read the matrices `UxW` extracts at the `A`, `H` roots the header shows, which are `cuts3`'s at `rootsOf core`: L28's `colX_eq_colXc`; L16's CFS form; L11 / L13 built it at W16R2, not yet at R13). At the 2 boundary slots `SC_IO_IN`, `SC_IO_OUT`: NO with `Fsl`'s present type (finding L54-1): their polynomial reads the boundary commitments' tables, which `Fsl k : Cuts3 → RootsO → …` (the `A`, `M`, `H` cuts and roots only) does not receive. The same holds of the old `hsl_blk` (it is implied by `hsl_ev`), so this lane introduced no new obstacle: it located the one that was there |
 
 ### 4.2 Every premise of `wr_productionReadyL_epP_codeT` still left, by name
 
@@ -180,8 +180,11 @@ log cut at the block's `A`, `M`, `H` roots and those roots only. R13's `SC_IO_IN
 (`BlockR13Prog.lean` line 657: tables `[eq, aPlane x / x2, epTab .inp / .out]`) read the boundary commitments' tables,
 whose claims the closing openings of parts `k + 1` and `k + 2` check at roots that are not in `RootsO`. The masked slot
 polynomial of these two slots over the extracted data is therefore not of `Fsl`'s type, and `hsl_ev` (this lane) and
-`hsl_blk` (L50, which `hsl_ev` implies) are not met by it at those two slots of each of the 26 blocks. ARGUED (reading
-the program and the types; the run-level link itself is PROVED). Repair (Lean only): §5.1. Lane L49's block statement
+`hsl_blk` (L50, which `hsl_ev` implies) are not met by it at those two slots of each of the 26 blocks. Nor, ARGUED, by
+any other function of that type for every adversary and oracle: an adversary may absorb its `A`, `M`, `H` roots in
+early queries (its cuts then end before the boundary trees are built, outside the extraction event since those trees
+are extracted at their own roots), so two runs can show `Fsl` the same arguments while their boundary tables, and so
+the slots' true values, differ. ARGUED (reading the program and the types; the run-level link itself is PROVED). Repair (Lean only): §5.1. Lane L49's block statement
 has the same shape (`XE`, `hcsE`), so the repair serves both.
 
 **L54-2 (Medium; for the coordinator): the top theorem does not tie block `k`'s verifier to layer `k`.** `Pk` is a free
@@ -202,4 +205,25 @@ to obtain those facts (`rx_parts_AHG`, `rx_parts_MG`, `hopX1`).
 **L54-5 (Info, process): lock wait.** The lane's first build waited behind lane L49's CPU receipt job (`lean-l49-pub`)
 on the shared heavy lock (first come, first served, D69).
 
-<!-- §7 on: below -->
+## 7. Checks
+
+`results/zk60_lean_l54_20261110/check_l54.sh`, run inside the guarded iteration `iter2` (`lean-l54-iter`, class cpu,
+need 24 GiB, cap 36 GiB, `LEAN_NUM_THREADS=4`, every command reading `/dev/null`: finding L49-FZC-1): the guard's record
+exit 0, 67 s, peak RSS 3.88 GiB (after 1,516 s waiting for the heavy lock), on perf `2e5cde97` plus this lane. All
+figures MEASURED; logs in the evidence directory (`iter2.log`, `check.log`, `full.log`, `axioms_flat.log`,
+`nameclash.log`, the regression logs). The first iteration (`iter1`) built all three modules green with two deprecation
+warnings (`dif_pos`), fixed in `iter2`.
+
+| Check | Result |
+|---|---|
+| each L54 module built alone (three) | 3 of 3 green, 0 warnings |
+| full `lake build` | green, 3,806 jobs, 0 warnings, 0 errors, no `sorry` |
+| axiom audit (`gen_axioms.py`) of every declaration of the three files | 15 of 15 (12 theorems, 3 definitions): 14 on `propext`, `Classical.choice`, `Quot.sound`; 1 on `propext` (`wr_shield_slots`); `sorryAx` 0, `ofReduceBool` 0, other axioms 0 |
+| source scan for the forbidden words (the three files and the generator) | none |
+| root imports | the three modules imported; no import line removed |
+| existing files changed | none under `formal/` but the root's imports; `Statements.lean` unchanged; nothing under `ops/` |
+| name clashes (`l54_nameclash.py`, prefix `RunWire`; 15 names; 43 worktrees, 5,657 other Lean files) | 0 |
+| the generated file against its generator | `RunWireTop.lean`: identical |
+| regressions | L6Check 1,206, L5Check 5,553, L11Check 404, fixture L1 101,956 checks; 0 failed in each |
+
+Not run by this lane: the merged-tree check on perf, which is the coordinator's.

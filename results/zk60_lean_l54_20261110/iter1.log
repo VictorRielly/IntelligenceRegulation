@@ -1,0 +1,20 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac985d9b0c617cea6/results/zk60_lean_l54_20261110/plan1.txt ==
+build ZK60Formal.RunWireSem
+build ZK60Formal.RunWireTerm
+build ZK60Formal.RunWireTop
+== lake build ZK60Formal.RunWireSem ==
+warning: ZK60Formal/RunWireSem.lean:142:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunWireSem.lean:154:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+Build completed successfully (3646 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.RunWireTerm ==
+warning: ZK60Formal/RunWireSem.lean:142:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunWireSem.lean:154:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+Build completed successfully (3747 jobs).
+build rc 0 (9 s)
+== lake build ZK60Formal.RunWireTop ==
+warning: ZK60Formal/RunWireSem.lean:142:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunWireSem.lean:154:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+Build completed successfully (3748 jobs).
+build rc 0 (14 s)
+rc 0, 14 s

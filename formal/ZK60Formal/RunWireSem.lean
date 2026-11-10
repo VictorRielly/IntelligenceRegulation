@@ -139,7 +139,7 @@ theorem wr_ndA (D : RtKData K Lq) (hD : D.Valid (Exec.Block.absOfC (chainEncB ke
   intro x hx he
   apply hA
   refine ⟨i, by omega, x.1.opA U hbij x.2.1 lg, ?_, he⟩
-  simp only [rtKA, rtKind2, dif_pos hi, RtKPart.ofOpA, RtKPart.ofMap]
+  simp only [rtKA, rtKind2, dite_eq_left hi, RtKPart.ofOpA, RtKPart.ofMap]
   exact List.mem_map.mpr ⟨x, hx, rfl⟩
 
 /-- **No doomed `M` entrant of the kind ⇒ none at part `i`'s `M`.** -/
@@ -151,7 +151,7 @@ theorem wr_ndM (D : RtKData K Lq) (hD : D.Valid (Exec.Block.absOfC (chainEncB ke
   intro he
   apply hM
   refine ⟨i, by omega, (D.msk i).sub U hbij (pf.off i + (pf.part i).pre) lg, ?_, he⟩
-  simp only [rtKM, rtKind2, dif_pos hi, RtKPart.ofMask, RtKPart.ofMap]
+  simp only [rtKM, rtKind2, dite_eq_left hi, RtKPart.ofMask, RtKPart.ofMap]
   exact List.mem_map.mpr ⟨(), by simp, rfl⟩
 
 end Kinds

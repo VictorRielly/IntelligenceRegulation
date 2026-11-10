@@ -1,0 +1,4 @@
+build ZK60Formal.RunWireSem
+build ZK60Formal.RunWireTerm
+build ZK60Formal.RunWireTop
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac985d9b0c617cea6/results/zk60_lean_l54_20261110/check_l54.sh
