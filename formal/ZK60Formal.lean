@@ -420,3 +420,4 @@ import ZK60Formal.RunStgHal
 import ZK60Formal.RunStgTop
 import ZK60Formal.RunStgDoom
 import ZK60Formal.RunStgTopD
+import ZK60Formal.RunStgAlgHost
