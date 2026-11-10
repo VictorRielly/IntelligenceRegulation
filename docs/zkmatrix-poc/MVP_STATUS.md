@@ -1,8 +1,28 @@
 # Where the MVP stands, in plain words
 
-**2026-11-10: what the Lean work does NOT yet establish (gap audit, faithfulness half,
-`ZK60_LEAN_GAP_AUDIT_FAITHFULNESS_20261110.md`; the premise register is still running).** Read the Lean bullets
-further down against this list. Each item was re-checked against the source.
+**2026-11-10: what the Lean work does NOT yet establish (gap audit: `ZK60_LEAN_GAP_AUDIT_PREMISES_20261110.md` and
+`ZK60_LEAN_GAP_AUDIT_FAITHFULNESS_20261110.md`).** Read the Lean bullets further down against this list. Each High
+item was re-checked against the source by the coordinator.
+- **The answer to "are there gaps": yes, and most of the proof's substance is in them.** The strongest top theorem
+  (`rt_productionReady_r13`) is a schema with 47 premises: 10 substantive open obligations (the soundness covers
+  `halive`, `hdin`, `hdblk`, `hdout`, the input endpoint's `hdzero`, `hread`, `hBal`; completeness O8, O9; zero
+  knowledge O12), 20 bookkeeping ones that a concrete instance would discharge, 6 modelling assumptions (the random
+  oracle; the Lean verifier and prover equal to the Rust ones; the integer model equal to the code; public weights;
+  an unrestricted extractor), 2 rulings and 4 public-data facts.
+- **GA-1 (High, proved by the auditor): the top theorem, applied the way lane L34 says, is empty.** L34's contract
+  for stage IN-C fixes the claim counts without checking the number of slots, so only a stage that never accepts can
+  meet it. The fix is one guard on two fields; it is the next lane's first job.
+- **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
+  enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
+- **The plan, in order:**
+  1. repair GA-1 (hours);
+  2. a run model with one shape per block, so the real Shieldstral classifier is representable (GB-2);
+  3. prove the soundness covers, wiring in the per-block results (L31, L35, L36);
+  4. a concrete Shieldstral instance and one theorem stated at it (GA-4, GB-3), with the public data read by the
+     verifier as FlashProve does;
+  5. an executable whole verifier tested on real Shieldstral T128 receipts (GB-4, GB-6), and Lean mirrors for the
+     unmirrored checks (GB-5);
+  6. completeness (O8 to O10), then zero knowledge (O12) after Victor's rulings D75 (1), (2) and (6).
 - **No end-to-end theorem about the real app exists yet.** Every top theorem is "proved, given named premises". Its
   verifier is a skeleton over abstract parts (GB-3), and no runnable whole-run Lean verifier exists (GB-4).
 - **The approved statements do not pin the leakage (GB-1, High; a ruling for Victor, D75 (6)).** A protocol that
@@ -18,6 +38,10 @@ further down against this list. Each item was re-checked against the source.
   says; it was compared on one synthetic block and one width-16 rung (GB-8).
 - `CircuitIff` adds nothing to the gate on its own; its content reaches the protocol only through `KnowledgeSound`
   (GB-9).
+- **A fifth weaker-than-claimed result, found and repaired by lane L36 (L36-1).** Every block statement since L21
+  assumed the 8B block's lookup count (35.2M), but the app's Shieldstral block makes 64.3M lookups. So L31's
+  statement for the app's block said nothing about it. L36 re-proved the chain at a bound of 2^26, which the app's
+  block meets; cite `block_knowledge_alg_r13_shield_lk26` for the app's block.
 - **Against FlashProve:** FlashProve has one closed theorem about one concrete Lean verifier. Ours is a gate over
   abstract parts. Closing the difference needs a concrete classify-run verifier with per-block shapes, the public
   data as a value, the parts proved at that instance, an executable form run on real receipts, and the leakage fixed
