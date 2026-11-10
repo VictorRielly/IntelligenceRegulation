@@ -201,3 +201,7 @@ import ZK60Formal.HonestOracleProg
 import ZK60Formal.StageVerifyExecAssemble
 import ZK60Formal.HonestOracleSlots
 import ZK60Formal.HonestOracleParts
+import ZK60Formal.BlockInstRead
+import ZK60Formal.BlockInstProf
+import ZK60Formal.BlockInstRung
+import ZK60Formal.BlockInstShield
