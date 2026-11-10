@@ -25,9 +25,11 @@ item was re-checked against the source by the coordinator.
   6. completeness (O8 to O10), then zero knowledge (O12) after Victor's rulings D75 (1), (2) and (6).
 - **No end-to-end theorem about the real app exists yet.** Every top theorem is "proved, given named premises". Its
   verifier is a skeleton over abstract parts (GB-3), and no runnable whole-run Lean verifier exists (GB-4).
-- **The approved statements do not pin the leakage (GB-1, High; a ruling for Victor, D75 (6)).** A protocol that
-  publishes the input can meet `ProductionReady`; this is proved with a toy protocol. The real instance's declared
-  leakage matches the approved English, but only a human reading the instance establishes that.
+- **CLOSED 2026-11-10: the approved statements now pin the leakage (GB-1; Victor's ruling D76, lane L42).** The
+  approved gate is `ProductionReadyL`, which names the allowed leakage; for the media classifier it is
+  `classifyLeak`: T, d, the layer count, and whether the request is served. A protocol that publishes its input passed
+  the old gate and provably fails the new one (`leaky_not_productionReadyL`). Zero knowledge is now asked for q, R ≤
+  2^64, where the computed error meets the target, so that premise can be met.
 - **The run model cannot represent the real Shieldstral classifier (GB-2, High).** It uses one block shape for all 26
   layers, and the real export has 17 different shift sets. So no gate theorem applies to the app's real model yet.
   Earlier lines calling the Lean instance "Shieldstral T128" overstate it.

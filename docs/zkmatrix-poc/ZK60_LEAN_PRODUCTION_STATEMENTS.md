@@ -165,7 +165,12 @@ variable q makes the "exorbitant compute" form explicit; the q-free part of ε_z
 - **Amendment D76 (1), 2026-11-10:** the declared leakage L above is an explicit part of the Lean statements
   themselves, not a field each protocol instance chooses, and the production theorem names it. The first
   `Statements.lean` left it to the instance, so a protocol that publishes its input could satisfy the statement (gap
-  audit finding GB-1).
+  audit finding GB-1). **In the Lean (lane L42):** the approved statements are now `ZeroKnowledgeL`,
+  `SemanticHidingL` and the gate `ProductionReadyL`, each taking the allowed leakage `Λ` as an argument;
+  `ZeroKnowledge`, `SemanticHiding` and `ProductionReady` stay as the instance-leak forms the proofs use, with bridges
+  (`StatementsD76Bridge.lean`). For the media classifier `Λ` is `classifyLeak` (T, d, the layer count, whether the
+  request is served; `StatementsD76Leak.lean`). A protocol that publishes its input provably fails the new gate
+  (`leaky_not_productionReadyL`).
 - The expected sources:
   - salted Merkle leaves, about q·2^-(salt bits);
   - an opened-column count at or below the pad count, which is exact (the D59 privacy check: full rank on any Q

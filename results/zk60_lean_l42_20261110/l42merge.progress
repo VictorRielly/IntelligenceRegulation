@@ -1,0 +1,188 @@
+2026-11-10T09:08:23Z start; HEAD 14d9d748; lane files: StatementsD76Bridge.lean StatementsD76Gate.lean StatementsD76Leak.lean StatementsD76Leaky.lean StatementsD76Range.lean Statements.lean
+2026-11-10T09:12:29Z lake build rc=0
+✔ [3656/3657] Built ZK60Formal (1.7s)
+Build completed successfully (3657 jobs).
+lines naming a warning or sorry in the build log: 0
+2026-11-10T09:12:32Z axiom audit axioms_l36 rc=0
+sorryAx or ofReduceBool mentions: 0
+ 106 axioms: [propext, Classical.choice, Quot.sound]
+  12 axioms: [propext, Quot.sound]
+  20 axioms: [propext]
+declarations with no axioms: 7
+2026-11-10T09:12:35Z axiom audit axioms_l35 rc=0
+sorryAx or ofReduceBool mentions: 0
+ 103 axioms: [propext, Classical.choice, Quot.sound]
+  60 axioms: [propext, Quot.sound]
+  62 axioms: [propext]
+declarations with no axioms: 45
+2026-11-10T09:12:37Z axiom audit axioms_l34 rc=0
+sorryAx or ofReduceBool mentions: 0
+  92 axioms: [propext, Classical.choice, Quot.sound]
+  40 axioms: [propext, Quot.sound]
+  36 axioms: [propext]
+declarations with no axioms: 45
+2026-11-10T09:12:40Z axiom audit axioms_l33 rc=0
+sorryAx or ofReduceBool mentions: 0
+  29 axioms: [propext, Classical.choice, Quot.sound]
+  10 axioms: [propext, Quot.sound]
+  11 axioms: [propext]
+   1 axioms: [Quot.sound]
+declarations with no axioms: 24
+2026-11-10T09:12:43Z axiom audit axioms_l32 rc=0
+sorryAx or ofReduceBool mentions: 0
+ 115 axioms: [propext, Classical.choice, Quot.sound]
+  54 axioms: [propext, Quot.sound]
+   3 axioms: [propext]
+declarations with no axioms: 20
+2026-11-10T09:12:45Z axiom audit axioms_l31 rc=0
+sorryAx or ofReduceBool mentions: 0
+  62 axioms: [propext, Classical.choice, Quot.sound]
+  18 axioms: [propext, Quot.sound]
+  14 axioms: [propext]
+declarations with no axioms: 21
+2026-11-10T09:12:48Z axiom audit axioms_l30 rc=0
+sorryAx or ofReduceBool mentions: 0
+  54 axioms: [propext, Classical.choice, Quot.sound]
+   6 axioms: [propext]
+declarations with no axioms: 0
+2026-11-10T09:12:51Z axiom audit axioms_l29 rc=0
+sorryAx or ofReduceBool mentions: 0
+  32 axioms: [propext, Classical.choice, Quot.sound]
+  53 axioms: [propext, Quot.sound]
+   5 axioms: [propext]
+declarations with no axioms: 6
+2026-11-10T09:12:54Z axiom audit axioms_l28 rc=0
+sorryAx or ofReduceBool mentions: 0
+  76 axioms: [propext, Classical.choice, Quot.sound]
+  28 axioms: [propext, Quot.sound]
+  17 axioms: [propext]
+declarations with no axioms: 0
+2026-11-10T09:12:56Z axiom audit axioms_l27 rc=0
+sorryAx or ofReduceBool mentions: 0
+  77 axioms: [propext, Classical.choice, Quot.sound]
+  11 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+declarations with no axioms: 4
+2026-11-10T09:12:59Z axiom audit axioms_l26 rc=0
+sorryAx or ofReduceBool mentions: 0
+  98 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext, Quot.sound]
+   1 axioms: [propext]
+declarations with no axioms: 2
+2026-11-10T09:13:01Z axiom audit axioms_l25 rc=0
+sorryAx or ofReduceBool mentions: 0
+  39 axioms: [propext, Classical.choice, Quot.sound]
+  16 axioms: [propext, Quot.sound]
+   5 axioms: [propext]
+declarations with no axioms: 7
+2026-11-10T09:13:04Z axiom audit axioms_l24 rc=0
+sorryAx or ofReduceBool mentions: 0
+  61 axioms: [propext, Classical.choice, Quot.sound]
+   2 axioms: [propext]
+declarations with no axioms: 0
+2026-11-10T09:13:07Z axiom audit axioms_l23 rc=0
+sorryAx or ofReduceBool mentions: 0
+  73 axioms: [propext, Classical.choice, Quot.sound]
+  36 axioms: [propext, Quot.sound]
+  12 axioms: [propext]
+declarations with no axioms: 8
+2026-11-10T09:13:09Z axiom audit axioms_l22 rc=0
+sorryAx or ofReduceBool mentions: 0
+  57 axioms: [propext, Classical.choice, Quot.sound]
+  43 axioms: [propext, Quot.sound]
+  29 axioms: [propext]
+declarations with no axioms: 9
+2026-11-10T09:13:12Z axiom audit axioms_l21 rc=0
+sorryAx or ofReduceBool mentions: 0
+  73 axioms: [propext, Classical.choice, Quot.sound]
+  12 axioms: [propext, Quot.sound]
+   2 axioms: [propext]
+declarations with no axioms: 1
+2026-11-10T09:13:15Z axiom audit axioms_l20 rc=0
+sorryAx or ofReduceBool mentions: 0
+  55 axioms: [propext, Classical.choice, Quot.sound]
+   3 axioms: [propext, Quot.sound]
+   2 axioms: [propext]
+declarations with no axioms: 0
+2026-11-10T09:13:17Z axiom audit axioms_l19 rc=0
+sorryAx or ofReduceBool mentions: 0
+  58 axioms: [propext, Classical.choice, Quot.sound]
+   6 axioms: [propext, Quot.sound]
+   2 axioms: [propext]
+   1 axioms: [Quot.sound]
+declarations with no axioms: 4
+2026-11-10T09:13:20Z axiom audit axioms_l18 rc=0
+sorryAx or ofReduceBool mentions: 0
+  41 axioms: [propext, Classical.choice, Quot.sound]
+  12 axioms: [propext, Quot.sound]
+   7 axioms: [propext]
+declarations with no axioms: 4
+2026-11-10T09:13:22Z axiom audit axioms_l17 rc=0
+sorryAx or ofReduceBool mentions: 0
+  53 axioms: [propext, Classical.choice, Quot.sound]
+   3 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+declarations with no axioms: 7
+2026-11-10T09:13:25Z axiom audit axioms_l16 rc=0
+sorryAx or ofReduceBool mentions: 0
+  32 axioms: [propext, Classical.choice, Quot.sound]
+  15 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+declarations with no axioms: 0
+2026-11-10T09:13:27Z axiom audit axioms_l15 rc=0
+sorryAx or ofReduceBool mentions: 0
+  70 axioms: [propext, Classical.choice, Quot.sound]
+   6 axioms: [propext, Quot.sound]
+   3 axioms: [propext]
+declarations with no axioms: 4
+2026-11-10T09:13:30Z axiom audit axioms_l14 rc=0
+sorryAx or ofReduceBool mentions: 0
+  65 axioms: [propext, Classical.choice, Quot.sound]
+   5 axioms: [propext, Quot.sound]
+   3 axioms: [propext]
+   1 axioms: [Quot.sound]
+declarations with no axioms: 6
+2026-11-10T09:13:32Z axiom audit axioms_l13 rc=0
+sorryAx or ofReduceBool mentions: 0
+  13 axioms: [propext, Classical.choice, Quot.sound]
+  31 axioms: [propext, Quot.sound]
+  13 axioms: [propext]
+declarations with no axioms: 3
+2026-11-10T09:13:35Z axiom audit axioms_l12 rc=0
+sorryAx or ofReduceBool mentions: 0
+  81 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext]
+declarations with no axioms: 1
+2026-11-10T09:13:37Z axiom audit axioms_l11 rc=0
+sorryAx or ofReduceBool mentions: 0
+  59 axioms: [propext, Classical.choice, Quot.sound]
+  14 axioms: [propext, Quot.sound]
+   8 axioms: [propext]
+declarations with no axioms: 1
+2026-11-10T09:13:40Z axiom audit axioms_l10 rc=0
+sorryAx or ofReduceBool mentions: 0
+ 114 axioms: [propext, Classical.choice, Quot.sound]
+  22 axioms: [propext, Quot.sound]
+  11 axioms: [propext]
+declarations with no axioms: 1
+2026-11-10T09:13:43Z axiom audit axioms_l9 rc=0
+sorryAx or ofReduceBool mentions: 0
+  45 axioms: [propext, Classical.choice, Quot.sound]
+  16 axioms: [propext, Quot.sound]
+  16 axioms: [propext]
+declarations with no axioms: 14
+2026-11-10T09:13:43Z source scan hits (grep rc 1 = none): rc=1
+source scan hit lines:        0
+2026-11-10T09:17:46Z ExecBlockCheck regression rc=0
+ExecBlockCheck: 273 checks, 0 failed
+2026-11-10T09:17:51Z L11Check rc=0
+L11Check: 404 checks, 0 failed
+2026-11-10T09:17:54Z L6Check rc=0
+L6Check: 1206 checks, 0 failed
+2026-11-10T09:18:09Z L5Check rc=0
+L5Check: 5553 checks, 0 failed
+2026-11-10T09:18:14Z fixture L1 check rc=0
+L1 TOTAL: 101956 checks, 0 failed
+2026-11-10T09:24:24Z CheckR13Block regression rc=0
+CheckR13Block: 302 checks, 0 failed
+2026-11-10T09:24:24Z all done
