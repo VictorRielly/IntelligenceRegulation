@@ -1,0 +1,1118 @@
+{
+ "candidates_best_first": [
+  {
+   "gate": 20,
+   "layer_fields_moved": 34,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    72,
+    44
+   ],
+   "sh_ao": 7,
+   "sh_s": 7,
+   "sh_z": 8,
+   "stage_planes": [
+    72,
+    44
+   ]
+  },
+  {
+   "gate": 20,
+   "layer_fields_moved": 40,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    71,
+    43
+   ],
+   "sh_ao": 8,
+   "sh_s": 7,
+   "sh_z": 8,
+   "stage_planes": [
+    71,
+    43
+   ]
+  },
+  {
+   "gate": 20,
+   "layer_fields_moved": 42,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    72,
+    44
+   ],
+   "sh_ao": 7,
+   "sh_s": 6,
+   "sh_z": 8,
+   "stage_planes": [
+    72,
+    44
+   ]
+  },
+  {
+   "gate": 20,
+   "layer_fields_moved": 48,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    71,
+    43
+   ],
+   "sh_ao": 8,
+   "sh_s": 6,
+   "sh_z": 8,
+   "stage_planes": [
+    71,
+    43
+   ]
+  },
+  {
+   "gate": 18,
+   "layer_fields_moved": 51,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    72,
+    44
+   ],
+   "sh_ao": 7,
+   "sh_s": 7,
+   "sh_z": 8,
+   "stage_planes": [
+    72,
+    44
+   ]
+  },
+  {
+   "gate": 19,
+   "layer_fields_moved": 53,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    72,
+    44
+   ],
+   "sh_ao": 7,
+   "sh_s": 6,
+   "sh_z": 8,
+   "stage_planes": [
+    72,
+    44
+   ]
+  },
+  {
+   "gate": 19,
+   "layer_fields_moved": 53,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    72,
+    44
+   ],
+   "sh_ao": 7,
+   "sh_s": 8,
+   "sh_z": 8,
+   "stage_planes": [
+    72,
+    44
+   ]
+  },
+  {
+   "gate": 20,
+   "layer_fields_moved": 57,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    71,
+    43
+   ],
+   "sh_ao": 7,
+   "sh_s": 7,
+   "sh_z": 5,
+   "stage_planes": [
+    71,
+    43
+   ]
+  },
+  {
+   "gate": 18,
+   "layer_fields_moved": 57,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    71,
+    43
+   ],
+   "sh_ao": 8,
+   "sh_s": 7,
+   "sh_z": 8,
+   "stage_planes": [
+    71,
+    43
+   ]
+  },
+  {
+   "gate": 20,
+   "layer_fields_moved": 58,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    71,
+    43
+   ],
+   "sh_ao": 7,
+   "sh_s": 7,
+   "sh_z": 7,
+   "stage_planes": [
+    71,
+    43
+   ]
+  },
+  {
+   "gate": 18,
+   "layer_fields_moved": 59,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    72,
+    44
+   ],
+   "sh_ao": 7,
+   "sh_s": 8,
+   "sh_z": 8,
+   "stage_planes": [
+    72,
+    44
+   ]
+  },
+  {
+   "gate": 19,
+   "layer_fields_moved": 59,
+   "one_plane_list_incl_seed": true,
+   "seed_planes_at_gate17": [
+    71,
+    43
+   ],
+   "sh_ao": 8,
+   "sh_s": 6,
+   "sh_z": 8,
+   "stage_planes": [
+    71,
+    43
+   ]
+  }
+ ],
+ "distinct_cn_pairs": 26,
+ "distinct_shift_sets_ao_s_h_z": 17,
+ "layers": [
+  {
+   "cn_a": 848,
+   "cn_m": 1716,
+   "gate": 19,
+   "groups": [
+    [
+     -5,
+     -13
+    ],
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ]
+   ],
+   "layer": 0,
+   "sh_ao": 8,
+   "sh_h": 16,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -4,
+    -13
+   ],
+   "w16r2_planes_own": [
+    70,
+    42
+   ]
+  },
+  {
+   "cn_a": 2600,
+   "cn_m": 1471,
+   "gate": 19,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 1,
+   "sh_ao": 8,
+   "sh_h": 14,
+   "sh_s": 8,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2727,
+   "cn_m": 1196,
+   "gate": 18,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 2,
+   "sh_ao": 8,
+   "sh_h": 16,
+   "sh_s": 8,
+   "sh_z": 6,
+   "silu_member": [
+    -1,
+    -9
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2899,
+   "cn_m": 1448,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 3,
+   "sh_ao": 8,
+   "sh_h": 15,
+   "sh_s": 8,
+   "sh_z": 8,
+   "silu_member": [
+    -4,
+    -12
+   ],
+   "w16r2_planes_own": [
+    70,
+    42
+   ]
+  },
+  {
+   "cn_a": 2304,
+   "cn_m": 1289,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 4,
+   "sh_ao": 8,
+   "sh_h": 15,
+   "sh_s": 6,
+   "sh_z": 8,
+   "silu_member": [
+    -4,
+    -12
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2277,
+   "cn_m": 1539,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 5,
+   "sh_ao": 8,
+   "sh_h": 15,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -4,
+    -12
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2190,
+   "cn_m": 1370,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 6,
+   "sh_ao": 7,
+   "sh_h": 15,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -4,
+    -12
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2212,
+   "cn_m": 1424,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 7,
+   "sh_ao": 8,
+   "sh_h": 15,
+   "sh_s": 6,
+   "sh_z": 8,
+   "silu_member": [
+    -4,
+    -12
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2248,
+   "cn_m": 1479,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 8,
+   "sh_ao": 8,
+   "sh_h": 15,
+   "sh_s": 6,
+   "sh_z": 8,
+   "silu_member": [
+    -4,
+    -12
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2267,
+   "cn_m": 1302,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -10
+    ]
+   ],
+   "layer": 9,
+   "sh_ao": 7,
+   "sh_h": 14,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2218,
+   "cn_m": 1539,
+   "gate": 19,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 10,
+   "sh_ao": 7,
+   "sh_h": 16,
+   "sh_s": 6,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2233,
+   "cn_m": 1533,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 11,
+   "sh_ao": 7,
+   "sh_h": 15,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2208,
+   "cn_m": 1246,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 12,
+   "sh_ao": 7,
+   "sh_h": 14,
+   "sh_s": 6,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2185,
+   "cn_m": 999,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -10
+    ]
+   ],
+   "layer": 13,
+   "sh_ao": 7,
+   "sh_h": 13,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2118,
+   "cn_m": 1052,
+   "gate": 19,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ]
+   ],
+   "layer": 14,
+   "sh_ao": 7,
+   "sh_h": 13,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2015,
+   "cn_m": 1182,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 15,
+   "sh_ao": 7,
+   "sh_h": 13,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2174,
+   "cn_m": 1481,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -10
+    ]
+   ],
+   "layer": 16,
+   "sh_ao": 6,
+   "sh_h": 14,
+   "sh_s": 6,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2430,
+   "cn_m": 1435,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 17,
+   "sh_ao": 7,
+   "sh_h": 14,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2448,
+   "cn_m": 1607,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 18,
+   "sh_ao": 6,
+   "sh_h": 15,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2599,
+   "cn_m": 1835,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 19,
+   "sh_ao": 7,
+   "sh_h": 15,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2273,
+   "cn_m": 1926,
+   "gate": 20,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 20,
+   "sh_ao": 6,
+   "sh_h": 16,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 2343,
+   "cn_m": 2091,
+   "gate": 20,
+   "groups": [
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 21,
+   "sh_ao": 7,
+   "sh_h": 14,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 2753,
+   "cn_m": 2455,
+   "gate": 20,
+   "groups": [
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 22,
+   "sh_ao": 6,
+   "sh_h": 15,
+   "sh_s": 7,
+   "sh_z": 8,
+   "silu_member": [
+    -3,
+    -11
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  },
+  {
+   "cn_a": 3854,
+   "cn_m": 2062,
+   "gate": 19,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 23,
+   "sh_ao": 7,
+   "sh_h": 16,
+   "sh_s": 8,
+   "sh_z": 8,
+   "silu_member": [
+    -2,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 4532,
+   "cn_m": 2467,
+   "gate": 19,
+   "groups": [
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ]
+   ],
+   "layer": 24,
+   "sh_ao": 7,
+   "sh_h": 15,
+   "sh_s": 8,
+   "sh_z": 8,
+   "silu_member": [
+    -2,
+    -11
+   ],
+   "w16r2_planes_own": [
+    72,
+    44
+   ]
+  },
+  {
+   "cn_a": 3047,
+   "cn_m": 3106,
+   "gate": 19,
+   "groups": [
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -9
+    ],
+    [
+     0,
+     -8
+    ]
+   ],
+   "layer": 25,
+   "sh_ao": 7,
+   "sh_h": 15,
+   "sh_s": 8,
+   "sh_z": 5,
+   "silu_member": [
+    -1,
+    -9
+   ],
+   "w16r2_planes_own": [
+    71,
+    43
+   ]
+  }
+ ],
+ "mirror_reproduces_a25_census": true,
+ "scope": "CODE mirror of range16::widths for prediction only; the Rust census (census.sh) is the authority",
+ "value_counts": {
+  "gate": {
+   "18": 1,
+   "19": 7,
+   "20": 18
+  },
+  "sh_ao": {
+   "6": 4,
+   "7": 14,
+   "8": 8
+  },
+  "sh_h": {
+   "13": 3,
+   "14": 6,
+   "15": 12,
+   "16": 5
+  },
+  "sh_s": {
+   "6": 6,
+   "7": 14,
+   "8": 6
+  },
+  "sh_z": {
+   "5": 1,
+   "6": 1,
+   "8": 24
+  }
+ }
+}
