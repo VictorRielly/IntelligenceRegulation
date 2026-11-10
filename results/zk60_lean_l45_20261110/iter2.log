@@ -1,0 +1,34 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/results/zk60_lean_l45_20261110/plan2.txt ==
+build ZK60Formal.RunStageRd
+build ZK60Formal.RunStageRdRun
+build ZK60Formal.RunStageRdHal
+build ZK60Formal.RunExtractWork
+== lake build ZK60Formal.RunStageRd ==
+Build completed successfully (3553 jobs).
+build rc 0 (7 s)
+== lake build ZK60Formal.RunStageRdRun ==
+Build completed successfully (3554 jobs).
+build rc 0 (10 s)
+== lake build ZK60Formal.RunStageRdHal ==
+Build completed successfully (3558 jobs).
+build rc 0 (14 s)
+== lake build ZK60Formal.RunExtractWork ==
+✖ [3559/3559] Building ZK60Formal.RunExtractWork (7.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/ZK60Formal/RunExtractWork.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunExtractWork.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunExtractWork.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunExtractWork.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunExtractWork.setup.json --json
+error: ZK60Formal/RunExtractWork.lean:62:2: `dsimp` made no progress
+error: ZK60Formal/RunExtractWork.lean:81:4: `dsimp` made no progress
+error: ZK60Formal/RunExtractWork.lean:307:4: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunExtractWork.lean:282:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.RunExtractWork
+error: build failed
+build rc 1 (23 s)
+rc 1, 23 s
