@@ -1,0 +1,17 @@
+[zk60-guard 17:29:52] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:30:53] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:31:54] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:32:55] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:33:55] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:34:56] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:35:57] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:36:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:37:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:38:59] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:39:45] waiting for admission lock (0s)
+[zk60-guard 17:40:01] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:41:01] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:42:02] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:42:23] START a28-final3 class=gpu need=150G cap=220G enforce=watchdog-only waited=751s run=3793e2bddd76
+[zk60-guard 18:06:35] a28-final3: 1 straggler process(es) outlived the command; killing
+[zk60-guard 18:06:35] END a28-final3 exit=0 child_wall=1452s peak_rss=89.47G min_avail=105.97G peak_vram=50657MiB

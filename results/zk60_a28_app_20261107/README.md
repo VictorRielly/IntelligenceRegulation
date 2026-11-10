@@ -1,7 +1,5 @@
 # A28: the media app's commitment kernels and the GPU's idle gaps (2026-11-07, resumed 2026-11-09)
 
-**STATUS: WORK IN PROGRESS** (the final A/B pairs, the acceptance on the committed tree, the byte identity of
-the final candidate and the app runs are running; the sections marked PENDING wait for them).
 
 Lane A28. Goal (Victor, 2026-11-07): "Focus on implementing the new optimizations into the proof of concept
 media app. It would be nice to get the media app speed up to 30 or so tokens per second for the proofs." A27
@@ -24,7 +22,43 @@ shared with the Lean lanes. Every heavy run went through the resource guard at i
 
 ## 0. Plain summary
 
-PENDING.
+- **30 proved tok/s is not reached, and this lane moved the stream by little.** The 8-post stream, every receipt
+  freshly verified, A/B in mirrored order in one job: A27 16.42 proved tok/s, the A28 binary 16.66 (+1.5%), the
+  A28 binary with two server settings 16.90 (**+2.9%**). One post with those settings: 43.3 -> 42.0 s (-3%).
+  Proof only: 17.75 -> 17.82 (no difference). Through the app: APP_SUMMARY (sections 3.5 to 3.7).
+- **The commitment kernels are now at the device's limits** (part 1 of the brief). Two byte-identical changes:
+  the forward transform skips the zero half of its first pass, and the column hash runs in two passes. The
+  commitments' GPU time fell 9% (A 42.4 -> 38.6 ms, H 40.5 -> 36.8 ms per block) and **one proof's GPU time
+  5.04 -> 4.84 s (-3.9%)**. Deeper radix passes, in-register tails and rewritten field arithmetic all lost or
+  tied: the transform runs at the device's 64-bit arithmetic rate and its tail and hash at about 500 GB/s
+  (section 2).
+- **Scheduling cannot fill the GPU's idle gaps** (part 2). Seal-ahead (a lane seals its next request beside
+  the running one, as A22 did for `stack-serve`) works on one lane (three proofs 6.8 s sooner) but gives +1.3%
+  on six lanes for 60 GiB more memory: it is built, tested in both modes and OFF by default. More threads a
+  lane (8, 10), more lanes (8) and two server processes give the same stream. Every setting makes about one
+  category proof every 6 to 6.5 s (sections 3.1, 3.2).
+- **Why** (section 3.3): a proof that takes 19.6 s alone takes 38 s beside five others on the same five
+  threads. It waits 12 to 15 s for the one shared device instead of 5.4 s, and its host work takes 29 to 31 s
+  instead of 16 s: every host section, serial ones included, runs 1.3x to 3x slower in company. The same
+  work in another order does not go faster; less work per proof does, and the 3.9% this lane found is what
+  the stream shows.
+- **What paid besides the kernels: two settings and the app's writers.** A7's spin-then-block wait and a 300 ms
+  stagger between request starts (so a post's three categories do not run in lockstep): the stream +1.4% on
+  top of the binary, one post -3%, **the prover's CPU per proof -22%** (84 -> 65 CPU-s). In the app's service:
+  three activation writers at once instead of two and twelve jobs in flight instead of nine (a post's third
+  category no longer waits 5.5 s for a writer).
+- **Measured and taken out again:** zero rows from calloc (`protocol.rs` is back at its base), per-thread witness
+  queues, a QoS class for the lane threads (section 2).
+- **The receipts did not change, byte for byte**: on the real Shieldstral export under fixed test entropy,
+  A27's binary, A28's, A28 with every switch off, and A28 on one lane with seal-ahead on and off make identical
+  receipts, every file of every category, and each verifier accepts the others' (section 4). The six trained
+  profiles' recorded digests hold on CPU and Metal; the 8B stack's server tests pass on the device; the full
+  lib suite has exactly its 3 known failures (section 5).
+- **The app's `shieldstral-fast` mode pins the A28 binary** (`80f2b704…`, the committed tree's build); 219 app
+  tests OK. Still a development candidate: "privacy statement pending", `production: false`. A26's two ruling
+  switches stay off.
+- **What is left** (section 7): rows of W16R2's size (the protocol lever, Victor's ruling), a second GPU, the
+  prover's re-checks from the startup records (a ruling like D72/D74), the device sumcheck slots.
 
 ## 1. The profile first (A27 as pinned, the 8-post stream at the app's setting)
 
@@ -264,7 +298,42 @@ tokens, 24 category proofs), 6 x 5 prover and 3 x 4 verifier lanes, 16 GiB witne
   machine was rebooted in between; on 2026-11-09/10 an aerial wallpaper was decoding video beside every run
   (WindowServer and the video decoder, about 0.2 core). Each comparison here is inside one job.
 
-### 3.6 PENDING: one post and proof only (job final3)
+### 3.6 Proof only, and one post [MEASURED, `final3.progress`, `stream_f3*`]
+
+**Proof only** (the 8-post stream with the verifier server started only after the last proof is written,
+standing for verification on another machine; every receipt is then freshly verified, owner-checked and
+labelled on its own clock, the verifier's startup excluded; single runs, B then A):
+
+| run | binary | proof-only wall | **proof-only proved tok/s** | then: verifying all 24 (3 x 4 threads) | verified tok/s |
+|---|---|---:|---:|---:|---:|
+| f3dB | A28 (a28-q3) | 172.4 s | **17.82** | 65.8 s | 46.7 |
+| f3dA | A27 | 173.1 s | 17.75 | 65.6 s | 46.8 |
+
+- **Proof only: 17.75 -> 17.82 proved tok/s: no difference** (A27's own run of this clock measured 17.71 for
+  its binary). Without the verifier beside it the stream is about 7% faster than with it, for either binary.
+
+**One post** (A24's one-post setting: 3 prover lanes x 10 threads, 3 verifier lanes x 4; one public post of 14
+tokens, its three category proofs at once; A B B A, then the two server settings on the A28 binary):
+
+| run | binary | env (beside `HL_METAL_QUEUES=thread`) | wall (= the post's latency) | proved tok/s | writer | the three proofs at once | the three checks at once (verify) | CPU-s per proof, all | GPU utilization mean |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|
+| f3o1a | A27 | | 43.3 s | 8.87 | 10.3 s | 24.5-24.7 s | 8.1-8.2 s (7.48-7.55) | 116.8 | 41% |
+| f3o1b | A28 | | 42.7 s | 8.99 | 10.3 s | 23.7-24.2 s | 8.1-8.2 s (7.38-7.48) | 115.8 | 41% |
+| f3o2b | A28 | | 44.4 s | 8.65 | 11.3 s | 24.3-24.9 s | 8.1-8.2 s (7.47-7.51) | 118.7 | 42% |
+| f3o2a | A27 | | 43.3 s | 8.87 | 10.5 s | 24.4-24.7 s | 8.1-8.1 s (7.40-7.47) | 117.2 | 43% |
+| f3o1s | A28 | `HL_METAL_SPIN_US=200` | 42.1 s | 9.12 | 10.6 s | 23.2-23.4 s | 7.9-8.1 s (7.22-7.40) | 105.8 | 43% |
+| f3o1c | A28 | `HL_METAL_SPIN_US=200 HL_A28_STAGGER_MS=300` | 41.8 s | 9.18 | 10.1 s | 23.0-23.4 s | 8.1-8.1 s (7.43) | 103.8 | 42% |
+| f3o2c | A28 | `HL_METAL_SPIN_US=200 HL_A28_STAGGER_MS=300` | 42.1 s | 9.12 | 10.3 s | 23.0-23.5 s | 8.1-8.1 s (7.42-7.43) | 104.7 | 47% |
+| f3o2s | A28 | `HL_METAL_SPIN_US=200` | 43.9 s | 8.74 | 10.2 s | 25.2-25.3 s | 8.2-8.3 s (7.47-7.61) | 108.2 | 45% |
+
+- **One post, A27 -> A28 with the same setting: 43.3 -> 43.5 s, no difference** (the three proofs at once
+  24.6 -> 24.3 s; the Python writer alone varies by a second between runs).
+- **With the wait and the stagger: 41.8 and 42.1 s, -3%** (each run faster than each A27 run; the three proofs
+  23.0-23.5 s against 24.4-24.7 s, -5.5%): the stagger does not cost one post the 0.6 s it delays its third
+  category, it gains more than that because the three lanes no longer run in lockstep. The wait alone gave
+  42.1 and 43.9 s.
+- **So the app's servers get both settings** (`NATIVE_SETTINGS`: `HL_METAL_SPIN_US=200`,
+  `HL_A28_STAGGER_MS=300`): the stream +2.9% (section 3.5), one post -3%, the prover's CPU per proof -22%.
 
 ### 3.7 Through the app [MEASURED, `app_a1/summary.json`, `app_a1.out`; PENDING `app_b1`; single runs]
 
@@ -378,27 +447,38 @@ guard declaration unchanged) [MEASURED, `app_tests1.log`]. PENDING: again after 
    app's guard declaration (110 / 180 GiB) would have to grow with it.
 4. **The app's service now runs three activation writers at once** (three Python processes, one category chunk
    each: the same pinned writer, the same bytes per category; section 3.4) and keeps twelve category jobs in
-   flight instead of nine. PENDING: confirmed by the app run.
-5. **A26's two switches** (`HL_A26_KEPT`, `HL_A26_VERIFY_ONCE`) stay off, waiting for Victor's reading of
+   flight instead of nine: up to three more posts' activations and owner files exist on disk (owner-only, as
+   before) while their jobs wait for a lane.
+5. **The servers' two new settings.** `HL_A28_STAGGER_MS=300` delays a request's start until 300 ms after the
+   previous start: a function of the requests' arrival times only (and D73 (5) already says a request's
+   latency shows how long other requests held the machine: one data owner per process).
+   `HL_METAL_SPIN_US=200` (A7's switch) makes a thread that waits for a command buffer block after 200 us
+   instead of spinning: when it wakes depends on the device's completion as before.
+6. **A26's two switches** (`HL_A26_KEPT`, `HL_A26_VERIFY_ONCE`) stay off, waiting for Victor's reading of
    D72/D74 for the classifier servers. This lane's profile prices the first: the blocks' CS-6 digests and
    CS-1 / CS-4 word checks are 2.6 s of a request alone and 4 to 6 s in the stream (section 7).
-6. **Diagnostics added to this lane's own scripts only**: `stream_driver.py --provers` and the page-fault
+7. **Diagnostics added to this lane's own scripts only**: `stream_driver.py --provers` and the page-fault
    count, `membw_probe.py`, the lane sampling. Nothing of them is in the binary or the app.
+8. **Commands outside the brief's list:** none (no `git reset`, `checkout` or `rebase`; nothing pushed). The
+   lib suite leaves five untracked test-output directories under `ops/zkp-mvp/gpu-metal/results/` (`r12-*`,
+   `r13-array-tests`); they were deleted from this worktree. The app's guard call writes
+   `results/zk60_resource_guard/history.jsonl` inside the worktree (untracked, not committed; its two lines are
+   copied to `app_*.service_guard.json`).
 
 ## 7. What is left to reach 30 proved tok/s
 
-PENDING (the final numbers). The estimates, each [INFERRED] from this lane's measurements:
-
-30 tok/s is one category proof every 4.27 s. The stream makes one every 6.2 s in its rounds whatever the
-scheduling (section 3.2), with 4.84 s of device work and 14 to 16 s of host work per proof alone, both of which
-stretch in company (section 3.3). Scheduling is exhausted; the levers are less work per proof, or more
-hardware. Largest first:
+30 tok/s is one category proof every 4.27 s over the whole stream. The 8-post stream makes one every 7.6 s
+(16.9 tok/s; one every 6 to 6.5 s in its rounds, about 21 tok/s in its second half) whatever the scheduling
+(section 3.2), with 4.84 s of device work and 14 to 16 s of host work per proof alone, both of which stretch in
+company (section 3.3). So about 1.8x is still missing, as after A27. Scheduling is exhausted; the levers are
+less work per proof, or more hardware. Each estimate below is [INFERRED] from this lane's measurements.
+Largest first:
 
 1. **Rows of W16R2's size (the protocol lever; needs Victor's ruling, then the privacy gate).** About 1.8x
    fewer committed rows at rate 1/2: the commitments' encode-and-hash work falls about 3.6x (A25's count), from
    1.98 s to about 0.55 s per proof, and the rows the host builds, zeroes, uploads and folds shrink with them.
    One proof's device work would be about 3.4 s (-30%) and its host work perhaps 12 s. If the stream follows the
-   work per proof: about 23 to 25 proved tok/s on the 8-post stream, about 28 to 30 in its steady rounds.
+   work per proof: about 22 to 25 proved tok/s on the 8-post stream, about 27 to 30 in its steady rounds.
 2. **A second GPU or machine.** The receipts are files and the verifier uses no GPU: about 1.9x.
 3. **The startup records for the prover's re-checks (A26's `HL_A26_KEPT`; D72 and D74 grant the same for
    `stack-serve`).** The blocks' CS-6 digests and CS-1 / CS-4 word checks are 2.6 s of a request alone, 4 to 6 s
@@ -417,7 +497,17 @@ hardware. Largest first:
    84 gathers) and each waits 0.5 to 1.5 ms for the device to start it even alone: 0.6 s per proof. A block's
    witness products in one command buffer and a commitment's gather with the next one's would take about half
    of it: +1 to 2%.
-7. **One post's latency.** PENDING (the app's writers).
+7. **Two server processes of three lanes** measured 17.06 and 17.87 against 16.7 to 17.3 for one process
+   (single runs): perhaps +3%, perhaps nothing. An A B B A pair would settle it (`x5.plan`, not run); the
+   app's service would then hold two prover servers.
+8. **One post's latency** (42 s natively, APP_ONE through the app) is the writer (6 s for the three categories
+   at once), the three proofs (23 to 24 s), the verification (8 s), and in the app about 4 s of queue ticks
+   (2 s each), re-checks and publication. A resident writer (the model loaded once instead of per job) would
+   take most of the 6 s; a 0.5 s queue tick about 1.5 s; verifying a category's chunks once (A26's
+   `HL_A26_VERIFY_ONCE`, a ruling) 22 s of a long post's 24 s label step.
+
+**In sum:** the byte-preserving levers left (3, 4, 6, perhaps 7) add up to about +10 to +15%: 19 proved tok/s
+on this stream, not 30. 30 needs the protocol lever (1) with (3), or a second GPU (2).
 
 ## 8. Operational notes
 
