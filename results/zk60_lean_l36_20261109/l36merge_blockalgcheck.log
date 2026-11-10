@@ -1,0 +1,9 @@
+  PROFILE: 3
+  LOGS: 3
+  HELPERS: 3
+  LOOKUPS: 18
+  PAIRING: 18
+  COUNT: 6
+  ALG-NUMBERS: 3
+  BOUND: 2
+BlockAlgCheck: 56 checks, 0 failed

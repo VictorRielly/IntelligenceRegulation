@@ -1,0 +1,5 @@
+changed hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 SHAPE  lh=4  ->  lh=3 
+changed hashline-zk-mr1/private-block-rung-lh-t32-dev/2 SHAPE helpers=0,0,1,17, -> helpers=0,0,1,16,
+changed hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2 SHAPE logs=7,12,14,19,19,17,19,21,14  -> logs=7,12,14,19,19,17,19,21,13 
+changed hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2 SHAPE  lf=14  ->  lf=13 
+changed hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 LOOKUPS S:9 -> S:10
