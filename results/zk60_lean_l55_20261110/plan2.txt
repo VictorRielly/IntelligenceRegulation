@@ -1,0 +1,3 @@
+build ZK60Formal.RunVerdictW
+build ZK60Formal.RunVerdictTop
+build ZK60Formal.RunCloseBBlk

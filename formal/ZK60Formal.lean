@@ -413,3 +413,7 @@ import ZK60Formal.BlockR13StmtHelp
 import ZK60Formal.BlockR13StmtHosts
 import ZK60Formal.BlockR13StmtJoin
 import ZK60Formal.BlockR13StmtLook
+import ZK60Formal.RunVerdictW
+import ZK60Formal.RunVerdictTop
+import ZK60Formal.RunCloseBGeo
+import ZK60Formal.RunCloseBPcs

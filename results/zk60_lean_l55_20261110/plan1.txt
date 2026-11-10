@@ -1,0 +1,6 @@
+build ZK60Formal.RunVerdictW
+build ZK60Formal.RunVerdictTop
+build ZK60Formal.RunCloseBGeo
+build ZK60Formal.RunCloseBPcs
+build ZK60Formal.RunCloseBRun
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a33fed333d77ee386/formal/ZK60Formal/RunCloseBGeoCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a33fed333d77ee386/results/zk60_lean_l29_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a33fed333d77ee386/results/zk60_lean_l49_20261110/pub_shield_short.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a33fed333d77ee386/ops/zkp-mvp/gpu-metal
