@@ -221,3 +221,9 @@ import ZK60Formal.ZKHonestView
 import ZK60Formal.ZKHonestCount
 import ZK60Formal.ZKHonestRun
 import ZK60Formal.ZKHonestBound
+import ZK60Formal.BlockAlgUnmask
+import ZK60Formal.BlockAlgKinds
+import ZK60Formal.BlockAlgInst
+import ZK60Formal.BlockAlgRels
+import ZK60Formal.BlockAlgFinal
+import ZK60Formal.BlockAlgShapes

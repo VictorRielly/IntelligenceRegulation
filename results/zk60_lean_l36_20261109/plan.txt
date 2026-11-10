@@ -1,0 +1,5 @@
+build ZK60Formal.BlockAlgKinds
+build ZK60Formal.BlockAlgInst
+build ZK60Formal.BlockAlgRels
+build ZK60Formal.BlockAlgFinal
+build ZK60Formal.BlockAlgShapes
