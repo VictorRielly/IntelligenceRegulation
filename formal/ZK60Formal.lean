@@ -292,3 +292,4 @@ import ZK60Formal.BlockJoinDt
 import ZK60Formal.BlockJoinFinal
 import ZK60Formal.BlockJoinBatch
 import ZK60Formal.BlockHostBase
+import ZK60Formal.BlockHostPub
