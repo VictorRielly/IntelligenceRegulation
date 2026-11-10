@@ -1,0 +1,72 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/results/zk60_lean_l45_20261110/plan5.txt ==
+build ZK60Formal.RunExtractBlk
+build ZK60Formal.RunExtractParts
+build ZK60Formal.RunExtractTop
+== lake build ZK60Formal.RunExtractBlk ==
+Build completed successfully (3561 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.RunExtractParts ==
+✖ [3562/3562] Building ZK60Formal.RunExtractParts (8.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/ZK60Formal/RunExtractParts.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunExtractParts.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunExtractParts.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunExtractParts.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunExtractParts.setup.json --json
+error: ZK60Formal/RunExtractParts.lean:70:4: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'rkAccBlk', which is 'noncomputable'
+error: ZK60Formal/RunExtractParts.lean:164:29: Unknown identifier `IncCtx`
+
+Note: It is not possible to treat `IncCtx` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunExtractParts.lean:245:22: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:248:30: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:248:62: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:249:62: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:250:8: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunExtractParts.lean:262:29: Unknown identifier `IncCtx`
+
+Note: It is not possible to treat `IncCtx` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunExtractParts.lean:325:22: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:328:30: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:328:62: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:329:58: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:330:50: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.RunExtractParts
+error: build failed
+build rc 1 (15 s)
+== lake build ZK60Formal.RunExtractTop ==
+✖ [3607/3608] Building ZK60Formal.RunExtractParts (20s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/ZK60Formal/RunExtractParts.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunExtractParts.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/lib/lean/ZK60Formal/RunExtractParts.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunExtractParts.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1aed0aa1f74d20e1/formal/.lake/build/ir/ZK60Formal/RunExtractParts.setup.json --json
+error: ZK60Formal/RunExtractParts.lean:70:4: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'rkAccBlk', which is 'noncomputable'
+error: ZK60Formal/RunExtractParts.lean:164:29: Unknown identifier `IncCtx`
+
+Note: It is not possible to treat `IncCtx` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunExtractParts.lean:245:22: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:248:30: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:248:62: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:249:62: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:250:8: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunExtractParts.lean:262:29: Unknown identifier `IncCtx`
+
+Note: It is not possible to treat `IncCtx` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunExtractParts.lean:325:22: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:328:30: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:328:62: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:329:58: Unknown identifier `Lb`
+error: ZK60Formal/RunExtractParts.lean:330:50: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.RunExtractParts
+error: build failed
+build rc 1 (40 s)
+rc 1, 40 s

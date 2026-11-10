@@ -1,0 +1,15 @@
+# L45 finding L45-2: the row widths (log_n) of the classify run's openings, read off the code at perf 7d4f95fd
+## the registered token I/O tier
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io.rs:190:    pub(crate) const R1_MVP: Tier = Tier { name: "mvp-95-whole-run (D27)", opened_cols: 256, stage_log_n: 12, stage_inv_rate: 4, ep_log_n: 8, ep_inv_rate: 8, lookup_ext_degree: 2 };
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io.rs:196:    pub(crate) const REGISTERED: [Tier; 1] = [Tier::R1_MVP];
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io.rs:256:        PcsParams { log_cols: self.stage_log_n as u32, inv_rate: self.stage_inv_rate, num_col_checks: self.opened_cols }
+## the stages' commitments use the tier's stage_log_n
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/stage_in_c.rs:43:    let lt = cp.tier.stage_log_n;
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify.rs:680:        let lt = tier.stage_log_n;
+## the boundaries use the shape's endpoint_log_n
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify.rs:1144:        BoundarySpec::new_with_tag(self.context, sh.t_pad, sh.d_pad, self.scale, (j + 1) as u64, 2, sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols, sh.endpoint_rows + 1, &sh.hash_tag())
+## R13 Shieldstral T128: log_cols 14; registered_block_shape builds with endpoint_log_n = None; the default is log_cols
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/shape.rs:229:AccuracyProfile{profile:R13_SHIELD_T128_H24,name:"R13_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/shape.rs:230:AccuracyProfile{profile:R13_SHIELD_T128_H24_DD,name:"R13_SHIELD_T128_H24_DD",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/shape.rs:699:        return Some(Shape::build(s.name,s.profile,s.tokens,s.width,s.hidden,s.q_heads,s.head_dim,s.kv_heads,s.log_cols,inv_rate,f_e,rows,None,None,None,None));
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/shape.rs:1072:        let (e_log_n, e_rate) = (endpoint_log_n.unwrap_or(log_cols), endpoint_inv_rate.unwrap_or(inv_rate));
