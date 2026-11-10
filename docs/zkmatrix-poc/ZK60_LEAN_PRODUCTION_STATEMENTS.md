@@ -159,8 +159,13 @@ variable q makes the "exorbitant compute" form explicit; the q-free part of ε_z
 - the receipt length, which is fixed per profile.
 
 **Error target.**
-- ε_zk(q, R) ≤ q·2^-128 + R·2^-120, valid for q ≤ 2^64 and R ≤ 2^30. FlashProve proves ≤ 2^-154 for q ≤ 2^64 and
+- ε_zk(q, R) ≤ q·2^-128 + R·2^-120, valid for q ≤ 2^64 and R ≤ 2^64 (**amended 2026-11-10, D76 (2)**; this draft
+  first said R ≤ 2^30, and the Lean first asked for every q and R). FlashProve proves ≤ 2^-154 for q ≤ 2^64 and
   688,127 replies.
+- **Amendment D76 (1), 2026-11-10:** the declared leakage L above is an explicit part of the Lean statements
+  themselves, not a field each protocol instance chooses, and the production theorem names it. The first
+  `Statements.lean` left it to the instance, so a protocol that publishes its input could satisfy the statement (gap
+  audit finding GB-1).
 - The expected sources:
   - salted Merkle leaves, about q·2^-(salt bits);
   - an opened-column count at or below the pad count, which is exact (the D59 privacy check: full rank on any Q

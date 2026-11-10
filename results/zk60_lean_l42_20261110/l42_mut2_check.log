@@ -1,0 +1,5 @@
+code lines: old 160, new 200
+1. every old code line kept, in order and unchanged: yes
+2. every added block starts with a declaration at column 0: NO
+   added block of 1 code lines, declarations: (none); FIRST LINE:   extra : Unit
+   added block of 39 code lines, declarations: SimulatorL, idealProbL, ZeroKnowledgeL, SemanticHidingL, ProductionReadyL

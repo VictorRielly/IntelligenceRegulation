@@ -9,10 +9,24 @@ about the hidden data.
 This file states them precisely, for one abstract registered profile: `IntModel` (the discretized model),
 `Arith` (its constraint system), `Protocol` (prover, verifier, commitments). A real profile (e.g. R13 8B T128
 with D55) is an INSTANCE of these structures; writing the instances and proving `ProductionReady` for them is
-the formalization work (plan L1–L5 in docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md).
+the formalization work (plan L1–L5 in docs/zkmatrix-poc/ZK60_LEAN_PRODUCTION_STATEMENTS.md); since D76 (below), the
+gate to prove is `ProductionReadyL`, with the allowed leakage named.
 
 Status: wording APPROVED by Victor, 2026-11-04, with the §6 choices of that document (error targets below,
 production acceptance by the Lean verifier, reuse of FlashProve's Lean library and ArkLib where they fit).
+
+AMENDED by Victor's ruling D76, 2026-11-10 (docs/zkmatrix-poc/ZK60_DECISIONS.md, row D76; that document's §4):
+* the allowed leakage is an explicit argument `Λ : M.Input → L` of the approved zero-knowledge, semantic-hiding and
+  production statements, not a field the protocol instance chooses (gap audit finding GB-1: with the leakage left to
+  the instance, a protocol that publishes its input satisfied the gate); the production theorem names `Λ`;
+* zero knowledge is asked for distinguishers making at most `q ≤ 2^64` hash queries and `R ≤ 2^64` proof requests, and
+  semantic hiding for adversaries making at most `q ≤ 2^64` hash queries; the error targets are unchanged.
+THE APPROVED STATEMENTS are therefore `CircuitIff`, `Complete`, `KnowledgeSound` and `Binding` (unchanged), and
+`ZeroKnowledgeL`, `SemanticHidingL` and the gate `ProductionReadyL` (the section "D76" below). `Simulator`, `idealProb`,
+`ZeroKnowledge`, `SemanticHiding` and `ProductionReady` are kept unchanged under their names: they are the
+INSTANCE-LEAK forms (the simulator sees the instance's own `leak`, for every `q` and `R`) that the proofs so far are
+about, and they are NOT the approved statements. `StatementsD76Bridge.lean` carries them over to the approved forms for
+an instance whose leakage is a function of `Λ`.
 
 Modelling choices (each is a statement-level choice a reader must accept):
 * The hash is a random oracle: a uniformly random function `Q → D` on a finite query space `Q`
@@ -112,7 +126,9 @@ structure Protocol (M : IntModel) where
   Stmt : Type
   Receipt : Type
   Salt : Type
-  /-- declared leakage of an input: the profile's shapes and token count, and whether it is served -/
+  /-- declared leakage of an input: the profile's shapes and token count, and whether it is served (the instance's
+  own declaration, read by the instance-leak forms only; since D76 the approved statements use the allowed leakage
+  `Λ` named in the statement instead) -/
   Leak : Type
   leak : M.Input → Leak
   /-- the public output part carried by a statement -/
@@ -192,7 +208,8 @@ def Binding (M : IntModel) (P : Protocol Q D Coins M) (εb : ℕ → ℝ≥0∞)
 /-! ## Statement 2: the receipts teach nothing about the hidden data -/
 
 /-- A simulator: it answers hash queries itself (it may program the oracle) and produces receipts from the
-public output part and the declared leakage only — never from the input. -/
+public output part and the declared leakage only — never from the input. INSTANCE-LEAK FORM (the leakage is the
+instance's `P.Leak`), used by the proofs; since D76 the approved statements use `SimulatorL`. -/
 structure Simulator (M : IntModel) (P : Protocol Q D Coins M) where
   State : Type
   SCoins : Type
@@ -215,7 +232,8 @@ noncomputable def realProb (M : IntModel) (P : Protocol Q D Coins M) (W : M.Weig
           (extend p.2) 0 () = true}
 
 /-- The distinguisher's view in the ideal world: everything comes from the simulator, which sees each request
-only through `(publicPart (forward W x), leak x)`. -/
+only through `(publicPart (forward W x), leak x)`. INSTANCE-LEAK FORM, used by the proofs; since D76 the approved
+statements use `idealProbL`. -/
 noncomputable def idealProb (M : IntModel) (P : Protocol Q D Coins M) (S : Simulator M P) (W : M.Weights)
     (n : ℕ) (Dist : OC (Q ⊕ M.Input) (D ⊕ (P.Stmt × P.Receipt)) Bool) : ℝ≥0∞ :=
   haveI := S.fin; haveI := S.ne; haveI := S.inh
@@ -226,7 +244,9 @@ noncomputable def idealProb (M : IntModel) (P : Protocol Q D Coins M) (S : Simul
           (extend sc) 0 (S.init W) = true}
 
 /-- T2, zero knowledge in the random-oracle model: one simulator such that no distinguisher making at most `q`
-hash queries and `R` proof requests tells the two worlds apart with advantage above `εzk q R`. -/
+hash queries and `R` proof requests tells the two worlds apart with advantage above `εzk q R`. INSTANCE-LEAK FORM (the
+simulator sees the instance's own `leak`; every `q` and `R`), kept unchanged because the proofs use it; NOT the
+approved statement since D76: the approved one is `ZeroKnowledgeL`. -/
 def ZeroKnowledge (M : IntModel) (P : Protocol Q D Coins M) (εzk : ℕ → ℕ → ℝ≥0∞) : Prop :=
   ∃ S : Simulator M P, ∀ (W : M.Weights) (q R : ℕ)
     (Dist : OC (Q ⊕ M.Input) (D ⊕ (P.Stmt × P.Receipt)) Bool), Dist.Within q R →
@@ -235,7 +255,9 @@ def ZeroKnowledge (M : IntModel) (P : Protocol Q D Coins M) (εzk : ℕ → ℕ 
 
 /-- T2′, the form in D63's own words: for ANY property `g` of the hidden input (one bit, one token, anything)
 and any distribution `μ` of inputs, an adversary that sees a receipt and makes at most `q` hash queries guesses
-`g` no better than the best guess from the public part and the declared leakage alone, plus `ε q`. -/
+`g` no better than the best guess from the public part and the declared leakage alone, plus `ε q`. INSTANCE-LEAK
+FORM, kept unchanged because the proofs use it; NOT the approved statement since D76: the approved one is
+`SemanticHidingL`. -/
 def SemanticHiding (M : IntModel) (P : Protocol Q D Coins M) (ε : ℕ → ℝ≥0∞) : Prop :=
   ∀ (W : M.Weights) (μ : PMF M.Input) (β : Type) (g : M.Input → β) (q : ℕ)
     (A : P.Stmt × P.Receipt → OC Q D β), (∀ sr, (A sr).Bounded q) →
@@ -248,7 +270,9 @@ def SemanticHiding (M : IntModel) (P : Protocol Q D Coins M) (ε : ℕ → ℝ�
 
 /-- D63: a profile goes into production only when all of these are PROVED for its instance, with the error
 targets Victor rules on (proposed: `εc = 2^-40`, `εs q = q·2^-100 + 2^-100`, `εb q = q·2^-100 + 2^-100`,
-`εzk q R = q·2^-128 + R·2^-120`). -/
+`εzk q R = q·2^-128 + R·2^-120`). INSTANCE-LEAK FORM of the gate (its zero-knowledge fields read the instance's own
+`leak`), kept unchanged because the proofs use it; NOT the approved gate since D76: the approved one is
+`ProductionReadyL`, which names the allowed leakage. -/
 structure ProductionReady (M : IntModel) (A : Arith M) (P : Protocol Q D Coins M)
     (εc : ℝ≥0∞) (εs εb : ℕ → ℝ≥0∞) (εzk : ℕ → ℕ → ℝ≥0∞) : Prop where
   circuit : CircuitIff M A
@@ -263,6 +287,75 @@ noncomputable def εcTarget : ℝ≥0∞ := (2⁻¹ : ℝ≥0∞) ^ 40
 noncomputable def εsTarget (q : ℕ) : ℝ≥0∞ := (q : ℝ≥0∞) * (2⁻¹ : ℝ≥0∞) ^ 100 + (2⁻¹ : ℝ≥0∞) ^ 100
 noncomputable def εzkTarget (q R : ℕ) : ℝ≥0∞ :=
   (q : ℝ≥0∞) * (2⁻¹ : ℝ≥0∞) ^ 128 + (R : ℝ≥0∞) * (2⁻¹ : ℝ≥0∞) ^ 120
+
+/-! ## D76: THE APPROVED zero-knowledge statements, with the allowed leakage named in the statement
+
+Victor's ruling D76 (2026-11-10) amends the approved statements in two ways.
+1. The allowed leakage is an explicit argument `Λ : M.Input → L` of the statements, not a field of the protocol
+   instance: the simulator sees each request only through the public output part and `Λ x`. The production theorem
+   names `Λ`. For the media classifier `Λ x` is (the token count `T`, the width `d`, the layer count `L`, whether the
+   request is served); the verdict is the model's public output part.
+2. Zero knowledge is asked for distinguishers making at most `q ≤ 2^64` hash queries and at most `R ≤ 2^64` proof
+   requests (it was every `q` and `R`); semantic hiding for adversaries making at most `q ≤ 2^64` hash queries. The
+   error target `εzkTarget q R = q·2^-128 + R·2^-120` is unchanged. -/
+
+/-- **A simulator for the allowed leakage `L`** (D76): it answers hash queries itself (it may program the oracle) and
+produces receipts from the public output part and the allowed leakage only — never from the input, and never from
+anything the protocol instance chooses. -/
+structure SimulatorL (M : IntModel) (P : Protocol Q D Coins M) (L : Type) where
+  State : Type
+  SCoins : Type
+  [fin : Fintype SCoins]
+  [ne : Nonempty SCoins]
+  [inh : Inhabited SCoins]
+  init : M.Weights → State
+  step : State → Q ⊕ (M.PubOut × L) → SCoins → (D ⊕ (P.Stmt × P.Receipt)) × State
+
+/-- The distinguisher's view in the ideal world for the allowed leakage `Λ` (D76): everything comes from the
+simulator, which sees each request only through `(publicPart (forward W x), Λ x)`. -/
+noncomputable def idealProbL (M : IntModel) (P : Protocol Q D Coins M) {L : Type} (Λ : M.Input → L)
+    (S : SimulatorL M P L) (W : M.Weights) (n : ℕ)
+    (Dist : OC (Q ⊕ M.Input) (D ⊕ (P.Stmt × P.Receipt)) Bool) : ℝ≥0∞ :=
+  haveI := S.fin; haveI := S.ne; haveI := S.inh
+  (PMF.uniformOfFintype (Fin n → S.SCoins)).toOuterMeasure
+    {sc | Dist.runState
+          (fun (s : S.State) (i : Q ⊕ M.Input) (c : S.SCoins) =>
+            S.step s (Sum.map id (fun x => (M.publicPart (M.forward W x), Λ x)) i) c)
+          (extend sc) 0 (S.init W) = true}
+
+/-- **T2, zero knowledge in the random-oracle model, THE APPROVED STATEMENT (D76).** One simulator, shown each request
+only through the public output part and the allowed leakage `Λ x`, such that no distinguisher making at most
+`q ≤ 2^64` hash queries and `R ≤ 2^64` proof requests tells the two worlds apart with advantage above `εzk q R`. -/
+def ZeroKnowledgeL (M : IntModel) (P : Protocol Q D Coins M) {L : Type} (Λ : M.Input → L)
+    (εzk : ℕ → ℕ → ℝ≥0∞) : Prop :=
+  ∃ S : SimulatorL M P L, ∀ (W : M.Weights) (q R : ℕ)
+    (Dist : OC (Q ⊕ M.Input) (D ⊕ (P.Stmt × P.Receipt)) Bool), q ≤ 2 ^ 64 → R ≤ 2 ^ 64 → Dist.Within q R →
+      realProb M P W (q + R) Dist ≤ idealProbL M P Λ S W (q + R) Dist + εzk q R
+      ∧ idealProbL M P Λ S W (q + R) Dist ≤ realProb M P W (q + R) Dist + εzk q R
+
+/-- **T2′, the form in D63's own words, THE APPROVED STATEMENT (D76).** For ANY property `g` of the hidden input and
+any distribution `μ` of inputs, an adversary that sees a receipt and makes at most `q ≤ 2^64` hash queries guesses `g`
+no better than the best guess from the public part and the allowed leakage `Λ` alone, plus `ε q`. -/
+def SemanticHidingL (M : IntModel) (P : Protocol Q D Coins M) {L : Type} (Λ : M.Input → L)
+    (ε : ℕ → ℝ≥0∞) : Prop :=
+  ∀ (W : M.Weights) (μ : PMF M.Input) (β : Type) (g : M.Input → β) (q : ℕ)
+    (A : P.Stmt × P.Receipt → OC Q D β), q ≤ 2 ^ 64 → (∀ sr, (A sr).Bounded q) →
+    (μ.bind fun X => (PMF.uniformOfFintype ((Q → D) × Coins)).map fun p => (X, p)).toOuterMeasure
+        {t | (A (P.prove t.2.1 W t.1 t.2.2)).run t.2.1 = g t.1}
+      ≤ (⨆ B : M.PubOut × L → β,
+          μ.toOuterMeasure {X | B (M.publicPart (M.forward W X), Λ X) = g X}) + ε q
+
+/-- **The production gate, THE APPROVED STATEMENT (D63, as amended by D76).** A profile goes into production only when
+all of these are PROVED for its instance, with the allowed leakage `Λ` named here, at the approved error targets
+(`εcTarget`, `εsTarget` for `εs` and `εb`, `εzkTarget`). -/
+structure ProductionReadyL (M : IntModel) (A : Arith M) (P : Protocol Q D Coins M) {L : Type} (Λ : M.Input → L)
+    (εc : ℝ≥0∞) (εs εb : ℕ → ℝ≥0∞) (εzk : ℕ → ℕ → ℝ≥0∞) : Prop where
+  circuit : CircuitIff M A
+  complete : Complete M P εc
+  sound : KnowledgeSound M P εs
+  binding : Binding M P εb
+  zk : ZeroKnowledgeL M P Λ εzk
+  semantic : SemanticHidingL M P Λ (fun q => εzk q 1)
 
 /-! ## A sanity check that the definitions are usable (not a result about our protocol) -/
 

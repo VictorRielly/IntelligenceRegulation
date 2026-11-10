@@ -1,0 +1,4 @@
+code lines: old 160, new 199
+1. every old code line kept, in order and unchanged: NO (first missing:       realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + εzk q R)
+2. every added block starts with a declaration at column 0: NO
+   added block of 68 code lines, declarations: SemanticHiding, ProductionReady, εcTarget, εsTarget, εzkTarget, SimulatorL, idealProbL, ZeroKnowledgeL, SemanticHidingL, ProductionReadyL, trivialArith, trivialArith_circuitIff; FIRST LINE:       realProb M P W (q + R) Dist ≤ idealProb M P S W (q + R) Dist + εzk q R + εzk q R

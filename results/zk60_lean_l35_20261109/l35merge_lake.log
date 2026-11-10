@@ -1,0 +1,13 @@
+✔ [3640/3652] Built ZK60Formal.BlockDefineAff (11s)
+✔ [3641/3652] Built ZK60Formal.BlockDefineClaim (11s)
+✔ [3642/3652] Built ZK60Formal.BlockDefineTab (2.4s)
+✔ [3643/3652] Built ZK60Formal.BlockDefineSym (1.9s)
+✔ [3644/3652] Built ZK60Formal.BlockDefinePoly (2.0s)
+✔ [3645/3652] Built ZK60Formal.BlockDefineFinal (2.4s)
+✔ [3646/3652] Built ZK60Formal.BlockDefineW16 (6.5s)
+✔ [3647/3652] Built ZK60Formal.BlockDefineUnfold (4.3s)
+✔ [3648/3652] Built ZK60Formal.BlockDefineW16Rung (5.8s)
+✔ [3649/3652] Built ZK60Formal.BlockDefineW16Final (13s)
+✔ [3650/3652] Built ZK60Formal.BlockDefineAlg (2.3s)
+✔ [3651/3652] Built ZK60Formal (1.9s)
+Build completed successfully (3652 jobs).

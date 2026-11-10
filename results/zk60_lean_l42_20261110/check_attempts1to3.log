@@ -1,0 +1,73 @@
+== lake build of the L42 modules, one at a time ==
+lake build ZK60Formal.Statements rc 0
+lake build ZK60Formal.StatementsD76Leak rc 0
+lake build ZK60Formal.StatementsD76Bridge rc 0
+lake build ZK60Formal.StatementsD76Leaky rc 0
+LEAN_NUM_THREADS=10
+== lake build of the L42 modules, one at a time ==
+lake build ZK60Formal.Statements rc 0
+lake build ZK60Formal.StatementsD76Leak rc 0
+lake build ZK60Formal.StatementsD76Bridge rc 0
+lake build ZK60Formal.StatementsD76Leaky rc 0
+LEAN_NUM_THREADS=3
+== lake build of the L42 modules, one at a time ==
+lake build ZK60Formal.Statements rc 0
+lake build ZK60Formal.StatementsD76Leak rc 0
+lake build ZK60Formal.StatementsD76Bridge rc 0
+lake build ZK60Formal.StatementsD76Leaky rc 0
+lake build ZK60Formal.StatementsD76Gate rc 0
+lake build ZK60Formal.StatementsD76Range rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3656/3657] Built ZK60Formal (1.7s)
+Build completed successfully (3657 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L42 modules' own builds: 0
+== axiom audit ==
+105 declarations: 33 def, 8 structure, 64 theorem
+axioms rc 0
+declarations audited: 105 (generated: 105)
+no axiom at all: 16
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  89 axioms: [propext, Classical.choice, Quot.sound]
+== source scan of Statements.lean and the L42 files ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/ZK60Formal/StatementsD76Leak.lean:28:/-- Its last component is the served bit: `true` exactly when the integer model admits the item. -/
+== the library root imports the L42 files ==
+imported: StatementsD76Leak
+imported: StatementsD76Bridge
+imported: StatementsD76Leaky
+imported: StatementsD76Gate
+imported: StatementsD76Range
+== Statements.lean against perf's c447ad00: only comments changed and whole declarations added ==
+diff: 92 lines added, 7 removed
+code lines: old 160, new 199
+1. every old code line kept, in order and unchanged: yes
+2. every added block starts with a declaration at column 0: yes
+   added block of 39 code lines, declarations: SimulatorL, idealProbL, ZeroKnowledgeL, SemanticHidingL, ProductionReadyL
+Statements.lean check rc 0
+-- negative control: two single changes (an old definition edited; a field inserted into Protocol), each refused
+wrote 2 mutants
+mutant 1: check rc 1 (1 expected)
+mutant 2: check rc 1 (1 expected)
+mutants refused: 2 of 2
+== existing files under formal/ changed since the base (the root's import lines and Statements.lean apart) ==
+others modified, deleted or renamed: 0
+lines removed from the root's imports: 0
+files changed under ops/ or src/ (no Rust in this lane): 0
+== name clashes with the other worktrees' Lean files ==
+clashes: 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+verdicts: Statements.lean 0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 281 s

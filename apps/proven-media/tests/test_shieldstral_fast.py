@@ -144,8 +144,9 @@ class FastModeTests(unittest.TestCase):
             env = fast.native_environment()
         self.assertEqual(env['HL_METAL_QUEUES'], 'thread')
         self.assertEqual(env['HL_GPU'], '1')
-        for off in ('HL_A26_KEPT', 'HL_A26_VERIFY_ONCE'):
-            self.assertNotIn(off, env, f'{off} waits for the security owner')
+        # D78 (2026-11-10): the prover's shortcut is ruled on; the verifier's is not approved
+        self.assertEqual(env['HL_A26_KEPT'], '1', 'D78: the prover shortcut is on')
+        self.assertNotIn('HL_A26_VERIFY_ONCE', env, 'the verifier shortcut is not approved (D78)')
         self.assertIn('A26', fast.CLI_DESCRIPTION)
 
     def test_a27_kernels_stay_at_their_defaults_in_the_later_build(self):
@@ -168,8 +169,8 @@ class FastModeTests(unittest.TestCase):
         with patch.object(fast, 'NATIVE_MODELS', self.root / 'models'):
             env = fast.native_environment()
         self.assertFalse([k for k in env if k.startswith('HL_A27_')], 'the app sets no A27 switch (every kernel change on, no trace)')
-        for off in ('HL_A26_KEPT', 'HL_A26_VERIFY_ONCE'):
-            self.assertNotIn(off, env, f'{off} waits for the security owner')
+        self.assertEqual(env['HL_A26_KEPT'], '1', 'D78: the prover shortcut is on')
+        self.assertNotIn('HL_A26_VERIFY_ONCE', env, 'the verifier shortcut is not approved (D78)')
         self.assertIn('A27', fast.CLI_DESCRIPTION)
 
     def test_a28_pins_its_binary_and_leaves_seal_ahead_off(self):
@@ -196,12 +197,13 @@ class FastModeTests(unittest.TestCase):
         (models / 'model.safetensors').write_bytes(b'TEST FIXTURE\n')
         with patch.object(fast, 'NATIVE_MODELS', self.root / 'models'):
             env = fast.native_environment()
-        self.assertEqual(fast.NATIVE_SETTINGS, {'HL_METAL_QUEUES': 'thread', 'HL_METAL_SPIN_US': '200', 'HL_A28_STAGGER_MS': '300'})
+        self.assertEqual(fast.NATIVE_SETTINGS, {'HL_METAL_QUEUES': 'thread', 'HL_METAL_SPIN_US': '200', 'HL_A28_STAGGER_MS': '300',
+                                                'HL_A26_KEPT': '1'})
         self.assertEqual(sorted(k for k in env if k.startswith(('HL_A28_', 'HL_A27_'))), ['HL_A28_STAGGER_MS'],
                          'of the A28 and A27 switches only the measured stagger is set: seal-ahead stays off, no trace')
         self.assertEqual((env['HL_METAL_SPIN_US'], env['HL_A28_STAGGER_MS']), ('200', '300'))
-        for off in ('HL_A26_KEPT', 'HL_A26_VERIFY_ONCE'):
-            self.assertNotIn(off, env, f'{off} waits for the security owner')
+        self.assertEqual(env['HL_A26_KEPT'], '1', 'D78: the prover shortcut is on')
+        self.assertNotIn('HL_A26_VERIFY_ONCE', env, 'the verifier shortcut is not approved (D78)')
         self.assertIn('A28', fast.CLI_DESCRIPTION)
         self.assertEqual((fast.PROVER_LANES, fast.PROVER_LANE_THREADS, fast.CHECK_LANES, fast.CHECK_LANE_THREADS), (6, 5, 3, 4),
                          'more threads a lane, more lanes and seal-ahead were measured and did not pay')

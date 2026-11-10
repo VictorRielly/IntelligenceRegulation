@@ -1,0 +1,3 @@
+build ZK60Formal.BlockDefineAff
+build ZK60Formal.BlockDefineClaim
+build ZK60Formal.BlockDefineTab
