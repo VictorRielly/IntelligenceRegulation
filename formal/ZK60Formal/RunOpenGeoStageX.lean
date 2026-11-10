@@ -14,11 +14,13 @@ pending before part `0`), with the tier's endpoint parameters (`epVerify` = `pcs
 * **`rx_inc_opX`**: the same OUTRIGHT outside the run's Merkle event `EvXR` with the run's own Merkle work (L45's
   `rxVx` checks the endpoint opening's columns; `rxRoots` lists `s.inRoot`), given that the run's transcript absorbs
   `s.inRoot` at `xPos` (`hInAbs`: the run header is a free parameter of L34's `rtRunClassify`, finding L45-1; where the
-  header absorbs the input root is a fact of the header, left as this premise).
+  header absorbs the input root is a fact of the header, left as this premise);
+* **`og_hopX0`**: exactly the `i = 0` instance of the app's top theorem's premise `hopX` (at the kinds data `rxPs`,
+  the readers `rxAcc`), when part `0`'s closing geometry is the input endpoint's.
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
-import ZK60Formal.RunExtractStage
+import ZK60Formal.RunExtractParts
 import ZK60Formal.RunOpenGeoTier
 
 set_option autoImplicit false
@@ -196,6 +198,41 @@ theorem rx_inc_opX (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
     s.inRoot hroot hInAbs hfit
     (fun k hk => rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G (seg.closes.headD IncV.ozk0).columns
       (rx_inCols_mem incG outcG sgeom Lb _ seg hseg).2.2.2 g.h (by have := hg.hh; omega) k (lt_of_lt_of_le hk hgQ))
+
+/-- **The top theorem's `hopX` at part `0`, in its own form** (the kinds data `rxPs`, the readers `rxAcc`): when part
+`0`'s closing geometry is the input endpoint's at `xPos` (`hgX`) with `I.nIn` claims (`hnX`), `rx_inc_opX` is
+exactly the `i = 0` instance of `hopX`. -/
+theorem og_hopX0 (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (pin : RtPart)
+    (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG pin)
+    (hσ0 : R.σs[0]? = some (rtIncSeg inc incG cx0 pin))
+    (Win : List (TItem × Dig) → IncV) (Wout : List (TItem × Dig) → OutcV) (Pk : ℕ → Block.BlockParams) (Lb : ℕ)
+    (base : ℕ → RkPart K Lq) (din : RxMAH) (dblk : ℕ → RxMAH) (dout : RxMAH)
+    (hWin : Win ((R.tr G (s, segs)).take (R.pf.off 0 + pin.pre)) = inc s.hdr)
+    (g : OGeo) (hg : g.Ok) (hgQ : g.Q ≤ 256) (hX : RkPcsAt U tag g I.pX) (xPos : ℕ)
+    (hgX : (base 0).gX = rkAt g I.pX.rows xPos) (hnX : (base 0).nX = I.nIn)
+    (outcG : Hdr → StageGeom) (sgeom : ClsStmt Hdr → ℕ → Block.SegGeom)
+    (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (hrun : A.run G = (s, segs))
+    (hXev : ¬ EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+      (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G)
+    (hfit : 8 * I.pX.rows ≤ Lq)
+    (hInAbs : Block.absAt ((R.tr G (s, segs)).take (R.pf.off 0 + (R.pf.part 0).oX)) xPos = some s.inRoot.toList) :
+    Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) ((rxPs base Lb din dblk dout) 0).gX
+      ((rxPs base Lb din dblk dout) 0).nX
+      (fun hdr => rkPend (rxAcc Win Wout Pk R.pf Lb) 0 hdr ++ ((rxAcc Win Wout Pk R.pf Lb) 0 hdr).claims.inp)
+      (R.pf.off 0 + (R.pf.part 0).oX) (R.pf.off 0 + (R.pf.part 0).oBX)
+      (R.pf.off 0 + (R.pf.part 0).oX + (((rxPs base Lb din dblk dout) 0).nX
+        + ((rxPs base Lb din dblk dout) 0).gX.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
+  have hpart : R.pf.part 0 = pin := rx_part_of R 0 _ hσ0
+  have h := rx_inc_opX U tag h64 hs hL R hv G s segs hE pin inc incG cx0 I hσ0 Win hWin g hg hgQ hX xPos outcG sgeom
+    Lb A hrun hXev hfit hInAbs
+  show Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (base 0).gX (base 0).nX
+    (fun hdr => [] ++ (rkAccInc Win (R.pf.off 0 + 5) (R.pf.off 0 + (R.pf.part 0).pre) hdr).claims.inp)
+    (R.pf.off 0 + (R.pf.part 0).oX) (R.pf.off 0 + (R.pf.part 0).oBX)
+    (R.pf.off 0 + (R.pf.part 0).oX + ((base 0).nX + (base 0).gX.rows)) (A.runLog G).2 G (R.tr G (s, segs)))
+  rw [hgX, hnX, hpart]
+  rw [hpart] at h
+  exact h
 
 end IncX
 

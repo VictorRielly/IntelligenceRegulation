@@ -112,6 +112,11 @@ python3 -I "$OUT/l48_mk_top.py" "$WT" > /dev/null && cmp -s "$OUT/l48_saved_top.
   && echo "RunOpenGeoTop.lean: identical" || { echo "RunOpenGeoTop.lean: DIFFERS"; gok=1; }
 cp "$OUT/l48_saved_top.lean" "$L/RunOpenGeoTop.lean"
 rm -f "$OUT/l48_saved_top.lean"
+cp "$L/RunOpenGeoEP.lean" "$OUT/l48_saved_ep.lean"
+python3 -I "$OUT/l48_mk_ep.py" "$WT" > /dev/null && cmp -s "$OUT/l48_saved_ep.lean" "$L/RunOpenGeoEP.lean" \
+  && echo "RunOpenGeoEP.lean: identical" || { echo "RunOpenGeoEP.lean: DIFFERS"; gok=1; }
+cp "$OUT/l48_saved_ep.lean" "$L/RunOpenGeoEP.lean"
+rm -f "$OUT/l48_saved_ep.lean"
 ulimit -s 65520
 echo "== the agreement check against the code (RunOpenGeoCheck.lean) =="
 "$LAKE" -d "$WT/formal" env lean --run "$L/RunOpenGeoCheck.lean" "$WT/results/zk60_lean_l29_20261107/corpus.txt" \

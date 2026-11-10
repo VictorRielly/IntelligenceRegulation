@@ -88,6 +88,89 @@ for bad in ["R13.", "r13Pts", "r13Form", "rowFormK14", "Cl 16", "24448", "Fin (2
             "εA_r13", "εB_r13", "r13TokenCommit"]:
     assert bad not in body, bad
 
+
+# ---- the last theorem again, with L46's block cover carried in (finding: L45 §5, "restating with L46's hdblk")
+stage_sec = between(body, "section EpTop\n", "end EpTop\n")
+t0 = stage_sec.index("theorem og_productionReadyL_epP_exec_stage")
+t1 = stage_sec.index("\n  by\n", t0)
+stmt = stage_sec[t0:t1]
+head = stage_sec[:stage_sec.rindex("/--", 0, t0)].replace("section EpTop\n", "section EpBlkTop\n", 1)
+h0 = stmt.index("    (hdblk : ")
+h1 = stmt.index("    (hdout : ")
+old_hdblk = stmt[h0:h1]
+hl = old_hdblk.split("\n")
+assert hl[1].endswith(" →") and hl[3].endswith(" →"), hl[:4]
+VERIFY = hl[1].strip()[:-2]
+EVX = hl[2].strip() + "\n        " + hl[3].strip()[:-2]
+new_hblk = (
+    "    (hblk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (k : ℕ) (hk : k < Rp.blks.length),\n"
+    "      " + VERIFY + " →\n"
+    "      " + EVX + " →\n"
+    "      Nonempty (ZK60.ProtocolClassify.RdBlkR13 U D k (A.runLog G).2\n"
+    "        (rtTr key domain Lq (RtRun.pf Rn) (RtRun.rd Rn) G (A.run G))\n"
+    "        (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) (ZK60.Exec.Block.card_K_gt K) Rp.blks[k].pub\n"
+    "        ((E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes k)\n"
+    "        ((E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes (k + 1))))\n")
+stmt_blk = (stmt[:h0] + new_hblk + stmt[h1:]).replace("theorem og_productionReadyL_epP_exec_stage",
+                                                        "theorem og_productionReadyL_epP_exec_blk", 1)
+
+
+def top_binders(s):
+    """The names bound by the top-level `( … : … )` groups of a statement (implicit and instance groups skipped)."""
+    names, i, n = [], 0, len(s)
+    while i < n:
+        c = s[i]
+        if c in "([{":
+            depth, j = 0, i
+            while True:
+                if s[j] in "([{":
+                    depth += 1
+                elif s[j] in ")]}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                j += 1
+            grp = s[i + 1:j]
+            if c == "(" and " : " in grp:
+                names += grp.split(" : ", 1)[0].split()
+            i = j + 1
+        else:
+            i += 1
+    return names
+
+
+sig = stmt[stmt.index(" ", len("theorem ")):stmt.rindex(":\n    ProductionReadyL")]
+names = ["Rr", "dR", "hpos", "place", "msg", "msg_place", "pad", "salt", "path", "tagc"] + \
+    [x for x in top_binders(sig) if x != "hdblk"]
+assert len(set(names)) == len(names), [x for x in names if names.count(x) > 1]
+lines_, cur = [], "    "
+for piece in ("(%s := %s)" % (x, x) for x in names):
+    if len(cur) + len(piece) + 1 > 116:
+        lines_.append(cur.rstrip())
+        cur = "    "
+    cur += piece + " "
+lines_.append(cur.rstrip())
+proof_blk = (
+    "\n  by\n"
+    "  exact og_productionReadyL_epP_exec_stage\n"
+    + "\n".join(lines_) + "\n"
+    "    (hdblk := fun A G k hk hv' hx' => ZK60.ProtocolClassify.rd_hdblk key domain hs Lq hL (RtRun.pf Rn) (RtRun.rd Rn)\n"
+    "      hL64 hv U hbij D hD Rp ((RtRun.parts_length Rn).trans (congrArg (fun n => n + 2) O.blocks.2))\n"
+    "      (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) (ZK60.Exec.Block.card_K_gt K)\n"
+    "      (fun A G => " + VERIFY + "\n"
+    "        ∧ " + EVX + ")\n"
+    "      (fun A G => (E (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes)\n"
+    "      (fun A G k hk hacc => hblk A G k hk hacc.1 hacc.2) A G k hk ⟨hv', hx'⟩)\n")
+doc_blk = '''/-- **THE APP'S TOP THEOREM AT THE REAL WIDTHS, WITH THE BLOCK COVER DISCHARGED TO THE BLOCKS' BUNDLES** (D63 lane L48,
+carrying lane L46's `rd_hdblk`). `og_productionReadyL_epP_exec_stage` (the stages at `2^12`, the blocks at `2^14`, the
+input commitment at `2^8` / rate `1/8` / radius `768`, the run's own Merkle work, the kinds data's readers) with its
+premise `hdblk` replaced by `hblk`: on every accepted outcome outside the run's extraction failure, every block `k` has
+its R13 bundle `RdBlkR13` (L46) at its own shape, on the run's planes `k`, `k + 1`. Generated. -/
+'''
+blk_section = head + doc_blk + stmt_blk + proof_blk + "\nend EpBlkTop\n"
+assert blk_section.count("(hdblk : ∀") == 0 and blk_section.count("(hblk :") == 1
+body = body + "\n" + blk_section
+
 header = '''/-
 D63 lane L48 (2026-11-10), part 9: **the app's top theorem at the REAL widths** (finding L45-2, decision D77a):
 the two stages' openings at the tier's stage geometry (`2^12`, rate `1/4`: part 6), the blocks at the block geometry
@@ -103,12 +186,15 @@ joint budget is the R13 gate's (`eleven_bud_r13`).
 * `og_productionReadyL_run_epP_some_range`, `og_productionReadyL_run_ep_tokenP_some_range`,
   `og_productionReadyL_epP_some_range`, `og_productionReadyL_epP_top_range`, `og_productionReadyL_epP_exec_some_range`,
   `og_productionReadyL_epP_exec_top_range`, `og_productionReadyL_epP_exec_rk`;
-* **`og_productionReadyL_epP_exec_stage`**: THE APP'S TOP THEOREM at the real widths.
+* **`og_productionReadyL_epP_exec_stage`**: THE APP'S TOP THEOREM at the real widths;
+* **`og_productionReadyL_epP_exec_blk`**: the same with lane L46's block cover carried in (`hdblk` replaced by the
+  blocks' bundles `RdBlkR13`, `rd_hdblk`).
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunOpenGeoTop
 import ZK60Formal.ProtocolClassifyEP
+import ZK60Formal.RunDoomBlk
 
 set_option autoImplicit false
 set_option linter.constructorNameAsVariable false

@@ -5,6 +5,8 @@ import ZK60Formal.RunOpenGeoTop
 import ZK60Formal.RunOpenGeoBlock
 import ZK60Formal.BindingEP
 import ZK60Formal.ProtocolClassifyEP
+import ZK60Formal.RunOpenGeoStageX
+import ZK60Formal.RunOpenGeoEP
 import ZK60Formal.RunTrKinds
 import ZK60Formal.RunKindsData
 import ZK60Formal.RunHalOpA
@@ -90,6 +92,7 @@ import ZK60Formal.RunExtractParts
 #print axioms ZK60.Exec.rowFormK8_eq_RWL
 -- ProtocolClassifyEP.lean
 #print axioms ZK60.ProtocolClassify.XTest.εA_ep
+#print axioms ZK60.ProtocolClassify.XTest.εA_ep110
 #print axioms ZK60.ProtocolClassify.XTest.εB_ep
 #print axioms ZK60.ProtocolClassify.classifyU_binding_ep
 #print axioms ZK60.ProtocolClassify.classifyU_O11d_ep
@@ -99,6 +102,23 @@ import ZK60Formal.RunExtractParts
 #print axioms ZK60.ProtocolClassify.classifyUExecEp_binding
 #print axioms ZK60.ProtocolClassify.classifyUExecEp_complete
 #print axioms ZK60.ProtocolClassify.classifyUExecEp_zk
+-- RunOpenGeoStageX.lean
+#print axioms ZK60.ProtocolClassify.og_ozk0_canon
+#print axioms ZK60.ProtocolClassify.og_closes_canon
+#print axioms ZK60.ProtocolClassify.rs_inc_opXG
+#print axioms ZK60.ProtocolClassify.rx_stmtInRoot_mem
+#print axioms ZK60.ProtocolClassify.rx_inc_opX
+#print axioms ZK60.ProtocolClassify.og_hopX0
+-- RunOpenGeoEP.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_run_epP_some_range
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_run_ep_tokenP_some_range
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_epP_some_range
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_epP_top_range
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_epP_exec_some_range
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_epP_exec_top_range
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_epP_exec_rk
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_epP_exec_stage
+#print axioms ZK60.ProtocolClassify.RunShapeP.og_productionReadyL_epP_exec_blk
 -- RunTrKinds.lean
 #print axioms ZK60.ProtocolClassify.RtKPart
 #print axioms ZK60.ProtocolClassify.RtKPart.nil

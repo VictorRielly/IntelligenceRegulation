@@ -16,6 +16,10 @@ Merkle event `EvXR` with the run's own Merkle work.
 * **`rs_inc_opA`**, **`rs_inc_opH`**, **`rs_inc_M`**: stage IN-C's `A`, `H` (with the LogUp sum claim) and `M`;
 * **`rs_outc_opA`**, **`rs_outc_opH`**, **`rs_outc_M`**: stage OUT-C's.
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): the stages' opening lemmas
+at ANY code geometry (`rs_inc_opAG`, `rs_inc_opHG`, `rs_outc_opAG`, `rs_outc_opHG`: the real stages are at `2^12`);
+the names above are kept, with L45's statements, as their instances at `ogR13`.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunStageRdRun

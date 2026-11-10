@@ -331,3 +331,5 @@ import ZK60Formal.RunOpenGeoTop
 import ZK60Formal.RunOpenGeoBlock
 import ZK60Formal.BindingEP
 import ZK60Formal.ProtocolClassifyEP
+import ZK60Formal.RunOpenGeoStageX
+import ZK60Formal.RunOpenGeoEP

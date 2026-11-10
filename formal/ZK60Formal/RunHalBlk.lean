@@ -25,6 +25,9 @@ The R13 numbers of the openings' parameters (`Q = 256`, `N = 2^16`, `log_cols = 
 evaluator's `ColEncSpec`, the tag) are premises `RkPcsR13` on the block's `RtPcs`; at the code's R13 opening
 (`pcsFieldR13`) the evaluator's spec is L28's `r13_colEnc_spec`.
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): `RkPcsAt`, an opening
+verifier's numbers at any code geometry `OGeo`, `RkPcsAt.hm`, and `RkPcsR13.at` (`RkPcsR13` is `RkPcsAt ogR13`).
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunKindsDataBlk

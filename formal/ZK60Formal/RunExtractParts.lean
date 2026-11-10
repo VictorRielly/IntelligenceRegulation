@@ -15,6 +15,10 @@ they are BUILT for the classify run with D12a blocks (L34's `rtRunClassify` sche
   meet `RhOpW` (the first two thirds of L43's `hopW`);
 * **`rx_parts_M`**: EVERY part's `M` meets `RhMW` (L43's `hMW`, all of it).
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): the stages' data at a stage
+code geometry (`rxDinG`, `rxDoutG`; `rxDin`, `rxDout` are their instances at `ogR13`), `rx_parts_AHG`, `rx_parts_MG`;
+`rx_parts_AH`, `rx_parts_M` kept, with L45's statements, as their instances at `ogR13`.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunExtractBlk

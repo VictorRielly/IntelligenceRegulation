@@ -16,6 +16,10 @@ What each asks besides the acceptance: the stage's contract (`RtInc`, `RtOutc`),
 transcript (`hW`, finding L45-1), the openings' R13 numbers (`RkPcsR13`, as L43), the rows' fit (`8·rows ≤ Lq`), and
 for `H` the LogUp sum claim and for `M` the functional count the readers carry.
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): the same at ANY code
+geometry with at most `256` queries (`rx_inc_opAG`, `rx_inc_opHG`, `rx_outc_opAG`, `rx_outc_opHG`); the names above are
+kept, with L45's statements, as their instances at `ogR13`.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunExtractWork

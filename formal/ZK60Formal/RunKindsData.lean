@@ -26,6 +26,10 @@ not be proved of it. Here `D` is BUILT from the readers the verifier uses:
   part's accumulator reader returns an accumulator `a` (the bridge to "what the verifier checked", used by
   `RunKindsDataBlk.lean` and the `hal_*`).
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): `RkGeo` carries its message
+width `lc` (`rkR13` at `14`), `RkGeo.Ok.he` and `rkOpen`'s claims use it, `rkAt` builds a run geometry from a code
+geometry `OGeo` (`rkR13_eq`), and `rkData_opA_cl` / `opH` / `opX` state the claims at the part's width.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunCoverParse

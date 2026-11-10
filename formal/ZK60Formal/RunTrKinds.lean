@@ -32,6 +32,10 @@ challenges. So every kind's list in part `i` is one constructor at the profile's
   kind's chain has at most `2^21` items and `np` is the number of parts;
 * `rtRCx_hw`: the column test's parse is `rtRC2`, and its windows are after the header.
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): `RtOpen` carries its message
+width `lc` (the blocks' `14`, the stages' `12`, the input endpoint's `8`); `opA`, `opB`, `Valid.he`, `opA_rbr`,
+`opB_rbr` use `encGL lc` / `RWL lc` (RunOpenGeo.lean) where they used `encG` / `RW` at `2^14`.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunTrSched

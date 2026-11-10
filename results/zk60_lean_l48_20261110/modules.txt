@@ -1,1 +1,1 @@
-RunOpenGeo RunOpenGeoTier RunOpenGeoStage RunOpenGeoTop RunOpenGeoBlock BindingEP ProtocolClassifyEP
+RunOpenGeo RunOpenGeoTier RunOpenGeoStage RunOpenGeoTop RunOpenGeoBlock BindingEP ProtocolClassifyEP RunOpenGeoStageX RunOpenGeoEP

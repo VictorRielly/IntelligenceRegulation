@@ -16,6 +16,9 @@ the blocks, stage OUT-C) and every kinds data `D`:
 * **`rh_hal_opA`**: `hal_opA`'s conclusion `(rtKA … D hD).Al n lg τ` on the run's transcript of any output of the
   profile's shape with no doomed `opB` entrant (for `n ≥` the number of parts), for EVERY `D`.
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception: `rh_KA_al` splits each opening at its own
+width (`encGL`, finding L45-2).
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunKindsData

@@ -19,6 +19,10 @@ is needed:
 * **`rh_hal_opB`**: `hal_opB` in the top theorem's exact form (`(rtKB … D hD).Al n lg τ`) at `D := rkData …`, from
   `RhOpAcc` for the three openings of every part.
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): `rh_opB_alive` and `RhOpW`
+ask `log_cols` = the geometry's width `g.lc` and `ColEncSpec` at `RWL g.lc` (the old form at `14`:
+`rh_opB_alive_14`, RunOpenGeoBlock.lean).
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunKindsData
