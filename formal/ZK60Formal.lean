@@ -231,3 +231,11 @@ import ZK60Formal.HonestRunCount
 import ZK60Formal.HonestRunCover
 import ZK60Formal.HonestRunStageIn
 import ZK60Formal.HonestRunStageOut
+import ZK60Formal.RunTrBase
+import ZK60Formal.RunTrSched
+import ZK60Formal.RunTrVerify
+import ZK60Formal.RunTrKinds
+import ZK60Formal.RunTrParts
+import ZK60Formal.RunTrStages
+import ZK60Formal.RunTrGate
+import ZK60Formal.RunTrWin

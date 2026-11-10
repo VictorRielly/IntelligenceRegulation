@@ -1,0 +1,4 @@
+build ZK60Formal.RunTrVerify
+build ZK60Formal.RunTrKinds
+build ZK60Formal.RunTrParts
+build ZK60Formal.RunTrStages
