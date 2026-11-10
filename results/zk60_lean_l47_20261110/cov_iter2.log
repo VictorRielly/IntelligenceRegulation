@@ -1,0 +1,413 @@
+== plan results/zk60_lean_l47_20261110/cov_plan2.txt ==
+build ZK60Formal.BlockLookEntry
+build ZK60Formal.BlockLookCov
+build ZK60Formal.BlockLookCov2
+== lake build ZK60Formal.BlockLookEntry ==
+Build completed successfully (3571 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.BlockLookCov ==
+Build completed successfully (3572 jobs).
+build rc 0 (8 s)
+== lake build ZK60Formal.BlockLookCov2 ==
+✖ [3573/3573] Building ZK60Formal.BlockLookCov2 (2.6s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockLookCov2.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookCov2.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/lib/lean/ZK60Formal/BlockLookCov2.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookCov2.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/.lake/build/ir/ZK60Formal/BlockLookCov2.setup.json --json
+error: ZK60Formal/BlockLookCov2.lean:76:58: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Pos
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:78:58: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Pos
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:80:58: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Pos
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:82:58: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Pos
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:84:58: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Pos
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:86:58: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Pos
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:88:58: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Pos
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:125:15: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.QC
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:128:15: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.QC
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:131:15: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.QC
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:148:90: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.KC
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:150:90: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.KC
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:152:90: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.KC
+⊢ (algebraMap GF K) 32768 = 32768
+error: ZK60Formal/BlockLookCov2.lean:158:37: No goals to be solved
+error: ZK60Formal/BlockLookCov2.lean:168:13: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : Fin S.H × S.Tok × S.Tok
+⊢ (algebraMap GF K) 127 = 127
+error: ZK60Formal/BlockLookCov2.lean:171:13: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : Fin S.H × S.Tok × S.Tok
+⊢ (algebraMap GF K) 127 = 127
+error: ZK60Formal/BlockLookCov2.lean:226:58: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.Hid
+⊢ (algebraMap GF K) 32768 = 32768
+info: ZK60Formal/BlockLookCov2.lean:237:10: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+error: ZK60Formal/BlockLookCov2.lean:232:54: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.Hid
+⊢ aPl U P D 1097728 15 (Fin.append (Lay.fPos p).1 (Lay.fPos p).2) -
+      aPl U P D 1130496 15 (Fin.append (Lay.fPos p).1 (Lay.fPos p).2) * 65536 =
+    aPl U P D 1097728 LkDom.F.log (Fin.append (Lay.fPos p).1 (Lay.fPos p).2) -
+      aPl U P D 1130496 LkDom.F.log (Fin.append (Lay.fPos p).1 (Lay.fPos p).2) * 65536
+error: ZK60Formal/BlockLookCov2.lean:239:56: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.Hid
+⊢ (algebraMap GF K) 128 = 128
+error: ZK60Formal/BlockLookCov2.lean:253:4: unsolved goals
+case refine_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hS : RungS S
+hlc : P.logCols = 14
+p : S.Tok × S.Hid
+l : SgIx ⊕ PrIx ⊕ PrIx
+hl : AlkW U P Pb Lay B Dof cut l = actTupW U P (Dof cut) Pb Lay B (Fin.append (Lay.fPos p).1 (Lay.fPos p).2)
+⊢ { x := aPl U P D 901120 15 (Fin.append (Lay.fPos p).1 (Lay.fPos p).2) + 2048, tag := ↑tagAct,
+        y := aPl U P D 999424 15 (Fin.append (Lay.fPos p).1 (Lay.fPos p).2), z := ↑(Pb.grpF p.2) }.tag =
+    (algebraMap GF K) ↑tagAct
+Some required targets logged failures:
+- ZK60Formal.BlockLookCov2
+error: build failed
+build rc 1 (13 s)
+rc 1, 13 s

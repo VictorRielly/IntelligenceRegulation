@@ -1,0 +1,3 @@
+build ZK60Formal.BlockLookEntry
+build ZK60Formal.BlockLookCov
+build ZK60Formal.BlockLookCov2
