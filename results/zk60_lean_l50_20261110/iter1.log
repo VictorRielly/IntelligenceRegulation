@@ -1,0 +1,6 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1df54ef4c4332468/results/zk60_lean_l50_20261110/plan1.txt ==
+build ZK60Formal.RunAliveRed
+== lake build ZK60Formal.RunAliveRed ==
+Build completed successfully (3615 jobs).
+build rc 0 (4 s)
+rc 0, 4 s
