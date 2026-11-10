@@ -1,4 +1,2 @@
-build ZK60Formal.BlockAlgInst
-build ZK60Formal.BlockAlgLkR13
-build ZK60Formal.BlockAlgLkW16
-build ZK60Formal.BlockAlgLkFinal
+build ZK60Formal.BlockAlgSat
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/results/zk60_lean_l36_20261109/check_l36.sh

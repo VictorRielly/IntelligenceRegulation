@@ -5,101 +5,24 @@ lake build ZK60Formal.BlockAlgInst rc 0
 lake build ZK60Formal.BlockAlgRels rc 0
 lake build ZK60Formal.BlockAlgFinal rc 0
 lake build ZK60Formal.BlockAlgShapes rc 0
-== lake build (full) ==
-lake build rc 0
-✔ [3634/3635] Built ZK60Formal (4.4s)
-Build completed successfully (3635 jobs).
-warnings: 0
-errors: 0
-sorry: 0
-warnings in the L36 modules' own builds: 0
-== axiom audit ==
-97 declarations: 35 def, 4 structure, 58 theorem
-axioms rc 0
-declarations audited: 97 (generated: 97)
-no axiom at all: 5
-sorryAx: 0
-ofReduceBool: 0
-other axioms: 0
-lines that are not a report: 0
-  67 axioms: [propext, Classical.choice, Quot.sound]
-  11 axioms: [propext, Quot.sound]
-  14 axioms: [propext]
-== source scan of the L36 files (the library files and BlockAlgCheck.lean) ==
-none
-== the library root imports the L36 files (and not the checker) ==
-imported: BlockAlgUnmask
-imported: BlockAlgKinds
-imported: BlockAlgInst
-imported: BlockAlgRels
-imported: BlockAlgFinal
-imported: BlockAlgShapes
-== unchanged: Statements.lean and every existing Lean file, against the lane's base 2155ede8 ==
-Statements.lean unchanged
-existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
-lines removed from the root's imports: 0
-files changed under ops/ (no Rust in this lane): 0
-== name clashes with the other worktrees' Lean files ==
-clashes: 1
-== BlockAlgCheck on L17's committed shape corpus ==
-  PROFILE: 3
-  LOGS: 3
-  HELPERS: 3
-  LOOKUPS: 18
-  PAIRING: 18
-  COUNT: 6
-  ALG-NUMBERS: 3
-  BOUND: 2
-BlockAlgCheck: 56 checks, 0 failed
-== negative control: five single changes to the shape corpus (a copy outside the repository) ==
-changed hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 SHAPE  lh=4  ->  lh=3 
-changed hashline-zk-mr1/private-block-rung-lh-t32-dev/2 SHAPE helpers=0,0,1,17, -> helpers=0,0,1,16,
-changed hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2 SHAPE logs=7,12,14,19,19,17,19,21,14  -> logs=7,12,14,19,19,17,19,21,13 
-changed hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2 SHAPE  lf=14  ->  lf=13 
-changed hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/2 LOOKUPS S:9 -> S:10
-negative control rc 1 (nonzero expected)
-FAILED [LOOKUPS] W16R2 rung: lookups of S: 10 against 9
-FAILED [COUNT] W16R2 rung: the corpus's count 1032192 against 1015808
-FAILED [COUNT] W16R2 rung: the corpus's count 1032192 against the theorem's 1015808
-FAILED [ALG-NUMBERS] W16R2 rung: lt, lh, lq, lf, log Ht, log S - log Ht: [5, 3, 10, 10, 9, 5] against [5, 4, 10, 10, 9, 5]
-FAILED [HELPERS] R13 rung: helpers [0, 0, 1, 16, 7, 7, 9, 7, 0] against [0, 0, 1, 17, 7, 7, 9, 7, 0]
-FAILED [LOGS] Shieldstral T128 R13: logs [7, 12, 14, 19, 19, 17, 19, 21, 13] against [7, 12, 14, 19, 19, 17, 19, 21, 14]
-FAILED [ALG-NUMBERS] Shieldstral T128 R13: lt, lh, lq, lf, log Ht, log S - log Ht: [7, 5, 12, 13, 12, 7] against [7, 5, 12, 14, 12, 7]
-BlockAlgCheck: 56 checks, 7 failed
-== regression: L6Check on the committed L6 corpus ==
-L6Check: 1206 checks, 0 failed
-== regression: L5Check on the committed L5 corpus ==
-L5Check: 5553 checks, 0 failed
-== regression: L11Check on L11's committed W16R2 rung corpus ==
-L11Check: 404 checks, 0 failed
-== regression: the fixture L1 check ==
-L1 TOTAL: 101956 checks, 0 failed
-verdicts: BlockAlgCheck 0, negative control 0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
-total 126 s
-== lake build of the L36 modules, one at a time ==
-lake build ZK60Formal.BlockAlgUnmask rc 0
-lake build ZK60Formal.BlockAlgKinds rc 0
-lake build ZK60Formal.BlockAlgInst rc 0
-lake build ZK60Formal.BlockAlgRels rc 0
-lake build ZK60Formal.BlockAlgFinal rc 0
-lake build ZK60Formal.BlockAlgShapes rc 0
 lake build ZK60Formal.BlockAlgR13 rc 0
 lake build ZK60Formal.BlockAlgLk26 rc 0
 lake build ZK60Formal.BlockAlgLkR13 rc 0
 lake build ZK60Formal.BlockAlgLkW16 rc 0
 lake build ZK60Formal.BlockAlgLkFinal rc 0
+lake build ZK60Formal.BlockAlgSat rc 0
 == lake build (full) ==
 lake build rc 0
-✔ [3639/3640] Built ZK60Formal (13s)
-Build completed successfully (3640 jobs).
+✔ [3640/3641] Built ZK60Formal (11s)
+Build completed successfully (3641 jobs).
 warnings: 0
 errors: 0
 sorry: 0
 warnings in the L36 modules' own builds: 0
 == axiom audit ==
-139 declarations: 44 def, 7 structure, 88 theorem
+145 declarations: 44 def, 7 structure, 94 theorem
 axioms rc 0
-declarations audited: 139 (generated: 139)
+declarations audited: 145 (generated: 145)
 no axiom at all: 7
 sorryAx: 0
 ofReduceBool: 0
@@ -107,7 +30,7 @@ other axioms: 0
 lines that are not a report: 0
  106 axioms: [propext, Classical.choice, Quot.sound]
   12 axioms: [propext, Quot.sound]
-  14 axioms: [propext]
+  20 axioms: [propext]
 == source scan of the L36 files (the library files and BlockAlgCheck.lean) ==
 none
 == the library root imports the L36 files (and not the checker) ==
@@ -122,6 +45,7 @@ imported: BlockAlgLk26
 imported: BlockAlgLkR13
 imported: BlockAlgLkW16
 imported: BlockAlgLkFinal
+imported: BlockAlgSat
 == unchanged: Statements.lean and every existing Lean file, against the lane's base 2155ede8 ==
 Statements.lean unchanged
 existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
@@ -163,4 +87,4 @@ L11Check: 404 checks, 0 failed
 == regression: the fixture L1 check ==
 L1 TOTAL: 101956 checks, 0 failed
 verdicts: BlockAlgCheck 0, negative control 0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
-total 109 s
+total 73 s
