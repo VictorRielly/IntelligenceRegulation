@@ -642,6 +642,43 @@ theorem rtK_chain :
   simp only [List.mem_cons, List.mem_nil_iff, or_false] at hK'
   rcases hK' with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact ⟨le_rfl, rfl⟩
 
+/-- **The nine kinds in the order of dependence** (L30 §5.3, finding L30-1; the list `Ko` of the gate's ordered
+cover): the openings' second halves, `M`, the openings' first halves, the slots, the relation draws, the host draws,
+LogUp. A kind must be alive at the end only when no earlier kind has a doomed entrant. -/
+noncomputable def rtKo : List (KindRun (rtTr key domain Lq pf rd)) :=
+  [rtKB key domain hs Lq hL pf rd hL64 hv U hbij D hD, rtKM key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+    rtKA key domain hs Lq hL pf rd hL64 hv U hbij D hD, rtKsl key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+    rtKR0 key domain hs Lq hL pf rd hL64 hv U hbij D hD, rtKR1 key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+    rtKH0 key domain hs Lq hL pf rd hL64 hv U hbij D hD, rtKH1 key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+    rtKLU key domain hs Lq hL pf rd hL64 hv U hbij D hD]
+
+/-- The ordered list holds exactly the nine kinds (the premise `hKo` of the gate). -/
+theorem rtKo_mem :
+    ∀ K' ∈ rtKo key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+      K' ∈ [rtKsl key domain hs Lq hL pf rd hL64 hv U hbij D hD, rtKM key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+        rtKA key domain hs Lq hL pf rd hL64 hv U hbij D hD, rtKB key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+        rtKR0 key domain hs Lq hL pf rd hL64 hv U hbij D hD, rtKR1 key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+        rtKH0 key domain hs Lq hL pf rd hL64 hv U hbij D hD, rtKH1 key domain hs Lq hL pf rd hL64 hv U hbij D hD,
+        rtKLU key domain hs Lq hL pf rd hL64 hv U hbij D hD] := by
+  intro K' hK'
+  simp only [rtKo, List.mem_cons, List.mem_nil_iff, or_false] at hK'
+  rcases hK' with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ List.mem_cons_self))
+  · exact List.mem_cons_of_mem _ List.mem_cons_self
+  · exact List.mem_cons_of_mem _ (List.mem_cons_of_mem _ List.mem_cons_self)
+  · exact List.mem_cons_self
+  · exact List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _
+      List.mem_cons_self)))
+  · exact List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _
+      (List.mem_cons_of_mem _ List.mem_cons_self))))
+  · exact List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _
+      (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ List.mem_cons_self)))))
+  · exact List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _
+      (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ List.mem_cons_self))))))
+  · exact List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _
+      (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _ (List.mem_cons_of_mem _
+        List.mem_cons_self)))))))
+
 end Nine
 
 end ZK60.ProtocolClassify

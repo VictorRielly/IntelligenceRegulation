@@ -221,6 +221,15 @@ theorem rt_stSlotsLoop_tr (H : HIn → Dig) (P : Block.BlockParams) (elog : ℕ 
   rw [← ht]
   exact slotsLoop_tr H P b g a sps [] 0 {} t recs' acc' t'' (fun i hi => by simpa using hd i hi) hl
 
+/-- Stage IN-C's draws per slot are the public data's: they do not read the head's context. -/
+theorem rt_incBp_draws (V : IncV) (cx : IncCtx) : (V.bp cx).draws = incDraws V.pub := rfl
+
+/-- Stage IN-C's transcript before its slots is `runOps` of the head's operations, written at any context. -/
+theorem rt_incSlotT (H : HIn → Dig) (V : IncV) (core : Block.Core) (t : Tr) (cx0 : IncCtx) :
+    V.slotT H core t = runOps H t (StageFS.stageRootOps (V.bp cx0) core (incHeadDraws V.pub)) := by
+  rw [StageFS.runOps_stageRootOps]
+  rfl
+
 /-- **Stage IN-C's accepted slot phase** (`IncV.slots`: `A`, `M`, the head's challenges, `H`, the four slots) leaves the
 transcript at `runOps` of the head's and the slots' operations, written at ANY context `cx0` (the operations depend on
 the context only through `define`, which the transcript's schedule does not read). -/
@@ -232,10 +241,12 @@ theorem rt_incSlots_tr (H : HIn → Dig) (V : IncV) (core : Block.Core) (t : Tr)
   have h1 : t4 = runOps H (V.slotT H core t)
       (Block.fullOps (V.bp (incCtx V.pub (V.headCh H core t).1)) 0 core.slots) :=
     rt_stSlotsLoop_tr H _ _ _ _ _ core.slots recs acc _ t4 h (hd _)
-  have h2 : V.slotT H core t = runOps H t (StageFS.stageRootOps (V.bp cx0) core (incHeadDraws V.pub)) :=
-    (StageFS.runOps_stageRootOps H (V.bp cx0) core (incHeadDraws V.pub) t).symm
-  rw [h1, h2, rt_fullOps (V.bp (incCtx V.pub (V.headCh H core t).1)), rt_fullOps (V.bp cx0), runOps_append]
-  rfl
+  have e1 : Block.fullOps (V.bp (incCtx V.pub (V.headCh H core t).1)) 0 core.slots
+      = rtFullOps (incDraws V.pub) 0 core.slots := by
+    rw [rt_fullOps, rt_incBp_draws]
+  have e2 : Block.fullOps (V.bp cx0) 0 core.slots = rtFullOps (incDraws V.pub) 0 core.slots := by
+    rw [rt_fullOps, rt_incBp_draws]
+  rw [h1, rt_incSlotT H V core t cx0, runOps_append, e1, e2]
 
 /-- **Stage OUT-C's accepted slot phase** (L15's `stageSlots` with two head challenges) leaves the transcript at
 `runOps` of the head's and the slots' operations. -/
@@ -589,11 +600,12 @@ noncomputable def rtRunClassify (key : Option Dig) (domain : List UInt8) (Lq : �
         · exact h)
       (fun _ h => Or.inr (Or.inr (h.trans (hbp k)))))
     ((rtOutc_holds outc outcG Lq hL20 pout O (pend (L + 1)) hO).mono
-      (fun _ h => by
-        rcases h with h | h | h
+      (fun cr h => by
+        have h' : L + 1 = 0 ∨ L + 1 < L + 1 ∨ cr.pending.length = pend (L + 1) := h
+        rcases h' with h1 | h1 | h1
         · omega
         · omega
-        · exact h)
+        · exact h1)
       (fun _ _ => Or.inr (Or.inl (Nat.lt_succ_self _))))
 
 end Classify
