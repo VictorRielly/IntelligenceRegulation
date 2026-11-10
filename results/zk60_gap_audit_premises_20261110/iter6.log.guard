@@ -1,0 +1,2 @@
+[zk60-guard 23:43:48] START gap-prem-iter6 class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=cf30760e2ed1
+[zk60-guard 23:44:05] END gap-prem-iter6 exit=0 child_wall=17s peak_rss=3.70G min_avail=227.90G
