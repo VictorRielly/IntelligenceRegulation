@@ -1,0 +1,3 @@
+2026-11-10T08:19:12Z start; binary /Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28 (80f2b70481fba51d); free disk 75 GiB
+2026-11-10T08:23:43Z A (KEPT off), K (HL_A26_KEPT=1), A rc=0 {"comparisons": [{"against": "0-A", "run": "1-K", "byte_identical": true}, {"against": "0-A", "run": "2-A", "byte_identical": true}], "cross": [{"verifier": "A", "receipts_of": "1-K", "all_checked": true}, {"verifier": "K", "receipts_of": "0-A", "all_checked": true}]}
+2026-11-10T08:23:43Z all done; free disk 75 GiB
