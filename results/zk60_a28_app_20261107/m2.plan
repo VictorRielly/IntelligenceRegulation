@@ -1,0 +1,4 @@
+# Lane A28, job m2: WITHDRAWN before it ran. The first candidate's seal-ahead lanes took requests from one shared
+# queue, so a lane's second thread could take a post's second category while another lane sat idle (m1b1: the
+# first post's latency 85 s). The scheduling settings are measured on the second candidate instead (q2, m3.plan).
+# tag|binary|posts|driver flags|env

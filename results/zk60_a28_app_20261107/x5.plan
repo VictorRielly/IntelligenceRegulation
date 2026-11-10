@@ -1,0 +1,9 @@
+# Lane A28, job x5 (diagnostics, A B B A): the final candidate a28-q3 on the 8-post stream with its six prover
+# lanes in ONE server process (A, the app's form) and in TWO processes of three lanes (B; post i to process
+# i mod 2). x3's two single runs of B differed by 5%; this pair says whether two processes are worth building
+# into the app's service.
+# tag|binary|posts|driver flags|env
+x5a1|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q3|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+x5b1|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q3|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--provers 2 --lanes 3 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+x5b2|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q3|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--provers 2 --lanes 3 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+x5a2|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q3|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread

@@ -1,0 +1,7 @@
+[zk60-guard 09:53:41] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 09:54:42] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 09:55:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 09:56:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 09:57:04] START a28-p0-profile class=gpu need=130G cap=200G enforce=watchdog-only waited=203s run=013edb3dba55
+[zk60-guard 10:01:20] a28-p0-profile: 1 straggler process(es) outlived the command; killing
+[zk60-guard 10:01:20] END a28-p0-profile exit=0 child_wall=256s peak_rss=98.23G min_avail=100.33G peak_vram=48289MiB

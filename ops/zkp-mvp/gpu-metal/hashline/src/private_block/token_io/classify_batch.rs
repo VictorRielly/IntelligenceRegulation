@@ -238,7 +238,7 @@ fn batch_inner(f: &[(String, String)], spec: &Spec) -> Result<Vec<(usize, usize)
         println!("{{\"event\":\"batch-job-start\",\"index\":{index},\"name\":{},\"policy\":{},\"chunk\":{}}}", js(&row.name), js(&row.policy), row.chunk);
         // Each call creates fresh seal/proof randomness and a fresh streamed
         // block reader; every reload still checks its bound layer digest.
-        prove_with_public(jf, Some(SharedProve { p: &p, bound: &bound, whole: &whole, claim: Some(&mut claim), blocks: None, witness_budget: 0 }))?;
+        prove_with_public(jf, Some(SharedProve { p: &p, bound: &bound, whole: &whole, claim: Some(&mut claim), blocks: None, witness_budget: 0, run_gate: None }))?;
         let (seal_loads, prove_loads) = *claim.reloads.get(index).ok_or("batch: a finished job did not join the batch's claim")?;
         println!("{{\"event\":\"batch-job-proved\",\"index\":{index},\"name\":{},\"seal_block_loads\":{seal_loads},\"prove_block_loads\":{prove_loads},\"blocks\":{}}}", js(&row.name), p.layers.len());
     }

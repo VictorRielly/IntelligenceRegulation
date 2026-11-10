@@ -1,0 +1,31 @@
+2026-11-09T23:41:59Z start at 90f342fd + the working tree; free disk 139 GiB
+2026-11-09T23:42:52Z release CLI rc=0
+2026-11-09T23:42:52Z candidate a28-q3 sha256 80f2b70481fba51df6118b25a19e2d0c4c6e1ddb4e10b00c96e0ca2252935157
+2026-11-09T23:45:38Z test build rc=0
+2026-11-09T23:45:39Z a28 classifier commitment shapes CPU = Metal rc=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1118 filtered out; finished in 0.88s
+2026-11-09T23:46:30Z zk60_metal_commit rc=0
+test result: ok. 5 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.43s
+2026-11-09T23:46:35Z hashline a28_ rc=0
+test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 1116 filtered out; finished in 4.83s
+test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 1116 filtered out; finished in 4.83s
+2026-11-09T23:46:38Z hashline a24_ rc=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 2.75s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 2.75s
+2026-11-09T23:47:01Z hashline s25_tests rc=0
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1099 filtered out; finished in 22.95s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1099 filtered out; finished in 22.95s
+2026-11-09T23:47:01Z hashline hash_domain rc=0
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1104 filtered out; finished in 0.11s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1104 filtered out; finished in 0.11s
+2026-11-09T23:47:01Z hashline token_io::classify_serve rc=0
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1119 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1119 filtered out; finished in 0.00s
+2026-11-09T23:47:24Z trained digests rc=0
+2026-11-09T23:47:24Z recorded digest 5a6193d3: CPU and Metal
+2026-11-09T23:47:24Z recorded digest f590b01f: CPU and Metal
+2026-11-09T23:47:24Z recorded digest 79f987ef: CPU and Metal
+2026-11-09T23:47:24Z recorded digest a8258241: CPU and Metal
+2026-11-09T23:47:24Z recorded digest 0e88d84f: CPU and Metal
+2026-11-09T23:47:24Z recorded digest 90003b76: CPU and Metal
+2026-11-09T23:47:24Z all done; free disk 139 GiB

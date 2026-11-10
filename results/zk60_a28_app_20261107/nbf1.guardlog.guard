@@ -1,0 +1,3 @@
+[zk60-guard 10:01:05] admission waiting: VRAM 25736 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:01:21] START a28-nbf1 class=gpu need=20G cap=40G enforce=watchdog-only waited=15s run=e2751dbcb1ce
+[zk60-guard 10:01:22] END a28-nbf1 exit=0 child_wall=1s peak_rss=2.09G min_avail=150.38G peak_vram=526MiB
