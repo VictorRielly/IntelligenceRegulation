@@ -1,0 +1,43 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/fzc_plan6.txt ==
+build ZK60Formal.BlockHostFzc
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/fzc_axioms.lean
+== lake build ZK60Formal.BlockHostFzc ==
+Build completed successfully (3560 jobs).
+build rc 0 (17 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/fzc_axioms.lean ==
+'ZK60.Exec.Block.Join.W16.Fzc.drR_length' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.drR_getD' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.getD_app' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.getD_app_right' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.hT_eval' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.slot18_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.slot11_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.slot12_eq' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.lksF_length' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.slotShape_fzc' depends on axioms: [propext]
+'ZK60.Exec.Block.Join.W16.Fzc.xcFzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.pwFzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.zIR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.vF' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.getD_cons3' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.lksK_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_vals' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_off' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_irEval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.append_splitF' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.alg_plF' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_rel0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_gh0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_gh1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.getD_map_toK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.muF_getD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzcAct_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_batch' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.mmSlot_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.fzc_mmfun' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.gmm_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.umm_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Fzc.formAt_fzc' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/fzc_axioms.lean (20 s)
+rc 0, 20 s

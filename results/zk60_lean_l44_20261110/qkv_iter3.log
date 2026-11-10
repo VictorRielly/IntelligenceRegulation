@@ -1,0 +1,380 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_plan3.txt ==
+build ZK60Formal.BlockHostBase
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean
+== lake build ZK60Formal.BlockHostBase ==
+Build completed successfully (3559 jobs).
+build rc 0 (2 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:213:0: warning: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Qkv.fun_append`:
+  [Field K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:345:80: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+s : ℕ
+hs : s < 63
+h1 : 0 < 2 ^ s
+h2 : 2 ^ s < 2 ^ 64
+⊢ (algebraMap GF K) 2 ^ s = 2 ^ s
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:351:87: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+s : ℕ
+hs : s < 63
+h1 : 0 < 2 ^ s
+h2 : 2 ^ s < 2 ^ 64
+⊢ (algebraMap GF K) 2 ^ s = 2 ^ s
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:380:43: warning: This simp argument is unused:
+  ite_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [relCl, xtW, remR, remVal, hg, one_mul, List.getD_cons_zero, List.length_cons, List.length_nil,
+    hL.flip, (by norm_num : (7 : ℕ) ≤ 16), ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:389:35: warning: This simp argument is unused:
+  ite_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [relGh, xtW, remR, remVal, hg, one_mul, hS.sq, List.getD_cons_zero, List.length_cons,
+    List.length_nil, (by norm_num : (15 : ℕ) ≤ 16), ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:399:35: warning: This simp argument is unused:
+  ite_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [relGh, xtW, remR, remVal, hg, one_mul, hS.spv, List.getD_cons_zero, List.length_cons,
+    List.length_nil, (by norm_num : (12 : ℕ) ≤ 16), ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:481:25: warning: This simp argument is unused:
+  Nat.add_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, hxc, wsum, batchV, List.zipIdx_cons,
+    List.zipIdx_nil, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.getD_cons_succ, List.getD_cons_zero,
+    add_zero, one_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:482:11: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:537:17: warning: Unused tactic linter: `beta_reduce` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:538:17: warning: Unused tactic linter: `beta_reduce` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:539:17: warning: Unused tactic linter: `beta_reduce` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:772:6: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ∑ g, ∑ t', ∑ j, ∑ c, ∑ t, eg g * ej j * et t * ec c * (A g j t t' * V t' g c)
+in the target expression
+  ∑ x, ∑ x_1, ∑ i, eg x * ((∑ x_2, ∑ i, ej x_2 * (et i * A x x_2 i x_1)) * (ec i * V x_1 x i)) =
+    ∑ x, ∑ x_1, ∑ x_2, ∑ x_3, ∑ i, et x * (eg x_1 * (ej x_2 * (ec x_3 * (A x_1 x_2 x i * V i x_1 x_3))))
+
+K : Type
+inst✝⁴ : Field K
+G T J C : Type
+inst✝³ : Fintype G
+inst✝² : Fintype T
+inst✝¹ : Fintype J
+inst✝ : Fintype C
+eg : G → K
+ej : J → K
+et : T → K
+ec : C → K
+A : G → J → T → T → K
+V : T → G → C → K
+hL :
+  ∀ (g : G) (t' : T),
+    eg g * ((∑ j, ej j * ∑ t, et t * A g j t t') * ∑ c, ec c * V t' g c) =
+      ∑ j, ∑ c, ∑ t, eg g * ej j * et t * ec c * (A g j t t' * V t' g c)
+⊢ ∑ x, ∑ x_1, ∑ i, eg x * ((∑ x_2, ∑ i, ej x_2 * (et i * A x x_2 i x_1)) * (ec i * V x_1 x i)) =
+    ∑ x, ∑ x_1, ∑ x_2, ∑ x_3, ∑ i, et x * (eg x_1 * (ej x_2 * (ec x_3 * (A x_1 x_2 x i * V i x_1 x_3))))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:771:13: warning: This simp argument is unused:
+  hL
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Finset.mul_sum]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:818:6: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  splitQ (Fin.append ?t (Fin.append (Fin.append ?g ?j) ?c))
+in the target expression
+  (fun w =>
+        (algebraMap GF K)
+          (relMm Pb Lay B (xtW U P D) 15 1 (W16Pos.q (splitQ (Fin.append t (Fin.append (Fin.append g j) w))))))
+      c =
+    ∑ t',
+      aPl U P D 819200 14 (Fin.append (Fin.append g j) (Fin.append t t')) *
+        aPl U P D 671744 14 (Fin.append t' (Fin.append g c))
+
+case e_a.e_a.e_a.e_a
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+dr : List Fp2
+hpt :
+  (fun t => Fp2.toK U (dr.getD (ipStd 5 4 15 1 ↑t) Fp2.zero)) =
+    Fin.append (fun i => Fp2.toK U (dr.getD (4 + ↑i) Fp2.zero))
+      (Fin.append (Fin.append (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) fun x => Fp2.toK U (dr.getD 3 Fp2.zero))
+        fun i => Fp2.toK U (dr.getD (9 + ↑i) Fp2.zero))
+t : Fin 5 → Bool
+x✝³ : t ∈ univ
+g : Fin 3 → Bool
+x✝² : g ∈ univ
+j : Fin 1 → Bool
+x✝¹ : j ∈ univ
+c : Fin 6 → Bool
+x✝ : c ∈ univ
+⊢ (fun w =>
+        (algebraMap GF K)
+          (relMm Pb Lay B (xtW U P D) 15 1 (W16Pos.q (splitQ (Fin.append t (Fin.append (Fin.append g j) w))))))
+      c =
+    ∑ t',
+      aPl U P D 819200 14 (Fin.append (Fin.append g j) (Fin.append t t')) *
+        aPl U P D 671744 14 (Fin.append t' (Fin.append g c))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:839:8: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:879:47: error(lean.invalidField): Invalid field notation: Type of
+  rj
+is not known; cannot resolve field `draws`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `BlockParams.draws`
+  • `Hist.draws`
+  • `SlotRec.draws`
+  • `Slot.R13.draws`
+  • `Slot.W16R2.draws`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:879:57: error(lean.invalidField): Invalid field notation: Type of
+  x
+is not known; cannot resolve field `Canon`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `Fp.Canon`
+  • `Fp2.Canon`
+  • `Slot.Body.Canon`
+  • `Slot.Ir.Canon`
+  • `Slot.TabV.Canon`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:869:116: error: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+_hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+hsl : P.geom.slots = W16R2.rungSlots
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (progW16 cfgRungW16 ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hS : RungS S
+hL : LayW16 Lay
+hpub : PubW16 U pubs Pb Lay B
+dt : AlgData K L (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2) (κ : Fin 4) (b : Fin 15 → Bool),
+    dt.cl 15 cu rt bga κ b =
+      if ↑κ < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 15 (↑κ) (W16Pos.q (splitQ b)))
+      else xcQzc U P D Pb Lay B bga (↑κ) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin 15 → Bool),
+    dt.gh 15 cu rt i b = (algebraMap GF K) (relGh Pb Lay B (xtW U P D) 15 (↑i) (W16Pos.q (splitQ b)))
+hmm :
+  ∀ (i : Fin 2) (b : Fin 15 → Bool),
+    dt.mm 15 cu rt i b = (algebraMap GF K) (relMm Pb Lay B (xtW U P D) 15 (↑i) (W16Pos.q (splitQ b)))
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hs15 : slotShape P 15 = (15, 1, 4)
+hs5 : slotShape P 5 = (9, 1, 2)
+hs9 : slotShape P 9 = (8, 2, 3)
+r : SlotRec
+hr : rs[15]? = some r
+hlen : 15 < rs.length
+r5 : SlotRec
+hr5 : rs[5]? = some r5
+r9 : SlotRec
+hr9 : rs[9]? = some r9
+⊢ ((hostSp U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt hcard 15 ⋯ cu rt
+          (histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs))).Φ
+      fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 15 -
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)) 15 r.draws (Sym.dr 15 4)) *
+          spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 5 +
+        Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 15 rs)) 15 r.draws (Sym.dr 15 5)) *
+          spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 9)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1111:43: warning: This simp argument is unused:
+  ite_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [relCl, xtW, remR, remVal, hg, one_mul, List.getD_cons_zero, List.length_cons, List.length_nil,
+    hL.flip, (by norm_num : (7 : ℕ) ≤ 16), ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1119:35: warning: This simp argument is unused:
+  ite_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [relGh, xtW, remR, remVal, hg, one_mul, hS.sk, List.getD_cons_zero, List.length_cons,
+    List.length_nil, (by norm_num : (15 : ℕ) ≤ 16), ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1128:35: warning: This simp argument is unused:
+  ite_true
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [relGh, xtW, remR, remVal, hg, one_mul, hS.sv, List.getD_cons_zero, List.length_cons,
+    List.length_nil, (by norm_num : (16 : ℕ) ≤ 16), ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1205:25: warning: This simp argument is unused:
+  Nat.add_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, hxc, wsum, batchV, List.zipIdx_cons,
+    List.zipIdx_nil, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.getD_cons_succ, List.getD_cons_zero,
+    add_zero, one_mul]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1206:11: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1258:17: warning: Unused tactic linter: `beta_reduce` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1259:17: warning: Unused tactic linter: `beta_reduce` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1260:17: warning: Unused tactic linter: `beta_reduce` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1374:47: error(lean.invalidField): Invalid field notation: Type of
+  rj
+is not known; cannot resolve field `draws`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `BlockParams.draws`
+  • `Hist.draws`
+  • `SlotRec.draws`
+  • `Slot.R13.draws`
+  • `Slot.W16R2.draws`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1374:57: error(lean.invalidField): Invalid field notation: Type of
+  x
+is not known; cannot resolve field `Canon`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `Fp.Canon`
+  • `Fp2.Canon`
+  • `Slot.Body.Canon`
+  • `Slot.Ir.Canon`
+  • `Slot.TabV.Canon`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:1363:116: error: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+_hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+hsl : P.geom.slots = W16R2.rungSlots
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (progW16 cfgRungW16 ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hS : RungS S
+hL : LayW16 Lay
+hpub : PubW16 U pubs Pb Lay B
+dt : AlgData K L (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2) (κ : Fin 4) (b : Fin 14 → Bool),
+    dt.cl 16 cu rt bga κ b =
+      if ↑κ < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 16 (↑κ) (W16Pos.kv (splitK b)))
+      else xcKvzc U P D Pb Lay B bga (↑κ) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin 14 → Bool),
+    dt.gh 16 cu rt i b = (algebraMap GF K) (relGh Pb Lay B (xtW U P D) 16 (↑i) (W16Pos.kv (splitK b)))
+hmm :
+  ∀ (i : Fin 2) (b : Fin 14 → Bool),
+    dt.mm 16 cu rt i b = (algebraMap GF K) (relMm Pb Lay B (xtW U P D) 16 (↑i) (W16Pos.kv (splitK b)))
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hs16 : slotShape P 16 = (14, 1, 4)
+hs6 : slotShape P 6 = (9, 1, 2)
+hs7 : slotShape P 7 = (9, 1, 2)
+r : SlotRec
+hr : rs[16]? = some r
+hlen : 16 < rs.length
+r5 : SlotRec
+hr5 : rs[5]? = some r5
+r6 : SlotRec
+hr6 : rs[6]? = some r6
+r7 : SlotRec
+hr7 : rs[7]? = some r7
+⊢ ((hostSp U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt hcard 16 ⋯ cu rt
+          (histOf bga.1 bga.2.1 bga.2.2 (List.take 16 rs))).Φ
+      fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 16 -
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 16 rs)) 16 r.draws (Sym.dr 16 4)) *
+          spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 6 +
+        Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 16 rs)) 16 r.draws (Sym.dr 16 5)) *
+          spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 7)
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean (12 s)
+rc 1, 12 s

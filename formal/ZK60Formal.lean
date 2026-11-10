@@ -300,3 +300,16 @@ import ZK60Formal.RunHalBlk
 import ZK60Formal.RunCoverPAlive
 import ZK60Formal.RunCoverPSomeL
 import ZK60Formal.RunCoverPRk
+import ZK60Formal.BlockHostBase
+import ZK60Formal.BlockHostPub
+import ZK60Formal.BlockR13Prog
+import ZK60Formal.BlockR13ProgCnt
+import ZK60Formal.BlockR13ProgOk
+import ZK60Formal.BlockHostDzc
+import ZK60Formal.BlockHostSzc
+import ZK60Formal.BlockHostFzc
+import ZK60Formal.BlockLkBase
+import ZK60Formal.BlockLkLzc
+import ZK60Formal.BlockLkGd
+import ZK60Formal.BlockHostQkv
+import ZK60Formal.BlockHostFinal

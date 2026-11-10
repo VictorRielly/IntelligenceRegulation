@@ -1,0 +1,78 @@
+== lake build of the L44 modules, one at a time ==
+lake build ZK60Formal.BlockHostBase rc 0
+lake build ZK60Formal.BlockHostPub rc 0
+lake build ZK60Formal.BlockR13Prog rc 0
+lake build ZK60Formal.BlockR13ProgCnt rc 0
+lake build ZK60Formal.BlockR13ProgOk rc 0
+lake build ZK60Formal.BlockHostDzc rc 0
+lake build ZK60Formal.BlockHostSzc rc 0
+lake build ZK60Formal.BlockHostFzc rc 0
+lake build ZK60Formal.BlockHostQkv rc 0
+lake build ZK60Formal.BlockLkBase rc 0
+lake build ZK60Formal.BlockLkLzc rc 0
+lake build ZK60Formal.BlockLkGd rc 0
+lake build ZK60Formal.BlockHostFinal rc 0
+== lake build (full) ==
+lake build rc 0
+✔ [3693/3694] Built ZK60Formal (1.8s)
+Build completed successfully (3694 jobs).
+warnings: 0
+errors: 0
+sorry: 0
+warnings in the L44 modules' own builds: 0
+== axiom audit ==
+467 declarations: 1 abbrev, 163 def, 7 structure, 296 theorem
+axioms rc 0
+declarations audited: 467 (generated: 467)
+no axiom at all: 80
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+ 228 axioms: [propext, Classical.choice, Quot.sound]
+  34 axioms: [propext, Quot.sound]
+ 125 axioms: [propext]
+== source scan of the L44 library files and checkers ==
+none
+== the library root imports the L44 files ==
+imported: BlockHostBase
+imported: BlockHostPub
+imported: BlockR13Prog
+imported: BlockR13ProgCnt
+imported: BlockR13ProgOk
+imported: BlockHostDzc
+imported: BlockHostSzc
+imported: BlockHostFzc
+imported: BlockHostQkv
+imported: BlockLkBase
+imported: BlockLkLzc
+imported: BlockLkGd
+imported: BlockHostFinal
+== unchanged: Statements.lean and every existing Lean file, against the lane's base f17599c4 ==
+Statements.lean unchanged
+existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
+lines removed from the root's imports: 0
+files changed under ops/ since the base (test-only Rust of deliverable 5 only):
+ops/zkp-mvp/gpu-metal/hashline/src/lean_l44_export_tests.rs
+ops/zkp-mvp/gpu-metal/hashline/src/private_block/w16r2_tests.rs
+files under ops/ other than the two test-only files: 0
+== name clashes with the other worktrees' Lean files ==
+clashes: 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== the lane's agreement checks against the code (deliverables 5 and 6) ==
+BlockHelperExportCheck: 1685 checks, 0 failed
+BlockHelperExportCheck negative controls: 14 of 14 caught
+BlockR13ProgCheck: 163 checks, 0 failed
+BlockR13ProgCheck negative control: 11 of 11 caught
+BlockR13ProgExportCheck: 2041 checks, 0 failed
+BlockR13ProgExportCheck negative controls: 14 of 14 caught
+agreement verdicts: export W16R2 0, R13 vs L17 0, export R13 0 (0 = as required)
+verdicts: L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 71 s

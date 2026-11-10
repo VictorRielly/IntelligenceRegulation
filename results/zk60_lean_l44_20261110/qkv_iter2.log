@@ -1,0 +1,67 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/qkv_plan2.txt ==
+build ZK60Formal.BlockHostBase
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean
+== lake build ZK60Formal.BlockHostBase ==
+✖ [3559/3559] Building ZK60Formal.BlockHostBase (1.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostBase.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/.lake/build/lib/lean/ZK60Formal/BlockHostBase.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/.lake/build/lib/lean/ZK60Formal/BlockHostBase.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/.lake/build/ir/ZK60Formal/BlockHostBase.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/.lake/build/ir/ZK60Formal/BlockHostBase.setup.json --json
+warning: ZK60Formal/BlockHostBase.lean:264:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockHostBase.lean:267:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockHostBase.lean:271:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockHostBase.lean:273:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockHostBase.lean:283:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/BlockHostBase.lean:285:26: `dif_neg` has been deprecated: Use `dite_eq_right` instead
+warning: ZK60Formal/BlockHostBase.lean:277:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.pt_append`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockHostBase.lean:298:62: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockHostBase.lean:299:18: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockHostBase.lean:291:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.mleAt_append_bits`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/BlockHostBase.lean:316:10: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockHostBase.lean:316:20: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/BlockHostBase.lean:317:10: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/BlockHostBase.lean:317:20: `dif_neg` has been deprecated: Use `dite_eq_right` instead
+warning: ZK60Formal/BlockHostBase.lean:317:31: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/BlockHostBase.lean:317:59: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/BlockHostBase.lean:353:0: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.mm_fold`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/BlockHostBase.lean:433:85: unsolved goals
+c : W16Cfg
+shaped : ℕ → ℕ
+d : Slot.W16R2.Dom
+h h' : Hist
+k k' : ℕ
+dr dr' : List Fp2
+ha : h.alpha = h'.alpha
+hg : h.gamma = h'.gamma
+l : Slot.Build.Lay.LkW
+x✝ : l ∈ lookupsN c d
+⊢ {
+      konst :=
+        h'.alpha.sub
+          ((Fp2.fromBase (Fp.fromI64 l.cst)).add (h'.gamma.mulBase (Fp.new (UInt64.ofNat (Circuit.tagW l.tag))))),
+      terms := List.map ((fun p => (Sym.eval h k dr p.1, p.2)) ∘ fun t => (Sym.base (-t.2), shaped t.1)) l.terms } =
+    {
+      konst :=
+        h'.alpha.sub
+          ((Fp2.fromBase (Fp.fromI64 l.cst)).add (h'.gamma.mulBase (Fp.new (UInt64.ofNat (Circuit.tagW l.tag))))),
+      terms := List.map ((fun p => (Sym.eval h' k' dr' p.1, p.2)) ∘ fun t => (Sym.base (-t.2), shaped t.1)) l.terms }
+Some required targets logged failures:
+- ZK60Formal.BlockHostBase
+error: build failed
+build rc 1 (36 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean:20:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/.lake/build/lib/lean/ZK60Formal/BlockHostBase.olean' of module ZK60Formal.BlockHostBase does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostQkv.lean (37 s)
+rc 1, 37 s

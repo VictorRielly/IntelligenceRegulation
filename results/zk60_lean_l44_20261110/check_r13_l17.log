@@ -1,0 +1,26 @@
+  ir-nodes: 22
+  ir-terms: 22
+  tables: 23
+  hosted: 23
+  ir-value: 22
+  planes: 23
+  planes-aligned: 23
+  ir-value-tab: 1
+  slot-count: 1
+  sites-a: 1
+  sites-h: 1
+  sites-hu: 1
+  tables compared by their plane: 192
+BlockR13ProgCheck: 163 checks, 0 failed
+  negative control caught (1 failed): slot 14 c0's first coefficient
+  negative control caught (1 failed): slot 15 table 3 a private table
+  negative control caught (1 failed): slot 17 eq point of table 1
+  negative control caught (1 failed): slot 18 hosted coefficient
+  negative control caught (1 failed): slot 16 first term's wrapper
+  negative control caught (1 failed): slot 19 (SC_TAB) poly(vals)
+  negative control caught (1 failed): slot 19 (SC_TAB) a terminal value
+  negative control caught (1 failed): slot 14 table 5's plane label
+  negative control caught (1 failed): slot 21 first draw
+  negative control caught (1 failed): slot 2 node 0's first coefficient
+  negative control caught (1 failed): SITES a first row
+BlockR13ProgCheck negative control: 11 of 11 caught

@@ -1,0 +1,475 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/fzc_plan2.txt ==
+build ZK60Formal.BlockHostBase
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean
+== lake build ZK60Formal.BlockHostBase ==
+Build completed successfully (3559 jobs).
+build rc 0 (4 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:56:91: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:253:4: warning: Unused tactic linter: `rfl` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:253:4: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:314:91: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hS : RungS S
+b : Fin 15 → Bool
+e0 e1 e2 : K
+mu : List K
+⊢ (algebraMap GF K) (B.gF (splitF b)) * mu.getD 0 0 * 32768 +
+          (algebraMap GF K) (B.gF (splitF b)) * mu.getD 0 0 * aPl U P D 999424 15 b * aPl U P D 1032192 15 b -
+        (algebraMap GF K) (B.gF (splitF b)) * mu.getD 0 0 * aPl U P D 1097728 15 b * 65536 -
+      (algebraMap GF K) (B.gF (splitF b)) * mu.getD 0 0 * aPl U P D 1163264 15 b =
+    (algebraMap GF K) (B.gF (splitF b)) * mu.getD 0 0 * 32768 +
+          (algebraMap GF K) (B.gF (splitF b)) * mu.getD 0 0 * aPl U P D 999424 15 b * aPl U P D 1032192 15 b -
+        (algebraMap GF K) (B.gF (splitF b)) * mu.getD 0 0 * aPl U P D 1097728 15 b * 65536 -
+      (algebraMap GF K) (B.gF (splitF b)) * mu.getD 0 0 * (algebraMap GF K) (plF U P D 1163264 (splitF b))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:318:15: warning: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  [apply] simp (disch := norm_num) only [gV_some, batchV, fzcClauses, rrF, kF, L16, List.zipIdx_cons, List.zipIdx_nil,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.getD_cons_succ, List.getD_cons_zero, restF, add_zero,
+    cstK_base U, cstK_p16 U, relCl, xtW, remR, remVal, hS.sprod, map_mul, map_add, map_sub, map_pow, map_ofNat,
+    map_intCast, alg_plF U P D hX]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:327:77: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hS : RungS S
+b : Fin 15 → Bool
+e0 e1 e2 : K
+⊢ -((algebraMap GF K) (B.gF (splitF b)) * 262144) +
+          (algebraMap GF K) (B.gF (splitF b)) * aPl U P D 901120 15 b * 524288 +
+        (algebraMap GF K) (B.gF (splitF b)) * aPl U P D 933888 15 b +
+      (algebraMap GF K) (B.gF (splitF b)) * aPl U P D 966656 15 b * 65536 =
+    -((algebraMap GF K) (B.gF (splitF b)) * 262144) +
+          (algebraMap GF K) (B.gF (splitF b)) * aPl U P D 901120 15 b * 524288 +
+        (algebraMap GF K) (B.gF (splitF b)) * ↑(plF U P D 933888 (splitF b)) +
+      (algebraMap GF K) (B.gF (splitF b)) * ↑2 ^ 16 * ↑(plF U P D 966656 (splitF b))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:331:24: warning: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  [apply] simp (disch := norm_num) only [gV_some, reqV, L16, List.zipIdx_cons, List.zipIdx_nil, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.getD_cons_succ, List.getD_cons_zero, restF, add_zero, cstK_base U,
+    cstK_p16 U, relGh, xtW, remR, remVal, hS.sgate, List.length_cons, List.length_nil, map_mul, map_add, map_sub,
+    map_pow, map_ofNat, map_intCast, alg_plF U P D hX]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:340:77: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hS : RungS S
+b : Fin 15 → Bool
+e0 e1 e2 : K
+⊢ -((algebraMap GF K) (B.gF (splitF b)) * 2048) + (algebraMap GF K) (B.gF (splitF b)) * aPl U P D 1032192 15 b * 4096 +
+      (algebraMap GF K) (B.gF (splitF b)) * aPl U P D 1064960 15 b =
+    -((algebraMap GF K) (B.gF (splitF b)) * 2048) +
+        (algebraMap GF K) (B.gF (splitF b)) * aPl U P D 1032192 15 b * 4096 +
+      (algebraMap GF K) (B.gF (splitF b)) * (algebraMap GF K) (plF U P D 1064960 (splitF b))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:344:24: warning: This simp argument is unused:
+  map_one
+
+Hint: Omit it from the simp argument list.
+  [apply] simp (disch := norm_num) only [gV_some, reqV, L16, List.zipIdx_cons, List.zipIdx_nil, List.map_cons,
+    List.map_nil, List.sum_cons, List.sum_nil, List.getD_cons_succ, List.getD_cons_zero, restF, add_zero, cstK_base U,
+    cstK_p16 U, relGh, xtW, remR, remVal, hS.sup, List.length_cons, List.length_nil, map_mul, map_add, map_sub, map_pow,
+    map_ofNat, map_intCast, alg_plF U P D hX]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:368:58: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:371:0: warning: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Fzc.fzcAct_congr`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:440:8: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:393:96: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hS : RungS S
+L : ℕ
+hdr : P.draws = W16R2.rungDraws
+dt : AlgData K L (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78)
+cu : Cuts3 L
+rt : RootsO
+bga : Fp2 × Fp2 × Fp2
+hcl :
+  ∀ (κ : Fin 6) (b : Fin 15 → Bool),
+    dt.cl 18 cu rt bga κ b =
+      if ↑κ < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 (↑κ) (W16Pos.f (splitF b)))
+      else xcFzc U P D Pb Lay B bga (↑κ) b
+hpw : ∀ (j : Fin 9) (b : Fin 15 → Bool), dt.pw 18 cu rt j b = pwFzc U P D Pb Lay B (↑j) b
+l : List SlotRec
+dr : List Fp2
+b : Fin 15 → Bool
+e0 e1 e2 : K
+ω :
+  (K × K) ×
+    (Fin
+        (segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 18) Slot.W16R2.Seg.mu -
+          segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 18) Slot.W16R2.Seg.zeta) →
+      K)
+h1 : ω.1.1 = Fp2.toK U (dr.getD 9 Fp2.zero)
+h2 : ω.1.2 = Fp2.toK U (dr.getD 6 Fp2.zero)
+h3 :
+  ∀
+    (κ :
+      Fin
+        (segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 18) Slot.W16R2.Seg.mu -
+          segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 18) Slot.W16R2.Seg.zeta)),
+    ω.2 κ = Fp2.toK U (dr.getD (↑κ) Fp2.zero)
+m_ :
+  ∀ k < 7,
+    (List.map (Fp2.toK U) (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 l) 18 dr) (drR 18 0 7))).getD k 0 =
+      Fp2.toK U (dr.getD k Fp2.zero)
+hv : ∀ (i : ℕ), 3 ≤ i → (e0 :: e1 :: e2 :: restF U P D Pb Lay B b).getD i 0 = (valsF U P D Pb Lay B b).getD i 0
+hA :
+  ∑ k, ω.2 k * dt.cl 18 cu rt bga k b =
+    ∑ k ∈ range 6,
+      Fp2.toK U (dr.getD k Fp2.zero) *
+        if k < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 k (W16Pos.f (splitF b)))
+        else xcFzc U P D Pb Lay B bga k b
+hB : ∑ j, ω.1.1 ^ ↑j * dt.pw 18 cu rt j b = ∑ j ∈ range 9, Fp2.toK U (dr.getD 9 Fp2.zero) ^ j * pwFzc U P D Pb Lay B j b
+hk : lksK U (histOf bga.1 bga.2.1 bga.2.2 l) dr = lksK U (histOf bga.1 bga.2.1 bga.2.2 []) []
+hlenL : (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0 (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).length = 4
+hlog :
+  logupSem (cstK U) (e0 :: e1 :: e2 :: restF U P D Pb Lay B b) 12
+      (fun k =>
+        (List.map (Fp2.toK U) (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 l) 18 dr) (drR 18 0 7))).getD (2 + k) 0)
+      0 (lksK U (histOf bga.1 bga.2.1 bga.2.2 l) dr) =
+    ∑ i ∈ range 4,
+      Fp2.toK U (dr.getD (2 + i) Fp2.zero) *
+        (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0 (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD i 0
+hact :
+  fzcAct (e0 :: e1 :: e2 :: restF U P D Pb Lay B b) rrF
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 l) 18 dr amqS))
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 l) 18 dr nbS))
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 l) 18 dr nb2S)) =
+    xcFzc U P D Pb Lay B bga 1 b
+hlenP : (padPls (valsF U P D Pb Lay B b) grpF).length = 9
+hgrp :
+  ∀ g ∈ grpF,
+    (e0 :: e1 :: e2 :: restF U P D Pb Lay B b).getD g.1 0 = (valsF U P D Pb Lay B b).getD g.1 0 ∧
+      ∀ p ∈ g.2, (e0 :: e1 :: e2 :: restF U P D Pb Lay B b).getD p 0 = (valsF U P D Pb Lay B b).getD p 0
+hpad :
+  padSem (cstK U) (e0 :: e1 :: e2 :: restF U P D Pb Lay B b)
+      ((List.map (Fp2.toK U) (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 l) 18 dr) (drR 18 0 7))).getD 6 0)
+      (fun j => Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 l) 18 dr ((Sym.dr 18 9).pow j))) 0 grpF =
+    Fp2.toK U (dr.getD 6 Fp2.zero) * ∑ j ∈ range 9, Fp2.toK U (dr.getD 9 Fp2.zero) ^ j * pwFzc U P D Pb Lay B j b
+hcla :
+  gV (e0 :: e1 :: e2 :: restF U P D Pb Lay B b) (some 18) *
+      batchV (List.map (Fp2.toK U) (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 l) 18 dr) (drR 18 0 7)))
+        (fzcClauses (cstK U) rrF kF (e0 :: e1 :: e2 :: restF U P D Pb Lay B b)) =
+    Fp2.toK U (dr.getD 0 Fp2.zero) * (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 0 (W16Pos.f (splitF b)))
+⊢ ((((((Fp2.toK U (dr.getD 0 Fp2.zero) *
+                                  if 0 < 1 then
+                                    (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 0 (W16Pos.f (splitF b)))
+                                  else
+                                    if 0 = 1 then
+                                      fzcAct (valsF U P D Pb Lay B b) rrF
+                                        (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] amqS))
+                                        (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nbS))
+                                        (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nb2S))
+                                    else
+                                      (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                            (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                        0 0) +
+                                Fp2.toK U (dr.getD 1 Fp2.zero) *
+                                  if 1 < 1 then
+                                    (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 1 (W16Pos.f (splitF b)))
+                                  else
+                                    if True then
+                                      fzcAct (valsF U P D Pb Lay B b) rrF
+                                        (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] amqS))
+                                        (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nbS))
+                                        (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nb2S))
+                                    else
+                                      (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                            (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                        0 0) +
+                              Fp2.toK U (dr.getD 2 Fp2.zero) *
+                                if 2 < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 2 (W16Pos.f (splitF b)))
+                                else
+                                  if 2 = 1 then
+                                    fzcAct (valsF U P D Pb Lay B b) rrF
+                                      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] amqS))
+                                      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nbS))
+                                      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nb2S))
+                                  else
+                                    (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                          (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                      0 0) +
+                            Fp2.toK U (dr.getD 3 Fp2.zero) *
+                              if 3 < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 3 (W16Pos.f (splitF b)))
+                              else
+                                if 3 = 1 then
+                                  fzcAct (valsF U P D Pb Lay B b) rrF
+                                    (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] amqS))
+                                    (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nbS))
+                                    (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nb2S))
+                                else
+                                  (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                        (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                    1 0) +
+                          Fp2.toK U (dr.getD 4 Fp2.zero) *
+                            if 4 < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 4 (W16Pos.f (splitF b)))
+                            else
+                              if 4 = 1 then
+                                fzcAct (valsF U P D Pb Lay B b) rrF
+                                  (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] amqS))
+                                  (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nbS))
+                                  (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nb2S))
+                              else
+                                (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                      (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                  2 0) +
+                        Fp2.toK U (dr.getD 5 Fp2.zero) *
+                          if 5 < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 5 (W16Pos.f (splitF b)))
+                          else
+                            if 5 = 1 then
+                              fzcAct (valsF U P D Pb Lay B b) rrF
+                                (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] amqS))
+                                (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nbS))
+                                (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nb2S))
+                            else
+                              (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                    (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                3 0) +
+                      Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) * pwFzc U P D Pb Lay B 1 b +
+                    Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 2 * pwFzc U P D Pb Lay B 2 b +
+                  Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 3 * pwFzc U P D Pb Lay B 3 b +
+                Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 4 * pwFzc U P D Pb Lay B 4 b +
+              Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 5 * pwFzc U P D Pb Lay B 5 b +
+            Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 6 * pwFzc U P D Pb Lay B 6 b +
+          Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 7 * pwFzc U P D Pb Lay B 7 b +
+        Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 8 * pwFzc U P D Pb Lay B 8 b +
+      Fp2.toK U (dr.getD 6 Fp2.zero) * pwFzc U P D Pb Lay B 0 b =
+    (Fp2.toK U (dr.getD 0 Fp2.zero) * (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 0 (W16Pos.f (splitF b))) +
+                                Fp2.toK U (dr.getD 1 Fp2.zero) *
+                                  if True then
+                                    fzcAct (valsF U P D Pb Lay B b) rrF
+                                      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] amqS))
+                                      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nbS))
+                                      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 18 [] nb2S))
+                                  else
+                                    (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                          (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                      0 0) +
+                              Fp2.toK U (dr.getD 2 Fp2.zero) *
+                                (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                      (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                  0 0 +
+                            Fp2.toK U (dr.getD 3 Fp2.zero) *
+                              (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                    (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                                1 0 +
+                          Fp2.toK U (dr.getD 4 Fp2.zero) *
+                            (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                  (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                              2 0 +
+                        Fp2.toK U (dr.getD 5 Fp2.zero) *
+                          (lkRels (cstK U) (valsF U P D Pb Lay B b) 12 0
+                                (lksK U (histOf bga.1 bga.2.1 bga.2.2 []) [])).getD
+                            3 0 +
+                      Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) * pwFzc U P D Pb Lay B 1 b +
+                    Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 2 * pwFzc U P D Pb Lay B 2 b +
+                  Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 3 * pwFzc U P D Pb Lay B 3 b +
+                Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 4 * pwFzc U P D Pb Lay B 4 b +
+              Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 5 * pwFzc U P D Pb Lay B 5 b +
+            Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 6 * pwFzc U P D Pb Lay B 6 b +
+          Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 7 * pwFzc U P D Pb Lay B 7 b +
+        Fp2.toK U (dr.getD 6 Fp2.zero) * Fp2.toK U (dr.getD 9 Fp2.zero) ^ 8 * pwFzc U P D Pb Lay B 8 b +
+      Fp2.toK U (dr.getD 6 Fp2.zero) * pwFzc U P D Pb Lay B 0 b
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:497:26: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  Cst.map (Sym.eval ?hist ?k ?dr) cstS
+in the target expression
+  irEval (mmIr (Cst.map (Fp2.toK U) (Cst.map ev cstS)) 0 1)
+      (List.map (tabK U P D n e x) (List.map (TabS.eval ev pub) [t, TabS.pub 0])) =
+    tabK U P D n e x (TabS.eval ev pub t) * tabK U P D n e x (Tab.pub (pub 0))
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+n e : ℕ
+x : Fin (n + e) → K
+t : TabS
+⊢ irEval (mmIr (Cst.map (Fp2.toK U) (Cst.map ev cstS)) 0 1)
+      (List.map (tabK U P D n e x) (List.map (TabS.eval ev pub) [t, TabS.pub 0])) =
+    tabK U P D n e x (TabS.eval ev pub t) * tabK U P D n e x (Tab.pub (pub 0))
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:508:89: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:541:69: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:542:28: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:580:8: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:582:28: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:627:49: error(lean.invalidField): Invalid field notation: Type of
+  rj
+is not known; cannot resolve field `draws`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `BlockParams.draws`
+  • `Hist.draws`
+  • `SlotRec.draws`
+  • `Slot.R13.draws`
+  • `Slot.W16R2.draws`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:627:59: error(lean.invalidField): Invalid field notation: Type of
+  x
+is not known; cannot resolve field `Canon`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `Fp.Canon`
+  • `Fp2.Canon`
+  • `Slot.Body.Canon`
+  • `Slot.Ir.Canon`
+  • `Slot.TabV.Canon`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean:618:116: error: unsolved goals
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+hsl : P.geom.slots = W16R2.rungSlots
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (progW16 cfgRungW16 ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hS : RungS S
+_hL : LayW16 Lay
+hpub : PubW16 U pubs Pb Lay B
+dt : AlgData K L (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2) (κ : Fin 6) (b : Fin 15 → Bool),
+    dt.cl 18 cu rt bga κ b =
+      if ↑κ < 1 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 18 (↑κ) (W16Pos.f (splitF b)))
+      else xcFzc U P D Pb Lay B bga (↑κ) b
+hpw : ∀ (j : Fin 9) (b : Fin 15 → Bool), dt.pw 18 cu rt j b = pwFzc U P D Pb Lay B (↑j) b
+hgh :
+  ∀ (i : Fin 2) (b : Fin 15 → Bool),
+    dt.gh 18 cu rt i b = (algebraMap GF K) (relGh Pb Lay B (xtW U P D) 18 (↑i) (W16Pos.f (splitF b)))
+hmm :
+  ∀ (i : Fin 2) (b : Fin 15 → Bool),
+    dt.mm 18 cu rt i b = (algebraMap GF K) (relMm Pb Lay B (xtW U P D) 18 (↑i) (W16Pos.f (splitF b)))
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hs18 : slotShape P 18 = (15, 1, 5)
+hs11 : slotShape P 11 = (9, 1, 2)
+hs12 : slotShape P 12 = (9, 1, 2)
+r : SlotRec
+hr : rs[18]? = some r
+hlen : 18 < rs.length
+r11 : SlotRec
+hr11 : rs[11]? = some r11
+r12 : SlotRec
+hr12 : rs[12]? = some r12
+⊢ ((hostSp U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt hcard 18 ⋯ cu rt
+          (histOf bga.1 bga.2.1 bga.2.2 (List.take 18 rs))).Φ
+      fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 18 -
+      (Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 18 rs)) 18 r.draws (Sym.dr 18 7)) *
+          spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 11 +
+        Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 18 rs)) 18 r.draws (Sym.dr 18 8)) *
+          spSum P (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs) bga rs 12)
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostFzc.lean (17 s)
+rc 1, 17 s

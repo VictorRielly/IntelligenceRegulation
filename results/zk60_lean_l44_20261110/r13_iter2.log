@@ -1,0 +1,46 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/r13_plan2.txt ==
+build ZK60Formal.BlockR13Prog
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/r13_probe.lean
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l17_20261107/slots_corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l17_20261107/block_corpus.txt --neg
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCnt.lean
+== lake build ZK60Formal.BlockR13Prog ==
+Build completed successfully (3528 jobs).
+build rc 0 (9 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/r13_probe.lean ==
+[1, 1, 22, 2, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 41, 15, 15, 17, 16, 3, 0, 1, 1]
+[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 7, 7, 10, 8, 3, 1, 0, 0]
+(true, true)
+[3, 3, 25, 5, 4, 2, 2, 2, 3, 3, 2, 2, 2, 2, 64, 27, 27, 31, 29, 12, 2, 3, 3]
+[1, 17, 7, 7, 9, 7]
+[139, 138]
+[(0, 1), (0, 1), (15, 3), (6, 1), (1, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1),
+  (83, 3), (35, 3), (35, 3), (42, 3), (37, 3), (15, 1), (0, 1), (1, 1), (1, 1)]
+true
+[(true, true, true), (true, true, true), (true, true, true), (true, true, true), (true, true, true), (true, true, true),
+  (true, true, true), (true, true, true), (true, true, true), (true, true, true), (true, true, true),
+  (true, true, true), (true, true, true), (true, true, true), (true, true, true), (true, true, true),
+  (true, true, true), (true, true, true), (true, true, true), (true, true, true), (true, true, true),
+  (true, true, true), (true, true, true), (true, true, true), (true, true, true), (true, true, true)]
+[1, 1, 22, 2, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 41, 15, 15, 15, 16, 3, 0, 1, 1]
+[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 7, 7, 9, 8, 3, 1, 0, 0]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/r13_probe.lean (13 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l17_20261107/slots_corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l17_20261107/block_corpus.txt --neg ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCheck.lean:191:21: error: Type mismatch
+  st.check (if r.hasIr = true then "ir-value" else "ir-value-tab") (irEvalW ir r.vals == pv)
+has type
+  String → St
+but is expected to have type
+  St
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCheck.lean:190:2: error: Missing cases:
+none
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCheck.lean:192:63: error(lean.unknownIdentifier): Unknown identifier `pv`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCheck.lean:193:2: error: unexpected token '|'; expected command
+rc 1 for run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l17_20261107/slots_corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l17_20261107/block_corpus.txt --neg (16 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCnt.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCnt.lean:70:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockR13ProgCnt.lean (160 s)
+rc 1, 160 s
