@@ -201,3 +201,10 @@ import ZK60Formal.HonestOracleProg
 import ZK60Formal.StageVerifyExecAssemble
 import ZK60Formal.HonestOracleSlots
 import ZK60Formal.HonestOracleParts
+import ZK60Formal.HonestOpenPcs
+import ZK60Formal.HonestOpenM
+import ZK60Formal.HonestOpenFields
+import ZK60Formal.HonestOpenSites
+import ZK60Formal.HonestRunBlock
+import ZK60Formal.HonestRunProg
+import ZK60Formal.HonestRunCount
