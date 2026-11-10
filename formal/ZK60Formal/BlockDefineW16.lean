@@ -29,6 +29,8 @@ No theorem here: the facts about `progW16` at a shape are evaluated in `BlockDef
 import ZK60Formal.BlockDefineSym
 import ZK60Formal.SlotPolyW16Draw
 import ZK60Formal.SlotPolyW16Map
+import ZK60Formal.SlotW16Build
+import ZK60Formal.SlotW16BuildLayout
 
 set_option autoImplicit false
 
