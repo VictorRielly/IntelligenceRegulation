@@ -16,6 +16,11 @@ item was re-checked against the source by the coordinator.
   (`rc_productionReadyL_r13_exec_top_range`), but proved none of the covers. Finding L39-2: the per-block soundness
   theorems cannot be plugged in as a run-level premise directly; the link goes through the run's transcript. Lane L43
   is proving the "alive" half of the covers; the doom half and the endpoint follow after L41's block join.
+- **2026-11-10, the alive half of the covers begun (L43, merged and checked):** the data the covers talk about is
+  built from the verifier's own readers, and at the app's per-block model one of the nine ordered conditions
+  (`hal_opA`) is proved outright. Two more (`hal_opB`, `hal_M`) are proved at every block, up to the extraction step.
+  The app's top theorem in the approved form is `rc_productionReadyL_r13P_exec_rk`. Lane L45 continues: the stages'
+  readers, the extraction, and the remaining six conditions.
 - **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
   enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
 - **The plan, in order:**

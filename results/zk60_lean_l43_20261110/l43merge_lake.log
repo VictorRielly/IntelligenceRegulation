@@ -1,0 +1,11 @@
+✔ [3680/3690] Built ZK60Formal.RunKindsData (2.5s)
+✔ [3681/3690] Built ZK60Formal.RunCoverPAlive (2.4s)
+✔ [3682/3690] Built ZK60Formal.RunKindsDataBlk (2.4s)
+✔ [3683/3690] Built ZK60Formal.RunHalOpA (2.7s)
+✔ [3684/3690] Built ZK60Formal.RunHalOpB (5.9s)
+✔ [3685/3690] Built ZK60Formal.RunCoverPSomeL (6.2s)
+✔ [3686/3690] Built ZK60Formal.RunHalM (6.2s)
+✔ [3687/3690] Built ZK60Formal.RunHalBlk (11s)
+✔ [3688/3690] Built ZK60Formal.RunCoverPRk (11s)
+✔ [3689/3690] Built ZK60Formal (2.7s)
+Build completed successfully (3690 jobs).
