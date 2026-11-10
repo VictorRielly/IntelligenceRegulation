@@ -1,0 +1,492 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/results/zk60_lean_l43_20261110/plan2.txt ==
+build ZK60Formal.RunKindsData
+build ZK60Formal.RunHalOpB
+build ZK60Formal.RunHalM
+build ZK60Formal.RunKindsDataBlk
+build ZK60Formal.RunHalBlk
+build ZK60Formal.RunCoverPRk
+== lake build ZK60Formal.RunKindsData ==
+Build completed successfully (3541 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.RunHalOpB ==
+warning: ZK60Formal/RunHalOpB.lean:261:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_opB_of`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3542 jobs).
+build rc 0 (11 s)
+== lake build ZK60Formal.RunHalM ==
+warning: ZK60Formal/RunHalOpB.lean:261:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_opB_of`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalM.lean:135:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_M_of`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3543 jobs).
+build rc 0 (14 s)
+== lake build ZK60Formal.RunKindsDataBlk ==
+Build completed successfully (3552 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.RunHalBlk ==
+warning: ZK60Formal/RunHalOpB.lean:261:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_opB_of`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalM.lean:135:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_M_of`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✖ [3555/3555] Building ZK60Formal.RunHalBlk (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/ZK60Formal/RunHalBlk.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean/ZK60Formal/RunHalBlk.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/lib/lean/ZK60Formal/RunHalBlk.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/ir/ZK60Formal/RunHalBlk.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4722d1faf91c8e02/formal/.lake/build/ir/ZK60Formal/RunHalBlk.setup.json --json
+error: ZK60Formal/RunHalBlk.lean:174:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (stpsOps u).length
+in the target expression
+  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))).counter =
+    UInt64.ofNat (R.pf.sqAt i + stpsSq u)
+
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+tag : MTag
+Hdr : Type
+V : RunV Hdr
+key : Option Dig
+domain : List UInt8
+Lq : ℕ
+h64 : 64 ≤ Lq
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ Lq
+Pk : ℕ → Block.BlockParams
+sgeom : ClsStmt Hdr → ℕ → Block.SegGeom
+check : ClsStmt Hdr → ℕ → Except String Unit
+paths : ClsStmt Hdr → Block.Segment → Except String Unit
+digest : ClsStmt Hdr → ℕ → Dig
+bRows bLogN : ℕ → ℕ
+bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit
+bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr
+R : RtRun V key domain Lq
+hv : R.pf.Valid
+G : QB Lq → Dig
+s : ClsStmt Hdr
+segs : ClsReceipt
+hE : classifyVerifyE V (liftH G) s segs = Except.ok ()
+i k : ℕ
+bp : RtBlk Lq (Pk k)
+wX gX mX : ℕ
+hgeo : ∀ (s : ClsStmt Hdr), (sgeom s k).g = (Pk k).geom
+hA : RkPcsR13 U tag bp.pA
+aPos : ℕ
+lg : List (QB Lq × Dig)
+p : RtPart := rtBlockPart (Pk k) bp.S (bp.nA + bp.pA.rows) bp.pA.m (bp.nH + bp.pH.rows) bp.pH.m wX gX mX
+hσi : R.σs[i]? = some (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p)
+hpDef : p = rtBlockPart (Pk k) bp.S (bp.nA + bp.pA.rows) bp.pA.m (bp.nH + bp.pH.rows) bp.pH.m wX gX mX
+hS : p.S = bp.S
+hwA : p.wA = bp.nA + bp.pA.rows
+hmA : p.mA = 64
+hr13 : (rkR13 bp.pA.rows aPos).rows = bp.pA.rows
+cr : Carry
+sg : Block.Segment
+root : Dig
+ic oc : List Block.ZClaim
+t₂ t' : Tr
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+tM tA tH : Tr
+hcan : Block.CoreCanon sg.core
+hshape : Block.CoreShape (Pk k).geom sg.core
+hrdi : (R.rd (s, segs)).2[i]? = some (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hpi : R.pf.parts[i]? = some p
+hroot : sg.bRoot = some root
+hbs :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (runOps (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i)))
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)))) =
+    Except.ok (bga, rs, acc, tM)
+hmv : maskField bp.tag bp.S (liftH G) sg.core.maskRoot (acc.fs ++ acc.hostFs) sg.core.maskOpen tM = Except.ok tA
+hpa : (Pk k).pcsVerify (liftH G) Block.Cm.a sg.core.aRoot acc.claims.a sg.core.aOpen tA = Except.ok tH
+hread :
+  ∀ (hdr : List (TItem × Dig)),
+    List.take (R.pf.off i + p.pre) hdr = List.take (R.pf.off i + p.pre) (R.tr G (s, segs)) →
+      rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr = acc
+hgood : RtGood Lq R.pf (R.rd (s, segs))
+hpart : R.pf.part i = p
+hpd : RtPartOk Lq p (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hplen :
+  (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+        (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)).length =
+    p.pre
+hgA : sg.core.aOpen.groupVecs.length = p.gA
+hgd : sg.bRoot.getD zeroDig = root
+hd1 : ∀ j < sg.core.slots.length, 1 ≤ (Block.slotShape (Pk k) j).2.2
+htM :
+  tM =
+    runOps (liftH G)
+      (runOps (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i)))
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1))))
+      (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)
+htA : tA = runOps (liftH G) tM (stpsOps (mStps bp.S sg.core.maskOpen))
+u : List Stp :=
+  opsStps
+      (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+        (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)) ++
+    mStps p.S sg.core.maskOpen
+huDef :
+  u =
+    opsStps
+        (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+          (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)) ++
+      mStps p.S sg.core.maskOpen
+tk :
+  List.take (R.pf.off i + (stpsOps u).length) (rtTr key domain Lq R.pf R.rd G (s, segs)) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))
+td :
+  List.drop (R.pf.off i + p.oA) (rtTr key domain Lq R.pf R.rd G (s, segs)) =
+    opTrace (liftH G)
+      (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u)))
+      (stpsOps
+        (pcsStps p.wA p.mA sg.core.aOpen ++ (pcsStps p.wH p.mH sg.core.hOpen ++ pcsStps p.wX p.mX sg.inOpen) ++
+          rtPartsStps (List.drop (i + 1) R.pf.parts) (List.drop (i + 1) (R.rd (s, segs)).2)))
+trem : tRem (rtW R.pf.sqs) (List.take (R.pf.off i + p.oA) (rtTr key domain Lq R.pf R.rd G (s, segs))) = some 0
+tctr :
+  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))).counter =
+    UInt64.ofNat (R.pf.sqAt i + stpsSq u)
+tst :
+  StpOK (rtW R.pf.sqs) (UInt64.ofNat (R.pf.sqAt i + stpsSq u))
+    (pcsStps p.wA p.mA sg.core.aOpen ++ (pcsStps p.wH p.mH sg.core.hOpen ++ pcsStps p.wX p.mX sg.inOpen) ++
+      rtPartsStps (List.drop (i + 1) R.pf.parts) (List.drop (i + 1) (R.rd (s, segs)).2))
+hul : (stpsOps u).length = p.oA
+htA' : runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u)) = tA
+hlen :
+  (List.take (R.pf.off i + (stpsOps u).length) (rtTr key domain Lq R.pf R.rd G (s, segs))).length =
+    R.pf.off i + (stpsOps u).length
+⊢ ∃ zo root,
+    RhXOk tag Lq h64 key domain hs hL (rkR13 bp.pA.rows aPos) lg G
+        (List.take (R.pf.off i + (R.pf.part i).oA) (R.tr G (s, segs))) zo root →
+      Nonempty
+        (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 bp.pA.rows aPos) bp.nA
+          (fun hdr => (rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr).claims.a)
+          (R.pf.off i + (R.pf.part i).oA) (R.pf.off i + (R.pf.part i).oBA)
+          (R.pf.off i + (R.pf.part i).oA + (bp.nA + bp.pA.rows)) lg G (R.tr G (s, segs)))
+error: ZK60Formal/RunHalBlk.lean:281:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (stpsOps u).length
+in the target expression
+  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))).counter =
+    UInt64.ofNat (R.pf.sqAt i + stpsSq u)
+
+K : Type
+inst✝³ : Field K
+inst✝² : Fintype K
+inst✝¹ : DecidableEq K
+inst✝ : Algebra GF K
+U : K
+tag : MTag
+Hdr : Type
+V : RunV Hdr
+key : Option Dig
+domain : List UInt8
+Lq : ℕ
+h64 : 64 ≤ Lq
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ Lq
+Pk : ℕ → Block.BlockParams
+sgeom : ClsStmt Hdr → ℕ → Block.SegGeom
+check : ClsStmt Hdr → ℕ → Except String Unit
+paths : ClsStmt Hdr → Block.Segment → Except String Unit
+digest : ClsStmt Hdr → ℕ → Dig
+bRows bLogN : ℕ → ℕ
+bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit
+bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr
+R : RtRun V key domain Lq
+hv : R.pf.Valid
+G : QB Lq → Dig
+s : ClsStmt Hdr
+segs : ClsReceipt
+hE : classifyVerifyE V (liftH G) s segs = Except.ok ()
+i k : ℕ
+bp : RtBlk Lq (Pk k)
+wX gX mX : ℕ
+hgeo : ∀ (s : ClsStmt Hdr), (sgeom s k).g = (Pk k).geom
+hH : RkPcsR13 U tag bp.pH
+hPos : ℕ
+lg : List (QB Lq × Dig)
+p : RtPart := rtBlockPart (Pk k) bp.S (bp.nA + bp.pA.rows) bp.pA.m (bp.nH + bp.pH.rows) bp.pH.m wX gX mX
+hσi : R.σs[i]? = some (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p)
+hpDef : p = rtBlockPart (Pk k) bp.S (bp.nA + bp.pA.rows) bp.pA.m (bp.nH + bp.pH.rows) bp.pH.m wX gX mX
+hS : p.S = bp.S
+hwA : p.wA = bp.nA + bp.pA.rows
+hmA' : p.mA = bp.pA.m
+hwH : p.wH = bp.nH + bp.pH.rows
+hmH : p.mH = 64
+cr : Carry
+sg : Block.Segment
+root : Dig
+ic oc : List Block.ZClaim
+t₂ t' : Tr
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+tM tA tH : Tr
+hcan : Block.CoreCanon sg.core
+hshape : Block.CoreShape (Pk k).geom sg.core
+hrdi : (R.rd (s, segs)).2[i]? = some (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hpi : R.pf.parts[i]? = some p
+hroot : sg.bRoot = some root
+hbs :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (runOps (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i)))
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)))) =
+    Except.ok (bga, rs, acc, tM)
+hmv : maskField bp.tag bp.S (liftH G) sg.core.maskRoot (acc.fs ++ acc.hostFs) sg.core.maskOpen tM = Except.ok tA
+hpa : (Pk k).pcsVerify (liftH G) Block.Cm.a sg.core.aRoot acc.claims.a sg.core.aOpen tA = Except.ok tH
+hph :
+  (Pk k).pcsVerify (liftH G) Block.Cm.h sg.core.hRoot (acc.claims.h ++ [(Pk k).logupSumClaim]) sg.core.hOpen tH =
+    Except.ok t₂
+hread :
+  ∀ (hdr : List (TItem × Dig)),
+    List.take (R.pf.off i + p.pre) hdr = List.take (R.pf.off i + p.pre) (R.tr G (s, segs)) →
+      rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr = acc
+hgood : RtGood Lq R.pf (R.rd (s, segs))
+hpart : R.pf.part i = p
+hpd : RtPartOk Lq p (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hplen :
+  (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+        (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)).length =
+    p.pre
+hgA : sg.core.aOpen.groupVecs.length = p.gA
+hgH : sg.core.hOpen.groupVecs.length = p.gH
+hgd : sg.bRoot.getD zeroDig = root
+hd1 : ∀ j < sg.core.slots.length, 1 ≤ (Block.slotShape (Pk k) j).2.2
+htM :
+  tM =
+    runOps (liftH G)
+      (runOps (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i)))
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1))))
+      (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)
+htA : tA = runOps (liftH G) tM (stpsOps (mStps bp.S sg.core.maskOpen))
+hcA : acc.claims.a.length = bp.nA
+hcH : (acc.claims.h ++ [(Pk k).logupSumClaim]).length = bp.nH
+htH : tH = runOps (liftH G) tA (stpsOps (pcsStps (bp.nA + bp.pA.rows) bp.pA.m sg.core.aOpen))
+u : List Stp :=
+  opsStps
+        (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+          (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)) ++
+      mStps p.S sg.core.maskOpen ++
+    pcsStps p.wA p.mA sg.core.aOpen
+huDef :
+  u =
+    opsStps
+          (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+            (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)) ++
+        mStps p.S sg.core.maskOpen ++
+      pcsStps p.wA p.mA sg.core.aOpen
+tk :
+  List.take (R.pf.off i + (stpsOps u).length) (rtTr key domain Lq R.pf R.rd G (s, segs)) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))
+td :
+  List.drop (R.pf.off i + p.oH) (rtTr key domain Lq R.pf R.rd G (s, segs)) =
+    opTrace (liftH G)
+      (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u)))
+      (stpsOps
+        (pcsStps p.wH p.mH sg.core.hOpen ++ pcsStps p.wX p.mX sg.inOpen ++
+          rtPartsStps (List.drop (i + 1) R.pf.parts) (List.drop (i + 1) (R.rd (s, segs)).2)))
+trem : tRem (rtW R.pf.sqs) (List.take (R.pf.off i + p.oH) (rtTr key domain Lq R.pf R.rd G (s, segs))) = some 0
+tctr :
+  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))).counter =
+    UInt64.ofNat (R.pf.sqAt i + stpsSq u)
+tst :
+  StpOK (rtW R.pf.sqs) (UInt64.ofNat (R.pf.sqAt i + stpsSq u))
+    (pcsStps p.wH p.mH sg.core.hOpen ++ pcsStps p.wX p.mX sg.inOpen ++
+      rtPartsStps (List.drop (i + 1) R.pf.parts) (List.drop (i + 1) (R.rd (s, segs)).2))
+hul : (stpsOps u).length = p.oH
+htH' : runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u)) = tH
+hlen :
+  (List.take (R.pf.off i + (stpsOps u).length) (rtTr key domain Lq R.pf R.rd G (s, segs))).length =
+    R.pf.off i + (stpsOps u).length
+⊢ ∃ zo root,
+    RhXOk tag Lq h64 key domain hs hL (rkR13 bp.pH.rows hPos) lg G
+        (List.take (R.pf.off i + (R.pf.part i).oH) (R.tr G (s, segs))) zo root →
+      Nonempty
+        (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 bp.pH.rows hPos) bp.nH
+          (fun hdr => (rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr).claims.h ++ [(Pk k).logupSumClaim])
+          (R.pf.off i + (R.pf.part i).oH) (R.pf.off i + (R.pf.part i).oBH)
+          (R.pf.off i + (R.pf.part i).oH + (bp.nH + bp.pH.rows)) lg G (R.tr G (s, segs)))
+error: ZK60Formal/RunHalBlk.lean:385:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  (stpsOps u).length
+in the target expression
+  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))).counter =
+    UInt64.ofNat (R.pf.sqAt i + stpsSq u)
+
+tag : MTag
+Hdr : Type
+V : RunV Hdr
+key : Option Dig
+domain : List UInt8
+Lq : ℕ
+h64 : 64 ≤ Lq
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ Lq
+Pk : ℕ → Block.BlockParams
+sgeom : ClsStmt Hdr → ℕ → Block.SegGeom
+check : ClsStmt Hdr → ℕ → Except String Unit
+paths : ClsStmt Hdr → Block.Segment → Except String Unit
+digest : ClsStmt Hdr → ℕ → Dig
+bRows bLogN : ℕ → ℕ
+bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit
+bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr
+R : RtRun V key domain Lq
+hv : R.pf.Valid
+G : QB Lq → Dig
+s : ClsStmt Hdr
+segs : ClsReceipt
+hE : classifyVerifyE V (liftH G) s segs = Except.ok ()
+i k : ℕ
+bp : RtBlk Lq (Pk k)
+wX gX mX : ℕ
+hgeo : ∀ (s : ClsStmt Hdr), (sgeom s k).g = (Pk k).geom
+htag : bp.tag = tag
+mpos : ℕ
+lg : List (QB Lq × Dig)
+p : RtPart := rtBlockPart (Pk k) bp.S (bp.nA + bp.pA.rows) bp.pA.m (bp.nH + bp.pH.rows) bp.pH.m wX gX mX
+hσi : R.σs[i]? = some (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k p)
+hpDef : p = rtBlockPart (Pk k) bp.S (bp.nA + bp.pA.rows) bp.pA.m (bp.nH + bp.pH.rows) bp.pH.m wX gX mX
+hS : p.S = bp.S
+cr : Carry
+sg : Block.Segment
+root : Dig
+ic oc : List Block.ZClaim
+t₂ t' : Tr
+bga : Fp2 × Fp2 × Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+tM tA tH : Tr
+hcan : Block.CoreCanon sg.core
+hshape : Block.CoreShape (Pk k).geom sg.core
+hrdi : (R.rd (s, segs)).2[i]? = some (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hpi : R.pf.parts[i]? = some p
+hroot : sg.bRoot = some root
+hbs :
+  Block.blockSlots (liftH G) (Pk k) sg.core
+      (runOps (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i)))
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1)))) =
+    Except.ok (bga, rs, acc, tM)
+hnf : (acc.fs ++ acc.hostFs).length = (Pk k).nFunctionals
+hmv : maskField bp.tag bp.S (liftH G) sg.core.maskRoot (acc.fs ++ acc.hostFs) sg.core.maskOpen tM = Except.ok tA
+hread :
+  ∀ (hdr : List (TItem × Dig)),
+    List.take (R.pf.off i + p.pre) hdr = List.take (R.pf.off i + p.pre) (R.tr G (s, segs)) →
+      rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr = acc
+hgood : RtGood Lq R.pf (R.rd (s, segs))
+hpart : R.pf.part i = p
+hpd : RtPartOk Lq p (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg)
+hplen :
+  (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+        (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)).length =
+    p.pre
+hgd : sg.bRoot.getD zeroDig = root
+hd1 : ∀ j < sg.core.slots.length, 1 ≤ (Block.slotShape (Pk k) j).2.2
+htM :
+  tM =
+    runOps (liftH G)
+      (runOps (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i)))
+        (rtBlockFrame k (digest s k) root (bRows (k + 1)) (bLogN (k + 1))))
+      (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots)
+hok :
+  MaskOk (liftH G) tag (rootFp 9) (rootFp 12) sg.core.maskRoot bp.S (List.map toMF (acc.fs ++ acc.hostFs))
+    (toMO sg.core.maskOpen) tM tA
+u : List Stp :=
+  opsStps
+    (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+      (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots))
+huDef :
+  u =
+    opsStps
+      (rtBlockFrame k (digest s k) (sg.bRoot.getD zeroDig) (bRows (k + 1)) (bLogN (k + 1)) ++
+        (Block.rootOps (Pk k) sg.core ++ Block.fullOps (Pk k) 0 sg.core.slots))
+tk :
+  List.take (R.pf.off i + (stpsOps u).length) (rtTr key domain Lq R.pf R.rd G (s, segs)) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))
+td :
+  List.drop (R.pf.off i + p.pre) (rtTr key domain Lq R.pf R.rd G (s, segs)) =
+    opTrace (liftH G)
+      (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u)))
+      (stpsOps
+        (mStps p.S sg.core.maskOpen ++
+            (pcsStps p.wA p.mA sg.core.aOpen ++ (pcsStps p.wH p.mH sg.core.hOpen ++ pcsStps p.wX p.mX sg.inOpen)) ++
+          rtPartsStps (List.drop (i + 1) R.pf.parts) (List.drop (i + 1) (R.rd (s, segs)).2)))
+trem : tRem (rtW R.pf.sqs) (List.take (R.pf.off i + p.pre) (rtTr key domain Lq R.pf R.rd G (s, segs))) = some 0
+tctr :
+  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))).counter =
+    UInt64.ofNat (R.pf.sqAt i + stpsSq u)
+tst :
+  StpOK (rtW R.pf.sqs) (UInt64.ofNat (R.pf.sqAt i + stpsSq u))
+    (mStps p.S sg.core.maskOpen ++
+        (pcsStps p.wA p.mA sg.core.aOpen ++ (pcsStps p.wH p.mH sg.core.hOpen ++ pcsStps p.wX p.mX sg.inOpen)) ++
+      rtPartsStps (List.drop (i + 1) R.pf.parts) (List.drop (i + 1) (R.rd (s, segs)).2))
+hul : (stpsOps u).length = p.pre
+htM' : runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u)) = tM
+hlen :
+  (List.take (R.pf.off i + (stpsOps u).length) (rtTr key domain Lq R.pf R.rd G (s, segs))).length =
+    R.pf.off i + (stpsOps u).length
+⊢ ∃ tM mo,
+    RhXMOk tag Lq h64 key domain hs hL bp.S mpos lg G (List.take (R.pf.off i + (R.pf.part i).pre) (R.tr G (s, segs))) tM
+        mo →
+      Nonempty
+        (RhMW tag Lq h64 key domain hs hL (rtW R.pf.sqs) bp.S (Pk k).nFunctionals mpos
+          (fun hdr =>
+            (rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr).fs ++
+              (rkAccBlk (Pk k) (R.pf.off i + 5) (R.pf.off i + p.pre) hdr).hostFs)
+          (R.pf.off i + (R.pf.part i).pre) lg G (R.tr G (s, segs)))
+warning: ZK60Formal/RunHalBlk.lean:377:56: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [rtPartStps, rtBlockData]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/RunHalBlk.lean:383:63: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [stpsOps_append, stpsOps_opsStps, runOps_append]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.RunHalBlk
+error: build failed
+build rc 1 (22 s)
+== lake build ZK60Formal.RunCoverPRk ==
+warning: ZK60Formal/RunHalOpB.lean:261:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_opB_of`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunHalM.lean:135:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rh_M_of`:
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3595 jobs).
+build rc 0 (28 s)
+rc 1, 28 s
