@@ -1,0 +1,36 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/results/zk60_lean_l53_20261110/plan4.txt ==
+build ZK60Formal.RunStgRun
+build ZK60Formal.RunStgHal
+== lake build ZK60Formal.RunStgRun ==
+✖ [3633/3633] Building ZK60Formal.RunStgRun (18s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/ZK60Formal/RunStgRun.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean/ZK60Formal/RunStgRun.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean/ZK60Formal/RunStgRun.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/ir/ZK60Formal/RunStgRun.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/ir/ZK60Formal/RunStgRun.setup.json --json
+error: ZK60Formal/RunStgRun.lean:184:0: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/RunStgRun.lean:184:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunStgRun.lean:199:8: (kernel) unknown constant 'ZK60.ProtocolClassify.stg_incBp_root'
+Some required targets logged failures:
+- ZK60Formal.RunStgRun
+error: build failed
+build rc 1 (25 s)
+== lake build ZK60Formal.RunStgHal ==
+✖ [3633/3634] Building ZK60Formal.RunStgRun (7.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/ZK60Formal/RunStgRun.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean/ZK60Formal/RunStgRun.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean/ZK60Formal/RunStgRun.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/ir/ZK60Formal/RunStgRun.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/ir/ZK60Formal/RunStgRun.setup.json --json
+error: ZK60Formal/RunStgRun.lean:184:0: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+error: ZK60Formal/RunStgRun.lean:184:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunStgRun.lean:199:8: (kernel) unknown constant 'ZK60.ProtocolClassify.stg_incBp_root'
+Some required targets logged failures:
+- ZK60Formal.RunStgRun
+error: build failed
+build rc 1 (35 s)
+rc 1, 35 s

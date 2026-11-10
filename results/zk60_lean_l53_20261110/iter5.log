@@ -1,0 +1,1132 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/results/zk60_lean_l53_20261110/plan3.txt ==
+build ZK60Formal.RunStgAlive
+build ZK60Formal.RunStgRun
+== lake build ZK60Formal.RunStgAlive ==
+✖ [3632/3632] Building ZK60Formal.RunStgAlive (13s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/ZK60Formal/RunStgAlive.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean/ZK60Formal/RunStgAlive.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean/ZK60Formal/RunStgAlive.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/ir/ZK60Formal/RunStgAlive.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/ir/ZK60Formal/RunStgAlive.setup.json --json
+error: ZK60Formal/RunStgAlive.lean:193:17: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  List.map (fun x => (x.1, r.draws.getD x.2 Fp2.zero)) (hostOf (0 + k))
+in the target expression
+  Block.hostedSum (List.map Block.SlotRec.scalar (List.take k rs)) q.scalar
+      (List.map (fun x => (x.1, r.draws.getD x.2 Fp2.zero)) (hostOf k)) =
+    Except.ok r.claimed
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+key : Option Dig
+domain : List UInt8
+P0 P : Block.BlockParams
+hP : StgSame P0 P
+m : ℕ
+hostOf : ℕ → List (ℕ × ℕ)
+absOf : QB L → Option (List UInt8)
+F : (ℕ → List (QB L × Dig)) → (k : ℕ) → StageFS.SeenS → (Fin (stgN P0 k) → K) → K
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hgeom : ∀ k < P.geom.slots.length, 1 ≤ (Block.slotShape P k).2.2 ∧ 55 + 16 * Block.slotTerms P k ≤ L
+hgt : P.geom.slots.length = P.geom.terms.length
+hL : 81 ≤ L
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+hhfit : ∀ op ∈ hdr, op.len ≤ L
+hcan : ∀ p ∈ core.slots, Block.SlotCanon p
+hsh : StageFS.SlotsShape P.geom core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+hhost :
+  ∀ (k : ℕ) (hist : Block.Hist) (dr : List Fp2) (df : Block.SlotDef),
+    P.define k hist dr = Except.ok df → df.hosted = List.map (fun x => (x.1, dr.getD x.2 Fp2.zero)) (hostOf k)
+hterm :
+  ∀ (k : ℕ) (q : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[k]? = some q →
+      rs[k]? = some r →
+        Fp2.toK U r.fin =
+          F
+            (stgCuts absOf Lg
+              (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+                (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots) ++
+                  Block.slotPreOps P k q)))
+            k (StageFS.seenOfS ch rs k) fun i => Fp2.toK U ((r.rho ++ r.es).getD (↑i) Fp2.zero)
+hslen : core.slots.length = P.geom.slots.length
+x✝ : Except String (List Block.SlotRec × Block.Acc × Tr)
+hch :
+  (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1 =
+    ch
+hloop :
+  Block.slotsLoop (liftH G) P
+      (bgaOf
+          (Tr.challengeFp2Vec (liftH G)
+              (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.2
+      [] 0 core.slots { } (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) =
+    Except.ok (rs, acc, t')
+hd1 : ∀ i < core.slots.length, 1 ≤ (Block.slotShape P (0 + i)).2.2
+hlen : rs.length = core.slots.length
+hall :
+  ∀ (i : ℕ) (sp : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[i]? = some sp →
+      rs[i]? = some r →
+        (r.draws, r.c, List.flatMap Fp2.toBytes [r.scalar]) =
+            Block.preVals (liftH G) P
+              (Block.slotTr (liftH G) P
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                core.slots i)
+              (0 + i) sp ∧
+          r.scalar = sp.scalar ∧
+            (∃ df,
+                P.define (0 + i)
+                      (Block.histOf
+                        (bgaOf
+                            (Tr.challengeFp2Vec (liftH G)
+                                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                m).1).1
+                        (bgaOf
+                              (Tr.challengeFp2Vec (liftH G)
+                                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                  m).1).2.1
+                        (bgaOf
+                              (Tr.challengeFp2Vec (liftH G)
+                                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                  m).1).2.2
+                        ([] ++ List.take i rs))
+                      r.draws =
+                    Except.ok df ∧
+                  Block.hostedSum ({ }.scalars ++ List.map Block.SlotRec.scalar (List.take i rs)) sp.scalar df.hosted =
+                    Except.ok r.claimed) ∧
+              (scVerify (liftH G) r.claimed (Block.slotShape P (0 + i)).2.2
+                    ((Block.slotShape P (0 + i)).1 + (Block.slotShape P (0 + i)).2.1) sp.rounds
+                    (runOps (liftH G)
+                      (Block.slotTr (liftH G) P
+                        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                        core.slots i)
+                      (Block.slotPreOps P (0 + i) sp))).1 =
+                Except.ok (r.fin, r.rho ++ r.es)
+hch' :
+  ch =
+    (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1
+hcanS : ∀ (i : ℕ) (q : Block.SlotProof), core.slots[i]? = some q → Block.SlotCanon q
+hround :
+  ∀ (i : ℕ) (q : Block.SlotProof),
+    core.slots[i]? = some q → q.rounds.length = (Block.slotShape P i).1 + (Block.slotShape P i).2.1
+hterms : ∀ (i : ℕ) (q : Block.SlotProof), core.slots[i]? = some q → q.terms.length = Block.slotTerms P i
+hscal : ∀ r' ∈ rs, r'.scalar.Canon
+hslot :
+  ∀ (k : ℕ) (sl : Slot K),
+    (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg)[k]? = some sl →
+      k < core.slots.length ∧ sl = (stgSlotX P0 m hdr.length hostOf absOf F k).at Lg
+k : ℕ
+q : Block.SlotProof
+r : Block.SlotRec
+hq : core.slots[k]? = some q
+hr : rs[k]? = some r
+htr :
+  StageFS.tSeenS P hdr.length m k
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots) ++
+          Block.slotPreOps P k q)) =
+    some (StageFS.seenOfS ch rs k, [])
+df : Block.SlotDef
+hdf :
+  P.define (0 + k)
+      (Block.histOf
+        (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).1
+        (bgaOf
+              (Tr.challengeFp2Vec (liftH G)
+                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.1
+        (bgaOf
+              (Tr.challengeFp2Vec (liftH G)
+                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.2
+        ([] ++ List.take k rs))
+      r.draws =
+    Except.ok df
+hcl :
+  Block.hostedSum ({ }.scalars ++ List.map Block.SlotRec.scalar (List.take k rs)) q.scalar df.hosted =
+    Except.ok r.claimed
+hsc : r.scalar = q.scalar
+⊢ Block.hostedSum (List.map Block.SlotRec.scalar (List.take k rs)) q.scalar
+      (List.map (fun x => (x.1, r.draws.getD x.2 Fp2.zero)) (hostOf k)) =
+    Except.ok r.claimed
+error: ZK60Formal/RunStgAlive.lean:337:48: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots
+in the target expression
+  op ∈ hdr ++ (StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL64 : L < 2 ^ 64
+hL81 : 81 ≤ L
+P0 P : Block.BlockParams
+hP : StgSame P0 P
+m : ℕ
+hostOf : ℕ → List (ℕ × ℕ)
+absOf : QB L → Option (List UInt8)
+F : (ℕ → List (QB L × Dig)) → (k : ℕ) → StageFS.SeenS → (Fin (stgN P0 k) → K) → K
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hgeom :
+  ∀ k < P.geom.slots.length,
+    1 ≤ (Block.slotShape P k).2.2 ∧
+      (Block.slotShape P k).2.2 < gP ∧ 56 + 16 * ((Block.slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * Block.slotTerms P k ≤ L
+hgt : P.geom.slots.length = P.geom.terms.length
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+hhfit : ∀ op ∈ hdr, op.len ≤ L
+hcan : ∀ p ∈ core.slots, Block.SlotCanon p
+hsh : StageFS.SlotsShape P.geom core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+hacc :
+  StageFS.stageSlots (liftH G) P m bgaOf core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr) =
+    Except.ok (ch, rs, acc, t')
+hhost :
+  ∀ (k : ℕ) (hist : Block.Hist) (dr : List Fp2) (df : Block.SlotDef),
+    P.define k hist dr = Except.ok df → df.hosted = List.map (fun x => (x.1, dr.getD x.2 Fp2.zero)) (hostOf k)
+hterm :
+  ∀ (k : ℕ) (q : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[k]? = some q →
+      rs[k]? = some r →
+        Fp2.toK U r.fin =
+          F
+            (stgCuts absOf Lg
+              (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+                (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots) ++
+                  Block.slotPreOps P k q)))
+            k (StageFS.seenOfS ch rs k) fun i => Fp2.toK U ((r.rho ++ r.es).getD (↑i) Fp2.zero)
+T : List Op
+hT : ∀ op ∈ T, op.len ≤ L
+hsa :
+  RaSlotsAcc U key domain L (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg) G (StageFS.stageOps P m hdr core)
+Q0 : List Op
+hQ0 :
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots =
+    slotsOps (Block.slotOpsFrom P (hdr ++ StageFS.stageRootOps P core m) 0 core.slots) ++ Q0
+hsl : ∀ sl ∈ slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg, 1 ≤ sl.d ∧ sl.d < gP ∧ 56 + 16 * (sl.d + 1) ≤ L
+hfitB : ∀ op ∈ hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots, op.len ≤ L
+op : Op
+hop : op ∈ Q0 ++ T
+h : op ∈ Q0
+⊢ op ∈ hdr ++ (StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)
+error: ZK60Formal/RunStgAlive.lean:339:64: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots
+in the target expression
+  allSt W1 (slotSubs U (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg))
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps P core m ++ (Block.fullOps P 0 core.slots ++ T)))
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL64 : L < 2 ^ 64
+hL81 : 81 ≤ L
+P0 P : Block.BlockParams
+hP : StgSame P0 P
+m : ℕ
+hostOf : ℕ → List (ℕ × ℕ)
+absOf : QB L → Option (List UInt8)
+F : (ℕ → List (QB L × Dig)) → (k : ℕ) → StageFS.SeenS → (Fin (stgN P0 k) → K) → K
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hgeom :
+  ∀ k < P.geom.slots.length,
+    1 ≤ (Block.slotShape P k).2.2 ∧
+      (Block.slotShape P k).2.2 < gP ∧ 56 + 16 * ((Block.slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * Block.slotTerms P k ≤ L
+hgt : P.geom.slots.length = P.geom.terms.length
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+hhfit : ∀ op ∈ hdr, op.len ≤ L
+hcan : ∀ p ∈ core.slots, Block.SlotCanon p
+hsh : StageFS.SlotsShape P.geom core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+hacc :
+  StageFS.stageSlots (liftH G) P m bgaOf core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr) =
+    Except.ok (ch, rs, acc, t')
+hhost :
+  ∀ (k : ℕ) (hist : Block.Hist) (dr : List Fp2) (df : Block.SlotDef),
+    P.define k hist dr = Except.ok df → df.hosted = List.map (fun x => (x.1, dr.getD x.2 Fp2.zero)) (hostOf k)
+hterm :
+  ∀ (k : ℕ) (q : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[k]? = some q →
+      rs[k]? = some r →
+        Fp2.toK U r.fin =
+          F
+            (stgCuts absOf Lg
+              (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+                (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots) ++
+                  Block.slotPreOps P k q)))
+            k (StageFS.seenOfS ch rs k) fun i => Fp2.toK U ((r.rho ++ r.es).getD (↑i) Fp2.zero)
+T : List Op
+hT : ∀ op ∈ T, op.len ≤ L
+hsa :
+  RaSlotsAcc U key domain L (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg) G (StageFS.stageOps P m hdr core)
+Q0 : List Op
+hQ0 :
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots =
+    slotsOps (Block.slotOpsFrom P (hdr ++ StageFS.stageRootOps P core m) 0 core.slots) ++ Q0
+hsl : ∀ sl ∈ slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg, 1 ≤ sl.d ∧ sl.d < gP ∧ 56 + 16 * (sl.d + 1) ≤ L
+hfitB : ∀ op ∈ hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots, op.len ≤ L
+hQT : ∀ op ∈ Q0 ++ T, op.len ≤ L
+⊢ allSt W1 (slotSubs U (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg))
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps P core m ++ (Block.fullOps P 0 core.slots ++ T)))
+error: ZK60Formal/RunStgAlive.lean:382:8: Unknown identifier `opTrace_length`
+error: ZK60Formal/RunStgAlive.lean:391:80: Unknown identifier `opTrace_append`
+error: ZK60Formal/RunStgAlive.lean:417:13: Unknown identifier `opTrace_append`
+error: ZK60Formal/RunStgAlive.lean:525:6: Unknown identifier `opTrace_append`
+error: ZK60Formal/RunStgAlive.lean:556:14: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ch
+in the target expression
+  (Φ
+      (stgCuts absOf Lg
+        (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))))
+      k
+      ((Tr.challengeFp2Vec (liftH G)
+            (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1,
+        List.map Block.SlotRec.draws (List.take k rs))
+      fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    0
+
+case h_1.refine_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+key : Option Dig
+domain : List UInt8
+P0 P : Block.BlockParams
+hP : StgSame P0 P
+m : ℕ
+absOf : QB L → Option (List UInt8)
+Φ : (ℕ → List (QB L × Dig)) → (k : ℕ) → List Fp2 × List (List Fp2) → (Fin (P0.draws k) → K) → K
+dg : ℕ → ℕ
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hgeom : ∀ k < P.geom.slots.length, 1 ≤ (Block.slotShape P k).2.2
+hgt : P.geom.slots.length = P.geom.terms.length
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+hsh : StageFS.SlotsShape P.geom core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+T : List Op
+k : ℕ
+r : Block.SlotRec
+hr : rs[k]? = some r
+hzero :
+  (Φ
+      (stgCuts absOf Lg
+        (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))))
+      k (ch, List.map Block.SlotRec.draws (List.take k rs)) fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    0
+hslen : core.slots.length = P.geom.slots.length
+x✝ : Except String (List Block.SlotRec × Block.Acc × Tr)
+hch :
+  (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1 =
+    ch
+hloop :
+  Block.slotsLoop (liftH G) P
+      (bgaOf
+          (Tr.challengeFp2Vec (liftH G)
+              (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.2
+      [] 0 core.slots { } (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) =
+    Except.ok (rs, acc, t')
+hround :
+  ∀ (i : ℕ) (q : Block.SlotProof),
+    core.slots[i]? = some q → q.rounds.length = (Block.slotShape P i).1 + (Block.slotShape P i).2.1
+hd1 : ∀ i < core.slots.length, 1 ≤ (Block.slotShape P (0 + i)).2.2
+hlen : rs.length = core.slots.length
+hall :
+  ∀ (i : ℕ) (sp : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[i]? = some sp →
+      rs[i]? = some r →
+        (r.draws, r.c, List.flatMap Fp2.toBytes [r.scalar]) =
+            Block.preVals (liftH G) P
+              (Block.slotTr (liftH G) P
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                core.slots i)
+              (0 + i) sp ∧
+          r.scalar = sp.scalar ∧
+            (∃ df,
+                P.define (0 + i)
+                      (Block.histOf
+                        (bgaOf
+                            (Tr.challengeFp2Vec (liftH G)
+                                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                m).1).1
+                        (bgaOf
+                              (Tr.challengeFp2Vec (liftH G)
+                                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                  m).1).2.1
+                        (bgaOf
+                              (Tr.challengeFp2Vec (liftH G)
+                                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                  m).1).2.2
+                        ([] ++ List.take i rs))
+                      r.draws =
+                    Except.ok df ∧
+                  Block.hostedSum ({ }.scalars ++ List.map Block.SlotRec.scalar (List.take i rs)) sp.scalar df.hosted =
+                    Except.ok r.claimed) ∧
+              (scVerify (liftH G) r.claimed (Block.slotShape P (0 + i)).2.2
+                    ((Block.slotShape P (0 + i)).1 + (Block.slotShape P (0 + i)).2.1) sp.rounds
+                    (runOps (liftH G)
+                      (Block.slotTr (liftH G) P
+                        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                        core.slots i)
+                      (Block.slotPreOps P (0 + i) sp))).1 =
+                Except.ok (r.fin, r.rho ++ r.es)
+hv :
+  ∀ (i : ℕ) (q : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[i]? = some q →
+      rs[i]? = some r →
+        r.draws =
+          (Block.preVals (liftH G) P
+              (Block.slotTr (liftH G) P
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                core.slots i)
+              i q).1
+hk : k < core.slots.length
+q : Block.SlotProof
+hq : core.slots[k]? = some q
+hw1 :
+  List.take (stgDefPos P m hdr.length k)
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))
+hw3 :
+  stgDefPos P m hdr.length k ≤
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)).length
+rest : List (TItem × Dig)
+hw2 :
+  List.drop (stgDefPos P m hdr.length k)
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)) =
+    opTrace (liftH G)
+        (Block.slotTr (liftH G) P
+          (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0 core.slots k)
+        (Block.drawOps (P.draws k)) ++
+      rest
+hhist :
+  tHistS P hdr.length m k
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))) =
+    some
+      (((Tr.challengeFp2Vec (liftH G)
+              (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1,
+          List.map Block.SlotRec.draws (List.take k rs)),
+        [])
+ks' : List UInt64
+ds : List Dig
+h1 :
+  opTrace (liftH G)
+      (Block.slotTr (liftH G) P
+        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0 core.slots k)
+      (Block.drawOps (P.draws k)) =
+    (List.map TItem.squeeze ks').zip ds
+h2 : ks'.length = P.draws k
+h3 : ds.length = P.draws k
+h4 :
+  List.map challengeFp2Of ds =
+    (Tr.challengeFp2Vec (liftH G)
+        (Block.slotTr (liftH G) P
+          (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0 core.slots k)
+        (P.draws k)).1
+hext :
+  opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots ++ T) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots) ++
+      opTrace (liftH G)
+        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots))
+        T
+hpos : (stgDefSq P0 m hdr.length absOf Φ dg k).a = stgDefPos P m hdr.length k
+hn : (stgDefSq P0 m hdr.length absOf Φ dg k).n = P.draws k
+h4' : List.map challengeFp2Of ds = r.draws
+hm :
+  List.map (fun d => ([], Fp2.toK U (challengeFp2Of d))) ds = List.map (fun c => ([], c)) (List.map (Fp2.toK U) r.draws)
+hlenr : (List.map (Fp2.toK U) r.draws).length = P0.draws k
+hf : (fun i => (List.map (Fp2.toK U) r.draws).getD (↑i) 0) = fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)
+⊢ (Φ
+      (stgCuts absOf Lg
+        (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))))
+      k
+      ((Tr.challengeFp2Vec (liftH G)
+            (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1,
+        List.map Block.SlotRec.draws (List.take k rs))
+      fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    0
+error: ZK60Formal/RunStgAlive.lean:589:8: Unknown identifier `opTrace_length`
+error: ZK60Formal/RunStgAlive.lean:593:12: Unknown identifier `opTrace_append`
+error: ZK60Formal/RunStgAlive.lean:575:88: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+key : Option Dig
+domain : List UInt8
+P : Block.BlockParams
+m e : ℕ
+absOf : QB L → Option (List UInt8)
+Λ : (ℕ → List (QB L × Dig)) → List (List UInt8 × K) → Prop
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+hacc :
+  StageFS.stageSlots (liftH G) P m bgaOf core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr) =
+    Except.ok (ch, rs, acc, t')
+T : List Op
+hΛ :
+  Λ (stgCuts absOf Lg (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)))
+    (List.map (fun c => ([], Fp2.toK U c)) ch)
+hch :
+  ch =
+    (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1
+hops :
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots ++ T =
+    hdr ++ Block.rootOpsA P core ++ (Block.drawOps m ++ (Block.rootOpsH P core ++ Block.fullOps P 0 core.slots ++ T))
+hlA : (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)).length = hdr.length + 4
+ks' : List UInt64
+ds : List Dig
+h1 :
+  opTrace (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+      (Block.drawOps m) =
+    (List.map TItem.squeeze ks').zip ds
+h2 : ks'.length = m
+h3 : ds.length = m
+h4 :
+  List.map challengeFp2Of ds =
+    (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1
+⊢ subSt W1 (sqSub U (stgLkSq m hdr.length e absOf Λ) Lg)
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ Block.rootOpsA P core ++
+        (Block.drawOps m ++ (Block.rootOpsH P core ++ Block.fullOps P 0 core.slots ++ T))))
+Some required targets logged failures:
+- ZK60Formal.RunStgAlive
+error: build failed
+build rc 1 (16 s)
+== lake build ZK60Formal.RunStgRun ==
+✖ [3632/3633] Building ZK60Formal.RunStgAlive (2.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/ZK60Formal/RunStgAlive.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean/ZK60Formal/RunStgAlive.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/lib/lean/ZK60Formal/RunStgAlive.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/ir/ZK60Formal/RunStgAlive.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/.lake/build/ir/ZK60Formal/RunStgAlive.setup.json --json
+error: ZK60Formal/RunStgAlive.lean:193:17: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  List.map (fun x => (x.1, r.draws.getD x.2 Fp2.zero)) (hostOf (0 + k))
+in the target expression
+  Block.hostedSum (List.map Block.SlotRec.scalar (List.take k rs)) q.scalar
+      (List.map (fun x => (x.1, r.draws.getD x.2 Fp2.zero)) (hostOf k)) =
+    Except.ok r.claimed
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+key : Option Dig
+domain : List UInt8
+P0 P : Block.BlockParams
+hP : StgSame P0 P
+m : ℕ
+hostOf : ℕ → List (ℕ × ℕ)
+absOf : QB L → Option (List UInt8)
+F : (ℕ → List (QB L × Dig)) → (k : ℕ) → StageFS.SeenS → (Fin (stgN P0 k) → K) → K
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hgeom : ∀ k < P.geom.slots.length, 1 ≤ (Block.slotShape P k).2.2 ∧ 55 + 16 * Block.slotTerms P k ≤ L
+hgt : P.geom.slots.length = P.geom.terms.length
+hL : 81 ≤ L
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+hhfit : ∀ op ∈ hdr, op.len ≤ L
+hcan : ∀ p ∈ core.slots, Block.SlotCanon p
+hsh : StageFS.SlotsShape P.geom core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+hhost :
+  ∀ (k : ℕ) (hist : Block.Hist) (dr : List Fp2) (df : Block.SlotDef),
+    P.define k hist dr = Except.ok df → df.hosted = List.map (fun x => (x.1, dr.getD x.2 Fp2.zero)) (hostOf k)
+hterm :
+  ∀ (k : ℕ) (q : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[k]? = some q →
+      rs[k]? = some r →
+        Fp2.toK U r.fin =
+          F
+            (stgCuts absOf Lg
+              (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+                (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots) ++
+                  Block.slotPreOps P k q)))
+            k (StageFS.seenOfS ch rs k) fun i => Fp2.toK U ((r.rho ++ r.es).getD (↑i) Fp2.zero)
+hslen : core.slots.length = P.geom.slots.length
+x✝ : Except String (List Block.SlotRec × Block.Acc × Tr)
+hch :
+  (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1 =
+    ch
+hloop :
+  Block.slotsLoop (liftH G) P
+      (bgaOf
+          (Tr.challengeFp2Vec (liftH G)
+              (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.2
+      [] 0 core.slots { } (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) =
+    Except.ok (rs, acc, t')
+hd1 : ∀ i < core.slots.length, 1 ≤ (Block.slotShape P (0 + i)).2.2
+hlen : rs.length = core.slots.length
+hall :
+  ∀ (i : ℕ) (sp : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[i]? = some sp →
+      rs[i]? = some r →
+        (r.draws, r.c, List.flatMap Fp2.toBytes [r.scalar]) =
+            Block.preVals (liftH G) P
+              (Block.slotTr (liftH G) P
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                core.slots i)
+              (0 + i) sp ∧
+          r.scalar = sp.scalar ∧
+            (∃ df,
+                P.define (0 + i)
+                      (Block.histOf
+                        (bgaOf
+                            (Tr.challengeFp2Vec (liftH G)
+                                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                m).1).1
+                        (bgaOf
+                              (Tr.challengeFp2Vec (liftH G)
+                                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                  m).1).2.1
+                        (bgaOf
+                              (Tr.challengeFp2Vec (liftH G)
+                                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                  m).1).2.2
+                        ([] ++ List.take i rs))
+                      r.draws =
+                    Except.ok df ∧
+                  Block.hostedSum ({ }.scalars ++ List.map Block.SlotRec.scalar (List.take i rs)) sp.scalar df.hosted =
+                    Except.ok r.claimed) ∧
+              (scVerify (liftH G) r.claimed (Block.slotShape P (0 + i)).2.2
+                    ((Block.slotShape P (0 + i)).1 + (Block.slotShape P (0 + i)).2.1) sp.rounds
+                    (runOps (liftH G)
+                      (Block.slotTr (liftH G) P
+                        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                        core.slots i)
+                      (Block.slotPreOps P (0 + i) sp))).1 =
+                Except.ok (r.fin, r.rho ++ r.es)
+hch' :
+  ch =
+    (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1
+hcanS : ∀ (i : ℕ) (q : Block.SlotProof), core.slots[i]? = some q → Block.SlotCanon q
+hround :
+  ∀ (i : ℕ) (q : Block.SlotProof),
+    core.slots[i]? = some q → q.rounds.length = (Block.slotShape P i).1 + (Block.slotShape P i).2.1
+hterms : ∀ (i : ℕ) (q : Block.SlotProof), core.slots[i]? = some q → q.terms.length = Block.slotTerms P i
+hscal : ∀ r' ∈ rs, r'.scalar.Canon
+hslot :
+  ∀ (k : ℕ) (sl : Slot K),
+    (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg)[k]? = some sl →
+      k < core.slots.length ∧ sl = (stgSlotX P0 m hdr.length hostOf absOf F k).at Lg
+k : ℕ
+q : Block.SlotProof
+r : Block.SlotRec
+hq : core.slots[k]? = some q
+hr : rs[k]? = some r
+htr :
+  StageFS.tSeenS P hdr.length m k
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots) ++
+          Block.slotPreOps P k q)) =
+    some (StageFS.seenOfS ch rs k, [])
+df : Block.SlotDef
+hdf :
+  P.define (0 + k)
+      (Block.histOf
+        (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).1
+        (bgaOf
+              (Tr.challengeFp2Vec (liftH G)
+                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.1
+        (bgaOf
+              (Tr.challengeFp2Vec (liftH G)
+                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.2
+        ([] ++ List.take k rs))
+      r.draws =
+    Except.ok df
+hcl :
+  Block.hostedSum ({ }.scalars ++ List.map Block.SlotRec.scalar (List.take k rs)) q.scalar df.hosted =
+    Except.ok r.claimed
+hsc : r.scalar = q.scalar
+⊢ Block.hostedSum (List.map Block.SlotRec.scalar (List.take k rs)) q.scalar
+      (List.map (fun x => (x.1, r.draws.getD x.2 Fp2.zero)) (hostOf k)) =
+    Except.ok r.claimed
+error: ZK60Formal/RunStgAlive.lean:337:48: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots
+in the target expression
+  op ∈ hdr ++ (StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL64 : L < 2 ^ 64
+hL81 : 81 ≤ L
+P0 P : Block.BlockParams
+hP : StgSame P0 P
+m : ℕ
+hostOf : ℕ → List (ℕ × ℕ)
+absOf : QB L → Option (List UInt8)
+F : (ℕ → List (QB L × Dig)) → (k : ℕ) → StageFS.SeenS → (Fin (stgN P0 k) → K) → K
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hgeom :
+  ∀ k < P.geom.slots.length,
+    1 ≤ (Block.slotShape P k).2.2 ∧
+      (Block.slotShape P k).2.2 < gP ∧ 56 + 16 * ((Block.slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * Block.slotTerms P k ≤ L
+hgt : P.geom.slots.length = P.geom.terms.length
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+hhfit : ∀ op ∈ hdr, op.len ≤ L
+hcan : ∀ p ∈ core.slots, Block.SlotCanon p
+hsh : StageFS.SlotsShape P.geom core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+hacc :
+  StageFS.stageSlots (liftH G) P m bgaOf core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr) =
+    Except.ok (ch, rs, acc, t')
+hhost :
+  ∀ (k : ℕ) (hist : Block.Hist) (dr : List Fp2) (df : Block.SlotDef),
+    P.define k hist dr = Except.ok df → df.hosted = List.map (fun x => (x.1, dr.getD x.2 Fp2.zero)) (hostOf k)
+hterm :
+  ∀ (k : ℕ) (q : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[k]? = some q →
+      rs[k]? = some r →
+        Fp2.toK U r.fin =
+          F
+            (stgCuts absOf Lg
+              (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+                (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots) ++
+                  Block.slotPreOps P k q)))
+            k (StageFS.seenOfS ch rs k) fun i => Fp2.toK U ((r.rho ++ r.es).getD (↑i) Fp2.zero)
+T : List Op
+hT : ∀ op ∈ T, op.len ≤ L
+hsa :
+  RaSlotsAcc U key domain L (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg) G (StageFS.stageOps P m hdr core)
+Q0 : List Op
+hQ0 :
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots =
+    slotsOps (Block.slotOpsFrom P (hdr ++ StageFS.stageRootOps P core m) 0 core.slots) ++ Q0
+hsl : ∀ sl ∈ slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg, 1 ≤ sl.d ∧ sl.d < gP ∧ 56 + 16 * (sl.d + 1) ≤ L
+hfitB : ∀ op ∈ hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots, op.len ≤ L
+op : Op
+hop : op ∈ Q0 ++ T
+h : op ∈ Q0
+⊢ op ∈ hdr ++ (StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)
+error: ZK60Formal/RunStgAlive.lean:339:64: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots
+in the target expression
+  allSt W1 (slotSubs U (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg))
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps P core m ++ (Block.fullOps P 0 core.slots ++ T)))
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+hL64 : L < 2 ^ 64
+hL81 : 81 ≤ L
+P0 P : Block.BlockParams
+hP : StgSame P0 P
+m : ℕ
+hostOf : ℕ → List (ℕ × ℕ)
+absOf : QB L → Option (List UInt8)
+F : (ℕ → List (QB L × Dig)) → (k : ℕ) → StageFS.SeenS → (Fin (stgN P0 k) → K) → K
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hgeom :
+  ∀ k < P.geom.slots.length,
+    1 ≤ (Block.slotShape P k).2.2 ∧
+      (Block.slotShape P k).2.2 < gP ∧ 56 + 16 * ((Block.slotShape P k).2.2 + 1) ≤ L ∧ 55 + 16 * Block.slotTerms P k ≤ L
+hgt : P.geom.slots.length = P.geom.terms.length
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+hhfit : ∀ op ∈ hdr, op.len ≤ L
+hcan : ∀ p ∈ core.slots, Block.SlotCanon p
+hsh : StageFS.SlotsShape P.geom core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+hacc :
+  StageFS.stageSlots (liftH G) P m bgaOf core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr) =
+    Except.ok (ch, rs, acc, t')
+hhost :
+  ∀ (k : ℕ) (hist : Block.Hist) (dr : List Fp2) (df : Block.SlotDef),
+    P.define k hist dr = Except.ok df → df.hosted = List.map (fun x => (x.1, dr.getD x.2 Fp2.zero)) (hostOf k)
+hterm :
+  ∀ (k : ℕ) (q : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[k]? = some q →
+      rs[k]? = some r →
+        Fp2.toK U r.fin =
+          F
+            (stgCuts absOf Lg
+              (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+                (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots) ++
+                  Block.slotPreOps P k q)))
+            k (StageFS.seenOfS ch rs k) fun i => Fp2.toK U ((r.rho ++ r.es).getD (↑i) Fp2.zero)
+T : List Op
+hT : ∀ op ∈ T, op.len ≤ L
+hsa :
+  RaSlotsAcc U key domain L (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg) G (StageFS.stageOps P m hdr core)
+Q0 : List Op
+hQ0 :
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots =
+    slotsOps (Block.slotOpsFrom P (hdr ++ StageFS.stageRootOps P core m) 0 core.slots) ++ Q0
+hsl : ∀ sl ∈ slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg, 1 ≤ sl.d ∧ sl.d < gP ∧ 56 + 16 * (sl.d + 1) ≤ L
+hfitB : ∀ op ∈ hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots, op.len ≤ L
+hQT : ∀ op ∈ Q0 ++ T, op.len ≤ L
+⊢ allSt W1 (slotSubs U (slotsAt (stgSchedX P0 m hdr.length hostOf absOf F) Lg))
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps P core m ++ (Block.fullOps P 0 core.slots ++ T)))
+error: ZK60Formal/RunStgAlive.lean:382:8: Unknown identifier `opTrace_length`
+error: ZK60Formal/RunStgAlive.lean:391:80: Unknown identifier `opTrace_append`
+error: ZK60Formal/RunStgAlive.lean:417:13: Unknown identifier `opTrace_append`
+error: ZK60Formal/RunStgAlive.lean:525:6: Unknown identifier `opTrace_append`
+error: ZK60Formal/RunStgAlive.lean:556:14: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ch
+in the target expression
+  (Φ
+      (stgCuts absOf Lg
+        (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))))
+      k
+      ((Tr.challengeFp2Vec (liftH G)
+            (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1,
+        List.map Block.SlotRec.draws (List.take k rs))
+      fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    0
+
+case h_1.refine_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+key : Option Dig
+domain : List UInt8
+P0 P : Block.BlockParams
+hP : StgSame P0 P
+m : ℕ
+absOf : QB L → Option (List UInt8)
+Φ : (ℕ → List (QB L × Dig)) → (k : ℕ) → List Fp2 × List (List Fp2) → (Fin (P0.draws k) → K) → K
+dg : ℕ → ℕ
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hgeom : ∀ k < P.geom.slots.length, 1 ≤ (Block.slotShape P k).2.2
+hgt : P.geom.slots.length = P.geom.terms.length
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+hsh : StageFS.SlotsShape P.geom core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+T : List Op
+k : ℕ
+r : Block.SlotRec
+hr : rs[k]? = some r
+hzero :
+  (Φ
+      (stgCuts absOf Lg
+        (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))))
+      k (ch, List.map Block.SlotRec.draws (List.take k rs)) fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    0
+hslen : core.slots.length = P.geom.slots.length
+x✝ : Except String (List Block.SlotRec × Block.Acc × Tr)
+hch :
+  (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1 =
+    ch
+hloop :
+  Block.slotsLoop (liftH G) P
+      (bgaOf
+          (Tr.challengeFp2Vec (liftH G)
+              (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1).2.2
+      [] 0 core.slots { } (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) =
+    Except.ok (rs, acc, t')
+hround :
+  ∀ (i : ℕ) (q : Block.SlotProof),
+    core.slots[i]? = some q → q.rounds.length = (Block.slotShape P i).1 + (Block.slotShape P i).2.1
+hd1 : ∀ i < core.slots.length, 1 ≤ (Block.slotShape P (0 + i)).2.2
+hlen : rs.length = core.slots.length
+hall :
+  ∀ (i : ℕ) (sp : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[i]? = some sp →
+      rs[i]? = some r →
+        (r.draws, r.c, List.flatMap Fp2.toBytes [r.scalar]) =
+            Block.preVals (liftH G) P
+              (Block.slotTr (liftH G) P
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                core.slots i)
+              (0 + i) sp ∧
+          r.scalar = sp.scalar ∧
+            (∃ df,
+                P.define (0 + i)
+                      (Block.histOf
+                        (bgaOf
+                            (Tr.challengeFp2Vec (liftH G)
+                                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                m).1).1
+                        (bgaOf
+                              (Tr.challengeFp2Vec (liftH G)
+                                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                  m).1).2.1
+                        (bgaOf
+                              (Tr.challengeFp2Vec (liftH G)
+                                  (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+                                  m).1).2.2
+                        ([] ++ List.take i rs))
+                      r.draws =
+                    Except.ok df ∧
+                  Block.hostedSum ({ }.scalars ++ List.map Block.SlotRec.scalar (List.take i rs)) sp.scalar df.hosted =
+                    Except.ok r.claimed) ∧
+              (scVerify (liftH G) r.claimed (Block.slotShape P (0 + i)).2.2
+                    ((Block.slotShape P (0 + i)).1 + (Block.slotShape P (0 + i)).2.1) sp.rounds
+                    (runOps (liftH G)
+                      (Block.slotTr (liftH G) P
+                        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                        core.slots i)
+                      (Block.slotPreOps P (0 + i) sp))).1 =
+                Except.ok (r.fin, r.rho ++ r.es)
+hv :
+  ∀ (i : ℕ) (q : Block.SlotProof) (r : Block.SlotRec),
+    core.slots[i]? = some q →
+      rs[i]? = some r →
+        r.draws =
+          (Block.preVals (liftH G) P
+              (Block.slotTr (liftH G) P
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0
+                core.slots i)
+              i q).1
+hk : k < core.slots.length
+q : Block.SlotProof
+hq : core.slots[k]? = some q
+hw1 :
+  List.take (stgDefPos P m hdr.length k)
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))
+hw3 :
+  stgDefPos P m hdr.length k ≤
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)).length
+rest : List (TItem × Dig)
+hw2 :
+  List.drop (stgDefPos P m hdr.length k)
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots)) =
+    opTrace (liftH G)
+        (Block.slotTr (liftH G) P
+          (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0 core.slots k)
+        (Block.drawOps (P.draws k)) ++
+      rest
+hhist :
+  tHistS P hdr.length m k
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))) =
+    some
+      (((Tr.challengeFp2Vec (liftH G)
+              (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1,
+          List.map Block.SlotRec.draws (List.take k rs)),
+        [])
+ks' : List UInt64
+ds : List Dig
+h1 :
+  opTrace (liftH G)
+      (Block.slotTr (liftH G) P
+        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0 core.slots k)
+      (Block.drawOps (P.draws k)) =
+    (List.map TItem.squeeze ks').zip ds
+h2 : ks'.length = P.draws k
+h3 : ds.length = P.draws k
+h4 :
+  List.map challengeFp2Of ds =
+    (Tr.challengeFp2Vec (liftH G)
+        (Block.slotTr (liftH G) P
+          (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps P core m)) 0 core.slots k)
+        (P.draws k)).1
+hext :
+  opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots ++ T) =
+    opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots) ++
+      opTrace (liftH G)
+        (runOps (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots))
+        T
+hpos : (stgDefSq P0 m hdr.length absOf Φ dg k).a = stgDefPos P m hdr.length k
+hn : (stgDefSq P0 m hdr.length absOf Φ dg k).n = P.draws k
+h4' : List.map challengeFp2Of ds = r.draws
+hm :
+  List.map (fun d => ([], Fp2.toK U (challengeFp2Of d))) ds = List.map (fun c => ([], c)) (List.map (Fp2.toK U) r.draws)
+hlenr : (List.map (Fp2.toK U) r.draws).length = P0.draws k
+hf : (fun i => (List.map (Fp2.toK U) r.draws).getD (↑i) 0) = fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)
+⊢ (Φ
+      (stgCuts absOf Lg
+        (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 (List.take k core.slots))))
+      k
+      ((Tr.challengeFp2Vec (liftH G)
+            (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)) m).1,
+        List.map Block.SlotRec.draws (List.take k rs))
+      fun i => Fp2.toK U (r.draws.getD (↑i) Fp2.zero)) =
+    0
+error: ZK60Formal/RunStgAlive.lean:589:8: Unknown identifier `opTrace_length`
+error: ZK60Formal/RunStgAlive.lean:593:12: Unknown identifier `opTrace_append`
+error: ZK60Formal/RunStgAlive.lean:575:88: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+key : Option Dig
+domain : List UInt8
+P : Block.BlockParams
+m e : ℕ
+absOf : QB L → Option (List UInt8)
+Λ : (ℕ → List (QB L × Dig)) → List (List UInt8 × K) → Prop
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+G : QB L → Dig
+Lg : List (QB L × Dig)
+hdr : List Op
+core : Block.Core
+ch : List Fp2
+rs : List Block.SlotRec
+acc : Block.Acc
+t' : Tr
+hacc :
+  StageFS.stageSlots (liftH G) P m bgaOf core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr) =
+    Except.ok (ch, rs, acc, t')
+T : List Op
+hΛ :
+  Λ (stgCuts absOf Lg (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)))
+    (List.map (fun c => ([], Fp2.toK U c)) ch)
+hch :
+  ch =
+    (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1
+hops :
+  hdr ++ StageFS.stageRootOps P core m ++ Block.fullOps P 0 core.slots ++ T =
+    hdr ++ Block.rootOpsA P core ++ (Block.drawOps m ++ (Block.rootOpsH P core ++ Block.fullOps P 0 core.slots ++ T))
+hlA : (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core)).length = hdr.length + 4
+ks' : List UInt64
+ds : List Dig
+h1 :
+  opTrace (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+      (Block.drawOps m) =
+    (List.map TItem.squeeze ks').zip ds
+h2 : ks'.length = m
+h3 : ds.length = m
+h4 :
+  List.map challengeFp2Of ds =
+    (Tr.challengeFp2Vec (liftH G) (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA P core))
+        m).1
+⊢ subSt W1 (sqSub U (stgLkSq m hdr.length e absOf Λ) Lg)
+    (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ Block.rootOpsA P core ++
+        (Block.drawOps m ++ (Block.rootOpsH P core ++ Block.fullOps P 0 core.slots ++ T))))
+Some required targets logged failures:
+- ZK60Formal.RunStgAlive
+error: build failed
+build rc 1 (21 s)
+rc 1, 21 s

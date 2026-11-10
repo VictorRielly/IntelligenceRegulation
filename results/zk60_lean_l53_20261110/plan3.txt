@@ -1,0 +1,2 @@
+build ZK60Formal.RunStgAlive
+build ZK60Formal.RunStgRun

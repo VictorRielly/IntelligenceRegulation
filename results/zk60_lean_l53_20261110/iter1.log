@@ -1,0 +1,58 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/results/zk60_lean_l53_20261110/plan1.txt ==
+build ZK60Formal.RunStgList
+== lake build ZK60Formal.RunStgList ==
+warning: ZK60Formal/RunStgList.lean:219:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stgSlotX_cut`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunStgList.lean:232:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stgDefSq_cut`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunStgList.lean:244:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stgLkSq_cut`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunStgList.lean:265:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stgSchedX_get`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunStgList.lean:285:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stg_win`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunStgList.lean:315:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stgPart_lists`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunStgList.lean:320:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stg_rxPs_0`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunStgList.lean:327:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stg_rxPs_out`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3631 jobs).
+build rc 0 (5 s)
+rc 0, 5 s
