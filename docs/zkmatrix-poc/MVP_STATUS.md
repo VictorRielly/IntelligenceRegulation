@@ -27,6 +27,18 @@ item was re-checked against the source by the coordinator.
   `rd_productionReadyL_r13P_exec_blk`; since L48 it is `og_productionReadyL_epP_exec_blk`, at the real opening
   widths (see L45-2 below). Still open: the two stage covers and the three input-commitment links, and the
   boundary IO slots' polynomials (L46-3), which tie each block to the run's boundary planes.
+- **2026-11-10, the stages' algebra (L57, merged) and a thirteenth unmeetable premise (L57-1, High).**
+  - **The finding:** L53's stage step lists handed each stage polynomial only the transcript cut before each header
+    absorb. That stops before the root, so no fixed polynomial could be the real one (ARGUED). L57 repaired this in
+    Lean with "view" lists that also read the header.
+  - **Proved:** the hosting premises `hhIn` and `hhOut`. The stages' slot polynomials are now set to the real ones.
+  - **Pinned:** IN-C's LogUp head at the app's profile is 15 squeezes, CHECKED against the code and PROVED in Lean.
+    The run's count condition holds there, so no split head is needed.
+  - **Still to prove:** the stages' define, LogUp and doom facts, and the stages' "claims true" link. Lane L60 is on
+    them.
+  - **To settle:** L57 also ARGUED (L57-2) that the blocks' LogUp entry has the same fault. The coordinator's reading
+    is that L47's proof that the cut determines the root (L47-2) may already answer it. L60 is to settle which is
+    right.
 - **An eleventh unmeetable premise, found and repaired the same day (L55-1, High; confirmed in the code by the
   coordinator).**
   - **What is wrong:** the code refuses any verdict other than 0 or 1 (classify.rs:1018-1019,

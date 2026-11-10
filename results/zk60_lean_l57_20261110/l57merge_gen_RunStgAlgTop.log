@@ -1,0 +1,1 @@
+wrote RunStgAlgTop.lean: 386 lines; 156 explicit binders in L53's, 152 in the new; removed hostIn, hostOut, hhIn, hhOut; hdin, hdout replaced by hdinS, hdoutS

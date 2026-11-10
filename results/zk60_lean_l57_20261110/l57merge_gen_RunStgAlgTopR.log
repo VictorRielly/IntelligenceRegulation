@@ -1,0 +1,1 @@
+wrote RunStgAlgTopR.lean: 389 lines; 152 explicit binders in the view theorem; FstI replaced 2 times, FstO 2 times; hTI_stg, hTO_stg replaced by hTrI, hTrO
