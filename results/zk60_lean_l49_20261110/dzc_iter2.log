@@ -1,0 +1,91 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/dzc_plan2.txt ==
+build ZK60Formal.BlockR13HostDzcSlot
+build ZK60Formal.BlockR13HostDzcVals
+== lake build ZK60Formal.BlockR13HostDzcSlot ==
+Build completed successfully (3530 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.BlockR13HostDzcVals ==
+✖ [3577/3577] Building ZK60Formal.BlockR13HostDzcVals (6.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostDzcVals.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostDzcVals.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostDzcVals.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostDzcVals.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostDzcVals.setup.json --json
+error: ZK60Formal/BlockR13HostDzcVals.lean:224:6: Unknown identifier `G.logD`
+error: ZK60Formal/BlockR13HostDzcVals.lean:223:39: unsolved goals
+c : W16Cfg
+⊢ 0 < c.sh.logs Slot.W16R2.Dom.D
+error: ZK60Formal/BlockR13HostDzcVals.lean:228:6: Unknown identifier `G.logD`
+error: ZK60Formal/BlockR13HostDzcVals.lean:227:47: unsolved goals
+c : W16Cfg
+⊢ c.sh.lt ≤ c.sh.logs Slot.W16R2.Dom.D
+error: ZK60Formal/BlockR13HostDzcVals.lean:236:56: Function expected at
+  lt_le_logD
+but this term has type
+  (W16Cfg.sh ?m.40).lt ≤ (W16Cfg.sh ?m.40).logs Slot.W16R2.Dom.D
+
+Note: Expected a function because this term is being applied to the argument
+  G
+error: ZK60Formal/BlockR13HostDzcVals.lean:235:63: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+hrl : 0 < rowLog P Cm.a
+e : ℕ
+b : Fin (c.sh.logs Slot.W16R2.Dom.D) → Bool
+off m ext : ℕ
+⊢ tabK U P D (c.sh.logs Slot.W16R2.Dom.D) e (cpt (c.sh.logs Slot.W16R2.Dom.D) e b)
+      (Tab.priv
+        { cm := Cm.a, slices := [(off, Fp2.one)], log := c.sh.lt, coords := rhoAll c.sh.lt, maskRow := m,
+          extRound := ext }) =
+    aPl U P D off c.sh.lt (splitD c (castB ⋯ b)).1
+error: ZK60Formal/BlockR13HostDzcVals.lean:256:13: Function expected at
+  logD_pos
+but this term has type
+  0 < (W16Cfg.sh ?m.151).logs Slot.W16R2.Dom.D
+
+Note: Expected a function because this term is being applied to the argument
+  G
+error: ZK60Formal/BlockR13HostDzcVals.lean:255:40: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+hrl : 0 < rowLog P Cm.a
+aB hB ioIn ioOut ak hk e : ℕ
+b : Fin (c.sh.logs Slot.W16R2.Dom.D) → Bool
+ev : Sym → Fp2
+pub : ℕ → List Fp2
+hp0 :
+  Fp2.toK U ((pub 0).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.D) b) Fp2.zero) =
+    (algebraMap GF K) (B.gamA (splitD c (castB ⋯ b)))
+hp1 :
+  Fp2.toK U ((pub 1).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.D) b) Fp2.zero) =
+    (algebraMap GF K) (B.gamM (splitD c (castB ⋯ b)))
+hp2 :
+  Fp2.toK U ((pub 2).getD (msbIndex (c.sh.logs Slot.W16R2.Dom.D) b) Fp2.zero) =
+    (algebraMap GF K) (B.gD (splitD c (castB ⋯ b)))
+⊢ valsN U c P D aB hB ioIn ioOut ak hk ev pub (c.sh.logs Slot.W16R2.Dom.D) e (cpt (c.sh.logs Slot.W16R2.Dom.D) e b) =
+    (eqPoly (fun a => Fp2.toK U ((List.map ev (drR 14 34 (c.sh.logs Slot.W16R2.Dom.D))).getD (↑a) Fp2.zero)) fun a =>
+        bit (b a)) ::
+      (eqPoly (fun a => Fp2.toK U ((List.map ev (drR 10 0 (c.sh.logs Slot.W16R2.Dom.D))).getD (↑a) Fp2.zero)) fun a =>
+          bit (b a)) ::
+        (eqPoly (fun a => Fp2.toK U ((List.map ev (drR 13 0 (c.sh.logs Slot.W16R2.Dom.D))).getD (↑a) Fp2.zero)) fun a =>
+            bit (b a)) ::
+          tailDR U G P D Pb Lay B b
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostDzcVals
+error: build failed
+build rc 1 (13 s)
+rc 1, 13 s
