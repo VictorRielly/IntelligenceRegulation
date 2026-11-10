@@ -1,0 +1,21 @@
+D63 lane L49, sub-agent pub, pub_iter5 (2026-11-10): what the iteration's exit code 143 means.
+
+Steps 1-4 of pub_plan4.txt passed:
+- build of BlockR13HostExportCheck: green, no warnings;
+- axiom audit pub_axioms.lean: 29 declarations, each on at most propext, Classical.choice, Quot.sound;
+- the rung short corpus: 106 checks, 0 failed; 25 of 25 negative controls caught;
+- the Shieldstral block's short corpus (pub_shield_short.txt; layer 0 of the app's T128 R13 export): 210 checks,
+  0 failed; 27 of 27 negative controls caught (606 s).
+
+Steps 5 and 6 were STOPPED, not failed. At the coordinator's request, to free the shared heavy lock for the lane's
+merged check and three lanes' builds, SIGTERM went to the leaf `lean --run` processes, never to the guard:
+- step 5, the Shieldstral full corpus with negative controls (pid 52617): stopped after about 25 min, with no result
+  printed (the output is printed at the end);
+- step 6, the rung full corpus (pid 68993): stopped 5 s after it started.
+
+Exit 143 is SIGTERM.
+
+To re-run off-peak (estimates):
+- the Shieldstral full corpus without `neg`: about 20-30 min;
+- with `neg`: about 45-90 min, single-threaded, peak RSS about 7.7 GiB;
+- the rung full corpus with `neg`: about 6 min (it took 376 s before this change).
