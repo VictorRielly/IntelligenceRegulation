@@ -1,0 +1,46 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/qkv_plan1.txt ==
+build ZK60Formal.BlockR13HostQkvIr
+== lake build ZK60Formal.BlockR13HostQkvIr ==
+warning: ZK60Formal/BlockR13HostQkvIr.lean:40:83: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [nodeVals, bodyVal_limbs256 c hc, bodyVal_req c hc, List.append_assoc, List.cons_append,
+    List.nil_append, Nat.add_assoc, getD_len_add, List.getD_cons_succ, List.getD_cons_zero, reqV8]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvIr.lean:67:61: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13QzcPre, int16B, nodeVals, List.nil_append, List.singleton_append, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, stVal, batchB, st, fval,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons,
+    List.zipIdx_nil, batchV, r13QzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvIr.lean:67:80: This simp argument is unused:
+  List.singleton_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13QzcPre, int16B, nodeVals, List.nil_append, List.append_assoc, List.cons_append,
+    List.getD_cons_succ, List.getD_cons_zero, bodyVal_limbs256 c hc, bodyVal_sum, stVal, batchB, st, fval,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.prod_cons, List.prod_nil, List.zipIdx_cons,
+    List.zipIdx_nil, batchV, r13QzcClauses, hc.one, hc.negOne, hc.zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvIr.lean:89:56: This simp argument is unused:
+  Option.map_map
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [r13QzcPre, r13QzcPost, int16B, threeTerms, gatedSt, limbsB, reqB, batchB, st, List.map_cons,
+    List.map_nil, Body.map, SubTerm.map, Term.map, Cst.map, List.map_map, Function.comp_def,
+    ZK60.Exec.Slot.Compose.getD_map_f, List.length_map]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/BlockR13HostQkvIr.lean:89:72: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Build completed successfully (3529 jobs).
+build rc 0 (5 s)
+rc 0, 5 s
