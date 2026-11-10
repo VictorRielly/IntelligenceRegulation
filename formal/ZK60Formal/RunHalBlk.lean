@@ -116,6 +116,7 @@ variable {K : Type} [Field K] [Fintype K] [DecidableEq K] [Algebra GF K] (U : K)
   (bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit)
   (bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr)
 
+omit [Fintype K] [DecidableEq K] in
 /-- **`A`'s acceptance facts at a block part of an accepted run.** At part `i`, D12a block `k` with L34's counts, on
 the run's transcript: `A` (its geometry R13's, its root's position `aPos`, its claims read by `rkAccBlk`) meets
 `RhOpW` as soon as it meets its extraction at the opening the verifier opened. -/
@@ -171,7 +172,7 @@ theorem rh_blk_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
     rw [htA, htM, huDef, hgd, hS]
     simp only [stpsOps_append, stpsOps_opsStps, runOps_append, List.append_assoc]
   have hlen := rh_take_len key domain Lq R.pf R.rd G (s, segs) hgood i u tk
-  rw [hul] at td trem tctr tst hlen
+  rw [hul] at td trem hlen
   rw [htA'] at td tctr
   rw [List.append_assoc, hmA, hwA] at td tst
   have hcnt := (bp.hcnt (liftH G) sg.core _ bga rs acc tM hbs hshape.1).1
@@ -218,6 +219,7 @@ theorem rh_blk_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
       hcan := hcan.2.2.1
       hcolX := hx }
 
+omit [Fintype K] [DecidableEq K] in
 /-- **`H`'s acceptance facts at a block part of an accepted run** (with the LogUp sum claim among its claims, as the
 verifier passes them). -/
 theorem rh_blk_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
@@ -278,7 +280,7 @@ theorem rh_blk_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
     rw [htH, htA, htM, huDef, hgd, hS, hwA, hmA']
     simp only [stpsOps_append, stpsOps_opsStps, runOps_append, List.append_assoc]
   have hlen := rh_take_len key domain Lq R.pf R.rd G (s, segs) hgood i u tk
-  rw [hul] at td trem tctr tst hlen
+  rw [hul] at td trem hlen
   rw [htH'] at td tctr
   rw [List.append_assoc, hmH, hwH] at td tst
   have hle : R.pf.off i + p.pre ≤ R.pf.off i + p.oH := by
@@ -306,7 +308,8 @@ theorem rh_blk_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
       hst := tst
       hvpos := rfl
       haB := by
-        rw [hgH]
+        have hr13H : (rkR13 bp.pH.rows hPos).rows = bp.pH.rows := rfl
+        rw [hgH, hr13H]
         simp only [RtPart.oBH]
         omega
       hlc := hH.hlc
@@ -374,15 +377,15 @@ theorem rh_blk_M (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Di
     (rtBlockData (Pk k) k (digest s k) (bRows (k + 1)) (bLogN (k + 1)) sg) hpi hrdi u
     (mStps p.S sg.core.maskOpen ++ (pcsStps p.wA p.mA sg.core.aOpen ++ (pcsStps p.wH p.mH sg.core.hOpen
       ++ pcsStps p.wX p.mX sg.inOpen)))
-    (by rw [huDef]; simp only [rtPartStps, rtBlockData, List.append_assoc])
+    (by rw [huDef]; simp only [rtPartStps, rtBlockData])
   have hul : (stpsOps u).length = p.pre := by
     rw [huDef, stpsOps_opsStps, hplen]
   have htM' : runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (stpsOps (rtPre R.pf (R.rd (s, segs)) i ++ u))
       = tM := by
     rw [htM, huDef, hgd]
-    simp only [stpsOps_append, stpsOps_opsStps, runOps_append, List.append_assoc]
+    simp only [stpsOps_append, stpsOps_opsStps, runOps_append]
   have hlen := rh_take_len key domain Lq R.pf R.rd G (s, segs) hgood i u tk
-  rw [hul] at td trem tctr tst hlen
+  rw [hul] at td trem hlen
   rw [htM'] at td tctr
   rw [List.append_assoc, hS] at td tst
   refine ⟨tM, sg.core.maskOpen, fun hx => ⟨?_⟩⟩

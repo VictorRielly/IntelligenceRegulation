@@ -256,6 +256,7 @@ structure RhOpW (W : UInt64 → ℕ) (g : RkGeo) (nC : ℕ) (clr : List (TItem �
       ((toOZ zo).columns.getD k (0, [], zeroDig, [])).1).map Subtype.val
       = some ((toOZ zo).columns.getD k (0, [], zeroDig, [])).2.1
 
+omit [Fintype K] [DecidableEq K] in
 include hU in
 /-- `rh_opB_alive` from the witnesses. -/
 theorem rh_opB_of (W : UInt64 → ℕ) (g : RkGeo) (nC : ℕ) (clr : List (TItem × Dig) → List Block.ZClaim)

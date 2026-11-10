@@ -130,6 +130,7 @@ structure RhMW (W : UInt64 → ℕ) (S k mpos : ℕ) (fsr : List (TItem × Dig) 
         ⟨(idxOf mDom mQ (sqDs (liftH G) (runOps (liftH G) tM (stpsOps (mPre S mo))) 64)).getD j 0, hj⟩
       = (mo.columns.getD j ⟨0, [], zeroDig, []⟩).col
 
+omit [DecidableEq K] in
 include hU in
 /-- `rh_M_alive` from the witnesses. -/
 theorem rh_M_of (W : UInt64 → ℕ) (S k mpos : ℕ) (fsr : List (TItem × Dig) → List Block.MaskFunctional) (aM : ℕ)

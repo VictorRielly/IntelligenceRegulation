@@ -1,0 +1,3 @@
+build ZK60Formal.RunHalOpB
+build ZK60Formal.RunHalM
+build ZK60Formal.RunHalBlk
