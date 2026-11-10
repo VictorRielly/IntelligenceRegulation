@@ -59,9 +59,9 @@ theorem hdrX_opTrace_pre {L : ℕ} (absOf : QB L → Option (List UInt8)) (Lg : 
     hdrX absOf Lg hdrLen (opTrace H t (a ++ b)) = hdrX absOf Lg hdrLen (opTrace H t a) := by
   funext i
   by_cases hi : i < hdrLen
-  · simp only [hdrX, if_pos hi]
+  · simp only [hdrX, ite_eq_left hi]
     rw [absAt_opTrace_pre H t a b i (by omega)]
-  · simp only [hdrX, if_neg hi]
+  · simp only [hdrX, ite_eq_right hi]
 
 /-- On a block's trace (its header, roots, slots, then anything) the header's data is the header's. -/
 theorem hdrX_allOps {L : ℕ} (absOf : QB L → Option (List UInt8)) (Lg : List (QB L × Dig)) (H : HIn → Dig)
@@ -137,8 +137,8 @@ theorem blockSlotXB_cut (P : BlockParams) (hdrLen : ℕ) (absOf : QB L → Optio
   have eX : hdrX absOf P1 hdrLen τ = hdrX absOf P2 hdrLen τ := by
     funext i
     by_cases hi : i < hdrLen
-    · simp only [hdrX, if_pos hi, h i]
-    · simp only [hdrX, if_neg hi]
+    · simp only [hdrX, ite_eq_left hi, h i]
+    · simp only [hdrX, ite_eq_right hi]
   show (match tSeen P hdrLen k τ with
     | some (sn, _) => (F (cuts3 absOf P1 (rootsAt hdrLen τ)) (rootsAt hdrLen τ) (hdrX absOf P1 hdrLen τ) k sn,
         claimOf P k sn)

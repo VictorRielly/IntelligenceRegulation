@@ -73,7 +73,7 @@ theorem wrOSem_cut (o : RtOpen K Lq) (lg : List (QB Lq × Dig)) (τ : List (TIte
       (Link.UxC tag Lq h64 o.h o.rows (Block.cutO (Block.absOfC (chainEncB key domain hs Lq hL)) (Block.absAt τ p) lg)
         (Block.absAt τ p))) z := by
   unfold wrOSem
-  rw [hUx (τ.take a), absAt_take, if_pos hpa]
+  rw [hUx (τ.take a), absAt_take, ite_eq_left hpa]
 
 /-- **`wrCsB` IS `csArgs` OF THE SLOT POLYNOMIAL'S ARGUMENTS** at a reading of block `k` (its core's roots the ones the
 transcript shows after the header, `hrt`), when the block's `A` and `H` openings read their roots at `off (k + 1) + 5`
@@ -140,7 +140,7 @@ theorem bnd_args_ms (ps : ℕ → RkPart K Lq) (pf : RtProf) (lg : List (QB Lq �
   congr 1
   funext j
   simp only [rkColsM, Link.colsC]
-  rw [colX_eq_cut tag Lq h64 key domain hs hL, hM, absAt_take, if_pos hmp, eM]
+  rw [colX_eq_cut tag Lq h64 key domain hs hL, hM, absAt_take, ite_eq_left hmp, eM]
   rfl
 
 /-- **`hsl_evB` AT A READING FOLLOWS FROM A PROPERTY OF THE SLOT POLYNOMIAL ALONE**: if `F` meets `SlotEval` over

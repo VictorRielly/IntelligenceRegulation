@@ -91,6 +91,7 @@ noncomputable def wrCsB (U : K) (tag : MTag) (Lq : ℕ) (h64 : 64 ≤ Lq) (D : R
   | .inp => bndOSem U tag Lq h64 (D.opX (k + 1)) (hx (pf.off k + 2))
   | .out => bndOSem U tag Lq h64 (D.opX (k + 1 + 1)) (hx (pf.off (k + 1) + 2))
 
+omit [Field K] [Algebra GF K] in
 /-- The classify run's parts keep `base`'s closing geometry. -/
 theorem rxPs_gX {Lq : ℕ} (base : ℕ → RkPart K Lq) (Lb : ℕ) (din : RxMAH) (dblk : ℕ → RxMAH) (dout : RxMAH) (i : ℕ) :
     (rxPs base Lb din dblk dout i).gX = (base i).gX := by
@@ -125,11 +126,11 @@ theorem eb_wrOSem_bnd (rdx : List UInt8 → Option Dig) (pf : RtProf) (ps : ℕ 
           (Block.hdrX (Block.absOfC (chainEncB key domain hs Lq hL)) lg hdrLen τ p) z := by
   have e2 : Block.hdrX (Block.absOfC (chainEncB key domain hs Lq hL)) lg hdrLen τ p
       = (Block.absAt τ p, Block.cutO (Block.absOfC (chainEncB key domain hs Lq hL)) (Block.absAt τ p) lg) := by
-    simp only [Block.hdrX, if_pos hph]
+    simp only [Block.hdrX, ite_eq_left hph]
   rw [e2]
   unfold wrOSem bndOSem bndTab
   rw [eb_opX_Ux_cut U tag Lq h64 key domain hs hL rdx pf ps acc lsc eL i lg (τ.take a), hp, absAt_take,
-    if_pos hpa]
+    ite_eq_left hpa]
   rfl
 
 /-- **`wrCs` OF BLOCK `k` IS `wrCsB` AT THE RUN'S HEADER DATA** when the closing openings of parts `k + 1` and `k + 2`
