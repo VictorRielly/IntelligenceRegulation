@@ -1,0 +1,42 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/results/zk60_lean_l34_20261109/plan2.txt ==
+build ZK60Formal.RunTrSched
+build ZK60Formal.RunTrVerify
+build ZK60Formal.RunTrKinds
+build ZK60Formal.RunTrParts
+== lake build ZK60Formal.RunTrSched ==
+Build completed successfully (3526 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.RunTrVerify ==
+✖ [3533/3533] Building ZK60Formal.RunTrVerify (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/ZK60Formal/RunTrVerify.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean/ZK60Formal/RunTrVerify.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean/ZK60Formal/RunTrVerify.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/ir/ZK60Formal/RunTrVerify.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/ir/ZK60Formal/RunTrVerify.setup.json --json
+error: ZK60Formal/RunTrVerify.lean:244:10: No goals to be solved
+Some required targets logged failures:
+- ZK60Formal.RunTrVerify
+error: build failed
+build rc 1 (8 s)
+== lake build ZK60Formal.RunTrKinds ==
+warning: ZK60Formal/RunTrKinds.lean:392:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.RtOpen.opB_rbr`:
+  [Fintype K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunTrKinds.lean:408:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.RtOpen.opA_eps`:
+  [Field K]
+  [Algebra GF K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3539 jobs).
+build rc 0 (12 s)
+== lake build ZK60Formal.RunTrParts ==
+✖ [3533/3534] Building ZK60Formal.RunTrVerify (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/ZK60Formal/RunTrVerify.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean/ZK60Formal/RunTrVerify.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/lib/lean/ZK60Formal/RunTrVerify.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/ir/ZK60Formal/RunTrVerify.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/formal/.lake/build/ir/ZK60Formal/RunTrVerify.setup.json --json
+error: ZK60Formal/RunTrVerify.lean:244:10: No goals to be solved
+Some required targets logged failures:
+- ZK60Formal.RunTrVerify
+error: build failed
+build rc 1 (15 s)
+rc 1, 15 s

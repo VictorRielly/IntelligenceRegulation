@@ -1,0 +1,3 @@
+[zk60-guard 09:48:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 09:49:19] START a28-nb0 class=gpu need=20G cap=40G enforce=watchdog-only waited=20s run=23c5c310621e
+[zk60-guard 09:49:20] END a28-nb0 exit=0 child_wall=1s peak_rss=0.02G min_avail=233.97G peak_vram=526MiB

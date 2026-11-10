@@ -260,17 +260,20 @@ inline ulong head_input(uint mode, device const ulong *src, device const ulong *
     return 0UL;
 }
 
-kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
-                       device const ulong *pads [[buffer(1)]],
-                       device const ulong *pows [[buffer(2)]],
-                       device ulong *dst [[buffer(3)]],
-                       device const ulong *tw [[buffer(4)]],
-                       constant HeadArgs &args [[buffer(5)]],
-                       device const ulong *hw [[buffer(6)]],
-                       device const uint *hx [[buffer(7)]],
-                       uint2 tid2 [[thread_position_in_threadgroup]],
-                       uint2 nth2 [[threads_per_threadgroup]],
-                       uint2 tg [[threadgroup_position_in_grid]]) {
+// [A28] a template: `k_ntt_head` is the PRUNE = false instance (A27's kernel, the same code), and
+// `k_ntt_head_pruned` the PRUNE = true one (HL_A28_PRUNE, chosen by the host), so neither pays for the other
+template <bool PRUNE>
+kernel void k_ntt_head_t(device const ulong *src [[buffer(0)]],
+                         device const ulong *pads [[buffer(1)]],
+                         device const ulong *pows [[buffer(2)]],
+                         device ulong *dst [[buffer(3)]],
+                         device const ulong *tw [[buffer(4)]],
+                         constant HeadArgs &args [[buffer(5)]],
+                         device const ulong *hw [[buffer(6)]],
+                         device const uint *hx [[buffer(7)]],
+                         uint2 tid2 [[thread_position_in_threadgroup]],
+                         uint2 nth2 [[threads_per_threadgroup]],
+                         uint2 tg [[threadgroup_position_in_grid]]) {
     // all three as uint2 (MSL: thread attributes must share one vector width);
     // the threadgroups are one-dimensional
     uint tid = tid2.x;
@@ -280,16 +283,38 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
     uint tile = 1u << L;
     ulong r = ulong(tg.y);
     ulong base = ulong(tg.x) << L;
-    for (uint k = tid; k < tile; k += nth) {
-        ulong g = base + ulong(k);
-        sh[k] = head_input(args.mode, src, pads, pows, r, rev_bits(g, args.log_n), args.log_n, args.log_src, args.q);
+    uint s0 = 1;
+    if (PRUNE) {
+        // [A28] HL_A28_PRUNE (the host picks this instance only for a plain or hiding row whose nonzero words all
+        // lie below 2^(log_n - 1), with r4 on and L >= 2): the working array is zero at every position
+        // whose bit 0 is set, so the first radix-4 pass (stages 1 and 2: stage 1's twiddle 1 on both
+        // pairs, stage 2's at k = 0 and k + h = 1) reads only the words at 4b and 4b + 2. Its products of
+        // the zero words are zero and its sums with them are the other word itself (canonical), so these
+        // are the four words the pass writes: the same field elements, the zero work omitted.
+        for (uint b = tid; b < (tile >> 2); b += nth) {
+            ulong g = base + 4UL * ulong(b);
+            ulong a = head_input(args.mode, src, pads, pows, r, rev_bits(g, args.log_n), args.log_n, args.log_src, args.q);
+            ulong c = head_input(args.mode, src, pads, pows, r, rev_bits(g + 2UL, args.log_n), args.log_n, args.log_src, args.q);
+            ulong t3 = head_twiddle_mul(2u, 0u, c, args, hw, hx, tw);
+            ulong t4 = head_twiddle_mul(2u, 1u, c, args, hw, hx, tw);
+            uint i0 = 4u * b;
+            sh[i0] = gl_add(a, t3);
+            sh[i0 + 2u] = gl_sub(a, t3);
+            sh[i0 + 1u] = gl_add(a, t4);
+            sh[i0 + 3u] = gl_sub(a, t4);
+        }
+        s0 = 3;
+    } else {
+        for (uint k = tid; k < tile; k += nth) {
+            ulong g = base + ulong(k);
+            sh[k] = head_input(args.mode, src, pads, pows, r, rev_bits(g, args.log_n), args.log_n, args.log_src, args.q);
+        }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     // [A27] r4: stages s and s + 1 in one pass (radix 4 in registers): each item holds the four
     // elements i0, i0 + h, i0 + 2h, i0 + 3h (h = 2^(s - 1)) and applies exactly the two radix-2
     // butterflies each stage applies to them, with the same twiddles (stage s: k for both pairs;
     // stage s + 1: k and k + h), so the same words, with half the barriers and threadgroup round trips
-    uint s0 = 1;
     if (args.r4 != 0u) {
         for (; s0 + 1 <= L; s0 += 2) {
             uint h = 1u << (s0 - 1);
@@ -342,6 +367,14 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
         row[k] = args.apply_scale != 0u ? gl_mul(x, args.scale) : x;
     }
 }
+template [[host_name("k_ntt_head")]] kernel void k_ntt_head_t<false>(device const ulong *src [[buffer(0)]], device const ulong *pads [[buffer(1)]],
+    device const ulong *pows [[buffer(2)]], device ulong *dst [[buffer(3)]], device const ulong *tw [[buffer(4)]], constant HeadArgs &args [[buffer(5)]],
+    device const ulong *hw [[buffer(6)]], device const uint *hx [[buffer(7)]], uint2 tid2 [[thread_position_in_threadgroup]],
+    uint2 nth2 [[threads_per_threadgroup]], uint2 tg [[threadgroup_position_in_grid]]);
+template [[host_name("k_ntt_head_pruned")]] kernel void k_ntt_head_t<true>(device const ulong *src [[buffer(0)]], device const ulong *pads [[buffer(1)]],
+    device const ulong *pows [[buffer(2)]], device ulong *dst [[buffer(3)]], device const ulong *tw [[buffer(4)]], constant HeadArgs &args [[buffer(5)]],
+    device const ulong *hw [[buffer(6)]], device const uint *hx [[buffer(7)]], uint2 tid2 [[thread_position_in_threadgroup]],
+    uint2 nth2 [[threads_per_threadgroup]], uint2 tg [[threadgroup_position_in_grid]]);
 
 struct TailArgs { ulong rows; uint log_n; uint max_log; ulong scale; uint apply_scale; uint r4; };
 
@@ -740,6 +773,93 @@ kernel void k_hash_cols(device const ulong *enc [[buffer(0)]],
     uint root[8];
     b3_compress(out_cv, out_block, 0UL, out_len, out_flags | ROOT, root);
     for (uint i = 0; i < 8; i++) { leaves[j * 8 + i] = root[i]; }
+}
+
+// [A28] HL_A28_HASH: the same leaves in two passes. k_hash_chunk: one thread per (column, 1024-byte
+// chunk), the chunk's chaining value (k_hash_cols' per-chunk compressions, flags and counters), into
+// cvs[(chunk * nn + j) * 8 ..]; a one-chunk column's thread compresses its last block with ROOT and
+// writes the leaf itself. k_hash_merge: one thread per column of more than one chunk, the chaining-value
+// stack of k_hash_cols over the stored values (a chunk's CV is what k_hash_cols' pending output of its
+// last chunk compresses to), the last parent with ROOT. BLAKE3 is a function: the same 32 bytes.
+kernel void k_hash_chunk(device const ulong *enc [[buffer(0)]],
+                         device uint *cvs [[buffer(1)]],
+                         device uint *leaves [[buffer(2)]],
+                         constant HashArgs &args [[buffer(3)]],
+                         uint2 gid [[thread_position_in_grid]]) {
+    ulong j = ulong(gid.x);
+    ulong c = ulong(gid.y);
+    ulong rows = args.rows, nn = args.nn;
+    if (j >= nn) { return; }
+    ulong total = rows * 8UL;
+    ulong n_chunks = (total + 1023UL) / 1024UL;
+    if (c >= n_chunks) { return; }
+    uint kw[8];
+    uint base_flags = args.keyed != 0 ? KEYED_HASH : 0u;
+    for (uint i = 0; i < 8; i++) { kw[i] = args.keyed != 0 ? args.key[i] : B3_IV[i]; }
+    ulong chunk_bytes = min(1024UL, total - c * 1024UL);
+    uint n_blocks = uint((chunk_bytes + 63UL) / 64UL);
+    uint cv[8];
+    for (uint i = 0; i < 8; i++) { cv[i] = kw[i]; }
+    uint block[16];
+    for (uint blk = 0; blk < n_blocks; blk++) {
+        b3_load_block(enc, rows, nn, j, c, blk, block);
+        bool last = blk + 1 == n_blocks;
+        uint len = last ? uint(chunk_bytes - ulong(blk) * 64UL) : 64u;
+        uint fl = base_flags | (blk == 0 ? CHUNK_START : 0u) | (last ? CHUNK_END : 0u) | ((last && n_chunks == 1) ? ROOT : 0u);
+        uint nxt[8];
+        b3_compress(cv, block, c, len, fl, nxt);
+        for (uint i = 0; i < 8; i++) { cv[i] = nxt[i]; }
+    }
+    if (n_chunks == 1) {
+        for (uint i = 0; i < 8; i++) { leaves[j * 8 + i] = cv[i]; }
+    } else {
+        for (uint i = 0; i < 8; i++) { cvs[(c * nn + j) * 8 + i] = cv[i]; }
+    }
+}
+
+kernel void k_hash_merge(device const uint *cvs [[buffer(0)]],
+                         device uint *leaves [[buffer(1)]],
+                         constant HashArgs &args [[buffer(2)]],
+                         uint gid [[thread_position_in_grid]]) {
+    ulong j = ulong(gid);
+    ulong rows = args.rows, nn = args.nn;
+    if (j >= nn) { return; }
+    ulong n_chunks = (rows * 8UL + 1023UL) / 1024UL;
+    if (n_chunks <= 1) { return; }
+    uint kw[8];
+    uint base_flags = args.keyed != 0 ? KEYED_HASH : 0u;
+    for (uint i = 0; i < 8; i++) { kw[i] = args.keyed != 0 ? args.key[i] : B3_IV[i]; }
+    uint stack[B3_STACK * 8];
+    uint sp = 0;
+    uint cv[8];
+    // every chunk but the last, merged into the stack (k_hash_cols' add_chunk_chaining_value)
+    for (ulong c = 0; c + 1 < n_chunks; c++) {
+        for (uint i = 0; i < 8; i++) { cv[i] = cvs[(c * nn + j) * 8 + i]; }
+        ulong total_chunks = c + 1;
+        while ((total_chunks & 1UL) == 0UL) {
+            sp -= 1;
+            uint pb[16];
+            for (uint i = 0; i < 8; i++) { pb[i] = stack[sp * 8 + i]; pb[8 + i] = cv[i]; }
+            uint nxt[8];
+            b3_compress(kw, pb, 0UL, 64u, base_flags | PARENT, nxt);
+            for (uint i = 0; i < 8; i++) { cv[i] = nxt[i]; }
+            total_chunks >>= 1;
+        }
+        for (uint i = 0; i < 8; i++) { stack[sp * 8 + i] = cv[i]; }
+        sp += 1;
+    }
+    // the stack folded from the top over the last chunk's chaining value; the final parent is the root
+    uint right[8];
+    for (uint i = 0; i < 8; i++) { right[i] = cvs[((n_chunks - 1) * nn + j) * 8 + i]; }
+    while (sp > 0) {
+        sp -= 1;
+        uint pb[16];
+        for (uint i = 0; i < 8; i++) { pb[i] = stack[sp * 8 + i]; pb[8 + i] = right[i]; }
+        uint nxt[8];
+        b3_compress(kw, pb, 0UL, 64u, base_flags | PARENT | (sp == 0 ? ROOT : 0u), nxt);
+        for (uint i = 0; i < 8; i++) { right[i] = nxt[i]; }
+    }
+    for (uint i = 0; i < 8; i++) { leaves[j * 8 + i] = right[i]; }
 }
 
 // ------------------------------------------- M6: the Fiat-Shamir step on the device

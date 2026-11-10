@@ -1,0 +1,10 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acaf7f64536a24902/results/zk60_lean_l34_20261109/plan5.txt ==
+build ZK60Formal.RunTrGate
+build ZK60Formal.RunTrWin
+== lake build ZK60Formal.RunTrGate ==
+Build completed successfully (3548 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.RunTrWin ==
+Build completed successfully (3534 jobs).
+build rc 0 (20 s)
+rc 0, 20 s

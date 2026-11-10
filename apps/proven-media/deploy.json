@@ -38,7 +38,7 @@
       "measurement_note": "Native R16 runs, shared laptop n=1: prove peak RSS up to8.27GiB. Resource reservations include margin; T256 has no accepted measurement on this laptop."
     },
     "shieldstral-mac-fast": {
-      "label": "M3 Ultra Mac: Shieldstral T128 through resident GPU servers (lane A24 DEVELOPMENT CANDIDATE, lane A27 binary; privacy pending; not production)",
+      "label": "M3 Ultra Mac: Shieldstral T128 through resident GPU servers (lane A24 DEVELOPMENT CANDIDATE, lane A28 binary; privacy pending; not production)",
       "prover_mode": "shieldstral-fast",
       "device": "metal",
       "context_tokens": 128,
@@ -48,17 +48,17 @@
         "violence": {"chunk_tokens": 55, "overlap_tokens": 8, "max_chunks": 8},
         "hate": {"chunk_tokens": 49, "overlap_tokens": 8, "max_chunks": 8}
       },
-      "binary_sha256": "b5b6b9a43563c069cec3391e8295867d0cd56e4f83036c992ba066708a9ae072",
+      "binary_sha256": "80f2b70481fba51df6118b25a19e2d0c4c6e1ddb4e10b00c96e0ca2252935157",
       "statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
       "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
       "min_bits": 95,
       "servers": {"prover_lanes": 6, "prover_lane_threads": 5, "witness_cache_gib": 16, "check_lanes": 3,
                   "check_lane_threads": 4, "writer_threads": 4, "writers_at_once": 2},
       "guard_resources": {"service": {"need_gib": 110, "cap_gib": 180, "max_seconds": 21600}},
-      "native_settings": {"HL_METAL_QUEUES": "thread"},
+      "native_settings": {"HL_METAL_QUEUES": "thread", "HL_METAL_SPIN_US": "200", "HL_A28_STAGGER_MS": "300"},
       "privacy_status": "privacy statement pending",
       "production": false,
-      "measurement_note": "Lanes A24, A26 and A27, 2026-11-07, M3 Ultra, public posts only; see results/zk60_a24_app_20261107/README.md, results/zk60_a26_app_20261107/README.md and results/zk60_a27_app_20261107/README.md."
+      "measurement_note": "Lanes A24, A26, A27 (2026-11-07) and A28 (2026-11-09), M3 Ultra, public posts only; see results/zk60_a24_app_20261107/README.md, results/zk60_a26_app_20261107/README.md, results/zk60_a27_app_20261107/README.md and results/zk60_a28_app_20261107/README.md."
     }
   }
 }

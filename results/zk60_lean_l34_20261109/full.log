@@ -1,0 +1,10 @@
+✔ [3604/3613] Built ZK60Formal.BlockInstRead (11s)
+✔ [3605/3613] Built ZK60Formal.BlockInstProf (2.1s)
+✔ [3606/3613] Built ZK60Formal.BlockInstRung (2.3s)
+✔ [3607/3613] Built ZK60Formal.SlotPolyInstMask (2.3s)
+✔ [3608/3613] Built ZK60Formal.BlockInstShield (3.0s)
+✔ [3609/3613] Built ZK60Formal.SlotPolyInstEval (2.2s)
+✔ [3610/3613] Built ZK60Formal.BlockInstChainN (3.0s)
+✔ [3611/3613] Built ZK60Formal.BlockInstFinal (2.1s)
+✔ [3612/3613] Built ZK60Formal (1.8s)
+Build completed successfully (3613 jobs).

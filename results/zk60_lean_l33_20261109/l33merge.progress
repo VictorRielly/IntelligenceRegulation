@@ -1,0 +1,11 @@
+2026-11-10T02:45Z coordinator: lane L33 was merged into perf (192ccef5) while lane L31's merged-tree check was still
+queued, so ONE guarded job checked the tree with both lanes: results/zk60_lean_l31_20261109/l31merge.progress
+(job lean-l31merge, HEAD 192ccef5, 788 s, peak 15.66 GiB, exit 0).
+What that job covers for L33: the full Lean build with L33's six files (3611 jobs, no warning or sorry); the axiom
+audit axioms_l33 (rc=0, no sorryAx or ofReduceBool; log results/zk60_lean_l31_20261109/l31merge_axioms_l33.log); the
+regressions ExecBlockCheck 273, L11Check 404, L6Check 1,206, L5Check 5,553, fixture L1 101,956, CheckR13Block 302,
+0 failed.
+What it does not cover, run separately on the same tree (a grep, no guarded job): the source scan of ZKHonestProg,
+ZKHonestStep, ZKHonestView, ZKHonestCount, ZKHonestRun and ZKHonestBound.lean for
+sorry|axiom|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@[extern|bv_decide|ofReduceBool: none
+(grep rc 1).

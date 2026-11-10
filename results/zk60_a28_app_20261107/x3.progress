@@ -1,0 +1,10 @@
+2026-11-09T22:45:48Z start; plan x3.plan; free disk 145 GiB
+2026-11-09T22:45:48Z run x3a bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0] flags [--lanes 3 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-09T22:47:36Z x3a rc=0 done )
+2026-11-09T22:47:36Z run x3b bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0] flags [--lanes 1 --lane-threads 5 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-09T22:49:50Z x3b rc=0 done )
+2026-11-09T22:49:50Z run x3c bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0] flags [--provers 2 --lanes 3 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-09T22:53:53Z x3c rc=0 done )
+2026-11-09T22:53:53Z run x3e bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0] flags [--provers 2 --lanes 3 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0]
+2026-11-09T22:57:50Z x3e rc=0 done )
+2026-11-09T22:57:50Z all done; free disk 142 GiB

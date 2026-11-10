@@ -1,0 +1,539 @@
+{
+  "tag": "b3",
+  "mode": "shieldstral-fast",
+  "warm": true,
+  "app_boot_s": 0.6184980869293213,
+  "phases": {
+    "one": {
+      "posts": 1,
+      "published": 1,
+      "failed": 0,
+      "unfinished": 0,
+      "wall_s": 48.936931133270264,
+      "category_proofs": 3,
+      "proved_tok_per_s": 7.846834509386179,
+      "content_tok_per_s": 0.32695143789109077,
+      "steady": null,
+      "per_post": [
+        {
+          "tokens": 16,
+          "proofs": 3,
+          "status": "published",
+          "latency_s": 48.670931816101074,
+          "done_at_s": 48.67684197425842,
+          "labels": {
+            "sexual": "no",
+            "violence": "no",
+            "hate": "no"
+          }
+        }
+      ],
+      "first_post_check": {
+        "prover_kind": "shieldstral-fast",
+        "privacy_status": "privacy statement pending",
+        "production": false,
+        "labels": [
+          {
+            "category": "sexual",
+            "name": "Sexual / explicit content",
+            "short": "explicit",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+            "policy_sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822"
+          },
+          {
+            "category": "violence",
+            "name": "Graphic violence",
+            "short": "violence",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+            "policy_sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128"
+          },
+          {
+            "category": "hate",
+            "name": "Hate / harassment",
+            "short": "hate",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+            "policy_sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89"
+          }
+        ],
+        "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+        "development_profile": null,
+        "public_posts_only": null,
+        "chunks": 3,
+        "manifest_entries": 3,
+        "status": "published"
+      },
+      "post_ids": [
+        "5b78f54cf831a3c661e88098f2d10fd5"
+      ],
+      "steps": {
+        "label.queued_seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "label.seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "label.verify_seconds": {
+          "n": 3,
+          "mean": 7.34,
+          "max": 7.49
+        },
+        "prove.queued_seconds": {
+          "n": 3,
+          "mean": 0.09,
+          "max": 0.27
+        },
+        "prove.seconds": {
+          "n": 3,
+          "mean": 24.08,
+          "max": 24.45
+        },
+        "prove.server_seconds": {
+          "n": 3,
+          "mean": 23.99,
+          "max": 24.25
+        },
+        "seqgen.queued_seconds": {
+          "n": 3,
+          "mean": 2.01,
+          "max": 6.03
+        },
+        "seqgen.seconds": {
+          "n": 3,
+          "mean": 5.96,
+          "max": 6.08
+        },
+        "verify.queued_seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "verify.seconds": {
+          "n": 3,
+          "mean": 8.02,
+          "max": 8.17
+        },
+        "verify.verify_seconds": {
+          "n": 3,
+          "mean": 7.34,
+          "max": 7.49
+        }
+      }
+    },
+    "one_b": {
+      "posts": 1,
+      "published": 1,
+      "failed": 0,
+      "unfinished": 0,
+      "wall_s": 51.56509590148926,
+      "category_proofs": 3,
+      "proved_tok_per_s": 7.446897815018117,
+      "content_tok_per_s": 0.3490733350789742,
+      "steady": null,
+      "per_post": [
+        {
+          "tokens": 18,
+          "proofs": 3,
+          "status": "published",
+          "latency_s": 51.30214786529541,
+          "done_at_s": 51.30502676963806,
+          "labels": {
+            "sexual": "no",
+            "violence": "no",
+            "hate": "no"
+          }
+        }
+      ],
+      "first_post_check": {
+        "prover_kind": "shieldstral-fast",
+        "privacy_status": "privacy statement pending",
+        "production": false,
+        "labels": [
+          {
+            "category": "sexual",
+            "name": "Sexual / explicit content",
+            "short": "explicit",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+            "policy_sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822"
+          },
+          {
+            "category": "violence",
+            "name": "Graphic violence",
+            "short": "violence",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+            "policy_sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128"
+          },
+          {
+            "category": "hate",
+            "name": "Hate / harassment",
+            "short": "hate",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+            "policy_sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89"
+          }
+        ],
+        "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+        "development_profile": null,
+        "public_posts_only": null,
+        "chunks": 3,
+        "manifest_entries": 3,
+        "status": "published"
+      },
+      "post_ids": [
+        "adb0c33c5d028cf3158868561d1c3c6e"
+      ],
+      "steps": {
+        "label.queued_seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "label.seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "label.verify_seconds": {
+          "n": 3,
+          "mean": 7.31,
+          "max": 7.39
+        },
+        "prove.queued_seconds": {
+          "n": 3,
+          "mean": 0.08,
+          "max": 0.25
+        },
+        "prove.seconds": {
+          "n": 3,
+          "mean": 25.19,
+          "max": 25.48
+        },
+        "prove.server_seconds": {
+          "n": 3,
+          "mean": 25.11,
+          "max": 25.48
+        },
+        "seqgen.queued_seconds": {
+          "n": 3,
+          "mean": 2.12,
+          "max": 6.37
+        },
+        "seqgen.seconds": {
+          "n": 3,
+          "mean": 6.27,
+          "max": 6.43
+        },
+        "verify.queued_seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "verify.seconds": {
+          "n": 3,
+          "mean": 8.01,
+          "max": 8.08
+        },
+        "verify.verify_seconds": {
+          "n": 3,
+          "mean": 7.31,
+          "max": 7.39
+        }
+      }
+    },
+    "one_c": {
+      "posts": 1,
+      "published": 1,
+      "failed": 0,
+      "unfinished": 0,
+      "wall_s": 49.68371295928955,
+      "category_proofs": 3,
+      "proved_tok_per_s": 7.728890961000572,
+      "content_tok_per_s": 0.3622917637969018,
+      "steady": null,
+      "per_post": [
+        {
+          "tokens": 18,
+          "proofs": 3,
+          "status": "published",
+          "latency_s": 49.425978899002075,
+          "done_at_s": 49.42899990081787,
+          "labels": {
+            "sexual": "no",
+            "violence": "no",
+            "hate": "no"
+          }
+        }
+      ],
+      "first_post_check": {
+        "prover_kind": "shieldstral-fast",
+        "privacy_status": "privacy statement pending",
+        "production": false,
+        "labels": [
+          {
+            "category": "sexual",
+            "name": "Sexual / explicit content",
+            "short": "explicit",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+            "policy_sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822"
+          },
+          {
+            "category": "violence",
+            "name": "Graphic violence",
+            "short": "violence",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+            "policy_sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128"
+          },
+          {
+            "category": "hate",
+            "name": "Hate / harassment",
+            "short": "hate",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+            "policy_sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89"
+          }
+        ],
+        "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+        "development_profile": null,
+        "public_posts_only": null,
+        "chunks": 3,
+        "manifest_entries": 3,
+        "status": "published"
+      },
+      "post_ids": [
+        "925b6a4c573c97fb2f273d6688aa11b0"
+      ],
+      "steps": {
+        "label.queued_seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "label.seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "label.verify_seconds": {
+          "n": 3,
+          "mean": 7.22,
+          "max": 7.32
+        },
+        "prove.queued_seconds": {
+          "n": 3,
+          "mean": 0.1,
+          "max": 0.3
+        },
+        "prove.seconds": {
+          "n": 3,
+          "mean": 23.42,
+          "max": 23.84
+        },
+        "prove.server_seconds": {
+          "n": 3,
+          "mean": 23.33,
+          "max": 23.7
+        },
+        "seqgen.queued_seconds": {
+          "n": 3,
+          "mean": 2.13,
+          "max": 6.4
+        },
+        "seqgen.seconds": {
+          "n": 3,
+          "mean": 6.18,
+          "max": 6.41
+        },
+        "verify.queued_seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "verify.seconds": {
+          "n": 3,
+          "mean": 7.89,
+          "max": 7.99
+        },
+        "verify.verify_seconds": {
+          "n": 3,
+          "mean": 7.22,
+          "max": 7.32
+        }
+      }
+    },
+    "one_d": {
+      "posts": 1,
+      "published": 1,
+      "failed": 0,
+      "unfinished": 0,
+      "wall_s": 49.43182420730591,
+      "category_proofs": 3,
+      "proved_tok_per_s": 7.7682749151556845,
+      "content_tok_per_s": 0.28321835628171765,
+      "steady": null,
+      "per_post": [
+        {
+          "tokens": 14,
+          "proofs": 3,
+          "status": "published",
+          "latency_s": 49.1694700717926,
+          "done_at_s": 49.171773195266724,
+          "labels": {
+            "sexual": "no",
+            "violence": "no",
+            "hate": "no"
+          }
+        }
+      ],
+      "first_post_check": {
+        "prover_kind": "shieldstral-fast",
+        "privacy_status": "privacy statement pending",
+        "production": false,
+        "labels": [
+          {
+            "category": "sexual",
+            "name": "Sexual / explicit content",
+            "short": "explicit",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+            "policy_sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822"
+          },
+          {
+            "category": "violence",
+            "name": "Graphic violence",
+            "short": "violence",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+            "policy_sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128"
+          },
+          {
+            "category": "hate",
+            "name": "Hate / harassment",
+            "short": "hate",
+            "value": "no",
+            "proof": "accepted",
+            "bound_by_proof": true,
+            "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+            "policy_sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89"
+          }
+        ],
+        "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+        "development_profile": null,
+        "public_posts_only": null,
+        "chunks": 3,
+        "manifest_entries": 3,
+        "status": "published"
+      },
+      "post_ids": [
+        "73f8b701acc8ebe5e5a59bb37f3b57c1"
+      ],
+      "steps": {
+        "label.queued_seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "label.seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "label.verify_seconds": {
+          "n": 3,
+          "mean": 7.24,
+          "max": 7.32
+        },
+        "prove.queued_seconds": {
+          "n": 3,
+          "mean": 0.1,
+          "max": 0.31
+        },
+        "prove.seconds": {
+          "n": 3,
+          "mean": 23.68,
+          "max": 24.16
+        },
+        "prove.server_seconds": {
+          "n": 3,
+          "mean": 23.58,
+          "max": 23.86
+        },
+        "seqgen.queued_seconds": {
+          "n": 3,
+          "mean": 1.97,
+          "max": 5.91
+        },
+        "seqgen.seconds": {
+          "n": 3,
+          "mean": 5.85,
+          "max": 5.92
+        },
+        "verify.queued_seconds": {
+          "n": 3,
+          "mean": 0.0,
+          "max": 0.0
+        },
+        "verify.seconds": {
+          "n": 3,
+          "mean": 7.91,
+          "max": 7.99
+        },
+        "verify.verify_seconds": {
+          "n": 3,
+          "mean": 7.24,
+          "max": 7.32
+        }
+      }
+    }
+  },
+  "service_ready_s": 904.6996858119965,
+  "service_heartbeat": {
+    "schema": "pm-fast-heartbeat/1",
+    "pid": 91473,
+    "run_id": "feb18932788f476a9a2673ef58bc81c2",
+    "started_at": 1794278537.255934,
+    "beat_at": 1794278767.6784499,
+    "state": "ready",
+    "inflight": 0,
+    "counts": {
+      "jobs": 12,
+      "ok": 12,
+      "failed": 0
+    },
+    "prover_alive": true,
+    "checker_alive": true,
+    "binary_sha256": "80f2b70481fba51df6118b25a19e2d0c4c6e1ddb4e10b00c96e0ca2252935157"
+  },
+  "on_the_clock": "from the phase's first POST /api/posts to its last post published by the app: tokenization and screening, the queue, the activation writer, the sealing pass and witnesses, the proof, the receipt write, fresh verification and the input-owner check in the separate verifier process, the category label, the app's re-checks of every native output, publication to the local store and ledger, the signed manifest"
+}

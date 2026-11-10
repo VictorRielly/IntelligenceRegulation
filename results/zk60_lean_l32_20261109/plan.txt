@@ -1,0 +1,11 @@
+build ZK60Formal.HonestOpenPcs
+build ZK60Formal.HonestOpenM
+build ZK60Formal.HonestOpenFields
+build ZK60Formal.HonestOpenSites
+build ZK60Formal.HonestRunBlock
+build ZK60Formal.HonestRunProg
+build ZK60Formal.HonestRunCount
+build ZK60Formal.HonestRunCover
+build ZK60Formal.HonestRunStageIn
+build ZK60Formal.HonestRunStageOut
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a56025bec34e68f4b/results/zk60_lean_l32_20261109/check_l32.sh

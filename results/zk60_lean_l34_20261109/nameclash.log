@@ -1,0 +1,6 @@
+python3 -I results/zk60_lean_l34_20261109/l34_nameclash.py <worktree> <main checkout>   (2026-11-09, after iteration 5)
+declarations in RunTr*.lean: 213
+declared twice inside the lane: none
+worktrees read: 44
+other Lean files read (with repeats across worktrees): 4350
+clashes: 0

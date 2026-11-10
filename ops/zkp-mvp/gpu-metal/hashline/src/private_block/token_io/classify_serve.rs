@@ -221,34 +221,149 @@ fn serve_lines<F>(lanes: usize, threads: usize, lines: impl Iterator<Item = Stri
 where
     F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
 {
-    let pools: Vec<rayon::ThreadPool> = (0..lanes)
-        .map(|i| rayon::ThreadPoolBuilder::new().num_threads(threads).thread_name(move |t| format!("a24-lane{i}-{t}")).build().map_err(|e| format!("lane pool: {e}")))
+    serve_lines_with(lanes, threads, 0, 1, lines, serve, emit)
+}
+
+/// **[A28] `HL_A28_STAGGER_MS`** (the prover server only; default 0, as before): no two requests start
+/// less than this many milliseconds apart. The three categories of a post arrive together and start
+/// on three lanes at once; they then run in lockstep, their host work and their command buffers at
+/// the same moments. The stagger offsets them once (it persists while the lanes' requests take equal
+/// time), so one lane's device work can fall in another's host work. Only when a request starts
+/// changes: each request still runs `prove`'s own function, its own fresh draws and refusals.
+fn a28_stagger() -> std::time::Duration {
+    static MS: std::sync::OnceLock<u64> = std::sync::OnceLock::new();
+    std::time::Duration::from_millis(*MS.get_or_init(|| std::env::var("HL_A28_STAGGER_MS").ok().and_then(|v| v.parse::<u64>().ok()).unwrap_or(0).min(10_000)))
+}
+
+/// **[A28] `HL_A28_SEAL_AHEAD`** (the prover server only; default OFF: one request per lane at a
+/// time, as before; `1` turns it on): each lane takes a second request while its first one runs. Each of the lane's
+/// two request threads has its own rayon pool of `--lane-threads` threads; the second request's
+/// sealing pass (the activations read, every block's witness built and checked: about a fifth of a
+/// request in the A28 profile) runs beside the first request's run, and its run waits at the lane's
+/// run gate (`SharedProve::run_gate`) until the first request has finished, so at most `--lanes`
+/// runs go at once (A22 overlapped `stack-serve`'s sealing with the last request's proof the same
+/// way). Each request is still `prove_with_public` from its first step to its last on one thread:
+/// its own fresh draws, refusals in their order, run directory and files. Only when its run starts
+/// changes. A lane then holds up to two requests' sealing-pass witnesses at once. The reader sends
+/// each request to the least loaded lane (an idle lane first, then the lane whose request in flight
+/// began first; never a third to a lane): the A28 candidate without it let a lane's second thread
+/// take a post's second category while other lanes sat idle (`results/zk60_a28_app_20261107`, m1b1).
+///
+/// **Why it is off by default** (the same README, measured on the 8-post stream at six lanes of five
+/// threads, A B B A against A27): +1.3% (17.02 -> 17.25 proved tok/s) for about 60 GiB more memory
+/// at the guarded job's peak (two requests' sealing-pass witnesses a lane) and about 11 CPU-seconds
+/// more per proof. The sealing pass also uses the device (the witness products), and the stream
+/// already runs near the device's bound. Both modes are tested (`classify_serve_tests.rs`, `a28_`).
+pub(super) fn a28_seal_ahead_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A28_SEAL_AHEAD").map(|v| v == "1").unwrap_or(false))
+}
+
+/// [`serve_lines`] with a minimum interval between request starts (`stagger_ms`, 0: none) and
+/// `per_lane` request threads per lane (1, or 2 with [`a28_seal_ahead_on`]); `serve` gets the lane
+fn serve_lines_with<F>(lanes: usize, threads: usize, stagger_ms: u64, per_lane: usize, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
+where
+    F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
+{
+    let per_lane = per_lane.clamp(1, 2);
+    let pools: Vec<(usize, rayon::ThreadPool)> = (0..lanes * per_lane)
+        .map(|j| {
+            let (i, slot) = (j / per_lane, j % per_lane);
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .thread_name(move |t| if slot == 0 { format!("a24-lane{i}-{t}") } else { format!("a28-lane{i}b-{t}") })
+                .build()
+                .map(|p| (i, p))
+                .map_err(|e| format!("lane pool: {e}"))
+        })
         .collect::<Result<_, _>>()?;
+    let stagger = std::time::Duration::from_millis(stagger_ms);
+    let next_start: std::sync::Mutex<Option<Instant>> = std::sync::Mutex::new(None);
     let t0 = Instant::now();
-    let (req_tx, req_rx) = std::sync::mpsc::sync_channel::<(usize, String, f64)>(lanes);
+    // (line number, line, read at, [A28] the dispatch instant counted against its lane)
+    type Req = (usize, String, f64, Option<Instant>);
+    let (req_tx, req_rx) = std::sync::mpsc::sync_channel::<Req>(lanes);
     let req_rx = std::sync::Mutex::new(req_rx);
+    // [A28] with two request threads a lane: one queue a lane, filled by the reader with each request
+    // sent to the least loaded lane (no request in flight first; then the lane whose request in flight
+    // began first, so its run ends soonest), never more than two a lane
+    let (lane_tx, lane_rx): (Vec<std::sync::mpsc::Sender<Req>>, Vec<std::sync::Mutex<std::sync::mpsc::Receiver<Req>>>) = if per_lane > 1 {
+        (0..lanes)
+            .map(|_| {
+                let (tx, rx) = std::sync::mpsc::channel::<Req>();
+                (tx, std::sync::Mutex::new(rx))
+            })
+            .unzip()
+    } else {
+        (Vec::new(), Vec::new())
+    };
+    let load: std::sync::Mutex<Vec<Vec<Instant>>> = std::sync::Mutex::new(vec![Vec::new(); lanes]);
+    let freed = std::sync::Condvar::new();
     let (out_tx, out_rx) = std::sync::mpsc::channel::<(bool, String)>();
     let (mut n, mut ok) = (0usize, 0usize);
     std::thread::scope(|s| {
+        let (load_r, freed_r) = (&load, &freed);
         s.spawn(move || {
             let mut q = 0usize;
             for line in lines {
                 if line.trim().is_empty() {
                     continue;
                 }
-                if req_tx.send((q, line, t0.elapsed().as_secs_f64())).is_err() {
+                let t_read = t0.elapsed().as_secs_f64();
+                let sent = if lane_tx.is_empty() {
+                    req_tx.send((q, line, t_read, None)).is_ok()
+                } else {
+                    let (lane, at) = {
+                        let mut g = load_r.lock().unwrap_or_else(|e| e.into_inner());
+                        loop {
+                            let pick = (0..g.len()).filter(|&i| g[i].len() < per_lane).min_by_key(|&i| (g[i].len(), g[i].iter().min().copied(), i));
+                            if let Some(i) = pick {
+                                let at = Instant::now();
+                                g[i].push(at);
+                                break (i, at);
+                            }
+                            g = freed_r.wait(g).unwrap_or_else(|e| e.into_inner());
+                        }
+                    };
+                    lane_tx[lane].send((q, line, t_read, Some(at))).is_ok()
+                };
+                if !sent {
                     break;
                 }
                 q += 1;
             }
         });
-        for (i, pool) in pools.iter().enumerate() {
-            let (out_tx, req_rx, serve) = (out_tx.clone(), &req_rx, &serve);
+        for (i, pool) in pools.iter().map(|(i, p)| (*i, p)) {
+            let (out_tx, req_rx, serve, next_start, lane_rx, load_r, freed_r) = (out_tx.clone(), &req_rx, &serve, &next_start, &lane_rx, &load, &freed);
             s.spawn(move || loop {
-                let next = req_rx.lock().unwrap_or_else(|e| e.into_inner()).recv();
-                let Ok((q, line, t_read)) = next else { break };
+                let next = match lane_rx.get(i) {
+                    Some(rx) => rx.lock().unwrap_or_else(|e| e.into_inner()).recv(),
+                    None => req_rx.lock().unwrap_or_else(|e| e.into_inner()).recv(),
+                };
+                let Ok((q, line, t_read, dispatched)) = next else { break };
+                if !stagger.is_zero() {
+                    // [A28] this request's start: no earlier than the last start plus the stagger
+                    let wait = {
+                        let mut g = next_start.lock().unwrap_or_else(|e| e.into_inner());
+                        let now = Instant::now();
+                        let at = g.map_or(now, |t| t.max(now));
+                        *g = Some(at + stagger);
+                        at.saturating_duration_since(now)
+                    };
+                    if !wait.is_zero() {
+                        std::thread::sleep(wait);
+                    }
+                }
                 let queued = t0.elapsed().as_secs_f64() - t_read;
                 let (good, l) = pool.install(|| serve(q, &line, queued, i));
+                if let Some(at) = dispatched {
+                    // [A28] this request no longer counts against its lane
+                    let mut g = load_r.lock().unwrap_or_else(|e| e.into_inner());
+                    if let Some(k) = g[i].iter().position(|t| *t == at) {
+                        g[i].remove(k);
+                    }
+                    freed_r.notify_all();
+                }
                 if out_tx.send((good, l)).is_err() {
                     break;
                 }
@@ -360,11 +475,11 @@ fn prove_request_of(srv: &ResidentClassifier, line: &str) -> Result<ProveRequest
 /// **ONE prove request** on the calling thread: the admitted policy, the content (the CLI's
 /// own reader: a 0600 regular file), then `prove_with_public` over the resident model; the
 /// request's event lines captured
-fn prove_one(srv: &ResidentClassifier, cfg: &ProveCfg, req: &ProveRequest) -> (Result<(), String>, Vec<String>) {
+fn prove_one(srv: &ResidentClassifier, cfg: &ProveCfg, req: &ProveRequest, run_gate: Option<&std::sync::Mutex<()>>) -> (Result<(), String>, Vec<String>) {
     with_captured_events(|| -> Result<(), String> {
         srv.admitted(need(&req.flags, "--policy")?)?;
         let whole = content_of(&req.flags)?;
-        prove_with_public(&req.flags, Some(SharedProve { p: &srv.p, bound: &srv.bound, whole: &whole, claim: None, blocks: Some(&srv.blocks), witness_budget: cfg.witness_budget }))
+        prove_with_public(&req.flags, Some(SharedProve { p: &srv.p, bound: &srv.bound, whole: &whole, claim: None, blocks: Some(&srv.blocks), witness_budget: cfg.witness_budget, run_gate }))
     })
 }
 
@@ -383,13 +498,23 @@ fn served_line(command: &str, q: usize, id: Option<&str>, status: &str, lane: us
 }
 
 fn serve_inner(f: &[(String, String)], lines: impl Iterator<Item = String> + Send, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String> {
+    serve_inner_with(f, lines, emit, a28_seal_ahead_on())
+}
+
+/// [`serve_inner`] with the seal-ahead mode given (`ahead`: [`a28_seal_ahead_on`] in the server; the
+/// tests run both)
+fn serve_inner_with(f: &[(String, String)], lines: impl Iterator<Item = String> + Send, emit: &mut dyn FnMut(&str), ahead: bool) -> Result<(usize, usize), String> {
     let cfg = prove_cfg_of(f)?;
     let srv = ResidentClassifier::start(f)?;
-    emit(&srv.start_line("classify-serve", cfg.lanes, cfg.threads, &format!(",\"witness_cache_bytes\":{}", cfg.witness_budget)));
+    emit(&srv.start_line("classify-serve", cfg.lanes, cfg.threads, &format!(",\"witness_cache_bytes\":{},\"seal_ahead\":{}", cfg.witness_budget, ahead)));
     let t = Instant::now();
-    let (n, ok) = serve_lines(
+    // [A28] seal ahead: two request threads a lane, one run at a time per lane (its gate)
+    let gates: Vec<std::sync::Mutex<()>> = (0..cfg.lanes).map(|_| std::sync::Mutex::new(())).collect();
+    let (n, ok) = serve_lines_with(
         cfg.lanes,
         cfg.threads,
+        a28_stagger().as_millis() as u64,
+        if ahead { 2 } else { 1 },
         lines,
         |q, line, queued, lane| {
             let t0 = Instant::now();
@@ -400,7 +525,7 @@ fn serve_inner(f: &[(String, String)], lines: impl Iterator<Item = String> + Sen
                     return (false, l);
                 }
             };
-            let (r, mut events) = prove_one(&srv, &cfg, &req);
+            let (r, mut events) = prove_one(&srv, &cfg, &req, if ahead { gates.get(lane) } else { None });
             let status = match &r {
                 Ok(()) => "proved",
                 Err(e) => {
@@ -683,6 +808,16 @@ pub(crate) fn serve_for_tests(args: &[String], lines: Vec<String>) -> Result<Vec
     let f = flags(args, &SERVE_FLAGS, &[])?;
     let mut out = Vec::new();
     serve_inner(&f, lines.into_iter(), &mut |l: &str| out.push(l.to_string()))?;
+    Ok(out)
+}
+
+/// TEST BUILDS ONLY: [`serve_for_tests`] with the seal-ahead mode given ([A28]: both modes are tested
+/// whatever `HL_A28_SEAL_AHEAD` says in the test process)
+#[cfg(test)]
+pub(crate) fn serve_for_tests_ahead(args: &[String], lines: Vec<String>, ahead: bool) -> Result<Vec<String>, String> {
+    let f = flags(args, &SERVE_FLAGS, &[])?;
+    let mut out = Vec::new();
+    serve_inner_with(&f, lines.into_iter(), &mut |l: &str| out.push(l.to_string()), ahead)?;
     Ok(out)
 }
 

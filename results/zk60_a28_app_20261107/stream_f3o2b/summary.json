@@ -1,0 +1,206 @@
+{
+  "tag": "f3o2b",
+  "profile": "r13",
+  "binary": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q3",
+  "posts": 1,
+  "all_checked": true,
+  "wall_s": 44.37983703613281,
+  "startup_s": 61.80747985839844,
+  "prover_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 3,
+    "lane_threads": 10,
+    "startup_seconds": 31.371,
+    "witness_cache_bytes": 17179869184,
+    "seal_ahead": false,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "checker_start": {
+    "event": "serve-start",
+    "command": "classify-check-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2",
+    "blocks": 26,
+    "trained_statement_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 3,
+    "lane_threads": 4,
+    "startup_seconds": 30.388,
+    "min_bits": 95,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+  },
+  "identity_pinned_by_verifier": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+  "category_proofs": 3,
+  "proved_tok_per_s": 8.652577964343537,
+  "content_tok_per_s": 0.3154585716166915,
+  "per_post": [
+    {
+      "post": 0,
+      "tokens": 14,
+      "proofs": 3,
+      "all_checked": true,
+      "latency_s": 44.32702589035034,
+      "done_at_s": 44.335155963897705
+    }
+  ],
+  "steady": null,
+  "deferred": null,
+  "cpu": {
+    "prover_cpu_s": 263.74,
+    "checker_cpu_s": 71.61999999999999,
+    "writer_cpu_s": 20.69833,
+    "prover_cpu_s_per_proof": 87.91333333333334,
+    "checker_cpu_s_per_proof": 23.87333333333333,
+    "writer_cpu_s_per_proof": 6.899443333333333,
+    "all_cpu_s_per_proof": 118.68611,
+    "note": "ps -o time= (user+system) of each server over the clocked window; the writer by RUSAGE_CHILDREN"
+  },
+  "gpu": {
+    "samples": 23,
+    "mean_pct": 41.65217391304348,
+    "p50_pct": 36,
+    "p90_pct": 94,
+    "note": "ioreg IOAccelerator Device Utilization %, every 2 s over the whole clock (diagnostics)",
+    "series_monotonic": [
+      [
+        15710.169,
+        0
+      ],
+      [
+        15712.198,
+        0
+      ],
+      [
+        15714.225,
+        0
+      ],
+      [
+        15716.254,
+        0
+      ],
+      [
+        15718.285,
+        0
+      ],
+      [
+        15720.313,
+        0
+      ],
+      [
+        15722.353,
+        42
+      ],
+      [
+        15724.398,
+        36
+      ],
+      [
+        15726.425,
+        37
+      ],
+      [
+        15728.453,
+        93
+      ],
+      [
+        15730.486,
+        94
+      ],
+      [
+        15732.516,
+        94
+      ],
+      [
+        15734.545,
+        94
+      ],
+      [
+        15736.579,
+        94
+      ],
+      [
+        15738.618,
+        93
+      ],
+      [
+        15740.649,
+        93
+      ],
+      [
+        15742.679,
+        93
+      ],
+      [
+        15744.715,
+        95
+      ],
+      [
+        15746.748,
+        0
+      ],
+      [
+        15748.783,
+        0
+      ],
+      [
+        15750.816,
+        0
+      ],
+      [
+        15752.847,
+        0
+      ],
+      [
+        15754.88,
+        0
+      ]
+    ],
+    "t0_monotonic": 15710.141103208
+  },
+  "faults": {
+    "prover_page_faults": 7568351,
+    "per_proof": 2522783.6666666665,
+    "note": "top -stats faults of the prover process(es), from just before the first post to the last proof (diagnostics)"
+  },
+  "env": {
+    "HL_METAL_QUEUES": "thread"
+  },
+  "settings": {
+    "tag": "f3o2b",
+    "posts": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/one.json",
+    "profile": "r13",
+    "bin": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q3",
+    "identity": null,
+    "lanes": 3,
+    "lane_threads": 10,
+    "check_lanes": 3,
+    "check_threads": 4,
+    "witness_gib": 16.0,
+    "keep": 0,
+    "gap": 0.0,
+    "writer_threads": 4,
+    "defer_check": false,
+    "sample": null,
+    "provers": 1
+  },
+  "hl_gpu": "1",
+  "on_the_clock": "ZK60_THROUGHPUT_TARGET clock: from the first post submitted to the last post's third label accepted: activation writer (Python forward pass), the prover's sealing pass and witnesses, proof, receipt write (fsync per segment), fresh verification in the separate verifier process, input-owner check, category label; NOT on it: server startup (model load), app/publication"
+}

@@ -1,0 +1,8 @@
+quiet (no ds4-bench)
+canonical pairs 33593241: mismatches add_b 0 add_c 0 sub_c 0 mul_b 0 mul_c 0 reduce_b 0
+any-u64 pairs 16817216: mismatches mul_b 0 mul_c 0 reduce_b 0 (add/sub are specified on canonical inputs only: add_b 74 add_c 74 sub_c 0)
+falu0: 3.580 ms for 3.691e8 butterflies (103.1 G/s)
+falu1: 3.551 ms for 3.691e8 butterflies (104.0 G/s)
+falu2: 3.749 ms for 3.691e8 butterflies (98.4 G/s)
+falu words after one pass equal: v1 == v0 true, v2 == v0 true
+rc=0

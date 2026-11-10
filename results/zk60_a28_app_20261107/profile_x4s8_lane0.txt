@@ -1,0 +1,88 @@
+a24-lane0-0: 32216 samples under prove_with_public; 43.5 s per request
+  gpu wait    11018   34.2%   14.88 s
+  serial       5600   17.4%    7.56 s
+  parallel    15598   48.4%   21.06 s
+
+serial sections, by nearest named callers (% of the thread's samples, seconds per request):
+     653   2.0%    0.88 s  pb::token_io::classify::update_le_words < pb::token_io::classify::ClassifierTables::emb_digest  [blake3_hash_many_neon]
+     478   1.5%    0.65 s  pb::run_sink::a21_sha::sha256 < pb::run_sink::digest_hex  [pb::run_sink::a21_sha::sha256]
+     326   1.0%    0.44 s  pb::protocol::prove_core_after_with < pb::protocol::prove_core_with  [_kernelrpc_mach_vm_deallocate_trap]
+     313   1.0%    0.42 s  pb::token_io::classify::update_le_words < pb::token_io::classify::ClassifyRunStatement::check_tables  [blake3_hash_many_neon]
+     270   0.8%    0.36 s  pb::token_io::classify::update_le_words < pb::token_io::classify::ClassifierTables::emb_digest  [pb::token_io::classify::update_le_words]
+     205   0.6%    0.28 s  zkp_core::transcript::Transcript::absorb < zkp_core::transcript::Transcript::absorb_fp2  [blake3_hash_many_neon]
+     178   0.6%    0.24 s  pb::token_io::classify_run::prove_classify_run_with  [__fcntl]
+     161   0.5%    0.22 s  zkp_core::rng::ZkRng::next_u64 < hl::pcs::commit_zk_owned_tagged  [blake3::platform::Platform::compress_xof]
+     140   0.4%    0.19 s  pb::token_io::classify::update_le_words < pb::token_io::classify::ClassifyRunStatement::check_tables  [pb::token_io::classify::update_le_words]
+     132   0.4%    0.18 s  pb::argument::B::supp < pb::argument::accuracy::fzc  [pb::argument::B::supp]
+     127   0.4%    0.17 s  zkp_core::mle::eq_table_msb < zkp_core::pcs::group_zclaims  [zkp_core::mle::eq_table_msb]
+     124   0.4%    0.17 s  zkp_core::pcs::OpeningZk::write_bytes < pb::wire::encode_segment  [zkp_core::pcs::OpeningZk::write_bytes]
+     103   0.3%    0.14 s  pb::token_io::classify_run::prove_classify_run_with  [write]
+     102   0.3%    0.14 s  zkp_core::pcs::group_zclaims < zkp_core::pcs::open_zk  [zkp_core::pcs::group_zclaims]
+      88   0.3%    0.12 s  pb::argument::B::supp < pb::argument::define  [pb::argument::B::supp]
+      80   0.2%    0.11 s  pb::protocol::zeroed_rows < pb::protocol::prove_core_with  [__bzero]
+      76   0.2%    0.10 s  zkp_core::ntt::NttTables::transform < hl::zk::mask_commit_tagged  [zkp_core::ntt::NttTables::transform]
+      70   0.2%    0.09 s  pb::argument::argument_with < pb::protocol::prove_core_after_with  [pb::argument::accuracy::tab::{cl}]
+      68   0.2%    0.09 s  pb::accuracy_act::group_column < pb::argument::accuracy::fzc  [__bzero]
+      66   0.2%    0.09 s  zkp_core::ntt::NttTables::transform < hl::zk::poly_mul_512  [zkp_core::ntt::NttTables::transform]
+      62   0.2%    0.08 s  pb::accuracy_act::denominators < pb::protocol::prove_core_after_with  [__bzero]
+      57   0.2%    0.08 s  pb::argument::rope_tables_at < pb::argument::define  [pb::argument::rope_tables_at]
+      54   0.2%    0.07 s  pb::witness::build_for_block < pb::token_io::classify_cli::seal_chain_keeping  [__bzero]
+      53   0.2%    0.07 s  pb::argument::argument_with < pb::protocol::prove_core_after_with  [_~alloc..vec..Vec~T~~as~alloc..vec..spec_from_it]
+      53   0.2%    0.07 s  pb::token_io::classify_cli::seal_chain_keeping  [_kernelrpc_mach_vm_deallocate_trap]
+      50   0.2%    0.07 s  pb::protocol::zeroed_rows < pb::protocol::prove_core_after_with  [__bzero]
+      46   0.1%    0.06 s  zkp_core::transcript::Transcript::absorb_fp2 < zkp_core::pcs::open_zk  [zkp_core::transcript::Transcript::absorb_fp2]
+      46   0.1%    0.06 s  zkp_core::ntt::NttTables::transform < zkp_core::ntt::NttTables::inverse  [zkp_core::ntt::NttTables::transform]
+      45   0.1%    0.06 s  pb::argument::B::supp < pb::argument::accuracy::dzc  [pb::argument::B::supp]
+      43   0.1%    0.06 s  pb::argument::argument_with < pb::protocol::prove_core_after_with  [pb::argument::run_slot::{cl}]
+      41   0.1%    0.06 s  pb::argument::accuracy::dzc < pb::argument::define  [pb::argument::accuracy::dzc]
+      40   0.1%    0.05 s  pb::argument::PadTerm::eval < pb::argument::argument_with  [pb::argument::PadTerm::eval]
+      37   0.1%    0.05 s  pb::argument::argument_with < pb::protocol::prove_core_after_with  [pb::argument::define::{cl}]
+      33   0.1%    0.04 s  zkp_core::rng::ZkRng::next_u64 < pb::boundary::prepare  [blake3::platform::Platform::compress_xof]
+      31   0.1%    0.04 s  zkp_core::pcs::zk_rhos < zkp_core::pcs::open_zk  [zkp_core::pcs::zk_rhos]
+      29   0.1%    0.04 s  pb::protocol::exp_deltas < pb::protocol::prove_core_with  [pb::protocol::exp_deltas]
+      26   0.1%    0.04 s  pb::witness::build_for_block < pb::token_io::classify_cli::seal_chain_keeping  [_kernelrpc_mach_vm_deallocate_trap]
+      25   0.1%    0.03 s  pb::argument::argument_with < pb::protocol::prove_core_after_with  [_~zkp_core..sumcheck..rounds..ClosureRounds~F~~a]
+      24   0.1%    0.03 s  pb::argument::causal_mask_at < pb::argument::accuracy::szc  [pb::argument::causal_mask_at]
+      24   0.1%    0.03 s  pb::argument::causal_mask_at < pb::argument::define  [pb::argument::causal_mask_at]
+
+parallel sections, by nearest named callers (% of the thread's samples, seconds per request):
+    1967   6.1%    2.66 s  hl::gpu::metal::fold_segments_a8_opts < zkp_core::pcs::open_zk
+    1309   4.1%    1.77 s  pb::A21Stream::hasher_at < pb::A21Stream::subtree
+    1097   3.4%    1.48 s  pb::witness::accuracy::fill_planes < pb::witness::build_for_block
+     979   3.0%    1.32 s  pb::weights_vanish_off_support < pb::FeedForwardPublic::check_words
+     799   2.5%    1.08 s  zkp_core::rng::block_bytes_in < zkp_core::rng::ZkRng::fill_fp
+     793   2.5%    1.07 s  zkp_core::mle::fold_cols_i8 < pb::accuracy_fold::fold
+     759   2.4%    1.02 s  hl::gpu::metal::upload < hl::gpu::metal::commit_impl
+     708   2.2%    0.96 s  pb::protocol::lookup_values < pb::protocol::prove_core_with
+     673   2.1%    0.91 s  pb::argument::argument_with < pb::protocol::prove_core_after_with
+     661   2.1%    0.89 s  pb::protocol::prove_core_after_with < pb::protocol::prove_core_with
+     524   1.6%    0.71 s  pb::protocol::byte_histogram_at < pb::protocol::prove_core_with
+     513   1.6%    0.69 s  pb::protocol::lookup_values < pb::token_io::classify_cli::seal_chain_keeping
+     497   1.5%    0.67 s  pb::protocol::prove_core_with < pb::token_io::classify_run::prove_classify_run_with
+     478   1.5%    0.65 s  pb::protocol::helper_one < pb::protocol::prove_core_after_with
+     302   0.9%    0.41 s  zkp_core::field::batch_inverse2 < pb::protocol::inverses
+     294   0.9%    0.40 s  zkp_core::mle::fold_rows_i8 < pb::accuracy_fold::fold
+     273   0.8%    0.37 s  pb::witness::zeros < pb::witness::accuracy::quantized_with
+     229   0.7%    0.31 s  pb::witness::accuracy::build_with < pb::witness::build_for_block
+     227   0.7%    0.31 s  pb::weights_vanish_off_support < pb::AttentionPublic::check_words
+     218   0.7%    0.29 s  pb::argument::priv_table_fill < pb::argument::build_tables_at
+     176   0.5%    0.24 s  pb::BlockPublic::check_accuracy_for_shape < pb::token_io::classify_run::stage_block_kept
+     166   0.5%    0.22 s  pb::witness::zeros < pb::witness::accuracy::build_with
+     153   0.5%    0.21 s  zkp_core::merkle::MerkleTree::build_keyed < hl::pcs::commit_zk_owned_tagged
+     140   0.4%    0.19 s  pb::protocol::u8_misses_of < pb::protocol::prove_core_with
+     137   0.4%    0.18 s  pb::accuracy_fold::fold < pb::argument::define
+     122   0.4%    0.16 s  zkp_core::rng::ZkRng::fill_fp < pb::protocol::prove_core_with
+     120   0.4%    0.16 s  pb::witness::accuracy::quantized_with < pb::witness::accuracy::build_with
+     106   0.3%    0.14 s  pb::protocol::u8_misses_of < pb::token_io::classify_cli::seal_chain_keeping
+      85   0.3%    0.11 s  pb::BlockPublic::check_accuracy_for_shape < pb::token_io::classify_cli::seal_chain_keeping
+      83   0.3%    0.11 s  pb::accuracy_act::denominators < pb::protocol::prove_core_after_with
+      79   0.2%    0.11 s  pb::BlockPublic::check_accuracy_for_shape < pb::witness::build_for_block
+      77   0.2%    0.10 s  zkp_core::mle::eq_table_msb < pb::argument::argument_with
+      75   0.2%    0.10 s  pb::protocol::write_h < pb::protocol::prove_core_after_with
+      72   0.2%    0.10 s  pb::token_io::stage_in_c::challenges < pb::token_io::stage_in_c::prove
+      69   0.2%    0.09 s  pb::witness::on_device_split < pb::witness::matmul_in_out
+      65   0.2%    0.09 s  hl::gpu::metal::wprod_run < hl::gpu::metal::witness_product
+      60   0.2%    0.08 s  zkp_core::rng::ZkRng::fill_fp < hl::pcs::commit_zk_owned_tagged
+      51   0.2%    0.07 s  pb::argument::table_of_taking < pb::argument::build_tables_at
+      48   0.1%    0.06 s  zkp_core::rng::ZkRng::fill_fp < pb::protocol::prove_core_after_with
+      43   0.1%    0.06 s  pb::accuracy_act::histogram < pb::protocol::prove_core_with

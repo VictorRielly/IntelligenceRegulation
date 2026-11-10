@@ -1,0 +1,14 @@
+2026-11-09T22:30:53Z start; plan p2.plan; free disk 145 GiB
+2026-11-09T22:30:53Z run p2soloA bin b5b6b9a43563 env [HL_METAL_QUEUES=thread HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/p2soloA] flags [--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-09T22:33:08Z p2soloA rc=0 done )
+2026-11-09T22:33:08Z run p2soloB bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/p2soloB HL_A28_SEAL_AHEAD=0] flags [--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-09T22:35:21Z p2soloB rc=0 done )
+2026-11-09T22:35:21Z run p2soloB0 bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/p2soloB0 HL_A28_PRUNE=0 HL_A28_HASH=0 HL_A28_WQ=0 HL_A28_CALLOC=0 HL_A28_SEAL_AHEAD=0] flags [--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-09T22:37:33Z p2soloB0 rc=0 done )
+2026-11-09T22:37:33Z run p2soloBc bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/p2soloBc HL_A28_SEAL_AHEAD=0 HL_A28_CALLOC=0] flags [--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-09T22:39:43Z p2soloBc rc=0 done )
+2026-11-09T22:39:43Z run p2soloBs bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/p2soloBs] flags [--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-09T22:41:46Z p2soloBs rc=0 done )
+2026-11-09T22:41:46Z run p2soloA2 bin b5b6b9a43563 env [HL_METAL_QUEUES=thread HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/p2soloA2] flags [--lanes 1 --lane-threads 30 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0]
+2026-11-09T22:43:57Z p2soloA2 rc=0 done )
+2026-11-09T22:43:57Z all done; free disk 144 GiB

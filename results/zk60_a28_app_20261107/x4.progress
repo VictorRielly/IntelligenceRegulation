@@ -1,0 +1,6 @@
+2026-11-09T23:22:39Z start; plan x4.plan; free disk 140 GiB
+2026-11-09T23:22:39Z run x4solo bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0 HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/x4solo] flags [--lanes 1 --lane-threads 5 --check-lanes 1 --check-threads 12 --witness-gib 16 --keep 0 --sample 14:45]
+2026-11-09T23:25:02Z x4solo rc=0 done )
+2026-11-09T23:25:02Z run x4s8 bin 34b62314de42 env [HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0 HL_A27_GPU_TRACE=/Users/victorrielly/zk60-artifacts/a28-traces/x4s8] flags [--lanes 6 --lane-threads 5 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0 --sample 60:60]
+2026-11-09T23:29:16Z x4s8 rc=0 done )
+2026-11-09T23:29:16Z all done; free disk 138 GiB

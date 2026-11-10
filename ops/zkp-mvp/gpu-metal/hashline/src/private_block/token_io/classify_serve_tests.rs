@@ -15,6 +15,11 @@
 //!   verifier over another export), the post's prefix only, a missing chunk: each refused,
 //!   fail-closed.
 //! * `ClassifierTables`' digests: the 1 MiB-piece form equals the word-by-word form.
+//! * **[A28]** `serve` with and without seal-ahead (whatever `HL_A28_SEAL_AHEAD` says in the test
+//!   process): on ONE lane the second chunk's sealing pass runs beside the first chunk's run and
+//!   its run waits at the lane's gate; the receipts pass the unchanged CLI checks; a request
+//!   refused in its sealing pass creates nothing and frees its lane. And the reader's dispatch:
+//!   an idle lane first, never a third request to a lane, every request served once.
 
 use super::*;
 use super::super::super::classify_cli_tests::{Cc, POLICY_RUNG_DEV, POLICY_RUNG_DEV_SWAPPED};
@@ -342,4 +347,102 @@ fn a26_the_split_limb_embedding_fold_equals_the_field_fold() {
         }
     }
     eprintln!("A26 | the embedding fold in split 32-bit limbs equals the per-word field fold (4 shapes, 3 point kinds, extreme words)");
+}
+
+/// **[A28] `serve` with and without seal-ahead** (`HL_A28_SEAL_AHEAD`; both modes here, whatever
+/// the test process's environment says). On ONE lane with seal-ahead the second chunk's sealing
+/// pass runs beside the first chunk's run and its run waits at the lane's gate: both chunks are
+/// proved, every receipt passes the unchanged CLI verify, input-owner and label, and the start
+/// line names the mode. Then a request refused in its sealing pass (an empty activation
+/// directory) creates nothing and frees its lane: the request behind it proves.
+#[test]
+fn a28_serve_with_and_without_seal_ahead_proves_the_post_and_a_refusal_frees_its_lane() {
+    for ahead in [true, false] {
+        let cc = Cc::new(&format!("a28-ahead-{ahead}"));
+        let post = Post::new(&cc, "a28s", None);
+        let out = serve_for_tests_ahead(&serve_args(&cc, "1", "1"), vec![post.request(0), post.request(1)], ahead).expect("the server starts");
+        let j = parsed(&out);
+        assert_eq!(j[0].get("event").unwrap().str().unwrap(), "serve-start");
+        assert_eq!(j[0].get("seal_ahead").unwrap(), &J::Bool(ahead), "the start line names the mode");
+        assert_eq!(j.last().unwrap().get("accepted").unwrap().i64().unwrap(), 2);
+        for i in 0..2 {
+            let line = served(&j, &format!("c{i}"));
+            assert_eq!(status(line), "proved", "{:?}", events(line));
+            assert_eq!(line.get("lane").unwrap().i64().unwrap(), 0, "one lane");
+        }
+        for o in &post.outs {
+            assert_eq!(cc.verify(o, &cc.tables), 0, "{} verifies (the unchanged CLI)", o.display());
+            assert_eq!(cc.input_owner(o, &cc.tables, &post.whole), 0, "{}: input-owner on the whole content", o.display());
+        }
+        assert_eq!(cc.label(&[&post.outs[0], &post.outs[1]], 27), 0, "the unchanged label over both chunks");
+        // a refusal in the sealing pass (before the lane's gate is taken), then an honest request
+        let cc = Cc::new(&format!("a28-ahead-refuse-{ahead}"));
+        let bad = Post::new(&cc, "a28r", Some(0));
+        let out = serve_for_tests_ahead(&serve_args(&cc, "1", "1"), vec![bad.request(0), bad.request(1)], ahead).expect("the server starts");
+        let j = parsed(&out);
+        assert_eq!(status(served(&j, "c0")), "refused");
+        assert!(bad.created(0).iter().all(|(_, e)| !*e), "a refused request created {:?}", bad.created(0));
+        assert_eq!(status(served(&j, "c1")), "proved", "the lane carries on after a refusal");
+        assert_eq!(cc.verify(&bad.outs[1], &cc.tables), 0);
+        eprintln!("A28 | serve, seal-ahead {ahead}: one lane, both chunks proved and accepted by the CLI checks; a refused request created nothing and the next proved");
+    }
+}
+
+/// **[A28] the seal-ahead dispatch** (`serve_lines_with`, two request threads a lane): the reader
+/// sends a request to an idle lane first (three requests that arrive together land on three
+/// lanes, never two on one while a lane is idle), then to the lane whose request began first,
+/// never a third to a lane; a lane does hold two at once; every request is served exactly once
+/// with its own line number. With one request thread a lane (as before A28) no lane ever holds two.
+#[test]
+fn a28_the_seal_ahead_dispatch_fills_idle_lanes_first_and_never_sends_a_third_request_to_a_lane() {
+    use std::sync::atomic::{AtomicUsize, Ordering::SeqCst};
+    use std::sync::Mutex;
+    for per_lane in [2usize, 1] {
+        let lanes = 3usize;
+        let n = 14usize;
+        let inflight: Vec<AtomicUsize> = (0..lanes).map(|_| AtomicUsize::new(0)).collect();
+        let peak: Vec<AtomicUsize> = (0..lanes).map(|_| AtomicUsize::new(0)).collect();
+        let order: Mutex<Vec<(usize, usize)>> = Mutex::new(Vec::new());
+        let mut out = Vec::new();
+        let (served_n, ok) = serve_lines_with(
+            lanes,
+            1,
+            0,
+            per_lane,
+            (0..n).map(|i| format!("r{i}")),
+            |q, line, _queued, lane| {
+                assert_eq!(line, format!("r{q}"), "a request keeps its line number");
+                let now = inflight[lane].fetch_add(1, SeqCst) + 1;
+                peak[lane].fetch_max(now, SeqCst);
+                order.lock().unwrap().push((q, lane));
+                // the first requests stay in flight until all of them have been dispatched
+                std::thread::sleep(std::time::Duration::from_millis(if q < lanes * per_lane { 250 } else { 20 }));
+                inflight[lane].fetch_sub(1, SeqCst);
+                (q % 5 != 4, format!("{q}"))
+            },
+            &mut |l: &str| out.push(l.to_string()),
+        )
+        .expect("the pools build");
+        assert_eq!((served_n, ok), (n, n - n / 5), "every request served once");
+        let mut seen: Vec<usize> = out.iter().map(|l| l.parse().unwrap()).collect();
+        seen.sort_unstable();
+        assert_eq!(seen, (0..n).collect::<Vec<_>>());
+        for l in 0..lanes {
+            assert!(peak[l].load(SeqCst) <= per_lane, "lane {l} held {} requests at once", peak[l].load(SeqCst));
+        }
+        let order = order.into_inner().unwrap();
+        let lane_of = |q: usize| order.iter().find(|(x, _)| *x == q).unwrap().1;
+        if per_lane == 2 {
+            // requests 0..3 arrive together: one per lane (the idle lanes first), in lane order;
+            // requests 3..6 are each lane's second (the lane whose request began first)
+            assert_eq!((0..3).map(lane_of).collect::<Vec<_>>(), vec![0, 1, 2], "idle lanes first");
+            assert_eq!((3..6).map(lane_of).collect::<Vec<_>>(), vec![0, 1, 2], "then the lane whose request began first");
+            assert!((0..lanes).all(|l| peak[l].load(SeqCst) == 2), "each lane held two requests at once (seal-ahead)");
+        } else {
+            let mut first: Vec<usize> = (0..3).map(lane_of).collect();
+            first.sort_unstable();
+            assert_eq!(first, vec![0, 1, 2], "one request per lane");
+        }
+    }
+    eprintln!("A28 | the seal-ahead dispatch: idle lanes first, then the earliest-begun lane, never three on a lane; every request served once (2 and 1 request threads a lane)");
 }

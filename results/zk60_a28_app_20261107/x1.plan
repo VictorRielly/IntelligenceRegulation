@@ -1,0 +1,11 @@
+# Lane A28 (resumed 2026-11-09), job x1 (diagnostics, single runs of the second candidate a28-q2): does a prover lane
+# need more rayon threads than five? The 8-post public stream, 3 x 4 verifier lanes, 16 GiB witness cache,
+# HL_METAL_QUEUES=thread. The A27 profile found 15 of 32 cores busy on average and the GPU idle a third of the
+# proving window, while a lane's host phases keep its five threads busy; A24 compared 3 x 10, 6 x 5 and 8 x 3 and
+# A27 8 x 4 (never more than 32 prover threads). Here: 6 x 8 with and without seal-ahead, 8 x 6 and 6 x 10 without.
+# Every receipt freshly verified.
+# tag|binary|posts|driver flags|env
+x1a|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 8 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread
+x1b|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 8 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0
+x1c|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 8 --lane-threads 6 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0
+x1d|/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28-q2|/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a6d02411a78ede69c/results/zk60_a24_app_20261107/posts/stream8.json|--lanes 6 --lane-threads 10 --check-lanes 3 --check-threads 4 --witness-gib 16 --keep 0|HL_METAL_QUEUES=thread HL_A28_SEAL_AHEAD=0
