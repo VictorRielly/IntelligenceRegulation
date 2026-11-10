@@ -155,10 +155,10 @@ theorem rh_KA_al (D : RtKData K Lq) (hD : D.Valid (Exec.Block.absOfC (chainEncB 
     obtain ⟨x, hx, rfl⟩ := List.mem_map.mp (List.mem_of_getElem? hc')
     obtain ⟨hA1, hB0, hB1⟩ := hw i hi x hx
     have hab : x.2.1 ≤ x.2.2 := ((rtOps_win pf D i hi).1 x hx).2.1
-    rcases opening_split (rtW pf.sqs) x.2.1 x.2.2 hab (encG (K := K) x.1.h x.1.Q) x.1.e x.1.cl (x.1.Ux lg)
-        (vRd U (2 ^ 14 + x.1.Q) x.1.vpos) dg0 (x.1.nC + x.1.rows)
+    rcases opening_split (rtW pf.sqs) x.2.1 x.2.2 hab (encGL (K := K) x.1.lc x.1.h x.1.Q) x.1.e x.1.cl (x.1.Ux lg)
+        (vRd U (2 ^ x.1.lc + x.1.Q) x.1.vpos) dg0 (x.1.nC + x.1.rows)
         (lrCode gP (Equiv.ofBijective _ hbij) (finSumFinEquiv.symm : Fin (x.1.nC + x.1.rows) ≃ Fin x.1.nC ⊕ Fin x.1.rows))
-        x.1.mI (idxCode x.1.h x.1.hQm) Block.labPcsProx (proxDec U (2 ^ 14 + x.1.Q))
+        x.1.mI (idxCode x.1.h x.1.hQm) Block.labPcsProx (proxDec U (2 ^ x.1.lc + x.1.Q))
         (((2 ^ x.1.h : ℕ) : ℝ≥0∞) / Fintype.card K * (1 + (gP : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞))
           ^ (2 * (x.1.nC + x.1.rows)))
         ((((Fintype.card (Fin (2 ^ x.1.h)) - (x.1.e + 1) : ℕ) : ℝ≥0∞) / Fintype.card (Fin (2 ^ x.1.h))) ^ x.1.Q * 1)

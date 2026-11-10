@@ -88,6 +88,40 @@ theorem RkPcsR13.hm {ι : Type}
     (h : RkPcsR13 U tag pc) : pc.m = 64 := by
   rw [← pc.hm, h.hQ]
 
+/-- **An opening verifier's numbers at a code geometry `g`** (D63 lane L48, finding L45-2; `RkPcsR13` is the instance
+`g = ogR13`): `g.Q` queries and pads, codewords of `2^g.h`, `log_cols g.lc`, the coset points `7·G_{2^g.h}`, a column
+evaluator meeting `ColEncSpec` at the width's row form `RWL g.lc`, the run's Merkle tag. -/
+structure RkPcsAt {ι : Type}
+    {V : ι → (HIn → Dig) → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr} (g : OGeo)
+    (pc : RtPcs V) : Prop where
+  hQ : pc.Q = g.Q
+  hN : pc.N = 2 ^ g.h
+  hlc : pc.prm.logCols = g.lc
+  hlc' : pc.lc = g.lc
+  hpt : pc.pt = cosetPt (rootFp g.h)
+  hspec : ColEncSpec U (RWL (K := K) g.lc) g.Q (cosetPt (rootFp g.h)) pc.ev
+  htag : pc.tag = tag
+
+theorem RkPcsAt.hm {ι : Type}
+    {V : ι → (HIn → Dig) → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr} {g : OGeo}
+    {pc : RtPcs V} (h : RkPcsAt U tag g pc) (hm : (g.Q + 3) / 4 = g.mI) : pc.m = g.mI := by
+  rw [← pc.hm, h.hQ, hm]
+
+/-- **`RkPcsR13` is `RkPcsAt` at R13's block geometry** (`RWL 14 = RW`). -/
+theorem RkPcsR13.at {ι : Type}
+    {V : ι → (HIn → Dig) → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr} {pc : RtPcs V}
+    (h : RkPcsR13 U tag pc) : RkPcsAt U tag ogR13 pc where
+  hQ := h.hQ
+  hN := h.hN
+  hlc := h.hlc
+  hlc' := h.hlc'
+  hpt := h.hpt
+  hspec := by
+    show ColEncSpec U (RWL (K := K) 14) 256 (cosetPt (rootFp 16)) pc.ev
+    rw [RWL_14]
+    exact h.hspec
+  htag := h.htag
+
 end Facts
 
 theorem rh_part_eq (pf : RtProf) (i : ℕ) (p : RtPart) (h : pf.parts[i]? = some p) : pf.part i = p := by

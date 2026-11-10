@@ -324,3 +324,10 @@ import ZK60Formal.RunExtractBlk
 import ZK60Formal.RunExtractParts
 import ZK60Formal.RunExtractTop
 import ZK60Formal.RunExtractCarry
+import ZK60Formal.RunOpenGeo
+import ZK60Formal.RunOpenGeoTier
+import ZK60Formal.RunOpenGeoStage
+import ZK60Formal.RunOpenGeoTop
+import ZK60Formal.RunOpenGeoBlock
+import ZK60Formal.BindingEP
+import ZK60Formal.ProtocolClassifyEP

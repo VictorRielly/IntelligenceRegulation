@@ -1,0 +1,2 @@
+build ZK60Formal.RunOpenGeo ZK60Formal.RunOpenGeoTier ZK60Formal.RunTrKinds ZK60Formal.RunKindsData ZK60Formal.RunHalOpA ZK60Formal.RunHalOpB ZK60Formal.RunHalBlk ZK60Formal.RunStageRdHal ZK60Formal.RunExtractStage ZK60Formal.RunExtractParts
+build ZK60Formal.BindingEP ZK60Formal.ProtocolClassifyEP

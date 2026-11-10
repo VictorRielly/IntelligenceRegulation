@@ -136,22 +136,23 @@ theorem rs_incPre_len (VI : IncV) (cx0 : IncCtx) (seg : StageSeg) :
   have h5 : (rtIncFrame VI.pub.embDigest (seg.bRoot.getD zeroDig) VI.geo.bRows VI.geo.bLogN).length = 5 := rfl
   omega
 
-/-- **Stage IN-C's `A`: its acceptance facts at an accepted run, given its extraction.** At part `i` (stage IN-C with
-the contract `I`), the opening of the segment read off the bytes (`rtStageOf`) has its root absorbed at
-`off i + 5`, and `A` (its geometry R13's at that root position, its claims read by `rkAccInc`) meets `RhOpW` as soon
-as it meets its extraction there. -/
-theorem rs_inc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+/-- **Stage IN-C's `A`: its acceptance facts at an accepted run, given its extraction, at ANY code geometry `g`** (D63
+lane L48: the stages' openings are at the tier's width `2^12`, finding L45-2). At part `i` (stage IN-C with the contract
+`I`), the opening of the segment read off the bytes (`rtStageOf`) has its root absorbed at `off i + 5`, and `A` (its
+geometry `g`'s at that root position, its claims read by `rkAccInc`) meets `RhOpW` as soon as it meets its extraction
+there, when `A`'s verifier has `g`'s numbers (`RkPcsAt`). -/
+theorem rs_inc_opAG (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
     (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (i : ℕ) (p : RtPart)
     (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG p)
     (hσi : R.σs[i]? = some (rtIncSeg inc incG cx0 p))
     (W : List (TItem × Dig) → IncV) (hW : W ((R.tr G (s, segs)).take (R.pf.off i + p.pre)) = inc s.hdr)
-    (hA : RkPcsR13 U tag I.pA) (lg : List (QB Lq × Dig)) :
+    (g : OGeo) (hg : g.Ok) (hA : RkPcsAt U tag g I.pA) (lg : List (QB Lq × Dig)) :
     ∃ seg : StageSeg, rtStageOf (incG s.hdr) (segs.getD i []) = some seg
       ∧ Block.absAt ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oA)) (R.pf.off i + 5)
           = some seg.core.aRoot.toList
-      ∧ (RhXOk tag Lq h64 key domain hs hL (rkR13 I.pA.rows (R.pf.off i + 5)) lg G
+      ∧ (RhXOk tag Lq h64 key domain hs hL (rkAt g I.pA.rows (R.pf.off i + 5)) lg G
           ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oA)) seg.core.aOpen seg.core.aRoot →
-        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 I.pA.rows (R.pf.off i + 5)) I.nA
+        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt g I.pA.rows (R.pf.off i + 5)) I.nA
           (fun hdr => (rkAccInc W (R.pf.off i + 5) (R.pf.off i + p.pre) hdr).claims.a)
           (R.pf.off i + (R.pf.part i).oA) (R.pf.off i + (R.pf.part i).oBA)
           (R.pf.off i + (R.pf.part i).oA + (I.nA + I.pA.rows)) lg G (R.tr G (s, segs)))) := by
@@ -169,7 +170,7 @@ theorem rs_inc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
   have ht4 := rt_incSlots_tr (liftH G) (inc s.hdr) seg.core _ recs acc t4 hsl hd1 cx0
   rw [I.hPm s.hdr] at h5
   have ht5 := (rt_mask_tr I.tag p.S (liftH G) _ _ _ t4 t5 h5).1
-  have hmA : p.mA = 64 := by rw [← I.hmA]; exact hA.hm U tag
+  have hmA : p.mA = g.mI := by rw [← I.hmA]; exact hA.hm U tag hg.hm
   have hwA : p.wA = I.nA + I.pA.rows := I.hwA.symm
   set u := opsStps (rtIncData (inc s.hdr) cx0 seg).pre ++ mStps p.S seg.core.maskOpen with huDef
   obtain ⟨tk, td, trem, tctr, tst⟩ := rtTr_part key domain Lq R.pf R.rd hv G (s, segs) hgood i p
@@ -208,7 +209,7 @@ theorem rs_inc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
   rw [hpart] at hx ⊢
   have hok := I.pA.hok s.hdr (liftH G) seg.core.aRoot acc.claims.a seg.core.aOpen t5 t6 h6
   rw [hA.htag, hA.hpt, hA.hlc'] at hok
-  have hr13 : (rkR13 I.pA.rows (R.pf.off i + 5)).rows = I.pA.rows := rfl
+  have hr13 : (rkAt g I.pA.rows (R.pf.off i + 5)).rows = I.pA.rows := rfl
   exact
     { tA := t5
       tH := t6
@@ -236,8 +237,8 @@ theorem rs_inc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
       hnQ := by rw [I.pA.hnQ, hA.hQ]; rfl
       hnn := by rw [I.pA.hnn, hA.hN]; rfl
       hpow := by rw [I.pA.hnn]; exact I.pA.hpow
-      hQ0 := by norm_num [rkR13]
-      hm := by norm_num [rkR13]
+      hQ0 := hg.hQ0
+      hm := hg.hm
       hspec := hA.hspec
       hok := hok
       hcnt := hcnt
@@ -248,20 +249,39 @@ theorem rs_inc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
       hcan := hcanC.2.2.1
       hcolX := hx }
 
-/-- **Stage IN-C's `H`** (with the LogUp sum claim among its claims, as the verifier passes them): its root absorbed at
-`off i + 9 + m`, `RhOpW` given its extraction. -/
-theorem rs_inc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+/-- **Stage IN-C's `A` at R13's block geometry** (L45's statement; `rs_inc_opAG` at `ogR13`). -/
+theorem rs_inc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
     (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (i : ℕ) (p : RtPart)
     (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG p)
     (hσi : R.σs[i]? = some (rtIncSeg inc incG cx0 p))
     (W : List (TItem × Dig) → IncV) (hW : W ((R.tr G (s, segs)).take (R.pf.off i + p.pre)) = inc s.hdr)
-    (hH : RkPcsR13 U tag I.pH) (lsc : Block.ZClaim) (hlsc : (inc s.hdr).lay.logupSumClaim = lsc)
+    (hA : RkPcsR13 U tag I.pA) (lg : List (QB Lq × Dig)) :
+    ∃ seg : StageSeg, rtStageOf (incG s.hdr) (segs.getD i []) = some seg
+      ∧ Block.absAt ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oA)) (R.pf.off i + 5)
+          = some seg.core.aRoot.toList
+      ∧ (RhXOk tag Lq h64 key domain hs hL (rkR13 I.pA.rows (R.pf.off i + 5)) lg G
+          ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oA)) seg.core.aOpen seg.core.aRoot →
+        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 I.pA.rows (R.pf.off i + 5)) I.nA
+          (fun hdr => (rkAccInc W (R.pf.off i + 5) (R.pf.off i + p.pre) hdr).claims.a)
+          (R.pf.off i + (R.pf.part i).oA) (R.pf.off i + (R.pf.part i).oBA)
+          (R.pf.off i + (R.pf.part i).oA + (I.nA + I.pA.rows)) lg G (R.tr G (s, segs)))) :=
+  rs_inc_opAG U tag h64 hs hL R hv G s segs hE i p inc incG cx0 I hσi W hW ogR13 ogR13_ok (hA.at U tag) lg
+
+/-- **Stage IN-C's `H`** (with the LogUp sum claim among its claims, as the verifier passes them), at ANY code geometry
+`g` (D63 lane L48): its root absorbed at `off i + 9 + m`, `RhOpW` given its extraction. -/
+theorem rs_inc_opHG (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (i : ℕ) (p : RtPart)
+    (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG p)
+    (hσi : R.σs[i]? = some (rtIncSeg inc incG cx0 p))
+    (W : List (TItem × Dig) → IncV) (hW : W ((R.tr G (s, segs)).take (R.pf.off i + p.pre)) = inc s.hdr)
+    (g : OGeo) (hg : g.Ok) (hH : RkPcsAt U tag g I.pH) (lsc : Block.ZClaim)
+    (hlsc : (inc s.hdr).lay.logupSumClaim = lsc)
     (hPos : ℕ) (hP : hPos = R.pf.off i + (5 + (4 + incHeadDraws (inc s.hdr).pub))) (lg : List (QB Lq × Dig)) :
     ∃ seg : StageSeg, rtStageOf (incG s.hdr) (segs.getD i []) = some seg
       ∧ Block.absAt ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oH)) hPos = some seg.core.hRoot.toList
-      ∧ (RhXOk tag Lq h64 key domain hs hL (rkR13 I.pH.rows hPos) lg G
+      ∧ (RhXOk tag Lq h64 key domain hs hL (rkAt g I.pH.rows hPos) lg G
           ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oH)) seg.core.hOpen seg.core.hRoot →
-        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 I.pH.rows hPos) I.nH
+        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt g I.pH.rows hPos) I.nH
           (fun hdr => (rkAccInc W (R.pf.off i + 5) (R.pf.off i + p.pre) hdr).claims.h ++ [lsc])
           (R.pf.off i + (R.pf.part i).oH) (R.pf.off i + (R.pf.part i).oBH)
           (R.pf.off i + (R.pf.part i).oH + (I.nH + I.pH.rows)) lg G (R.tr G (s, segs)))) := by
@@ -282,7 +302,7 @@ theorem rs_inc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
   have ht5 := (rt_mask_tr I.tag p.S (liftH G) _ _ _ t4 t5 h5).1
   obtain ⟨hcA, hcH, -, -⟩ := I.hcnt s.hdr (liftH G) seg.core _ recs acc t4 hsl hshape.1
   have ht6 := (I.pA.tr s.hdr (liftH G) seg.core.aRoot acc.claims.a seg.core.aOpen t5 t6 h6 I.nA hcA).1
-  have hmH : p.mH = 64 := by rw [← I.hmH]; exact hH.hm U tag
+  have hmH : p.mH = g.mI := by rw [← I.hmH]; exact hH.hm U tag hg.hm
   have hwA : p.wA = I.nA + I.pA.rows := I.hwA.symm
   have hmA : p.mA = I.pA.m := I.hmA.symm
   have hwH : p.wH = I.nH + I.pH.rows := I.hwH.symm
@@ -328,7 +348,7 @@ theorem rs_inc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
     seg.core.hOpen t6 t7 h7
   rw [hH.htag, hH.hpt, hH.hlc', hlsc] at hok
   rw [hlsc] at hcH
-  have hr13 : (rkR13 I.pH.rows hPos).rows = I.pH.rows := rfl
+  have hr13 : (rkAt g I.pH.rows hPos).rows = I.pH.rows := rfl
   exact
     { tA := t6
       tH := t7
@@ -356,8 +376,8 @@ theorem rs_inc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
       hnQ := by rw [I.pH.hnQ, hH.hQ]; rfl
       hnn := by rw [I.pH.hnn, hH.hN]; rfl
       hpow := by rw [I.pH.hnn]; exact I.pH.hpow
-      hQ0 := by norm_num [rkR13]
-      hm := by norm_num [rkR13]
+      hQ0 := hg.hQ0
+      hm := hg.hm
       hspec := hH.hspec
       hok := hok
       hcnt := hcH
@@ -367,6 +387,25 @@ theorem rs_inc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
         rw [hread ((R.tr G (s, segs)).take (R.pf.off i + p.oH)) (rk_take_take_le _ _ _ hle)]
       hcan := hcanC.2.2.2
       hcolX := hx }
+
+/-- **Stage IN-C's `H` at R13's block geometry** (L45's statement; `rs_inc_opHG` at `ogR13`). -/
+theorem rs_inc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (i : ℕ) (p : RtPart)
+    (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG p)
+    (hσi : R.σs[i]? = some (rtIncSeg inc incG cx0 p))
+    (W : List (TItem × Dig) → IncV) (hW : W ((R.tr G (s, segs)).take (R.pf.off i + p.pre)) = inc s.hdr)
+    (hH : RkPcsR13 U tag I.pH) (lsc : Block.ZClaim) (hlsc : (inc s.hdr).lay.logupSumClaim = lsc)
+    (hPos : ℕ) (hP : hPos = R.pf.off i + (5 + (4 + incHeadDraws (inc s.hdr).pub))) (lg : List (QB Lq × Dig)) :
+    ∃ seg : StageSeg, rtStageOf (incG s.hdr) (segs.getD i []) = some seg
+      ∧ Block.absAt ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oH)) hPos = some seg.core.hRoot.toList
+      ∧ (RhXOk tag Lq h64 key domain hs hL (rkR13 I.pH.rows hPos) lg G
+          ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oH)) seg.core.hOpen seg.core.hRoot →
+        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 I.pH.rows hPos) I.nH
+          (fun hdr => (rkAccInc W (R.pf.off i + 5) (R.pf.off i + p.pre) hdr).claims.h ++ [lsc])
+          (R.pf.off i + (R.pf.part i).oH) (R.pf.off i + (R.pf.part i).oBH)
+          (R.pf.off i + (R.pf.part i).oH + (I.nH + I.pH.rows)) lg G (R.tr G (s, segs)))) :=
+  rs_inc_opHG U tag h64 hs hL R hv G s segs hE i p inc incG cx0 I hσi W hW ogR13 ogR13_ok (hH.at U tag) lsc hlsc
+    hPos hP lg
 
 /-- **Stage IN-C's `M`**: its root absorbed at `off i + 8`, the verifier's `MaskOk` on the reader's functionals, and
 `RhMW` given its extraction. -/
@@ -476,20 +515,21 @@ theorem rs_outcPre_len (VO : OutcV) (seg : StageSeg) : 2 + (4 + 2) < (rtOutcData
   have h2 : (rtOutcFrame VO.stageIndex VO.pub.wDigest).length = 2 := rfl
   omega
 
-/-- **Stage OUT-C's `A`**: its root absorbed at `off i + 2`, `RhOpW` given its extraction. -/
-theorem rs_outc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+/-- **Stage OUT-C's `A`** at ANY code geometry `g` (D63 lane L48): its root absorbed at `off i + 2`, `RhOpW` given its
+extraction. -/
+theorem rs_outc_opAG (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
     (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (i : ℕ) (p : RtPart)
     (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom) (O : RtOutc Lq outc outcG p)
     (hσi : R.σs[i]? = some (rtOutcSeg outc outcG p))
     (W : List (TItem × Dig) → OutcV)
     (hW : W ((R.tr G (s, segs)).take (R.pf.off i + p.pre)) = outc s.hdr s.verdict)
-    (hA : RkPcsR13 U tag O.pA) (lg : List (QB Lq × Dig)) :
+    (g : OGeo) (hg : g.Ok) (hA : RkPcsAt U tag g O.pA) (lg : List (QB Lq × Dig)) :
     ∃ seg : StageSeg, rtStageOf (outcG s.hdr) (segs.getD i []) = some seg
       ∧ Block.absAt ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oA)) (R.pf.off i + 2)
           = some seg.core.aRoot.toList
-      ∧ (RhXOk tag Lq h64 key domain hs hL (rkR13 O.pA.rows (R.pf.off i + 2)) lg G
+      ∧ (RhXOk tag Lq h64 key domain hs hL (rkAt g O.pA.rows (R.pf.off i + 2)) lg G
           ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oA)) seg.core.aOpen seg.core.aRoot →
-        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 O.pA.rows (R.pf.off i + 2)) O.nA
+        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt g O.pA.rows (R.pf.off i + 2)) O.nA
           (fun hdr => (rkAccOutc W (R.pf.off i + 2) (R.pf.off i + p.pre) hdr).claims.a)
           (R.pf.off i + (R.pf.part i).oA) (R.pf.off i + (R.pf.part i).oBA)
           (R.pf.off i + (R.pf.part i).oA + (O.nA + O.pA.rows)) lg G (R.tr G (s, segs)))) := by
@@ -505,7 +545,7 @@ theorem rs_outc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
   have ht4 := rt_outcSlots_tr (liftH G) (outc s.hdr s.verdict) seg.core _ ch recs acc t4 hsl hd1
   rw [O.hPm s.hdr s.verdict] at h5
   have ht5 := (rt_mask_tr O.tag p.S (liftH G) _ _ _ t4 t5 h5).1
-  have hmA : p.mA = 64 := by rw [← O.hmA]; exact hA.hm U tag
+  have hmA : p.mA = g.mI := by rw [← O.hmA]; exact hA.hm U tag hg.hm
   have hwA : p.wA = O.nA + O.pA.rows := O.hwA.symm
   set u := opsStps (rtOutcData (outc s.hdr s.verdict) seg).pre ++ mStps p.S seg.core.maskOpen with huDef
   obtain ⟨tk, td, trem, tctr, tst⟩ := rtTr_part key domain Lq R.pf R.rd hv G (s, segs) hgood i p
@@ -543,7 +583,7 @@ theorem rs_outc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
   rw [hpart] at hx ⊢
   have hok := O.pA.hok (s.hdr, s.verdict) (liftH G) seg.core.aRoot acc.claims.a seg.core.aOpen t5 t6 h6
   rw [hA.htag, hA.hpt, hA.hlc'] at hok
-  have hr13 : (rkR13 O.pA.rows (R.pf.off i + 2)).rows = O.pA.rows := rfl
+  have hr13 : (rkAt g O.pA.rows (R.pf.off i + 2)).rows = O.pA.rows := rfl
   exact
     { tA := t5
       tH := t6
@@ -571,8 +611,8 @@ theorem rs_outc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
       hnQ := by rw [O.pA.hnQ, hA.hQ]; rfl
       hnn := by rw [O.pA.hnn, hA.hN]; rfl
       hpow := by rw [O.pA.hnn]; exact O.pA.hpow
-      hQ0 := by norm_num [rkR13]
-      hm := by norm_num [rkR13]
+      hQ0 := hg.hQ0
+      hm := hg.hm
       hspec := hA.hspec
       hok := hok
       hcnt := hcnt
@@ -583,22 +623,41 @@ theorem rs_outc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
       hcan := hcanC.2.2.1
       hcolX := hx }
 
-/-- **Stage OUT-C's `H`** (with the LogUp sum claim): its root absorbed at `off i + 8`, `RhOpW` given its
-extraction. -/
-theorem rs_outc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+/-- **Stage OUT-C's `A` at R13's block geometry** (L45's statement; `rs_outc_opAG` at `ogR13`). -/
+theorem rs_outc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
     (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (i : ℕ) (p : RtPart)
     (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom) (O : RtOutc Lq outc outcG p)
     (hσi : R.σs[i]? = some (rtOutcSeg outc outcG p))
     (W : List (TItem × Dig) → OutcV)
     (hW : W ((R.tr G (s, segs)).take (R.pf.off i + p.pre)) = outc s.hdr s.verdict)
-    (hH : RkPcsR13 U tag O.pH) (lsc : Block.ZClaim) (hlsc : (outc s.hdr s.verdict).lay.logupSumClaim = lsc)
+    (hA : RkPcsR13 U tag O.pA) (lg : List (QB Lq × Dig)) :
+    ∃ seg : StageSeg, rtStageOf (outcG s.hdr) (segs.getD i []) = some seg
+      ∧ Block.absAt ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oA)) (R.pf.off i + 2)
+          = some seg.core.aRoot.toList
+      ∧ (RhXOk tag Lq h64 key domain hs hL (rkR13 O.pA.rows (R.pf.off i + 2)) lg G
+          ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oA)) seg.core.aOpen seg.core.aRoot →
+        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 O.pA.rows (R.pf.off i + 2)) O.nA
+          (fun hdr => (rkAccOutc W (R.pf.off i + 2) (R.pf.off i + p.pre) hdr).claims.a)
+          (R.pf.off i + (R.pf.part i).oA) (R.pf.off i + (R.pf.part i).oBA)
+          (R.pf.off i + (R.pf.part i).oA + (O.nA + O.pA.rows)) lg G (R.tr G (s, segs)))) :=
+  rs_outc_opAG U tag h64 hs hL R hv G s segs hE i p outc outcG O hσi W hW ogR13 ogR13_ok (hA.at U tag) lg
+
+/-- **Stage OUT-C's `H`** (with the LogUp sum claim) at ANY code geometry `g` (D63 lane L48): its root absorbed at
+`off i + 8`, `RhOpW` given its extraction. -/
+theorem rs_outc_opHG (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (i : ℕ) (p : RtPart)
+    (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom) (O : RtOutc Lq outc outcG p)
+    (hσi : R.σs[i]? = some (rtOutcSeg outc outcG p))
+    (W : List (TItem × Dig) → OutcV)
+    (hW : W ((R.tr G (s, segs)).take (R.pf.off i + p.pre)) = outc s.hdr s.verdict)
+    (g : OGeo) (hg : g.Ok) (hH : RkPcsAt U tag g O.pH) (lsc : Block.ZClaim) (hlsc : (outc s.hdr s.verdict).lay.logupSumClaim = lsc)
     (lg : List (QB Lq × Dig)) :
     ∃ seg : StageSeg, rtStageOf (outcG s.hdr) (segs.getD i []) = some seg
       ∧ Block.absAt ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oH)) (R.pf.off i + (2 + (4 + 2)))
           = some seg.core.hRoot.toList
-      ∧ (RhXOk tag Lq h64 key domain hs hL (rkR13 O.pH.rows (R.pf.off i + (2 + (4 + 2)))) lg G
+      ∧ (RhXOk tag Lq h64 key domain hs hL (rkAt g O.pH.rows (R.pf.off i + (2 + (4 + 2)))) lg G
           ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oH)) seg.core.hOpen seg.core.hRoot →
-        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 O.pH.rows (R.pf.off i + (2 + (4 + 2))))
+        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt g O.pH.rows (R.pf.off i + (2 + (4 + 2))))
           O.nH (fun hdr => (rkAccOutc W (R.pf.off i + 2) (R.pf.off i + p.pre) hdr).claims.h ++ [lsc])
           (R.pf.off i + (R.pf.part i).oH) (R.pf.off i + (R.pf.part i).oBH)
           (R.pf.off i + (R.pf.part i).oH + (O.nH + O.pH.rows)) lg G (R.tr G (s, segs)))) := by
@@ -617,7 +676,7 @@ theorem rs_outc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
   have ht5 := (rt_mask_tr O.tag p.S (liftH G) _ _ _ t4 t5 h5).1
   obtain ⟨hcA, hcH, -⟩ := O.hcnt s.hdr s.verdict (liftH G) seg.core _ ch recs acc t4 hsl hshape.1
   have ht6 := (O.pA.tr (s.hdr, s.verdict) (liftH G) seg.core.aRoot acc.claims.a seg.core.aOpen t5 t6 h6 O.nA hcA).1
-  have hmH : p.mH = 64 := by rw [← O.hmH]; exact hH.hm U tag
+  have hmH : p.mH = g.mI := by rw [← O.hmH]; exact hH.hm U tag hg.hm
   have hwA : p.wA = O.nA + O.pA.rows := O.hwA.symm
   have hmA : p.mA = O.pA.m := O.hmA.symm
   have hwH : p.wH = O.nH + O.pH.rows := O.hwH.symm
@@ -662,7 +721,7 @@ theorem rs_outc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
     (acc.claims.h ++ [(outc s.hdr s.verdict).lay.logupSumClaim]) seg.core.hOpen t6 t7 h7
   rw [hH.htag, hH.hpt, hH.hlc', hlsc] at hok
   rw [hlsc] at hcH
-  have hr13 : (rkR13 O.pH.rows (R.pf.off i + (2 + (4 + 2)))).rows = O.pH.rows := rfl
+  have hr13 : (rkAt g O.pH.rows (R.pf.off i + (2 + (4 + 2)))).rows = O.pH.rows := rfl
   exact
     { tA := t6
       tH := t7
@@ -690,8 +749,8 @@ theorem rs_outc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
       hnQ := by rw [O.pH.hnQ, hH.hQ]; rfl
       hnn := by rw [O.pH.hnn, hH.hN]; rfl
       hpow := by rw [O.pH.hnn]; exact O.pH.hpow
-      hQ0 := by norm_num [rkR13]
-      hm := by norm_num [rkR13]
+      hQ0 := hg.hQ0
+      hm := hg.hm
       hspec := hH.hspec
       hok := hok
       hcnt := hcH
@@ -701,6 +760,27 @@ theorem rs_outc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
         rw [hread ((R.tr G (s, segs)).take (R.pf.off i + p.oH)) (rk_take_take_le _ _ _ hle)]
       hcan := hcanC.2.2.2
       hcolX := hx }
+
+/-- **Stage OUT-C's `H` at R13's block geometry** (L45's statement; `rs_outc_opHG` at `ogR13`). -/
+theorem rs_outc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (i : ℕ) (p : RtPart)
+    (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom) (O : RtOutc Lq outc outcG p)
+    (hσi : R.σs[i]? = some (rtOutcSeg outc outcG p))
+    (W : List (TItem × Dig) → OutcV)
+    (hW : W ((R.tr G (s, segs)).take (R.pf.off i + p.pre)) = outc s.hdr s.verdict)
+    (hH : RkPcsR13 U tag O.pH) (lsc : Block.ZClaim) (hlsc : (outc s.hdr s.verdict).lay.logupSumClaim = lsc)
+    (lg : List (QB Lq × Dig)) :
+    ∃ seg : StageSeg, rtStageOf (outcG s.hdr) (segs.getD i []) = some seg
+      ∧ Block.absAt ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oH)) (R.pf.off i + (2 + (4 + 2)))
+          = some seg.core.hRoot.toList
+      ∧ (RhXOk tag Lq h64 key domain hs hL (rkR13 O.pH.rows (R.pf.off i + (2 + (4 + 2)))) lg G
+          ((R.tr G (s, segs)).take (R.pf.off i + (R.pf.part i).oH)) seg.core.hOpen seg.core.hRoot →
+        Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 O.pH.rows (R.pf.off i + (2 + (4 + 2))))
+          O.nH (fun hdr => (rkAccOutc W (R.pf.off i + 2) (R.pf.off i + p.pre) hdr).claims.h ++ [lsc])
+          (R.pf.off i + (R.pf.part i).oH) (R.pf.off i + (R.pf.part i).oBH)
+          (R.pf.off i + (R.pf.part i).oH + (O.nH + O.pH.rows)) lg G (R.tr G (s, segs)))) :=
+  rs_outc_opHG U tag h64 hs hL R hv G s segs hE i p outc outcG O hσi W hW ogR13 ogR13_ok (hH.at U tag) lsc
+    hlsc lg
 
 /-- **Stage OUT-C's `M`**: its root absorbed at `off i + 5`, the verifier's `MaskOk`, `RhMW` given its
 extraction. -/

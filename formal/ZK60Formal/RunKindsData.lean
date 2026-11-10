@@ -40,10 +40,12 @@ open ZK60.Circuit (gP GF)
 
 /-! ## A regular opening's geometry at the run -/
 
-/-- **A regular opening's geometry at the run**: codewords of `2^h` symbols, `Q` queries and pads, decoding radius `e`,
-`rows` rows, `mI` index squeezes, and the position `ipos` at which the run's transcript absorbs the opened root. -/
+/-- **A regular opening's geometry at the run**: codewords of `2^h` symbols, `2^lc` message columns (D63 lane L48:
+the width is a field, finding L45-2), `Q` queries and pads, decoding radius `e`, `rows` rows, `mI` index squeezes, and
+the position `ipos` at which the run's transcript absorbs the opened root. -/
 structure RkGeo where
   h : ℕ
+  lc : ℕ
   Q : ℕ
   e : ℕ
   rows : ℕ
@@ -55,13 +57,13 @@ structure RkGeo where
 structure RkGeo.Ok (g : RkGeo) : Prop where
   hh : g.h ≤ 16
   hQ0 : 0 < g.Q
-  he : 2 * g.e + (2 ^ 14 + g.Q) ≤ 2 ^ g.h
+  he : 2 * g.e + (2 ^ g.lc + g.Q) ≤ 2 ^ g.h
   hεB : (((Fintype.card (Fin (2 ^ g.h)) - (g.e + 1) : ℕ) : ℝ≥0∞) / Fintype.card (Fin (2 ^ g.h))) ^ g.Q * 1
     ≤ (2⁻¹ : ℝ≥0∞) ^ 126
 
-/-- **R13's geometry** (the media app's profile, L28): codewords of `2^16`, `256` queries and pads, radius `24448`, `64`
-index squeezes (`(256 + 3) / 4`). -/
-def rkR13 (rows ipos : ℕ) : RkGeo := ⟨16, 256, 24448, rows, 64, by norm_num, ipos⟩
+/-- **R13's geometry** (the media app's profile, L28): codewords of `2^16`, `2^14` message columns, `256` queries and
+pads, radius `24448`, `64` index squeezes (`(256 + 3) / 4`). -/
+def rkR13 (rows ipos : ℕ) : RkGeo := ⟨16, 14, 256, 24448, rows, 64, by norm_num, ipos⟩
 
 /-- R13's geometry meets the conditions (`2·24448 + 2^14 + 256 = 2^16`; the column round within `2^-126`). -/
 theorem rkR13_ok (rows ipos : ℕ) : (rkR13 rows ipos).Ok where
@@ -69,6 +71,16 @@ theorem rkR13_ok (rows ipos : ℕ) : (rkR13 rows ipos).Ok where
   hQ0 := by norm_num [rkR13]
   he := by norm_num [rkR13]
   hεB := rtOpen_r13_epsB
+
+/-- **An opening's run geometry at a code geometry** (D63 lane L48): `g`'s code, `rows` rows, its root at `ipos`. -/
+def rkAt (g : OGeo) (rows ipos : ℕ) : RkGeo := ⟨g.h, g.lc, g.Q, g.e, rows, g.mI, g.hQm, ipos⟩
+
+/-- It meets the conditions when the code geometry does. -/
+theorem rkAt_ok (g : OGeo) (hg : g.Ok) (rows ipos : ℕ) : (rkAt g rows ipos).Ok :=
+  ⟨hg.hh, hg.hQ0, hg.he, hg.hεB⟩
+
+/-- **R13's run geometry is the one at R13's code geometry.** -/
+theorem rkR13_eq (rows ipos : ℕ) : rkR13 rows ipos = rkAt ogR13 rows ipos := rfl
 
 /-! ## The readers -/
 
@@ -84,13 +96,14 @@ at `vpos`. -/
 noncomputable def rkOpen (g : RkGeo) (nC : ℕ) (clr : List (TItem × Dig) → List Block.ZClaim) (vpos : ℕ) :
     RtOpen K Lq where
   h := g.h
+  lc := g.lc
   Q := g.Q
   e := g.e
   rows := g.rows
   nC := nC
   mI := g.mI
   hQm := g.hQm
-  cl hdr := oclOf U g.rows 14 g.Q nC (groupZclaims ((clr hdr).map toZClaim) g.rows 14)
+  cl hdr := oclOf U g.rows g.lc g.Q nC (groupZclaims ((clr hdr).map toZClaim) g.rows g.lc)
   Ux P hdr := UxW tag Lq h64 key domain hs hL g.h g.ipos g.rows P hdr
   vpos := vpos
 
@@ -205,28 +218,29 @@ variable (pf : RtProf) (ps : ℕ → RkPart K Lq) (acc : ℕ → List (TItem × 
 /-- **`A`'s claims at a header are those of the accumulator the part's reader returns there.** -/
 theorem rkData_opA_cl (i : ℕ) (hdr : List (TItem × Dig)) (a : Block.Acc) (h : acc i hdr = a) :
     ((rkData U tag Lq h64 key domain hs hL pf ps acc lsc eL).opA i).cl hdr
-      = oclOf U (ps i).gA.rows 14 (ps i).gA.Q (ps i).nA (groupZclaims (a.claims.a.map toZClaim) (ps i).gA.rows 14) := by
-  show oclOf U (ps i).gA.rows 14 (ps i).gA.Q (ps i).nA
-      (groupZclaims ((acc i hdr).claims.a.map toZClaim) (ps i).gA.rows 14) = _
+      = oclOf U (ps i).gA.rows (ps i).gA.lc (ps i).gA.Q (ps i).nA
+          (groupZclaims (a.claims.a.map toZClaim) (ps i).gA.rows (ps i).gA.lc) := by
+  show oclOf U (ps i).gA.rows (ps i).gA.lc (ps i).gA.Q (ps i).nA
+      (groupZclaims ((acc i hdr).claims.a.map toZClaim) (ps i).gA.rows (ps i).gA.lc) = _
   rw [h]
 
 /-- **`H`'s claims** (with the part's LogUp sum claim, as the verifier passes them). -/
 theorem rkData_opH_cl (i : ℕ) (hdr : List (TItem × Dig)) (a : Block.Acc) (h : acc i hdr = a) :
     ((rkData U tag Lq h64 key domain hs hL pf ps acc lsc eL).opH i).cl hdr
-      = oclOf U (ps i).gH.rows 14 (ps i).gH.Q (ps i).nH
-          (groupZclaims ((a.claims.h ++ [lsc i]).map toZClaim) (ps i).gH.rows 14) := by
-  show oclOf U (ps i).gH.rows 14 (ps i).gH.Q (ps i).nH
-      (groupZclaims (((acc i hdr).claims.h ++ [lsc i]).map toZClaim) (ps i).gH.rows 14) = _
+      = oclOf U (ps i).gH.rows (ps i).gH.lc (ps i).gH.Q (ps i).nH
+          (groupZclaims ((a.claims.h ++ [lsc i]).map toZClaim) (ps i).gH.rows (ps i).gH.lc) := by
+  show oclOf U (ps i).gH.rows (ps i).gH.lc (ps i).gH.Q (ps i).nH
+      (groupZclaims (((acc i hdr).claims.h ++ [lsc i]).map toZClaim) (ps i).gH.rows (ps i).gH.lc) = _
   rw [h]
 
 /-- **The closing commitment's claims**: the previous part's outgoing claims, then the part's incoming ones. -/
 theorem rkData_opX_cl (i : ℕ) (hdr : List (TItem × Dig)) (pend : List Block.ZClaim) (a : Block.Acc)
     (hp : rkPend acc i hdr = pend) (h : acc i hdr = a) :
     ((rkData U tag Lq h64 key domain hs hL pf ps acc lsc eL).opX i).cl hdr
-      = oclOf U (ps i).gX.rows 14 (ps i).gX.Q (ps i).nX
-          (groupZclaims ((pend ++ a.claims.inp).map toZClaim) (ps i).gX.rows 14) := by
-  show oclOf U (ps i).gX.rows 14 (ps i).gX.Q (ps i).nX
-      (groupZclaims ((rkPend acc i hdr ++ (acc i hdr).claims.inp).map toZClaim) (ps i).gX.rows 14) = _
+      = oclOf U (ps i).gX.rows (ps i).gX.lc (ps i).gX.Q (ps i).nX
+          (groupZclaims ((pend ++ a.claims.inp).map toZClaim) (ps i).gX.rows (ps i).gX.lc) := by
+  show oclOf U (ps i).gX.rows (ps i).gX.lc (ps i).gX.Q (ps i).nX
+      (groupZclaims ((rkPend acc i hdr ++ (acc i hdr).claims.inp).map toZClaim) (ps i).gX.rows (ps i).gX.lc) = _
   rw [hp, h]
 
 /-- **`M`'s data**: `mDataOf` of the accumulator's functionals and the extracted table. -/

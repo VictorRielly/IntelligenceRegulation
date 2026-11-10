@@ -77,7 +77,8 @@ include hU in
 transcript `τ` from the opening's window `aO` on is the trace of the opening's steps (`nC + rows` batching squeezes,
 the group vectors, `"pcs-prox"`, `mI` index squeezes) on the transcript `tA`, then anything; the parse `W` is a step's
 end at the window and agrees with those steps from the window's counter; the verifier's `PcsOk` holds on `tA` at
-parameters with `log_cols 14`, `Q` queries and pads, codeword length `2^h`, a column evaluator meeting `ColEncSpec`,
+parameters with `log_cols` the geometry's width `g.lc` (`14` at the blocks; D63 lane L48), `Q` queries and pads,
+codeword length `2^h`, a column evaluator meeting `ColEncSpec` at the width's row form `RWL g.lc`,
 on the claims `cl` the opening's reader returns at its window; the vectors are canonical; and every opened column that
 verifies against the root is the column extracted for the root the header absorbs at `ipos`. Then the opening's
 `opB` (at its windows `aO` and `aB`, group vectors at `vpos`) is alive at the end of `τ`. -/
@@ -89,12 +90,12 @@ theorem rh_opB_alive (W : UInt64 → ℕ) (g : RkGeo) (nC : ℕ) (clr : List (TI
     (hpre : tRem W (τ.take aO) = some 0) (hctr : tA.counter = UInt64.ofNat c)
     (hst : StpOK W (UInt64.ofNat c) (pcsStps (nC + g.rows) g.mI zo ++ rs))
     (hvpos : vpos = aO + (nC + g.rows)) (haB : aB = aO + (nC + g.rows + zo.groupVecs.length))
-    (prm : PcsPrm) (ev : Fp → List (List Fp2) → List Fp2) (hlc : prm.logCols = 14)
+    (prm : PcsPrm) (ev : Fp → List (List Fp2) → List Fp2) (hlc : prm.logCols = g.lc)
     (hqp : prm.qPad = g.Q) (hnQ : prm.nQ = g.Q) (hnn : prm.nn = 2 ^ g.h) (hpow : isPow2 prm.nn = true)
     (hQ0 : 0 < g.Q) (hm : (g.Q + 3) / 4 = g.mI)
-    (hspec : ColEncSpec U (RW (K := K)) g.Q (cosetPt (rootFp g.h)) ev)
+    (hspec : ColEncSpec U (RWL (K := K) g.lc) g.Q (cosetPt (rootFp g.h)) ev)
     (cl : List Block.ZClaim) (root : Dig)
-    (hok : PcsOk (liftH G) tag prm (cosetPt (rootFp g.h)) ev root g.rows 14 (cl.map toZClaim) (toOZ zo) tA tH)
+    (hok : PcsOk (liftH G) tag prm (cosetPt (rootFp g.h)) ev root g.rows g.lc (cl.map toZClaim) (toOZ zo) tA tH)
     (hcnt : cl.length = nC) (hrd : clr (τ.take aO) = cl) (hcan : Block.HidingCanon zo)
     (hcolX : ∀ (k : ℕ), k < g.Q → k < zo.columns.length →
       ((toOZ zo).columns.getD k (0, [], zeroDig, [])).2.2.2.length = g.h →
@@ -119,21 +120,21 @@ theorem rh_opB_alive (W : UInt64 → ℕ) (g : RkGeo) (nC : ℕ) (clr : List (TI
   have hch : τ = pre ++ opTrace (liftH G) tA (stpsOps (pcsStps (nC + g.rows) g.mI zo)) ++ rest := by
     conv_lhs => rw [← List.take_append_drop aO τ]
     rw [hdrop, stpsOps_append, Block.opTrace_append, List.append_assoc]
-  have hnC : nMem (groupZclaims (cl.map toZClaim) g.rows 14) = nC := by
+  have hnC : nMem (groupZclaims (cl.map toZClaim) g.rows g.lc) = nC := by
     unfold nMem
     rw [groupZclaims_count, List.length_map, hcnt]
   have htP' : (absorbVecs (liftH G) (toOZ zo).groupVecs (zkRhosAux (liftH G) g.rows
-      (groupZclaims (cl.map toZClaim) g.rows 14) tA).2.2).absorbFp2 (liftH G) pcsProxLabel (toOZ zo).proxVec = tP := by
+      (groupZclaims (cl.map toZClaim) g.rows g.lc) tA).2.2).absorbFp2 (liftH G) pcsProxLabel (toOZ zo).proxVec = tP := by
     rw [htP, zkRhosAux_tr', hnC, runOps_vecStps]
     rfl
   -- the opening's checks, with the numbers named
-  obtain ⟨hpath, h3, hgl, h4, -, hcl, hco⟩ := pcsOk_named (liftH G) tag prm _ _ root g.rows 14 _ (toOZ zo) tA tH hok
+  obtain ⟨hpath, h3, hgl, h4, -, hcl, hco⟩ := pcsOk_named (liftH G) tag prm _ _ root g.rows g.lc _ (toOZ zo) tA tH hok
     g.Q (2 ^ g.h) g.mI hqp hnQ hnn (by rw [← hnn]; exact hpow) hQ0 hm
   rw [htP'] at hco
   have hJ : ∀ k : Fin g.Q,
       ((idxCode g.h g.hQm (vecOf dg0 g.mI ((sqDs (liftH G) tP g.mI).map halves)) k : Fin (2 ^ g.h)) : ℕ)
         = (idxOf prm.nn g.Q (sqDs (liftH G) ((absorbVecs (liftH G) (toOZ zo).groupVecs
-          (zkRhosAux (liftH G) g.rows (groupZclaims (cl.map toZClaim) g.rows 14) tA).2.2).absorbFp2 (liftH G)
+          (zkRhosAux (liftH G) g.rows (groupZclaims (cl.map toZClaim) g.rows g.lc) tA).2.2).absorbFp2 (liftH G)
             pcsProxLabel (toOZ zo).proxVec) g.mI)).getD k 0 := by
     intro k
     rw [htP', hnn]
@@ -160,39 +161,39 @@ theorem rh_opB_alive (W : UInt64 → ℕ) (g : RkGeo) (nC : ℕ) (clr : List (TI
         Fp.zero).toGF = _
     rw [← hk1]
     exact congrArg (fun o : Option (List Fp) => algebraMap GF K ((o.getD []).getD r Fp.zero).toGF) hx
-  have hGA := pcsOk_groupsAccept' U hU (liftH G) tag prm (cosetPt (rootFp g.h)) ev 14 g.Q (2 ^ g.h) g.rows g.mI hlc
-    hqp hnQ hm hpow hQ0 RW hspec root (cl.map toZClaim) (toOZ zo) tA tH hok (ptsG g.h) (fun _ => rfl)
+  have hGA := pcsOk_groupsAccept' U hU (liftH G) tag prm (cosetPt (rootFp g.h)) ev g.lc g.Q (2 ^ g.h) g.rows g.mI hlc
+    hqp hnQ hm hpow hQ0 (RWL g.lc) hspec root (cl.map toZClaim) (toOZ zo) tA tH hok (ptsG g.h) (fun _ => rfl)
     (idxCode g.h g.hQm (vecOf dg0 g.mI ((sqDs (liftH G) tP g.mI).map halves))) hJ
     (UxW tag Lq h64 key domain hs hL g.h g.ipos g.rows P pre) hcols nC hnC
   have hlr := lrCode_sqDs U hbij nC g.rows (sqDs (liftH G) tA (nC + g.rows)) (sqDs_length _ _ _)
-  have hdec := proxDec_enc U zo.proxVec hcan.2.1 (2 ^ 14 + g.Q) h4
+  have hdec := proxDec_enc U zo.proxVec hcan.2.1 (2 ^ g.lc + g.Q) h4
   have hcl' : (rkOpen U tag Lq h64 key domain hs hL g nC clr vpos).cl pre
-      = oclOf U g.rows 14 g.Q nC (groupZclaims (cl.map toZClaim) g.rows 14) := by
-    show oclOf U g.rows 14 g.Q nC (groupZclaims ((clr pre).map toZClaim) g.rows 14) = _
+      = oclOf U g.rows g.lc g.Q nC (groupZclaims (cl.map toZClaim) g.rows g.lc) := by
+    show oclOf U g.rows g.lc g.Q nC (groupZclaims ((clr pre).map toZClaim) g.rows g.lc) = _
     rw [hrd]
-  have hv : ∀ gg ∈ Set.range (oclOf U g.rows 14 g.Q nC (groupZclaims (cl.map toZClaim) g.rows 14)).grp,
-      (fun (gg : ℕ) (_ : Fin nC → K) (_ : Fin g.rows → K) => vecK U (2 ^ 14 + g.Q) ((toOZ zo).groupVecs.getD gg [])) gg
-        = (fun (gg : ℕ) (_ : Fin nC → K) (_ : Fin g.rows → K) => vRd U (2 ^ 14 + g.Q) vpos
+  have hv : ∀ gg ∈ Set.range (oclOf U g.rows g.lc g.Q nC (groupZclaims (cl.map toZClaim) g.rows g.lc)).grp,
+      (fun (gg : ℕ) (_ : Fin nC → K) (_ : Fin g.rows → K) => vecK U (2 ^ g.lc + g.Q) ((toOZ zo).groupVecs.getD gg [])) gg
+        = (fun (gg : ℕ) (_ : Fin nC → K) (_ : Fin g.rows → K) => vRd U (2 ^ g.lc + g.Q) vpos
           (pre ++ opTrace (liftH G) tA (List.replicate (nC + g.rows) Op.squeeze ++ stpsOps (vecStps zo.groupVecs)))
             gg) gg := by
     rintro gg ⟨p, rfl⟩
-    have hgp : (oclOf U g.rows 14 g.Q nC (groupZclaims (cl.map toZClaim) g.rows 14)).grp p < zo.groupVecs.length :=
-      lt_of_lt_of_eq (oclOf_grp_lt' U g.rows 14 g.Q nC _ hnC p) h3.symm
+    have hgp : (oclOf U g.rows g.lc g.Q nC (groupZclaims (cl.map toZClaim) g.rows g.lc)).grp p < zo.groupVecs.length :=
+      lt_of_lt_of_eq (oclOf_grp_lt' U g.rows g.lc g.Q nC _ hnC p) h3.symm
     funext _ _
     have hvt := vRd_trace U (liftH G) pre [] tA (nC + g.rows) zo.groupVecs _ hgp
-      (hcan.1 _ (mem_of_getD_lt _ _ hgp _)) (2 ^ 14 + g.Q) (hgl _ hgp)
+      (hcan.1 _ (mem_of_getD_lt _ _ hgp _)) (2 ^ g.lc + g.Q) (hgl _ hgp)
     rw [List.append_nil, hpl, ← hvpos] at hvt
     exact hvt.symm
   have hacc := groupsAccept_congr_v _ _ _ _ _ _ _ _ _ _ _ _ hv hGA
   rw [← hcl'] at hacc
-  have hacc' : GroupsAccept (encG (K := K) g.h g.Q) (UxW tag Lq h64 key domain hs hL g.h g.ipos g.rows P pre)
+  have hacc' : GroupsAccept (encGL (K := K) g.lc g.h g.Q) (UxW tag Lq h64 key domain hs hL g.h g.ipos g.rows P pre)
       ((rkOpen U tag Lq h64 key domain hs hL g nC clr vpos).cl pre).rw
       ((rkOpen U tag Lq h64 key domain hs hL g nC clr vpos).cl pre).cw
       ((rkOpen U tag Lq h64 key domain hs hL g nC clr vpos).cl pre).grp
       ((rkOpen U tag Lq h64 key domain hs hL g nC clr vpos).cl pre).val
-      (fun gg _ _ => vRd U (2 ^ 14 + g.Q) vpos
+      (fun gg _ _ => vRd U (2 ^ g.lc + g.Q) vpos
         (pre ++ opTrace (liftH G) tA (List.replicate (nC + g.rows) Op.squeeze ++ stpsOps (vecStps zo.groupVecs))) gg)
-      (fun _ _ => vecK U (2 ^ 14 + g.Q) zo.proxVec)
+      (fun _ _ => vecK U (2 ^ g.lc + g.Q) zo.proxVec)
       (lrCode gP (Equiv.ofBijective _ hbij) (finSumFinEquiv.symm : Fin (nC + g.rows) ≃ Fin nC ⊕ Fin g.rows)
         (vecOf dg0 (nC + g.rows) ((sqDs (liftH G) tA (nC + g.rows)).map halves))).1
       (lrCode gP (Equiv.ofBijective _ hbij) (finSumFinEquiv.symm : Fin (nC + g.rows) ≃ Fin nC ⊕ Fin g.rows)
@@ -201,13 +202,13 @@ theorem rh_opB_alive (W : UInt64 → ℕ) (g : RkGeo) (nC : ℕ) (clr : List (TI
     rw [hlr]
     exact hacc
   obtain ⟨-, -, s3⟩ := pcs_subSt_of_acc (liftH G) W (nC + g.rows) g.mI hw0 hm0 zo tA hW1' hW2 pre rest hpre
-    (encG (K := K) g.h g.Q) g.e (rkOpen U tag Lq h64 key domain hs hL g nC clr vpos).cl
+    (encGL (K := K) g.lc g.h g.Q) g.e (rkOpen U tag Lq h64 key domain hs hL g nC clr vpos).cl
     (UxW tag Lq h64 key domain hs hL g.h g.ipos g.rows P)
-    (vRd U (2 ^ 14 + g.Q) vpos) dg0
+    (vRd U (2 ^ g.lc + g.Q) vpos) dg0
     (lrCode gP (Equiv.ofBijective _ hbij) (finSumFinEquiv.symm : Fin (nC + g.rows) ≃ Fin nC ⊕ Fin g.rows))
-    (idxCode g.h g.hQm) (proxDec U (2 ^ 14 + g.Q))
+    (idxCode g.h g.hQm) (proxDec U (2 ^ g.lc + g.Q))
     ((((Fintype.card (Fin (2 ^ g.h)) - (g.e + 1) : ℕ) : ℝ≥0∞) / Fintype.card (Fin (2 ^ g.h))) ^ g.Q * 1)
-    (vecK U (2 ^ 14 + g.Q) zo.proxVec) hdec hacc'
+    (vecK U (2 ^ g.lc + g.Q) zo.proxVec) hdec hacc'
   rw [hpl, ← haB, ← hch] at s3
   exact s3
 
@@ -233,15 +234,15 @@ structure RhOpW (W : UInt64 → ℕ) (g : RkGeo) (nC : ℕ) (clr : List (TItem �
   hst : StpOK W (UInt64.ofNat c) (pcsStps (nC + g.rows) g.mI zo ++ rs)
   hvpos : vpos = aO + (nC + g.rows)
   haB : aB = aO + (nC + g.rows + zo.groupVecs.length)
-  hlc : prm.logCols = 14
+  hlc : prm.logCols = g.lc
   hqp : prm.qPad = g.Q
   hnQ : prm.nQ = g.Q
   hnn : prm.nn = 2 ^ g.h
   hpow : isPow2 prm.nn = true
   hQ0 : 0 < g.Q
   hm : (g.Q + 3) / 4 = g.mI
-  hspec : ColEncSpec U (RW (K := K)) g.Q (cosetPt (rootFp g.h)) ev
-  hok : PcsOk (liftH G) tag prm (cosetPt (rootFp g.h)) ev root g.rows 14 (cl.map toZClaim) (toOZ zo) tA tH
+  hspec : ColEncSpec U (RWL (K := K) g.lc) g.Q (cosetPt (rootFp g.h)) ev
+  hok : PcsOk (liftH G) tag prm (cosetPt (rootFp g.h)) ev root g.rows g.lc (cl.map toZClaim) (toOZ zo) tA tH
   hcnt : cl.length = nC
   hrd : clr (τ.take aO) = cl
   hcan : Block.HidingCanon zo

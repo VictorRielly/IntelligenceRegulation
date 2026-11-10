@@ -1,0 +1,2 @@
+build ZK60Formal.ProtocolClassifyEP ZK60Formal.RunOpenGeoStageX
+build ZK60Formal.RunOpenGeoEP

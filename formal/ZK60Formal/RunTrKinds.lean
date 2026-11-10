@@ -36,6 +36,7 @@ Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunTrSched
 import ZK60Formal.LinkW16GlueR13
+import ZK60Formal.RunOpenGeo
 
 set_option autoImplicit false
 
@@ -326,43 +327,45 @@ noncomputable def RtKPart.ofMask (absOf : QB Lq → Option (List UInt8)) (W : UI
 
 /-! ### A regular opening -/
 
-/-- **A regular opening of the run, in L28's form**: its geometry `(h, Q, e)` (codewords of `2^h` symbols, `2^14`
-message columns, `Q` queries and pads, radius `e`), its rows, its number of claims, its index squeezes, the claims it
-checks as a function of its header, the matrix extracted for its root from the prover's log, and the position of its
-group vectors. -/
+/-- **A regular opening of the run, in L28's form**: its geometry `(h, lc, Q, e)` (codewords of `2^h` symbols, `2^lc`
+message columns, `Q` queries and pads, radius `e`; the blocks' `lc = 14`, the stages' `12`, the input endpoint's `8`:
+D63 lane L48, finding L45-2), its rows, its number of claims, its index squeezes, the claims it checks as a function of
+its header, the matrix extracted for its root from the prover's log, and the position of its group vectors. -/
 structure RtOpen (K : Type) (Lq : ℕ) where
   h : ℕ
+  lc : ℕ
   Q : ℕ
   e : ℕ
   rows : ℕ
   nC : ℕ
   mI : ℕ
   hQm : Q ≤ mI * 4
-  cl : List (TItem × Dig) → OClaims (Fin nC) ℕ (Fin rows) (Fin (2 ^ 14 + Q)) K
+  cl : List (TItem × Dig) → OClaims (Fin nC) ℕ (Fin rows) (Fin (2 ^ lc + Q)) K
   Ux : List (QB Lq × Dig) → List (TItem × Dig) → Fin rows → Fin (2 ^ h) → K
   vpos : ℕ
 
-/-- **The opening's first half at its window `aO`** (L20's `opACSub`, with the arguments of L28's `evOW_bound`). -/
+/-- **The opening's first half at its window `aO`** (L20's `opACSub`, with the arguments of L28's `evOW_bound`, at the
+opening's width: `encGL`, L48). -/
 noncomputable def RtOpen.opA (o : RtOpen K Lq) (aO : ℕ) (P : List (QB Lq × Dig)) : CSub Dig :=
-  opACSub (encG (K := K) o.h o.Q) o.e o.cl (o.Ux P) dg0 (o.nC + o.rows)
+  opACSub (encGL (K := K) o.lc o.h o.Q) o.e o.cl (o.Ux P) dg0 (o.nC + o.rows)
     (lrCode gP (Equiv.ofBijective _ hbij) (finSumFinEquiv.symm : Fin (o.nC + o.rows) ≃ Fin o.nC ⊕ Fin o.rows)) aO
     (((2 ^ o.h : ℕ) : ℝ≥0∞) / Fintype.card K * (1 + (gP : ℝ≥0∞) / ((2 ^ 128 : ℕ) : ℝ≥0∞)) ^ (2 * (o.nC + o.rows)))
 
 /-- **The opening's second half at its windows `aO`, `aB`** (L20's `opBCSub`, with the arguments of L28's `EvOW`), read
 under the step parse `W`. -/
 noncomputable def RtOpen.opB (W : UInt64 → ℕ) (o : RtOpen K Lq) (aO aB : ℕ) (P : List (QB Lq × Dig)) : CSub Dig :=
-  opBCSub W aO (o.nC + o.rows) (encG (K := K) o.h o.Q) o.e o.cl (o.Ux P) (vRd U (2 ^ 14 + o.Q) o.vpos) dg0
+  opBCSub W aO (o.nC + o.rows) (encGL (K := K) o.lc o.h o.Q) o.e o.cl (o.Ux P) (vRd U (2 ^ o.lc + o.Q) o.vpos) dg0
     (lrCode gP (Equiv.ofBijective _ hbij) (finSumFinEquiv.symm : Fin (o.nC + o.rows) ≃ Fin o.nC ⊕ Fin o.rows)) o.mI
-    (idxCode o.h o.hQm) Block.labPcsProx (proxDec U (2 ^ 14 + o.Q)) aB
+    (idxCode o.h o.hQm) Block.labPcsProx (proxDec U (2 ^ o.lc + o.Q)) aB
     ((((Fintype.card (Fin (2 ^ o.h)) - (o.e + 1) : ℕ) : ℝ≥0∞) / Fintype.card (Fin (2 ^ o.h))) ^ o.Q * 1)
 
 /-- **An opening's side conditions**: `h ≤ 16`, at least one query, the unique-decoding radius
-(`2e + (2^14 + Q) ≤ 2^h`), a batching run of at most `2^61` squeezes, the column round within `2^-126`, and an
+(`2e + (2^lc + Q) ≤ 2^h`), a batching run of at most `2^61` squeezes, the column round within `2^-126`, and an
 extracted matrix that reads the log through cuts. -/
 structure RtOpen.Valid (o : RtOpen K Lq) (absOf : QB Lq → Option (List UInt8)) : Prop where
   hh : o.h ≤ 16
   hQ0 : 0 < o.Q
-  he : 2 * o.e + (2 ^ 14 + o.Q) ≤ 2 ^ o.h
+  he : 2 * o.e + (2 ^ o.lc + o.Q) ≤ 2 ^ o.h
   hw : o.nC + o.rows ≤ 2 ^ 61
   hεB : (((Fintype.card (Fin (2 ^ o.h)) - (o.e + 1) : ℕ) : ℝ≥0∞) / Fintype.card (Fin (2 ^ o.h))) ^ o.Q * 1
     ≤ (2⁻¹ : ℝ≥0∞) ^ 126
@@ -382,9 +385,11 @@ theorem RtOpen.opA_rbr (o : RtOpen K Lq) (absOf : QB Lq → Option (List UInt8))
   have h2 := hv.hQ0
   have h3 := hv.he
   have hpts := ptsG_injective (K := K) o.h (by omega)
-  have hd := encLin_minDist (Q := o.Q) (ptsG (K := K) o.h) hpts RW (by norm_num)
-  have hca := encLin_caOn (Q := o.Q) (e := o.e) (ptsG (K := K) o.h) hpts RW (by norm_num) (by omega)
-  exact opACSub_rbr (encG (K := K) o.h o.Q) hd (by omega) (by omega) hca o.cl (o.Ux P) dg0 (o.nC + o.rows)
+  have hs := og_side (n := 2 ^ o.lc) h2 h3
+  have hd := encLin_minDist (Q := o.Q) (ptsG (K := K) o.h) hpts (RWL o.lc) (Nat.two_pow_pos o.lc)
+  have hca := encLin_caOn (Q := o.Q) (e := o.e) (ptsG (K := K) o.h) hpts (RWL o.lc) (Nat.two_pow_pos o.lc)
+    hs.2.1
+  exact opACSub_rbr (encGL (K := K) o.lc o.h o.Q) hd hs.1 hs.2.2.2 hca o.cl (o.Ux P) dg0 (o.nC + o.rows)
     (lrCode gP (Equiv.ofBijective _ hbij) (finSumFinEquiv.symm : Fin (o.nC + o.rows) ≃ Fin o.nC ⊕ Fin o.rows)) _
     (lrCode_prob_le gP (Equiv.ofBijective _ hbij) _) aO
 
@@ -398,11 +403,13 @@ theorem RtOpen.opB_rbr (W : UInt64 → ℕ) (o : RtOpen K Lq) (absOf : QB Lq →
   have h2 := hv.hQ0
   have h3 := hv.he
   have hpts := ptsG_injective (K := K) o.h (by omega)
-  have hd := encLin_minDist (Q := o.Q) (ptsG (K := K) o.h) hpts RW (by norm_num)
-  exact opBCSub_rbr W aO (o.nC + o.rows) (encG (K := K) o.h o.Q) (encG_injective o.h o.Q (by omega) (by omega)) hd
-    (by omega) o.cl (o.Ux P) (vRd U (2 ^ 14 + o.Q) o.vpos) dg0
+  have hs := og_side (n := 2 ^ o.lc) h2 h3
+  have hd := encLin_minDist (Q := o.Q) (ptsG (K := K) o.h) hpts (RWL o.lc) (Nat.two_pow_pos o.lc)
+  exact opBCSub_rbr W aO (o.nC + o.rows) (encGL (K := K) o.lc o.h o.Q)
+    (encGL_injective o.lc o.h o.Q (by omega) hs.2.2.1) hd
+    hs.1 o.cl (o.Ux P) (vRd U (2 ^ o.lc + o.Q) o.vpos) dg0
     (lrCode gP (Equiv.ofBijective _ hbij) (finSumFinEquiv.symm : Fin (o.nC + o.rows) ≃ Fin o.nC ⊕ Fin o.rows)) o.mI
-    (idxCode o.h o.hQm) 1 (idxCode_prob_le (by omega) o.hQm) Block.labPcsProx (proxDec U (2 ^ 14 + o.Q)) aB
+    (idxCode o.h o.hQm) 1 (idxCode_prob_le (by omega) o.hQm) Block.labPcsProx (proxDec U (2 ^ o.lc + o.Q)) aB
 
 omit [Field K] [Algebra GF K] [DecidableEq K] in
 /-- **`opA`'s error is within `2^-110`** for `h ≤ 16` (L28's `opA_eps_r13`: `|K| = p²`, at most `2^61` batching

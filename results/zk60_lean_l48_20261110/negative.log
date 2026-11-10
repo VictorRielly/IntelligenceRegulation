@@ -1,0 +1,23 @@
+ok   case 00 (positive: unchanged): exit 0, RunOpenGeoCheck: 29 checks, 0 failed
+ok   case 01 (corpus: IN-C tier stage_log_n 12 -> 13): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL CORPUS: the run's tier: stage_log_n 13 (IN-C), 12 (OUT-C); Lean tierR1 12
+ok   case 02 (corpus: tier ep_log_n 8 -> 9): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL CORPUS: the run's tier: ep_log_n 9; Lean tierR1 8
+ok   case 03 (corpus: OUT-C tier stage_log_n 12 -> 14): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL CORPUS: the run's tier: stage_log_n 12 (IN-C), 14 (OUT-C); Lean tierR1 12
+ok   case 04 (corpus: IN-C A/H encoded columns 16384 -> 32768): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL STAGE: IN-C's A/H Dim (checks, n+q_pad, enc cols, path) = (256, 4352, 32768, 14); Lean ogStage (256, (4352, (16384, 14)))
+ok   case 05 (corpus: IN-C A/H vector length 4352 -> 4608): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL STAGE: IN-C's A/H Dim (checks, n+q_pad, enc cols, path) = (256, 4608, 16384, 14); Lean ogStage (256, (4352, (16384, 14)))
+ok   case 06 (corpus: endpoint encoded columns 2048 -> 4096): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL ENDPOINT: the input endpoint's Dim = (256, 512, 4096, 11); Lean ogEp (256, (512, (2048, 11)))
+ok   case 07 (corpus: endpoint path depth 11 -> 12): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL ENDPOINT: the input endpoint's Dim = (256, 512, 2048, 12); Lean ogEp (256, (512, (2048, 11)))
+ok   case 08 (corpus: endpoint log inverse rate 3 -> 2): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL ENDPOINT: the input endpoint's log inverse rate 2, column checks 256; Lean ogEp 3, 256
+ok   case 09 (corpus: endpoint column checks 256 -> 280): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL ENDPOINT: the input endpoint's log inverse rate 3, column checks 280; Lean ogEp 3, 256
+ok   case 10 (corpus: OUT-C A/H vector length 4352 -> 16640): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL STAGE: OUT-C's A/H Dim = (256, 16640, 16384, 14); Lean ogStage (256, (4352, (16384, 14)))
+ok   case 11 (corpus: endpoint data rows 1 -> 2): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL ENDPOINT: the input endpoint's rows: 2 data rows of 2^8 words = 256 words, 6 committed (data + MASK_ROWS 5)
+ok   case 12 (source: R1_MVP stage_log_n 12 -> 13): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: R1_MVP.stage_log_n (some 13); Lean 12
+ok   case 13 (source: R1_MVP ep_inv_rate 8 -> 4): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: R1_MVP.ep_inv_rate (some 4); Lean 8
+ok   case 14 (source: R1_MVP opened_cols 256 -> 280): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: R1_MVP.opened_cols (some 280); Lean 256
+ok   case 15 (source: a second registered tier): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: token_io.rs: R1_MVP is the ONLY registered tier
+ok   case 16 (source: input endpoint at the stage geometry): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: classify.rs: input_endpoint_spec commits the input at t.ep_log_n, t.ep_inv_rate, t.opened_cols
+ok   case 17 (source: the tier door removed): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: classify.rs: the classifier door refuses an unregistered tier
+ok   case 18 (source: stage IN-C at ep_log_n): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: stage_in_c.rs: stage IN-C's A, H at tier.stage_log_n, tier.stage_params()
+ok   case 19 (source: pads != opened columns): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: zkp-core pcs.rs: ZkOpts::standard: pads = opened columns, coset 7
+ok   case 20 (source: six endpoint mask rows): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: endpoint_g.rs: the endpoint's PCS parameters, five mask rows, ZkOpts::standard
+ok   case 21 (source: R13 T128 log_cols 14 -> 13): exit 1, RunOpenGeoCheck: 29 checks, 1 failed; first refusal: FAIL SOURCE: shape.rs: R13_SHIELD_T128_H24 log_cols (some 13); Lean ogR13 14
+l48_negative: 22 cases, all as required
