@@ -1,0 +1,5 @@
+declarations in {BlockR13LookLk,BlockR13LookBase,BlockR13LookCov,BlockR13LookSum,BlockR13LookRel}*.lean: 189
+declared twice inside the lane: none
+worktrees read: 41
+other Lean files read (with repeats across worktrees): 4686
+clashes: 0
