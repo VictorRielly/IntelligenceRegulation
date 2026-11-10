@@ -13,7 +13,7 @@ data. NOT done for `ΦI`, `ΦO`, `ΛI`, `ΛO` (their exact shapes are written in
 (reduced to the run-level facts `StgTrueAt`, the same link the blocks still lack); NOT done for `StgDefAt`, `StgLkAt`,
 `StgDoomAt`. Deliverable 3: the count CHECKED at the app's profile (15 squeezes) and `hD`'s count condition PROVED as
 arithmetic at the model's escape count; the model of IN-C's state written (§5), its round-by-round proof LEFT.
-Deliverable 4 DONE: two restated top theorems (generated), every premise listed (§4).
+Deliverable 4 DONE: two restated top theorems (generated), every premise listed (§4). Checked: `check3.log`, green (§7).
 
 ## 1. In plain words, for Victor
 
@@ -224,4 +224,24 @@ theorems carry over by congruence (`subSt_congr`) instead of being re-proved.
 
 ## 7. Checks
 
-_Filled in from `check1.log`._
+`results/zk60_lean_l57_20261110/check_l57.sh`, one guarded cpu job (`lean-l57-check`, need 24 GiB, cap 36 GiB,
+`LEAN_NUM_THREADS=4`). The run of record is `check3.log`, on the final tree: exit 0, 69 s, peak 3.67 GiB (the guard's
+record). `check1.log` (the tree before the canonicity proofs): green, 68 s. `check2.log` failed (a stray doc comment and
+two `whnf` timeouts in the canonicity walk, fixed in iter6). Modules built first in guarded iterations (`iter1` …
+`iter6`, logs kept). All figures MEASURED.
+
+| Check | Result |
+|---|---|
+| each L57 module built alone (seven) | 7 of 7 green, 0 warnings |
+| full `lake build` | green, 3,817 jobs, 0 warnings, 0 errors, no `sorry` |
+| axiom audit (`gen_axioms.py`) of every declaration of the seven files | 108 of 108 (80 theorems, 26 definitions, 2 abbreviations): 46 on `propext`, `Classical.choice`, `Quot.sound`; 47 on `propext`, `Quot.sound`; 8 on `propext`; 7 on none; `sorryAx` 0, `ofReduceBool` 0, other axioms 0 |
+| source scan for the forbidden words (the seven files) | none |
+| root imports | the seven modules imported |
+| existing files changed against perf `fceca671` | only the root's import lines (none removed); `Statements.lean` unchanged; nothing under `ops/` |
+| name clashes (`l57_nameclash.py`, prefix `RunStgAlg`; 42 worktrees, 5,406 other Lean files) | 0 |
+| `RunStgAlgTop.lean`, `RunStgAlgTopR.lean` against `l57_mk_top.py`'s and `l57_mk_topr.py`'s output | identical, identical |
+| the IN-C count against the code (`l57_count_check.py`) | 23 checks, 0 failed (PROFILE 3, SHAPE 1, HEAD 5, TIER 2, POLICY 1, LEAN 4, COUNT 7) |
+| its negative control (in memory, nine single changes: the width, the `d_pad` rule, a head challenge dropped, `r_emb`'s length read off `t_pad`, `r_emb` before `α`, the tier's log, the vocabulary, Lean's head count, Lean's `rBits`) | 9 of 9 caught |
+| regressions | L6Check 1,206, L5Check 5,553, L11Check 404, fixture L1 101,956 checks; 0 failed in each |
+
+No Rust was added or run. No receipt at the app's profile was found (`results/`, `/Users/victorrielly/zk60-artifacts/`).

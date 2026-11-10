@@ -1,0 +1,35 @@
+ok   PROFILE R13_SHIELD_T128_H24 present
+ok   PROFILE tokens = 128  [128]
+ok   PROFILE width = 3072  [3072]
+ok   SHAPE d_pad = width.next_power_of_two()
+ok   HEAD fn challenges present
+ok   HEAD three scalar challenges (beta, gamma, alpha)  [['let beta', 'let gamma', 'let alpha']]
+ok   HEAD order beta, gamma, alpha
+ok   HEAD one vector challenge r_emb of clog2(cp.d_pad)  [['let r_emb = tr.challenge_fp2_vec(clog2(cp.d_pad));']]
+ok   HEAD the vector after the scalars
+ok   TIER R1_MVP stage_log_n present
+ok   TIER stage_log_n = 12  [12]
+ok   POLICY every registered policy has V = 131072  [[131072, 131072]]
+ok   LEAN incHeadDraws = 3 + rBits
+ok   LEAN rBits = clog2 dPad
+ok   LEAN tiLog = max (clog2 tPad) lt
+ok   LEAN vocLog = max (clog2 v) lt
+ok   COUNT d_pad = 4096  [4096]
+ok   COUNT m = 3 + clog2(d_pad) = 15 at the app's profile  [15]
+ok   COUNT the dev rung (d = 384) gives L53's MEASURED 12
+ok   COUNT tiLog = 12, vocLog = 17  [(12, 17)]
+ok   COUNT eI = 2(2^tiLog + 2^vocLog) = 270336  [270336]
+ok   COUNT hD: m * eI <= 3 * eL  [(4055040, 201326592)]
+ok   COUNT hD: eI <= eL
+numbers: {'m': 15, 'd_pad': 4096, 't_pad': 128, 'lt': 12, 'V': 131072, 'ti_log': 12, 'voc_log': 17, 'e_in': 270336, 'eL': 67108864}
+L57 count check: 23 checks, 0 failed
+negative 1 (shape): caught by ['PROFILE width = 3072', 'COUNT d_pad = 4096', "COUNT m = 3 + clog2(d_pad) = 15 at the app's profile"]
+negative 2 (shape): caught by ['SHAPE d_pad = width.next_power_of_two()']
+negative 3 (inc): caught by ['HEAD three scalar challenges (beta, gamma, alpha)', 'HEAD order beta, gamma, alpha', "COUNT m = 3 + clog2(d_pad) = 15 at the app's profile"]
+negative 4 (inc): caught by ['HEAD one vector challenge r_emb of clog2(cp.d_pad)']
+negative 5 (inc): caught by ['HEAD the vector after the scalars']
+negative 6 (tio): caught by ['TIER stage_log_n = 12', 'COUNT tiLog = 12, vocLog = 17', 'COUNT eI = 2(2^tiLog + 2^vocLog) = 270336']
+negative 7 (cls): caught by ['POLICY every registered policy has V = 131072', 'COUNT tiLog = 12, vocLog = 17', 'COUNT eI = 2(2^tiLog + 2^vocLog) = 270336']
+negative 8 (lean): caught by ['LEAN incHeadDraws = 3 + rBits']
+negative 9 (lean): caught by ['LEAN rBits = clog2 dPad']
+L57 count check negative control: 9 single changes, 9 caught
