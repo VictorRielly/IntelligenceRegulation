@@ -26,6 +26,7 @@ namespace ZK60.ProtocolClassify
 
 open scoped ENNReal
 open ZK60 ZK60.Exec ZK60.Exec.Link ZK60.Sound ZK60.TokenRun ZK60.Assembly ZK60.StageX
+open ZK60.Exec.StageV (IncV OutcV StageGeom)
 open ZK60.Circuit (gP GF)
 
 /-- **A block's data determine its boundary root** (the frame's third absorb, `absorb_root("B", …)`). -/
@@ -76,8 +77,9 @@ theorem cb_blk_opX (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
     (hfit : 8 * pX.rows ≤ Lq) :
     Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 pX.rows (R.pf.off (k + 1) + 2))
       (bp0.nOut + bp1.nIn)
-      (fun hdr => (rkAccBlk (Pk k) (R.pf.off (k + 1) + 5) (R.pf.off (k + 1) + p0.pre) hdr).claims.out
-        ++ (rkAccBlk (Pk (k + 1)) (R.pf.off (k + 1 + 1) + 5) (R.pf.off (k + 1 + 1) + p1.pre) hdr).claims.inp)
+      (fun hdr => (rkAccBlk (Pk k) (R.pf.off (k + 1) + 5) (R.pf.off (k + 1) + (R.pf.part (k + 1)).pre) hdr).claims.out
+        ++ (rkAccBlk (Pk (k + 1)) (R.pf.off (k + 1 + 1) + 5) (R.pf.off (k + 1 + 1) + (R.pf.part (k + 1 + 1)).pre)
+          hdr).claims.inp)
       (R.pf.off (k + 1 + 1) + (R.pf.part (k + 1 + 1)).oX) (R.pf.off (k + 1 + 1) + (R.pf.part (k + 1 + 1)).oBX)
       (R.pf.off (k + 1 + 1) + (R.pf.part (k + 1 + 1)).oX + ((bp0.nOut + bp1.nIn) + pX.rows)) (A.runLog G).2 G
       (R.tr G (s, segs))) := by
@@ -241,12 +243,12 @@ theorem cb_blk_opX (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
       hok := hok
       hcnt := by rw [List.length_append, hcO, hcI]
       hrd := by
-        show (rkAccBlk (Pk k) (R.pf.off (k + 1) + 5) (R.pf.off (k + 1) + p0.pre)
+        show (rkAccBlk (Pk k) (R.pf.off (k + 1) + 5) (R.pf.off (k + 1) + (R.pf.part (k + 1)).pre)
             ((R.tr G (s, segs)).take (R.pf.off (k + 1 + 1) + p1.oX))).claims.out
           ++ (rkAccBlk (Pk (k + 1)) (R.pf.off (k + 1 + 1) + 5) (R.pf.off (k + 1 + 1) + p1.pre)
             ((R.tr G (s, segs)).take (R.pf.off (k + 1 + 1) + p1.oX))).claims.inp
           = acc0.claims.out ++ acc.claims.inp
-        rw [hread0 _ (rk_take_take_le _ _ _ hle0), hread1 _ (rk_take_take_le _ _ _ hle1)]
+        rw [hpart0, hread0 _ (rk_take_take_le _ _ _ hle0), hread1 _ (rk_take_take_le _ _ _ hle1)]
       hcan := hcanX1
       hcolX := hx }
 

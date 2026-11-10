@@ -1,0 +1,7 @@
+build ZK60Formal.RunCloseBBlk
+build ZK60Formal.RunCloseBMid
+build ZK60Formal.RunCloseBTop
+build ZK60Formal.RunCloseBEnd
+build ZK60Formal.RunCloseBInc
+build ZK60Formal.RunCloseBEnds
+build ZK60Formal.RunCloseBTopF

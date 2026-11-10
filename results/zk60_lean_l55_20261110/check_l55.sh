@@ -73,7 +73,8 @@ grep -oE "axioms: \[[^]]*\]" "$OUT/axioms_flat.log" | sort | uniq -c
 echo "== source scan of the L55 files, the checker and the scripts =="
 scan=0
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' \
-  $FILES $L/RunCloseBGeoCheck.lean $OUT/l55_mk_top.py $OUT/l55_negative.py && scan=1 || echo "none"
+  $FILES $L/RunCloseBGeoCheck.lean $OUT/l55_mk_top.py $OUT/l55_mk_topX.py $OUT/l55_mk_topF.py $OUT/l55_negative.py \
+  && scan=1 || echo "none"
 echo "== the library root imports the L55 files =="
 imp=0
 for m in $MODS; do
@@ -100,14 +101,15 @@ echo "== name clashes with the other worktrees' Lean files =="
 python3 -I "$OUT/l55_nameclash.py" "$WT" "$MAIN" RunVerdict,RunCloseB "$BASE" > "$OUT/nameclash.log" 2>&1
 ncl=$?
 tail -n 3 "$OUT/nameclash.log"
-echo "== the generated file is its generator's output =="
+echo "== the generated files are their generators' output =="
 gok=0
-cp "$L/RunVerdictTop.lean" "$OUT/l55_saved_RunVerdictTop.lean"
-python3 -I "$OUT/l55_mk_top.py" "$WT" > /dev/null || gok=1
-cmp -s "$OUT/l55_saved_RunVerdictTop.lean" "$L/RunVerdictTop.lean" && echo "RunVerdictTop.lean: identical" \
-  || { echo "RunVerdictTop.lean: DIFFERS"; gok=1; }
-cp "$OUT/l55_saved_RunVerdictTop.lean" "$L/RunVerdictTop.lean"
-rm -f "$OUT/l55_saved_RunVerdictTop.lean"
+for f in RunVerdictTop RunCloseBTop RunCloseBTopF; do cp "$L/$f.lean" "$OUT/l55_saved_$f.lean"; done
+for g in l55_mk_top.py l55_mk_topX.py l55_mk_topF.py; do python3 -I "$OUT/$g" "$WT" > /dev/null || gok=1; done
+for f in RunVerdictTop RunCloseBTop RunCloseBTopF; do
+  cmp -s "$OUT/l55_saved_$f.lean" "$L/$f.lean" && echo "$f.lean: identical" || { echo "$f.lean: DIFFERS"; gok=1; }
+  cp "$OUT/l55_saved_$f.lean" "$L/$f.lean"
+  rm -f "$OUT/l55_saved_$f.lean"
+done
 ulimit -s 65520
 echo "== the boundary geometry against the code (RunCloseBGeoCheck.lean) =="
 "$LAKE" -d "$WT/formal" env lean --run "$L/RunCloseBGeoCheck.lean" "$WT/results/zk60_lean_l29_20261107/corpus.txt" \
