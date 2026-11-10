@@ -1,1 +1,1 @@
-RunStgList RunStgAlive RunStgRun RunStgHal RunStgTop
+RunStgList RunStgAlive RunStgRun RunStgHal RunStgTop RunStgDoom RunStgTopD

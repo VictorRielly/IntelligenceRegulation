@@ -108,6 +108,11 @@ if [ -f "$OUT/l53_mk_top.py" ]; then
     && echo "RunStgTop.lean: identical" || { echo "RunStgTop.lean: DIFFERS"; gok=1; }
   cp "$OUT/l53_saved_top.lean" "$L/RunStgTop.lean"
   rm -f "$OUT/l53_saved_top.lean"
+  cp "$L/RunStgTopD.lean" "$OUT/l53_saved_topd.lean"
+  python3 -I "$OUT/l53_mk_topd.py" "$WT" > /dev/null && cmp -s "$OUT/l53_saved_topd.lean" "$L/RunStgTopD.lean" \
+    && echo "RunStgTopD.lean: identical" || { echo "RunStgTopD.lean: DIFFERS"; gok=1; }
+  cp "$OUT/l53_saved_topd.lean" "$L/RunStgTopD.lean"
+  rm -f "$OUT/l53_saved_topd.lean"
 else
   echo "(no generated file yet)"
 fi
