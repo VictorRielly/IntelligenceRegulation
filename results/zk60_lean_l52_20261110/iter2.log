@@ -1,0 +1,27 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af5816932bc109a54/results/zk60_lean_l52_20261110/plan1.txt ==
+build ZK60Formal.RunEpBOpen
+build ZK60Formal.RunEpBInc
+build ZK60Formal.RunEpBChain
+build ZK60Formal.RunEpBTop
+== lake build ZK60Formal.RunEpBOpen ==
+Build completed successfully (3568 jobs).
+build rc 0 (19 s)
+== lake build ZK60Formal.RunEpBInc ==
+warning: ZK60Formal/RunEpBInc.lean:300:20: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Build completed successfully (3569 jobs).
+build rc 0 (34 s)
+== lake build ZK60Formal.RunEpBChain ==
+warning: ZK60Formal/RunEpBInc.lean:300:20: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Build completed successfully (3641 jobs).
+build rc 0 (59 s)
+== lake build ZK60Formal.RunEpBTop ==
+warning: ZK60Formal/RunEpBInc.lean:300:20: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Build completed successfully (3643 jobs).
+build rc 0 (69 s)
+rc 0, 69 s

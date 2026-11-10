@@ -1,0 +1,4 @@
+build ZK60Formal.RunEpBOpen
+build ZK60Formal.RunEpBInc
+build ZK60Formal.RunEpBChain
+build ZK60Formal.RunEpBTop
