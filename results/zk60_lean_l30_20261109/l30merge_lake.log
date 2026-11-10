@@ -1,0 +1,8 @@
+✔ [3590/3597] Built ZK60Formal.BindingUCode (9.2s)
+✔ [3591/3597] Built ZK60Formal.RunChainUOrd (9.2s)
+✔ [3592/3597] Built ZK60Formal.RunChainUStab (2.0s)
+✔ [3593/3597] Built ZK60Formal.RunChainUGate (3.4s)
+✔ [3594/3597] Built ZK60Formal.RunChainUExec (2.3s)
+✔ [3595/3597] Built ZK60Formal.RunChainUToken (2.8s)
+✔ [3596/3597] Built ZK60Formal (1.8s)
+Build completed successfully (3597 jobs).

@@ -523,15 +523,34 @@ here. The rates count proving and witness work. Verification time is recorded se
     (the app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its
     worktree, and each was resumed there on 2026-11-09. L26, L27, L28 and L29 are merged and checked (above; perf and
     main at 5fe92b4c, the full Lean build 3591 jobs); A28 is still running.
+  - **L30, the classify run's gate on the corrected instance, through the run's transcript** [PROVED; merged
+    2026-11-09; `ZK60_LEAN_L30_RUN_GATE_U_20261109.md`].
+    - `classifyProtocolUExec` is the instance the final assembly will use: L29's executable stages AND L26's
+      corrected input opening. Its verifier and prover are the same terms as before.
+    - `classifyU_productionReady_run_r13` (and `_w16r2`): `ProductionReady` at the approved targets for the classify
+      run, from named premises. With L28's proved opening figures the R13 total is 55.5M ≤ 2^26 units (83% of the
+      budget); W16R2 is 31.5M ≤ 2^25.
+    - L26-3's code fact is proved: a base-field matrix is close to the extension-field code on a set of columns
+      exactly when it is close to the base code there. L26's stability premises are theorems too.
+    - **Finding L30-1 (Medium), about L27's gates.** L27's cover asks that every check of every kind is still alive on
+      every accepted run. Acceptance does not give that: a prover who passes a column test by luck is accepted with
+      one opening check already dead. So L27's two gates cannot be used as stated. L30 replaces the cover by an
+      ordered one (each kind alive provided no earlier kind has failed), and every gate above uses it. The argument is
+      reasoning, not a Lean theorem; L27's files are unchanged and its machinery is still used.
+    - **Premises left** (the doc's §5 lists each by name):
+      - the run's transcript as a Lean object, with the nine kinds' lists and parses on it;
+      - the ordered alive premise and the per-part failure links;
+      - the endpoint's reading links;
+      - `ClassifyOpen`'s other fields (completeness, zero knowledge, the weights' validity);
+      - the rulings L24-1 and L19-2.
   - **Running since 2026-11-09, on what the merged lanes left open for the classify run:**
-    - L30: the run's gate on L26's instance through L27's transcript machinery, and L26-3's code fact;
     - L31: a block's remaining extraction premises (the concrete profile, the claims' reader, the block's `define`
       and the slot polynomials over the extracted data, the per-outcome algebra);
     - L32: completeness at run level (the openings' and `M`'s executable completeness, the run's prefix as a
       transcript program, the refusal sites and their exact count against 2^-40);
     - L33: the run's zero knowledge (the honest prover in oracle form and the honest-prover properties L19 named).
-    - Not started: the run's transcript as a Lean object with the kinds' lists on it (after L30), and one instance
-      with both the executable stages and the corrected input opening.
+    - L34, next: the run's transcript as a Lean object with the kinds' lists on it, and the ordered cover's
+      premises (L30's remaining list).
     - The lanes' standing rules are in `results/zk60_lean_resume_20261109/LANE_RULES.md`.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].

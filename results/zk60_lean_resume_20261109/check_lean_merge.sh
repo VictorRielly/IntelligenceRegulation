@@ -2,17 +2,17 @@
 # 2026-11-09, coordinator. The check of a Lean lane on the MERGED tree in the main checkout, as one guarded cpu job.
 # It follows results/zk60_lean_l25_20261107/check_l25merge.sh, made generic:
 #   check_lean_merge.sh <tag> <LeanFile> [<LeanFile> ...]
-# <tag> is the lane (l26, l27, ...); its evidence directory is results/zk60_lean_<tag>_20261107 and the progress
+# <tag> is the lane (l26, l27, ...); its evidence directory is results/zk60_lean_<tag>_<date> and the progress
 # file is <tag>merge.progress there. The <LeanFile>s are the lane's new files in formal/ZK60Formal (base names with
 # .lean), for the source scan.
-# Steps: the full Lean build; the axiom audit of EVERY lane L9..L29 whose audit file exists (so L17 and L18 too);
+# Steps: the full Lean build; the axiom audit of EVERY lane from L9 on whose audit file exists (so L17 and L18 too);
 # the source scan of the lane's files; the regressions ExecBlockCheck (W16R2 rung receipt), L11Check, L6Check,
 # L5Check, the fixture L1 check and the R13 CheckR13Block. The binary fixtures are the ones regen_fixtures.sh made
 # in ~/zk60-artifacts/lean-merge-fixtures (the R13 segment pair comes from one export, since it is fresh-entropy).
 set -u
 TAG=$1; shift
 R=/Users/victorrielly/IntelligenceRegulation
-O=$R/results/zk60_lean_${TAG}_20261107
+O=$(ls -d $R/results/zk60_lean_${TAG}_2026* | head -1)   # the lane's evidence directory, whatever its date
 O17=$R/results/zk60_lean_l17_20261107
 O11=$R/results/zk60_lean_l11_20261107
 O9=$R/results/zk60_lean_l9_20261107
@@ -31,9 +31,9 @@ say "start; HEAD $(git -C $R rev-parse --short HEAD); lane files: $*"
 $LAKE -d $R/formal build > ${M}_lake.log 2>&1; say "lake build rc=$?"
 tail -2 ${M}_lake.log >> $P
 grep -ciE "warning|sorry" ${M}_lake.log | sed 's/^/lines naming a warning or sorry in the build log: /' >> $P
-for n in 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9; do
-  A=$R/results/zk60_lean_l${n}_20261107/axioms_l${n}.lean
-  [ -f $A ] || continue
+for n in 40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9; do
+  A=$(ls $R/results/zk60_lean_l${n}_2026*/axioms_l${n}.lean 2>/dev/null | head -1)
+  [ -n "$A" ] && [ -f "$A" ] || continue
   b=axioms_l${n}
   $LAKE -d $R/formal env lean $A > ${M}_$b.log 2>&1; say "axiom audit $b rc=$?"
   grep -cE "sorryAx|ofReduceBool" ${M}_$b.log | sed 's/^/sorryAx or ofReduceBool mentions: /' >> $P
