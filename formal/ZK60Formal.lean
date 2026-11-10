@@ -413,3 +413,6 @@ import ZK60Formal.BlockR13StmtHelp
 import ZK60Formal.BlockR13StmtHosts
 import ZK60Formal.BlockR13StmtJoin
 import ZK60Formal.BlockR13StmtLook
+import ZK60Formal.RunWireSem
+import ZK60Formal.RunWireTerm
+import ZK60Formal.RunWireTop
