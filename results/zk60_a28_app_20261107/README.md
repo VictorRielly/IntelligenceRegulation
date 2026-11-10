@@ -1,6 +1,5 @@
 # A28: the media app's commitment kernels and the GPU's idle gaps (2026-11-07, resumed 2026-11-09)
 
-
 Lane A28. Goal (Victor, 2026-11-07): "Focus on implementing the new optimizations into the proof of concept
 media app. It would be nice to get the media app speed up to 30 or so tokens per second for the proofs." A27
 left the app's stream at 16.9 proved tok/s. This lane's brief has two parts, both byte-preserving: (1) the
@@ -25,8 +24,8 @@ shared with the Lean lanes. Every heavy run went through the resource guard at i
 - **30 proved tok/s is not reached, and this lane moved the stream by little.** The 8-post stream, every receipt
   freshly verified, A/B in mirrored order in one job: A27 16.42 proved tok/s, the A28 binary 16.66 (+1.5%), the
   A28 binary with two server settings 16.90 (**+2.9%**). One post with those settings: 43.3 -> 42.0 s (-3%).
-  Proof only: 17.75 -> 17.82 (no difference). Through the app: the stream 16.8 proved tok/s (A27's run: 16.3), one long post
-  125.5 s (127.0 s) (sections 3.5 to 3.7).
+  Proof only: 17.75 -> 17.82 (no difference). Through the app: the stream 16.8 proved tok/s (A27's run three
+  days earlier: 16.3), one long post 125.5 s (127.0 s) (sections 3.5 to 3.7).
 - **The commitment kernels are now at the device's limits** (part 1 of the brief). Two byte-identical changes:
   the forward transform skips the zero half of its first pass, and the column hash runs in two passes. The
   commitments' GPU time fell 9% (A 42.4 -> 38.6 ms, H 40.5 -> 36.8 ms per block) and **one proof's GPU time
@@ -41,8 +40,8 @@ shared with the Lean lanes. Every heavy run went through the resource guard at i
 - **Why** (section 3.3): a proof that takes 19.6 s alone takes 38 s beside five others on the same five
   threads. It waits 12 to 15 s for the one shared device instead of 5.4 s, and its host work takes 29 to 31 s
   instead of 16 s: every host section, serial ones included, runs 1.3x to 3x slower in company. The same
-  work in another order does not go faster; less work per proof does, and the 3.9% this lane found is what
-  the stream shows.
+  work in another order does not go faster; less work per proof does, and the 3.9% less GPU work this lane
+  found is the +1.5% the stream shows.
 - **What paid besides the kernels: two server settings, mostly in CPU.** A7's spin-then-block wait and a 300 ms
   stagger between request starts (so a post's three categories do not run in lockstep): natively the stream
   +1.4% on top of the binary (inside the runs' spread), one post -3%, and **the prover's CPU per proof -22%**
@@ -118,7 +117,10 @@ outside `gpu/` and `token_io/classify_serve.rs`: `token_io/classify_cli.rs` (the
 `SharedProve`, one lock taken before the run), `token_io/classify_batch.rs` (that field's `None`),
 `token_io/classify_serve_tests.rs` and `private_block/slot_ir_accuracy.rs` (tests). No edit to `protocol.rs`,
 `argument*.rs`, `run_fork.rs`, `trained_block.rs`, the PCS or zkp-core; no new source file.
-`HL_A26_KEPT` / `HL_A26_VERIFY_ONCE` stay off.
+`HL_A26_KEPT` / `HL_A26_VERIFY_ONCE` stay off. In the app (`apps/proven-media`):
+`proven_media/shieldstral_fast_runtime.py` (the pin, the description, the two native settings),
+`proven_media/shieldstral_fast_prover.py` (one word of its header), `deploy.json` (the fast profile's pin,
+native settings and notes), `tests/test_shieldstral_fast.py`.
 
 **The kernels one by one** [MEASURED, `nb3.log`; the zk commitment at the classifier's A shape, 4577 rows x
 2^14 -> 2^16, each kernel alone, GPU timestamps, best of 5, every variant's words compared with the tree's]:
@@ -236,25 +238,28 @@ stream, macOS `sample` on the prover, `lane_split.py`; both runs slowed a little
 | serial host work | 5.5 | 7.6 / 8.1 | 1.4-1.5x |
 | parallel host sections | 10.9 | 21.1 / 23.0 | 1.9-2.1x |
 
-- **The device's queue is the larger part**: a lane waits 7 to 9.5 s more for its command buffers. A queueing
-  model of lanes that share nothing but one time-shared device (`queue_model.py`: 14.2 s of host work and 5.4 s
-  of device per proof, both measured alone) gives a 33.5 s cycle at six lanes with the device 97% busy, and a
-  steady stream that does not rise with more lanes [INFERRED]. The trace sees less than that: command buffers
-  execute during 66% of the stream's window, before and after A28 (`profile_p0s8.txt`, `profile_x4s8.txt`),
-  and the device's own utilization counter reads 80% over the clock (93-96% median).
-- **The host work also runs slower in company: 16 s alone, 29-31 s in the stream.** Every section stretches,
-  serial ones included (`profile_x4solo_lane0.txt` against `profile_x4s8_lane*.txt`): the tables' BLAKE3
-  digests and the segments' SHA-256 1.3-1.4x, the openings' folds and the blocks' digests 1.5-1.6x, the
-  witness planes, the lookups and the row uploads 2x to 3.7x (the memory-heavy ones most).
-- **What it is not** [MEASURED]: not threads (section 3.2); not the lanes of one process (two processes: no
-  clear gain); not page faults (1.4 million per proof alone, 2.5 million in the stream: one to three seconds of
-  the host work at the rate the zero rows were filled [INFERRED]); not the machine's memory rate exhausted (a one-thread copy probe beside the stream keeps 74 GiB/s
-  against 102 beside one proof and 56-108 on the idle machine: `profile_x4_membw.txt`, inconclusive at
-  best).
-- **So the stream is pinned by its two shared resources together**: the one device, already 66% (trace) to 97%
-  (model) busy with the six lanes' command buffers, and a host that slows by a factor of 1.8 when six lanes
-  and the verifier run at once. Reordering the same work (seal-ahead, the stagger, more lanes or threads) does
-  not move it; less work per proof does.
+- **Both stretch.** The lane waits 7 to 9.5 s more for its command buffers, and its host work takes 13 to 15 s
+  more: 16 s alone, 29 to 31 s in the stream. Every host section stretches, serial ones included
+  (`profile_x4solo_lane0.txt` against `profile_x4s8_lane*.txt`): the tables' BLAKE3 digests and the segments'
+  SHA-256 1.3-1.4x, the openings' folds and the blocks' digests 1.5-1.6x, the witness planes, the lookups and
+  the row uploads 2x to 3.7x (the memory-heavy ones most).
+- **A faster host would not free the stream** [INFERRED, `queue_model.py`]: lanes that share nothing but one
+  time-shared device (14.2 s of host work and 5.4 s of device per proof, both measured alone) would cycle in
+  33.5 s at six lanes with the device 97% busy, and their steady stream does not rise with more lanes. So the
+  measured 38 s is within 12% of what the device's queue alone would give; the host's slowness takes the
+  place of part of that queue. The trace agrees on the order of magnitude: command buffers execute during 66%
+  of the stream's window, before and after A28 (`profile_p0s8.txt`, `profile_x4s8.txt`); the device's own
+  utilization counter reads 80% over the clock (93-96% median).
+- **What the host's slowdown is not** [MEASURED]: not threads (section 3.2); not the lanes of one process (two
+  processes: no clear gain); not page faults (1.4 million per proof alone, 2.5 to 2.8 million in the stream:
+  one to three seconds of the host work at the rate the zero rows were filled [INFERRED]); not obviously the
+  machine's memory rate (a one-thread copy probe beside the stream keeps 74 GiB/s against 102 beside one proof
+  and 56 to 108 on the idle machine: `profile_x4_membw.txt`, inconclusive); and the verifier beside the
+  provers is a small part (the stream's last proof is written at 173 s without it and at 173 to 181 s with
+  it: sections 3.5, 3.6).
+- **So the stream is pinned by its two shared resources together**: the one device and a host that slows by a
+  factor of 1.8 when six lanes run at once. The same work in another order (seal-ahead, more lanes or threads,
+  more writers) moves it by a percent or two at most; less work per proof moves it.
 
 ### 3.4 The activation writer [MEASURED, `writer_time_w1.log`, `writer_time.py`; beside a Lean job]
 
@@ -297,9 +302,9 @@ tokens, 24 category proofs), 6 x 5 prover and 3 x 4 verifier lanes, 16 GiB witne
 - All 24 proofs of every run freshly verified, owner-checked and labelled. The guarded job's peak: 101 GiB (as
   A27's; seal-ahead off).
 - **The absolute level is lower than on 2026-11-07** (A27 measured 16.96 then, in the four runs of the two
-  A B B A jobs of section 3.1; 16.42 now). The
-  machine was rebooted in between; on 2026-11-09/10 an aerial wallpaper was decoding video beside every run
-  (WindowServer and the video decoder, about 0.2 core). Each comparison here is inside one job.
+  A B B A jobs of section 3.1; 16.42 now). The machine was rebooted in between; on 2026-11-09/10 an aerial
+  wallpaper was decoding video beside every run (WindowServer and the video decoder, about 0.2 core). Each
+  comparison here is inside one job.
 
 ### 3.6 Proof only, and one post [MEASURED, `final3.progress`, `stream_f3*`]
 
@@ -313,7 +318,8 @@ labelled on its own clock, the verifier's startup excluded; single runs, B then 
 | f3dA | A27 | 173.1 s | 17.75 | 65.6 s | 46.8 |
 
 - **Proof only: 17.75 -> 17.82 proved tok/s: no difference** (A27's own run of this clock measured 17.71 for
-  its binary). Without the verifier beside it the stream is about 7% faster than with it, for either binary.
+  its binary). The proof-only clock is about 7% ahead of the full one for either binary: the last check's 8 s
+  are off it, and the provers finish 0 to 8 s sooner without the verifier beside them.
 
 **One post** (A24's one-post setting: 3 prover lanes x 10 threads, 3 verifier lanes x 4; one public post of 14
 tokens, its three category proofs at once; A B B A, then the two server settings on the A28 binary):
@@ -336,7 +342,8 @@ tokens, its three category proofs at once; A B B A, then the two server settings
   category, it gains more than that because the three lanes no longer run in lockstep. The wait alone gave
   42.1 and 43.9 s.
 - **So the app's servers get both settings** (`NATIVE_SETTINGS`: `HL_METAL_SPIN_US=200`,
-  `HL_A28_STAGGER_MS=300`): the stream +2.9% (section 3.5), one post -3%, the prover's CPU per proof -22%.
+  `HL_A28_STAGGER_MS=300`): with the binary, the stream +2.9% over A27 (section 3.5), one post -3%, the
+  prover's CPU per proof -22%.
 
 ### 3.7 Through the app [MEASURED, `app_a1`, `app_b1`, `app_b2`, `app_b3` (`summary.json`, `.out`); single runs]
 
@@ -472,11 +479,12 @@ guard declaration unchanged; of the A28 switches only the measured stagger is se
    CS-1 / CS-4 word checks are 2.6 s of a request alone and 4 to 6 s in the stream (section 7).
 7. **Diagnostics added to this lane's own scripts only**: `stream_driver.py --provers` and the page-fault
    count, `membw_probe.py`, the lane sampling. Nothing of them is in the binary or the app.
-8. **Commands outside the brief's list:** none (no `git reset`, `checkout` or `rebase`; nothing pushed). The
+8. **Commands outside the brief's list:** none (no `git reset`, `checkout`, `rebase`, `rm` or `mv`; nothing
+   pushed or merged). The
    lib suite leaves five untracked test-output directories under `ops/zkp-mvp/gpu-metal/results/` (`r12-*`,
    `r13-array-tests`); they were deleted from this worktree. The app's guard call writes
-   `results/zk60_resource_guard/history.jsonl` inside the worktree (untracked, not committed; its two lines are
-   copied to `app_*.service_guard.json`).
+   `results/zk60_resource_guard/history.jsonl` inside the worktree (untracked, not committed; each app run's
+   line is copied to `app_*.service_guard.json`).
 
 ## 7. What is left to reach 30 proved tok/s
 
