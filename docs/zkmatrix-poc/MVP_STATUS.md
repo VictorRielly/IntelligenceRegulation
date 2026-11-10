@@ -15,8 +15,9 @@ item was re-checked against the source by the coordinator.
 - **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
   enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
 - **The plan, in order:**
-  1. repair GA-1 (hours);
-  2. a run model with one shape per block, so the real Shieldstral classifier is representable (GB-2);
+  1. repair GA-1 (hours; lane L39 running);
+  2. DONE 2026-11-10 (L40): a run model with one shape per block, so the real Shieldstral classifier is
+     representable (GB-2);
   3. prove the soundness covers, wiring in the per-block results (L31, L35, L36);
   4. a concrete Shieldstral instance and one theorem stated at it (GA-4, GB-3), with the public data read by the
      verifier as FlashProve does;
@@ -30,9 +31,12 @@ item was re-checked against the source by the coordinator.
   `classifyLeak`: T, d, the layer count, and whether the request is served. A protocol that publishes its input passed
   the old gate and provably fails the new one (`leaky_not_productionReadyL`). Zero knowledge is now asked for q, R ≤
   2^64, where the computed error meets the target, so that premise can be met.
-- **The run model cannot represent the real Shieldstral classifier (GB-2, High).** It uses one block shape for all 26
-  layers, and the real export has 17 different shift sets. So no gate theorem applies to the app's real model yet.
-  Earlier lines calling the Lean instance "Shieldstral T128" overstate it.
+- **CLOSED 2026-11-10: the run model now represents the real Shieldstral classifier (GB-2; lane L40).** Each block
+  has its own shape. The app's real model, read from its own verifier export (26 distinct calibrations: the norm
+  constants differ in every layer, L40-1), is proved to be an instance (`shield_circuitIff`), and every gate is
+  re-indexed to it (`rt_productionReadyL_r13P_exec_range`). Only these per-block `…P` gates apply to the app. The
+  approved model is now also computable and was run against the Rust witness on the R13 fixture (69,018 checks, 0
+  failed). Still not compared: the trained goldens (they need the weights) and a multi-block run.
 - **Every Lean-versus-Rust test is on small development receipts** (T = 32, one or two blocks, synthetic weights).
   No Shieldstral T128 receipt and no 26-block run has been checked (GB-6). Several verifier checks have no Lean
   mirror and no test (GB-5).

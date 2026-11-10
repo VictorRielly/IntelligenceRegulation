@@ -1,0 +1,10 @@
+✔ [3656/3665] Built ZK60Formal.RunShape (1.9s)
+✔ [3657/3665] Built ZK60Formal.RunShapeShield (2.4s)
+✔ [3658/3665] Built ZK60Formal.RunShapeProtocol (2.8s)
+✔ [3659/3665] Built ZK60Formal.RunShapeExec (3.1s)
+✔ [3660/3665] Built ZK60Formal.RunShapeShieldOpen (2.7s)
+✔ [3661/3665] Built ZK60Formal.RunShapeLeak (2.8s)
+✔ [3662/3665] Built ZK60Formal.RunShapeGate (4.4s)
+✔ [3663/3665] Built ZK60Formal.RunShapeGateL (4.0s)
+✔ [3664/3665] Built ZK60Formal (1.8s)
+Build completed successfully (3665 jobs).

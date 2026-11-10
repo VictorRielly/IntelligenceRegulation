@@ -1,0 +1,118 @@
+[0 ms] low-h24: start
+[454 ms] low-h24: every stage compared
+[1247 ms] low-h24: blockSpecC and runSpecPC run
+[1673 ms] low-h24: negative control ZK60.RunShape.Check.Mut.wq done
+[2098 ms] low-h24: negative control ZK60.RunShape.Check.Mut.sq done
+[2525 ms] low-h24: negative control ZK60.RunShape.Check.Mut.cnA done
+[2950 ms] low-h24: negative control ZK60.RunShape.Check.Mut.input done
+[3129 ms] low-h24: negative control ZK60.RunShape.Check.Mut.exp done
+[3555 ms] low-h24: negative control ZK60.RunShape.Check.Mut.act done
+[3980 ms] low-h24: negative control ZK60.RunShape.Check.Mut.gamma done
+[0 ms] low: start
+[441 ms] low: every stage compared
+[1228 ms] low: blockSpecC and runSpecPC run
+[1652 ms] low: negative control ZK60.RunShape.Check.Mut.wq done
+[2075 ms] low: negative control ZK60.RunShape.Check.Mut.sq done
+[2497 ms] low: negative control ZK60.RunShape.Check.Mut.cnA done
+[2920 ms] low: negative control ZK60.RunShape.Check.Mut.input done
+[3099 ms] low: negative control ZK60.RunShape.Check.Mut.exp done
+[3522 ms] low: negative control ZK60.RunShape.Check.Mut.act done
+[3945 ms] low: negative control ZK60.RunShape.Check.Mut.gamma done
+low-h24 shape = the trace's shifts line (tn q k v score pv ao up down fp gate prod wrho): 13 checked, 0 failed
+low-h24 folded gate multipliers = the trace's gate_mult: 32 checked, 0 failed
+low-h24 product coefficients = the trace's product_mult: 32 checked, 0 failed
+low-h24 input = trace x: 512 checked, 0 failed
+low-h24 norm_a words = trace na.words: 512 checked, 0 failed
+low-h24 norm_a d = trace na.d: 32 checked, 0 failed
+low-h24 Q = trace q.words: 512 checked, 0 failed
+low-h24 K = trace k.words: 256 checked, 0 failed
+low-h24 V = trace v.words: 256 checked, 0 failed
+low-h24 QR = trace qr.words: 512 checked, 0 failed
+low-h24 KR = trace kr.words: 256 checked, 0 failed
+low-h24 scores = trace s.words: 4096 checked, 0 failed
+low-h24 softmax P = trace p: 4096 checked, 0 failed
+low-h24 O = trace o.words: 512 checked, 0 failed
+low-h24 AO = trace ao.words: 512 checked, 0 failed
+low-h24 X1 = trace x1: 512 checked, 0 failed
+low-h24 norm_m words = trace nm.words: 512 checked, 0 failed
+low-h24 gate = trace gate.words: 1024 checked, 0 failed
+low-h24 scaled ACT word = trace a_scaled: 1024 checked, 0 failed
+low-h24 up = trace up.words: 1024 checked, 0 failed
+low-h24 product H = trace h.words: 1024 checked, 0 failed
+low-h24 Z = trace z.words: 512 checked, 0 failed
+low-h24 X2 = trace x2: 512 checked, 0 failed
+low-h24 q = oracle: 512 checked, 0 failed
+low-h24 k = oracle: 256 checked, 0 failed
+low-h24 v = oracle: 256 checked, 0 failed
+low-h24 s = oracle: 4096 checked, 0 failed
+low-h24 p = oracle: 4096 checked, 0 failed
+low-h24 o8 = oracle: 512 checked, 0 failed
+low-h24 ao = oracle: 512 checked, 0 failed
+low-h24 x1 = oracle: 512 checked, 0 failed
+low-h24 gate = oracle: 1024 checked, 0 failed
+low-h24 u16 = oracle: 1024 checked, 0 failed
+low-h24 h16 = oracle: 1024 checked, 0 failed
+low-h24 z16 = oracle: 512 checked, 0 failed
+low-h24 x2 = oracle: 512 checked, 0 failed
+low-h24 blockSpecC whole = trace x2: 512 checked, 0 failed
+low-h24 runSpecPC (one block) = trace x2: 512 checked, 0 failed
+low-h24 negative control ZK60.RunShape.Check.Mut.wq: caught (90 entries differ)
+low-h24 negative control ZK60.RunShape.Check.Mut.sq: caught (1021 entries differ)
+low-h24 negative control ZK60.RunShape.Check.Mut.cnA: caught (2653 entries differ)
+low-h24 negative control ZK60.RunShape.Check.Mut.input: caught (64 entries differ)
+low-h24 negative control ZK60.RunShape.Check.Mut.exp: caught (1 entries differ)
+low-h24 negative control ZK60.RunShape.Check.Mut.act: caught (870 entries differ)
+low-h24 negative control ZK60.RunShape.Check.Mut.gamma: caught (1460 entries differ)
+low shape = the trace's shifts line (tn q k v score pv ao up down fp gate prod wrho): 13 checked, 0 failed
+low folded gate multipliers = the trace's gate_mult: 32 checked, 0 failed
+low product coefficients = the trace's product_mult: 32 checked, 0 failed
+low input = trace x: 512 checked, 0 failed
+low norm_a words = trace na.words: 512 checked, 0 failed
+low norm_a d = trace na.d: 32 checked, 0 failed
+low Q = trace q.words: 512 checked, 0 failed
+low K = trace k.words: 256 checked, 0 failed
+low V = trace v.words: 256 checked, 0 failed
+low QR = trace qr.words: 512 checked, 0 failed
+low KR = trace kr.words: 256 checked, 0 failed
+low scores = trace s.words: 4096 checked, 0 failed
+low softmax P = trace p: 4096 checked, 0 failed
+low O = trace o.words: 512 checked, 0 failed
+low AO = trace ao.words: 512 checked, 0 failed
+low X1 = trace x1: 512 checked, 0 failed
+low norm_m words = trace nm.words: 512 checked, 0 failed
+low gate = trace gate.words: 1024 checked, 0 failed
+low scaled ACT word = trace a_scaled: 1024 checked, 0 failed
+low up = trace up.words: 1024 checked, 0 failed
+low product H = trace h.words: 1024 checked, 0 failed
+low Z = trace z.words: 512 checked, 0 failed
+low X2 = trace x2: 512 checked, 0 failed
+low q = oracle: 512 checked, 0 failed
+low k = oracle: 256 checked, 0 failed
+low v = oracle: 256 checked, 0 failed
+low s = oracle: 4096 checked, 0 failed
+low p = oracle: 4096 checked, 0 failed
+low o8 = oracle: 512 checked, 0 failed
+low ao = oracle: 512 checked, 0 failed
+low x1 = oracle: 512 checked, 0 failed
+low gate = oracle: 1024 checked, 0 failed
+low u16 = oracle: 1024 checked, 0 failed
+low h16 = oracle: 1024 checked, 0 failed
+low z16 = oracle: 512 checked, 0 failed
+low x2 = oracle: 512 checked, 0 failed
+low blockSpecC whole = trace x2: 512 checked, 0 failed
+low runSpecPC (one block) = trace x2: 512 checked, 0 failed
+low negative control ZK60.RunShape.Check.Mut.wq: caught (90 entries differ)
+low negative control ZK60.RunShape.Check.Mut.sq: caught (1021 entries differ)
+low negative control ZK60.RunShape.Check.Mut.cnA: caught (2653 entries differ)
+low negative control ZK60.RunShape.Check.Mut.input: caught (58 entries differ)
+low negative control ZK60.RunShape.Check.Mut.exp: caught (1 entries differ)
+low negative control ZK60.RunShape.Check.Mut.act: caught (514 entries differ)
+low negative control ZK60.RunShape.Check.Mut.gamma: caught (1460 entries differ)
+OUT-C: the block run's output = L2d's x2: 512 checked, 0 failed
+OUT-C n1: the approved stage accepts exactly the rows Rust accepts: 32 checked, 0 failed
+OUT-C n1: verdict = Rust's: 32 checked, 0 failed
+OUT-C n1: final-norm words and margin = Rust's: 32 checked, 0 failed
+OUT-C n2: the approved stage accepts exactly the rows Rust accepts: 32 checked, 0 failed
+OUT-C n2: verdict = Rust's: 32 checked, 0 failed
+OUT-C n2: final-norm words and margin = Rust's: 32 checked, 0 failed
+RunShapeCheck: 69018 checks, 0 failed
