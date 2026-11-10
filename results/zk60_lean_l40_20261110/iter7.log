@@ -1,0 +1,64 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/plan7.txt ==
+build ZK60Formal.RunShape
+build ZK60Formal.RunShapeExec
+build ZK60Formal.RunShapeGate
+build ZK60Formal.RunShapeShieldOpen
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh
+== lake build ZK60Formal.RunShape ==
+Build completed successfully (3361 jobs).
+build rc 0 (1 s)
+== lake build ZK60Formal.RunShapeExec ==
+Build completed successfully (3362 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.RunShapeGate ==
+Build completed successfully (3551 jobs).
+build rc 0 (13 s)
+== lake build ZK60Formal.RunShapeShieldOpen ==
+Build completed successfully (3500 jobs).
+build rc 0 (18 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean (21 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh ==
+check rc 1 (34 s); its log is check.log
+low AO = trace ao.words: 512 checked, 0 failed
+low X1 = trace x1: 512 checked, 0 failed
+low norm_m words = trace nm.words: 512 checked, 0 failed
+low gate = trace gate.words: 1024 checked, 0 failed
+low scaled ACT word = trace a_scaled: 1024 checked, 0 failed
+low up = trace up.words: 1024 checked, 0 failed
+low product H = trace h.words: 1024 checked, 0 failed
+low Z = trace z.words: 512 checked, 0 failed
+low X2 = trace x2: 512 checked, 0 failed
+low q = oracle: 512 checked, 0 failed
+low k = oracle: 256 checked, 0 failed
+low v = oracle: 256 checked, 0 failed
+low s = oracle: 4096 checked, 0 failed
+low p = oracle: 4096 checked, 0 failed
+low o8 = oracle: 512 checked, 0 failed
+low ao = oracle: 512 checked, 0 failed
+low x1 = oracle: 512 checked, 0 failed
+low gate = oracle: 1024 checked, 0 failed
+low u16 = oracle: 1024 checked, 0 failed
+low h16 = oracle: 1024 checked, 0 failed
+low z16 = oracle: 512 checked, 0 failed
+low x2 = oracle: 512 checked, 0 failed
+low blockSpecC whole = trace x2: 512 checked, 0 failed
+low runSpecPC (one block) = trace x2: 512 checked, 0 failed
+low negative control ZK60.RunShape.Check.Mut.wq: NOT CAUGHT
+low negative control ZK60.RunShape.Check.Mut.sq: NOT CAUGHT
+low negative control ZK60.RunShape.Check.Mut.cnA: NOT CAUGHT
+low negative control ZK60.RunShape.Check.Mut.input: caught
+low negative control ZK60.RunShape.Check.Mut.exp: NOT CAUGHT
+low negative control ZK60.RunShape.Check.Mut.act: NOT CAUGHT
+low negative control ZK60.RunShape.Check.Mut.gamma: NOT CAUGHT
+OUT-C: the block run's output = L2d's x2: 512 checked, 0 failed
+OUT-C n1: the approved stage accepts exactly the rows Rust accepts: 32 checked, 0 failed
+OUT-C n1: verdict = Rust's: 32 checked, 0 failed
+OUT-C n1: final-norm words and margin = Rust's: 32 checked, 0 failed
+OUT-C n2: the approved stage accepts exactly the rows Rust accepts: 32 checked, 0 failed
+OUT-C n2: verdict = Rust's: 32 checked, 0 failed
+OUT-C n2: final-norm words and margin = Rust's: 32 checked, 0 failed
+RunShapeCheck: 69018 checks, 12 failed
+RunShapeCheck rc 1, 13 s
+rc 1, 34 s

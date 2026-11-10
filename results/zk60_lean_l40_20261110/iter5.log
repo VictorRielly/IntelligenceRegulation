@@ -1,0 +1,17 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/plan5.txt ==
+build ZK60Formal.RunShapeProtocol
+build ZK60Formal.RunShapeGate
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh
+== lake build ZK60Formal.RunShapeProtocol ==
+Build completed successfully (3496 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.RunShapeGate ==
+Build completed successfully (3551 jobs).
+build rc 0 (9 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean (12 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh ==
+check rc 143 (521 s); its log is check.log
+RunShapeCheck rc 143, 509 s
+rc 143, 521 s

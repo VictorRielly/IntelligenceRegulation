@@ -1,0 +1,48 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/plan8.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean (3 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh ==
+check rc 0 (15 s); its log is check.log
+low AO = trace ao.words: 512 checked, 0 failed
+low X1 = trace x1: 512 checked, 0 failed
+low norm_m words = trace nm.words: 512 checked, 0 failed
+low gate = trace gate.words: 1024 checked, 0 failed
+low scaled ACT word = trace a_scaled: 1024 checked, 0 failed
+low up = trace up.words: 1024 checked, 0 failed
+low product H = trace h.words: 1024 checked, 0 failed
+low Z = trace z.words: 512 checked, 0 failed
+low X2 = trace x2: 512 checked, 0 failed
+low q = oracle: 512 checked, 0 failed
+low k = oracle: 256 checked, 0 failed
+low v = oracle: 256 checked, 0 failed
+low s = oracle: 4096 checked, 0 failed
+low p = oracle: 4096 checked, 0 failed
+low o8 = oracle: 512 checked, 0 failed
+low ao = oracle: 512 checked, 0 failed
+low x1 = oracle: 512 checked, 0 failed
+low gate = oracle: 1024 checked, 0 failed
+low u16 = oracle: 1024 checked, 0 failed
+low h16 = oracle: 1024 checked, 0 failed
+low z16 = oracle: 512 checked, 0 failed
+low x2 = oracle: 512 checked, 0 failed
+low blockSpecC whole = trace x2: 512 checked, 0 failed
+low runSpecPC (one block) = trace x2: 512 checked, 0 failed
+low negative control ZK60.RunShape.Check.Mut.wq: caught (90 entries differ)
+low negative control ZK60.RunShape.Check.Mut.sq: caught (1021 entries differ)
+low negative control ZK60.RunShape.Check.Mut.cnA: caught (2653 entries differ)
+low negative control ZK60.RunShape.Check.Mut.input: caught (58 entries differ)
+low negative control ZK60.RunShape.Check.Mut.exp: caught (1 entries differ)
+low negative control ZK60.RunShape.Check.Mut.act: caught (514 entries differ)
+low negative control ZK60.RunShape.Check.Mut.gamma: caught (1460 entries differ)
+OUT-C: the block run's output = L2d's x2: 512 checked, 0 failed
+OUT-C n1: the approved stage accepts exactly the rows Rust accepts: 32 checked, 0 failed
+OUT-C n1: verdict = Rust's: 32 checked, 0 failed
+OUT-C n1: final-norm words and margin = Rust's: 32 checked, 0 failed
+OUT-C n2: the approved stage accepts exactly the rows Rust accepts: 32 checked, 0 failed
+OUT-C n2: verdict = Rust's: 32 checked, 0 failed
+OUT-C n2: final-norm words and margin = Rust's: 32 checked, 0 failed
+RunShapeCheck: 69018 checks, 0 failed
+RunShapeCheck rc 0, 12 s
+rc 0, 15 s

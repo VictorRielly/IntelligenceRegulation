@@ -267,3 +267,11 @@ import ZK60Formal.StatementsD76Bridge
 import ZK60Formal.StatementsD76Leaky
 import ZK60Formal.StatementsD76Gate
 import ZK60Formal.StatementsD76Range
+import ZK60Formal.RunShape
+import ZK60Formal.RunShapeShield
+import ZK60Formal.RunShapeExec
+import ZK60Formal.RunShapeProtocol
+import ZK60Formal.RunShapeGate
+import ZK60Formal.RunShapeShieldOpen
+import ZK60Formal.RunShapeLeak
+import ZK60Formal.RunShapeGateL

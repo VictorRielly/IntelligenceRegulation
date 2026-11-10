@@ -1,0 +1,3 @@
+build ZK60Formal.RunShapeExec
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh

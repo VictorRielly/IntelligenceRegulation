@@ -1,0 +1,16 @@
+
+/-! ## The gate at R13's token-words endpoint, the media app's (L30) -/
+
+section TokenR13
+
+variable [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
+variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
+variable (Rr dR : ℕ) {pos : S.Tok → Fin dR × Fin (2 ^ 14)} (hpos : Function.Injective pos)
+  (place : Fin dR → Fin Rr) (msg : (S.Tok → ℕ) → Salt → Fin Rr → Fin (2 ^ 14) → GF)
+  (msg_place : ∀ v r k, msg v r (place k) = posPlane pos v k) (pad : Salt → Fin Rr → Fin 256 → GF)
+  (salt : Salt → Fin (2 ^ 16) → Dig) (path : Salt → Fin (2 ^ 16) → List Dig) (tagc : MTag)
+
+-- R13's token-words endpoint commitment of the classify statement (L17's `r13TokenCommit`).
+local notation "CinR" =>
+  R13.r13TokenCommit (St := ClsStmt Hdr) Rr dR hpos place msg msg_place pad salt path ClsStmt.inRoot tagc
+

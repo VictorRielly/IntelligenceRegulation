@@ -1,0 +1,15 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/plan6.txt ==
+build ZK60Formal.RunShapeExec
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh
+== lake build ZK60Formal.RunShapeExec ==
+Build completed successfully (3362 jobs).
+build rc 0 (22 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/formal/ZK60Formal/RunShapeCheck.lean (25 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh ==
+check rc 2 (426 s); its log is check.log
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh: line 13: 85583 Terminated: 15          "$LAKE" -d "$WT/formal" env lean --run "$WT/formal/ZK60Formal/RunShapeCheck.lean" "$V/block_fixture_t32.tsv" "$V/block_trace_low_h24_t32.tsv" "$V/block_trace_low_t32.tsv" "$R1/rust_fixture_trace.tsv" "$V/silu_-4_-13.bin" "$V/silu_-1_-11.bin" > "$OUT/runshapecheck.log" 2>&1
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh: line 17: unexpected EOF while looking for matching `"'
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a87ee5a3c81d92fe4/results/zk60_lean_l40_20261110/l40_runcheck.sh: line 19: syntax error: unexpected end of file
+rc 2, 426 s
