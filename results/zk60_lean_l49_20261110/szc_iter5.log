@@ -1,0 +1,19 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/szc_plan5.txt ==
+build ZK60Formal.BlockR13HostSzc
+== lake build ZK60Formal.BlockR13HostSzc ==
+✖ [3580/3582] Building ZK60Formal.BlockR13HostSzcVals (3.3s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostSzcVals.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzcVals.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzcVals.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostSzcVals.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostSzcVals.setup.json --json
+error: ZK60Formal/BlockR13HostSzcVals.lean:114:2: Type mismatch
+  Eq.symm (dite_eq_left hi)
+has type
+  ?m.87 hi = dite (↑(Fin.cast ⋯ i) < c.sh.logs Slot.W16R2.Dom.S) ?m.87 ?m.88
+but is expected to have type
+  b ⟨↑i, ⋯⟩ = if h : ↑(Fin.cast ⋯ i) < c.sh.logs Slot.W16R2.Dom.S then b ⟨↑(Fin.cast ⋯ i), h⟩ else false
+warning: ZK60Formal/BlockR13HostSzcVals.lean:299:2: Unused tactic linter: `beta_reduce  at hbat` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostSzcVals
+error: build failed
+build rc 1 (23 s)
+rc 1, 23 s

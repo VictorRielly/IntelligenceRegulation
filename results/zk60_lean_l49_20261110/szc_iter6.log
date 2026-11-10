@@ -1,0 +1,128 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/szc_plan6.txt ==
+build ZK60Formal.BlockR13HostSzc
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_szc_axioms.lean
+== lake build ZK60Formal.BlockR13HostSzc ==
+✖ [3581/3582] Building ZK60Formal.BlockR13HostSzcCube (15s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostSzcCube.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzcCube.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzcCube.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostSzcCube.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostSzcCube.setup.json --json
+error: ZK60Formal/BlockR13HostSzcCube.lean:45:6: Unknown identifier `G.logS`
+error: ZK60Formal/BlockR13HostSzcCube.lean:44:61: unsolved goals
+c : W16Cfg
+⊢ c.sh.logs Slot.W16R2.Dom.S = c.sh.logs Slot.W16R2.Dom.Ht + c.sh.lt
+error: ZK60Formal/BlockR13HostSzcCube.lean:50:10: Unknown identifier `G.lt_pos`
+error: ZK60Formal/BlockR13HostSzcCube.lean:49:37: unsolved goals
+c : W16Cfg
+⊢ 0 < c.sh.logs Slot.W16R2.Dom.S
+error: ZK60Formal/BlockR13HostSzcCube.lean:56:10: Unknown identifier `G.lt_pos`
+error: ZK60Formal/BlockR13HostSzcCube.lean:55:38: unsolved goals
+c : W16Cfg
+⊢ 0 < c.sh.logs Slot.W16R2.Dom.Ht
+error: ZK60Formal/BlockR13HostSzcCube.lean:97:14: Function expected at
+  hS_split
+but this term has type
+  (W16Cfg.sh ?m.356).logs Slot.W16R2.Dom.S = (W16Cfg.sh ?m.356).logs Slot.W16R2.Dom.Ht + (W16Cfg.sh ?m.356).lt
+
+Note: Expected a function because this term is being applied to the argument
+  G
+error: ZK60Formal/BlockR13HostSzcCube.lean:95:70: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+ls : ℕ
+G : GeoR c ls
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+hLay : LayR Lay
+hS : PrecR c S
+hls : ls ≤ 2
+hfp : c.p.fp ≤ 15
+hsc : c.p.score ≤ 24
+hlk : (DefR13.lookups c Slot.W16R2.Dom.S).length = 13 + 2 * ls
+aB hB ioIn ioOut ak hk e : ℕ
+hist : Hist
+dr : List Fp2
+pub : ℕ → List Fp2
+hmask :
+  ∀ (b : Fin (nS c) → Bool),
+    Fp2.toK U ((pub 0).getD (msbIndex (nS c) b) Fp2.zero) = (algebraMap GF K) (B.mask (splitS c b))
+f : (Fin (c.sh.logs Slot.W16R2.Dom.S + e) → K) → K
+hf :
+  ∀ (x : Fin (c.sh.logs Slot.W16R2.Dom.S + e) → K),
+    f x =
+      irEval (Slot.Ir.map (Fp2.toK U) (Slot.Ir.map (Sym.eval hist 17 dr) (irSzcR c ls)))
+        (List.map (tabK U P D (c.sh.logs Slot.W16R2.Dom.S) e x)
+          (List.map (TabS.eval (Sym.eval hist 17 dr) pub) (DefW16.numTabs aB hB ioIn ioOut ak hk 0 (tabs17R c ls))))
+⊢ cubeSum f =
+    mleAt
+          (fun b =>
+            ∑ κ ∈ range (13 + ls),
+              (List.map (Fp2.toK U)
+                      (List.map (Sym.eval hist 17 dr) (drsR 17 (c.sh.logs Slot.W16R2.Dom.S) (13 + ls)))).getD
+                  κ 0 *
+                if κ < 5 then (algebraMap GF K) (r13Cl Pb Lay B (xtR U c P D ls) 17 κ (W16Pos.s (xS G b)))
+                else xcSzcR U G P D B (hist.beta, hist.gamma, hist.alpha) κ b)
+          (W16.Szc.ptv U (Sym.eval hist 17 dr) 17 0 (c.sh.logs Slot.W16R2.Dom.S)) +
+        (List.map (Fp2.toK U)
+                (List.map (Sym.eval hist 17 dr) (drsR 17 (c.sh.logs Slot.W16R2.Dom.S + (13 + ls)) 2))).getD
+            0 0 *
+          (2 ^ c.sh.lt *
+            (mleAt (fun r => aPl U P D (DefR13.aOff c 5) (c.sh.logs Slot.W16R2.Dom.Ht) r)
+                (W16.Szc.ptv U (Sym.eval hist 17 dr) 4 0 (c.sh.logs Slot.W16R2.Dom.Ht)) +
+              Fp2.toK U (Sym.eval hist 17 dr (Sym.dr 4 (c.sh.logs Slot.W16R2.Dom.Ht))))) +
+      (List.map (Fp2.toK U) (List.map (Sym.eval hist 17 dr) (drsR 17 (c.sh.logs Slot.W16R2.Dom.S + (13 + ls)) 2))).getD
+          1 0 *
+        mleAt (fun b => (algebraMap GF K) (r13Gh Pb Lay B (xtR U c P D ls) 17 1 (W16Pos.s (xS G b))))
+          (W16.Szc.ptv U (Sym.eval hist 17 dr) 8 0 (c.sh.logs Slot.W16R2.Dom.S))
+error: ZK60Formal/BlockR13HostSzcCube.lean:189:17: Function expected at
+  hS_split
+but this term has type
+  (W16Cfg.sh ?m.43).logs Slot.W16R2.Dom.S = (W16Cfg.sh ?m.43).logs Slot.W16R2.Dom.Ht + (W16Cfg.sh ?m.43).lt
+
+Note: Expected a function because this term is being applied to the argument
+  G
+error: ZK60Formal/BlockR13HostSzcCube.lean:199:4: No goals to be solved
+error: ZK60Formal/BlockR13HostSzcCube.lean:206:4: No goals to be solved
+error: ZK60Formal/BlockR13HostSzcCube.lean:213:4: No goals to be solved
+warning: ZK60Formal/BlockR13HostSzcCube.lean:217:27: This simp argument is unused:
+  splitHt
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [xS, splitS, castB]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: ZK60Formal/BlockR13HostSzcCube.lean:236:48: Function expected at
+  hS_split
+but this term has type
+  (W16Cfg.sh ?m.92).logs Slot.W16R2.Dom.S = (W16Cfg.sh ?m.92).logs Slot.W16R2.Dom.Ht + (W16Cfg.sh ?m.92).lt
+
+Note: Expected a function because this term is being applied to the argument
+  G
+error: ZK60Formal/BlockR13HostSzcCube.lean:237:66: Function expected at
+  hS_split
+but this term has type
+  (W16Cfg.sh ?m.95).logs Slot.W16R2.Dom.S = (W16Cfg.sh ?m.95).logs Slot.W16R2.Dom.Ht + (W16Cfg.sh ?m.95).lt
+
+Note: Expected a function because this term is being applied to the argument
+  G
+error: ZK60Formal/BlockR13HostSzcCube.lean:253:62: Function expected at
+  hS_split
+but this term has type
+  (W16Cfg.sh ?m.64).logs Slot.W16R2.Dom.S = (W16Cfg.sh ?m.64).logs Slot.W16R2.Dom.Ht + (W16Cfg.sh ?m.64).lt
+
+Note: Expected a function because this term is being applied to the argument
+  G
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostSzcCube
+error: build failed
+build rc 1 (46 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_szc_axioms.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_szc_axioms.lean:1:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostSzc.olean' of module ZK60Formal.BlockR13HostSzc does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_szc_axioms.lean (49 s)
+rc 1, 49 s
