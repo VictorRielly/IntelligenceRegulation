@@ -653,6 +653,21 @@ here. The rates count proving and witness work. Verification time is recorded se
       - the endpoint's reading links;
       - `ClassifyOpen`'s other fields (completeness, zero knowledge, the weights' validity);
       - the rulings L24-1 and L19-2.
+  - **L34, the classify run's transcript as a Lean object** [PROVED, given named premises; merged and checked
+    2026-11-09; `ZK60_LEAN_L34_RUN_TRANSCRIPT_20261109.md`].
+    - The run verifier's list of transcript operations is a Lean object (`rtTr`), with its two parses and the nine
+      kinds of check laid on it part by part.
+    - `rt_productionReady_r13`: L30's gate applied to it. The transcript, the kinds, their forms and the endpoint's
+      window premises are now theorems.
+    - Left as premises: the concrete Shieldstral profile and its validity; each part's data; the schedule's
+      premises; the Merkle extra work; the ordered cover's links; the endpoint's reading links. No whole-run
+      comparison with a Rust receipt yet (it needs new test-only Rust).
+    - Findings L34-1 (Medium: per-block results need a congruence lemma to reach the run's parse) and L34-2 (Low).
+  - **2026-11-09, an outside researcher's comment** on the owner's public post called the Lean work "partial" against
+    FlashProve's "formal protocol theorem in Lean". That is accurate: the top theorems hold given named premises. The
+    owner asked to shelve proof size and verify the gaps first. Two independent auditors are building the full register
+    of open premises, hunting for vacuous ones, and comparing with FlashProve's theorem
+    (`ZK60_LEAN_GAP_AUDIT_PREMISES_20261110.md`, `ZK60_LEAN_GAP_AUDIT_FAITHFULNESS_20261110.md`).
   - **Running since 2026-11-09, on what the merged lanes left open for the classify run:**
     - L35 (after L31): the block's `define` as a Lean definition and the tables part of the slot polynomials. L36,
       not yet started: the per-outcome algebra;
@@ -662,9 +677,8 @@ here. The rates count proving and witness work. Verification time is recorded se
       honest prover's slot arithmetic, the stages first);
     - L38, after L33: zero knowledge continued (the prover's masks, pads and salts as a Lean object, the run's
       prover as one program, the query counts made exact, and a sharper count for L33-3's caps).
-    - L34 (started after L30's check passed; perf and main at the L30 check commit, the full Lean build 3597 jobs):
-      the run's transcript as a Lean object with the kinds' lists on it, and the ordered cover's premises (L30's
-      remaining list).
+    - L37 and L38 are ON HOLD until the gap audit's register is in (it may change their order); L35 and L36 were
+      resumed on 2026-11-10 after a usage limit stopped them.
     - The lanes' standing rules are in `results/zk60_lean_resume_20261109/LANE_RULES.md`.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].
