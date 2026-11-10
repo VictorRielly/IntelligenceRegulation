@@ -7,3 +7,5 @@ BlockDefineFinal
 BlockDefineW16
 BlockDefineW16Rung
 BlockDefineW16Final
+BlockDefineUnfold
+BlockDefineAlg

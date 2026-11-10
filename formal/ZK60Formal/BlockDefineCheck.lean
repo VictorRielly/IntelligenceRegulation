@@ -11,7 +11,9 @@ slot's tables (`TAB`), IR (`NODE`, `TERM`) and hosted coefficients (`HOSTED`) as
 What it checks, with the Lean definitions only (`DefW16.rawSlot`, `DefW16.progW16` at `DefW16.cfgRungW16`; every
 coefficient and challenge word evaluated by `Sym.eval` on the corpus's LogUp challenges and draws):
 * per slot (23): the IR's nodes and terms with their coefficient VALUES; the table kinds in order (`eq`, `pub`,
-  `priv`); every `eq` table's start and point; the hosted slots with their coefficients;
+  `priv`); every `eq` table's start and point; the hosted slots with their coefficients; for every table whose code
+  label names its plane (`A[p]`, `A[p]_limb_sub-slice_k`, `H[p]`: 156 of the 162 private tables), that the Lean
+  table reads that plane (commitment and first slice offset at the Lean layout's offset of plane `p`);
 * the reserved mask rows: the rows `[r, r + 1]` of every `A` table of the numbered program, in order, are the
   receipt's `SITES a`; the same for `H` and `SITES h`; the helper `u` plane's rows are `SITES hu`.
 It prints the checks per kind and `N checks, F failed`, and exits nonzero on any failure. Not imported by the library
@@ -96,6 +98,30 @@ def tabSStr (ev : Sym → Fp2) : TabS → String
   | .pub _ => "pub"
   | .priv _ => "priv"
 
+/-- **The plane a code table reads**, from its `IRTAB` label: `A A[p]_…` (with `_limb_sub-slice_k`), `H H[p]`:
+the commitment and the slice's offset by the Lean layout at the code's plane id. `none` for a label without a plane id. -/
+def labPlane (c : DefW16.W16Cfg) (k lab : String) : Option String :=
+  let num := fun (t : String) => (String.ofList ((t.toList.drop 2).takeWhile Char.isDigit)).toNat?
+  if k == "A" && lab.startsWith "A[" then
+    match num lab, (lab.splitOn "limb_sub-slice_") with
+    | some p, [_, j] => (j.toNat?).map fun j => s!"a {DefW16.aOff c p + j * 2 ^ c.sh.lt}"
+    | some p, _ => some s!"a {DefW16.aOff c p}"
+    | none, _ => none
+  else if k == "H" && lab.startsWith "H[" then
+    (num lab).map fun p => s!"h {(DefW16.hOff c p).1}"
+  else none
+
+def cmStr : Cm → String
+  | .a => "a"
+  | .h => "h"
+  | .inp => "inp"
+  | .out => "out"
+
+/-- The commitment and first slice offset of a Lean table. -/
+def tabPlane : TabS → String
+  | .priv q => s!"{cmStr q.cm} {(q.slices.headD (0, false)).1}"
+  | _ => "-"
+
 /-- A corpus `HOSTED` line's entries. -/
 def hostedLine (s : String) : List String := if s = "-" then [] else s.splitOn ";"
 
@@ -130,6 +156,7 @@ structure SRec where
   nodes : List String := []
   terms : List String := []
   hosted : List String := []
+  irtabs : List (String × String) := []
 
 structure CSt where
   st : St := {}
@@ -137,6 +164,7 @@ structure CSt where
   prev : List (List Fp2) := []
   cur : SRec := {}
   slots : ℕ := 0
+  planes : ℕ := 0
 
 /-- **One slot, Lean against the code.** -/
 def CSt.endSlot (c : CSt) : CSt := Id.run do
@@ -152,7 +180,11 @@ def CSt.endSlot (c : CSt) : CSt := Id.run do
   st := st.cmp "ir-terms" sid (ir.terms.map termStr) r.terms
   st := st.cmp "tables" sid (sl.tabs.map (tabSStr ev)) r.tabs
   st := st.cmp "hosted" sid (sl.hosted.map fun h => s!"{h.1}:{f2Str (ev h.2)}") r.hosted
-  return { c with st := st, prev := c.prev ++ [r.draws], slots := c.slots + 1, cur := {} }
+  let pairs := (sl.tabs.zip r.irtabs).filterMap fun q =>
+    (labPlane DefW16.cfgRungW16 q.2.1 q.2.2).map fun e => (tabPlane q.1, e)
+  st := st.cmp "planes" sid (pairs.map Prod.fst) (pairs.map Prod.snd)
+  st := st.check "planes-aligned" (sl.tabs.length == r.irtabs.length) sid
+  return { c with st := st, prev := c.prev ++ [r.draws], slots := c.slots + 1, cur := {}, planes := c.planes + pairs.length }
 
 def CSt.step (c : CSt) (line : String) : CSt :=
   let w := (line.splitOn " ").filter (· ≠ "")
@@ -167,11 +199,14 @@ def CSt.step (c : CSt) (line : String) : CSt :=
     | some v => { c with cur := { c.cur with draws := v } }
     | none => { c with st := c.st.check "PARSE" false line }
   | "TAB" :: _ => { c with cur := { c.cur with tabs := c.cur.tabs ++ [tabLineStr w] } }
+  | ["IRTAB", _, k, lab] => { c with cur := { c.cur with irtabs := c.cur.irtabs ++ [(k, lab)] } }
   | "NODE" :: _ => { c with cur := { c.cur with nodes := c.cur.nodes ++ [nodeLineStr w] } }
   | "TERM" :: _ => { c with cur := { c.cur with terms := c.cur.terms ++ [termLineStr w] } }
   | ["HOSTED", h] => { c with cur := { c.cur with hosted := hostedLine h } }
   | ["END", _] => c.endSlot
-  | ["DONE", _, _, _] => { c with st := c.st.check "slot-count" (c.slots == 23) line }
+  | ["DONE", _, _, _] =>
+    let msg := s!"{c.planes} tables compared by their plane (the corpus labels 156)"
+    { c with st := (c.st.check "slot-count" (c.slots == 23) line).check "planes-count" (c.planes == 156) msg }
   | _ => c
 
 /-! ## The reserved mask rows -/

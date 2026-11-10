@@ -248,6 +248,8 @@ import ZK60Formal.BlockDefineFinal
 import ZK60Formal.BlockDefineW16
 import ZK60Formal.BlockDefineW16Rung
 import ZK60Formal.BlockDefineW16Final
+import ZK60Formal.BlockDefineUnfold
+import ZK60Formal.BlockDefineAlg
 import ZK60Formal.BlockAlgUnmask
 import ZK60Formal.BlockAlgKinds
 import ZK60Formal.BlockAlgInst

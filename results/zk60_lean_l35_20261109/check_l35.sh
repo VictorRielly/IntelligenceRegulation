@@ -10,7 +10,7 @@ MAIN=/Users/victorrielly/IntelligenceRegulation
 LAKE=/Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lake
 OUT=$WT/results/zk60_lean_l35_20261109
 ART=/Users/victorrielly/zk60-artifacts/l35_20261109
-BASE=2155ede8
+BASE=16acb7c8
 O6=$WT/results/zk60_lean_l6_20261106
 O5=$WT/results/zk60_lean_l5_20261106
 O9=$WT/results/zk60_lean_l9_20261107
@@ -99,7 +99,7 @@ echo "== BlockDefineCheck on the committed corpora (L11's W16R2 rung receipt slo
   > "$OUT/blockdefinecheck.log" 2>&1
 cb=$?
 cat "$OUT/blockdefinecheck.log"
-echo "== negative control: nine single changes to the corpora (copies outside the repository) =="
+echo "== negative control: ten single changes to the corpora (copies outside the repository) =="
 mkdir -p "$ART"
 python3 -I "$OUT/l35_mutate.py" "$O11/corpus.txt" "$O9/corpus.txt" "$ART"
 "$LAKE" -d "$WT/formal" env lean --run "$L/BlockDefineCheck.lean" "$ART/l35_mut_corpus11.txt" "$ART/l35_mut_corpus9.txt" \
@@ -109,7 +109,7 @@ grep "^FAILED\|^BlockDefineCheck" "$OUT/negative_control.log"
 gb=1
 grep -q '^BlockDefineCheck: [0-9]* checks, 0 failed$' "$OUT/blockdefinecheck.log" && gb=0
 gn=1
-grep -q '^BlockDefineCheck: [0-9]* checks, 9 failed$' "$OUT/negative_control.log" && gn=0
+grep -q '^BlockDefineCheck: [0-9]* checks, 10 failed$' "$OUT/negative_control.log" && gn=0
 echo "== regression: L6Check on the committed L6 corpus =="
 "$LAKE" -d "$WT/formal" env lean --run "$L/L6Check.lean" "$O6/corpus.txt" > "$OUT/l6check_regression.log" 2>&1
 c6=$?

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """D63 lane L35 (2026-11-09): the negative control of BlockDefineCheck. Writes copies of the L11 and L9 corpora with
-NINE single changes, each of which one check of BlockDefineCheck must catch (so the run must report exactly 9 failed):
+TEN single changes, each of which one check of BlockDefineCheck must catch (so the run must report exactly 10 failed):
   1. slot 2: the first NODE line's first coefficient + 1        (ir-nodes, slot 2)
   2. slot 0: the first TERM line's coefficient + 1               (ir-terms, slot 0)
   3. slot 3: the first `priv` table becomes `pub`                (tables, slot 3)
@@ -10,6 +10,7 @@ NINE single changes, each of which one check of BlockDefineCheck must catch (so 
   7. SITES a: the first row + 1                                  (sites-a)
   8. SITES h: the last row + 1                                   (sites-h)
   9. SITES hu: the first row - 1                                 (sites-hu)
+ 10. slot 0: the first `A[p]` plane label becomes `A[p+1]`       (planes, slot 0)
 usage: l35_mutate.py <L11 corpus> <L9 corpus> <out dir outside the repository>
 """
 import os
@@ -54,6 +55,11 @@ for i, l in enumerate(L):
         w[4] = ",".join(pt)
         L[i] = " ".join(w)
         done.add(5)
+    elif w[0] == "IRTAB" and slot == 0 and 10 not in done and w[3].startswith("A["):
+        p, rest = w[3][2:].split("]", 1)
+        w[3] = "A[" + str(int(p) + 1) + "]" + rest
+        L[i] = " ".join(w)
+        done.add(10)
     elif w[0] == "HOSTED" and w[1] != "-" and 6 not in done:
         e = w[1].split(";")
         f = e[0].split(":")
@@ -62,7 +68,7 @@ for i, l in enumerate(L):
         w[1] = ";".join(e)
         L[i] = " ".join(w)
         done.add(6)
-if done != {1, 2, 3, 4, 5, 6}:
+if done != {1, 2, 3, 4, 5, 6, 10}:
     raise SystemExit("not every L11 change was applied: %s" % sorted(done))
 open(os.path.join(out, "l35_mut_corpus11.txt"), "w").write("\n".join(L))
 M = open(c9).read().split("\n")
@@ -78,7 +84,7 @@ for i, l in enumerate(M):
         w[6] = str(int(w[6]) - 1)
         M[i] = " ".join(w)
         done.update({7, 8, 9})
-if done != set(range(1, 10)):
+if done != set(range(1, 11)):
     raise SystemExit("not every change was applied: %s" % sorted(done))
 open(os.path.join(out, "l35_mut_corpus9.txt"), "w").write("\n".join(M))
-print("wrote 9 changes to", out)
+print("wrote 10 changes to", out)
