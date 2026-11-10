@@ -11,6 +11,8 @@ set -u
 EXP=$1
 OUT=$2
 M=/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/a25tree/ops/zkp-mvp/gpu-metal/hashline/Cargo.toml
+# ZK60_MODELS: the pinned checkpoint the loader re-hashes (A25's c1.sh uses the same path)
+export ZK60_MODELS=/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/flashprove_runtime_20261104/models
 export HL_A25_EXPORT=$EXP HL_GPU=0 HL_PB_ORACLE=0 HL_PB_TIMING=0
 /opt/homebrew/bin/cargo test --offline --locked -j 4 --manifest-path $M --lib a25_census -- --ignored --nocapture --test-threads=1 > $OUT 2>&1
 rc=$?
