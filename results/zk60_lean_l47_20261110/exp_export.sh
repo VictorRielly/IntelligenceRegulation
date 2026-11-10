@@ -14,12 +14,13 @@ D="$1"
 start=$(date +%s)
 mkdir -p "$D"
 env LEAN_L47_CORPUS="$D/l47_w16r2_full.txt" LEAN_L47_CORPUS_SHORT="$D/l47_w16r2_short.txt" \
+  LEAN_L47_HOST_CORPUS="$D/l47_host_full.txt" LEAN_L47_HOST_CORPUS_SHORT="$D/l47_host_short.txt" \
   $C lean_l47_export -- --nocapture --test-threads 1
 rc=$?
 echo "export rc $rc, $(( $(date +%s) - start )) s"
-( cd "$D" && shasum -a 256 l47_w16r2_full.txt l47_w16r2_short.txt ) > "$OUT/l47_export_sha256.txt"
+( cd "$D" && shasum -a 256 l47_w16r2_full.txt l47_w16r2_short.txt l47_host_full.txt l47_host_short.txt ) > "$OUT/l47_export_sha256.txt"
 cat "$OUT/l47_export_sha256.txt"
-for f in l47_w16r2_full.txt l47_w16r2_short.txt; do
+for f in l47_w16r2_full.txt l47_w16r2_short.txt l47_host_full.txt l47_host_short.txt; do
   if [ -f "$D/$f" ]; then
     sz=$(stat -f %z "$D/$f")
     echo "$f $sz bytes"

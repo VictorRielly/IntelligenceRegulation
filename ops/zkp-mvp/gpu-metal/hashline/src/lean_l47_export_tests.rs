@@ -161,6 +161,135 @@ fn export(profile: &str) -> (String, String) {
     (out.full, out.short)
 }
 
+fn i8s(v: &[i8]) -> String {
+    if v.is_empty() {
+        "-".to_string()
+    } else {
+        v.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
+    }
+}
+
+fn u64s(v: &[u64]) -> String {
+    if v.is_empty() {
+        "-".to_string()
+    } else {
+        v.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
+    }
+}
+
+fn usizes(v: &[usize]) -> String {
+    if v.is_empty() {
+        "-".to_string()
+    } else {
+        v.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
+    }
+}
+
+/// **The host slots' public tables** (lane L44's `pubsW16`: slots 0, 1, 4, 5, 6, 7, 10–18) on the same receipt, with
+/// the public data they are built from, as the production code stores it: the shape's numbers and head slots, the
+/// gains `gamma_a`, `gamma_m`, the RoPE tables `rope_cos`, `rope_sin`, the ACT group of every hidden channel, the seven
+/// weight matrices (FULL record only: `wq`, `wk`, `wv`, `wo` as `(output, input)`, `wg_t`, `wu_t`, `wd_t` as
+/// `(input, output)`, the code's storage) and their folding multipliers (`accuracy_fold::coefficients`), every slot's
+/// draws and table counts, and every public table of the host slots (length, two fingerprints, first and last 64
+/// entries; every entry in the FULL record).
+fn export_host(profile: &str) -> (String, String) {
+    use super::super::accuracy_fold::{coefficients, Site};
+    let (sh, blk, w) = rung_case(profile);
+    let core = prove(&sh, &blk, copy(&w)).expect("the honest rung core");
+    verify(&sh, &blk, &core).expect("the honest rung core verifies (production verify_core)");
+    let lay = Layout::for_shape(&sh).unwrap();
+    let rho1 = Fp2::new(Fp::new(7), Fp::new(3));
+    let rho2 = Fp2::new(Fp::new(1234567), Fp::new(89));
+    let mut out = Out::default();
+    out.both(format!("L47H {} {} {}", sh.name, sh.n_slots(), sh.log_cols));
+    out.both(format!("RHO {} {}", f2(&rho1), f2(&rho2)));
+    out.both(format!(
+        "SHAPE {} {} {} {} {} {} {} {} {} {} {}",
+        sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.head_dim, sh.kv_heads, sh.t_pad, sh.d_pad, sh.f_pad, sh.h_pad, sh.q_pad()
+    ));
+    let slots: Vec<usize> = (0..sh.q_heads).map(|h| sh.head_slot(h)).collect();
+    out.both(format!("HEADSLOT {}", usizes(&slots)));
+    let truth: Vec<usize> = (0..sh.h_pad).map(|s| usize::from(sh.slot_is_true_head(s))).collect();
+    out.both(format!("TRUESLOT {}", usizes(&truth)));
+    let (ap, ff) = (blk.attention(), blk.feed_forward());
+    let data = blk.accuracy().expect("the W16R2 rung carries accuracy data");
+    out.both(format!("GAMA {} {}", ap.gamma_a.len(), i8s(&ap.gamma_a)));
+    out.both(format!("GAMM {} {}", ff.gamma_m.len(), i8s(&ff.gamma_m)));
+    out.both(format!("ROPECOS {} {}", ap.rope_cos.len(), ints(&ap.rope_cos)));
+    out.both(format!("ROPESIN {} {}", ap.rope_sin.len(), ints(&ap.rope_sin)));
+    out.both(format!("GROUPIDS {} {}", data.group_ids().len(), usizes(data.group_ids())));
+    for (nm, site) in [("Q", Site::Q), ("K", Site::K), ("V", Site::V), ("O", Site::O), ("G", Site::Gate), ("U", Site::Up), ("D", Site::Down)] {
+        let c = coefficients(&sh, data, site).expect("the multipliers");
+        out.both(format!("COEF {nm} {} {}", c.len(), u64s(&c)));
+    }
+    for (nm, m) in [("Q", &ap.wq), ("K", &ap.wk), ("V", &ap.wv), ("O", &ap.wo), ("G", &ff.wg_t), ("U", &ff.wu_t), ("D", &ff.wd_t)] {
+        out.full_only(format!("WEIGHT {nm} {} {}", m.len(), i8s(m)));
+    }
+    // `verify_core`'s head and the slot loop, as `export`
+    let mut tr = header(&sh, &lay);
+    protocol::absorb_root(&mut tr, b"A", &core.a_root, lay.a_rows, sh.log_cols);
+    tr.absorb(b"M", &core.mask_root);
+    let beta = tr.challenge_fp2();
+    let gamma = tr.challenge_fp2();
+    let alpha = tr.challenge_fp2();
+    let g_u8 = gamma.mul_base(Fp::new(crate::tables_attn::TAG_U8));
+    let g_exp = gamma.mul_base(Fp::new(crate::tables_attn::TAG_EXP));
+    let g_act = gamma.mul_base(Fp::new(crate::tables_attn::TAG_ACT));
+    protocol::absorb_root(&mut tr, b"H", &core.h_root, lay.h_rows, sh.log_cols);
+    let g_dd = gamma.mul_base(Fp::new(TAG_DD));
+    out.both(format!("LOGUP {} {} {}", f2(&beta), f2(&gamma), f2(&alpha)));
+    let ctx = Ctx { accuracy: blk.accuracy(), lay: &lay, public: blk.attention(), ff: blk.feed_forward(), alpha, beta, g_u8, g_exp, g_act, g_dd };
+    let mut side = Side::Verify { slots: &core.slots };
+    let mut acc = Acc::default();
+    let mut pts = Points::default();
+    let (mut n_tabs, mut n_entries) = (0usize, 0usize);
+    for s in 0..sh.n_slots() {
+        let before_def = Transcript::clone_state(&tr);
+        let def = define(s, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("slot {s}: {e}"));
+        // the definition's draws: `define` only squeezes (lane L11's recovery)
+        let mut replay = Transcript::clone_state(&before_def);
+        let mut draws = Vec::new();
+        while replay.counter() < tr.counter() {
+            draws.push(replay.challenge_fp2());
+        }
+        assert_eq!(replay.state(), tr.state(), "slot {s}: the definition did more than squeeze");
+        let pubs: Vec<Vec<Fp2>> = def.tabs.iter().filter_map(|t| if let Tab::Pub(v) = t { Some(v.clone()) } else { None }).collect();
+        out.both(format!("SLOT {s} {} {}", def.tabs.len(), pubs.len()));
+        out.both(format!("DRAWS {s} {}", f2s(&draws)));
+        if !LOOKUP_SLOTS.contains(&s) {
+            for (i, v) in pubs.iter().enumerate() {
+                let n = v.len();
+                let e = ENDS.min(n);
+                out.both(format!(
+                    "PUB {s} {i} {n} FP {} {} HEAD {} TAIL {}",
+                    f2(&fingerprint(v, rho1)),
+                    f2(&fingerprint(v, rho2)),
+                    f2s(&v[..e]),
+                    f2s(&v[n - e..])
+                ));
+                out.full_only(format!("FULL {s} {i} {n} {}", f2s(v)));
+                n_tabs += 1;
+                n_entries += n;
+            }
+        }
+        run_slot(&mut side, &mut acc, def, &mut tr).unwrap_or_else(|e| panic!("slot {s}: {e}"));
+    }
+    out.both(format!("DONE {n_tabs} {n_entries}"));
+    eprintln!("L47 host export {}: {n_tabs} public tables, {n_entries} entries; full {} bytes, short {} bytes", sh.name, out.full.len(), out.short.len());
+    (out.full, out.short)
+}
+
+#[test]
+fn lean_l47_export_the_host_tables() {
+    let (full, short) = export_host(shape::W16R2_RUNG_H24);
+    if let Ok(path) = std::env::var("LEAN_L47_HOST_CORPUS") {
+        std::fs::write(path, full.as_bytes()).unwrap();
+    }
+    if let Ok(path) = std::env::var("LEAN_L47_HOST_CORPUS_SHORT") {
+        std::fs::write(path, short.as_bytes()).unwrap();
+    }
+}
+
 #[test]
 fn lean_l47_export_the_lookup_side() {
     let (full, short) = export(shape::W16R2_RUNG_H24);

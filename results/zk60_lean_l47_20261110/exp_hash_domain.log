@@ -276,7 +276,7 @@ warning: method `pd` is never used
      |        ^^
 
 warning: `hashline` (lib test) generated 37 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
-    Finished `release` profile [optimized] target(s) in 0.02s
+    Finished `release` profile [optimized] target(s) in 0.01s
      Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a99da1a2bc4190ae)
 
 running 15 tests
@@ -284,8 +284,8 @@ test private_block::hash_domain::tests::the_tree_depth_is_the_wire_formats_own_n
 test private_block::hash_domain::tests::the_length_formulas_are_still_the_ones_zkp_core_hashes ... ok
 test private_block::hash_domain::tests::the_shape_free_dangerous_row_counts_are_the_memos_eight ... ok
 test private_block::hash_domain::tests::the_runs_own_parameter_line_enters_the_length_set ... ok
-test private_block::hash_domain::tests::the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors ... ok
 test private_block::hash_domain::tests::the_completed_guard_refuses_geometries_the_constructions_can_actually_reach ... ok
+test private_block::hash_domain::tests::the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors ... ok
 test private_block::hash_domain::tests::the_computed_length_set_is_pinned_at_every_shape ... ok
 test private_block::hash_domain::tests::the_constructors_guard_refuses_every_shape_free_dangerous_count ... ok
 test private_block::hash_domain::tests::the_constructors_guard_is_unchanged_under_the_legacy_rule ... ok
@@ -296,5 +296,5 @@ test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_b
 test private_block::hash_domain::tests::a_frame_one_path_entry_short_is_refused_at_decode ... ok
 test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_whole_verifier_by_name ... ok
 
-test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1052 filtered out; finished in 0.11s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 1053 filtered out; finished in 0.11s
 
