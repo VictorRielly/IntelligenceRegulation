@@ -1,0 +1,9 @@
+✔ [3634/3671] Built ZK60Formal.RunCoverAlive (14s)
+✔ [3642/3671] Built ZK60Formal.RunCoverParse (14s)
+✔ [3659/3671] Built ZK60Formal.RunCoverDefine (14s)
+✔ [3660/3671] Built ZK60Formal.RunTrStages (14s)
+✔ [3667/3671] Built ZK60Formal.RunCoverStage (3.3s)
+✔ [3668/3671] Built ZK60Formal.RunCoverSome (5.1s)
+✔ [3669/3671] Built ZK60Formal.RunCoverSomeL (5.9s)
+✔ [3670/3671] Built ZK60Formal (1.9s)
+Build completed successfully (3671 jobs).
