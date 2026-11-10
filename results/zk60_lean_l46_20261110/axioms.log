@@ -1,0 +1,18 @@
+'ZK60.ProtocolClassify.rd_ksq_cs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_entD_sq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_some_sq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_absAt_take' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rd_rootsAt_take' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rd_defSq_doom' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rd_lkSq_doom' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_def_some' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_lu_some' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_r13_notGd' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RdDefAt' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rd_blk_doom' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RdBlkR13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_blk_doom_of' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_hdblk' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rd_productionReadyL_r13P_exec_blk' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
