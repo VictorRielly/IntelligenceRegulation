@@ -1,0 +1,2 @@
+[zk60-guard 10:59:32] START lean-l53-neg class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=0ed7355737f6
+[zk60-guard 11:01:24] END lean-l53-neg exit=1 child_wall=113s peak_rss=3.74G min_avail=224.88G

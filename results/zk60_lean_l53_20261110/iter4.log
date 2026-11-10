@@ -1,0 +1,126 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/results/zk60_lean_l53_20261110/plan2.txt ==
+build ZK60Formal.RunStgList
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/ZK60Formal/RunStgCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/results/zk60_lean_l29_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/stage_in_c.rs /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/stage_out_c.rs
+== lake build ZK60Formal.RunStgList ==
+Build completed successfully (3631 jobs).
+build rc 0 (3 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/formal/ZK60Formal/RunStgCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/results/zk60_lean_l29_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/stage_in_c.rs /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/stage_out_c.rs ==
+ok   LIST: IN-C: L29's slot walk accepts the receipt's 4 slots
+ok   LIST: IN-C: 4 slots (the receipt's 4)
+ok   LIST: IN-C: the slots that draw [0, 1, 2]
+ok   LIST: IN-C: the head's 12 challenges (the receipt's 12)
+ok   LIST: IN-C slot 0: 9 rounds of degree 3
+ok   LIST: IN-C slot 1: 13 rounds of degree 4
+ok   LIST: IN-C slot 2: 13 rounds of degree 4
+ok   LIST: IN-C slot 3: 13 rounds of degree 2
+ok   LU: IN-C: LogUp's window 9 is the first of the head's 12 squeezes, after M, before H
+ok   LU: IN-C: the operations to the head's end land on the code's transcript after H
+ok   DEF: IN-C slot 0: its define window 24 is the first of its 8 draws, then pb-slot 0
+ok   DEF: IN-C slot 0: the operations before its draws land on the code's transcript before the slot
+ok   DEF: IN-C slot 1: its define window 54 is the first of its 17 draws, then pb-slot 1
+ok   DEF: IN-C slot 1: the operations before its draws land on the code's transcript before the slot
+ok   DEF: IN-C slot 2: its define window 101 is the first of its 15 draws, then pb-slot 2
+ok   DEF: IN-C slot 2: the operations before its draws land on the code's transcript before the slot
+ok   SLOT: IN-C slot 0: window 35 = its define window + draws + 3, after the previous
+ok   SLOT: IN-C slot 0: after pb-scalar, 9 rounds (sc-round, squeeze) from 35, then pb-term
+ok   SLOT: IN-C slot 0: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: IN-C slot 1: window 74 = its define window + draws + 3, after the previous
+ok   SLOT: IN-C slot 1: after pb-scalar, 13 rounds (sc-round, squeeze) from 74, then pb-term
+ok   SLOT: IN-C slot 1: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: IN-C slot 2: window 119 = its define window + draws + 3, after the previous
+ok   SLOT: IN-C slot 2: after pb-scalar, 13 rounds (sc-round, squeeze) from 119, then pb-term
+ok   SLOT: IN-C slot 2: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: IN-C slot 3: window 149 = its define window + draws + 3, after the previous
+ok   SLOT: IN-C slot 3: after pb-scalar, 13 rounds (sc-round, squeeze) from 149, then pb-term
+ok   SLOT: IN-C slot 3: the operations to its pb-term land on the code's transcript after it
+ok   CLAIM: IN-C slot 0: the claimed sum the list reads is the slot loop's (18020016399845139928:11990151699876136250)
+ok   CLAIM: IN-C slot 1: the claimed sum the list reads is the slot loop's (7193247944094262646:11384266025046296120)
+ok   CLAIM: IN-C slot 2: the claimed sum the list reads is the slot loop's (13214220755688794972:1204560853508877500)
+ok   CLAIM: IN-C slot 3: the claimed sum the list reads is the slot loop's (14875401301626151260:1042384749947209276)
+ok   SPAN: IN-C: the head before the slots; the operations end on the last pb-term (176)
+ok   LIST: OUT-C: L29's slot walk accepts the receipt's 8 slots
+ok   LIST: OUT-C: 8 slots (the receipt's 8)
+ok   LIST: OUT-C: the slots that draw [0, 2, 4, 5, 6]
+ok   LIST: OUT-C: the head's 2 challenges (the receipt's 2)
+ok   LIST: OUT-C slot 0: 10 rounds of degree 2
+ok   LIST: OUT-C slot 1: 13 rounds of degree 4
+ok   LIST: OUT-C slot 2: 2 rounds of degree 3
+ok   LIST: OUT-C slot 3: 10 rounds of degree 2
+ok   LIST: OUT-C slot 4: 13 rounds of degree 4
+ok   LIST: OUT-C slot 5: 13 rounds of degree 5
+ok   LIST: OUT-C slot 6: 13 rounds of degree 3
+ok   LIST: OUT-C slot 7: 13 rounds of degree 2
+ok   LU: OUT-C: LogUp's window 6 is the first of the head's 2 squeezes, after M, before H
+ok   LU: OUT-C: the operations to the head's end land on the code's transcript after H
+ok   DEF: OUT-C slot 0: its define window 11 is the first of its 9 draws, then pb-slot 0
+ok   DEF: OUT-C slot 0: the operations before its draws land on the code's transcript before the slot
+ok   DEF: OUT-C slot 2: its define window 74 is the first of its 7 draws, then pb-slot 2
+ok   DEF: OUT-C slot 2: the operations before its draws land on the code's transcript before the slot
+ok   DEF: OUT-C slot 4: its define window 113 is the first of its 15 draws, then pb-slot 4
+ok   DEF: OUT-C slot 4: the operations before its draws land on the code's transcript before the slot
+ok   DEF: OUT-C slot 5: its define window 158 is the first of its 23 draws, then pb-slot 5
+ok   DEF: OUT-C slot 5: the operations before its draws land on the code's transcript before the slot
+ok   DEF: OUT-C slot 6: its define window 211 is the first of its 15 draws, then pb-slot 6
+ok   DEF: OUT-C slot 6: the operations before its draws land on the code's transcript before the slot
+ok   SLOT: OUT-C slot 0: window 23 = its define window + draws + 3, after the previous
+ok   SLOT: OUT-C slot 0: after pb-scalar, 10 rounds (sc-round, squeeze) from 23, then pb-term
+ok   SLOT: OUT-C slot 0: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: OUT-C slot 1: window 47 = its define window + draws + 3, after the previous
+ok   SLOT: OUT-C slot 1: after pb-scalar, 13 rounds (sc-round, squeeze) from 47, then pb-term
+ok   SLOT: OUT-C slot 1: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: OUT-C slot 2: window 84 = its define window + draws + 3, after the previous
+ok   SLOT: OUT-C slot 2: after pb-scalar, 2 rounds (sc-round, squeeze) from 84, then pb-term
+ok   SLOT: OUT-C slot 2: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: OUT-C slot 3: window 92 = its define window + draws + 3, after the previous
+ok   SLOT: OUT-C slot 3: after pb-scalar, 10 rounds (sc-round, squeeze) from 92, then pb-term
+ok   SLOT: OUT-C slot 3: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: OUT-C slot 4: window 131 = its define window + draws + 3, after the previous
+ok   SLOT: OUT-C slot 4: after pb-scalar, 13 rounds (sc-round, squeeze) from 131, then pb-term
+ok   SLOT: OUT-C slot 4: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: OUT-C slot 5: window 184 = its define window + draws + 3, after the previous
+ok   SLOT: OUT-C slot 5: after pb-scalar, 13 rounds (sc-round, squeeze) from 184, then pb-term
+ok   SLOT: OUT-C slot 5: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: OUT-C slot 6: window 229 = its define window + draws + 3, after the previous
+ok   SLOT: OUT-C slot 6: after pb-scalar, 13 rounds (sc-round, squeeze) from 229, then pb-term
+ok   SLOT: OUT-C slot 6: the operations to its pb-term land on the code's transcript after it
+ok   SLOT: OUT-C slot 7: window 259 = its define window + draws + 3, after the previous
+ok   SLOT: OUT-C slot 7: after pb-scalar, 13 rounds (sc-round, squeeze) from 259, then pb-term
+ok   SLOT: OUT-C slot 7: the operations to its pb-term land on the code's transcript after it
+ok   CLAIM: OUT-C slot 0: the claimed sum the list reads is the slot loop's (8907905604748484223:7063654781400130365)
+ok   CLAIM: OUT-C slot 1: the claimed sum the list reads is the slot loop's (2693277783415375584:925245505731609518)
+ok   CLAIM: OUT-C slot 2: the claimed sum the list reads is the slot loop's (2589425887658819237:13969348897648364700)
+ok   CLAIM: OUT-C slot 3: the claimed sum the list reads is the slot loop's (8798122589717516346:469439288272635127)
+ok   CLAIM: OUT-C slot 4: the claimed sum the list reads is the slot loop's (5396587364918287431:5038961242536306168)
+ok   CLAIM: OUT-C slot 5: the claimed sum the list reads is the slot loop's (10951207105829246873:12825878388726777448)
+ok   CLAIM: OUT-C slot 6: the claimed sum the list reads is the slot loop's (13459972427250707231:2517295019074220499)
+ok   CLAIM: OUT-C slot 7: the claimed sum the list reads is the slot loop's (2013913387072527148:15653603695951579992)
+ok   SPAN: OUT-C: the head before the slots; the operations end on the last pb-term (286)
+ok   SOURCE: IN-C's SlotSpec degrees [3, 4, 4, 2] are the list's [3, 4, 4, 2]
+ok   SOURCE: OUT-C's SlotSpec degrees [2, 4, 3, 2, 4, 5, 3, 2] are the list's [2, 4, 3, 2, 4, 5, 3, 2]
+ok   SOURCE: IN-C hosts nothing
+ok   SOURCE: OUT-C: TZC hosts SS, LZC hosts PD
+ok   SOURCE: OUT-C: TZC's and LZC's host coefficient is the ν drawn after τ and μ
+ok   SOURCE: both stages: each slot's define draws, then its run_stage_slot
+ok   SOURCE: IN-C's head: beta, gamma, alpha, r_emb after M, before H and the slots
+ok   SOURCE: OUT-C's head: gamma, alpha after M
+ok   NEGATIVE: IN-C at the block's head (m = 3) is caught
+ok   NEGATIVE: IN-C with the frame one longer is caught
+ok   NEGATIVE: IN-C with slot 1's draws one more is caught
+FAIL NEGATIVE: IN-C with slots 1 and 2 swapped is caught
+ok   NEGATIVE: IN-C with the zero-sum slot listed as drawing is caught
+ok   NEGATIVE: IN-C with slot 0's degree one more is caught
+ok   NEGATIVE: OUT-C with no hosting is caught
+ok   NEGATIVE: OUT-C at the block's head (m = 3) is caught
+ok   NEGATIVE: OUT-C with slots 4 and 5 swapped is caught
+ok   NEGATIVE: OUT-C with LZC's host coefficient one draw later is caught
+LIST: 20 checks, 0 failed
+LU: 4 checks, 0 failed
+DEF: 16 checks, 0 failed
+SLOT: 36 checks, 0 failed
+CLAIM: 12 checks, 0 failed
+SPAN: 2 checks, 0 failed
+SOURCE: 8 checks, 0 failed
+NEGATIVE: 10 checks, 1 failed
+RunStgCheck: 108 checks, 1 failed
+run rc 1 (11 s)
+rc 1, 11 s
