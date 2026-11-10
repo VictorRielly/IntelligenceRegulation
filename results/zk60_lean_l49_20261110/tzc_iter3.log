@@ -1,0 +1,30 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/tzc_plan3.txt ==
+build ZK60Formal.BlockR13HostTzc
+build ZK60Formal.BlockR13HostTzcForm
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_tzc_axioms.lean
+== lake build ZK60Formal.BlockR13HostTzc ==
+Build completed successfully (3575 jobs).
+build rc 0 (10 s)
+== lake build ZK60Formal.BlockR13HostTzcForm ==
+✖ [3576/3576] Building ZK60Formal.BlockR13HostTzcForm (2.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13HostTzcForm.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostTzcForm.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostTzcForm.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostTzcForm.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13HostTzcForm.setup.json --json
+error: ZK60Formal/BlockR13HostTzcForm.lean:180:10: Type mismatch
+  fun a => Fp2.toK U (r0.draws.getD a Fp2.zero)
+has type
+  ℕ → K
+but is expected to have type
+  Fin (segLn ((algShapeR c P hc).dl 2) Seg.tau) → K
+error: ZK60Formal/BlockR13HostTzcForm.lean:184:10: Type mismatch
+  fun a => Fp2.toK U (r1.draws.getD a Fp2.zero)
+has type
+  ℕ → K
+but is expected to have type
+  Fin (segLn ((algShapeR c P hc).dl 2) Seg.tau) → K
+Some required targets logged failures:
+- ZK60Formal.BlockR13HostTzcForm
+error: build failed
+build rc 1 (15 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_tzc_axioms.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_tzc_axioms.lean:1:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13HostTzcForm.olean' of module ZK60Formal.BlockR13HostTzcForm does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/l49_tzc_axioms.lean (16 s)
+rc 1, 16 s
