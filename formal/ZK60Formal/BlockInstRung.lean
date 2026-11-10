@@ -49,7 +49,8 @@ theorem block_knowledge_rung_w16r2 [Fintype K] [DecidableEq K] (U : K) (hU : U ^
     (hK2 : Module.finrank GF K = 2) (key : Option Dig) (domain : List UInt8) (hs : decodeLink (startMsg domain) = none)
     (hL : (startMsg domain).length ≤ L) (hL64 : L < 2 ^ 64) (hL20 : 2 ^ 20 ≤ L) (P : BlockParams)
     (tag : MTag) (rowsOf : Cm → ℕ) (hP : Link.IsRungW16 P tag rowsOf)
-    (hdc : Link.DefCm P Link.aCntW16Rung Link.hCntW16Rung)
+    (aC hC : List ℕ) (hdc : Link.DefCm P aC hC)
+    (hsA : sumFrom (fun k => aC.getD k 0) 0 23 = 114) (hsH : sumFrom (fun k => hC.getD k 0) 0 23 + 1 = 47)
     (hdrLen hdrSq : ℕ) (hh : hdrLen ≤ 2 ^ 19) (hq : hdrSq ≤ 2 ^ 63)
     (F : Cuts3 L → RootsO → (k : ℕ) → Seen → (Fin ((slotShape P k).1 + (slotShape P k).2.1) → K) → K)
     (csE : Cuts3 L → RootsO → Cm → ZClaim → K)
@@ -120,8 +121,8 @@ theorem block_knowledge_rung_w16r2 [Fintype K] [DecidableEq K] (U : K) (hU : U ^
     hP.hPm hP.hPp hP.hrA hP.hrH
     ⟨by show 8 * 320 ≤ L; omega, by show 8 * 202 ≤ L; omega, by show 8 * (2 * 23 + 4) ≤ L; omega⟩
     (by rw [hP.hnf]; norm_num) (by rw [hP.hnf]; norm_num)
-    (fun G bga rs acc hacc => Link.hcnt_of_defCm P hdrLen key domain Link.aCntW16Rung Link.hCntW16Rung 114 47 23 hlen23
-      Link.cnt_sums.1 Link.cnt_sums.2.1 hdc G (A.run G) bga rs acc hacc.1)
+    (fun G bga rs acc hacc => Link.hcnt_of_defCm P hdrLen key domain aC hC 114 47 23 hlen23 hsA hsH hdc G (A.run G)
+      bga rs acc hacc.1)
     (tAccRd P hdrLen)
     (fun G bga rs acc hacc _ => by
       rw [accRd_slotTrace P hdrLen key domain hd1 G (A.run G) bga rs acc hacc.1]
@@ -136,7 +137,8 @@ theorem block_knowledge_rung_r13 [Fintype K] [DecidableEq K] (U : K) (hU : U ^ 2
     (hK2 : Module.finrank GF K = 2) (key : Option Dig) (domain : List UInt8) (hs : decodeLink (startMsg domain) = none)
     (hL : (startMsg domain).length ≤ L) (hL64 : L < 2 ^ 64) (hL20 : 2 ^ 20 ≤ L) (P : BlockParams)
     (tag : MTag) (rowsOf : Cm → ℕ) (hP : Link.IsRungR13 P tag rowsOf)
-    (hdc : Link.DefCm P Link.aCntR13Rung Link.hCntR13Rung)
+    (aC hC : List ℕ) (hdc : Link.DefCm P aC hC)
+    (hsA : sumFrom (fun k => aC.getD k 0) 0 23 = 148) (hsH : sumFrom (fun k => hC.getD k 0) 0 23 + 1 = 55)
     (hdrLen hdrSq : ℕ) (hh : hdrLen ≤ 2 ^ 19) (hq : hdrSq ≤ 2 ^ 63)
     (F : Cuts3 L → RootsO → (k : ℕ) → Seen → (Fin ((slotShape P k).1 + (slotShape P k).2.1) → K) → K)
     (csE : Cuts3 L → RootsO → Cm → ZClaim → K)
@@ -208,8 +210,8 @@ theorem block_knowledge_rung_r13 [Fintype K] [DecidableEq K] (U : K) (hU : U ^ 2
     hP.hPm hP.hPp hP.hrA hP.hrH
     ⟨by show 8 * 437 ≤ L; omega, by show 8 * 248 ≤ L; omega, by show 8 * (2 * 23 + 4) ≤ L; omega⟩
     (by rw [hP.hnf]; norm_num) (by rw [hP.hnf]; norm_num)
-    (fun G bga rs acc hacc => Link.hcnt_of_defCm P hdrLen key domain Link.aCntR13Rung Link.hCntR13Rung 148 55 23 hlen23
-      Link.cnt_sums.2.2.1 Link.cnt_sums.2.2.2.1 hdc G (A.run G) bga rs acc hacc.1)
+    (fun G bga rs acc hacc => Link.hcnt_of_defCm P hdrLen key domain aC hC 148 55 23 hlen23 hsA hsH hdc G (A.run G)
+      bga rs acc hacc.1)
     (tAccRd P hdrLen)
     (fun G bga rs acc hacc _ => by
       rw [accRd_slotTrace P hdrLen key domain hd1 G (A.run G) bga rs acc hacc.1]

@@ -131,7 +131,7 @@ spec.loader.exec_module(rung)
 stmt = thm.split("\n")
 send = next(i for i, l in enumerate(stmt) if l.rstrip().endswith("≤ εsTarget q + εend := by"))
 w = rung.transform(stmt[:send + 1], "block_knowledge_open_r13_shield", "block_knowledge_shield_r13", "IsShieldR13",
-                   "aCntR13Shield", "hCntR13Shield", "csShieldR13")
+                   "146", "54", "csShieldR13")
 pf = rung.proof("block_knowledge_open_r13_shield", "profR13Shield", "R13.shield_slot_facts", "Pb Lay B hW13 h24", 4577,
                 4390, 146, 54, "Link.cnt_sums.2.2.2.2.1", "Link.cnt_sums.2.2.2.2.2", "csShieldR13", "aCntR13Shield",
                 "hCntR13Shield")

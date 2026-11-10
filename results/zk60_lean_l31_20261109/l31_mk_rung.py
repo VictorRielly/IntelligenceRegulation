@@ -5,7 +5,7 @@ The two theorems of that file are L28's `block_knowledge_open_w16r2` and `block_
 of L28 §3 items 1 to 6 removed (the profile, the fields, `hcnt`, `hRd`, the reading definitions, `hrows`, `hk`, `hkF`).
 Their statements are L28's, transformed here line by line, so that no premise is retyped by hand:
   * the three schedule equations become `IsRungW16 P tag rowsOf` / `IsRungR13 P tag rowsOf` and `define`'s commitment
-    schedule `DefCm`;
+    schedule `DefCm P aC hC` for ANY per-slot split `aC`, `hC` with the profile's totals (the receipts' claim counts);
   * `pr : OProf P` becomes the run's header numbers `hdrLen ≤ 2^19`, `hdrSq ≤ 2^63` (the profile is built from them);
   * `csX`, `msX` become the reading definitions (`Link.csRungW16` / `Link.csRungR13`, `Link.msRung`) with the endpoint
     commitments' semantics `csE` a parameter;
@@ -49,7 +49,9 @@ def transform_raw(st, old, new, isname, acnt, hcnt, cs):
             continue
         if l.strip().startswith("(hdr : P.draws ="):
             out.append(f"    (tag : MTag) (rowsOf : Cm → ℕ) (hP : Link.{isname} P tag rowsOf)")
-            out.append(f"    (hdc : Link.DefCm P Link.{acnt} Link.{hcnt})")
+            out.append("    (aC hC : List ℕ) (hdc : Link.DefCm P aC hC)")
+            out.append(f"    (hsA : sumFrom (fun k => aC.getD k 0) 0 23 = {acnt})"
+                       f" (hsH : sumFrom (fun k => hC.getD k 0) 0 23 + 1 = {hcnt})")
             continue
         if l.strip().startswith("(pr : Link.OProf P)"):
             out.append("    (hdrLen hdrSq : ℕ) (hh : hdrLen ≤ 2 ^ 19) (hq : hdrSq ≤ 2 ^ 63)")
@@ -138,8 +140,8 @@ def proof(open_thm, prof, facts, mid, rA, rH, nA, nH, sums_a, sums_h, cs, acnt, 
     hP.hPm hP.hPp hP.hrA hP.hrH
     ⟨by show 8 * {rA} ≤ L; omega, by show 8 * {rH} ≤ L; omega, by show 8 * (2 * 23 + 4) ≤ L; omega⟩
     (by rw [hP.hnf]; norm_num) (by rw [hP.hnf]; norm_num)
-    (fun G bga rs acc hacc => Link.hcnt_of_defCm P hdrLen key domain Link.{acnt} Link.{hcnt} {nA} {nH} 23 hlen23
-      {sums_a} {sums_h} hdc G (A.run G) bga rs acc hacc.1)
+    (fun G bga rs acc hacc => Link.hcnt_of_defCm P hdrLen key domain aC hC {nA} {nH} 23 hlen23 hsA hsH hdc G (A.run G)
+      bga rs acc hacc.1)
     (tAccRd P hdrLen)
     (fun G bga rs acc hacc _ => by
       rw [accRd_slotTrace P hdrLen key domain hd1 G (A.run G) bga rs acc hacc.1]
@@ -151,9 +153,9 @@ def proof(open_thm, prof, facts, mid, rA, rH, nA, nH, sums_a, sums_h, cs, acnt, 
 
 def main(src):
     w = transform(statement(src, "LinkW16GlueW16T.lean", "block_knowledge_open_w16r2"), "block_knowledge_open_w16r2",
-                  "block_knowledge_rung_w16r2", "IsRungW16", "aCntW16Rung", "hCntW16Rung", "csRungW16")
+                  "block_knowledge_rung_w16r2", "IsRungW16", "114", "47", "csRungW16")
     r = transform(statement(src, "LinkW16GlueR13.lean", "block_knowledge_open_r13"), "block_knowledge_open_r13",
-                  "block_knowledge_rung_r13", "IsRungR13", "aCntR13Rung", "hCntR13Rung", "csRungR13")
+                  "block_knowledge_rung_r13", "IsRungR13", "148", "55", "csRungR13")
     body = [HEADER, DOC_W] + w + [proof("block_knowledge_open_w16r2", "profW16Rung", "W16R2.rung_slot_facts",
                                         "Pb Lay B fams hF hW h24", 320, 202, 114, 47, "Link.cnt_sums.1",
                                         "Link.cnt_sums.2.1", "csRungW16", "aCntW16Rung", "hCntW16Rung"), DOC_R] + r + [

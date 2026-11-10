@@ -1,19 +1,5 @@
 declarations in {BlockInst,SlotPolyInst}*.lean: 133
 declared twice inside the lane: none
-worktrees read: 39
-other Lean files read (with repeats across worktrees): 3103
-CLASH main: BlockInstCheck.lean and CheckR13Block.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and CheckR13Open.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and CheckR13Slots.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and ExecBlockCheck.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and ExecOpeningCheck.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and L11Check.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and L1Check.lean (in 14 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and L1CheckOut.lean (in 11 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and L5Check.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and L6Check.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and ProtocolClassifyCheck.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and SlotW16BuildCheck.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and StageCheckOutC.lean (in 10 worktree(s), e.g. IntelligenceRegulation)
-CLASH main: BlockInstCheck.lean and StageVerifyExecCheck.lean (in 6 worktree(s), e.g. IntelligenceRegulation)
-clashes: 14
+worktrees read: 40
+other Lean files read (with repeats across worktrees): 3331
+clashes: 0

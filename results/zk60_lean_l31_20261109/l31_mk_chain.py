@@ -160,8 +160,9 @@ polynomials (`F` is `maskedF` of a table side `Poly`, `SlotPolyInstEval.lean`).
 **The premises that are left**, by name:
 * the profile's definition: `hP : Link.IsRungW16 / IsRungR13 / IsShieldR13 P tag rowsOf` (the schedule, the group
   counts, the functional count, the opening fields);
-* `define`'s commitment schedule `hdc : Link.DefCm` and `hpolyC` (its polynomials return canonical words;
-  `hpolyC_of_ir` for an IR-defined `define`);
+* `define`'s commitment schedule `hdc : Link.DefCm P aC hC`, for any per-slot split `aC`, `hC` with the profile's totals
+  `hsA`, `hsH` (`Link.aCntW16Rung` … with `Link.cnt_sums` are the splits the layouts give); and `hpolyC` (its
+  polynomials return canonical words; `hpolyC_of_ir` for an IR-defined `define`);
 * the table side `Poly` of the slot polynomials: `hPoly` (`SlotEvalN` with the zero `M` semantics: at an accepting
   slot whose claims are true, `Poly(ρ) = poly(vals)`) and `hdegP` (its individual degree is the slot's);
 * the run level: the header's numbers `hh`, `hq`, the endpoint commitments' semantics `csE` and `hEnd`;
@@ -256,8 +257,8 @@ def final_proof(open_thm, prof, facts, mid, rA, rH, nA, nH, sums_a, sums_h, cs, 
     {mid} xtE q A hA rfl rowsOf hP.hPm hP.hPp hP.hrA hP.hrH
     ⟨by show 8 * {rA} ≤ L; omega, by show 8 * {rH} ≤ L; omega, by show 8 * (2 * 23 + 4) ≤ L; omega⟩
     (by rw [hP.hnf]; norm_num) (by rw [hP.hnf]; norm_num)
-    (fun G bga rs acc hacc => Link.hcnt_of_defCm P hdrLen key domain Link.{acnt} Link.{hcnt} {nA} {nH} 23 hlen23
-      {sums_a} {sums_h} hdc G (A.run G) bga rs acc hacc.1)
+    (fun G bga rs acc hacc => Link.hcnt_of_defCm P hdrLen key domain aC hC {nA} {nH} 23 hlen23 hsA hsH hdc G (A.run G)
+      bga rs acc hacc.1)
     (tAccRd P hdrLen)
     (fun G bga rs acc hacc _ => by
       rw [accRd_slotTrace P hdrLen key domain hd1 G (A.run G) bga rs acc hacc.1]
@@ -274,16 +275,16 @@ def stmt_of(thm):
 
 
 FINALS = [
-    ("block_knowledge_open_w16r2", "block_knowledge_final_w16r2", "IsRungW16", "aCntW16Rung", "hCntW16Rung", "csRungW16",
+    ("block_knowledge_open_w16r2", "block_knowledge_final_w16r2", "IsRungW16", "114", "47", "csRungW16",
      "profW16Rung", "w16r2_rung_mask_facts", "Pb Lay B fams hF hW h24", 320, 202, 114, 47, "Link.cnt_sums.1",
      "Link.cnt_sums.2.1",
      "/-- **One W16R2 rung block's knowledge statement, with this lane's premises discharged** (D63 lane L31): L28's\nbookkeeping premises, the corrected evaluation interface and the mask half of the slot polynomials. The premises left\nare listed in this file's header. -/"),
-    ("block_knowledge_open_r13", "block_knowledge_final_r13", "IsRungR13", "aCntR13Rung", "hCntR13Rung", "csRungR13",
+    ("block_knowledge_open_r13", "block_knowledge_final_r13", "IsRungR13", "148", "55", "csRungR13",
      "profR13Rung", "r13_rung_mask_facts", "Pb Lay B hW13 h24", 437, 248, 148, 55, "Link.cnt_sums.2.2.1",
      "Link.cnt_sums.2.2.2.1",
      "/-- **One R13 rung block's knowledge statement, with this lane's premises discharged** (as\n`block_knowledge_final_w16r2`, at R13). -/"),
-    ("block_knowledge_open_r13_shield", "block_knowledge_final_r13_shield", "IsShieldR13", "aCntR13Shield",
-     "hCntR13Shield", "csShieldR13", "profR13Shield", "r13_shield_mask_facts", "Pb Lay B hW13 h24", 4577, 4390, 146, 54,
+    ("block_knowledge_open_r13_shield", "block_knowledge_final_r13_shield", "IsShieldR13", "146",
+     "54", "csShieldR13", "profR13Shield", "r13_shield_mask_facts", "Pb Lay B hW13 h24", 4577, 4390, 146, 54,
      "Link.cnt_sums.2.2.2.2.1", "Link.cnt_sums.2.2.2.2.2",
      "/-- **One Shieldstral T128 R13 block's knowledge statement, with this lane's premises discharged** (the media app's\nclassifier block; as `block_knowledge_final_r13`, at the Shieldstral schedule). -/"),
 ]

@@ -3,26 +3,30 @@ lake build ZK60Formal.BlockInstRead rc 0
 lake build ZK60Formal.BlockInstProf rc 0
 lake build ZK60Formal.BlockInstRung rc 0
 lake build ZK60Formal.BlockInstShield rc 0
+lake build ZK60Formal.SlotPolyInstMask rc 0
+lake build ZK60Formal.SlotPolyInstEval rc 0
+lake build ZK60Formal.BlockInstChainN rc 0
+lake build ZK60Formal.BlockInstFinal rc 0
 == lake build (full) ==
 lake build rc 0
-✔ [3594/3595] Built ZK60Formal (2.3s)
-Build completed successfully (3595 jobs).
+✔ [3598/3599] Built ZK60Formal (11s)
+Build completed successfully (3599 jobs).
 warnings: 0
 errors: 0
 sorry: 0
 warnings in the L31 modules' own builds: 0
 == axiom audit ==
-72 declarations: 4 abbrev, 29 def, 5 structure, 34 theorem
+115 declarations: 5 abbrev, 34 def, 5 structure, 71 theorem
 axioms rc 0
-declarations audited: 72 (generated: 72)
-no axiom at all: 20
+declarations audited: 115 (generated: 115)
+no axiom at all: 21
 sorryAx: 0
 ofReduceBool: 0
 other axioms: 0
 lines that are not a report: 0
-  25 axioms: [propext, Classical.choice, Quot.sound]
-  17 axioms: [propext, Quot.sound]
-  10 axioms: [propext]
+  62 axioms: [propext, Classical.choice, Quot.sound]
+  18 axioms: [propext, Quot.sound]
+  14 axioms: [propext]
 == source scan of the L31 files (the library files and BlockInstCheck.lean) ==
 none
 == the library root imports the L31 files (and not the checker) ==
@@ -30,13 +34,17 @@ imported: BlockInstRead
 imported: BlockInstProf
 imported: BlockInstRung
 imported: BlockInstShield
+imported: SlotPolyInstMask
+imported: SlotPolyInstEval
+imported: BlockInstChainN
+imported: BlockInstFinal
 == unchanged: Statements.lean and every existing Lean file, against the lane's base 6e788dcb ==
 Statements.lean unchanged
 existing files under formal/ modified, deleted or renamed since the base (the root's import lines apart): 0
 lines removed from the root's imports: 0
 files changed under ops/ (no Rust in this lane): 0
 == name clashes with the other worktrees' Lean files ==
-clashes: 14
+clashes: 0
 == BlockInstCheck on the committed corpora (L9's, L17's block and shape corpora) ==
   ROWS: 2
   GROUPS: 2
@@ -79,4 +87,4 @@ L11Check: 404 checks, 0 failed
 == regression: the fixture L1 check ==
 L1 TOTAL: 101956 checks, 0 failed
 verdicts: BlockInstCheck 0, negative control 0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
-total 60 s
+total 73 s
