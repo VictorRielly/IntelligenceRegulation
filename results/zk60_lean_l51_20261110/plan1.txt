@@ -1,0 +1,4 @@
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsHdr.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunEndptWin.lean
+build ZK60Formal.RunAbsHdr
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a60fcb882718532c4/formal/ZK60Formal/RunAbsX.lean
