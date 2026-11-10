@@ -1,0 +1,6 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200/results/zk60_lean_l53_20261110/plan6.txt ==
+build ZK60Formal.RunStgDoom
+== lake build ZK60Formal.RunStgDoom ==
+Build completed successfully (3635 jobs).
+build rc 0 (13 s)
+rc 0, 13 s
