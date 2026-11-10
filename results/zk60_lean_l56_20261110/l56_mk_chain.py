@@ -11,7 +11,10 @@ section:
     `blockSlotXB`);
   * `hslB`: `blockSchedX` -> `blockSchedXB` (the same arguments);
   * `hsl_blk`: `RaTermAt` -> `RaTermAtB` (the same arguments);
-  * in `exec_alive`'s proof: `ra_hal_sl` -> `ra_hal_slB` (the same named arguments).
+  * in `exec_alive`'s proof: `ra_hal_sl` -> `ra_hal_slB` (the same named arguments);
+  * finding L56-7: the four define kinds' block premises `hR0_blk`, `hR1_blk`, `hH0_blk`, `hH1_blk`: `RaDefAt` ->
+    `RaDefAtB` (the draws' polynomial also sees the header's roots and cuts), and in `exec_alive`'s proof `ra_hal_def`
+    -> `ra_hal_defB`.
 Every other binder and every proof step is the original's text.
 usage: python3 l56_mk_chain.py <WT>
 """
@@ -72,7 +75,14 @@ for (fname, sec0, sec1, th0, th1, call) in specs:
     s = once(s, TM_OLD, TM_NEW)
     if call is None:
         s = once(s, "ZK60.ProtocolClassify.ra_hal_sl (U := U)", "ZK60.ProtocolClassify.ra_hal_slB (U := U)")
+        assert s.count("ZK60.ProtocolClassify.ra_hal_def (U := U)") == 4, fname
+        s = s.replace("ZK60.ProtocolClassify.ra_hal_def (U := U)", "ZK60.ProtocolClassify.ra_hal_defB (U := U)")
+    # finding L56-7: the four define kinds' block draws in the new form (`defSqB`: the polynomial also sees `hdrX`)
+    assert s.count("RaDefAt U key domain (Pk k)") == 4, (fname, s.count("RaDefAt U key domain (Pk k)"))
+    s = s.replace("RaDefAt U key domain (Pk k)", "RaDefAtB U key domain (Pk k)")
     assert "RaTermAt " not in s.replace("RaTermAtB ", ""), fname
+    assert "RaDefAt " not in s.replace("RaDefAtB ", ""), fname
+    assert "ra_hal_def " not in s, fname
     assert "blockSchedX " not in s, fname
     outs.append(s)
 
@@ -86,7 +96,8 @@ What changes, in every theorem: the block slots' polynomial `Fsl k` also receive
 (`Exec.Block.HdrX Lq`, lane L56's `hdrX`: every root the run's transcript absorbed before the block's own roots, and
 the prover's log cut at each, the block's input and output boundary roots among them); the kinds data's block slots are
 `blockSchedXB` (`hslB`); the slots' terminal identity is `RaTermAtB` (`hsl_blk`); `hal_slots` is lane L56's
-`ra_hal_slB`.
+`ra_hal_slB`; the four define kinds' block draws are lane L56's `defSqB` (`RaDefAtB` in `hR0_blk`, `hR1_blk`,
+`hH0_blk`, `hH1_blk`, finding L56-7) and `hal_R0` … `hal_H1` are `ra_hal_defB`.
 
 * **`bnd_productionReadyL_epP_exec_alive`**, **`bnd_productionReadyL_epP_code`**,
   **`bnd_productionReadyL_epP_codeT`**: lane L52's three, so restated.
@@ -94,7 +105,7 @@ the prover's log cut at each, the block's input and output boundary roots among 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunEpBTopT
-import ZK60Formal.RunBndHal
+import ZK60Formal.RunBndDef
 
 set_option autoImplicit false
 set_option linter.constructorNameAsVariable false

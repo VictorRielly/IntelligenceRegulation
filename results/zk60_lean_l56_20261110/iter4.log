@@ -1,0 +1,57 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/results/zk60_lean_l56_20261110/plan4.txt ==
+build ZK60Formal.RunBndDef
+build ZK60Formal.RunBndChain
+build ZK60Formal.RunBndTop
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/results/zk60_lean_l56_20261110/check_l56.sh
+== lake build ZK60Formal.RunBndDef ==
+Build completed successfully (3633 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.RunBndChain ==
+Build completed successfully (3649 jobs).
+build rc 0 (27 s)
+== lake build ZK60Formal.RunBndTop ==
+Build completed successfully (3755 jobs).
+build rc 0 (32 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a780d34bb1376bd36/results/zk60_lean_l56_20261110/check_l56.sh ==
+check rc 0 (81 s); its log is check.log
+== the library root imports the L56 files ==
+imported: RunBndSched
+imported: RunBndHal
+imported: RunBndSem
+imported: RunBndArgs
+imported: RunBndShield
+imported: RunBndDef
+imported: RunBndChain
+imported: RunBndTop
+== existing files changed against the lane's base d55d4218 (perf fceca671 with lane L54 merged) ==
+Statements.lean unchanged
+existing files changed (the root's imports and the test-only declaration line apart): 0
+lines removed from the root's imports: 0
+lines removed from the test-only classify_capture_tests.rs: 0
+files added under ops/: ops/zkp-mvp/gpu-metal/hashline/src/lean_l56_export_tests.rs 
+== name clashes with the other worktrees' Lean files ==
+worktrees read: 42
+other Lean files read (with repeats across worktrees): 5370
+clashes: 0
+== the generated files are their generators' output ==
+RunBndChain.lean: identical
+RunBndTop.lean: identical
+== the boundary positions on the real receipt (l56_corpus.txt) and the checker's negative control ==
+  negative neg: block 1's OutHere control missing        refused (block part 2: negative control OutHere not refused)
+  negative neg: refused count                            refused (the refused count is not 5 L + 1)
+  negative frame: part 1's fifth absorb missing          refused (part 1: not five frame absorbs)
+l56_bnd_check negative: 12 of 12 single changes refused
+== the code facts in the source (l56_src_check.py) and its negative control ==
+  negative swap INFRAME 2<->3: refused
+l56_src_check negative: 41 of 41 single changes refused
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+verdicts: generated files 0, boundary check 0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 49 s
+rc 0, 81 s

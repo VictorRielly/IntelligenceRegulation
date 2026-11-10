@@ -8,6 +8,7 @@ L52 and L54 is kept. Changes, each asserted to apply exactly once:
   * the binder `hsl_ev` is REPLACED by `hsl_evB`: each block's slot polynomial `Fsl k` at the core's roots AND the run's
     header data `hdrX … (off (k + 1) + 5) τ` meets lane L16's `SlotEval` over `wrCsB` (lane L54's `wrCs` with the two
     boundary claims read from the header's roots and cuts at `off k + 2`, `off (k + 1) + 2`) and `wrMs`;
+  * finding L56-7: `hR0_blk`, `hR1_blk`, `hH0_blk`, `hH1_blk`: `RaDefAt` -> `RaDefAtB` (lane L56's `defSqB` draws);
   * a new binder `hgXB` (before `hsl_evB`): the closing openings of parts `1 … Lb + 1` read their roots at the code's
     positions `off j + 2` (`(base (j + 1)).gX.ipos`);
   * the proof: `hsl_blk` (`RaTermAtB`) PROVED by `wr_termB` with `wr_hsem_acc` (as lane L54) and `hsl_evB` through
@@ -112,6 +113,9 @@ stmt1 = once(stmt1, "(Fsl : (k : ℕ) → Exec.Block.Cuts3 Lq → Exec.Block.Roo
              "(Fsl : (k : ℕ) → Exec.Block.Cuts3 Lq → Exec.Block.RootsO → Exec.Block.HdrX Lq → (j : ℕ) →\n"
              "      Exec.Block.Seen →")
 stmt1 = once(stmt1, "D.sls (k + 1) = Exec.Block.blockSchedX (Pk k)", "D.sls (k + 1) = Exec.Block.blockSchedXB (Pk k)")
+# finding L56-7: the four define kinds' block draws in the new form
+assert stmt1.count("RaDefAt U key domain (Pk k)") == 4, stmt1.count("RaDefAt U key domain (Pk k)")
+stmt1 = stmt1.replace("RaDefAt U key domain (Pk k)", "RaDefAtB U key domain (Pk k)")
 
 # the chain's codeT takes `hsl_blk` where lane L54's theorem took `hsl_ev`, `hdefS` (hdefS is kept as a binder here)
 explicit1 = [n for (k, ns, _, _) in top_binders(stmt1) if k == "(" for n in ns]
@@ -289,7 +293,8 @@ FILEDOC = (
     "\n"
     "* **`bnd_productionReadyL_epP_wire`**: `wr_productionReadyL_epP_codeT` with the block slots' polynomials widened\n"
     "  (`blockSchedXB`), `hsl_ev` replaced by `hsl_evB` (the boundary claims read from the header data the polynomials\n"
-    "  receive, `wrCsB`), and the closing openings' root positions `hgXB`; `hsl_blk` PROVED as in lane L54;\n"
+    "  receive, `wrCsB`), and the closing openings' root positions `hgXB`; `hsl_blk` PROVED as in lane L54; the four\n"
+    "  define kinds' block premises `hR0_blk` … `hH1_blk` in the new draw form `RaDefAtB` (finding L56-7);\n"
     "* **`bnd_productionReadyL_epP_shield`**: the same with block `k`'s verifier tied to layer `k` of `shieldExport`\n"
     "  (`hPk`, finding L54-2); `hdefS` and `hLb` PROVED from it;\n"
     "* **`bnd_productionReadyL_epP_args`**: the same with `hsl_evB` replaced by `hsl_args`, a property of each slot\n"

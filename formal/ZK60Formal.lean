@@ -428,5 +428,6 @@ import ZK60Formal.RunBndHal
 import ZK60Formal.RunBndSem
 import ZK60Formal.RunBndArgs
 import ZK60Formal.RunBndShield
+import ZK60Formal.RunBndDef
 import ZK60Formal.RunBndChain
 import ZK60Formal.RunBndTop

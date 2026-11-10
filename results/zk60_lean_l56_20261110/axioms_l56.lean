@@ -3,6 +3,7 @@ import ZK60Formal.RunBndHal
 import ZK60Formal.RunBndSem
 import ZK60Formal.RunBndArgs
 import ZK60Formal.RunBndShield
+import ZK60Formal.RunBndDef
 import ZK60Formal.RunBndChain
 import ZK60Formal.RunBndTop
 
@@ -56,6 +57,13 @@ import ZK60Formal.RunBndTop
 #print axioms ZK60.Exec.Block.Join.R13H.ShieldBlkAt.defineS
 #print axioms ZK60.Exec.Block.Join.R13H.ShieldRunAt.hdefS
 #print axioms ZK60.Exec.Block.Join.R13H.ShieldRunAt.lb_le
+-- RunBndDef.lean
+#print axioms ZK60.Exec.Block.defSqB
+#print axioms ZK60.Exec.Block.defSqB_rbr
+#print axioms ZK60.Exec.Block.ra_def_blkB
+#print axioms ZK60.ProtocolClassify.defSqB_cut
+#print axioms ZK60.ProtocolClassify.RaDefAtB
+#print axioms ZK60.ProtocolClassify.ra_hal_defB
 -- RunBndChain.lean
 #print axioms ZK60.ProtocolClassify.RunShapeP.bnd_productionReadyL_epP_exec_alive
 #print axioms ZK60.ProtocolClassify.RunShapeP.bnd_productionReadyL_epP_code

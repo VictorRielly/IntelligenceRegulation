@@ -4,27 +4,28 @@ lake build ZK60Formal.RunBndHal rc 0
 lake build ZK60Formal.RunBndSem rc 0
 lake build ZK60Formal.RunBndArgs rc 0
 lake build ZK60Formal.RunBndShield rc 0
+lake build ZK60Formal.RunBndDef rc 0
 lake build ZK60Formal.RunBndChain rc 0
 lake build ZK60Formal.RunBndTop rc 0
 == lake build (full) ==
 lake build rc 0
-✔ [3819/3820] Built ZK60Formal (1.8s)
-Build completed successfully (3820 jobs).
+✔ [3820/3821] Built ZK60Formal (2.8s)
+Build completed successfully (3821 jobs).
 warnings: 0
 errors: 0
 sorry: 0
 warnings in the modules' own builds: 0
 == axiom audit (the L56 files) ==
-47 declarations: 1 abbrev, 11 def, 35 theorem
+53 declarations: 1 abbrev, 13 def, 39 theorem
 axioms rc 0
-declarations audited: 47 (generated: 47)
+declarations audited: 53 (generated: 53)
 no axiom at all: 2
 sorryAx: 0
 ofReduceBool: 0
 other axioms: 0
 lines that are not a report: 0
-  32 axioms: [propext, Classical.choice, Quot.sound]
-  11 axioms: [propext, Quot.sound]
+  36 axioms: [propext, Classical.choice, Quot.sound]
+  13 axioms: [propext, Quot.sound]
    2 axioms: [propext]
 == source scan of the L56 files, generators and checker ==
 none
@@ -34,6 +35,7 @@ imported: RunBndHal
 imported: RunBndSem
 imported: RunBndArgs
 imported: RunBndShield
+imported: RunBndDef
 imported: RunBndChain
 imported: RunBndTop
 == existing files changed against the lane's base d55d4218 (perf fceca671 with lane L54 merged) ==
@@ -66,4 +68,4 @@ L11Check: 404 checks, 0 failed
 == regression: the fixture L1 check ==
 L1 TOTAL: 101956 checks, 0 failed
 verdicts: generated files 0, boundary check 0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
-total 69 s
+total 49 s
