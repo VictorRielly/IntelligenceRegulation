@@ -20,6 +20,11 @@ for OUT-C). Here:
   stages and D12a blocks, from the run header's operations and the three kinds of contracts' premises. With it,
   `RtRun.acceptU` and `RtRun.acceptU_part` hold at `classifyProtocolUExec`.
 
+Repaired in place by lane L39 (2026-11-10), the gap audit's finding GA-1: `RtInc.hcnt` and `RtOutc.hcnt` now hold only
+for a core with the geometry's slot count (`core.slots.length = (V hd).geom.slots.length`, as `RtBlk.hcnt` has); the
+proofs of `rtInc_holds` and `rtOutc_holds` pass the decoded core's `CoreShape` to them. `RunCoverStage.lean` builds both
+contracts at L29's real stage verifiers (`incVAt`, `outcVAt`).
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunTrParts
@@ -304,8 +309,10 @@ def rtIncSeg (V : Hdr → IncV) (G : Hdr → StageGeom) (cx0 : IncCtx) (p : RtPa
 
 /-- **What the schedule needs of stage IN-C's verifier** at the profile's counts `p`: `M`'s field and the three
 openings accepting only when `PcsOk` holds; the segment's core geometry the verifier's; one closed commitment (the
-input endpoint) of `p.gX` groups; the slots' geometry; the claims' counts on an accepted slot phase (`hcnt`); and the
-stage's counts the profile's for every header (`hpre`, `hpsq`, `hgA`, `hgH`, and the widths). -/
+input endpoint) of `p.gX` groups; the slots' geometry; the claims' counts on an accepted slot phase of a core with the
+geometry's slot count (`hcnt`, guarded as `RtBlk.hcnt` is: lane L39's repair of the gap audit's finding GA-1, without
+which the empty core forced every count to `0` and the stage could not accept); and the stage's counts the profile's for
+every header (`hpre`, `hpsq`, `hgA`, `hgH`, and the widths). -/
 structure RtInc (Lq : ℕ) (V : Hdr → IncV) (G : Hdr → StageGeom) (p : RtPart) where
   tag : MTag
   nA : ℕ
@@ -322,7 +329,7 @@ structure RtInc (Lq : ℕ) (V : Hdr → IncV) (G : Hdr → StageGeom) (p : RtPar
     ∧ 56 + 16 * ((Block.slotShape ((V hd).bp cx) j).2.2 + 1) ≤ Lq ∧ 55 + 16 * Block.slotTerms ((V hd).bp cx) j ≤ Lq
   hclose : ∀ hd, ∃ c, (G hd).closes = [c] ∧ c.2.1 = p.gX
   hcnt : ∀ (hd : Hdr) (H : HIn → Dig) (core : Block.Core) (t : Tr) (recs : List Block.SlotRec) (acc : Block.Acc)
-    (t4 : Tr), (V hd).slots H core t = .ok (recs, acc, t4) →
+    (t4 : Tr), (V hd).slots H core t = .ok (recs, acc, t4) → core.slots.length = (V hd).geom.slots.length →
       acc.claims.a.length = nA ∧ (acc.claims.h ++ [(V hd).lay.logupSumClaim]).length = nH
         ∧ acc.claims.inp.length = nIn ∧ acc.claims.out.length = nOut
   hpre : ∀ hd cx, 12 + incHeadDraws (V hd).pub + shapeLen ((V hd).bp cx) 0 (V hd).geom.slots = p.pre
@@ -364,7 +371,7 @@ theorem rtInc_holds (V : Hdr → IncV) (G : Hdr → StageGeom) (cx0 : IncCtx) (L
   have hd1 : ∀ cx i, i < seg.core.slots.length → 1 ≤ (Block.slotShape ((V s.hdr).bp cx) i).2.2 :=
     fun cx i hi => (I.hgeomL s.hdr cx i (by rw [← hshape.1]; exact hi)).1
   have ht4 := rt_incSlots_tr H (V s.hdr) seg.core _ recs acc t4 hs hd1 cx0
-  obtain ⟨hcA, hcH, hcI, hcO⟩ := I.hcnt s.hdr H seg.core _ recs acc t4 hs
+  obtain ⟨hcA, hcH, hcI, hcO⟩ := I.hcnt s.hdr H seg.core _ recs acc t4 hs hshape.1
   rw [I.hPm s.hdr] at h5
   obtain ⟨etail, hfit⟩ := rt_tail Lq hL20 H I.tag p.S seg.core.maskRoot _ seg.core.maskOpen I.pA I.pH I.pX s.hdr s.hdr
     s.hdr seg.core.aRoot seg.core.hRoot s.inRoot acc.claims.a (acc.claims.h ++ [(V s.hdr).lay.logupSumClaim])
@@ -440,7 +447,8 @@ def rtOutcSeg (V : Hdr → ℕ → OutcV) (G : Hdr → StageGeom) (p : RtPart) :
   ⟨outSeg (outcStageV V G), p, rtOutcRd V G⟩
 
 /-- **What the schedule needs of stage OUT-C's verifier** at the profile's counts `p`, for every header and verdict:
-as `RtInc`, with `B_out`'s opening as the closing one and no outgoing claim. -/
+as `RtInc`, with `B_out`'s opening as the closing one and no outgoing claim (`hcnt` guarded by the core's slot count,
+lane L39's repair of finding GA-1). -/
 structure RtOutc (Lq : ℕ) (V : Hdr → ℕ → OutcV) (G : Hdr → StageGeom) (p : RtPart) where
   tag : MTag
   nA : ℕ
@@ -458,6 +466,7 @@ structure RtOutc (Lq : ℕ) (V : Hdr → ℕ → OutcV) (G : Hdr → StageGeom) 
   hcnt : ∀ (hd : Hdr) (v : ℕ) (H : HIn → Dig) (core : Block.Core) (t : Tr) (ch : List Fp2)
     (recs : List Block.SlotRec) (acc : Block.Acc) (t4 : Tr),
     StageFS.stageSlots H (V hd v).bp 2 OutcV.bga core t = .ok (ch, recs, acc, t4) →
+    core.slots.length = (V hd v).geom.slots.length →
       acc.claims.a.length = nA ∧ (acc.claims.h ++ [(V hd v).lay.logupSumClaim]).length = nH
         ∧ acc.claims.inp.length = nIn
   hpre : ∀ hd v, 11 + shapeLen (V hd v).bp 0 (V hd v).geom.slots = p.pre
@@ -497,7 +506,7 @@ theorem rtOutc_holds (V : Hdr → ℕ → OutcV) (G : Hdr → StageGeom) (Lq : �
   have hd1 : ∀ i, i < seg.core.slots.length → 1 ≤ (Block.slotShape (V s.hdr s.verdict).bp i).2.2 :=
     fun i hi => (O.hgeomL s.hdr s.verdict i (by rw [← hshape.1]; exact hi)).1
   have ht4 := rt_outcSlots_tr H (V s.hdr s.verdict) seg.core _ ch recs acc t4 hs hd1
-  obtain ⟨hcA, hcH, hcI⟩ := O.hcnt s.hdr s.verdict H seg.core _ ch recs acc t4 hs
+  obtain ⟨hcA, hcH, hcI⟩ := O.hcnt s.hdr s.verdict H seg.core _ ch recs acc t4 hs hshape.1
   rw [O.hPm s.hdr s.verdict] at h5
   have hinv' : cr.pending.length = pend := hinv
   have hcX : (cr.pending ++ acc.claims.inp).length = pend + O.nIn := by

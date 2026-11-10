@@ -262,6 +262,11 @@ import ZK60Formal.BlockAlgLkR13
 import ZK60Formal.BlockAlgLkW16
 import ZK60Formal.BlockAlgLkFinal
 import ZK60Formal.BlockAlgSat
+import ZK60Formal.RunCoverDefine
+import ZK60Formal.RunCoverStage
+import ZK60Formal.RunCoverParse
+import ZK60Formal.RunCoverAlive
+import ZK60Formal.RunCoverSome
 import ZK60Formal.StatementsD76Leak
 import ZK60Formal.StatementsD76Bridge
 import ZK60Formal.StatementsD76Leaky
@@ -275,3 +280,4 @@ import ZK60Formal.RunShapeGate
 import ZK60Formal.RunShapeShieldOpen
 import ZK60Formal.RunShapeLeak
 import ZK60Formal.RunShapeGateL
+import ZK60Formal.RunCoverSomeL
