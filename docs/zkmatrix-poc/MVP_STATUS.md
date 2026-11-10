@@ -50,7 +50,14 @@ item was re-checked against the source by the coordinator.
   - **Is the protocol affected?** No. This is a modelling gap again.
   - **What still stands:** L49's block theorem. It takes the boundary data as an explicit input, and the gap appears
     only when it is plugged into the run.
-  - **Repair:** lane L56, Lean only, gives the slot polynomial the boundary data.
+  - **REPAIRED by lane L56 (merged 2026-11-10).** The slot polynomial now also receives the header's boundary data,
+    and the premise is PROVED meetable. The positions it reads are CHECKED on a real two-block receipt and in the
+    source.
+  - **L56 also did:** tied block k to layer k of the export as a premise, CHECKED in the source (L54-2).
+  - **L56 found a twelfth unmeetable premise (L56-7, High):** the boundary slots' define draws had the same
+    obstruction. It is repaired for the run's kinds data.
+  - **Still to widen the same way:** L46's per-block doom model at the boundary IO slots (L46-3), and L49's block
+    statement's boundary inputs (L56-3). Wiring `hblk` from L49's theorem waits on both.
 - **2026-11-10, the run-level wiring begun (L54) and the stages chosen (L53).**
   - **L54:** the run-level link "no doomed opening means every claim is true" (`hsem`) is PROVED on an accepted run.
     From it, the slot condition at the blocks follows, except at the two boundary slots (L54-1 above). All 26 layers'
