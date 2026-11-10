@@ -108,6 +108,29 @@ echo "== regression: the fixture L1 check =="
   "$V/block_trace_low_t32.tsv" "$R1/rust_fixture_trace.tsv" "$V/r13_requant_vectors.tsv" > "$OUT/l1check_regression.log" 2>&1
 c1=$?
 tail -n 1 "$OUT/l1check_regression.log"
+echo "== the lane's agreement checks against the code (deliverables 5 and 6) =="
+"$LAKE" -d "$WT/formal" env lean --run "$L/BlockHelperExportCheck.lean" "$OUT/l44_w16r2_corpus.txt" neg \
+  > "$OUT/check_export_w16r2.log" 2>&1
+ce=$?
+grep -E 'checks, [0-9]+ failed|negative controls' "$OUT/check_export_w16r2.log"
+"$LAKE" -d "$WT/formal" env lean --run "$L/BlockR13ProgCheck.lean" "$WT/results/zk60_lean_l17_20261107/slots_corpus.txt" \
+  "$WT/results/zk60_lean_l17_20261107/block_corpus.txt" --neg > "$OUT/check_r13_l17.log" 2>&1
+cr=$?
+grep -E 'checks, [0-9]+ failed|negative control' "$OUT/check_r13_l17.log" | grep -v '^  '
+"$LAKE" -d "$WT/formal" env lean --run "$L/BlockR13ProgExportCheck.lean" "$OUT/l44_r13_corpus.txt" neg \
+  > "$OUT/check_export_r13.log" 2>&1
+cx=$?
+grep -E 'checks, [0-9]+ failed|negative controls' "$OUT/check_export_r13.log"
+ge=1
+grep -q '^BlockHelperExportCheck: 1685 checks, 0 failed$' "$OUT/check_export_w16r2.log" \
+  && grep -q '^BlockHelperExportCheck negative controls: 14 of 14 caught$' "$OUT/check_export_w16r2.log" && ge=0
+gr=1
+grep -q '^BlockR13ProgCheck: 163 checks, 0 failed$' "$OUT/check_r13_l17.log" \
+  && grep -q '^BlockR13ProgCheck negative control: 11 of 11 caught$' "$OUT/check_r13_l17.log" && gr=0
+gx=1
+grep -q '^BlockR13ProgExportCheck: 2041 checks, 0 failed$' "$OUT/check_export_r13.log" \
+  && grep -q '^BlockR13ProgExportCheck negative controls: 14 of 14 caught$' "$OUT/check_export_r13.log" && gx=0
+echo "agreement verdicts: export W16R2 $ge, R13 vs L17 $gr, export R13 $gx (0 = as required)"
 g6=1
 grep -q '^L6Check: 1206 checks, 0 failed$' "$OUT/l6check_regression.log" && g6=0
 g5=1
@@ -122,4 +145,5 @@ echo "total $(( $(date +%s) - start )) s"
   && [ "$nrb" -eq 0 ] && [ "$oth" -eq 0 ] && [ "$nel" -eq 0 ] && [ $scan -eq 0 ] && [ $imp -eq 0 ] && [ $unch -eq 0 ] \
   && [ "$nmod" -eq 0 ] && [ "$nrust" -eq 0 ] && [ $ncl -eq 0 ] \
   && [ $c6 -eq 0 ] && [ $c5 -eq 0 ] && [ $c11 -eq 0 ] && [ $c1 -eq 0 ] \
-  && [ $g6 -eq 0 ] && [ $g5 -eq 0 ] && [ $g11 -eq 0 ] && [ $g1 -eq 0 ]
+  && [ $g6 -eq 0 ] && [ $g5 -eq 0 ] && [ $g11 -eq 0 ] && [ $g1 -eq 0 ] \
+  && [ $ce -eq 0 ] && [ $cr -eq 0 ] && [ $cx -eq 0 ] && [ $ge -eq 0 ] && [ $gr -eq 0 ] && [ $gx -eq 0 ]
