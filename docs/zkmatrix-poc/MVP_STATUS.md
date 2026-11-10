@@ -58,6 +58,12 @@ item was re-checked against the source by the coordinator.
   opening at the largest radius is the production instance; a single-calibration Shieldstral export for W16R2,
   accuracy check first; W16R3 gets C1, C2, C3, C5, C7 and the token stages, not C4 or C9; the prover shortcut
   `HL_A26_KEPT` is on for the app, the verifier shortcut is not.
+- **Block level, later on 2026-11-10 (L41 and L44 merged and checked; the full Lean build 3703 jobs):** the one-block
+  statement is joined at all six host slots of the W16R2 rung (`block_knowledge_host_w16r2_rung`). The block's
+  table layout is checked against a real receipt through a test-only Rust export: 1,685 checks, 0 failed. The R13
+  slot program is written and confirms the app block's derived counts (146 / 54): 2,041 checks, 0 failed. Left at
+  block level: one table slot's identity and the lookup side (lane L47), then the same at R13 and at all 26 real
+  layers.
 - **Block level, 2026-11-10 (L35 and L36 merged and checked; the full Lean build 3652 jobs):** the block's `define` is
   a Lean slot program checked against a real development receipt (143 checks, 0 failed), and the block's relations
   and lookups follow from the slot claims. L41 is joining the two halves into one block statement whose only
