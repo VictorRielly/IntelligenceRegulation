@@ -127,9 +127,11 @@ def native_environment():
 # about 60 GiB more memory, results/zk60_a28_app_20261107). Two settings measured there (A B C C B A
 # against A27 on the stream, pairs on one post): A7's spin-then-block wait for a command buffer
 # (HL_METAL_SPIN_US=200: the prover's CPU per proof -22%) and a 300 ms minimum between request
-# starts (HL_A28_STAGGER_MS=300: a post's three categories no longer run in lockstep). Together
-# +2.9% on the stream and -3% on one post's latency. They change when a thread waits and when a
-# request starts, never a byte (the byte-identity run covers the stagger).
+# starts (HL_A28_STAGGER_MS=300: a post's three categories no longer run in lockstep). With the
+# A28 binary the native stream is +2.9% over A27 (+1.4% of it from these two settings, inside the
+# runs' spread) and one post -3%; through the app the stream is the same with or without them.
+# They change when a thread waits and when a request starts, never a byte (the byte-identity run
+# covers the stagger).
 NATIVE_SETTINGS = {'HL_METAL_QUEUES': 'thread', 'HL_METAL_SPIN_US': '200', 'HL_A28_STAGGER_MS': '300'}
 
 
