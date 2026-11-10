@@ -73,6 +73,19 @@ item was re-checked against the source by the coordinator.
   a Lean slot program checked against a real development receipt (143 checks, 0 failed), and the block's relations
   and lookups follow from the slot claims. L41 is joining the two halves into one block statement whose only
   remaining premises are run-level and public data.
+- **An eighth weaker-than-claimed result (L45-2, High, 2026-11-10; confirmed in the code by the coordinator).**
+  - **What is wrong:** the Lean opening model fixes every opening's width at 2^14, which is the block openings'
+    geometry. The code's registered tier opens the two stages at 2^12 and the classifier's INPUT commitment at 2^8,
+    rate 1/8, with 2,048 encoded columns.
+  - **Consequence:** the top theorem cannot yet be applied to the app's stages and input commitment.
+  - **Also affected:** lane L26's corrected input-opening instance, which Victor adopted in D77, was built on the block
+    geometry. The ruling stands (the unique-decoding radius at its largest). Its numbers do not: at the real geometry
+    the radius is about 768 of 2,048 columns, not 24,448 of 65,536. The register records this correction as D77a.
+  - **Repair:** lane L48 is making each opening's width a parameter, checking the real geometries against the code,
+    and rebuilding the input-commitment instance at its real geometry.
+- **L45, the alive half continued (merged 2026-11-10):** the stages' accumulator readers, and the run's own Merkle
+  work and extraction. The extraction premise is gone, and every part's A, H and M opening facts are proved (at the
+  block geometry; see L45-2 above).
 - **A fifth weaker-than-claimed result, found and repaired by lane L36 (L36-1).** Every block statement since L21
   assumed the 8B block's lookup count (35.2M), but the app's Shieldstral block makes 64.3M lookups. So L31's
   statement for the app's block said nothing about it. L36 re-proved the chain at a bound of 2^26, which the app's
