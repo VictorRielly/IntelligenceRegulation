@@ -126,6 +126,7 @@ def algShapeW16Rung (P : BlockParams) (hdr : P.draws = W16R2.rungDraws) (mpad : 
     (hm78 : ∀ k ∈ algHosts, mpad k ≤ 78) : AlgShape P :=
   algShapeStd P (ZK60.Exec.Slot.W16R2.draws shRungW16) mpad 5 4 10 10 9 5
     (by rw [hdr]; decide) (hostLay_w16 shRungW16) hm0 hm78 (by rw [hdr]; decide) (by rw [hdr]; decide)
+    (by rw [hdr]; decide)
     (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide)
     (by rw [hdr]; decide) (by decide)
 
@@ -135,6 +136,7 @@ def algShapeR13Rung (P : BlockParams) (hdr : P.draws = R13.rungDraws) (mpad : �
     (hm78 : ∀ k ∈ algHosts, mpad k ≤ 78) : AlgShape P :=
   algShapeStd P (ZK60.Exec.Slot.R13.draws ZK60.Exec.Slot.R13.shRungR13) mpad 5 4 10 10 9 5
     (by rw [hdr]; decide) (hostLay_r13 _) hm0 hm78 (by rw [hdr]; decide) (by rw [hdr]; decide)
+    (by rw [hdr]; decide)
     (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide)
     (by rw [hdr]; decide) (by decide)
 
@@ -146,6 +148,7 @@ def algShapeR13Shield (P : BlockParams) (hdr : P.draws = R13.shieldDraws) (mpad 
     (hm78 : ∀ k ∈ algHosts, mpad k ≤ 78) : AlgShape P :=
   algShapeStd P (ZK60.Exec.Slot.R13.draws ZK60.Exec.Slot.R13.shShieldR13) mpad 7 5 12 14 12 7
     (by rw [hdr]; decide) (hostLay_r13 _) hm0 hm78 (by rw [hdr]; decide) (by rw [hdr]; decide)
+    (by rw [hdr]; decide)
     (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide) (by rw [hdr]; decide)
     (by rw [hdr]; decide) (by decide)
 

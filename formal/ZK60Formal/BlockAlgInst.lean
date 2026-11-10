@@ -28,6 +28,18 @@ import ZK60Formal.BlockAlgKinds
 
 set_option autoImplicit false
 
+namespace ZK60.Sound.SlotW16.SlotPoly
+
+variable {F : Type} [Field F]
+
+/-- A polynomial on a draw vector of an equal length keeps its start claim. -/
+theorem cast_Gd {D D' : ℕ} (e : D = D') (sp : SlotPoly F D) : (cast e sp).Gd = sp.Gd := rfl
+
+/-- A polynomial on a draw vector of an equal length keeps its degree. -/
+theorem cast_dg {D D' : ℕ} (e : D = D') (sp : SlotPoly F D) : (cast e sp).dg = sp.dg := rfl
+
+end ZK60.Sound.SlotW16.SlotPoly
+
 namespace ZK60.Exec.Block
 
 open ZK60.Sound
@@ -120,10 +132,12 @@ def drawAt (hist : Hist) (s q : ℕ) : K := ((hist.draws.getD s []).getD q Fp2.z
 theorem drawAt_hist (b g a : Fp2) (rs : List SlotRec) (k j q : ℕ) (r : SlotRec) (hjk : j < k)
     (hr : rs[j]? = some r) :
     drawAt U (histOf b g a (rs.take k)) j q = (r.draws.getD q Fp2.zero).toK U := by
+  have e : ((rs.take k).map SlotRec.draws).getD j [] = r.draws := by
+    rw [List.getD_eq_getElem?_getD, List.getElem?_map, List.getElem?_take_of_lt hjk, hr]
+    rfl
   unfold drawAt histOf
   simp only
-  rw [List.getD_eq_getElem?_getD, List.getElem?_map, List.getElem?_take_of_lt hjk, hr]
-  rfl
+  rw [e]
 
 /-- `SC_RS`'s `λ` (its last draw), read off the history. -/
 def algLam (hist : Hist) : K := drawAt U hist 4 sh.nHt
@@ -237,13 +251,15 @@ theorem hostSp_Gd (k : ℕ) (hk : k ∈ algHosts) (cu : Cuts3 L) (rt : RootsO) (
       = hostGd (dt.cl k cu rt (hist.beta, hist.gamma, hist.alpha)) (dt.pw k cu rt) (fun _ => 1)
           (algH U sh dt k cu rt hist) (algM sh dt k cu rt) (algPt U sh k hist) := by
   unfold hostSp
-  exact SlotW16.hostAt_Gd _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  rw [SlotPoly.cast_Gd]
+  exact SlotW16.hostAt_Gd (F := K) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 /-- A host's degree. -/
 theorem hostSp_dg (k : ℕ) (hk : k ∈ algHosts) (cu : Cuts3 L) (rt : RootsO) (hist : Hist) :
     (hostSp U sh dt hcard k hk cu rt hist).dg = sh.mpad k + 2 := by
   unfold hostSp
-  exact SlotW16.hostAt_dg _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  rw [SlotPoly.cast_dg]
+  exact SlotW16.hostAt_dg (F := K) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 /-- **A host's polynomial at a draw vector**: `hostPhi` over the block's tables at the segments' entries of the
 vector (`ζ` and `μ_pad` only where the slot pads). -/

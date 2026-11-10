@@ -190,7 +190,7 @@ theorem w16Rels_of_algGood (sh : AlgShape P) (dt : AlgData K L sh) (Pb : ZK60.Bl
     obtain ⟨κ, hκ⟩ := hspec.cl k hk j hj
     have h1 := (hcl0 k hk).1 κ b
     rw [hκ cu rt bga b] at h1
-    exact hinj (h1.trans (map_zero _).symm)
+    exact hinj (h1.trans (map_zero (algebraMap GF K)).symm)
   have hgm : ∀ k ∈ algHosts, ∀ i : Fin 2, ¬ (k = 17 ∧ i = 0) → ∀ b,
       relGh Pb Lay B (xtE cu rt) k i (enc k b) = relMm Pb Lay B (xtE cu rt) k i (enc k b) := by
     intro k hk i hrs b
@@ -200,11 +200,11 @@ theorem w16Rels_of_algGood (sh : AlgShape P) (dt : AlgData K L sh) (Pb : ZK60.Bl
   have hA : ∀ b, relRsA Pb Lay B (xtE cu rt) (encHt b) = 0 := fun b => by
     have h1 := hA0 b
     rw [hspec.rsA cu rt b] at h1
-    exact hinj (h1.trans (map_zero _).symm)
+    exact hinj (h1.trans (map_zero (algebraMap GF K)).symm)
   have hB : ∀ b, relRsB Pb Lay B (xtE cu rt) (encHt b) = 0 := fun b => by
     have h1 := hB0 b
     rw [hspec.rsB cu rt b] at h1
-    exact hinj (h1.trans (map_zero _).symm)
+    exact hinj (h1.trans (map_zero (algebraMap GF K)).symm)
   -- on the product cubes, by the encodings' surjectivity
   have cT : ∀ j, j < 6 → ∀ t, relCl Pb Lay B (xtE cu rt) 2 j (.t t) = 0 := fun j hj t => by
     obtain ⟨b, hb⟩ := hspec.st t
@@ -234,22 +234,22 @@ theorem w16Rels_of_algGood (sh : AlgShape P) (dt : AlgData K L sh) (Pb : ZK60.Bl
     fun i t => by
       obtain ⟨b, hb⟩ := hspec.st t
       rw [← hb]
-      exact hgm 2 (by decide) i (by decide) b
+      exact hgm 2 (by decide) i (fun h => absurd h.1 (by decide)) b
   have gD : ∀ i : Fin 2, ∀ x, relGh Pb Lay B (xtE cu rt) 14 i (.d x) = relMm Pb Lay B (xtE cu rt) 14 i (.d x) :=
     fun i x => by
       obtain ⟨b, hb⟩ := hspec.sd x
       rw [← hb]
-      exact hgm 14 (by decide) i (by decide) b
+      exact hgm 14 (by decide) i (fun h => absurd h.1 (by decide)) b
   have gQ : ∀ i : Fin 2, ∀ x, relGh Pb Lay B (xtE cu rt) 15 i (.q x) = relMm Pb Lay B (xtE cu rt) 15 i (.q x) :=
     fun i x => by
       obtain ⟨b, hb⟩ := hspec.sq x
       rw [← hb]
-      exact hgm 15 (by decide) i (by decide) b
+      exact hgm 15 (by decide) i (fun h => absurd h.1 (by decide)) b
   have gK : ∀ i : Fin 2, ∀ x, relGh Pb Lay B (xtE cu rt) 16 i (.kv x) = relMm Pb Lay B (xtE cu rt) 16 i (.kv x) :=
     fun i x => by
       obtain ⟨b, hb⟩ := hspec.sk x
       rw [← hb]
-      exact hgm 16 (by decide) i (by decide) b
+      exact hgm 16 (by decide) i (fun h => absurd h.1 (by decide)) b
   have gS : ∀ x, relGh Pb Lay B (xtE cu rt) 17 (1 : Fin 2) (.s x) = relMm Pb Lay B (xtE cu rt) 17 (1 : Fin 2) (.s x) :=
     fun x => by
       obtain ⟨b, hb⟩ := hspec.ss x
@@ -259,7 +259,7 @@ theorem w16Rels_of_algGood (sh : AlgShape P) (dt : AlgData K L sh) (Pb : ZK60.Bl
     fun i x => by
       obtain ⟨b, hb⟩ := hspec.sf x
       rw [← hb]
-      exact hgm 18 (by decide) i (by decide) b
+      exact hgm 18 (by decide) i (fun h => absurd h.1 (by decide)) b
   have rA : ∀ r, relRsA Pb Lay B (xtE cu rt) (.ht r) = 0 := fun r => by
     obtain ⟨b, hb⟩ := hspec.sht r
     rw [← hb]
