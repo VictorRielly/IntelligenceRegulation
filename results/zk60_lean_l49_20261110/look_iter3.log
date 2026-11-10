@@ -1,0 +1,533 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l49_20261110/look_plan3.txt ==
+build ZK60Formal.BlockR13LookLk
+build ZK60Formal.BlockR13LookSum
+build ZK60Formal.BlockR13LookCov
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg
+== lake build ZK60Formal.BlockR13LookLk ==
+Build completed successfully (3529 jobs).
+build rc 0 (19 s)
+== lake build ZK60Formal.BlockR13LookSum ==
+✖ [3582/3582] Building ZK60Formal.BlockR13LookSum (7.4s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSum.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13LookSum.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13LookSum.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13LookSum.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13LookSum.setup.json --json
+error: ZK60Formal/BlockR13LookSum.lean:68:98: Type mismatch
+  hc.logK
+has type
+  14 ≤ c.sh.logs Dom.Kv
+but is expected to have type
+  14 ≤ c.sh.logs Dom.L
+error: ZK60Formal/BlockR13LookSum.lean:68:98: Type mismatch
+  hc.logK
+has type
+  14 ≤ c.sh.logs Dom.Kv
+but is expected to have type
+  14 ≤ c.sh.logs Dom.S
+error: ZK60Formal/BlockR13LookSum.lean:68:98: Type mismatch
+  hc.logK
+has type
+  14 ≤ c.sh.logs Dom.Kv
+but is expected to have type
+  14 ≤ c.sh.logs Dom.F
+error: ZK60Formal/BlockR13LookSum.lean:68:98: Type mismatch
+  hc.logK
+has type
+  14 ≤ c.sh.logs Dom.Kv
+but is expected to have type
+  14 ≤ c.sh.logs Dom.Tab
+error: ZK60Formal/BlockR13LookSum.lean:69:4: unexpected token '|'; expected command
+error: ZK60Formal/BlockR13LookSum.lean:107:40: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≥ 0
+  b ≥ 9
+  a ≥ 0
+  a ≥ -15
+where
+ a := ↑ls
+ b := ↑(Dom.S :: List.replicate 7 Dom.F).length
+error: ZK60Formal/BlockR13LookSum.lean:107:40: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≥ 0
+  b ≥ 1
+  a ≥ 0
+  a ≥ -7
+where
+ a := ↑ls
+ b := ↑(Dom.F :: List.replicate 3 Dom.Tab).length
+error: ZK60Formal/BlockR13LookSum.lean:107:40: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  c ≥ 1
+  b ≥ 0
+  b ≥ 9
+  a ≥ 0
+  a + b ≥ -7
+where
+ a := ↑ls
+ b := ↑(Dom.S :: List.replicate 7 Dom.F).length
+ c := ↑(Dom.F :: List.replicate 3 Dom.Tab).length
+error: ZK60Formal/BlockR13LookSum.lean:107:40: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  0 ≤ d ≤ 2
+  c ≥ 0
+  c - d ≥ 2
+  b ≥ 0
+  0 ≤ b + d ≤ 7
+  a ≥ 0
+  a + b + d ≥ -8
+where
+ a := ↑ls
+ b := ↑(Dom.S :: List.replicate 7 Dom.F).length
+ c := ↑(Dom.F :: List.replicate 3 Dom.Tab).length
+ d := ↑(hp - (1 + (17 + (7 + (7 + (7 + ls + ((Dom.S :: List.replicate 7 Dom.F).length + 1)))))))
+error: ZK60Formal/BlockR13LookSum.lean:107:40: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 3
+  c ≥ 0
+  c - d ≥ 2
+  b ≥ 0
+  0 ≤ b + d ≤ 7
+  a ≥ 0
+  a + b + d ≥ -8
+where
+ a := ↑ls
+ b := ↑(Dom.S :: List.replicate 7 Dom.F).length
+ c := ↑(Dom.F :: List.replicate 3 Dom.Tab).length
+ d := ↑(hp - (1 + (17 + (7 + (7 + (7 + ls + ((Dom.S :: List.replicate 7 Dom.F).length + 1)))))))
+error: ZK60Formal/BlockR13LookSum.lean:107:40: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  a ≥ 0
+  a ≥ -7
+where
+ a := ↑ls
+error: ZK60Formal/BlockR13LookSum.lean:107:40: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  c ≥ 0
+  b ≥ 0
+  1 ≤ b + c ≤ 8
+  a ≥ 0
+  a + b + c ≥ -7
+where
+ a := ↑ls
+ b := ↑(Dom.S :: List.replicate 7 Dom.F).length
+ c := ↑(Dom.F :: List.replicate 3 Dom.Tab).length
+error: ZK60Formal/BlockR13LookSum.lean:107:40: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 1
+  c ≥ 0
+  c + d ≥ 0
+  b ≥ 0
+  1 ≤ b + c + d ≤ 8
+  a ≥ 0
+  a + b + c + d ≥ -7
+where
+ a := ↑ls
+ b := ↑(Dom.S :: List.replicate 7 Dom.F).length
+ c := ↑(Dom.F :: List.replicate 3 Dom.Tab).length
+ d := ↑(hp -
+    (1 +
+      (17 +
+        (7 +
+          (7 + (7 + ls + ((Dom.S :: List.replicate 7 Dom.F).length + (Dom.F :: List.replicate 3 Dom.Tab).length)))))))
+error: ZK60Formal/BlockR13LookSum.lean:229:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  17 ≤ d ≤ 23
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.D)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:229:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  24 ≤ d ≤ 30
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.D)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:229:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 31
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  a - d ≥ 13
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.D)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:229:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 31
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  5 ≤ a - d ≤ 12
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.D)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:229:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 31
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  a - d ≤ 4
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.D)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:229:101: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  2 ≤ a - d ≤ 4
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.D)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:234:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  7 ≤ d ≤ 13
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Q)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:234:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 14
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  a - d ≥ 30
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Q)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:234:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 14
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  22 ≤ a - d ≤ 29
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Q)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:234:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 14
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  a - d ≤ 21
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Q)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:234:101: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  19 ≤ a - d ≤ 21
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Q)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:239:76: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 7
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  a - d ≥ 37
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Kv)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:239:76: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 7
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  29 ≤ a - d ≤ 36
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Kv)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:239:76: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 7
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  a - d ≤ 28
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Kv)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:239:102: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  26 ≤ a - d ≤ 28
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.Kv)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:244:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  36 ≤ a - d ≤ 43
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.S)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:244:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  a - d ≤ 35
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.S)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:244:101: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  33 ≤ a - d ≤ 35
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.S)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:249:75: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 8
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+  a + d ≥ 43
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.F)
+ d := ↑x
+error: ZK60Formal/BlockR13LookSum.lean:249:101: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  8 ≤ d ≤ 10
+  b ≥ 0
+  b - d ≥ 1
+  a ≥ 51
+where
+ a := ↑(DefR13.fh c 10)
+ b := ↑(Dm.np ls Dm.F)
+ d := ↑x
+Some required targets logged failures:
+- ZK60Formal.BlockR13LookSum
+error: build failed
+build rc 1 (30 s)
+== lake build ZK60Formal.BlockR13LookCov ==
+✖ [3584/3584] Building ZK60Formal.BlockR13LookCov (2.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookCov.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13LookCov.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/lib/lean/ZK60Formal/BlockR13LookCov.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13LookCov.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/.lake/build/ir/ZK60Formal/BlockR13LookCov.setup.json --json
+warning: ZK60Formal/BlockR13LookCov.lean:98:8: Unused tactic linter: `omega` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/BlockR13LookCov.lean:98:8: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/BlockR13LookCov.lean:232:71: Variable name `hsg` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hsg
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: ZK60Formal/BlockR13LookCov.lean:280:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  castB ?h (castB ⋯ ?x)
+in the target expression
+  {
+      x :=
+        aPl U P (Dof cut) (DefR13.aOff c 4) (nHt c)
+                (Fin.append
+                  (Fin.append
+                    (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))))).1.1
+                    (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))))).1.2)
+                  (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))))).2.1) -
+              (algebraMap GF K)
+                  (B.mask
+                    (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2)))))) *
+                aPl U P (Dof cut) (DefR13.aOff c 75) (c.sh.logs Dom.S)
+                  (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))) +
+            -127 *
+              (algebraMap GF K)
+                (B.mask (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2)))))) +
+          127,
+      tag := ↑tagExp,
+      y :=
+        aPl U P (Dof cut) (DefR13.aOff c 80) (c.sh.logs Dom.S)
+          (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))),
+      z := 0 } =
+    tupK
+      (expQuery
+        ((piB K) (aPl U P D (DefR13.aOff c 4) (nHt c) (Fin.append (Fin.append x.1.1 x.1.2) x.2.1)) -
+            B.mask x *
+              ((piB K)
+                  (aPl U P D (DefR13.aOff c 75) (nS c) (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))) +
+                127) +
+          127)
+        ((piB K) (aPl U P D (DefR13.aOff c 80) (nS c) (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2)))))
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+ls : ℕ
+G : GeoR c ls
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+x : (CgR c × CjR c) × CtR c × CtR c
+⊢ {
+      x :=
+        aPl U P (Dof cut) (DefR13.aOff c 4) (nHt c)
+                (Fin.append
+                  (Fin.append
+                    (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))))).1.1
+                    (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))))).1.2)
+                  (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))))).2.1) -
+              (algebraMap GF K)
+                  (B.mask
+                    (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2)))))) *
+                aPl U P (Dof cut) (DefR13.aOff c 75) (c.sh.logs Dom.S)
+                  (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))) +
+            -127 *
+              (algebraMap GF K)
+                (B.mask (splitS c (castB ⋯ (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2)))))) +
+          127,
+      tag := ↑tagExp,
+      y :=
+        aPl U P (Dof cut) (DefR13.aOff c 80) (c.sh.logs Dom.S)
+          (castB ⋯ (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))),
+      z := 0 } =
+    tupK
+      (expQuery
+        ((piB K) (aPl U P D (DefR13.aOff c 4) (nHt c) (Fin.append (Fin.append x.1.1 x.1.2) x.2.1)) -
+            B.mask x *
+              ((piB K)
+                  (aPl U P D (DefR13.aOff c 75) (nS c) (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2))) +
+                127) +
+          127)
+        ((piB K) (aPl U P D (DefR13.aOff c 80) (nS c) (Fin.append (Fin.append x.1.1 x.1.2) (Fin.append x.2.1 x.2.2)))))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    Eq.symm G.logS
+  has type
+    @Eq ℕ (nS c) (c.sh.logs Dom.S)
+  but is expected to have type
+    @Eq ℕ (nS c) (Sg.log c Sg.Exp)
+  in the application
+    castB ⋯
+error: ZK60Formal/BlockR13LookCov.lean:304:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  castB ?h (castB ⋯ ?x)
+in the target expression
+  { x := aPl U P (Dof cut) (DefR13.aOff c (86 + 2 * ls)) (c.sh.logs Dom.F) (castB ⋯ (Fin.append x.1 x.2)) + 2048,
+      tag := ↑tagAct,
+      y := aPl U P (Dof cut) (DefR13.aOff c (86 + 2 * ls + 4)) (c.sh.logs Dom.F) (castB ⋯ (Fin.append x.1 x.2)),
+      z := (algebraMap GF K) (B.grpCol (splitF c (castB ⋯ (castB ⋯ (Fin.append x.1 x.2))))) } =
+    tupK
+      (actQuery ((piB K) (aPl U P D (DefR13.aOff c (86 + 2 * ls)) (nF c) (Fin.append x.1 x.2)))
+        ((piB K) (aPl U P D (DefR13.aOff c (86 + 2 * ls + 4)) (nF c) (Fin.append x.1 x.2))) g)
+
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+c : W16Cfg
+P : BlockParams
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S (CtR c) (CwR c) (CgR c) (CjR c) (CdR c) (CfR c)
+B : W16Pub S Pb Lay
+ls : ℕ
+G : GeoR c ls
+Dof : List (QB L × Dig) → CmData K P
+cut : List (QB L × Dig)
+D : CmData K P
+hD : ∀ (off log : ℕ) (b : Fin log → Bool), aPl U P (Dof cut) off log b = aPl U P D off log b
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+x : CtR c × CfR c
+g : ℕ
+hg : B.grpCol x = ↑g
+⊢ { x := aPl U P (Dof cut) (DefR13.aOff c (86 + 2 * ls)) (c.sh.logs Dom.F) (castB ⋯ (Fin.append x.1 x.2)) + 2048,
+      tag := ↑tagAct,
+      y := aPl U P (Dof cut) (DefR13.aOff c (86 + 2 * ls + 4)) (c.sh.logs Dom.F) (castB ⋯ (Fin.append x.1 x.2)),
+      z := (algebraMap GF K) (B.grpCol (splitF c (castB ⋯ (castB ⋯ (Fin.append x.1 x.2))))) } =
+    tupK
+      (actQuery ((piB K) (aPl U P D (DefR13.aOff c (86 + 2 * ls)) (nF c) (Fin.append x.1 x.2)))
+        ((piB K) (aPl U P D (DefR13.aOff c (86 + 2 * ls + 4)) (nF c) (Fin.append x.1 x.2))) g)
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    Eq.symm G.logF
+  has type
+    @Eq ℕ (nF c) (c.sh.logs Dom.F)
+  but is expected to have type
+    @Eq ℕ (nF c) (Sg.log c Sg.Act)
+  in the application
+    castB ⋯
+warning: ZK60Formal/BlockR13LookCov.lean:381:53: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: ZK60Formal/BlockR13LookCov.lean:409:53: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Some required targets logged failures:
+- ZK60Formal.BlockR13LookCov
+error: build failed
+build rc 1 (39 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean:86:81: error: Application type mismatch: The argument
+  msg.take 300
+has type
+  String.Slice
+but is expected to have type
+  String
+in the application
+  s.msgs.push (msg.take 300)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean:132:13: error: unexpected token; expected '}'
+rc 1 for run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg (53 s)
+rc 1, 53 s

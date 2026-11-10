@@ -1,0 +1,3 @@
+build ZK60Formal.BlockR13LookSum
+build ZK60Formal.BlockR13LookCov
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/formal/ZK60Formal/BlockR13LookSumCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a09954f00024476bf/results/zk60_lean_l47_20261110/l47_r13_short.txt neg
