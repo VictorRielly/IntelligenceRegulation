@@ -1,0 +1,3 @@
+build ZK60Formal.RunStgRun
+build ZK60Formal.RunStgHal
+build ZK60Formal.RunStgTop
