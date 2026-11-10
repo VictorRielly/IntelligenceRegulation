@@ -1,0 +1,3 @@
+build ZK60Formal.RunCoverParse
+build ZK60Formal.RunCoverStage
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/l39_ga1_rerun.lean

@@ -1,0 +1,32 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/plan2.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pA.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pB.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pA.lean ==
+cumulative profiling times:
+	attribute application 12.9ms
+	elaboration 20ms
+	fix level params 0.00942ms
+	instantiate metavars 0.009ms
+	let-to-have transformation 0.0106ms
+	overlappingInstancesLinter 0.107ms
+	process pre-definitions 0.125ms
+	share common exprs 0.0373ms
+	tacticAnalysis 0.514ms
+	type checking 3.16ms
+	typeclass inference 0.217ms
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pA.lean (3 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pB.lean ==
+cumulative profiling times:
+	attribute application 7.6ms
+	elaboration 8.74ms
+	fix level params 0.00592ms
+	instantiate metavars 0.00487ms
+	let-to-have transformation 0.00637ms
+	overlappingInstancesLinter 0.0564ms
+	process pre-definitions 0.079ms
+	share common exprs 0.0211ms
+	tacticAnalysis 0.279ms
+	type checking 1.73ms
+	typeclass inference 0.169ms
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pB.lean (6 s)
+rc 0, 6 s

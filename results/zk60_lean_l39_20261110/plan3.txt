@@ -1,0 +1,3 @@
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pD.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pE.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/probe/l39_pC.lean

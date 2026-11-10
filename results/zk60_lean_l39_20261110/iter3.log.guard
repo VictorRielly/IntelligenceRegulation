@@ -1,0 +1,3 @@
+[zk60-guard 00:26:25] START lean-l39-iter class=cpu need=14G cap=14G enforce=watchdog-only waited=0s run=39a308115eea
+[zk60-guard 00:26:57] KILL lean-l39-iter: job RSS 14.48 GiB > cap 14 GiB
+[zk60-guard 00:26:57] END lean-l39-iter exit=75 child_wall=32s peak_rss=14.48G min_avail=218.16G

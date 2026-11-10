@@ -1,0 +1,38 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/plan6.txt ==
+build ZK60Formal.RunCoverParse
+build ZK60Formal.RunCoverStage
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/l39_ga1_rerun.lean
+== lake build ZK60Formal.RunCoverParse ==
+warning: ZK60Formal/RunCoverParse.lean:294:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rc_subSt_opBCSub_congr`:
+  [DecidableEq F]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq F] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunCoverParse.lean:308:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rc_entD_opBCSub_congr`:
+  [DecidableEq F]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq F] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3540 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.RunCoverStage ==
+✖ [3547/3547] Building ZK60Formal.RunCoverStage (2.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/ZK60Formal/RunCoverStage.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverStage.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverStage.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverStage.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverStage.setup.json --json
+error: ZK60Formal/RunCoverStage.lean:343:62: Application type mismatch: The argument
+  Eq.symm (rc_outcBp_draws ?m.11)
+has type
+  outcDraws (OutcV.pub ?m.11) = (OutcV.bp ?m.11).draws
+but is expected to have type
+  outcDraws O = (outcVAt tag O geo blk bd idx lr blr q bq).bp.draws
+in the application
+  Eq.trans (rc_outcDraws_verdict O v) (Eq.symm (rc_outcBp_draws ?m.11))
+Some required targets logged failures:
+- ZK60Formal.RunCoverStage
+error: build failed
+build rc 1 (8 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/l39_ga1_rerun.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/l39_ga1_rerun.lean:16:0: error: object file '/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverStage.olean' of module ZK60Formal.RunCoverStage does not exist
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/l39_ga1_rerun.lean (9 s)
+rc 1, 9 s

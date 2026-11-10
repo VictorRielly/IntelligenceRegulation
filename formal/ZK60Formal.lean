@@ -251,3 +251,5 @@ import ZK60Formal.BlockAlgLkR13
 import ZK60Formal.BlockAlgLkW16
 import ZK60Formal.BlockAlgLkFinal
 import ZK60Formal.BlockAlgSat
+import ZK60Formal.RunCoverDefine
+import ZK60Formal.RunCoverStage

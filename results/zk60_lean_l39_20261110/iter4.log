@@ -1,0 +1,348 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/plan4.txt ==
+build ZK60Formal.RunCoverDefine
+build ZK60Formal.RunCoverParse
+build ZK60Formal.RunCoverStage
+== lake build ZK60Formal.RunCoverDefine ==
+✖ [3498/3498] Building ZK60Formal.RunCoverDefine (32s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/ZK60Formal/RunCoverDefine.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverDefine.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverDefine.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverDefine.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverDefine.setup.json --json
+error: ZK60Formal/RunCoverDefine.lean:84:2: unsolved goals
+case refine_1
+cmIO cmX : Cm
+t : Tab
+ha : cmCount Cm.a [t] = 0
+hh : cmCount Cm.h [t] = 0
+hio : cmCount cmIO [t] = 0
+hx : cmCount cmX [t] = 0
+b : SBS
+a : ℕ
+h :
+  Except.ok (b.tabs.length, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok }) =
+    Except.ok (a, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok })
+h1 : cmCount Cm.a b.tabs = b.ak
+h2 : cmCount Cm.h b.tabs = b.hk
+h3 : cmCount cmIO b.tabs = b.iok
+h4 : cmCount cmX b.tabs = 0
+⊢ b.ak + 0 = b.ak
+error: ZK60Formal/RunCoverDefine.lean:86:2: unsolved goals
+case refine_2
+cmIO cmX : Cm
+t : Tab
+ha : cmCount Cm.a [t] = 0
+hh : cmCount Cm.h [t] = 0
+hio : cmCount cmIO [t] = 0
+hx : cmCount cmX [t] = 0
+b : SBS
+a : ℕ
+h :
+  Except.ok (b.tabs.length, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok }) =
+    Except.ok (a, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok })
+h1 : cmCount Cm.a b.tabs = b.ak
+h2 : cmCount Cm.h b.tabs = b.hk
+h3 : cmCount cmIO b.tabs = b.iok
+h4 : cmCount cmX b.tabs = 0
+⊢ b.hk + 0 = b.hk
+error: ZK60Formal/RunCoverDefine.lean:88:2: unsolved goals
+case refine_3
+cmIO cmX : Cm
+t : Tab
+ha : cmCount Cm.a [t] = 0
+hh : cmCount Cm.h [t] = 0
+hio : cmCount cmIO [t] = 0
+hx : cmCount cmX [t] = 0
+b : SBS
+a : ℕ
+h :
+  Except.ok (b.tabs.length, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok }) =
+    Except.ok (a, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok })
+h1 : cmCount Cm.a b.tabs = b.ak
+h2 : cmCount Cm.h b.tabs = b.hk
+h3 : cmCount cmIO b.tabs = b.iok
+h4 : cmCount cmX b.tabs = 0
+⊢ b.iok + 0 = b.iok
+warning: ZK60Formal/RunCoverDefine.lean:137:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:139:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/RunCoverDefine.lean:153:76: Unknown identifier `fp2U`
+error: ZK60Formal/RunCoverDefine.lean:157:93: Unknown identifier `fp2U`
+warning: ZK60Formal/RunCoverDefine.lean:167:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:169:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:188:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:190:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:192:35: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunCoverDefine.lean:194:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/RunCoverDefine.lean:293:51: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:301:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:300:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:309:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:308:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:314:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:343:51: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:357:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:356:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:362:51: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:370:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:369:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:378:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:377:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:386:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:385:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:391:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.RunCoverDefine
+error: build failed
+build rc 1 (41 s)
+== lake build ZK60Formal.RunCoverParse ==
+✖ [3540/3540] Building ZK60Formal.RunCoverParse (2.1s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/ZK60Formal/RunCoverParse.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverParse.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverParse.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverParse.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverParse.setup.json --json
+warning: ZK60Formal/RunCoverParse.lean:255:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rc_opBSt_congr`:
+  [DecidableEq F]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq F] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunCoverParse.lean:330:33: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/RunCoverParse.lean:416:11: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  pr.ns
+in the target expression
+  pf.sqAt i + (pf.part i).preSq ≤ k.toNat
+
+P : Block.BlockParams
+pr : OProf P
+pf : RtProf
+i : ℕ
+hi : i < pf.parts.length
+hp : ∀ n ∈ pf.sqs, 0 < n
+hcM : pr.cM = pf.sqAt i + (pf.part i).preSq
+hns : pr.ns = rcRunsMAH (pf.part i)
+k : UInt64
+hk1 : pf.sqAt i + (pf.part i).preSq ≤ k.toNat
+hk2 : k.toNat < pf.sqAt i + (pf.part i).preSq + pr.ns.sum
+⊢ rtW pf.sqs k = pr.W k
+Some required targets logged failures:
+- ZK60Formal.RunCoverParse
+error: build failed
+build rc 1 (45 s)
+== lake build ZK60Formal.RunCoverStage ==
+✖ [3546/3547] Building ZK60Formal.RunCoverDefine (20s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/ZK60Formal/RunCoverDefine.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverDefine.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverDefine.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverDefine.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverDefine.setup.json --json
+error: ZK60Formal/RunCoverDefine.lean:84:2: unsolved goals
+case refine_1
+cmIO cmX : Cm
+t : Tab
+ha : cmCount Cm.a [t] = 0
+hh : cmCount Cm.h [t] = 0
+hio : cmCount cmIO [t] = 0
+hx : cmCount cmX [t] = 0
+b : SBS
+a : ℕ
+h :
+  Except.ok (b.tabs.length, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok }) =
+    Except.ok (a, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok })
+h1 : cmCount Cm.a b.tabs = b.ak
+h2 : cmCount Cm.h b.tabs = b.hk
+h3 : cmCount cmIO b.tabs = b.iok
+h4 : cmCount cmX b.tabs = 0
+⊢ b.ak + 0 = b.ak
+error: ZK60Formal/RunCoverDefine.lean:86:2: unsolved goals
+case refine_2
+cmIO cmX : Cm
+t : Tab
+ha : cmCount Cm.a [t] = 0
+hh : cmCount Cm.h [t] = 0
+hio : cmCount cmIO [t] = 0
+hx : cmCount cmX [t] = 0
+b : SBS
+a : ℕ
+h :
+  Except.ok (b.tabs.length, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok }) =
+    Except.ok (a, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok })
+h1 : cmCount Cm.a b.tabs = b.ak
+h2 : cmCount Cm.h b.tabs = b.hk
+h3 : cmCount cmIO b.tabs = b.iok
+h4 : cmCount cmX b.tabs = 0
+⊢ b.hk + 0 = b.hk
+error: ZK60Formal/RunCoverDefine.lean:88:2: unsolved goals
+case refine_3
+cmIO cmX : Cm
+t : Tab
+ha : cmCount Cm.a [t] = 0
+hh : cmCount Cm.h [t] = 0
+hio : cmCount cmIO [t] = 0
+hx : cmCount cmX [t] = 0
+b : SBS
+a : ℕ
+h :
+  Except.ok (b.tabs.length, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok }) =
+    Except.ok (a, { tabs := b.tabs ++ [t], ak := b.ak, hk := b.hk, iok := b.iok })
+h1 : cmCount Cm.a b.tabs = b.ak
+h2 : cmCount Cm.h b.tabs = b.hk
+h3 : cmCount cmIO b.tabs = b.iok
+h4 : cmCount cmX b.tabs = 0
+⊢ b.iok + 0 = b.iok
+warning: ZK60Formal/RunCoverDefine.lean:137:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:139:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/RunCoverDefine.lean:153:76: Unknown identifier `fp2U`
+error: ZK60Formal/RunCoverDefine.lean:157:93: Unknown identifier `fp2U`
+warning: ZK60Formal/RunCoverDefine.lean:167:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:169:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:188:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:190:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunCoverDefine.lean:192:35: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunCoverDefine.lean:194:35: `if_neg` has been deprecated: Use `ite_eq_right` instead
+error: ZK60Formal/RunCoverDefine.lean:293:51: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:301:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:300:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:309:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:308:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:314:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:343:51: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:357:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:356:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:362:51: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:370:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:369:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:378:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:377:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:386:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:385:2: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverDefine.lean:391:51: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.RunCoverDefine
+error: build failed
+build rc 1 (67 s)
+rc 1, 67 s

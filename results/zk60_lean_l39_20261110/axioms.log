@@ -1,0 +1,164 @@
+'ZK60.ProtocolClassify.rt_stageHeader_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rt_rdCloses_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rt_decodeStage_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rtStageOf' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rtStageOf_decode' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rt_closes_head' does not depend on any axioms
+'ZK60.ProtocolClassify.rt_part_of' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rt_sqN_stageRoot' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rt_stagePre' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rtFullOps' does not depend on any axioms
+'ZK60.ProtocolClassify.rt_fullOps' does not depend on any axioms
+'ZK60.ProtocolClassify.rt_stSlotsLoop_tr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rt_incBp_draws' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rt_incSlotT' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rt_incSlots_tr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rt_outcSlots_tr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rtIncFrame' does not depend on any axioms
+'ZK60.ProtocolClassify.rtIncFrame_fit' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtIncData' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtIncRd' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtIncSeg' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.RtInc' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtInc_holds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rtOutcFrame' does not depend on any axioms
+'ZK60.ProtocolClassify.rtOutcFrame_fit' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtOutcData' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtOutcRd' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtOutcSeg' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.RtOutc' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtOutc_holds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RtSeg.Holds.mono' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rtRunClassify' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_cmCount_append' does not depend on any axioms
+'ZK60.ProtocolClassify.SBInv' does not depend on any axioms
+'ZK60.ProtocolClassify.sbInv_empty' does not depend on any axioms
+'ZK60.ProtocolClassify.SBTr' does not depend on any axioms
+'ZK60.ProtocolClassify.sbTr_bind' does not depend on any axioms
+'ZK60.ProtocolClassify.sbTr_pure' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_pushT_run' does not depend on any axioms
+'ZK60.ProtocolClassify.sbTr_pushT' does not depend on any axioms
+'ZK60.ProtocolClassify.sbTr_eqT' does not depend on any axioms
+'ZK60.ProtocolClassify.sbTr_pubT' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_shape_run' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_shape_ok' does not depend on any axioms
+'ZK60.ProtocolClassify.sbTr_aSliceT' depends on axioms: [propext]
+'ZK60.ProtocolClassify.sbTr_aAtT' depends on axioms: [propext]
+'ZK60.ProtocolClassify.sbTr_aT' depends on axioms: [propext]
+'ZK60.ProtocolClassify.sbTr_hT' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_ioT_run' does not depend on any axioms
+'ZK60.ProtocolClassify.sbTr_ioT' does not depend on any axioms
+'ZK60.ProtocolClassify.sbTr_forIn' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.SBCnt' depends on axioms: [propext]
+'ZK60.ProtocolClassify.sbTr_finishT' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_build_cnt' does not depend on any axioms
+'ZK60.ProtocolClassify.rcCnt' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_cnt_inp' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_cnt_out' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rcIncCnt' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_incDefIO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_incDefQZC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_incDefTZC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_incDefZS' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_incDefine' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcOutcCnt' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_outcDefIO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcDefSS' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcDefTZC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcDefPD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcDefLZC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcDefDZC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcDefTAB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcDefZS' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcDefine' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_stSlotsLoop_claims' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_acc0_get' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_incSlots_get' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_incGeom_len' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_outcGeom_len' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_incSlots_counts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcSlots_get' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcSlots_counts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_shapeLen_congr' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_shapeSq_congr' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_incBounds' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcBounds' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_incGeom_gt' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_outcGeom_gt' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rcPcsAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcIncGeom' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rcCx0' does not depend on any axioms
+'ZK60.ProtocolClassify.rcIncPart' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rcIncOf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcIncOf_counts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcIncAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcIncAt_holds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcOutcGeom' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rcOutcPart' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rcVerdict' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_outcLay_verdict' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_outcDraws_verdict' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_outcBp_draws' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcV_geom' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_outcV_draws' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rcOutcAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcOutcAt_holds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcRunClassifyAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_checkTokenEp_len' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_stSlotsProve_length' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_slotsProve_length' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rcInc_honest' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcInc_honest_tables' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcOutc_honest' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcOutc_honest_tables' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.SqAgree' does not depend on any axioms
+'ZK60.ProtocolClassify.sqAgree_mono' does not depend on any axioms
+'ZK60.ProtocolClassify.sqAgree_symm' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_drop_take_sub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_drop_drop_sub' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_tRemStep_congr' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_foldl_tRem_congr' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_tRem_congr' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_cRdStep_congr' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_foldl_cRd_congr' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_cRd_congr' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_tRem_take_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_liftC_congr' does not depend on any axioms
+'ZK60.ProtocolClassify.rc_rdAlive_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_subSt_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_entD_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RdDone' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_cRd_done_append' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_subSt_take' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_entD_take' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_subSt_carry' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_entD_carry' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_opARead_congr' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_opBSt_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_opBCSub_St' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_subSt_opBCSub_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_entD_opBCSub_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_wRuns_append_ge' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_wRuns_append_lt' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_rtW_runs' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_rtW_oprof' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_sum_flatMap_sqs' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rcRunsMAH' does not depend on any axioms
+'ZK60.ProtocolClassify.rcPre' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rcPost' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_sqs_split' depends on axioms: [propext]
+'ZK60.ProtocolClassify.rc_sqs_pre_sum' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_rtW_part' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_rtW_part_oprof' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_opB_carry' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_opB_entD_carry' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_sqAgree_part' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.rc_aliveOrd9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RcSome' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_some_of_part' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_cover3_some' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReady_runChain_some' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReady_run_r13_some' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReady_run_r13_token_some' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReady_r13_some' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReady_r13_top' depends on axioms: [propext, Classical.choice, Quot.sound]

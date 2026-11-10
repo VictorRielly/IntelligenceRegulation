@@ -1,0 +1,79 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/results/zk60_lean_l39_20261110/plan5.txt ==
+build ZK60Formal.RunCoverDefine
+build ZK60Formal.RunCoverParse
+build ZK60Formal.RunCoverAlive
+build ZK60Formal.RunCoverStage
+build ZK60Formal.RunCoverSome
+== lake build ZK60Formal.RunCoverDefine ==
+Build completed successfully (3498 jobs).
+build rc 0 (6 s)
+== lake build ZK60Formal.RunCoverParse ==
+warning: ZK60Formal/RunCoverParse.lean:268:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.rc_opBCSub_St`:
+  [DecidableEq F]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq F] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3540 jobs).
+build rc 0 (12 s)
+== lake build ZK60Formal.RunCoverAlive ==
+Build completed successfully (3499 jobs).
+build rc 0 (16 s)
+== lake build ZK60Formal.RunCoverStage ==
+✖ [3547/3547] Building ZK60Formal.RunCoverStage (14s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/ZK60Formal/RunCoverStage.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverStage.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/lib/lean/ZK60Formal/RunCoverStage.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverStage.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3916e7dc85b4e5fb/formal/.lake/build/ir/ZK60Formal/RunCoverStage.setup.json --json
+error: ZK60Formal/RunCoverStage.lean:260:94: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverStage.lean:282:5: Unknown identifier `rcIncOf`
+
+Note: It is not possible to treat `rcIncOf` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunCoverStage.lean:283:9: Unknown identifier `rcIncOf`
+
+Note: It is not possible to treat `rcIncOf` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunCoverStage.lean:284:9: Unknown identifier `rcIncOf`
+
+Note: It is not possible to treat `rcIncOf` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunCoverStage.lean:285:9: Unknown identifier `rcIncOf`
+
+Note: It is not possible to treat `rcIncOf` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunCoverStage.lean:295:2: Unknown identifier `rcIncOf`
+error: ZK60Formal/RunCoverStage.lean:308:2: Type mismatch
+  rtInc_holds (fun x => incVAt tag pub geo blk ed lr elr q eq)
+    (fun x => rcIncGeom (incVAt tag pub geo blk ed lr elr q eq) total) cx0 Lq hL20
+    (rcIncPart (incVAt tag pub geo blk ed lr elr q eq) q eq)
+    (rcIncAt Lq hL20 tag pub geo blk ed lr elr q eq total hq heq h15 he15)
+has type
+  (rtIncSeg (fun x => incVAt tag pub geo blk ed lr elr q eq)
+        (fun x => rcIncGeom (incVAt tag pub geo blk ed lr elr q eq) total) cx0
+        (rcIncPart (incVAt tag pub geo blk ed lr elr q eq) q eq)).Holds
+    Lq (fun x => True) fun cr =>
+    cr.pending.length = (rcIncAt Lq hL20 tag pub geo blk ed lr elr q eq total hq heq h15 he15).nOut
+but is expected to have type
+  (rtIncSeg (fun x => incVAt tag pub geo blk ed lr elr q eq)
+        (fun x => rcIncGeom (incVAt tag pub geo blk ed lr elr q eq) total) cx0
+        (rcIncPart (incVAt tag pub geo blk ed lr elr q eq) q eq)).Holds
+    Lq (fun x => True) fun cr => cr.pending.length = 1
+error: ZK60Formal/RunCoverStage.lean:357:52: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/RunCoverStage.lean:379:30: Unknown identifier `rcOutcAt`
+error: ZK60Formal/RunCoverStage.lean:414:5: Unknown identifier `rcOutcAt`
+error: ZK60Formal/RunCoverStage.lean:531:11: Unknown identifier `rcIncOf`
+
+Note: It is not possible to treat `rcIncOf` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunCoverStage.lean:533:11: Unknown identifier `rcIncOf`
+
+Note: It is not possible to treat `rcIncOf` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+Some required targets logged failures:
+- ZK60Formal.RunCoverStage
+error: build failed
+build rc 1 (32 s)
+== lake build ZK60Formal.RunCoverSome ==
+Build completed successfully (3550 jobs).
+build rc 0 (38 s)
+rc 1, 38 s

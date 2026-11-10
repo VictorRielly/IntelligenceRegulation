@@ -1,0 +1,5 @@
+build ZK60Formal.RunCoverDefine
+build ZK60Formal.RunCoverParse
+build ZK60Formal.RunCoverAlive
+build ZK60Formal.RunCoverStage
+build ZK60Formal.RunCoverSome
