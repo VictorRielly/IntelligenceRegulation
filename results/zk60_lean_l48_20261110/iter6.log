@@ -1,0 +1,47 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/results/zk60_lean_l48_20261110/plan6.txt ==
+build ZK60Formal.RunExtractStage ZK60Formal.RunExtractParts ZK60Formal.RunOpenGeoTier
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/formal/ZK60Formal/RunOpenGeoCheck.lean
+run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/formal/ZK60Formal/RunOpenGeoCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/results/zk60_lean_l29_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/ops/zkp-mvp/gpu-metal
+== lake build ZK60Formal.RunExtractStage ZK60Formal.RunExtractParts ZK60Formal.RunOpenGeoTier ==
+Build completed successfully (3564 jobs).
+build rc 0 (10 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/formal/ZK60Formal/RunOpenGeoCheck.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/formal/ZK60Formal/RunOpenGeoCheck.lean (12 s)
+== lean --run /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/formal/ZK60Formal/RunOpenGeoCheck.lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/results/zk60_lean_l29_20261107/corpus.txt /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/ops/zkp-mvp/gpu-metal ==
+ok   CORPUS: the corpus is L29's export (hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2)
+ok   CORPUS: the run's tier: stage_log_n 12 (IN-C), 12 (OUT-C); Lean tierR1 12
+ok   CORPUS: the run's tier: ep_log_n 8; Lean tierR1 8
+ok   STAGE: IN-C's A/H Dim (checks, n+q_pad, enc cols, path) = (256, 4352, 16384, 14); Lean ogStage (256, (4352, (16384, 14)))
+ok   STAGE: IN-C's A/H log inverse rate 2, column checks 256; Lean ogStage 2, 256
+ok   STAGE: OUT-C's A/H Dim = (256, 4352, 16384, 14); Lean ogStage (256, (4352, (16384, 14)))
+ok   STAGE: OUT-C's A/H log inverse rate 2, column checks 256
+ok   ENDPOINT: the input endpoint's Dim = (256, 512, 2048, 11); Lean ogEp (256, (512, (2048, 11)))
+ok   ENDPOINT: the input endpoint's log inverse rate 3, column checks 256; Lean ogEp 3, 256
+ok   ENDPOINT: the input endpoint's rows: 1 data rows of 2^8 words = 256 words, 6 committed (data + MASK_ROWS 5)
+ok   LEAN: ogStage is tierR1's stage geometry
+ok   LEAN: ogEp is tierR1's endpoint geometry
+ok   LEAN: the radii are the largest: 2·6016 + 2^12 + 256 = 2^14, 2·768 + 2^8 + 256 = 2^11
+ok   SOURCE: token_io.rs: Tier::R1_MVP is defined
+ok   SOURCE: R1_MVP.opened_cols (some 256); Lean 256
+ok   SOURCE: R1_MVP.stage_log_n (some 12); Lean 12
+ok   SOURCE: R1_MVP.stage_inv_rate (some 4); Lean 4
+ok   SOURCE: R1_MVP.ep_log_n (some 8); Lean 8
+ok   SOURCE: R1_MVP.ep_inv_rate (some 8); Lean 8
+ok   SOURCE: token_io.rs: R1_MVP is the ONLY registered tier
+ok   SOURCE: classify.rs: the classifier door refuses an unregistered tier
+ok   SOURCE: token_io.rs: stage_params() is the tier's stage geometry
+ok   SOURCE: stage_in_c.rs: stage IN-C's A, H at tier.stage_log_n, tier.stage_params()
+ok   SOURCE: classify.rs: stage OUT-C's row width is tier.stage_log_n
+ok   SOURCE: classify.rs: input_endpoint_spec commits the input at t.ep_log_n, t.ep_inv_rate, t.opened_cols
+ok   SOURCE: zkp-core pcs.rs: ZkOpts::standard: pads = opened columns, coset 7
+ok   SOURCE: endpoint_g.rs: the endpoint's PCS parameters, five mask rows, ZkOpts::standard
+ok   SOURCE: shape.rs: R13_SHIELD_T128_H24 log_cols (some 14); Lean ogR13 14
+ok   SOURCE: shape.rs: a block's boundary row width defaults to its log_cols (the block geometry)
+CORPUS: 3 checks, 0 failed
+STAGE: 4 checks, 0 failed
+ENDPOINT: 3 checks, 0 failed
+LEAN: 3 checks, 0 failed
+SOURCE: 16 checks, 0 failed
+RunOpenGeoCheck: 29 checks, 0 failed
+run rc 0 (15 s)
+rc 0, 15 s

@@ -1,0 +1,3 @@
+build ZK60Formal.RunOpenGeoStage
+build ZK60Formal.RunOpenGeoTop
+build

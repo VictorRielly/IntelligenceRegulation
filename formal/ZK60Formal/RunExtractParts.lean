@@ -15,6 +15,10 @@ they are BUILT for the classify run with D12a blocks (L34's `rtRunClassify` sche
   meet `RhOpW` (the first two thirds of L43's `hopW`);
 * **`rx_parts_M`**: EVERY part's `M` meets `RhMW` (L43's `hMW`, all of it).
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): the stages' data at a stage
+code geometry (`rxDinG`, `rxDoutG`; `rxDin`, `rxDout` are their instances at `ogR13`), `rx_parts_AHG`, `rx_parts_MG`;
+`rx_parts_AH`, `rx_parts_M` kept, with L45's statements, as their instances at `ogR13`.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunExtractBlk
@@ -64,6 +68,22 @@ def rxDblk (pf : RtProf) (k S kM rA rH nA nH : ℕ) : RxMAH :=
 def rxDout (pf : RtProf) (Lb S kM rA rH nA nH : ℕ) : RxMAH :=
   ⟨S, kM, pf.off (Lb + 1) + (2 + 3), rkR13 rA (pf.off (Lb + 1) + 2), rkR13 rH (pf.off (Lb + 1) + (2 + (4 + 2))), nA,
     nH⟩
+
+/-- **Stage IN-C's data at a stage code geometry `g`** (D63 lane L48: the stages' `A`, `H` are at the tier's width,
+finding L45-2): roots at `5`, `8`, `9 + m` after the part's start. `rxDin` is the instance `g = ogR13`. -/
+def rxDinG (g : OGeo) (pf : RtProf) (S kM rA rH nA nH m : ℕ) : RxMAH :=
+  ⟨S, kM, pf.off 0 + (5 + 3), rkAt g rA (pf.off 0 + 5), rkAt g rH (pf.off 0 + (5 + (4 + m))), nA, nH⟩
+
+/-- **Stage OUT-C's data at a stage code geometry `g`** (D63 lane L48). `rxDout` is the instance `g = ogR13`. -/
+def rxDoutG (g : OGeo) (pf : RtProf) (Lb S kM rA rH nA nH : ℕ) : RxMAH :=
+  ⟨S, kM, pf.off (Lb + 1) + (2 + 3), rkAt g rA (pf.off (Lb + 1) + 2), rkAt g rH (pf.off (Lb + 1) + (2 + (4 + 2))),
+    nA, nH⟩
+
+theorem rxDin_eq (pf : RtProf) (S kM rA rH nA nH m : ℕ) :
+    rxDin pf S kM rA rH nA nH m = rxDinG ogR13 pf S kM rA rH nA nH m := rfl
+
+theorem rxDout_eq (pf : RtProf) (Lb S kM rA rH nA nH : ℕ) :
+    rxDout pf Lb S kM rA rH nA nH = rxDoutG ogR13 pf Lb S kM rA rH nA nH := rfl
 
 /-- **The classify run's accumulator readers**: stage IN-C's, each block's (L31's `tAccRd`, L43's `rkAccBlk`), stage
 OUT-C's, each at its part's absolute position on the run's transcript. -/
@@ -156,8 +176,109 @@ variable {K : Type} [Field K] [Algebra GF K] (U : K) (tag : MTag)
   (bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit)
   (bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr)
 
-/-- **EVERY PART'S `A` AND `H` MEET `RhOpW`** on an accepted run outside the run's Merkle event, with the run's own
+/-- **EVERY PART'S `A` AND `H` MEET `RhOpW`**, the stages' at a stage code geometry `gS` (D63 lane L48), on an accepted run outside the run's Merkle event, with the run's own
 Merkle work, at the kinds data's readers built here: the first two thirds of L43's `hopW`, PROVED. -/
+theorem rx_parts_AHG
+    (R : RtRun (classifyRunV Lb preA preB start inc incG
+      (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) key domain Lq)
+    (hv : R.pf.Valid) (cx0 : IncCtx) (pin pout : RtPart) (I : RtInc Lq inc incG pin) (O : RtOutc Lq outc outcG pout)
+    (bp : ∀ k, RtBlk Lq (Pk k)) (wXk gXk mXk : ℕ → ℕ)
+    (hσ : R.σs = rtParts (classifyRunV Lb preA preB start inc incG
+      (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG)
+      (rtIncSeg inc incG cx0 pin)
+      (fun k => rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k
+        (rtBlockPart (Pk k) (bp k).S ((bp k).nA + (bp k).pA.rows) (bp k).pA.m ((bp k).nH + (bp k).pH.rows) (bp k).pH.m
+          (wXk k) (gXk k) (mXk k)))
+      (rtOutcSeg outc outcG pout))
+    (hLb : Lb ≤ 26) (hgeo : ∀ k s, (sgeom s k).g = (Pk k).geom)
+    (gS : OGeo) (hgS : gS.Ok) (hgSQ : gS.Q ≤ 256)
+    (hIA : RkPcsAt U tag gS I.pA) (hIH : RkPcsAt U tag gS I.pH) (hOA : RkPcsAt U tag gS O.pA)
+    (hOH : RkPcsAt U tag gS O.pH)
+    (hBA : ∀ k, RkPcsR13 U tag (bp k).pA) (hBH : ∀ k, RkPcsR13 U tag (bp k).pH)
+    (hfIA : 8 * I.pA.rows ≤ Lq) (hfIH : 8 * I.pH.rows ≤ Lq) (hfOA : 8 * O.pA.rows ≤ Lq) (hfOH : 8 * O.pH.rows ≤ Lq)
+    (hfBA : ∀ k, 8 * (bp k).pA.rows ≤ Lq) (hfBH : ∀ k, 8 * (bp k).pH.rows ≤ Lq)
+    (Win : List (TItem × Dig) → IncV) (Wout : List (TItem × Dig) → OutcV) (lscIn lscOut : Block.ZClaim)
+    (mIn kIn kOut : ℕ) (hlscIn : ∀ hd, (inc hd).lay.logupSumClaim = lscIn)
+    (hlscOut : ∀ hd v, (outc hd v).lay.logupSumClaim = lscOut) (hmIn : ∀ hd, incHeadDraws (inc hd).pub = mIn)
+    (base : ℕ → RkPart K Lq) (ps : ℕ → RkPart K Lq)
+    (hps : ps = rxPs base Lb (rxDinG gS R.pf pin.S kIn I.pA.rows I.pH.rows I.nA I.nH mIn)
+      (fun k => rxDblk R.pf k (bp k).S (Pk k).nFunctionals (bp k).pA.rows (bp k).pH.rows (bp k).nA (bp k).nH)
+      (rxDoutG gS R.pf Lb pout.S kOut O.pA.rows O.pH.rows O.nA O.nH))
+    (acc : ℕ → List (TItem × Dig) → Block.Acc) (hacc : acc = rxAcc Win Wout Pk R.pf Lb)
+    (lsc : ℕ → Block.ZClaim) (hlsc : lsc = rxLsc lscIn lscOut Pk Lb)
+    (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig)
+    (hE : classifyVerifyE (classifyRunV Lb preA preB start inc incG
+      (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) (liftH G)
+      (A.run G).1 (A.run G).2 = .ok ())
+    (hWin : Win ((R.tr G (A.run G)).take (R.pf.off 0 + pin.pre)) = inc (A.run G).1.hdr)
+    (hWout : Wout ((R.tr G (A.run G)).take (R.pf.off (Lb + 1) + pout.pre)) = outc (A.run G).1.hdr (A.run G).1.verdict)
+    (hX : ¬ EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+      (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G)
+    (i : ℕ) (hi : i < R.pf.parts.length) :
+    Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (ps i).gA (ps i).nA
+        (fun hdr => (acc i hdr).claims.a) (R.pf.off i + (R.pf.part i).oA) (R.pf.off i + (R.pf.part i).oBA)
+        (R.pf.off i + (R.pf.part i).oA + ((ps i).nA + (ps i).gA.rows)) (A.runLog G).2 G (R.tr G (A.run G)))
+      ∧ Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (ps i).gH (ps i).nH
+        (fun hdr => (acc i hdr).claims.h ++ [lsc i]) (R.pf.off i + (R.pf.part i).oH)
+        (R.pf.off i + (R.pf.part i).oBH)
+        (R.pf.off i + (R.pf.part i).oH + ((ps i).nH + (ps i).gH.rows)) (A.runLog G).2 G (R.tr G (A.run G))) := by
+  subst hps hacc hlsc
+  have hL2 : R.pf.parts.length = Lb + 2 := RtRun.parts_length R
+  rcases hrun : A.run G with ⟨s, segs⟩
+  rw [hrun] at hE hWin hWout
+  rcases i with _ | k
+  · -- stage IN-C
+    have hσ0 : R.σs[0]? = some (rtIncSeg inc incG cx0 pin) := by rw [hσ]; rfl
+    have hpart : R.pf.part 0 = pin := rx_part_of R 0 _ hσ0
+    have hA := rx_inc_opAG U tag h64 hs hL R hv G s segs hE pin inc incG cx0 I hσ0 Win hWin gS hgS hgSQ hIA outcG sgeom Lb A hrun
+      hX hfIA
+    have hH := rx_inc_opHG U tag h64 hs hL R hv G s segs hE pin inc incG cx0 I hσ0 Win hWin gS hgS hgSQ hIH lscIn (hlscIn s.hdr)
+      (R.pf.off 0 + (5 + (4 + mIn))) (by rw [hmIn]) outcG sgeom Lb A hrun hX hfIH
+    rw [hpart] at hA hH
+    show Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt gS I.pA.rows (R.pf.off 0 + 5)) I.nA
+        (fun hdr => (rkAccInc Win (R.pf.off 0 + 5) (R.pf.off 0 + (R.pf.part 0).pre) hdr).claims.a)
+        (R.pf.off 0 + (R.pf.part 0).oA) (R.pf.off 0 + (R.pf.part 0).oBA)
+        (R.pf.off 0 + (R.pf.part 0).oA + (I.nA + I.pA.rows)) (A.runLog G).2 G (R.tr G (s, segs)))
+      ∧ Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt gS I.pH.rows (R.pf.off 0 + (5 + (4 + mIn))))
+        I.nH (fun hdr => (rkAccInc Win (R.pf.off 0 + 5) (R.pf.off 0 + (R.pf.part 0).pre) hdr).claims.h ++ [lscIn])
+        (R.pf.off 0 + (R.pf.part 0).oH) (R.pf.off 0 + (R.pf.part 0).oBH)
+        (R.pf.off 0 + (R.pf.part 0).oH + (I.nH + I.pH.rows)) (A.runLog G).2 G (R.tr G (s, segs)))
+    rw [hpart]
+    exact ⟨hA, hH⟩
+  · rw [hL2] at hi
+    by_cases hk : k < Lb
+    · -- block k
+      have hk26 : k < 26 := by omega
+      have hσb : R.σs[k + 1]? = some (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k
+          (rtBlockPart (Pk k) (bp k).S ((bp k).nA + (bp k).pA.rows) (bp k).pA.m ((bp k).nH + (bp k).pH.rows)
+            (bp k).pH.m (wXk k) (gXk k) (mXk k))) := by
+        rw [hσ]
+        exact rx_getBlk _ _ _ _ k hk
+      have hpart := rx_part_of R (k + 1) _ hσb
+      have hA := rx_blk_opA U tag h64 hs hL Pk sgeom check paths digest bRows bLogN bndCheck bndOpen R hv G s segs hE
+        k hk26 (bp k) (wXk k) (gXk k) (mXk k) hσb (hgeo k) (hBA k) incG outcG Lb A hrun hX (hfBA k)
+      have hH := rx_blk_opH U tag h64 hs hL Pk sgeom check paths digest bRows bLogN bndCheck bndOpen R hv G s segs hE
+        k hk26 (bp k) (wXk k) (gXk k) (mXk k) hσb (hgeo k) (hBH k) incG outcG Lb A hrun hX (hfBH k)
+      rw [hpart] at hA hH
+      rw [rxPs_blk _ _ _ _ _ k hk, rxAcc_blk _ _ _ _ _ k hk, rxLsc_blk _ _ _ _ k hk, hpart]
+      exact ⟨hA, hH⟩
+    · -- stage OUT-C
+      have hkL : Lb = k := by omega
+      subst hkL
+      have hσo : R.σs[Lb + 1]? = some (rtOutcSeg outc outcG pout) := by
+        rw [hσ]
+        exact rx_getOut _ _ _ _
+      have hpart : R.pf.part (Lb + 1) = pout := rx_part_of R (Lb + 1) _ hσo
+      have hA := rx_outc_opAG U tag h64 hs hL R hv G s segs hE Lb pout outc outcG O hσo Wout hWout gS hgS hgSQ hOA incG sgeom A hrun
+        hX hfOA
+      have hH := rx_outc_opHG U tag h64 hs hL R hv G s segs hE Lb pout outc outcG O hσo Wout hWout gS hgS hgSQ hOH lscOut
+        (hlscOut s.hdr s.verdict) incG sgeom A hrun hX hfOH
+      rw [hpart] at hA hH
+      rw [rxPs_out, rxAcc_out, rxLsc_out, hpart]
+      exact ⟨hA, hH⟩
+
+
+/-- **`rx_parts_AH` at R13's block geometry for the stages** (L45's statement; `rx_parts_AHG` at `ogR13`). -/
 theorem rx_parts_AH
     (R : RtRun (classifyRunV Lb preA preB start inc incG
       (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) key domain Lq)
@@ -199,66 +320,15 @@ theorem rx_parts_AH
       ∧ Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (ps i).gH (ps i).nH
         (fun hdr => (acc i hdr).claims.h ++ [lsc i]) (R.pf.off i + (R.pf.part i).oH)
         (R.pf.off i + (R.pf.part i).oBH)
-        (R.pf.off i + (R.pf.part i).oH + ((ps i).nH + (ps i).gH.rows)) (A.runLog G).2 G (R.tr G (A.run G))) := by
-  subst hps hacc hlsc
-  have hL2 : R.pf.parts.length = Lb + 2 := RtRun.parts_length R
-  rcases hrun : A.run G with ⟨s, segs⟩
-  rw [hrun] at hE hWin hWout
-  rcases i with _ | k
-  · -- stage IN-C
-    have hσ0 : R.σs[0]? = some (rtIncSeg inc incG cx0 pin) := by rw [hσ]; rfl
-    have hpart : R.pf.part 0 = pin := rx_part_of R 0 _ hσ0
-    have hA := rx_inc_opA U tag h64 hs hL R hv G s segs hE pin inc incG cx0 I hσ0 Win hWin hIA outcG sgeom Lb A hrun
-      hX hfIA
-    have hH := rx_inc_opH U tag h64 hs hL R hv G s segs hE pin inc incG cx0 I hσ0 Win hWin hIH lscIn (hlscIn s.hdr)
-      (R.pf.off 0 + (5 + (4 + mIn))) (by rw [hmIn]) outcG sgeom Lb A hrun hX hfIH
-    rw [hpart] at hA hH
-    show Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 I.pA.rows (R.pf.off 0 + 5)) I.nA
-        (fun hdr => (rkAccInc Win (R.pf.off 0 + 5) (R.pf.off 0 + (R.pf.part 0).pre) hdr).claims.a)
-        (R.pf.off 0 + (R.pf.part 0).oA) (R.pf.off 0 + (R.pf.part 0).oBA)
-        (R.pf.off 0 + (R.pf.part 0).oA + (I.nA + I.pA.rows)) (A.runLog G).2 G (R.tr G (s, segs)))
-      ∧ Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 I.pH.rows (R.pf.off 0 + (5 + (4 + mIn))))
-        I.nH (fun hdr => (rkAccInc Win (R.pf.off 0 + 5) (R.pf.off 0 + (R.pf.part 0).pre) hdr).claims.h ++ [lscIn])
-        (R.pf.off 0 + (R.pf.part 0).oH) (R.pf.off 0 + (R.pf.part 0).oBH)
-        (R.pf.off 0 + (R.pf.part 0).oH + (I.nH + I.pH.rows)) (A.runLog G).2 G (R.tr G (s, segs)))
-    rw [hpart]
-    exact ⟨hA, hH⟩
-  · rw [hL2] at hi
-    by_cases hk : k < Lb
-    · -- block k
-      have hk26 : k < 26 := by omega
-      have hσb : R.σs[k + 1]? = some (rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k
-          (rtBlockPart (Pk k) (bp k).S ((bp k).nA + (bp k).pA.rows) (bp k).pA.m ((bp k).nH + (bp k).pH.rows)
-            (bp k).pH.m (wXk k) (gXk k) (mXk k))) := by
-        rw [hσ]
-        exact rx_getBlk _ _ _ _ k hk
-      have hpart := rx_part_of R (k + 1) _ hσb
-      have hA := rx_blk_opA U tag h64 hs hL Pk sgeom check paths digest bRows bLogN bndCheck bndOpen R hv G s segs hE
-        k hk26 (bp k) (wXk k) (gXk k) (mXk k) hσb (hgeo k) (hBA k) incG outcG Lb A hrun hX (hfBA k)
-      have hH := rx_blk_opH U tag h64 hs hL Pk sgeom check paths digest bRows bLogN bndCheck bndOpen R hv G s segs hE
-        k hk26 (bp k) (wXk k) (gXk k) (mXk k) hσb (hgeo k) (hBH k) incG outcG Lb A hrun hX (hfBH k)
-      rw [hpart] at hA hH
-      rw [rxPs_blk _ _ _ _ _ k hk, rxAcc_blk _ _ _ _ _ k hk, rxLsc_blk _ _ _ _ k hk, hpart]
-      exact ⟨hA, hH⟩
-    · -- stage OUT-C
-      have hkL : Lb = k := by omega
-      subst hkL
-      have hσo : R.σs[Lb + 1]? = some (rtOutcSeg outc outcG pout) := by
-        rw [hσ]
-        exact rx_getOut _ _ _ _
-      have hpart : R.pf.part (Lb + 1) = pout := rx_part_of R (Lb + 1) _ hσo
-      have hA := rx_outc_opA U tag h64 hs hL R hv G s segs hE Lb pout outc outcG O hσo Wout hWout hOA incG sgeom A hrun
-        hX hfOA
-      have hH := rx_outc_opH U tag h64 hs hL R hv G s segs hE Lb pout outc outcG O hσo Wout hWout hOH lscOut
-        (hlscOut s.hdr s.verdict) incG sgeom A hrun hX hfOH
-      rw [hpart] at hA hH
-      rw [rxPs_out, rxAcc_out, rxLsc_out, hpart]
-      exact ⟨hA, hH⟩
+        (R.pf.off i + (R.pf.part i).oH + ((ps i).nH + (ps i).gH.rows)) (A.runLog G).2 G (R.tr G (A.run G))) :=
+  rx_parts_AHG U tag h64 hs hL Lb preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck bndOpen R hv cx0 pin pout I O bp wXk gXk mXk hσ hLb hgeo ogR13 ogR13_ok le_rfl
+    (hIA.at U tag) (hIH.at U tag) (hOA.at U tag) (hOH.at U tag) hBA hBH hfIA hfIH hfOA hfOH hfBA hfBH Win Wout lscIn
+    lscOut mIn kIn kOut hlscIn hlscOut hmIn base ps hps acc hacc lsc hlsc A G hE hWin hWout hX i hi
 
 omit [Field K] [Algebra GF K] in
-/-- **EVERY PART'S `M` MEETS `RhMW`** on an accepted run outside the run's Merkle event, with the run's own Merkle
+/-- **EVERY PART'S `M` MEETS `RhMW`**, the stages' data at any stage code geometry `gS` (D63 lane L48), on an accepted run outside the run's Merkle event, with the run's own Merkle
 work, at the kinds data's readers built here: L43's `hMW`, PROVED. -/
-theorem rx_parts_M
+theorem rx_parts_MG
     (R : RtRun (classifyRunV Lb preA preB start inc incG
       (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) key domain Lq)
     (hv : R.pf.Valid) (cx0 : IncCtx) (pin pout : RtPart) (I : RtInc Lq inc incG pin) (O : RtOutc Lq outc outcG pout)
@@ -276,10 +346,10 @@ theorem rx_parts_M
     (Win : List (TItem × Dig) → IncV) (Wout : List (TItem × Dig) → OutcV)
     (mIn kIn kOut : ℕ) (hkIn : ∀ hd, (inc hd).lay.nFunctionals = kIn)
     (hkOut : ∀ hd v, (outc hd v).lay.nFunctionals = kOut)
-    (base : ℕ → RkPart K Lq) (ps : ℕ → RkPart K Lq) (rIA rIH rOA rOH : ℕ) (rBA rBH : ℕ → ℕ)
-    (hps : ps = rxPs base Lb (rxDin R.pf pin.S kIn rIA rIH I.nA I.nH mIn)
+    (base : ℕ → RkPart K Lq) (ps : ℕ → RkPart K Lq) (gS : OGeo) (rIA rIH rOA rOH : ℕ) (rBA rBH : ℕ → ℕ)
+    (hps : ps = rxPs base Lb (rxDinG gS R.pf pin.S kIn rIA rIH I.nA I.nH mIn)
       (fun k => rxDblk R.pf k (bp k).S (Pk k).nFunctionals (rBA k) (rBH k) (bp k).nA (bp k).nH)
-      (rxDout R.pf Lb pout.S kOut rOA rOH O.nA O.nH))
+      (rxDoutG gS R.pf Lb pout.S kOut rOA rOH O.nA O.nH))
     (acc : ℕ → List (TItem × Dig) → Block.Acc) (hacc : acc = rxAcc Win Wout Pk R.pf Lb)
     (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig)
     (hE : classifyVerifyE (classifyRunV Lb preA preB start inc incG
@@ -334,6 +404,48 @@ theorem rx_parts_M
       rw [hpart] at hM
       rw [rxPs_out, rxAcc_out, hpart]
       exact hM
+
+
+omit [Field K] [Algebra GF K] in
+/-- **`rx_parts_M` with the stages' data at R13's block geometry** (L45's statement; `rx_parts_MG` at `ogR13`). -/
+theorem rx_parts_M
+    (R : RtRun (classifyRunV Lb preA preB start inc incG
+      (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) key domain Lq)
+    (hv : R.pf.Valid) (cx0 : IncCtx) (pin pout : RtPart) (I : RtInc Lq inc incG pin) (O : RtOutc Lq outc outcG pout)
+    (bp : ∀ k, RtBlk Lq (Pk k)) (wXk gXk mXk : ℕ → ℕ)
+    (hσ : R.σs = rtParts (classifyRunV Lb preA preB start inc incG
+      (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG)
+      (rtIncSeg inc incG cx0 pin)
+      (fun k => rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k
+        (rtBlockPart (Pk k) (bp k).S ((bp k).nA + (bp k).pA.rows) (bp k).pA.m ((bp k).nH + (bp k).pH.rows) (bp k).pH.m
+          (wXk k) (gXk k) (mXk k)))
+      (rtOutcSeg outc outcG pout))
+    (hLb : Lb ≤ 26) (hgeo : ∀ k s, (sgeom s k).g = (Pk k).geom)
+    (htI : I.tag = tag) (htO : O.tag = tag) (htB : ∀ k, (bp k).tag = tag)
+    (hfIM : 8 * (2 * pin.S + 4) ≤ Lq) (hfOM : 8 * (2 * pout.S + 4) ≤ Lq) (hfBM : ∀ k, 8 * (2 * (bp k).S + 4) ≤ Lq)
+    (Win : List (TItem × Dig) → IncV) (Wout : List (TItem × Dig) → OutcV)
+    (mIn kIn kOut : ℕ) (hkIn : ∀ hd, (inc hd).lay.nFunctionals = kIn)
+    (hkOut : ∀ hd v, (outc hd v).lay.nFunctionals = kOut)
+    (base : ℕ → RkPart K Lq) (ps : ℕ → RkPart K Lq) (rIA rIH rOA rOH : ℕ) (rBA rBH : ℕ → ℕ)
+    (hps : ps = rxPs base Lb (rxDin R.pf pin.S kIn rIA rIH I.nA I.nH mIn)
+      (fun k => rxDblk R.pf k (bp k).S (Pk k).nFunctionals (rBA k) (rBH k) (bp k).nA (bp k).nH)
+      (rxDout R.pf Lb pout.S kOut rOA rOH O.nA O.nH))
+    (acc : ℕ → List (TItem × Dig) → Block.Acc) (hacc : acc = rxAcc Win Wout Pk R.pf Lb)
+    (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig)
+    (hE : classifyVerifyE (classifyRunV Lb preA preB start inc incG
+      (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) (liftH G)
+      (A.run G).1 (A.run G).2 = .ok ())
+    (hWin : Win ((R.tr G (A.run G)).take (R.pf.off 0 + pin.pre)) = inc (A.run G).1.hdr)
+    (hWout : Wout ((R.tr G (A.run G)).take (R.pf.off (Lb + 1) + pout.pre)) = outc (A.run G).1.hdr (A.run G).1.verdict)
+    (hX : ¬ EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+      (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G)
+    (i : ℕ) (hi : i < R.pf.parts.length) :
+    Nonempty (RhMW tag Lq h64 key domain hs hL (rtW R.pf.sqs) (ps i).S (ps i).k (ps i).mpos
+      (fun hdr => (acc i hdr).fs ++ (acc i hdr).hostFs) (R.pf.off i + (R.pf.part i).pre) (A.runLog G).2 G
+      (R.tr G (A.run G))) :=
+  rx_parts_MG tag h64 hs hL Lb preA preB start inc incG outc outcG Pk sgeom check paths digest bRows bLogN bndCheck
+    bndOpen R hv cx0 pin pout I O bp wXk gXk mXk hσ hLb hgeo htI htO htB hfIM hfOM hfBM Win Wout mIn kIn kOut hkIn hkOut
+    base ps ogR13 rIA rIH rOA rOH rBA rBH hps acc hacc A G hE hWin hWout hX i hi
 
 end Parts
 

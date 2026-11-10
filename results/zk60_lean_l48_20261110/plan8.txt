@@ -1,0 +1,2 @@
+build ZK60Formal.RunOpenGeoStage ZK60Formal.RunOpenGeoBlock
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ab319ebebdb0feaea/results/zk60_lean_l48_20261110/check_l48.sh

@@ -1,0 +1,1 @@
+build ZK60Formal.RunOpenGeo ZK60Formal.RunTrKinds ZK60Formal.RunKindsData ZK60Formal.RunHalOpA ZK60Formal.RunHalOpB ZK60Formal.RunHalBlk

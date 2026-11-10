@@ -16,6 +16,10 @@ What each asks besides the acceptance: the stage's contract (`RtInc`, `RtOutc`),
 transcript (`hW`, finding L45-1), the openings' R13 numbers (`RkPcsR13`, as L43), the rows' fit (`8·rows ≤ Lq`), and
 for `H` the LogUp sum claim and for `M` the functional count the readers carry.
 
+D63 lane L48 (2026-11-10), edited in place under its brief's exception (finding L45-2): the same at ANY code
+geometry with at most `256` queries (`rx_inc_opAG`, `rx_inc_opHG`, `rx_outc_opAG`, `rx_outc_opHG`); the names above are
+kept, with L45's statements, as their instances at `ogR13`.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunExtractWork
@@ -74,8 +78,32 @@ theorem rx_outCols_mem (incG outcG : Hdr → StageGeom) (sgeom : ClsStmt Hdr →
       ∧ (seg.closes.headD IncV.ozk0).columns ∈ rxOpenings incG outcG sgeom Lb o := by
   refine ⟨?_, ?_, ?_, ?_⟩ <;> simp [rxOpenings, hseg, rxStCols]
 
-/-- **STAGE IN-C'S `A` MEETS `RhOpW` OUTRIGHT** on an accepted run outside the run's Merkle event (with the run's own
+/-- **STAGE IN-C'S `A` MEETS `RhOpW` OUTRIGHT** on an accepted run at ANY code geometry `g` (D63 lane L48) outside the run's Merkle event (with the run's own
 Merkle work). -/
+theorem rx_inc_opAG (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (p : RtPart)
+    (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG p)
+    (hσ : R.σs[0]? = some (rtIncSeg inc incG cx0 p))
+    (W : List (TItem × Dig) → IncV) (hW : W ((R.tr G (s, segs)).take (R.pf.off 0 + p.pre)) = inc s.hdr)
+    (g : OGeo) (hg : g.Ok) (hgQ : g.Q ≤ 256) (hA : RkPcsAt U tag g I.pA) (outcG : Hdr → StageGeom) (sgeom : ClsStmt Hdr → ℕ → Block.SegGeom) (Lb : ℕ)
+    (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (hrun : A.run G = (s, segs))
+    (hX : ¬ EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+      (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G)
+    (hfit : 8 * I.pA.rows ≤ Lq) :
+    Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt g I.pA.rows (R.pf.off 0 + 5)) I.nA
+      (fun hdr => (rkAccInc W (R.pf.off 0 + 5) (R.pf.off 0 + p.pre) hdr).claims.a)
+      (R.pf.off 0 + (R.pf.part 0).oA) (R.pf.off 0 + (R.pf.part 0).oBA)
+      (R.pf.off 0 + (R.pf.part 0).oA + (I.nA + I.pA.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
+  obtain ⟨seg, hof, habs, himp⟩ :=
+    rs_inc_opAG U tag h64 hs hL R hv G s segs hE 0 p inc incG cx0 I hσ W hW g hg hA (A.runLog G).2
+  have hseg : rxInSeg incG (A.run G) = some seg := by rw [hrun]; exact hof
+  apply himp
+  exact rx_xok tag Lq h64 key domain hs hL _ _ _ A G hX (rkAt g I.pA.rows (R.pf.off 0 + 5)) _ seg.core.aOpen
+    seg.core.aRoot (rx_inRoot_mem incG outcG sgeom Lb _ _ seg hseg).1 habs hfit
+    (fun k hk => rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.aOpen.columns
+      (rx_inCols_mem incG outcG sgeom Lb _ seg hseg).1 g.h (by have := hg.hh; omega) k (lt_of_lt_of_le hk hgQ))
+
+/-- **rx_inc_opA at R13's block geometry** (L45's statement; `rx_inc_opAG` at `ogR13`). -/
 theorem rx_inc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
     (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (p : RtPart)
     (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG p)
@@ -89,17 +117,37 @@ theorem rx_inc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
     Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 I.pA.rows (R.pf.off 0 + 5)) I.nA
       (fun hdr => (rkAccInc W (R.pf.off 0 + 5) (R.pf.off 0 + p.pre) hdr).claims.a)
       (R.pf.off 0 + (R.pf.part 0).oA) (R.pf.off 0 + (R.pf.part 0).oBA)
-      (R.pf.off 0 + (R.pf.part 0).oA + (I.nA + I.pA.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
+      (R.pf.off 0 + (R.pf.part 0).oA + (I.nA + I.pA.rows)) (A.runLog G).2 G (R.tr G (s, segs))) :=
+  rx_inc_opAG U tag h64 hs hL R hv G s segs hE p inc incG cx0 I hσ W hW ogR13 ogR13_ok le_rfl (hA.at U tag) outcG sgeom Lb A hrun hX
+    hfit
+
+/-- **STAGE IN-C'S `H` MEETS `RhOpW` OUTRIGHT** at ANY code geometry `g` (D63 lane L48). -/
+theorem rx_inc_opHG (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (p : RtPart)
+    (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG p)
+    (hσ : R.σs[0]? = some (rtIncSeg inc incG cx0 p))
+    (W : List (TItem × Dig) → IncV) (hW : W ((R.tr G (s, segs)).take (R.pf.off 0 + p.pre)) = inc s.hdr)
+    (g : OGeo) (hg : g.Ok) (hgQ : g.Q ≤ 256) (hH : RkPcsAt U tag g I.pH) (lsc : Block.ZClaim) (hlsc : (inc s.hdr).lay.logupSumClaim = lsc)
+    (hPos : ℕ) (hP : hPos = R.pf.off 0 + (5 + (4 + incHeadDraws (inc s.hdr).pub)))
+    (outcG : Hdr → StageGeom) (sgeom : ClsStmt Hdr → ℕ → Block.SegGeom) (Lb : ℕ)
+    (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (hrun : A.run G = (s, segs))
+    (hX : ¬ EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+      (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G)
+    (hfit : 8 * I.pH.rows ≤ Lq) :
+    Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt g I.pH.rows hPos) I.nH
+      (fun hdr => (rkAccInc W (R.pf.off 0 + 5) (R.pf.off 0 + p.pre) hdr).claims.h ++ [lsc])
+      (R.pf.off 0 + (R.pf.part 0).oH) (R.pf.off 0 + (R.pf.part 0).oBH)
+      (R.pf.off 0 + (R.pf.part 0).oH + (I.nH + I.pH.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
   obtain ⟨seg, hof, habs, himp⟩ :=
-    rs_inc_opA U tag h64 hs hL R hv G s segs hE 0 p inc incG cx0 I hσ W hW hA (A.runLog G).2
+    rs_inc_opHG U tag h64 hs hL R hv G s segs hE 0 p inc incG cx0 I hσ W hW g hg hH lsc hlsc hPos hP (A.runLog G).2
   have hseg : rxInSeg incG (A.run G) = some seg := by rw [hrun]; exact hof
   apply himp
-  exact rx_xok tag Lq h64 key domain hs hL _ _ _ A G hX (rkR13 I.pA.rows (R.pf.off 0 + 5)) _ seg.core.aOpen
-    seg.core.aRoot (rx_inRoot_mem incG outcG sgeom Lb _ _ seg hseg).1 habs hfit
-    (rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.aOpen.columns
-      (rx_inCols_mem incG outcG sgeom Lb _ seg hseg).1 16 (by norm_num))
+  exact rx_xok tag Lq h64 key domain hs hL _ _ _ A G hX (rkAt g I.pH.rows hPos) _ seg.core.hOpen
+    seg.core.hRoot (rx_inRoot_mem incG outcG sgeom Lb _ _ seg hseg).2.1 habs hfit
+    (fun k hk => rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.hOpen.columns
+      (rx_inCols_mem incG outcG sgeom Lb _ seg hseg).2.1 g.h (by have := hg.hh; omega) k (lt_of_lt_of_le hk hgQ))
 
-/-- **STAGE IN-C'S `H` MEETS `RhOpW` OUTRIGHT.** -/
+/-- **rx_inc_opH at R13's block geometry** (L45's statement; `rx_inc_opHG` at `ogR13`). -/
 theorem rx_inc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
     (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (p : RtPart)
     (inc : Hdr → IncV) (incG : Hdr → StageGeom) (cx0 : IncCtx) (I : RtInc Lq inc incG p)
@@ -115,15 +163,9 @@ theorem rx_inc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → 
     Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 I.pH.rows hPos) I.nH
       (fun hdr => (rkAccInc W (R.pf.off 0 + 5) (R.pf.off 0 + p.pre) hdr).claims.h ++ [lsc])
       (R.pf.off 0 + (R.pf.part 0).oH) (R.pf.off 0 + (R.pf.part 0).oBH)
-      (R.pf.off 0 + (R.pf.part 0).oH + (I.nH + I.pH.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
-  obtain ⟨seg, hof, habs, himp⟩ :=
-    rs_inc_opH U tag h64 hs hL R hv G s segs hE 0 p inc incG cx0 I hσ W hW hH lsc hlsc hPos hP (A.runLog G).2
-  have hseg : rxInSeg incG (A.run G) = some seg := by rw [hrun]; exact hof
-  apply himp
-  exact rx_xok tag Lq h64 key domain hs hL _ _ _ A G hX (rkR13 I.pH.rows hPos) _ seg.core.hOpen
-    seg.core.hRoot (rx_inRoot_mem incG outcG sgeom Lb _ _ seg hseg).2.1 habs hfit
-    (rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.hOpen.columns
-      (rx_inCols_mem incG outcG sgeom Lb _ seg hseg).2.1 16 (by norm_num))
+      (R.pf.off 0 + (R.pf.part 0).oH + (I.nH + I.pH.rows)) (A.runLog G).2 G (R.tr G (s, segs))) :=
+  rx_inc_opHG U tag h64 hs hL R hv G s segs hE p inc incG cx0 I hσ W hW ogR13 ogR13_ok le_rfl (hH.at U tag) lsc hlsc hPos hP outcG
+    sgeom Lb A hrun hX hfit
 
 /-- **STAGE IN-C'S `M` MEETS `RhMW` OUTRIGHT.** -/
 theorem rx_inc_M (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
@@ -150,7 +192,32 @@ theorem rx_inc_M (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Di
     (rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.maskOpen.columns
       (rx_inCols_mem incG outcG sgeom Lb _ seg hseg).2.2.1 12 (by norm_num))
 
-/-- **STAGE OUT-C'S `A` MEETS `RhOpW` OUTRIGHT** (part `Lb + 1`). -/
+/-- **STAGE OUT-C'S `A` MEETS `RhOpW` OUTRIGHT** (part `Lb + 1`) at ANY code geometry `g` (D63 lane L48). -/
+theorem rx_outc_opAG (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (Lb : ℕ) (p : RtPart)
+    (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom) (O : RtOutc Lq outc outcG p)
+    (hσ : R.σs[Lb + 1]? = some (rtOutcSeg outc outcG p))
+    (W : List (TItem × Dig) → OutcV)
+    (hW : W ((R.tr G (s, segs)).take (R.pf.off (Lb + 1) + p.pre)) = outc s.hdr s.verdict)
+    (g : OGeo) (hg : g.Ok) (hgQ : g.Q ≤ 256) (hA : RkPcsAt U tag g O.pA) (incG : Hdr → StageGeom) (sgeom : ClsStmt Hdr → ℕ → Block.SegGeom)
+    (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (hrun : A.run G = (s, segs))
+    (hX : ¬ EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+      (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G)
+    (hfit : 8 * O.pA.rows ≤ Lq) :
+    Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkAt g O.pA.rows (R.pf.off (Lb + 1) + 2)) O.nA
+      (fun hdr => (rkAccOutc W (R.pf.off (Lb + 1) + 2) (R.pf.off (Lb + 1) + p.pre) hdr).claims.a)
+      (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oA) (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oBA)
+      (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oA + (O.nA + O.pA.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
+  obtain ⟨seg, hof, habs, himp⟩ :=
+    rs_outc_opAG U tag h64 hs hL R hv G s segs hE (Lb + 1) p outc outcG O hσ W hW g hg hA (A.runLog G).2
+  have hseg : rxOutSeg outcG Lb (A.run G) = some seg := by rw [hrun]; exact hof
+  apply himp
+  exact rx_xok tag Lq h64 key domain hs hL _ _ _ A G hX (rkAt g O.pA.rows (R.pf.off (Lb + 1) + 2)) _ seg.core.aOpen
+    seg.core.aRoot (rx_outRoot_mem incG outcG sgeom Lb _ _ seg hseg).1 habs hfit
+    (fun k hk => rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.aOpen.columns
+      (rx_outCols_mem incG outcG sgeom Lb _ seg hseg).1 g.h (by have := hg.hh; omega) k (lt_of_lt_of_le hk hgQ))
+
+/-- **rx_outc_opA at R13's block geometry** (L45's statement; `rx_outc_opAG` at `ogR13`). -/
 theorem rx_outc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
     (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (Lb : ℕ) (p : RtPart)
     (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom) (O : RtOutc Lq outc outcG p)
@@ -165,17 +232,38 @@ theorem rx_outc_opA (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
     Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs) (rkR13 O.pA.rows (R.pf.off (Lb + 1) + 2)) O.nA
       (fun hdr => (rkAccOutc W (R.pf.off (Lb + 1) + 2) (R.pf.off (Lb + 1) + p.pre) hdr).claims.a)
       (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oA) (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oBA)
-      (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oA + (O.nA + O.pA.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
+      (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oA + (O.nA + O.pA.rows)) (A.runLog G).2 G (R.tr G (s, segs))) :=
+  rx_outc_opAG U tag h64 hs hL R hv G s segs hE Lb p outc outcG O hσ W hW ogR13 ogR13_ok le_rfl (hA.at U tag) incG sgeom A hrun hX
+    hfit
+
+/-- **STAGE OUT-C'S `H` MEETS `RhOpW` OUTRIGHT** at ANY code geometry `g` (D63 lane L48). -/
+theorem rx_outc_opHG (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
+    (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (Lb : ℕ) (p : RtPart)
+    (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom) (O : RtOutc Lq outc outcG p)
+    (hσ : R.σs[Lb + 1]? = some (rtOutcSeg outc outcG p))
+    (W : List (TItem × Dig) → OutcV)
+    (hW : W ((R.tr G (s, segs)).take (R.pf.off (Lb + 1) + p.pre)) = outc s.hdr s.verdict)
+    (g : OGeo) (hg : g.Ok) (hgQ : g.Q ≤ 256) (hH : RkPcsAt U tag g O.pH) (lsc : Block.ZClaim) (hlsc : (outc s.hdr s.verdict).lay.logupSumClaim = lsc)
+    (incG : Hdr → StageGeom) (sgeom : ClsStmt Hdr → ℕ → Block.SegGeom)
+    (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (hrun : A.run G = (s, segs))
+    (hX : ¬ EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+      (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G)
+    (hfit : 8 * O.pH.rows ≤ Lq) :
+    Nonempty (RhOpW U tag Lq h64 key domain hs hL (rtW R.pf.sqs)
+      (rkAt g O.pH.rows (R.pf.off (Lb + 1) + (2 + (4 + 2)))) O.nH
+      (fun hdr => (rkAccOutc W (R.pf.off (Lb + 1) + 2) (R.pf.off (Lb + 1) + p.pre) hdr).claims.h ++ [lsc])
+      (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oH) (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oBH)
+      (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oH + (O.nH + O.pH.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
   obtain ⟨seg, hof, habs, himp⟩ :=
-    rs_outc_opA U tag h64 hs hL R hv G s segs hE (Lb + 1) p outc outcG O hσ W hW hA (A.runLog G).2
+    rs_outc_opHG U tag h64 hs hL R hv G s segs hE (Lb + 1) p outc outcG O hσ W hW g hg hH lsc hlsc (A.runLog G).2
   have hseg : rxOutSeg outcG Lb (A.run G) = some seg := by rw [hrun]; exact hof
   apply himp
-  exact rx_xok tag Lq h64 key domain hs hL _ _ _ A G hX (rkR13 O.pA.rows (R.pf.off (Lb + 1) + 2)) _ seg.core.aOpen
-    seg.core.aRoot (rx_outRoot_mem incG outcG sgeom Lb _ _ seg hseg).1 habs hfit
-    (rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.aOpen.columns
-      (rx_outCols_mem incG outcG sgeom Lb _ seg hseg).1 16 (by norm_num))
+  exact rx_xok tag Lq h64 key domain hs hL _ _ _ A G hX (rkAt g O.pH.rows (R.pf.off (Lb + 1) + (2 + (4 + 2)))) _
+    seg.core.hOpen seg.core.hRoot (rx_outRoot_mem incG outcG sgeom Lb _ _ seg hseg).2.1 habs hfit
+    (fun k hk => rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.hOpen.columns
+      (rx_outCols_mem incG outcG sgeom Lb _ seg hseg).2.1 g.h (by have := hg.hh; omega) k (lt_of_lt_of_le hk hgQ))
 
-/-- **STAGE OUT-C'S `H` MEETS `RhOpW` OUTRIGHT.** -/
+/-- **rx_outc_opH at R13's block geometry** (L45's statement; `rx_outc_opHG` at `ogR13`). -/
 theorem rx_outc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
     (segs : ClsReceipt) (hE : classifyVerifyE V (liftH G) s segs = .ok ()) (Lb : ℕ) (p : RtPart)
     (outc : Hdr → ℕ → OutcV) (outcG : Hdr → StageGeom) (O : RtOutc Lq outc outcG p)
@@ -192,15 +280,9 @@ theorem rx_outc_opH (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq →
       (rkR13 O.pH.rows (R.pf.off (Lb + 1) + (2 + (4 + 2)))) O.nH
       (fun hdr => (rkAccOutc W (R.pf.off (Lb + 1) + 2) (R.pf.off (Lb + 1) + p.pre) hdr).claims.h ++ [lsc])
       (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oH) (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oBH)
-      (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oH + (O.nH + O.pH.rows)) (A.runLog G).2 G (R.tr G (s, segs))) := by
-  obtain ⟨seg, hof, habs, himp⟩ :=
-    rs_outc_opH U tag h64 hs hL R hv G s segs hE (Lb + 1) p outc outcG O hσ W hW hH lsc hlsc (A.runLog G).2
-  have hseg : rxOutSeg outcG Lb (A.run G) = some seg := by rw [hrun]; exact hof
-  apply himp
-  exact rx_xok tag Lq h64 key domain hs hL _ _ _ A G hX (rkR13 O.pH.rows (R.pf.off (Lb + 1) + (2 + (4 + 2)))) _
-    seg.core.hOpen seg.core.hRoot (rx_outRoot_mem incG outcG sgeom Lb _ _ seg hseg).2.1 habs hfit
-    (rx_q_work tag Lq h64 incG outcG sgeom Lb (rxCoreOf sgeom) A G seg.core.hOpen.columns
-      (rx_outCols_mem incG outcG sgeom Lb _ seg hseg).2.1 16 (by norm_num))
+      (R.pf.off (Lb + 1) + (R.pf.part (Lb + 1)).oH + (O.nH + O.pH.rows)) (A.runLog G).2 G (R.tr G (s, segs))) :=
+  rx_outc_opHG U tag h64 hs hL R hv G s segs hE Lb p outc outcG O hσ W hW ogR13 ogR13_ok le_rfl (hH.at U tag) lsc hlsc incG sgeom A
+    hrun hX hfit
 
 /-- **STAGE OUT-C'S `M` MEETS `RhMW` OUTRIGHT.** -/
 theorem rx_outc_M (R : RtRun V key domain Lq) (hv : R.pf.Valid) (G : QB Lq → Dig) (s : ClsStmt Hdr)
