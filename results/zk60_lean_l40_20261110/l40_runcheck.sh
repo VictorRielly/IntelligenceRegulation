@@ -10,7 +10,7 @@ ulimit -s 65520
 start=$(date +%s)
 "$LAKE" -d "$WT/formal" env lean --run "$WT/formal/ZK60Formal/RunShapeCheck.lean" "$V/block_fixture_t32.tsv" \
   "$V/block_trace_low_h24_t32.tsv" "$V/block_trace_low_t32.tsv" "$R1/rust_fixture_trace.tsv" "$V/silu_-4_-13.bin" \
-  "$V/silu_-1_-11.bin" > "$OUT/runshapecheck.log" 2>&1
+  "$V/silu_-1_-11.bin" "$WT/results/zk60_lean_l2d_20261106/rust_token_out.tsv" > "$OUT/runshapecheck.log" 2>&1
 rc=$?
 cat "$OUT/runshapecheck.log"
 echo "RunShapeCheck rc $rc, $(( $(date +%s) - start )) s"

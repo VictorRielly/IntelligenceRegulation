@@ -77,6 +77,9 @@ def rewrite(text):
         text = re.sub(r"\bBlocksOk " + r + r"\b", f"BlocksOkP {r}", text)
         text = re.sub(r"\bJointOk " + r + r"\b", f"JointOkP {r}", text)
     text = re.sub(r"\bEpOk\b", "EpOkP", text)
+    for old, new in [("`ClassifyOpen`", "`ClassifyOpenP`"), ("`classifyProtocolU`", "`classifyProtocolUP`"),
+                     ("`classifyProtocolUExec`", "`classifyProtocolUExecP`"), ("`classifyModel S R`", "`classifyModelP R`")]:
+        text = text.replace(old, new)
     text = re.sub(r"ClassifyOpen (\w+) (.*?) E εin εblk εout εep εzk\)", r"ClassifyOpenP \1 \2 εzk)", text, flags=re.S)
     text = text.replace("{εin εblk εout εep : ℕ → ℝ≥0∞} ", "")
     text = text.replace("(R : ClassifyRunPublic S) (P : Protocol (QB Lq) Dig Coins' (classifyModel S R))",

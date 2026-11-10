@@ -22,7 +22,8 @@ What is proved (only `propext`, `Classical.choice`, `Quot.sound`):
   own calibration on itself);
 * `RunBlock` (a calibration and its block's public data), `RunBlock.Valid`;
 * `runSpecP`, `RunSatP`, `runSpecP_class`, **`run_iffP`** (the run iff, block by block at each block's own shape, from
-  the proved `blockSat_iff`), `runModelP`, `runArithP`, **`run_circuitIffP`**;
+  the proved `blockSat_iff`), `runBlock_circuitIff` (each block at its own shape is L2's `block_circuitIff`),
+  `runModelP`, `runArithP`, **`run_circuitIffP`**;
 * `ClassifyRunPublicP`, its `Valid`, `classifySpecP`, `ClassifyRunSatP`, **`classifyRunP_iff`**, `classifyModelP`,
   `classifyArithP`, **`classifyRunP_circuitIff`**: the approved `CircuitIff` for the per-block-shape classifier run;
 * the old model is the special case of equal shapes: `RunBlock.ofPub`, `toRunP`, **`runSpecP_ofPub`**,
@@ -186,6 +187,12 @@ theorem run_iffP : ∀ (bs : List (RunBlock S0)), (∀ b ∈ bs, b.Valid) → �
       have hx'c := blockSpec_class b.pub x x' hx'
       exact ⟨x', hx'c, (blockSat_iff hb.shape b.pub hb.pub x hx _).mpr ⟨x', hx', hx'c, fun p => rfl⟩,
         (run_iffP bs hbs' x' y hx'c).mpr hr⟩
+
+/-- **Each block of the run, at its own shape, is an instance of L2's `block_circuitIff`** (the approved `CircuitIff`
+for one block). -/
+theorem runBlock_circuitIff (b : RunBlock S0) (hb : b.Valid) :
+    CircuitIff (blockModel (b.cal.over S0) b.pub) (blockArith (b.cal.over S0) b.pub) :=
+  block_circuitIff hb.shape b.pub hb.pub
 
 /-- The run of blocks as an `IntModel` (each block at its own shape). -/
 noncomputable def runModelP (bs : List (RunBlock S0)) : IntModel where

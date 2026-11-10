@@ -149,7 +149,7 @@ end CoverOrd
 
 section Endpoint
 
-/-- **The endpoint's cover at `classifyProtocolU`** (D63 lane L26; O11d's deterministic core). Let the input
+/-- **The endpoint's cover at `classifyProtocolUP`** (D63 lane L26; O11d's deterministic core). Let the input
 commitment be a token-words plane (`plane = posPlane pos`, canonical words admissible), let the run's extractor read
 the endpoint off the extractor's openings `ops` (its words: the decoded data rows at the token positions, read
 canonically; its opening data: built from the decoded rows and the extracted salts and paths, `SaltMk`), and let the
@@ -212,8 +212,8 @@ theorem epCoverUP (R : ClassifyRunPublicP S) (Lq : ℕ) (V : RunV Hdr) (P : RunP
 variable [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
 variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
-/-- **THE GATE at `classifyProtocolU` at the approved targets, with O11d DISCHARGED from the endpoint's column test**
-(D63 lane L26; L24's joint gate). Every `ClassifyOpen` field but O11, the radius, ONE list of kinds `L` (its constants
+/-- **THE GATE at `classifyProtocolUP` at the approved targets, with O11d DISCHARGED from the endpoint's column test**
+(D63 lane L26; L24's joint gate). Every `ClassifyOpenP` field but O11, the radius, ONE list of kinds `L` (its constants
 `≤ 2^26`), the cover of stage IN-C, the blocks and stage OUT-C (`h3`), and for the endpoint only `epCoverUP`'s premises
 with their events among `L`'s kinds: `ProductionReady … (classifyProtocolU …) εcTarget εsTarget εsTarget εzkTarget`. -/
 theorem classifyUP_productionReady_ep_target (R : ClassifyRunPublicP S) (Lq : ℕ) (V : RunV Hdr)
@@ -274,7 +274,7 @@ section Gates
 variable [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
 variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
-/-- **THE GATE at `classifyProtocolU` through the run's chain** (D63 lane L30): every `ClassifyOpen` field but O11,
+/-- **THE GATE at `classifyProtocolUP` through the run's chain** (D63 lane L30): every `ClassifyOpenP` field but O11,
 the radius, the run's ONE transcript `tr`, a list `Ks` of kinds on it part by part with their constants (chains of
 `≤ 2^21` items, `np = L + 2`), further kinds `X` with their constants (the endpoint's column test), an extra event
 with its bound (the Merkle extraction failure), and:
@@ -361,7 +361,7 @@ theorem classifyUP_productionReady_runChain (R : ClassifyRunPublicP S) (Lq : ℕ
     (fun p hp => (List.mem_append.mp hp).elim (kindsFK_ℓ Ks hℓ p) (hℓX p))
     (fun q p hp => (List.mem_append.mp hp).elim (kindsFK_lin Ks hlin q p) (hlinX q p)) hx hbud hzk
 
-/-- **THE GATE at R13, the media app's profile, at `classifyProtocolU`, through the run's chain** (D63 lane L30): as at
+/-- **THE GATE at R13, the media app's profile, at `classifyProtocolUP`, through the run's chain** (D63 lane L30): as at
 W16R2, with R13's forms (slots `SqForm 7 (7·370)`, define schedules `SqForm 80 (80·451)`, LogUp `e ≤ 2^26`, and the
 regular openings at L28's proved figures for the radius `24,448`: `opA` `PowForm 1 110`, `opB` `PowForm 1 126`), the
 column test at R13's parameters (`N = 2^16`, `e = 24,448`, `Q = 256`) and the extraction failure at R13's opening
@@ -501,7 +501,7 @@ local notation "CinR" =>
 radius and plane premises are facts of the registered commitment. The column test's code is the
 registered code with scalars extended to the test's field (`hTenc`), so the link `hlink` is
 `xlink_of_read`: it splits into `hwin`, `hread` and `hBal`. The run verifier `V` is any; at
-`V := classifyRunV …` the instance is `classifyProtocolUExec` (`RunChainUExec.lean`). -/
+`V := classifyRunV …` the instance is `classifyProtocolUExecP` (`RunChainUExec.lean`). -/
 theorem classifyUP_productionReady_run_r13_token (R : ClassifyRunPublicP S) (Lq : ℕ) (V : RunV Hdr)
     (P : RunP Hdr (S.Tok → ℕ) Coins) (h64 : 64 ≤ Lq)
     (hr : 8 * (CinR).R ≤ Lq) (hon : HonestIn Coins (CinR)) (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
@@ -630,7 +630,7 @@ variable {K : Type} [Field K] [DecidableEq K] [Algebra GF K]
 
 /-- **THE GATE at R13, the media app's profile, at the instance with both changes** (D63 lane L30):
 `classifyUP_productionReady_run_r13` at `V := classifyRunV …`, the run verifier with L29's executable stages. The
-premises are the same, read at `classifyProtocolUExec`. -/
+premises are the same, read at `classifyProtocolUExecP`. -/
 theorem classifyUExecP_productionReady_run_r13 (R : ClassifyRunPublicP S) (Lq : ℕ)
     (Lb : ℕ) (preA preB : Hdr → Except String Unit)
     (start : (HIn → Dig) → ClsStmt Hdr → Tr) (inc : Hdr → IncV) (incG : Hdr → StageGeom)

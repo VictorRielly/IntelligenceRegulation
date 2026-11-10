@@ -1,0 +1,3 @@
+[zk60-guard 00:30:47] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:30:52] START lean-l40-iter class=cpu need=14G cap=24G enforce=watchdog-only waited=5s run=07fb58f92d62
+[zk60-guard 00:39:33] END lean-l40-iter exit=143 child_wall=521s peak_rss=3.88G min_avail=226.74G

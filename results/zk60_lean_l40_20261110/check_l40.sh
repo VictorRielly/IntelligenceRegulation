@@ -16,8 +16,8 @@ R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
 BASE=16acb7c8
-MODS="RunShape RunShapeShield RunShapeExec RunShapeProtocol RunShapeGate"
-FILES="$L/RunShape.lean $L/RunShapeShield.lean $L/RunShapeExec.lean $L/RunShapeProtocol.lean $L/RunShapeGate.lean $L/RunShapeCheck.lean"
+MODS="RunShape RunShapeShield RunShapeExec RunShapeProtocol RunShapeGate RunShapeShieldOpen"
+FILES="$L/RunShape.lean $L/RunShapeShield.lean $L/RunShapeExec.lean $L/RunShapeProtocol.lean $L/RunShapeGate.lean $L/RunShapeShieldOpen.lean $L/RunShapeCheck.lean"
 start=$(date +%s)
 echo "== lake build of the L40 modules, one at a time =="
 for m in $MODS; do
@@ -86,7 +86,7 @@ ulimit -s 65520
 echo "== the lane's checker: the approved block run on the R13 trace fixture =="
 "$LAKE" -d "$WT/formal" env lean --run "$L/RunShapeCheck.lean" "$V/block_fixture_t32.tsv" "$V/block_trace_low_h24_t32.tsv" \
   "$V/block_trace_low_t32.tsv" "$R1/rust_fixture_trace.tsv" "$V/silu_-4_-13.bin" "$V/silu_-1_-11.bin" \
-  > "$OUT/runshapecheck.log" 2>&1
+  "$WT/results/zk60_lean_l2d_20261106/rust_token_out.tsv" > "$OUT/runshapecheck.log" 2>&1
 crs=$?
 tail -n 1 "$OUT/runshapecheck.log"
 echo "negative controls caught: $(grep -c 'negative control .*: caught' "$OUT/runshapecheck.log") of 14"

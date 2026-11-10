@@ -4,8 +4,8 @@ audit's finding GB-8: "the approved `forward` is noncomputable and has never bee
 
 The approved model's pieces are noncomputable only through L2's plane lift `liftO` (a choice, CircuitStage.lean:32)
 and through `if`s on propositions without a decision procedure in scope (`NormOK`). Here:
-* `Tab`, `memo`, **`memo_eq`**: a finite domain tabulated into an array (so a plane is computed once and read in
-  constant time), equal to the function it tabulates;
+* `Tab`, `tabArr`, `tabGet`, **`tabGet_tabArr`**: a finite domain tabulated into an array (so a plane is computed once
+  and read in constant time), equal to the function it tabulates;
 * `liftOC`, **`liftOC_eq`**, `liftOM`, **`liftOM_eq`**: the plane lift decided over a finite domain, then tabulated,
   EQUAL to `liftO`;
 * `normTokC`, `softmaxFC`, `normAC`, `normMC`, `smSpecC`, **`blockSpecC`**: the block's stages with the twin lift;
@@ -47,16 +47,22 @@ instance tabProd {α β : Type} [Tab α] [Tab β] : Tab (α × β) where
   dec i := (Tab.dec (finProdFinEquiv.symm i).1, Tab.dec (finProdFinEquiv.symm i).2)
   dec_enc p := by simp [Tab.dec_enc]
 
-/-- **A function tabulated once** into an array and read back by index. -/
-def memo {α β : Type} [Tab α] (f : α → β) : α → β :=
-  let arr := Array.ofFn (fun i : Fin (Tab.n (α := α)) => f (Tab.dec i))
-  have hs : arr.size = Tab.n (α := α) := Array.size_ofFn
-  fun a => arr[(Tab.enc a).val]'(by rw [hs]; exact (Tab.enc a).isLt)
+/-- **A function's table**: its values at every point of the domain, in the domain's order. -/
+def tabArr {α β : Type} [Tab α] (f : α → β) : Array β := Array.ofFn (fun i : Fin (Tab.n (α := α)) => f (Tab.dec i))
 
-/-- **The tabulated function is the function.** -/
-theorem memo_eq {α β : Type} [Tab α] (f : α → β) : memo f = f := by
+theorem tabArr_size {α β : Type} [Tab α] (f : α → β) : (tabArr f).size = Tab.n (α := α) := Array.size_ofFn
+
+/-- A read of a table by a point's index. The table is an ARGUMENT, built once by the caller, so the plane is a
+closure over a computed array. (Observed: with the table built inside a definition whose own type is a function type,
+every read rebuilt it, and the fixture check had not finished after ten minutes; built by the caller, the whole check
+takes seconds.) -/
+def tabGet {α β : Type} [Tab α] (arr : Array β) (h : arr.size = Tab.n (α := α)) (a : α) : β :=
+  arr[(Tab.enc a).val]'(by rw [h]; exact (Tab.enc a).isLt)
+
+/-- **The read table is the function.** -/
+theorem tabGet_tabArr {α β : Type} [Tab α] (f : α → β) : tabGet (tabArr f) (tabArr_size f) = f := by
   funext a
-  simp only [memo, Array.getElem_ofFn, Fin.eta, Tab.dec_enc]
+  simp only [tabGet, tabArr, Array.getElem_ofFn, Fin.eta, Tab.dec_enc]
 
 /-! ## The plane lift, decided and tabulated -/
 
@@ -77,8 +83,11 @@ theorem liftOC_eq {P α : Type} [Fintype P] (f : P → Option α) : liftOC f = l
     | some v =>
       exact absurd (fun p => by rw [liftO_eq_some.mp hl p]; rfl) h
 
-/-- **The twin lift**: decided, then tabulated. -/
-def liftOM {P α : Type} [Fintype P] [Tab P] (f : P → Option α) : Option (P → α) := (liftOC f).map memo
+/-- **The twin lift**: decided, then tabulated ONCE (the table is built before the closure that reads it). -/
+def liftOM {P α : Type} [Fintype P] [Tab P] (f : P → Option α) : Option (P → α) :=
+  match liftOC f with
+  | none => none
+  | some g => some (tabGet (tabArr g) (tabArr_size g))
 
 /-- **The twin lift IS L2's `liftO`.** -/
 theorem liftOM_eq {P α : Type} [Fintype P] [Tab P] (f : P → Option α) : liftOM f = liftO f := by
@@ -86,34 +95,43 @@ theorem liftOM_eq {P α : Type} [Fintype P] [Tab P] (f : P → Option α) : lift
   rw [liftOC_eq]
   cases liftO f with
   | none => rfl
-  | some v => simp only [Option.map_some, memo_eq]
+  | some v =>
+    show some (tabGet (tabArr v) (tabArr_size v)) = some v
+    rw [tabGet_tabArr]
 
 /-! ## The block's stages -/
 
 instance decNormOK (ss : ℤ) : Decidable (NormOK ss) := by unfold NormOK; infer_instance
 
-/-- One RMSNorm row, computable (L2's `normTok`). -/
+/-- One RMSNorm row, computable (L2's `normTok`), the row's sum of squares and isqrt computed ONCE. -/
 def normTokC {n : ℕ} (ceps cn : ℤ) (tn : ℕ) (gam x : Fin n → ℤ) : Option (ℤ × (Fin n → ℤ)) :=
-  if NormOK (ssOf ceps x) then
-    (liftOM fun i => (normElem tn cn (isqrtWitness (ssOf ceps x)).1 (x i) (gam i)).map Prod.fst).map
-      fun y => ((isqrtWitness (ssOf ceps x)).1, y)
+  let ss := ssOf ceps x
+  let d := (isqrtWitness ss).1
+  if NormOK ss then
+    (liftOM fun i => (normElem tn cn d (x i) (gam i)).map Prod.fst).map fun y => (d, y)
   else none
 
 theorem normTokC_eq {n : ℕ} (ceps cn : ℤ) (tn : ℕ) (gam x : Fin n → ℤ) :
     normTokC ceps cn tn gam x = normTok ceps cn tn gam x := by
   unfold normTokC normTok
+  dsimp only
   split_ifs <;> simp only [liftOM_eq]
 
-/-- One softmax row, computable (L2's `softmaxF`). -/
+/-- One softmax row, computable (L2's `softmaxF`), the row's maximum, exp values and total computed ONCE. -/
 def softmaxFC {T : ℕ} (fp wrho : ℕ) (exp : ℤ → ℤ) (t : Fin T) (s : Fin T → ℤ) : Option (Fin T → ℤ) :=
-  if 0 < totalOf exp t s ∧ ∀ j, 0 ≤ bestOf t s - smOf t s j ∧ bestOf t s - smOf t s j < 256 then
-    liftOM fun j => if totalOf exp t s - 1 - numOf fp exp t s j % totalOf exp t s < 2 ^ wrho
-      then some (numOf fp exp t s j / totalOf exp t s) else none
+  let best := bestOf t s
+  let e := tabGet (tabArr fun j => exp (best - smOf t s j)) (tabArr_size _)
+  let tot := ∑ j, if j ≤ t then e j else 0
+  if 0 < tot ∧ ∀ j, 0 ≤ best - smOf t s j ∧ best - smOf t s j < 256 then
+    liftOM fun j =>
+      let num := if j ≤ t then e j * 2 ^ fp else 0
+      if tot - 1 - num % tot < 2 ^ wrho then some (num / tot) else none
   else none
 
 theorem softmaxFC_eq {T : ℕ} (fp wrho : ℕ) (exp : ℤ → ℤ) (t : Fin T) (s : Fin T → ℤ) :
     softmaxFC fp wrho exp t s = softmaxF fp wrho exp t s := by
-  unfold softmaxFC softmaxF
+  unfold softmaxFC softmaxF totalOf numOf expRow
+  simp only [tabGet_tabArr]
   split_ifs <;> simp only [liftOM_eq]
 
 variable {S : BlockShape}
@@ -187,16 +205,18 @@ theorem inSpecC_eq (P : InPublic S0) (toks : S0.Tok → ℕ) : inSpecC P toks = 
   unfold inSpecC inSpec
   split_ifs <;> rfl
 
-/-- The final norm of stage OUT-C, computable (L4's `fnormTok`). -/
+/-- The final norm of stage OUT-C, computable (L4's `fnormTok`), the sum of squares and isqrt computed once. -/
 def fnormTokC {n : ℕ} (ceps cn g0 : ℤ) (tn : ℕ) (x : Fin n → ℤ) : Option (ℤ × (Fin n → ℤ)) :=
-  if (∀ i, i16 (x i)) ∧ NormOK (ssOf ceps x) then
-    (liftOM fun i => (fnormElem tn cn g0 32 (isqrtWitness (ssOf ceps x)).1 (x i)).map Prod.fst).map
-      fun y => ((isqrtWitness (ssOf ceps x)).1, y)
+  let ss := ssOf ceps x
+  let d := (isqrtWitness ss).1
+  if (∀ i, i16 (x i)) ∧ NormOK ss then
+    (liftOM fun i => (fnormElem tn cn g0 32 d (x i)).map Prod.fst).map fun y => (d, y)
   else none
 
 theorem fnormTokC_eq {n : ℕ} (ceps cn g0 : ℤ) (tn : ℕ) (x : Fin n → ℤ) :
     fnormTokC ceps cn g0 tn x = fnormTok ceps cn g0 tn x := by
   unfold fnormTokC fnormTok
+  dsimp only
   split_ifs <;> simp only [liftOM_eq]
 
 /-- Stage OUT-C's integer semantics on one row, computable (L4's `outCSpec`). -/

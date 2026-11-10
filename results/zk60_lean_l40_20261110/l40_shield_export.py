@@ -15,11 +15,16 @@ What is checked, layer by layer:
   2. its `(sh_ao, sh_s, sh_h, sh_z, gate)` equals L17's `shieldLayers` entry (ShapeR13.lean, parsed);
   3. the profile constants the Lean shape fixes: f_e 9, f_p 12, norm_ceps 2439, norm_tn 9 (so tn - 8 = 1), sh_qkv 8,
      sh_o 9, sh_g 8, sh_u 0, T 128;
-  4. the public data's classes, `BlockPublic.Valid`'s non-weight fields (CircuitBlock.lean:191-213):
+  4. every table's shape is the Lean shape's (d 3072, T 128, half 64, 32 heads of 128, 8 key-value heads, hidden
+     9216), and the seven weight arrays are int8 and hash-pinned (their bytes are not in the repository);
+  5. the public data's classes, `BlockPublic.Valid`'s non-weight fields (CircuitBlock.lean:191-213):
      gamma_a, gamma_m |g| <= 127; m_q, m_k, m_v, m_o, m_u, m_d in [0, 2^14]; the FOLDED gate multipliers
      (`m_g << (gate - its group's shift)`, accuracy_groups.rs:60) in [0, 2^14]; rope |cos|, |sin| <= 2^7; exp in
      [0, 2^f_e]; the SCALED act words (`raw * 2^(24 - sh_h + e_out - base_out)`, accuracy_aligned.rs:37-46) |a| <= 2^31;
      every channel's group id below nG; silu_groups equal to the manifest's group members.
+And once: stage OUT-C's public data in L15's `shield_outc_valid` classes (the classifier's final norm, `c = 0`, the
+hash-pinned int16 margin vector of width 3072 with no -32768), and stage IN-C's embedding table int16 of shape
+(131072, 3072), hash-pinned (its bytes are not in the repository; its dtype IS the int16 class).
 A negative control repeats every check with one value changed (one per check kind) and requires each to fail.
 
 usage: python3 -I l40_shield_export.py <repo root>
@@ -105,6 +110,17 @@ def run(mutate=None):
             check(f"L{L} {name} size", len(vals) == n, f"{len(vals)} != {n}")
             arr[name] = vals
         nG = len(members)
+        shapes = {k: man["arrays"][k]["shape"] for k in man["arrays"]}
+        want = {"gamma_a": [3072], "gamma_m": [3072], "m_q": [4096], "m_k": [1024], "m_v": [1024], "m_o": [3072],
+                "m_g": [9216], "m_u": [9216], "m_d": [3072], "rope_cos": [128, 64], "rope_sin": [128, 64],
+                "exp": [256], "silu_group_ids": [9216], "act": [nG, 4096], "wq": [4096, 3072], "wk": [1024, 3072],
+                "wv": [1024, 3072], "wo": [3072, 4096], "wg_t": [3072, 9216], "wu_t": [3072, 9216],
+                "wd_t": [9216, 3072]}
+        for k, v in want.items():
+            check(f"L{L} {k} shape = the Lean shape's", mut("shape", shapes.get(k)) == v, f"{shapes.get(k)} != {v}")
+        for k in ["wq", "wk", "wv", "wo", "wg_t", "wu_t", "wd_t"]:
+            check(f"L{L} {k} is int8 and hash-pinned", man["arrays"][k]["dtype"] == "int8"
+                  and len(man["arrays"][k].get("sha256", "")) == 64)
         ids = arr["silu_group_ids"]
         check(f"L{L} group ids below nG", all(0 <= mut("gid", i) < nG for i in ids))
         check(f"L{L} every group used", set(ids) == set(range(nG)))
@@ -131,6 +147,25 @@ def run(mutate=None):
                 if abs(mut("act", v) * 2 ** e) > 2 ** 31:
                     scaled_ok = False
         check(f"L{L} scaled act |a| <= 2^31", scaled_ok)
+    # stage OUT-C's public data (L15's `shield_outc_valid` classes) and stage IN-C's embedding (dtype, shape)
+    tio = f"{EXP}/token_io"
+    cl = json.load(open(f"{tio}/classifier.json"))
+    fn = cl["final_norm"]
+    check("OUT-C final norm g0 in [1, 127]", 1 <= mut("outc", fn["g0"]) <= 127)
+    check("OUT-C final norm cn in [1, 2^20]", 1 <= fn["cn"] <= 2 ** 20)
+    check("OUT-C final norm ceps in [1, 2^40]", 1 <= fn["ceps"] <= 2 ** 40)
+    check("OUT-C final norm tn <= 16", fn["tn"] <= 16)
+    check("OUT-C threshold c = 0", cl["threshold_c"] == 0)
+    mv = cl["margin_vector"]
+    raw = open(f"{tio}/{mv['file']}", "rb").read()
+    check("OUT-C margin vector hash-pinned", sha(f"{tio}/{mv['file']}") == mv["sha256"])
+    w = list(struct.unpack("<" + "h" * (len(raw) // 2), raw))
+    check("OUT-C margin vector int16 of d = 3072", mv["dtype"] == "int16" and mv["shape"] == [3072] and len(w) == 3072)
+    check("OUT-C margin vector in [-32767, 32767]", all(-32767 <= mut("margin", v) <= 32767 for v in w))
+    ti = json.load(open(f"{tio}/token_io.json"))
+    em = ti["embedding_table"]
+    check("IN-C embedding int16 of (V, d) = (131072, 3072), hash-pinned", em["dtype"] == "int16"
+          and mut("emb", em["shape"]) == [131072, 3072] and len(em["sha256"]) == 64)
     return lean
 
 
@@ -140,7 +175,8 @@ print(f"L40 SHIELD EXPORT: {checks} checks, {failed} failed")
 base_checks, base_failed = checks, failed
 
 # Negative control: one single change per kind; each must make at least one check fail.
-kinds = ["profile_sha", "T", "const", "gid", "cal", "gamma", "mult", "mg", "rope", "exp", "act"]
+kinds = ["profile_sha", "T", "const", "gid", "cal", "gamma", "mult", "mg", "rope", "exp", "act", "shape", "outc",
+         "margin", "emb"]
 neg_bad = 0
 for kind in kinds:
     hit = [False]
@@ -163,6 +199,12 @@ for kind in kinds:
             return 513
         if kind == "gid":
             return 99
+        if kind in ("shape", "emb"):
+            return [1]
+        if kind == "outc":
+            return 128
+        if kind == "margin":
+            return -32768
         return v + 1
 
     checks, failed = 0, 0
