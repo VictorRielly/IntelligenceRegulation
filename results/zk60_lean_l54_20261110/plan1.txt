@@ -1,0 +1,3 @@
+build ZK60Formal.RunWireSem
+build ZK60Formal.RunWireTerm
+build ZK60Formal.RunWireTop
