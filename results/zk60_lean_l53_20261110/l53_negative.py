@@ -12,7 +12,8 @@ import re
 import subprocess
 import sys
 
-WT = "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200"
+# The tree to check: the lane's worktree by default; the coordinator's merged check sets L53_TREE to the main checkout.
+WT = os.environ.get("L53_TREE", "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a9ec802146c5f3200")
 OUT = f"{WT}/results/zk60_lean_l53_20261110"
 LAKE = "/Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lake"
 CHK = f"{WT}/formal/ZK60Formal/RunStgCheck.lean"

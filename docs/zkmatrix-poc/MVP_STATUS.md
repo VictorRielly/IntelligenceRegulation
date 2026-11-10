@@ -27,6 +27,22 @@ item was re-checked against the source by the coordinator.
   `rd_productionReadyL_r13P_exec_blk`; since L48 it is `og_productionReadyL_epP_exec_blk`, at the real opening
   widths (see L45-2 below). Still open: the two stage covers and the three input-commitment links, and the
   boundary IO slots' polynomials (L46-3), which tie each block to the run's boundary planes.
+- **A tenth unmeetable premise (L54-1, High, 2026-11-10; confirmed in the source by the coordinator).**
+  - **What is wrong:** each block's two boundary slots read the boundary tables (BlockR13Prog.lean:657-659). The
+    slot-polynomial argument in L50's alive facts can only see the A, M and H data (RunAliveSl.lean:174). So the
+    premise `hsl_blk` cannot be met at those two slots for the real run.
+  - **Is the protocol affected?** No. This is a modelling gap again.
+  - **What still stands:** L49's block theorem. It takes the boundary data as an explicit input, and the gap appears
+    only when it is plugged into the run.
+  - **Repair:** lane L56, Lean only, gives the slot polynomial the boundary data.
+- **2026-11-10, the run-level wiring begun (L54) and the stages chosen (L53).**
+  - **L54:** the run-level link "no doomed opening means every claim is true" (`hsem`) is PROVED on an accepted run.
+    From it, the slot condition at the blocks follows, except at the two boundary slots (L54-1 above). All 26 layers'
+    programs are PROVED to have the slot shape the run assumes.
+  - **Open from L54:** nothing yet ties block k's verifier to layer k of the export (L54-2). Lane L56 takes it.
+  - **L53:** the two stages' step lists are chosen once to match the code's stage verifiers, CHECKED on a real
+    classifier receipt (108 checks, 0 failed). The stages' alive conditions and doom covers are reduced to named facts
+    about each stage's own algebra. Lane L57 is proving those from the stage soundness theorems (L12, L15).
 - **A ninth unmeetable premise (L51-1, High, 2026-11-10; confirmed in the code by the coordinator).**
   - **What is wrong:** the code absorbs the classifier's input root only once, as the last 32 bytes of an 84-byte
     header message (`expected-IO`, classify.rs:1147-1153 and :1283). The Lean model read roots only from 32-byte
