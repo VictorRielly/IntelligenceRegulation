@@ -1,0 +1,3 @@
+build ZK60Formal.RunExtractWork
+build ZK60Formal.RunExtractStage
+build ZK60Formal.RunExtractBlk
