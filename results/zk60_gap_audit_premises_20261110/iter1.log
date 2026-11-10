@@ -1,0 +1,800 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/plan1.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_a_statements.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_a_statements.lean ==
+@ProtocolClassify.rt_productionReady_r13 : ∀ {S : Block.BlockShape} {Hdr Salt Coins : Type} [inst : Fintype Coins]
+  [inst_1 : Nonempty Coins] [inst_2 : Inhabited Coins] {K : Type} [inst_3 : Field K] [inst_4 : Fintype K]
+  [inst_5 : DecidableEq K] [inst_6 : Algebra Circuit.GF K] (Rr dR : ℕ) {pos : S.Tok → Fin dR × Fin (2 ^ 14)}
+  (hpos : Function.Injective pos) (place : Fin dR → Fin Rr)
+  (msg : (S.Tok → ℕ) → Salt → Fin Rr → Fin (2 ^ 14) → Circuit.GF)
+  (msg_place : ∀ (v : S.Tok → ℕ) (r : Salt) (k : Fin dR), msg v r (place k) = Exec.posPlane pos v k)
+  (pad : Salt → Fin Rr → Fin 256 → Circuit.GF) (salt : Salt → Fin (2 ^ 16) → Exec.Dig)
+  (path : Salt → Fin (2 ^ 16) → List Exec.Dig) (tagc : Exec.MTag) (Rp : TokenRun.ClassifyRunPublic S) (Lq : ℕ)
+  (V : ProtocolClassify.RunV Hdr) (P : ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins) (h64 : 64 ≤ Lq)
+  (hr :
+    8 * (Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ProtocolClassify.ClsStmt.inRoot tagc).R ≤
+      Lq)
+  (hon :
+    ProtocolClassify.HonestIn Coins
+      (Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ProtocolClassify.ClsStmt.inRoot tagc))
+  (U : K) (hbij : Function.Bijective (Hiding.fp2 U)) (key : Option Exec.Dig) (domain : List UInt8)
+  (hs : Exec.decodeLink (Exec.startMsg domain) = none) (hL : (Exec.startMsg domain).length ≤ Lq) (hL64 : Lq < 2 ^ 64)
+  (Rn : ProtocolClassify.RtRun V key domain Lq) (hv : Rn.pf.Valid) (D : ProtocolClassify.RtKData K Lq)
+  (hD : D.Valid (Exec.Block.absOfC (Exec.chainEncB key domain hs Lq hL)) Rn.pf) {ι : Type} [inst_7 : Fintype ι]
+  (site : (S.Tok → ℕ) → ι → ProtocolClassify.Site (Exec.QB Lq) Coins K) (kOf : ι → ℕ) (δOf : ι → ENNReal)
+  (E :
+    List (Exec.QB Lq × Exec.Dig) →
+      ProtocolClassify.ClsStmt Hdr → ProtocolClassify.ClsReceipt → ProtocolClassify.RunExt S Salt)
+  {εin εblk εout εep : ℕ → ENNReal} {εzk : ℕ → ℕ → ENNReal},
+  ProtocolClassify.ClassifyOpen Rp Lq V P
+      (Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ProtocolClassify.ClsStmt.inRoot tagc) h64 hr
+      hon U site kOf δOf E εin εblk εout εep εzk →
+    ∀ {F Cl : Type} [inst_8 : Field F] [inst_9 : Fintype F] [inst_10 : DecidableEq F], ⋯
+@ProtocolClassify.classifyU_productionReady_run_r13_token : ∀ {S : Block.BlockShape} {Hdr Salt Coins : Type}
+  [inst : Fintype Coins] [inst_1 : Nonempty Coins] [inst_2 : Inhabited Coins] {K : Type} [inst_3 : Field K]
+  [DecidableEq K] [inst_5 : Algebra Circuit.GF K] (Rr dR : ℕ) {pos : S.Tok → Fin dR × Fin (2 ^ 14)}
+  (hpos : Function.Injective pos) (place : Fin dR → Fin Rr)
+  (msg : (S.Tok → ℕ) → Salt → Fin Rr → Fin (2 ^ 14) → Circuit.GF)
+  (msg_place : ∀ (v : S.Tok → ℕ) (r : Salt) (k : Fin dR), msg v r (place k) = Exec.posPlane pos v k)
+  (pad : Salt → Fin Rr → Fin 256 → Circuit.GF) (salt : Salt → Fin (2 ^ 16) → Exec.Dig)
+  (path : Salt → Fin (2 ^ 16) → List Exec.Dig) (tagc : Exec.MTag) (R : TokenRun.ClassifyRunPublic S) (Lq : ℕ)
+  (V : ProtocolClassify.RunV Hdr) (P : ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins) (h64 : 64 ≤ Lq)
+  (hr :
+    8 * (Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ProtocolClassify.ClsStmt.inRoot tagc).R ≤
+      Lq)
+  (hon :
+    ProtocolClassify.HonestIn Coins
+      (Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ProtocolClassify.ClsStmt.inRoot tagc))
+  (U : K),
+  Function.Bijective (Hiding.fp2 U) →
+    ∀ {ι : Type} [inst_6 : Fintype ι] (site : (S.Tok → ℕ) → ι → ProtocolClassify.Site (Exec.QB Lq) Coins K)
+      (kOf : ι → ℕ) (δOf : ι → ENNReal)
+      (E :
+        List (Exec.QB Lq × Exec.Dig) →
+          ProtocolClassify.ClsStmt Hdr → ProtocolClassify.ClsReceipt → ProtocolClassify.RunExt S Salt)
+      {εin εblk εout εep : ℕ → ENNReal} {εzk : ℕ → ℕ → ENNReal},
+      ProtocolClassify.ClassifyOpen R Lq V P
+          (Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ProtocolClassify.ClsStmt.inRoot tagc)
+          h64 hr hon U site kOf δOf E εin εblk εout εep εzk →
+        ∀
+          (tr :
+            (Exec.QB Lq → Exec.Dig) →
+              ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt → List (Exec.TItem × Exec.Dig))
+          (Ksl KM KA KB KR₀ KR₁ KH₀ KH₁ KLU : ProtocolClassify.KindRun tr),
+          (∀ K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU], K'.RC.ℓ ≤ 2 ^ 21) →
+            (∀ K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU], K'.np = R.Ps.length + 2) →
+              Ksl.SqForm 7 (7 * 370) →
+                KM.PowForm 3 106 →
+                  KA.PowForm 1 110 →
+                    KB.PowForm 1 126 →
+                      KR₀.SqForm 80 (80 * 451) →
+                        KR₁.SqForm 80 (80 * 451) →
+                          KH₀.SqForm 80 (80 * 451) → KH₁.SqForm 80 (80 * 451) → ∀ eL ≤ 2 ^ 26, ⋯
+@ProtocolClassify.classifyUExec_productionReady_run_r13 : ∀ {S : Block.BlockShape} {Hdr Salt Coins : Type}
+  [inst : Fintype Coins] [inst_1 : Nonempty Coins] [inst_2 : Inhabited Coins] {K : Type} [inst_3 : Field K]
+  [DecidableEq K] [inst_5 : Algebra Circuit.GF K] (R : TokenRun.ClassifyRunPublic S) (Lq Lb : ℕ)
+  (preA preB : Hdr → Except String Unit) (start : (Exec.HIn → Exec.Dig) → ProtocolClassify.ClsStmt Hdr → Exec.Tr)
+  (inc : Hdr → Exec.StageV.IncV) (incG : Hdr → Exec.StageV.StageGeom)
+  (blk : ProtocolClassify.BlockProfV (ProtocolClassify.ClsStmt Hdr)) (outc : Hdr → ℕ → Exec.StageV.OutcV)
+  (outcG : Hdr → Exec.StageV.StageGeom) (P : ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins)
+  (Cin : Exec.PlaneCommit (S.Tok → ℕ) (ProtocolClassify.ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq) (hr : 8 * Cin.R ≤ Lq)
+  (hon : ProtocolClassify.HonestIn Coins Cin) (U : K),
+  Function.Bijective (Hiding.fp2 U) →
+    ∀ {ι : Type} [inst_6 : Fintype ι] (site : (S.Tok → ℕ) → ι → ProtocolClassify.Site (Exec.QB Lq) Coins K)
+      (kOf : ι → ℕ) (δOf : ι → ENNReal)
+      (E :
+        List (Exec.QB Lq × Exec.Dig) →
+          ProtocolClassify.ClsStmt Hdr → ProtocolClassify.ClsReceipt → ProtocolClassify.RunExt S Salt)
+      {εin εblk εout εep : ℕ → ENNReal} {εzk : ℕ → ℕ → ENNReal},
+      ProtocolClassify.ClassifyOpen R Lq (Exec.StageV.classifyRunV Lb preA preB start inc incG blk outc outcG) P Cin h64
+          hr hon U site kOf δOf E εin εblk εout εep εzk →
+        ∀ (e : ℕ),
+          2 * e + (Cin.n + Cin.Q) ≤ Cin.N →
+            Cin.N ≤ 2 ^ 20 →
+              ∀
+                (tr :
+                  (Exec.QB Lq → Exec.Dig) →
+                    ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt → List (Exec.TItem × Exec.Dig))
+                (Ksl KM KA KB KR₀ KR₁ KH₀ KH₁ KLU : ProtocolClassify.KindRun tr),
+                (∀ K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU], K'.RC.ℓ ≤ 2 ^ 21) →
+                  (∀ K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU], K'.np = R.Ps.length + 2) →
+                    Ksl.SqForm 7 (7 * 370) →
+                      KM.PowForm 3 106 →
+                        KA.PowForm 1 110 →
+                          KB.PowForm 1 126 →
+                            KR₀.SqForm 80 (80 * 451) →
+                              KR₁.SqForm 80 (80 * 451) →
+                                KH₀.SqForm 80 (80 * 451) → KH₁.SqForm 80 (80 * 451) → ∀ eL ≤ 2 ^ 26, ⋯
+@ProtocolClassify.classifyU_productionReady_run_r13 : ∀ {S : Block.BlockShape} {Hdr Salt Coins : Type}
+  [inst : Fintype Coins] [inst_1 : Nonempty Coins] [inst_2 : Inhabited Coins] {K : Type} [inst_3 : Field K]
+  [DecidableEq K] [inst_5 : Algebra Circuit.GF K] (R : TokenRun.ClassifyRunPublic S) (Lq : ℕ)
+  (V : ProtocolClassify.RunV Hdr) (P : ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins)
+  (Cin : Exec.PlaneCommit (S.Tok → ℕ) (ProtocolClassify.ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq) (hr : 8 * Cin.R ≤ Lq)
+  (hon : ProtocolClassify.HonestIn Coins Cin) (U : K),
+  Function.Bijective (Hiding.fp2 U) →
+    ∀ {ι : Type} [inst_6 : Fintype ι] (site : (S.Tok → ℕ) → ι → ProtocolClassify.Site (Exec.QB Lq) Coins K)
+      (kOf : ι → ℕ) (δOf : ι → ENNReal)
+      (E :
+        List (Exec.QB Lq × Exec.Dig) →
+          ProtocolClassify.ClsStmt Hdr → ProtocolClassify.ClsReceipt → ProtocolClassify.RunExt S Salt)
+      {εin εblk εout εep : ℕ → ENNReal} {εzk : ℕ → ℕ → ENNReal},
+      ProtocolClassify.ClassifyOpen R Lq V P Cin h64 hr hon U site kOf δOf E εin εblk εout εep εzk →
+        ∀ (e : ℕ),
+          2 * e + (Cin.n + Cin.Q) ≤ Cin.N →
+            Cin.N ≤ 2 ^ 20 →
+              ∀
+                (tr :
+                  (Exec.QB Lq → Exec.Dig) →
+                    ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt → List (Exec.TItem × Exec.Dig))
+                (Ksl KM KA KB KR₀ KR₁ KH₀ KH₁ KLU : ProtocolClassify.KindRun tr),
+                (∀ K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU], K'.RC.ℓ ≤ 2 ^ 21) →
+                  (∀ K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU], K'.np = R.Ps.length + 2) →
+                    Ksl.SqForm 7 (7 * 370) →
+                      KM.PowForm 3 106 →
+                        KA.PowForm 1 110 →
+                          KB.PowForm 1 126 →
+                            KR₀.SqForm 80 (80 * 451) →
+                              KR₁.SqForm 80 (80 * 451) →
+                                KH₀.SqForm 80 (80 * 451) →
+                                  KH₁.SqForm 80 (80 * 451) →
+                                    ∀ eL ≤ 2 ^ 26,
+                                      KLU.SqForm eL (3 * eL) →
+                                        ∀ (Ko : List (ProtocolClassify.KindRun tr)),
+                                          (∀ K' ∈ Ko, K' ∈ ⋯) →
+                                            ∀ {F κ μ Cl : Type} [inst_7 : Field F] [inst_8 : Fintype F], ⋯
+@Exec.Block.block_knowledge_final_r13_shield : ∀ {K : Type} [inst : Field K] [inst_1 : Algebra Circuit.GF K] {L : ℕ}
+  {S : Block.BlockShape} {Ct Cw Cg Cj Cd Cf : Type} [inst_2 : Fintype Ct] [inst_3 : Fintype Cw] [inst_4 : Fintype Cg]
+  [inst_5 : Fintype Cj] [inst_6 : Fintype Cd] [inst_7 : Fintype Cf] [DecidableEq Ct] [DecidableEq Cw] [DecidableEq Cg]
+  [DecidableEq Cj] [DecidableEq Cd] [DecidableEq Cf] [Fintype K] [inst_15 : DecidableEq K] (U : K),
+  U ^ 2 = (algebraMap Circuit.GF K) 7 →
+    Module.finrank Circuit.GF K = 2 →
+      ∀ (key : Option Exec.Dig) (domain : List UInt8) (hs : Exec.decodeLink (Exec.startMsg domain) = none)
+        (hL : (Exec.startMsg domain).length ≤ L),
+        L < 2 ^ 64 →
+          ∀ (hL20 : 2 ^ 20 ≤ L) (P : Exec.Block.BlockParams) (tag : Exec.MTag) (rowsOf : Exec.Block.Cm → ℕ),
+            Exec.Link.IsShieldR13 P tag rowsOf →
+              ∀ (aC hC : List ℕ),
+                Exec.Link.DefCm P aC hC →
+                  Exec.Block.sumFrom (fun (k : ℕ) => aC.getD k 0) 0 23 = 146 →
+                    Exec.Block.sumFrom (fun (k : ℕ) => hC.getD k 0) 0 23 + 1 = 54 →
+                      ∀ (hdrLen hdrSq : ℕ),
+                        hdrLen ≤ 2 ^ 19 →
+                          hdrSq ≤ 2 ^ 63 →
+                            ∀
+                              (Poly :
+                                Exec.Block.Cuts3 L →
+                                  Exec.Block.RootsO →
+                                    (k : ℕ) →
+                                      Exec.Block.Seen →
+                                        (Fin ((Exec.Block.slotShape P k).1 + (Exec.Block.slotShape P k).2.1) → K) → K)
+                              (csE : Exec.Block.Cuts3 L → Exec.Block.RootsO → Exec.Block.Cm → Exec.Block.ZClaim → K),
+                              (∀ (k : ℕ) (hist : Exec.Block.Hist) (dr : List Exec.Fp2) (df : Exec.Block.SlotDef),
+                                  P.define k hist dr = Except.ok df → ∀ (vs : List Exec.Fp2), (df.poly vs).Canon) →
+                                (∀ (cu : Exec.Block.Cuts3 L) (rt : Exec.Block.RootsO),
+                                    Exec.Block.SlotEvalN U P (Exec.Link.csShieldR13 U tag hL20 csE cu rt)
+                                      (fun (x : List (ℕ × List Exec.Fp2)) => 0) (Poly cu rt)) →
+                                  (∀ (cu : Exec.Block.Cuts3 L) (rt : Exec.Block.RootsO) (k : ℕ) (sn : Exec.Block.Seen),
+                                      Sound.IndDegLE (Exec.Block.slotShape P k).2.2 (Poly cu rt k sn)) →
+                                    ∀ (Pb : Block.BlockPublic S) (Lay : Layout.W16Layout S Ct Cw Cg Cj Cd Cf)
+                                      (B : Layout.W16Pub S Pb Lay) {ls : ℕ},
+                                      Layout.R13.R13Windows S ls → S.h24 = true → ⋯
+@Exec.Block.block_knowledge_final_w16r2 : ∀ {K : Type} [inst : Field K] [inst_1 : Algebra Circuit.GF K] {L : ℕ}
+  {S : Block.BlockShape} {Ct Cw Cg Cj Cd Cf : Type} [inst_2 : Fintype Ct] [inst_3 : Fintype Cw] [inst_4 : Fintype Cg]
+  [inst_5 : Fintype Cj] [inst_6 : Fintype Cd] [inst_7 : Fintype Cf] [DecidableEq Ct] [DecidableEq Cw] [DecidableEq Cg]
+  [DecidableEq Cj] [DecidableEq Cd] [DecidableEq Cf] [Fintype K] [inst_15 : DecidableEq K] (U : K),
+  U ^ 2 = (algebraMap Circuit.GF K) 7 →
+    Module.finrank Circuit.GF K = 2 →
+      ∀ (key : Option Exec.Dig) (domain : List UInt8) (hs : Exec.decodeLink (Exec.startMsg domain) = none)
+        (hL : (Exec.startMsg domain).length ≤ L),
+        L < 2 ^ 64 →
+          ∀ (hL20 : 2 ^ 20 ≤ L) (P : Exec.Block.BlockParams) (tag : Exec.MTag) (rowsOf : Exec.Block.Cm → ℕ),
+            Exec.Link.IsRungW16 P tag rowsOf →
+              ∀ (aC hC : List ℕ),
+                Exec.Link.DefCm P aC hC →
+                  Exec.Block.sumFrom (fun (k : ℕ) => aC.getD k 0) 0 23 = 114 →
+                    Exec.Block.sumFrom (fun (k : ℕ) => hC.getD k 0) 0 23 + 1 = 47 →
+                      ∀ (hdrLen hdrSq : ℕ),
+                        hdrLen ≤ 2 ^ 19 →
+                          hdrSq ≤ 2 ^ 63 →
+                            ∀
+                              (Poly :
+                                Exec.Block.Cuts3 L →
+                                  Exec.Block.RootsO →
+                                    (k : ℕ) →
+                                      Exec.Block.Seen →
+                                        (Fin ((Exec.Block.slotShape P k).1 + (Exec.Block.slotShape P k).2.1) → K) → K)
+                              (csE : Exec.Block.Cuts3 L → Exec.Block.RootsO → Exec.Block.Cm → Exec.Block.ZClaim → K),
+                              (∀ (k : ℕ) (hist : Exec.Block.Hist) (dr : List Exec.Fp2) (df : Exec.Block.SlotDef),
+                                  P.define k hist dr = Except.ok df → ∀ (vs : List Exec.Fp2), (df.poly vs).Canon) →
+                                (∀ (cu : Exec.Block.Cuts3 L) (rt : Exec.Block.RootsO),
+                                    Exec.Block.SlotEvalN U P (Exec.Link.csRungW16 U tag hL20 csE cu rt)
+                                      (fun (x : List (ℕ × List Exec.Fp2)) => 0) (Poly cu rt)) →
+                                  (∀ (cu : Exec.Block.Cuts3 L) (rt : Exec.Block.RootsO) (k : ℕ) (sn : Exec.Block.Seen),
+                                      Sound.IndDegLE (Exec.Block.slotShape P k).2.2 (Poly cu rt k sn)) →
+                                    ∀ (Pb : Block.BlockPublic S) (Lay : Layout.W16Layout S Ct Cw Cg Cj Cd Cf)
+                                      (B : Layout.W16Pub S Pb Lay) (fams : List (ℕ × ℕ)),
+                                      Circuit.FamsOK fams → Layout.W16Widths S fams → ⋯
+'ZK60.ProtocolClassify.rt_productionReady_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.classifyU_productionReady_run_r13_token' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.classifyUExec_productionReady_run_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.classifyU_productionReady_run_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.block_knowledge_final_r13_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.block_knowledge_final_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.block_knowledge_final_w16r2' depends on axioms: [propext, Classical.choice, Quot.sound]
+structure ZK60.ProtocolClassify.ClassifyOpen {S : Block.BlockShape} {Hdr Salt Coins : Type} [Fintype Coins]
+  [Nonempty Coins] [Inhabited Coins] {K : Type} [Field K] [Algebra Circuit.GF K] (R : TokenRun.ClassifyRunPublic S)
+  (Lq : ℕ) (V : ProtocolClassify.RunV Hdr) (P : ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins)
+  (Cin : Exec.PlaneCommit (S.Tok → ℕ) (ProtocolClassify.ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq) (hr : 8 * Cin.R ≤ Lq)
+  (hon : ProtocolClassify.HonestIn Coins Cin) (U : K) {ι : Type} [Fintype ι]
+  (site : (S.Tok → ℕ) → ι → ProtocolClassify.Site (Exec.QB Lq) Coins K) (kOf : ι → ℕ) (δOf : ι → ENNReal)
+  (E :
+    List (Exec.QB Lq × Exec.Dig) →
+      ProtocolClassify.ClsStmt Hdr → ProtocolClassify.ClsReceipt → ProtocolClassify.RunExt S Salt)
+  (εin εblk εout εep : ℕ → ENNReal) (εzk : ℕ → ℕ → ENNReal) : Prop
+number of parameters: 30
+fields:
+  ZK60.ProtocolClassify.ClassifyOpen.shape : S.Valid
+  ZK60.ProtocolClassify.ClassifyOpen.weights : ∀ B ∈ R.Ps, B.Valid
+  ZK60.ProtocolClassify.ClassifyOpen.inPub : R.inp.Valid
+  ZK60.ProtocolClassify.ClassifyOpen.outPub : R.out.Valid
+  ZK60.ProtocolClassify.ClassifyOpen.blocks : 0 < R.Ps.length ∧ V.L = R.Ps.length
+  ZK60.ProtocolClassify.ClassifyOpen.commit : (∀ (x : S.Tok → ℕ), (∀ (t : S.Tok), x t < Circuit.gP) → Cin.ok x) ∧
+      Cin.N ≤ 2 ^ Cin.depth ∧ (∀ (s : ProtocolClassify.ClsStmt Hdr), Cin.root s = s.inRoot) ∧ Cin.depth ≤ 64
+  ZK60.ProtocolClassify.ClassifyOpen.policy : V.preA P.hdr = Except.ok () ∧ V.preB P.hdr = Except.ok ()
+  ZK60.ProtocolClassify.ClassifyOpen.parts : List.Forall₂
+      (ProtocolClassify.SegComplete (TokenRun.classifyModel S R).admissible Exec.liftH
+        (ProtocolClassify.clsStmtOf R Lq P Cin h64 hr hon.base))
+      (P.parts V.L) V.parts
+  ZK60.ProtocolClassify.ClassifyOpen.refuse : ∀ (x : (TokenRun.classifyModel S R).Input),
+      (TokenRun.classifyModel S R).admissible x →
+        ∀ (G : Exec.QB Lq → Exec.Dig) (c : Coins),
+          (∀ (i : ι), ¬ProtocolClassify.Site.fires U (site x i) G c) →
+            ∃ (r : List (List UInt8) × ProtocolClassify.Carry × Exec.Tr),
+              ProtocolClassify.honestSegs V P (Exec.liftH G)
+                  (ProtocolClassify.honestRoot Cin Lq h64 hr G x (hon.base c)) ((TokenRun.classifySpec R x).getD 0) x
+                  c =
+                Except.ok r
+  ZK60.ProtocolClassify.ClassifyOpen.counts : (∀ (x : S.Tok → ℕ) (i : ι), (site x i).k ≤ kOf i) ∧
+      (∀ (x : S.Tok → ℕ) (i : ι), (site x i).δ ≤ δOf i) ∧ ∑ i : ι, kOf i ≤ 2 ^ 85 ∧ ∑ i : ι, δOf i ≤ 2⁻¹ ^ 41
+  ZK60.ProtocolClassify.ClassifyOpen.extIn : ∀ (q : ℕ)
+      (A : OC (Exec.QB Lq) Exec.Dig (ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt)),
+      A.Bounded q →
+        (prH fun (G : Exec.QB Lq → Exec.Dig) =>
+            (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (OC.runLog G A).1.1
+                  (OC.runLog G A).1.2 =
+                true ∧
+              ¬ProtocolClassify.InOk R (E (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2)) ≤
+          εin q
+  ZK60.ProtocolClassify.ClassifyOpen.extBlocks : ∀ (q : ℕ)
+      (A : OC (Exec.QB Lq) Exec.Dig (ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt)),
+      A.Bounded q →
+        (prH fun (G : Exec.QB Lq → Exec.Dig) =>
+            (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (OC.runLog G A).1.1
+                  (OC.runLog G A).1.2 =
+                true ∧
+              ¬ProtocolClassify.BlocksOk R (E (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2)) ≤
+          εblk q
+  ZK60.ProtocolClassify.ClassifyOpen.extOut : ∀ (q : ℕ)
+      (A : OC (Exec.QB Lq) Exec.Dig (ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt)),
+      A.Bounded q →
+        (prH fun (G : Exec.QB Lq → Exec.Dig) =>
+            (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (OC.runLog G A).1.1
+                  (OC.runLog G A).1.2 =
+                true ∧
+              ¬ProtocolClassify.OutOk R
+                  ((ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).ypub (OC.runLog G A).1.1)
+                  (E (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2)) ≤
+          εout q
+  ZK60.ProtocolClassify.ClassifyOpen.extEp : ∀ (q : ℕ)
+      (A : OC (Exec.QB Lq) Exec.Dig (ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt)),
+      A.Bounded q →
+        (prH fun (G : Exec.QB Lq → Exec.Dig) =>
+            (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (OC.runLog G A).1.1
+                  (OC.runLog G A).1.2 =
+                true ∧
+              ¬ProtocolClassify.EpOk (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base) G
+                  (OC.runLog G A).1.1 (E (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2)) ≤
+          εep q
+  ZK60.ProtocolClassify.ClassifyOpen.zk : ZeroKnowledge (TokenRun.classifyModel S R)
+      (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base) εzk
+constructor:
+  ZK60.ProtocolClassify.ClassifyOpen.mk {S : Block.BlockShape} {Hdr Salt Coins : Type} [Fintype Coins] [Nonempty Coins]
+    [Inhabited Coins] {K : Type} [Field K] [Algebra Circuit.GF K] {R : TokenRun.ClassifyRunPublic S} {Lq : ℕ}
+    {V : ProtocolClassify.RunV Hdr} {P : ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins}
+    {Cin : Exec.PlaneCommit (S.Tok → ℕ) (ProtocolClassify.ClsStmt Hdr) Salt} {h64 : 64 ≤ Lq} {hr : 8 * Cin.R ≤ Lq}
+    {hon : ProtocolClassify.HonestIn Coins Cin} {U : K} {ι : Type} [Fintype ι]
+    {site : (S.Tok → ℕ) → ι → ProtocolClassify.Site (Exec.QB Lq) Coins K} {kOf : ι → ℕ} {δOf : ι → ENNReal}
+    {E :
+      List (Exec.QB Lq × Exec.Dig) →
+        ProtocolClassify.ClsStmt Hdr → ProtocolClassify.ClsReceipt → ProtocolClassify.RunExt S Salt}
+    {εin εblk εout εep : ℕ → ENNReal} {εzk : ℕ → ℕ → ENNReal} (shape : S.Valid) (weights : ∀ B ∈ R.Ps, B.Valid)
+    (inPub : R.inp.Valid) (outPub : R.out.Valid) (blocks : 0 < R.Ps.length ∧ V.L = R.Ps.length)
+    (commit :
+      (∀ (x : S.Tok → ℕ), (∀ (t : S.Tok), x t < Circuit.gP) → Cin.ok x) ∧
+        Cin.N ≤ 2 ^ Cin.depth ∧ (∀ (s : ProtocolClassify.ClsStmt Hdr), Cin.root s = s.inRoot) ∧ Cin.depth ≤ 64)
+    (policy : V.preA P.hdr = Except.ok () ∧ V.preB P.hdr = Except.ok ())
+    (parts :
+      List.Forall₂
+        (ProtocolClassify.SegComplete (TokenRun.classifyModel S R).admissible Exec.liftH
+          (ProtocolClassify.clsStmtOf R Lq P Cin h64 hr hon.base))
+        (P.parts V.L) V.parts)
+    (refuse :
+      ∀ (x : (TokenRun.classifyModel S R).Input),
+        (TokenRun.classifyModel S R).admissible x →
+          ∀ (G : Exec.QB Lq → Exec.Dig) (c : Coins),
+            (∀ (i : ι), ¬ProtocolClassify.Site.fires U (site x i) G c) →
+              ∃ (r : List (List UInt8) × ProtocolClassify.Carry × Exec.Tr),
+                ProtocolClassify.honestSegs V P (Exec.liftH G)
+                    (ProtocolClassify.honestRoot Cin Lq h64 hr G x (hon.base c)) ((TokenRun.classifySpec R x).getD 0) x
+                    c =
+                  Except.ok r)
+    (counts :
+      (∀ (x : S.Tok → ℕ) (i : ι), (site x i).k ≤ kOf i) ∧
+        (∀ (x : S.Tok → ℕ) (i : ι), (site x i).δ ≤ δOf i) ∧ ∑ i : ι, kOf i ≤ 2 ^ 85 ∧ ∑ i : ι, δOf i ≤ 2⁻¹ ^ 41)
+    (extIn :
+      ∀ (q : ℕ) (A : OC (Exec.QB Lq) Exec.Dig (ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt)),
+        A.Bounded q →
+          (prH fun (G : Exec.QB Lq → Exec.Dig) =>
+              (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (OC.runLog G A).1.1
+                    (OC.runLog G A).1.2 =
+                  true ∧
+                ¬ProtocolClassify.InOk R (E (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2)) ≤
+            εin q)
+    (extBlocks :
+      ∀ (q : ℕ) (A : OC (Exec.QB Lq) Exec.Dig (ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt)),
+        A.Bounded q →
+          (prH fun (G : Exec.QB Lq → Exec.Dig) =>
+              (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (OC.runLog G A).1.1
+                    (OC.runLog G A).1.2 =
+                  true ∧
+                ¬ProtocolClassify.BlocksOk R (E (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2)) ≤
+            εblk q)
+    (extOut :
+      ∀ (q : ℕ) (A : OC (Exec.QB Lq) Exec.Dig (ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt)),
+        A.Bounded q →
+          (prH fun (G : Exec.QB Lq → Exec.Dig) =>
+              (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (OC.runLog G A).1.1
+                    (OC.runLog G A).1.2 =
+                  true ∧
+                ¬ProtocolClassify.OutOk R
+                    ((ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).ypub (OC.runLog G A).1.1)
+                    (E (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2)) ≤
+            εout q)
+    (extEp :
+      ∀ (q : ℕ) (A : OC (Exec.QB Lq) Exec.Dig (ProtocolClassify.ClsStmt Hdr × ProtocolClassify.ClsReceipt)),
+        A.Bounded q →
+          (prH fun (G : Exec.QB Lq → Exec.Dig) =>
+              (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base).verify G () (OC.runLog G A).1.1
+                    (OC.runLog G A).1.2 =
+                  true ∧
+                ¬ProtocolClassify.EpOk (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base) G
+                    (OC.runLog G A).1.1 (E (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2)) ≤
+            εep q)
+    (zk :
+      ZeroKnowledge (TokenRun.classifyModel S R) (ProtocolClassify.classifyProtocol S R Lq V P Cin h64 hr hon.base)
+        εzk) :
+    ProtocolClassify.ClassifyOpen R Lq V P Cin h64 hr hon U site kOf δOf E εin εblk εout εep εzk
+structure ZK60.ProtocolClassify.RtRun {Hdr : Type} (V : ProtocolClassify.RunV Hdr) (key : Option Exec.Dig)
+  (domain : List UInt8) (Lq : ℕ) : Type
+number of parameters: 5
+fields:
+  ZK60.ProtocolClassify.RtRun.hdr : ProtocolClassify.ClsStmt Hdr → List Exec.Op
+  ZK60.ProtocolClassify.RtRun.hdrLen : ℕ
+  ZK60.ProtocolClassify.RtRun.hdrSq : ℕ
+  ZK60.ProtocolClassify.RtRun.σs : List (ProtocolClassify.RtSeg (ProtocolClassify.ClsStmt Hdr))
+  ZK60.ProtocolClassify.RtRun.Inv : ℕ → ProtocolClassify.Carry → Prop
+  ZK60.ProtocolClassify.RtRun.hstart : ∀ (H : Exec.HIn → Exec.Dig) (s : ProtocolClassify.ClsStmt Hdr),
+      V.start H s = Exec.runOps H (Exec.Tr.newKeyed H domain key) (self.hdr s)
+  ZK60.ProtocolClassify.RtRun.hhdr : ∀ (s : ProtocolClassify.ClsStmt Hdr),
+      V.preA s.hdr = Except.ok () →
+        V.preB s.hdr = Except.ok () →
+          (self.hdr s).length = self.hdrLen ∧ Exec.Link.sqN (self.hdr s) = self.hdrSq ∧ ∀ op ∈ self.hdr s, op.len ≤ Lq
+  ZK60.ProtocolClassify.RtRun.hv : List.map (fun (σ : ProtocolClassify.RtSeg (ProtocolClassify.ClsStmt Hdr)) => σ.v)
+        self.σs =
+      V.parts
+  ZK60.ProtocolClassify.RtRun.hInv0 : self.Inv 0 ProtocolClassify.carry0
+  ZK60.ProtocolClassify.RtRun.hσ : ∀ (j : ℕ) (σ : ProtocolClassify.RtSeg (ProtocolClassify.ClsStmt Hdr)),
+      self.σs[j]? = some σ → σ.Holds Lq (self.Inv j) (self.Inv (j + 1))
+constructor:
+  ZK60.ProtocolClassify.RtRun.mk {Hdr : Type} {V : ProtocolClassify.RunV Hdr} {key : Option Exec.Dig}
+    {domain : List UInt8} {Lq : ℕ} (hdr : ProtocolClassify.ClsStmt Hdr → List Exec.Op) (hdrLen hdrSq : ℕ)
+    (σs : List (ProtocolClassify.RtSeg (ProtocolClassify.ClsStmt Hdr))) (Inv : ℕ → ProtocolClassify.Carry → Prop)
+    (hstart :
+      ∀ (H : Exec.HIn → Exec.Dig) (s : ProtocolClassify.ClsStmt Hdr),
+        V.start H s = Exec.runOps H (Exec.Tr.newKeyed H domain key) (hdr s))
+    (hhdr :
+      ∀ (s : ProtocolClassify.ClsStmt Hdr),
+        V.preA s.hdr = Except.ok () →
+          V.preB s.hdr = Except.ok () →
+            (hdr s).length = hdrLen ∧ Exec.Link.sqN (hdr s) = hdrSq ∧ ∀ op ∈ hdr s, op.len ≤ Lq)
+    (hv : List.map (fun (σ : ProtocolClassify.RtSeg (ProtocolClassify.ClsStmt Hdr)) => σ.v) σs = V.parts)
+    (hInv0 : Inv 0 ProtocolClassify.carry0)
+    (hσ :
+      ∀ (j : ℕ) (σ : ProtocolClassify.RtSeg (ProtocolClassify.ClsStmt Hdr)),
+        σs[j]? = some σ → σ.Holds Lq (Inv j) (Inv (j + 1))) :
+    ProtocolClassify.RtRun V key domain Lq
+structure ZK60.ProtocolClassify.RtProf : Type
+number of parameters: 0
+fields:
+  ZK60.ProtocolClassify.RtProf.hdrLen : ℕ
+  ZK60.ProtocolClassify.RtProf.hdrSq : ℕ
+  ZK60.ProtocolClassify.RtProf.parts : List ProtocolClassify.RtPart
+constructor:
+  ZK60.ProtocolClassify.RtProf.mk (hdrLen hdrSq : ℕ) (parts : List ProtocolClassify.RtPart) : ProtocolClassify.RtProf
+structure ZK60.ProtocolClassify.RtProf.Valid (pf : ProtocolClassify.RtProf) : Prop
+number of parameters: 1
+fields:
+  ZK60.ProtocolClassify.RtProf.Valid.hdr : 0 < pf.hdrLen
+  ZK60.ProtocolClassify.RtProf.Valid.pos : ∀ n ∈ pf.sqs, 0 < n
+  ZK60.ProtocolClassify.RtProf.Valid.le : ∀ n ∈ pf.sqs, n ≤ 2 ^ 61
+  ZK60.ProtocolClassify.RtProf.Valid.sq : pf.sqs.sum < 2 ^ 64
+  ZK60.ProtocolClassify.RtProf.Valid.len : pf.len ≤ 2 ^ 21
+constructor:
+  ZK60.ProtocolClassify.RtProf.Valid.mk {pf : ProtocolClassify.RtProf} (hdr : 0 < pf.hdrLen) (pos : ∀ n ∈ pf.sqs, 0 < n)
+    (le : ∀ n ∈ pf.sqs, n ≤ 2 ^ 61) (sq : pf.sqs.sum < 2 ^ 64) (len : pf.len ≤ 2 ^ 21) : pf.Valid
+structure ZK60.ProtocolClassify.RtKData (K : Type) (Lq : ℕ) : Type
+number of parameters: 2
+fields:
+  ZK60.ProtocolClassify.RtKData.sls : ℕ → List (Exec.SlotX K Lq)
+  ZK60.ProtocolClassify.RtKData.msk : ℕ → ProtocolClassify.RtMask K Lq
+  ZK60.ProtocolClassify.RtKData.opA : ℕ → ProtocolClassify.RtOpen K Lq
+  ZK60.ProtocolClassify.RtKData.opH : ℕ → ProtocolClassify.RtOpen K Lq
+  ZK60.ProtocolClassify.RtKData.opX : ℕ → ProtocolClassify.RtOpen K Lq
+  ZK60.ProtocolClassify.RtKData.r0 : ℕ → List (Exec.SqX K Lq)
+  ZK60.ProtocolClassify.RtKData.r1 : ℕ → List (Exec.SqX K Lq)
+  ZK60.ProtocolClassify.RtKData.h0 : ℕ → List (Exec.SqX K Lq)
+  ZK60.ProtocolClassify.RtKData.h1 : ℕ → List (Exec.SqX K Lq)
+  ZK60.ProtocolClassify.RtKData.lu : ℕ → List (Exec.SqX K Lq)
+  ZK60.ProtocolClassify.RtKData.eL : ℕ
+constructor:
+  ZK60.ProtocolClassify.RtKData.mk {K : Type} {Lq : ℕ} (sls : ℕ → List (Exec.SlotX K Lq))
+    (msk : ℕ → ProtocolClassify.RtMask K Lq) (opA opH opX : ℕ → ProtocolClassify.RtOpen K Lq)
+    (r0 r1 h0 h1 lu : ℕ → List (Exec.SqX K Lq)) (eL : ℕ) : ProtocolClassify.RtKData K Lq
+structure ZK60.ProtocolClassify.RtKData.Valid {K : Type} [Fintype K] {Lq : ℕ} (D : ProtocolClassify.RtKData K Lq)
+  (absOf : Exec.QB Lq → Option (List UInt8)) (pf : ProtocolClassify.RtProf) : Prop
+number of parameters: 6
+fields:
+  ZK60.ProtocolClassify.RtKData.Valid.hK : Fintype.card K = Circuit.gP ^ 2
+  ZK60.ProtocolClassify.RtKData.Valid.slCut : ∀ i < pf.parts.length,
+      ∀ sl ∈ D.sls i, ProtocolClassify.CutReads absOf sl.stmt
+  ZK60.ProtocolClassify.RtKData.Valid.slDeg : ∀ i < pf.parts.length,
+      ∀ sl ∈ D.sls i, sl.d < Circuit.gP ∧ sl.d ≤ 7 ∧ sl.n * sl.d ≤ 7 * 370
+  ZK60.ProtocolClassify.RtKData.Valid.slWin : ∀ i < pf.parts.length,
+      ∀ (k : ℕ) (sl : Exec.SlotX K Lq),
+        (D.sls i)[k]? = some sl →
+          pf.off i ≤ Exec.slotsLenX (List.take k (D.sls i)) + sl.s ∧
+            Exec.slotsLenX (List.take k (D.sls i)) + sl.s ≤ pf.off (i + 1)
+  ZK60.ProtocolClassify.RtKData.Valid.mK : ∀ i < pf.parts.length,
+      0 < (D.msk i).k ∧ (D.msk i).k ≤ 2 ^ 20 ∧ 2 * (D.msk i).S + 2 ≤ 2 ^ 20
+  ZK60.ProtocolClassify.RtKData.Valid.mCut : ∀ i < pf.parts.length, ProtocolClassify.CutReads absOf (D.msk i).Dm
+  ZK60.ProtocolClassify.RtKData.Valid.mS : ∀ i < pf.parts.length, (D.msk i).S = (pf.part i).S
+  ZK60.ProtocolClassify.RtKData.Valid.opV : ∀ i < pf.parts.length,
+      (D.opA i).Valid absOf ∧ (D.opH i).Valid absOf ∧ (D.opX i).Valid absOf
+  ZK60.ProtocolClassify.RtKData.Valid.opW : ∀ i < pf.parts.length,
+      ((D.opA i).nC + (D.opA i).rows = (pf.part i).wA ∧ (D.opA i).mI = (pf.part i).mA) ∧
+        ((D.opH i).nC + (D.opH i).rows = (pf.part i).wH ∧ (D.opH i).mI = (pf.part i).mH) ∧
+          (D.opX i).nC + (D.opX i).rows = (pf.part i).wX ∧ (D.opX i).mI = (pf.part i).mX
+  ZK60.ProtocolClassify.RtKData.Valid.r0 : ProtocolClassify.RtSqOk absOf pf 80 (80 * 451) D.r0
+  ZK60.ProtocolClassify.RtKData.Valid.r1 : ProtocolClassify.RtSqOk absOf pf 80 (80 * 451) D.r1
+  ZK60.ProtocolClassify.RtKData.Valid.h0 : ProtocolClassify.RtSqOk absOf pf 80 (80 * 451) D.h0
+  ZK60.ProtocolClassify.RtKData.Valid.h1 : ProtocolClassify.RtSqOk absOf pf 80 (80 * 451) D.h1
+  ZK60.ProtocolClassify.RtKData.Valid.lu : ProtocolClassify.RtSqOk absOf pf D.eL (3 * D.eL) D.lu
+  ZK60.ProtocolClassify.RtKData.Valid.heL : D.eL ≤ 2 ^ 26
+constructor:
+  ZK60.ProtocolClassify.RtKData.Valid.mk {K : Type} [Fintype K] {Lq : ℕ} {D : ProtocolClassify.RtKData K Lq}
+    {absOf : Exec.QB Lq → Option (List UInt8)} {pf : ProtocolClassify.RtProf} (hK : Fintype.card K = Circuit.gP ^ 2)
+    (slCut : ∀ i < pf.parts.length, ∀ sl ∈ D.sls i, ProtocolClassify.CutReads absOf sl.stmt)
+    (slDeg : ∀ i < pf.parts.length, ∀ sl ∈ D.sls i, sl.d < Circuit.gP ∧ sl.d ≤ 7 ∧ sl.n * sl.d ≤ 7 * 370)
+    (slWin :
+      ∀ i < pf.parts.length,
+        ∀ (k : ℕ) (sl : Exec.SlotX K Lq),
+          (D.sls i)[k]? = some sl →
+            pf.off i ≤ Exec.slotsLenX (List.take k (D.sls i)) + sl.s ∧
+              Exec.slotsLenX (List.take k (D.sls i)) + sl.s ≤ pf.off (i + 1))
+    (mK : ∀ i < pf.parts.length, 0 < (D.msk i).k ∧ (D.msk i).k ≤ 2 ^ 20 ∧ 2 * (D.msk i).S + 2 ≤ 2 ^ 20)
+    (mCut : ∀ i < pf.parts.length, ProtocolClassify.CutReads absOf (D.msk i).Dm)
+    (mS : ∀ i < pf.parts.length, (D.msk i).S = (pf.part i).S)
+    (opV : ∀ i < pf.parts.length, (D.opA i).Valid absOf ∧ (D.opH i).Valid absOf ∧ (D.opX i).Valid absOf)
+    (opW :
+      ∀ i < pf.parts.length,
+        ((D.opA i).nC + (D.opA i).rows = (pf.part i).wA ∧ (D.opA i).mI = (pf.part i).mA) ∧
+          ((D.opH i).nC + (D.opH i).rows = (pf.part i).wH ∧ (D.opH i).mI = (pf.part i).mH) ∧
+            (D.opX i).nC + (D.opX i).rows = (pf.part i).wX ∧ (D.opX i).mI = (pf.part i).mX)
+    (r0 : ProtocolClassify.RtSqOk absOf pf 80 (80 * 451) D.r0)
+    (r1 : ProtocolClassify.RtSqOk absOf pf 80 (80 * 451) D.r1)
+    (h0 : ProtocolClassify.RtSqOk absOf pf 80 (80 * 451) D.h0)
+    (h1 : ProtocolClassify.RtSqOk absOf pf 80 (80 * 451) D.h1)
+    (lu : ProtocolClassify.RtSqOk absOf pf D.eL (3 * D.eL) D.lu) (heL : D.eL ≤ 2 ^ 26) : D.Valid absOf pf
+structure ZK60.ProtocolClassify.RtOpen.Valid {K : Type} {Lq : ℕ} (o : ProtocolClassify.RtOpen K Lq)
+  (absOf : Exec.QB Lq → Option (List UInt8)) : Prop
+number of parameters: 4
+fields:
+  ZK60.ProtocolClassify.RtOpen.Valid.hh : o.h ≤ 16
+  ZK60.ProtocolClassify.RtOpen.Valid.hQ0 : 0 < o.Q
+  ZK60.ProtocolClassify.RtOpen.Valid.he : 2 * o.e + (2 ^ 14 + o.Q) ≤ 2 ^ o.h
+  ZK60.ProtocolClassify.RtOpen.Valid.hw : o.nC + o.rows ≤ 2 ^ 61
+  ZK60.ProtocolClassify.RtOpen.Valid.hεB : (↑(Fintype.card (Fin (2 ^ o.h)) - (o.e + 1)) /
+            ↑(Fintype.card (Fin (2 ^ o.h)))) ^
+          o.Q *
+        1 ≤
+      2⁻¹ ^ 126
+  ZK60.ProtocolClassify.RtOpen.Valid.hcut : ProtocolClassify.CutReads absOf o.Ux
+constructor:
+  ZK60.ProtocolClassify.RtOpen.Valid.mk {K : Type} {Lq : ℕ} {o : ProtocolClassify.RtOpen K Lq}
+    {absOf : Exec.QB Lq → Option (List UInt8)} (hh : o.h ≤ 16) (hQ0 : 0 < o.Q) (he : 2 * o.e + (2 ^ 14 + o.Q) ≤ 2 ^ o.h)
+    (hw : o.nC + o.rows ≤ 2 ^ 61)
+    (hεB : (↑(Fintype.card (Fin (2 ^ o.h)) - (o.e + 1)) / ↑(Fintype.card (Fin (2 ^ o.h)))) ^ o.Q * 1 ≤ 2⁻¹ ^ 126)
+    (hcut : ProtocolClassify.CutReads absOf o.Ux) : o.Valid absOf
+structure ZK60.ProtocolClassify.XTest (F κ μ Cl : Type) [Field F] [Fintype F] [DecidableEq F] [Fintype κ]
+  [DecidableEq κ] [Fintype Cl] [DecidableEq Cl] (h : ℕ) : Type
+number of parameters: 12
+fields:
+  ZK60.ProtocolClassify.XTest.enc : (μ → F) →ₗ[F] Fin (2 ^ h) → F
+  ZK60.ProtocolClassify.XTest.d : ℕ
+  ZK60.ProtocolClassify.XTest.e : ℕ
+  ZK60.ProtocolClassify.XTest.A : ℕ
+  ZK60.ProtocolClassify.XTest.hd : Code.MinDist self.enc.range self.d
+  ZK60.ProtocolClassify.XTest.h2 : 2 * self.e < self.d
+  ZK60.ProtocolClassify.XTest.hA : self.e + 1 ≤ self.A
+  ZK60.ProtocolClassify.XTest.hAN : self.A ≤ 2 ^ h
+  ZK60.ProtocolClassify.XTest.hca : Code.CAOn Unit self.enc.range self.e self.A
+  ZK60.ProtocolClassify.XTest.d₀ : Sound.Dg
+  ZK60.ProtocolClassify.XTest.w0 : ℕ
+  ZK60.ProtocolClassify.XTest.chalLR : (Fin self.w0 → Sound.Dg) → (Cl → F) × (κ → F)
+  ZK60.ProtocolClassify.XTest.βLR : ENNReal
+  ZK60.ProtocolClassify.XTest.hLR : ∀ (Ev : (Cl → F) × (κ → F) → Prop),
+      (PMF.uniformOfFintype (Fin self.w0 → Sound.Dg)).toOuterMeasure {b : Fin self.w0 → Sound.Dg | Ev (self.chalLR b)} ≤
+        (PMF.uniformOfFintype ((Cl → F) × (κ → F))).toOuterMeasure {y : (Cl → F) × (κ → F) | Ev y} * self.βLR
+  ZK60.ProtocolClassify.XTest.m : ℕ
+  ZK60.ProtocolClassify.XTest.nQ : ℕ
+  ZK60.ProtocolClassify.XTest.chalJ : (Fin self.m → Sound.Dg) → Fin self.nQ → Fin (2 ^ h)
+  ZK60.ProtocolClassify.XTest.βJ : ENNReal
+  ZK60.ProtocolClassify.XTest.hJ : ∀ (Ev : (Fin self.nQ → Fin (2 ^ h)) → Prop),
+      (PMF.uniformOfFintype (Fin self.m → Sound.Dg)).toOuterMeasure {b : Fin self.m → Sound.Dg | Ev (self.chalJ b)} ≤
+        (PMF.uniformOfFintype (Fin self.nQ → Fin (2 ^ h))).toOuterMeasure {J : Fin self.nQ → Fin (2 ^ h) | Ev J} *
+          self.βJ
+  ZK60.ProtocolClassify.XTest.labB : List UInt8
+  ZK60.ProtocolClassify.XTest.decB : List UInt8 → Option (μ → F)
+  ZK60.ProtocolClassify.XTest.aA : ℕ
+  ZK60.ProtocolClassify.XTest.aB : ℕ
+  ZK60.ProtocolClassify.XTest.hab : self.aA ≤ self.aB
+constructor:
+  ZK60.ProtocolClassify.XTest.mk {F κ μ Cl : Type} [Field F] [Fintype F] [DecidableEq F] [Fintype κ] [DecidableEq κ]
+    [Fintype Cl] [DecidableEq Cl] {h : ℕ} (enc : (μ → F) →ₗ[F] Fin (2 ^ h) → F) (d e A : ℕ)
+    (hd : Code.MinDist enc.range d) (h2 : 2 * e < d) (hA : e + 1 ≤ A) (hAN : A ≤ 2 ^ h)
+    (hca : Code.CAOn Unit enc.range e A) (d₀ : Sound.Dg) (w0 : ℕ) (chalLR : (Fin w0 → Sound.Dg) → (Cl → F) × (κ → F))
+    (βLR : ENNReal)
+    (hLR :
+      ∀ (Ev : (Cl → F) × (κ → F) → Prop),
+        (PMF.uniformOfFintype (Fin w0 → Sound.Dg)).toOuterMeasure {b : Fin w0 → Sound.Dg | Ev (chalLR b)} ≤
+          (PMF.uniformOfFintype ((Cl → F) × (κ → F))).toOuterMeasure {y : (Cl → F) × (κ → F) | Ev y} * βLR)
+    (m nQ : ℕ) (chalJ : (Fin m → Sound.Dg) → Fin nQ → Fin (2 ^ h)) (βJ : ENNReal)
+    (hJ :
+      ∀ (Ev : (Fin nQ → Fin (2 ^ h)) → Prop),
+        (PMF.uniformOfFintype (Fin m → Sound.Dg)).toOuterMeasure {b : Fin m → Sound.Dg | Ev (chalJ b)} ≤
+          (PMF.uniformOfFintype (Fin nQ → Fin (2 ^ h))).toOuterMeasure {J : Fin nQ → Fin (2 ^ h) | Ev J} * βJ)
+    (labB : List UInt8) (decB : List UInt8 → Option (μ → F)) (aA aB : ℕ) (hab : aA ≤ aB) :
+    ProtocolClassify.XTest F κ μ Cl h
+structure ZK60.ProtocolClassify.HonestIn {V' St' Salt : Type} (Coins : Type) (C : Exec.PlaneCommit V' St' Salt) : Type
+number of parameters: 5
+fields:
+  ZK60.ProtocolClassify.HonestIn.base : Coins → Salt
+  ZK60.ProtocolClassify.HonestIn.withPaths : Salt → (Fin C.N → List Exec.Dig) → Salt
+  ZK60.ProtocolClassify.HonestIn.column_wp : ∀ (v : V') (r : Salt) (ps : Fin C.N → List Exec.Dig) (j : Fin C.N),
+      C.column v (self.withPaths r ps) j = C.column v r j
+  ZK60.ProtocolClassify.HonestIn.salt_wp : ∀ (r : Salt) (ps : Fin C.N → List Exec.Dig) (j : Fin C.N),
+      C.salt (self.withPaths r ps) j = C.salt r j
+  ZK60.ProtocolClassify.HonestIn.path_wp : ∀ (r : Salt) (ps : Fin C.N → List Exec.Dig) (j : Fin C.N),
+      C.path (self.withPaths r ps) j = ps j
+constructor:
+  ZK60.ProtocolClassify.HonestIn.mk {V' St' Salt Coins : Type} {C : Exec.PlaneCommit V' St' Salt} (base : Coins → Salt)
+    (withPaths : Salt → (Fin C.N → List Exec.Dig) → Salt)
+    (column_wp :
+      ∀ (v : V') (r : Salt) (ps : Fin C.N → List Exec.Dig) (j : Fin C.N),
+        C.column v (withPaths r ps) j = C.column v r j)
+    (salt_wp : ∀ (r : Salt) (ps : Fin C.N → List Exec.Dig) (j : Fin C.N), C.salt (withPaths r ps) j = C.salt r j)
+    (path_wp : ∀ (r : Salt) (ps : Fin C.N → List Exec.Dig) (j : Fin C.N), C.path (withPaths r ps) j = ps j) :
+    ProtocolClassify.HonestIn Coins C
+structure ZK60.ProtocolClassify.Site (Q Coins K : Type) [Fintype Q] [DecidableEq Q] [Fintype Coins] [Nonempty Coins] :
+  Type 1
+number of parameters: 7
+fields:
+  ZK60.ProtocolClassify.Site.β : Type
+  ZK60.ProtocolClassify.Site.G : Coins → OC Q Exec.Dig (Q × self.β)
+  ZK60.ProtocolClassify.Site.bad : self.β → Finset K
+  ZK60.ProtocolClassify.Site.k : ℕ
+  ZK60.ProtocolClassify.Site.hk : ∀ (b : self.β), (self.bad b).card ≤ self.k
+  ZK60.ProtocolClassify.Site.δ : ENNReal
+  ZK60.ProtocolClassify.Site.hfresh : (prHC fun (H : Q → Exec.Dig) (c : Coins) =>
+        (OC.run H (self.G c)).1 ∈ OC.queries H (self.G c)) ≤
+      self.δ
+constructor:
+  ZK60.ProtocolClassify.Site.mk {Q Coins K : Type} [Fintype Q] [DecidableEq Q] [Fintype Coins] [Nonempty Coins]
+    (β : Type) (G : Coins → OC Q Exec.Dig (Q × β)) (bad : β → Finset K) (k : ℕ) (hk : ∀ (b : β), (bad b).card ≤ k)
+    (δ : ENNReal) (hfresh : (prHC fun (H : Q → Exec.Dig) (c : Coins) => (OC.run H (G c)).1 ∈ OC.queries H (G c)) ≤ δ) :
+    ProtocolClassify.Site Q Coins K
+structure ZK60.ProtocolClassify.RunV (Hdr : Type) : Type 1
+number of parameters: 1
+fields:
+  ZK60.ProtocolClassify.RunV.L : ℕ
+  ZK60.ProtocolClassify.RunV.preA : Hdr → Except String Unit
+  ZK60.ProtocolClassify.RunV.preB : Hdr → Except String Unit
+  ZK60.ProtocolClassify.RunV.start : (Exec.HIn → Exec.Dig) → ProtocolClassify.ClsStmt Hdr → Exec.Tr
+  ZK60.ProtocolClassify.RunV.inC : ProtocolClassify.StageInV (ProtocolClassify.ClsStmt Hdr)
+  ZK60.ProtocolClassify.RunV.blk : ProtocolClassify.BlockProfV (ProtocolClassify.ClsStmt Hdr)
+  ZK60.ProtocolClassify.RunV.outC : ProtocolClassify.StageOutV (ProtocolClassify.ClsStmt Hdr)
+constructor:
+  ZK60.ProtocolClassify.RunV.mk {Hdr : Type} (L : ℕ) (preA preB : Hdr → Except String Unit)
+    (start : (Exec.HIn → Exec.Dig) → ProtocolClassify.ClsStmt Hdr → Exec.Tr)
+    (inC : ProtocolClassify.StageInV (ProtocolClassify.ClsStmt Hdr))
+    (blk : ProtocolClassify.BlockProfV (ProtocolClassify.ClsStmt Hdr))
+    (outC : ProtocolClassify.StageOutV (ProtocolClassify.ClsStmt Hdr)) : ProtocolClassify.RunV Hdr
+structure ZK60.ProtocolClassify.RunP (Hdr X Coins : Type) : Type
+number of parameters: 3
+fields:
+  ZK60.ProtocolClassify.RunP.hdr : Hdr
+  ZK60.ProtocolClassify.RunP.inC : ProtocolClassify.SegP (ProtocolClassify.ClsStmt Hdr) X Coins
+  ZK60.ProtocolClassify.RunP.blk : ℕ → ProtocolClassify.SegP (ProtocolClassify.ClsStmt Hdr) X Coins
+  ZK60.ProtocolClassify.RunP.outC : ProtocolClassify.SegP (ProtocolClassify.ClsStmt Hdr) X Coins
+  ZK60.ProtocolClassify.RunP.refused : ProtocolClassify.ClsStmt Hdr
+constructor:
+  ZK60.ProtocolClassify.RunP.mk {Hdr X Coins : Type} (hdr : Hdr)
+    (inC : ProtocolClassify.SegP (ProtocolClassify.ClsStmt Hdr) X Coins)
+    (blk : ℕ → ProtocolClassify.SegP (ProtocolClassify.ClsStmt Hdr) X Coins)
+    (outC : ProtocolClassify.SegP (ProtocolClassify.ClsStmt Hdr) X Coins) (refused : ProtocolClassify.ClsStmt Hdr) :
+    ProtocolClassify.RunP Hdr X Coins
+structure ZK60.Exec.PlaneCommit (V St Salt : Type) : Type
+number of parameters: 3
+fields:
+  ZK60.Exec.PlaneCommit.n : ℕ
+  ZK60.Exec.PlaneCommit.Q : ℕ
+  ZK60.Exec.PlaneCommit.N : ℕ
+  ZK60.Exec.PlaneCommit.R : ℕ
+  ZK60.Exec.PlaneCommit.dR : ℕ
+  ZK60.Exec.PlaneCommit.hn : 0 < self.n
+  ZK60.Exec.PlaneCommit.hNQ : self.n + self.Q ≤ self.N
+  ZK60.Exec.PlaneCommit.form : Exec.RowForm Circuit.GF self.n
+  ZK60.Exec.PlaneCommit.pts : Fin self.N → Circuit.GF
+  ZK60.Exec.PlaneCommit.hpts : Function.Injective self.pts
+  ZK60.Exec.PlaneCommit.ok : V → Prop
+  ZK60.Exec.PlaneCommit.plane : V → Fin self.dR → Fin self.n → Circuit.GF
+  ZK60.Exec.PlaneCommit.plane_inj : ∀ (v v' : V), self.ok v → self.ok v' → self.plane v = self.plane v' → v = v'
+  ZK60.Exec.PlaneCommit.place : Fin self.dR → Fin self.R
+  ZK60.Exec.PlaneCommit.msg : V → Salt → Fin self.R → Fin self.n → Circuit.GF
+  ZK60.Exec.PlaneCommit.msg_place : ∀ (v : V) (r : Salt) (k : Fin self.dR), self.msg v r (self.place k) = self.plane v k
+  ZK60.Exec.PlaneCommit.pad : Salt → Fin self.R → Fin self.Q → Circuit.GF
+  ZK60.Exec.PlaneCommit.salt : Salt → Fin self.N → Exec.Dig
+  ZK60.Exec.PlaneCommit.path : Salt → Fin self.N → List Exec.Dig
+  ZK60.Exec.PlaneCommit.root : St → Exec.Dig
+  ZK60.Exec.PlaneCommit.tag : Exec.MTag
+  ZK60.Exec.PlaneCommit.depth : ℕ
+constructor:
+  ZK60.Exec.PlaneCommit.mk {V St Salt : Type} (n Q N R dR : ℕ) (hn : 0 < n) (hNQ : n + Q ≤ N)
+    (form : Exec.RowForm Circuit.GF n) (pts : Fin N → Circuit.GF) (hpts : Function.Injective pts) (ok : V → Prop)
+    (plane : V → Fin dR → Fin n → Circuit.GF) (plane_inj : ∀ (v v' : V), ok v → ok v' → plane v = plane v' → v = v')
+    (place : Fin dR → Fin R) (msg : V → Salt → Fin R → Fin n → Circuit.GF)
+    (msg_place : ∀ (v : V) (r : Salt) (k : Fin dR), msg v r (place k) = plane v k)
+    (pad : Salt → Fin R → Fin Q → Circuit.GF) (salt : Salt → Fin N → Exec.Dig) (path : Salt → Fin N → List Exec.Dig)
+    (root : St → Exec.Dig) (tag : Exec.MTag) (depth : ℕ) : Exec.PlaneCommit V St Salt
+def ZK60.Exec.R13.r13TokenCommit : {T St Salt : Type} →
+  (R dR : ℕ) →
+    {pos : T → Fin dR × Fin (2 ^ 14)} →
+      Function.Injective pos →
+        (place : Fin dR → Fin R) →
+          (msg : (T → ℕ) → Salt → Fin R → Fin (2 ^ 14) → Circuit.GF) →
+            (∀ (v : T → ℕ) (r : Salt) (k : Fin dR), msg v r (place k) = Exec.posPlane pos v k) →
+              (Salt → Fin R → Fin 256 → Circuit.GF) →
+                (Salt → Fin (2 ^ 16) → Exec.Dig) →
+                  (Salt → Fin (2 ^ 16) → List Exec.Dig) →
+                    (St → Exec.Dig) → Exec.MTag → Exec.PlaneCommit (T → ℕ) St Salt :=
+fun {T St Salt : Type} (R dR : ℕ) {pos : T → Fin dR × Fin (2 ^ 14)} (hpos : Function.Injective pos)
+    (place : Fin dR → Fin R) (msg : (T → ℕ) → Salt → Fin R → Fin (2 ^ 14) → Circuit.GF)
+    (msg_place : ∀ (v : T → ℕ) (r : Salt) (k : Fin dR), msg v r (place k) = Exec.posPlane pos v k)
+    (pad : Salt → Fin R → Fin 256 → Circuit.GF) (salt : Salt → Fin (2 ^ 16) → Exec.Dig)
+    (path : Salt → Fin (2 ^ 16) → List Exec.Dig) (root : St → Exec.Dig) (tag : Exec.MTag) =>
+  Exec.R13.r13PlaneCommit R dR (fun (x : T → ℕ) => ∀ (t : T), x t < Circuit.gP) (Exec.posPlane pos) ⋯ place msg
+    msg_place pad salt path root tag
+def ZK60.ProtocolClassify.classifyProtocolU : {Hdr Salt Coins : Type} →
+  (S : Block.BlockShape) →
+    (R : TokenRun.ClassifyRunPublic S) →
+      (Lq : ℕ) →
+        ProtocolClassify.RunV Hdr →
+          ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins →
+            (Cin : Exec.PlaneCommit (S.Tok → ℕ) (ProtocolClassify.ClsStmt Hdr) Salt) →
+              64 ≤ Lq →
+                8 * Cin.R ≤ Lq →
+                  (Coins → Salt) → ℕ → Protocol (Exec.QB Lq) Exec.Dig Coins (TokenRun.classifyModel S R) :=
+fun {Hdr Salt Coins : Type} (S : Block.BlockShape) (R : TokenRun.ClassifyRunPublic S) (Lq : ℕ)
+    (V : ProtocolClassify.RunV Hdr) (P : ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins)
+    (Cin : Exec.PlaneCommit (S.Tok → ℕ) (ProtocolClassify.ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq) (hr : 8 * Cin.R ≤ Lq)
+    (base : Coins → Salt) (e : ℕ) =>
+  { Stmt := ProtocolClassify.ClsStmt Hdr, Receipt := ProtocolClassify.ClsReceipt, Salt := Salt,
+    Leak := ProtocolClassify.ClsLeak, leak := ProtocolClassify.clsLeak S R,
+    ypub := fun (s : ProtocolClassify.ClsStmt Hdr) => s.verdict,
+    opensIn :=
+      fun (G : Exec.QB Lq → Exec.Dig) (s : ProtocolClassify.ClsStmt Hdr) (x : (TokenRun.classifyModel S R).Input)
+        (r : Salt) =>
+      Cin.OpensU Lq h64 hr e G s x r,
+    opensOut :=
+      fun (G : Exec.QB Lq → Exec.Dig) (s : ProtocolClassify.ClsStmt Hdr) (y : (TokenRun.classifyModel S R).HidOut)
+        (r : Salt) =>
+      Exec.opensUnit G s y r,
+    prove :=
+      fun (G : Exec.QB Lq → Exec.Dig) (x : (TokenRun.classifyModel S R).Weights)
+        (x_1 : (TokenRun.classifyModel S R).Input) (c : Coins) =>
+      ProtocolClassify.runProve V P (TokenRun.classifyModel S R).admissible (Exec.liftH G)
+        (ProtocolClassify.honestRoot Cin Lq h64 hr G x_1 (base c)) ((TokenRun.classifySpec R x_1).getD 0) x_1 c,
+    verify :=
+      fun (G : Exec.QB Lq → Exec.Dig) (x : (TokenRun.classifyModel S R).Weights) (s : ProtocolClassify.ClsStmt Hdr)
+        (rc : ProtocolClassify.ClsReceipt) =>
+      ProtocolClassify.okB (ProtocolClassify.classifyVerifyE V (Exec.liftH G) s rc) }
+def ZK60.TokenRun.classifyModel : (S : Block.BlockShape) → TokenRun.ClassifyRunPublic S → IntModel :=
+fun (S : Block.BlockShape) (R : TokenRun.ClassifyRunPublic S) =>
+  { Weights := Unit, Input := S.Tok → ℕ, Output := ℕ, PubOut := ℕ, HidOut := Unit,
+    admissible := fun (toks : S.Tok → ℕ) => ∃ (b : ℕ), TokenRun.classifySpec R toks = some b,
+    forward := fun (x : Unit) (toks : S.Tok → ℕ) => (TokenRun.classifySpec R toks).getD 0,
+    publicPart := fun (b : ℕ) => b, hiddenPart := fun (x : ℕ) => () }
+@[reducible] def ZK60.ProtocolClassify.AliveOrd : {Lq : ℕ} →
+  {α : Type} →
+    {tr : (Exec.QB Lq → Exec.Dig) → α → List (Exec.TItem × Exec.Dig)} →
+      List (ProtocolClassify.KindRun tr) → ℕ → List (Exec.QB Lq × Exec.Dig) → List (Exec.TItem × Exec.Dig) → Prop :=
+fun {Lq : ℕ} {α : Type} {tr : (Exec.QB Lq → Exec.Dig) → α → List (Exec.TItem × Exec.Dig)}
+    (Ks : List (ProtocolClassify.KindRun tr)) (n : ℕ) (lg : List (Exec.QB Lq × Exec.Dig))
+    (τ : List (Exec.TItem × Exec.Dig)) =>
+  ∀ (j : ℕ) (K : ProtocolClassify.KindRun tr),
+    Ks[j]? = some K →
+      (∀ (j' : ℕ) (K' : ProtocolClassify.KindRun tr), j' < j → Ks[j']? = some K' → ¬K'.Dm n lg τ) → K.Al n lg τ
+def ZK60.ProtocolClassify.EvXR : Exec.MTag →
+  (L : ℕ) →
+    64 ≤ L →
+      {α : Type} →
+        Sound.ChainEnc (Exec.ItB L) (Exec.QB L) Exec.Dig →
+          ℕ →
+            ℕ →
+              ℕ →
+                ℕ →
+                  ℕ →
+                    ℕ →
+                      ℕ →
+                        (α → ℕ → List Exec.Op × Exec.Block.Core) →
+                          (α → OC (Exec.QB L) Exec.Dig Unit) →
+                            (α → List Exec.Dig) → OC (Exec.QB L) Exec.Dig α → (Exec.QB L → Exec.Dig) → Prop :=
+fun (tag : Exec.MTag) (L : ℕ) (h64 : 64 ≤ L) {α : Type} (C : Sound.ChainEnc (Exec.ItB L) (Exec.QB L) Exec.Dig)
+    (nA nH nM dA dH dM n : ℕ) (coreOf : α → ℕ → List Exec.Op × Exec.Block.Core) (Vx : α → OC (Exec.QB L) Exec.Dig Unit)
+    (rx : α → List Exec.Dig) (A : OC (Exec.QB L) Exec.Dig α) (G : Exec.QB L → Exec.Dig) =>
+  ∃ r ∈ ProtocolClassify.runRoots n coreOf rx (OC.run G A),
+    ∃ (h : ℕ) (j : ℕ) (o : Sound.MerkleOpening Exec.Dig Exec.Dig (Exec.Link.ColV L)),
+      (Exec.Link.merkleEncV tag L h64).Opens G h r j o ∧
+        (∀ v ∈ (Exec.Link.merkleEncV tag L h64).openQs G j o,
+            v ∈ OC.queries G (A.bind (ProtocolClassify.runV tag L h64 nA nH nM dA dH dM n coreOf Vx))) ∧
+          (Exec.Link.merkleEncV tag L h64).extractCol (Exec.cutAt (Exec.absD C) r (OC.runLog G A).2) h j r ≠ some o.col
+ZK60.ProtocolClassify.rt_productionReady_r13: 3029 ZK60 constants in the closure
+  ZK60.ProtocolClassify.ClassifyOpen.extIn in closure: false
+  ZK60.ProtocolClassify.ClassifyOpen.extBlocks in closure: false
+  ZK60.ProtocolClassify.ClassifyOpen.extOut in closure: false
+  ZK60.ProtocolClassify.ClassifyOpen.extEp in closure: false
+  ZK60.ProtocolClassify.ClassifyOpen.zk in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.parts in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.refuse in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.counts in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.shape in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.weights in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.inPub in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.outPub in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.blocks in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.commit in closure: true
+  ZK60.ProtocolClassify.ClassifyOpen.policy in closure: true
+  ZK60.Exec.Block.block_knowledge_final_r13_shield in closure: false
+  ZK60.Exec.Block.block_knowledge_final_r13 in closure: false
+  ZK60.Exec.Block.block_knowledge_final_w16r2 in closure: false
+  ZK60.TokenRun.classifyRun_circuitIff in closure: true
+  ZK60.ProtocolClassify.classify_complete_target in closure: true
+  ZK60.ProtocolClassify.rtRunClassify in closure: false
+  ZK60.ProtocolClassify.rt_hwin in closure: false
+  ZK60.ProtocolClassify.classify_productionReady in closure: false
+  ZK60.ProtocolClassify.classifyU_productionReady_ep_target in closure: true
+  ZK60.Assembly.semanticHiding_of_zeroKnowledge in closure: true
+  ZK60.Exec.encLin_caOn in closure: true
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_a_statements.lean (6 s)
+rc 0, 6 s

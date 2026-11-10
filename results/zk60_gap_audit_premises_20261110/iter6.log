@@ -1,0 +1,15 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/plan6.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_e_discharge.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean ==
+'GapAudit.gap_rtInc_counts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_rtInc_never_accepts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_rtRunClassify_never_accepts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_rtOutc_counts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_route_inconsistent' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_d_rtinc.lean (4 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_e_discharge.lean ==
+'GapAudit.gap_o6_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_xtest_code_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_e_discharge.lean (17 s)
+rc 0, 17 s

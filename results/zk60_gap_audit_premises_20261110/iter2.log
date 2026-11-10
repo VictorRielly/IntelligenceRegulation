@@ -1,0 +1,1759 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/plan2.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_a2_full.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_b_probes.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_a2_full.lean ==
+@ZK60.ProtocolClassify.rt_productionReady_r13 : ∀ {S : ZK60.Block.BlockShape} {Hdr Salt Coins : Type}
+  [inst : Fintype Coins] [inst_1 : Nonempty Coins] [inst_2 : Inhabited Coins] {K : Type} [inst_3 : Field K]
+  [inst_4 : Fintype K] [inst_5 : DecidableEq K] [inst_6 : Algebra ZK60.Circuit.GF K] (Rr dR : ℕ)
+  {pos : S.Tok → Fin dR × Fin (2 ^ 14)} (hpos : Function.Injective pos) (place : Fin dR → Fin Rr)
+  (msg : (S.Tok → ℕ) → Salt → Fin Rr → Fin (2 ^ 14) → ZK60.Circuit.GF)
+  (msg_place : ∀ (v : S.Tok → ℕ) (r : Salt) (k : Fin dR), msg v r (place k) = ZK60.Exec.posPlane pos v k)
+  (pad : Salt → Fin Rr → Fin 256 → ZK60.Circuit.GF) (salt : Salt → Fin (2 ^ 16) → ZK60.Exec.Dig)
+  (path : Salt → Fin (2 ^ 16) → List ZK60.Exec.Dig) (tagc : ZK60.Exec.MTag) (Rp : ZK60.TokenRun.ClassifyRunPublic S)
+  (Lq : ℕ) (V : ZK60.ProtocolClassify.RunV Hdr) (P : ZK60.ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins) (h64 : 64 ≤ Lq)
+  (hr :
+    8 *
+        (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ZK60.ProtocolClassify.ClsStmt.inRoot
+            tagc).R ≤
+      Lq)
+  (hon :
+    ZK60.ProtocolClassify.HonestIn Coins
+      (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ZK60.ProtocolClassify.ClsStmt.inRoot
+        tagc))
+  (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 U)) (key : Option ZK60.Exec.Dig) (domain : List UInt8)
+  (hs : ZK60.Exec.decodeLink (ZK60.Exec.startMsg domain) = none) (hL : (ZK60.Exec.startMsg domain).length ≤ Lq)
+  (hL64 : Lq < 2 ^ 64) (Rn : ZK60.ProtocolClassify.RtRun V key domain Lq) (hv : Rn.pf.Valid)
+  (D : ZK60.ProtocolClassify.RtKData K Lq)
+  (hD : D.Valid (ZK60.Exec.Block.absOfC (ZK60.Exec.chainEncB key domain hs Lq hL)) Rn.pf) {ι : Type}
+  [inst_7 : Fintype ι] (site : (S.Tok → ℕ) → ι → ZK60.ProtocolClassify.Site (ZK60.Exec.QB Lq) Coins K) (kOf : ι → ℕ)
+  (δOf : ι → ENNReal)
+  (E :
+    List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+      ZK60.ProtocolClassify.ClsStmt Hdr → ZK60.ProtocolClassify.ClsReceipt → ZK60.ProtocolClassify.RunExt S Salt)
+  {εin εblk εout εep : ℕ → ENNReal} {εzk : ℕ → ℕ → ENNReal},
+  ZK60.ProtocolClassify.ClassifyOpen Rp Lq V P
+      (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place pad salt path ZK60.ProtocolClassify.ClsStmt.inRoot
+        tagc)
+      h64 hr hon U site kOf δOf E εin εblk εout εep εzk →
+    ∀ {F Cl : Type} [inst_8 : Field F] [inst_9 : Fintype F] [inst_10 : DecidableEq F]
+      [inst_11 : Algebra ZK60.Circuit.GF F] [inst_12 : Fintype Cl] [inst_13 : DecidableEq Cl]
+      (T : ZK60.ProtocolClassify.XTest F (Fin Rr) (Fin (2 ^ 14 + 256)) Cl 16),
+      T.enc =
+          ZK60.Exec.encLin (fun (j : Fin (2 ^ 16)) => (algebraMap ZK60.Circuit.GF F) (ZK60.Exec.R13.r13Pts j))
+            (ZK60.Exec.rowFormK14 F) →
+        Rn.pf.hdrLen ≤ T.aA →
+          Rn.pf.hdrLen ≤ T.aB →
+            ∀
+              (Ux :
+                List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+                  List (ZK60.Exec.TItem × ZK60.Exec.Dig) → Fin Rr → Fin (2 ^ 16) → F)
+              (Xx :
+                List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+                  List (ZK60.Exec.TItem × ZK60.Exec.Dig) → Finset (Fin (2 ^ 16))),
+              ZK60.ProtocolClassify.CutReads
+                  (ZK60.Exec.Block.absOfC (ZK60.ProtocolClassify.rtRC2 key domain hs Lq hL Rn.pf Rn.rd hL64 hv).C) Ux →
+                ZK60.ProtocolClassify.CutReads
+                    (ZK60.Exec.Block.absOfC (ZK60.ProtocolClassify.rtRC2 key domain hs Lq hL Rn.pf Rn.rd hL64 hv).C)
+                    Xx →
+                  ∀ pr ≤ 2 ^ 64,
+                    2 ^ 64 - 2 ^ 32 ≤ pr →
+                      Fintype.card F = pr ^ 2 →
+                        T.w0 ≤ 2 ^ 61 →
+                          T.βLR = (1 + ↑pr / ↑(2 ^ 128)) ^ (2 * T.w0) →
+                            T.e = 24448 →
+                              T.nQ = 256 →
+                                T.βJ = 1 →
+                                  ∀ (tag : ZK60.Exec.MTag)
+                                    (C : ZK60.Sound.ChainEnc (ZK60.Exec.ItB Lq) (ZK60.Exec.QB Lq) ZK60.Exec.Dig)
+                                    (coreOf :
+                                      ZK60.ProtocolClassify.ClsStmt Hdr × ZK60.ProtocolClassify.ClsReceipt →
+                                        ℕ → List ZK60.Exec.Op × ZK60.Exec.Block.Core)
+                                    (Vx :
+                                      ZK60.ProtocolClassify.ClsStmt Hdr × ZK60.ProtocolClassify.ClsReceipt →
+                                        ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig Unit)
+                                    (nx : ℕ),
+                                    (∀ (o : ZK60.ProtocolClassify.ClsStmt Hdr × ZK60.ProtocolClassify.ClsReceipt),
+                                        (Vx o).Bounded nx) →
+                                      nx ≤ 3800000 →
+                                        ∀
+                                          (rx :
+                                            ZK60.ProtocolClassify.ClsStmt Hdr × ZK60.ProtocolClassify.ClsReceipt →
+                                              List ZK60.Exec.Dig)
+                                          (nrx : ℕ),
+                                          (∀ (o : ZK60.ProtocolClassify.ClsStmt Hdr × ZK60.ProtocolClassify.ClsReceipt),
+                                              (rx o).length ≤ nrx) →
+                                            nrx ≤ 2 ^ 99 →
+                                              (∀
+                                                  (A :
+                                                    ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                      (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                        ZK60.ProtocolClassify.ClsReceipt))
+                                                  (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig),
+                                                  (ZK60.ProtocolClassify.classifyProtocolU S Rp Lq V P
+                                                            (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                              pad salt path ZK60.ProtocolClassify.ClsStmt.inRoot tagc)
+                                                            h64 hr hon.base 24448).verify
+                                                        G () (ZK60.OC.runLog G A).1.1 (ZK60.OC.runLog G A).1.2 =
+                                                      true →
+                                                    ¬ZK60.ProtocolClassify.EvXR tag Lq h64 C 256 256 256 16 16 12 26
+                                                          coreOf Vx rx A G →
+                                                      ZK60.ProtocolClassify.AliveOrd
+                                                        (ZK60.ProtocolClassify.rtKo key domain hs Lq hL Rn.pf Rn.rd hL64
+                                                          hv U hbij D hD)
+                                                        (Rp.Ps.length + 2) (ZK60.OC.runLog G A).2
+                                                        (ZK60.ProtocolClassify.rtTr key domain Lq Rn.pf Rn.rd G
+                                                          (ZK60.OC.run G A))) →
+                                                (∀
+                                                    (A :
+                                                      ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                        (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                          ZK60.ProtocolClassify.ClsReceipt))
+                                                    (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig),
+                                                    (ZK60.ProtocolClassify.classifyProtocolU S Rp Lq V P
+                                                              (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                msg_place pad salt path
+                                                                ZK60.ProtocolClassify.ClsStmt.inRoot tagc)
+                                                              h64 hr hon.base 24448).verify
+                                                          G () (ZK60.OC.runLog G A).1.1 (ZK60.OC.runLog G A).1.2 =
+                                                        true →
+                                                      ¬ZK60.ProtocolClassify.EvXR tag Lq h64 C 256 256 256 16 16 12 26
+                                                            coreOf Vx rx A G →
+                                                        ¬ZK60.ProtocolClassify.InOk Rp
+                                                              (E (ZK60.OC.runLog G A).2 (ZK60.OC.runLog G A).1.1
+                                                                (ZK60.OC.runLog G A).1.2) →
+                                                          ∃
+                                                            K' ∈
+                                                              ZK60.ProtocolClassify.rtKo key domain hs Lq hL Rn.pf Rn.rd
+                                                                hL64 hv U hbij D hD,
+                                                            ∃ c ∈ K'.cs 0 (ZK60.OC.runLog G A).2,
+                                                              ZK60.Exec.EntD K'.RC.W c
+                                                                (ZK60.ProtocolClassify.rtTr key domain Lq Rn.pf Rn.rd G
+                                                                  (ZK60.OC.run G A))) →
+                                                  (∀
+                                                      (A :
+                                                        ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                          (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                            ZK60.ProtocolClassify.ClsReceipt))
+                                                      (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig) (k : ℕ)
+                                                      (hk : k < Rp.Ps.length),
+                                                      (ZK60.ProtocolClassify.classifyProtocolU S Rp Lq V P
+                                                                (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                  msg_place pad salt path
+                                                                  ZK60.ProtocolClassify.ClsStmt.inRoot tagc)
+                                                                h64 hr hon.base 24448).verify
+                                                            G () (ZK60.OC.runLog G A).1.1 (ZK60.OC.runLog G A).1.2 =
+                                                          true →
+                                                        ¬ZK60.ProtocolClassify.EvXR tag Lq h64 C 256 256 256 16 16 12 26
+                                                              coreOf Vx rx A G →
+                                                          ¬ZK60.ProtocolClassify.BlockOn Rp.Ps[k]
+                                                                ((E (ZK60.OC.runLog G A).2 (ZK60.OC.runLog G A).1.1
+                                                                      (ZK60.OC.runLog G A).1.2).planes
+                                                                  k)
+                                                                ((E (ZK60.OC.runLog G A).2 (ZK60.OC.runLog G A).1.1
+                                                                      (ZK60.OC.runLog G A).1.2).planes
+                                                                  (k + 1)) →
+                                                            ∃
+                                                              K' ∈
+                                                                ZK60.ProtocolClassify.rtKo key domain hs Lq hL Rn.pf
+                                                                  Rn.rd hL64 hv U hbij D hD,
+                                                              ∃ c ∈ K'.cs (k + 1) (ZK60.OC.runLog G A).2,
+                                                                ZK60.Exec.EntD K'.RC.W c
+                                                                  (ZK60.ProtocolClassify.rtTr key domain Lq Rn.pf Rn.rd
+                                                                    G (ZK60.OC.run G A))) →
+                                                    (∀
+                                                        (A :
+                                                          ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                            (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                              ZK60.ProtocolClassify.ClsReceipt))
+                                                        (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig),
+                                                        (ZK60.ProtocolClassify.classifyProtocolU S Rp Lq V P
+                                                                  (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                    msg_place pad salt path
+                                                                    ZK60.ProtocolClassify.ClsStmt.inRoot tagc)
+                                                                  h64 hr hon.base 24448).verify
+                                                              G () (ZK60.OC.runLog G A).1.1 (ZK60.OC.runLog G A).1.2 =
+                                                            true →
+                                                          ¬ZK60.ProtocolClassify.EvXR tag Lq h64 C 256 256 256 16 16 12
+                                                                26 coreOf Vx rx A G →
+                                                            ¬ZK60.ProtocolClassify.OutOk Rp
+                                                                  ((ZK60.ProtocolClassify.classifyProtocolU S Rp Lq V P
+                                                                        (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place
+                                                                          msg msg_place pad salt path
+                                                                          ZK60.ProtocolClassify.ClsStmt.inRoot tagc)
+                                                                        h64 hr hon.base 24448).ypub
+                                                                    (ZK60.OC.runLog G A).1.1)
+                                                                  (E (ZK60.OC.runLog G A).2 (ZK60.OC.runLog G A).1.1
+                                                                    (ZK60.OC.runLog G A).1.2) →
+                                                              ∃
+                                                                K' ∈
+                                                                  ZK60.ProtocolClassify.rtKo key domain hs Lq hL Rn.pf
+                                                                    Rn.rd hL64 hv U hbij D hD,
+                                                                ∃ c ∈ K'.cs (Rp.Ps.length + 1) (ZK60.OC.runLog G A).2,
+                                                                  ZK60.Exec.EntD K'.RC.W c
+                                                                    (ZK60.ProtocolClassify.rtTr key domain Lq Rn.pf
+                                                                      Rn.rd G (ZK60.OC.run G A))) →
+                                                      ∀
+                                                        (mk :
+                                                          (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg msg_place
+                                                              pad salt path ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                              tagc).SaltMk)
+                                                        (ops :
+                                                          List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+                                                            ZK60.ProtocolClassify.ClsStmt Hdr →
+                                                              Fin (2 ^ 16) →
+                                                                Option
+                                                                  (ZK60.Sound.MerkleOpening ZK60.Exec.Dig ZK60.Exec.Dig
+                                                                    (ZK60.Exec.ColR Rr))),
+                                                        (∀ (lg : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig))
+                                                            (s : ZK60.ProtocolClassify.ClsStmt Hdr)
+                                                            (pf : ZK60.ProtocolClassify.ClsReceipt),
+                                                            ((E lg s pf).epW = fun (t : S.Tok) =>
+                                                                ((ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                          msg_place pad salt path
+                                                                          ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                          tagc).decodeIn
+                                                                      (ops lg s) 24448).1
+                                                                  ((ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                        msg_place pad salt path
+                                                                        ZK60.ProtocolClassify.ClsStmt.inRoot tagc).place
+                                                                    (pos t).1)
+                                                                  (pos t).2) ∧
+                                                              (E lg s pf).r =
+                                                                mk.bld
+                                                                  ((ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                          msg_place pad salt path
+                                                                          ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                          tagc).decodeIn
+                                                                      (ops lg s) 24448).1
+                                                                  ((ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                          msg_place pad salt path
+                                                                          ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                          tagc).decodeIn
+                                                                      (ops lg s) 24448).2
+                                                                  ((ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                        msg_place pad salt path
+                                                                        ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                        tagc).exSalt
+                                                                    (ops lg s))
+                                                                  ((ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                        msg_place pad salt path
+                                                                        ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                        tagc).exPath
+                                                                    (ops lg s))) →
+                                                          (∀
+                                                              (A :
+                                                                ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                                  (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                                    ZK60.ProtocolClassify.ClsReceipt))
+                                                              (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig) (j : Fin (2 ^ 16))
+                                                              (o :
+                                                                ZK60.Sound.MerkleOpening ZK60.Exec.Dig ZK60.Exec.Dig
+                                                                  (ZK60.Exec.ColR Rr)),
+                                                              ops (ZK60.OC.runLog G A).2 (ZK60.OC.runLog G A).1.1 j =
+                                                                  some o →
+                                                                (ZK60.Exec.merkleEncB
+                                                                      (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                          msg_place pad salt path
+                                                                          ZK60.ProtocolClassify.ClsStmt.inRoot tagc).tag
+                                                                      Lq
+                                                                      (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                          msg_place pad salt path
+                                                                          ZK60.ProtocolClassify.ClsStmt.inRoot tagc).R
+                                                                      h64 hr).Opens
+                                                                  G
+                                                                  (ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                      msg_place pad salt path
+                                                                      ZK60.ProtocolClassify.ClsStmt.inRoot tagc).depth
+                                                                  ((ZK60.Exec.R13.r13TokenCommit Rr dR hpos place msg
+                                                                        msg_place pad salt path
+                                                                        ZK60.ProtocolClassify.ClsStmt.inRoot tagc).root
+                                                                    (ZK60.OC.runLog G A).1.1)
+                                                                  (↑j) o) →
+                                                            (∀ (lg : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig))
+                                                                (s : ZK60.ProtocolClassify.ClsStmt Hdr)
+                                                                (j : Fin (2 ^ 16))
+                                                                (o :
+                                                                  ZK60.Sound.MerkleOpening ZK60.Exec.Dig ZK60.Exec.Dig
+                                                                    (ZK60.Exec.ColR Rr)),
+                                                                ops lg s j = some o → ∀ a ∈ ↑o.col, a.Canon) →
+                                                              (∀
+                                                                  (A :
+                                                                    ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                                      (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                                        ZK60.ProtocolClassify.ClsReceipt))
+                                                                  (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig),
+                                                                  (ZK60.ProtocolClassify.classifyProtocolU S Rp Lq V P
+                                                                            (ZK60.Exec.R13.r13TokenCommit Rr dR hpos
+                                                                              place msg msg_place pad salt path
+                                                                              ZK60.ProtocolClassify.ClsStmt.inRoot tagc)
+                                                                            h64 hr hon.base 24448).verify
+                                                                        G () (ZK60.OC.runLog G A).1.1
+                                                                        (ZK60.OC.runLog G A).1.2 =
+                                                                      true →
+                                                                    ¬ZK60.ProtocolClassify.EvXR tag Lq h64 C 256 256 256
+                                                                          16 16 12 26 coreOf Vx rx A G →
+                                                                      ZK60.Exec.tRem
+                                                                            (ZK60.ProtocolClassify.rtRC2 key domain hs
+                                                                                Lq hL Rn.pf Rn.rd hL64 hv).W
+                                                                            (List.take T.aA
+                                                                              (ZK60.ProtocolClassify.rtTr key domain Lq
+                                                                                Rn.pf Rn.rd G (ZK60.OC.run G A))) =
+                                                                          some 0 ∧
+                                                                        T.aB ≤
+                                                                            (ZK60.ProtocolClassify.rtTr key domain Lq
+                                                                                Rn.pf Rn.rd G
+                                                                                (ZK60.OC.run G A)).length ∧
+                                                                          ZK60.Exec.tRem
+                                                                              (ZK60.ProtocolClassify.rtRC2 key domain hs
+                                                                                  Lq hL Rn.pf Rn.rd hL64 hv).W
+                                                                              (List.take T.aB
+                                                                                (ZK60.ProtocolClassify.rtTr key domain
+                                                                                  Lq Rn.pf Rn.rd G (ZK60.OC.run G A))) =
+                                                                            some 0) →
+                                                                (∀
+                                                                    (A :
+                                                                      ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                                        (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                                          ZK60.ProtocolClassify.ClsReceipt))
+                                                                    (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig),
+                                                                    (ZK60.ProtocolClassify.classifyProtocolU S Rp Lq V P
+                                                                              (ZK60.Exec.R13.r13TokenCommit Rr dR hpos
+                                                                                place msg msg_place pad salt path
+                                                                                ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                                tagc)
+                                                                              h64 hr hon.base 24448).verify
+                                                                          G () (ZK60.OC.runLog G A).1.1
+                                                                          (ZK60.OC.runLog G A).1.2 =
+                                                                        true →
+                                                                      ¬ZK60.ProtocolClassify.EvXR tag Lq h64 C 256 256
+                                                                            256 16 16 12 26 coreOf Vx rx A G →
+                                                                        Xx (ZK60.OC.runLog G A).2
+                                                                              (List.take T.aA
+                                                                                (ZK60.ProtocolClassify.rtTr key domain
+                                                                                  Lq Rn.pf Rn.rd G (ZK60.OC.run G A))) =
+                                                                            ZK60.Exec.exX
+                                                                              (ops (ZK60.OC.runLog G A).2
+                                                                                (ZK60.OC.runLog G A).1.1) ∧
+                                                                          Ux (ZK60.OC.runLog G A).2
+                                                                              (List.take T.aA
+                                                                                (ZK60.ProtocolClassify.rtTr key domain
+                                                                                  Lq Rn.pf Rn.rd G (ZK60.OC.run G A))) =
+                                                                            fun (i : Fin Rr) (j : Fin (2 ^ 16)) =>
+                                                                            (algebraMap ZK60.Circuit.GF F)
+                                                                              (ZK60.Exec.exU
+                                                                                (ops (ZK60.OC.runLog G A).2
+                                                                                  (ZK60.OC.runLog G A).1.1)
+                                                                                i j)) →
+                                                                  (∀
+                                                                      (A :
+                                                                        ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                                          (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                                            ZK60.ProtocolClassify.ClsReceipt))
+                                                                      (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig),
+                                                                      (ZK60.ProtocolClassify.classifyProtocolU S Rp Lq V
+                                                                                P
+                                                                                (ZK60.Exec.R13.r13TokenCommit Rr dR hpos
+                                                                                  place msg msg_place pad salt path
+                                                                                  ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                                  tagc)
+                                                                                h64 hr hon.base 24448).verify
+                                                                            G () (ZK60.OC.runLog G A).1.1
+                                                                            (ZK60.OC.runLog G A).1.2 =
+                                                                          true →
+                                                                        ¬ZK60.ProtocolClassify.EvXR tag Lq h64 C 256 256
+                                                                              256 16 16 12 26 coreOf Vx rx A G →
+                                                                          ZK60.Exec.subSt
+                                                                            (ZK60.ProtocolClassify.rtRC2 key domain hs
+                                                                                Lq hL Rn.pf Rn.rd hL64 hv).W
+                                                                            (T.cB
+                                                                              (ZK60.ProtocolClassify.rtRC2 key domain hs
+                                                                                  Lq hL Rn.pf Rn.rd hL64 hv).W
+                                                                              Ux Xx (ZK60.OC.runLog G A).2)
+                                                                            (ZK60.ProtocolClassify.rtTr key domain Lq
+                                                                              Rn.pf Rn.rd G (ZK60.OC.run G A))) →
+                                                                    (∀
+                                                                        (A :
+                                                                          ZK60.OC (ZK60.Exec.QB Lq) ZK60.Exec.Dig
+                                                                            (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                                              ZK60.ProtocolClassify.ClsReceipt))
+                                                                        (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig),
+                                                                        (ZK60.ProtocolClassify.classifyProtocolU S Rp Lq
+                                                                                  V P
+                                                                                  (ZK60.Exec.R13.r13TokenCommit Rr dR
+                                                                                    hpos place msg msg_place pad salt
+                                                                                    path
+                                                                                    ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                                    tagc)
+                                                                                  h64 hr hon.base 24448).verify
+                                                                              G () (ZK60.OC.runLog G A).1.1
+                                                                              (ZK60.OC.runLog G A).1.2 =
+                                                                            true →
+                                                                          ¬ZK60.ProtocolClassify.EvXR tag Lq h64 C 256
+                                                                                256 256 16 16 12 26 coreOf Vx rx A G →
+                                                                            (¬∀ (k : Fin dR) (i : Fin (2 ^ 14)),
+                                                                                  (¬∃ (t : S.Tok), pos t = (k, i)) →
+                                                                                    ((ZK60.Exec.R13.r13TokenCommit Rr dR
+                                                                                                hpos place msg msg_place
+                                                                                                pad salt path
+                                                                                                ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                                                tagc).decodeIn
+                                                                                            (ops (ZK60.OC.runLog G A).2
+                                                                                              (ZK60.OC.runLog G A).1.1)
+                                                                                            24448).1
+                                                                                        ((ZK60.Exec.R13.r13TokenCommit
+                                                                                              Rr dR hpos place msg
+                                                                                              msg_place pad salt path
+                                                                                              ZK60.ProtocolClassify.ClsStmt.inRoot
+                                                                                              tagc).place
+                                                                                          k)
+                                                                                        i =
+                                                                                      0) →
+                                                                              ∃
+                                                                                K' ∈
+                                                                                  ZK60.ProtocolClassify.rtKo key domain
+                                                                                    hs Lq hL Rn.pf Rn.rd hL64 hv U hbij
+                                                                                    D hD,
+                                                                                K'.Dm (Rp.Ps.length + 2)
+                                                                                  (ZK60.OC.runLog G A).2
+                                                                                  (ZK60.ProtocolClassify.rtTr key domain
+                                                                                    Lq Rn.pf Rn.rd G
+                                                                                    (ZK60.OC.run G A))) →
+                                                                      (∀ (q R' : ℕ), εzk q R' ≤ ZK60.εzkTarget q R') →
+                                                                        ZK60.ProductionReady
+                                                                          (ZK60.TokenRun.classifyModel S Rp)
+                                                                          (ZK60.TokenRun.classifyArith S Rp)
+                                                                          (ZK60.ProtocolClassify.classifyProtocolU S Rp
+                                                                            Lq V P
+                                                                            (ZK60.Exec.R13.r13TokenCommit Rr dR hpos
+                                                                              place msg msg_place pad salt path
+                                                                              ZK60.ProtocolClassify.ClsStmt.inRoot tagc)
+                                                                            h64 hr hon.base 24448)
+                                                                          ZK60.εcTarget ZK60.εsTarget ZK60.εsTarget
+                                                                          ZK60.εzkTarget
+@ZK60.ProtocolClassify.classifyUExec_productionReady_run_r13 : ∀ {S : ZK60.Block.BlockShape} {Hdr Salt Coins : Type}
+  [inst : Fintype Coins] [inst_1 : Nonempty Coins] [inst_2 : Inhabited Coins] {K : Type} [inst_3 : Field K]
+  [DecidableEq K] [inst_5 : Algebra ZK60.Circuit.GF K] (R : ZK60.TokenRun.ClassifyRunPublic S) (Lq Lb : ℕ)
+  (preA preB : Hdr → Except String Unit)
+  (start : (ZK60.Exec.HIn → ZK60.Exec.Dig) → ZK60.ProtocolClassify.ClsStmt Hdr → ZK60.Exec.Tr)
+  (inc : Hdr → ZK60.Exec.StageV.IncV) (incG : Hdr → ZK60.Exec.StageV.StageGeom)
+  (blk : ZK60.ProtocolClassify.BlockProfV (ZK60.ProtocolClassify.ClsStmt Hdr)) (outc : Hdr → ℕ → ZK60.Exec.StageV.OutcV)
+  (outcG : Hdr → ZK60.Exec.StageV.StageGeom) (P : ZK60.ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins)
+  (Cin : ZK60.Exec.PlaneCommit (S.Tok → ℕ) (ZK60.ProtocolClassify.ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq)
+  (hr : 8 * Cin.R ≤ Lq) (hon : ZK60.ProtocolClassify.HonestIn Coins Cin) (U : K),
+  Function.Bijective (ZK60.Hiding.fp2 U) →
+    ∀ {ι : Type} [inst_6 : Fintype ι] (site : (S.Tok → ℕ) → ι → ZK60.ProtocolClassify.Site (ZK60.Exec.QB Lq) Coins K)
+      (kOf : ι → ℕ) (δOf : ι → ENNReal)
+      (E :
+        List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+          ZK60.ProtocolClassify.ClsStmt Hdr → ZK60.ProtocolClassify.ClsReceipt → ZK60.ProtocolClassify.RunExt S Salt)
+      {εin εblk εout εep : ℕ → ENNReal} {εzk : ℕ → ℕ → ENNReal},
+      ZK60.ProtocolClassify.ClassifyOpen R Lq (ZK60.Exec.StageV.classifyRunV Lb preA preB start inc incG blk outc outcG)
+          P Cin h64 hr hon U site kOf δOf E εin εblk εout εep εzk →
+        ∀ (e : ℕ),
+          2 * e + (Cin.n + Cin.Q) ≤ Cin.N →
+            Cin.N ≤ 2 ^ 20 →
+              ∀
+                (tr :
+                  (ZK60.Exec.QB Lq → ZK60.Exec.Dig) →
+                    ZK60.ProtocolClassify.ClsStmt Hdr × ZK60.ProtocolClassify.ClsReceipt →
+                      List (ZK60.Exec.TItem × ZK60.Exec.Dig))
+                (Ksl KM KA KB KR₀ KR₁ KH₀ KH₁ KLU : ZK60.ProtocolClassify.KindRun tr),
+                (∀ K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU], K'.RC.ℓ ≤ 2 ^ 21) →
+                  (∀ K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU], K'.np = R.Ps.length + 2) →
+                    Ksl.SqForm 7 (7 * 370) →
+                      KM.PowForm 3 106 →
+                        KA.PowForm 1 110 →
+                          KB.PowForm 1 126 →
+                            KR₀.SqForm 80 (80 * 451) →
+                              KR₁.SqForm 80 (80 * 451) →
+                                KH₀.SqForm 80 (80 * 451) →
+                                  KH₁.SqForm 80 (80 * 451) →
+                                    ∀ eL ≤ 2 ^ 26,
+                                      KLU.SqForm eL (3 * eL) →
+                                        ∀ (Ko : List (ZK60.ProtocolClassify.KindRun tr)),
+                                          (∀ K' ∈ Ko, K' ∈ [Ksl, KM, KA, KB, KR₀, KR₁, KH₀, KH₁, KLU]) →
+                                            ∀ {F κ μ Cl : Type} [inst_7 : Field F] [inst_8 : Fintype F]
+                                              [inst_9 : DecidableEq F] [inst_10 : Fintype κ] [inst_11 : DecidableEq κ]
+                                              [inst_12 : Fintype Cl] [inst_13 : DecidableEq Cl]
+                                              (RCx :
+                                                ZK60.ProtocolClassify.RunChain Lq
+                                                  (ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                    ZK60.ProtocolClassify.ClsReceipt)),
+                                              (∀ (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig)
+                                                  (o :
+                                                    ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                      ZK60.ProtocolClassify.ClsReceipt),
+                                                  RCx.chain G o = tr G o) →
+                                                RCx.ℓ ≤ 2 ^ 21 →
+                                                  ∀ (T : ZK60.ProtocolClassify.XTest F κ μ Cl 16),
+                                                    RCx.s < T.aA →
+                                                      RCx.s < T.aB →
+                                                        ∀
+                                                          (Ux :
+                                                            List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+                                                              List (ZK60.Exec.TItem × ZK60.Exec.Dig) →
+                                                                κ → Fin (2 ^ 16) → F)
+                                                          (Xx :
+                                                            List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+                                                              List (ZK60.Exec.TItem × ZK60.Exec.Dig) →
+                                                                Finset (Fin (2 ^ 16))),
+                                                          ZK60.ProtocolClassify.CutReads (ZK60.Exec.Block.absOfC RCx.C)
+                                                              Ux →
+                                                            ZK60.ProtocolClassify.CutReads
+                                                                (ZK60.Exec.Block.absOfC RCx.C) Xx →
+                                                              ∀ pr ≤ 2 ^ 64,
+                                                                2 ^ 64 - 2 ^ 32 ≤ pr →
+                                                                  Fintype.card F = pr ^ 2 →
+                                                                    T.w0 ≤ 2 ^ 61 →
+                                                                      T.βLR = (1 + ↑pr / ↑(2 ^ 128)) ^ (2 * T.w0) →
+                                                                        T.e = 24448 →
+                                                                          T.nQ = 256 →
+                                                                            T.βJ = 1 →
+                                                                              ∀ (tag : ZK60.Exec.MTag)
+                                                                                (C :
+                                                                                  ZK60.Sound.ChainEnc (ZK60.Exec.ItB Lq)
+                                                                                    (ZK60.Exec.QB Lq) ZK60.Exec.Dig)
+                                                                                (coreOf :
+                                                                                  ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                                                      ZK60.ProtocolClassify.ClsReceipt →
+                                                                                    ℕ →
+                                                                                      List ZK60.Exec.Op ×
+                                                                                        ZK60.Exec.Block.Core)
+                                                                                (Vx :
+                                                                                  ZK60.ProtocolClassify.ClsStmt Hdr ×
+                                                                                      ZK60.ProtocolClassify.ClsReceipt →
+                                                                                    ZK60.OC (ZK60.Exec.QB Lq)
+                                                                                      ZK60.Exec.Dig Unit)
+                                                                                (nx : ℕ),
+                                                                                (∀
+                                                                                    (o :
+                                                                                      ZK60.ProtocolClassify.ClsStmt
+                                                                                          Hdr ×
+                                                                                        ZK60.ProtocolClassify.ClsReceipt),
+                                                                                    (Vx o).Bounded nx) →
+                                                                                  nx ≤ 3800000 →
+                                                                                    ∀
+                                                                                      (rx :
+                                                                                        ZK60.ProtocolClassify.ClsStmt
+                                                                                              Hdr ×
+                                                                                            ZK60.ProtocolClassify.ClsReceipt →
+                                                                                          List ZK60.Exec.Dig)
+                                                                                      (nrx : ℕ),
+                                                                                      (∀
+                                                                                          (o :
+                                                                                            ZK60.ProtocolClassify.ClsStmt
+                                                                                                Hdr ×
+                                                                                              ZK60.ProtocolClassify.ClsReceipt),
+                                                                                          (rx o).length ≤ nrx) →
+                                                                                        nrx ≤ 2 ^ 99 →
+                                                                                          (∀
+                                                                                              (A :
+                                                                                                ZK60.OC
+                                                                                                  (ZK60.Exec.QB Lq)
+                                                                                                  ZK60.Exec.Dig
+                                                                                                  (ZK60.ProtocolClassify.ClsStmt
+                                                                                                      Hdr ×
+                                                                                                    ZK60.ProtocolClassify.ClsReceipt))
+                                                                                              (G :
+                                                                                                ZK60.Exec.QB Lq →
+                                                                                                  ZK60.Exec.Dig),
+                                                                                              (ZK60.ProtocolClassify.classifyProtocolUExec
+                                                                                                        R Lq Lb preA
+                                                                                                        preB start inc
+                                                                                                        incG blk outc
+                                                                                                        outcG P Cin h64
+                                                                                                        hr hon.base
+                                                                                                        e).verify
+                                                                                                    G ()
+                                                                                                    (ZK60.OC.runLog G
+                                                                                                          A).1.1
+                                                                                                    (ZK60.OC.runLog G
+                                                                                                          A).1.2 =
+                                                                                                  true →
+                                                                                                ¬ZK60.ProtocolClassify.EvXR
+                                                                                                      tag Lq h64 C 256
+                                                                                                      256 256 16 16 12
+                                                                                                      26 coreOf Vx rx A
+                                                                                                      G →
+                                                                                                  ZK60.ProtocolClassify.AliveOrd
+                                                                                                    Ko (R.Ps.length + 2)
+                                                                                                    (ZK60.OC.runLog G
+                                                                                                        A).2
+                                                                                                    (tr G
+                                                                                                      (ZK60.OC.run G
+                                                                                                        A))) →
+                                                                                            (∀
+                                                                                                (A :
+                                                                                                  ZK60.OC
+                                                                                                    (ZK60.Exec.QB Lq)
+                                                                                                    ZK60.Exec.Dig
+                                                                                                    (ZK60.ProtocolClassify.ClsStmt
+                                                                                                        Hdr ×
+                                                                                                      ZK60.ProtocolClassify.ClsReceipt))
+                                                                                                (G :
+                                                                                                  ZK60.Exec.QB Lq →
+                                                                                                    ZK60.Exec.Dig),
+                                                                                                (ZK60.ProtocolClassify.classifyProtocolUExec
+                                                                                                          R Lq Lb preA
+                                                                                                          preB start inc
+                                                                                                          incG blk outc
+                                                                                                          outcG P Cin
+                                                                                                          h64 hr
+                                                                                                          hon.base
+                                                                                                          e).verify
+                                                                                                      G ()
+                                                                                                      (ZK60.OC.runLog G
+                                                                                                            A).1.1
+                                                                                                      (ZK60.OC.runLog G
+                                                                                                            A).1.2 =
+                                                                                                    true →
+                                                                                                  ¬ZK60.ProtocolClassify.EvXR
+                                                                                                        tag Lq h64 C 256
+                                                                                                        256 256 16 16 12
+                                                                                                        26 coreOf Vx rx
+                                                                                                        A G →
+                                                                                                    ¬ZK60.ProtocolClassify.InOk
+                                                                                                          R
+                                                                                                          (E
+                                                                                                            (ZK60.OC.runLog
+                                                                                                                G A).2
+                                                                                                            (ZK60.OC.runLog
+                                                                                                                  G
+                                                                                                                  A).1.1
+                                                                                                            (ZK60.OC.runLog
+                                                                                                                  G
+                                                                                                                  A).1.2) →
+                                                                                                      ∃ K' ∈ Ko,
+                                                                                                        ∃
+                                                                                                          c ∈
+                                                                                                            K'.cs 0
+                                                                                                              (ZK60.OC.runLog
+                                                                                                                  G
+                                                                                                                  A).2,
+                                                                                                          ZK60.Exec.EntD
+                                                                                                            K'.RC.W c
+                                                                                                            (tr G
+                                                                                                              (ZK60.OC.run
+                                                                                                                G A))) →
+                                                                                              (∀
+                                                                                                  (A :
+                                                                                                    ZK60.OC
+                                                                                                      (ZK60.Exec.QB Lq)
+                                                                                                      ZK60.Exec.Dig
+                                                                                                      (ZK60.ProtocolClassify.ClsStmt
+                                                                                                          Hdr ×
+                                                                                                        ZK60.ProtocolClassify.ClsReceipt))
+                                                                                                  (G :
+                                                                                                    ZK60.Exec.QB Lq →
+                                                                                                      ZK60.Exec.Dig)
+                                                                                                  (k : ℕ)
+                                                                                                  (hk :
+                                                                                                    k < R.Ps.length),
+                                                                                                  (ZK60.ProtocolClassify.classifyProtocolUExec
+                                                                                                            R Lq Lb preA
+                                                                                                            preB start
+                                                                                                            inc incG blk
+                                                                                                            outc outcG P
+                                                                                                            Cin h64 hr
+                                                                                                            hon.base
+                                                                                                            e).verify
+                                                                                                        G ()
+                                                                                                        (ZK60.OC.runLog
+                                                                                                              G A).1.1
+                                                                                                        (ZK60.OC.runLog
+                                                                                                              G A).1.2 =
+                                                                                                      true →
+                                                                                                    ¬ZK60.ProtocolClassify.EvXR
+                                                                                                          tag Lq h64 C
+                                                                                                          256 256 256 16
+                                                                                                          16 12 26
+                                                                                                          coreOf Vx rx A
+                                                                                                          G →
+                                                                                                      ¬ZK60.ProtocolClassify.BlockOn
+                                                                                                            R.Ps[k]
+                                                                                                            ((E
+                                                                                                                  (ZK60.OC.runLog
+                                                                                                                      G
+                                                                                                                      A).2
+                                                                                                                  (ZK60.OC.runLog
+                                                                                                                        G
+                                                                                                                        A).1.1
+                                                                                                                  (ZK60.OC.runLog
+                                                                                                                        G
+                                                                                                                        A).1.2).planes
+                                                                                                              k)
+                                                                                                            ((E
+                                                                                                                  (ZK60.OC.runLog
+                                                                                                                      G
+                                                                                                                      A).2
+                                                                                                                  (ZK60.OC.runLog
+                                                                                                                        G
+                                                                                                                        A).1.1
+                                                                                                                  (ZK60.OC.runLog
+                                                                                                                        G
+                                                                                                                        A).1.2).planes
+                                                                                                              (k + 1)) →
+                                                                                                        ∃ K' ∈ Ko,
+                                                                                                          ∃
+                                                                                                            c ∈
+                                                                                                              K'.cs
+                                                                                                                (k + 1)
+                                                                                                                (ZK60.OC.runLog
+                                                                                                                    G
+                                                                                                                    A).2,
+                                                                                                            ZK60.Exec.EntD
+                                                                                                              K'.RC.W c
+                                                                                                              (tr G
+                                                                                                                (ZK60.OC.run
+                                                                                                                  G
+                                                                                                                  A))) →
+                                                                                                (∀
+                                                                                                    (A :
+                                                                                                      ZK60.OC
+                                                                                                        (ZK60.Exec.QB
+                                                                                                          Lq)
+                                                                                                        ZK60.Exec.Dig
+                                                                                                        (ZK60.ProtocolClassify.ClsStmt
+                                                                                                            Hdr ×
+                                                                                                          ZK60.ProtocolClassify.ClsReceipt))
+                                                                                                    (G :
+                                                                                                      ZK60.Exec.QB Lq →
+                                                                                                        ZK60.Exec.Dig),
+                                                                                                    (ZK60.ProtocolClassify.classifyProtocolUExec
+                                                                                                              R Lq Lb
+                                                                                                              preA preB
+                                                                                                              start inc
+                                                                                                              incG blk
+                                                                                                              outc outcG
+                                                                                                              P Cin h64
+                                                                                                              hr
+                                                                                                              hon.base
+                                                                                                              e).verify
+                                                                                                          G ()
+                                                                                                          (ZK60.OC.runLog
+                                                                                                                G A).1.1
+                                                                                                          (ZK60.OC.runLog
+                                                                                                                G
+                                                                                                                A).1.2 =
+                                                                                                        true →
+                                                                                                      ¬ZK60.ProtocolClassify.EvXR
+                                                                                                            tag Lq h64 C
+                                                                                                            256 256 256
+                                                                                                            16 16 12 26
+                                                                                                            coreOf Vx rx
+                                                                                                            A G →
+                                                                                                        ¬ZK60.ProtocolClassify.OutOk
+                                                                                                              R
+                                                                                                              ((ZK60.ProtocolClassify.classifyProtocolUExec
+                                                                                                                    R Lq
+                                                                                                                    Lb
+                                                                                                                    preA
+                                                                                                                    preB
+                                                                                                                    start
+                                                                                                                    inc
+                                                                                                                    incG
+                                                                                                                    blk
+                                                                                                                    outc
+                                                                                                                    outcG
+                                                                                                                    P
+                                                                                                                    Cin
+                                                                                                                    h64
+                                                                                                                    hr
+                                                                                                                    hon.base
+                                                                                                                    e).ypub
+                                                                                                                (ZK60.OC.runLog
+                                                                                                                      G
+                                                                                                                      A).1.1)
+                                                                                                              (E
+                                                                                                                (ZK60.OC.runLog
+                                                                                                                    G
+                                                                                                                    A).2
+                                                                                                                (ZK60.OC.runLog
+                                                                                                                      G
+                                                                                                                      A).1.1
+                                                                                                                (ZK60.OC.runLog
+                                                                                                                      G
+                                                                                                                      A).1.2) →
+                                                                                                          ∃ K' ∈ Ko,
+                                                                                                            ∃
+                                                                                                              c ∈
+                                                                                                                K'.cs
+                                                                                                                  (R.Ps.length +
+                                                                                                                    1)
+                                                                                                                  (ZK60.OC.runLog
+                                                                                                                      G
+                                                                                                                      A).2,
+                                                                                                              ZK60.Exec.EntD
+                                                                                                                K'.RC.W
+                                                                                                                c
+                                                                                                                (tr G
+                                                                                                                  (ZK60.OC.run
+                                                                                                                    G
+                                                                                                                    A))) →
+                                                                                                  ∀
+                                                                                                    (pos :
+                                                                                                      S.Tok →
+                                                                                                        Fin Cin.dR ×
+                                                                                                          Fin Cin.n),
+                                                                                                    (∀ (x : S.Tok → ℕ),
+                                                                                                        Cin.plane x =
+                                                                                                          ZK60.Exec.posPlane
+                                                                                                            pos x) →
+                                                                                                      ∀
+                                                                                                        (mk :
+                                                                                                          Cin.SaltMk)
+                                                                                                        (ops :
+                                                                                                          List
+                                                                                                              (ZK60.Exec.QB
+                                                                                                                  Lq ×
+                                                                                                                ZK60.Exec.Dig) →
+                                                                                                            ZK60.ProtocolClassify.ClsStmt
+                                                                                                                Hdr →
+                                                                                                              Fin
+                                                                                                                  Cin.N →
+                                                                                                                Option
+                                                                                                                  (ZK60.Sound.MerkleOpening
+                                                                                                                    ZK60.Exec.Dig
+                                                                                                                    ZK60.Exec.Dig
+                                                                                                                    (ZK60.Exec.ColR
+                                                                                                                      Cin.R))),
+                                                                                                        (∀
+                                                                                                            (lg :
+                                                                                                              List
+                                                                                                                (ZK60.Exec.QB
+                                                                                                                    Lq ×
+                                                                                                                  ZK60.Exec.Dig))
+                                                                                                            (s :
+                                                                                                              ZK60.ProtocolClassify.ClsStmt
+                                                                                                                Hdr)
+                                                                                                            (pf :
+                                                                                                              ZK60.ProtocolClassify.ClsReceipt),
+                                                                                                            ((E lg s
+                                                                                                                    pf).epW =
+                                                                                                                fun
+                                                                                                                  (t :
+                                                                                                                    S.Tok) =>
+                                                                                                                (Cin.decodeIn
+                                                                                                                      (ops
+                                                                                                                        lg
+                                                                                                                        s)
+                                                                                                                      e).1
+                                                                                                                  (Cin.place
+                                                                                                                    (pos
+                                                                                                                        t).1)
+                                                                                                                  (pos
+                                                                                                                      t).2) ∧
+                                                                                                              (E lg s
+                                                                                                                    pf).r =
+                                                                                                                mk.bld
+                                                                                                                  (Cin.decodeIn
+                                                                                                                      (ops
+                                                                                                                        lg
+                                                                                                                        s)
+                                                                                                                      e).1
+                                                                                                                  (Cin.decodeIn
+                                                                                                                      (ops
+                                                                                                                        lg
+                                                                                                                        s)
+                                                                                                                      e).2
+                                                                                                                  (Cin.exSalt
+                                                                                                                    (ops
+                                                                                                                      lg
+                                                                                                                      s))
+                                                                                                                  (Cin.exPath
+                                                                                                                    (ops
+                                                                                                                      lg
+                                                                                                                      s))) →
+                                                                                                          (∀
+                                                                                                              (A :
+                                                                                                                ZK60.OC
+                                                                                                                  (ZK60.Exec.QB
+                                                                                                                    Lq)
+                                                                                                                  ZK60.Exec.Dig
+                                                                                                                  (ZK60.ProtocolClassify.ClsStmt
+                                                                                                                      Hdr ×
+                                                                                                                    ZK60.ProtocolClassify.ClsReceipt))
+                                                                                                              (G :
+                                                                                                                ZK60.Exec.QB
+                                                                                                                    Lq →
+                                                                                                                  ZK60.Exec.Dig)
+                                                                                                              (j :
+                                                                                                                Fin
+                                                                                                                  Cin.N)
+                                                                                                              (o :
+                                                                                                                ZK60.Sound.MerkleOpening
+                                                                                                                  ZK60.Exec.Dig
+                                                                                                                  ZK60.Exec.Dig
+                                                                                                                  (ZK60.Exec.ColR
+                                                                                                                    Cin.R)),
+                                                                                                              ops
+                                                                                                                    (ZK60.OC.runLog
+                                                                                                                        G
+                                                                                                                        A).2
+                                                                                                                    (ZK60.OC.runLog
+                                                                                                                          G
+                                                                                                                          A).1.1
+                                                                                                                    j =
+                                                                                                                  some
+                                                                                                                    o →
+                                                                                                                (ZK60.Exec.merkleEncB
+                                                                                                                      Cin.tag
+                                                                                                                      Lq
+                                                                                                                      Cin.R
+                                                                                                                      h64
+                                                                                                                      hr).Opens
+                                                                                                                  G
+                                                                                                                  Cin.depth
+                                                                                                                  (Cin.root
+                                                                                                                    (ZK60.OC.runLog
+                                                                                                                          G
+                                                                                                                          A).1.1)
+                                                                                                                  (↑j)
+                                                                                                                  o) →
+                                                                                                            (∀
+                                                                                                                (lg :
+                                                                                                                  List
+                                                                                                                    (ZK60.Exec.QB
+                                                                                                                        Lq ×
+                                                                                                                      ZK60.Exec.Dig))
+                                                                                                                (s :
+                                                                                                                  ZK60.ProtocolClassify.ClsStmt
+                                                                                                                    Hdr)
+                                                                                                                (j :
+                                                                                                                  Fin
+                                                                                                                    Cin.N)
+                                                                                                                (o :
+                                                                                                                  ZK60.Sound.MerkleOpening
+                                                                                                                    ZK60.Exec.Dig
+                                                                                                                    ZK60.Exec.Dig
+                                                                                                                    (ZK60.Exec.ColR
+                                                                                                                      Cin.R)),
+                                                                                                                ops lg s
+                                                                                                                      j =
+                                                                                                                    some
+                                                                                                                      o →
+                                                                                                                  ∀
+                                                                                                                    a ∈
+                                                                                                                      ↑o.col,
+                                                                                                                    a.Canon) →
+                                                                                                              (∀
+                                                                                                                  (A :
+                                                                                                                    ZK60.OC
+                                                                                                                      (ZK60.Exec.QB
+                                                                                                                        Lq)
+                                                                                                                      ZK60.Exec.Dig
+                                                                                                                      (ZK60.ProtocolClassify.ClsStmt
+                                                                                                                          Hdr ×
+                                                                                                                        ZK60.ProtocolClassify.ClsReceipt))
+                                                                                                                  (G :
+                                                                                                                    ZK60.Exec.QB
+                                                                                                                        Lq →
+                                                                                                                      ZK60.Exec.Dig),
+                                                                                                                  (ZK60.ProtocolClassify.classifyProtocolUExec
+                                                                                                                            R
+                                                                                                                            Lq
+                                                                                                                            Lb
+                                                                                                                            preA
+                                                                                                                            preB
+                                                                                                                            start
+                                                                                                                            inc
+                                                                                                                            incG
+                                                                                                                            blk
+                                                                                                                            outc
+                                                                                                                            outcG
+                                                                                                                            P
+                                                                                                                            Cin
+                                                                                                                            h64
+                                                                                                                            hr
+                                                                                                                            hon.base
+                                                                                                                            e).verify
+                                                                                                                        G
+                                                                                                                        ()
+                                                                                                                        (ZK60.OC.runLog
+                                                                                                                              G
+                                                                                                                              A).1.1
+                                                                                                                        (ZK60.OC.runLog
+                                                                                                                              G
+                                                                                                                              A).1.2 =
+                                                                                                                      true →
+                                                                                                                    ¬ZK60.ProtocolClassify.EvXR
+                                                                                                                          tag
+                                                                                                                          Lq
+                                                                                                                          h64
+                                                                                                                          C
+                                                                                                                          256
+                                                                                                                          256
+                                                                                                                          256
+                                                                                                                          16
+                                                                                                                          16
+                                                                                                                          12
+                                                                                                                          26
+                                                                                                                          coreOf
+                                                                                                                          Vx
+                                                                                                                          rx
+                                                                                                                          A
+                                                                                                                          G →
+                                                                                                                      ¬ZK60.Exec.CloseIn
+                                                                                                                            (ZK60.Exec.encLin
+                                                                                                                                Cin.pts
+                                                                                                                                Cin.form).range
+                                                                                                                            e
+                                                                                                                            (ZK60.Exec.exX
+                                                                                                                              (ops
+                                                                                                                                (ZK60.OC.runLog
+                                                                                                                                    G
+                                                                                                                                    A).2
+                                                                                                                                (ZK60.OC.runLog
+                                                                                                                                      G
+                                                                                                                                      A).1.1))
+                                                                                                                            (ZK60.Exec.exU
+                                                                                                                              (ops
+                                                                                                                                (ZK60.OC.runLog
+                                                                                                                                    G
+                                                                                                                                    A).2
+                                                                                                                                (ZK60.OC.runLog
+                                                                                                                                      G
+                                                                                                                                      A).1.1)) →
+                                                                                                                        ZK60.Exec.tRem
+                                                                                                                              RCx.W
+                                                                                                                              (List.take
+                                                                                                                                T.aA
+                                                                                                                                (tr
+                                                                                                                                  G
+                                                                                                                                  (ZK60.OC.run
+                                                                                                                                    G
+                                                                                                                                    A))) =
+                                                                                                                            some
+                                                                                                                              0 ∧
+                                                                                                                          ¬ZK60.Exec.CloseIn
+                                                                                                                                T.enc.range
+                                                                                                                                T.e
+                                                                                                                                (Xx
+                                                                                                                                  (ZK60.OC.runLog
+                                                                                                                                      G
+                                                                                                                                      A).2
+                                                                                                                                  (List.take
+                                                                                                                                    T.aA
+                                                                                                                                    (tr
+                                                                                                                                      G
+                                                                                                                                      (ZK60.OC.run
+                                                                                                                                        G
+                                                                                                                                        A))))
+                                                                                                                                (Ux
+                                                                                                                                  (ZK60.OC.runLog
+                                                                                                                                      G
+                                                                                                                                      A).2
+                                                                                                                                  (List.take
+                                                                                                                                    T.aA
+                                                                                                                                    (tr
+                                                                                                                                      G
+                                                                                                                                      (ZK60.OC.run
+                                                                                                                                        G
+                                                                                                                                        A)))) ∧
+                                                                                                                            T.aB ≤
+                                                                                                                                (tr
+                                                                                                                                    G
+                                                                                                                                    (ZK60.OC.run
+                                                                                                                                      G
+                                                                                                                                      A)).length ∧
+                                                                                                                              ZK60.Exec.tRem
+                                                                                                                                    RCx.W
+                                                                                                                                    (List.take
+                                                                                                                                      T.aB
+                                                                                                                                      (tr
+                                                                                                                                        G
+                                                                                                                                        (ZK60.OC.run
+                                                                                                                                          G
+                                                                                                                                          A))) =
+                                                                                                                                  some
+                                                                                                                                    0 ∧
+                                                                                                                                ZK60.Exec.subSt
+                                                                                                                                  RCx.W
+                                                                                                                                  (T.cB
+                                                                                                                                    RCx.W
+                                                                                                                                    Ux
+                                                                                                                                    Xx
+                                                                                                                                    (ZK60.OC.runLog
+                                                                                                                                        G
+                                                                                                                                        A).2)
+                                                                                                                                  (tr
+                                                                                                                                    G
+                                                                                                                                    (ZK60.OC.run
+                                                                                                                                      G
+                                                                                                                                      A))) →
+                                                                                                                (∀
+                                                                                                                    (A :
+                                                                                                                      ZK60.OC
+                                                                                                                        (ZK60.Exec.QB
+                                                                                                                          Lq)
+                                                                                                                        ZK60.Exec.Dig
+                                                                                                                        (ZK60.ProtocolClassify.ClsStmt
+                                                                                                                            Hdr ×
+                                                                                                                          ZK60.ProtocolClassify.ClsReceipt))
+                                                                                                                    (G :
+                                                                                                                      ZK60.Exec.QB
+                                                                                                                          Lq →
+                                                                                                                        ZK60.Exec.Dig),
+                                                                                                                    (ZK60.ProtocolClassify.classifyProtocolUExec
+                                                                                                                              R
+                                                                                                                              Lq
+                                                                                                                              Lb
+                                                                                                                              preA
+                                                                                                                              preB
+                                                                                                                              start
+                                                                                                                              inc
+                                                                                                                              incG
+                                                                                                                              blk
+                                                                                                                              outc
+                                                                                                                              outcG
+                                                                                                                              P
+                                                                                                                              Cin
+                                                                                                                              h64
+                                                                                                                              hr
+                                                                                                                              hon.base
+                                                                                                                              e).verify
+                                                                                                                          G
+                                                                                                                          ()
+                                                                                                                          (ZK60.OC.runLog
+                                                                                                                                G
+                                                                                                                                A).1.1
+                                                                                                                          (ZK60.OC.runLog
+                                                                                                                                G
+                                                                                                                                A).1.2 =
+                                                                                                                        true →
+                                                                                                                      ¬ZK60.ProtocolClassify.EvXR
+                                                                                                                            tag
+                                                                                                                            Lq
+                                                                                                                            h64
+                                                                                                                            C
+                                                                                                                            256
+                                                                                                                            256
+                                                                                                                            256
+                                                                                                                            16
+                                                                                                                            16
+                                                                                                                            12
+                                                                                                                            26
+                                                                                                                            coreOf
+                                                                                                                            Vx
+                                                                                                                            rx
+                                                                                                                            A
+                                                                                                                            G →
+                                                                                                                        (¬∀
+                                                                                                                              (k :
+                                                                                                                                Fin
+                                                                                                                                  Cin.dR)
+                                                                                                                              (i :
+                                                                                                                                Fin
+                                                                                                                                  Cin.n),
+                                                                                                                              (¬∃
+                                                                                                                                    (t
+                                                                                                                                    :
+                                                                                                                                    S.Tok),
+                                                                                                                                    pos
+                                                                                                                                        t =
+                                                                                                                                      (k,
+                                                                                                                                        i)) →
+                                                                                                                                (Cin.decodeIn
+                                                                                                                                        (ops
+                                                                                                                                          (ZK60.OC.runLog
+                                                                                                                                              G
+                                                                                                                                              A).2
+                                                                                                                                          (ZK60.OC.runLog
+                                                                                                                                                G
+                                                                                                                                                A).1.1)
+                                                                                                                                        e).1
+                                                                                                                                    (Cin.place
+                                                                                                                                      k)
+                                                                                                                                    i =
+                                                                                                                                  0) →
+                                                                                                                          ∃
+                                                                                                                            K' ∈
+                                                                                                                              Ko,
+                                                                                                                            K'.Dm
+                                                                                                                              (R.Ps.length +
+                                                                                                                                2)
+                                                                                                                              (ZK60.OC.runLog
+                                                                                                                                  G
+                                                                                                                                  A).2
+                                                                                                                              (tr
+                                                                                                                                G
+                                                                                                                                (ZK60.OC.run
+                                                                                                                                  G
+                                                                                                                                  A))) →
+                                                                                                                  (∀
+                                                                                                                      (q
+                                                                                                                        R' :
+                                                                                                                        ℕ),
+                                                                                                                      εzk
+                                                                                                                          q
+                                                                                                                          R' ≤
+                                                                                                                        ZK60.εzkTarget
+                                                                                                                          q
+                                                                                                                          R') →
+                                                                                                                    ZK60.ProductionReady
+                                                                                                                      (ZK60.TokenRun.classifyModel
+                                                                                                                        S
+                                                                                                                        R)
+                                                                                                                      (ZK60.TokenRun.classifyArith
+                                                                                                                        S
+                                                                                                                        R)
+                                                                                                                      (ZK60.ProtocolClassify.classifyProtocolUExec
+                                                                                                                        R
+                                                                                                                        Lq
+                                                                                                                        Lb
+                                                                                                                        preA
+                                                                                                                        preB
+                                                                                                                        start
+                                                                                                                        inc
+                                                                                                                        incG
+                                                                                                                        blk
+                                                                                                                        outc
+                                                                                                                        outcG
+                                                                                                                        P
+                                                                                                                        Cin
+                                                                                                                        h64
+                                                                                                                        hr
+                                                                                                                        hon.base
+                                                                                                                        e)
+                                                                                                                      ZK60.εcTarget
+                                                                                                                      ZK60.εsTarget
+                                                                                                                      ZK60.εsTarget
+                                                                                                                      ZK60.εzkTarget
+@ZK60.Exec.Block.block_knowledge_final_r13_shield : ∀ {K : Type} [inst : Field K] [inst_1 : Algebra ZK60.Circuit.GF K]
+  {L : ℕ} {S : ZK60.Block.BlockShape} {Ct Cw Cg Cj Cd Cf : Type} [inst_2 : Fintype Ct] [inst_3 : Fintype Cw]
+  [inst_4 : Fintype Cg] [inst_5 : Fintype Cj] [inst_6 : Fintype Cd] [inst_7 : Fintype Cf] [DecidableEq Ct]
+  [DecidableEq Cw] [DecidableEq Cg] [DecidableEq Cj] [DecidableEq Cd] [DecidableEq Cf] [Fintype K]
+  [inst_15 : DecidableEq K] (U : K),
+  U ^ 2 = (algebraMap ZK60.Circuit.GF K) 7 →
+    Module.finrank ZK60.Circuit.GF K = 2 →
+      ∀ (key : Option ZK60.Exec.Dig) (domain : List UInt8)
+        (hs : ZK60.Exec.decodeLink (ZK60.Exec.startMsg domain) = none) (hL : (ZK60.Exec.startMsg domain).length ≤ L),
+        L < 2 ^ 64 →
+          ∀ (hL20 : 2 ^ 20 ≤ L) (P : ZK60.Exec.Block.BlockParams) (tag : ZK60.Exec.MTag)
+            (rowsOf : ZK60.Exec.Block.Cm → ℕ),
+            ZK60.Exec.Link.IsShieldR13 P tag rowsOf →
+              ∀ (aC hC : List ℕ),
+                ZK60.Exec.Link.DefCm P aC hC →
+                  ZK60.Exec.Block.sumFrom (fun (k : ℕ) => aC.getD k 0) 0 23 = 146 →
+                    ZK60.Exec.Block.sumFrom (fun (k : ℕ) => hC.getD k 0) 0 23 + 1 = 54 →
+                      ∀ (hdrLen hdrSq : ℕ),
+                        hdrLen ≤ 2 ^ 19 →
+                          hdrSq ≤ 2 ^ 63 →
+                            ∀
+                              (Poly :
+                                ZK60.Exec.Block.Cuts3 L →
+                                  ZK60.Exec.Block.RootsO →
+                                    (k : ℕ) →
+                                      ZK60.Exec.Block.Seen →
+                                        (Fin ((ZK60.Exec.Block.slotShape P k).1 + (ZK60.Exec.Block.slotShape P k).2.1) →
+                                            K) →
+                                          K)
+                              (csE :
+                                ZK60.Exec.Block.Cuts3 L →
+                                  ZK60.Exec.Block.RootsO → ZK60.Exec.Block.Cm → ZK60.Exec.Block.ZClaim → K),
+                              (∀ (k : ℕ) (hist : ZK60.Exec.Block.Hist) (dr : List ZK60.Exec.Fp2)
+                                  (df : ZK60.Exec.Block.SlotDef),
+                                  P.define k hist dr = Except.ok df → ∀ (vs : List ZK60.Exec.Fp2), (df.poly vs).Canon) →
+                                (∀ (cu : ZK60.Exec.Block.Cuts3 L) (rt : ZK60.Exec.Block.RootsO),
+                                    ZK60.Exec.Block.SlotEvalN U P (ZK60.Exec.Link.csShieldR13 U tag hL20 csE cu rt)
+                                      (fun (x : List (ℕ × List ZK60.Exec.Fp2)) => 0) (Poly cu rt)) →
+                                  (∀ (cu : ZK60.Exec.Block.Cuts3 L) (rt : ZK60.Exec.Block.RootsO) (k : ℕ)
+                                      (sn : ZK60.Exec.Block.Seen),
+                                      ZK60.Sound.IndDegLE (ZK60.Exec.Block.slotShape P k).2.2 (Poly cu rt k sn)) →
+                                    ∀ (Pb : ZK60.Block.BlockPublic S) (Lay : ZK60.Layout.W16Layout S Ct Cw Cg Cj Cd Cf)
+                                      (B : ZK60.Layout.W16Pub S Pb Lay) {ls : ℕ},
+                                      ZK60.Layout.R13.R13Windows S ls →
+                                        S.h24 = true →
+                                          ∀
+                                            (xtE :
+                                              ZK60.Exec.Block.Cuts3 L →
+                                                ZK60.Exec.Block.RootsO → ZK60.Layout.R13.R13Data Ct Cw Cg Cj Cd Cf ls)
+                                            (q : ℕ)
+                                            (A :
+                                              ZK60.OC (ZK60.Exec.QB L) ZK60.Exec.Dig
+                                                (List ZK60.Exec.Op × ZK60.Exec.Block.Core)),
+                                            A.Bounded q →
+                                              ∀ (εend : ENNReal),
+                                                (ZK60.prH fun (G : ZK60.Exec.QB L → ZK60.Exec.Dig) =>
+                                                      ∃ (bga : ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2) (rs :
+                                                        List ZK60.Exec.Block.SlotRec) (acc : ZK60.Exec.Block.Acc),
+                                                        ZK60.Exec.Block.BlockAcc key domain P hdrLen G (ZK60.OC.run G A)
+                                                            bga rs acc ∧
+                                                          ZK60.Exec.Link.sqN (ZK60.OC.run G A).1 = hdrSq ∧
+                                                            ¬ZK60.Exec.Block.EndTrue U
+                                                                (ZK60.Exec.Link.csShieldR13 U tag hL20 csE
+                                                                  (ZK60.Exec.Block.cutsOf key domain hs hL A G)
+                                                                  (ZK60.Exec.Block.rootsOf (ZK60.OC.run G A).2))
+                                                                acc) ≤
+                                                    εend →
+                                                  ∀
+                                                    (spR :
+                                                      ℕ →
+                                                        ZK60.Exec.Block.Cuts3 L →
+                                                          ZK60.Exec.Block.RootsO →
+                                                            (k : ℕ) →
+                                                              ZK60.Exec.Block.Hist →
+                                                                ZK60.Sound.SlotW16.SlotPoly K (P.draws k)),
+                                                    (∀ i < 4,
+                                                        ∀ (cu : ZK60.Exec.Block.Cuts3 L) (rt : ZK60.Exec.Block.RootsO)
+                                                          (k : ℕ) (h : ZK60.Exec.Block.Hist),
+                                                          k ∈ ZK60.Exec.Block.w16r2RelKs i →
+                                                            (spR i cu rt k h).dg ≤ 80) →
+                                                      (∀ (G : ZK60.Exec.QB L → ZK60.Exec.Dig)
+                                                          (bga : ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                                          (rs : List ZK60.Exec.Block.SlotRec)
+                                                          (acc : ZK60.Exec.Block.Acc),
+                                                          ZK60.Exec.Block.AccT U key domain hs hL P hdrLen
+                                                              (ZK60.Exec.Block.maskedFX U tag hL20 P Poly)
+                                                              (ZK60.Exec.Link.csShieldR13 U tag hL20 csE)
+                                                              (ZK60.Exec.Link.msRung U tag hL20) A G bga rs acc →
+                                                            ∀ i < 4,
+                                                              (∀ j < i,
+                                                                  ZK60.Exec.Block.SchedGd
+                                                                    (ZK60.Exec.Block.w16r2DR P spR j)
+                                                                    (ZK60.Exec.Block.cutsOf key domain hs hL A G)
+                                                                    (ZK60.Exec.Block.rootsOf (ZK60.OC.run G A).2) bga
+                                                                    rs) →
+                                                                ZK60.Exec.Block.SchedVan U P
+                                                                  (ZK60.Exec.Block.w16r2DR P spR i)
+                                                                  (ZK60.Exec.Block.cutsOf key domain hs hL A G)
+                                                                  (ZK60.Exec.Block.rootsOf (ZK60.OC.run G A).2) bga
+                                                                  rs) →
+                                                        (∀ (G : ZK60.Exec.QB L → ZK60.Exec.Dig)
+                                                            (bga : ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                                            (rs : List ZK60.Exec.Block.SlotRec)
+                                                            (acc : ZK60.Exec.Block.Acc),
+                                                            ZK60.Exec.Block.AccT U key domain hs hL P hdrLen
+                                                                (ZK60.Exec.Block.maskedFX U tag hL20 P Poly)
+                                                                (ZK60.Exec.Link.csShieldR13 U tag hL20 csE)
+                                                                (ZK60.Exec.Link.msRung U tag hL20) A G bga rs acc →
+                                                              (∀ i < 4,
+                                                                  ZK60.Exec.Block.SchedGd
+                                                                    (ZK60.Exec.Block.w16r2DR P spR i)
+                                                                    (ZK60.Exec.Block.cutsOf key domain hs hL A G)
+                                                                    (ZK60.Exec.Block.rootsOf (ZK60.OC.run G A).2) bga
+                                                                    rs) →
+                                                                ZK60.Layout.R13.R13Rels S Pb Lay B
+                                                                  (xtE (ZK60.Exec.Block.cutsOf key domain hs hL A G)
+                                                                    (ZK60.Exec.Block.rootsOf (ZK60.OC.run G A).2))) →
+                                                          ∀
+                                                            (HGd :
+                                                              ZK60.Exec.Block.Cuts3 L →
+                                                                ZK60.Exec.Block.RootsO →
+                                                                  ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2 → Prop)
+                                                            (spH :
+                                                              ZK60.Exec.Block.Cuts3 L →
+                                                                ZK60.Exec.Block.RootsO →
+                                                                  (k : ℕ) →
+                                                                    ZK60.Exec.Block.Hist →
+                                                                      ZK60.Sound.SlotW16.SlotPoly K (P.draws k)),
+                                                            (∀ (cu : ZK60.Exec.Block.Cuts3 L)
+                                                                (rt : ZK60.Exec.Block.RootsO) (k : ℕ)
+                                                                (h : ZK60.Exec.Block.Hist),
+                                                                k ∈ ZK60.Exec.Block.w16r2RelKs 0 →
+                                                                  (spH cu rt k h).dg ≤ 80) →
+                                                              (∀ (G : ZK60.Exec.QB L → ZK60.Exec.Dig)
+                                                                  (bga : ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                                                  (rs : List ZK60.Exec.Block.SlotRec)
+                                                                  (acc : ZK60.Exec.Block.Acc),
+                                                                  ZK60.Exec.Block.AccT U key domain hs hL P hdrLen
+                                                                      (ZK60.Exec.Block.maskedFX U tag hL20 P Poly)
+                                                                      (ZK60.Exec.Link.csShieldR13 U tag hL20 csE)
+                                                                      (ZK60.Exec.Link.msRung U tag hL20) A G bga rs
+                                                                      acc →
+                                                                    ZK60.Exec.Block.SchedVan U P
+                                                                      (ZK60.Exec.Block.w16r2DH P spH 0)
+                                                                      (ZK60.Exec.Block.cutsOf key domain hs hL A G)
+                                                                      (ZK60.Exec.Block.rootsOf (ZK60.OC.run G A).2) bga
+                                                                      rs) →
+                                                                (∀ (G : ZK60.Exec.QB L → ZK60.Exec.Dig)
+                                                                    (bga :
+                                                                      ZK60.Exec.Fp2 × ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                                                    (rs : List ZK60.Exec.Block.SlotRec)
+                                                                    (acc : ZK60.Exec.Block.Acc),
+                                                                    ZK60.Exec.Block.AccT U key domain hs hL P hdrLen
+                                                                        (ZK60.Exec.Block.maskedFX U tag hL20 P Poly)
+                                                                        (ZK60.Exec.Link.csShieldR13 U tag hL20 csE)
+                                                                        (ZK60.Exec.Link.msRung U tag hL20) A G bga rs
+                                                                        acc →
+                                                                      ZK60.Exec.Block.SchedGd
+                                                                          (ZK60.Exec.Block.w16r2DH P spH 0)
+                                                                          (ZK60.Exec.Block.cutsOf key domain hs hL A G)
+                                                                          (ZK60.Exec.Block.rootsOf (ZK60.OC.run G A).2)
+                                                                          bga rs →
+                                                                        HGd
+                                                                          (ZK60.Exec.Block.cutsOf key domain hs hL A G)
+                                                                          (ZK60.Exec.Block.rootsOf (ZK60.OC.run G A).2)
+                                                                          bga) →
+                                                                  ∀ {ι π κ : Type} [inst_16 : Fintype ι]
+                                                                    [inst_17 : Fintype π] [inst_18 : Fintype κ]
+                                                                    (Alk :
+                                                                      List (ZK60.Exec.QB L × ZK60.Exec.Dig) →
+                                                                        ι ⊕ π ⊕ π → ZK60.Sound.Tup K)
+                                                                    (T : κ → ZK60.Sound.Tup K)
+                                                                    (mlk :
+                                                                      List (ZK60.Exec.QB L × ZK60.Exec.Dig) → κ → K),
+                                                                    Fintype.card ι + 2 * Fintype.card π < ringChar K →
+                                                                      Fintype.card ι + 2 * Fintype.card π +
+                                                                            2 * (Finset.image T Finset.univ).card ≤
+                                                                          35153256 →
+                                                                        (∀ (G : ZK60.Exec.QB L → ZK60.Exec.Dig)
+                                                                            (bga :
+                                                                              ZK60.Exec.Fp2 ×
+                                                                                ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                                                            (rs : List ZK60.Exec.Block.SlotRec)
+                                                                            (acc : ZK60.Exec.Block.Acc),
+                                                                            ZK60.Exec.Block.AccT U key domain hs hL P
+                                                                                hdrLen
+                                                                                (ZK60.Exec.Block.maskedFX U tag hL20 P
+                                                                                  Poly)
+                                                                                (ZK60.Exec.Link.csShieldR13 U tag hL20
+                                                                                  csE)
+                                                                                (ZK60.Exec.Link.msRung U tag hL20) A G
+                                                                                bga rs acc →
+                                                                              ZK60.Layout.R13.R13Rels S Pb Lay B
+                                                                                  (xtE
+                                                                                    (ZK60.Exec.Block.cutsOf key domain
+                                                                                      hs hL A G)
+                                                                                    (ZK60.Exec.Block.rootsOf
+                                                                                      (ZK60.OC.run G A).2)) →
+                                                                                ¬ZK60.Layout.R13.R13Lookups S Pb Lay B
+                                                                                      (xtE
+                                                                                        (ZK60.Exec.Block.cutsOf key
+                                                                                          domain hs hL A G)
+                                                                                        (ZK60.Exec.Block.rootsOf
+                                                                                          (ZK60.OC.run G A).2)) →
+                                                                                  ∃ (l : ι ⊕ π ⊕ π),
+                                                                                    ∀ (j : κ),
+                                                                                      T j ≠
+                                                                                        Alk
+                                                                                          (ZK60.Exec.Block.cutsOf key
+                                                                                              domain hs hL A G).1
+                                                                                          l) →
+                                                                          (∀ (G : ZK60.Exec.QB L → ZK60.Exec.Dig)
+                                                                              (bga :
+                                                                                ZK60.Exec.Fp2 ×
+                                                                                  ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                                                              (rs : List ZK60.Exec.Block.SlotRec)
+                                                                              (acc : ZK60.Exec.Block.Acc),
+                                                                              ZK60.Exec.Block.AccT U key domain hs hL P
+                                                                                  hdrLen
+                                                                                  (ZK60.Exec.Block.maskedFX U tag hL20 P
+                                                                                    Poly)
+                                                                                  (ZK60.Exec.Link.csShieldR13 U tag hL20
+                                                                                    csE)
+                                                                                  (ZK60.Exec.Link.msRung U tag hL20) A G
+                                                                                  bga rs acc →
+                                                                                HGd
+                                                                                    (ZK60.Exec.Block.cutsOf key domain
+                                                                                      hs hL A G)
+                                                                                    (ZK60.Exec.Block.rootsOf
+                                                                                      (ZK60.OC.run G A).2)
+                                                                                    bga →
+                                                                                  ∃ (Hh : ZK60.Sound.Helpers ι π κ K),
+                                                                                    ZK60.Sound.HelperRel
+                                                                                      (fun (l : ι ⊕ π ⊕ π) =>
+                                                                                        ZK60.Sound.fold
+                                                                                          (ZK60.Exec.Fp2.toK U bga.1)
+                                                                                          (ZK60.Exec.Fp2.toK U bga.2.1)
+                                                                                          (Alk
+                                                                                            (ZK60.Exec.Block.cutsOf key
+                                                                                                domain hs hL A G).1
+                                                                                            l))
+                                                                                      (fun (j : κ) =>
+                                                                                        ZK60.Sound.fold
+                                                                                          (ZK60.Exec.Fp2.toK U bga.1)
+                                                                                          (ZK60.Exec.Fp2.toK U bga.2.1)
+                                                                                          (T j))
+                                                                                      (mlk
+                                                                                        (ZK60.Exec.Block.cutsOf key
+                                                                                            domain hs hL A G).1)
+                                                                                      (ZK60.Exec.Fp2.toK U bga.2.2)
+                                                                                      Hh) →
+                                                                            (ZK60.prH
+                                                                                fun
+                                                                                  (G :
+                                                                                    ZK60.Exec.QB L → ZK60.Exec.Dig) =>
+                                                                                ∃ (bga :
+                                                                                  ZK60.Exec.Fp2 ×
+                                                                                    ZK60.Exec.Fp2 × ZK60.Exec.Fp2)
+                                                                                  (rs : List ZK60.Exec.Block.SlotRec)
+                                                                                  (acc : ZK60.Exec.Block.Acc),
+                                                                                  ZK60.Exec.Block.BlockAcc key domain P
+                                                                                      hdrLen G (ZK60.OC.run G A) bga rs
+                                                                                      acc ∧
+                                                                                    ZK60.Exec.Link.sqN
+                                                                                          (ZK60.OC.run G A).1 =
+                                                                                        hdrSq ∧
+                                                                                      ¬ZK60.Block.BlockSat Pb
+                                                                                          (fun (p : S.Pos) =>
+                                                                                            (xtE
+                                                                                                  (ZK60.Exec.Block.cutsOf
+                                                                                                    key domain hs hL A
+                                                                                                    G)
+                                                                                                  (ZK60.Exec.Block.rootsOf
+                                                                                                    (ZK60.OC.run G
+                                                                                                        A).2)).X
+                                                                                              (Lay.dPos p))
+                                                                                          (fun (p : S.Pos) =>
+                                                                                            (xtE
+                                                                                                  (ZK60.Exec.Block.cutsOf
+                                                                                                    key domain hs hL A
+                                                                                                    G)
+                                                                                                  (ZK60.Exec.Block.rootsOf
+                                                                                                    (ZK60.OC.run G
+                                                                                                        A).2)).X2
+                                                                                              (Lay.dPos p))
+                                                                                          (ZK60.Layout.toWit Lay
+                                                                                            ((xtE
+                                                                                                  (ZK60.Exec.Block.cutsOf
+                                                                                                    key domain hs hL A
+                                                                                                    G)
+                                                                                                  (ZK60.Exec.Block.rootsOf
+                                                                                                    (ZK60.OC.run G
+                                                                                                        A).2)).toW16
+                                                                                              S))) ≤
+                                                                              ZK60.εsTarget q + εend
+def ZK60.ProtocolClassify.SegComplete : {St X Coins Γ : Type} →
+  (X → Prop) →
+    (Γ → ZK60.Exec.HIn → ZK60.Exec.Dig) →
+      (Γ → X → Coins → St) → ZK60.ProtocolClassify.SegP St X Coins → ZK60.ProtocolClassify.SegV St → Prop :=
+fun {St X Coins Γ : Type} (adm : X → Prop) (hOf : Γ → ZK60.Exec.HIn → ZK60.Exec.Dig) (stOf : Γ → X → Coins → St)
+    (p : ZK60.ProtocolClassify.SegP St X Coins) (v : ZK60.ProtocolClassify.SegV St) =>
+  ∀ (g : Γ) (x : X) (c : Coins) (bnd : ZK60.Exec.Dig) (cr : ZK60.ProtocolClassify.Carry) (t : ZK60.Exec.Tr)
+    (enc : ZK60.Exec.Dig → List UInt8) (cr' : ZK60.ProtocolClassify.Carry) (t' : ZK60.Exec.Tr),
+    adm x →
+      p.run (hOf g) (stOf g x c) x c bnd (ZK60.Exec.Block.posTag (hOf g) t) cr t = Except.ok (enc, cr', t') →
+        v.run (hOf g) (stOf g x c) (enc (ZK60.Exec.Block.posTag (hOf g) t')) bnd (ZK60.Exec.Block.posTag (hOf g) t) cr
+            t =
+          Except.ok (cr', t', ZK60.Exec.Block.posTag (hOf g) t')
+structure ZK60.ProtocolClassify.RunExt (S : ZK60.Block.BlockShape) (Salt : Type) : Type
+number of parameters: 2
+fields:
+  ZK60.ProtocolClassify.RunExt.planes : ℕ → S.Pos → ZK60.Circuit.GF
+  ZK60.ProtocolClassify.RunExt.tokW : S.Tok → ZK60.Circuit.GF
+  ZK60.ProtocolClassify.RunExt.epW : S.Tok → ZK60.Circuit.GF
+  ZK60.ProtocolClassify.RunExt.xC : Fin S.d → ZK60.Circuit.GF
+  ZK60.ProtocolClassify.RunExt.r : Salt
+  ZK60.ProtocolClassify.RunExt.r' : Salt
+constructor:
+  ZK60.ProtocolClassify.RunExt.mk {S : ZK60.Block.BlockShape} {Salt : Type} (planes : ℕ → S.Pos → ZK60.Circuit.GF)
+    (tokW epW : S.Tok → ZK60.Circuit.GF) (xC : Fin S.d → ZK60.Circuit.GF) (r r' : Salt) :
+    ZK60.ProtocolClassify.RunExt S Salt
+def ZK60.ProtocolClassify.InOk : {S : ZK60.Block.BlockShape} →
+  ZK60.TokenRun.ClassifyRunPublic S → {Salt : Type} → ZK60.ProtocolClassify.RunExt S Salt → Prop :=
+fun {S : ZK60.Block.BlockShape} (R : ZK60.TokenRun.ClassifyRunPublic S) {Salt : Type}
+    (e : ZK60.ProtocolClassify.RunExt S Salt) =>
+  ZK60.TokenRun.InSat R.inp e.tokW (e.planes 0) ∧ ∀ (t : S.Tok), e.epW t = e.tokW t
+def ZK60.ProtocolClassify.OutOk : {S : ZK60.Block.BlockShape} →
+  ZK60.TokenRun.ClassifyRunPublic S → {Salt : Type} → ℕ → ZK60.ProtocolClassify.RunExt S Salt → Prop :=
+fun {S : ZK60.Block.BlockShape} (R : ZK60.TokenRun.ClassifyRunPublic S) {Salt : Type} (b : ℕ)
+    (e : ZK60.ProtocolClassify.RunExt S Salt) =>
+  b ≤ 1 ∧ ZK60.Out.OutCSat R.out e.xC b ∧ ∀ (i : Fin S.d), e.xC i = e.planes R.Ps.length (R.row, i)
+def ZK60.ProtocolClassify.BlockOn : {S : ZK60.Block.BlockShape} →
+  ZK60.Block.BlockPublic S → (S.Pos → ZK60.Circuit.GF) → (S.Pos → ZK60.Circuit.GF) → Prop :=
+fun {S : ZK60.Block.BlockShape} (P : ZK60.Block.BlockPublic S) (Xin Xout : S.Pos → ZK60.Circuit.GF) =>
+  ∃ (x : S.Pos → ℤ) (x' : S.Pos → ℤ),
+    (∀ (p : S.Pos), ZK60.Block.i16 (x p)) ∧
+      (∀ (p : S.Pos), ZK60.Block.i16 (x' p)) ∧
+        (∀ (p : S.Pos), Xin p = ↑(x p)) ∧
+          (∀ (p : S.Pos), Xout p = ↑(x' p)) ∧
+            ∃ (w : ZK60.Block.BlockWit S),
+              ZK60.Block.BlockSat P (fun (p : S.Pos) => ↑(x p)) (fun (p : S.Pos) => ↑(x' p)) w
+structure ZK60.ProtocolClassify.KindRun {Lq : ℕ} {α : Type}
+  (tr : (ZK60.Exec.QB Lq → ZK60.Exec.Dig) → α → List (ZK60.Exec.TItem × ZK60.Exec.Dig)) : Type
+number of parameters: 3
+fields:
+  ZK60.ProtocolClassify.KindRun.RC : ZK60.ProtocolClassify.RunChain Lq α
+  ZK60.ProtocolClassify.KindRun.htr : ∀ (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig) (o : α), self.RC.chain G o = tr G o
+  ZK60.ProtocolClassify.KindRun.np : ℕ
+  ZK60.ProtocolClassify.KindRun.off : ℕ → ℕ
+  ZK60.ProtocolClassify.KindRun.hoff : ∀ (i : ℕ), self.off i ≤ self.off (i + 1)
+  ZK60.ProtocolClassify.KindRun.hs0 : self.RC.s < self.off 0
+  ZK60.ProtocolClassify.KindRun.cs : ℕ → List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) → List (ZK60.Exec.CSub ZK60.Exec.Dig)
+  ZK60.ProtocolClassify.KindRun.hseg : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)),
+      ∀ c ∈ self.cs i P, self.off i ≤ c.a ∧ c.a ≤ self.off (i + 1)
+  ZK60.ProtocolClassify.KindRun.hsort : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)),
+      List.Pairwise (fun (c c' : ZK60.Exec.CSub ZK60.Exec.Dig) => c.a ≤ c'.a) (self.cs i P)
+  ZK60.ProtocolClassify.KindRun.εmax : ENNReal
+  ZK60.ProtocolClassify.KindRun.hR : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)),
+      ∀ c ∈ self.cs i P, ZK60.Sound.RbrWide c.R.n c.R.w c.St c.ε
+  ZK60.ProtocolClassify.KindRun.hε : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)),
+      ∀ c ∈ self.cs i P, c.ε ≤ self.εmax
+  ZK60.ProtocolClassify.KindRun.hnorel : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)),
+      ∀ c ∈ self.cs i P, ∀ (τ : List (ZK60.Exec.TItem × ZK60.Exec.Dig)), ¬c.rel τ
+  ZK60.ProtocolClassify.KindRun.B : ENNReal
+  ZK60.ProtocolClassify.KindRun.hB : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)),
+      ∀ c ∈ self.cs i P, ↑c.R.n * c.ε ≤ self.B
+  ZK60.ProtocolClassify.KindRun.hcut : ∀ (i : ℕ) (P P' : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig))
+      (τ : List (ZK60.Exec.TItem × ZK60.Exec.Dig)),
+      ZK60.ProtocolClassify.CutEq (ZK60.Exec.Block.absOfC self.RC.C) τ P P' →
+        List.Forall₂ (ZK60.ProtocolClassify.AgreeOn self.RC.W τ) (self.cs i P) (self.cs i P')
+constructor:
+  ZK60.ProtocolClassify.KindRun.mk {Lq : ℕ} {α : Type}
+    {tr : (ZK60.Exec.QB Lq → ZK60.Exec.Dig) → α → List (ZK60.Exec.TItem × ZK60.Exec.Dig)}
+    (RC : ZK60.ProtocolClassify.RunChain Lq α)
+    (htr : ∀ (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig) (o : α), RC.chain G o = tr G o) (np : ℕ) (off : ℕ → ℕ)
+    (hoff : ∀ (i : ℕ), off i ≤ off (i + 1)) (hs0 : RC.s < off 0)
+    (cs : ℕ → List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) → List (ZK60.Exec.CSub ZK60.Exec.Dig))
+    (hseg : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)), ∀ c ∈ cs i P, off i ≤ c.a ∧ c.a ≤ off (i + 1))
+    (hsort :
+      ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)),
+        List.Pairwise (fun (c c' : ZK60.Exec.CSub ZK60.Exec.Dig) => c.a ≤ c'.a) (cs i P))
+    (εmax : ENNReal)
+    (hR : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)), ∀ c ∈ cs i P, ZK60.Sound.RbrWide c.R.n c.R.w c.St c.ε)
+    (hε : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)), ∀ c ∈ cs i P, c.ε ≤ εmax)
+    (hnorel :
+      ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)),
+        ∀ c ∈ cs i P, ∀ (τ : List (ZK60.Exec.TItem × ZK60.Exec.Dig)), ¬c.rel τ)
+    (B : ENNReal) (hB : ∀ (i : ℕ) (P : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)), ∀ c ∈ cs i P, ↑c.R.n * c.ε ≤ B)
+    (hcut :
+      ∀ (i : ℕ) (P P' : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig)) (τ : List (ZK60.Exec.TItem × ZK60.Exec.Dig)),
+        ZK60.ProtocolClassify.CutEq (ZK60.Exec.Block.absOfC RC.C) τ P P' →
+          List.Forall₂ (ZK60.ProtocolClassify.AgreeOn RC.W τ) (cs i P) (cs i P')) :
+    ZK60.ProtocolClassify.KindRun tr
+structure ZK60.ProtocolClassify.RtMask (K : Type) (Lq : ℕ) : Type
+number of parameters: 2
+fields:
+  ZK60.ProtocolClassify.RtMask.S : ℕ
+  ZK60.ProtocolClassify.RtMask.k : ℕ
+  ZK60.ProtocolClassify.RtMask.Dm : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+      List (ZK60.Exec.TItem × ZK60.Exec.Dig) →
+        ZK60.Exec.MData K (Fin (2 ^ 12)) (Fin self.S) (Fin (2 * self.S + 2)) self.k 512
+constructor:
+  ZK60.ProtocolClassify.RtMask.mk {K : Type} {Lq : ℕ} (S k : ℕ)
+    (Dm :
+      List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+        List (ZK60.Exec.TItem × ZK60.Exec.Dig) → ZK60.Exec.MData K (Fin (2 ^ 12)) (Fin S) (Fin (2 * S + 2)) k 512) :
+    ZK60.ProtocolClassify.RtMask K Lq
+structure ZK60.ProtocolClassify.RtOpen (K : Type) (Lq : ℕ) : Type
+number of parameters: 2
+fields:
+  ZK60.ProtocolClassify.RtOpen.h : ℕ
+  ZK60.ProtocolClassify.RtOpen.Q : ℕ
+  ZK60.ProtocolClassify.RtOpen.e : ℕ
+  ZK60.ProtocolClassify.RtOpen.rows : ℕ
+  ZK60.ProtocolClassify.RtOpen.nC : ℕ
+  ZK60.ProtocolClassify.RtOpen.mI : ℕ
+  ZK60.ProtocolClassify.RtOpen.hQm : self.Q ≤ self.mI * 4
+  ZK60.ProtocolClassify.RtOpen.cl : List (ZK60.Exec.TItem × ZK60.Exec.Dig) →
+      ZK60.Sound.OClaims (Fin self.nC) ℕ (Fin self.rows) (Fin (2 ^ 14 + self.Q)) K
+  ZK60.ProtocolClassify.RtOpen.Ux : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+      List (ZK60.Exec.TItem × ZK60.Exec.Dig) → Fin self.rows → Fin (2 ^ self.h) → K
+  ZK60.ProtocolClassify.RtOpen.vpos : ℕ
+constructor:
+  ZK60.ProtocolClassify.RtOpen.mk {K : Type} {Lq : ℕ} (h Q e rows nC mI : ℕ) (hQm : Q ≤ mI * 4)
+    (cl : List (ZK60.Exec.TItem × ZK60.Exec.Dig) → ZK60.Sound.OClaims (Fin nC) ℕ (Fin rows) (Fin (2 ^ 14 + Q)) K)
+    (Ux : List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) → List (ZK60.Exec.TItem × ZK60.Exec.Dig) → Fin rows → Fin (2 ^ h) → K)
+    (vpos : ℕ) : ZK60.ProtocolClassify.RtOpen K Lq
+structure ZK60.Exec.PlaneCommit.SaltMk {V St Salt : Type} (C : ZK60.Exec.PlaneCommit V St Salt) : Type
+number of parameters: 4
+fields:
+  ZK60.Exec.PlaneCommit.SaltMk.bld : (Fin C.R → Fin C.n → ZK60.Circuit.GF) →
+      (Fin C.R → Fin C.Q → ZK60.Circuit.GF) → (Fin C.N → ZK60.Exec.Dig) → (Fin C.N → List ZK60.Exec.Dig) → Salt
+  ZK60.Exec.PlaneCommit.SaltMk.msg_mk : ∀ (v : V) (Mg : Fin C.R → Fin C.n → ZK60.Circuit.GF)
+      (Pd : Fin C.R → Fin C.Q → ZK60.Circuit.GF) (sl : Fin C.N → ZK60.Exec.Dig) (pa : Fin C.N → List ZK60.Exec.Dig)
+      (i : Fin C.R), (∀ (k : Fin C.dR), C.place k ≠ i) → C.msg v (self.bld Mg Pd sl pa) i = Mg i
+  ZK60.Exec.PlaneCommit.SaltMk.pad_mk : ∀ (Mg : Fin C.R → Fin C.n → ZK60.Circuit.GF)
+      (Pd : Fin C.R → Fin C.Q → ZK60.Circuit.GF) (sl : Fin C.N → ZK60.Exec.Dig) (pa : Fin C.N → List ZK60.Exec.Dig),
+      C.pad (self.bld Mg Pd sl pa) = Pd
+  ZK60.Exec.PlaneCommit.SaltMk.salt_mk : ∀ (Mg : Fin C.R → Fin C.n → ZK60.Circuit.GF)
+      (Pd : Fin C.R → Fin C.Q → ZK60.Circuit.GF) (sl : Fin C.N → ZK60.Exec.Dig) (pa : Fin C.N → List ZK60.Exec.Dig),
+      C.salt (self.bld Mg Pd sl pa) = sl
+  ZK60.Exec.PlaneCommit.SaltMk.path_mk : ∀ (Mg : Fin C.R → Fin C.n → ZK60.Circuit.GF)
+      (Pd : Fin C.R → Fin C.Q → ZK60.Circuit.GF) (sl : Fin C.N → ZK60.Exec.Dig) (pa : Fin C.N → List ZK60.Exec.Dig),
+      C.path (self.bld Mg Pd sl pa) = pa
+constructor:
+  ZK60.Exec.PlaneCommit.SaltMk.mk {V St Salt : Type} {C : ZK60.Exec.PlaneCommit V St Salt}
+    (bld :
+      (Fin C.R → Fin C.n → ZK60.Circuit.GF) →
+        (Fin C.R → Fin C.Q → ZK60.Circuit.GF) → (Fin C.N → ZK60.Exec.Dig) → (Fin C.N → List ZK60.Exec.Dig) → Salt)
+    (msg_mk :
+      ∀ (v : V) (Mg : Fin C.R → Fin C.n → ZK60.Circuit.GF) (Pd : Fin C.R → Fin C.Q → ZK60.Circuit.GF)
+        (sl : Fin C.N → ZK60.Exec.Dig) (pa : Fin C.N → List ZK60.Exec.Dig) (i : Fin C.R),
+        (∀ (k : Fin C.dR), C.place k ≠ i) → C.msg v (bld Mg Pd sl pa) i = Mg i)
+    (pad_mk :
+      ∀ (Mg : Fin C.R → Fin C.n → ZK60.Circuit.GF) (Pd : Fin C.R → Fin C.Q → ZK60.Circuit.GF)
+        (sl : Fin C.N → ZK60.Exec.Dig) (pa : Fin C.N → List ZK60.Exec.Dig), C.pad (bld Mg Pd sl pa) = Pd)
+    (salt_mk :
+      ∀ (Mg : Fin C.R → Fin C.n → ZK60.Circuit.GF) (Pd : Fin C.R → Fin C.Q → ZK60.Circuit.GF)
+        (sl : Fin C.N → ZK60.Exec.Dig) (pa : Fin C.N → List ZK60.Exec.Dig), C.salt (bld Mg Pd sl pa) = sl)
+    (path_mk :
+      ∀ (Mg : Fin C.R → Fin C.n → ZK60.Circuit.GF) (Pd : Fin C.R → Fin C.Q → ZK60.Circuit.GF)
+        (sl : Fin C.N → ZK60.Exec.Dig) (pa : Fin C.N → List ZK60.Exec.Dig), C.path (bld Mg Pd sl pa) = pa) :
+    C.SaltMk
+def ZK60.Exec.PlaneCommit.OpensU : {V St Salt : Type} →
+  (C : ZK60.Exec.PlaneCommit V St Salt) →
+    (L : ℕ) → 64 ≤ L → 8 * C.R ≤ L → ℕ → (ZK60.Exec.QB L → ZK60.Exec.Dig) → St → V → Salt → Prop :=
+fun {V St Salt : Type} (C : ZK60.Exec.PlaneCommit V St Salt) (L : ℕ) (h64 : 64 ≤ L) (hr : 8 * C.R ≤ L) (e : ℕ)
+    (G : ZK60.Exec.QB L → ZK60.Exec.Dig) (s : St) (v : V) (r : Salt) =>
+  C.ok v ∧
+    ∃ (J : Finset (Fin C.N)),
+      C.N ≤ J.card + e ∧
+        ∀ j ∈ J,
+          (ZK60.Exec.merkleEncB C.tag L C.R h64 hr).Opens G C.depth (C.root s) ↑j
+            { col := C.column v r j, salt := C.salt r j, path := C.path r j }
+def ZK60.ProtocolClassify.RtSeg.Holds : {St : Type} →
+  ZK60.ProtocolClassify.RtSeg St →
+    ℕ → (ZK60.ProtocolClassify.Carry → Prop) → (ZK60.ProtocolClassify.Carry → Prop) → Prop :=
+fun {St : Type} (σ : ZK60.ProtocolClassify.RtSeg St) (Lq : ℕ) (Inv Inv' : ZK60.ProtocolClassify.Carry → Prop) =>
+  ∀ (H : ZK60.Exec.HIn → ZK60.Exec.Dig) (s : St) (bnd : ZK60.Exec.Dig) (bytes : List UInt8)
+    (cr : ZK60.ProtocolClassify.Carry) (t : ZK60.Exec.Tr) (cr' : ZK60.ProtocolClassify.Carry) (t' : ZK60.Exec.Tr),
+    Inv cr →
+      ZK60.ProtocolClassify.segStep σ.v H s bnd bytes cr t = Except.ok (cr', t') →
+        t' = ZK60.Exec.runOps H t (ZK60.Exec.Link.stpsOps (ZK60.ProtocolClassify.rtPartStps σ.p (σ.rd s bytes))) ∧
+          ZK60.ProtocolClassify.RtPartOk Lq σ.p (σ.rd s bytes) ∧ Inv' cr'
+def ZK60.ProtocolClassify.clsStmtOf : {Hdr : Type} →
+  {S : ZK60.Block.BlockShape} →
+    {Salt Coins : Type} →
+      ZK60.TokenRun.ClassifyRunPublic S →
+        (Lq : ℕ) →
+          ZK60.ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins →
+            (Cin : ZK60.Exec.PlaneCommit (S.Tok → ℕ) (ZK60.ProtocolClassify.ClsStmt Hdr) Salt) →
+              64 ≤ Lq →
+                8 * Cin.R ≤ Lq →
+                  (Coins → Salt) →
+                    (ZK60.Exec.QB Lq → ZK60.Exec.Dig) → (S.Tok → ℕ) → Coins → ZK60.ProtocolClassify.ClsStmt Hdr :=
+fun {Hdr : Type} {S : ZK60.Block.BlockShape} {Salt Coins : Type} (R : ZK60.TokenRun.ClassifyRunPublic S) (Lq : ℕ)
+    (P : ZK60.ProtocolClassify.RunP Hdr (S.Tok → ℕ) Coins)
+    (Cin : ZK60.Exec.PlaneCommit (S.Tok → ℕ) (ZK60.ProtocolClassify.ClsStmt Hdr) Salt) (h64 : 64 ≤ Lq)
+    (hr : 8 * Cin.R ≤ Lq) (base : Coins → Salt) (G : ZK60.Exec.QB Lq → ZK60.Exec.Dig) (x : S.Tok → ℕ) (c : Coins) =>
+  ZK60.ProtocolClassify.honestStmt P.hdr (ZK60.ProtocolClassify.honestRoot Cin Lq h64 hr G x (base c))
+    ((ZK60.TokenRun.classifySpec R x).getD 0)
+def ZK60.ProtocolClassify.Site.fires : {Q Coins : Type} →
+  [inst : Fintype Q] →
+    [inst_1 : DecidableEq Q] →
+      [inst_2 : Fintype Coins] →
+        [inst_3 : Nonempty Coins] →
+          {K : Type} →
+            [inst_4 : Field K] →
+              [Algebra ZK60.Circuit.GF K] →
+                K → ZK60.ProtocolClassify.Site Q Coins K → (Q → ZK60.Exec.Dig) → Coins → Prop :=
+fun {Q Coins : Type} [Fintype Q] [DecidableEq Q] [Fintype Coins] [Nonempty Coins] {K : Type} [Field K]
+    [Algebra ZK60.Circuit.GF K] (U : K) (s : ZK60.ProtocolClassify.Site Q Coins K) (H : Q → ZK60.Exec.Dig)
+    (c : Coins) =>
+  ZK60.Exec.Fp2.toK U (ZK60.Exec.challengeFp2Of (H (ZK60.OC.run H (s.G c)).1)) ∈ s.bad (ZK60.OC.run H (s.G c)).2
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_a2_full.lean (19 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_b_probes.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_b_probes.lean:92:69: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  AddLeftStrictMono ℝ≥0∞
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_b_probes.lean:97:42: error: Function expected at
+  zero_le
+but this term has type
+  0 ≤ ?m.24
+
+Note: Expected a function because this term is being applied to the argument
+  _
+'GapAudit.gap_o11_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_zk_passthrough' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_segComplete_refuser' depends on axioms: [propext, Quot.sound]
+'GapAudit.gap_circuitIff_free' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_units' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_epsC_lt_one' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'GapAudit.gap_epsS_lt_one' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'GapAudit.gap_epsZk_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GapAudit.gap_block_end_free' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac5014c1840bb9c09/results/zk60_gap_audit_premises_20261110/gap_b_probes.lean (22 s)
+rc 1, 22 s
