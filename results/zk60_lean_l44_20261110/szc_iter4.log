@@ -1,0 +1,705 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_plan4.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:693:6: error: Application type mismatch: The argument
+  fun U => Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] amdS)
+has type
+  ?m.61 → ?m.61
+but is expected to have type
+  K
+in the application
+  szcExp (cstK U) RSz KSz (valsX U P D B b) fun U => Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 []) 17 [] amdS)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:715:6: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ∑ i, mu ↑i * if ↑i < 4 then cl ↑i else ?m.271 ↑i
+in the target expression
+  (∑ κ, mu ↑κ * if ↑κ < 4 then cl ↑κ else (List.replicate 4 0 ++ [x0, x1, x2, x3, x4] ++ [e]).getD (↑κ) 0) =
+    wsum (fun k => mu (4 + k)) 0 [x0, x1, x2, x3, x4] + mu 9 * e +
+      (mu 0 * cl 0 + mu 1 * cl 1 + mu 2 * cl 2 + mu 3 * cl 3)
+
+case cons.cons.cons.cons.cons.nil
+R : Type
+inst✝ : CommRing R
+mu cl : ℕ → R
+e x0 x1 x2 x3 x4 : R
+hxs : True
+⊢ (∑ κ, mu ↑κ * if ↑κ < 4 then cl ↑κ else (List.replicate 4 0 ++ [x0, x1, x2, x3, x4] ++ [e]).getD (↑κ) 0) =
+    wsum (fun k => mu (4 + k)) 0 [x0, x1, x2, x3, x4] + mu 9 * e +
+      (mu 0 * cl 0 + mu 1 * cl 1 + mu 2 * cl 2 + mu 3 * cl 3)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:771:29: warning: `Fin.coe_natAdd` has been deprecated: Use `Fin.val_natAdd` instead
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:816:104: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hS : RungS S
+hL : LayW16 Lay
+b : Fin 14 → Bool
+⊢ [aPl U P D 786432 14 b * aPl U P D 786432 14 b - aPl U P D 786432 14 b,
+      aPl U P D 786432 14 b *
+        (aPl U P D 65536 9 (hd9 b) - (algebraMap GF K) (B.mask (splitS b)) * (aPl U P D 737280 14 b + 127) + 127),
+      (algebraMap GF K) (B.mask (splitS b)) * aPl U P D 802816 14 b * 2 ^ 12 -
+          aPl U P D 819200 14 b * aPl U P D 81920 9 (hd9 b) -
+        (algebraMap GF K)
+          (if 17 ≤ 16 then plS U P D 835584 (splitS b)
+          else
+            plS U P D 835584 (splitS b) + 2 ^ 16 * (if 2 ≤ 0 + 1 + 1 then plS U P D 851968 else fun x => 0) (splitS b)),
+      (algebraMap GF K)
+              (if 17 ≤ 16 then plS U P D 868352 (splitS b)
+              else
+                plS U P D 868352 (splitS b) +
+                  2 ^ 16 * (if 2 ≤ 0 + 1 + 1 then plS U P D 884736 else fun x => 0) (splitS b)) +
+            (algebraMap GF K)
+              (if 17 ≤ 16 then plS U P D 835584 (splitS b)
+              else
+                plS U P D 835584 (splitS b) +
+                  2 ^ 16 * (if 2 ≤ 0 + 1 + 1 then plS U P D 851968 else fun x => 0) (splitS b)) +
+          1 -
+        aPl U P D 81920 9 (hd9 b)] =
+    [aPl U P D 786432 14 b * aPl U P D 786432 14 b - aPl U P D 786432 14 b,
+      aPl U P D 786432 14 b *
+        (aPl U P D 65536 9 (hd9 b) - (algebraMap GF K) (B.mask (splitS b)) * (aPl U P D 737280 14 b + 127) + 127),
+      (algebraMap GF K) (B.mask (splitS b)) * aPl U P D 802816 14 b * 2 ^ 12 -
+          aPl U P D 819200 14 b * aPl U P D 81920 9 (hd9 b) -
+        (aPl U P D 835584 14 b + 2 ^ 16 * aPl U P D 851968 14 b),
+      aPl U P D 868352 14 b + 2 ^ 16 * aPl U P D 884736 14 b +
+            (aPl U P D 835584 14 b + 2 ^ 16 * aPl U P D 851968 14 b) +
+          1 -
+        aPl U P D 81920 9 (hd9 b)]
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:824:110: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hS : RungS S
+hL : LayW16 Lay
+b : Fin 14 → Bool
+⊢ 2 ^ 18 * aPl U P D 737280 14 b +
+        (algebraMap GF K)
+          (if 18 ≤ 16 then plS U P D 753664 (splitS b)
+          else
+            plS U P D 753664 (splitS b) +
+              2 ^ 16 * (if 2 ≤ 0 + 1 + 1 then plS U P D 770048 else fun x => 0) (splitS b)) -
+      2 ^ (18 - 1) =
+    2 ^ 18 * aPl U P D 737280 14 b + (aPl U P D 753664 14 b + 2 ^ 16 * aPl U P D 770048 14 b) - 2 ^ 17
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:855:0: warning: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Szc.lksS17_pos`:
+  [Field K]
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Field K] [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:891:88: error: unsolved goals
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+U : K
+P : BlockParams
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+hS : RungS S
+hL : LayW16 Lay
+hist : Hist
+dr : List Fp2
+e0 e1 e2 : K
+b : Fin 14 → Bool
+hlk :
+  lkRels (cstK U) (e0 :: e1 :: e2 :: restS U P D ((algebraMap GF K) (B.mask (splitS b))) b) 16 0
+      (List.map (LkD.map (Fp2.toK U)) (List.map (LkD.map (Sym.eval hist 17 dr)) lksS17)) =
+    lkRels (cstK U) (0 :: 0 :: 0 :: restS U P D ((algebraMap GF K) (B.mask (splitS b))) b) 16 0
+      (List.map (LkD.map (Fp2.toK U)) (List.map (LkD.map (Sym.eval hist 17 dr)) lksS17))
+hlks :
+  List.map (LkD.map (Sym.eval hist 17 dr)) lksS17 =
+    List.map
+      (LkD.map
+        (Sym.eval
+          (histOf (hist.beta, hist.gamma, hist.alpha).1 (hist.beta, hist.gamma, hist.alpha).2.1
+            (hist.beta, hist.gamma, hist.alpha).2.2 [])
+          17 []))
+      lksS17
+hex :
+  szcExp (cstK U) RSz KSz (e0 :: e1 :: e2 :: restS U P D ((algebraMap GF K) (B.mask (splitS b))) b)
+      (Fp2.toK U (Sym.eval hist 17 dr amdS)) (Fp2.toK U (Sym.eval hist 17 dr nbS)) =
+    szcExp (cstK U) RSz KSz (valsX U P D B b)
+      (Fp2.toK U
+        (Sym.eval
+          (histOf (hist.beta, hist.gamma, hist.alpha).1 (hist.beta, hist.gamma, hist.alpha).2.1
+            (hist.beta, hist.gamma, hist.alpha).2.2 [])
+          17 [] amdS))
+      (Fp2.toK U
+        (Sym.eval
+          (histOf (hist.beta, hist.gamma, hist.alpha).1 (hist.beta, hist.gamma, hist.alpha).2.1
+            (hist.beta, hist.gamma, hist.alpha).2.2 [])
+          17 [] nbS))
+hlen : (lkRels (cstK U) (valsX U P D B b) 16 0 (lksK U (hist.beta, hist.gamma, hist.alpha))).length = 5
+c0 :
+  (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 17 0 (W16Pos.s (splitS b))) =
+    aPl U P D 786432 14 b * aPl U P D 786432 14 b - aPl U P D 786432 14 b
+c1 :
+  (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 17 1 (W16Pos.s (splitS b))) =
+    aPl U P D 786432 14 b *
+      (aPl U P D 65536 9 (hd9 b) - (algebraMap GF K) (B.mask (splitS b)) * (aPl U P D 737280 14 b + 127) + 127)
+c2 :
+  (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 17 2 (W16Pos.s (splitS b))) =
+    (algebraMap GF K) (B.mask (splitS b)) * aPl U P D 802816 14 b * 2 ^ 12 -
+        aPl U P D 819200 14 b * aPl U P D 81920 9 (hd9 b) -
+      (aPl U P D 835584 14 b + 2 ^ 16 * aPl U P D 851968 14 b)
+c3 :
+  (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 17 3 (W16Pos.s (splitS b))) =
+    aPl U P D 868352 14 b + 2 ^ 16 * aPl U P D 884736 14 b + (aPl U P D 835584 14 b + 2 ^ 16 * aPl U P D 851968 14 b) +
+        1 -
+      aPl U P D 81920 9 (hd9 b)
+⊢ e0 *
+                                                    wsum
+                                                      (fun k =>
+                                                        (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[4 + k]?).getD
+                                                          0)
+                                                      0
+                                                      (lkRels (cstK U)
+                                                        [0, 0, 0, (algebraMap GF K) (B.mask (splitS b)),
+                                                          aPl U P D 737280 14 b, aPl U P D 753664 14 b,
+                                                          aPl U P D 770048 14 b, aPl U P D 786432 14 b,
+                                                          aPl U P D 802816 14 b, aPl U P D 819200 14 b,
+                                                          aPl U P D 835584 14 b, aPl U P D 851968 14 b,
+                                                          aPl U P D 868352 14 b, aPl U P D 884736 14 b,
+                                                          aPl U P D 65536 9 (hd9 b), aPl U P D 81920 9 (hd9 b),
+                                                          hPl U P D 655360 671744 14 b, hPl U P D 688128 704512 14 b,
+                                                          hPl U P D 720896 737280 14 b, hPl U P D 753664 770048 14 b,
+                                                          hPl U P D 786432 802816 14 b, hPl U P D 819200 835584 14 b]
+                                                        16 0
+                                                        (List.map
+                                                          (LkD.map (Fp2.toK U) ∘
+                                                            LkD.map
+                                                              (Sym.eval (histOf hist.beta hist.gamma hist.alpha []) 17
+                                                                []))
+                                                          lksS17)) +
+                                                  e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[9]?).getD 0 *
+                                                    szcExp (cstK U)
+                                                      { tau := 0, pht := 1, ps := 2, mask := 3, s8 := 4, zsel := 7,
+                                                        e := 8, p := 9, sr := [10, 11], sg := [12, 13], rsl := [5, 6],
+                                                        mx := 14, sum := 15, h0 := 16, hx := 21, gHt := none,
+                                                        gS := none }
+                                                      { ms := 127, fp := 12, score := 18 }
+                                                      [0, 0, 0, (algebraMap GF K) (B.mask (splitS b)),
+                                                        aPl U P D 737280 14 b, aPl U P D 753664 14 b,
+                                                        aPl U P D 770048 14 b, aPl U P D 786432 14 b,
+                                                        aPl U P D 802816 14 b, aPl U P D 819200 14 b,
+                                                        aPl U P D 835584 14 b, aPl U P D 851968 14 b,
+                                                        aPl U P D 868352 14 b, aPl U P D 884736 14 b,
+                                                        aPl U P D 65536 9 (hd9 b), aPl U P D 81920 9 (hd9 b),
+                                                        hPl U P D 655360 671744 14 b, hPl U P D 688128 704512 14 b,
+                                                        hPl U P D 720896 737280 14 b, hPl U P D 753664 770048 14 b,
+                                                        hPl U P D 786432 802816 14 b, hPl U P D 819200 835584 14 b]
+                                                      (Fp2.toK U
+                                                        (Sym.eval (histOf hist.beta hist.gamma hist.alpha []) 17 []
+                                                          amdS))
+                                                      (Fp2.toK U
+                                                        (Sym.eval (histOf hist.beta hist.gamma hist.alpha []) 17 []
+                                                          nbS)) -
+                                                e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[0]?).getD 0 *
+                                                  aPl U P D 786432 14 b +
+                                              e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[0]?).getD 0 *
+                                                aPl U P D 786432 14 b ^ 2 +
+                                            e0 * aPl U P D 786432 14 b *
+                                                (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[1]?).getD 0 *
+                                              aPl U P D 65536 9 (hd9 b) -
+                                          e0 * aPl U P D 786432 14 b *
+                                                (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[1]?).getD 0 *
+                                              (algebraMap GF K) (B.mask (splitS b)) *
+                                            aPl U P D 737280 14 b +
+                                        e0 * aPl U P D 786432 14 b *
+                                              (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[1]?).getD 0 *
+                                            (algebraMap GF K) (B.mask (splitS b)) *
+                                          (cstK U).base (-127) +
+                                      e0 * aPl U P D 786432 14 b *
+                                          (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[1]?).getD 0 *
+                                        (cstK U).base 127 +
+                                    e0 * (algebraMap GF K) (B.mask (splitS b)) *
+                                          (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[2]?).getD 0 *
+                                        (cstK U).base 4096 *
+                                      aPl U P D 802816 14 b -
+                                  e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[2]?).getD 0 *
+                                      aPl U P D 819200 14 b *
+                                    aPl U P D 81920 9 (hd9 b) -
+                                e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[2]?).getD 0 * (cstK U).p16 0 *
+                                  aPl U P D 835584 14 b -
+                              e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[2]?).getD 0 * (cstK U).p16 1 *
+                                aPl U P D 851968 14 b -
+                            e0 * aPl U P D 81920 9 (hd9 b) *
+                              (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 +
+                          e0 * (cstK U).p16 0 * aPl U P D 835584 14 b *
+                            (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 +
+                        e0 * (cstK U).p16 0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 *
+                          aPl U P D 868352 14 b +
+                      e0 * (cstK U).p16 1 * aPl U P D 851968 14 b *
+                        (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 +
+                    e0 * (cstK U).p16 1 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 *
+                      aPl U P D 884736 14 b +
+                  e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 +
+                aPl U P D 737280 14 b * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[1]?).getD 0 * e2 *
+                  (cstK U).base 262144 +
+              aPl U P D 81920 9 (hd9 b) * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[0]?).getD 0 * e1 +
+            (cstK U).p16 0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[1]?).getD 0 * e2 *
+              aPl U P D 753664 14 b +
+          (cstK U).p16 1 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[1]?).getD 0 * e2 * aPl U P D 770048 14 b +
+        (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[0]?).getD 0 * e1 *
+          Fp2.toK U (Sym.eval hist 17 dr (Sym.dr 4 9)) +
+      (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[1]?).getD 0 * e2 * (cstK U).base (-131072) =
+    e0 *
+                                                    wsum
+                                                      (fun k =>
+                                                        (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[4 + k]?).getD
+                                                          0)
+                                                      0
+                                                      (lkRels (cstK U)
+                                                        [0, 0, 0, (algebraMap GF K) (B.mask (splitS b)),
+                                                          aPl U P D 737280 14 b, aPl U P D 753664 14 b,
+                                                          aPl U P D 770048 14 b, aPl U P D 786432 14 b,
+                                                          aPl U P D 802816 14 b, aPl U P D 819200 14 b,
+                                                          aPl U P D 835584 14 b, aPl U P D 851968 14 b,
+                                                          aPl U P D 868352 14 b, aPl U P D 884736 14 b,
+                                                          aPl U P D 65536 9 (hd9 b), aPl U P D 81920 9 (hd9 b),
+                                                          hPl U P D 655360 671744 14 b, hPl U P D 688128 704512 14 b,
+                                                          hPl U P D 720896 737280 14 b, hPl U P D 753664 770048 14 b,
+                                                          hPl U P D 786432 802816 14 b, hPl U P D 819200 835584 14 b]
+                                                        16 0
+                                                        (List.map
+                                                          (LkD.map (Fp2.toK U) ∘
+                                                            LkD.map
+                                                              (Sym.eval (histOf hist.beta hist.gamma hist.alpha []) 17
+                                                                []))
+                                                          lksS17)) +
+                                                  e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[9]?).getD 0 *
+                                                    sorry () -
+                                                e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[0]?).getD 0 *
+                                                  aPl U P D 786432 14 b +
+                                              e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[0]?).getD 0 *
+                                                aPl U P D 786432 14 b ^ 2 +
+                                            e0 * aPl U P D 786432 14 b *
+                                                (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[1]?).getD 0 *
+                                              127 +
+                                          e0 * aPl U P D 786432 14 b *
+                                              (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[1]?).getD 0 *
+                                            aPl U P D 65536 9 (hd9 b) -
+                                        e0 * aPl U P D 786432 14 b *
+                                              (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[1]?).getD 0 *
+                                            (algebraMap GF K) (B.mask (splitS b)) *
+                                          127 -
+                                      e0 * aPl U P D 786432 14 b *
+                                            (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[1]?).getD 0 *
+                                          (algebraMap GF K) (B.mask (splitS b)) *
+                                        aPl U P D 737280 14 b +
+                                    e0 * (algebraMap GF K) (B.mask (splitS b)) *
+                                          (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[2]?).getD 0 *
+                                        aPl U P D 802816 14 b *
+                                      4096 -
+                                  e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[2]?).getD 0 *
+                                      aPl U P D 819200 14 b *
+                                    aPl U P D 81920 9 (hd9 b) -
+                                e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[2]?).getD 0 *
+                                  aPl U P D 835584 14 b -
+                              e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[2]?).getD 0 *
+                                  aPl U P D 851968 14 b *
+                                65536 -
+                            e0 * aPl U P D 81920 9 (hd9 b) *
+                              (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 +
+                          e0 * aPl U P D 835584 14 b * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 +
+                        e0 * aPl U P D 851968 14 b * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 *
+                          65536 +
+                      e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 +
+                    e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 * aPl U P D 868352 14 b +
+                  e0 * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) muS[3]?).getD 0 * aPl U P D 884736 14 b * 65536 +
+                aPl U P D 737280 14 b * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[1]?).getD 0 * e2 * 262144 +
+              aPl U P D 81920 9 (hd9 b) * (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[0]?).getD 0 * e1 +
+            (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[0]?).getD 0 * e1 *
+              Fp2.toK U (Sym.eval hist 17 dr (Sym.dr 4 9)) -
+          (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[1]?).getD 0 * e2 * 131072 +
+        (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[1]?).getD 0 * e2 * aPl U P D 753664 14 b +
+      (Option.map (Fp2.toK U ∘ Sym.eval hist 17 dr) nuS[1]?).getD 0 * e2 * aPl U P D 770048 14 b * 65536
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:920:64: warning: This simp argument is unused:
+  restS
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [batchV, szcClauses, szcDelta, RSz, KSz, reqV, L16, List.zipIdx_cons, List.zipIdx_nil,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.getD_cons_zero, List.getD_cons_succ, cK U, cP U]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:922:4: warning: This simp argument is unused:
+  cK U
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [batchV, szcClauses, szcDelta, RSz, KSz, reqV, L16, restS, List.zipIdx_cons, List.zipIdx_nil,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.getD_cons_zero, List.getD_cons_succ, cP U]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:922:10: warning: This simp argument is unused:
+  cP U
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [batchV, szcClauses, szcDelta, RSz, KSz, reqV, L16, restS, List.zipIdx_cons, List.zipIdx_nil,
+    List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, List.getD_cons_zero, List.getD_cons_succ, cK U]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:1037:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:1378:46: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  mleAt (algM sh dt 17 cu rt 0) (algPt U sh 17 hist 0)
+in the target expression
+  (mleAt
+        (batched (dt✝.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha)) (dt✝.pw 17 cu rt)
+          ((if segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.zeta = 1 then
+                segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+                  (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.zeta 0
+              else 0,
+              if segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.zeta = 1 then
+                segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+                  (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.mu
+                  (segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.mu -
+                    segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.zeta)
+              else 0),
+            fun κ =>
+            segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+              (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.mu ↑κ))
+        fun t =>
+        segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+          (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.tau ↑t) +
+      (segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+            (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.nu ↑0 *
+          (mleAt (fun b => 1 * algH U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt hist 0 b)
+              (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 0) -
+            mleAt (algM (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt 0)
+              (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 0)) +
+        segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+            (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.nu ↑1 *
+          (mleAt (fun b => 1 * algH U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt hist 1 b)
+              (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 1) -
+            mleAt (algM (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt 1)
+              (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 1))) =
+    (mleAt
+          (fun b =>
+            ∑ κ, Fp2.toK U (dr.getD (14 + ↑κ) Fp2.zero) * dt✝.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha) κ b)
+          fun t => Fp2.toK U (dr.getD (↑t) Fp2.zero)) +
+        Fp2.toK U (dr.getD 24 Fp2.zero) *
+          mleAt (algH U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt hist 0)
+            (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 0) +
+      Fp2.toK U (dr.getD 25 Fp2.zero) *
+        (mleAt (dt✝.gh 17 cu rt 1) (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 1) -
+          mleAt (dt✝.mm 17 cu rt 1) (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 1))
+
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hcard : 78 < Fintype.card K
+L : ℕ
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+dt✝ : AlgData K L (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78)
+cu : Cuts3 L
+rt : RootsO
+hist : Hist
+dr : List Fp2
+sh : AlgShape P := algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78
+dt : AlgData K L sh
+hsh : sh = algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78
+hk : 17 ∈ algHosts
+hseg :
+  ∀ (g : Slot.W16R2.Seg) (i : ℕ),
+    segOff (sh.dl 17) g + i < segSum (sh.dl 17) →
+      segAt (sh.dl 17) (fun j => (fun i => Fp2.toK U (dr.getD (↑i) Fp2.zero)) (Fin.cast ⋯ j)) g i =
+        Fp2.toK U (dr.getD (segOff (sh.dl 17) g + i) Fp2.zero)
+hz : segLn (sh.dl 17) Slot.W16R2.Seg.zeta = 0
+hM0 : mleAt (algM sh dt 17 cu rt 0) (algPt U sh 17 hist 0) = 0
+⊢ (mleAt
+        (batched (dt✝.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha)) (dt✝.pw 17 cu rt)
+          ((if segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.zeta = 1 then
+                segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+                  (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.zeta 0
+              else 0,
+              if segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.zeta = 1 then
+                segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+                  (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.mu
+                  (segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.mu -
+                    segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.zeta)
+              else 0),
+            fun κ =>
+            segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+              (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.mu ↑κ))
+        fun t =>
+        segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+          (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.tau ↑t) +
+      (segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+            (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.nu ↑0 *
+          (mleAt (fun b => 1 * algH U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt hist 0 b)
+              (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 0) -
+            mleAt (algM (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt 0)
+              (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 0)) +
+        segAt ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17)
+            (fun j => Fp2.toK U (dr.getD (↑(Fin.cast ⋯ j)) Fp2.zero)) Slot.W16R2.Seg.nu ↑1 *
+          (mleAt (fun b => 1 * algH U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt hist 1 b)
+              (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 1) -
+            mleAt (algM (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt 1)
+              (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 1))) =
+    (mleAt
+          (fun b =>
+            ∑ κ, Fp2.toK U (dr.getD (14 + ↑κ) Fp2.zero) * dt✝.cl 17 cu rt (hist.beta, hist.gamma, hist.alpha) κ b)
+          fun t => Fp2.toK U (dr.getD (↑t) Fp2.zero)) +
+        Fp2.toK U (dr.getD 24 Fp2.zero) *
+          mleAt (algH U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) dt✝ 17 cu rt hist 0)
+            (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 0) +
+      Fp2.toK U (dr.getD 25 Fp2.zero) *
+        (mleAt (dt✝.gh 17 cu rt 1) (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 1) -
+          mleAt (dt✝.mm 17 cu rt 1) (algPt U (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78) 17 hist 1))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    Eq.refl true
+  has type
+    @Eq Bool true true
+  but is expected to have type
+    @Eq Bool (decide (17 ∈ algHosts)) true
+  in the application
+    id (Eq.refl true)
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:1415:0: warning: automatically included section variable(s) unused in theorem `ZK60.Exec.Block.Join.W16.Szc.algPt_score`:
+  [Fintype K]
+  [DecidableEq K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype K] [DecidableEq K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:1437:8: error: Type mismatch
+  Fin.append p fun x => 0
+has type
+  Fin (9 + ?m.192) → K
+but is expected to have type
+  Fin (segLn ((algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).dl 17) Slot.W16R2.Seg.tau) → K
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:1473:36: error: Type mismatch
+  fun i => Fp2.toK U (dr.getD (a + i) Fp2.zero)
+has type
+  ℕ → K
+but is expected to have type
+  Fin n → K
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:1480:61: error: Type mismatch
+  fun i => Fp2.toK U (rj.draws.getD (o + i) Fp2.zero)
+has type
+  ℕ → K
+but is expected to have type
+  Fin n → K
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean:1586:8: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  fun r => (algebraMap GF K) (relRsA Pb Lay B (xtW U P D) (W16Pos.ht (splitHt r)))
+in the target expression
+  32 *
+      ((mleAt (fun b => (algebraMap GF K) (relRsA Pb Lay B (xtW U P D) (W16Pos.ht (splitHt b)))) fun i =>
+          Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)) +
+        Fp2.toK U (r4.draws.getD 9 Fp2.zero) *
+          mleAt (fun b => (algebraMap GF K) (relRsB Pb Lay B (xtW U P D) (W16Pos.ht (splitHt b)))) fun i =>
+            Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)) =
+    32 *
+      (((mleAt (fun r => aPl U P D 81920 9 r) fun i => Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)) -
+          mleAt
+            (fun r => ∑ j, (algebraMap GF K) (B.mask (splitS (Fin.append r j))) * aPl U P D 802816 14 (Fin.append r j))
+            fun i => Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)) +
+        Fp2.toK U (r4.draws.getD 9 Fp2.zero) *
+          (1 -
+            mleAt (fun r => ∑ j, aPl U P D 786432 14 (Fin.append r j)) fun i =>
+              Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)))
+
+K : Type
+inst✝³ : Field K
+inst✝² : Algebra GF K
+inst✝¹ : Fintype K
+inst✝ : DecidableEq K
+U : K
+hU : U ^ 2 = (algebraMap GF K) 7
+hcard : 78 < Fintype.card K
+L : ℕ
+S : Block.BlockShape
+Pb : Block.BlockPublic S
+Lay : W16Layout S CtW CwW CgW CjW CdW CfW
+B : W16Pub S Pb Lay
+P : BlockParams
+hdr : P.draws = W16R2.rungDraws
+hsl : P.geom.slots = W16R2.rungSlots
+ioIn ioOut : ℕ
+pubs : PubTabs
+hdef : P.define = defineS (progW16 cfgRungW16 ioIn ioOut) pubs
+D : CmData K P
+hX : ∀ (i : Fin (D.rows Cm.a)) (t : Fin (2 ^ rowLog P Cm.a + D.Q Cm.a)), D.X Cm.a i t ∈ baseR K
+hrl : 0 < rowLog P Cm.a
+hS : RungS S
+hL : LayW16 Lay
+hpub : PubW16 U pubs Pb Lay B
+dt : AlgData K L (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78)
+cu : Cuts3 L
+rt : RootsO
+hcl :
+  ∀ (bga : Fp2 × Fp2 × Fp2) (κ : Fin 10) (b : Fin 14 → Bool),
+    dt.cl 17 cu rt bga κ b =
+      if ↑κ < 4 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 17 (↑κ) (W16Pos.s (splitS b)))
+      else xcSzc U P D Pb Lay B bga (↑κ) b
+hgh :
+  ∀ (b : Fin 14 → Bool), dt.gh 17 cu rt 1 b = (algebraMap GF K) (relGh Pb Lay B (xtW U P D) 17 1 (W16Pos.s (splitS b)))
+hmm :
+  ∀ (b : Fin 14 → Bool), dt.mm 17 cu rt 1 b = (algebraMap GF K) (relMm Pb Lay B (xtW U P D) 17 1 (W16Pos.s (splitS b)))
+hrsA : ∀ (b : Fin 9 → Bool), dt.rsA cu rt b = (algebraMap GF K) (relRsA Pb Lay B (xtW U P D) (W16Pos.ht (splitHt b)))
+hrsB : ∀ (b : Fin 9 → Bool), dt.rsB cu rt b = (algebraMap GF K) (relRsB Pb Lay B (xtW U P D) (W16Pos.ht (splitHt b)))
+hsc : dt.rsScale = 32
+bga : Fp2 × Fp2 × Fp2
+rs : List SlotRec
+hslots :
+  ∀ (j : ℕ) (r : SlotRec),
+    rs[j]? = some r →
+      ∃ df,
+        P.define j (histOf bga.1 bga.2.1 bga.2.2 (List.take j rs)) r.draws = Except.ok df ∧
+          (P.kind j = SlotKind.host ↔ df.hosted ≠ [])
+hs17 : slotShape P 17 = (14, 1, 4)
+hs4 : slotShape P 4 = (14, 1, 3)
+hs8 : slotShape P 8 = (9, 2, 3)
+hk : 17 ∈ algHosts
+r : SlotRec
+hr : rs[17]? = some r
+hlen : 17 < rs.length
+r4 : SlotRec
+hr4 : rs[4]? = some r4
+r8 : SlotRec
+hr8 : rs[8]? = some r8
+hsp17 :
+  cubeSum (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs 17 (seenOf bga rs 17)) =
+    mleAt
+          (fun b =>
+            ∑ κ,
+              (List.map (Fp2.toK U)
+                      (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) muS)).getD
+                  (↑κ) 0 *
+                if ↑κ < 4 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 17 (↑κ) (W16Pos.s (splitS b)))
+                else
+                  xcSzc U P D Pb Lay B
+                    ((histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).beta,
+                      (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).gamma,
+                      (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).alpha)
+                    (↑κ) b)
+          (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) 17 0 14) +
+        (List.map (Fp2.toK U)
+                (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) nuS)).getD
+            0 0 *
+          (32 *
+            (mleAt (fun r => aPl U P D 81920 9 r)
+                (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) 4 0 9) +
+              Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws (Sym.dr 4 9)))) +
+      (List.map (Fp2.toK U) (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) nuS)).getD
+          1 0 *
+        mleAt (fun b => (algebraMap GF K) (relGh Pb Lay B (xtW U P D) 17 1 (W16Pos.s (splitS b))))
+          (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) 8 0 14)
+hsp4 :
+  cubeSum (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs 4 (seenOf bga rs 4)) =
+    mleAt (fun r => ∑ j, (algebraMap GF K) (B.mask (splitS (Fin.append r j))) * aPl U P D 802816 14 (Fin.append r j))
+        (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 4 rs)) 4 r4.draws) 4 0 9) +
+      Fp2.toK U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 4 rs)) 4 r4.draws (Sym.dr 4 9)) *
+        mleAt (fun r => ∑ j, aPl U P D 786432 14 (Fin.append r j))
+          (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 4 rs)) 4 r4.draws) 4 0 9)
+hsp8 :
+  cubeSum (polyS U P D (progW16 cfgRungW16 ioIn ioOut) pubs 8 (seenOf bga rs 8)) =
+    ∑ g,
+      ∑ c,
+        (eqPoly (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 8 rs)) 8 r8.draws) 8 0 3) fun i =>
+            bit (g i)) *
+          ((∑ t,
+              ∑ j,
+                ((eqPoly (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 8 rs)) 8 r8.draws) 8 4 5) fun i =>
+                      bit (t i)) *
+                    eqPoly (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 8 rs)) 8 r8.draws) 8 3 1) fun i =>
+                      bit (j i)) *
+                  aPl U P D 507904 15 (Fin.append t (Fin.append (Fin.append g j) c))) *
+            ∑ t',
+              (eqPoly (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 8 rs)) 8 r8.draws) 8 9 5) fun i =>
+                  bit (t' i)) *
+                aPl U P D 704512 14 (Fin.append t' (Fin.append g c)))
+eZ :
+  (mleAt
+      (fun b =>
+        ∑ κ,
+          Fp2.toK U (r.draws.getD (14 + ↑κ) Fp2.zero) *
+            dt.cl 17 cu rt
+              ((histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).beta,
+                (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).gamma,
+                (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).alpha)
+              κ b)
+      fun t => Fp2.toK U (r.draws.getD (↑t) Fp2.zero)) =
+    mleAt
+      (fun b =>
+        ∑ κ,
+          (List.map (Fp2.toK U)
+                  (List.map (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) muS)).getD
+              (↑κ) 0 *
+            if ↑κ < 4 then (algebraMap GF K) (relCl Pb Lay B (xtW U P D) 17 (↑κ) (W16Pos.s (splitS b)))
+            else
+              xcSzc U P D Pb Lay B
+                ((histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).beta,
+                  (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).gamma,
+                  (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)).alpha)
+                (↑κ) b)
+      (ptv U (Sym.eval (histOf bga.1 bga.2.1 bga.2.2 (List.take 17 rs)) 17 r.draws) 17 0 14)
+hA :
+  (fun r => (algebraMap GF K) (relRsA Pb Lay B (xtW U P D) (W16Pos.ht (splitHt r)))) = fun r =>
+    aPl U P D 81920 9 r -
+      ∑ j, (algebraMap GF K) (B.mask (splitS (Fin.append r j))) * aPl U P D 802816 14 (Fin.append r j)
+hB :
+  (fun r => (algebraMap GF K) (relRsB Pb Lay B (xtW U P D) (W16Pos.ht (splitHt r)))) = fun r =>
+    1 - ∑ j, aPl U P D 786432 14 (Fin.append r j)
+⊢ 32 *
+      ((mleAt (fun b => (algebraMap GF K) (relRsA Pb Lay B (xtW U P D) (W16Pos.ht (splitHt b)))) fun i =>
+          Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)) +
+        Fp2.toK U (r4.draws.getD 9 Fp2.zero) *
+          mleAt (fun b => (algebraMap GF K) (relRsB Pb Lay B (xtW U P D) (W16Pos.ht (splitHt b)))) fun i =>
+            Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)) =
+    32 *
+      (((mleAt (fun r => aPl U P D 81920 9 r) fun i => Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)) -
+          mleAt
+            (fun r => ∑ j, (algebraMap GF K) (B.mask (splitS (Fin.append r j))) * aPl U P D 802816 14 (Fin.append r j))
+            fun i => Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)) +
+        Fp2.toK U (r4.draws.getD 9 Fp2.zero) *
+          (1 -
+            mleAt (fun r => ∑ j, aPl U P D 786432 14 (Fin.append r j)) fun i =>
+              Fp2.toK U (r4.draws.getD (↑i) Fp2.zero)))
+
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Full error:
+  Application type mismatch: The argument
+    b
+  has type
+    Fin (algShapeW16Rung P hdr mpadW mpadW_hm0 mpadW_hm78).nHt → Bool
+  but is expected to have type
+    Fin 9 → Bool
+  in the application
+    splitHt b
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_test.lean (23 s)
+rc 1, 23 s

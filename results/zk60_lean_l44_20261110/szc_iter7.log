@@ -1,0 +1,17 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_plan7.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostSzc.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_axcheck.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostSzc.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/formal/ZK60Formal/BlockHostSzc.lean (4 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_axcheck.lean ==
+'ZK60.Exec.Block.Join.W16.Szc.formAt_szc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Szc.szc_hostPhi' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Szc.szc_point' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Szc.szc_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Szc.rs_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Szc.score_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Szc.score_gen' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Szc.algH0_mle' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.Join.W16.Szc.relMm171_alg' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_axcheck.lean (8 s)
+rc 0, 8 s

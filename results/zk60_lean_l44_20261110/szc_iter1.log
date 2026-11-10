@@ -1,0 +1,14 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_plan1.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_probe.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_probe.lean ==
+"slot 4: 4 tabs\n  0: eq[[d4.0, d4.1, d4.2, d4.3, d4.4, d4.5, d4.6, d4.7, d4.8] @0]\n  1: pub0\n  2: priv[A [(802816, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m142 e0]\n  3: priv[A [(786432, false)] log14 [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13] m144 e0]\n  hosted []\n  nonzero []"
+"slot 8: 3 tabs\n  0: eq[[d8.0, d8.1, d8.2] @0]\n  1: priv[A [(507904, false)] log15 [x[d8.4], x[d8.5], x[d8.6], x[d8.7], x[d8.8], r0, r1, r2, x[d8.3], r3, r4, r5, r6, r7, r8] m152 e0]\n  2: priv[A [(704512, false)] log14 [x[d8.9], x[d8.10], x[d8.11], x[d8.12], x[d8.13], r0, r1, r2, r3, r4, r5, r6, r7, r8] m154 e1]\n  hosted []\n  nonzero []"
+9
+[("(α-(b127+γ133))", [("b-1", 4)]), ("(α-(b127+γ133))", [("b1", 4)]), ("(α-(b0+γ216))", [("b-1", 5)]),
+  ("(α-(b0+γ202))", [("b-1", 6)]), ("(α-(b0+γ213))", [("b-1", 9)]), ("(α-(b0+γ216))", [("b-1", 10)]),
+  ("(α-(b0+γ201))", [("b-1", 11)]), ("(α-(b0+γ216))", [("b-1", 12)]), ("(α-(b0+γ201))", [("b-1", 13)])]
+39
+32
+3
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-aef3f43a89ff2e7cf/results/zk60_lean_l44_20261110/szc_probe.lean (2 s)
+rc 0, 2 s
