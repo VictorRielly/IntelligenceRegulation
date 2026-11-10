@@ -134,9 +134,9 @@ class FastModeTests(unittest.TestCase):
         self.assertNotEqual(pin, 'ccd58102e3fdbe4fb0be3446b5d539cd6741779a6efaea073251ef040968a946')
         self.assertEqual(fast.IDENTITY, 'e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d', 'the same receipts: the same identity')
         self.assertEqual(fast.RUN_PROFILE, 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2')
-        # [A27] a later lane's build of the same servers carries A26's work cuts and settings
-        self.assertIn(fast.LANE, ('A26', 'A27'))
-        self.assertEqual(fast.NATIVE_SETTINGS, {'HL_METAL_QUEUES': 'thread'})
+        # [A27, A28] a later lane's build of the same servers carries A26's work cuts and settings
+        self.assertIn(fast.LANE, ('A26', 'A27', 'A28'))
+        self.assertEqual(fast.NATIVE_SETTINGS['HL_METAL_QUEUES'], 'thread')
         models = self.root / 'models/shieldstral-1.0-3b/snapshot-003ec7e2'
         models.mkdir(parents=True)
         (models / 'model.safetensors').write_bytes(b'TEST FIXTURE\n')
@@ -148,19 +148,18 @@ class FastModeTests(unittest.TestCase):
             self.assertNotIn(off, env, f'{off} waits for the security owner')
         self.assertIn('A26', fast.CLI_DESCRIPTION)
 
-    def test_a27_pins_its_binary_and_leaves_every_kernel_switch_at_its_default(self):
-        """[A27] the pinned binary is lane A27's (never A26's b6336628... or A24's ccd58102...), with
-        the same statement identity and run profile; the app sets none of the A27 kernel switches
-        (HL_A27_LIN, HL_A27_DEGREE, HL_A27_FOLD, HL_A27_NTT, HL_A27_NTT4: on by default in the binary), no GPU
-        trace, and still neither of A26's two switches that wait for the security owner"""
+    def test_a27_kernels_stay_at_their_defaults_in_the_later_build(self):
+        """[A27] the pinned binary is never A26's b6336628... or A24's ccd58102...; a later lane's build
+        (A28) carries the A27 kernels with the same statement identity and run profile; the app sets
+        none of the A27 kernel switches (HL_A27_LIN, HL_A27_DEGREE, HL_A27_FOLD, HL_A27_NTT, HL_A27_NTT4:
+        on by default in the binary), no GPU trace, and still neither of A26's two switches that wait
+        for the security owner"""
         pin = fast_runtime_pin()
         self.assertRegex(pin, r'^[0-9a-f]{64}$')
         for older in ('b6336628364ae4407a2640d52b84ddf3c9688420fc827082ccb1c1aaf37d366d',
                       'ccd58102e3fdbe4fb0be3446b5d539cd6741779a6efaea073251ef040968a946'):
             self.assertNotEqual(pin, older)
-        self.assertEqual(fast.LANE, 'A27')
-        # the default path, read from the module's source (the fixture patches the attribute)
-        self.assertIn("zk60-artifacts/proven-media-fast/bin/zk60_classify.a27'", Path(fast.__file__).read_text())
+        self.assertIn(fast.LANE, ('A27', 'A28'))
         self.assertEqual(fast.IDENTITY, 'e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d', 'the same receipts: the same identity')
         self.assertEqual(fast.RUN_PROFILE, 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2')
         models = self.root / 'models/shieldstral-1.0-3b/snapshot-003ec7e2'
@@ -172,6 +171,40 @@ class FastModeTests(unittest.TestCase):
         for off in ('HL_A26_KEPT', 'HL_A26_VERIFY_ONCE'):
             self.assertNotIn(off, env, f'{off} waits for the security owner')
         self.assertIn('A27', fast.CLI_DESCRIPTION)
+
+    def test_a28_pins_its_binary_and_leaves_seal_ahead_off(self):
+        """[A28] the pinned binary is lane A28's (never A27's b5b6b9a4..., A26's or A24's), with the
+        same statement identity and run profile; the app sets none of the A28 switches (the two
+        commitment kernels HL_A28_PRUNE and HL_A28_HASH are on by default in the binary; seal-ahead,
+        HL_A28_SEAL_AHEAD, is off by default and stays off: it costs about 60 GiB), no A27 switch, no
+        GPU trace, and still neither of A26's two switches that wait for the security owner; the
+        service's resource declaration is unchanged"""
+        pin = fast_runtime_pin()
+        self.assertRegex(pin, r'^[0-9a-f]{64}$')
+        for older in ('b5b6b9a43563c069cec3391e8295867d0cd56e4f83036c992ba066708a9ae072',
+                      'b6336628364ae4407a2640d52b84ddf3c9688420fc827082ccb1c1aaf37d366d',
+                      'ccd58102e3fdbe4fb0be3446b5d539cd6741779a6efaea073251ef040968a946'):
+            self.assertNotEqual(pin, older)
+        self.assertEqual(fast.LANE, 'A28')
+        # the default path, read from the module's source (the fixture patches the attribute)
+        self.assertIn("zk60-artifacts/proven-media-fast/bin/zk60_classify.a28'", Path(fast.__file__).read_text())
+        self.assertEqual(fast.IDENTITY, 'e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d', 'the same receipts: the same identity')
+        self.assertEqual(fast.RUN_PROFILE, 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2')
+        models = self.root / 'models/shieldstral-1.0-3b/snapshot-003ec7e2'
+        models.mkdir(parents=True)
+        (models / 'model.safetensors').write_bytes(b'TEST FIXTURE\n')
+        with patch.object(fast, 'NATIVE_MODELS', self.root / 'models'):
+            env = fast.native_environment()
+        self.assertFalse([k for k in env if k.startswith(('HL_A28_', 'HL_A27_'))], 'the app sets no A28 or A27 switch')
+        for off in ('HL_A26_KEPT', 'HL_A26_VERIFY_ONCE'):
+            self.assertNotIn(off, env, f'{off} waits for the security owner')
+        self.assertIn('A28', fast.CLI_DESCRIPTION)
+        self.assertEqual((fast.PROVER_LANES, fast.PROVER_LANE_THREADS, fast.CHECK_LANES, fast.CHECK_LANE_THREADS), (6, 5, 3, 4),
+                         'more threads a lane, more lanes and seal-ahead were measured and did not pay')
+        self.assertEqual((fast.SERVICE_NEED_GIB, fast.SERVICE_CAP_GIB), (110, 180))
+        # three writers at once (a post's three category chunks together) and the writers ahead of the lanes
+        self.assertEqual((fast.WRITERS_AT_ONCE, fast.WRITER_THREADS, fast.JOBS_IN_FLIGHT), (3, 4, 12))
+        self.assertGreaterEqual(fast.JOBS_IN_FLIGHT, fast.PROVER_LANES + fast.CHECK_LANES)
 
     def test_preparation_pins_the_candidate_and_submits_one_spool_request_per_job(self):
         item = TextItem(self.text)

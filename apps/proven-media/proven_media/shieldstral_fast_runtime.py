@@ -1,4 +1,4 @@
-"""DEVELOPMENT CANDIDATE (lane A24, 2026-11-07; binary from lane A27): the resident-server Shieldstral prover.
+"""DEVELOPMENT CANDIDATE (lane A24, 2026-11-07; binary from lane A28): the resident-server Shieldstral prover.
 
 Selected only by PM_PROVER=shieldstral-fast. It proves the same registered moderate
 policies (D61) on the same T128 export and templates as the reviewed `shieldstral` mode,
@@ -21,6 +21,13 @@ receipts byte for byte (fixed test entropy on the real export, against A26's bin
 statement identity, profile and verdicts, with less GPU work per proof (the zero-checks' linear
 parts kept as device tables, the round values above an IR's attained degree extrapolated, the
 folds in three products, the commitment NTT two stages per pass).
+
+Lane A28 (2026-11-09, results/zk60_a28_app_20261107/README.md) pins a newer build again: the same
+receipts byte for byte (fixed test entropy on the real export, against A27's binary), the same
+statement identity, profile and verdicts, with a little less GPU work per proof (the commitment's
+forward transform skips the zero half of its first pass; the column hash in two passes). The
+build's seal-ahead mode (HL_A28_SEAL_AHEAD) is off by default and the app does not set it. The
+service runs three activation writers at once and keeps twelve category jobs in flight.
 """
 import os
 from pathlib import Path
@@ -37,16 +44,16 @@ EXPORT_ROOT = Path(os.environ.get('PM_FAST_EXPORT_ROOT', str(reviewed.EXPORT_ROO
 EXPORT = EXPORT_ROOT / reviewed.EXPORT.name
 VERIFIER_EXPORT = EXPORT_ROOT / reviewed.VERIFIER_EXPORT.name
 # The binary lives outside the repository (no binaries in the public repo, D62); the pin
-# below is the authority. Built from lane A27's tree with `--features gpu-metal` (A26's was
-# `zk60_classify.a26`, b6336628...; A24's `zk60_classify.a24`, ccd58102...; their receipts are the
-# same bytes).
-LANE = 'A27'
-BINARY = Path(os.environ.get('PM_FAST_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a27')))
-BINARY_SHA = 'b5b6b9a43563c069cec3391e8295867d0cd56e4f83036c992ba066708a9ae072'
+# below is the authority. Built from lane A28's tree with `--features gpu-metal` (A27's was
+# `zk60_classify.a27`, b5b6b9a4...; A26's `zk60_classify.a26`, b6336628...; A24's
+# `zk60_classify.a24`, ccd58102...; their receipts are the same bytes).
+LANE = 'A28'
+BINARY = Path(os.environ.get('PM_FAST_BINARY', str(config.HOME / 'zk60-artifacts/proven-media-fast/bin/zk60_classify.a28')))
+BINARY_SHA = '80f2b70481fba51df6118b25a19e2d0c4c6e1ddb4e10b00c96e0ca2252935157'
 PROFILE_SHA = reviewed.PROFILE_SHA
 IDENTITY = 'e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d'
 RUN_PROFILE = 'hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2'
-CLI_DESCRIPTION = 'zk60_classify A27 serve/check-serve (A24 servers, A26 work cuts, A27 kernels), post-F12 R13 /2, T128, Metal'
+CLI_DESCRIPTION = 'zk60_classify A28 serve/check-serve (A24 servers, A26 work cuts, A27 and A28 kernels), post-F12 R13 /2, T128, Metal'
 # Astra's Mac activation writer (qualified against the native writer, 2026-11-05). It and the
 # public model root are untracked files of the main checkout (not in git): a worktree points
 # at them with PM_FAST_WRITER_ROOT / PM_FAST_MODELS. The pins below still decide.
@@ -66,14 +73,20 @@ TEKKEN = reviewed.TEKKEN
 # 12.7 proved tok/s against 10.1 with three lanes of ten), three verifier lanes of four, the
 # sealing pass's witnesses kept up to 16 GiB per request. The app keeps up to JOBS_IN_FLIGHT
 # category jobs at the service, so the prover lanes stay busy while others write or verify.
+# [A28] (results/zk60_a28_app_20261107/README.md) THREE activation writers at once instead of two:
+# a post's three category chunks are written together (three processes at once 6.0 s; two and
+# then the third 11.8 s: with two, a post's third category started its proof 5.5 s after the other
+# two), and TWELVE jobs in flight instead of nine (a prover lane that frees finds a written job
+# waiting: the stream's jobs waited up to 27 s for a writer slot). More threads a lane, more lanes
+# and two requests a lane were measured and did not pay: six lanes of five stay.
 PROVER_LANES = 6
 PROVER_LANE_THREADS = 5
 WITNESS_CACHE_GIB = 16
 CHECK_LANES = 3
 CHECK_LANE_THREADS = 4
 WRITER_THREADS = 4
-WRITERS_AT_ONCE = 2
-JOBS_IN_FLIGHT = PROVER_LANES + CHECK_LANES
+WRITERS_AT_ONCE = 3
+JOBS_IN_FLIGHT = 2 * PROVER_LANES
 # The whole service is one guarded gpu-class job for its life (both servers, the writers).
 # Measured peak of the guarded tree: 102.5 GiB (six prover lanes, a stream); need/cap add margin.
 SERVICE_NEED_GIB = 110
@@ -110,6 +123,9 @@ def native_environment():
 # two that wait for the security owner's reading stay off (HL_A26_KEPT, HL_A26_VERIFY_ONCE).
 # [A27] every A27 kernel change is on by default in the binary (each has an HL_A27_*=0 switch the
 # app does not set). None of these moves a byte.
+# [A28] the two A28 commitment kernels are on by default in the binary (HL_A28_PRUNE, HL_A28_HASH;
+# the app sets neither); its seal-ahead mode stays off (HL_A28_SEAL_AHEAD: +1.3% on the stream for
+# about 60 GiB more memory, results/zk60_a28_app_20261107).
 NATIVE_SETTINGS = {'HL_METAL_QUEUES': 'thread'}
 
 
