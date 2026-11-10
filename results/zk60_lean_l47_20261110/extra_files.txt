@@ -1,0 +1,3 @@
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockTabExportCheck.lean
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/formal/ZK60Formal/BlockHostExportCheck.lean
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/ops/zkp-mvp/gpu-metal/hashline/src/lean_l47_export_tests.rs

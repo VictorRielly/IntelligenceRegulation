@@ -1,0 +1,2 @@
+build ZK60Formal.BlockLookDone ZK60Formal.BlockR13JoinForm
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/check_l47.sh

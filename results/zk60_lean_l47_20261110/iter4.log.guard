@@ -1,0 +1,2 @@
+[zk60-guard 07:41:32] START lean-l47-iter class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=d9733d9a8ac3
+[zk60-guard 07:41:54] END lean-l47-iter exit=1 child_wall=22s peak_rss=3.93G min_avail=228.14G

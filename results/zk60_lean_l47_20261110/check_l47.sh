@@ -117,7 +117,21 @@ grep -E '^checks:|^negative controls:' "$OUT/check_export_short.log"
 ge=1
 grep -q '^checks: 254 passed, 0 failed$' "$OUT/check_export_short.log" \
   && grep -q '^negative controls: 19 of 19 caught$' "$OUT/check_export_short.log" && ge=0
-echo "agreement verdict: $ge (0 = as required)"
+"$LAKE" -d "$WT/formal" env lean --run "$L/BlockHostExportCheck.lean" "$OUT/l47_host_short.txt" neg \
+  > "$OUT/check_export_host_short.log" 2>&1
+ch=$?
+grep -E '^checks:|^negative controls:' "$OUT/check_export_host_short.log"
+gh=1
+grep -q '^checks: 94 passed, 0 failed' "$OUT/check_export_host_short.log" \
+  && grep -q '^negative controls: 20 of 20 caught$' "$OUT/check_export_host_short.log" && gh=0
+"$LAKE" -d "$WT/formal" env lean --run "$L/BlockTabExportCheck.lean" "$OUT/l47_r13_short.txt" neg \
+  > "$OUT/check_export_r13_short.log" 2>&1
+cq=$?
+grep -E '^checks:|^negative controls:' "$OUT/check_export_r13_short.log"
+gq=1
+grep -q '^checks: 43 passed, 0 failed$' "$OUT/check_export_r13_short.log" \
+  && grep -q '^negative controls: 15 of 15 caught$' "$OUT/check_export_r13_short.log" && gq=0
+echo "agreement verdicts: lookup side $ge, host tables $gh, R13 lookup side $gq (0 = as required)"
 g6=1
 grep -q '^L6Check: 1206 checks, 0 failed$' "$OUT/l6check_regression.log" && g6=0
 g5=1
@@ -133,4 +147,4 @@ echo "total $(( $(date +%s) - start )) s"
   && [ "$nmod" -eq 0 ] && [ "$nrust" -eq 0 ] && [ $ncl -eq 0 ] \
   && [ $c6 -eq 0 ] && [ $c5 -eq 0 ] && [ $c11 -eq 0 ] && [ $c1 -eq 0 ] \
   && [ $g6 -eq 0 ] && [ $g5 -eq 0 ] && [ $g11 -eq 0 ] && [ $g1 -eq 0 ] \
-  && [ $ce -eq 0 ] && [ $ge -eq 0 ]
+  && [ $ce -eq 0 ] && [ $ge -eq 0 ] && [ $ch -eq 0 ] && [ $gh -eq 0 ] && [ $cq -eq 0 ] && [ $gq -eq 0 ]

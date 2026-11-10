@@ -1,0 +1,33 @@
+corpus /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a12c7ac7215ab5406/results/zk60_lean_l47_20261110/l47_host_short.txt: W16R2_RUNG_H24, 20 host tables, 0 in full, weights false
+checks: 94 passed, 0 failed, 7 fold tables skipped (no weights in this corpus)
+  parse: 1
+  header: 1
+  shape: 1
+  data: 1
+  slots: 23
+  tables: 1
+  length: 13
+  fingerprint: 26
+  ends: 26
+  done: 1
+negative control CAUGHT (1 failed): the code's table (0, 0), one entry
+negative control CAUGHT (1 failed): the code's table (1, 0), one entry
+negative control CAUGHT (1 failed): the code's table (4, 0), one entry
+negative control CAUGHT (1 failed): the code's table (14, 0), one entry
+negative control CAUGHT (1 failed): the code's table (14, 1), one entry
+negative control CAUGHT (1 failed): the code's table (14, 2), one entry
+negative control CAUGHT (1 failed): the code's table (15, 0), one entry
+negative control CAUGHT (1 failed): the code's table (15, 1), one entry
+negative control CAUGHT (1 failed): the code's table (16, 0), one entry
+negative control CAUGHT (1 failed): the code's table (16, 1), one entry
+negative control CAUGHT (1 failed): the code's table (17, 0), one entry
+negative control CAUGHT (1 failed): the code's table (18, 0), one entry
+negative control CAUGHT (1 failed): the code's table (18, 1), one entry
+negative control CAUGHT (3 failed): gamma_a[5]
+negative control CAUGHT (3 failed): gamma_m[7]
+negative control CAUGHT (6 failed): rope_cos[3]
+negative control CAUGHT (6 failed): rope_sin[9]
+negative control CAUGHT (3 failed): a group id (channel 4)
+negative control CAUGHT (4 failed): head slot 1 not a true head
+negative control CAUGHT (1 failed): slot 14's count of public tables
+negative controls: 20 of 20 caught
