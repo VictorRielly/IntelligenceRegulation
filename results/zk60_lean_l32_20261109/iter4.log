@@ -1,0 +1,48 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a56025bec34e68f4b/results/zk60_lean_l32_20261109/plan.txt ==
+build ZK60Formal.HonestOpenPcs
+build ZK60Formal.HonestOpenM
+build ZK60Formal.HonestOpenFields
+build ZK60Formal.HonestOpenSites
+build ZK60Formal.HonestRunBlock
+build ZK60Formal.HonestRunProg
+build ZK60Formal.HonestRunCount
+build ZK60Formal.HonestRunCover
+build ZK60Formal.HonestRunStageIn
+build ZK60Formal.HonestRunStageOut
+== lake build ZK60Formal.HonestOpenPcs ==
+Build completed successfully (3478 jobs).
+build rc 0 for ZK60Formal.HonestOpenPcs (5 s)
+== lake build ZK60Formal.HonestOpenM ==
+Build completed successfully (3480 jobs).
+build rc 0 for ZK60Formal.HonestOpenM (18 s)
+== lake build ZK60Formal.HonestOpenFields ==
+Build completed successfully (3499 jobs).
+build rc 0 for ZK60Formal.HonestOpenFields (32 s)
+== lake build ZK60Formal.HonestOpenSites ==
+Build completed successfully (3489 jobs).
+build rc 0 for ZK60Formal.HonestOpenSites (34 s)
+== lake build ZK60Formal.HonestRunBlock ==
+Build completed successfully (3501 jobs).
+build rc 0 for ZK60Formal.HonestRunBlock (47 s)
+== lake build ZK60Formal.HonestRunProg ==
+✖ [3506/3506] Building ZK60Formal.HonestRunProg (1.8s)
+error: ZK60Formal/HonestRunProg.lean:201:9: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestRunProg
+error: build failed
+build rc 1 for ZK60Formal.HonestRunProg (50 s)
+== lake build ZK60Formal.HonestRunCount ==
+Build completed successfully (3490 jobs).
+build rc 0 for ZK60Formal.HonestRunCount (51 s)
+== lake build ZK60Formal.HonestRunCover ==
+Build completed successfully (3491 jobs).
+build rc 0 for ZK60Formal.HonestRunCover (53 s)
+== lake build ZK60Formal.HonestRunStageIn ==
+Build completed successfully (3503 jobs).
+build rc 0 for ZK60Formal.HonestRunStageIn (58 s)
+== lake build ZK60Formal.HonestRunStageOut ==
+Build completed successfully (3503 jobs).
+build rc 0 for ZK60Formal.HonestRunStageOut (61 s)
+rc 1, 61 s

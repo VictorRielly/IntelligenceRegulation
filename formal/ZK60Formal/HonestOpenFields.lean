@@ -218,13 +218,35 @@ theorem bOpen_pathsDepth (what : String) (prm : PcsPrm) (depth : ℕ) (hnn : prm
 
 variable {K : Type} [Field K] [Algebra GF K] (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
 
+/-- The wire form of an `M` opening has canonical words when the opening has. -/
+theorem ofMO_canon (o : MaskOpening) (hq : ∀ x ∈ o.q, x.Canon) (hp : ∀ x ∈ o.prox, x.Canon)
+    (hc : ∀ c ∈ o.columns, ∀ x ∈ c.2.1, x.Canon) : Block.MaskCanon (ofMO o) := by
+  refine ⟨hq, hp, fun c hc' => ?_⟩
+  obtain ⟨c', hc'', rfl⟩ := List.mem_map.mp hc'
+  exact hc c' hc''
+
+/-- The wire form of an `M` opening has the opening's shape. -/
+theorem ofMO_shape (o : MaskOpening) (n k d r p : ℕ) (hq : o.q.length = n) (hp : o.prox.length = n)
+    (hk : o.columns.length = k) (hc : ∀ c ∈ o.columns, c.1 < d ∧ c.2.1.length = r ∧ c.2.2.2.length = p) :
+    (ofMO o).q.length = n ∧ (ofMO o).prox.length = n ∧ (ofMO o).columns.length = k
+      ∧ ∀ c ∈ (ofMO o).columns, c.j < d ∧ c.col.length = r ∧ c.path.length = p := by
+  refine ⟨hq, hp, ?_, fun c hc' => ?_⟩
+  · show (o.columns.map ofOCol).length = k
+    rw [List.length_map, hk]
+  · obtain ⟨c', hc'', rfl⟩ := List.mem_map.mp hc'
+    exact hc c' hc''
+
+/-- The honest `M` opening on L9's types is the wire form of this lane's. -/
+theorem bMask_fst (M : MTable) (S : ℕ) (fs : List Block.MaskFunctional) (t : Tr) :
+    (bMask H tag U hbij M S fs t).1
+      = ofMO (maskProve H tag U hbij (rootFp 9) (rootFp 12) M S (fs.map toMF) t).1 := rfl
+
 /-- **The honest `M` opening's words are canonical** (`MaskCanon`). -/
 theorem bMask_canon (M : MTable) (S : ℕ) (fs : List Block.MaskFunctional) (t : Tr) :
     Block.MaskCanon (bMask H tag U hbij M S fs t).1 := by
   obtain ⟨-, h2, -, h4, -, h6⟩ := maskProve_shape H tag U hbij (rootFp 9) (rootFp 12) M S (fs.map toMF) t
-  refine ⟨h2, h4, fun c hc => ?_⟩
-  obtain ⟨c', hc', rfl⟩ := List.mem_map.mp hc
-  exact (h6 c' hc').2.2.1
+  rw [bMask_fst]
+  exact ofMO_canon _ h2 h4 (fun c hc => (h6 c hc).2.2.1)
 
 /-- **The honest `M` opening's shape** (`CoreShape`'s mask part): `1024` words each for `q'` and the proximity vector,
 `256` columns, each at an index below `4096`, of `2S + 4` words, with a path of `12` digests. -/
@@ -235,18 +257,16 @@ theorem bMask_shape (M : MTable) (S : ℕ) (fs : List Block.MaskFunctional) (t :
       ∧ ∀ c ∈ (bMask H tag U hbij M S fs t).1.columns,
           c.j < mDom ∧ c.col.length = 2 * S + 4 ∧ c.path.length = 12 := by
   obtain ⟨h1, -, h3, -, h5, h6⟩ := maskProve_shape H tag U hbij (rootFp 9) (rootFp 12) M S (fs.map toMF) t
-  refine ⟨h1, h3, ?_, fun c hc => ?_⟩
-  · show ((maskProve H tag U hbij (rootFp 9) (rootFp 12) M S (fs.map toMF) t).1.columns.map ofOCol).length = mQ
-    rw [List.length_map, h5]
-  · obtain ⟨c', hc', rfl⟩ := List.mem_map.mp hc
-    obtain ⟨a1, a2, -, a4⟩ := h6 c' hc'
-    exact ⟨a1, a2, a4⟩
+  rw [bMask_fst]
+  exact ofMO_shape _ (2 * mMsg) mQ mDom (2 * S + 4) 12 h1 h3 h5
+    (fun c hc => ⟨(h6 c hc).1, (h6 c hc).2.1, (h6 c hc).2.2.2⟩)
 
 /-- **The honest `M` opening's paths pass the depth pre-check** (`pathsDepth "M"`, depth `12`). -/
 theorem bMask_pathsDepth (what : String) (M : MTable) (S : ℕ) (fs : List Block.MaskFunctional) (t : Tr) (i : ℕ) :
-    Block.pathsDepth what 12 i (bMask H tag U hbij M S fs t).1.columns = .ok () :=
-  pathsDepth_ofOCol what 12 _ i
-    (fun c hc => ((maskProve_shape H tag U hbij (rootFp 9) (rootFp 12) M S (fs.map toMF) t).2.2.2.2.2 c hc).2.2.2)
+    Block.pathsDepth what 12 i (bMask H tag U hbij M S fs t).1.columns = .ok () := by
+  obtain ⟨-, -, -, -, -, h6⟩ := maskProve_shape H tag U hbij (rootFp 9) (rootFp 12) M S (fs.map toMF) t
+  rw [bMask_fst]
+  exact pathsDepth_ofOCol what 12 _ i (fun c hc => (h6 c hc).2.2.2)
 
 end Shapes
 

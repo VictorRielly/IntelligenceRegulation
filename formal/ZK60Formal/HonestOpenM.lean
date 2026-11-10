@@ -294,6 +294,20 @@ theorem maskProve_eq (M : MTable) (S : ℕ) (fs : List MaskFunctional) (t : Tr) 
   unfold maskProve
   rw [hpi]
 
+/- `mIdx` runs `challenge_indices(256, 4096)`: with both numbers literal the unifier could evaluate its `64` squeezes;
+nothing below reads it but through `maskProve_eq`. -/
+attribute [irreducible] mIdx
+
+/-- The transcript before the index squeezes, written out. -/
+theorem mT2_eq (M : MTable) (S : ℕ) (fs : List MaskFunctional) (t : Tr) :
+    mT2 H U hbij ω512 M S fs t
+      = (((t.challengeFp2 H).2.absorb H maskQLabel
+            ((polyWords U hbij (qPoly U (algebraMap GF K ω512.toGF) M S fs ((mTheta H t).toK U))).flatMap
+              Fp2.toBytes)).challengeFp2Vec H (2 * S + 2)).2.absorb H maskProxLabel
+          ((polyWords U hbij (pPoly U M S (((t.challengeFp2 H).2.absorb H maskQLabel
+            ((polyWords U hbij (qPoly U (algebraMap GF K ω512.toGF) M S fs ((mTheta H t).toK U))).flatMap
+              Fp2.toBytes)).challengeFp2Vec H (2 * S + 2)).1)).flatMap Fp2.toBytes) := rfl
+
 /-- **The honest `M` opening's shape and words**: `1024` canonical words each for `q'` and the proximity vector, `256`
 opened columns, each at an index below `4096`, of `2S + 4` canonical words, with a path of `12` digests. -/
 theorem maskProve_shape (M : MTable) (S : ℕ) (fs : List MaskFunctional) (t : Tr) :

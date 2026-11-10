@@ -1,0 +1,140 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a56025bec34e68f4b/results/zk60_lean_l32_20261109/plan.txt ==
+build ZK60Formal.HonestOpenPcs
+build ZK60Formal.HonestOpenM
+build ZK60Formal.HonestOpenFields
+build ZK60Formal.HonestOpenSites
+build ZK60Formal.HonestRunBlock
+build ZK60Formal.HonestRunProg
+build ZK60Formal.HonestRunCount
+build ZK60Formal.HonestRunCover
+build ZK60Formal.HonestRunStageIn
+build ZK60Formal.HonestRunStageOut
+== lake build ZK60Formal.HonestOpenPcs ==
+Build completed successfully (3478 jobs).
+build rc 0 for ZK60Formal.HonestOpenPcs (2 s)
+== lake build ZK60Formal.HonestOpenM ==
+Build completed successfully (3480 jobs).
+build rc 0 for ZK60Formal.HonestOpenM (21 s)
+== lake build ZK60Formal.HonestOpenFields ==
+✖ [3499/3499] Building ZK60Formal.HonestOpenFields (9.6s)
+error: ZK60Formal/HonestOpenFields.lean:221:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:239:4: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:229:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:245:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.HonestOpenFields
+error: build failed
+build rc 1 for ZK60Formal.HonestOpenFields (33 s)
+== lake build ZK60Formal.HonestOpenSites ==
+Build completed successfully (3489 jobs).
+build rc 0 for ZK60Formal.HonestOpenSites (37 s)
+== lake build ZK60Formal.HonestRunBlock ==
+✖ [3500/3501] Building ZK60Formal.HonestOpenFields (9.8s)
+error: ZK60Formal/HonestOpenFields.lean:221:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:239:4: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:229:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:245:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.HonestOpenFields
+error: build failed
+build rc 1 for ZK60Formal.HonestRunBlock (48 s)
+== lake build ZK60Formal.HonestRunProg ==
+✖ [3506/3506] Building ZK60Formal.HonestRunProg (1.8s)
+error: ZK60Formal/HonestRunProg.lean:194:9: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+Some required targets logged failures:
+- ZK60Formal.HonestRunProg
+error: build failed
+build rc 1 for ZK60Formal.HonestRunProg (52 s)
+== lake build ZK60Formal.HonestRunCount ==
+Build completed successfully (3490 jobs).
+build rc 0 for ZK60Formal.HonestRunCount (55 s)
+== lake build ZK60Formal.HonestRunCover ==
+Build completed successfully (3491 jobs).
+build rc 0 for ZK60Formal.HonestRunCover (58 s)
+== lake build ZK60Formal.HonestRunStageIn ==
+✖ [3502/3503] Building ZK60Formal.HonestOpenFields (9.8s)
+error: ZK60Formal/HonestOpenFields.lean:221:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:239:4: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:229:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:245:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.HonestOpenFields
+error: build failed
+build rc 1 for ZK60Formal.HonestRunStageIn (70 s)
+== lake build ZK60Formal.HonestRunStageOut ==
+✖ [3502/3503] Building ZK60Formal.HonestOpenFields (9.6s)
+error: ZK60Formal/HonestOpenFields.lean:221:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:239:4: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:229:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ZK60Formal/HonestOpenFields.lean:245:0: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Some required targets logged failures:
+- ZK60Formal.HonestOpenFields
+error: build failed
+build rc 1 for ZK60Formal.HonestRunStageOut (81 s)
+rc 1, 81 s

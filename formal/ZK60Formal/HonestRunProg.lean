@@ -96,6 +96,18 @@ theorem sep_absorbsP (key : Option Dig) : ∀ (vs : List (List Fp2)) (k : TProg 
   | [], _, hk => hk
   | _ :: vs, k, hk => sep_absorbsP key vs k hk
 
+/-- A finished program leaves the transcript where it is. -/
+theorem final_done_fst (b : β) (t : Tr) : ((TProg.done b).final H t).1 = t := rfl
+
+/-- A finished program returns its data. -/
+theorem final_done_snd (b : β) (t : Tr) : ((TProg.done b).final H t).2 = b := rfl
+
+/-- One draw as `challenge_fp2_vec(1)`: the transcript after it is `challenge_fp2`'s. -/
+theorem chalVec_one_snd (t : Tr) : (t.challengeFp2Vec H 1).2 = (t.challengeFp2 H).2 := rfl
+
+/-- One draw as `challenge_fp2_vec(1)`: its entry is `challenge_fp2`'s (the `M` prover's `θ`). -/
+theorem chalVec_one_getD (t : Tr) : (t.challengeFp2Vec H 1).1.getD 0 Fp2.zero = mTheta H t := rfl
+
 end Pieces
 
 /-! ## The provers' final transcripts -/
@@ -188,9 +200,10 @@ theorem final_maskProg_prove (M : α → MTable) (S : ℕ) (fs : α → List Mas
         = (maskProve H tag U hbij ω512 ω4096 (M (pre.final H t).2) S (fs (pre.final H t).2) (pre.final H t).1).2
       ∧ ((maskProg S (fun a th => polyWords U hbij (qPoly U (algebraMap GF K ω512.toGF) (M a) S (fs a) (th.toK U)))
         (fun a _ rs => polyWords U hbij (pPoly U (M a) S rs)) pre).final H t).2.1 = (pre.final H t).2 := by
-  rw [maskProve_tr H tag U hbij ω512 ω4096]
+  rw [maskProve_tr H tag U hbij ω512 ω4096, mT2_eq]
   unfold maskProg
-  rw [final_bindP, final_drawsP, final_absorb, final_drawsP, final_absorb, final_sqsP]
+  rw [final_bindP, final_drawsP, final_absorb, final_drawsP, final_absorb, final_sqsP, chalVec_one_snd,
+    chalVec_one_getD, final_done_fst, final_done_snd]
   exact ⟨rfl, rfl⟩
 
 end Progs

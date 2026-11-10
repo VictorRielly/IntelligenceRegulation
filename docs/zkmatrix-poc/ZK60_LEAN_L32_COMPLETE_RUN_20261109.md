@@ -1,10 +1,10 @@
 # D63 lane L32: the openings' completeness, `check_opening`'s refusals as sites, and what is left of `Complete` for the classify run (2026-11-09)
 
 Lean lane L32 (Claude), on its own worktree branched from perf at `6e788dcb` (lanes L9–L29 merged). Lean 4.34.1,
-Mathlib v4.34.1, no new dependency. Nine new library files under `formal/ZK60Formal/`, imported by the library root:
+Mathlib v4.34.1, no new dependency. Ten new library files under `formal/ZK60Formal/`, imported by the library root:
 `HonestOpenPcs.lean`, `HonestOpenM.lean`, `HonestOpenFields.lean`, `HonestOpenSites.lean`, `HonestRunBlock.lean`,
-`HonestRunProg.lean`, `HonestRunCount.lean`, `HonestRunCover.lean`, `HonestRunStageIn.lean`. No Rust, no checker.
-`Statements.lean`, every
+`HonestRunProg.lean`, `HonestRunCount.lean`, `HonestRunCover.lean`, `HonestRunStageIn.lean`,
+`HonestRunStageOut.lean`. No Rust, no checker. `Statements.lean`, every
 existing Lean file (except the root's import lines) and every production source are unchanged. Evidence:
 `results/zk60_lean_l32_20261109/`.
 
@@ -120,7 +120,7 @@ CODE: `protocol.rs` `check_opening_challenges` :312-323, `check_opening` :327-33
 | `bumpKey_sum`, **`openingGroupsAt_sum`** | the groups' member counts add up to the number of claims, whatever the grouping |
 | **`checkOpeningExec_refuses`**, **`checkOpening_cover`** | `check_opening` refuses only when the audit, the grouping or the group count refuses, the geometry has no pair, or one of the opening's sites fires |
 
-### 2.5 A block core and stage IN-C from their tables (`HonestRunBlock.lean`, `HonestRunStageIn.lean`)
+### 2.5 A block core and the two stages from their tables (`HonestRunBlock.lean`, `HonestRunStageIn.lean`, `HonestRunStageOut.lean`)
 
 | Theorem / definition | Meaning |
 |---|---|
@@ -128,6 +128,8 @@ CODE: `protocol.rs` `check_opening_challenges` :312-323, `check_opening` :327-33
 | **`blockVerify_of_tables_r13`** | L9's executable `verify_core` at an R13 profile ACCEPTS the honest core, from the pre-checks, the slots' arithmetic, honest tables, true functionals and true claims: L25's opening and depth premises are discharged |
 | `IncTables`, `incChOf`, **`incDataAt`**, `incChOf_data` | stage IN-C's honest commitments; L29's `IncData` built at a start transcript |
 | **`incVerify_of_tables`** | L29's executable `stage_in_c::verify` (the fields of `incVAt`: `maskField tag 4`, `pcsAt`) ACCEPTS the honest segment, from the slots' arithmetic, honest tables (`A`, `H`, the token endpoint), true functionals and true claims: L29's four opening and four depth premises are discharged |
+| `OutcTables`, `outcChOf`, **`outcDataAt`** | stage OUT-C's honest commitments; L29's `OutcData` built at a start transcript, `own` comparing the carry's root with the honest boundary root |
+| **`outcVerify_of_tables`** | L29's executable `stage_out_c::verify` (the fields of `outcVAt`: `maskField tag 8`, `pcsAt`) ACCEPTS the honest segment on the honest carry, from the slots' arithmetic, honest tables (`A`, `H`, the last boundary), true functionals and true claims (the carry's pending claims included) |
 
 ### 2.6 The openings as transcript programs (`HonestRunProg.lean`)
 
