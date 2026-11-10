@@ -1,0 +1,250 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/results/zk60_lean_l41_20261110/plan6.txt ==
+build ZK60Formal.BlockJoinHost
+build ZK60Formal.BlockJoinW16
+build ZK60Formal.BlockJoinTzc
+build ZK60Formal.BlockJoinTzcForm
+build ZK60Formal.BlockJoinDt
+== lake build ZK60Formal.BlockJoinHost ==
+Build completed successfully (3538 jobs).
+build rc 0 (4 s)
+== lake build ZK60Formal.BlockJoinW16 ==
+✖ [3539/3539] Building ZK60Formal.BlockJoinW16 (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/ZK60Formal/BlockJoinW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinW16.setup.json --json
+error: ZK60Formal/BlockJoinW16.lean:79:55: Application type mismatch: The argument
+  b
+has type
+  Fin log → Bool
+but is expected to have type
+  Fin (Priv.log ?m.29) → Bool
+in the application
+  planeZ_base U (rowLog P Cm.a) (D.rows Cm.a) (D.Q Cm.a) (D.X Cm.a) hX ?m.29 (fun sc hsc => ?m.32) b
+error: ZK60Formal/BlockJoinW16.lean:97:11: Unknown identifier `DefW16.IdsW`
+error: ZK60Formal/BlockJoinW16.lean:97:26: Unknown identifier `DefW16.idsW`
+error: ZK60Formal/BlockJoinW16.lean:100:24: Unknown identifier `DefW16.aOff`
+error: ZK60Formal/BlockJoinW16.lean:110:2: Tactic `decide` failed for proposition
+  List.map offW (List.range 58) =
+    let y :=
+      let y :=
+        let y :=
+          let y := [1064960, 1097728, 1130496, 1163264];
+          933888 :: 966656 :: 999424 :: 1032192 :: y;
+        802816 :: 819200 :: 835584 :: 851968 :: 868352 :: 884736 :: 901120 :: y;
+      let y := 688128 :: 704512 :: 720896 :: 737280 :: 753664 :: 770048 :: 786432 :: y;
+      507904 :: 540672 :: 573440 :: 606208 :: 638976 :: 655360 :: 671744 :: y;
+    let y :=
+      let y :=
+        let y := 409600 :: 425984 :: 442368 :: 475136 :: y;
+        344064 :: 360448 :: 376832 :: 393216 :: y;
+      229376 :: 245760 :: 262144 :: 278528 :: 294912 :: 311296 :: 327680 :: y;
+    let y := 114688 :: 131072 :: 147456 :: 163840 :: 180224 :: 196608 :: 212992 :: y;
+    0 :: 16384 :: 32768 :: 49152 :: 65536 :: 81920 :: 98304 :: y
+because its `Decidable` instance
+  instDecidableEqList (List.map offW (List.range 58))
+    (let y :=
+      let y :=
+        let y :=
+          let y := [1064960, 1097728, 1130496, 1163264];
+          933888 :: 966656 :: 999424 :: 1032192 :: y;
+        802816 :: 819200 :: 835584 :: 851968 :: 868352 :: 884736 :: 901120 :: y;
+      let y := 688128 :: 704512 :: 720896 :: 737280 :: 753664 :: 770048 :: 786432 :: y;
+      507904 :: 540672 :: 573440 :: 606208 :: 638976 :: 655360 :: 671744 :: y;
+    let y :=
+      let y :=
+        let y := 409600 :: 425984 :: 442368 :: 475136 :: y;
+        344064 :: 360448 :: 376832 :: 393216 :: y;
+      229376 :: 245760 :: 262144 :: 278528 :: 294912 :: 311296 :: 327680 :: y;
+    let y := 114688 :: 131072 :: 147456 :: 163840 :: 180224 :: 196608 :: 212992 :: y;
+    0 :: 16384 :: 32768 :: 49152 :: 65536 :: 81920 :: 98304 :: y)
+did not reduce to `isTrue` or `isFalse`.
+
+Reduction got stuck at the `Decidable` instance
+  match h : (offW 0).beq 0 with
+  | true => isTrue ⋯
+  | false => isFalse ⋯
+warning: ZK60Formal/BlockJoinW16.lean:113:8: declaration uses `sorry`
+warning: ZK60Formal/BlockJoinW16.lean:119:8: declaration uses `sorry`
+Some required targets logged failures:
+- ZK60Formal.BlockJoinW16
+error: build failed
+build rc 1 (8 s)
+== lake build ZK60Formal.BlockJoinTzc ==
+✖ [3545/3546] Building ZK60Formal.BlockJoinW16 (1.8s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/ZK60Formal/BlockJoinW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinW16.setup.json --json
+error: ZK60Formal/BlockJoinW16.lean:79:55: Application type mismatch: The argument
+  b
+has type
+  Fin log → Bool
+but is expected to have type
+  Fin (Priv.log ?m.29) → Bool
+in the application
+  planeZ_base U (rowLog P Cm.a) (D.rows Cm.a) (D.Q Cm.a) (D.X Cm.a) hX ?m.29 (fun sc hsc => ?m.32) b
+error: ZK60Formal/BlockJoinW16.lean:97:11: Unknown identifier `DefW16.IdsW`
+error: ZK60Formal/BlockJoinW16.lean:97:26: Unknown identifier `DefW16.idsW`
+error: ZK60Formal/BlockJoinW16.lean:100:24: Unknown identifier `DefW16.aOff`
+error: ZK60Formal/BlockJoinW16.lean:110:2: Tactic `decide` failed for proposition
+  List.map offW (List.range 58) =
+    let y :=
+      let y :=
+        let y :=
+          let y := [1064960, 1097728, 1130496, 1163264];
+          933888 :: 966656 :: 999424 :: 1032192 :: y;
+        802816 :: 819200 :: 835584 :: 851968 :: 868352 :: 884736 :: 901120 :: y;
+      let y := 688128 :: 704512 :: 720896 :: 737280 :: 753664 :: 770048 :: 786432 :: y;
+      507904 :: 540672 :: 573440 :: 606208 :: 638976 :: 655360 :: 671744 :: y;
+    let y :=
+      let y :=
+        let y := 409600 :: 425984 :: 442368 :: 475136 :: y;
+        344064 :: 360448 :: 376832 :: 393216 :: y;
+      229376 :: 245760 :: 262144 :: 278528 :: 294912 :: 311296 :: 327680 :: y;
+    let y := 114688 :: 131072 :: 147456 :: 163840 :: 180224 :: 196608 :: 212992 :: y;
+    0 :: 16384 :: 32768 :: 49152 :: 65536 :: 81920 :: 98304 :: y
+because its `Decidable` instance
+  instDecidableEqList (List.map offW (List.range 58))
+    (let y :=
+      let y :=
+        let y :=
+          let y := [1064960, 1097728, 1130496, 1163264];
+          933888 :: 966656 :: 999424 :: 1032192 :: y;
+        802816 :: 819200 :: 835584 :: 851968 :: 868352 :: 884736 :: 901120 :: y;
+      let y := 688128 :: 704512 :: 720896 :: 737280 :: 753664 :: 770048 :: 786432 :: y;
+      507904 :: 540672 :: 573440 :: 606208 :: 638976 :: 655360 :: 671744 :: y;
+    let y :=
+      let y :=
+        let y := 409600 :: 425984 :: 442368 :: 475136 :: y;
+        344064 :: 360448 :: 376832 :: 393216 :: y;
+      229376 :: 245760 :: 262144 :: 278528 :: 294912 :: 311296 :: 327680 :: y;
+    let y := 114688 :: 131072 :: 147456 :: 163840 :: 180224 :: 196608 :: 212992 :: y;
+    0 :: 16384 :: 32768 :: 49152 :: 65536 :: 81920 :: 98304 :: y)
+did not reduce to `isTrue` or `isFalse`.
+
+Reduction got stuck at the `Decidable` instance
+  match h : (offW 0).beq 0 with
+  | true => isTrue ⋯
+  | false => isFalse ⋯
+warning: ZK60Formal/BlockJoinW16.lean:113:8: declaration uses `sorry`
+warning: ZK60Formal/BlockJoinW16.lean:119:8: declaration uses `sorry`
+Some required targets logged failures:
+- ZK60Formal.BlockJoinW16
+error: build failed
+build rc 1 (12 s)
+== lake build ZK60Formal.BlockJoinTzcForm ==
+✖ [3545/3547] Building ZK60Formal.BlockJoinW16 (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/ZK60Formal/BlockJoinW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinW16.setup.json --json
+error: ZK60Formal/BlockJoinW16.lean:79:55: Application type mismatch: The argument
+  b
+has type
+  Fin log → Bool
+but is expected to have type
+  Fin (Priv.log ?m.29) → Bool
+in the application
+  planeZ_base U (rowLog P Cm.a) (D.rows Cm.a) (D.Q Cm.a) (D.X Cm.a) hX ?m.29 (fun sc hsc => ?m.32) b
+error: ZK60Formal/BlockJoinW16.lean:97:11: Unknown identifier `DefW16.IdsW`
+error: ZK60Formal/BlockJoinW16.lean:97:26: Unknown identifier `DefW16.idsW`
+error: ZK60Formal/BlockJoinW16.lean:100:24: Unknown identifier `DefW16.aOff`
+error: ZK60Formal/BlockJoinW16.lean:110:2: Tactic `decide` failed for proposition
+  List.map offW (List.range 58) =
+    let y :=
+      let y :=
+        let y :=
+          let y := [1064960, 1097728, 1130496, 1163264];
+          933888 :: 966656 :: 999424 :: 1032192 :: y;
+        802816 :: 819200 :: 835584 :: 851968 :: 868352 :: 884736 :: 901120 :: y;
+      let y := 688128 :: 704512 :: 720896 :: 737280 :: 753664 :: 770048 :: 786432 :: y;
+      507904 :: 540672 :: 573440 :: 606208 :: 638976 :: 655360 :: 671744 :: y;
+    let y :=
+      let y :=
+        let y := 409600 :: 425984 :: 442368 :: 475136 :: y;
+        344064 :: 360448 :: 376832 :: 393216 :: y;
+      229376 :: 245760 :: 262144 :: 278528 :: 294912 :: 311296 :: 327680 :: y;
+    let y := 114688 :: 131072 :: 147456 :: 163840 :: 180224 :: 196608 :: 212992 :: y;
+    0 :: 16384 :: 32768 :: 49152 :: 65536 :: 81920 :: 98304 :: y
+because its `Decidable` instance
+  instDecidableEqList (List.map offW (List.range 58))
+    (let y :=
+      let y :=
+        let y :=
+          let y := [1064960, 1097728, 1130496, 1163264];
+          933888 :: 966656 :: 999424 :: 1032192 :: y;
+        802816 :: 819200 :: 835584 :: 851968 :: 868352 :: 884736 :: 901120 :: y;
+      let y := 688128 :: 704512 :: 720896 :: 737280 :: 753664 :: 770048 :: 786432 :: y;
+      507904 :: 540672 :: 573440 :: 606208 :: 638976 :: 655360 :: 671744 :: y;
+    let y :=
+      let y :=
+        let y := 409600 :: 425984 :: 442368 :: 475136 :: y;
+        344064 :: 360448 :: 376832 :: 393216 :: y;
+      229376 :: 245760 :: 262144 :: 278528 :: 294912 :: 311296 :: 327680 :: y;
+    let y := 114688 :: 131072 :: 147456 :: 163840 :: 180224 :: 196608 :: 212992 :: y;
+    0 :: 16384 :: 32768 :: 49152 :: 65536 :: 81920 :: 98304 :: y)
+did not reduce to `isTrue` or `isFalse`.
+
+Reduction got stuck at the `Decidable` instance
+  match h : (offW 0).beq 0 with
+  | true => isTrue ⋯
+  | false => isFalse ⋯
+warning: ZK60Formal/BlockJoinW16.lean:113:8: declaration uses `sorry`
+warning: ZK60Formal/BlockJoinW16.lean:119:8: declaration uses `sorry`
+Some required targets logged failures:
+- ZK60Formal.BlockJoinW16
+error: build failed
+build rc 1 (15 s)
+== lake build ZK60Formal.BlockJoinDt ==
+✖ [3540/3541] Building ZK60Formal.BlockJoinW16 (10s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/ZK60Formal/BlockJoinW16.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinW16.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinW16.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinW16.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinW16.setup.json --json
+error: ZK60Formal/BlockJoinW16.lean:79:55: Application type mismatch: The argument
+  b
+has type
+  Fin log → Bool
+but is expected to have type
+  Fin (Priv.log ?m.29) → Bool
+in the application
+  planeZ_base U (rowLog P Cm.a) (D.rows Cm.a) (D.Q Cm.a) (D.X Cm.a) hX ?m.29 (fun sc hsc => ?m.32) b
+error: ZK60Formal/BlockJoinW16.lean:97:11: Unknown identifier `DefW16.IdsW`
+error: ZK60Formal/BlockJoinW16.lean:97:26: Unknown identifier `DefW16.idsW`
+error: ZK60Formal/BlockJoinW16.lean:100:24: Unknown identifier `DefW16.aOff`
+error: ZK60Formal/BlockJoinW16.lean:110:2: Tactic `decide` failed for proposition
+  List.map offW (List.range 58) =
+    let y :=
+      let y :=
+        let y :=
+          let y := [1064960, 1097728, 1130496, 1163264];
+          933888 :: 966656 :: 999424 :: 1032192 :: y;
+        802816 :: 819200 :: 835584 :: 851968 :: 868352 :: 884736 :: 901120 :: y;
+      let y := 688128 :: 704512 :: 720896 :: 737280 :: 753664 :: 770048 :: 786432 :: y;
+      507904 :: 540672 :: 573440 :: 606208 :: 638976 :: 655360 :: 671744 :: y;
+    let y :=
+      let y :=
+        let y := 409600 :: 425984 :: 442368 :: 475136 :: y;
+        344064 :: 360448 :: 376832 :: 393216 :: y;
+      229376 :: 245760 :: 262144 :: 278528 :: 294912 :: 311296 :: 327680 :: y;
+    let y := 114688 :: 131072 :: 147456 :: 163840 :: 180224 :: 196608 :: 212992 :: y;
+    0 :: 16384 :: 32768 :: 49152 :: 65536 :: 81920 :: 98304 :: y
+because its `Decidable` instance
+  instDecidableEqList (List.map offW (List.range 58))
+    (let y :=
+      let y :=
+        let y :=
+          let y := [1064960, 1097728, 1130496, 1163264];
+          933888 :: 966656 :: 999424 :: 1032192 :: y;
+        802816 :: 819200 :: 835584 :: 851968 :: 868352 :: 884736 :: 901120 :: y;
+      let y := 688128 :: 704512 :: 720896 :: 737280 :: 753664 :: 770048 :: 786432 :: y;
+      507904 :: 540672 :: 573440 :: 606208 :: 638976 :: 655360 :: 671744 :: y;
+    let y :=
+      let y :=
+        let y := 409600 :: 425984 :: 442368 :: 475136 :: y;
+        344064 :: 360448 :: 376832 :: 393216 :: y;
+      229376 :: 245760 :: 262144 :: 278528 :: 294912 :: 311296 :: 327680 :: y;
+    let y := 114688 :: 131072 :: 147456 :: 163840 :: 180224 :: 196608 :: 212992 :: y;
+    0 :: 16384 :: 32768 :: 49152 :: 65536 :: 81920 :: 98304 :: y)
+did not reduce to `isTrue` or `isFalse`.
+
+Reduction got stuck at the `Decidable` instance
+  match h : (offW 0).beq 0 with
+  | true => isTrue ⋯
+  | false => isFalse ⋯
+warning: ZK60Formal/BlockJoinW16.lean:113:8: declaration uses `sorry`
+warning: ZK60Formal/BlockJoinW16.lean:119:8: declaration uses `sorry`
+Some required targets logged failures:
+- ZK60Formal.BlockJoinW16
+error: build failed
+build rc 1 (27 s)
+rc 1, 27 s

@@ -1,0 +1,46 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/results/zk60_lean_l41_20261110/plan12.txt ==
+build ZK60Formal.BlockJoinTzcForm
+build ZK60Formal.BlockJoinFinal
+== lake build ZK60Formal.BlockJoinTzcForm ==
+Build completed successfully (3547 jobs).
+build rc 0 (8 s)
+== lake build ZK60Formal.BlockJoinFinal ==
+✖ [3557/3557] Building ZK60Formal.BlockJoinFinal (1.9s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/ZK60Formal/BlockJoinFinal.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinFinal.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/lib/lean/ZK60Formal/BlockJoinFinal.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinFinal.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af77c479c52cc8c85/formal/.lake/build/ir/ZK60Formal/BlockJoinFinal.setup.json --json
+error: ZK60Formal/BlockJoinFinal.lean:145:70: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  l ≥ 0
+  0 ≤ k ≤ 5
+  k - l ≥ 0
+  j ≥ 1
+  i ≥ 0
+  h ≥ 0
+  g ≥ 0
+  g + 2*h + 2*i ≤ 35153256
+  f ≥ 0
+  f - g - 2*h ≥ 1
+  0 ≤ e ≤ 9223372036854775808
+  0 ≤ d ≤ 524288
+  c ≥ 1
+  b ≥ 0
+  1048576 ≤ a ≤ 18446744073709551615
+  a - b ≥ 0
+where
+ a := ↑L
+ b := ↑(startMsg domain).length
+ c := ↑P.endpointLogN
+ d := ↑hdrLen
+ e := ↑hdrSq
+ f := ↑(ringChar K)
+ g := ↑(Fintype.card ι)
+ h := ↑(Fintype.card π)
+ i := ↑(Finset.image T Finset.univ).card
+ j := ↑(rowLog P Cm.a)
+ k := ↑↑κ
+ l := ↑(if True then 6
+  else if 2 = 14 then 6 else if 2 = 15 then 1 else if 2 = 16 then 1 else if 2 = 17 then 4 else if 2 = 18 then 1 else 0)
+Some required targets logged failures:
+- ZK60Formal.BlockJoinFinal
+error: build failed
+build rc 1 (11 s)
+rc 1, 11 s
