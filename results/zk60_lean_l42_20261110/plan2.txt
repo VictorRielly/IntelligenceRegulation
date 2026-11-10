@@ -1,0 +1,3 @@
+build ZK60Formal.StatementsD76Bridge
+build ZK60Formal.StatementsD76Leaky
+build ZK60Formal.StatementsD76Gate

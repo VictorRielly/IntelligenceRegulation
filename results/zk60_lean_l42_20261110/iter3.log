@@ -1,0 +1,22 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/plan2.txt ==
+build ZK60Formal.StatementsD76Bridge
+build ZK60Formal.StatementsD76Leaky
+build ZK60Formal.StatementsD76Gate
+== lake build ZK60Formal.StatementsD76Bridge ==
+Build completed successfully (3010 jobs).
+build rc 0 (5 s)
+== lake build ZK60Formal.StatementsD76Leaky ==
+Build completed successfully (3457 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.StatementsD76Gate ==
+✖ [3581/3581] Building ZK60Formal.StatementsD76Gate (2.6s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/ZK60Formal/StatementsD76Gate.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Gate.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Gate.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Gate.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Gate.setup.json --json
+error: ZK60Formal/StatementsD76Gate.lean:55:23: failed to synthesize instance of type class
+  Decidable ((classifyModel S R).admissible x)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+Some required targets logged failures:
+- ZK60Formal.StatementsD76Gate
+error: build failed
+build rc 1 (22 s)
+rc 1, 22 s

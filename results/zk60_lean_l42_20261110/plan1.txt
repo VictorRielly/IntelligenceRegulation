@@ -1,0 +1,4 @@
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/l42_probe.lean
+build ZK60Formal.StatementsD76Draft ZK60Formal.StatementsD76Leak
+build ZK60Formal.StatementsD76Bridge
+build ZK60Formal.StatementsD76Leaky
