@@ -1,0 +1,10 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af5816932bc109a54/results/zk60_lean_l52_20261110/plan4.txt ==
+build ZK60Formal.RunEpBTest
+build ZK60Formal.RunEpBTopT
+== lake build ZK60Formal.RunEpBTest ==
+Build completed successfully (3571 jobs).
+build rc 0 (10 s)
+== lake build ZK60Formal.RunEpBTopT ==
+Build completed successfully (3645 jobs).
+build rc 0 (27 s)
+rc 0, 27 s
