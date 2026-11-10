@@ -1,0 +1,12 @@
+✔ [3670/3681] Built ZK60Formal.BlockJoinGF (11s)
+✔ [3671/3681] Built ZK60Formal.BlockJoinBatch (11s)
+✔ [3672/3681] Built ZK60Formal.BlockJoinCube (2.1s)
+✔ [3673/3681] Built ZK60Formal.BlockJoinHost (2.0s)
+✔ [3674/3681] Built ZK60Formal.BlockJoinVals (1.0s)
+✔ [3675/3681] Built ZK60Formal.BlockJoinW16 (2.4s)
+✔ [3676/3681] Built ZK60Formal.BlockJoinDt (2.2s)
+✔ [3677/3681] Built ZK60Formal.BlockJoinTzc (3.5s)
+✔ [3678/3681] Built ZK60Formal.BlockJoinTzcForm (5.7s)
+✔ [3679/3681] Built ZK60Formal.BlockJoinFinal (1.9s)
+✔ [3680/3681] Built ZK60Formal (1.8s)
+Build completed successfully (3681 jobs).
