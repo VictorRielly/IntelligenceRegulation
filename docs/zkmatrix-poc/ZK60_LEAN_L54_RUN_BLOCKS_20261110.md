@@ -202,8 +202,9 @@ run's own) transfers to all of them.
 `M`'s acceptance facts at their windows (`RhOpW`, `RhMW`) and "no doomed `opA`, `M` entrant". Acceptance enters only
 to obtain those facts (`rx_parts_AHG`, `rx_parts_MG`, `hopX1`).
 
-**L54-5 (Info, process): lock wait.** The lane's first build waited behind lane L49's CPU receipt job (`lean-l49-pub`)
-on the shared heavy lock (first come, first served, D69).
+**L54-5 (Info, process): lock waits.** The lane's two guarded jobs waited 1,239 s and 1,516 s for the shared heavy lock
+(lane L49's CPU receipt job `lean-l49-pub` and other lanes' jobs; first come, first served, D69) and ran 14 s and 67 s
+(MEASURED, the guard's records).
 
 ## 7. Checks
 
