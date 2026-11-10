@@ -1,5 +1,5 @@
-declarations in {RunCover}*.lean: 132
+declarations in {RunCover}*.lean: 139
 declared twice inside the lane: none
-worktrees read: 38
-other Lean files read (with repeats across worktrees): 3283
+worktrees read: 39
+other Lean files read (with repeats across worktrees): 3615
 clashes: 0

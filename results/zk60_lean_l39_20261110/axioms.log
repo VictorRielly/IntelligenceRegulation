@@ -162,3 +162,20 @@
 'ZK60.ProtocolClassify.rc_productionReady_run_r13_token_some' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.rc_productionReady_r13_some' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.rc_productionReady_r13_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReadyL_runChain_some_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReadyL_run_r13_some_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReadyL_run_r13_token_some_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReadyL_r13_some_range' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReadyL_r13_top_range' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReadyL_r13_exec_some_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.rc_productionReadyL_r13_exec_top_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

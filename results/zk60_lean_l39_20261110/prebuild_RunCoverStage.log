@@ -1,2 +1,7 @@
-✔ [3547/3547] Built ZK60Formal.RunCoverStage (13s)
+✔ [3542/3547] Built ZK60Formal.HonestOpenPcs (2.3s)
+✔ [3543/3547] Built ZK60Formal.HonestOpenM (2.1s)
+✔ [3544/3547] Built ZK60Formal.HonestOpenFields (1.0s)
+✔ [3545/3547] Built ZK60Formal.HonestRunStageIn (2.1s)
+✔ [3546/3547] Built ZK60Formal.HonestRunStageOut (2.1s)
+✔ [3547/3547] Built ZK60Formal.RunCoverStage (2.2s)
 Build completed successfully (3547 jobs).
