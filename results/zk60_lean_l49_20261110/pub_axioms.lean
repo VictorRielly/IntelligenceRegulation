@@ -34,4 +34,8 @@ open ZK60.Exec.Block.Join.R13H.Pub.Chk
 #print axioms foldTabR_eq
 #print axioms pubsRFast_eq
 #print axioms shieldTab_eq
+#print axioms foldTab_getD_entry
+#print axioms foldEntryA_eq
+#print axioms fold_entry_of
+#print axioms foldSampleR_eq
 end
