@@ -264,3 +264,10 @@ import ZK60Formal.BlockAlgLkFinal
 import ZK60Formal.BlockAlgSat
 import ZK60Formal.BlockJoinGF
 import ZK60Formal.BlockJoinCube
+import ZK60Formal.BlockJoinHost
+import ZK60Formal.BlockJoinVals
+import ZK60Formal.BlockJoinW16
+import ZK60Formal.BlockJoinTzc
+import ZK60Formal.BlockJoinTzcForm
+import ZK60Formal.BlockJoinDt
+import ZK60Formal.BlockJoinFinal
