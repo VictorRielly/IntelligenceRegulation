@@ -31,10 +31,10 @@ any of the three outright. What is done is green and stands on its own; what is 
 - **The honest openings have the right shape.** Their words are canonical, their counts and lengths are the
   geometry's, their Merkle paths have the tree's depth. These are the facts the wire codec and the depth pre-checks
   ask for.
-- **A block's proof is accepted, given only arithmetic.** For a block of the media app, the executable block verifier
-  accepts the honest block core given: the profile's own pre-checks, each slot's arithmetic, and "the claims the run
-  makes are true of the committed tables". The three opening assumptions and the three depth assumptions of lane L25's
-  theorem are gone.
+- **A part's proof is accepted, given only arithmetic.** For a block of the media app, for stage IN-C and for stage
+  OUT-C, the executable verifier accepts the honest proof given: the profile's own pre-checks, each slot's arithmetic,
+  and "the claims the run makes are true of the committed tables". The opening assumptions and the depth assumptions
+  of lane L25's and lane L29's theorems are gone (three and three for a block, four and four for each stage).
 - **The prover's own refusals around an opening are fresh coin flips, counted exactly.** Before each opening the
   prover checks its challenges and gives up in two cases (this protects zero knowledge): a member coefficient is zero,
   or the two proximity coefficients are "dependent". PROVED: these are refusal sites in lane L18's sense, each a fresh
@@ -51,8 +51,8 @@ any of the three outright. What is done is green and stands on its own; what is 
 **What it does not do.**
 - **O8 is not closed.** What is left is arithmetic along the honest run: each slot's polynomial (23 per block, 12 for
   the two stages), and that every claim and every mask functional the run produces is TRUE of what was committed. No
-  slot arithmetic was started. The stage versions of the block theorem are not written (the opening theorems they
-  need are).
+  slot arithmetic was started. The three part theorems stop at the part's core: the wire framing around it (the
+  codec's remaining facts, a block's boundary opening) is not assembled.
 - **O9 is not closed.** The pieces are there for one part of the run (a block core, a stage): the head and the slots
   (L29), the openings (this lane), the `check_opening` sites (this lane). Chaining the 28 parts of the run into one
   program is not done. Four kinds of refusal are still named events and not sites (§6).
@@ -63,8 +63,9 @@ any of the three outright. What is done is green and stands on its own; what is 
 **One thing worth your attention (finding L32-1).** The table `H` of a block depends on three challenges that are
 drawn from the transcript. Lane L25's description of the honest prover gives the `H` opening no access to those
 challenges, and its completeness contract asks for every possible starting transcript. Read literally, no honest
-prover fits. The fix is small and is done here for a block core: build the honest prover's data from the transcript
-it starts on. The run's honest parts need the same change before O8 can be closed; no statement changes.
+prover fits. The fix is small and is done here for a block core and for both stages: build the honest prover's data
+from the transcript it starts on. The run's honest parts need the same change before O8 can be closed; no statement
+changes.
 
 ## 2. What is proved
 
@@ -98,7 +99,7 @@ CODE: `hashline/src/zk.rs` `mask_commit_tagged` :499-536, `combined_weights` :55
 
 | Theorem / definition | Meaning |
 |---|---|
-| `ofOZ`, `ofMO`, `toOZ_ofOZ`, `toMO_ofMO` | this lane's openings in L9's wire types |
+| `ofOZ`, `ofMO`, `toOZ_ofOZ`, `toMO_ofMO`, `pathsDepth_ofOCol`, `ofMO_canon`, `ofMO_shape`, `bMask_fst` | this lane's openings in L9's wire types; the wire form keeps the words, the shape and the path depths |
 | **`bOpen`**, **`bMask`**, `lagK`, `colEnc_spec_at` | the honest opening provers in the shape L25's `CoreData` takes; the interpolant row form with the code's roots |
 | **`pcsAt_of_prove`** | a stage's opening check (`A`, `H`, the token endpoint, `B` of IN-C and OUT-C) accepts the honest opening |
 | **`pcsField_of_prove`**, **`pcsFieldR13_of_prove`** | `BlockParams.pcsVerify` at W16R2 and at R13 (the media app's blocks) accepts the honest opening |
@@ -153,7 +154,7 @@ CODE: `protocol.rs` `check_opening_challenges` :312-323, `check_opening` :327-33
 
 | Field | Before (L29) | Now (L32) |
 |---|---|---|
-| O8 `parts` | CONTRACTS inside `IncOK`, `D12aBlockOK`, `OutcOK`: (i) the completeness of `M`'s test, the openings, the audits; (ii) canonical words, shapes, depths; (iii) each slot's arithmetic | (i) PROVED for `M` and every regular opening at every parameter set the run uses (`maskField_of_prove`, `pcsFieldR13_of_prove`, `pcsField_of_prove`, `pcsAt_of_prove`), given honest tables and TRUE claims / functionals. (ii) PROVED for the openings (`bOpen_*`, `bMask_*`); the slot proofs' words and the frame lengths are not. (iii) not started. For a block core the three layers are assembled: `blockVerify_of_tables_r13`. The audits (`check_opening`, the boundary and endpoint audits) on the honest run are O9's, not O8's: they are refusals of the prover |
+| O8 `parts` | CONTRACTS inside `IncOK`, `D12aBlockOK`, `OutcOK`: (i) the completeness of `M`'s test, the openings, the audits; (ii) canonical words, shapes, depths; (iii) each slot's arithmetic | (i) PROVED for `M` and every regular opening at every parameter set the run uses (`maskField_of_prove`, `pcsFieldR13_of_prove`, `pcsField_of_prove`, `pcsAt_of_prove`), given honest tables and TRUE claims / functionals. (ii) PROVED for the openings (`bOpen_*`, `bMask_*`); the slot proofs' words and the frame lengths are not. (iii) not started. For each kind of part the layers are assembled at the part's core: `blockVerify_of_tables_r13`, `incVerify_of_tables`, `outcVerify_of_tables`. The audits (`check_opening`, the boundary and endpoint audits) on the honest run are O9's, not O8's: they are refusals of the prover |
 | O9 `refuse` | covered part by part given each part's prefix as a transcript program; open: (a) the openings as programs and the chain, (b) `define`, (c) `check_opening`'s challenge refusals, (d) IN-C's D66(3), (e) deterministic facts, `own` | (a) first half PROVED: the openings as programs (`maskProg`, `pcsProg`); the chain over the run is not built. (c) PROVED: `checkOpening_cover`, except the schedule audit's own two challenge-dependent refusals (L32-4). (b), (d), (e) unchanged |
 | O10 `counts` | `δ = 0` for transcript-program sites; counts with margins | the new sites are `tprogSite`s (`δ = 0`); per opening the count is EXACT and proved (`openK_sum`: `p + n + 1`); IN-C's corrected count is inside the bound (`shield_k_le_inc`) |
 | O1–O7, O11, O12 | as L18 / L19 / L26 / L29 | unchanged |
@@ -185,9 +186,10 @@ the honest `H` opening needs the head's challenges, and the honest-data types do
 - So for a start transcript other than the one the data was built for, `hOpen` opens a table that is not the one
   `hRoot β γ α` commits, and the claims are not true of it: the contract cannot hold for every `t`.
 - Here: `coreDataAt` builds the honest `CoreData` PER START TRANSCRIPT (it recomputes `β, γ, α` from the transcript,
-  `bgaOf`, with the same absorbs and squeezes), and `blockVerify_of_tables_r13` is stated for it.
+  `bgaOf`, with the same absorbs and squeezes), and `blockVerify_of_tables_r13` is stated for it; `incDataAt` and
+  `outcDataAt` do the same for the stages.
 - What the next lane needs: honest parts whose data is a function of the start transcript (a `SegP` whose `run`
-  builds `coreDataAt … t`; the stage provers with `IncData` / `OutcData` built from `t`). L18's `RunP` takes the parts
+  builds `coreDataAt … t`; the stage provers on `incDataAt … t` / `outcDataAt … t`). L18's `RunP` takes the parts
   as free `SegP`s, so this needs no change to L18's or L25's files; L25's `d12a_block_complete` and L29's
   `inc_stageInOK` / `outc_stageOutOK` are re-proved for the new parts by the same steps. The same remark as L25-1
   (`own`): the alternative is to restrict `SegComplete` to the transcripts the honest run reaches.
@@ -236,9 +238,8 @@ coefficient (`lineBad_card`, `det_zero_line`), plus one for a zero first coeffic
   commitment's definition), `MHonest` (`M`'s degrees, `b`'s zero sum), `ClaimTrue` for every claim the accumulator
   leaves and for `logup_sum_claim`, and the functionals' truth (`mTrue`) for `M`. The last two are arithmetic of the
   same kind as `SlotsSum`: the terminal values the slots publish are the committed tables' evaluations.
-- The stage versions of `blockVerify_of_tables_r13` (`incVerify_of_prove` / `outcVerify_of_prove` with
-  `pcsAt_of_prove` and `maskField_of_prove`), and the boundary opening of a block (`bndOpen`: a regular opening, at
-  the boundary's parameters).
+- The boundary opening of a block (`bndOpen`: a regular opening at the boundary's parameters, as stage OUT-C's
+  `B_out` here), and the three part theorems lifted from the core to the framed part (`SegComplete`).
 - The codec contract's remaining parts: `SlotCanon` and the slot part of `CoreShape` (the honest slot proofs' words
   and counts), `CloseOk`, the counted lengths.
 - Transcript-aware honest parts (finding L32-1).
@@ -273,4 +274,41 @@ is still L18's `classify_complete_target`.
 All through the zk60 resource guard (class cpu, need 14 GiB, cap 24 GiB, `run_guarded.py`), logs and `.done` markers
 in `results/zk60_lean_l32_20261109/`. The heavy lock was shared with the app lane's GPU runs and lanes L30, L31, L33.
 
-CHECKS_PLACEHOLDER
+- `iter1.log` (18 s; waited about 25 minutes for admission): `HonestOpenPcs.lean`, two rewrite errors (a pattern
+  stated through a definition the goal had not unfolded) and one unused `simp` argument.
+- `iter2.log` (34 s): `HonestOpenPcs.lean` green. `HonestOpenM.lean`: "maximum recursion depth" twice. Cause: to
+  compare a structure projection with `polyWords` (a `List.ofFn` over `1024` positions) the unifier unfolded the
+  list. Fix: the projections are reduced first, and `polyWords` is marked irreducible after its four lemmas.
+- `iter3.log` (81 s): `HonestOpenM`, `HonestOpenSites`, `HonestRunCount`, `HonestRunCover` green.
+  `HonestOpenFields.lean`: four `whnf` timeouts in the `bMask_*` lemmas. Cause: the unifier evaluated `M`'s index
+  squeezes (`challenge_indices(256, 4096)`, both numbers literal) under a `List.map` over the opened columns. Fix: the
+  lemmas go through `ofMO` generically (`ofMO_canon`, `ofMO_shape`, `bMask_fst`), and `mIdx` is marked irreducible
+  after `maskProve_eq`. `HonestRunProg.lean`: "maximum recursion depth" in `final_maskProg_prove`.
+- `iter4.log` (61 s): nine modules green. `HonestRunProg.lean`: the same place. Cause: the unifier unfolded `runOps`
+  over the `64` index squeezes before reducing the other side's projection. Fix: `final_done_fst`, `final_done_snd`,
+  `mT2_eq` make the two sides the same term before `rfl`.
+- `iter5.log` (ONE guarded job, 82 s, peak RSS 3.73 GiB, waited 388 s): the ten modules, each built on its own, then
+  `check_l32.sh` (`check.log`, 52 s):
+
+| Gate | Result |
+|---|---|
+| each L32 module built on its own (`prebuild_*.log`) | ten, green, **0 warnings** |
+| full `lake build` of the library (`full.log`) | green, **3,601 jobs, 0 warnings, 0 errors, no `sorry`** |
+| axiom audit (`gen_axioms.py` → `axioms_l32.lean` → `axioms.log`: every `theorem`, `def` and `structure` of the ten files) | **192 declarations** (126 theorems: Pcs 35, M 21, Fields 18, Sites 15, RunBlock 2, RunProg 16, RunCount 7, RunCover 9, StageIn 2, StageOut 1; 60 definitions; 6 structures): 115 on `[propext, Classical.choice, Quot.sound]`, 54 on `[propext, Quot.sound]`, 3 on `[propext]`, 20 on none; no `sorryAx`, no `Lean.ofReduceBool`, no other axiom |
+| source scan of the ten files (`sorry`, `axiom`, `native_decide`, `admit`, `maxRecDepth`, `maxHeartbeats`, `implemented_by`, `extern`, `bv_decide`, `ofReduceBool`) | **none** |
+| the root imports the ten files | yes |
+| `Statements.lean`; existing files under `formal/` changed since the base `6e788dcb` (the root's import lines apart); lines removed from the root; files changed under `ops/` or `apps/` | unchanged; **0**; **0**; **0** |
+| regressions on their committed corpora: L6Check / L5Check / L11Check / fixture L1 | **1,206 / 5,553 / 404 / 101,956 checks, 0 failed** |
+| name clashes with every other Lean file of every worktree (`l32_nameclash.py`, `l32_nameclash.log`) | 192 declarations, **0 clashes** over 41 worktrees |
+
+Not run here: the corpus checkers `ExecBlockCheck`, `CheckR13Block`, `StageCheckOutC`, `ProtocolClassifyCheck`,
+`StageVerifyExecCheck` (this lane changes no file they read, and adds no checker against the Rust code: its honest
+provers are specifications of the code's, finding L32-3).
+
+**L32-8 (Info, for the Lean lanes): literal sizes make the unifier compute.** `M`'s constants are literals (`1024`
+coefficients, `256` indices out of `4096`, `64` squeezes). A definition that recurses over them (`List.ofFn`,
+`challenge_indices`' loop, `runOps` over a replicated list) is evaluated by the unifier whenever it meets a
+projection or a `List.map` it cannot match at once: "maximum recursion depth" or a `whnf` timeout, far from the cause.
+What worked: prove the definition's lemmas, then mark it irreducible; state transfer lemmas generically (over any
+opening) and instantiate; make both sides of a `rfl` the same term by explicit unfolding lemmas first. This is the
+same family as finding L7-4 (the literal Goldilocks prime).
