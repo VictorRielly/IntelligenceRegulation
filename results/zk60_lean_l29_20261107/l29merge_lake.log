@@ -1,0 +1,11 @@
+✔ [3581/3591] Built ZK60Formal.StageVerifyExecLay (11s)
+✔ [3582/3591] Built ZK60Formal.StageVerifyExecInC (2.4s)
+✔ [3583/3591] Built ZK60Formal.StageVerifyExecOutC (2.4s)
+✔ [3584/3591] Built ZK60Formal.StageVerifyExec (2.8s)
+✔ [3585/3591] Built ZK60Formal.StageVerifyExecComplete (2.5s)
+✔ [3586/3591] Built ZK60Formal.StageVerifyExecAssemble (2.1s)
+✔ [3587/3591] Built ZK60Formal.HonestOracleProg (2.5s)
+✔ [3588/3591] Built ZK60Formal.HonestOracleSlots (2.2s)
+✔ [3589/3591] Built ZK60Formal.HonestOracleParts (2.3s)
+✔ [3590/3591] Built ZK60Formal (1.9s)
+Build completed successfully (3591 jobs).

@@ -502,10 +502,26 @@ here. The rates count proving and witness work. Verification time is recorded se
       block's header count and supply the endpoint term.
     - Premises left: the profile's size object, the claim counts per opening, and the reader of the claims from the
       verifier's trace (all Low).
-  - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26, L27, L28, L29 (the
-    stage verifiers in executable Lean and the honest prover in oracle form) and A28 (the app's commitment kernels
-    and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its worktree, and each was resumed
-    there on 2026-11-09. L26, L27 and L28 are merged (above). L29 has reported and is being merged; A28 is still
+  - **L29, the two stage verifiers in executable Lean, and the honest prover as transcript programs** [PROVED;
+    MEASURED for the agreement check; merged 2026-11-09; `ZK60_LEAN_L29_STAGES_ORACLE_20261107.md`].
+    - The classify run's embedding stage IN-C and verdict stage OUT-C were parameters of L18's instance. They are now
+      written in Lean as the code runs them, and each is proved to accept exactly when every one of its checks
+      passes, in the code's order. `classifyProtocolExec` is the instance with both filled in.
+    - Agreement with the code on a real classifier receipt of the development rung (one block, T = 32): 127 checks,
+      0 failed. The Lean stage verifiers accept the real IN-C and OUT-C segments and end on the code's final
+      transcripts. A negative control of seven single changes fails exactly 8. No mismatch with the code was found.
+      Not yet checked on a Shieldstral T128 receipt.
+    - The stages' completeness is proved in L25's form, so O8 holds at the executable stages, given the parts'
+      contracts.
+    - The honest slot loop is one transcript program, and a refusal of the honest prover in a block's core, in IN-C
+      or in OUT-C is one of a short list of events (toward O9).
+    - **No `ClassifyOpen` field is discharged outright.** O8 and O9 are reduced further; O12 (the run's zero
+      knowledge) is not started.
+    - Finding L29-3 (Low, an estimate): stage IN-C's refusal count is about 2^20.7 values, against L18's 2^17. It is
+      still inside the proved margin; the sites are not yet built in Lean.
+  - **Interrupted 2026-11-07 19:11Z, resumed 2026-11-09.** A usage limit stopped the lanes L26, L27, L28, L29 and A28
+    (the app's commitment kernels and GPU idle time) in mid-work. Nothing was lost: each lane's files were in its
+    worktree, and each was resumed there on 2026-11-09. L26, L27, L28 and L29 are merged (above); A28 is still
     running. Lane L30 (the run's gate on L26's instance through L27's transcript machinery) started on 2026-11-09.
   - **Still open before production:** the obligations above; the D55 tree for the 8B stack; then W16R3's delta.
 - **A gap the Lean work exposed: W16R2 has no token-I/O run profile yet** [CODE, `run.rs`].

@@ -1,0 +1,140 @@
+ok   LABELS: HLPCLIN1
+ok   LABELS: HLPCLOT1
+ok   LABELS: the run labels
+ok   DERIV: IN-C domains: ti 12 voc 12 words 256 B_in 14
+ok   DERIV: IN-C layout: A rows 10 H rows 14 M rows 12 functionals 8
+ok   PARSE: 4 IN-C slot proofs
+ok   HEAD: IN-C's head challenges (β, γ, α, r_emb: 12)
+ok   HEAD: IN-C's transcript after H
+ok   HEAD: τ table of 4096 rows
+ok   SLOT: IN-C slot 0's transcript
+ok   SLOT: IN-C slot 1's transcript
+ok   SLOT: IN-C slot 2's transcript
+ok   SLOT: IN-C slot 3's transcript
+ok   SLOT: IN-C's slot phase (IncV.slots) is the slot walk
+ok   CLAIMS: IN-C: 8 claims (A, H, In, Out)
+ok   CLAIMS: IN-C claim 0
+ok   CLAIMS: IN-C claim 1
+ok   CLAIMS: IN-C claim 2
+ok   CLAIMS: IN-C claim 3
+ok   CLAIMS: IN-C claim 4
+ok   CLAIMS: IN-C claim 5
+ok   CLAIMS: IN-C claim 6
+ok   CLAIMS: IN-C claim 7
+ok   FUNS: IN-C: 8 functionals
+ok   FUNS: IN-C functional 0
+ok   FUNS: IN-C functional 1
+ok   FUNS: IN-C functional 2
+ok   FUNS: IN-C functional 3
+ok   FUNS: IN-C functional 4
+ok   FUNS: IN-C functional 5
+ok   FUNS: IN-C functional 6
+ok   FUNS: IN-C functional 7
+ok   AUDIT: IN-C check_opening A: accepted
+ok   AUDIT: IN-C check_opening H: accepted
+ok   AUDIT: IN-C check_token_endpoint_opening: accepted
+ok   RESULT: IN-C leaves 1 claims on B_in
+ok   NEGATIVE: IN-C slot 0's scalar + 1 is refused
+ok   DERIV: OUT-C domains: lo 12 do 12 tab 12 B_out 14
+ok   DERIV: OUT-C layout: A rows 76 H rows 38 M rows 20 functionals 14
+ok   PARSE: 1 claims pending on B_out
+ok   PARSE: 8 OUT-C slot proofs
+ok   HEAD: OUT-C's head challenges (γ, α)
+ok   HEAD: OUT-C's transcript after H
+ok   SLOT: OUT-C slot 0's transcript
+ok   SLOT: OUT-C slot 1's transcript
+ok   SLOT: OUT-C slot 2's transcript
+ok   SLOT: OUT-C slot 3's transcript
+ok   SLOT: OUT-C slot 4's transcript
+ok   SLOT: OUT-C slot 5's transcript
+ok   SLOT: OUT-C slot 6's transcript
+ok   SLOT: OUT-C slot 7's transcript
+ok   SLOT: OUT-C's slot phase (L15's stageSlots) is the slot walk
+ok   CLAIMS: OUT-C: 39 claims (A, H, In, Out)
+ok   CLAIMS: OUT-C claim 0
+ok   CLAIMS: OUT-C claim 1
+ok   CLAIMS: OUT-C claim 2
+ok   CLAIMS: OUT-C claim 3
+ok   CLAIMS: OUT-C claim 4
+ok   CLAIMS: OUT-C claim 5
+ok   CLAIMS: OUT-C claim 6
+ok   CLAIMS: OUT-C claim 7
+ok   CLAIMS: OUT-C claim 8
+ok   CLAIMS: OUT-C claim 9
+ok   CLAIMS: OUT-C claim 10
+ok   CLAIMS: OUT-C claim 11
+ok   CLAIMS: OUT-C claim 12
+ok   CLAIMS: OUT-C claim 13
+ok   CLAIMS: OUT-C claim 14
+ok   CLAIMS: OUT-C claim 15
+ok   CLAIMS: OUT-C claim 16
+ok   CLAIMS: OUT-C claim 17
+ok   CLAIMS: OUT-C claim 18
+ok   CLAIMS: OUT-C claim 19
+ok   CLAIMS: OUT-C claim 20
+ok   CLAIMS: OUT-C claim 21
+ok   CLAIMS: OUT-C claim 22
+ok   CLAIMS: OUT-C claim 23
+ok   CLAIMS: OUT-C claim 24
+ok   CLAIMS: OUT-C claim 25
+ok   CLAIMS: OUT-C claim 26
+ok   CLAIMS: OUT-C claim 27
+ok   CLAIMS: OUT-C claim 28
+ok   CLAIMS: OUT-C claim 29
+ok   CLAIMS: OUT-C claim 30
+ok   CLAIMS: OUT-C claim 31
+ok   CLAIMS: OUT-C claim 32
+ok   CLAIMS: OUT-C claim 33
+ok   CLAIMS: OUT-C claim 34
+ok   CLAIMS: OUT-C claim 35
+ok   CLAIMS: OUT-C claim 36
+ok   CLAIMS: OUT-C claim 37
+ok   CLAIMS: OUT-C claim 38
+ok   FUNS: OUT-C: 14 functionals
+ok   FUNS: OUT-C functional 0
+ok   FUNS: OUT-C functional 1
+ok   FUNS: OUT-C functional 2
+ok   FUNS: OUT-C functional 3
+ok   FUNS: OUT-C functional 4
+ok   FUNS: OUT-C functional 5
+ok   FUNS: OUT-C functional 6
+ok   FUNS: OUT-C functional 7
+ok   FUNS: OUT-C functional 8
+ok   FUNS: OUT-C functional 9
+ok   FUNS: OUT-C functional 10
+ok   FUNS: OUT-C functional 11
+ok   FUNS: OUT-C functional 12
+ok   FUNS: OUT-C functional 13
+ok   AUDIT: OUT-C check_opening A: accepted
+ok   AUDIT: OUT-C check_opening H: accepted
+ok   AUDIT: OUT-C boundary::check_opening: accepted
+ok   RESULT: OUT-C: no claim on an output endpoint
+ok   DECODE: IN-C segment: 1224328 B, BLAKE3
+ok   DECODE: IN-C's counted length 1224328
+ok   DECODE: IN-C's start tag is the position tag of the run header
+ok   DECODE: IN-C decoded: the end tag, the roots, the slots
+ok   DECODE: IN-C re-encoded: the bytes
+ok   VERIFY: IN-C's executable verifier accepts, on the code's final transcript (56756 ms)
+ok   VERIFY: IN-C's end tag is the position tag after the stage
+ok   NEGATIVE: IN-C with one byte of its slots changed is refused
+ok   DECODE: OUT-C segment: 2489016 B, BLAKE3
+ok   DECODE: OUT-C's counted length 2489016
+ok   DECODE: OUT-C's start tag is the position tag after the blocks
+ok   DECODE: OUT-C decoded: the end tag, the roots, the slots
+ok   DECODE: OUT-C re-encoded: the bytes
+ok   VERIFY: OUT-C's executable verifier accepts, on the code's final transcript (115101 ms)
+ok   VERIFY: OUT-C's end tag is the position tag after the stage
+ok   NEGATIVE: OUT-C with a pending claim's value + 1 is refused
+LABELS: 3 checks, 0 failed
+DERIV: 4 checks, 0 failed
+PARSE: 3 checks, 0 failed
+HEAD: 5 checks, 0 failed
+SLOT: 14 checks, 0 failed
+CLAIMS: 49 checks, 0 failed
+FUNS: 24 checks, 0 failed
+AUDIT: 6 checks, 0 failed
+RESULT: 2 checks, 0 failed
+NEGATIVE: 3 checks, 0 failed
+DECODE: 10 checks, 0 failed
+VERIFY: 4 checks, 0 failed
+StageVerifyExecCheck: 127 checks, 0 failed
