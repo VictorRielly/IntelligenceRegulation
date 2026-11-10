@@ -300,9 +300,9 @@ theorem hN_w16 : Fintype.card SgIx + 2 * Fintype.card PrIx < ringChar K := by
   unfold gP
   norm_num
 
+omit [Field K] [Algebra GF K] in
 /-- **`he`**: lookups and twice the table's distinct entries, at most `1,064,960 + 2·278,528 = 1,622,016`, within
 `35,153,256`. -/
-omit [Field K] [Algebra GF K] in
 theorem he_w16 [DecidableEq K] (T : TbIx → Tup K) :
     Fintype.card SgIx + 2 * Fintype.card PrIx + 2 * (Finset.univ.image T).card ≤ 35153256 := by
   have h := Finset.card_image_le (s := (Finset.univ : Finset TbIx)) (f := T)

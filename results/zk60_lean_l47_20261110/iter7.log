@@ -1,0 +1,10 @@
+== plan results/zk60_lean_l47_20261110/plan3.txt ==
+build ZK60Formal.BlockLookBase
+build ZK60Formal.BlockLookJoin
+== lake build ZK60Formal.BlockLookBase ==
+Build completed successfully (3570 jobs).
+build rc 0 (21 s)
+== lake build ZK60Formal.BlockLookJoin ==
+Build completed successfully (3571 jobs).
+build rc 0 (26 s)
+rc 0, 26 s
