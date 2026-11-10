@@ -239,3 +239,15 @@ import ZK60Formal.RunTrParts
 import ZK60Formal.RunTrStages
 import ZK60Formal.RunTrGate
 import ZK60Formal.RunTrWin
+import ZK60Formal.BlockAlgUnmask
+import ZK60Formal.BlockAlgKinds
+import ZK60Formal.BlockAlgInst
+import ZK60Formal.BlockAlgRels
+import ZK60Formal.BlockAlgFinal
+import ZK60Formal.BlockAlgShapes
+import ZK60Formal.BlockAlgR13
+import ZK60Formal.BlockAlgLk26
+import ZK60Formal.BlockAlgLkR13
+import ZK60Formal.BlockAlgLkW16
+import ZK60Formal.BlockAlgLkFinal
+import ZK60Formal.BlockAlgSat

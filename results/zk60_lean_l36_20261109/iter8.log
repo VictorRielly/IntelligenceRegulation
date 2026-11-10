@@ -1,0 +1,30 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/results/zk60_lean_l36_20261109/plan.txt ==
+build ZK60Formal.BlockAlgSat
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/results/zk60_lean_l36_20261109/check_l36.sh
+== lake build ZK60Formal.BlockAlgSat ==
+✖ [3527/3527] Building ZK60Formal.BlockAlgSat (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/ZK60Formal/BlockAlgSat.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/.lake/build/lib/lean/ZK60Formal/BlockAlgSat.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/.lake/build/lib/lean/ZK60Formal/BlockAlgSat.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/.lake/build/ir/ZK60Formal/BlockAlgSat.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/.lake/build/ir/ZK60Formal/BlockAlgSat.setup.json --json
+error: ZK60Formal/BlockAlgSat.lean:46:4: Unknown identifier `lkCount`
+
+Note: It is not possible to treat `lkCount` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockAlgSat.lean:49:6: Unknown identifier `lkCount_r13_shield`
+error: ZK60Formal/BlockAlgSat.lean:48:18: unsolved goals
+⊢ sorry + 2 * ((3 + Slot.R13.shShieldR13.nRange) * 2 ^ Slot.R13.shShieldR13.logs Slot.W16R2.Dom.Tab) ≤ 2 ^ 26
+error: ZK60Formal/BlockAlgSat.lean:54:4: Unknown identifier `lkCount`
+
+Note: It is not possible to treat `lkCount` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockAlgSat.lean:55:6: Unknown identifier `lkCount_w16r2_rung`
+error: ZK60Formal/BlockAlgSat.lean:54:104: unsolved goals
+⊢ sorry + 2 * ((3 + shRungW16.nRange) * 2 ^ shRungW16.logs Slot.W16R2.Dom.Tab) ≤ 35153256
+error: ZK60Formal/BlockAlgSat.lean:60:4: Unknown identifier `lkCount`
+
+Note: It is not possible to treat `lkCount` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/BlockAlgSat.lean:63:6: Unknown identifier `lkCount_r13_rung`
+error: ZK60Formal/BlockAlgSat.lean:62:20: unsolved goals
+⊢ sorry + 2 * ((3 + Slot.R13.shRungR13.nRange) * 2 ^ Slot.R13.shRungR13.logs Slot.W16R2.Dom.Tab) ≤ 35153256
+Some required targets logged failures:
+- ZK60Formal.BlockAlgSat
+error: build failed
+build rc 1 (16 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/results/zk60_lean_l36_20261109/check_l36.sh skipped: an earlier step failed ==
+rc 1, 16 s

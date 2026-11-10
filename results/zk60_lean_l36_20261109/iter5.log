@@ -1,0 +1,9 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/results/zk60_lean_l36_20261109/plan.txt ==
+build ZK60Formal.BlockAlgShapes
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/ZK60Formal/BlockAlgCheck.lean
+== lake build ZK60Formal.BlockAlgShapes ==
+Build completed successfully (3520 jobs).
+build rc 0 (19 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/ZK60Formal/BlockAlgCheck.lean ==
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a0335fe456bff3a7c/formal/ZK60Formal/BlockAlgCheck.lean (23 s)
+rc 0, 23 s
