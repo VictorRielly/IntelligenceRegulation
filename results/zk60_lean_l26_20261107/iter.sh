@@ -19,14 +19,15 @@ while read -r kind arg; do
   case "$kind" in
     build)
       echo "== lake build $arg =="
-      "$LAKE" -d "$WT/formal" build $arg 2>&1 | grep -v '^✔\|^⣿\|Replayed\|Built' | head -n 400
+      # < /dev/null: otherwise lake inherits the loop's stdin and can swallow the rest of the plan (finding L49-FZC-1)
+      "$LAKE" -d "$WT/formal" build $arg < /dev/null 2>&1 | grep -v '^✔\|^⣿\|Replayed\|Built' | head -n 400
       r=${PIPESTATUS[0]}
       echo "build rc $r ($(( $(date +%s) - start )) s)"
       [ $r -ne 0 ] && rc=$r
       ;;
     lean)
       echo "== lean $arg =="
-      "$LAKE" -d "$WT/formal" env lean "$arg" 2>&1 | head -n 400
+      "$LAKE" -d "$WT/formal" env lean "$arg" < /dev/null 2>&1 | head -n 400
       r=${PIPESTATUS[0]}
       echo "rc $r for $arg ($(( $(date +%s) - start )) s)"
       [ $r -ne 0 ] && rc=$r
@@ -34,7 +35,7 @@ while read -r kind arg; do
     check)
       if [ $rc -eq 0 ]; then
         echo "== check $arg =="
-        /bin/bash "$arg" > "$OUT/check.log" 2>&1
+        /bin/bash "$arg" < /dev/null > "$OUT/check.log" 2>&1
         r=$?
         echo "check rc $r ($(( $(date +%s) - start )) s); its log is check.log"
         tail -n 40 "$OUT/check.log"

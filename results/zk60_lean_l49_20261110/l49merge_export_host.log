@@ -1,0 +1,40 @@
+corpus /Users/victorrielly/IntelligenceRegulation/results/zk60_lean_l49_20261110/pub_r13_host_short.txt: R13_RUNG_H24, 21 tables, 0 in full, weights false, sampled columns 0
+checks: 106 passed, 0 failed, 7 fold tables skipped (their weights are not in this corpus)
+  parse: 1
+  header: 1
+  shape: 1
+  widths: 1
+  data: 1
+  slots: 23
+  tables: 1
+  length: 15
+  fingerprint: 30
+  ends: 30
+  shield: 1
+  done: 1
+negative control CAUGHT (1 failed): the code's table (0, 0), one entry
+negative control CAUGHT (1 failed): the code's table (1, 0), one entry
+negative control CAUGHT (1 failed): the code's table (3, 0), one entry
+negative control CAUGHT (1 failed): the code's table (4, 0), one entry
+negative control CAUGHT (1 failed): the code's table (14, 0), one entry
+negative control CAUGHT (1 failed): the code's table (14, 1), one entry
+negative control CAUGHT (1 failed): the code's table (14, 2), one entry
+negative control CAUGHT (1 failed): the code's table (15, 0), one entry
+negative control CAUGHT (1 failed): the code's table (15, 1), one entry
+negative control CAUGHT (1 failed): the code's table (16, 0), one entry
+negative control CAUGHT (1 failed): the code's table (16, 1), one entry
+negative control CAUGHT (1 failed): the code's table (17, 0), one entry
+negative control CAUGHT (1 failed): the code's table (18, 0), one entry
+negative control CAUGHT (1 failed): the code's table (18, 1), one entry
+negative control CAUGHT (1 failed): the Shieldstral supp(Dom::L), one entry
+negative control CAUGHT (1 failed): the Shieldstral supp(Dom::L), a head entry
+negative control CAUGHT (3 failed): gamma_a[5]
+negative control CAUGHT (3 failed): gamma_m[7]
+negative control CAUGHT (6 failed): rope_cos[3]
+negative control CAUGHT (6 failed): rope_sin[9]
+negative control CAUGHT (3 failed): a group id (channel 4)
+negative control CAUGHT (4 failed): head slot 1 not a true head
+negative control CAUGHT (13 failed): one token fewer (tokens < t_pad)
+negative control CAUGHT (1 failed): slot 3's count of public tables
+negative control CAUGHT (1 failed): slot 14's count of public tables
+negative controls: 25 of 25 caught

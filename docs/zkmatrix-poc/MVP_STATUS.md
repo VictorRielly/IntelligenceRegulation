@@ -53,7 +53,8 @@ item was re-checked against the source by the coordinator.
   top theorem is now `ra_productionReadyL_epP_exec_alive`. Lane L53 is taking the two stages: which stage steps the
   run lists, their alive conditions and their doom covers. Finding L50-1 showed these must be chosen together.
 - **Soundness of the 26 blocks is assumed at run level (GA-3).** No top theorem uses a block theorem yet; the blocks
-  enter only through the premises `hdblk` and `halive`. Zero knowledge of the run is assumed outright (GA-2).
+  enter only through the premises `hdblk` and `halive`. Since L49 the app's block statement itself has no
+  block-level premise left; lane L54 is wiring it into the run. Zero knowledge of the run is assumed outright (GA-2).
 - **The plan, in order:**
   1. DONE 2026-11-10 (L39): repair GA-1;
   2. DONE 2026-11-10 (L40): a run model with one shape per block, so the real Shieldstral classifier is
@@ -89,6 +90,27 @@ item was re-checked against the source by the coordinator.
   opening at the largest radius is the production instance; a single-calibration Shieldstral export for W16R2,
   accuracy check first; W16R3 gets C1, C2, C3, C5, C7 and the token stages, not C4 or C9; the prover shortcut
   `HL_A26_KEPT` is on for the app, the verifier shortcut is not.
+- **THE APP'S BLOCK: no block-level premise left, at all 26 Shieldstral layers (L49, merged 2026-11-10).**
+  - **What is proved:** `block_knowledge_r13_shield`. For each of the 26 real layers, at that layer's own program,
+    shape and calibration: the chance that a block is accepted while its relations fail is at most the target error.
+    The same holds at the R13 development rung (`block_knowledge_r13_rung`).
+  - **Gone from the statement:** every block-level premise. That covers the slot program, the public tables, the six
+    hosts' identities, the helper layer and the whole lookup side.
+  - **Lookup count:** 66,977,792 for the app's block, with the exp and ACT tuples. It is PROVED within 2^26, which
+    settles L47-4's estimate.
+  - **Checked against the code on a real R13 rung receipt:** the host public tables (106 checks committed, 170 in the
+    full corpus, 0 failed, every negative control caught) and the LogUp sum claim (113 checks, 0 failed).
+  - **What it still assumes:** run-level premises; that the verifier is the code's; four profile facts (the sum claim
+    and three slot kinds), CHECKED at the rung and ARGUED at Shieldstral (L49-LOOK-1); and the public data.
+  - **The first real Shieldstral block was checked in Lean (gap GB-6 narrowed).** L49's sub-agent proved and verified
+    layer 0 of the app's T128 export on the CPU. Prove took 3.9 s and verify 0.1 s, out of 213 s in total (MEASURED,
+    one run on the shared Mac).
+    - **Result:** Lean agrees with the code on 210 checks, 0 failed, with 27 of 27 negative controls caught. It
+      computed 9.19 M table entries itself. The LogUp sum claim's 106 parts match.
+    - **Not yet:** the 7 weight folds need the full corpus outside the repo. That run was stopped to free the build
+      queue, not failed; it is to be re-run off-peak (about 20–30 min).
+    - **Not end-to-end:** the block's input is a fixed public token sequence, not the app's prompt path (L49-PUB-5).
+  - **Not yet:** the run-level top theorem does not use this block statement yet (GA-3). Lane L54 is wiring it in.
 - **Block level at the W16R2 development rung: no block-level premise left (L47, merged and checked 2026-11-10).**
   - **What is proved:** the one-block statement at the W16R2 rung (`block_knowledge_look_w16r2_rung`). The table
     slot's identity, the lookup side's tables, multiplicities and helper relations are now proved from the committed
@@ -99,8 +121,7 @@ item was re-checked against the source by the coordinator.
     public data.
   - **This is a development shape, not the app's block.** At R13, the app's format, only the table slot's identity is
     done (at the rung and at all 26 Shieldstral layers).
-  - **Next:** lane L49 is building the rest of the app's block at R13 (the hosts, the lookup side, then the statement
-    at each of the 26 layers).
+  - **Next:** the rest of the app's block at R13. DONE by lane L49, above.
   - **Finding L47-4:** the lookup count lane L36 used left out two tuple kinds. The corrected count at the app's block,
     66,977,792 with the table term, still fits under 2^26 (margin 131,072; ESTIMATE, L49 is to prove it), so L36-1's
     bound holds.

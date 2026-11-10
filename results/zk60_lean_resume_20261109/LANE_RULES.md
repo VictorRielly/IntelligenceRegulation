@@ -26,7 +26,9 @@ and this file differ, the brief wins.
 - Evidence goes in `results/zk60_lean_l<n>_<date>/` (the brief gives the name).
 - Copy `run_guarded.py`, `stage.sh`, `iter.sh`, `gen_axioms.py` and `check_l26.sh` from
   `results/zk60_lean_l26_20261107/` and adapt them (labels `lean-l<n>-*`, your paths and files) into
-  `check_l<n>.sh`:
+  `check_l<n>.sh`. Inside any `while read … < plan` loop, give every command `< /dev/null`, or `lake` can swallow
+  the rest of the plan with no error (finding L49-FZC-1; the template `iter.sh` is fixed since 2026-11-10). The check
+  then needs:
   - the full `lake build` (build your modules one at a time first);
   - the axiom audit (`axioms_l<n>.lean`) of every theorem in your files;
   - the source scan for `sorry|axiom|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@[extern]|bv_decide|ofReduceBool`
