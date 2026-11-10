@@ -1,0 +1,100 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/plan1.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/l42_probe.lean
+build ZK60Formal.StatementsD76Draft ZK60Formal.StatementsD76Leak
+build ZK60Formal.StatementsD76Bridge
+build ZK60Formal.StatementsD76Leaky
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/l42_probe.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/l42_probe.lean:3:8: error(lean.unknownIdentifier): Unknown constant `ENNReal.pow_lt_pow_right_of_lt_one`
+@pow_lt_pow_right_of_lt_one₀ : ∀ {M₀ : Type u_1} [inst : MonoidWithZero M₀] [inst_1 : PartialOrder M₀] {a : M₀}
+  {m n : ℕ} [PosMulStrictMono M₀], 0 < a → a < 1 → m < n → a ^ n < a ^ m
+@ENNReal.mul_lt_mul_left : ∀ {a b c : ℝ≥0∞}, a ≠ 0 → a ≠ ∞ → b < c → b * a < c * a
+@ENNReal.div_le_of_le_mul' : ∀ {a b c : ℝ≥0∞}, a ≤ b * c → a / b ≤ c
+@ENNReal.add_le_add_iff_left : ∀ {a b c : ℝ≥0∞}, a ≠ ∞ → (a + b ≤ a + c ↔ b ≤ c)
+@Set.indicator_union_of_disjoint : ∀ {α : Type u_1} {M : Type u_2} [inst : AddZeroClass M] {s t : Set α},
+  Disjoint s t → ∀ (f : α → M), (s ∪ t).indicator f = fun a => s.indicator f a + t.indicator f a
+@ENNReal.inv_lt_one : ∀ {a : ℝ≥0∞}, a⁻¹ < 1 ↔ 1 < a
+@Option.isSome_iff_exists : ∀ {α : Type u_1} {x : Option α}, x.isSome = true ↔ ∃ a, x = some a
+@Set.indicator_of_notMem : ∀ {α : Type u_1} {M : Type u_2} [inst : Zero M] {s : Set α} {a : α},
+  a ∉ s → ∀ (f : α → M), s.indicator f a = 0
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/l42_probe.lean:14:8: error(lean.unknownIdentifier): Unknown constant `ENNReal.pow_lt_pow_right_of_lt_one`
+rc 1 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/results/zk60_lean_l42_20261110/l42_probe.lean (28 s)
+== lake build ZK60Formal.StatementsD76Draft ZK60Formal.StatementsD76Leak ==
+Build completed successfully (3362 jobs).
+build rc 0 (41 s)
+== lake build ZK60Formal.StatementsD76Bridge ==
+✖ [3010/3010] Building ZK60Formal.StatementsD76Bridge (10s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/ZK60Formal/StatementsD76Bridge.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Bridge.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Bridge.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Bridge.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Bridge.setup.json --json
+warning: ZK60Formal/StatementsD76Bridge.lean:66:0: automatically included section variable(s) unused in theorem `ZK60.D76.idealProbL_ofSim`:
+  [Fintype Q]
+  [DecidableEq Q]
+  [Fintype D]
+  [Nonempty D]
+  [Fintype Coins]
+  [Nonempty Coins]
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype
+  Q] [DecidableEq Q] [Fintype D] [Nonempty D] [Fintype Coins] [Nonempty Coins] [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/StatementsD76Bridge.lean:154:13: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+warning: ZK60Formal/StatementsD76Bridge.lean:146:0: automatically included section variable(s) unused in theorem `ZK60.D76.semanticHidingL_of_semanticHiding`:
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/StatementsD76Bridge.lean:186:54: Invalid field `withLeak`: The environment does not contain `ZK60.Protocol.withLeak`, so it is not possible to project the field `withLeak` from an expression
+  P
+of type `Protocol Q D Coins M`
+error: ZK60Formal/StatementsD76Bridge.lean:188:10: failed to synthesize instance of type class
+  Fintype S.SCoins
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/StatementsD76Bridge.lean:201:57: Invalid field `withLeak`: The environment does not contain `ZK60.Protocol.withLeak`, so it is not possible to project the field `withLeak` from an expression
+  P
+of type `Protocol Q D Coins M`
+warning: ZK60Formal/StatementsD76Bridge.lean:203:41: `if_pos` has been deprecated: Use `ite_eq_left` instead
+Some required targets logged failures:
+- ZK60Formal.StatementsD76Bridge
+error: build failed
+build rc 1 (54 s)
+== lake build ZK60Formal.StatementsD76Leaky ==
+✖ [3456/3457] Building ZK60Formal.StatementsD76Bridge (3.2s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/ZK60Formal/StatementsD76Bridge.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Bridge.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/lib/lean/ZK60Formal/StatementsD76Bridge.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Bridge.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a1d5884d5b07f68b6/formal/.lake/build/ir/ZK60Formal/StatementsD76Bridge.setup.json --json
+warning: ZK60Formal/StatementsD76Bridge.lean:66:0: automatically included section variable(s) unused in theorem `ZK60.D76.idealProbL_ofSim`:
+  [Fintype Q]
+  [DecidableEq Q]
+  [Fintype D]
+  [Nonempty D]
+  [Fintype Coins]
+  [Nonempty Coins]
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Fintype
+  Q] [DecidableEq Q] [Fintype D] [Nonempty D] [Fintype Coins] [Nonempty Coins] [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/StatementsD76Bridge.lean:154:13: `Set.mem_setOf_eq` has been deprecated: Use `Set.mem_ofPred_eq` instead
+warning: ZK60Formal/StatementsD76Bridge.lean:146:0: automatically included section variable(s) unused in theorem `ZK60.D76.semanticHidingL_of_semanticHiding`:
+  [Inhabited Coins]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Inhabited Coins] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+error: ZK60Formal/StatementsD76Bridge.lean:186:54: Invalid field `withLeak`: The environment does not contain `ZK60.Protocol.withLeak`, so it is not possible to project the field `withLeak` from an expression
+  P
+of type `Protocol Q D Coins M`
+error: ZK60Formal/StatementsD76Bridge.lean:188:10: failed to synthesize instance of type class
+  Fintype S.SCoins
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: ZK60Formal/StatementsD76Bridge.lean:201:57: Invalid field `withLeak`: The environment does not contain `ZK60.Protocol.withLeak`, so it is not possible to project the field `withLeak` from an expression
+  P
+of type `Protocol Q D Coins M`
+warning: ZK60Formal/StatementsD76Bridge.lean:203:41: `if_pos` has been deprecated: Use `ite_eq_left` instead
+Some required targets logged failures:
+- ZK60Formal.StatementsD76Bridge
+error: build failed
+build rc 1 (60 s)
+rc 1, 60 s
