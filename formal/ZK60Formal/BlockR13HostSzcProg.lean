@@ -97,7 +97,7 @@ def rawScR (c : W16Cfg) : SlotS :=
 /-- **The configuration facts `SC_SZC`'s identity reads** (each decided at the R13 rung and at every Shieldstral layer,
 `BlockR13HostSzcCfg.lean`): the program's raw slots `17`, `4`, `8` are `rawSzcR`, `rawRsR`, `rawScR`; `Dom::S`'s
 recorded helper count is `7 + ls` and its lookup list has `13 + 2·ls` entries; `SC_SZC` does not pad; `per_row` is
-`2^lt`. -/
+`2^lt`, a word. -/
 structure SzcCfg (c : W16Cfg) (ls : ℕ) : Prop where
   raw17 : DefR13.rawSlot c 17 = rawSzcR c ls
   raw4 : DefR13.rawSlot c 4 = rawRsR c
@@ -106,5 +106,6 @@ structure SzcCfg (c : W16Cfg) (ls : ℕ) : Prop where
   lk : (DefR13.lookups c .S).length = 13 + 2 * ls
   pad : ZK60.Exec.Slot.W16R2.padOn c.sh 17 = false
   perRow : c.sh.perRow = 2 ^ c.sh.lt
+  perRowLt : c.sh.perRow < 2 ^ 63
 
 end ZK60.Exec.Block.Join.R13H.Szc

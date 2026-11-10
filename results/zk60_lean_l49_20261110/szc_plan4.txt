@@ -1,0 +1,2 @@
+build ZK60Formal.BlockR13HostSzcTabs ZK60Formal.BlockR13HostSzcCfg
+build ZK60Formal.BlockR13HostSzc
