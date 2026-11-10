@@ -27,8 +27,9 @@ and the bound `hLb` are PROVED from it. Deliverable 3 PARTLY: the tie of each bl
 openings' extraction (same root, same cut) is PROVED (`wrCs_eq_B`) and the two code facts L46-3 named are CHECKED; the
 same type obstruction found and repaired for the boundary slots' DEFINE draws (finding L56-7: `defSqB`, `RaDefAtB`,
 `ra_hal_defB`; the four define kinds' block premises restated); the IO slots' certified polynomial (`DIO`, `hIO`) is
-LEFT. Deliverable 4 DONE: the top theorem restated twice
-(`bnd_productionReadyL_epP_wire`, `bnd_productionReadyL_epP_shield`, generated), every premise listed in §4.
+LEFT. Deliverable 4 DONE: the top theorem restated three times (`bnd_productionReadyL_epP_wire`;
+`bnd_productionReadyL_epP_shield` with block `k` tied to layer `k`; `bnd_productionReadyL_epP_args` with the slots'
+premise about the polynomials alone; generated), every premise listed in §4.
 
 ## 1. In plain words, for Victor
 
