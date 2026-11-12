@@ -1,0 +1,26 @@
+ok   T1 verifier: sh = st.sh(), tag = sh.hash_tag(), IN-C verified at st.in_root() under tag
+ok   T2 IN-C: the input endpoint's closing opening at ep_root under tag
+ok   T3 verify_zk_tagged: column, leaf and node keys of tag
+ok   T4 owner_rebuild_root: the same three keys of its tag, non-canonical words refused
+ok   T5 owner_check_input: owner_rebuild_root at st.in_root() under st.sh().hash_tag()
+ok   C1 token I/O Reader::fp refuses a word >= P
+ok   C1 private block Reader::fp refuses a word >= P
+L58 tag check: 7 checks, 0 failed
+control caught: classify_run: let (sh, l, cp) = (st.sh(), st.l(), &st.cp); -> let (sh, l, cp) = (other.sh(), st.l(), & (T1)
+control caught: classify_run: let tag = sh.hash_tag();
+    let ntt = NttTables:: -> let tag = sh.other_tag();
+    let ntt =  (T1)
+control caught: classify_run: &st.in_root(), &ntt, &mut tr, &tag)?; -> &st.in_root(), &ntt, &mut tr, &tag2)?; (T1)
+control caught: classify_run: &st.in_spec, &st.in_root(), &ntt, &mut tr, &tag)?; -> &st.in_spec, &st.out_root(), &ntt, &mut  (T1)
+control caught: stage_in_c: &seg.closes[0], ntt, tr, tag) -> &seg.closes[0], ntt, tr, &other) (T2)
+control caught: stage_in_c: &protocol::commitment(*ep_root, ep_spec -> &protocol::commitment(*other_root, ep_sp (T2)
+control caught: pcs: salt_leaf_keyed(&hash_column_keyed(col, tag.column -> salt_leaf_keyed(&hash_column_keyed(col,  (T3)
+control caught: pcs: path, tag.node_key()) -> path, tag.leaf_key()) (T3)
+control caught: token_io: hash_columns_keyed(&encoded, rows, nn, tag.column_ -> hash_columns_keyed(&encoded, rows, nn, o (T4)
+control caught: token_io: salt_leaf_keyed(l, s, tag.leaf_key()) -> salt_leaf_keyed(l, s, tag.node_key()) (T4)
+control caught: token_io: MerkleTree::build_keyed(salted, tag.node_key()) -> MerkleTree::build_keyed(salted, tag.leaf (T4)
+control caught: token_io: .any(|x| x.0 >= P) { -> .any(|x| x.0 > P) { (T4)
+control caught: classify_run: dec, &st.sh().hash_tag()) -> dec, &other_tag) (T5)
+control caught: token_io: return Err("token I/O wire: noncanonical field wor -> eprintln!("token I/O wire: noncanonical  (C1)
+control caught: wire: return Err("private block wire: noncanonical field -> eprintln!("private block wire: noncanoni (C1)
+L58 tag check controls: 15 changes, 15 caught

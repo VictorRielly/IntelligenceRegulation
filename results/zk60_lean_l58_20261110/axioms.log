@@ -1,0 +1,63 @@
+'ZK60.Sound.MerkleEnc.epx_desc_of_climb' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Sound.MerkleEnc.epx_open_of_opens' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.epx_fail_run' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.EvXC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.evXC_of_xm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.extract_fail_xc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.extract_fail_xc_u126' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.exEvIn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.exEvIn_of_eb' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.exEvIn_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ex_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxAt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxHn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.exXx' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.exUx' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxOps' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxHn_cutEq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.exXx_cut' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.exUx_cut' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxHn_at_root' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxH_at_root' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxAt_of_ext' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epx_opensB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxAt_canon' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxAt_opens' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ex_hops' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ex_hcan' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epx_xok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RhXOkC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RhOpWC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ex_inc_opXG' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ex_inc_opXC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ex_hopX0C' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epx_xB_of_opB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ex_xB_alive' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ex_productionReadyL_epP_code' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ex_productionReadyL_epP_codeT' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ex_productionReadyL_epP_codeW' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ex_productionReadyL_epP_codeX' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ex_productionReadyL_epP_codeF' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ex_productionReadyL_epP_codeG' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.EpxSalt' depends on axioms: [propext]
+'ZK60.ProtocolClassify.epxMsg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxMsg_place' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxMk' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxE' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epxE_hE' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ex_productionReadyL_epP_codeH' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

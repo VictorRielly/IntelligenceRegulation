@@ -18,6 +18,7 @@ extractor `E` whose input endpoint words `epW` and opening data `r` are read fro
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunEpXExt
+import ZK60Formal.BindingEP
 
 set_option autoImplicit false
 
@@ -64,7 +65,8 @@ noncomputable def epxMk {St : Type} (root : St → Dig) (tag : MTag) :
   msg_mk v Mg Pd sl pa i hi := by
     have hne : ¬ ∃ k, place k = i := fun ⟨k, hk⟩ => hi k hk
     show epxMsg Rr dR place pos v ⟨Mg, Pd, sl, pa⟩ i = Mg i
-    simp only [epxMsg, dite_eq_right hne]
+    unfold epxMsg
+    exact dite_eq_right hne
   pad_mk _ _ _ _ := rfl
   salt_mk _ _ _ _ := rfl
   path_mk _ _ _ _ := rfl

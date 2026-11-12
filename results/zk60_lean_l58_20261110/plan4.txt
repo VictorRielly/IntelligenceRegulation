@@ -1,0 +1,3 @@
+build ZK60Formal.RunEpXMk
+build ZK60Formal.RunEpXTopH
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af93ac6fe3d26ceec/results/zk60_lean_l58_20261110/check_l58.sh
