@@ -1,0 +1,10 @@
+build ZK60Formal.RunEpXExt
+build ZK60Formal.RunEpXOpW
+build ZK60Formal.RunEpXInc
+build ZK60Formal.RunEpXTest
+build ZK60Formal.RunEpXTop
+build ZK60Formal.RunEpXTopT
+build ZK60Formal.RunEpXTopW
+build ZK60Formal.RunEpXTopX
+build ZK60Formal.RunEpXTopF
+build ZK60Formal.RunEpXTopG

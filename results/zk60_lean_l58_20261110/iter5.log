@@ -1,0 +1,73 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af93ac6fe3d26ceec/results/zk60_lean_l58_20261110/plan5.txt ==
+build ZK60Formal.RunEpXMk
+build ZK60Formal.RunEpXTopH
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af93ac6fe3d26ceec/results/zk60_lean_l58_20261110/check_l58.sh
+== lake build ZK60Formal.RunEpXMk ==
+Build completed successfully (3573 jobs).
+build rc 0 (30 s)
+== lake build ZK60Formal.RunEpXTopH ==
+Build completed successfully (3675 jobs).
+build rc 0 (54 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af93ac6fe3d26ceec/results/zk60_lean_l58_20261110/check_l58.sh ==
+check rc 0 (142 s); its log is check.log
+warnings in the modules' own builds: 0
+== axiom audit (the L58 files) ==
+49 declarations: 13 def, 1 structure, 35 theorem
+axioms rc 0
+declarations audited: 49 (generated: 49)
+no axiom at all: 0
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  48 axioms: [propext, Classical.choice, Quot.sound]
+   1 axioms: [propext]
+== source scan of the L58 files and scripts ==
+none
+== the library root imports the L58 files ==
+imported: RunEpXExt
+imported: RunEpXOpW
+imported: RunEpXInc
+imported: RunEpXTest
+imported: RunEpXTop
+imported: RunEpXTopT
+imported: RunEpXTopW
+imported: RunEpXTopX
+imported: RunEpXTopF
+imported: RunEpXTopG
+imported: RunEpXMk
+imported: RunEpXTopH
+== existing files changed against perf's e8607b1a ==
+Statements.lean unchanged
+existing files under formal/ changed (the root's imports apart): 0
+lines removed from the root's imports: 0
+files changed under ops/: 0
+== name clashes with the other worktrees' Lean files ==
+worktrees read: 42
+other Lean files read (with repeats across worktrees): 5446
+clashes: 0
+== the generated files are their generators' output ==
+RunEpXInc.lean: identical
+RunEpXTop.lean: identical
+RunEpXTopT.lean: identical
+RunEpXTopW.lean: identical
+RunEpXTopX.lean: identical
+RunEpXTopF.lean: identical
+RunEpXTopG.lean: identical
+RunEpXTopH.lean: identical
+== the input commitment's Merkle tag is the run verifier's, the column readers refuse non-canonical words ==
+L58 tag check: 7 checks, 0 failed
+L58 tag check controls: 15 changes, 15 caught
+== lane L51's agreement check of the code's header, re-run (RunAbsCheck.lean) ==
+RunAbsCheck: 29 checks, 0 failed
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+verdicts: generated files 0, tag check 0, abscheck 0/0, L6 0, L5 0, L11 0, L1 0 (0 = as required)
+total 88 s
+rc 0, 142 s

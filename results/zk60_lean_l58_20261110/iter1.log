@@ -1,0 +1,23 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af93ac6fe3d26ceec/results/zk60_lean_l58_20261110/plan1.txt ==
+build ZK60Formal.RunEpXExt
+== lake build ZK60Formal.RunEpXExt ==
+warning: ZK60Formal/RunEpXExt.lean:121:64: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/RunEpXExt.lean:121:64: Unused tactic linter: `rfl` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/RunEpXExt.lean:463:42: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunEpXExt.lean:487:8: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunEpXExt.lean:490:8: `dif_neg` has been deprecated: Use `dite_eq_right` instead
+warning: ZK60Formal/RunEpXExt.lean:502:8: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunEpXExt.lean:506:8: `dif_neg` has been deprecated: Use `dite_eq_right` instead
+warning: ZK60Formal/RunEpXExt.lean:522:9: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+Build completed successfully (3571 jobs).
+build rc 0 (5 s)
+rc 0, 5 s
