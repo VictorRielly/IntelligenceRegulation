@@ -935,14 +935,14 @@ impl BlockPublic {
         }
         for t in [&a.rope_cos, &a.rope_sin, &a.exp] {
             p.push(framed(t.len()));
-            p.push(A21Piece::Bytes(t.iter().flat_map(|v| v.to_le_bytes()).collect()));
+            p.push(A21Piece::Words64Le(t));
         }
         for w in [&f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t] {
             p.push(framed(w.len()));
             p.push(A21Piece::Words(w));
         }
         p.push(framed(f.act.len()));
-        p.push(A21Piece::Bytes(f.act.iter().flat_map(|v| v.to_le_bytes()).collect()));
+        p.push(A21Piece::Words16Le(&f.act));
         if let Some(accuracy) = &self.accuracy {
             let encoded = accuracy.encode();
             p.push(A21Piece::Borrowed(b"R13-accuracy"));
@@ -961,15 +961,7 @@ impl BlockPublic {
     /// bytes are `blake3::hash` of the input, the one pass's. `leaf` is a power of two of
     /// at least one chunk.
     pub(crate) fn a21_digest_tree(&self, leaf: u64) -> Digest {
-        use blake3::hazmat::{left_subtree_len, merge_subtrees_root, Mode};
-        debug_assert!(leaf.is_power_of_two() && leaf >= blake3::CHUNK_LEN as u64);
-        let s = A21Stream::new(self.a21_pieces());
-        if s.len <= leaf {
-            return *s.hasher_at(0, s.len).finalize().as_bytes();
-        }
-        let left = left_subtree_len(s.len);
-        let (l, r) = rayon::join(|| s.subtree(0, left, leaf), || s.subtree(left, s.len - left, leaf));
-        *merge_subtrees_root(&l, &r, Mode::Hash).as_bytes()
+        a21_tree_digest(self.a21_pieces(), leaf)
     }
 
     /// The whole PUBLIC SYNTHETIC fixture (`causal_oracle::
@@ -1001,15 +993,22 @@ impl BlockPublic {
 // the 8B block and random blocks, at several leaf sizes, against the one pass). The
 // split depends on the input's LENGTH only, which is public (the shape's).
 
-/// [A21] the subtree size each rayon task hashes (a power of two of chunks)
-const A21_LEAF: u64 = 1 << 20;
+/// [A21 / A30] the subtree size each rayon task hashes (a power of two of chunks)
+pub(crate) const A21_LEAF: u64 = 1 << 20;
 
 static A21_B3PAR_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+static A30_B3PAR_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
 
 /// [A21] `HL_A21_B3PAR` (default on; `0`: the block digest's one pass, the path before A21)
 pub(crate) fn a21_b3par() -> bool {
     static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
     trained_statement::a20_switch(&A21_B3PAR_TEST, &ENV, "HL_A21_B3PAR", 1) != 0
+}
+
+/// [A30] `HL_A30_B3PAR` (default on; `0`: the sequential token/classifier table digests)
+pub(crate) fn a30_b3par() -> bool {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    trained_statement::a20_switch(&A30_B3PAR_TEST, &ENV, "HL_A30_B3PAR", 1) != 0
 }
 
 /// tests: the tree on (`Some(true)`), the one pass (`Some(false)`) or as the environment
@@ -1019,14 +1018,36 @@ pub(crate) fn set_a21_b3par_for_test(on: Option<bool>) {
     A21_B3PAR_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
 }
 
-/// [A21] one piece of the block digest's input
-enum A21Piece<'a> {
+#[cfg(test)]
+pub(crate) fn set_a30_b3par_for_test(on: Option<bool>) {
+    A30_B3PAR_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [A21 / A30] BLAKE3 root digest of `pieces` computed in parallel over `leaf`-sized subtrees
+pub(crate) fn a21_tree_digest(pieces: Vec<A21Piece<'_>>, leaf: u64) -> Digest {
+    use blake3::hazmat::{left_subtree_len, merge_subtrees_root, Mode};
+    debug_assert!(leaf.is_power_of_two() && leaf >= blake3::CHUNK_LEN as u64);
+    let s = A21Stream::new(pieces);
+    if s.len <= leaf {
+        return *s.hasher_at(0, s.len).finalize().as_bytes();
+    }
+    let left = left_subtree_len(s.len);
+    let (l, r) = rayon::join(|| s.subtree(0, left, leaf), || s.subtree(left, s.len - left, leaf));
+    *merge_subtrees_root(&l, &r, Mode::Hash).as_bytes()
+}
+
+/// [A21 / A30] one piece of a statement-class BLAKE3 digest input
+pub(crate) enum A21Piece<'a> {
     /// a literal
     Borrowed(&'static [u8]),
-    /// an encoding made for the digest (a length, a table)
+    /// an encoding made for the digest (a length, a header field)
     Bytes(Vec<u8>),
     /// int8 words, hashed as their `*v as u8` bytes
     Words(&'a [i8]),
+    /// int16 words, hashed as their 2-byte little-endian encoding without heap copies
+    Words16Le(&'a [i16]),
+    /// int64 words, hashed as their 8-byte little-endian encoding without heap copies
+    Words64Le(&'a [i64]),
 }
 
 impl A21Piece<'_> {
@@ -1035,11 +1056,16 @@ impl A21Piece<'_> {
             A21Piece::Borrowed(b) => b.len(),
             A21Piece::Bytes(b) => b.len(),
             A21Piece::Words(w) => w.len(),
+            A21Piece::Words16Le(w) => w.len() * 2,
+            A21Piece::Words64Le(w) => w.len() * 8,
         }
     }
 
     /// bytes `from..to` of this piece into `h`
     fn feed(&self, h: &mut blake3::Hasher, from: usize, to: usize) {
+        if from >= to {
+            return;
+        }
         match self {
             A21Piece::Borrowed(b) => {
                 h.update(&b[from..to]);
@@ -1054,6 +1080,49 @@ impl A21Piece<'_> {
                         *d = *v as u8;
                     }
                     h.update(&buf[..c.len()]);
+                }
+            }
+            A21Piece::Words16Le(w) => {
+                let mut cur = from;
+                if cur & 1 == 1 {
+                    h.update(&[w[cur >> 1].to_le_bytes()[1]]);
+                    cur += 1;
+                }
+                let even_end = to & !1;
+                let mut buf = [0u8; 16 << 10];
+                for c in w[(cur >> 1)..(even_end >> 1)].chunks(buf.len() >> 1) {
+                    for (dst, v) in buf.chunks_exact_mut(2).zip(c) {
+                        dst.copy_from_slice(&v.to_le_bytes());
+                    }
+                    h.update(&buf[..2 * c.len()]);
+                }
+                if even_end < to {
+                    h.update(&[w[even_end >> 1].to_le_bytes()[0]]);
+                }
+            }
+            A21Piece::Words64Le(w) => {
+                if (from >> 3) == ((to - 1) >> 3) {
+                    let b = w[from >> 3].to_le_bytes();
+                    h.update(&b[(from & 7)..=((to - 1) & 7)]);
+                } else {
+                    let mut cur = from;
+                    if cur & 7 != 0 {
+                        let b = w[cur >> 3].to_le_bytes();
+                        h.update(&b[(cur & 7)..8]);
+                        cur = ((cur >> 3) + 1) << 3;
+                    }
+                    let aligned_end = to & !7;
+                    let mut buf = [0u8; 16 << 10];
+                    for c in w[(cur >> 3)..(aligned_end >> 3)].chunks(buf.len() >> 3) {
+                        for (dst, v) in buf.chunks_exact_mut(8).zip(c) {
+                            dst.copy_from_slice(&v.to_le_bytes());
+                        }
+                        h.update(&buf[..8 * c.len()]);
+                    }
+                    if aligned_end < to {
+                        let b = w[aligned_end >> 3].to_le_bytes();
+                        h.update(&b[..(to - aligned_end)]);
+                    }
                 }
             }
         }

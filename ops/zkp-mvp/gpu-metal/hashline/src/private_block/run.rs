@@ -171,11 +171,49 @@ pub(crate) fn accuracy_classify_run_profile(block: &str) -> Option<&'static str>
 /// production build has it.
 #[cfg(test)]
 pub(crate) const RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: &str = "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/2";
+/// **[A25] (lane A25, 2026-11-07): A DEVELOPMENT CLASSIFIER RUN PROFILE OVER W16R2 BLOCKS —
+/// NOT REGISTERED, NOT FOR REAL CONTENT.** The classifier run (stage IN-C, the 26 Shieldstral
+/// blocks, stage OUT-C on one transcript, the verdict public) with its blocks at the opt-in,
+/// unregistered W16R2 block profile `W16R2_SHIELD_T128_H24` (D59: W16 at code rate 1/2,
+/// `Q = 280`) instead of the registered R13 one. Its own string (D17), so its own transcript
+/// domain, run seed domain and trained statement identity; on NO registered list
+/// ([`CLASSIFY_RUN_PROFILES`] and [`ACCURACY_CLASSIFY_RUN_PROFILES`] are unchanged), no D55
+/// base. A production build constructs it only behind the classifier CLI's explicit
+/// `--dev-w16r2-public-content-only` switch, for PUBLIC development posts of the media app:
+/// registering W16R2 for real content (efficiency plan A10) waits for the W16R2 privacy gate
+/// on GPU-made bundles, D60's conditions and Victor's ruling, and nothing here is production
+/// (D63). Its string is 73 bytes, the R13 Shieldstral T128 classifier profile's length, so its
+/// transcript constructor is 85 bytes (s25's W-2 census measures it).
+pub(crate) const RUN_PROFILE_CLASSIFY_W16R2_SHIELD_T128_DEV: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2";
+/// [A25] each W16R2 development classifier run profile and the ONE block profile it names (CS-7)
+pub(crate) const W16R2_DEV_CLASSIFY_RUN_PROFILES: [(&str, &str); 1] = [(RUN_PROFILE_CLASSIFY_W16R2_SHIELD_T128_DEV, super::shape::W16R2_SHIELD_T128_H24)];
+/// **[A25] TEST BUILDS ONLY:** the W16R2 development classifier run at the W16R2 development
+/// rung (`W16R2_RUNG_H24`, T32, width 384), the counterpart of
+/// [`RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST`] (its length, 65 bytes), so the W16R2 classifier
+/// path proves and verifies in seconds on the public synthetic R13 loader fixture
+#[cfg(test)]
+pub(crate) const RUN_PROFILE_CLASSIFY_W16R2_RUNG_H24_TEST: &str = "hashline-zk-mr1/private-classify-run-rung-lh-t32-w16r2-dev-test/2";
+/// [A25] the block profile a W16R2 development classifier run profile names (`None`: not one)
+pub(crate) fn w16r2_dev_classify_block(run: &str) -> Option<&'static str> {
+    #[cfg(test)]
+    if run == RUN_PROFILE_CLASSIFY_W16R2_RUNG_H24_TEST {
+        return Some(super::shape::W16R2_RUNG_H24);
+    }
+    W16R2_DEV_CLASSIFY_RUN_PROFILES.iter().find(|(r, _)| *r == run).map(|(_, b)| *b)
+}
+/// [A25] whether `p` is a W16R2 development classifier run profile (never a registered one)
+pub(crate) fn is_w16r2_dev_classify_run_profile(p: &str) -> bool {
+    w16r2_dev_classify_block(p).is_some()
+}
 /// whether `p` is a classifier run profile of this build (test builds also
-/// admit [`RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST`])
+/// admit [`RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST`]; [A25] and the W16R2 development
+/// classifier run profiles, which no registered list carries)
 pub(crate) fn is_classify_run_profile(p: &str) -> bool {
     #[cfg(test)]
     if p == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
+        return true;
+    }
+    if is_w16r2_dev_classify_run_profile(p) {
         return true;
     }
     CLASSIFY_RUN_PROFILES.contains(&p)
@@ -320,6 +358,11 @@ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, Str
     #[cfg(test)]
     if profile == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
         return Some(Shape::accuracy_trained(super::shape::R13_RUNG_H24, &cal, sh.f_e, sh.accuracy_gate_shift));
+    }
+    // [A25] the W16R2 DEVELOPMENT classifier run profiles (unregistered, not for real content),
+    // rebuilt through the same door as the R13 classifier's
+    if let Some(block) = w16r2_dev_classify_block(profile) {
+        return Some(Shape::accuracy_trained(block, &cal, sh.f_e, sh.accuracy_gate_shift));
     }
     // W16 (D54), the privacy gate's W16 re-check: TEST-ONLY run identities over
     // the W16 block profiles (W16 registers no run profile yet), so that the
@@ -609,6 +652,10 @@ impl RunStatement {
         // TOKEN I/O ROUND 16: nor an R13 classifier run profile (built by
         // `token_io::classify_run` only; the rung's profile keeps its old rule)
         if is_r13_classify_run_profile(rs.profile) {
+            return Err(format!("private run: {} is a classifier run profile; a blocks-only run statement may not carry it", rs.profile));
+        }
+        // [A25] nor a W16R2 development classifier run profile
+        if is_w16r2_dev_classify_run_profile(rs.profile) {
             return Err(format!("private run: {} is a classifier run profile; a blocks-only run statement may not carry it", rs.profile));
         }
         // RULING CS-4: the endpoint policy against the run's shape

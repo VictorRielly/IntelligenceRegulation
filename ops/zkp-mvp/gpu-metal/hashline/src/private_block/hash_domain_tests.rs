@@ -379,7 +379,7 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         assert!(!u.label.is_empty() && !u.site.is_empty() && !u.data.is_empty(), "the table entry for `{}` is incomplete", u.label);
     }
     let table: Vec<String> = entries.iter().map(|u| u.label.to_string()).collect();
-    let lane: [(&str, &str); 54] = [
+    let lane: [(&str, &str); 55] = [
         ("argument_accuracy.rs", include_str!("argument_accuracy.rs")),
         ("accuracy_act.rs", include_str!("accuracy_act.rs")),
         ("accuracy_fold.rs", include_str!("accuracy_fold.rs")),
@@ -428,6 +428,9 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         // [A24] the classifier CLI's resident servers (a `#[path]` child of classify_cli.rs);
         // they absorb nothing
         ("token_io/classify_serve.rs", include_str!("token_io/classify_serve.rs")),
+        // [A25] the W16R2 development classifier profile (a `#[path]` child of classify_cli.rs);
+        // it absorbs nothing
+        ("token_io/classify_w16r2.rs", include_str!("token_io/classify_w16r2.rs")),
         // TOKEN ROUND 19 (REVIEW_R18 R18-2): the eight production modules of
         // `private_block.rs` and `token_io.rs` this list did not read (plain
         // `mod` children of listed files). They absorb no literal label today
@@ -494,8 +497,8 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
     // derive, argument / witness / trained_block / slot_ir -> their accuracy
     // children, classify_cli -> classify_batch -> classify_batch_plan; D60:
     // run -> run_fork and wire -> run_fork_wire
-    // [A24] + classify_cli -> classify_serve
-    assert_eq!(followed, 52, "the scanned files' production modules moved");
+    // [A24] + classify_cli -> classify_serve; [A25] + classify_cli -> classify_w16r2
+    assert_eq!(followed, 53, "the scanned files' production modules moved");
     // TOKEN I/O ROUND 12: the classifier header's two labels are absorbed ONLY
     // by a classifier run's header (`ClassifyRunStatement::transcript`) and by
     // the run capture's rebuild of that header; the shared table, and so every

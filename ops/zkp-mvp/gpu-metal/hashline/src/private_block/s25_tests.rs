@@ -1855,6 +1855,8 @@ fn production_sources() -> Vec<(String, String)> {
             ("src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs"),
             // [A24] the classifier CLI's resident servers (`serve`, `check-serve`)
             ("src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_serve.rs"),
+            // [A25] the W16R2 development classifier profile (behind its CLI switch)
+            ("src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_w16r2.rs"),
             ("src/private_block/trained_block.rs", "src/private_block/trained_accuracy.rs"),
             ("src/private_block/witness.rs", "src/private_block/witness_accuracy.rs"),
         ]
@@ -1864,8 +1866,8 @@ fn production_sources() -> Vec<(String, String)> {
     want.sort();
     assert_eq!(graph.edges, want, "the production module graph of the path moved (REVIEW A5 finding 2, REVIEW_R18 R18-2): read each new module, then list its edge here");
     // M26: 47 + range16, slot_ir, metal_slot and slot_ir_accuracy; D60: +
-    // run_fork and run_fork_wire; [A24]: + token_io/classify_serve
-    assert_eq!(graph.files.len(), 54, "the path's production files are no longer the 54 this census was written against");
+    // run_fork and run_fork_wire; [A24]: + token_io/classify_serve; [A25]: + token_io/classify_w16r2
+    assert_eq!(graph.files.len(), 55, "the path's production files are no longer the 55 this census was written against");
     graph.files.into_iter().map(|(f, _)| {
         let t = source(&f);
         (f, t)
@@ -2693,7 +2695,8 @@ fn r19b_the_module_follower_refuses_include_outside_test_code() {
 /// the path, each compiled as test code only (declared `#[cfg(test)]` by its
 /// parent: read for this list with `r19b/tools/mirror19b.py`). Paths are
 /// relative to `src/private_block/`.
-const TEST_ONLY_FILES: [&str; 87] = [
+const TEST_ONLY_FILES: [&str; 88] = [
+    "token_io/classify_w16r2_tests.rs",
     // D63 step L1 (2026-11-06): the Lean lane's export of the fixture's integer trace, declared
     // `#[cfg(test)]` (one line) by `witness.rs`
     "lean_l1_export_tests.rs",
@@ -2977,7 +2980,7 @@ fn no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_
 #[test]
 fn r18_the_census_reads_the_batch_files_through_their_path_lines() {
     let scanned: Vec<String> = production_sources().into_iter().map(|(p, _)| p).collect();
-    for f in ["src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs", "src/private_block/token_io/classify_serve.rs"] {
+    for f in ["src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs", "src/private_block/token_io/classify_serve.rs", "src/private_block/token_io/classify_w16r2.rs"] {
         assert_eq!(scanned.iter().filter(|p| p.as_str() == f).count(), 1, "{f} is not scanned exactly once by the census (REVIEW A5 finding 2): {scanned:?}");
     }
     assert!(!scanned.iter().any(|p| p.ends_with("_tests.rs")), "a test module is scanned as production text: {scanned:?}");

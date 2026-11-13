@@ -283,10 +283,18 @@ pub(crate) const CHUNK_OVERLAPS: [(&str, usize); 3] = [
     (super::super::run::RUN_PROFILE_CLASSIFY_R13_SHIELD_T256, 8),
 ];
 
+/// **[A25] the W16R2 DEVELOPMENT classifier run profiles' overlaps** (unregistered, public
+/// development content only): each its R13 sibling's, so a post splits into the same chunks
+/// under both (the chunk plan is a public deployment constant of D41)
+pub(crate) const W16R2_DEV_CHUNK_OVERLAPS: [(&str, usize); 1] = [(super::super::run::RUN_PROFILE_CLASSIFY_W16R2_SHIELD_T128_DEV, 8)];
+
 pub(crate) fn chunk_overlap_of(run_profile: &str) -> Result<usize, String> {
     #[cfg(test)]
-    if run_profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
+    if run_profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST || run_profile == super::super::run::RUN_PROFILE_CLASSIFY_W16R2_RUNG_H24_TEST {
         return Ok(4);
+    }
+    if let Some((_, o)) = W16R2_DEV_CHUNK_OVERLAPS.iter().find(|(p, _)| *p == run_profile) {
+        return Ok(*o);
     }
     CHUNK_OVERLAPS.iter().find(|(p, _)| *p == run_profile).map(|(_, o)| *o).ok_or_else(|| format!("classifier: no chunk overlap is registered for the run profile {run_profile} (D41)"))
 }
@@ -360,6 +368,13 @@ pub(crate) fn registered_classify_runs() -> Vec<(&'static str, Shape)> {
     let mut rung = r13_census_calibration();
     rung.tn = 10;
     v.push((super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST, Shape::accuracy_trained(super::super::shape::R13_RUNG_H24, &rung, 12, 20).expect("the R13 h24 rung shape")));
+    // [A25] the W16R2 DEVELOPMENT classifier run profiles (unregistered: on no registered list,
+    // literals of `run.rs`, so the registry gates measure them here), each at its W16R2 block
+    // shape, and the test-only W16R2 rung profile
+    for (run, block) in super::super::run::W16R2_DEV_CLASSIFY_RUN_PROFILES {
+        v.push((run, Shape::accuracy_trained(block, &r13_census_calibration(), 9, 20).expect("the W16R2 Shieldstral block shape")));
+    }
+    v.push((super::super::run::RUN_PROFILE_CLASSIFY_W16R2_RUNG_H24_TEST, Shape::accuracy_trained(super::super::shape::W16R2_RUNG_H24, &rung, 12, 20).expect("the W16R2 rung shape")));
     v
 }
 
@@ -406,7 +421,8 @@ pub(crate) fn census_classify_statement(profile: &'static str, l: usize) -> (Cla
     // ROUND 16: an R13 Shieldstral classifier run profile's census statement:
     // synthetic records (each its gate shift), V = 131,072 tables, the real
     // classifier final norm's class, the hate policy (the longest template)
-    if profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
+    // [A25] the W16R2 rung test profile exactly as the R13 rung's
+    if profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST || profile == super::super::run::RUN_PROFILE_CLASSIFY_W16R2_RUNG_H24_TEST {
         let sh = registered_classify_runs().into_iter().find(|(p, _)| *p == profile).map(|(_, s)| s).expect("the R13 rung test profile");
         let policy = policy_rung_dev();
         let gates: Vec<u32> = (0..l).map(|k| 17 + (k as u32 % 8)).collect();
@@ -508,6 +524,18 @@ impl ClassifierTables {
         Ok(ClassifierTables { v, d, emb, w_delta })
     }
     pub(crate) fn emb_digest(&self) -> Digest {
+        if crate::private_block::a30_b3par() {
+            use crate::private_block::{a21_tree_digest, A21Piece, A21_LEAF};
+            return a21_tree_digest(
+                vec![
+                    A21Piece::Borrowed(b"hashline/classify/embedding-int16/v1"),
+                    A21Piece::Bytes((self.v as u64).to_le_bytes().to_vec()),
+                    A21Piece::Bytes((self.d as u64).to_le_bytes().to_vec()),
+                    A21Piece::Words16Le(&self.emb),
+                ],
+                A21_LEAF,
+            );
+        }
         let mut h = blake3::Hasher::new();
         h.update(b"hashline/classify/embedding-int16/v1");
         h.update(&(self.v as u64).to_le_bytes());
@@ -516,6 +544,17 @@ impl ClassifierTables {
         *h.finalize().as_bytes()
     }
     pub(crate) fn w_digest(&self) -> Digest {
+        if crate::private_block::a30_b3par() {
+            use crate::private_block::{a21_tree_digest, A21Piece, A21_LEAF};
+            return a21_tree_digest(
+                vec![
+                    A21Piece::Borrowed(b"hashline/classify/margin-vector-int16/v1"),
+                    A21Piece::Bytes((self.d as u64).to_le_bytes().to_vec()),
+                    A21Piece::Words16Le(&self.w_delta),
+                ],
+                A21_LEAF,
+            );
+        }
         let mut h = blake3::Hasher::new();
         h.update(b"hashline/classify/margin-vector-int16/v1");
         h.update(&(self.d as u64).to_le_bytes());

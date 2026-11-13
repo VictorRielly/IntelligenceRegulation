@@ -216,10 +216,21 @@ impl ExportPublic {
     /// (`classify_serve.rs`) holds these objects for its life: each is the very object whose
     /// digest the pass recorded, made by the same checked `load_layer`.
     pub(crate) fn load_keeping(export: &Path, profile_of: fn(&Shape) -> Result<&'static str, String>, keep: bool) -> Result<(ExportPublic, Vec<BlockPublic>), String> {
+        Self::load_keeping_at(export, |sh| Ok(sh.clone()), profile_of, keep)
+    }
+
+    /// **[A25] the same digest pass at a block shape DERIVED from the export's own seed shape**
+    /// (`seed_of`; [`ExportPublic::load_keeping`] passes the seed itself, so every earlier
+    /// caller loads exactly as before). The W16R2 development classifier
+    /// (`classify_w16r2.rs`) maps the registered R13 Shieldstral seed to its W16R2 twin: the
+    /// same geometry, calibration, `f_e` and gate seed, so every layer loads through the same
+    /// checked `load_layer` into the same block (the same digest); only the shape the run is
+    /// proved at, and so the trained statement's profiles, differ.
+    pub(crate) fn load_keeping_at(export: &Path, seed_of: fn(&Shape) -> Result<Shape, String>, profile_of: fn(&Shape) -> Result<&'static str, String>, keep: bool) -> Result<(ExportPublic, Vec<BlockPublic>), String> {
         let ex = TrainedExport::load(export)?;
         let layers = ex.layers.clone();
         let c = ex.run_constants(&layers)?;
-        let sh = ex.shape_for(&c)?;
+        let sh = seed_of(&ex.shape_for(&c)?)?;
         let profile = profile_of(&sh)?;
         let mut digests = Vec::with_capacity(layers.len());
         let mut records: Vec<LayerRecord> = Vec::with_capacity(layers.len());

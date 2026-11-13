@@ -48,6 +48,11 @@
 //! removes what it made) and the stream carries on. Its detail goes to the owner's private
 //! refusal log only (D65(2)); its external line is the constant refusal.
 //!
+//! **[A25] `--dev-w16r2-public-content-only`** (both servers): the resident model loaded under
+//! the UNREGISTERED W16R2 development classifier profile (`classify_w16r2.rs`; the same blocks
+//! proved at W16R2, its own trained statement identity), for PUBLIC development content only.
+//! Each request then runs the same `prove_with_public` / verifier path under that profile.
+//!
 //! **Scope.** No receipt byte, statement byte or protocol step changes: these servers are a
 //! process form of the existing commands. NOT a privacy acceptance: D58 accepted the named
 //! r16b CPU binary only; this binary and its GPU/server execution are not covered (pending).
@@ -115,7 +120,9 @@ impl ResidentClassifier {
         let tables_dir = PathBuf::from(need(f, "--tables")?);
         let label = label_of(f)?.to_string();
         let policies = policies_of(f)?;
-        let (p, loaded) = ExportPublic::load_keeping(&export, classify_run_profile_of, true)?;
+        // [A25] the W16R2 development classifier profile behind its switch (the same blocks,
+        // proved at the export seed's W16R2 twin); without it, exactly as before
+        let (p, loaded) = if super::w16r2::wants_w16r2(f) { super::w16r2::load_export_w16r2(&export, true)? } else { ExportPublic::load_keeping(&export, classify_run_profile_of, true)? };
         if loaded.len() != p.layers.len() {
             return Err("classify server: the digest pass kept a different number of blocks".into());
         }
@@ -149,6 +156,10 @@ impl ResidentClassifier {
     }
 
     fn start_line(&self, command: &str, lanes: usize, threads: usize, extra: &str) -> String {
+        // [A25] a W16R2 development server says so in its start line (an R13 server's line is
+        // byte for byte what it was)
+        let dev = if super::w16r2::is_dev(self.p.profile) { ",\"development_profile\":\"W16R2 (unregistered; PUBLIC development content only; not for real content: A10 awaits Victor's ruling)\"" } else { "" };
+        let extra = format!("{dev}{extra}");
         format!(
             "{{\"event\":\"serve-start\",\"command\":{},\"gpu\":{},\"hl_gpu\":{},\"variant\":{},\"run_profile\":{},\"blocks\":{},\"trained_statement_identity\":{},\"policies\":[{}],\"lanes\":{lanes},\"lane_threads\":{threads},\"startup_seconds\":{:.3}{extra},\"scope\":\"a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)\"}}",
             js(command),
@@ -408,7 +419,7 @@ pub fn classify_serve_command(args: &[String]) -> i32 {
         eprintln!("zk60_classify serve: {CONTENT_ON_COMMAND_LINE}");
         return 2;
     }
-    let f = match flags(args, &SERVE_FLAGS, &[]) {
+    let f = match flags(args, &SERVE_FLAGS, &[super::w16r2::DEV_W16R2_SWITCH]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_classify serve: {e}");
@@ -566,7 +577,7 @@ pub fn classify_check_serve_command(args: &[String]) -> i32 {
         eprintln!("zk60_classify check-serve: {CONTENT_ON_COMMAND_LINE}");
         return 2;
     }
-    let f = match flags(args, &CHECK_FLAGS, &[]) {
+    let f = match flags(args, &CHECK_FLAGS, &[super::w16r2::DEV_W16R2_SWITCH]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_classify check-serve: {e}");
@@ -805,7 +816,7 @@ fn check_serve_inner(f: &[(String, String)], lines: impl Iterator<Item = String>
 /// TEST BUILDS ONLY: the prover server in process over `lines` (every line it emits)
 #[cfg(test)]
 pub(crate) fn serve_for_tests(args: &[String], lines: Vec<String>) -> Result<Vec<String>, String> {
-    let f = flags(args, &SERVE_FLAGS, &[])?;
+    let f = flags(args, &SERVE_FLAGS, &[super::w16r2::DEV_W16R2_SWITCH])?;
     let mut out = Vec::new();
     serve_inner(&f, lines.into_iter(), &mut |l: &str| out.push(l.to_string()))?;
     Ok(out)
@@ -815,7 +826,7 @@ pub(crate) fn serve_for_tests(args: &[String], lines: Vec<String>) -> Result<Vec
 /// whatever `HL_A28_SEAL_AHEAD` says in the test process)
 #[cfg(test)]
 pub(crate) fn serve_for_tests_ahead(args: &[String], lines: Vec<String>, ahead: bool) -> Result<Vec<String>, String> {
-    let f = flags(args, &SERVE_FLAGS, &[])?;
+    let f = flags(args, &SERVE_FLAGS, &[super::w16r2::DEV_W16R2_SWITCH])?;
     let mut out = Vec::new();
     serve_inner_with(&f, lines.into_iter(), &mut |l: &str| out.push(l.to_string()), ahead)?;
     Ok(out)
@@ -824,7 +835,7 @@ pub(crate) fn serve_for_tests_ahead(args: &[String], lines: Vec<String>, ahead: 
 /// TEST BUILDS ONLY: the verifier server in process over `lines` (every line it emits)
 #[cfg(test)]
 pub(crate) fn check_serve_for_tests(args: &[String], lines: Vec<String>) -> Result<Vec<String>, String> {
-    let f = flags(args, &CHECK_FLAGS, &[])?;
+    let f = flags(args, &CHECK_FLAGS, &[super::w16r2::DEV_W16R2_SWITCH])?;
     let mut out = Vec::new();
     check_serve_inner(&f, lines.into_iter(), &mut |l: &str| out.push(l.to_string()))?;
     Ok(out)

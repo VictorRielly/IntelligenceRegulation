@@ -99,6 +99,12 @@
 //!   against its own stage shape before its header; the loader's one
 //!   checkpoint pass also derives the margin row (N-r13-5).
 //!
+//! * **[A25] `--dev-w16r2-public-content-only`** (prove, verify, input-owner, label, serve,
+//!   check-serve; `classify_w16r2.rs`): the same commands under the UNREGISTERED W16R2
+//!   development classifier run profile (the 26 blocks at `W16R2_SHIELD_T128_H24`, rate 1/2,
+//!   `Q = 280`; IN-C and OUT-C unchanged), its own trained statement identity, for PUBLIC
+//!   development content only. Without the switch nothing changes.
+//!
 //! SCOPE: the development rung and the R13 Shieldstral classifier profiles;
 //! public-row variant (n public, D45(1)); NO privacy acceptance. JSON lines on stdout; exit 0 = done, 1 = refused, 2 =
 //! bad arguments. The frozen next-token CLI (`zk60_token_io`) is untouched.
@@ -281,6 +287,16 @@ pub(crate) fn load_export(path: &Path) -> Result<ExportPublic, String> {
     ExportPublic::load_with(path, classify_run_profile_of)
 }
 
+/// [A25] a command's export: [`load_export`], or under the W16R2 DEVELOPMENT classifier
+/// profile when its flags carry `--dev-w16r2-public-content-only` (`classify_w16r2.rs`)
+fn load_export_for(path: &Path, f: &[(String, String)]) -> Result<ExportPublic, String> {
+    if w16r2::wants_w16r2(f) {
+        w16r2::load_export_w16r2(path, false).map(|(p, _)| p)
+    } else {
+        load_export(path)
+    }
+}
+
 /// D41: the deployment profile's chunk plan for a policy (size `T - P0 - S`)
 fn chunk_plan(sh: &Shape, policy: &Policy, run_profile: &str) -> Result<ChunkPlan, String> {
     let size = sh.tokens.checked_sub(policy.prefix.len() + policy.suffix.len()).filter(|n| *n > 0).ok_or("classifier: the policy's template leaves no content position")?;
@@ -392,7 +408,8 @@ fn render(p: &ExportPublic, st: &ClassifyRunStatement, label: &str, writer: Writ
     Ok(format!(
         "{{\n \"schema\": {},\n \"scope\": {},\n \"statement_written_by\": {},\n \"run_profile\": {},\n \"block_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"trained_statement_identity\": {},\n \"policy\": {},\n \"verdict\": {},\n \"verdict_bit\": {},\n \"threshold_c\": {},\n \"yes_id\": {},\n \"no_id\": {},\n \"template_prefix_ids\": {},\n \"template_suffix_ids\": {},\n \"content_length_n\": {},\n \"chunk\": {{\"index\": {}, \"count\": {}, \"range\": [{}, {}], \"content_total\": {}, \"chunk_size\": {}, \"overlap\": {}, \"split\": \"end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)\"}},\n \"T\": {},\n \"item_length\": {},\n \"pad_id\": {},\n \"pad_positions\": {},\n \"verdict_row\": {},\n \"control_ids_below\": {},\n \"tokenizer\": {},\n \"margin_vector_digest\": {},\n \"margin_scale\": {:e},\n \"tied_source\": {},\n \"embedding_digest\": {},\n \"bos\": {},\n \"final_norm\": {{\"g0\": {}, \"cn\": {}, \"tn\": {}, \"ceps\": {}}},\n \"classifier_profile_digest\": {},\n \"rulings\": {},\n \"context_label\": {},\n \"context\": {},\n \"input_token_endpoint_root\": {},\n \"whole_run_floor_bits\": {},\n \"parameter_line\": {}\n}}\n",
         js(CLASSIFY_STATEMENT_SCHEMA),
-        js("a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance"),
+        // [A25] a W16R2 development profile's statement says what it is
+        js(if w16r2::is_dev(st.profile()) { w16r2::DEV_SCOPE } else { "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance" }),
         js(writer.text()),
         js(st.profile()),
         js(st.sh().profile),
@@ -592,7 +609,7 @@ pub fn classify_prove_command(args: &[String]) -> i32 {
         eprintln!("zk60_classify prove: {CONTENT_ON_COMMAND_LINE}");
         return 2;
     }
-    let f = match flags(args, &["--export", "--tables", "--policy", "--content-file", "--chunk", "--seq", "--seq-dir", "--out", "--owner-dir", "--label"], &[]) {
+    let f = match flags(args, &["--export", "--tables", "--policy", "--content-file", "--chunk", "--seq", "--seq-dir", "--out", "--owner-dir", "--label"], &[w16r2::DEV_W16R2_SWITCH]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_classify prove: {e}");
@@ -615,6 +632,11 @@ pub use batch::classify_prove_batch_command;
 #[path = "classify_serve.rs"]
 mod serve;
 pub use serve::{classify_check_serve_command, classify_serve_command};
+
+// [A25] the W16R2 DEVELOPMENT classifier profile (unregistered; public development content only),
+// behind every command's `--dev-w16r2-public-content-only` switch
+#[path = "classify_w16r2.rs"]
+pub(crate) mod w16r2;
 
 /// A5 (token round 18): what a `prove-batch` job borrows from its batch — the
 /// one digest pass, the one tied table derivation and the whole content, all
@@ -675,7 +697,7 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
     let loaded_p;
     let p = match shared.as_ref() {
         Some(s) => s.p,
-        None => { loaded_p = load_export(&export)?; &loaded_p }
+        None => { loaded_p = load_export_for(&export, f)?; &loaded_p }
     };
     cli_phase("prove", "args + directories + load_export (the digest pass)", &mut tp);
     let sh = &p.sh;
@@ -856,7 +878,7 @@ pub(super) fn door(f: &[(String, String)], art: &Path) -> Result<DoorPassed, Str
     let min_bits: u32 = flag(f, "--min-bits").unwrap_or("95").parse().map_err(|_| "--min-bits: an integer")?;
     let label = label_of(f)?;
     let mut tp = Instant::now();
-    let p = load_export(&export)?;
+    let p = load_export_for(&export, f)?;
     cli_phase("verify", "load_export (the digest pass)", &mut tp);
     // D27: 93 bits only at the development rung; 95 at every other profile
     let floor = super::classify_tied::min_bits_floor(p.profile);
@@ -918,7 +940,7 @@ fn door_statement(p: &ExportPublic, tables: &super::classify_tied::BoundClassifi
 
 /// `zk60_classify verify ...`
 pub fn classify_verify_command(args: &[String]) -> i32 {
-    let f = match flags(args, &["--export", "--tables", "--policy", "--artifact", "--expect-statement", "--label", "--min-bits"], &[]) {
+    let f = match flags(args, &["--export", "--tables", "--policy", "--artifact", "--expect-statement", "--label", "--min-bits"], &[w16r2::DEV_W16R2_SWITCH]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_classify verify: {e}");
@@ -967,7 +989,7 @@ pub fn classify_input_owner_command(args: &[String]) -> i32 {
         eprintln!("zk60_classify input-owner: {CONTENT_ON_COMMAND_LINE}");
         return 2;
     }
-    let f = match flags(args, &["--export", "--tables", "--policy", "--artifact", "--expect-statement", "--label", "--min-bits", "--decommitment", "--content-file"], &[]) {
+    let f = match flags(args, &["--export", "--tables", "--policy", "--artifact", "--expect-statement", "--label", "--min-bits", "--decommitment", "--content-file"], &[w16r2::DEV_W16R2_SWITCH]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_classify input-owner: {e}");
@@ -1002,7 +1024,7 @@ pub fn classify_input_owner_command(args: &[String]) -> i32 {
 /// own token count, is required and is checked against the chunk runs
 /// ([`aggregate_label`]) before any label is printed.
 pub fn classify_label_command(args: &[String]) -> i32 {
-    let f = match flags(args, &["--export", "--tables", "--policy", "--runs", "--expect-statement", "--expect-total", "--label", "--min-bits"], &[]) {
+    let f = match flags(args, &["--export", "--tables", "--policy", "--runs", "--expect-statement", "--expect-total", "--label", "--min-bits"], &[w16r2::DEV_W16R2_SWITCH]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_classify label: {e}");

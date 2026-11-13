@@ -89,9 +89,10 @@ impl TiedSource {
     pub(crate) fn of(block_profile: &str) -> Result<TiedSource, String> {
         use super::super::shape::TRAINED_CALIB_RUNG_PROFILE;
         #[cfg(test)]
-        if block_profile == super::super::shape::R13_RUNG_H24 {
+        if block_profile == super::super::shape::R13_RUNG_H24 || block_profile == super::super::shape::W16R2_RUNG_H24 {
             // ROUND 16, test builds only: the R13 h24 rung (width 384) uses the
-            // development rung's tied source (its V 300 x d 384 tensor)
+            // development rung's tied source (its V 300 x d 384 tensor); [A25] and
+            // the W16R2 rung, its W16R2 twin
             return Ok(TiedSource::DevRung);
         }
         if super::super::trained_statement::tied_tensor_for_profile(block_profile).is_some() {
@@ -105,13 +106,15 @@ impl TiedSource {
     /// the tied source of a CLASSIFIER RUN profile (its canonical text)
     pub(crate) fn of_run_profile(run_profile: &str) -> Result<TiedSource, String> {
         #[cfg(test)]
-        if run_profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
+        if run_profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST || run_profile == super::super::run::RUN_PROFILE_CLASSIFY_W16R2_RUNG_H24_TEST {
             return Ok(TiedSource::DevRung);
         }
         match run_profile {
             super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC => Ok(TiedSource::DevRung),
             // ROUND 16: the R13 Shieldstral classifier run profiles
             super::super::run::RUN_PROFILE_CLASSIFY_R13_SHIELD_T128 | super::super::run::RUN_PROFILE_CLASSIFY_R13_SHIELD_T256 => Ok(TiedSource::Shieldstral),
+            // [A25] the W16R2 development classifier run profile (unregistered): the same model
+            super::super::run::RUN_PROFILE_CLASSIFY_W16R2_SHIELD_T128_DEV => Ok(TiedSource::Shieldstral),
             p => Err(format!("classifier (R-C2): no tied source is registered for the classifier run profile {p}")),
         }
     }
