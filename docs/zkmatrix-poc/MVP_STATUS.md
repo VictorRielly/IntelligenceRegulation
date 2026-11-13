@@ -1,8 +1,14 @@
 # Where the MVP stands, in plain words
 
+**2026-11-13 UTC, SOL continuation:** The isolated B3 candidate passes full8B CPU/Metal core equality, six unchanged legacy digests, two matched three-block receipts, and13malicious refusals; all33,030,144local table words match actualMetal buffers. A26 PCS review, conditional rank and both native compatibility controls pass. Timing exposed a baseline-only parallel layout bug; a two-file repair and its validation are queued in batch60. Four C1 and three C5 staging checks pass; C1 softmax pairing needs degree5 at unpadded shapes. The optional device forest remains unbuilt. FullD78/token stages/formal/privacy gates remain open. [Native evidence](../../results/zk60_sol_20261105_w16r3/b3/NATIVE_REPORT_53.md), [repair](../../results/zk60_sol_20261105_w16r3/b3/RECOVERY_58.json), [D78 staging](../../results/zk60_sol_20261105_w16r3/b3/d78_stage_61/SOURCE_REVIEW.json). No new throughput or production/privacy acceptance.
+
 **2026-11-10: what the Lean work does NOT yet establish (gap audit: `ZK60_LEAN_GAP_AUDIT_PREMISES_20261110.md` and
 `ZK60_LEAN_GAP_AUDIT_FAITHFULNESS_20261110.md`).** Read the Lean bullets further down against this list. Each High
 item was re-checked against the source by the coordinator.
+- **2026-11-12, the input endpoint extractor group CLOSED on the merged tree (L58, merged `c80f2311` and checked) and Astra resident writer scoped timing recorded:**
+  - **L58 proved (`ex_productionReadyL_epP_codeH`):** one checked extractor for the input commitment's column test and closing openings at the code's real 84-byte `expected-IO` header (`hread`, `hE`, `mk` discharged; `49/49` `[COUNTED]` declarations audited, `0` `sorryAx`/`ofReduceBool` `[CHECKED]`; `l58_tagcheck.py` input Merkle tag + canonical-word refusal with negative control `[CHECKED]`; `RunAbsCheck` `29/29` `[CHECKED]`).
+  - **Still open in Lean:** stage define/LogUp/doom facts and `hdzero`/`hdin`/`hdout` (lane L60, joining L57 + L58), and widening `L46-3`/`L56-3` boundary IO slots to wire L49's `block_knowledge_r13_shield` across all 26 blocks (lane L61).
+  - **Scoped app activation-writer latency (`resident_writer_candidate_20261112/REPORT.md`):** warm-service ABBA on one public 14-token post across 3 categories (A28 binary `80f2b704`, R13 baseline `2ba468f9`, 2 samples/arm) fell from `47.206 s` to `40.9995 s` (`-13.15 %` `[MEASURED]`), writer-only `11.762 s` to `4.081 s` (`-65.3 %` `[MEASURED]`; `26.903 GiB` `[COUNTED]` per worker, `196/220 GiB` qualified service admission/cap).
 - **The answer to "are there gaps": yes, and most of the proof's substance is in them.** The strongest top theorem
   (`rt_productionReady_r13`) is a schema with 47 premises: 10 substantive open obligations (the soundness covers
   `halive`, `hdin`, `hdblk`, `hdout`, the input endpoint's `hdzero`, `hread`, `hBal`; completeness O8, O9; zero
@@ -53,8 +59,7 @@ item was re-checked against the source by the coordinator.
     checks.
   - **Checked against the code:** the geometry, on the real Shieldstral shape export and a real classifier run (24
     checks, 0 failed; 25 single-change copies all refused). No new extraction event was needed.
-  - **The app's top theorem to cite is now `cb_productionReadyL_epP_codeF`.** Lane L58 is closing the input
-    endpoint's extractor group in it.
+  - **The app's top theorem after L55 was `cb_productionReadyL_epP_codeF`; since L58 (merged 2026-11-12) it is `ex_productionReadyL_epP_codeH` (and `stgAlg_productionReadyL_epP_exec_real` on L57's stage-view branch; L60 joins both).**
 - **A tenth unmeetable premise (L54-1, High, 2026-11-10; confirmed in the source by the coordinator).**
   - **What is wrong:** each block's two boundary slots read the boundary tables (BlockR13Prog.lean:657-659). The
     slot-polynomial argument in L50's alive facts can only see the A, M and H data (RunAliveSl.lean:174). So the
@@ -2876,3 +2881,8 @@ integrator's gates):
 5. The first 5090 A/B, only if Linux is installed by about 10-02.
 
 The trained TinyLlama block is the integrator's 10-02 stretch gate.
+
+
+### A2 score candidate and app review — 2026-11-12T07:59:46.596581+00:00
+
+[MEASURED, correctness only, shared Mac] The exact Astra score candidate now has3 complete classifier proofs through the current app-pinned A28 binary,84segments, fresh verification/owner checks/whole-item labels, and altered-content/corrupted-proof rejection. This closes the current-native public-fixture proof gap; it does not approve model adoption, privacy or production, or measure a new throughput result. The current app passes222 Python tests and3 frontend suites; actual browser/visual review covers pending privacy and historical published receipts, including correct recorded verifier pins and390px mobile layout. All jobs are terminal. Evidence: `results/zk60_astra_20261026/current_app_20261112/AUDIT.json`; remaining A1-A8 work: sibling `HANDOFF.json`.
