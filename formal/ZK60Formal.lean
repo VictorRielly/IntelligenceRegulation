@@ -462,3 +462,8 @@ import ZK60Formal.RunEpXTopF
 import ZK60Formal.RunEpXTopG
 import ZK60Formal.RunEpXMk
 import ZK60Formal.RunEpXTopH
+import ZK60Formal.RunStgJoinLk
+import ZK60Formal.RunStgJoinBnd
+import ZK60Formal.RunStgJoinSem
+import ZK60Formal.RunStgJoinChain
+import ZK60Formal.RunStgJoinTop
