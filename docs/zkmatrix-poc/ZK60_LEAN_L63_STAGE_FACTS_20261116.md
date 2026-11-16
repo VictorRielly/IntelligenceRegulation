@@ -115,3 +115,30 @@ full-root build (brief). Iteration logs `iter1.log` … `iter4.log` (iter1, iter
 | name clashes (`l63_nameclash.py`, prefix `RunStgShield`; 6 worktrees, 1,535 other Lean files) | 0 |
 | existing files changed against `1668946a` (`formal/`, `ops/`, `src/`) | 0; `Statements.lean` and the root unchanged |
 | regressions | L6Check 1,206, L5Check 5,553, L11Check 404, fixture L1 101,956 checks; 0 failed in each |
+
+## 7. Continuation (coordinator's items a to c): stopped at (a), too large to finish here
+
+Assessed (ARGUED from reading the Lean; no new Lean in this step):
+
+**Finding L63-4 (Medium; for the next stage lane and the coordinator): `stgΦR` is not `IndDegLE` in the draws, so
+`hD`'s stage define entries cannot go through `stgDefSqV_rbr`.** The stages' `define`s refuse a zero batching
+challenge (`nonzeroE` on `μ` and `ζ`: `StageVerifyExecInC.lean` `incDefQZC`, `incDefTZC`; the same in OUT-C), and
+`stgΦB` is `0` where `define` refuses. In a `μ` coordinate, with the others fixed, `t ↦ stgΦR(…, t, …)` is `a + b·t` for
+`t ≠ 0` and `0` at `t = 0`; for a view whose data makes `a ≠ 0` (allowed: `hD` quantifies over every view) no polynomial
+of degree `≤ 80` matches, so `∀ v h, IndDegLE (dg k) (Φ v k h)` fails. `SqX.Rbr` itself still holds with one more escape
+per round (`e = dg + 1`: the refusal point `t = 0` and the polynomial's roots, since a polynomial vanishing on every
+point with nonzero `μ` coordinates vanishes identically when `|K|` exceeds its degree). Deliverable 1 is unaffected:
+the vanishing at the drawn challenges uses the accepted `define`, never the refusal branch.
+
+**What (a) needs, in order** (each a sizeable piece):
+1. A Rbr lemma for "a polynomial of individual degree `d` off the zero set of some coordinates, `0` on it" with
+   `e = d + 1` (generic; replaces `stgDefSqV_rbr` at the stages).
+2. Per closure (`incDefIO`, `incDefQZC`, `incDefTZC`; OUT-C's eight), the `toK` bridge: `(df.poly vals).toK U` is an
+   explicit `K`-expression in the tables' values and the draws (`Fp2.toK_mul`/`add`/`sub` on canonical words), and the
+   eq tables' values are multilinear in `τ`. Then the residual's degree: IN-C `1` per draw coordinate (`τ` in `eq`, `μ`,
+   `ζ` linear and separate), OUT-C DZC `11` (`zeta_fold` of twelve planes, L57-3). The same bridge also proves the
+   table sides' slot degrees, which removes the degree guard in `stgΦB` for the real objects.
+3. `hD` is one premise for all parts and is referred to by every kind (`rtKsl … D hD` in many binders). Discharging only
+   its stage define part means replacing it by a premise on the remaining fields and parts plus a constructor of
+   `D.Valid` (proof irrelevance lets the binders keep their form): a generator change across the whole statement.
+   Estimated larger than deliverable 1; not started. Items (b) and (c) were not started (the brief's order).
