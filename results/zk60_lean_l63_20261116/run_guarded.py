@@ -23,9 +23,14 @@ need = str(min(14, int(cap)))  # the guard refuses a cap below the need
 guard = ["python3", "/Users/victorrielly/IntelligenceRegulation/scripts/zk60_resource_guard.py", "run",
          "--class", "cpu", "--need-gib", need, "--cap-gib", cap, "--wait-secs", "14400",
          "--label", label, "--log", log, "--done", done, "--"] + cmd
-# poll at 0.05 s (the coordinator's 2026-11-16 announcement: the contested lock is admitted at leaf boundaries)
+# the guard's default poll (the coordinator ended the 0.05 s fast-poll rule on 2026-11-16; L63_POLL_SECS, e.g. 0.5,
+# overrides it for one job that loses a boundary to a long leaf)
+env = dict(os.environ)
+env.pop("ZK60_GUARD_POLL_SECS", None)
+if os.environ.get("L63_POLL_SECS"):
+    env["ZK60_GUARD_POLL_SECS"] = os.environ["L63_POLL_SECS"]
 p = subprocess.Popen(guard, stdin=subprocess.DEVNULL, stdout=open(log + ".guard", "w"), stderr=subprocess.STDOUT,
-                     start_new_session=True, env=dict(os.environ, ZK60_GUARD_POLL_SECS="0.05"))
+                     start_new_session=True, env=env)
 print("started", p.pid, flush=True)
 while not os.path.exists(done):
     time.sleep(3)
