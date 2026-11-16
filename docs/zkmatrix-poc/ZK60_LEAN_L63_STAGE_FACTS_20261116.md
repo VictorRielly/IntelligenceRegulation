@@ -142,3 +142,30 @@ the vanishing at the drawn challenges uses the accepted `define`, never the refu
    its stage define part means replacing it by a premise on the remaining fields and parts plus a constructor of
    `D.Valid` (proof irrelevance lets the binders keep their form): a generator change across the whole statement.
    Estimated larger than deliverable 1; not started. Items (b) and (c) were not started (the brief's order).
+
+## 8. Step 1 of (a): the round condition off a zero set (`RunStgShieldRbr.lean`)
+
+| Theorem | Meaning | Label |
+|---|---|---|
+| `OffZero` | `Φ = P` wherever the coordinates `Z` are nonzero, `Φ = 0` where one is zero | definition |
+| **`szSt_escape_offZero`** | from a doomed reading, at most `d + 1` next challenges escape (`P`'s roots along the next coordinate, and `0`); needs no field-size condition | PROVED |
+| **`offZero_poly_zero`** | a polynomial of individual degree `d` vanishing wherever `Z` is nonzero vanishes everywhere, when `d + 1 < |K|` | PROVED |
+| **`stgDefSqV_rbrZ`** | `stgDefSqV … Φ dg k` is round-by-round sound when `dg k = d + 1` and `Φ` is `OffZero` of a degree-`d` polynomial at every view and history | PROVED |
+| `ssh_rbrI`, `ssh_rbrO` | the same at the real `sshΦI`, `sshΦO`; the non-refusing branch's degree (`IndDegLE d`) and its `OffZero` form are hypotheses (the `toK` bridges, plan step 2) | PROVED from the hypothesis |
+| **`ssh_inc_count`**, **`ssh_outc_count`**, `ssh_profile_count` | `hD`'s per-entry define conditions `e ≤ 80`, `n·e ≤ 80·451` at the code's draw counts (`incDraws`, `outcDraws`) with `e = d + 1`: IN-C at `d = 1`, OUT-C at every `d ≤ 11`, logs `≤ 64` | PROVED |
+
+**The count.** The R13 gate prices each define kind by its form, `SqForm 80 (80·451)`, the constant `80 + 80·451 + 2^17`
+whatever the entries' `e` (`eleven_bud_r13`, `eleven_totals`, RunChainUGate.lean:211-224). With `e = d + 1` every stage
+entry still meets the form (largest at the app's profile: OUT-C DZC `23·12 = 276 ≤ 36,080`; IN-C `20·2 = 40`), so the
+total is unchanged: before `55,852,891`, after `55,852,891` of `2^26 = 67,108,864` (`eb_total`, RunEpBInc.lean:288,
+PROVED). The per-slot degrees: IN-C `1` per draw coordinate (ARGUED from `incDefQZC`, `incDefTZC`, `incDefIO`: `τ`
+enters only `eq`, `μ` and `ζ` linearly and separately); OUT-C DZC `11` (L57-3, ARGUED); OUT-C's other closures NOT
+VERIFIED, but `ssh_outc_count` covers every degree `≤ 11` and the form allows up to `79` at `n ≤ 451`.
+
+**Is this a fault of the framework (item 4)?** No; only of the choice `stgΦR`. Argument: let `P` be the polynomial of the
+non-refusing branch (the hypothesis of `ssh_rbrI`). At every accepted reading the drawn `μ`, `ζ` are nonzero (the
+code's `define` accepted, so `nonzeroE` passed), so `P(drawn) = stgΦR(drawn) = 0`: `Φ := P` meets `StgDefAtV` (from
+`ssh_defAtV`) and `IndDegLE d` everywhere, so L57's `stgDefSqV_rbr` applies to it with `e = d`. Writing that `P` down is
+exactly the per-closure `toK` bridge (plan step 2); with `offZero_poly_zero` (`d + 1 < |K| = p²`) it is unique, so the
+two routes agree. `stgDefSqV_rbr` and `hD` are meetable by a faithful refusal-free `Φ`; `stgDefSqV_rbrZ` makes them
+meetable by `stgΦR` itself at one extra escape per round. Not one of the unmeetable premises.

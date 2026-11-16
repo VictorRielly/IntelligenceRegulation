@@ -16,8 +16,8 @@ R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
 BASE=1668946a
-MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop"
-FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean"
+MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr"
+FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean $L/RunStgShieldRbr.lean"
 start=$(date +%s)
 echo "== lake build of the L63 modules, one at a time (standalone targets) =="
 brc=0
