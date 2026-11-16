@@ -318,3 +318,50 @@ off the token positions", and take its contrapositive into `rtKR0.Dm`.
 three); 0 warnings in the lane's files; forbidden words none; the four generators reproduce their files; 0 name
 clashes; no existing file changed; regressions L6 1,206, L5 5,553, L11 404, L1 101,956 checks, 0 failed. Guarded jobs
 this step: 5.
+
+## 12. The L63-5 repair: IN-C's slot polynomial at each slot's own IO width
+
+**What changed.** L57's `stgFstI` reads every IN-C slot's tables at L15's one width (`endpointLogN = bLogN`). The code
+reads slot `k`'s IO commitment at its own width (`incElog`: the input endpoint's `tier.ep_log_n` at INC-00, `B_in`'s
+`endpoint_log_n` at INC-01). Beside L57's definitions (none edited), at `atLog P (elog k)` for slot `k`:
+
+| New | File | Status | How |
+|---|---|---|---|
+| `StageV.ssh_scl_ah` (a slot's `A`/`H` claims do not depend on the IO width) | RunStgShieldC.lean | PROVED | new proof (induction on the tables) |
+| `stgFRC`, `stgFstIC`, `StgTrueAtC`, `StgClaimsIOS` | RunStgShieldC.lean | definitions | `StgTrueAtC` = `StgTrueAt` with its claims part split into the `A`/`H` claims of the reading's accumulator and each slot's IO claims at the code's width |
+| `stgFR_termAtC` (twin of `stgFR_termAt`) | RunStgShieldC.lean | PROVED | L57's proof, copied by `l63_mk_c.py` with 3 width-dependent steps changed (`stgPolyT_eval`, the `show`, `hp'` at `atLog`) and `htr` given a new 4-case proof (`A`/`H` through `ssh_scl_ah` and the old `hclk`; `inp`/`out` from the per-slot IO part) |
+| `ssh_trueAtC_of_split` | RunStgShieldC.lean | PROVED | new (four lines) |
+| `stgSpTC`, `stgSpTC_take`, `stgΦBC`, `stgΦRC`, `ssh_ΦB_zeroC`, `ssh_defAtVC`, `sshΦIC`, `ssh_hDIC` | RunStgShieldDefC.lean | PROVED | the originals' proofs by the same argument (`l63_mk_defc.py`, counted replacements; the only proof edits add the `elogv` window-locality fact next to `Pv`'s and the `atLog` in two `show`/`congr` lines) |
+| twins of L60/L61's chain `sjC_…` (exec_blk … join_shield), `bwC_…wire`, `bwC_…shield` | RunStgShieldCChain/CJoin/CWire.lean | PROVED | the originals' proofs unchanged (`l63_mk_cchain.py`: S1 `stgFstI`→`stgFstIC` 27 times, S2 IN-C `StgTrueAt`→`StgTrueAtC` 12 times, S3 the one IN-C `stgFR_termAt` call →`stgFR_termAtC`) |
+| `sshC_productionReadyL_epP_{def,true,claimsO,claimsI}` | RunStgShieldCTop/CTopT/CTopC/CTopI.lean | PROVED | twins of this lane's four tops (`l63_mk_topsc.py`) |
+
+**No degree, draw count or budget changed.** `stgFRC` keeps `stgN P0 k` variables and `slotShape P0` masks; `atLog`
+changes only `endpointLogN`, which no define form, draw count or budget binder mentions. The budget binders of the
+corrected theorem are textually those of `ssh_productionReadyL_epP_claimsI`: 55,852,891 of 2^26 = 67,108,864. No
+already-proved result was found false: every L57/L60/L61 proof went through at the corrected polynomial unchanged.
+
+**Premise diff** (`ssh_productionReadyL_epP_claimsI` → `sshC_productionReadyL_epP_claimsI`, 149 binder groups each,
+none added or removed): three restated, nothing else touched.
+
+* `hTrIIO` (IN-C IO claims): was `StgClaimsIO` (every `.inp`/`.out` claim of the MODEL accumulator, built at L15's one
+  width: unmeetable at INC-00, L63-5). Now `StgClaimsIOS`: *on an accepted run outside the events, at every reading of
+  stage IN-C and every slot window `k`, every `.inp`/`.out` claim that slot `k` builds from its record and its define
+  result at the code's width `incElog k` evaluates, under `stgCsv … csIOI`, to its claimed value.*
+* `hb0` (the base-0 schedule lists) and `hdinS` (IN-C's doom premise): the same statements with `stgFstIC` / `sshΦIC`
+  in place of `stgFstI` / `sshΦI` (restated, not weakened; both remain premises, as before).
+
+**Why the real run can meet the new premise (ARGUED).** These are the claims the code builds and opens: token_io.rs:1128
+pushes `build_claim(sched.row_log[p.cm], …)` onto `acc.claims[cm]`, with `row_log = [lt, lt, cp.tier.ep_log_n,
+sh.endpoint_log_n]` for IN-C (stage_in_c.rs:54), i.e. `.inp` at the endpoint's width and `.out` at `B_in`'s, as
+L29's `stSlotsLoop` models (`atLog P (incElog s)`, StageVerifyExecLay.lean:257-263); the same widths size the
+claim's point and mask (argument.rs:996-1047, `row_log(sh, p.cm)`). With `csIOI` the evaluation of the committed
+IO tables at those widths, each such claim's value is what its opening certifies. Two links are LEFT: (1) the formal tie
+`StgClaimsIOC` (the code's `rsAccInc` accumulator form, §11) ⇒ `StgClaimsIOS` (per-slot form): every per-slot claim
+at the code's width is in the code's accumulator (a `hclk` for `stSlotsLoop`, with the model's records equal to the
+code's by `stSlotsLoop_strip`); (2) `csIOI` tied to `epxE` / `decodeIn` (the `hdzero` piece, not started).
+
+**Check (§12):** `check_l63.sh` over twenty-three modules, one guarded job (`lean-l63-check6`): exit 0, 65 s, peak
+3.71 GiB. 109 of 109 declarations audited, all on at most `propext`, `Classical.choice`, `Quot.sound`
+(`sshC_productionReadyL_epP_claimsI` on the three); 0 warnings in the lane's files; forbidden words none; the eight
+generators reproduce their files; 0 name clashes; no existing file changed; regressions L6 1,206, L5 5,553, L11 404,
+L1 101,956 checks, 0 failed. Guarded jobs this step: 5 (iter20-23, check6).

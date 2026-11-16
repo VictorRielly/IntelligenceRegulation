@@ -83,3 +83,69 @@
 'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_claimsI' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'ZK60.Exec.StageV.ssh_scl_ah' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.stgFRC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stgFstIC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.StgTrueAtC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stgFR_termAtC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.StgClaimsIOS' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_trueAtC_of_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stgSpTC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stgSpTC_take' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stgΦBC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stgΦRC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_ΦB_zeroC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_defAtVC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.sshΦIC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_hDIC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_exec_blk' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_exec_alive' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_code' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_codeT' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireT' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireW' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireX' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireF' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireG' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_join' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_join_shield' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.bwC_productionReadyL_epP_wire' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.bwC_productionReadyL_epP_shield' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_def' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_true' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsO' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsI' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
