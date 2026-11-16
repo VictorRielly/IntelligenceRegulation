@@ -33,3 +33,12 @@
 'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_def' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'ZK60.ProtocolClassify.OffZero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.szSt_escape_offZero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.offZero_poly_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stgDefSqV_rbrZ' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_rbrI' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_rbrO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_inc_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_outc_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_profile_count' depends on axioms: [propext, Classical.choice, Quot.sound]
