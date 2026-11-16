@@ -264,3 +264,51 @@ row widths above, but `incSlots_model` drops claims; a `stSlotsLoop` / `slotsLoo
 64 of 64 declarations audited, all on at most `propext`, `Classical.choice`, `Quot.sound` (the three top theorems on
 the three); forbidden words none; the three generators reproduce their files; 0 name clashes; no existing file changed;
 regressions L6 1,206, L5 5,553, L11 404, L1 101,956 checks, 0 failed. Guarded jobs this step: 4.
+
+## 11. Item (iv): IN-C's A/H claims, the IN-C IO claims, `hdzero`
+
+**Step A, PROVED** (`RunStgShieldInAH.lean`, `RunStgShieldInAHRun.lean`, `RunStgShieldTopI.lean`):
+
+| Theorem | Meaning |
+|---|---|
+| `StageV.ssh_sc_a`, `ssh_sc_h` | a slot's `A` (`H`) claims are the incoming ones followed by those its tables build, at any `BlockParams` with the same `logCols` (the IO width does not enter) |
+| `StageV.ssh_slotStep_ah`, **`ssh_stSlotsLoop_ah`** | one slot, and the whole loop: the code's `stSlotsLoop` (per-slot IO widths) and L15's `slotsLoop` agree on records, transcript, `accStrip` AND the `A`, `H` claims (L29's `stSlotsLoop_strip` with the `A`, `H` claims kept) |
+| **`StageV.ssh_inc_claims_ah`** | the code's `IncV.slots` and L15's IN-C model have the same `A` and `H` claims |
+| `ssh_inc_link_ah`, `ssh_run_AHI`, **`ssh_AHAtI`** | `StgClaimsAH` at stage IN-C on an accepted run outside `EvXR` with no doomed `opA` entrant |
+| `ssh_productionReadyL_epP_claimsI` (generated, `l63_mk_topi.py`) | the top theorem with `hTrIC` replaced by its IO part `hTrIIO` |
+
+Premises: 151 → 151 binders (generator); `hTrIC` replaced by the weaker `hTrIIO` (the IN-C IO claims only). No new bad
+event; budget 55,852,891 of 67,108,864, unchanged.
+
+**Step B: the corrected IN-C IO claims.** `StgClaimsIOC` (RunStgShieldClaimsRun.lean) states the IN-C IO claims over the
+CODE's accumulator. A top theorem with it IN PLACE of `hTrIIO` cannot be produced from my files: the consumer of the
+claims, L57's `stgFR_termAt` (through `StgTrueAt`), reads the claims of L15's model accumulator; the code's `.inp` claim
+does not imply the model's (different mask rows), so `StgTrueAt` cannot be rebuilt from `StgClaimsIOC`. A corrected
+theorem needs, beside the originals: an IN-C slot polynomial at per-slot widths (`stgFstI'`, `stgPolyT` at
+`atLog P (incElog k)` for slot `k`), its terminal theorem over the code's slot loop (`stSlotsLoop`), and the lists `hb0`
+at it. That is the plan for the next stage lane (LEFT).
+
+Every use, in the stage chain, of INC-00's input claim or its mask parts at the model's width (ARGUED from the source;
+none is wrong as stated: each is a definition or a true implication; the faults are in what the premises then ask):
+
+| Use | File:line | Verdict |
+|---|---|---|
+| `stgPrivVals` builds each private table's claim with `Block.buildClaim P` at the model's `P` | RunStgAlgPoly.lean:77-83 (:80) | definition; INC-00's IO value is read through the model claim: restatement beside the original needed for "the real polynomial" |
+| `stgPolyT`, `stgFR`, `stgFstI` (via `stgPrivVals`) | RunStgAlgPoly.lean:209-219, :257-261, :454-459 | same |
+| `StgTrueAt` (`ClaimsTrue` of the model accumulator) | RunStgAlgPoly.lean:266-283 | premise: its INC-00 `.inp` part is unmeetable with a faithful `csIOI` (L63-5); restatement beside the original needed |
+| `stgFR_termAt` | RunStgAlgPoly.lean:289-391 | theorem; unaffected (true implication) |
+| `hTrI` / `hTrIC` / `hTrIIO` (top theorems) | RunBlkWireTop.lean:445-453; RunStgShieldTopT.lean, TopC.lean, TopI.lean (the `hTrIIO` binder) | premise; same as `StgTrueAt` |
+| `hb0`, `hdinS` (mention `stgFstI`) | RunBlkWireTop.lean:439-440, :571-577 | set-up / doom premises over the model polynomial: restatement needed when proved |
+| my `stgSpT`, `stgΦB`, `sshΦI` (via `stgPolyT`) | RunStgShieldDef.lean (stgSpT, stgΦB), RunStgShieldInst.lean (sshΦI) | definitions; same caveat as `stgFstI` at INC-00; `ssh_defAtV`, `ssh_hDI` unaffected as theorems |
+| item (ii) `M` part (`ssh_inc_link`) | RunStgShieldTrue.lean | unaffected (`fs`, `hostFs` only) |
+| item (iv) `A`/`H` (`ssh_inc_claims_ah`) | RunStgShieldInAH.lean | unaffected (`A`, `H` only) |
+
+**Step C: `hdzero`, scoped (LEFT).** It says: on an accepted run outside the events, if the decoded input commitment
+(`(CinR).decodeIn (epxOps …)`) has a nonzero entry at a position no token occupies, some kind has a doomed entrant. The
+framework's route (L51 §5, L52 §5.3 item 4) is stage IN-C's IO zero-check INC-00 (`eq·(end − supp·tok)`): with
+`Φ := stgΦR`, a non-zero padding entry makes INC-00's define polynomial non-zero, so the define draw enters doomed
+(`rtKR0`). Two pieces are missing, neither in my files' reach this step: (1) `csIOI` must be the semantics of the input
+endpoint's extracted data that `epxE` / `decodeIn` decode (lanes L55 / L56; `csIOI` is still free); (2) INC-00's `.inp`
+claim is exactly the claim of finding L63-5, so the IN-C chain must first be restated at per-slot widths (Step B's
+plan). Plan: after those, prove "`Φ_0 ≡ 0` ⇒ the endpoint table equals `supp·tok` on the cube ⇒ the decoded input is zero
+off the token positions", and take its contrapositive into `rtKR0.Dm`.

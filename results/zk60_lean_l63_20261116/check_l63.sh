@@ -16,8 +16,8 @@ R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
 BASE=1668946a
-MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC"
-FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean $L/RunStgShieldRbr.lean $L/RunStgShieldTrue.lean $L/RunStgShieldTrueRun.lean $L/RunStgShieldTopT.lean $L/RunStgShieldClaims.lean $L/RunStgShieldClaimsRun.lean $L/RunStgShieldTopC.lean"
+MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI"
+FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean $L/RunStgShieldRbr.lean $L/RunStgShieldTrue.lean $L/RunStgShieldTrueRun.lean $L/RunStgShieldTopT.lean $L/RunStgShieldClaims.lean $L/RunStgShieldClaimsRun.lean $L/RunStgShieldTopC.lean $L/RunStgShieldInAH.lean $L/RunStgShieldInAHRun.lean $L/RunStgShieldTopI.lean"
 start=$(date +%s)
 echo "== lake build of the L63 modules, one at a time (standalone targets) =="
 brc=0
@@ -60,7 +60,7 @@ nel=$(grep -c -v 'depends on axioms\|does not depend on any axioms' "$OUT/axioms
 echo "lines that are not a report: $nel"
 grep -oE "axioms: \[[^]]*\]" "$OUT/axioms_flat.log" | sort | uniq -c
 echo "the top theorem:"
-grep 'ssh_productionReadyL_epP_def\|ssh_productionReadyL_epP_true\|ssh_productionReadyL_epP_claimsO' "$OUT/axioms_flat.log"
+grep 'ssh_productionReadyL_epP_def\|ssh_productionReadyL_epP_true\|ssh_productionReadyL_epP_claimsO\|ssh_productionReadyL_epP_claimsI' "$OUT/axioms_flat.log"
 echo "== source scan of the L63 files =="
 scan=0
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $FILES \
@@ -74,6 +74,9 @@ gcht=$?
 python3 -I "$OUT/l63_mk_topc.py" "$WT" --check
 gchc=$?
 [ $gchc -ne 0 ] && gch=$gchc
+python3 -I "$OUT/l63_mk_topi.py" "$WT" --check
+gchi=$?
+[ $gchi -ne 0 ] && gch=$gchi
 echo "== name clashes (RunStgShield*, every worktree) =="
 python3 -I "$OUT/l63_nameclash.py" "$WT" /Users/victorrielly/IntelligenceRegulation RunStgShield
 ncl=$?

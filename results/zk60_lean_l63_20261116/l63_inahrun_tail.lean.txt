@@ -1,0 +1,61 @@
+
+    (csIO : StgVw Lq → Block.Cm → Block.ZClaim → K) :
+    StgClaimsAH U key domain (fun ch => (inc (A.run G).1.hdr).bp (incCtx (inc (A.run G).1.hdr).pub ch)) mIn
+      (R.pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) (Exec.Block.absOfC (chainEncB key domain hs Lq hL))
+      (stgCsv U tag h64 gS.lc gS.h gS.Q gS.e I.pA.rows I.pH.rows (R.pf.off 0 + 5) (R.pf.off 0 + 5 + 4 + mIn) csIO) G
+      (A.runLog G).2 (R.tr G (A.run G)) := by
+  obtain ⟨hA', hH'⟩ := ssh_run_AHI (U := U) (hbij := hbij) (tag := tag) (h64 := h64) (hs := hs) (hL := hL)
+    (hL64 := hL64) (Lb := Lb) (preA := preA) (preB := preB) (start := start) (inc := inc) (incG := incG)
+    (outc := outc) (outcG := outcG) (Pk := Pk) (sgeom := sgeom) (check := check) (paths := paths) (digest := digest)
+    (bRows := bRows) (bLogN := bLogN) (bndCheck := bndCheck) (bndOpen := bndOpen) (R := R) (hv := hv) (cx0 := cx0)
+    (pin := pin) (pout := pout) (I := I) (O := O) (bp := bp) (wXk := wXk) (gXk := gXk) (mXk := mXk) (hσ := hσ)
+    (hLb := hLb) (hgeo := hgeo) (gS := gS) (hgS := hgS) (hgSQ := hgSQ) (hIA := hIA) (hIH := hIH) (hOA := hOA)
+    (hOH := hOH) (hBA := hBA) (hBH := hBH) (hfIA := hfIA) (hfIH := hfIH) (hfOA := hfOA) (hfOH := hfOH)
+    (hfBA := hfBA) (hfBH := hfBH) (Win := Win) (Wout := Wout) (lscIn := lscIn) (lscOut := lscOut) (mIn := mIn)
+    (kIn := kIn) (kOut := kOut) (hlscIn := hlscIn) (hlscOut := hlscOut) (hmIn := hmIn) (base := base) (rdx := rdx)
+    (eL := eL) (hD := hD) (n := n) (hn := hn) (A := A) (G := G) (hE := hE) (hWin := hWin) (hWout := hWout)
+    (hX := hX) (hA := hA)
+  have hσ0 : R.σs[0]? = some (rtIncSeg inc incG cx0 pin) := by rw [hσ]; rfl
+  have hp0 : R.pf.part 0 = pin := rx_part_of R 0 _ hσ0
+  have hkey : ∀ a, R.pf.off 0 + (R.pf.part 0).pre ≤ a →
+      ∀ hdr core ch rs, StgRd key domain Lq (fun ch => (inc (A.run G).1.hdr).bp (incCtx (inc (A.run G).1.hdr).pub ch))
+        mIn (R.pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) G (R.tr G (A.run G)) hdr core ch rs →
+      ∀ acc t', StageFS.stageSlots (liftH G) ((inc (A.run G).1.hdr).bp (incCtx (inc (A.run G).1.hdr).pub ch)) mIn
+          (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) core
+          (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr) = .ok (ch, rs, acc, t') →
+        (rxAcc Win Wout Pk R.pf Lb 0 ((R.tr G (A.run G)).take a)).claims.a = acc.claims.a
+          ∧ (rxAcc Win Wout Pk R.pf Lb 0 ((R.tr G (A.run G)).take a)).claims.h = acc.claims.h := by
+    intro a ha hdr core ch rs hrd acc t' hacc
+    have e1 : rxAcc Win Wout Pk R.pf Lb 0 ((R.tr G (A.run G)).take a)
+        = rsAccInc (inc (A.run G).1.hdr) (R.pf.off 0 + 5) ((R.tr G (A.run G)).take (R.pf.off 0 + (R.pf.part 0).pre)) := by
+      show rsAccInc (Win (((R.tr G (A.run G)).take a).take (R.pf.off 0 + (R.pf.part 0).pre))) (R.pf.off 0 + 5)
+          (((R.tr G (A.run G)).take a).take (R.pf.off 0 + (R.pf.part 0).pre)) = _
+      rw [List.take_take, min_eq_left ha, hp0, hWin]
+    rw [e1]
+    exact ssh_inc_link_ah key domain (inc (A.run G).1.hdr) mIn (R.pf.off 0 + 5) _ (hmIn _) G _ hdr core ch rs hrd
+      (I.hgt _) (fun cx k hk => (I.hgeomL _ cx k hk).1)
+      (fun cx => by rw [hp0, ← I.hpre (A.run G).1.hdr cx, hmIn]; omega) acc t' hacc
+  have wA : R.pf.off 0 + (R.pf.part 0).pre ≤ R.pf.off 0 + (R.pf.part 0).oA := by
+    simp only [RtPart.oA]
+    omega
+  have wH : R.pf.off 0 + (R.pf.part 0).pre ≤ R.pf.off 0 + (R.pf.part 0).oH := by
+    simp only [RtPart.oH, RtPart.oBA, RtPart.oA]
+    omega
+  refine ssh_AHAt U tag h64 key domain hs hL _ mIn (R.pf.off 0 + 5) _ gS.lc gS.h gS.Q gS.e I.pA.rows
+    I.pH.rows (R.pf.off 0 + (R.pf.part 0).oA) (R.pf.off 0 + (R.pf.part 0).oH) csIO
+    (rxAcc Win Wout Pk R.pf Lb 0) G (A.runLog G).2 (R.tr G (A.run G)) (fun _ => I.hgt _) ?_ ?_ hA' ?_ ?_
+  · simp only [RtPart.oA]
+    omega
+  · have hpre0 := I.hpre (A.run G).1.hdr cx0
+    rw [hmIn] at hpre0
+    rw [hp0]
+    simp only [RtPart.oH, RtPart.oBA, RtPart.oA]
+    omega
+  · rw [show R.pf.off 0 + 5 + 4 + mIn = R.pf.off 0 + (5 + (4 + mIn)) by omega]
+    exact hH'
+  · intro hdr core ch rs hrd acc t' hacc
+    exact ⟨(hkey _ wA hdr core ch rs hrd acc t' hacc).1, (hkey _ wH hdr core ch rs hrd acc t' hacc).2⟩
+
+end Run
+
+end ZK60.ProtocolClassify
