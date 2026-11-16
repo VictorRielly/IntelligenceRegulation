@@ -68,3 +68,18 @@
 'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_claimsO' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'ZK60.Exec.StageV.ssh_sc_a' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.StageV.ssh_sc_h' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.StageV.ssh_sc_a_atLog' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.StageV.ssh_sc_h_atLog' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.StageV.ahR' does not depend on any axioms
+'ZK60.Exec.StageV.ahL' does not depend on any axioms
+'ZK60.Exec.StageV.ssh_slotStep_ah' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.StageV.ssh_stSlotsLoop_ah' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.StageV.ssh_inc_claims_ah' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.ssh_inc_link_ah' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_run_AHI' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_AHAtI' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_claimsI' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

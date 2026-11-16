@@ -312,3 +312,9 @@ endpoint's extracted data that `epxE` / `decodeIn` decode (lanes L55 / L56; `csI
 claim is exactly the claim of finding L63-5, so the IN-C chain must first be restated at per-slot widths (Step B's
 plan). Plan: after those, prove "`Φ_0 ≡ 0` ⇒ the endpoint table equals `supp·tok` on the cube ⇒ the decoded input is zero
 off the token positions", and take its contrapositive into `rtKR0.Dm`.
+
+**Check (§11):** `check_l63.sh` over fourteen modules, one guarded job (`lean-l63-check5`): exit 0, 50 s, peak 3.62 GiB.
+77 of 77 declarations audited, all on at most `propext`, `Classical.choice`, `Quot.sound` (the four top theorems on the
+three); 0 warnings in the lane's files; forbidden words none; the four generators reproduce their files; 0 name
+clashes; no existing file changed; regressions L6 1,206, L5 5,553, L11 404, L1 101,956 checks, 0 failed. Guarded jobs
+this step: 5.

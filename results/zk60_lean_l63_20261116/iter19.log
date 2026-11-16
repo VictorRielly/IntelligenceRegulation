@@ -1,0 +1,45 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan5.txt ==
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63.sh
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63.sh ==
+check rc 0 (50 s); its log is check.log
+declarations audited: 77 (generated: 77)
+no axiom at all: 5
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+  54 axioms: [propext, Classical.choice, Quot.sound]
+  14 axioms: [propext, Quot.sound]
+   4 axioms: [propext]
+the top theorem:
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_def' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_true' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_claimsO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_claimsI' depends on axioms: [propext, Classical.choice, Quot.sound]
+== source scan of the L63 files ==
+none
+== the generator reproduces RunStgShieldTop.lean ==
+identical
+identical
+identical
+identical
+== name clashes (RunStgShield*, every worktree) ==
+declarations in RunStgShield*.lean: 77
+declared twice inside the lane: none
+worktrees read: 6
+other Lean files read (with repeats across worktrees): 1540
+clashes: 0
+== unchanged against perf 1668946a: Statements.lean, the root, every existing file ==
+Statements.lean and the root unchanged
+existing files under formal/, ops/, src/ modified, deleted or renamed since 1668946a: 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 50 s
+rc 0, 50 s
