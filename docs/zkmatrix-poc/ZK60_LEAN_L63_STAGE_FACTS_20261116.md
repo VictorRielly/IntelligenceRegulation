@@ -213,3 +213,49 @@ accumulator (`rsAccInc`) as the `M` part now is.
 56 of 56 declarations audited, all on at most `propext`, `Classical.choice`, `Quot.sound` (both top theorems on the
 three); forbidden words none; both generators reproduce their files; 0 name clashes (1,540 other files); no existing
 file changed; regressions L6 1,206, L5 5,553, L11 404, L1 101,956 checks, 0 failed.
+
+## 10. Item (iii): finding L63-5 settled, and the claims parts
+
+**Step A, the verdict: DIFFERENT, for exactly one claim family — CHECKED** (the Rust and the Lean read side by side; no
+Lean probe).
+- The code builds every stage claim at the row width of its commitment role: `build_claim(sched.row_log[p.cm], …)`
+  (token_io.rs:1128; `build_claim`, argument.rs:1033-1047: the two mask parts sit at `(mask_row + k)·2^row_log + c0`,
+  size `min(log, row_log)`). IN-C's widths are `row_log = [lt, lt, tier.ep_log_n, sh.endpoint_log_n]`
+  (stage_in_c.rs:54); at the app's tier `ep_log_n = 8` (token_io.rs:190, `R1_MVP`), and `sh.endpoint_log_n` is the
+  block width (`14` at R13 Shieldstral T128, review R1-3).
+- L29's execution model matches this: `IncV.slots` runs `stSlotsLoop`, slot `s` at `atLog P (incElog s)`, `epLogN` at
+  INC-00 and `bLogN` otherwise (StageVerifyExecLay.lean:257-263, StageVerifyExecInC.lean:96, :104). INC-00 is the only
+  slot with an `.inp` table and INC-01 the only one with `.out`, so per-slot widths are the per-role widths.
+- L15's stage model, which `StgRd` and every L53 / L57 stage fact use, runs `StageFS.stageSlots` = `slotsLoop` at ONE
+  `BlockParams`, `IncV.bp`, whose `endpointLogN` is `bLogN` (StageVerifyExec.lean:264-266). `incSlots_model`
+  (StageVerifyExec.lean:512) equates the two only up to `accStrip`, which drops the claims (StageVerifyExecLay.lean:277).
+- So the model's INC-00 `.inp` claim has the code's data parts (plane slices) but its two mask parts at
+  `(mask_row + k)·2^14 + c0` with size `min(log, 14)` instead of `·2^8`, `min(log, 8)`. **A, H and `.out` (`B_in`) claims:
+  SAME** (row widths `lt`, `lt`, `bLogN` in both). **Stage OUT-C: SAME** (OutcV's verifier IS L15's model,
+  `rs_accS_trace`; its only IO table is `.inp` at `bLogN`, stage_out_c.rs:89, StageVerifyExecOutC.lean:145).
+
+**What it means for `hTrIC`:** its `.inp` part is a statement about the wrong object: claims the code never opens. With a
+faithful `csIOI` (the claim's functional on the extracted endpoint matrix at its own `2^8` width) nothing makes those
+mask rows' values the claimed ones, so the part is unmeetable (ARGUED); it is meetable only by a `csIOI` that re-indexes
+the model's mask parts to the code's layout. L57's `stgFstI` (the slot polynomial) inherits the same: INC-00's IO table
+value is read through the model's claim. **Smallest correct restatement in my files:** `StgClaimsIOC`
+(`RunStgShieldClaimsRun.lean`), the IN-C IO claims of the CODE's accumulator (`rsAccInc` on the run). It does not feed
+`StgTrueAt`, whose consumer (`stgFR_termAt`) reads the model's claims. **Clean fix upstream (not edited):** L15's
+`StageFS.stageSlots` (or `ExecBlockVerify.rowLog`, with separate `In`/`Out` widths), then L53 / L57's IN-C lists and
+`StgTrueAt` over it; or L57's `stgFstI` built from the code's claims. `hTrIC` is left as it was.
+
+**Step B, PROVED (builds green):**
+
+| Theorem | Meaning |
+|---|---|
+| `StgClaimsAH`, `StgClaimsIO`, `ssh_claimsAt_of_split` | the claims part split into `A`/`H` and IO |
+| `ssh_AHAt` | the `A`/`H` part from the run's extracted `A`, `H` matrices at their opening windows |
+| `ssh_run_AHO` | stage OUT-C's `A`/`H` claims true on an accepted run outside `EvXR`, no doomed `opA` entrant (`wr_ndA`, `wr_rkOpen_sem`, `rx_parts_AHG`, `UxW_eq_cut`) |
+| `ssh_AHAtO` | `StgClaimsAH` at stage OUT-C on such a run |
+| `ssh_productionReadyL_epP_claimsO` (generated, `l63_mk_topc.py`) | the top theorem with `hTrOC` replaced by its IO part `hTrOIO` |
+
+**Premises:** 151 → 151 binders; `hTrOC` replaced by the weaker `hTrOIO` (only `B_out`'s claims, through the free
+`csIOO`). `hTrIC` unchanged (finding L63-5). No new bad event; budget 55,852,891 of 67,108,864, unchanged.
+**IN-C's A/H claims (LEFT):** the same route needs the model's `claims.a`, `claims.h` to equal the code's — true by the
+row widths above, but `incSlots_model` drops claims; a `stSlotsLoop` / `slotsLoop` lemma for `claims.a`, `claims.h`
+(as `stSlotsLoop_strip`, keeping them) is the missing piece.
