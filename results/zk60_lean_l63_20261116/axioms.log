@@ -163,3 +163,8 @@
 'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsF' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'ZK60.ProtocolClassify.StgInLay' depends on axioms: [propext]
+'ZK60.ProtocolClassify.ssh_dzero_word' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsW' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

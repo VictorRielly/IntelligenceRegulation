@@ -416,3 +416,69 @@ chain's `hdin` proof, with `hdzS` for `hdinS`). Left for `hdzS` (in order):
 (`sshC_productionReadyL_epP_claimsF` on the three); 0 warnings in the lane's files; forbidden words none; the eleven
 generators reproduce their files; 0 name clashes; no existing file changed; regressions L6 1,206, L5 5,553, L11 404,
 L1 101,956 checks, 0 failed. Guarded jobs this step: 5 (iter24-27, check7).
+
+## 14. `hdzero`: the possible finding settled, and its word form
+
+**Step A: what `hdzero` asks against what the protocol binds (CHECKED by reading; verdict: EXACT, given the layout).**
+
+*The code.*
+- The input commitment's message is the token plane: `input_plane` (token_io/classify.rs:911-917) writes word `t` as
+  token `t` for `t < T` (template and content) and zero up to `in_ep_words`.
+- That length is `max(t_pad, ep_n)` (token_io.rs:565-568), with `ep_n = 2^8` at the registered tier (token_io.rs:190,
+  :252-254; D77a).
+- The plane is one row of `in_ep_words` values (`input_endpoint_spec`, classify.rs:906-909), at row width `2^8`, so
+  `data_rows = len >> 8` (endpoint_g.rs:182-184). The length is a power of two, since the axes must be powers of two
+  (endpoint_g.rs:149-152).
+- The commitment adds `MASK_ROWS = 5` random rows (endpoint_g.rs:92, :186-188) and per-row ZK pads. Neither is message
+  data.
+- The verifier's INC-00 (stage_in_c.rs:48, :174-183) zero-checks `eq·(end − supp_T·tok)` over
+  `lw = clog2(in_ep_words)` bits. That is EVERY data word, since `2^lw = in_ep_words = data_rows · 2^8`. So words
+  `≥ T` are bound to zero, and words `< T` to `A`'s token column.
+- The owner's check refuses a non-zero pad word (classify_run.rs:519-523).
+- Hence no data position lies past INC-00's range. The "beyond `2^lw`" set of §13 item 3 is empty.
+
+*The Lean.*
+- `hdzero` asks that every data position `(k, i) ∈ Fin dR × Fin 2^8` with no token at it decodes to `0`. Its matrix is
+  the data rows `place k` of `(CinR).decodeIn (epxOps …) 768`, i.e. the message part only: no mask rows, no pads.
+- Past the tokens, `decodeIn` returns whatever rows were decoded (by choice, BindingUDecode.lean:189-194). L58's
+  `epxMsg_place` (RunEpXMk.lean:48) makes an honest data row the plane's `posPlane pos x` row (BindingW16.lean:186,
+  zero off `pos`), so the excess holds for an honest prover.
+- But `dR`, `pos` and `place` are free parameters of the top theorem (RunStgShieldCTopF.lean:36-37). Nothing ties
+  `dR · 2^8` to `in_ep_words`, or the token positions to the word indices `< T`.
+
+*Verdict.*
+- **`hdzero` asks exactly what the protocol binds** when the layout is the code's: `dR · 2^8 = in_ep_words`, and a
+  position is a token's exactly when its word index `k·2^8 + i < T`.
+- It is enforced against a cheating prover by INC-00 together with the endpoint opening's soundness.
+- Without that tie, the statement is about an arbitrary layout and `hdzero` could ask for more than INC-00 binds.
+- **Severity: Low.** No premise is unmeetable and the theorem does not say less about the input. The tie is a modelling
+  condition, now stated as `StgInLay`.
+
+**Step B (PROVED: the layout reduction; LEFT: the link and the doom).**
+- `RunStgShieldInZero.lean`:
+  - `StgInLay pos T words` (the layout is the code's);
+  - `ssh_dzero_word`: under it, a plane non-zero off the token positions is non-zero at a word `x = k·2^8 + i` with
+    `T ≤ x < words`.
+- `sshC_productionReadyL_epP_claimsW` (RunStgShieldCTopW.lean, `l63_mk_topw.py`): `hdzS` is PROVED from two new
+  premises:
+  - `hLay : StgInLay pos Vi.pub.tokens Vi.pub.inEpWords` (CHECKED true of the code's layout, above);
+  - `hdzW`: a non-zero decoded word in `[T, in_ep_words)` gives stage IN-C's view doom.
+- Left for `hdzW`, which is the multilinear argument at INC-00:
+  1. The `csIOI` link, restated in view form beside L55/L56's run form. On the view, `csIOI v .inp z` should be
+     `claimSem U Rr 8 256 X z`, where `X` is the endpoint matrix decoded at radius 768 from the extraction at the
+     header position that absorbs `inRoot`, as `stgCsv` reads `A`/`H` at `iA`/`iH`. L55/L56 state the endpoint's
+     words for the run (`epxE`/`epxOps` from `(lg, s)`), not on a view cut, so this needs the view-form restatement.
+  2. With it, unfold `sshΦIC` at slot 0:
+     - `stgΦBC`'s degree gate needs INC-00's slot polynomial to have individual degree `≤ 3`;
+     - `stgPolyT` over `incDefIO`'s builders: `eqT`, `pubT`, `aAtT`, `ioT`, `finishT`;
+     - the result is `Σ_x eq(y, x)·(end(x) − supp(x)·tok(x))`.
+  3. Then `mleAt_bit` (SoundMultilinear.lean:46) gives `Φ ≢ 0` from `end(x) ≠ 0` at `x ≥ T`, where `supp(x) = 0`, so
+     `tok` does not enter. That gives `¬ szSt … []`, which is `StgDoomAtV`'s first disjunct at `k = 0`.
+
+**Premise diff** (`…_claimsF` → `…_claimsW`): `hdzS` replaced by `hLay` and `hdzW`; nothing else.
+
+**Check (§14):** `check_l63.sh` over thirty modules, one guarded job (`lean-l63-check8`): exit 0, 72 s, peak 3.66 GiB.
+120 of 120 declarations audited, all on at most `propext`, `Classical.choice`, `Quot.sound`
+(`sshC_productionReadyL_epP_claimsW` on the three); 0 warnings in the lane's files; forbidden words none; the twelve
+generators reproduce their files; 0 name clashes; no existing file changed; regressions L6 1,206, L5 5,553, L11 404,
+L1 101,956 checks, 0 failed. Guarded jobs this step: 2 (iter28, check8).
