@@ -1,0 +1,4 @@
+build ZK60Formal.RunStgShieldCTop
+build ZK60Formal.RunStgShieldCTopT
+build ZK60Formal.RunStgShieldCTopC
+build ZK60Formal.RunStgShieldCTopI
