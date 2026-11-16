@@ -169,3 +169,47 @@ code's `define` accepted, so `nonzeroE` passed), so `P(drawn) = stgΦR(drawn) = 
 exactly the per-closure `toK` bridge (plan step 2); with `offZero_poly_zero` (`d + 1 < |K| = p²`) it is unique, so the
 two routes agree. `stgDefSqV_rbr` and `hD` are meetable by a faithful refusal-free `Φ`; `stgDefSqV_rbrZ` makes them
 meetable by `stgΦR` itself at one extra escape per round. Not one of the unmeetable premises.
+
+## 9. Item (ii): the stage "true" facts (`hTrI`, `hTrO`, `hHostO`)
+
+**Where `M`'s truth comes from (read first).** The run's ordered cover already prices it: the kind `rtKM` (one `M`
+sub-protocol per part, error `≤ 2^-106`) has, as its data, the functionals the run's stage reader returns,
+`(rxAcc i hdr).fs ++ (rxAcc i hdr).hostFs` (`rkMask`, RunKindsData.lean; lane L43), so the host functionals are
+covered (L57's `StgTrueAt` simply did not use them). An `M` entrant not doomed at its window is in `MGood`, which makes
+every functional true of the extracted mask table (lane L54's `wr_ndM`, `wr_rkMask_sem`); the acceptance facts at
+`M`'s window hold on every accepted run outside the Merkle event `EvXR` (lanes L45 / L48's `rx_parts_MG`). `¬ rtKM.Dm`
+and `¬ EvXR` are already antecedents of `hTrI` and `hTrO`. **No new bad event; the budget is unchanged at
+55,852,891 of 67,108,864** (`eb_total`).
+
+**PROVED** (`RunStgShieldTrue.lean`, `RunStgShieldTrueRun.lean`, `RunStgShieldTopT.lean`; builds green, iter9):
+
+| Theorem | Meaning |
+|---|---|
+| `StgReadAt`, `StgClaimsAt`, `StgMAt`, `ssh_trueAt_of_split`, `ssh_hostAt_of_M` | the split of `StgTrueAt` (reader, claims, `M` on `fs ++ hostFs`); `StgTrueAt` and `StgHostTrueAt` from it |
+| `ssh_readI`, `ssh_readO` | the reader part: IN-C's reader is constant (`hinc`); OUT-C's reads only position `6`, and lane L55's `vd_hW` gives it on an accepted run |
+| `ssh_stage_take`, `ssh_inc_link`, `ssh_outc_link` | at every reading, the run's stage reader (`rsAccInc`, `rsAccS`) at the slot phase's end has the reading's `fs` and `hostFs` (IN-C through L29's `incSlots_model`, whose two accumulators agree on `fs`, `hostFs`) |
+| `ssh_MAt`, `ssh_run_M`, `ssh_MAtIO` | the corrected `M` part at both stages on an accepted run outside `EvXR` with no doomed `M` entrant |
+| `ssh_productionReadyL_epP_true` (generated, `l63_mk_topt.py`) | the top theorem with `hTrI`, `hTrO` built inside the proof and `hHostO` gone |
+
+**Premises (generator counts):** 152 → 151 binders. Removed `hTrI`, `hTrO`, `hHostO`; added `hTrIC`, `hTrOC`
+(`StgClaimsAt`: the claims part only, same antecedents).
+
+**What stays, and why (LEFT).** `hTrIC`, `hTrOC`: the accumulator's claims true of the view's data (`stgCsv`). For `A`
+and `H` the same route works (`wr_rkOpen_sem` with `rx_parts_AHG`, as `wr_hsem` does for blocks) once `stgCsv`'s `A`,
+`H` semantics are shown equal to `wrOSem` at the stage openings. The IO claims (`inp`, `out`) use `csIOI`, `csIOO`,
+still free (lanes L55, L56); they cannot be discharged before those are instantiated.
+
+**Finding L63-5 (Medium, ARGUED, for the next stage lane): `StgClaimsAt` at IN-C speaks of L15's model's claims.**
+L29's `incSlots_model` equates the model's accumulator with `IncV.slots`' only up to `accStrip` (which drops the
+claims): the code runs IN-C's slots at their own IO widths (`atLog P (elog s)`), the model at the schedule's. `fs` and
+`hostFs` agree (used above); the claims, in particular the IO ones, may not. Before proving `hTrIC`, check whether the
+model's IO claims are the ones the code's openings check; if not, `hTrIC` must be restated over the code's
+accumulator (`rsAccInc`) as the `M` part now is.
+
+**The dooms (`hdinS`, `hdoutS`): not started.** They need the stage knowledge link "no stage entrant doomed ⇒ `InOkP` /
+`OutOkP` over `epxE`'s planes" (L63-3), a multi-lane piece.
+
+**Check (§9):** `check_l63.sh` over eight modules, one guarded job (`lean-l63-check3`): exit 0, 44 s, peak 3.62 GiB.
+56 of 56 declarations audited, all on at most `propext`, `Classical.choice`, `Quot.sound` (both top theorems on the
+three); forbidden words none; both generators reproduce their files; 0 name clashes (1,540 other files); no existing
+file changed; regressions L6 1,206, L5 5,553, L11 404, L1 101,956 checks, 0 failed.

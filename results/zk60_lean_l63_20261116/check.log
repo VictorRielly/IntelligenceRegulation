@@ -9,29 +9,37 @@ lake build ZK60Formal.RunStgShieldTop rc 0
   warnings in RunStgShieldTop.lean: 0; error lines: 0
 lake build ZK60Formal.RunStgShieldRbr rc 0
   warnings in RunStgShieldRbr.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTrue rc 0
+  warnings in RunStgShieldTrue.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTrueRun rc 0
+  warnings in RunStgShieldTrueRun.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopT rc 0
+  warnings in RunStgShieldTopT.lean: 0; error lines: 0
 == axiom audit ==
-42 declarations: 10 def, 32 theorem
+56 declarations: 13 def, 43 theorem
 axioms rc 0
-declarations audited: 42 (generated: 42)
+declarations audited: 56 (generated: 56)
 no axiom at all: 3
 sorryAx: 0
 ofReduceBool: 0
 other axioms: 0
 lines that are not a report: 0
-  30 axioms: [propext, Classical.choice, Quot.sound]
-   5 axioms: [propext, Quot.sound]
+  42 axioms: [propext, Classical.choice, Quot.sound]
+   7 axioms: [propext, Quot.sound]
    4 axioms: [propext]
 the top theorem:
 'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_def' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_true' depends on axioms: [propext, Classical.choice, Quot.sound]
 == source scan of the L63 files ==
 none
 == the generator reproduces RunStgShieldTop.lean ==
 identical
+identical
 == name clashes (RunStgShield*, every worktree) ==
-declarations in RunStgShield*.lean: 42
+declarations in RunStgShield*.lean: 56
 declared twice inside the lane: none
 worktrees read: 6
-other Lean files read (with repeats across worktrees): 1535
+other Lean files read (with repeats across worktrees): 1540
 clashes: 0
 == unchanged against perf 1668946a: Statements.lean, the root, every existing file ==
 Statements.lean and the root unchanged
@@ -45,4 +53,4 @@ L11Check: 404 checks, 0 failed
 == regression: the fixture L1 check ==
 L1 TOTAL: 101956 checks, 0 failed
 regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
-total 39 s
+total 44 s
