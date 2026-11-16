@@ -365,3 +365,54 @@ code's by `stSlotsLoop_strip`); (2) `csIOI` tied to `epxE` / `decodeIn` (the `hd
 (`sshC_productionReadyL_epP_claimsI` on the three); 0 warnings in the lane's files; forbidden words none; the eight
 generators reproduce their files; 0 name clashes; no existing file changed; regressions L6 1,206, L5 5,553, L11 404,
 L1 101,956 checks, 0 failed. Guarded jobs this step: 5 (iter20-23, check6).
+
+## 13. The IO-claims tie (both stages) and `hdzero` in stage form
+
+**Step A, the tie (PROVED, RunStgShieldIOTie.lean).** `StageV.ssh_stSlotsLoop_mem` (new proof, the `stSlotsLoop`
+twin of L13's `slotsLoop_terminal` claims part): the code's slot loop keeps every claim and, for each accepted slot,
+holds every claim that slot builds at its own width `atLog P (elog k)`. `ssh_inc_link_code` (from
+`ssh_inc_link_ah`'s argument): at every reading the code's loop accepts on the reading's records (`incSlots_model`,
+whose strip is `stSlotsLoop_strip`) and `rsAccInc` at the slot phase's end returns its accumulator. **`ssh_iosOfIOC`**:
+`StgClaimsIOC` ⇒ `StgClaimsIOS` (the define result is unique, so the reading's `df` is the code's).
+`sshC_productionReadyL_epP_claimsK` (RunStgShieldCTopK.lean, `l63_mk_topk.py`): `hTrIIO` is now `StgClaimsIOC`.
+
+**Step C, OUT-C (PROVED, RunStgShieldOutTie.lean).** OUT-C reads every slot at one width, so its run reader is the
+reading's accumulator (`ssh_outc_link`, §9). `StgClaimsIOCO` (every IO claim of `rsAccS` at OUT-C's slot-phase end is
+true) and `ssh_ioOfIOCO`: `StgClaimsIOCO` ⇒ `StgClaimsIO`. `sshC_productionReadyL_epP_claimsF` (RunStgShieldCTopF.lean,
+`l63_mk_topo.py`): `hTrOIO` is `StgClaimsIOCO`. Both IO premises are now in the same form: "every `.inp`/`.out` claim
+of the stage's run accumulator (the claims its openings check) is true of `csIO` at every slot window".
+
+**What is still only ARGUED about the real run meeting them.** The premises quantify over claims the verifier's
+accumulator really holds (PROVED: `rsAccInc`/`rsAccS` are the code's accumulators on accepted traces, L45; the widths
+are the code's, L29). That such a claim's value equals `csIOI`/`csIOO` at it is a statement about the free data
+functions `csIO`: it holds when `csIO` evaluates the stage's committed IO table (the extracted endpoint, `B_in`) at the
+claim's point and the opening of that commitment is sound (ARGUED: the openings `bndOpen` / endpoint opening check
+these claims; `csIOI`, `csIOO` are still free binders, constrained only by `hIOI`, `hIOO`, `hIOlI`, `hIOlO`).
+
+**Step B, `hdzero` (PROVED reduction; the data part LEFT).** `sshC_productionReadyL_epP_claimsZ`
+(RunStgShieldCTopZ.lean, `l63_mk_topz.py`): `hdzero` is PROVED from a new premise `hdzS` of `hdinS`'s form: on an
+accepted run outside the events, a decoded input non-zero off the token positions gives stage IN-C's view doom
+(`StgDoomAtV` at `stgFstIC`, `sshΦIC`); the run's `∃ K' ∈ rtKo, K'.Dm` follows by L53's `stg_hal_doomV` (the twin
+chain's `hdin` proof, with `hdzS` for `hdinS`). Left for `hdzS` (in order):
+1. `csIOI` tied to the extraction: at INC-00's `.inp` claim (row width `tier.ep_log_n`, point `rhoC 0 lw`), `csIOI` is
+   the multilinear evaluation of the decoded endpoint words (`(CinR).decodeIn (epxOps …) 768`, 2^8 message columns,
+   radius 768 of 2,048, D77a) at that point. Needs a statement from L55/L56 in that form (their `epxE` gives the decoded
+   words at the token positions only, `epW`); the restated form is: `∀ x < 2^lw, end(x) = decodeIn(…).1 (place
+   (row x)) (col x)` for the endpoint's word layout.
+2. INC-00's define polynomial `sshΦIC` at slot 0 is `Σ_x eq(y, x)(end(x) − supp(x)·tok(x))`; `¬ szSt … []` (some
+   `y` with `Φ y ≠ 0`) follows from a cube point with `end(x) ≠ supp(x)·tok(x)` (multilinear uniqueness).
+3. Open question, possible finding (severity to settle): `incDefIO`'s `eq` ranges over `lw = clog2 inEpWords` bits;
+   decoded-matrix positions beyond the endpoint's `2^lw` words (if `epDataRows · 2^8 > 2^lw`) are not constrained by
+   INC-00, and `hdzero` asks that EVERY non-token position be zero. If such positions exist, `hdzero` must be restated
+   over the endpoint's word range (or the padding argued from the commitment's layout).
+
+**Premise diff** (`ssh_productionReadyL_epP_claimsI` → `sshC_productionReadyL_epP_claimsF`, 149 binder groups each):
+`hTrIIO` (`StgClaimsIO` → `StgClaimsIOC`), `hTrOIO` (`StgClaimsIO` → `StgClaimsIOCO`), `hb0`, `hdinS` (at
+`stgFstIC`/`sshΦIC`, §12) restated; `hdzero` replaced by `hdzS`; nothing else. Budget unchanged: 55,852,891 of
+67,108,864. `run_guarded.py` is back to the guard's default poll (`L63_POLL_SECS` overrides it for one job).
+
+**Check (§13):** `check_l63.sh` over twenty-eight modules, one guarded job (`lean-l63-check7`): exit 0, 82 s, peak
+3.65 GiB. 117 of 117 declarations audited, all on at most `propext`, `Classical.choice`, `Quot.sound`
+(`sshC_productionReadyL_epP_claimsF` on the three); 0 warnings in the lane's files; forbidden words none; the eleven
+generators reproduce their files; 0 name clashes; no existing file changed; regressions L6 1,206, L5 5,553, L11 404,
+L1 101,956 checks, 0 failed. Guarded jobs this step: 5 (iter24-27, check7).
