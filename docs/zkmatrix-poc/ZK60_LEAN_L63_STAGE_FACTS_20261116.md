@@ -259,3 +259,8 @@ value is read through the model's claim. **Smallest correct restatement in my fi
 **IN-C's A/H claims (LEFT):** the same route needs the model's `claims.a`, `claims.h` to equal the code's — true by the
 row widths above, but `incSlots_model` drops claims; a `stSlotsLoop` / `slotsLoop` lemma for `claims.a`, `claims.h`
 (as `stSlotsLoop_strip`, keeping them) is the missing piece.
+
+**Check (§10):** `check_l63.sh` over eleven modules, one guarded job (`lean-l63-check4`): exit 0, 46 s, peak 3.62 GiB.
+64 of 64 declarations audited, all on at most `propext`, `Classical.choice`, `Quot.sound` (the three top theorems on
+the three); forbidden words none; the three generators reproduce their files; 0 name clashes; no existing file changed;
+regressions L6 1,206, L5 5,553, L11 404, L1 101,956 checks, 0 failed. Guarded jobs this step: 4.
