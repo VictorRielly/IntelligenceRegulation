@@ -471,3 +471,4 @@ import ZK60Formal.RunBlkWireLk
 import ZK60Formal.RunBlkWireDoom
 import ZK60Formal.RunBlkWireSlots
 import ZK60Formal.RunBlkWireTop
+import ZK60Formal.RunBlkShieldInst
