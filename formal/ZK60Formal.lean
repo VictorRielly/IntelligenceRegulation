@@ -506,3 +506,4 @@ import ZK60Formal.RunStgShieldToK
 import ZK60Formal.RunStgShieldDg
 import ZK60Formal.RunStgShieldCTopDg
 import ZK60Formal.RunBlkAliveR13
+import ZK60Formal.RunBlkPinsHd
