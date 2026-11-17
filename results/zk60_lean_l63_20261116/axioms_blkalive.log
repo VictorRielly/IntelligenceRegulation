@@ -1,6 +1,9 @@
 'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_blkAlive' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pinsHd' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_dz' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]

@@ -1,5 +1,6 @@
 #!/bin/bash
-# D63 lane L63 (2026-11-17): the check on the MERGED tree. Widened 2026-11-17 for perf b809b591 (lane L64's
+# D63 lane L63 (2026-11-17): the check on the MERGED tree. Base moved to perf be99d6f1 (lane L66, RunBlkPinsHd) the same
+# day; pinsHd added to the top-theorem axiom audit. Widened 2026-11-17 for perf b809b591 (lane L64's
 # RunBlkAliveR13 on lane L65's RunStgShieldToK / Dg / CTopDg, which carry the RunStgShield prefix but are Antigravity's):
 #   * BASE=b809b591; the lane's own files (MINE: the 30 of base eda8b4f7 plus MINE_NEW, this leg's) and Antigravity's
 #     three (AG) are counted separately: the root must import every MINE and AG module; the root's diff against BASE must
@@ -29,7 +30,7 @@ O11=$WT/results/zk60_lean_l11_20261107
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
-BASE=b809b591
+BASE=be99d6f1
 MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz"
 AG="RunStgShieldToK RunStgShieldDg RunStgShieldCTopDg"
 MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI RunStgShieldC RunStgShieldDefC RunStgShieldCChain RunStgShieldCJoin RunStgShieldCWire RunStgShieldCTop RunStgShieldCTopT RunStgShieldCTopC RunStgShieldCTopI RunStgShieldIOTie RunStgShieldCTopK RunStgShieldCTopZ RunStgShieldOutTie RunStgShieldCTopF RunStgShieldInZero RunStgShieldCTopW $MINE_NEW"
@@ -41,7 +42,7 @@ echo "== full root build: lake build ZK60Formal (L62 and L63 modules together) =
 "$LAKE" -d "$WT/formal" build ZK60Formal < /dev/null > "$OUT/merge_rootbuild.log" 2>&1
 rrc=$?
 echo "root build rc $rrc"
-rbw=$(grep -c -E "warning: .*(RunStgShield[A-Za-z0-9]*|RunBlkShieldInst|RunBlkAliveR13)\.lean" "$OUT/merge_rootbuild.log")
+rbw=$(grep -c -E "warning: .*(RunStgShield[A-Za-z0-9]*|RunBlkShieldInst|RunBlkAliveR13|RunBlkPinsHd)\.lean" "$OUT/merge_rootbuild.log")
 rbe=$(grep -c "error" "$OUT/merge_rootbuild.log")
 echo "root build: warnings naming a RunStgShield*.lean or RunBlkShieldInst.lean file: $rbw; error lines: $rbe"
 if [ $rrc -ne 0 ]; then
