@@ -30,13 +30,16 @@ O11=$WT/results/zk60_lean_l11_20261107
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
-BASE=be99d6f1
+BASE=f5b70efe
+# 2026-11-17 (merge of perf f5b70efe, Antigravity's RunStgShieldLu and RunShieldInstP, both NOT mine): the lane's root
+# import lines added since BASE (the root diff must be exactly these).
+NEW_SINCE_BASE="RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO"
 MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO"
-AG="RunStgShieldToK RunStgShieldDg RunStgShieldCTopDg"
+AG="RunStgShieldToK RunStgShieldDg RunStgShieldCTopDg RunStgShieldLu RunShieldInstP"
 MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI RunStgShieldC RunStgShieldDefC RunStgShieldCChain RunStgShieldCJoin RunStgShieldCWire RunStgShieldCTop RunStgShieldCTopT RunStgShieldCTopC RunStgShieldCTopI RunStgShieldIOTie RunStgShieldCTopK RunStgShieldCTopZ RunStgShieldOutTie RunStgShieldCTopF RunStgShieldInZero RunStgShieldCTopW $MINE_NEW"
 FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean $L/RunStgShieldRbr.lean $L/RunStgShieldTrue.lean $L/RunStgShieldTrueRun.lean $L/RunStgShieldTopT.lean $L/RunStgShieldClaims.lean $L/RunStgShieldClaimsRun.lean $L/RunStgShieldTopC.lean $L/RunStgShieldInAH.lean $L/RunStgShieldInAHRun.lean $L/RunStgShieldTopI.lean $L/RunStgShieldC.lean $L/RunStgShieldDefC.lean $L/RunStgShieldCChain.lean $L/RunStgShieldCJoin.lean $L/RunStgShieldCWire.lean $L/RunStgShieldCTop.lean $L/RunStgShieldCTopT.lean $L/RunStgShieldCTopC.lean $L/RunStgShieldCTopI.lean $L/RunStgShieldIOTie.lean $L/RunStgShieldCTopK.lean $L/RunStgShieldCTopZ.lean $L/RunStgShieldOutTie.lean $L/RunStgShieldCTopF.lean $L/RunStgShieldInZero.lean $L/RunStgShieldCTopW.lean"
 for m in $MINE_NEW; do FILES="$FILES $L/$m.lean"; done
-AGFILES="$L/RunStgShieldToK.lean $L/RunStgShieldDg.lean $L/RunStgShieldCTopDg.lean"
+AGFILES="$L/RunStgShieldToK.lean $L/RunStgShieldDg.lean $L/RunStgShieldCTopDg.lean $L/RunStgShieldLu.lean $L/RunShieldInstP.lean"
 start=$(date +%s)
 echo "== full root build: lake build ZK60Formal (L62 and L63 modules together) =="
 "$LAKE" -d "$WT/formal" build ZK60Formal < /dev/null > "$OUT/merge_rootbuild.log" 2>&1
@@ -152,7 +155,8 @@ for m in $MODS; do grep -q "^import ZK60Formal\.$m\$" "$WT/formal/ZK60Formal.lea
 nag=0
 for m in $AG; do grep -q "^import ZK60Formal\.$m\$" "$WT/formal/ZK60Formal.lean" && nag=$((nag + 1)); done
 nmods=$(echo $MODS | wc -w | tr -d ' ')
-echo "root imports: the lane's modules $nmine of $nmods; Antigravity's $nag of 3"
+nagw=$(echo $AG | wc -w | tr -d ' ')
+echo "root imports: the lane's modules $nmine of $nmods; Antigravity's $nag of $nagw"
 numstat=$(git -C "$WT" diff --numstat $BASE -- formal/ZK60Formal.lean)
 echo "root numstat (added removed file): $numstat"
 nadd=$(git -C "$WT" diff -U0 $BASE -- formal/ZK60Formal.lean | grep -c '^+[^+]')
@@ -160,8 +164,8 @@ nimp=$(git -C "$WT" diff -U0 $BASE -- formal/ZK60Formal.lean | grep -c '^+import
 nrem=$(git -C "$WT" diff -U0 $BASE -- formal/ZK60Formal.lean | grep -c '^-[^-]')
 echo "root diff: added lines $nadd, of which RunStgShield imports $nimp; removed lines $nrem"
 rootok=1
-nnew=$(echo $MINE_NEW | wc -w | tr -d ' ')
-[ "$nadd" -eq "$nnew" ] && [ "$nimp" -eq "$nnew" ] && [ "$nrem" -eq 0 ] && [ "$nmine" -eq "$nmods" ] && [ "$nag" -eq 3 ] && rootok=0
+nnew=$(echo $NEW_SINCE_BASE | wc -w | tr -d ' ')
+[ "$nadd" -eq "$nnew" ] && [ "$nimp" -eq "$nnew" ] && [ "$nrem" -eq 0 ] && [ "$nmine" -eq "$nmods" ] && [ "$nag" -eq "$nagw" ] && rootok=0
 echo "root: every lane and Antigravity module imported, diff exactly the $nnew new lane import lines, 0 removed: $([ $rootok -eq 0 ] && echo yes || echo NO)"
 nmod=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE -- formal ops src | grep -v '^formal/ZK60Formal.lean$' | wc -l | tr -d ' ')
 echo "existing files under formal/, ops/, src/ modified, deleted or renamed since $BASE (excluding the root): $nmod"

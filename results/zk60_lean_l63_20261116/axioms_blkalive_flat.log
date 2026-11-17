@@ -5,3 +5,4 @@
 'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_io' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trI' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst' depends on axioms: [propext, Classical.choice, Quot.sound]

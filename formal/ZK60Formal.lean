@@ -523,3 +523,5 @@ import ZK60Formal.RunStgShieldTrIIO
 import ZK60Formal.RunStgShieldTopTrI
 import ZK60Formal.RunStgShieldTrOIO
 import ZK60Formal.RunStgShieldTopTrO
+import ZK60Formal.RunStgShieldLu
+import ZK60Formal.RunShieldInstP
