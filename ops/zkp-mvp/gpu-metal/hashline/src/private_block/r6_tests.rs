@@ -235,9 +235,45 @@ fn the_sealing_pass_lookup_miss_check_refuses_by_the_cs3_name() {
     // [A19] the sealing pass's body is `seal_chain`, which D12a's `seal_and_record`
     // and the D55 path's `d55_seal_and_prove` both run
     let seal = src.split("\nfn seal_chain(").nth(1).expect("seal_chain").split("\nfn ").next().unwrap();
-    assert!(seal.contains("super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)"), "the sealing pass does not run the CS-3 miss check");
+    // [A33] the sealing pass runs CS-3's miss scan in one of two forms, chosen by `build_checked`:
+    // the scan alone when the build has just run the block's public check at this very shape,
+    // the whole `check_lookup_misses` (public check included) otherwise. Both calls, and the
+    // condition that picks between them, are pinned here; the precondition itself is pinned by
+    // `a33_the_sealing_pass_skips_the_public_check_only_after_the_build_ran_it` below.
+    assert!(seal.contains("super::protocol::check_lookup_misses_after_public_check(&ssh, lay, &cur.blk, &w)"), "the sealing pass does not run the CS-3 miss scan");
+    assert!(seal.contains("super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)"), "the sealing pass has lost the full CS-3 check for a block the build did not check");
+    assert!(seal.contains("let build_checked = cur.blk.accuracy().is_some_and(|d| d.folds().gate.shift == ssh.accuracy_gate_shift);"), "the sealing pass's rule for skipping the repeated public check moved");
     let d12a = src.split("fn seal_and_record(").nth(1).expect("seal_and_record").split("\nfn ").next().unwrap();
     assert!(d12a.contains("seal_chain(&m, budget_bytes, &mut NoHand)"), "D12a's seal_and_record does not run the sealing pass");
     let d55 = src.split("pub(crate) fn d55_seal_and_prove(").nth(1).expect("d55_seal_and_prove").split("\nfn ").next().unwrap();
     assert!(d55.contains("seal_chain(m, run.budget, &mut hand)"), "the D55 path does not run the sealing pass");
+}
+
+/// **[A33] the precondition of `check_lookup_misses_after_public_check`, pinned to the source.**
+/// The sealing pass skips CS-3's repeat of the block's public check (`check_for_shape`) only
+/// where the witness build has just run it on the same block at the same shape. That holds
+/// while (1) `build_for_block` runs `check_accuracy_for_shape` (the non-Legacy branch of
+/// `check_for_shape`) before it builds, (2) `check_for_shape` at a non-Legacy shape IS
+/// `check_accuracy_for_shape`, (3) `witness_for_block` hands `build_for_block` the pass's own
+/// shape with its gate shift set to the block's data's (so the shapes are equal exactly when
+/// `ssh` already has that gate shift: the `build_checked` rule), and (4) the build precedes the
+/// CS-3 call in the same iteration. Beside the text gate above, which pins the two CS-3 calls and
+/// the rule's text; behaviour is in `run_fork_tests::a33_*`.
+#[test]
+fn a33_the_sealing_pass_skips_the_public_check_only_after_the_build_ran_it() {
+    let wit = include_str!("witness.rs");
+    let build = wit.split("pub(crate) fn build_for_block(").nth(1).expect("build_for_block").split("\n}\n").next().unwrap();
+    let (check_acc, build_acc) = (build.find("blk.check_accuracy_for_shape(sh)?;").expect("the build no longer runs check_accuracy_for_shape"), build.find("build_accuracy_with(").expect("build_accuracy_with"));
+    assert!(check_acc < build_acc, "the accuracy build runs its public check after it builds");
+    let (check_leg, build_leg) = (build.find("blk.check_for_shape(sh)?;").expect("the Legacy branch no longer runs check_for_shape"), build.find("build_shaped(").expect("build_shaped"));
+    assert!(check_leg < build_leg, "the Legacy build runs its public check after it builds");
+    let pb = include_str!("../private_block.rs");
+    let cfs = pb.split("pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {\n        if sh.accuracy_stack()!=accuracy_precision::Stack::Legacy {").nth(1).expect("BlockPublic::check_for_shape's non-Legacy branch");
+    assert!(cfs.trim_start().starts_with("return self.check_accuracy_for_shape(sh);"), "BlockPublic::check_for_shape at a non-Legacy shape is no longer check_accuracy_for_shape");
+    let tb = include_str!("trained_block.rs");
+    let wfb = tb.split("\nfn witness_for_block(").nth(1).expect("witness_for_block").split("\nfn ").next().unwrap();
+    assert!(wfb.contains("let local=sh.clone().with_accuracy_gate_shift(data.folds().gate.shift)?;") && wfb.contains("witness::build_for_block(&local,blk,input)"), "witness_for_block no longer builds the accuracy block at the data's gate shift through build_for_block");
+    let seal = tb.split("\nfn seal_chain(").nth(1).expect("seal_chain").split("\nfn ").next().unwrap();
+    let (built, ruled, scanned) = (seal.find("witness_for_block(&ssh,&cur.blk,&x)").expect("the build"), seal.find("let build_checked").expect("the rule"), seal.find("check_lookup_misses_after_public_check(").expect("the scan"));
+    assert!(built < ruled && ruled < scanned, "the sealing pass's build, rule and CS-3 scan are out of order");
 }

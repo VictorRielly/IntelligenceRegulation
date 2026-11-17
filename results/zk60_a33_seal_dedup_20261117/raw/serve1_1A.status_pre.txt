@@ -1,0 +1,19 @@
+2026-11-17T16:55:08Z
+--- guard status ---
+RAM   209.01 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 8.0 of 252.5 GiB committed by guarded jobs
+  job  g1_build_scratch             build need 8G since 2026-11-17T16:54:41Z
+LOCKS heavy HELD, build HELD
+GPU   525 of 196608 MiB used
+DISK  /System/Volumes/VM 209.2 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16533 MiB  pid 48978   agy
+  rss   2647 MiB  pid 1578    claude
+  rss   2246 MiB  pid 53129   rustc --crate-name hashline --edition=2021 src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,arti
+  rss   1733 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1230 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1056 MiB  pid 17265   claude
+--- pgrep -fl ds4-bench ---
+(none)
+--- pgrep -fl ds4-bench after the run ---
+(none)
