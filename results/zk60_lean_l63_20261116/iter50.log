@@ -1,0 +1,43 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan49.txt ==
+build ZK60Formal.RunStgShieldEpBridge
+== lake build ZK60Formal.RunStgShieldEpBridge ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✖ [3844/3844] Building ZK60Formal.RunStgShieldEpBridge (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldEpBridge.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldEpBridge.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldEpBridge.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldEpBridge.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldEpBridge.setup.json --json
+warning: ZK60Formal/RunStgShieldEpBridge.lean:86:8: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+error: ZK60Formal/RunStgShieldEpBridge.lean:96:8: Unknown constant `List.getD_eq_getElem`
+warning: ZK60Formal/RunStgShieldEpBridge.lean:97:8: `dif_neg` has been deprecated: Use `dite_eq_right` instead
+error: ZK60Formal/RunStgShieldEpBridge.lean:133:2: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+warning: ZK60Formal/RunStgShieldEpBridge.lean:131:86: This simp argument is unused:
+  Fin.append_left
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [colGF, PlaneCommit.colOf, List.getElem_ofFn, Fp.toGF_ofGF, encLin_apply, Fin.append_right, encWord]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/RunStgShieldEpBridge.lean:132:4: This simp argument is unused:
+  Fin.append_right
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [colGF, PlaneCommit.colOf, List.getElem_ofFn, Fp.toGF_ofGF, encLin_apply, Fin.append_left, encWord]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.RunStgShieldEpBridge
+error: build failed
+build rc 1 (18 s)
+rc 1, 18 s

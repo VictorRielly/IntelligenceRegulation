@@ -1,0 +1,57 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan53.txt ==
+build ZK60Formal.RunStgShieldEpBridge
+build ZK60Formal.RunStgShieldIncSem
+== lake build ZK60Formal.RunStgShieldEpBridge ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+Build completed successfully (3844 jobs).
+build rc 0 (18 s)
+== lake build ZK60Formal.RunStgShieldIncSem ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✖ [3845/3845] Building ZK60Formal.RunStgShieldIncSem (1.7s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldIncSem.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldIncSem.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldIncSem.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldIncSem.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldIncSem.setup.json --json
+error: ZK60Formal/RunStgShieldIncSem.lean:61:7: Application type mismatch: The argument
+  ?m.86 =
+    (((Option.map Subtype.val
+                ((merkleEncV tag L h64).extractCol (cutAt (absMOf L key domain hs hL rd) r Lg) d (↑j) r)).getD
+            []).getD
+        (↑row) Fp.zero).toGF
+has type
+  Prop
+but is expected to have type
+  GF
+in the application
+  (algebraMap GF K)
+    (?m.86 =
+      (((Option.map Subtype.val
+                  ((merkleEncV tag L h64).extractCol (cutAt (absMOf L key domain hs hL rd) r Lg) d (↑j) r)).getD
+              []).getD
+          (↑row) Fp.zero).toGF)
+Some required targets logged failures:
+- ZK60Formal.RunStgShieldIncSem
+error: build failed
+build rc 1 (21 s)
+rc 1, 21 s

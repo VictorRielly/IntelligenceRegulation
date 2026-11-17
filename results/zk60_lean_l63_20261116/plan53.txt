@@ -1,0 +1,2 @@
+build ZK60Formal.RunStgShieldEpBridge
+build ZK60Formal.RunStgShieldIncSem

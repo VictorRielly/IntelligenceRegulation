@@ -1,0 +1,169 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan49.txt ==
+build ZK60Formal.RunStgShieldEpBridge
+== lake build ZK60Formal.RunStgShieldEpBridge ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✖ [3844/3844] Building ZK60Formal.RunStgShieldEpBridge (3.0s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldEpBridge.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldEpBridge.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldEpBridge.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldEpBridge.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldEpBridge.setup.json --json
+error: ZK60Formal/RunStgShieldEpBridge.lean:124:96: unsolved goals
+case e_d
+K : Type
+inst✝² : Field K
+inst✝¹ : Fintype K
+inst✝ : Algebra GF K
+tag : MTag
+L : ℕ
+h64 : 64 ≤ L
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+T St Salt : Type
+R dR : ℕ
+pos : T → Fin dR × Fin (2 ^ 8)
+hpos : Function.Injective pos
+place : Fin dR → Fin R
+msg : (T → ℕ) → Salt → Fin R → Fin (2 ^ 8) → GF
+msg_place : ∀ (v : T → ℕ) (r : Salt) (k : Fin dR), msg v r (place k) = posPlane pos v k
+pad : Salt → Fin R → Fin 256 → GF
+salt : Salt → Fin (2 ^ 11) → Dig
+path : Salt → Fin (2 ^ 11) → List Dig
+root : St → Dig
+tagc : MTag
+r : Dig
+P : List (QB L × Dig)
+hdr : List (TItem × Dig)
+hr : (Block.absAt hdr 1).bind abRdIn = some r
+hex :
+  ∃ Mg Pd S,
+    2 ^ 11 ≤ S.card + 768 ∧
+      ∀ j ∈ S,
+        ∃ o,
+          epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j = some o ∧
+            o.col = (epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).colOf Mg Pd j
+C : PlaneCommit (T → ℕ) St Salt := epTokenCommit R dR hpos place msg msg_place pad salt path root tagc
+hC : C = epTokenCommit R dR hpos place msg msg_place pad salt path root tagc
+S : Finset (Fin C.N)
+hS : C.N ≤ S.card + 768
+hag :
+  ∀ j ∈ S,
+    ∃ o,
+      epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j = some o ∧
+        o.col =
+          C.colOf (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1
+            (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 j
+j : Fin (2 ^ 11)
+hj : j ∈ S
+row : Fin R
+o : MerkleOpening Dig Dig (ColR C.R)
+ho : epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j = some o
+hoc :
+  o.col =
+    C.colOf (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1
+      (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 j
+h1 :
+  colGF
+      (C.colOf (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1
+        (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 j)
+      row =
+    encWord epPts epForm ((C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1 row)
+      ((C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 row) j
+i : Fin C.n
+⊢ (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1 row i =
+    Fin.append
+      (((epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).decodeIn
+            (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1
+        row)
+      (((epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).decodeIn
+            (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2
+        row)
+      (Fin.castAdd 256 i)
+
+case e_p.e_g
+K : Type
+inst✝² : Field K
+inst✝¹ : Fintype K
+inst✝ : Algebra GF K
+tag : MTag
+L : ℕ
+h64 : 64 ≤ L
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ L
+T St Salt : Type
+R dR : ℕ
+pos : T → Fin dR × Fin (2 ^ 8)
+hpos : Function.Injective pos
+place : Fin dR → Fin R
+msg : (T → ℕ) → Salt → Fin R → Fin (2 ^ 8) → GF
+msg_place : ∀ (v : T → ℕ) (r : Salt) (k : Fin dR), msg v r (place k) = posPlane pos v k
+pad : Salt → Fin R → Fin 256 → GF
+salt : Salt → Fin (2 ^ 11) → Dig
+path : Salt → Fin (2 ^ 11) → List Dig
+root : St → Dig
+tagc : MTag
+r : Dig
+P : List (QB L × Dig)
+hdr : List (TItem × Dig)
+hr : (Block.absAt hdr 1).bind abRdIn = some r
+hex :
+  ∃ Mg Pd S,
+    2 ^ 11 ≤ S.card + 768 ∧
+      ∀ j ∈ S,
+        ∃ o,
+          epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j = some o ∧
+            o.col = (epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).colOf Mg Pd j
+C : PlaneCommit (T → ℕ) St Salt := epTokenCommit R dR hpos place msg msg_place pad salt path root tagc
+hC : C = epTokenCommit R dR hpos place msg msg_place pad salt path root tagc
+S : Finset (Fin C.N)
+hS : C.N ≤ S.card + 768
+hag :
+  ∀ j ∈ S,
+    ∃ o,
+      epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j = some o ∧
+        o.col =
+          C.colOf (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1
+            (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 j
+j : Fin (2 ^ 11)
+hj : j ∈ S
+row : Fin R
+o : MerkleOpening Dig Dig (ColR C.R)
+ho : epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j = some o
+hoc :
+  o.col =
+    C.colOf (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1
+      (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 j
+h1 :
+  colGF
+      (C.colOf (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1
+        (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 j)
+      row =
+    encWord epPts epForm ((C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1 row)
+      ((C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 row) j
+i : Fin C.Q
+⊢ (C.decodeIn (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2 row i =
+    Fin.append
+      (((epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).decodeIn
+            (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).1
+        row)
+      (((epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).decodeIn
+            (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r P ↑j) 768).2
+        row)
+      (Fin.natAdd 256 i)
+Some required targets logged failures:
+- ZK60Formal.RunStgShieldEpBridge
+error: build failed
+build rc 1 (6 s)
+rc 1, 6 s
