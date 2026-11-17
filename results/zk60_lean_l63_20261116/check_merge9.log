@@ -1,0 +1,195 @@
+== full root build: lake build ZK60Formal (L62 and L63 modules together) ==
+root build rc 0
+root build: warnings naming a RunStgShield*.lean or RunBlkShieldInst.lean file: 0; error lines: 0
+== lake build of the L63 modules, one at a time (no-ops after the root build) ==
+lake build ZK60Formal.RunStgShieldDef rc 0
+  warnings in RunStgShieldDef.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldRd rc 0
+  warnings in RunStgShieldRd.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldInst rc 0
+  warnings in RunStgShieldInst.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTop rc 0
+  warnings in RunStgShieldTop.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldRbr rc 0
+  warnings in RunStgShieldRbr.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTrue rc 0
+  warnings in RunStgShieldTrue.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTrueRun rc 0
+  warnings in RunStgShieldTrueRun.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopT rc 0
+  warnings in RunStgShieldTopT.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldClaims rc 0
+  warnings in RunStgShieldClaims.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldClaimsRun rc 0
+  warnings in RunStgShieldClaimsRun.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopC rc 0
+  warnings in RunStgShieldTopC.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldInAH rc 0
+  warnings in RunStgShieldInAH.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldInAHRun rc 0
+  warnings in RunStgShieldInAHRun.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopI rc 0
+  warnings in RunStgShieldTopI.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldC rc 0
+  warnings in RunStgShieldC.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldDefC rc 0
+  warnings in RunStgShieldDefC.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCChain rc 0
+  warnings in RunStgShieldCChain.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCJoin rc 0
+  warnings in RunStgShieldCJoin.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCWire rc 0
+  warnings in RunStgShieldCWire.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCTop rc 0
+  warnings in RunStgShieldCTop.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCTopT rc 0
+  warnings in RunStgShieldCTopT.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCTopC rc 0
+  warnings in RunStgShieldCTopC.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCTopI rc 0
+  warnings in RunStgShieldCTopI.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldIOTie rc 0
+  warnings in RunStgShieldIOTie.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCTopK rc 0
+  warnings in RunStgShieldCTopK.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCTopZ rc 0
+  warnings in RunStgShieldCTopZ.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldOutTie rc 0
+  warnings in RunStgShieldOutTie.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCTopF rc 0
+  warnings in RunStgShieldCTopF.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldInZero rc 0
+  warnings in RunStgShieldInZero.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldCTopW rc 0
+  warnings in RunStgShieldCTopW.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldIOLink rc 0
+  warnings in RunStgShieldIOLink.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldIODec rc 0
+  warnings in RunStgShieldIODec.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldDzBits rc 0
+  warnings in RunStgShieldDzBits.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldDzPhi rc 0
+  warnings in RunStgShieldDzPhi.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldDzDoom rc 0
+  warnings in RunStgShieldDzDoom.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldDzRun rc 0
+  warnings in RunStgShieldDzRun.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopDz rc 0
+  warnings in RunStgShieldTopDz.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopPd rc 0
+  warnings in RunStgShieldTopPd.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldEpBridge rc 0
+  warnings in RunStgShieldEpBridge.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldIncSem rc 0
+  warnings in RunStgShieldIncSem.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldIOPin rc 0
+  warnings in RunStgShieldIOPin.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopIO rc 0
+  warnings in RunStgShieldTopIO.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTrIIO rc 0
+  warnings in RunStgShieldTrIIO.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopTrI rc 0
+  warnings in RunStgShieldTopTrI.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTrOIO rc 0
+  warnings in RunStgShieldTrOIO.lean: 0; error lines: 0
+lake build ZK60Formal.RunStgShieldTopTrO rc 0
+  warnings in RunStgShieldTopTrO.lean: 0; error lines: 0
+== axiom audit ==
+188 declarations: 40 def, 148 theorem
+axioms rc 0
+declarations audited: 188 (generated: 188)
+no axiom at all: 5
+sorryAx: 0
+ofReduceBool: 0
+other axioms: 0
+lines that are not a report: 0
+ 153 axioms: [propext, Classical.choice, Quot.sound]
+  19 axioms: [propext, Quot.sound]
+  11 axioms: [propext]
+the top theorem:
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_def' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_true' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_claimsO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.ssh_productionReadyL_epP_claimsI' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsI' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsF' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsW' depends on axioms: [propext, Classical.choice, Quot.sound]
+== axiom audit of the combined top theorem sshC_productionReadyL_epP_blkAlive (and newer tops) on the whole root ==
+axioms_blkalive rc 0
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_blkAlive' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pinsHd' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_dz' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pdz' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_io' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trI' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trO' depends on axioms: [propext, Classical.choice, Quot.sound]
+blkAlive and newer tops: reports 7 (expected 7); non-report lines 0; other axioms 0
+== axiom audit of L62's top theorem on the whole root (import ZK60Formal) ==
+axioms_l62top rc 0
+'ZK60.ProtocolClassify.RunShapeP.bw_productionReadyL_epP_shield_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+L62 top: reports 1 (expected 1); lines that are not a report: 0; other axioms: 0
+== source scan of the L63 files ==
+none (the lane's files)
+none (Antigravity's three)
+== the generators reproduce their files ==
+identical
+identical
+identical
+identical
+identical
+l63_mk_c.py --check rc 0
+identical
+l63_mk_defc.py --check rc 0
+RunStgShieldCChain.lean identical
+RunStgShieldCJoin.lean identical
+RunStgShieldCWire.lean identical
+l63_mk_cchain.py --check rc 0
+RunStgShieldCTop.lean identical
+RunStgShieldCTopT.lean identical
+RunStgShieldCTopC.lean identical
+RunStgShieldCTopI.lean identical
+l63_mk_topsc.py --check rc 0
+RunStgShieldCTopK.lean identical
+l63_mk_topk.py --check rc 0
+RunStgShieldCTopZ.lean identical
+l63_mk_topz.py --check rc 0
+RunStgShieldCTopF.lean identical
+l63_mk_topo.py --check rc 0
+RunStgShieldCTopW.lean identical
+l63_mk_topw.py --check rc 0
+RunStgShieldInAHRun.lean identical
+l63_mk_inahrun.py --check rc 0
+RunStgShieldTopDz.lean identical
+l63_mk_topdz.py --check rc 0
+RunStgShieldTopPd.lean identical
+l63_mk_toppd.py --check rc 0
+RunStgShieldTopIO.lean identical
+l63_mk_topio.py --check rc 0
+RunStgShieldTopTrI.lean identical
+l63_mk_toptri.py --check rc 0
+RunStgShieldTopTrO.lean identical
+l63_mk_toptro.py --check rc 0
+== name clashes (RunStgShield*, every worktree) ==
+declarations in RunStgShield*.lean: 341
+declared twice inside the lane: none
+worktrees read: 8
+other Lean files read (with repeats across worktrees): 2556
+clashes: 0
+== against perf be99d6f1: Statements.lean, the root's diff, every existing file ==
+Statements.lean unchanged
+root imports: the lane's modules 46 of 46; Antigravity's 3 of 3
+root numstat (added removed file): 16	0	formal/ZK60Formal.lean
+root diff: added lines 16, of which RunStgShield imports 16; removed lines 0
+root: every lane and Antigravity module imported, diff exactly the 16 new lane import lines, 0 removed: yes
+existing files under formal/, ops/, src/ modified, deleted or renamed since be99d6f1 (excluding the root): 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 120 s
+VERDICT inputs: rootbuild rc 0, root warnings 0, root error lines 0, module builds rc 0, module warnings 0, axioms rc 0, audited 188 of 188, sorryAx 0, ofReduceBool 0, other axioms 0, non-report lines 0, blkAlive rc 0 reports 7 of 7 non-report 0 other axioms 0, L62 top rc 0 reports 1 non-report 0 other axioms 0, source scan 0, generators 0, name clashes 0, Statements/unchanged 0, root diff ok 0, modified existing files 0, regressions rc 0/0/0/0 verdicts 0/0/0/0

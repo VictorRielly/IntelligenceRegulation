@@ -183,3 +183,6 @@
 'ZK60.ProtocolClassify.ssh_rd_absAt' depends on axioms: [propext, Quot.sound]
 'ZK60.ProtocolClassify.ssh_trIIO_run' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trI' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_outc_out_nil' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_trOIO_run' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trO' depends on axioms: [propext, Classical.choice, Quot.sound]
