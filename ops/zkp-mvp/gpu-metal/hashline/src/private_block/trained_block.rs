@@ -3044,7 +3044,19 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
                 &lays[lays.len() - 1].1
             }
         };
-        super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w).map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
+        // [A33] the block's public check (`check_for_shape`) is not repeated when the build above
+        // has just run it on this very block at this very shape: `witness_for_block` calls
+        // `witness::build_for_block` (witness.rs: `check_accuracy_for_shape`, the same function
+        // `check_for_shape` runs at a non-Legacy shape) when the block carries accuracy data, on
+        // `ssh` with its gate shift set to the data's. So the shapes are equal exactly when `ssh`
+        // already carries the data's gate shift; any other block or shape takes the full check.
+        let build_checked = cur.blk.accuracy().is_some_and(|d| d.folds().gate.shift == ssh.accuracy_gate_shift);
+        let misses = if build_checked {
+            super::protocol::check_lookup_misses_after_public_check(&ssh, lay, &cur.blk, &w)
+        } else {
+            super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)
+        };
+        misses.map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
         // [A19] what a fork's before-challenge part holds beyond the witness: `A`'s
         // host rows and its encoding (the device's copy on Metal), an estimate
         let part_extra = 8 * (lay.a_rows * lay.n()) as u64 * (1 + ssh.inv_rate as u64);

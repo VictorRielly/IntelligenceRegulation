@@ -624,6 +624,23 @@ fn dd_moved_multiplicity() -> Option<(usize, usize)> {
 pub(crate) fn check_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness) -> Result<(), String> {
     lay.check_is_for_shape(sh)?;
     blk.check_for_shape(sh)?;
+    scan_lookup_misses(sh, lay, blk, wit)
+}
+
+/// [A33] [`check_lookup_misses`] without `blk.check_for_shape(sh)`: the layout check, then the
+/// miss scan. **Precondition (the caller's to hold):** the block's public check
+/// (`BlockPublic::check_for_shape`, which at a non-Legacy shape is `check_accuracy_for_shape`)
+/// has already passed for THIS shape, on THIS block, with no change to either since. Today's
+/// one caller is `trained_block::seal_chain`, whose witness build (`witness::build_for_block`) has
+/// just run that check on the same `&BlockPublic`, and only when the shape the build checked equals
+/// the shape handed here (see the comment at the call). Every other caller uses
+/// [`check_lookup_misses`].
+pub(crate) fn check_lookup_misses_after_public_check(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness) -> Result<(), String> {
+    lay.check_is_for_shape(sh)?;
+    scan_lookup_misses(sh, lay, blk, wit)
+}
+
+fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness) -> Result<(), String> {
     let ids = lay.ids();
     if wit.planes.len() != ids.n_a() {
         return Err("private block: witness shape".into());

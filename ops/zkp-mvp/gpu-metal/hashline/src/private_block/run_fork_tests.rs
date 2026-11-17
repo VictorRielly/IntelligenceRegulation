@@ -7256,3 +7256,150 @@ mod a23 {
 }
 
 // ---- end of [A23] ----
+
+// ---- [A33] the sealing pass's CS-3 does not repeat the block's public check ----
+//
+// (`results/zk60_a33_seal_dedup_20261117/README.md`; the source gates are in `r6_tests.rs`.) On the
+// sealing chain `check_lookup_misses_after_public_check` replaces `check_lookup_misses` when the
+// witness build has just run the block's public check at the same shape. These tests run the
+// sealing pass (`seal_chain` over `A19Synth`, the W16R2 rung's synthetic stack, three layers) with
+// ONE layer's load changed, and pin the refusal text of each case; the same tests run on the tree
+// before the change print the same lines (that is the evidence, in the README).
+
+use crate::private_block::trained_block::StackModel as A33StackModel;
+
+/// [A33] `A19Synth` with one layer's load changed
+struct A33Model<'a> {
+    inner: A19Synth<'a>,
+    layer: usize,
+    fault: A33Fault,
+}
+
+#[derive(Clone, Copy)]
+enum A33Fault {
+    /// a weight word of the block is -128: `check_accuracy_for_shape` refuses it (step 8), the build first
+    Weight,
+    /// the layer's record carries another gate shift than its block's data: the pass's shape is then
+    /// not the shape the build checked, so CS-3 must still run the whole public check
+    RecordGate,
+}
+
+impl crate::private_block::trained_block::StackModel for A33Model<'_> {
+    fn shape(&self) -> &crate::private_block::shape::Shape {
+        self.inner.shape()
+    }
+    fn layers(&self) -> &[u32] {
+        self.inner.layers()
+    }
+    fn load_layer(&self, k: usize) -> Result<crate::private_block::trained_block::TrainedLayer, String> {
+        let mut l = self.inner.load_layer(k)?;
+        if k == self.layer {
+            match self.fault {
+                A33Fault::Weight => {
+                    l.blk.attention.gamma_a[0] = i8::MIN;
+                    l.record = LayerRecord::of_block(k as u32, &l.blk, vec![]);
+                }
+                A33Fault::RecordGate => {
+                    let g = l.record.accuracy_gate_shift.expect("an R13 record");
+                    l.record.accuracy_gate_shift = Some(if g < 24 { g + 1 } else { g - 1 });
+                }
+            }
+        }
+        Ok(l)
+    }
+    fn reload_block(&self, k: usize) -> Result<BlockPublic, String> {
+        self.inner.reload_block(k)
+    }
+    fn seq(&self, layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
+        self.inner.seq(layer)
+    }
+    fn statement_of_records(&self, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+        self.inner.statement_of_records(records)
+    }
+    fn run_shape(&self) -> Result<RunShape, String> {
+        self.inner.run_shape()
+    }
+    fn context(&self) -> Result<Digest, String> {
+        self.inner.context()
+    }
+    fn variant(&self) -> &str {
+        self.inner.variant()
+    }
+    fn scope(&self) -> &'static str {
+        self.inner.scope()
+    }
+}
+
+/// [A33] the sealing pass over three layers, layer 1's load changed by `fault`; the refusal text
+fn a33_refusal(fault: A33Fault) -> String {
+    use crate::private_block::trained_block::a20_seal_summary_for_tests;
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 3);
+    let inner = A19Synth { fix: &fix, layers: (0..3u32).collect(), ctx: [33; 32], hash_load: true, record0: LayerRecord::of_block(0, &fix.blk, vec![]) };
+    let model = A33Model { inner, layer: 1, fault };
+    a20_seal_summary_for_tests(&model, u64::MAX).expect_err("a changed layer was sealed")
+}
+
+/// **[A33] a block that fails its public check is refused by the BUILD, with the build's text**, before
+/// CS-3 is reached (so the copy of the check inside CS-3 cannot be the one that fires on the sealing chain)
+#[test]
+fn a33_a_block_that_fails_its_public_check_is_refused_by_the_build_with_the_builders_text() {
+    let e = a33_refusal(A33Fault::Weight);
+    assert_eq!(e, "the witness builder refuses layer 1 (before the run header; ruling H-1): R13 public weights/gains must be symmetric int8");
+    eprintln!("A33-REFUSAL weight: {e}");
+}
+
+/// **[A33] where the pass's shape is NOT the shape the build checked** (a record at another gate shift than its
+/// block's data), the whole public check still runs in CS-3 and refuses, by its own text, in CS-3's place
+#[test]
+fn a33_a_record_at_another_gate_shift_is_still_refused_by_the_full_cs3_check() {
+    let e = a33_refusal(A33Fault::RecordGate);
+    assert_eq!(e, "layer 1, in the sealing pass (before the run header; ruling H-1): R13 public folded gate denominator differs from the stage shape");
+    eprintln!("A33-REFUSAL record-gate: {e}");
+}
+
+/// **[A33] the honest sealing pass, whole**: its summary line (the statement identity, every block digest and
+/// record, every sealed plane and endpoint, the stage shapes, the kept witnesses and every plane of each) as
+/// one SHA-256, printed; the tree before the change prints the same value
+#[test]
+fn a33_the_honest_sealing_pass_summary() {
+    use crate::private_block::trained_block::{a20_seal_summary_for_tests, hex, sha256};
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 3);
+    let model = A19Synth { fix: &fix, layers: (0..3u32).collect(), ctx: [33; 32], hash_load: true, record0: LayerRecord::of_block(0, &fix.blk, vec![]) };
+    for budget in [u64::MAX, 0] {
+        let (line, _) = a20_seal_summary_for_tests(&model, budget).expect("the honest chain seals");
+        eprintln!("A33-SEAL budget {budget}: summary {} B, sha256 {}", line.len(), hex(&sha256(line.as_bytes())));
+    }
+}
+
+/// **[A33] the same at 8B, on the CPU and on the device**: the sealing pass over A19's synthetic 8B stack (`L` =
+/// `HL_A33_8B_L`, default 4), its summary line's SHA-256 with the witness builder's products on the host and with
+/// `HL_GPU=1`, at two budgets; the two must be equal here, and the tree before the change prints the same values
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "A33: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=0; toggles HL_GPU in-process"]
+fn a33_the_8b_sealing_pass_summary_on_the_cpu_and_on_the_device() {
+    use crate::private_block::trained_block::{a20_seal_summary_for_tests, hex, sha256};
+    let _k = a20_knobs();
+    let l: usize = env_or("HL_A33_8B_L", 4usize).max(3);
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_8B_T128_H24, l);
+    let model = A19Synth { fix: &fix, layers: (0..l as u32).collect(), ctx: [33; 32], hash_load: true, record0: LayerRecord::of_block(0, &fix.blk, vec![]) };
+    let mut seen: Vec<(&str, u64, String)> = Vec::new();
+    for (name, gpu) in [("cpu", false), ("device", true)] {
+        if gpu {
+            std::env::set_var("HL_GPU", "1");
+        } else {
+            std::env::remove_var("HL_GPU");
+        }
+        for budget in [32u64 << 30, 0] {
+            let (line, _) = a20_seal_summary_for_tests(&model, budget).unwrap_or_else(|e| panic!("{name}, budget {budget}: {e}"));
+            let d = hex(&sha256(line.as_bytes()));
+            eprintln!("A33-SEAL-8B L{l} {name} budget {budget}: summary {} B, sha256 {d}", line.len());
+            seen.push((name, budget, d));
+        }
+    }
+    std::env::remove_var("HL_GPU");
+    for budget in [32u64 << 30, 0] {
+        let of = |n: &str| seen.iter().find(|(m, b, _)| *m == n && *b == budget).map(|(_, _, d)| d.clone()).unwrap();
+        assert_eq!(of("cpu"), of("device"), "the 8B sealing pass at budget {budget}: the CPU and the device builds differ");
+    }
+}
