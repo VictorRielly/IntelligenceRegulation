@@ -219,3 +219,13 @@
 'ZK60.ProtocolClassify.ssh_ep_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.ssh_ebOpen_sem' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.ssh_ebUxW_view' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epUxV' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.bxUxV' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.vwLoc_epUxV' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.vwLoc_bxUxV' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epUxV_nz' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_hdzW_gen' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_hdzW_coreU' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_io' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
