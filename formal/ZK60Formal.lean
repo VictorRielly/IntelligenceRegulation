@@ -510,3 +510,4 @@ import ZK60Formal.RunStgShieldIOLink
 import ZK60Formal.RunStgShieldIODec
 import ZK60Formal.RunStgShieldDzBits
 import ZK60Formal.RunStgShieldDzPhi
+import ZK60Formal.RunStgShieldDzDoom

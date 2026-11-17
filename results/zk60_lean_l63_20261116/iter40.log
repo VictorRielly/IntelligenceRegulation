@@ -1,0 +1,98 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan40.txt ==
+build ZK60Formal.RunStgShieldDzDoom
+== lake build ZK60Formal.RunStgShieldDzDoom ==
+✖ [3788/3788] Building ZK60Formal.RunStgShieldDzDoom (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldDzDoom.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldDzDoom.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldDzDoom.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldDzDoom.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldDzDoom.setup.json --json
+error: ZK60Formal/RunStgShieldDzDoom.lean:70:49: Unknown identifier `rs'`
+error: ZK60Formal/RunStgShieldDzDoom.lean:71:8: Invalid field notation: Type of
+  r
+is not known; cannot resolve field `draws`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `Block.BlockParams.draws`
+  • `Block.Hist.draws`
+  • `Block.SlotRec.draws`
+  • `Slot.R13.draws`
+  • `Slot.W16R2.draws`
+  • `Block.Join.R13H.ProfR.draws`
+error: ZK60Formal/RunStgShieldDzDoom.lean:41:84: unsolved goals
+case h_2
+K : Type
+inst✝¹ : Field K
+inst✝ : Algebra GF K
+L : ℕ
+U : K
+key : Option Dig
+domain : List UInt8
+P0 : Block.BlockParams
+Pof : List Fp2 → Block.BlockParams
+m hdrLen : ℕ
+bgaOf : List Fp2 → Fp2 × Fp2 × Fp2
+hostOf : ℕ → List (ℕ × ℕ)
+absOf : QB L → Option (List UInt8)
+F : StgVw L → (k : ℕ) → StageFS.SeenS → (Fin (stgN P0 k) → K) → K
+Φ : StgVw L → (k : ℕ) → List Fp2 × List (List Fp2) → (Fin (P0.draws k) → K) → K
+dg : ℕ → ℕ
+e : ℕ
+Λ : StgVw L → List (List UInt8 × K) → Prop
+G : QB L → Dig
+Lg : List (QB L × Dig)
+τ : List (TItem × Dig)
+hP : ∀ (ch : List Fp2), StgSame P0 (Pof ch)
+hgeom : ∀ (ch : List Fp2), ∀ k < (Pof ch).geom.slots.length, 1 ≤ (Block.slotShape (Pof ch) k).2.2
+hgt : ∀ (ch : List Fp2), (Pof ch).geom.slots.length = (Pof ch).geom.terms.length
+h0 : 0 ∈ stgDrawing P0
+hne :
+  ∀ (hdr : List Op) (core : Block.Core) (ch : List Fp2) (rs : List Block.SlotRec),
+    StgRd key domain L Pof m hdrLen bgaOf G τ hdr core ch rs →
+      ∃ y,
+        Φ
+            (stgVw absOf Lg
+              (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+                (hdr ++ StageFS.stageRootOps (Pof ch) core m ++ Block.fullOps (Pof ch) 0 [])))
+            0 (ch, []) y ≠
+          0
+hdr : List Op
+core : Block.Core
+ch : List Fp2
+rs : List Block.SlotRec
+y : Fin (P0.draws 0) → K
+hy :
+  Φ
+      (stgVw absOf Lg
+        (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+          (hdr ++ StageFS.stageRootOps (Pof ch) core m ++ Block.fullOps (Pof ch) 0 [])))
+      0 (ch, []) y ≠
+    0
+hhl : hdr.length = hdrLen
+hsh : StageFS.SlotsShape (Pof ch).geom core
+acc : Block.Acc
+t' : Tr
+hslen : core.slots.length = (Pof ch).geom.slots.length
+x✝ : Except String (List Block.SlotRec × Block.Acc × Tr)
+e✝ : String
+heq✝ :
+  Block.slotsLoop (liftH G) (Pof ch)
+      (bgaOf
+          (Tr.challengeFp2Vec (liftH G)
+              (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA (Pof ch) core)) m).1).1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA (Pof ch) core)) m).1).2.1
+      (bgaOf
+            (Tr.challengeFp2Vec (liftH G)
+                (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ Block.rootOpsA (Pof ch) core)) m).1).2.2
+      [] 0 core.slots { }
+      (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps (Pof ch) core m)) =
+    Except.error e✝
+hacc : Except.error e✝ = Except.ok (ch, rs, acc, t')
+⊢ ¬(stgDefSqV P0 m hdrLen absOf Φ dg 0).St Lg
+      (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+        (hdr ++ StageFS.stageRootOps (Pof ch) core m ++ Block.fullOps (Pof ch) 0 (List.take 0 core.slots)))
+      []
+error: ZK60Formal/RunStgShieldDzDoom.lean:88:24: unexpected token 'at'; expected command
+Some required targets logged failures:
+- ZK60Formal.RunStgShieldDzDoom
+error: build failed
+build rc 1 (17 s)
+rc 1, 17 s
