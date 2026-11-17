@@ -514,3 +514,5 @@ import ZK60Formal.RunStgShieldDzPhi
 import ZK60Formal.RunStgShieldDzDoom
 import ZK60Formal.RunStgShieldDzRun
 import ZK60Formal.RunStgShieldTopDz
+import ZK60Formal.RunStgShieldLu
+import ZK60Formal.RunShieldInstP
