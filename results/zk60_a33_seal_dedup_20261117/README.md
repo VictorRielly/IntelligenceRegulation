@@ -339,3 +339,71 @@ moment ago, with nothing between".
   `:1818-1820` ("no record exists for a block that did not pass").
 So I kept the rule and its two-function split. A record would become useful if Stage 2 moves CS-3 off the lane thread (a value handed
 across threads, with `covers`'s pointer-and-shape test); for Stage 1 it adds nothing.
+
+## 9. serve4 follow-up: is the patched side's slower two-lane cadence noise?
+
+Question (coordinator): in section 7 the patched side was slower in both serve4 pairs (3.694 against 3.646 s/request). Noise, or a real effect
+of a shorter sealing pass on a prover-paced stream, and where does the time go? Script: `serve4_terms.py` (the regexes and definitions of
+`results/zk60_claude_review_20261116/batch7_review/recompute_logs.py`, adapted; warm passes only; steady requests = q >= 1, admission q >= 2).
+Output: `SERVE4_TERMS_m.md` (the four runs of section 7), `SERVE4_TERMS_m_f.md` (all eight). Two more A B A B pairs were run (`f_serve4_*`,
+same leaf, environment and guard arguments as section 7, class gpu, `ds4-bench` none before and after each run, guard run ids
+`79c4a8ab95b8`, `829c86c935b3`, `f514f73b3bb6`, `5c8774989002`; `GUARD_RUNS.md`). No GPU trace was on (`HL_A27_GPU_TRACE` unset in this
+leaf, as in section 7), so the witness products' commit-to-start wait and the prover's GPU-busy time are NOT available; I did not add runs for them.
+
+**Item 1: the four runs of section 7 (n = 36 requests per arm for the per-request terms, 12 passes for cadence), medians. MEASURED.**
+
+| term | unpatched | patched | patched minus unpatched |
+|---|---|---|---|
+| cadence (result[3]-result[0])/3, per pass | 3.646 | 3.694 | +0.048 |
+| result gap, q >= 1 | 3.700 | 3.737 | +0.036 |
+| prove call | 3.707 | 3.741 | **+0.034** |
+| of which forks | 3.419 | 3.449 | **+0.030** |
+| of which commit | 0.206 | 0.213 | +0.007 |
+| preflight / join | 0.001 / 0.078 | 0.001 / 0.079 | 0 / +0.001 |
+| receipt write | 0.222 | 0.227 | +0.005 |
+| prover wait after sealing (prover start - sealing done) | 0.170 | 0.486 | +0.317 |
+| lane admission wait (turn(q) - sealing done(q-1), q >= 2) | 0.550 | 0.825 | +0.275 |
+| sealing pass overlapped (q = 1..3) | 3.398 | 3.092 | -0.306 |
+| sealing pass solo (q = 0) | 2.203 | 1.906 | -0.297 |
+| CPU (user+sys) per pass | 265.4 s | 242.8 s | -22.6 s |
+
+**The +0.048 s is carried by the prove call, and inside it by the forks phase** (+0.030 of the +0.034; commit +0.007 and write +0.005 are
+the rest). The sealing pass, the admission wait and the prover wait move by hundreds of ms, but they are slack, not pacing terms (below).
+
+**Item 2: eight runs (m_ = section 7's, f_ = new), per-run medians of the cadence, s/request [min-max over 6 passes]. MEASURED.**
+
+| run | binary | cadence | prove call | sealing ov | admission | prover wait |
+|---|---|---|---|---|---|---|
+| m_serve4_1A | unpatched | 3.646 [3.607-3.728] | 3.680 | 3.408 | 0.518 | 0.148 |
+| m_serve4_2B | patched | 3.706 [3.676-3.730] | 3.763 | 3.075 | 0.825 | 0.493 |
+| m_serve4_3A | unpatched | 3.651 [3.611-3.716] | 3.720 | 3.393 | 0.550 | 0.189 |
+| m_serve4_4B | patched | 3.687 [3.624-3.794] | 3.722 | 3.101 | 0.901 | 0.474 |
+| f_serve4_1A | unpatched | 3.706 [3.686-3.768] | 3.700 | 3.442 | 0.485 | 0.121 |
+| f_serve4_2B | patched | 3.709 [3.642-3.960] | 3.779 | 3.206 | 0.801 | 0.432 |
+| f_serve4_3A | unpatched | 3.706 [3.653-3.753] | 3.706 | 3.394 | 0.510 | 0.132 |
+| f_serve4_4B | patched | 3.709 [3.607-3.826] | 3.739 | 3.138 | 0.861 | 0.510 |
+
+Pairs (unpatched run, then the patched run after it), cadence: +0.060, +0.036, +0.003, +0.003. **The patched side is slower in all four
+pairs, but the size is +0.060, +0.036, +0.003, +0.003.** Pooled over the eight runs (n = 24 passes per arm): cadence median 3.693 (unpatched)
+against 3.700 (patched), **+0.007 s**; means 3.683 against 3.718, **+0.035 s** (Welch se 0.017, t = 1.98, one outlier pass at 3.96 in
+`f_serve4_2B` raises the patched mean). Pooled per-request terms (n = 72 per arm): prove call 3.703 -> 3.744 (**+0.041**; the patched run is
+slower in all four pairs: +0.083, +0.002, +0.079, +0.033), forks +0.034, result gap +0.021, prover wait +0.342, admission +0.310, sealing
+overlapped -0.280, sealing solo -0.315, CPU per pass -22.5 s.
+
+**Item 3. What it is.** Two findings.
+1. **MEASURED: the stream is prover-paced and the sealing gain is turned into slack.** The cadence follows the prove call (about 3.7 s), not
+   the sealing pass. The sealing pass overlapped is 0.28 s shorter, and exactly that appears as waiting: the lane admission wait grows by
+   0.31 s (0.275 s in section 7's runs) and the sealing side now finishes 0.34 s earlier before the previous prover ends (`prover wait`
+   0.13 -> 0.47 s; "seal done before prover(q-1) end" +0.342 s). The sealing turn starts at the same point of the previous prove call (0.237 s
+   after its start in both arms). So a shorter sealing pass cannot raise the steady rate of this stream; it only lets sealing wait longer.
+   Stage 2, which would shorten the sealing pass much more, will show nothing at two lanes unless the prove call also shortens or the
+   stream has more lanes than provers.
+2. **The residual cadence difference is small and not firmly separated from noise: +0.007 s (median) to +0.035 s (mean, t = 1.98), 0.2 to
+   0.9%.** What is consistent is the prove call being slower by 0.04 s (4 of 4 pairs, mostly in the forks phase), which is the only term in the
+   data that can carry it; the result gap, which is what the cadence averages, moved by +0.02 s. Possible mechanism (**MODEL, not supported by
+   a measurement here**): the same sealing work is compressed into a 0.3 s shorter window beside the forks phase, so the forks' host and GPU
+   submission phases meet more concurrent CPU work per second, although the total CPU is lower (-22.5 s per pass). This predicts a
+   forks slowdown without a sealing-time effect on the prover's start; it cannot be checked without the GPU trace (witness-products wait,
+   prover GPU-busy time) or a run with `HL_A27_GPU_TRACE`, which was not made. The alternative that it is a run-to-run drift between the
+   runs is not excluded by the four pairs (the second two pairs show +0.003 each). **Verdict: a real slack effect (MEASURED), and a prove
+   call about 0.04 s slower on the patched side that I cannot separate from noise at this n, with a cadence cost of at most about 1%.**

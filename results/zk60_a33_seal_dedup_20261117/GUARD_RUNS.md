@@ -43,3 +43,7 @@
 | m_g2_three_known_unpatched | cpu | 0008bc10b340 | 101 | 1.4 | 0 | 0.21 | none / none |
 | m_g2_three_known_patched | cpu | dc486ece1406 | 101 | 1.4 | 0 | 0.21 | none / none |
 | m_g2_full_suite_patched | cpu | b1352cc49605 | 101 | 636.5 | 0 | 9.17 | none / none |
+| f_serve4_1A | gpu | 79c4a8ab95b8 | 0 | 129.1 | 86 | 31.85 | none / none |
+| f_serve4_2B | gpu | 829c86c935b3 | 0 | 126.8 | 0 | 32.71 | none / none |
+| f_serve4_3A | gpu | f514f73b3bb6 | 0 | 127.7 | 0 | 32.52 | none / none |
+| f_serve4_4B | gpu | 5c8774989002 | 0 | 126.2 | 0 | 32.96 | none / none |
