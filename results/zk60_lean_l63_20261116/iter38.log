@@ -1,0 +1,33 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan36.txt ==
+build ZK60Formal.RunStgShieldDzPhi
+== lake build ZK60Formal.RunStgShieldDzPhi ==
+✖ [3787/3787] Building ZK60Formal.RunStgShieldDzPhi (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldDzPhi.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldDzPhi.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldDzPhi.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldDzPhi.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldDzPhi.setup.json --json
+error: ZK60Formal/RunStgShieldDzPhi.lean:206:111: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  k ≥ 0
+  j ≥ 0
+  j - k ≥ 1
+  g ≥ 0
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 0
+  e - g ≤ -1
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 0
+  a ≥ 64
+where
+ a := ↑L
+ c := ↑lc
+ d := ↑I.lt
+ e := ↑x0
+ f := ↑I.tokens
+ g := ↑(supp I.tokens I.inEpWords).length
+ j := ↑↑i
+ k := ↑↑⟨lw, ⋯⟩
+Some required targets logged failures:
+- ZK60Formal.RunStgShieldDzPhi
+error: build failed
+build rc 1 (16 s)
+rc 1, 16 s
