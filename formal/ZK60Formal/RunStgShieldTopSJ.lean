@@ -83,7 +83,7 @@ local notation "HvS" =>
   shdP_rtProf_valid Lq hL20 tag key domain hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest bOutRow
     hPk0 check0 paths digest bndCheck
 
-private theorem zero_lt_26 : 0 < 26 := by decide
+private theorem sj_zero_lt_26 : 0 < 26 := by decide
 
 local notation "BpS" => shdP_rtBlk Lq hL20 tag hPk0
 local notation "PXkS" => cbBndPcs (St := ClsStmt Hdr) tag 38
@@ -93,7 +93,7 @@ local notation "CinS" =>
     EpxSalt.pads EpxSalt.salts EpxSalt.paths ClsStmt.inRoot tag
 
 local notation "RkDS" =>
-  shdRkD U hbij tag dPos0 Lq (le64_of_le20 hL20) hL20 key domain hs hL 26 zero_lt_26
+  shdRkD U hbij tag dPos0 Lq (le64_of_le20 hL20) hL20 key domain hs hL 26 sj_zero_lt_26
     (RnS).pf (shdP_clampPk Pk0) (shdP_shieldRunAtD_clamp hPk0) ViS FoS
     (ViS).lay.logupSumClaim (FoS 0).lay.logupSumClaim
     (rcIncPart ViS 256 256) (rcOutcPart (FoS 0) 256 256 1)
@@ -111,7 +111,7 @@ local notation "ΛOc" =>
   shd_ΛO (K := K) U tag (le64_of_le20 hL20) (shdP_outcPub Rp wDigest) ((RnS).pf.off 27 + 2)
 
 local notation "RkDL" =>
-  shdRkD U hbij tag dPos0 Lq (le64_of_le20 hL20) hL20 key domain hs hL 26 zero_lt_26
+  shdRkD U hbij tag dPos0 Lq (le64_of_le20 hL20) hL20 key domain hs hL 26 sj_zero_lt_26
     (RnS).pf (shdP_clampPk Pk0) (shdP_shieldRunAtD_clamp hPk0) ViS FoS
     (ViS).lay.logupSumClaim (FoS 0).lay.logupSumClaim
     (rcIncPart ViS 256 256) (rcOutcPart (FoS 0) 256 256 1)
@@ -334,7 +334,7 @@ theorem sshC_productionReadyL_epP_shieldJ
     (Vi := ViS) (F := FoS)
     (hinc := fun _ => rfl) (houtc := fun _ _ => rfl)
     (hchk := vdChk_le check0)
-    (hLb1 := zero_lt_26)
+    (hLb1 := sj_zero_lt_26)
     (lscIn := (ViS).lay.logupSumClaim)
     (lscOut := (FoS 0).lay.logupSumClaim)
     (mIn := 15) (kIn := 8) (kOut := 14)

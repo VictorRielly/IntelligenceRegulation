@@ -198,6 +198,9 @@ pre = ("/-\nD63 lane L63 (2026-11-17), part 47: **the join of lane L67's concret
        "open ZK60.RunShape.Shield (ShieldLayer shieldExport shieldCal shieldS0 shieldShape)\n\n")
 text = (pre + hdr2 + docJ + stmtJ + " := by\n" + bodyJ + "\n" + docL + stmtL + " := by\n" + bodyL
         + "\nend ShieldTopSJ\n\nend ZK60.ProtocolClassify\n")
+# the copied private `zero_lt_26` is renamed: the lane's name-clash check reads private names too
+assert text.count("zero_lt_26") >= 3
+text = text.replace("zero_lt_26", "sj_zero_lt_26")
 dst = F + "RunStgShieldTopSJ.lean"
 if len(sys.argv) > 2 and sys.argv[2] == "--check":
     ok = open(dst).read() == text
