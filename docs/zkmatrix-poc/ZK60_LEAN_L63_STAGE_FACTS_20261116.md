@@ -482,3 +482,18 @@ L1 101,956 checks, 0 failed. Guarded jobs this step: 5 (iter24-27, check7).
 (`sshC_productionReadyL_epP_claimsW` on the three); 0 warnings in the lane's files; forbidden words none; the twelve
 generators reproduce their files; 0 name clashes; no existing file changed; regressions L6 1,206, L5 5,553, L11 404,
 L1 101,956 checks, 0 failed. Guarded jobs this step: 2 (iter28, check8).
+
+## 15. Merged-tree check with L62 (2026-11-17)
+
+Merged perf eda8b4f7 (lane L62's `RunBlkShieldInst`) into the lane branch (clean, the lane only added files). Added: the 30
+`import ZK60Formal.RunStgShield...` lines at the end of the root file, a read-only `--check` mode for
+`l63_mk_inahrun.py` (closes review finding L63-R2-1; thirteen generators are now checked), and
+`results/zk60_lean_l63_20261116/check_l63merge.sh` (a copy of `check_l63.sh` with a full root build first, BASE eda8b4f7,
+a root-diff condition and an axiom audit of L62's top theorem on `import ZK60Formal`).
+One guarded job `lean-l63-merge-check`: exit 0, 96 s, peak 3.98 GiB, ended 2026-11-17 06:12:50Z (guard record).
+The log: root build rc 0 with 0 warnings and 0 error lines; 120 of 120 declarations audited, 0 sorryAx, 0 ofReduceBool, 0 other
+axioms; `sshC_productionReadyL_epP_claimsW` and `ZK60.ProtocolClassify.RunShapeP.bw_productionReadyL_epP_shield_r13` (L62)
+both on `propext`, `Classical.choice`, `Quot.sound`; 0 name clashes; root diff 30 added, 0 removed; 0 existing files changed;
+regressions L6 1,206, L5 5,553, L11 404, L1 101,956 checks, 0 failed.
+This shows the two lanes build together; it proves no new theorem. NOT done: the lane's top theorem is not yet restated on
+top of L62's theorem, and the premises listed open in section 14 are still open.

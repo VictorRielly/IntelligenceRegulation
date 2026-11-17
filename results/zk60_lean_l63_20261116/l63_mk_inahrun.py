@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """D63 lane L63 (2026-11-16): write formal/ZK60Formal/RunStgShieldInAHRun.lean (stage IN-C's A/H claims on an accepted
 run) by reusing the binder list and the proof of `ssh_run_AHO` (RunStgShieldClaims.lean) at part 0.
-Usage: l63_mk_inahrun.py <worktree root>"""
+Usage: l63_mk_inahrun.py <worktree root> [--check]  (--check: compare with the file on disk, write nothing)"""
 import sys
 
 WT = sys.argv[1]
@@ -55,5 +55,10 @@ out = (head + hdr + "/-- **STAGE IN-C'S `A`/`H` CLAIMS ARE TRUE OF THE RUN'S EXT
        "accepted run\noutside `EvXR` with no doomed `opA` entrant. -/\ntheorem ssh_run_AHI" + binders + concl
        + proof.rstrip() + "\n\n/-- **STAGE IN-C'S `A`/`H` CLAIMS PART ON AN ACCEPTED RUN** outside `EvXR`, no doomed "
        "`opA` entrant. -/\ntheorem ssh_AHAtI" + binders + tail)
-open(WT + "/formal/ZK60Formal/RunStgShieldInAHRun.lean", "w").write(out)
+dst = WT + "/formal/ZK60Formal/RunStgShieldInAHRun.lean"
+if len(sys.argv) > 2 and sys.argv[2] == "--check":
+    ok = open(dst).read() == out
+    print("RunStgShieldInAHRun.lean", "identical" if ok else "DIFFERS")
+    sys.exit(0 if ok else 1)
+open(dst, "w").write(out)
 print("wrote")
