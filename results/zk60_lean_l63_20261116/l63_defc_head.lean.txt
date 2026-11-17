@@ -1,0 +1,30 @@
+/-
+D63 lane L63 (2026-11-16), part 16: **the repaired IN-C define polynomial and its vanishing** (finding L63-5; the twins
+of deliverable 1 at each slot's own IO width). Written by `results/zk60_lean_l63_20261116/l63_mk_defc.py` from
+`RunStgShieldDef.lean`, `RunStgShieldRd.lean` and `RunStgShieldInst.lean` by counted replacements: the table side of
+slot `j` is read at `atLog P (elog j)`; every step where the width does not enter is the original's argument.
+
+* `stgSpTC`, `stgSpTC_take`, `stgΦBC`, **`stgΦRC`**: the unmasked slot polynomials and the define polynomial at the
+  per-slot widths;
+* **`ssh_ΦB_zeroC`**, **`ssh_defAtVC`**: their vanishing at every reading (from the slot start states of `stgFRC`,
+  `StgTrueAtC`'s reader and `M` parts);
+* **`sshΦIC`**, **`ssh_hDIC`**: `hDI_stg` at the repaired `ΦI` and `FstI`.
+
+Only `propext`, `Classical.choice`, `Quot.sound`.
+-/
+import ZK60Formal.RunStgShieldC
+
+set_option autoImplicit false
+
+namespace ZK60.ProtocolClassify
+
+open scoped ENNReal
+open ZK60 ZK60.Exec ZK60.Exec.Link ZK60.Sound
+open ZK60.Exec.StageV (IncV OutcV incCtx)
+open ZK60.Circuit (gP GF)
+
+section Def
+
+variable {K : Type} [Field K] [Algebra GF K] (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
+  {L : ℕ}
+

@@ -1,0 +1,12 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan6.txt ==
+build ZK60Formal.RunStgShieldRbr
+== lake build ZK60Formal.RunStgShieldRbr ==
+warning: ZK60Formal/RunStgShieldRbr.lean:158:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.stgDefSqV_rbrZ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (3659 jobs).
+build rc 0 (18 s)
+rc 0, 18 s

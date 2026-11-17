@@ -1,0 +1,72 @@
+/-
+D63 lane L63 (2026-11-16), part 13: **stage IN-C's `A`/`H` claims part on an accepted run** (`ssh_AHAtI`; item (iv),
+step A). Written by `results/zk60_lean_l63_20261116/l63_mk_inahrun.py` (the run lemma reuses `ssh_run_AHO`'s binders
+and proof at part `0`).
+
+* `ssh_inc_link_ah`: at every reading, the run's IN-C reader (`rsAccInc`, the CODE's accumulator) at the slot phase's end
+  has the reading's (L15's model's) `A` and `H` claims (`ssh_inc_claims_ah`);
+* `ssh_run_AHI`: on an accepted run outside `EvXR` with no doomed `opA` entrant, every `A` and `H` claim stage IN-C's reader
+  returns at its opening window is true of the decoded extracted matrix;
+* **`ssh_AHAtI`**: `StgClaimsAH` at stage IN-C on such a run.
+
+Only `propext`, `Classical.choice`, `Quot.sound`.
+-/
+import ZK60Formal.RunStgShieldInAH
+
+set_option autoImplicit false
+
+namespace ZK60.ProtocolClassify
+
+open scoped ENNReal
+open ZK60 ZK60.Exec ZK60.Exec.Link ZK60.Sound ZK60.TokenRun ZK60.Assembly ZK60.StageX
+open ZK60.Exec.StageV (IncV OutcV StageGeom classifyRunV incHeadDraws IncCtx incCtx)
+open ZK60.Circuit (gP GF)
+
+section Link
+
+variable {L : ℕ}
+
+/-- **Stage IN-C: the run's (code's) accumulator reader at the slot phase's end has the reading's `A` and `H` claims.** -/
+theorem ssh_inc_link_ah (key : Option Dig) (domain : List UInt8) (V : IncV) (m hdrLen e : ℕ)
+    (hm : incHeadDraws V.pub = m) (G : QB L → Dig) (τ : List (TItem × Dig)) (hdr : List Op) (core : Block.Core)
+    (ch : List Fp2) (rs : List Block.SlotRec)
+    (hrd : StgRd key domain L (fun ch => V.bp (incCtx V.pub ch)) m hdrLen (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) G
+      τ hdr core ch rs)
+    (hgt : V.geom.slots.length = V.geom.terms.length)
+    (hd : ∀ cx k, k < V.geom.slots.length → 1 ≤ (Block.slotShape (V.bp cx) k).2.2)
+    (he : ∀ cx, e = hdrLen + (7 + m) + shapeLen (V.bp cx) 0 V.geom.slots)
+    (acc : Block.Acc) (t' : Tr)
+    (hacc : StageFS.stageSlots (liftH G) (V.bp (incCtx V.pub ch)) m (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) core
+      (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr) = .ok (ch, rs, acc, t')) :
+    (rsAccInc V hdrLen (τ.take e)).claims.a = acc.claims.a ∧ (rsAccInc V hdrLen (τ.take e)).claims.h = acc.claims.h := by
+  subst hm
+  have htk := ssh_stage_take key domain (fun ch => V.bp (incCtx V.pub ch)) (incHeadDraws V.pub) hdrLen _ G τ hdr core
+    ch rs hrd hgt
+  obtain ⟨hhl, -, hcan, hsh, -, -⟩ := hrd
+  have htk' : τ.take e = opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+      (hdr ++ StageFS.stageRootOps (V.bp (incCtx V.pub ch)) core (incHeadDraws V.pub)
+        ++ Block.fullOps (V.bp (incCtx V.pub ch)) 0 core.slots) := by
+    rw [he (incCtx V.pub ch)]
+    exact htk
+  rw [htk']
+  have hch : (V.headCh (liftH G) core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr)).1 = ch := by
+    have h := hacc
+    unfold StageFS.stageSlots at h
+    dsimp only at h
+    split at h
+    · simp only [Except.ok.injEq, Prod.mk.injEq] at h
+      exact h.1
+    · cases h
+  subst hch
+  have hm2 := StageV.incSlots_model (liftH G) V core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr)
+  rw [hacc] at hm2
+  obtain ⟨⟨recs, accr, t4⟩, hs, -⟩ := (StageV.map_ok_iff _ _ _).mp hm2
+  have hr := ZK60.ProtocolClassify.rs_accInc_trace (liftH G) V core hdr (Tr.newKeyed (liftH G) domain key) recs accr
+    t4 (incCtx V.pub (V.headCh (liftH G) core (runOps (liftH G) (Tr.newKeyed (liftH G) domain key) hdr)).1) hcan.1
+    hsh.1 hd hs
+  rw [hhl] at hr
+  rw [hr]
+  exact StageV.ssh_inc_claims_ah (liftH G) V core _ recs accr t4 hs rs acc t' hacc
+
+end Link
+

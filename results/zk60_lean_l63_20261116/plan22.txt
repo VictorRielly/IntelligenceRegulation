@@ -1,0 +1,3 @@
+build ZK60Formal.RunStgShieldCChain
+build ZK60Formal.RunStgShieldCJoin
+build ZK60Formal.RunStgShieldCWire
