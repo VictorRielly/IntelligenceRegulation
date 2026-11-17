@@ -502,3 +502,6 @@ import ZK60Formal.RunStgShieldOutTie
 import ZK60Formal.RunStgShieldCTopF
 import ZK60Formal.RunStgShieldInZero
 import ZK60Formal.RunStgShieldCTopW
+import ZK60Formal.RunStgShieldToK
+import ZK60Formal.RunStgShieldDg
+import ZK60Formal.RunStgShieldCTopDg
