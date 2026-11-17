@@ -229,3 +229,15 @@
 'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_io' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'ZK60.ProtocolClassify.ebUxW_cut_self' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ebUxW_hdr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.epUxV_view' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.UxW_hdr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.bxUxV_view' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.wrOSem_ebEp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.wrOSem_rkR13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_rd_absAt' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.ssh_trIIO_run' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trI' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
