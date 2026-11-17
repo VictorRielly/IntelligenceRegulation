@@ -30,10 +30,12 @@ O11=$WT/results/zk60_lean_l11_20261107
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
-BASE=f5b70efe
+BASE=a6eee4b0
 # 2026-11-17 (merge of perf f5b70efe, Antigravity's RunStgShieldLu and RunShieldInstP, both NOT mine): the lane's root
-# import lines added since BASE (the root diff must be exactly these).
-NEW_SINCE_BASE="RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO RunStgShieldLuRd RunStgShieldTopSJ"
+# import lines added since BASE (the root diff must be exactly these). Later the same day perf a6eee4b0 (lane A33's
+# Rust/results merge on top of the lane's 152fdd2e; no formal/ change) was merged: BASE moved there, so only this leg's
+# two lane imports are new since BASE.
+NEW_SINCE_BASE="RunStgShieldLuRd RunStgShieldTopSJ"
 MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO RunStgShieldLuRd RunStgShieldTopSJ"
 AG="RunStgShieldToK RunStgShieldDg RunStgShieldCTopDg RunStgShieldLu RunShieldInstP"
 MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI RunStgShieldC RunStgShieldDefC RunStgShieldCChain RunStgShieldCJoin RunStgShieldCWire RunStgShieldCTop RunStgShieldCTopT RunStgShieldCTopC RunStgShieldCTopI RunStgShieldIOTie RunStgShieldCTopK RunStgShieldCTopZ RunStgShieldOutTie RunStgShieldCTopF RunStgShieldInZero RunStgShieldCTopW $MINE_NEW"
