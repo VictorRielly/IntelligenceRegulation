@@ -519,3 +519,5 @@ import ZK60Formal.RunStgShieldEpBridge
 import ZK60Formal.RunStgShieldIncSem
 import ZK60Formal.RunStgShieldIOPin
 import ZK60Formal.RunStgShieldTopIO
+import ZK60Formal.RunStgShieldTrIIO
+import ZK60Formal.RunStgShieldTopTrI
