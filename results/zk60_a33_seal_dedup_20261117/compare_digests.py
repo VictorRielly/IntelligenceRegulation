@@ -14,7 +14,10 @@ def read(name):
     return out
 
 
-p, u = read("g4_m4_trained_patched.log"), read("g4_m4_trained_unpatched.log")
+import sys
+
+pre = sys.argv[1] if len(sys.argv) > 1 else ""  # "m_": the merged tree's runs
+p, u = read(f"{pre}g4_m4_trained_patched.log"), read(f"{pre}g4_m4_trained_unpatched.log")
 ok = True
 for prof in sorted(p):
     cpu_eq_metal = all(c == m for c, m in p[prof] | u.get(prof, set()))

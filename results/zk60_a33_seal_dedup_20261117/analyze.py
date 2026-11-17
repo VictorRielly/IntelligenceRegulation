@@ -54,7 +54,8 @@ def parse(path: Path, arm: str):
 
 def main():
     arm = sys.argv[1]
-    files = sorted(RAW.glob(f"{arm}_[0-9]*[AB].log"), key=lambda p: int(re.match(rf"{arm}_(\d+)", p.name).group(1)))
+    pre = sys.argv[2] if len(sys.argv) > 2 else ""  # "m_": the merged tree's runs
+    files = sorted(RAW.glob(f"{pre}{arm}_[0-9]*[AB].log"), key=lambda p: int(re.match(rf"{pre}{arm}_(\d+)", p.name).group(1)))
     out = []
     per = {"A": [], "B": []}
     keys = ["seal0", "wall0"] if arm == "serve1" else ["cadence", "steady_toks", "seal0", "seal_ov", "wall0"]
@@ -96,8 +97,8 @@ def main():
         out.append(f"- {names[i]} -> {names[i+1]}: {a:.3f} -> {b:.3f} ({b - a:+.3f})")
     text = "\n".join(out)
     print(text)
-    (HERE / f"AB_TABLES_{arm}.md").write_text(text + "\n")
-    (HERE / f"AB_METRICS_{arm}.json").write_text(json.dumps(res, indent=1))
+    (HERE / f"AB_TABLES_{pre}{arm}.md").write_text(text + "\n")
+    (HERE / f"AB_METRICS_{pre}{arm}.json").write_text(json.dumps(res, indent=1))
 
 
 if __name__ == "__main__":

@@ -33,9 +33,10 @@ def sha(p: Path) -> str:
 def main() -> int:
     arm, a_bin, b_bin = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
     order = sys.argv[4] if len(sys.argv) > 4 else "ABAB"
+    prefix = sys.argv[5] if len(sys.argv) > 5 else ""  # "m_" = the runs on the merged tree (base 2ae06f54)
     need, cap, mx = ARMS[arm]
     b_sha = sha(b_bin)
-    log = HERE / "raw" / f"{arm}_binaries.txt"
+    log = HERE / "raw" / f"{prefix}{arm}_binaries.txt"
     log.write_text(f"A (unpatched) {a_bin} sha256 {BASE_SHA}\nB (patched)   {b_bin} sha256 {b_sha}\norder {order}\n")
     counts = {"A": 0, "B": 0}
     for i, who in enumerate(order, 1):
@@ -44,7 +45,7 @@ def main() -> int:
         if who == "A" and sha(a_bin) != BASE_SHA:
             print("ABORT: the unpatched binary's hash differs")
             return 98
-        label = f"{arm}_{i}{who}"
+        label = f"{prefix}{arm}_{i}{who}"
         rc = subprocess.run([
             sys.executable, "-B", str(HERE / "guarded.py"), label, "gpu", need, cap, mx,
             "HL_GPU=1", "HL_GPU_REQUIRED=1", "HL_PB_ORACLE=0", "HL_METAL_TIMING=0", "HL_D55_PROFILE=W16R2_8B_T128_H24",

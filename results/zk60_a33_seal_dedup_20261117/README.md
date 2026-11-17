@@ -1,8 +1,21 @@
 # A33 stage 1: the sealing chain's CS-3 does not repeat the block's public check
 
-Author: Claude (one Sonnet agent, for the Claude co-coordinator), 2026-11-17 UTC. Branch `worktree-agent-a4d782b46866ea303`
-(base `eee3eb57`), source and tests in one commit (`perf(a33): ...`), these results in a second. Not merged, not pushed, not yet
-cross-reviewed. Labels: MEASURED (a log of this directory), CODE-READ (file:line, tree at the base commit unless "patched").
+Author: Claude (one Sonnet agent, for the Claude co-coordinator), 2026-11-17 UTC. Branch `worktree-agent-a4d782b46866ea303`.
+
+**BASE (read this first).** The branch was first created at `eee3eb57`, which is OLDER than `perf/zk-batch-optimizations` (`2ae06f54`;
+12 prover source files differ, among them `private_block.rs`, where `check_accuracy_for_shape` lives). Everything in sections 1 to 6
+that is a build, a test result or a timing was taken on that OLD base and is **SUPERSEDED**; the same gates were rerun after
+`git merge 2ae06f54` and are in **section 7** (the numbers to use). `git diff --stat 2ae06f54 -- ops/zkp-mvp/gpu-metal` shows only the four
+patched files (4 files, +214 -2). Commits: source and tests `b2330b16` (made on the old base, carried over unchanged), results
+`f1963108` (old-base results), the merge, and the results commit that adds section 7 and the cross-review answer (section 8).
+The code reading in sections 1 and 2 (file:line) was done on the old base; the files it cites (`protocol.rs`, `trained_block.rs`,
+`witness.rs`, `private_block.rs` 852-904) were re-checked and the patched files do not differ between the two bases, so it holds.
+Not pushed, not yet cross-reviewed (a cross-review of the profile arrived, section 8). Labels: MEASURED (a log of this directory),
+CODE-READ (file:line).
+
+**Expected saving, corrected by the cross-review (Antigravity, `RECOVERY_COORDINATION.md`, 2026-11-17T17:30Z, M2):** the profile's
+0.35 s for the repeated check is deflated by the non-uniform sampler slowdown (CS-3 woke 32 global threads, x1.46) to about
+0.28 to 0.31 s. That is close to what section 7 measures (0.275 s on the sealing pass).
 
 ## 1. What changed, in one paragraph
 
@@ -92,7 +105,7 @@ and in `seal_chain` the build, the rule and the scan come in that order. No othe
   device): print the SHA-256 of the sealing pass's whole summary line (statement identity, block digests, records, every sealed
   plane and endpoint, stage shapes, kept witnesses and every plane of each), at two budgets, CPU and device.
 
-## 4. Gates
+## 4. Gates (ON THE OLD BASE `eee3eb57`: SUPERSEDED by section 7; kept for the record)
 
 Toolchain: no rustup toolchain exists on this Mac (`~/.rustup/toolchains` absent); the precedent's `/opt/homebrew/bin/cargo` is used.
 All commands run through `guarded.py` (this directory), which runs `python3 -B /Users/victorrielly/IntelligenceRegulation/scripts/zk60_resource_guard.py run --class ... --wait-secs 21600 ... -- <leaf>`
@@ -196,7 +209,7 @@ Per run: `AB_TABLES_serve4.md`; solo: `AB_TABLES_serve1.md`; raw logs `raw/`. **
 there too, but at two lanes the stream is paced by the prover (about 3.7 s per request), not by the sealing pass, so the saving
 shows in the first request's wall and in the sealing pass's own time, not in the steady rate.
 
-## 5. What this does not show
+## 5. What this does not show (written on the old base; the first, second and fourth points hold for section 7 too)
 
 - It does not show the saving at any other profile, model, T, or machine state; the A/B is the W16R2 8B T128 H24, 32-layer synthetic
   stack of Batch 7, on a Mac shared with other agents' jobs (one heavy job at a time, but not a quiesced box: the guard's `status`
@@ -213,9 +226,116 @@ shows in the first request's wall and in the sealing pass's own time, not in the
   saving may exist there, with its own precondition (`classify_cli.rs:568` builds with `build_for_block`; the token CLI, `cli.rs:796`, builds with `build_shaped`,
 which does not run `BlockPublic::check_for_shape`, so there the check is not a repeat).
 
-## 6. Files
+## 6. Files (old-base runs have no prefix; merged-tree runs are `m_`-prefixed)
 
 `guarded.py` (guard wrapper), `ab_run.py` (A B A B), `analyze.py` (tables), `compare_digests.py` (G4), `collect_guard.py`
 (`GUARD_RUNS.md`), `AB_TABLES_*.md`, `AB_METRICS_*.json`, `raw/*.log` (leaf output), `raw/*.guard.json` (guard terminal records
 with run ids), `raw/*.status_pre.txt` (guard status and ds4-bench check around each run), `raw/*_binaries.txt`. `scrub.py` was run once over `raw/`: the four `g1_build_*.log` files (cargo JSON) are replaced by a one-line
 summary (test executable, warning and error counts) and the agent scratch directory's path is written `<scratch>`.
+
+## 7. THE RERUN ON THE MERGED TREE (base `2ae06f54` + the A33 commit): the numbers to use
+
+`git merge 2ae06f54`, then `git diff --stat 2ae06f54 -- ops/zkp-mvp/gpu-metal` = the four patched files only (+214 -2). All runs
+below are `m_`-prefixed in `raw/` and `GUARD_RUNS.md` (guard run ids there). `BIN_P` = the merged patched binary
+(`hashline-4ff65cafe9d88959` in the worktree's target, rebuilt); `BIN_U` = the reference binary `hashline-a90b6cf7715dc2a7` (unpatched,
+sha256 `aaaab7e6...acad11`, checked before every unpatched timing run; its source is the current tree: the only gpu-metal commit between
+the two bases, `10f1071b` of 2026-11-12, predates the binary's mtime of 2026-11-17 03:10); `BIN_B` = the merged tree with
+`if build_checked && false {` (the full CS-3 check always taken, plus the new tests), scratch build. The tree was restored by an edit and
+`git diff` was empty. Gates were run by `merged_gates.py` (one guarded leaf at a time, every result recorded); no `ds4-bench` ran before
+or after any run (`GUARD_RUNS.md`).
+
+| gate | command (leaf) | guard run id | result |
+|---|---|---|---|
+| G1 build | `cargo test --release --offline --locked -j 2 --features gpu-metal --manifest-path W/Cargo.toml --lib --no-run --message-format=json` | `13cb6367780d` | exit 0, 171 s, peak 4.45 GiB |
+| G1 no-feature | `cargo check --tests --offline --locked -j 2 --manifest-path W/Cargo.toml` | `39e2793f3d77` | exit 0 (3.4 s) |
+| G1 old-behaviour build (BIN_B) | as G1 with `CARGO_TARGET_DIR` in the scratchpad | `b8d8ceba76d5` | exit 0, 174 s |
+| G2 full suite | BIN_P `--test-threads=8` (all non-ignored) | `b1352cc49605` | 1003 passed, 3 failed, 134 ignored, 636 s |
+| G2 the three failures | BIN_U and BIN_P, the three tests by name | `0008bc10b340` (U), `dc486ece1406` (P) | 3 of 3 fail on both |
+| G3 refusal text | `fork::tests::a33_` on BIN_P and BIN_B | `5cad393133fd`, `81f0a049e66a` | 3 passed on both, identical printed lines |
+| G4 rung sealing summary | same two runs | same | SHA-256 `59560de9...` (unlimited budget), `6f1d6d00...` (budget 0), equal |
+| G4 8B sealing summary | `a33_the_8b_sealing_pass_summary_on_the_cpu_and_on_the_device`, `HL_GPU_REQUIRED=1`, class gpu | `837417060128` (P), `3ca18d43dafc` (B) | CPU = device = old behaviour: `e395260d...`, `3fd2b15f...` |
+| G4 trained-block digests | `m4_trained_accuracy_block_cpu_and_metal_digests_and_times`, six profiles | `135ba010e705` (P), `3b265961c6a7` (U) | CPU = Metal and P = U for all six (`compare_digests.py m_`: ALL EQUAL) |
+
+**The three failing tests (G2), by name; they fail identically on the unpatched current tree (BIN_U) and on BIN_P:**
+`private_block::review_tests::a_toy_receipt_made_before_f12_is_refused`,
+`private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces`,
+`private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name`
+(each "0 passed 3 failed" on both binaries, `raw/m_g2_three_known_*.log`). Not investigated. The CS-3 tests, the text gates, the
+precondition gate, the sealing and H-1 tests and the source-scan suites are among the 1003 that pass. Not rerun on the merged tree: the
+focused list of section 4 as a separate run (it is a subset of the full suite) and the ignored device tests of a16/s4.sh (not run on
+either base). The no-feature check took 3.4 s (cargo had most of it cached); it exited 0.
+
+**G5 timing A/B, merged tree** (`ab_run.py ... ABAB m_`; same leaf, environment and guard arguments as section 4; n = 12 warm passes per
+binary; medians, `[p25-p75]`):
+
+`serve1` (solo):
+
+| run | binary | sealing pass s [min-max] | request wall s [min-max] |
+|---|---|---|---|
+| m_serve1_1A | unpatched | 2.173 [2.111-2.210] | 6.116 [5.989-6.233] |
+| m_serve1_2B | patched | 1.917 [1.840-1.965] | 5.896 [5.771-5.985] |
+| m_serve1_3A | unpatched | 2.188 [2.169-2.305] | 6.200 [6.035-6.281] |
+| m_serve1_4B | patched | 1.903 [1.883-1.972] | 5.888 [5.771-5.977] |
+| **pooled** | unpatched | **2.181** [2.172-2.195] | **6.143** [6.055-6.225] |
+| **pooled** | patched | **1.906** [1.893-1.934] | **5.888** [5.818-5.940] |
+| difference | | **-0.275 s** (run-median pairs -0.257, -0.285) | **-0.255 s** (pairs -0.220, -0.312) |
+
+Sealing-pass ranges do not overlap (unpatched min 2.111, patched max 1.972). Measured saving 0.275 s (12.6%), a little under the
+cross-review's 0.28 to 0.31 s expectation.
+
+`serve4` (two lanes, 4 requests per pass):
+
+| metric | unpatched median [p25-p75] | patched median [p25-p75] | patched minus unpatched |
+|---|---|---|---|
+| steady cadence s/request | 3.646 [3.624-3.710] | 3.694 [3.680-3.730] | **+0.048** (pairs +0.060, +0.036) |
+| steady tok/s | 35.11 [34.50-35.32] | 34.65 [34.32-34.79] | **-0.46** |
+| sealing pass of request 0 s | 2.203 [2.141-2.241] | 1.907 [1.845-1.939] | -0.296 |
+| sealing pass of requests 1-3 (mean) s | 3.416 [3.376-3.431] | 3.083 [3.044-3.128] | -0.333 |
+| request 0 wall s | 6.464 [6.363-6.546] | 6.150 [6.069-6.213] | -0.314 |
+
+Both pairs of the two-lane cadence have the same sign here (patched slower); the old-base runs had +0.044 on pooled medians (pairs
++0.065, -0.029). So there is no steady-rate gain at two lanes, and a small consistent loss of about 0.05 s per request (1.3% of tok/s)
+is possible. I did not investigate it; a plausible reading is that a shorter sealing pass lets the next request's host work meet the
+running proof's host phases sooner, but this is a guess, not a measurement. Per-run tables: `AB_TABLES_m_serve1.md`, `AB_TABLES_m_serve4.md`.
+
+**SUPERSEDED old-base numbers (base `eee3eb57`, kept for the record):** solo sealing pass 2.188 -> 1.927 s (-0.262), request wall
+6.213 -> 5.878 s (-0.335); serve4 cadence 3.689 -> 3.732 s (+0.044), tok/s 34.70 -> 34.30, sealing pass of request 0 -0.286. The old
+patched binary was built from older sources than the reference binary, so those A/Bs compared two things at once.
+
+## 8. Cross-review H1 (Antigravity): is `build_checked` equivalent to the `CheckedPublic` carrier, and which is better?
+
+The review's premise is the one found independently above: `witness_for_block` overwrites the gate shift with the data's and takes
+`build_shaped` with no accuracy data, so only CS-3 checks a block against the layer record's shape. Read of `CheckedPublic`
+(`protocol.rs:1811-1857` on the merged tree, doc comment `:1811-1820`):
+
+**(i) What `build_checked` guarantees, and whether it has a hole.** `build_checked` is true only when `cur.blk.accuracy()` is `Some(data)` and
+`data.folds().gate.shift == ssh.accuracy_gate_shift`. Then `witness_for_block` (`trained_block.rs:1543-1548`) ran
+`build_for_block(&local, ..)` with `local = ssh.clone().with_accuracy_gate_shift(data gate)`.
+- **Is the gate shift the only field in which `local` can differ from `ssh`? Yes.** `Shape::with_accuracy_gate_shift` (`shape.rs:904-910`)
+  takes `mut self`, checks the stack and the range, then assigns `self.accuracy_gate_shift = shift`; no other field is touched. So
+  `local == ssh` exactly when the gate shifts are equal, and then `build_for_block` ran `check_accuracy_for_shape` on a shape equal to
+  `ssh` for this very `&BlockPublic`; `check_for_shape(&ssh)` at a non-Legacy shape is that function (`private_block.rs:886-889`).
+- **Legacy shape with a block that carries accuracy data:** `with_accuracy_gate_shift` returns `Err` for a Legacy stack
+  (`shape.rs:905-906`), `witness_for_block` propagates it (`trained_block.rs:1546`) and the build is refused at `:3035` with the builder's
+  text, before CS-3; the rule is never evaluated there. The `a33_the_sealing_pass_skips...` source gate (`r6_tests.rs`) pins that the
+  build comes before the rule and the rule before the scan.
+- **No accuracy data:** `build_checked` is false, so the full `check_lookup_misses` runs: `check_for_shape(&ssh)` includes the "R13
+  profile is missing its public accuracy data" refusal that `build_shaped` never makes (`private_block.rs:859`).
+- **Record gate differs from the data's:** `build_checked` false, the full check runs and refuses with CS-3's text (test
+  `a33_a_record_at_another_gate_shift_is_still_refused_by_the_full_cs3_check`, identical on the old behaviour).
+My reading finds **no hole**: every case in which the build did not check `(blk, ssh)` takes the old function, so no refusal, text or
+order moves. In what it guarantees it is equivalent to a `CheckedPublic`: "a check of this block at a shape equal to `ssh` passed a
+moment ago, with nothing between".
+
+**(ii) Would `CheckedPublic` be a better carrier? No, not here.**
+- `CheckedPublic::check` (`protocol.rs:1828-1831`) runs `blk.check_for_shape(sh)` itself; constructing it in `seal_chain` after the build
+  would run the very check this change removes. It is the right carrier for the preflight (one record, handed to the fork), not for a
+  check the build already made at a derived shape (`local`).
+- The only non-checking constructor, `CheckedPublic::of_kept` (`:1839-1841`), is for a resident `KeptBlock` that passed at a shape equal
+  to `sh` at startup (`HL_A23_CHECKED`, the shared-block server path); `cur.blk` is `LayerBlock::Owned` on the default `stack-prove`
+  path, so it does not cover the general case.
+- A `CheckedPublic` made from the build's check would need a new constructor asserting "passed at `local`" plus the same `local == ssh`
+  test: the same rule with more code, and a second way to mint a record without running the check, weakening the invariant stated at
+  `:1818-1820` ("no record exists for a block that did not pass").
+So I kept the rule and its two-function split. A record would become useful if Stage 2 moves CS-3 off the lane thread (a value handed
+across threads, with `covers`'s pointer-and-shape test); for Stage 1 it adds nothing.
