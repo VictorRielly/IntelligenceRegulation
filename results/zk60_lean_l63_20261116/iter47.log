@@ -1,0 +1,107 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan47.txt ==
+build ZK60Formal.RunStgShieldTopPd
+== lake build ZK60Formal.RunStgShieldTopPd ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✖ [3843/3843] Building ZK60Formal.RunStgShieldTopPd (12s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldTopPd.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldTopPd.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldTopPd.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldTopPd.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldTopPd.setup.json --json
+error: ZK60Formal/RunStgShieldTopPd.lean:194:25: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:194:69: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:209:25: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:209:69: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:224:26: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:224:70: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:245:26: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:245:70: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:266:24: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:266:68: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:281:25: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+error: ZK60Formal/RunStgShieldTopPd.lean:281:69: Function expected at
+  QB
+but this term has type
+  ℕ
+
+Note: Expected a function because this term is being applied to the argument
+  Lq
+Some required targets logged failures:
+- ZK60Formal.RunStgShieldTopPd
+error: build failed
+build rc 1 (18 s)
+rc 1, 18 s
