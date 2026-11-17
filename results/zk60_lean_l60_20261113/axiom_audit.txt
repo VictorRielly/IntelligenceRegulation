@@ -1,0 +1,17 @@
+'ZK60.Exec.Block.lkSqB_rbr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.Block.ra_lk_blkB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ra_hal_luB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rd_hdblkB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.wr_termBN' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.sj_hgXB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.bnd_hsl_evBN_of_args' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.eb_stg_D_lists' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sj_productionReadyL_epP_wireT' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sj_productionReadyL_epP_join' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sj_productionReadyL_epP_join_shield' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

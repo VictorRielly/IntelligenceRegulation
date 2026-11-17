@@ -1,0 +1,2 @@
+build ZK60Formal.RunStgShieldC
+build ZK60Formal.RunStgShieldDefC

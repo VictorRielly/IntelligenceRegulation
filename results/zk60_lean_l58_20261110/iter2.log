@@ -1,0 +1,42 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af93ac6fe3d26ceec/results/zk60_lean_l58_20261110/plan2.txt ==
+build ZK60Formal.RunEpXExt
+build ZK60Formal.RunEpXOpW
+build ZK60Formal.RunEpXInc
+build ZK60Formal.RunEpXTest
+build ZK60Formal.RunEpXTop
+build ZK60Formal.RunEpXTopT
+build ZK60Formal.RunEpXTopW
+build ZK60Formal.RunEpXTopX
+build ZK60Formal.RunEpXTopF
+build ZK60Formal.RunEpXTopG
+== lake build ZK60Formal.RunEpXExt ==
+Build completed successfully (3571 jobs).
+build rc 0 (17 s)
+== lake build ZK60Formal.RunEpXOpW ==
+Build completed successfully (3572 jobs).
+build rc 0 (44 s)
+== lake build ZK60Formal.RunEpXInc ==
+Build completed successfully (3573 jobs).
+build rc 0 (68 s)
+== lake build ZK60Formal.RunEpXTest ==
+Build completed successfully (3576 jobs).
+build rc 0 (73 s)
+== lake build ZK60Formal.RunEpXTop ==
+Build completed successfully (3646 jobs).
+build rc 0 (78 s)
+== lake build ZK60Formal.RunEpXTopT ==
+Build completed successfully (3651 jobs).
+build rc 0 (82 s)
+== lake build ZK60Formal.RunEpXTopW ==
+Build completed successfully (3660 jobs).
+build rc 0 (87 s)
+== lake build ZK60Formal.RunEpXTopX ==
+Build completed successfully (3668 jobs).
+build rc 0 (98 s)
+== lake build ZK60Formal.RunEpXTopF ==
+Build completed successfully (3672 jobs).
+build rc 0 (109 s)
+== lake build ZK60Formal.RunEpXTopG ==
+Build completed successfully (3673 jobs).
+build rc 0 (114 s)
+rc 0, 114 s

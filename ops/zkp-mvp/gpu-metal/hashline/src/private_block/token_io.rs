@@ -639,6 +639,18 @@ impl TokenTables {
     }
 
     pub(crate) fn emb_digest(&self) -> Digest {
+        if crate::private_block::a30_b3par() {
+            use crate::private_block::{a21_tree_digest, A21Piece, A21_LEAF};
+            return a21_tree_digest(
+                vec![
+                    A21Piece::Borrowed(b"hashline/token-io/embedding-int16/v1"),
+                    A21Piece::Bytes((self.v as u64).to_le_bytes().to_vec()),
+                    A21Piece::Bytes((self.d as u64).to_le_bytes().to_vec()),
+                    A21Piece::Words16Le(&self.emb),
+                ],
+                A21_LEAF,
+            );
+        }
         let mut h = blake3::Hasher::new();
         h.update(b"hashline/token-io/embedding-int16/v1");
         h.update(&(self.v as u64).to_le_bytes());
@@ -650,6 +662,19 @@ impl TokenTables {
     }
 
     pub(crate) fn head_digest(&self) -> Digest {
+        if crate::private_block::a30_b3par() {
+            use crate::private_block::{a21_tree_digest, A21Piece, A21_LEAF};
+            return a21_tree_digest(
+                vec![
+                    A21Piece::Borrowed(b"hashline/token-io/head-int8-per-row-multipliers/v1"),
+                    A21Piece::Bytes((self.v as u64).to_le_bytes().to_vec()),
+                    A21Piece::Bytes((self.d as u64).to_le_bytes().to_vec()),
+                    A21Piece::Words(&self.head),
+                    A21Piece::Words64Le(&self.mult),
+                ],
+                A21_LEAF,
+            );
+        }
         let mut h = blake3::Hasher::new();
         h.update(b"hashline/token-io/head-int8-per-row-multipliers/v1");
         h.update(&(self.v as u64).to_le_bytes());

@@ -1,0 +1,37 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan31.txt ==
+build ZK60Formal.RunStgShieldIODec
+== lake build ZK60Formal.RunStgShieldIODec ==
+✖ [3783/3783] Building ZK60Formal.RunStgShieldIODec (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldIODec.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldIODec.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldIODec.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldIODec.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldIODec.setup.json --json
+error: ZK60Formal/RunStgShieldIODec.lean:146:29: Unknown identifier `epxH`
+error: ZK60Formal/RunStgShieldIODec.lean:148:29: Unknown identifier `epxH`
+error: ZK60Formal/RunStgShieldIODec.lean:154:29: Application type mismatch: The argument
+  tag
+has type
+  MTag
+but is expected to have type
+  ℕ
+in the application
+  epDecX tag
+error: ZK60Formal/RunStgShieldIODec.lean:156:11: Unknown identifier `epxH`
+error: ZK60Formal/RunStgShieldIODec.lean:157:8: Unknown identifier `epxH`
+error: ZK60Formal/RunStgShieldIODec.lean:154:80: unsolved goals
+rd : List UInt8 → Option Dig
+d i R lc Q N n : ℕ
+hi : i < n
+dec : (Fin N → Option (MerkleOpening Dig Dig (ColR R))) → (Fin R → Fin (2 ^ lc) → GF) × (Fin R → Fin Q → GF)
+v v' : StgVw (?m.27 rd d i R lc Q N n hi dec)
+h1 : ∀ i_1 < n, v.1 i_1 = v'.1 i_1
+h2 : List.take n v.2 = List.take n v'.2
+⊢ sorry v = sorry v'
+error: ZK60Formal/RunStgShieldIODec.lean:170:4: Unknown identifier `epxH`
+
+Note: It is not possible to treat `epxH` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunStgShieldIODec.lean:173:17: Unknown identifier `epxAt`
+
+Note: It is not possible to treat `epxAt` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+Some required targets logged failures:
+- ZK60Formal.RunStgShieldIODec
+error: build failed
+build rc 1 (16 s)
+rc 1, 16 s

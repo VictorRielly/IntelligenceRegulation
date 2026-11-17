@@ -1,0 +1,13 @@
+
+running 1 test
+test private_block::witness_speed_tests::a4::a4_witness_time_per_block_cpu_against_the_device ... A4 W16R2_8B_T128_H24 on 32 threads, best of 30: CPU products: whole witness 0.1265 s, the seven products alone 0.0826 s (27.92 G MACs), the rest 0.0439 s
+A4 W16R2_8B_T128_H24 device Simd4x2, weights and outputs mapped: whole witness 0.0749 s (1.69x the CPU's), the seven products alone 0.0144 s (5.7x, 1942 G MACs/s; 217 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.54 ms, weights 0.09 ms, output plane + encode 0.31 ms, command buffer 14.11 ms, of which on the GPU 10.34 ms, scatter 0.00 ms
+A4 W16R2_8B_T128_H24 device Simd4x2, weights and outputs copied: whole witness 0.0837 s (1.51x the CPU's), the seven products alone 0.0275 s (3.0x, 1015 G MACs/s; 0 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.38 ms, weights 4.75 ms, output plane + encode 0.30 ms, command buffer 16.48 ms, of which on the GPU 13.34 ms, scatter 6.11 ms
+A4 W16R2_8B_T128_H24 device Simd2x4, weights and outputs mapped: whole witness 0.0748 s (1.69x the CPU's), the seven products alone 0.0143 s (5.8x, 1948 G MACs/s; 217 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.53 ms, weights 0.09 ms, output plane + encode 0.31 ms, command buffer 14.38 ms, of which on the GPU 10.27 ms, scatter 0.00 ms
+A4 W16R2_8B_T128_H24 device Simd2x4, weights and outputs copied: whole witness 0.0839 s (1.51x the CPU's), the seven products alone 0.0279 s (3.0x, 999 G MACs/s; 0 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.33 ms, weights 4.63 ms, output plane + encode 0.31 ms, command buffer 16.91 ms, of which on the GPU 13.91 ms, scatter 6.12 ms
+A4 W16R2_8B_T128_H24 device Int, weights and outputs mapped: whole witness 0.0757 s (1.67x the CPU's), the seven products alone 0.0186 s (4.4x, 1503 G MACs/s; 217 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.55 ms, weights 0.09 ms, output plane + encode 0.31 ms, command buffer 18.24 ms, of which on the GPU 14.40 ms, scatter 0.00 ms
+A4 W16R2_8B_T128_H24 device Int, weights and outputs copied: whole witness 0.0832 s (1.52x the CPU's), the seven products alone 0.0302 s (2.7x, 926 G MACs/s; 0 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.34 ms, weights 4.63 ms, output plane + encode 0.30 ms, command buffer 22.60 ms, of which on the GPU 18.64 ms, scatter 6.16 ms
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1134 filtered out; finished in 30.87s
+

@@ -1,0 +1,2 @@
+build ZK60Formal.RunStgShieldInAHRun
+build ZK60Formal.RunStgShieldTopI

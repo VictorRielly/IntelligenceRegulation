@@ -1,0 +1,44 @@
+end Real
+
+section Split
+
+variable {K : Type} [Field K] [Algebra GF K] {L : ℕ}
+
+/-- **The corrected IO claims part** (the premise that replaces L57's unmeetable one): at every reading and slot window,
+slot `k`'s IO claims built at the code's width are true of the data. -/
+def StgClaimsIOS (U : K) (key : Option Dig) (domain : List UInt8) (Pof : List Fp2 → Block.BlockParams) (m hdrLen : ℕ)
+    (bgaOf : List Fp2 → Fp2 × Fp2 × Fp2) (absOf : QB L → Option (List UInt8)) (elogv : StgVw L → ℕ → ℕ)
+    (csv : StgVw L → Block.Cm → Block.ZClaim → K) (G : QB L → Dig) (Lg : List (QB L × Dig))
+    (τ : List (TItem × Dig)) : Prop :=
+  ∀ hdr core ch rs, StgRd key domain L Pof m hdrLen bgaOf G τ hdr core ch rs →
+    ∀ k q, core.slots[k]? = some q →
+      ∀ r df, rs[k]? = some r →
+        (Pof ch).define k (Block.histOf (bgaOf ch).1 (bgaOf ch).2.1 (bgaOf ch).2.2 (rs.take k)) r.draws = .ok df →
+        ∀ q' ∈ Block.slotClaimList (StageV.atLog (Pof ch) (elogv (stgVw absOf Lg (opTrace (liftH G)
+            (Tr.newKeyed (liftH G) domain key) (hdr ++ StageFS.stageRootOps (Pof ch) core m
+              ++ Block.fullOps (Pof ch) 0 (core.slots.take k) ++ Block.slotPreOps (Pof ch) k q))) k))
+            r.rho r.es q.terms df.tabs 0,
+          (q'.1 = .inp ∨ q'.1 = .out) →
+          csv (stgVw absOf Lg (opTrace (liftH G) (Tr.newKeyed (liftH G) domain key)
+            (hdr ++ StageFS.stageRootOps (Pof ch) core m ++ Block.fullOps (Pof ch) 0 (core.slots.take k)
+              ++ Block.slotPreOps (Pof ch) k q))) q'.1 q'.2 = q'.2.value.toK U
+
+/-- **`StgTrueAtC` from its parts**: the reader, the `A`/`H` claims, the corrected IO claims and `M`. -/
+theorem ssh_trueAtC_of_split (U : K) (key : Option Dig) (domain : List UInt8) (Pof : List Fp2 → Block.BlockParams)
+    (m hdrLen : ℕ) (bgaOf : List Fp2 → Fp2 × Fp2 × Fp2) (absOf : QB L → Option (List UInt8))
+    (Pv : StgVw L → List Fp2 → Block.BlockParams) (elogv : StgVw L → ℕ → ℕ)
+    (csv : StgVw L → Block.Cm → Block.ZClaim → K) (msv : StgVw L → List (ℕ × List Fp2) → K) (G : QB L → Dig)
+    (Lg : List (QB L × Dig)) (τ : List (TItem × Dig))
+    (hR : StgReadAt key domain Pof m hdrLen bgaOf absOf Pv G Lg τ)
+    (hAH : StgClaimsAH U key domain Pof m hdrLen bgaOf absOf csv G Lg τ)
+    (hIO : StgClaimsIOS U key domain Pof m hdrLen bgaOf absOf elogv csv G Lg τ)
+    (hM : StgMAt U key domain Pof m hdrLen bgaOf absOf msv G Lg τ) :
+    StgTrueAtC U key domain Pof m hdrLen bgaOf absOf Pv elogv csv msv G Lg τ := by
+  intro hdr core ch rs hrd acc t' hacc k q hq
+  obtain ⟨hA, hH⟩ := hAH hdr core ch rs hrd acc t' hacc k q hq
+  exact ⟨hR hdr core ch rs hrd k q hq, hA, hH, hIO hdr core ch rs hrd k q hq,
+    fun mf hmf => hM hdr core ch rs hrd acc t' hacc k q hq mf (List.mem_append_left _ hmf)⟩
+
+end Split
+
+end ZK60.ProtocolClassify

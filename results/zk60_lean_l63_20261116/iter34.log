@@ -1,0 +1,41 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan33.txt ==
+build ZK60Formal.RunStgShieldDzBits
+== lake build ZK60Formal.RunStgShieldDzBits ==
+✖ [3786/3786] Building ZK60Formal.RunStgShieldDzBits (11s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldDzBits.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldDzBits.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldDzBits.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldDzBits.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldDzBits.setup.json --json
+error: ZK60Formal/RunStgShieldDzBits.lean:108:4: Type mismatch
+  eqPoly_mb lc (x0 % 2 ^ lc) t (fun a => pt (lw - lc + a))
+    (fun a ha =>
+      Eq.mpr
+        (id
+          (congrArg (fun _a => _a = bit (mb lc (x0 % 2 ^ lc) a))
+            (hpt (lw - lc + a)
+              (Decidable.byContradiction fun a_1 => dataKeyColK_mb._proof_1_4 lw lc x0 hle t hk a ha a_1))))
+        (Eq.mpr (id (congrArg (fun _a => bit _a = bit (mb lc (x0 % 2 ^ lc) a)) (mb_lo lw lc x0 a hle ha)))
+          (Eq.refl (bit (mb lc (x0 % 2 ^ lc) a)))))
+    hc0 ht
+has type
+  eqPoly (fun (a : Fin lc) => pt (lw - lc + ↑a)) (Block.bitsK lc t) = if t = x0 % 2 ^ lc then 1 else 0
+but is expected to have type
+  eqPoly (fun (a : Fin (lw - if lc ≤ lw then lw - lc else 0)) => pt (lw - lc + ↑a))
+      (Block.bitsK (lw - if lc ≤ lw then lw - lc else 0) t) =
+    if t = x0 % 2 ^ lc then 1 else 0
+warning: ZK60Formal/RunStgShieldDzBits.lean:157:25: This simp argument is unused:
+  List.getElem?_map
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [StageV.rhoC, List.getElem?_range', ha]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/RunStgShieldDzBits.lean:157:44: This simp argument is unused:
+  List.getElem?_range'
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [StageV.rhoC, List.getElem?_map, ha]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- ZK60Formal.RunStgShieldDzBits
+error: build failed
+build rc 1 (16 s)
+rc 1, 16 s

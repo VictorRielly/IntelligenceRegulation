@@ -1,0 +1,6 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan11.txt ==
+build ZK60Formal.RunStgShieldClaims
+== lake build ZK60Formal.RunStgShieldClaims ==
+Build completed successfully (3773 jobs).
+build rc 0 (5 s)
+rc 0, 5 s

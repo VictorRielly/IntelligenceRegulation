@@ -1,0 +1,43 @@
+{
+ "ts_end": "2026-11-17T07:58:01Z",
+ "run_id": "20c1f225b1b9",
+ "label": "agy-batch5-m2-h127-hostshare",
+ "class": "gpu",
+ "cmd": [
+  "/bin/zsh",
+  "-c",
+  "set -e\nenv HL_GPU=1 HL_GPU_REQUIRED=1 HL_A4_REPS=30 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7 private_block::witness_speed_tests::a4::a4_witness_time_per_block_cpu_against_the_device --ignored --exact --nocapture --test-threads=1 > /Users/victorrielly/IntelligenceRegulation/results/zk60_h132_batched_forward_20261116/rust_a4_30reps.log 2>&1\nenv HL_GPU=1 HL_GPU_REQUIRED=1 HL_PB_ORACLE=0 HL_PB_TIMING=1 HL_METAL_TIMING=1 HL_M4_PHASES=1 HL_M4_WARM_PASSES=2 HL_M4_PROFILES=W16R2_8B_T128_H24 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7 private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times --ignored --exact --nocapture --test-threads=1 > /Users/victorrielly/IntelligenceRegulation/results/zk60_h132_batched_forward_20261116/rust_m4_8b_pbtiming.log 2>&1\n"
+ ],
+ "need_gib": 14.0,
+ "cap_gib": 28.0,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 38.77307391166687,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 92997,
+ "boot_id": "B06DEC6D-4E7B-4BAA-B251-2DA7E22E411F",
+ "pid_ns": null,
+ "guard_starttime_ticks": 1794902151,
+ "lock_ids": {
+  "heavy": "16777234:68498707",
+  "build": "16777234:68498708"
+ },
+ "enforcement": "watchdog-only",
+ "waited_s": 91.4,
+ "guard_wall_s": 38.8,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": null,
+ "scope_adopted": null,
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 3.74,
+ "peak_cgroup_gib": null,
+ "peak_vram_mib": 4999,
+ "min_mem_available_gib": 203.57,
+ "vram_drain_s": 0.0,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}
