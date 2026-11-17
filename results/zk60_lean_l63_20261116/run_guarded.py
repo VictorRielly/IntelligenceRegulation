@@ -21,7 +21,7 @@ if os.path.exists(done):
 cap = os.environ.get("L63_CAP_GIB", "24")
 need = str(min(14, int(cap)))  # the guard refuses a cap below the need
 guard = ["python3", "/Users/victorrielly/IntelligenceRegulation/scripts/zk60_resource_guard.py", "run",
-         "--class", "cpu", "--need-gib", need, "--cap-gib", cap, "--wait-secs", "14400",
+         "--class", os.environ.get("L63_CLASS", "build"), "--need-gib", need, "--cap-gib", cap, "--wait-secs", "14400",
          "--label", label, "--log", log, "--done", done, "--"] + cmd
 # the guard's default poll (the coordinator ended the 0.05 s fast-poll rule on 2026-11-16; L63_POLL_SECS, e.g. 0.5,
 # overrides it for one job that loses a boundary to a long leaf)

@@ -1,8 +1,14 @@
 #!/bin/bash
-# D63 lane L63 (2026-11-17): the check on the MERGED tree (perf eda8b4f7, which carries lane L62's RunBlkShieldInst, merged
-# into the lane branch, plus the 30 `import ZK60Formal.RunStgShield...` lines in the root file). A copy of check_l63.sh with
-# these changes only:
-#   * BASE=eda8b4f7 (the perf commit that carries L62);
+# D63 lane L63 (2026-11-17): the check on the MERGED tree. Widened 2026-11-17 for perf b809b591 (lane L64's
+# RunBlkAliveR13 on lane L65's RunStgShieldToK / Dg / CTopDg, which carry the RunStgShield prefix but are Antigravity's):
+#   * BASE=b809b591; the lane's own files (MINE: the 30 of base eda8b4f7 plus MINE_NEW, this leg's) and Antigravity's
+#     three (AG) are counted separately: the root must import every MINE and AG module; the root's diff against BASE must
+#     be exactly the MINE_NEW import lines; the axiom audit (gen_axioms.py) covers MINE only; the source scan reports MINE
+#     and AG separately (both must be clean);
+#   * the axiom audit of the combined top theorem sshC_productionReadyL_epP_blkAlive and the lane's newer tops
+#     (axioms_blkalive.lean, imports the whole root) beside L62's.
+# Earlier history: a copy of check_l63.sh with these changes:
+#   * base eda8b4f7 (the perf commit that carried L62);
 #   * a first step before the per-module builds: the full root build (`lake build ZK60Formal`), its warnings naming an
 #     L63 file or RunBlkShieldInst.lean and its error lines counted (the per-module builds that follow are no-ops);
 #   * the generator section also runs l63_mk_inahrun.py --check (13 generators, closing review finding L63-R2-1);
@@ -12,7 +18,7 @@
 #   * after the L63 axiom audit, the axiom audit of L62's top theorem (axioms_l62top.lean, which imports the whole root, so
 #     it also shows the root loads without a name clash);
 #   * the final verdict line names every condition.
-# One guarded job (run_guarded.py, class cpu). Its exit code is 0 only when every verdict below is green.
+# One guarded job (run_guarded.py, class build). Its exit code is 0 only when every verdict below is green.
 export LEAN_NUM_THREADS=4
 WT=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2
 LAKE=/Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lake
@@ -23,15 +29,19 @@ O11=$WT/results/zk60_lean_l11_20261107
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
-BASE=eda8b4f7
-MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI RunStgShieldC RunStgShieldDefC RunStgShieldCChain RunStgShieldCJoin RunStgShieldCWire RunStgShieldCTop RunStgShieldCTopT RunStgShieldCTopC RunStgShieldCTopI RunStgShieldIOTie RunStgShieldCTopK RunStgShieldCTopZ RunStgShieldOutTie RunStgShieldCTopF RunStgShieldInZero RunStgShieldCTopW"
+BASE=b809b591
+MINE_NEW=""
+AG="RunStgShieldToK RunStgShieldDg RunStgShieldCTopDg"
+MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI RunStgShieldC RunStgShieldDefC RunStgShieldCChain RunStgShieldCJoin RunStgShieldCWire RunStgShieldCTop RunStgShieldCTopT RunStgShieldCTopC RunStgShieldCTopI RunStgShieldIOTie RunStgShieldCTopK RunStgShieldCTopZ RunStgShieldOutTie RunStgShieldCTopF RunStgShieldInZero RunStgShieldCTopW $MINE_NEW"
 FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean $L/RunStgShieldRbr.lean $L/RunStgShieldTrue.lean $L/RunStgShieldTrueRun.lean $L/RunStgShieldTopT.lean $L/RunStgShieldClaims.lean $L/RunStgShieldClaimsRun.lean $L/RunStgShieldTopC.lean $L/RunStgShieldInAH.lean $L/RunStgShieldInAHRun.lean $L/RunStgShieldTopI.lean $L/RunStgShieldC.lean $L/RunStgShieldDefC.lean $L/RunStgShieldCChain.lean $L/RunStgShieldCJoin.lean $L/RunStgShieldCWire.lean $L/RunStgShieldCTop.lean $L/RunStgShieldCTopT.lean $L/RunStgShieldCTopC.lean $L/RunStgShieldCTopI.lean $L/RunStgShieldIOTie.lean $L/RunStgShieldCTopK.lean $L/RunStgShieldCTopZ.lean $L/RunStgShieldOutTie.lean $L/RunStgShieldCTopF.lean $L/RunStgShieldInZero.lean $L/RunStgShieldCTopW.lean"
+for m in $MINE_NEW; do FILES="$FILES $L/$m.lean"; done
+AGFILES="$L/RunStgShieldToK.lean $L/RunStgShieldDg.lean $L/RunStgShieldCTopDg.lean"
 start=$(date +%s)
 echo "== full root build: lake build ZK60Formal (L62 and L63 modules together) =="
 "$LAKE" -d "$WT/formal" build ZK60Formal < /dev/null > "$OUT/merge_rootbuild.log" 2>&1
 rrc=$?
 echo "root build rc $rrc"
-rbw=$(grep -c -E "warning: .*(RunStgShield[A-Za-z0-9]*|RunBlkShieldInst)\.lean" "$OUT/merge_rootbuild.log")
+rbw=$(grep -c -E "warning: .*(RunStgShield[A-Za-z0-9]*|RunBlkShieldInst|RunBlkAliveR13)\.lean" "$OUT/merge_rootbuild.log")
 rbe=$(grep -c "error" "$OUT/merge_rootbuild.log")
 echo "root build: warnings naming a RunStgShield*.lean or RunBlkShieldInst.lean file: $rbw; error lines: $rbe"
 if [ $rrc -ne 0 ]; then
@@ -80,6 +90,19 @@ echo "lines that are not a report: $nel"
 grep -oE "axioms: \[[^]]*\]" "$OUT/axioms_flat.log" | sort | uniq -c
 echo "the top theorem:"
 grep 'sshC_productionReadyL_epP_claimsW\|sshC_productionReadyL_epP_claimsF\|sshC_productionReadyL_epP_claimsI\|ssh_productionReadyL_epP_def\|ssh_productionReadyL_epP_true\|ssh_productionReadyL_epP_claimsO\|ssh_productionReadyL_epP_claimsI' "$OUT/axioms_flat.log"
+echo "== axiom audit of the combined top theorem sshC_productionReadyL_epP_blkAlive (and newer tops) on the whole root =="
+"$LAKE" -d "$WT/formal" env lean "$OUT/axioms_blkalive.lean" < /dev/null > "$OUT/axioms_blkalive.log" 2>&1
+abrc=$?
+echo "axioms_blkalive rc $abrc"
+awk '/^ /{printf "%s", $0; next} {if (NR>1) printf "\n"; printf "%s", $0} END{printf "\n"}' "$OUT/axioms_blkalive.log" \
+  > "$OUT/axioms_blkalive_flat.log"
+cat "$OUT/axioms_blkalive_flat.log"
+nbx=$(grep -c '^#print' "$OUT/axioms_blkalive.lean")
+nba=$(grep -c 'depends on axioms' "$OUT/axioms_blkalive_flat.log")
+nbal=$(grep -c -v 'depends on axioms' "$OUT/axioms_blkalive_flat.log")
+oba=$(grep 'depends on axioms' "$OUT/axioms_blkalive_flat.log" \
+  | grep -v -c -E "\[(propext|Classical.choice|Quot.sound)(, (propext|Classical.choice|Quot.sound))*\]$")
+echo "blkAlive and newer tops: reports $nba (expected $nbx); non-report lines $nbal; other axioms $oba"
 echo "== axiom audit of L62's top theorem on the whole root (import ZK60Formal) =="
 "$LAKE" -d "$WT/formal" env lean "$OUT/axioms_l62top.lean" < /dev/null > "$OUT/axioms_l62top.log" 2>&1
 a62rc=$?
@@ -95,7 +118,9 @@ echo "L62 top: reports $n62 (expected 1); lines that are not a report: $n62l; ot
 echo "== source scan of the L63 files =="
 scan=0
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $FILES \
-  && scan=1 || echo "none"
+  && scan=1 || echo "none (the lane's files)"
+grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $AGFILES \
+  && scan=1 || echo "none (Antigravity's three)"
 echo "== the generators reproduce their files =="
 python3 -I "$OUT/l63_mk_top.py" "$WT" --check
 gch=$?
@@ -121,6 +146,12 @@ echo "== against perf $BASE: Statements.lean, the root's diff, every existing fi
 unch=0
 git -C "$WT" diff --quiet $BASE -- formal/ZK60Formal/Statements.lean \
   && echo "Statements.lean unchanged" || { echo "Statements.lean CHANGED"; unch=1; }
+nmine=0
+for m in $MODS; do grep -q "^import ZK60Formal\.$m\$" "$WT/formal/ZK60Formal.lean" && nmine=$((nmine + 1)); done
+nag=0
+for m in $AG; do grep -q "^import ZK60Formal\.$m\$" "$WT/formal/ZK60Formal.lean" && nag=$((nag + 1)); done
+nmods=$(echo $MODS | wc -w | tr -d ' ')
+echo "root imports: the lane's modules $nmine of $nmods; Antigravity's $nag of 3"
 numstat=$(git -C "$WT" diff --numstat $BASE -- formal/ZK60Formal.lean)
 echo "root numstat (added removed file): $numstat"
 nadd=$(git -C "$WT" diff -U0 $BASE -- formal/ZK60Formal.lean | grep -c '^+[^+]')
@@ -128,8 +159,9 @@ nimp=$(git -C "$WT" diff -U0 $BASE -- formal/ZK60Formal.lean | grep -c '^+import
 nrem=$(git -C "$WT" diff -U0 $BASE -- formal/ZK60Formal.lean | grep -c '^-[^-]')
 echo "root diff: added lines $nadd, of which RunStgShield imports $nimp; removed lines $nrem"
 rootok=1
-[ "$nadd" -eq 30 ] && [ "$nimp" -eq 30 ] && [ "$nrem" -eq 0 ] && rootok=0
-echo "root diff exactly 30 RunStgShield import lines added, 0 removed: $([ $rootok -eq 0 ] && echo yes || echo NO)"
+nnew=$(echo $MINE_NEW | wc -w | tr -d ' ')
+[ "$nadd" -eq "$nnew" ] && [ "$nimp" -eq "$nnew" ] && [ "$nrem" -eq 0 ] && [ "$nmine" -eq "$nmods" ] && [ "$nag" -eq 3 ] && rootok=0
+echo "root: every lane and Antigravity module imported, diff exactly the $nnew new lane import lines, 0 removed: $([ $rootok -eq 0 ] && echo yes || echo NO)"
 nmod=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE -- formal ops src | grep -v '^formal/ZK60Formal.lean$' | wc -l | tr -d ' ')
 echo "existing files under formal/, ops/, src/ modified, deleted or renamed since $BASE (excluding the root): $nmod"
 ulimit -s 65520
@@ -161,10 +193,11 @@ g1=1
 grep -q '^L1 TOTAL: 101956 checks, 0 failed$' "$OUT/l1check_regression.log" && g1=0
 echo "regression verdicts: L6 $g6, L5 $g5, L11 $g11, L1 $g1 (0 = the committed count with 0 failed)"
 echo "total $(( $(date +%s) - start )) s"
-echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $rbe, module builds rc $brc, module warnings $nwp, axioms rc $arc, audited $na of $ng, sorryAx $nsa, ofReduceBool $nrb, other axioms $oth, non-report lines $nel, L62 top rc $a62rc reports $n62 non-report $n62l other axioms $o62, source scan $scan, generators $gch, name clashes $ncl, Statements/unchanged $unch, root diff ok $rootok, modified existing files $nmod, regressions rc $c6/$c5/$c11/$c1 verdicts $g6/$g5/$g11/$g1"
+echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $rbe, module builds rc $brc, module warnings $nwp, axioms rc $arc, audited $na of $ng, sorryAx $nsa, ofReduceBool $nrb, other axioms $oth, non-report lines $nel, blkAlive rc $abrc reports $nba of $nbx non-report $nbal other axioms $oba, L62 top rc $a62rc reports $n62 non-report $n62l other axioms $o62, source scan $scan, generators $gch, name clashes $ncl, Statements/unchanged $unch, root diff ok $rootok, modified existing files $nmod, regressions rc $c6/$c5/$c11/$c1 verdicts $g6/$g5/$g11/$g1"
 [ $rrc -eq 0 ] && [ "$rbw" -eq 0 ] && [ "$rbe" -eq 0 ] \
   && [ $brc -eq 0 ] && [ "$nwp" -eq 0 ] && [ $arc -eq 0 ] && [ "$na" -eq "$ng" ] && [ "$nsa" -eq 0 ] \
   && [ "$nrb" -eq 0 ] && [ "$oth" -eq 0 ] && [ "$nel" -eq 0 ] \
+  && [ $abrc -eq 0 ] && [ "$nba" -eq "$nbx" ] && [ "$nbal" -eq 0 ] && [ "$oba" -eq 0 ] \
   && [ $a62rc -eq 0 ] && [ "$n62" -eq 1 ] && [ "$n62l" -eq 0 ] && [ "$o62" -eq 0 ] \
   && [ $scan -eq 0 ] && [ $gch -eq 0 ] && [ $ncl -eq 0 ] \
   && [ $unch -eq 0 ] && [ $rootok -eq 0 ] && [ "$nmod" -eq 0 ] \
