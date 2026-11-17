@@ -1,0 +1,2005 @@
+{
+  "created_at": "2026-11-17T11:14:42Z",
+  "git_head": "2df5f72d5b6be2eb2c02067073c1bc66a31a9ed0",
+  "ops_zkp_mvp_gpu_metal_git_status": "?? ops/zkp-mvp/gpu-metal/results/r12-tied-11497/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-14339/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-15719/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-16873/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-18936/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-21743/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-23479/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-25679/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-26979/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-30778/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-34404/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-36862/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-38034/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-39503/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-4017/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-43325/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-45816/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-46360/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-4748/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-48654/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-51029/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-5316/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-53924/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-55869/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-5844/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-58706/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-59513/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-62848/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-62937/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-64230/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-66242/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-66617/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-6761/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-71462/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-7472/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-75907/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-76737/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-86339/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-86424/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-87864/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-96072/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-96826/\n?? ops/zkp-mvp/gpu-metal/results/r12-tied-99829/\n?? ops/zkp-mvp/gpu-metal/results/r12b-profile-fields/\n?? ops/zkp-mvp/gpu-metal/results/r12b-rope/\n?? ops/zkp-mvp/gpu-metal/results/r12b-tests/\n?? ops/zkp-mvp/gpu-metal/results/r13-array-tests/",
+  "head_test_binary": {
+    "path": "/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7",
+    "size_bytes": 22951056,
+    "mtime_utc": "2026-11-17T11:10:38Z",
+    "sha256": "aaaab7e6fd38af59d406f201f94cfdb0325a3fe6adb3a04332873580f3acad11"
+  },
+  "quiet_gpu_checks": {
+    "leaf2_1blk_pre": {
+      "tag": "leaf2_1blk_pre",
+      "quiet": true,
+      "waited_polls": 0,
+      "active_ds4": []
+    },
+    "leaf2_1blk_post": {
+      "tag": "leaf2_1blk_post",
+      "quiet": true,
+      "active_ds4": []
+    },
+    "leaf3_stream_pre": {
+      "tag": "leaf3_stream_pre",
+      "quiet": true,
+      "waited_polls": 0,
+      "active_ds4": []
+    },
+    "leaf3_stream_post": {
+      "tag": "leaf3_stream_post",
+      "quiet": true,
+      "active_ds4": []
+    }
+  },
+  "guard_records": {
+    "leaf1_build": {
+      "ts_end": "2026-11-17T11:10:38Z",
+      "run_id": "75ef1a77331c",
+      "label": "agy-batch6-head-build",
+      "class": "build",
+      "cmd": [
+        "/opt/homebrew/bin/cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--features"
+      ],
+      "need_gib": 8.0,
+      "cap_gib": 14.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 170.84202814102173,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 8633,
+      "boot_id": "B06DEC6D-4E7B-4BAA-B251-2DA7E22E411F",
+      "pid_ns": null,
+      "guard_starttime_ticks": 1794913667,
+      "lock_ids": {
+        "heavy": "16777234:68498707",
+        "build": "16777234:68498708"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 170.9,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 4.46,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 207.81,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "leaf2_one_block": {
+      "ts_end": "2026-11-17T11:11:30Z",
+      "run_id": "2667991f6da8",
+      "label": "agy-batch6-head-1block",
+      "class": "gpu",
+      "cmd": [
+        "/bin/zsh",
+        "-c",
+        "set -e\nenv HL_GPU=1 HL_GPU_REQUIRED=1 HL_PB_ORACLE=0 HL_PB_TIMING=1 HL_METAL_TIMING=0 HL_M4_PHASES=1 HL_M4_WARM_PASSES=7 HL_M4_PROFILES=W16R2_8B_T128_H24 HL_A27_GPU_TRACE=/Users/victorrielly/.gemini/antigravity-cli/brain/6862114a-e3c1-4ee6-ab52-0616539bcdc2/scratch/batch6_traces/b6_1blk /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7 private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times --ignored --exact --nocapture --test-threads=1 > /Users/victorrielly/IntelligenceRegulation/results/zk60_h132_batched_forward_20261116/batch6_1block_m4_7warm.log 2>&1\nenv HL_GPU=1 HL_GPU_REQUIRED=1 HL_A4_REPS=30 HL_A27_GPU_TRACE=/Users/victorrielly/.gemini/antigravity-cli/brain/6862114a-e3c1-4ee6-ab52-0616539bcdc2/scratch/batch6_traces/b6_a4 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7 private_block::witness_speed_tests::a4::a4_witness_time_per_block_cpu_against_the_device --ignored --exact --nocapture --test-threads=1 > /Users/victorrielly/IntelligenceRegulation/results/zk60_h132_batched_forward_20261116/batch6_1block_a4_30reps.log 2>&1\n"
+      ],
+      "need_gib": 14.0,
+      "cap_gib": 28.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 39.945931911468506,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 9799,
+      "boot_id": "B06DEC6D-4E7B-4BAA-B251-2DA7E22E411F",
+      "pid_ns": null,
+      "guard_starttime_ticks": 1794913850,
+      "lock_ids": {
+        "heavy": "16777234:68498707",
+        "build": "16777234:68498708"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.1,
+      "guard_wall_s": 40.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 3.82,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": 4317,
+      "min_mem_available_gib": 205.93,
+      "vram_drain_s": 0.0,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "leaf3_stream": {
+      "ts_end": "2026-11-17T11:14:41Z",
+      "run_id": "ba52f58399f4",
+      "label": "agy-batch6-head-stream",
+      "class": "gpu",
+      "cmd": [
+        "/bin/zsh",
+        "-c",
+        "set -e\nenv HL_GPU=1 HL_GPU_REQUIRED=1 HL_PB_ORACLE=0 HL_METAL_TIMING=0 HL_D55_PROFILE=W16R2_8B_T128_H24 HL_D55_L=32 HL_D55_WORKERS=6 HL_A19_BUDGET_GIB=32 HL_A22_AB_PASSES=6 HL_A22_AB=serve1 HL_A27_GPU_TRACE=/Users/victorrielly/.gemini/antigravity-cli/brain/6862114a-e3c1-4ee6-ab52-0616539bcdc2/scratch/batch6_traces/b6_serve1 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7 private_block::run::fork::tests::a22::a22_stream_ab --ignored --exact --nocapture --test-threads=1 > /Users/victorrielly/IntelligenceRegulation/results/zk60_h132_batched_forward_20261116/batch6_stream_serve1_6warm.log 2>&1\nenv HL_GPU=1 HL_GPU_REQUIRED=1 HL_PB_ORACLE=0 HL_METAL_TIMING=0 HL_D55_PROFILE=W16R2_8B_T128_H24 HL_D55_L=32 HL_D55_WORKERS=6 HL_A19_BUDGET_GIB=32 HL_A22_AB_PASSES=6 HL_A22_AB=serve4 HL_A27_GPU_TRACE=/Users/victorrielly/.gemini/antigravity-cli/brain/6862114a-e3c1-4ee6-ab52-0616539bcdc2/scratch/batch6_traces/b6_serve4 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7 private_block::run::fork::tests::a22::a22_stream_ab --ignored --exact --nocapture --test-threads=1 > /Users/victorrielly/IntelligenceRegulation/results/zk60_h132_batched_forward_20261116/batch6_stream_serve4_6warm.log 2>&1\n"
+      ],
+      "need_gib": 52.0,
+      "cap_gib": 68.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 178.9604880809784,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 10099,
+      "boot_id": "B06DEC6D-4E7B-4BAA-B251-2DA7E22E411F",
+      "pid_ns": null,
+      "guard_starttime_ticks": 1794913902,
+      "lock_ids": {
+        "heavy": "16777234:68498707",
+        "build": "16777234:68498708"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.1,
+      "guard_wall_s": 179.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 31.92,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": 22067,
+      "min_mem_available_gib": 166.62,
+      "vram_drain_s": 0.0,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    }
+  },
+  "item1_one_block_w16r2_8b_t128_7warm": {
+    "n_warm_passes": 7,
+    "cpu_and_metal_digests_verified": [
+      [
+        "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe",
+        "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe"
+      ]
+    ],
+    "prove_core_wall_ms": {
+      "n": 7,
+      "median": 268.0,
+      "iqr": 11.0,
+      "p25": 266.5,
+      "p75": 277.5,
+      "min": 259.0,
+      "max": 296.0,
+      "mean": 273.0,
+      "samples": [
+        296.0,
+        285.0,
+        268.0,
+        267.0,
+        270.0,
+        259.0,
+        266.0
+      ]
+    },
+    "prove_core_pb_sum_wall_ms": {
+      "n": 7,
+      "median": 268.0,
+      "iqr": 11.0,
+      "p25": 266.5,
+      "p75": 277.5,
+      "min": 260.0,
+      "max": 296.0,
+      "mean": 273.143,
+      "samples": [
+        296.0,
+        285.0,
+        268.0,
+        267.0,
+        270.0,
+        260.0,
+        266.0
+      ]
+    },
+    "prove_core_gpu_busy_from_cb_timestamps_ms": {
+      "n": 7,
+      "median": 93.482,
+      "iqr": 1.26,
+      "p25": 93.412,
+      "p75": 94.672,
+      "min": 93.009,
+      "max": 96.895,
+      "mean": 94.222,
+      "samples": [
+        95.319,
+        93.482,
+        96.895,
+        94.026,
+        93.409,
+        93.009,
+        93.416
+      ]
+    },
+    "prove_core_gpu_summed_spans_ms": {
+      "n": 7,
+      "median": 93.482,
+      "iqr": 1.26,
+      "p25": 93.412,
+      "p75": 94.672,
+      "min": 93.009,
+      "max": 96.895,
+      "mean": 94.222,
+      "samples": [
+        95.319,
+        93.482,
+        96.895,
+        94.026,
+        93.409,
+        93.009,
+        93.416
+      ]
+    },
+    "prove_core_host_between_cbs_ms": {
+      "n": 7,
+      "median": 172.974,
+      "iqr": 12.21,
+      "p25": 171.845,
+      "p75": 184.054,
+      "min": 165.991,
+      "max": 200.681,
+      "mean": 178.778,
+      "samples": [
+        200.681,
+        191.518,
+        171.105,
+        172.974,
+        176.591,
+        165.991,
+        172.584
+      ]
+    },
+    "prove_core_gpu_busy_share_pct": {
+      "n": 7,
+      "median": 35.118797,
+      "iqr": 1.864957,
+      "p25": 33.698314,
+      "p75": 35.563271,
+      "min": 32.202365,
+      "max": 36.154851,
+      "mean": 34.571312,
+      "samples": [
+        32.202365,
+        32.800702,
+        36.154851,
+        35.21573,
+        34.595926,
+        35.910811,
+        35.118797
+      ]
+    },
+    "wit_build_accuracy_7_wprod_gpu_busy_ms": {
+      "n": 7,
+      "median": 11.022,
+      "iqr": 2.97,
+      "p25": 8.816,
+      "p75": 11.786,
+      "min": 8.302,
+      "max": 13.651,
+      "mean": 10.597,
+      "samples": [
+        13.651,
+        8.903,
+        8.302,
+        11.022,
+        12.243,
+        11.328,
+        8.728
+      ]
+    },
+    "phases_ms": {
+      "A_prep_planes_hist_masks_host_ms": {
+        "n": 7,
+        "median": 28.0,
+        "iqr": 1.5,
+        "p25": 27.0,
+        "p75": 28.5,
+        "min": 25.0,
+        "max": 31.0,
+        "mean": 27.857,
+        "samples": [
+          31.0,
+          29.0,
+          26.0,
+          28.0,
+          25.0,
+          28.0,
+          28.0
+        ]
+      },
+      "A_commit_total_wall_ms": {
+        "n": 7,
+        "median": 22.0,
+        "iqr": 1.0,
+        "p25": 22.0,
+        "p75": 23.0,
+        "min": 21.0,
+        "max": 45.0,
+        "mean": 25.429,
+        "samples": [
+          45.0,
+          22.0,
+          22.0,
+          21.0,
+          23.0,
+          23.0,
+          22.0
+        ]
+      },
+      "A_commit_gpu_cb_ms": {
+        "n": 7,
+        "median": 13.376,
+        "iqr": 0.341,
+        "p25": 13.355,
+        "p75": 13.697,
+        "min": 13.307,
+        "max": 18.601,
+        "mean": 14.198,
+        "samples": [
+          18.601,
+          13.376,
+          13.916,
+          13.352,
+          13.307,
+          13.359,
+          13.477
+        ]
+      },
+      "A_commit_host_setup_and_upper_merkle_ms": {
+        "n": 7,
+        "median": 8.624,
+        "iqr": 1.364,
+        "p25": 8.303,
+        "p75": 9.667,
+        "min": 7.648,
+        "max": 26.399,
+        "mean": 11.23,
+        "samples": [
+          26.399,
+          8.624,
+          8.084,
+          7.648,
+          9.693,
+          9.641,
+          8.523
+        ]
+      },
+      "M_mask_commit_host_ms": {
+        "n": 7,
+        "median": 5.0,
+        "iqr": 1.0,
+        "p25": 4.0,
+        "p75": 5.0,
+        "min": 4.0,
+        "max": 5.0,
+        "mean": 4.571,
+        "samples": [
+          5.0,
+          4.0,
+          4.0,
+          5.0,
+          5.0,
+          4.0,
+          5.0
+        ]
+      },
+      "H_logup_6dom_helper_inverses_host_ms": {
+        "n": 7,
+        "median": 7.0,
+        "iqr": 0.0,
+        "p25": 7.0,
+        "p75": 7.0,
+        "min": 7.0,
+        "max": 8.0,
+        "mean": 7.143,
+        "samples": [
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          8.0
+        ]
+      },
+      "H_exp_act_helper_inverses_host_ms": {
+        "n": 7,
+        "median": 9.0,
+        "iqr": 1.0,
+        "p25": 8.0,
+        "p75": 9.0,
+        "min": 7.0,
+        "max": 9.0,
+        "mean": 8.429,
+        "samples": [
+          9.0,
+          9.0,
+          7.0,
+          9.0,
+          9.0,
+          7.0,
+          9.0
+        ]
+      },
+      "H_three_table_helpers_host_ms": {
+        "n": 7,
+        "median": 1.0,
+        "iqr": 0.0,
+        "p25": 1.0,
+        "p75": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "mean": 1.0,
+        "samples": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "H_all_helper_inverses_host_ms": {
+        "n": 7,
+        "median": 17.0,
+        "iqr": 1.0,
+        "p25": 16.0,
+        "p75": 17.0,
+        "min": 15.0,
+        "max": 18.0,
+        "mean": 16.571,
+        "samples": [
+          17.0,
+          17.0,
+          15.0,
+          17.0,
+          17.0,
+          15.0,
+          18.0
+        ]
+      },
+      "H_masks_and_zerosum_rows_host_ms": {
+        "n": 7,
+        "median": 2.0,
+        "iqr": 0.0,
+        "p25": 2.0,
+        "p75": 2.0,
+        "min": 2.0,
+        "max": 2.0,
+        "mean": 2.0,
+        "samples": [
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      },
+      "H_s2_witness_buffer_drops_host_ms": {
+        "n": 7,
+        "median": 2.0,
+        "iqr": 1.0,
+        "p25": 1.0,
+        "p75": 2.0,
+        "min": 1.0,
+        "max": 2.0,
+        "mean": 1.571,
+        "samples": [
+          1.0,
+          1.0,
+          2.0,
+          2.0,
+          2.0,
+          1.0,
+          2.0
+        ]
+      },
+      "H_commit_total_wall_ms": {
+        "n": 7,
+        "median": 23.0,
+        "iqr": 3.0,
+        "p25": 22.0,
+        "p75": 25.0,
+        "min": 21.0,
+        "max": 41.0,
+        "mean": 25.571,
+        "samples": [
+          26.0,
+          41.0,
+          24.0,
+          23.0,
+          21.0,
+          22.0,
+          22.0
+        ]
+      },
+      "H_commit_gpu_cb_ms": {
+        "n": 7,
+        "median": 14.001,
+        "iqr": 0.186,
+        "p25": 13.842,
+        "p75": 14.028,
+        "min": 13.686,
+        "max": 14.816,
+        "mean": 14.035,
+        "samples": [
+          13.686,
+          14.022,
+          14.816,
+          13.853,
+          13.831,
+          14.001,
+          14.035
+        ]
+      },
+      "H_commit_host_setup_and_upper_merkle_ms": {
+        "n": 7,
+        "median": 9.147,
+        "iqr": 2.767,
+        "p25": 7.982,
+        "p75": 10.749,
+        "min": 7.169,
+        "max": 26.978,
+        "mean": 11.537,
+        "samples": [
+          12.314,
+          26.978,
+          9.184,
+          9.147,
+          7.169,
+          7.999,
+          7.965
+        ]
+      },
+      "slots_23_total_wall_ms": {
+        "n": 7,
+        "median": 139.0,
+        "iqr": 5.5,
+        "p25": 138.0,
+        "p75": 143.5,
+        "min": 134.0,
+        "max": 145.0,
+        "mean": 140.143,
+        "samples": [
+          138.0,
+          143.0,
+          144.0,
+          139.0,
+          145.0,
+          134.0,
+          138.0
+        ]
+      },
+      "slots_23_gpu_cb_ms": {
+        "n": 7,
+        "median": 65.9,
+        "iqr": 0.765,
+        "p25": 65.603,
+        "p75": 66.369,
+        "min": 62.861,
+        "max": 67.99,
+        "mean": 65.814,
+        "samples": [
+          62.861,
+          65.9,
+          67.99,
+          66.642,
+          66.095,
+          65.487,
+          65.72
+        ]
+      },
+      "slots_23_host_ms": {
+        "n": 7,
+        "median": 75.139,
+        "iqr": 4.236,
+        "p25": 72.319,
+        "p75": 76.555,
+        "min": 68.513,
+        "max": 78.905,
+        "mean": 74.329,
+        "samples": [
+          75.139,
+          77.1,
+          76.01,
+          72.358,
+          78.905,
+          68.513,
+          72.28
+        ]
+      },
+      "open_M_host_ms": {
+        "n": 7,
+        "median": 3.0,
+        "iqr": 0.0,
+        "p25": 3.0,
+        "p75": 3.0,
+        "min": 3.0,
+        "max": 3.0,
+        "mean": 3.0,
+        "samples": [
+          3.0,
+          3.0,
+          3.0,
+          3.0,
+          3.0,
+          3.0,
+          3.0
+        ]
+      },
+      "open_A_total_wall_ms": {
+        "n": 7,
+        "median": 15.0,
+        "iqr": 0.0,
+        "p25": 15.0,
+        "p75": 15.0,
+        "min": 15.0,
+        "max": 16.0,
+        "mean": 15.143,
+        "samples": [
+          15.0,
+          15.0,
+          15.0,
+          16.0,
+          15.0,
+          15.0,
+          15.0
+        ]
+      },
+      "open_A_host_audit_and_merkle_ms": {
+        "n": 7,
+        "median": 14.906,
+        "iqr": 0.008,
+        "p25": 14.905,
+        "p75": 14.912,
+        "min": 14.902,
+        "max": 15.907,
+        "mean": 15.05,
+        "samples": [
+          14.908,
+          14.902,
+          14.905,
+          15.907,
+          14.906,
+          14.916,
+          14.905
+        ]
+      },
+      "open_H_total_wall_ms": {
+        "n": 7,
+        "median": 10.0,
+        "iqr": 1.0,
+        "p25": 10.0,
+        "p75": 11.0,
+        "min": 10.0,
+        "max": 11.0,
+        "mean": 10.429,
+        "samples": [
+          11.0,
+          11.0,
+          10.0,
+          10.0,
+          10.0,
+          11.0,
+          10.0
+        ]
+      },
+      "open_H_host_audit_and_merkle_ms": {
+        "n": 7,
+        "median": 9.922,
+        "iqr": 1.0,
+        "p25": 9.916,
+        "p75": 10.916,
+        "min": 9.912,
+        "max": 10.922,
+        "mean": 10.346,
+        "samples": [
+          10.919,
+          10.914,
+          9.922,
+          9.914,
+          9.919,
+          10.922,
+          9.912
+        ]
+      },
+      "open_A_gpu_gather_cb_ms": {
+        "n": 7,
+        "median": 0.094,
+        "iqr": 0.003,
+        "p25": 0.092,
+        "p75": 0.095,
+        "min": 0.084,
+        "max": 0.098,
+        "mean": 0.093,
+        "samples": [
+          0.092,
+          0.098,
+          0.095,
+          0.093,
+          0.094,
+          0.084,
+          0.095
+        ]
+      },
+      "open_H_gpu_gather_cb_ms": {
+        "n": 7,
+        "median": 0.081,
+        "iqr": 0.006,
+        "p25": 0.08,
+        "p75": 0.086,
+        "min": 0.078,
+        "max": 0.088,
+        "mean": 0.083,
+        "samples": [
+          0.081,
+          0.086,
+          0.078,
+          0.086,
+          0.081,
+          0.078,
+          0.088
+        ]
+      },
+      "note_opening_fold_is_host_by_default": "By default (HL_METAL_DEVICE_FOLD unset), opening fold runs on the host (~5.3 ms A + ~5.9 ms H = ~11.2 ms/block); the 0.094 ms and 0.081 ms GPU CBs in open_A / open_H are gather buffers only."
+    },
+    "candidate_A_gross_removed_one_block_ms": {
+      "note": "Gross work removed if H is retired (helper inverses + H masks + commit H on host & GPU + open H on host & GPU; excludes S2 witness buffer drops which still occur, and BEFORE subtracting masked LogUp-GKR rounds + extra M mask rows that Candidate A adds).",
+      "helper_inverses_host_ms": {
+        "n": 7,
+        "median": 17.0,
+        "iqr": 1.0,
+        "p25": 16.0,
+        "p75": 17.0,
+        "min": 15.0,
+        "max": 18.0,
+        "mean": 16.571,
+        "samples": [
+          17.0,
+          17.0,
+          15.0,
+          17.0,
+          17.0,
+          15.0,
+          18.0
+        ]
+      },
+      "h_masks_host_ms": {
+        "n": 7,
+        "median": 2.0,
+        "iqr": 0.0,
+        "p25": 2.0,
+        "p75": 2.0,
+        "min": 2.0,
+        "max": 2.0,
+        "mean": 2.0,
+        "samples": [
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      },
+      "commit_H_gpu_ms": {
+        "n": 7,
+        "median": 14.001,
+        "iqr": 0.186,
+        "p25": 13.842,
+        "p75": 14.028,
+        "min": 13.686,
+        "max": 14.816,
+        "mean": 14.035,
+        "samples": [
+          13.686,
+          14.022,
+          14.816,
+          13.853,
+          13.831,
+          14.001,
+          14.035
+        ]
+      },
+      "commit_H_host_ms": {
+        "n": 7,
+        "median": 9.147,
+        "iqr": 2.767,
+        "p25": 7.982,
+        "p75": 10.749,
+        "min": 7.169,
+        "max": 26.978,
+        "mean": 11.537,
+        "samples": [
+          12.314,
+          26.978,
+          9.184,
+          9.147,
+          7.169,
+          7.999,
+          7.965
+        ]
+      },
+      "open_H_gpu_ms": {
+        "n": 7,
+        "median": 0.081,
+        "iqr": 0.006,
+        "p25": 0.08,
+        "p75": 0.086,
+        "min": 0.078,
+        "max": 0.088,
+        "mean": 0.083,
+        "samples": [
+          0.081,
+          0.086,
+          0.078,
+          0.086,
+          0.081,
+          0.078,
+          0.088
+        ]
+      },
+      "open_H_host_ms": {
+        "n": 7,
+        "median": 9.922,
+        "iqr": 1.0,
+        "p25": 9.916,
+        "p75": 10.916,
+        "min": 9.912,
+        "max": 10.922,
+        "mean": 10.346,
+        "samples": [
+          10.919,
+          10.914,
+          9.922,
+          9.914,
+          9.919,
+          10.922,
+          9.912
+        ]
+      },
+      "total_removed_wall_ms": {
+        "n": 7,
+        "median": 52.0,
+        "iqr": 3.5,
+        "p25": 50.5,
+        "p75": 54.0,
+        "min": 50.0,
+        "max": 71.0,
+        "mean": 54.571,
+        "samples": [
+          56.0,
+          71.0,
+          51.0,
+          52.0,
+          50.0,
+          50.0,
+          52.0
+        ]
+      },
+      "total_removed_gpu_ms": {
+        "n": 7,
+        "median": 14.079,
+        "iqr": 0.19,
+        "p25": 13.926,
+        "p75": 14.116,
+        "min": 13.766,
+        "max": 14.894,
+        "mean": 14.117,
+        "samples": [
+          13.766,
+          14.108,
+          14.894,
+          13.939,
+          13.912,
+          14.079,
+          14.123
+        ]
+      },
+      "total_removed_host_ms": {
+        "n": 7,
+        "median": 37.877,
+        "iqr": 4.051,
+        "p25": 36.097,
+        "p75": 40.147,
+        "min": 35.92,
+        "max": 56.892,
+        "mean": 40.454,
+        "samples": [
+          42.234,
+          56.892,
+          36.106,
+          38.061,
+          36.088,
+          35.92,
+          37.877
+        ]
+      },
+      "gross_share_of_prove_core_wall_pct": {
+        "n": 7,
+        "median": 19.305019,
+        "iqr": 0.537879,
+        "p25": 18.974385,
+        "p75": 19.512264,
+        "min": 18.518519,
+        "max": 24.912281,
+        "mean": 19.958445,
+        "samples": [
+          18.918919,
+          24.912281,
+          19.029851,
+          19.475655,
+          18.518519,
+          19.305019,
+          19.548872
+        ]
+      },
+      "gross_share_of_prove_core_gpu_busy_pct": {
+        "n": 7,
+        "median": 15.091675,
+        "iqr": 0.269064,
+        "p25": 14.859239,
+        "p75": 15.128303,
+        "min": 14.442346,
+        "max": 15.371381,
+        "mean": 14.982927,
+        "samples": [
+          14.442346,
+          15.091675,
+          15.371381,
+          14.824517,
+          14.893961,
+          15.137782,
+          15.118823
+        ]
+      }
+    },
+    "head_a4_witness_30reps": {
+      "raw_lines": [
+        "A4 W16R2_8B_T128_H24 device Simd4x2, weights and outputs mapped: whole witness 0.0749 s (1.69x the CPU's), the seven products alone 0.0144 s (5.7x, 1942 G MACs/s; 217 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.54 ms, weights 0.09 ms, output plane + encode 0.31 ms, command buffer 14.11 ms, of which on the GPU 10.34 ms, scatter 0.00 ms",
+        "A4 W16R2_8B_T128_H24 device Simd4x2, weights and outputs copied: whole witness 0.0837 s (1.51x the CPU's), the seven products alone 0.0275 s (3.0x, 1015 G MACs/s; 0 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.38 ms, weights 4.75 ms, output plane + encode 0.30 ms, command buffer 16.48 ms, of which on the GPU 13.34 ms, scatter 6.11 ms",
+        "A4 W16R2_8B_T128_H24 device Simd2x4, weights and outputs mapped: whole witness 0.0748 s (1.69x the CPU's), the seven products alone 0.0143 s (5.8x, 1948 G MACs/s; 217 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.53 ms, weights 0.09 ms, output plane + encode 0.31 ms, command buffer 14.38 ms, of which on the GPU 10.27 ms, scatter 0.00 ms",
+        "A4 W16R2_8B_T128_H24 device Simd2x4, weights and outputs copied: whole witness 0.0839 s (1.51x the CPU's), the seven products alone 0.0279 s (3.0x, 999 G MACs/s; 0 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.33 ms, weights 4.63 ms, output plane + encode 0.31 ms, command buffer 16.91 ms, of which on the GPU 13.91 ms, scatter 6.12 ms",
+        "A4 W16R2_8B_T128_H24 device Int, weights and outputs mapped: whole witness 0.0757 s (1.67x the CPU's), the seven products alone 0.0186 s (4.4x, 1503 G MACs/s; 217 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.55 ms, weights 0.09 ms, output plane + encode 0.31 ms, command buffer 18.24 ms, of which on the GPU 14.40 ms, scatter 0.00 ms",
+        "A4 W16R2_8B_T128_H24 device Int, weights and outputs copied: whole witness 0.0832 s (1.52x the CPU's), the seven products alone 0.0302 s (2.7x, 926 G MACs/s; 0 of 217 written in place); per block of seven: activation buffer 0.00 ms, pack 2.34 ms, weights 4.63 ms, output plane + encode 0.30 ms, command buffer 22.60 ms, of which on the GPU 18.64 ms, scatter 6.16 ms"
+      ],
+      "last30_blocks_wprod_gpu_busy_ms": {},
+      "total_wprod_cbs_recorded": 2635
+    },
+    "candidate_A_gross_vs_net_one_block_summary": {
+      "variant_priced": "G3 (retires all helper inverses and all 82 H mask rows; zero-sum pair stays in G2/G3)",
+      "g3_measured_non_slot_removed_ms": 52.0,
+      "g3_measured_non_slot_gross_ceiling_prove_core_x": 1.241,
+      "g3_measured_non_slot_gross_ceiling_witness_plus_prove_x": 1.179,
+      "g1_estimate_non_slot_removed_ms": 36.0,
+      "g1_estimate_non_slot_gross_ceiling_prove_core_x": 1.155,
+      "helper_share_slots_14_to_18_estimate_ms_range": [
+        8.0,
+        16.5
+      ],
+      "tab_slot_19_estimate_ms_range": [
+        0.0,
+        8.0
+      ],
+      "g3_with_slot_estimates_gross_ceiling_prove_core_x_range": [
+        1.29,
+        1.41
+      ],
+      "g3_with_slot_estimates_middle_gross_ceiling_witness_plus_prove_x": 1.25,
+      "candidate_A_own_added_cost_20261101_estimate": {
+        "metal_gkr_tree_rounds_ms_range": [
+          40.0,
+          105.0
+        ],
+        "domain_zerocheck_leaf_claim_terms_ms": 9.0,
+        "extra_M_mask_rows_range": [
+          48,
+          144
+        ],
+        "net_one_block_speedup_estimate_x_range": [
+          0.8,
+          1.1
+        ]
+      }
+    }
+  },
+  "item1_six_fork_stream_serve1_solo_6warm": {
+    "arm": "serve1",
+    "requests_per_pass": 1,
+    "n_warm_passes": 6,
+    "amortized_per_request_wall_s": {
+      "n": 6,
+      "median": 6.0925,
+      "iqr": 0.1005,
+      "p25": 6.034,
+      "p75": 6.1345,
+      "min": 6.005,
+      "max": 6.227,
+      "mean": 6.096667,
+      "samples": [
+        6.073,
+        6.005,
+        6.142,
+        6.112,
+        6.021,
+        6.227
+      ]
+    },
+    "amortized_tok_s": {
+      "n": 6,
+      "median": 21.01,
+      "iqr": 0.35,
+      "p25": 20.865,
+      "p75": 21.215,
+      "min": 20.55,
+      "max": 21.32,
+      "mean": 20.998333,
+      "samples": [
+        21.08,
+        21.32,
+        20.84,
+        20.94,
+        21.26,
+        20.55
+      ]
+    },
+    "per_request_host_phases_s": {
+      "sealing_pass_witness_chain_s": {
+        "n": 6,
+        "median": 2.1715,
+        "iqr": 0.03025,
+        "p25": 2.16125,
+        "p75": 2.1915,
+        "min": 2.135,
+        "max": 2.226,
+        "mean": 2.176667,
+        "samples": [
+          2.168,
+          2.135,
+          2.226,
+          2.175,
+          2.159,
+          2.197
+        ]
+      },
+      "prove_call_total_s": {
+        "n": 6,
+        "median": 3.628,
+        "iqr": 0.05225,
+        "p25": 3.609,
+        "p75": 3.66125,
+        "min": 3.602,
+        "max": 3.755,
+        "mean": 3.648,
+        "samples": [
+          3.638,
+          3.602,
+          3.618,
+          3.669,
+          3.606,
+          3.755
+        ]
+      },
+      "preflight_s": {
+        "n": 6,
+        "median": 0.002,
+        "iqr": 0.0,
+        "p25": 0.002,
+        "p75": 0.002,
+        "min": 0.001,
+        "max": 0.002,
+        "mean": 0.001833,
+        "samples": [
+          0.002,
+          0.001,
+          0.002,
+          0.002,
+          0.002,
+          0.002
+        ]
+      },
+      "boundary_commit_33_s": {
+        "n": 6,
+        "median": 0.1935,
+        "iqr": 0.0055,
+        "p25": 0.1915,
+        "p75": 0.197,
+        "min": 0.191,
+        "max": 0.209,
+        "mean": 0.196,
+        "samples": [
+          0.209,
+          0.194,
+          0.191,
+          0.198,
+          0.193,
+          0.191
+        ]
+      },
+      "forks_32_blocks_6_workers_s": {
+        "n": 6,
+        "median": 3.347,
+        "iqr": 0.0405,
+        "p25": 3.33875,
+        "p75": 3.37925,
+        "min": 3.328,
+        "max": 3.469,
+        "mean": 3.3695,
+        "samples": [
+          3.347,
+          3.328,
+          3.347,
+          3.39,
+          3.336,
+          3.469
+        ]
+      },
+      "join_33_openings_s": {
+        "n": 6,
+        "median": 0.079,
+        "iqr": 0.00075,
+        "p25": 0.079,
+        "p75": 0.07975,
+        "min": 0.075,
+        "max": 0.093,
+        "mean": 0.080833,
+        "samples": [
+          0.08,
+          0.079,
+          0.079,
+          0.079,
+          0.075,
+          0.093
+        ]
+      },
+      "receipt_write_s": {
+        "n": 6,
+        "median": 0.2205,
+        "iqr": 0.00925,
+        "p25": 0.2185,
+        "p75": 0.22775,
+        "min": 0.21,
+        "max": 0.248,
+        "mean": 0.2245,
+        "samples": [
+          0.218,
+          0.22,
+          0.248,
+          0.221,
+          0.21,
+          0.23
+        ]
+      }
+    },
+    "per_request_gpu_from_cb_timestamps_s": {
+      "gpu_busy_union_s": {
+        "n": 6,
+        "median": 2.884837,
+        "iqr": 0.026458,
+        "p25": 2.873304,
+        "p75": 2.899762,
+        "min": 2.841075,
+        "max": 2.913592,
+        "mean": 2.88309,
+        "samples": [
+          2.87059,
+          2.888229,
+          2.881446,
+          2.841075,
+          2.913592,
+          2.903607
+        ]
+      },
+      "gpu_summed_spans_s": {
+        "n": 6,
+        "median": 7.02551,
+        "iqr": 0.161544,
+        "p25": 6.896671,
+        "p75": 7.058215,
+        "min": 6.757063,
+        "max": 7.191847,
+        "mean": 6.987128,
+        "samples": [
+          7.011156,
+          6.858509,
+          7.064331,
+          7.039865,
+          6.757063,
+          7.191847
+        ]
+      },
+      "gpu_busy_pct_of_pass_wall": {
+        "n": 6,
+        "median": 47.090939,
+        "iqr": 1.189387,
+        "p25": 46.700433,
+        "p75": 47.88982,
+        "min": 46.483557,
+        "max": 48.3905,
+        "mean": 47.297052,
+        "samples": [
+          47.268072,
+          48.097069,
+          46.913807,
+          46.483557,
+          48.3905,
+          46.629308
+        ]
+      },
+      "mean_concurrent_cbs_while_busy": {
+        "n": 6,
+        "median": 2.447,
+        "iqr": 0.079,
+        "p25": 2.39175,
+        "p75": 2.47075,
+        "min": 2.319,
+        "max": 2.478,
+        "mean": 2.423833,
+        "samples": [
+          2.442,
+          2.375,
+          2.452,
+          2.478,
+          2.319,
+          2.477
+        ]
+      },
+      "by_bucket_summed_spans_s": {
+        "wprod_witness_224_cbs_s": {
+          "n": 6,
+          "median": 0.493305,
+          "iqr": 0.013261,
+          "p25": 0.482912,
+          "p75": 0.496174,
+          "min": 0.459849,
+          "max": 0.551027,
+          "mean": 0.495677,
+          "samples": [
+            0.480379,
+            0.496199,
+            0.551027,
+            0.459849,
+            0.490513,
+            0.496098
+          ]
+        },
+        "commit_A_32_cbs_s": {
+          "n": 6,
+          "median": 1.288873,
+          "iqr": 0.065434,
+          "p25": 1.244444,
+          "p75": 1.309878,
+          "min": 1.174233,
+          "max": 1.346821,
+          "mean": 1.274219,
+          "samples": [
+            1.30426,
+            1.234763,
+            1.346821,
+            1.311751,
+            1.174233,
+            1.273486
+          ]
+        },
+        "commit_H_32_cbs_s": {
+          "n": 6,
+          "median": 0.897398,
+          "iqr": 0.030919,
+          "p25": 0.870334,
+          "p75": 0.901253,
+          "min": 0.825203,
+          "max": 0.994855,
+          "mean": 0.896451,
+          "samples": [
+            0.893843,
+            0.900952,
+            0.862497,
+            0.825203,
+            0.901353,
+            0.994855
+          ]
+        },
+        "commit_boundary_33_cbs_s": {
+          "n": 6,
+          "median": 0.016066,
+          "iqr": 0.002224,
+          "p25": 0.013888,
+          "p75": 0.016112,
+          "min": 0.012797,
+          "max": 0.01615,
+          "mean": 0.015061,
+          "samples": [
+            0.012797,
+            0.01615,
+            0.016078,
+            0.013166,
+            0.016054,
+            0.016123
+          ]
+        },
+        "slots_sumcheck_s": {
+          "n": 6,
+          "median": 4.294613,
+          "iqr": 0.166693,
+          "p25": 4.212891,
+          "p75": 4.379585,
+          "min": 4.149162,
+          "max": 4.421997,
+          "mean": 4.292324,
+          "samples": [
+            4.308901,
+            4.190414,
+            4.280324,
+            4.421997,
+            4.149162,
+            4.403146
+          ]
+        },
+        "open_A_32_blocks_s": {
+          "n": 6,
+          "median": 0.003819,
+          "iqr": 0.00302,
+          "p25": 0.00344,
+          "p75": 0.006461,
+          "min": 0.003277,
+          "max": 0.011898,
+          "mean": 0.005578,
+          "samples": [
+            0.004071,
+            0.007257,
+            0.003277,
+            0.003568,
+            0.011898,
+            0.003398
+          ]
+        },
+        "open_H_32_blocks_s": {
+          "n": 6,
+          "median": 0.005546,
+          "iqr": 0.00686,
+          "p25": 0.004158,
+          "p75": 0.011017,
+          "min": 0.004027,
+          "max": 0.01358,
+          "mean": 0.007539,
+          "samples": [
+            0.006625,
+            0.012481,
+            0.004027,
+            0.004054,
+            0.01358,
+            0.004467
+          ]
+        },
+        "open_boundary_33_s": {
+          "n": 6,
+          "median": 0.000279,
+          "iqr": 5e-06,
+          "p25": 0.000275,
+          "p75": 0.00028,
+          "min": 0.00027,
+          "max": 0.000292,
+          "mean": 0.000279,
+          "samples": [
+            0.00028,
+            0.000292,
+            0.000279,
+            0.000278,
+            0.00027,
+            0.000274
+          ]
+        }
+      }
+    }
+  },
+  "item1_six_fork_stream_serve4_pipelined_6warm": {
+    "arm": "serve4",
+    "requests_per_pass": 4,
+    "n_warm_passes": 6,
+    "amortized_per_request_wall_s": {
+      "n": 6,
+      "median": 4.30875,
+      "iqr": 0.04575,
+      "p25": 4.298062,
+      "p75": 4.343813,
+      "min": 4.23725,
+      "max": 4.3605,
+      "mean": 4.310875,
+      "samples": [
+        4.3605,
+        4.23725,
+        4.29625,
+        4.314,
+        4.3035,
+        4.35375
+      ]
+    },
+    "amortized_tok_s": {
+      "n": 6,
+      "median": 29.705,
+      "iqr": 0.31,
+      "p25": 29.4675,
+      "p75": 29.7775,
+      "min": 29.36,
+      "max": 30.21,
+      "mean": 29.695,
+      "samples": [
+        29.36,
+        30.21,
+        29.79,
+        29.67,
+        29.74,
+        29.4
+      ]
+    },
+    "per_request_host_phases_s": {
+      "sealing_pass_witness_chain_s": {
+        "n": 6,
+        "median": 3.053875,
+        "iqr": 0.074125,
+        "p25": 2.9975,
+        "p75": 3.071625,
+        "min": 2.97575,
+        "max": 3.083,
+        "mean": 3.037125,
+        "samples": [
+          3.0745,
+          2.97575,
+          2.98175,
+          3.063,
+          3.04475,
+          3.083
+        ]
+      },
+      "prove_call_total_s": {
+        "n": 6,
+        "median": 3.697125,
+        "iqr": 0.040437,
+        "p25": 3.692938,
+        "p75": 3.733375,
+        "min": 3.65925,
+        "max": 3.762,
+        "mean": 3.70875,
+        "samples": [
+          3.762,
+          3.65925,
+          3.69775,
+          3.6965,
+          3.69175,
+          3.74525
+        ]
+      },
+      "preflight_s": {
+        "n": 6,
+        "median": 0.00125,
+        "iqr": 0.000188,
+        "p25": 0.00125,
+        "p75": 0.001438,
+        "min": 0.00125,
+        "max": 0.00175,
+        "mean": 0.001375,
+        "samples": [
+          0.00125,
+          0.00125,
+          0.00175,
+          0.0015,
+          0.00125,
+          0.00125
+        ]
+      },
+      "boundary_commit_33_s": {
+        "n": 6,
+        "median": 0.23025,
+        "iqr": 0.005125,
+        "p25": 0.22675,
+        "p75": 0.231875,
+        "min": 0.22575,
+        "max": 0.235,
+        "mean": 0.229875,
+        "samples": [
+          0.232,
+          0.22575,
+          0.229,
+          0.226,
+          0.2315,
+          0.235
+        ]
+      },
+      "forks_32_blocks_6_workers_s": {
+        "n": 6,
+        "median": 3.38625,
+        "iqr": 0.03925,
+        "p25": 3.382188,
+        "p75": 3.421437,
+        "min": 3.3495,
+        "max": 3.446,
+        "mean": 3.397,
+        "samples": [
+          3.446,
+          3.3495,
+          3.3875,
+          3.385,
+          3.38125,
+          3.43275
+        ]
+      },
+      "join_33_openings_s": {
+        "n": 6,
+        "median": 0.081125,
+        "iqr": 0.00475,
+        "p25": 0.078188,
+        "p75": 0.082937,
+        "min": 0.07625,
+        "max": 0.084,
+        "mean": 0.080542,
+        "samples": [
+          0.083,
+          0.08275,
+          0.0795,
+          0.084,
+          0.07775,
+          0.07625
+        ]
+      },
+      "receipt_write_s": {
+        "n": 6,
+        "median": 0.225875,
+        "iqr": 0.007,
+        "p25": 0.222938,
+        "p75": 0.229938,
+        "min": 0.22125,
+        "max": 0.2345,
+        "mean": 0.226792,
+        "samples": [
+          0.2345,
+          0.22825,
+          0.22275,
+          0.2305,
+          0.2235,
+          0.22125
+        ]
+      }
+    },
+    "per_request_gpu_from_cb_timestamps_s": {
+      "gpu_busy_union_s": {
+        "n": 6,
+        "median": 2.77623,
+        "iqr": 0.019727,
+        "p25": 2.763586,
+        "p75": 2.783313,
+        "min": 2.75993,
+        "max": 2.799793,
+        "mean": 2.776205,
+        "samples": [
+          2.799793,
+          2.75993,
+          2.771563,
+          2.760927,
+          2.784117,
+          2.780898
+        ]
+      },
+      "gpu_summed_spans_s": {
+        "n": 6,
+        "median": 6.804267,
+        "iqr": 0.162044,
+        "p25": 6.735056,
+        "p75": 6.8971,
+        "min": 6.714822,
+        "max": 7.016085,
+        "mean": 6.829912,
+        "samples": [
+          7.016085,
+          6.715688,
+          6.714822,
+          6.79316,
+          6.815374,
+          6.924342
+        ]
+      },
+      "gpu_busy_pct_of_pass_wall": {
+        "n": 6,
+        "median": 64.359646,
+        "iqr": 0.597059,
+        "p25": 64.051439,
+        "p75": 64.648497,
+        "min": 63.873626,
+        "max": 65.134934,
+        "mean": 64.403556,
+        "samples": [
+          64.208084,
+          65.134934,
+          64.511207,
+          63.999223,
+          64.69426,
+          63.873626
+        ]
+      },
+      "mean_concurrent_cbs_while_busy": {
+        "n": 6,
+        "median": 2.454,
+        "iqr": 0.04575,
+        "p25": 2.43675,
+        "p75": 2.4825,
+        "min": 2.423,
+        "max": 2.506,
+        "mean": 2.46,
+        "samples": [
+          2.506,
+          2.433,
+          2.423,
+          2.46,
+          2.448,
+          2.49
+        ]
+      },
+      "by_bucket_summed_spans_s": {
+        "wprod_witness_224_cbs_s": {
+          "n": 6,
+          "median": 0.489167,
+          "iqr": 0.021094,
+          "p25": 0.480387,
+          "p75": 0.501481,
+          "min": 0.472859,
+          "max": 0.508927,
+          "mean": 0.490528,
+          "samples": [
+            0.493765,
+            0.484568,
+            0.472859,
+            0.504054,
+            0.478994,
+            0.508927
+          ]
+        },
+        "commit_A_32_cbs_s": {
+          "n": 6,
+          "median": 1.078874,
+          "iqr": 0.114577,
+          "p25": 1.053353,
+          "p75": 1.16793,
+          "min": 1.028681,
+          "max": 1.189806,
+          "mean": 1.103116,
+          "samples": [
+            1.189806,
+            1.054079,
+            1.028681,
+            1.103669,
+            1.053111,
+            1.18935
+          ]
+        },
+        "commit_H_32_cbs_s": {
+          "n": 6,
+          "median": 0.832903,
+          "iqr": 0.008285,
+          "p25": 0.829323,
+          "p75": 0.837609,
+          "min": 0.749299,
+          "max": 0.886917,
+          "mean": 0.828221,
+          "samples": [
+            0.886917,
+            0.749299,
+            0.83809,
+            0.836164,
+            0.829642,
+            0.829217
+          ]
+        },
+        "commit_boundary_33_cbs_s": {
+          "n": 6,
+          "median": 0.016149,
+          "iqr": 0.001296,
+          "p25": 0.015364,
+          "p75": 0.01666,
+          "min": 0.012793,
+          "max": 0.016985,
+          "mean": 0.015668,
+          "samples": [
+            0.015977,
+            0.01516,
+            0.016985,
+            0.016772,
+            0.016322,
+            0.012793
+          ]
+        },
+        "slots_sumcheck_s": {
+          "n": 6,
+          "median": 4.380882,
+          "iqr": 0.066121,
+          "p25": 4.341833,
+          "p75": 4.407954,
+          "min": 4.318262,
+          "max": 4.411337,
+          "mean": 4.37286,
+          "samples": [
+            4.411337,
+            4.398366,
+            4.334645,
+            4.318262,
+            4.41115,
+            4.363397
+          ]
+        },
+        "open_A_32_blocks_s": {
+          "n": 6,
+          "median": 0.010328,
+          "iqr": 0.003921,
+          "p25": 0.008437,
+          "p75": 0.012358,
+          "min": 0.006843,
+          "max": 0.014874,
+          "mean": 0.010536,
+          "samples": [
+            0.008431,
+            0.008454,
+            0.01241,
+            0.006843,
+            0.014874,
+            0.012202
+          ]
+        },
+        "open_H_32_blocks_s": {
+          "n": 6,
+          "median": 0.008887,
+          "iqr": 0.003164,
+          "p25": 0.007391,
+          "p75": 0.010555,
+          "min": 0.005483,
+          "max": 0.01101,
+          "mean": 0.008712,
+          "samples": [
+            0.009582,
+            0.005483,
+            0.010879,
+            0.007124,
+            0.01101,
+            0.008193
+          ]
+        },
+        "open_boundary_33_s": {
+          "n": 6,
+          "median": 0.000272,
+          "iqr": 2e-06,
+          "p25": 0.000271,
+          "p75": 0.000273,
+          "min": 0.000262,
+          "max": 0.00028,
+          "mean": 0.000272,
+          "samples": [
+            0.00027,
+            0.00028,
+            0.000273,
+            0.000272,
+            0.000272,
+            0.000262
+          ]
+        }
+      }
+    },
+    "steady_state_cadence": {
+      "per_request_cadence_s": {
+        "n": 6,
+        "median": 3.605667,
+        "iqr": 0.076417,
+        "p25": 3.571083,
+        "p75": 3.6475,
+        "min": 3.557,
+        "max": 3.689333,
+        "mean": 3.613111,
+        "samples": [
+          3.689333,
+          3.557,
+          3.577333,
+          3.634,
+          3.569,
+          3.652
+        ]
+      },
+      "steady_tok_s": {
+        "n": 6,
+        "median": 35.5,
+        "iqr": 0.7475,
+        "p25": 35.0925,
+        "p75": 35.84,
+        "min": 34.7,
+        "max": 35.98,
+        "mean": 35.431667,
+        "samples": [
+          34.7,
+          35.98,
+          35.78,
+          35.22,
+          35.86,
+          35.05
+        ]
+      },
+      "steady_window_gpu_busy_union_per_req_s": {
+        "n": 6,
+        "median": 2.66275,
+        "iqr": 0.005478,
+        "p25": 2.659217,
+        "p75": 2.664696,
+        "min": 2.645495,
+        "max": 2.682833,
+        "mean": 2.662869,
+        "samples": [
+          2.682833,
+          2.65824,
+          2.663351,
+          2.645495,
+          2.665144,
+          2.662149
+        ]
+      },
+      "steady_window_gpu_busy_pct_of_wall": {
+        "n": 6,
+        "median": 73.675,
+        "iqr": 1.79,
+        "p25": 72.825,
+        "p75": 74.615,
+        "min": 72.72,
+        "max": 74.73,
+        "mean": 73.711667,
+        "samples": [
+          72.72,
+          74.73,
+          74.45,
+          72.8,
+          74.67,
+          72.9
+        ]
+      },
+      "witness_unhidden_critical_path_wait_s": {
+        "n": 18,
+        "median": 0.0,
+        "iqr": 0.0,
+        "p25": 0.0,
+        "p75": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "forks_contended_with_next_sealing_req1_2_s": {
+        "n": 6,
+        "median": 3.40925,
+        "iqr": 0.074875,
+        "p25": 3.338625,
+        "p75": 3.4135,
+        "min": 3.297,
+        "max": 3.4465,
+        "mean": 3.382,
+        "samples": [
+          3.4465,
+          3.297,
+          3.316,
+          3.414,
+          3.412,
+          3.4065
+        ]
+      },
+      "forks_uncontended_last_req3_s": {
+        "n": 6,
+        "median": 3.2065,
+        "iqr": 0.053,
+        "p25": 3.168,
+        "p75": 3.221,
+        "min": 2.989,
+        "max": 3.317,
+        "mean": 3.183333,
+        "samples": [
+          3.317,
+          3.201,
+          3.212,
+          3.157,
+          2.989,
+          3.224
+        ]
+      },
+      "sealing_overlap_contention_on_forks_s": {
+        "n": 6,
+        "median": 0.156,
+        "iqr": 0.128,
+        "p25": 0.110375,
+        "p75": 0.238375,
+        "min": 0.096,
+        "max": 0.423,
+        "mean": 0.198667,
+        "samples": [
+          0.1295,
+          0.096,
+          0.104,
+          0.257,
+          0.423,
+          0.1825
+        ]
+      }
+    }
+  },
+  "item1_candidate_A_stream_expected_gain_ceiling": {
+    "serve4_lanes": 2,
+    "serve4_steady_cadence_median_s": 3.6057,
+    "serve4_steady_prove_call_reqs_1_to_3_median_s": 3.626,
+    "serve4_overlapped_sealing_pass_reqs_1_to_3_median_s": 3.321,
+    "serve4_overlapped_sealing_pass_iqr_s": 0.145,
+    "serve4_unoverlapped_req0_sealing_pass_median_s": 2.143,
+    "serve1_solo_sealing_pass_median_s": 2.1715,
+    "sealing_overlap_slowdown_factor_x": 1.529,
+    "serve4_pass_mean_4reqs_sealing_s_note": "3.054 s is the 4-request pass mean including unoverlapped req 0 (2.143 s), NOT an overlapped floor.",
+    "serve4_receipt_write_median_s": 0.225,
+    "serve4_pipeline_slack_prover_start_minus_seal_done_median_s": 0.137,
+    "two_lane_cadence_formula": "max(P, (S + W + P) / 2)",
+    "h_gpu_summed_spans_per_req_s": {
+      "commit_H_32_cbs_s": 0.8329,
+      "open_H_32_blocks_gather_s": 0.0089,
+      "total_H_gpu_spans_s": 0.8418,
+      "share_of_non_witness_gpu_spans_pct": 13.33
+    },
+    "block_to_forks_share_conversion_range_pct": [
+      13.3,
+      21.9
+    ],
+    "g3_two_lane_gross_ceiling_measured_list_x_range": [
+      1.09,
+      1.19
+    ],
+    "g3_two_lane_gross_ceiling_measured_list_overlap_model_x": 1.12,
+    "g3_two_lane_gross_ceiling_with_slot_estimates_x_range": [
+      1.13,
+      1.27
+    ],
+    "g3_two_lane_gross_ceiling_with_slot_estimates_overlap_model_x": 1.18,
+    "note": "Gross 2-lane stream ceiling ranges for Variant G3 BEFORE subtracting Candidate A's own added GKR proving cost (40-105 ms/block Metal GKR + ~9 ms leaf claims + extra M mask rows, which are of the same size as the 52-77.5 ms removed). Batch 7 measures lanes=3 to price Candidate A's memory channel (43.2 -> 21.5 GB codewords/req)."
+  },
+  "item2_candidate_E_fold": "No exact-integer 64-bit limb fold kernel exists in the repository (microbench_metal_gpu.mm T1 was an inexact 24-bit FP32 mock already withdrawn, and metal_int_gemm.mm / metal_batched_llama8b.mm implement exact GEMMs only). By default (HL_METAL_DEVICE_FOLD unset), the production opening fold runs on the host (~11.2 ms/block = ~4% of prove_core; the 0.175 ms GPU time in open A + open H is gather buffers only). Candidate E's fold half is dropped for lack of a kernel; the Section 6 fold experiment was not run.",
+  "trace_retention_note_G8": "Batch 6 cleaned temporary HL_A27_GPU_TRACE TSVs after aggregation; Batch 7 retains compressed trace TSVs outside the repository."
+}

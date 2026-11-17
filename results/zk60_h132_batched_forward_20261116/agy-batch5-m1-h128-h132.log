@@ -1,0 +1,9 @@
+[Pre-Check] Quiet GPU: {'quiet': True, 'competing_processes': []}
+[Init] Device=Apple M3 Ultra load_s=15.96s peak_rss=9.62 GiB (<= 28 GiB)
+[Self-Check PASS] Adversarial & partial tiles: {'shape': [65, 2200, 70], 'combinations_verified': 56, 'max_abs_diff': 0}
+[Gate 1 PASS] CPU int64 vs Resident GPU (km=0,1,5, 32L + 16,416,768 logits): max_abs_diff = 0, refusals = 0!
+[Gate 2 PASS] K=2,4,8 Batched == Standalone K=1 across all 8 prompts & 3 kernel modes: max_abs_diff = 0!
+[H128 / D80a M1 DONE] W16R2 8B T128 E2E speedups vs Prod [A4]: {'fast_sk1_autoi8_7cb_e2e_over_prod_A4_7cb_e2e': 1.307, 'fast_sk1_autoi8_1cb_e2e_over_prod_A4_7cb_e2e': 1.616, 'fast_sk1_autoi8_1cb_gpu_over_prod_A4_7cb_gpu': 1.556, 'fast_sk4_autoi8_7cb_e2e_over_prod_A4_7cb_e2e': 1.4, 'fast_sk4_autoi8_1cb_e2e_over_prod_A4_7cb_e2e': 1.754, 'fast_sk4_autoi8_1cb_gpu_over_prod_A4_7cb_gpu': 1.841, 'stage2_32x64_7cb_e2e_over_prod_A4_7cb_e2e': 0.666}
+[H132 DONE] fast_64x64_sk4 vs FP16 per-req wall ms (last-tok head): {1: (155.696, 109.585), 2: (144.8314, 96.724), 4: (138.294, 85.2125), 8: (129.6647, 77.8967)}
+[D80 Candidate B RMS Census DONE] Sampled 32 layers x 256 tokens, refusals=0
+[SAVED] /Users/victorrielly/IntelligenceRegulation/results/zk60_h132_batched_forward_20261116/batch5_m1_h128_h132_metrics.json
