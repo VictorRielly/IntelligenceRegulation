@@ -1,0 +1,1 @@
+cargo --message-format=json output summarised by scrub.py: test executable(s) ['/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a4d782b46866ea303/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-4ff65cafe9d88959']; compiler warnings 29, errors 0

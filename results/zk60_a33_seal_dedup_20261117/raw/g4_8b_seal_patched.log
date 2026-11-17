@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::run::fork::tests::a33_the_8b_sealing_pass_summary_on_the_cpu_and_on_the_device ... A33-SEAL-8B L4 cpu budget 34359738368: summary 555 B, sha256 e395260d67c325723ff7f45b47078e746203965b7c98d494a8d094e918537a72
+A33-SEAL-8B L4 cpu budget 0: summary 486 B, sha256 3fd2b15f515b391c145f0331b86a30a0edf40d2ee98d7de54172a733b688d973
+A33-SEAL-8B L4 device budget 34359738368: summary 555 B, sha256 e395260d67c325723ff7f45b47078e746203965b7c98d494a8d094e918537a72
+A33-SEAL-8B L4 device budget 0: summary 486 B, sha256 3fd2b15f515b391c145f0331b86a30a0edf40d2ee98d7de54172a733b688d973
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1132 filtered out; finished in 8.69s
+

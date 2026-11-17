@@ -1,0 +1,19 @@
+2026-11-17T17:01:28Z
+--- guard status ---
+RAM   210.74 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 16.0 of 252.5 GiB committed by guarded jobs
+  job  agy-lean-l66-build6          build need 16G since 2026-11-17T17:01:13Z
+LOCKS heavy HELD, build HELD
+GPU   527 of 196608 MiB used
+DISK  /System/Volumes/VM 209.1 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16533 MiB  pid 48978   agy
+  rss   2651 MiB  pid 1578    claude
+  rss   1808 MiB  pid 56373   /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegu
+  rss   1733 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1230 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1056 MiB  pid 17265   claude
+--- pgrep -fl ds4-bench ---
+(none)
+--- pgrep -fl ds4-bench after the run ---
+(none)

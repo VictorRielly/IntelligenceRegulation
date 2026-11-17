@@ -1,0 +1,12 @@
+
+running 3 tests
+test private_block::run::fork::tests::a33_a_block_that_fails_its_public_check_is_refused_by_the_build_with_the_builders_text ... A33-REFUSAL weight: the witness builder refuses layer 1 (before the run header; ruling H-1): R13 public weights/gains must be symmetric int8
+ok
+test private_block::run::fork::tests::a33_a_record_at_another_gate_shift_is_still_refused_by_the_full_cs3_check ... A33-REFUSAL record-gate: layer 1, in the sealing pass (before the run header; ruling H-1): R13 public folded gate denominator differs from the stage shape
+ok
+test private_block::run::fork::tests::a33_the_honest_sealing_pass_summary ... A33-SEAL budget 18446744073709551615: summary 475 B, sha256 59560de935628b9b6470a16a0cfe1d7ec04f082608f37e7b29cdf36785d35788
+A33-SEAL budget 0: summary 423 B, sha256 6f1d6d0078e05cd9d8c956d531665ad05127d23d5eb455ba70253266c798fc3a
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1129 filtered out; finished in 0.51s
+

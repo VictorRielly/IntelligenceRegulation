@@ -1,0 +1,1 @@
+cargo --message-format=json output summarised by scrub.py: test executable(s) ['<scratch>/target_base/release/deps/hashline-4ff65cafe9d88959']; compiler warnings 29, errors 0
