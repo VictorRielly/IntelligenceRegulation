@@ -33,8 +33,8 @@ L=$WT/formal/ZK60Formal
 BASE=f5b70efe
 # 2026-11-17 (merge of perf f5b70efe, Antigravity's RunStgShieldLu and RunShieldInstP, both NOT mine): the lane's root
 # import lines added since BASE (the root diff must be exactly these).
-NEW_SINCE_BASE="RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO"
-MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO"
+NEW_SINCE_BASE="RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO RunStgShieldLuRd RunStgShieldTopSJ"
+MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO RunStgShieldLuRd RunStgShieldTopSJ"
 AG="RunStgShieldToK RunStgShieldDg RunStgShieldCTopDg RunStgShieldLu RunShieldInstP"
 MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI RunStgShieldC RunStgShieldDefC RunStgShieldCChain RunStgShieldCJoin RunStgShieldCWire RunStgShieldCTop RunStgShieldCTopT RunStgShieldCTopC RunStgShieldCTopI RunStgShieldIOTie RunStgShieldCTopK RunStgShieldCTopZ RunStgShieldOutTie RunStgShieldCTopF RunStgShieldInZero RunStgShieldCTopW $MINE_NEW"
 FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean $L/RunStgShieldRbr.lean $L/RunStgShieldTrue.lean $L/RunStgShieldTrueRun.lean $L/RunStgShieldTopT.lean $L/RunStgShieldClaims.lean $L/RunStgShieldClaimsRun.lean $L/RunStgShieldTopC.lean $L/RunStgShieldInAH.lean $L/RunStgShieldInAHRun.lean $L/RunStgShieldTopI.lean $L/RunStgShieldC.lean $L/RunStgShieldDefC.lean $L/RunStgShieldCChain.lean $L/RunStgShieldCJoin.lean $L/RunStgShieldCWire.lean $L/RunStgShieldCTop.lean $L/RunStgShieldCTopT.lean $L/RunStgShieldCTopC.lean $L/RunStgShieldCTopI.lean $L/RunStgShieldIOTie.lean $L/RunStgShieldCTopK.lean $L/RunStgShieldCTopZ.lean $L/RunStgShieldOutTie.lean $L/RunStgShieldCTopF.lean $L/RunStgShieldInZero.lean $L/RunStgShieldCTopW.lean"
@@ -137,7 +137,7 @@ gchc=$?
 python3 -I "$OUT/l63_mk_topi.py" "$WT" --check
 gchi=$?
 [ $gchi -ne 0 ] && gch=$gchi
-for g in l63_mk_c.py l63_mk_defc.py l63_mk_cchain.py l63_mk_topsc.py l63_mk_topk.py l63_mk_topz.py l63_mk_topo.py l63_mk_topw.py l63_mk_inahrun.py l63_mk_topdz.py l63_mk_toppd.py l63_mk_topio.py l63_mk_toptri.py l63_mk_toptro.py; do
+for g in l63_mk_c.py l63_mk_defc.py l63_mk_cchain.py l63_mk_topsc.py l63_mk_topk.py l63_mk_topz.py l63_mk_topo.py l63_mk_topw.py l63_mk_inahrun.py l63_mk_topdz.py l63_mk_toppd.py l63_mk_topio.py l63_mk_toptri.py l63_mk_toptro.py l63_mk_topsj.py; do
   python3 -I "$OUT/$g" "$WT" --check
   r=$?
   echo "$g --check rc $r"

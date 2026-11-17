@@ -1,0 +1,2 @@
+build ZK60Formal.RunStgShieldLuRd
+build ZK60Formal.RunStgShieldTopSJ

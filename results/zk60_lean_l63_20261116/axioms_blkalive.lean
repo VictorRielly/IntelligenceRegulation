@@ -7,3 +7,5 @@ import ZK60Formal
 #print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trI
 #print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trO
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldJ
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldLu
