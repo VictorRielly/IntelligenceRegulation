@@ -1,0 +1,405 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan44.txt ==
+build ZK60Formal.RunStgShieldTopDz
+== lake build ZK60Formal.RunStgShieldTopDz ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✖ [3842/3842] Building ZK60Formal.RunStgShieldTopDz (12s)
+trace: .> LEAN_PATH=/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Cli/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/batteries/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/Qq/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/aesop/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/importGraph/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/plausible/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/formal/.lake/packages/mathlib/.lake/build/lib/lean:/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/RunStgShieldTopDz.lean -o /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldTopDz.olean -i /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/lib/lean/ZK60Formal/RunStgShieldTopDz.ilean -c /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldTopDz.c --setup /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/.lake/build/ir/ZK60Formal/RunStgShieldTopDz.setup.json --json
+error: ZK60Formal/RunStgShieldTopDz.lean:295:60: Unknown identifier `clog2`
+
+Note: It is not possible to treat `clog2` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+error: ZK60Formal/RunStgShieldTopDz.lean:346:46: Tactic `rewrite` failed: motive is not type correct:
+  fun _a => ↑k = ↑⟨_a, hR⟩
+Error: Application type mismatch: The argument
+  hR
+has type
+  (↑k * 2 ^ 8 + ↑i) / 2 ^ 8 < Rr
+but is expected to have type
+  _a <
+    (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths ClsStmt.inRoot
+        tag).R
+in the application
+  ⟨_a, hR⟩
+
+Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.
+
+Possible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).
+
+Hdr Coins : Type
+inst✝⁷ : Fintype Coins
+inst✝⁶ : Nonempty Coins
+inst✝⁵ : Inhabited Coins
+K : Type
+inst✝⁴ : Field K
+inst✝³ : Fintype K
+inst✝² : DecidableEq K
+inst✝¹ : Algebra GF K
+Rr dR : ℕ
+pos : shieldS0.Tok → Fin dR × Fin (2 ^ 8)
+hpos : Function.Injective pos
+place : Fin dR → Fin Rr
+hplace : Function.Injective place
+tag : MTag
+Rp : ClassifyRunPublicP shieldS0
+Lq Lb : ℕ
+hL20 : 2 ^ 20 ≤ Lq
+preA preB : Hdr → Except String Unit
+start : (HIn → Dig) → ClsStmt Hdr → Tr
+inc : Hdr → IncV
+incG : Hdr → StageGeom
+Pk : ℕ → Block.BlockParams
+sgeom : ClsStmt Hdr → ℕ → Block.SegGeom
+check : ClsStmt Hdr → ℕ → Except String Unit
+paths : ClsStmt Hdr → Block.Segment → Except String Unit
+digest : ClsStmt Hdr → ℕ → Dig
+bRows bLogN : ℕ → ℕ
+bndCheck : ClsStmt Hdr → ℕ → List Block.ZClaim → Tr → Except String Unit
+bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Block.ZClaim → Block.OpeningZk → Tr → Except String Tr
+outc : Hdr → ℕ → OutcV
+outcG : Hdr → StageGeom
+P : RunP Hdr (shieldS0.Tok → ℕ) Coins
+h64 : 64 ≤ Lq
+hr :
+  8 *
+      (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths ClsStmt.inRoot
+          tag).R ≤
+    Lq
+hon :
+  HonestIn Coins
+    (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths ClsStmt.inRoot
+      tag)
+U : K
+hbij : Function.Bijective (Hiding.fp2 U)
+key : Option Dig
+domain : List UInt8
+hs : decodeLink (startMsg domain) = none
+hL : (startMsg domain).length ≤ Lq
+hL64 : Lq < 2 ^ 64
+Rn :
+  RtRun
+    (classifyRunV Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen)
+      outc outcG)
+    key domain Lq
+hv : Rn.pf.Valid
+hw : Hdr → ClsHdrW
+hRn : ∀ (s : ClsStmt Hdr), Rn.hdr s = clsHdrOf hw s
+D : RtKData K Lq
+hD : D.Valid (Block.absOfC (chainEncB key domain hs Lq hL)) Rn.pf
+ι : Type
+inst✝ : Fintype ι
+site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins K
+kOf : ι → ℕ
+δOf : ι → ℝ≥0∞
+E0 : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt Rr)
+εzk : ℕ → ℕ → ℝ≥0∞
+O :
+  ClassifyOpenP Rp Lq
+    (classifyRunV Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen)
+      outc outcG)
+    P
+    (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths ClsStmt.inRoot
+      tag)
+    h64 hr hon U site kOf δOf εzk
+hU : U ^ 2 = (algebraMap GF K) 7
+cx0 : IncCtx
+pin pout : RtPart
+Iin : RtInc Lq inc incG pin
+Oout : RtOutc Lq outc outcG pout
+bp : (k : ℕ) → RtBlk Lq (Pk k)
+wXk gXk mXk : ℕ → ℕ
+hσ :
+  Rn.σs =
+    rtParts
+      (classifyRunV Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen)
+        outc outcG)
+      (rtIncSeg inc incG cx0 pin)
+      (fun k =>
+        rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k
+          (rtBlockPart (Pk k) (bp k).S ((bp k).nA + (bp k).pA.rows) (bp k).pA.m ((bp k).nH + (bp k).pH.rows) (bp k).pH.m
+            (wXk k) (gXk k) (mXk k)))
+      (rtOutcSeg outc outcG pout)
+hgeo : ∀ (k : ℕ) (s : ClsStmt Hdr), (sgeom s k).g = (Pk k).geom
+hIA : RkPcsAt U tag ogStage Iin.pA
+hIH : RkPcsAt U tag ogStage Iin.pH
+hOA : RkPcsAt U tag ogStage Oout.pA
+hOH : RkPcsAt U tag ogStage Oout.pH
+hBA : ∀ (k : ℕ), RkPcsR13 U tag (bp k).pA
+hBH : ∀ (k : ℕ), RkPcsR13 U tag (bp k).pH
+htI : Iin.tag = tag
+htO : Oout.tag = tag
+htB : ∀ (k : ℕ), (bp k).tag = tag
+hfIA : 8 * Iin.pA.rows ≤ Lq
+hfIH : 8 * Iin.pH.rows ≤ Lq
+hfOA : 8 * Oout.pA.rows ≤ Lq
+hfOH : 8 * Oout.pH.rows ≤ Lq
+hfBA : ∀ (k : ℕ), 8 * (bp k).pA.rows ≤ Lq
+hfBH : ∀ (k : ℕ), 8 * (bp k).pH.rows ≤ Lq
+hfIM : 8 * (2 * pin.S + 4) ≤ Lq
+hfOM : 8 * (2 * pout.S + 4) ≤ Lq
+hfBM : ∀ (k : ℕ), 8 * (2 * (bp k).S + 4) ≤ Lq
+hbpRows : ∀ k < Lb, (bp k).pA.rows = 4577 ∧ (bp k).pH.rows = 4390
+Vi : IncV
+F : ℕ → OutcV
+hinc : ∀ (hd : Hdr), inc hd = Vi
+houtc : ∀ (hd : Hdr) (v : ℕ), outc hd v = F v
+hchk : ∀ (s : ClsStmt Hdr), check s 0 = Except.ok () → s.verdict ≤ 1
+hLb1 : 0 < Lb
+lscIn lscOut : Block.ZClaim
+mIn kIn kOut : ℕ
+hlscIn : ∀ (hd : Hdr), (inc hd).lay.logupSumClaim = lscIn
+hlscOut : ∀ (hd : Hdr) (v : ℕ), (outc hd v).lay.logupSumClaim = lscOut
+hmIn : ∀ (hd : Hdr), incHeadDraws (inc hd).pub = mIn
+hkIn : ∀ (hd : Hdr), (inc hd).lay.nFunctionals = kIn
+hkOut : ∀ (hd : Hdr) (v : ℕ), (outc hd v).lay.nFunctionals = kOut
+base : ℕ → RkPart K Lq
+eL : ℕ
+hDe :
+  D =
+    ebData U tag Lq h64 key domain hs hL abRdIn Rn.pf
+      (rxPs base Lb (rxDinG ogStage Rn.pf pin.S kIn Iin.pA.rows Iin.pH.rows Iin.nA Iin.nH mIn)
+        (fun k => rxDblk Rn.pf k (bp k).S (Pk k).nFunctionals (bp k).pA.rows (bp k).pH.rows (bp k).nA (bp k).nH)
+        (rxDoutG ogStage Rn.pf Lb pout.S kOut Oout.pA.rows Oout.pH.rows Oout.nA Oout.nH))
+      (rxAcc (vdWin Vi) (vdWout F) Pk Rn.pf Lb) (rxLsc lscIn lscOut Pk Lb) eL
+pXk : (k : ℕ) → RtPcs fun s H root cl o t => bndOpen H s k root cl o t
+hXk : ∀ (k : ℕ), RkPcsR13 U tag (pXk k)
+hwXk : ∀ (k : ℕ), k + 1 < Lb → wXk (k + 1) = (bp k).nOut + (bp (k + 1)).nIn + (pXk (k + 1)).rows
+hmXk : ∀ (k : ℕ), k + 1 < Lb → mXk (k + 1) = (pXk (k + 1)).m
+hfitXk : ∀ (k : ℕ), 8 * (pXk k).rows ≤ Lq
+hgXk : ∀ (k : ℕ), k + 1 < Lb → (base (k + 1 + 1)).gX = rkR13 (pXk (k + 1)).rows (Rn.pf.off (k + 1) + 2)
+hnXk : ∀ (k : ℕ), k + 1 < Lb → (base (k + 1 + 1)).nX = (bp k).nOut + (bp (k + 1)).nIn
+hwX0 : wXk 0 = Iin.nOut + (bp 0).nIn + (pXk 0).rows
+hmX0 : mXk 0 = (pXk 0).m
+hgX1 : (base 1).gX = rkR13 (pXk 0).rows (Rn.pf.off 0 + 2)
+hnX1 : (base 1).nX = Iin.nOut + (bp 0).nIn
+hOX : RkPcsR13 U tag Oout.pX
+hwXo : ∀ (k : ℕ), k + 1 = Lb → pout.wX = (bp k).nOut + Oout.nIn + Oout.pX.rows
+hfitXo : 8 * Oout.pX.rows ≤ Lq
+hgXo : ∀ (k : ℕ), k + 1 = Lb → (base (k + 1 + 1)).gX = rkR13 Oout.pX.rows (Rn.pf.off (k + 1) + 2)
+hnXo : ∀ (k : ℕ), k + 1 = Lb → (base (k + 1 + 1)).nX = (bp k).nOut + Oout.nIn
+hgX0 : (base 0).gX = rkAt ogEp Iin.pX.rows 1
+hnX0 : (base 0).nX = Iin.nIn
+hXep : RkPcsAt U tag ogEp Iin.pX
+hfitX : 8 * Iin.pX.rows ≤ Lq
+hRr : Iin.pX.rows = Rr
+hL81 : 81 ≤ Lq
+hPkC : ShieldRunAtC tag Pk Rp.blks Lb
+hslB :
+  ∀ k < Lb,
+    D.sls (k + 1) =
+      Block.blockSchedXB (Pk k) (Rn.pf.off (k + 1) + 5) (Block.absOfC (chainEncB key domain hs Lq hL))
+        (bwFslRun U tag Lq h64 Lb Pk (fun k => (bp k).S) D Rn.pf ⋯ ⋯ ⋯ ⋯ (shieldRunProg ⋯) (shieldRunPubs ⋯) k)
+hbBlk :
+  ∀ (k : ℕ) (hk : k < Lb),
+    BlkLists (base (k + 1))
+      (blkR0 U tag h64 hL20 (shieldLyC hPkC k hk) (Pk k) ⋯ ⋯ (shieldPbC hPkC k hk) (shieldLayC hPkC k hk)
+        (shieldBC hPkC k hk) (D.opX (k + 1)) (D.opX (k + 1 + 1)) (Rn.pf.off k + 2) (Rn.pf.off (k + 1) + 2)
+        (Rn.pf.off (k + 1) + 5) (Block.absOfC (chainEncB key domain hs Lq hL)))
+      (blkR1 U tag hL20 (shieldLyC hPkC k hk) (Pk k) ⋯ ⋯ (shieldPbC hPkC k hk) (shieldLayC hPkC k hk)
+        (shieldBC hPkC k hk) (Rn.pf.off (k + 1) + 5) (Block.absOfC (chainEncB key domain hs Lq hL)))
+      (blkH0 U tag hL20 (shieldLyC hPkC k hk) (Pk k) ⋯ ⋯ (shieldPbC hPkC k hk) (shieldLayC hPkC k hk)
+        (shieldBC hPkC k hk) (Rn.pf.off (k + 1) + 5) (Block.absOfC (chainEncB key domain hs Lq hL)))
+      (blkH1 U tag hL20 (shieldLyC hPkC k hk) (Pk k) ⋯ ⋯ ⋯ (shieldPbC hPkC k hk) (shieldLayC hPkC k hk)
+        (shieldBC hPkC k hk) (Rn.pf.off (k + 1) + 5) (Block.absOfC (chainEncB key domain hs Lq hL)))
+      (blkLU U tag hL20 (shieldLyC hPkC k hk) (Pk k) ⋯ (shieldPbC hPkC k hk) (shieldLayC hPkC k hk) (shieldBC hPkC k hk)
+        (Rn.pf.off (k + 1) + 5) (Block.absOfC (chainEncB key domain hs Lq hL)))
+P0in P0out : Block.BlockParams
+csIOI csIOO : StgVw Lq → Block.Cm → Block.ZClaim → K
+rO lcO QO : ℕ
+XO : StgVw Lq → Fin rO → Fin (2 ^ lcO + QO) → K
+hcsI :
+  csIOI =
+    stgCsIOm U Rr 8 256 rO lcO QO
+      (epDecX tag Lq h64 key domain hs hL abRdIn 11 1 Rr 8 256 (2 ^ 11) fun ops =>
+        (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths
+              ClsStmt.inRoot tag).decodeIn
+          ops 768)
+      XO
+hXOl : VwLoc (Rn.pf.off 0 + 5 + (7 + mIn)) XO
+hIOO :
+  ∀ (v : StgVw Lq) (cm : Block.Cm) (z : Block.ZClaim) (a : Fp2),
+    csIOO v cm { parts := z.parts, value := a } = csIOO v cm z
+hNin : ∀ k < P0in.geom.slots.length, 0 < stgN P0in k ∧ stgN P0in k * (Block.slotShape P0in k).2.2 + 2 ≤ 512
+hNout : ∀ k < P0out.geom.slots.length, 0 < stgN P0out k ∧ stgN P0out k * (Block.slotShape P0out k).2.2 + 2 ≤ 512
+hN64I : ∀ k < P0in.geom.slots.length, stgN P0in k < 64
+hN64O : ∀ k < P0out.geom.slots.length, stgN P0out k < 64
+hIOlO : VwLoc (Rn.pf.off (Lb + 1) + 2 + (7 + 2)) csIOO
+eI eO : ℕ
+ΛI ΛO : StgVw Lq → List (List UInt8 × K) → Prop
+hb0 :
+  StgLists (base 0)
+    (stgSchedV P0in mIn (Rn.pf.off 0 + 5) stgHostIn (Block.absOfC (chainEncB key domain hs Lq hL))
+      (stgFstIC U hbij tag h64 P0in (vdWin Vi) (Rn.pf.off 0 + pin.pre) (Rn.pf.off 0 + 5) mIn ogStage.lc ogStage.h
+        ogStage.Q ogStage.e Iin.pA.rows Iin.pH.rows pin.S csIOI))
+    (stgDefsV P0in mIn (Rn.pf.off 0 + 5) (Block.absOfC (chainEncB key domain hs Lq hL))
+      (sshΦIC U hbij tag h64 P0in Vi (Rn.pf.off 0 + pin.pre) (Rn.pf.off 0 + 5) mIn ogStage.lc ogStage.h ogStage.Q
+        ogStage.e Iin.pA.rows Iin.pH.rows csIOI)
+      sshDgI)
+    (stgLkSqV mIn (Rn.pf.off 0 + 5) eI (Block.absOfC (chainEncB key domain hs Lq hL)) ΛI)
+hbL :
+  StgLists (base (Lb + 1))
+    (stgSchedV P0out 2 (Rn.pf.off (Lb + 1) + 2) (stgHostOut P0out) (Block.absOfC (chainEncB key domain hs Lq hL))
+      (stgFstO U hbij tag h64 P0out (vdWout F) (Rn.pf.off (Lb + 1) + pout.pre) (Rn.pf.off (Lb + 1) + 2) ogStage.lc
+        ogStage.h ogStage.Q ogStage.e Oout.pA.rows Oout.pH.rows pout.S csIOO))
+    (stgDefsV P0out 2 (Rn.pf.off (Lb + 1) + 2) (Block.absOfC (chainEncB key domain hs Lq hL))
+      (sshΦO U hbij tag h64 P0out F (Rn.pf.off (Lb + 1) + pout.pre) (Rn.pf.off (Lb + 1) + 2) ogStage.lc ogStage.h
+        ogStage.Q ogStage.e Oout.pA.rows Oout.pH.rows csIOO)
+      sshDgO)
+    (stgLkSqV 2 (Rn.pf.off (Lb + 1) + 2) eO (Block.absOfC (chainEncB key domain hs Lq hL)) ΛO)
+hPin : ∀ (hd : Hdr) (cx : IncCtx), StgSame P0in ((inc hd).bp cx)
+hPout : ∀ (hd : Hdr) (v : ℕ), StgSame P0out (outc hd v).bp
+hTrIIO :
+  ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+    (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG
+              (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P
+              (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths
+                ClsStmt.inRoot tag)
+              h64 hr hon.base 768).verify
+          G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+        true →
+      ¬(EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+              (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨
+            exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) →
+        ¬(rtKB key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+              (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+          ¬(rtKM key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+            ¬(rtKA key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                  (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+              StgClaimsIOC U key domain (inc (OC.run G A).1.hdr) mIn (Rn.pf.off 0 + 5) (Rn.pf.off 0 + pin.pre)
+                (Block.absOfC (chainEncB key domain hs Lq hL))
+                (stgCsv U tag h64 ogStage.lc ogStage.h ogStage.Q ogStage.e Iin.pA.rows Iin.pH.rows (Rn.pf.off 0 + 5)
+                  (Rn.pf.off 0 + 5 + 4 + mIn) csIOI)
+                G (OC.runLog G A).2 (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A))
+hTrOIO :
+  ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+    (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG
+              (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P
+              (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths
+                ClsStmt.inRoot tag)
+              h64 hr hon.base 768).verify
+          G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+        true →
+      ¬(EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+              (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨
+            exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) →
+        ¬(rtKB key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+              (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+          ¬(rtKM key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+            ¬(rtKA key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                  (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+              StgClaimsIOCO U key domain (outc (OC.run G A).1.hdr (OC.run G A).1.verdict).bp (Rn.pf.off (Lb + 1) + 2)
+                (Rn.pf.off (Lb + 1) + pout.pre) (Block.absOfC (chainEncB key domain hs Lq hL))
+                (stgCsv U tag h64 ogStage.lc ogStage.h ogStage.Q ogStage.e Oout.pA.rows Oout.pH.rows
+                  (Rn.pf.off (Lb + 1) + 2) (Rn.pf.off (Lb + 1) + 2 + 4 + 2) csIOO)
+                G (OC.runLog G A).2 (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A))
+hLI_stg :
+  ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+    (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG
+              (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P
+              (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths
+                ClsStmt.inRoot tag)
+              h64 hr hon.base 768).verify
+          G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+        true →
+      ¬(EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+              (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨
+            exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) →
+        ¬(rtKB key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+              (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+          ¬(rtKM key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+            ¬(rtKA key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                  (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+              ¬(rtKsl key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                    (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                ¬(rtKR0 key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                      (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                  ¬(rtKR1 key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                        (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                    ¬(rtKH0 key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2)
+                          (OC.runLog G A).2 (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                      ¬(rtKH1 key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2)
+                            (OC.runLog G A).2 (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                        StgLkAtV U key domain
+                          (fun ch => (inc (OC.run G A).1.hdr).bp (StageV.incCtx (inc (OC.run G A).1.hdr).pub ch)) mIn
+                          (Rn.pf.off 0 + 5) (fun x => (Fp2.zero, Fp2.zero, Fp2.zero))
+                          (Block.absOfC (chainEncB key domain hs Lq hL)) ΛI G (OC.runLog G A).2
+                          (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A))
+hLO_stg :
+  ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+    (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG
+              (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P
+              (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths
+                ClsStmt.inRoot tag)
+              h64 hr hon.base 768).verify
+          G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+        true →
+      ¬(EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+              (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨
+            exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) →
+        ¬(rtKB key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+              (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+          ¬(rtKM key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+            ¬(rtKA key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                  (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+              ¬(rtKsl key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                    (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                ¬(rtKR0 key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                      (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                  ¬(rtKR1 key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2) (OC.runLog G A).2
+                        (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                    ¬(rtKH0 key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2)
+                          (OC.runLog G A).2 (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                      ¬(rtKH1 key domain hs Lq hL Rn.pf Rn.rd hL64 hv U hbij D hD).Dm (Rp.blks.length + 2)
+                            (OC.runLog G A).2 (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A)) →
+                        StgLkAtV U key domain (fun x => (outc (OC.run G A).1.hdr (OC.run G A).1.verdict).bp) 2
+                          (Rn.pf.off (Lb + 1) + 2) OutcV.bga (Block.absOfC (chainEncB key domain hs Lq hL)) ΛO G
+                          (OC.runLog G A).2 (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A))
+hdinS :
+  ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+    (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG
+              (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P
+              (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths
+                ClsStmt.inRoot tag)
+              h64 hr hon.base 768).verify
+          G () (OC.runLog G A).1.1 (OC.runLog G A).1.2 =
+        true →
+      ¬(EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom)
+              (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨
+            exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) →
+        ¬InOkP Rp
+              (epxE
+                (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths
+                  ClsStmt.inRoot tag)
+                (epxMk Rr dR place hpos hplace ClsStmt.inRoot tag) pos (epxOps tag Lq h64 key domain hs hL abRdIn 11 Rr)
+                E0 (OC.runLog G A).2 (OC.runLog G A).1.1 (OC.runLog G A).1.2) →
+          StgDoomAtV U key domain P0in
+            (fun ch => (inc (OC.run G A).1.hdr).bp (StageV.incCtx (inc (OC.run G A).1.hdr).pub ch)) mIn
+            (Rn.pf.off 0 + 5) (fun x => (Fp2.zero, Fp2.zero, Fp2.zero)) stgHostIn
+            (Block.absOfC (chainEncB key domain hs Lq hL))
+            (stgFstIC U hbij tag h64 P0in (vdWin Vi) (Rn.pf.off 0 + pin.pre) (Rn.pf.off 0 + 5) mIn ogStage.lc ogStage.h
+              ogStage.Q ogStage.e Iin.pA.rows Iin.pH.rows pin.S csIOI)
+            (sshΦIC U hbij tag h64 P0in Vi (Rn.pf.off 0 + pin.pre) (Rn.pf.off 0 + 5) mIn ogStage.lc ogStage.h ogStage.Q
+              ogStage.e Iin.pA.rows Iin.pH.rows csIOI)
+            sshDgI eI ΛI G (OC.runLog G A).2 (rtTr key domain Lq Rn.pf Rn.rd G (OC.run G A))
+hblkIO :
+  ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (k : ℕ) (hk : k < Rp.blks.length),
+    (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG
+              (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P
+              (epTokenCommit Rr dR hpos place (epxMsg Rr dR place pos) ⋯ EpxSalt.pads EpxSalt.salts EpxSalt.paths
+                ClsStmt.inRoot tag)
+build rc 1 (17 s)
+rc 1, 17 s
