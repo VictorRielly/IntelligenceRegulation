@@ -367,7 +367,7 @@ theorem shd_zs_of_phi (hU : U ^ 2 = algebraMap GF K 7) (Rp : ClassifyRunPublicP 
   symm
   refine (stgTabK_priv_cptS U hbij hU _ _ rH ogStage.lc ogStage.Q
     (stgIOX tag h64 ogStage.lc ogStage.h ogStage.Q ogStage.e rH iH v) (by decide) 12 b hN _ (by intro _; rfl)
-    (by exact List.cons_ne_nil _ _) (by show 0 < 12; omega) (by simp [rhoC, hlt])
+    (by exact List.cons_ne_nil _ _) (by show 0 < 12; omega) (by simp [rhoC])
     (by exact shdN_lc tag Rp embDigest embFold bInRow cx)
     (by intro c hc w' hw; simp [rhoC] at hc; obtain ⟨_, _, rfl⟩ := hc; cases hw)).trans ?_
   rw [privZ_eq_planeZ U _ _ _ _ 12 b hNlt _

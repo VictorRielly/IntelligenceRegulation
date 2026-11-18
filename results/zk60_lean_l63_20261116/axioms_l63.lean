@@ -1,3 +1,5 @@
+import ZK60Formal.RunStgShieldIncBT
+import ZK60Formal.RunStgShieldTopL
 import ZK60Formal.RunStgShieldIncAt
 import ZK60Formal.RunStgShieldIncJoin
 import ZK60Formal.RunStgShieldIncCube
@@ -415,3 +417,54 @@ import ZK60Formal.RunStgShieldRbr
 #print axioms ZK60.ProtocolClassify.shd_hEmb_exists
 #print axioms ZK60.ProtocolClassify.shd_inc_qt_run
 #print axioms ZK60.ProtocolClassify.shd_hLI_run
+-- RunStgShieldIncNum.lean
+#print axioms ZK60.ProtocolClassify.shdN_pub
+#print axioms ZK60.ProtocolClassify.shdN_ti
+#print axioms ZK60.ProtocolClassify.shdN_voc
+#print axioms ZK60.ProtocolClassify.shdN_tB
+#print axioms ZK60.ProtocolClassify.shdN_bIn
+#print axioms ZK60.ProtocolClassify.shdN_Gb
+#print axioms ZK60.ProtocolClassify.shdN_lt
+#print axioms ZK60.ProtocolClassify.shdN_lc
+#print axioms ZK60.ProtocolClassify.shdN_bos
+#print axioms ZK60.ProtocolClassify.shdN_kap
+#print axioms ZK60.ProtocolClassify.shdN_ns
+#print axioms ZK60.ProtocolClassify.shdN_v
+#print axioms ZK60.ProtocolClassify.shdN_tok
+#print axioms ZK60.ProtocolClassify.shdN_cq
+#print axioms ZK60.ProtocolClassify.shdN_rA
+#print axioms ZK60.ProtocolClassify.shdN_rX
+#print axioms ZK60.ProtocolClassify.shdN_sl
+#print axioms ZK60.ProtocolClassify.shdN_d1
+#print axioms ZK60.ProtocolClassify.shdN_d2
+#print axioms ZK60.ProtocolClassify.shdN_P
+#print axioms ZK60.ProtocolClassify.shdRkD_r0_zero
+#print axioms ZK60.ProtocolClassify.shdRkD_sls_zero
+-- RunStgShieldIncSum.lean
+#print axioms ZK60.Exec.Block.Join.W16.Look.zcB_leftW
+#print axioms ZK60.Exec.Block.Join.W16.Look.zcB_rightW
+#print axioms ZK60.Exec.Block.Join.W16.Look.core_rowKeyW
+#print axioms ZK60.Exec.Block.Join.W16.Look.sum_planeZ2W
+#print axioms ZK60.ProtocolClassify.kI_one_toK
+#print axioms ZK60.ProtocolClassify.kI_negOne_toK
+#print axioms ZK60.ProtocolClassify.shd_lsc_sem
+#print axioms ZK60.ProtocolClassify.shd_incSum_of_lsc
+#print axioms ZK60.ProtocolClassify.ssh_run_lscI
+#print axioms ZK60.ProtocolClassify.shd_incSum_run
+-- RunStgShieldIncZS.lean
+#print axioms ZK60.ProtocolClassify.ssh_defAll
+#print axioms ZK60.ProtocolClassify.incDefZS_ok
+#print axioms ZK60.ProtocolClassify.stgΦBC_sa_evalT
+#print axioms ZK60.ProtocolClassify.selK_ext1
+#print axioms ZK60.ProtocolClassify.cube_sel_split
+#print axioms ZK60.ProtocolClassify.shd_zs_of_phi
+-- RunStgShieldIncZSRun.lean
+#print axioms ZK60.ProtocolClassify.ssh_hDIC_all
+#print axioms ZK60.ProtocolClassify.shd_zs_run
+#print axioms ZK60.ProtocolClassify.shd_hLI_of_rd
+#print axioms ZK60.ProtocolClassify.shd_hLI_runR
+-- RunStgShieldTopL.lean
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOl
+-- RunStgShieldIncBT.lean
+#print axioms ZK60.ProtocolClassify.incBosTmpl_of_qzc
+#print axioms ZK60.ProtocolClassify.shd_bosTmpl_of_rd

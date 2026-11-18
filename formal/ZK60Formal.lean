@@ -544,3 +544,9 @@ import ZK60Formal.RunStgShieldIncIdQ
 import ZK60Formal.RunStgShieldIncIdT
 import ZK60Formal.RunStgShieldIncJoin
 import ZK60Formal.RunStgShieldIncAt
+import ZK60Formal.RunStgShieldIncNum
+import ZK60Formal.RunStgShieldIncSum
+import ZK60Formal.RunStgShieldIncZS
+import ZK60Formal.RunStgShieldIncZSRun
+import ZK60Formal.RunStgShieldTopL
+import ZK60Formal.RunStgShieldIncBT
