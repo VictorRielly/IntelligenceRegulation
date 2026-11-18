@@ -37,8 +37,8 @@ BASE=4db41d46
 # two lane imports are new since BASE.
 # 2026-11-18: perf 4db41d46 (lane L68a, Antigravity's RunShieldBlkInst, NOT mine; it already carries the lane's
 # 936f4070) fast-forwarded the lane branch: BASE moved there; the lane imports new since BASE are this leg's.
-NEW_SINCE_BASE=""
-MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO RunStgShieldLuRd RunStgShieldTopSJ"
+NEW_SINCE_BASE="RunStgShieldEpxIO RunStgShieldTopBx"
+MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO RunStgShieldLuRd RunStgShieldTopSJ RunStgShieldEpxIO RunStgShieldTopBx"
 AG="RunStgShieldToK RunStgShieldDg RunStgShieldCTopDg RunStgShieldLu RunShieldInstP RunShieldBlkInst"
 MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI RunStgShieldC RunStgShieldDefC RunStgShieldCChain RunStgShieldCJoin RunStgShieldCWire RunStgShieldCTop RunStgShieldCTopT RunStgShieldCTopC RunStgShieldCTopI RunStgShieldIOTie RunStgShieldCTopK RunStgShieldCTopZ RunStgShieldOutTie RunStgShieldCTopF RunStgShieldInZero RunStgShieldCTopW $MINE_NEW"
 FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean $L/RunStgShieldRbr.lean $L/RunStgShieldTrue.lean $L/RunStgShieldTrueRun.lean $L/RunStgShieldTopT.lean $L/RunStgShieldClaims.lean $L/RunStgShieldClaimsRun.lean $L/RunStgShieldTopC.lean $L/RunStgShieldInAH.lean $L/RunStgShieldInAHRun.lean $L/RunStgShieldTopI.lean $L/RunStgShieldC.lean $L/RunStgShieldDefC.lean $L/RunStgShieldCChain.lean $L/RunStgShieldCJoin.lean $L/RunStgShieldCWire.lean $L/RunStgShieldCTop.lean $L/RunStgShieldCTopT.lean $L/RunStgShieldCTopC.lean $L/RunStgShieldCTopI.lean $L/RunStgShieldIOTie.lean $L/RunStgShieldCTopK.lean $L/RunStgShieldCTopZ.lean $L/RunStgShieldOutTie.lean $L/RunStgShieldCTopF.lean $L/RunStgShieldInZero.lean $L/RunStgShieldCTopW.lean"
@@ -128,7 +128,7 @@ scan=0
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $FILES \
   && scan=1 || echo "none (the lane's files)"
 grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' $AGFILES \
-  && scan=1 || echo "none (Antigravity's three)"
+  && scan=1 || echo "none (Antigravity's files)"
 echo "== the generators reproduce their files =="
 python3 -I "$OUT/l63_mk_top.py" "$WT" --check
 gch=$?
@@ -141,7 +141,7 @@ gchc=$?
 python3 -I "$OUT/l63_mk_topi.py" "$WT" --check
 gchi=$?
 [ $gchi -ne 0 ] && gch=$gchi
-for g in l63_mk_c.py l63_mk_defc.py l63_mk_cchain.py l63_mk_topsc.py l63_mk_topk.py l63_mk_topz.py l63_mk_topo.py l63_mk_topw.py l63_mk_inahrun.py l63_mk_topdz.py l63_mk_toppd.py l63_mk_topio.py l63_mk_toptri.py l63_mk_toptro.py l63_mk_topsj.py; do
+for g in l63_mk_c.py l63_mk_defc.py l63_mk_cchain.py l63_mk_topsc.py l63_mk_topk.py l63_mk_topz.py l63_mk_topo.py l63_mk_topw.py l63_mk_inahrun.py l63_mk_topdz.py l63_mk_toppd.py l63_mk_topio.py l63_mk_toptri.py l63_mk_toptro.py l63_mk_topsj.py l63_mk_topbx.py; do
   python3 -I "$OUT/$g" "$WT" --check
   r=$?
   echo "$g --check rc $r"

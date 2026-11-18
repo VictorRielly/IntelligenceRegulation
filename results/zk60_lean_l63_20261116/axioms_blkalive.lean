@@ -9,3 +9,6 @@ import ZK60Formal
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldJ
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldLu
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLu
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIO
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv
