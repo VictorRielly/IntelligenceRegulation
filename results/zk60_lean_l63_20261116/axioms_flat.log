@@ -398,3 +398,7 @@
 'ZK60.ProtocolClassify.shdN_kP' depends on axioms: [propext, Quot.sound]
 'ZK60.ProtocolClassify.epxIO_hXI' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.epxIO_hpl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdRkD_r0_out' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdRkD_sls_out' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdRkD_lu_out' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stg_outc_def_zero' depends on axioms: [propext, Classical.choice, Quot.sound]

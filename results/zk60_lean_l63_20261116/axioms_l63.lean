@@ -1,5 +1,6 @@
 import ZK60Formal.RunStgShieldIncBT
 import ZK60Formal.RunStgShieldInXEp
+import ZK60Formal.RunStgShieldOutNum
 import ZK60Formal.RunStgShieldTopL
 import ZK60Formal.RunStgShieldIncAt
 import ZK60Formal.RunStgShieldIncJoin
@@ -496,3 +497,8 @@ import ZK60Formal.RunStgShieldRbr
 -- RunStgShieldInXEp.lean
 #print axioms ZK60.ProtocolClassify.epxIO_hXI
 #print axioms ZK60.ProtocolClassify.epxIO_hpl
+-- RunStgShieldOutNum.lean
+#print axioms ZK60.ProtocolClassify.shdRkD_r0_out
+#print axioms ZK60.ProtocolClassify.shdRkD_sls_out
+#print axioms ZK60.ProtocolClassify.shdRkD_lu_out
+#print axioms ZK60.ProtocolClassify.stg_outc_def_zero
