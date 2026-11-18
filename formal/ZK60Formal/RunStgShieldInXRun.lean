@@ -418,4 +418,74 @@ theorem shd_hdinX_gen (hU : U ^ 2 = algebraMap GF K 7) (tag : MTag) (h64 : 64 �
 
 end Sat
 
+section Ep
+
+variable {K : Type} [Field K] [Fintype K] [Algebra GF K] (tag : MTag) (L : ℕ) (h64 : 64 ≤ L) (key : Option Dig)
+  (domain : List UInt8) (hs : decodeLink (startMsg domain) = none) (hL : (startMsg domain).length ≤ L)
+
+/-- **ON `decodeIn`'S EXISTENCE BRANCH, THE INPUT ENDPOINT MATRIX `epUxV` AT A TOKEN'S ENTRY IS THE DECODED TOKEN WORD**
+(the message entry at the token's place, as the extractor's `tokW` reads it), at every header whose position `1` reads as
+the root `r`. -/
+theorem epUxV_tokW {T St Salt : Type} (R dR : ℕ) {pos : T → Fin dR × Fin (2 ^ 8)}
+    (hpos : Function.Injective pos) (place : Fin dR → Fin R) (msg : (T → ℕ) → Salt → Fin R → Fin (2 ^ 8) → GF)
+    (msg_place : ∀ v r k, msg v r (place k) = posPlane pos v k) (pad : Salt → Fin R → Fin 256 → GF)
+    (salt : Salt → Fin (2 ^ 11) → Dig) (path : Salt → Fin (2 ^ 11) → List Dig) (root : St → Dig) (tagc : MTag)
+    (r : Dig) (Lg : List (QB L × Dig)) (hdr : List (TItem × Dig)) (x : List UInt8)
+    (hx : Block.absAt hdr 1 = some x) (hr : abRdIn x = some r)
+    (hex : ∃ (Mg : Fin R → Fin (2 ^ 8) → GF) (Pd : Fin R → Fin 256 → GF) (S : Finset (Fin (2 ^ 11))),
+      2 ^ 11 ≤ S.card + 768 ∧ ∀ j ∈ S, ∃ o, epxAt tag L h64 key domain hs hL abRdIn 11 R r Lg j.val = some o
+        ∧ o.col = (epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).colOf Mg Pd j)
+    (t : T) (row : Fin R) (col : Fin (2 ^ 8 + 256)) (hrow : row = place (pos t).1) (hcol : col.val = (pos t).2.val) :
+    epUxV (K := K) tag L h64 key domain hs hL R (stgVw (Exec.Block.absOfC (chainEncB key domain hs L hL)) Lg hdr)
+        row col
+      = algebraMap GF K (((epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).decodeIn
+          (fun j => epxAt tag L h64 key domain hs hL abRdIn 11 R r Lg j.val) 768).1
+          ((epTokenCommit R dR hpos place msg msg_place pad salt path root tagc).place (pos t).1) (pos t).2) := by
+  subst hrow
+  have e1 : (stgVw (Exec.Block.absOfC (chainEncB key domain hs L hL)) Lg hdr).1 1
+      = Block.cutO (Exec.Block.absOfC (chainEncB key domain hs L hL)) (Block.absAt hdr 1) Lg := rfl
+  have e2 : (stgVw (Exec.Block.absOfC (chainEncB key domain hs L hL)) Lg hdr).2 = hdr := rfl
+  unfold epUxV
+  rw [e1, e2, ssh_ebUxW_view tag L h64 key domain hs hL abRdIn 11 1 R (2 ^ 11) Lg hdr hdr x r hx hx hr,
+    ssh_ep_bridge tag L h64 key domain hs hL R dR hpos place msg msg_place pad salt path root tagc r Lg hdr
+      (by rw [hx, Option.bind_some, hr]) hex]
+  obtain ⟨tv, htv⟩ := col
+  have ht : tv < 2 ^ 8 := by have := (pos t).2.isLt; simp only at hcol; omega
+  have et : (⟨tv, htv⟩ : Fin (2 ^ 8 + 256)) = Fin.castAdd 256 ⟨tv, ht⟩ := rfl
+  have ep : (⟨tv, ht⟩ : Fin (2 ^ 8)) = (pos t).2 := Fin.ext hcol
+  beta_reduce
+  rw [et]
+  refine congrArg (algebraMap GF K) ((Fin.append_left _ _ _).trans ?_)
+  rw [ep]
+  rfl
+
+end Ep
+
+section Num
+
+variable (tag : MTag) (Rp : ZK60.RunShape.ClassifyRunPublicP shieldS0) (embDigest : Dig)
+  (embFold : List Fp2 → List Fp2) (bInRow : ℕ)
+
+theorem shdN_d0 : 0 < (shdP_P0in tag Rp embDigest embFold bInRow).draws 0 := by
+  show 0 < incDraws (shdP_incPub Rp embDigest embFold) 0
+  show 0 < clog2 (shdP_incPub Rp embDigest embFold).inEpWords
+  rw [(shdP_incPub_logs Rp embDigest embFold).2.2.1, shdP_clog2_256]
+  norm_num
+
+theorem shdN_lw8 : clog2 (shdP_incV tag Rp embDigest embFold bInRow).pub.inEpWords = 8 := by
+  show clog2 (shdP_incPub Rp embDigest embFold).inEpWords = 8
+  rw [(shdP_incPub_logs Rp embDigest embFold).2.2.1, shdP_clog2_256]
+
+theorem shdN_bosP : (shdP_incV tag Rp embDigest embFold bInRow).pub.bos = Rp.inp.bos :=
+  (shdP_incPub_lay Rp embDigest embFold).2.2.1
+
+theorem shdN_TP : ∀ t : shieldS0.Tok,
+    (shdP_incV tag Rp embDigest embFold bInRow).pub.isTemplate t.val = Rp.inp.isT t :=
+  (shdP_incPub_lay Rp embDigest embFold).2.2.2.1
+
+theorem shdN_kP : ∀ t : shieldS0.Tok, (shdP_incV tag Rp embDigest embFold bInRow).pub.kappa t.val = Rp.inp.kap t :=
+  (shdP_incPub_lay Rp embDigest embFold).2.2.2.2.1
+
+end Num
+
 end ZK60.ProtocolClassify

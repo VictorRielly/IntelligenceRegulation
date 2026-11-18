@@ -316,6 +316,98 @@ docL = ("/-- **`hLI_stg` DISCHARGED** (D63 lane L63, item 4b): `sshC_productionR
         "  `shd_hEmb_exists`).\n"
         "Remaining premises of blkIOv's: `hLO_stg`, `hdinX`, `hdoutC`. -/\n")
 
+# --- X: hdinX on decodeIn's existence branch, PROVED at the concrete objects (not a top: finding L63-11) ---
+hdx = binders[9]
+assert hdx.startswith("(hdinX : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),\n"), hdx[:80]
+innerX = hdx[len("(hdinX :"):-1]
+BADL = "      ¬ BadEvB A G →\n"
+assert innerX.count(BADL) == 1
+HON = ("∃ (Mg : Fin 6 → Fin (2 ^ 8) → GF) (Pd : Fin 6 → Fin 256 → GF) (S : Finset (Fin (2 ^ 11))),\n"
+       "        2 ^ 11 ≤ S.card + 768 ∧ ∀ j ∈ S, ∃ o, (OpsB) (A.runLog G).2 (A.runLog G).1.1 j = some o\n"
+       "          ∧ o.col = (CinB).colOf Mg Pd j")
+innerOn = innerX.replace(BADL, BADL + "      (" + HON + ") →\n", 1)
+innerOff = innerX.replace(BADL, BADL + "      ¬ (" + HON + ") →\n", 1)
+SECV = ("tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening "
+        "embDigest embFold bInRow wDigest bOutRow P epBase E0")
+stmtX = ("theorem shd_hdinX_blk" + "".join("\n    " + b for b in binders[:7] + [hV, hEmb]) + " :\n   " + innerOn)
+GEO = "shdRkD_opX_succ_geo " + RKARGS.replace("\n", " ") + " 0 bl_zero_lt_26_blk"
+bodyX = (
+    "  intro A G hv _ hon hnot\n"
+    "  have hE0 := rc_uexecP_E (h := hv) ..\n"
+    "  rw [OC.runLog_fst] at hE0\n"
+    "  have hrun : (A.runLog G).1 = A.run G := OC.runLog_fst G A\n"
+    "  obtain ⟨x, hx, hrx⟩ : ∃ x, Block.absAt (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) 1 = some x\n"
+    "      ∧ abRdIn x = some (A.run G).1.inRoot := by\n"
+    "    have h2 := ab_rdIn_at1 hw (RnB)\n"
+    "      (shdP_rtRun_hdr Lq hL20 tag key DomB hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest bOutRow\n"
+    "        HPk0B check0 paths digest bndCheck) G (A.run G).1 (A.run G).2 hE0 2 (by norm_num)\n"
+    "    rw [ssh_absAt_take _ 2 1 (by norm_num)] at h2\n"
+    "    exact Option.bind_eq_some_iff.mp h2\n"
+    "  have hgeo := " + GEO + "\n"
+    "  have hIOlB : VwLoc ((RnB).pf.off 0 + 5 + (7 + 15)) (CsIOIB) :=\n"
+    "    vwLoc_stgCsIOm shdP_U 6 8 256 _ 14 256 _ _ _\n"
+    "      (vwLoc_epUxV tag Lq (le64_of_le20 hL20) key DomB HsB HLB 6 _ (by omega))\n"
+    "      (vwLoc_bxUxV tag Lq (le64_of_le20 hL20) _ _ _ (by omega))\n"
+    "  exact shd_hdinX_gen key DomB HsB Lq HLB shdP_U shdP_hbij shdP_hU tag (le64_of_le20 hL20) Rp.inp O.inPub P0inB\n"
+    "    ViB (shdEpad Rp.inp) (shdEpad_hE Rp.inp) ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)\n"
+    "    ((RnB).pf.off 0 + 2) (IinB).pA.rows (IinB).pH.rows (PXkB 0).rows 6 (by omega)\n"
+    "    (shdN_rA (Hdr := Hdr) " + NUM + " Lq hL20) (shdN_rX tag) (by norm_num)\n"
+    "    (epUxV tag Lq (le64_of_le20 hL20) key DomB HsB HLB 6) hIOlB\n"
+    "    (shdN_P " + NUM + " (A.run G).1.hdr) (fun _ => (IinB).hgt (A.run G).1.hdr)\n"
+    "    (fun _ k hk => ((IinB).hgeomL (A.run G).1.hdr _ k hk).1)\n"
+    "    (shdN_sl " + NUM + ") (shdN_d0 " + NUM + ") (shdN_d1 " + NUM + ") (shdN_d2 " + NUM + ")\n"
+    "    (shdN_ti " + NUM + ") (shdN_voc " + NUM + ") (shdN_tB " + NUM + ") (shdN_bIn " + NUM + ")\n"
+    "    (shdN_Gb " + NUM + ") (shdN_lt " + NUM + ") (shdN_lc " + NUM + ")\n"
+    "    (shdN_bos " + NUM + " O.inPub) (shdN_kap " + NUM + " O.inPub) (shdN_ns " + NUM + ")\n"
+    "    hV131072 hEmb (shdN_v " + NUM + " hV131072) O.inPub.V2 (shdN_tok " + NUM + ") (shdN_cq " + NUM + ")\n"
+    "    (shdN_bosP " + NUM + ") (shdN_TP " + NUM + ") (shdN_kP " + NUM + ")\n"
+    "    (shdP_hVi " + NUM + ").2.1 (shdP_hVi " + NUM + ").2.2.1 (shdN_lw8 " + NUM + ")\n"
+    "    _ _ _ G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) _ _\n"
+    "    (fun t hr hc => by\n"
+    "      have ht : t.val < 128 := t.isLt\n"
+    "      have h := epxIO_hXI 6 1 shdP_epPos_injective shdP_epPlace (epxMsg 6 1 shdP_epPlace shdP_epPos)\n"
+    "        (epxMsg_place 6 1 shdP_epPlace shdP_epPos shdP_epPlace_injective) EpxSalt.pads EpxSalt.salts EpxSalt.paths\n"
+    "        tag (epxMk 6 1 shdP_epPlace shdP_epPos_injective shdP_epPlace_injective ClsStmt.inRoot tag) shdP_U tag\n"
+    "        (le64_of_le20 hL20) key DomB HsB HLB (RnB).pf (RnB).rd RkDLB shieldDPos0 26 Rp.row E0b\n"
+    "        (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) x\n"
+    "        (A.run G).1.inRoot hx hrx (by rw [hrun]) hon t ⟨t.val / 2 ^ 8, hr⟩ ⟨t.val % 2 ^ 8, hc⟩\n"
+    "        (Fin.ext (by rw [shdP_epPlace_val]; show t.val / 2 ^ 8 = 0; omega))\n"
+    "        (by show t.val % 2 ^ 8 = t.val; omega)\n"
+    "      exact h)\n"
+    "    (fun hdr core ch rs hrd p => epxIO_hpl (CinB)\n"
+    "      (epxMk 6 1 shdP_epPlace shdP_epPos_injective shdP_epPlace_injective ClsStmt.inRoot tag) shdP_epPos (OpsB)\n"
+    "      shdP_U tag (le64_of_le20 hL20) key DomB HsB HLB (RnB).pf (RnB).rd RkDLB 26 Rp.row E0b\n"
+    "      (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2 (A.run G) (by rw [hrun])\n"
+    "      ⟨hgeo.1, hgeo.2.1, hgeo.2.2.1, hgeo.2.2.2.1, hgeo.2.2.2.2.trans (shdN_rX tag)⟩\n"
+    "      G (fun ch => (ViB).bp (incCtx (ViB).pub ch)) 15 ((RnB).pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero))\n"
+    "      hdr core ch rs hrd (by omega) Rp.inp (ViB).pub (shdEpad Rp.inp) ((RnB).pf.off 0 + 5) p)\n"
+    "    hnot\n")
+docX = ("/-- **`hdinX` ON `decodeIn`'S EXISTENCE BRANCH, PROVED at the concrete objects** (D63 lane L63, step 1 of\n"
+        "HANDOFF_20261118_4.md section 5; not a top theorem): at every accepted run where the input commitment's `decodeIn`\n"
+        "is on its existence branch for the checked extractor's openings `OpsB`, `¬ InSat` of the extracted token words and\n"
+        "plane `0` is stage IN-C's doom. At each reading with every drawing define state and the head LogUp state alive:\n"
+        "INC-00 gives `A_TOK = epUxV = tokW` on the tokens (`shd_tok_rd`, `epUxV_tokW`), SIC_QZC the BOS / template facts\n"
+        "(`shd_bt_rd`), the LogUp state `InGood` (`shd_inGood_of_lu`), joined by `shd_inSat_join` with the plane at the head\n"
+        "view (`bndPlanes0_head`): `shd_hdinX_gen`. OFF the branch `decodeIn` is `0` and the stage facts say nothing about\n"
+        "it (finding L63-11). -/\n")
+docD = ("/-- **INTERIM (finding L63-11, awaiting a ruling): `hdinX` NARROWED TO RUNS OFF `decodeIn`'S EXISTENCE BRANCH**\n"
+        "(D63 lane L63): `sshC_productionReadyL_epP_blkIOl` with `hdinX` PROVED on the existence branch (`shd_hdinX_blk`) and\n"
+        "replaced by `hdinOff`: the same doom, under the extra hypothesis that `decodeIn` is OFF its existence branch (a\n"
+        "strictly narrower premise than `hdinX`). Nothing else changed. Remaining lane premises: `hLO_stg`, `hdinOff`,\n"
+        "`hdoutC`; plus `hEmb` (L63-8, interim) and `hV131072` (L63-7). -/\n")
+hdo = "(hdinOff :" + innerOff + ")"
+keptD = binders[:7] + [hV, hEmb] + [binders[8], hdo, binders[10]]
+stmtD = "theorem sshC_productionReadyL_epP_blkIOd" + "".join("\n    " + b for b in keptD) + "\n    " + concl
+argsD = (["(Hdr := Hdr)", "(Coins := Coins)"] + ["(%s := %s)" % (n, n) for n in VARS]
+         + ["(%s := %s)" % (n, n) for n in ["site", "kOf", "δOf", "O", "E0b", "hV131072", "hEmb", "hLO_stg", "hdoutC"]])
+bodyD = ("  exact sshC_productionReadyL_epP_blkIOl\n    "
+         + "\n    ".join(" ".join(argsD[x:x + 8]) for x in range(0, len(argsD), 8)) + "\n"
+         "    (hdinX := fun A G hv hb hnot => by\n"
+         "      by_cases hon : " + HON.replace("\n", "\n      ") + "\n"
+         "      · exact shd_hdinX_blk (hR := hR) (site := site) (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b)\n"
+         "          (hV131072 := hV131072) (hEmb := hEmb) A G hv hb hon hnot\n"
+         "      · exact hdinOff A G hv hb hon hnot)\n")
+
 pre = ("/-\nD63 lane L63 (2026-11-18), part 65: **the concrete top with `hLI_stg` discharged**. Generated by\n"
        "`results/zk60_lean_l63_20261116/l63_mk_topl.py` from `sshC_productionReadyL_epP_blkIOv` (RunStgShieldTopBx.lean):\n"
        "its `section BlkIOTop` variables and notations are copied (the private `bx_zero_lt_26_blk` renamed\n"
@@ -323,13 +415,18 @@ pre = ("/-\nD63 lane L63 (2026-11-18), part 65: **the concrete top with `hLI_stg
        "* **`sshC_productionReadyL_epP_blkIOl`**: `hLI_stg` DISCHARGED (proved at the concrete objects); added only the\n"
        "  two premises ruled L63-7 (`hV131072`) and L63-8 (`hEmb`, interim). The interim forms (`hLI_stg` replaced by the\n"
        "  sum facts `hSum`, or by SIC_ZS's zero sum alone) were built on the way (iter105, iter108) and are not kept: the\n"
-       "  direct proof superseded them.\n\n"
+       "  direct proof superseded them.\n"
+       "* `shd_hdinX_blk` (not a top): `hdinX` PROVED on `decodeIn`'s existence branch (part 76).\n"
+       "* `sshC_productionReadyL_epP_blkIOd`: INTERIM (finding L63-11): blkIOl with `hdinX` narrowed to `hdinOff`\n"
+       "  (the same doom off `decodeIn`'s existence branch).\n\n"
        "Only `propext`, `Classical.choice`, `Quot.sound`.\n-/\n"
-       "import ZK60Formal.RunStgShieldTopBx\nimport ZK60Formal.RunStgShieldIncZSRun\n\n"
+       "import ZK60Formal.RunStgShieldTopBx\nimport ZK60Formal.RunStgShieldIncZSRun\nimport ZK60Formal.RunStgShieldInXEp\n\n"
        "set_option autoImplicit false\nset_option linter.constructorNameAsVariable false\n\n"
        "namespace ZK60.ProtocolClassify\n\n"
        + OPENS + "\n")
 text = (pre + header + BASEN + "\n" + docL + stmtL + " := by\n" + bodyL
+        + "\nvariable {" + SECV + "}\n\n" + docX + stmtX + " := by\n" + bodyX
+        + "\nvariable (" + SECV + ")\n\n" + docD + stmtD + " := by\n" + bodyD
         + "\nend BlkIOlTop\n\nend ZK60.ProtocolClassify\n")
 dst = F + "RunStgShieldTopL.lean"
 if len(sys.argv) > 2 and sys.argv[2] == "--check":

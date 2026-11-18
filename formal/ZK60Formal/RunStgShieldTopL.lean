@@ -8,11 +8,15 @@ its `section BlkIOTop` variables and notations are copied (the private `bx_zero_
   two premises ruled L63-7 (`hV131072`) and L63-8 (`hEmb`, interim). The interim forms (`hLI_stg` replaced by the
   sum facts `hSum`, or by SIC_ZS's zero sum alone) were built on the way (iter105, iter108) and are not kept: the
   direct proof superseded them.
+* `shd_hdinX_blk` (not a top): `hdinX` PROVED on `decodeIn`'s existence branch (part 76).
+* `sshC_productionReadyL_epP_blkIOd`: INTERIM (finding L63-11): blkIOl with `hdinX` narrowed to `hdinOff`
+  (the same doom off `decodeIn`'s existence branch).
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunStgShieldTopBx
 import ZK60Formal.RunStgShieldIncZSRun
+import ZK60Formal.RunStgShieldInXEp
 
 set_option autoImplicit false
 set_option linter.constructorNameAsVariable false
@@ -404,6 +408,195 @@ theorem sshC_productionReadyL_epP_blkIOl
           (shdN_cq tag Rp embDigest embFold bInRow)
           G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) hR0
           (fun hdr core ch rs hrd => ⟨hIS, hZS hdr core ch rs hrd⟩))
+
+variable {tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening embDigest embFold bInRow wDigest bOutRow P epBase E0}
+
+/-- **`hdinX` ON `decodeIn`'S EXISTENCE BRANCH, PROVED at the concrete objects** (D63 lane L63, step 1 of
+HANDOFF_20261118_4.md section 5; not a top theorem): at every accepted run where the input commitment's `decodeIn`
+is on its existence branch for the checked extractor's openings `OpsB`, `¬ InSat` of the extracted token words and
+plane `0` is stage IN-C's doom. At each reading with every drawing define state and the head LogUp state alive:
+INC-00 gives `A_TOK = epUxV = tokW` on the tokens (`shd_tok_rd`, `epUxV_tokW`), SIC_QZC the BOS / template facts
+(`shd_bt_rd`), the LogUp state `InGood` (`shd_inGood_of_lu`), joined by `shd_inSat_join` with the plane at the head
+view (`bndPlanes0_head`): `shd_hdinX_gen`. OFF the branch `decodeIn` is `0` and the stage facts say nothing about
+it (finding L63-11). -/
+theorem shd_hdinX_blk
+    {ι : Type}
+    [Fintype ι]
+    (site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins shdP_K)
+    (kOf : ι → ℕ)
+    (δOf : ι → ℝ≥0∞)
+    (O : ClassifyOpenP Rp Lq
+      (shdP_runV tag key DomB hw preA preB Rp embDigest embFold bInRow wDigest bOutRow
+        Pk0B check0 paths digest bndCheck)
+      P (shdP_cin Hdr tag) (le64_of_le20 hL20) (shdP_hr tag hL20)
+      (shdP_honestIn tag epBase) shdP_U site kOf δOf (ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds))
+    (E0b : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt 6))
+    (hV131072 : Rp.inp.V = 131072)
+    (hEmb : ∀ rEmb : List Fp2, rEmb.length = 12 → (∀ a ∈ rEmb, a.Canon) → ∀ v : Fin Rp.inp.V,
+      ((embFold rEmb).getD v Fp2.zero).toK shdP_U
+        = mleAt (fun c => algebraMap GF shdP_K (shdEpad Rp.inp v c))
+          (fun c : Fin 12 => (rEmb.getD c Fp2.zero).toK shdP_U)) :
+    ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      (∃ (Mg : Fin 6 → Fin (2 ^ 8) → GF) (Pd : Fin 6 → Fin 256 → GF) (S : Finset (Fin (2 ^ 11))),
+        2 ^ 11 ≤ S.card + 768 ∧ ∀ j ∈ S, ∃ o, (OpsB) (A.runLog G).2 (A.runLog G).1.1 j = some o
+          ∧ o.col = (CinB).colOf Mg Pd j) →
+      ¬ InSat Rp.inp ((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).tokW
+        (((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes 0) →
+      StgDoomAtV shdP_U key DomB P0inB (fun ch => (ViB).bp (incCtx (ViB).pub ch)) 15
+        ((RnB).pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) stgHostIn AbsB
+        (stgFstIC shdP_U shdP_hbij tag (le64_of_le20 hL20) P0inB (vdWin ViB)
+          ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          15 ogStage.lc ogStage.h ogStage.Q ogStage.e (IinB).pA.rows (IinB).pH.rows (rcIncPart ViB 256 256).S (CsIOIB))
+        (sshΦIC shdP_U shdP_hbij tag (le64_of_le20 hL20) P0inB ViB
+          ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          15 ogStage.lc ogStage.h ogStage.Q ogStage.e (IinB).pA.rows (IinB).pH.rows (CsIOIB))
+        sshDgI shdP_eI (ΛIcB) G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) := by
+  intro A G hv _ hon hnot
+  have hE0 := rc_uexecP_E (h := hv) ..
+  rw [OC.runLog_fst] at hE0
+  have hrun : (A.runLog G).1 = A.run G := OC.runLog_fst G A
+  obtain ⟨x, hx, hrx⟩ : ∃ x, Block.absAt (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) 1 = some x
+      ∧ abRdIn x = some (A.run G).1.inRoot := by
+    have h2 := ab_rdIn_at1 hw (RnB)
+      (shdP_rtRun_hdr Lq hL20 tag key DomB hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest bOutRow
+        HPk0B check0 paths digest bndCheck) G (A.run G).1 (A.run G).2 hE0 2 (by norm_num)
+    rw [ssh_absAt_take _ 2 1 (by norm_num)] at h2
+    exact Option.bind_eq_some_iff.mp h2
+  have hgeo := shdRkD_opX_succ_geo shdP_U shdP_hbij tag shieldDPos0 Lq (le64_of_le20 hL20) hL20 key DomB HsB HLB 26 bl_zero_lt_26_blk     (RnB).pf (shdP_clampPk Pk0B) (shdP_shieldRunAtD_clamp HPk0B) ViB FoB     (ViB).lay.logupSumClaim (FoB 0).lay.logupSumClaim     (rcIncPart ViB 256 256) (rcOutcPart (FoB 0) 256 256 1)     15 8 14 (IinB).pA.rows (IinB).pH.rows (IinB).pX.rows (IinB).nA (IinB).nH (IinB).nIn (IinB).nOut     (OoutB).pA.rows (OoutB).pH.rows (OoutB).pX.rows (OoutB).nA (OoutB).nH (OoutB).nIn     (fun j => (BpB j).S) (fun j => (BpB j).pA.rows) (fun j => (BpB j).pH.rows)     (fun j => (BpB j).nA) (fun j => (BpB j).nH) (fun j => (BpB j).nIn) (fun j => (BpB j).nOut)     (fun j => (PXkB j).rows) P0inB P0outB (CsIOIB) (CsIOOB) shdP_eI shdP_eO (ΛIcB) (ΛOcB) 0 bl_zero_lt_26_blk
+  have hIOlB : VwLoc ((RnB).pf.off 0 + 5 + (7 + 15)) (CsIOIB) :=
+    vwLoc_stgCsIOm shdP_U 6 8 256 _ 14 256 _ _ _
+      (vwLoc_epUxV tag Lq (le64_of_le20 hL20) key DomB HsB HLB 6 _ (by omega))
+      (vwLoc_bxUxV tag Lq (le64_of_le20 hL20) _ _ _ (by omega))
+  exact shd_hdinX_gen key DomB HsB Lq HLB shdP_U shdP_hbij shdP_hU tag (le64_of_le20 hL20) Rp.inp O.inPub P0inB
+    ViB (shdEpad Rp.inp) (shdEpad_hE Rp.inp) ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+    ((RnB).pf.off 0 + 2) (IinB).pA.rows (IinB).pH.rows (PXkB 0).rows 6 (by omega)
+    (shdN_rA (Hdr := Hdr) tag Rp embDigest embFold bInRow Lq hL20) (shdN_rX tag) (by norm_num)
+    (epUxV tag Lq (le64_of_le20 hL20) key DomB HsB HLB 6) hIOlB
+    (shdN_P tag Rp embDigest embFold bInRow (A.run G).1.hdr) (fun _ => (IinB).hgt (A.run G).1.hdr)
+    (fun _ k hk => ((IinB).hgeomL (A.run G).1.hdr _ k hk).1)
+    (shdN_sl tag Rp embDigest embFold bInRow) (shdN_d0 tag Rp embDigest embFold bInRow) (shdN_d1 tag Rp embDigest embFold bInRow) (shdN_d2 tag Rp embDigest embFold bInRow)
+    (shdN_ti tag Rp embDigest embFold bInRow) (shdN_voc tag Rp embDigest embFold bInRow) (shdN_tB tag Rp embDigest embFold bInRow) (shdN_bIn tag Rp embDigest embFold bInRow)
+    (shdN_Gb tag Rp embDigest embFold bInRow) (shdN_lt tag Rp embDigest embFold bInRow) (shdN_lc tag Rp embDigest embFold bInRow)
+    (shdN_bos tag Rp embDigest embFold bInRow O.inPub) (shdN_kap tag Rp embDigest embFold bInRow O.inPub) (shdN_ns tag Rp embDigest embFold bInRow)
+    hV131072 hEmb (shdN_v tag Rp embDigest embFold bInRow hV131072) O.inPub.V2 (shdN_tok tag Rp embDigest embFold bInRow) (shdN_cq tag Rp embDigest embFold bInRow)
+    (shdN_bosP tag Rp embDigest embFold bInRow) (shdN_TP tag Rp embDigest embFold bInRow) (shdN_kP tag Rp embDigest embFold bInRow)
+    (shdP_hVi tag Rp embDigest embFold bInRow).2.1 (shdP_hVi tag Rp embDigest embFold bInRow).2.2.1 (shdN_lw8 tag Rp embDigest embFold bInRow)
+    _ _ _ G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) _ _
+    (fun t hr hc => by
+      have ht : t.val < 128 := t.isLt
+      have h := epxIO_hXI 6 1 shdP_epPos_injective shdP_epPlace (epxMsg 6 1 shdP_epPlace shdP_epPos)
+        (epxMsg_place 6 1 shdP_epPlace shdP_epPos shdP_epPlace_injective) EpxSalt.pads EpxSalt.salts EpxSalt.paths
+        tag (epxMk 6 1 shdP_epPlace shdP_epPos_injective shdP_epPlace_injective ClsStmt.inRoot tag) shdP_U tag
+        (le64_of_le20 hL20) key DomB HsB HLB (RnB).pf (RnB).rd RkDLB shieldDPos0 26 Rp.row E0b
+        (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) x
+        (A.run G).1.inRoot hx hrx (by rw [hrun]) hon t ⟨t.val / 2 ^ 8, hr⟩ ⟨t.val % 2 ^ 8, hc⟩
+        (Fin.ext (by rw [shdP_epPlace_val]; show t.val / 2 ^ 8 = 0; omega))
+        (by show t.val % 2 ^ 8 = t.val; omega)
+      exact h)
+    (fun hdr core ch rs hrd p => epxIO_hpl (CinB)
+      (epxMk 6 1 shdP_epPlace shdP_epPos_injective shdP_epPlace_injective ClsStmt.inRoot tag) shdP_epPos (OpsB)
+      shdP_U tag (le64_of_le20 hL20) key DomB HsB HLB (RnB).pf (RnB).rd RkDLB 26 Rp.row E0b
+      (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2 (A.run G) (by rw [hrun])
+      ⟨hgeo.1, hgeo.2.1, hgeo.2.2.1, hgeo.2.2.2.1, hgeo.2.2.2.2.trans (shdN_rX tag)⟩
+      G (fun ch => (ViB).bp (incCtx (ViB).pub ch)) 15 ((RnB).pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero))
+      hdr core ch rs hrd (by omega) Rp.inp (ViB).pub (shdEpad Rp.inp) ((RnB).pf.off 0 + 5) p)
+    hnot
+
+variable (tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening embDigest embFold bInRow wDigest bOutRow P epBase E0)
+
+/-- **INTERIM (finding L63-11, awaiting a ruling): `hdinX` NARROWED TO RUNS OFF `decodeIn`'S EXISTENCE BRANCH**
+(D63 lane L63): `sshC_productionReadyL_epP_blkIOl` with `hdinX` PROVED on the existence branch (`shd_hdinX_blk`) and
+replaced by `hdinOff`: the same doom, under the extra hypothesis that `decodeIn` is OFF its existence branch (a
+strictly narrower premise than `hdinX`). Nothing else changed. Remaining lane premises: `hLO_stg`, `hdinOff`,
+`hdoutC`; plus `hEmb` (L63-8, interim) and `hV131072` (L63-7). -/
+theorem sshC_productionReadyL_epP_blkIOd
+    {ι : Type}
+    [Fintype ι]
+    (site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins shdP_K)
+    (kOf : ι → ℕ)
+    (δOf : ι → ℝ≥0∞)
+    (O : ClassifyOpenP Rp Lq
+      (shdP_runV tag key DomB hw preA preB Rp embDigest embFold bInRow wDigest bOutRow
+        Pk0B check0 paths digest bndCheck)
+      P (shdP_cin Hdr tag) (le64_of_le20 hL20) (shdP_hr tag hL20)
+      (shdP_honestIn tag epBase) shdP_U site kOf δOf (ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds))
+    (E0b : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt 6))
+    (hV131072 : Rp.inp.V = 131072)
+    (hEmb : ∀ rEmb : List Fp2, rEmb.length = 12 → (∀ a ∈ rEmb, a.Canon) → ∀ v : Fin Rp.inp.V,
+      ((embFold rEmb).getD v Fp2.zero).toK shdP_U
+        = mleAt (fun c => algebraMap GF shdP_K (shdEpad Rp.inp v c))
+          (fun c : Fin 12 => (rEmb.getD c Fp2.zero).toK shdP_U))
+    (hLO_stg : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig)
+      (hDV : (RkDLB).Valid AbsB (RnB).pf),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      ¬ (rtKB key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKM key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKA key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKsl key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKR0 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKR1 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKH0 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKH1 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      StgLkAtV shdP_U key DomB (fun _ => (FoB (A.run G).1.verdict).bp) 2 ((RnB).pf.off 27 + 2) OutcV.bga AbsB (ΛOcB) G
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)))
+    (hdinOff : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      ¬ (∃ (Mg : Fin 6 → Fin (2 ^ 8) → GF) (Pd : Fin 6 → Fin 256 → GF) (S : Finset (Fin (2 ^ 11))),
+        2 ^ 11 ≤ S.card + 768 ∧ ∀ j ∈ S, ∃ o, (OpsB) (A.runLog G).2 (A.runLog G).1.1 j = some o
+          ∧ o.col = (CinB).colOf Mg Pd j) →
+      ¬ InSat Rp.inp ((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).tokW
+        (((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes 0) →
+      StgDoomAtV shdP_U key DomB P0inB (fun ch => (ViB).bp (incCtx (ViB).pub ch)) 15
+        ((RnB).pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) stgHostIn AbsB
+        (stgFstIC shdP_U shdP_hbij tag (le64_of_le20 hL20) P0inB (vdWin ViB)
+          ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          15 ogStage.lc ogStage.h ogStage.Q ogStage.e (IinB).pA.rows (IinB).pH.rows (rcIncPart ViB 256 256).S (CsIOIB))
+        (sshΦIC shdP_U shdP_hbij tag (le64_of_le20 hL20) P0inB ViB
+          ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          15 ogStage.lc ogStage.h ogStage.Q ogStage.e (IinB).pA.rows (IinB).pH.rows (CsIOIB))
+        sshDgI shdP_eI (ΛIcB) G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)))
+    (hdoutC : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      ¬ OutCSat Rp.out ((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).xC
+        (A.runLog G).1.1.verdict →
+      StgDoomAtV shdP_U key DomB P0outB (fun _ => (FoB (A.run G).1.verdict).bp) 2 ((RnB).pf.off 27 + 2) OutcV.bga
+        (stgHostOut P0outB) AbsB
+        (stgFstO shdP_U shdP_hbij tag (le64_of_le20 hL20) P0outB (vdWout FoB)
+          ((RnB).pf.off 27 + (rcOutcPart (FoB 0) 256 256 1).pre) ((RnB).pf.off 27 + 2)
+          ogStage.lc ogStage.h ogStage.Q ogStage.e (OoutB).pA.rows (OoutB).pH.rows (rcOutcPart (FoB 0) 256 256 1).S (CsIOOB))
+        (sshΦO shdP_U shdP_hbij tag (le64_of_le20 hL20) P0outB FoB
+          ((RnB).pf.off 27 + (rcOutcPart (FoB 0) 256 256 1).pre) ((RnB).pf.off 27 + 2)
+          ogStage.lc ogStage.h ogStage.Q ogStage.e (OoutB).pA.rows (OoutB).pH.rows (CsIOOB))
+        sshDgO shdP_eO (ΛOcB) G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)))
+    :
+    ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) ProtoUnclampedB
+      (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget := by
+  exact sshC_productionReadyL_epP_blkIOl
+    (Hdr := Hdr) (Coins := Coins) (tag := tag) (Lq := Lq) (hL20 := hL20) (hL64 := hL64) (key := key) (Rp := Rp)
+    (hR := hR) (hw := hw) (hhdrFit := hhdrFit) (preA := preA) (preB := preB) (check0 := check0) (paths := paths) (digest := digest)
+    (bndCheck := bndCheck) (ioIn := ioIn) (ioOut := ioOut) (checkOpening := checkOpening) (embDigest := embDigest) (embFold := embFold) (bInRow := bInRow) (wDigest := wDigest)
+    (bOutRow := bOutRow) (P := P) (epBase := epBase) (site := site) (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b)
+    (hV131072 := hV131072) (hEmb := hEmb) (hLO_stg := hLO_stg) (hdoutC := hdoutC)
+    (hdinX := fun A G hv hb hnot => by
+      by_cases hon : ∃ (Mg : Fin 6 → Fin (2 ^ 8) → GF) (Pd : Fin 6 → Fin 256 → GF) (S : Finset (Fin (2 ^ 11))),
+              2 ^ 11 ≤ S.card + 768 ∧ ∀ j ∈ S, ∃ o, (OpsB) (A.runLog G).2 (A.runLog G).1.1 j = some o
+                ∧ o.col = (CinB).colOf Mg Pd j
+      · exact shd_hdinX_blk (hR := hR) (site := site) (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b)
+          (hV131072 := hV131072) (hEmb := hEmb) A G hv hb hon hnot
+      · exact hdinOff A G hv hb hon hnot)
 
 end BlkIOlTop
 

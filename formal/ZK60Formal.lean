@@ -550,3 +550,6 @@ import ZK60Formal.RunStgShieldIncZS
 import ZK60Formal.RunStgShieldIncZSRun
 import ZK60Formal.RunStgShieldTopL
 import ZK60Formal.RunStgShieldIncBT
+import ZK60Formal.RunStgShieldInX
+import ZK60Formal.RunStgShieldInXRun
+import ZK60Formal.RunStgShieldInXEp

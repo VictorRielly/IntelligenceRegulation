@@ -1,4 +1,5 @@
 import ZK60Formal.RunStgShieldIncBT
+import ZK60Formal.RunStgShieldInXEp
 import ZK60Formal.RunStgShieldTopL
 import ZK60Formal.RunStgShieldIncAt
 import ZK60Formal.RunStgShieldIncJoin
@@ -465,6 +466,33 @@ import ZK60Formal.RunStgShieldRbr
 #print axioms ZK60.ProtocolClassify.shd_hLI_runR
 -- RunStgShieldTopL.lean
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOl
+#print axioms ZK60.ProtocolClassify.shd_hdinX_blk
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOd
 -- RunStgShieldIncBT.lean
 #print axioms ZK60.ProtocolClassify.incBosTmpl_of_qzc
 #print axioms ZK60.ProtocolClassify.shd_bosTmpl_of_rd
+-- RunStgShieldInX.lean
+#print axioms ZK60.ProtocolClassify.ptK_fixZ_rho
+#print axioms ZK60.ProtocolClassify.privZ_slog
+#print axioms ZK60.ProtocolClassify.ssh_inc0_Φ_tok
+-- RunStgShieldInXRun.lean
+#print axioms ZK60.ProtocolClassify.vwLoc_shdIncData
+#print axioms ZK60.ProtocolClassify.shdIncData_head
+#print axioms ZK60.ProtocolClassify.stgIOX_head
+#print axioms ZK60.ProtocolClassify.shdIncDataK_tok_head
+#print axioms ZK60.ProtocolClassify.shd_inSat_join
+#print axioms ZK60.ProtocolClassify.stg_inc_def_zero_al
+#print axioms ZK60.ProtocolClassify.shd_inGood_of_lu
+#print axioms ZK60.ProtocolClassify.shd_bt_rd
+#print axioms ZK60.ProtocolClassify.shd_tok_rd
+#print axioms ZK60.ProtocolClassify.shd_inSat_rd
+#print axioms ZK60.ProtocolClassify.shd_hdinX_gen
+#print axioms ZK60.ProtocolClassify.epUxV_tokW
+#print axioms ZK60.ProtocolClassify.shdN_d0
+#print axioms ZK60.ProtocolClassify.shdN_lw8
+#print axioms ZK60.ProtocolClassify.shdN_bosP
+#print axioms ZK60.ProtocolClassify.shdN_TP
+#print axioms ZK60.ProtocolClassify.shdN_kP
+-- RunStgShieldInXEp.lean
+#print axioms ZK60.ProtocolClassify.epxIO_hXI
+#print axioms ZK60.ProtocolClassify.epxIO_hpl

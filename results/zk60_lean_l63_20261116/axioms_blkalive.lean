@@ -13,3 +13,5 @@ import ZK60Formal
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIO
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOl
+#print axioms ZK60.ProtocolClassify.shd_hdinX_blk
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOd
