@@ -4731,6 +4731,54 @@ pub(crate) fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), Stri
     Ok(())
 }
 
+/// Whether process `pid` may be running; `false` ONLY when it is known not to
+/// be. Used by `clear_stale_writing_dirs`, where a wrong `false` deletes a
+/// directory a live verifier is publishing from, so every doubt answers `true`.
+///
+/// * Linux: `/proc/<pid>` exists (unchanged from before this helper).
+/// * Other unix (macOS has no `/proc`): runs `/bin/ps -p <pid> -o pid=` (this
+///   crate takes no `libc`, so no `kill(pid, 0)`; `ps` lists every user's
+///   processes, so a process owned by another user is seen as alive). `false`
+///   only when `ps` exits with status 1 and prints nothing at all on stdout and
+///   stderr (its answer for "no such process"). `true` when `ps` prints this
+///   pid, and `true` for every other outcome: `ps` missing or not spawnable,
+///   a signal death, another exit status, any stderr text, any output that is
+///   not exactly this pid.
+/// * Non-Linux: pid 0 and pids above `i32::MAX` are not probed (a `0` or
+///   negative argument names a process group or means something else to
+///   process tools) and answer `true`.
+///
+/// Inconclusive means alive because the only cost of a false `true` is a
+/// refusal that names the directory and what to do (remove it by hand).
+#[cfg(target_os = "linux")]
+pub(crate) fn pid_is_alive_or_unknown(pid: u32) -> bool {
+    Path::new("/proc").join(pid.to_string()).exists()
+}
+
+/// See the Linux definition above for the contract on every platform.
+#[cfg(not(target_os = "linux"))]
+pub(crate) fn pid_is_alive_or_unknown(pid: u32) -> bool {
+    if pid == 0 || pid > i32::MAX as u32 {
+        return true;
+    }
+    let out = match std::process::Command::new("/bin/ps")
+        .args(["-p", &pid.to_string(), "-o", "pid="])
+        .stdin(std::process::Stdio::null())
+        .output()
+    {
+        Ok(o) => o,
+        Err(_) => return true,
+    };
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    if out.status.success() {
+        // alive when ps names this pid; success with anything else is not understood
+        return true;
+    }
+    // the one conclusive "dead" answer: exit 1, nothing printed anywhere
+    let conclusive_dead = out.status.code() == Some(1) && stdout.trim().is_empty() && out.stderr.is_empty();
+    !conclusive_dead
+}
+
 /// **NATIVE R7 (review r6 note N-r6-b): a `statement.writing-<pid>` left in
 /// a run directory.** `publish_statement_dir` writes into
 /// `<run>/statement.writing-<pid>` and renames it; a verifier killed in
@@ -4742,7 +4790,9 @@ pub(crate) fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), Stri
 /// * REMOVED when it is a real directory (never a link: refused by name),
 ///   holding only files this function's writer writes (`expected.bin`,
 ///   `statement.json`, `segments.json`, each a regular file) and its pid is
-///   not a live process (`/proc/<pid>` absent); a removal publishes nothing
+///   not a live process (`pid_is_alive_or_unknown` is false: `/proc/<pid>`
+///   absent on Linux, `/bin/ps -p <pid>` conclusively empty elsewhere; an
+///   inconclusive probe counts as alive); a removal publishes nothing
 ///   and cannot make another writer publish anything (a writer in another
 ///   pid namespace whose directory is removed fails its own rename);
 /// * REFUSED by name, with what to do, otherwise: a live pid (a verifier of
@@ -4772,7 +4822,7 @@ pub(crate) fn clear_stale_writing_dirs(art: &Path) -> Result<Vec<PathBuf>, Strin
         if m.file_type().is_symlink() || !m.is_dir() {
             return Err(format!("{} is not a real directory (a link or a file); it is never followed; {hint}", path.display()));
         }
-        if Path::new("/proc").join(pid.to_string()).exists() {
+        if pid_is_alive_or_unknown(pid) {
             return Err(format!("{}: process {pid} is alive — a verifier of this run may be publishing its statement now, or the pid was reused; wait for it, or {hint}", path.display()));
         }
         for f in std::fs::read_dir(&path).map_err(|er| format!("{}: {er}", path.display()))? {

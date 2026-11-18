@@ -543,7 +543,7 @@ fn review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name() {
         c.wait().unwrap();
         pid
     };
-    assert!(!Path::new("/proc").join(dead.to_string()).exists(), "the reaped child's pid {dead} is live again; rerun");
+    assert!(!pid_is_alive_or_unknown(dead), "the reaped child's pid {dead} is live again (or its liveness could not be decided); rerun");
     let live = std::process::id();
 
     // (1) a LIVE pid: refused by name with the hint, nothing removed or published
@@ -589,6 +589,63 @@ fn review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name() {
     assert!(out.join("statement").join("statement.json").exists(), "the verified statement was not published");
     // and the published run re-verifies (no writing directory remains)
     assert_eq!(verify(), 0, "the published run no longer verifies");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A reaped child's pid: a process that existed and is gone. Pid reuse in the
+/// few milliseconds between the reap and the probe is possible but rare; the
+/// caller retries with a fresh child when the helper still says alive.
+#[cfg(test)]
+fn reaped_child_pid_for_liveness_tests() -> u32 {
+    for _ in 0..8 {
+        let mut c = std::process::Command::new("true").spawn().expect("spawn true");
+        let pid = c.id();
+        c.wait().unwrap();
+        if !pid_is_alive_or_unknown(pid) {
+            return pid;
+        }
+    }
+    panic!("no reaped child's pid was reported dead in 8 tries (pid reuse, or the liveness probe is inconclusive here)");
+}
+
+/// The liveness helper answers alive for this very process, and not-alive for
+/// a reaped child; on non-Linux unix pid 0 and a pid beyond `i32::MAX` are
+/// never probed and answer alive.
+#[test]
+fn pid_liveness_helper_answers_alive_for_self_and_dead_for_a_reaped_child() {
+    assert!(pid_is_alive_or_unknown(std::process::id()), "this process was reported not alive");
+    let dead = reaped_child_pid_for_liveness_tests();
+    assert!(!pid_is_alive_or_unknown(dead));
+    #[cfg(not(target_os = "linux"))]
+    {
+        assert!(pid_is_alive_or_unknown(0), "pid 0 must never count as removable");
+        assert!(pid_is_alive_or_unknown(i32::MAX as u32 + 1), "a pid beyond the platform's pid type must never count as removable");
+        assert!(pid_is_alive_or_unknown(u32::MAX));
+    }
+}
+
+/// `clear_stale_writing_dirs` on its own: a directory named for this process's
+/// pid is refused as alive and left in place; one named for a reaped child's
+/// pid, holding only the verifier's own files, is removed (so on macOS, which
+/// has no `/proc`, a live verifier's directory is no longer deleted).
+#[test]
+fn clear_stale_writing_dirs_refuses_this_pid_and_removes_a_reaped_childs() {
+    let dir = base_dir("n-r6-b-pid");
+    let live = dir.join(format!("statement.writing-{}", std::process::id()));
+    std::fs::create_dir(&live).unwrap();
+    std::fs::write(live.join("statement.json"), b"{}").unwrap();
+    let e = clear_stale_writing_dirs(&dir).expect_err("this process's own writing directory was removed");
+    assert!(e.contains(&live.display().to_string()) && e.contains("is alive") && e.contains("N-r6-b"), "{e}");
+    assert!(live.join("statement.json").exists(), "the live pid's directory was changed");
+    std::fs::remove_dir_all(&live).unwrap();
+
+    let dead = reaped_child_pid_for_liveness_tests();
+    let stale = dir.join(format!("statement.writing-{dead}"));
+    std::fs::create_dir(&stale).unwrap();
+    std::fs::write(stale.join("expected.bin"), b"partial").unwrap();
+    let removed = clear_stale_writing_dirs(&dir).expect("a dead pid's directory was refused");
+    assert_eq!(removed, vec![stale.clone()]);
+    assert!(!stale.exists(), "the dead pid's directory was not removed");
     let _ = std::fs::remove_dir_all(&dir);
 }
 
