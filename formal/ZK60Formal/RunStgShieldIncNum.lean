@@ -4,8 +4,9 @@ the hypotheses `shd_hLI_run` takes about the stage (`tiLog = 12`, `vocLog = 17`,
 `bLogN = 14`, `lt ≤ lc`, `0 < logCols`, the BOS and `κ` bounds from `Rp.inp.Valid`, `numSpecial`, `v` from
 `Rp.inp.V = 131072`, `tokens`, `ctlQ`, the `A_in` rows `41`, the `B_in` rows `38`, the schedule's slot count and draws)
 at `shdP_incV`, `shdP_incPub`, `shdP_P0in`, `shdP_Iin`, `cbBndPcs` (RunShieldInstP.lean, lane L67's, not edited), and
-**`shdRkD_r0_zero`**: part `0`'s first relation schedule of `shdRkD` is stage IN-C's define draws (`shd_hb0`'s `hr0`
-through `shdRkD_eq_ebData`, both RunBlkPinsHd.lean, lane L66's).
+**`shdRkD_r0_zero`**, **`shdRkD_sls_zero`**: part `0`'s first relation schedule and slots of `shdRkD` are stage
+IN-C's define draws and slot schedule (`shd_hb0`'s `hr0`, `hsls` through `shdRkD_eq_ebData`, both RunBlkPinsHd.lean,
+lane L66's).
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
@@ -144,6 +145,39 @@ theorem shdRkD_r0_zero
     pin pout mIn kIn kOut Iin_rA Iin_rH Iin_rX Iin_nA Iin_nH Iin_nIn Iin_nOut
     Oout_rA Oout_rH Oout_rX Oout_nA Oout_nH Oout_nIn
     bp_S bp_rA bp_rH bp_nA bp_nH bp_nIn bp_nOut pXk_rows P0in P0out csIOI csIOO eI eO ΛI ΛO).hr0
+
+/-- **Part `0`'s slots of `shdRkD` are stage IN-C's slot schedule** (`shd_hb0`'s `hsls`). -/
+theorem shdRkD_sls_zero
+    (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
+    (tag : MTag) (dPos0 : shieldS0.Pos → (Fin 7 → Bool) × (Fin 12 → Bool))
+    (Lq : ℕ) (h64 : 64 ≤ Lq) (hL20 : 2 ^ 20 ≤ Lq)
+    (key : Option Dig) (domain : List UInt8)
+    (hs : decodeLink (startMsg domain) = none) (hL : (startMsg domain).length ≤ Lq)
+    (Lb : ℕ) (hLb1 : 0 < Lb) (pf : RtProf) (Pk : ℕ → Block.BlockParams)
+    {blks : List (ZK60.RunShape.RunBlock shieldS0)} (hPkD : ShieldRunAtD tag dPos0 Pk blks Lb)
+    (Vi : IncV) (F : ℕ → OutcV) (lscIn lscOut : Exec.Block.ZClaim)
+    (pin pout : RtPart) (mIn kIn kOut : ℕ)
+    (Iin_rA Iin_rH Iin_rX Iin_nA Iin_nH Iin_nIn Iin_nOut : ℕ)
+    (Oout_rA Oout_rH Oout_rX Oout_nA Oout_nH Oout_nIn : ℕ)
+    (bp_S bp_rA bp_rH bp_nA bp_nH bp_nIn bp_nOut pXk_rows : ℕ → ℕ)
+    (P0in P0out : Block.BlockParams)
+    (csIOI csIOO : StgVw Lq → Block.Cm → Exec.Block.ZClaim → K)
+    (eI eO : ℕ) (ΛI ΛO : StgVw Lq → List (List UInt8 × K) → Prop) :
+    (shdRkD U hbij tag dPos0 Lq h64 hL20 key domain hs hL Lb hLb1 pf Pk hPkD Vi F lscIn lscOut
+      pin pout mIn kIn kOut Iin_rA Iin_rH Iin_rX Iin_nA Iin_nH Iin_nIn Iin_nOut
+      Oout_rA Oout_rH Oout_rX Oout_nA Oout_nH Oout_nIn
+      bp_S bp_rA bp_rH bp_nA bp_nH bp_nIn bp_nOut pXk_rows P0in P0out csIOI csIOO eI eO ΛI ΛO).sls 0
+      = stgSchedV P0in mIn (pf.off 0 + 5) stgHostIn (Exec.Block.absOfC (chainEncB key domain hs Lq hL))
+        (stgFstIC U hbij tag h64 P0in (vdWin Vi) (pf.off 0 + pin.pre) (pf.off 0 + 5) mIn
+          ogStage.lc ogStage.h ogStage.Q ogStage.e Iin_rA Iin_rH pin.S csIOI) := by
+  rw [shdRkD_eq_ebData U hbij tag dPos0 Lq h64 hL20 key domain hs hL Lb hLb1 pf Pk hPkD Vi F lscIn lscOut
+    pin pout mIn kIn kOut Iin_rA Iin_rH Iin_rX Iin_nA Iin_nH Iin_nIn Iin_nOut
+    Oout_rA Oout_rH Oout_rX Oout_nA Oout_nH Oout_nIn
+    bp_S bp_rA bp_rH bp_nA bp_nH bp_nIn bp_nOut pXk_rows P0in P0out csIOI csIOO eI eO ΛI ΛO]
+  exact (shd_hb0 U hbij tag dPos0 Lq h64 hL20 key domain hs hL Lb hLb1 pf Pk hPkD Vi F lscIn lscOut
+    pin pout mIn kIn kOut Iin_rA Iin_rH Iin_rX Iin_nA Iin_nH Iin_nIn Iin_nOut
+    Oout_rA Oout_rH Oout_rX Oout_nA Oout_nH Oout_nIn
+    bp_S bp_rA bp_rH bp_nA bp_nH bp_nIn bp_nOut pXk_rows P0in P0out csIOI csIOO eI eO ΛI ΛO).hsls
 
 end R0
 
