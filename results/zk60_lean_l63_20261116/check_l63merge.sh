@@ -30,16 +30,18 @@ O11=$WT/results/zk60_lean_l11_20261107
 R1=$WT/results/zk60_lean_l1l2_20261106
 V=$WT/ops/zkp-mvp/gpu-metal/hashline/src/private_block/r13_vectors
 L=$WT/formal/ZK60Formal
-BASE=4db41d46
+BASE=25e70c25
 # 2026-11-17 (merge of perf f5b70efe, Antigravity's RunStgShieldLu and RunShieldInstP, both NOT mine): the lane's root
 # import lines added since BASE (the root diff must be exactly these). Later the same day perf a6eee4b0 (lane A33's
 # Rust/results merge on top of the lane's 152fdd2e; no formal/ change) was merged: BASE moved there, so only this leg's
 # two lane imports are new since BASE.
 # 2026-11-18: perf 4db41d46 (lane L68a, Antigravity's RunShieldBlkInst, NOT mine; it already carries the lane's
 # 936f4070) fast-forwarded the lane branch: BASE moved there; the lane imports new since BASE are this leg's.
-# 2026-11-18 leg 2: + RunStgShieldLuK, RunStgShieldIncLay, RunStgShieldIncRun (BASE unchanged).
-NEW_SINCE_BASE="RunStgShieldEpxIO RunStgShieldTopBx RunStgShieldLuK RunStgShieldIncLay RunStgShieldIncRun"
-MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO RunStgShieldLuRd RunStgShieldTopSJ RunStgShieldEpxIO RunStgShieldTopBx RunStgShieldLuK RunStgShieldIncLay RunStgShieldIncRun"
+# 2026-11-18 leg 2: + RunStgShieldLuK, RunStgShieldIncLay, RunStgShieldIncRun, RunStgShieldLuBase,
+# RunStgShieldIncCube. perf 25e70c25 (speed-lane results only, no formal/ change; it carries the lane's 9e8218ad) was
+# merged: BASE moved there, so only this leg's five lane imports are new since BASE.
+NEW_SINCE_BASE="RunStgShieldLuK RunStgShieldIncLay RunStgShieldIncRun RunStgShieldLuBase RunStgShieldIncCube"
+MINE_NEW="RunStgShieldIOLink RunStgShieldIODec RunStgShieldDzBits RunStgShieldDzPhi RunStgShieldDzDoom RunStgShieldDzRun RunStgShieldTopDz RunStgShieldTopPd RunStgShieldEpBridge RunStgShieldIncSem RunStgShieldIOPin RunStgShieldTopIO RunStgShieldTrIIO RunStgShieldTopTrI RunStgShieldTrOIO RunStgShieldTopTrO RunStgShieldLuRd RunStgShieldTopSJ RunStgShieldEpxIO RunStgShieldTopBx RunStgShieldLuK RunStgShieldIncLay RunStgShieldIncRun RunStgShieldLuBase RunStgShieldIncCube"
 AG="RunStgShieldToK RunStgShieldDg RunStgShieldCTopDg RunStgShieldLu RunShieldInstP RunShieldBlkInst"
 MODS="RunStgShieldDef RunStgShieldRd RunStgShieldInst RunStgShieldTop RunStgShieldRbr RunStgShieldTrue RunStgShieldTrueRun RunStgShieldTopT RunStgShieldClaims RunStgShieldClaimsRun RunStgShieldTopC RunStgShieldInAH RunStgShieldInAHRun RunStgShieldTopI RunStgShieldC RunStgShieldDefC RunStgShieldCChain RunStgShieldCJoin RunStgShieldCWire RunStgShieldCTop RunStgShieldCTopT RunStgShieldCTopC RunStgShieldCTopI RunStgShieldIOTie RunStgShieldCTopK RunStgShieldCTopZ RunStgShieldOutTie RunStgShieldCTopF RunStgShieldInZero RunStgShieldCTopW $MINE_NEW"
 FILES="$L/RunStgShieldDef.lean $L/RunStgShieldRd.lean $L/RunStgShieldInst.lean $L/RunStgShieldTop.lean $L/RunStgShieldRbr.lean $L/RunStgShieldTrue.lean $L/RunStgShieldTrueRun.lean $L/RunStgShieldTopT.lean $L/RunStgShieldClaims.lean $L/RunStgShieldClaimsRun.lean $L/RunStgShieldTopC.lean $L/RunStgShieldInAH.lean $L/RunStgShieldInAHRun.lean $L/RunStgShieldTopI.lean $L/RunStgShieldC.lean $L/RunStgShieldDefC.lean $L/RunStgShieldCChain.lean $L/RunStgShieldCJoin.lean $L/RunStgShieldCWire.lean $L/RunStgShieldCTop.lean $L/RunStgShieldCTopT.lean $L/RunStgShieldCTopC.lean $L/RunStgShieldCTopI.lean $L/RunStgShieldIOTie.lean $L/RunStgShieldCTopK.lean $L/RunStgShieldCTopZ.lean $L/RunStgShieldOutTie.lean $L/RunStgShieldCTopF.lean $L/RunStgShieldInZero.lean $L/RunStgShieldCTopW.lean"

@@ -533,3 +533,5 @@ import ZK60Formal.RunStgShieldTopBx
 import ZK60Formal.RunStgShieldLuK
 import ZK60Formal.RunStgShieldIncLay
 import ZK60Formal.RunStgShieldIncRun
+import ZK60Formal.RunStgShieldLuBase
+import ZK60Formal.RunStgShieldIncCube
