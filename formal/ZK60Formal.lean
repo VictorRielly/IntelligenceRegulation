@@ -530,3 +530,6 @@ import ZK60Formal.RunStgShieldTopSJ
 import ZK60Formal.RunShieldBlkInst
 import ZK60Formal.RunStgShieldEpxIO
 import ZK60Formal.RunStgShieldTopBx
+import ZK60Formal.RunStgShieldLuK
+import ZK60Formal.RunStgShieldIncLay
+import ZK60Formal.RunStgShieldIncRun
