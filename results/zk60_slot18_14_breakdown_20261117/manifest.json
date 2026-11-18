@@ -1,0 +1,112 @@
+[
+  {
+    "label": "census_r13_8b",
+    "rc": 0,
+    "wall_s": 10.529,
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "trace_gz_files": [],
+    "guard_lines": [
+      "[zk60-guard 11:21:29] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+      "[zk60-guard 11:21:39] START agy-census_r13_8b class=cpu need=4G cap=12G enforce=watchdog-only waited=10s run=2d4710ba8038",
+      "[zk60-guard 11:21:40] END agy-census_r13_8b exit=0 child_wall=0s peak_rss=0.00G min_avail=210.59G"
+    ]
+  },
+  {
+    "label": "census_r13_shield",
+    "rc": 0,
+    "wall_s": 0.3,
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "trace_gz_files": [],
+    "guard_lines": [
+      "[zk60-guard 11:21:53] START agy-census_r13_shield class=cpu need=4G cap=12G enforce=watchdog-only waited=0s run=ee02f205e155",
+      "[zk60-guard 11:21:53] END agy-census_r13_shield exit=0 child_wall=0s peak_rss=0.00G min_avail=210.99G"
+    ]
+  },
+  {
+    "label": "w16r2_8b_armA_prod_batched",
+    "rc": 0,
+    "wall_s": 21.74,
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/slot18_14_traces_20261117/w16r2_8b_armA_prod_batched.17444.tsv.gz"
+    ],
+    "guard_lines": [
+      "[zk60-guard 11:22:06] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+      "[zk60-guard 11:22:22] START agy-w16r2_8b_armA_prod_batched class=gpu need=12G cap=24G enforce=watchdog-only waited=15s run=a617c8f27be1",
+      "[zk60-guard 11:22:28] END agy-w16r2_8b_armA_prod_batched exit=0 child_wall=6s peak_rss=4.16G min_avail=203.37G peak_vram=6143MiB"
+    ]
+  },
+  {
+    "label": "w16r2_8b_armB_unbatched_sync_lin1",
+    "rc": 0,
+    "wall_s": 6.579,
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/slot18_14_traces_20261117/w16r2_8b_armB_unbatched_sync_lin1.17548.tsv.gz"
+    ],
+    "guard_lines": [
+      "[zk60-guard 11:22:41] START agy-w16r2_8b_armB_unbatched_sync_lin1 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=ac256eb6f0df",
+      "[zk60-guard 11:22:48] END agy-w16r2_8b_armB_unbatched_sync_lin1 exit=0 child_wall=6s peak_rss=4.34G min_avail=203.37G peak_vram=6135MiB"
+    ]
+  },
+  {
+    "label": "w16r2_8b_armC_unbatched_sync_lin0",
+    "rc": 0,
+    "wall_s": 8.392,
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/slot18_14_traces_20261117/w16r2_8b_armC_unbatched_sync_lin0.17646.tsv.gz"
+    ],
+    "guard_lines": [
+      "[zk60-guard 11:23:01] START agy-w16r2_8b_armC_unbatched_sync_lin0 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=58a32b6e2495",
+      "[zk60-guard 11:23:09] END agy-w16r2_8b_armC_unbatched_sync_lin0 exit=0 child_wall=8s peak_rss=4.25G min_avail=203.09G peak_vram=6262MiB"
+    ]
+  },
+  {
+    "label": "r13_shield_armA_prod_batched",
+    "rc": 0,
+    "wall_s": 10.77,
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/slot18_14_traces_20261117/r13_shield_armA_prod_batched.17767.tsv.gz"
+    ],
+    "guard_lines": [
+      "[zk60-guard 11:23:23] START agy-r13_shield_armA_prod_batched class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=8aa8f9249888",
+      "[zk60-guard 11:23:33] END agy-r13_shield_armA_prod_batched exit=0 child_wall=11s peak_rss=8.58G min_avail=196.22G peak_vram=12249MiB"
+    ]
+  },
+  {
+    "label": "r13_shield_armB_unbatched_sync_lin1",
+    "rc": 0,
+    "wall_s": 10.711,
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/slot18_14_traces_20261117/r13_shield_armB_unbatched_sync_lin1.17921.tsv.gz"
+    ],
+    "guard_lines": [
+      "[zk60-guard 11:23:46] START agy-r13_shield_armB_unbatched_sync_lin1 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=719b70075309",
+      "[zk60-guard 11:23:57] END agy-r13_shield_armB_unbatched_sync_lin1 exit=0 child_wall=11s peak_rss=7.70G min_avail=196.50G peak_vram=12252MiB"
+    ]
+  },
+  {
+    "label": "r13_shield_armC_unbatched_sync_lin0",
+    "rc": 0,
+    "wall_s": 21.443,
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/slot18_14_traces_20261117/r13_shield_armC_unbatched_sync_lin0.18055.tsv.gz"
+    ],
+    "guard_lines": [
+      "[zk60-guard 11:24:10] START agy-r13_shield_armC_unbatched_sync_lin0 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=0c1520605e64",
+      "[zk60-guard 11:24:32] END agy-r13_shield_armC_unbatched_sync_lin0 exit=0 child_wall=21s peak_rss=8.58G min_avail=195.55G peak_vram=12998MiB"
+    ]
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "label": "serve4_1A_default25",
+    "guard_lines": [
+      "[zk60-guard 11:39:41] START agy-serve4_1A_default25 class=gpu need=40G cap=52G enforce=watchdog-only waited=0s run=1e88204d23b8",
+      "[zk60-guard 11:41:48] END agy-serve4_1A_default25 exit=0 child_wall=127s peak_rss=32.40G min_avail=164.15G peak_vram=25750MiB"
+    ],
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "verified_lines": [
+      "A22-AB W16R2_8B_T128_H24 L32 [serve1 (cold)] cold: all 1 receipts verified from their run directories, 818728672 B each",
+      "A22-AB W16R2_8B_T128_H24 L32 [serve4] pass 0: all 4 receipts verified from their run directories, 818728672 B each"
+    ],
+    "warm_passes_parsed": 6,
+    "cadences_s": [
+      3.7537,
+      3.673,
+      3.729,
+      3.7127,
+      3.8217,
+      3.7557
+    ],
+    "tok_s": [
+      34.1,
+      34.85,
+      34.33,
+      34.48,
+      33.49,
+      34.08
+    ],
+    "cadence_median_s": 3.7413,
+    "tok_s_median": 34.22,
+    "prove_median_s": 3.829,
+    "forks_median_s": 3.5415,
+    "seal_ov_median_s": 3.433,
+    "prover_wait_median_s": 0.129
+  },
+  {
+    "label": "serve4_2B_tail250",
+    "guard_lines": [
+      "[zk60-guard 11:42:01] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+      "[zk60-guard 11:42:12] START agy-serve4_2B_tail250 class=gpu need=40G cap=52G enforce=watchdog-only waited=10s run=5d310ce2a734",
+      "[zk60-guard 11:44:21] END agy-serve4_2B_tail250 exit=0 child_wall=130s peak_rss=31.71G min_avail=164.18G peak_vram=23816MiB"
+    ],
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "verified_lines": [
+      "A22-AB W16R2_8B_T128_H24 L32 [serve1 (cold)] cold: all 1 receipts verified from their run directories, 818728672 B each",
+      "A22-AB W16R2_8B_T128_H24 L32 [serve4] pass 0: all 4 receipts verified from their run directories, 818728672 B each"
+    ],
+    "warm_passes_parsed": 6,
+    "cadences_s": [
+      3.758,
+      3.8377,
+      3.733,
+      3.67,
+      3.6497,
+      3.8313
+    ],
+    "tok_s": [
+      34.06,
+      33.36,
+      34.29,
+      34.88,
+      35.07,
+      33.41
+    ],
+    "cadence_median_s": 3.7455,
+    "tok_s_median": 34.17,
+    "prove_median_s": 3.78,
+    "forks_median_s": 3.49,
+    "seal_ov_median_s": 3.613,
+    "prover_wait_median_s": 0.068
+  },
+  {
+    "label": "serve4_3A_default25",
+    "guard_lines": [
+      "[zk60-guard 11:44:35] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+      "[zk60-guard 11:45:36] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+      "[zk60-guard 11:46:22] START agy-serve4_3A_default25 class=gpu need=40G cap=52G enforce=watchdog-only waited=107s run=be70535655fa",
+      "[zk60-guard 11:48:33] END agy-serve4_3A_default25 exit=0 child_wall=132s peak_rss=31.81G min_avail=164.75G peak_vram=23098MiB"
+    ],
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "verified_lines": [
+      "A22-AB W16R2_8B_T128_H24 L32 [serve1 (cold)] cold: all 1 receipts verified from their run directories, 818728672 B each",
+      "A22-AB W16R2_8B_T128_H24 L32 [serve4] pass 0: all 4 receipts verified from their run directories, 818728672 B each"
+    ],
+    "warm_passes_parsed": 6,
+    "cadences_s": [
+      3.7213,
+      4.0887,
+      3.9383,
+      3.6917,
+      3.957,
+      3.7373
+    ],
+    "tok_s": [
+      34.4,
+      31.31,
+      32.5,
+      34.67,
+      32.35,
+      34.25
+    ],
+    "cadence_median_s": 3.8378,
+    "tok_s_median": 33.38,
+    "prove_median_s": 3.8765,
+    "forks_median_s": 3.581,
+    "seal_ov_median_s": 3.5645,
+    "prover_wait_median_s": 0.1385
+  },
+  {
+    "label": "serve4_4B_tail250",
+    "guard_lines": [
+      "[zk60-guard 11:48:46] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+      "[zk60-guard 11:49:48] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+      "[zk60-guard 11:50:49] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+      "[zk60-guard 11:51:09] START agy-serve4_4B_tail250 class=gpu need=40G cap=52G enforce=watchdog-only waited=143s run=abf5459bac88",
+      "[zk60-guard 11:53:20] END agy-serve4_4B_tail250 exit=0 child_wall=131s peak_rss=31.85G min_avail=164.85G peak_vram=23445MiB"
+    ],
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "verified_lines": [
+      "A22-AB W16R2_8B_T128_H24 L32 [serve1 (cold)] cold: all 1 receipts verified from their run directories, 818728672 B each",
+      "A22-AB W16R2_8B_T128_H24 L32 [serve4] pass 0: all 4 receipts verified from their run directories, 818728672 B each"
+    ],
+    "warm_passes_parsed": 6,
+    "cadences_s": [
+      3.8897,
+      3.9197,
+      3.8107,
+      3.7573,
+      3.7503,
+      3.7323
+    ],
+    "tok_s": [
+      32.91,
+      32.66,
+      33.59,
+      34.06,
+      34.13,
+      34.29
+    ],
+    "cadence_median_s": 3.784,
+    "tok_s_median": 33.83,
+    "prove_median_s": 3.826,
+    "forks_median_s": 3.4995,
+    "seal_ov_median_s": 3.611,
+    "prover_wait_median_s": 0.0925
+  }
+]

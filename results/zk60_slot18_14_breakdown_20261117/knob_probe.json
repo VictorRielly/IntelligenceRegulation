@@ -1,0 +1,194 @@
+{
+  "w16r2_8b_knob_tail250": {
+    "guard_lines": [
+      "[zk60-guard 11:31:49] START agy-w16r2_8b_knob_tail250 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=9f624c870f68",
+      "[zk60-guard 11:31:55] END agy-w16r2_8b_knob_tail250 exit=0 child_wall=7s peak_rss=3.86G min_avail=203.48G peak_vram=6136MiB"
+    ],
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "digest": "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe",
+    "metal_wall_median_s": 0.441,
+    "metal_core_median_s": 0.299,
+    "dev_sc_median_s": 0.064,
+    "categories_ms": {
+      "all_slots_gpu_ms": 56.183,
+      "commit_A_ms": 15.504,
+      "commit_H_ms": 13.601,
+      "other_diag_ms": 25.407,
+      "other_gather_ms": 0.182,
+      "total_prove_gpu_ms": 111.041
+    },
+    "top_slots_ms": [
+      {
+        "slot_label": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms",
+        "median_ms": 20.536,
+        "p25_ms": 20.519,
+        "p75_ms": 20.538,
+        "meta": "k=19 m=3 log_cap=21 deg=5 de=4 nd=14 n_vars=21 recover=1 pre=17"
+      },
+      {
+        "slot_label": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 36 tables (23 base), 45 nodes, 3 terms",
+        "median_ms": 12.968,
+        "p25_ms": 12.967,
+        "p75_ms": 12.97,
+        "meta": "k=36 m=3 log_cap=19 deg=4 de=4 nd=12 n_vars=19 recover=1 pre=34"
+      },
+      {
+        "slot_label": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms",
+        "median_ms": 6.785,
+        "p25_ms": 6.769,
+        "p75_ms": 6.82,
+        "meta": "k=19 m=1 log_cap=19 deg=4 de=4 nd=11 n_vars=19 recover=0 pre=18"
+      },
+      {
+        "slot_label": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 4.835,
+        "p25_ms": 4.744,
+        "p75_ms": 4.861,
+        "meta": "k=15 m=0 log_cap=19 deg=4 de=4 nd=11 n_vars=19 recover=1 pre=13"
+      },
+      {
+        "slot_label": "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms",
+        "median_ms": 2.705,
+        "p25_ms": 2.645,
+        "p75_ms": 2.722,
+        "meta": "k=58 m=18 log_cap=14 deg=3 de=3 nd=6 n_vars=14 recover=1 pre=33"
+      },
+      {
+        "slot_label": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 2.315,
+        "p25_ms": 2.254,
+        "p75_ms": 2.397,
+        "meta": "k=15 m=0 log_cap=17 deg=4 de=4 nd=8 n_vars=17 recover=1 pre=13"
+      }
+    ]
+  },
+  "w16r2_8b_knob_tail500": {
+    "guard_lines": [
+      "[zk60-guard 11:32:09] START agy-w16r2_8b_knob_tail500 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=9c1069bcc259",
+      "[zk60-guard 11:32:15] END agy-w16r2_8b_knob_tail500 exit=0 child_wall=6s peak_rss=3.86G min_avail=203.36G peak_vram=6136MiB"
+    ],
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "digest": "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe",
+    "metal_wall_median_s": 0.454,
+    "metal_core_median_s": 0.312,
+    "dev_sc_median_s": 0.065,
+    "categories_ms": {
+      "all_slots_gpu_ms": 54.914,
+      "commit_A_ms": 15.847,
+      "commit_H_ms": 13.603,
+      "other_diag_ms": 25.416,
+      "other_gather_ms": 0.175,
+      "total_prove_gpu_ms": 110.014
+    },
+    "top_slots_ms": [
+      {
+        "slot_label": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms",
+        "median_ms": 20.443,
+        "p25_ms": 20.41,
+        "p75_ms": 20.457,
+        "meta": "k=19 m=3 log_cap=21 deg=5 de=4 nd=13 n_vars=21 recover=1 pre=17"
+      },
+      {
+        "slot_label": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 36 tables (23 base), 45 nodes, 3 terms",
+        "median_ms": 12.881,
+        "p25_ms": 12.872,
+        "p75_ms": 12.921,
+        "meta": "k=36 m=3 log_cap=19 deg=4 de=4 nd=11 n_vars=19 recover=1 pre=34"
+      },
+      {
+        "slot_label": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms",
+        "median_ms": 6.606,
+        "p25_ms": 6.577,
+        "p75_ms": 6.625,
+        "meta": "k=19 m=1 log_cap=19 deg=4 de=4 nd=10 n_vars=19 recover=0 pre=18"
+      },
+      {
+        "slot_label": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 4.778,
+        "p25_ms": 4.651,
+        "p75_ms": 4.804,
+        "meta": "k=15 m=0 log_cap=19 deg=4 de=4 nd=10 n_vars=19 recover=1 pre=13"
+      },
+      {
+        "slot_label": "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms",
+        "median_ms": 2.502,
+        "p25_ms": 2.496,
+        "p75_ms": 2.52,
+        "meta": "k=58 m=18 log_cap=14 deg=3 de=3 nd=5 n_vars=14 recover=1 pre=33"
+      },
+      {
+        "slot_label": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 2.228,
+        "p25_ms": 2.151,
+        "p75_ms": 2.244,
+        "meta": "k=15 m=0 log_cap=17 deg=4 de=4 nd=8 n_vars=17 recover=1 pre=13"
+      }
+    ]
+  },
+  "w16r2_8b_knob_tg256_th18": {
+    "guard_lines": [
+      "[zk60-guard 11:32:28] START agy-w16r2_8b_knob_tg256_th18 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=380108594ac1",
+      "[zk60-guard 11:32:34] END agy-w16r2_8b_knob_tg256_th18 exit=0 child_wall=6s peak_rss=4.17G min_avail=203.49G peak_vram=6118MiB"
+    ],
+    "pre_ds4_bench": "none",
+    "post_ds4_bench": "none",
+    "digest": "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe",
+    "metal_wall_median_s": 0.46,
+    "metal_core_median_s": 0.322,
+    "dev_sc_median_s": 0.071,
+    "categories_ms": {
+      "all_slots_gpu_ms": 63.279,
+      "commit_A_ms": 14.578,
+      "commit_H_ms": 13.598,
+      "other_diag_ms": 25.407,
+      "other_gather_ms": 0.174,
+      "total_prove_gpu_ms": 117.133
+    },
+    "top_slots_ms": [
+      {
+        "slot_label": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms",
+        "median_ms": 20.968,
+        "p25_ms": 20.95,
+        "p75_ms": 20.974,
+        "meta": "k=19 m=3 log_cap=21 deg=5 de=4 nd=17 n_vars=21 recover=1 pre=17"
+      },
+      {
+        "slot_label": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 36 tables (23 base), 45 nodes, 3 terms",
+        "median_ms": 13.881,
+        "p25_ms": 13.874,
+        "p75_ms": 13.96,
+        "meta": "k=36 m=3 log_cap=19 deg=4 de=4 nd=15 n_vars=19 recover=1 pre=34"
+      },
+      {
+        "slot_label": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms",
+        "median_ms": 7.5,
+        "p25_ms": 7.498,
+        "p75_ms": 7.59,
+        "meta": "k=19 m=1 log_cap=19 deg=4 de=4 nd=14 n_vars=19 recover=0 pre=18"
+      },
+      {
+        "slot_label": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 5.596,
+        "p25_ms": 5.567,
+        "p75_ms": 5.646,
+        "meta": "k=15 m=0 log_cap=19 deg=4 de=4 nd=14 n_vars=19 recover=1 pre=13"
+      },
+      {
+        "slot_label": "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms",
+        "median_ms": 3.899,
+        "p25_ms": 3.873,
+        "p75_ms": 3.915,
+        "meta": "k=58 m=18 log_cap=14 deg=3 de=3 nd=9 n_vars=14 recover=1 pre=33"
+      },
+      {
+        "slot_label": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 3.043,
+        "p25_ms": 2.975,
+        "p75_ms": 3.056,
+        "meta": "k=15 m=0 log_cap=17 deg=4 de=4 nd=12 n_vars=17 recover=1 pre=13"
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+=== pre ds4-bench: none
+=== post ds4-bench: none
+=== pre guard status:
+RAM   209.78 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 14.0 of 252.5 GiB committed by guarded jobs
+  job  lean-l63-iter64              build need 14G since 2026-11-17T19:41:50Z
+LOCKS heavy HELD, build HELD
+GPU   1141 of 196608 MiB used
+DISK  /System/Volumes/VM 208.3 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16539 MiB  pid 48978   agy
+  rss   3296 MiB  pid 21611   /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegu
+  rss   2688 MiB  pid 1578    claude
+  rss   1733 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1230 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1138 MiB  pid 17265   claude
+

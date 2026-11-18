@@ -1,0 +1,2285 @@
+{
+  "census": {
+    "r13_8b": {
+      "0": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 0,
+        "name": "01 SS row sums norm_a (private)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 1,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 0,
+        "later_body_prods": 6,
+        "f2_mul": 2,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "1": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 1,
+        "name": "01m SS row sums norm_m (private)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 1,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 0,
+        "later_body_prods": 6,
+        "f2_mul": 2,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "2": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 2,
+        "name": "02 norm squares zero-check (hosts 01, 01m)",
+        "cube_log": 7,
+        "ext": 1,
+        "tables": 25,
+        "base_tables": 22,
+        "nodes": 15,
+        "affine_nodes": 6,
+        "affine_terms": 18,
+        "terms": 3,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 36,
+        "later_body_prods": 67,
+        "f2_mul": 9,
+        "f2_mulb": 20,
+        "gl_mul": 0,
+        "ln_ext": 26,
+        "ln_base": 0
+      },
+      "3": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 3,
+        "name": "08 limb zero-check",
+        "cube_log": 14,
+        "ext": 1,
+        "tables": 5,
+        "base_tables": 3,
+        "nodes": 6,
+        "affine_nodes": 4,
+        "affine_terms": 5,
+        "terms": 1,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 8,
+        "later_body_prods": 19,
+        "f2_mul": 5,
+        "f2_mulb": 2,
+        "gl_mul": 0,
+        "ln_ext": 6,
+        "ln_base": 0
+      },
+      "4": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 4,
+        "name": "07 masked row sums + selector (private)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 4,
+        "base_tables": 3,
+        "nodes": 1,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 1,
+        "later_body_prods": 9,
+        "f2_mul": 3,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 4,
+        "ln_base": 0
+      },
+      "5": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 5,
+        "name": "09Q matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "6": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 6,
+        "name": "09K matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "7": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 7,
+        "name": "09V matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "8": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 8,
+        "name": "10 score matmul (private, bilinear)",
+        "cube_log": 10,
+        "ext": 2,
+        "tables": 3,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 0,
+        "later_body_prods": 6,
+        "f2_mul": 2,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      },
+      "9": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 9,
+        "name": "11 PV matmul (private, bilinear)",
+        "cube_log": 10,
+        "ext": 2,
+        "tables": 3,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 0,
+        "later_body_prods": 6,
+        "f2_mul": 2,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      },
+      "10": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 10,
+        "name": "12 Wo matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "11": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 11,
+        "name": "13G gate matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "12": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 12,
+        "name": "13U up matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "13": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 13,
+        "name": "13D down matmul (private)",
+        "cube_log": 14,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "14": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 14,
+        "name": "03 D zero-check (hosts 12, 13D)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 63,
+        "base_tables": 43,
+        "nodes": 81,
+        "affine_nodes": 47,
+        "affine_terms": 66,
+        "terms": 3,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 164,
+        "later_body_prods": 326,
+        "f2_mul": 62,
+        "f2_mulb": 70,
+        "gl_mul": 0,
+        "ln_ext": 66,
+        "ln_base": 0
+      },
+      "15": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 15,
+        "name": "04 Q zero-check (hosts 09Q, 11)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 27,
+        "base_tables": 17,
+        "nodes": 35,
+        "affine_nodes": 20,
+        "affine_terms": 25,
+        "terms": 3,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 67,
+        "later_body_prods": 143,
+        "f2_mul": 29,
+        "f2_mulb": 28,
+        "gl_mul": 0,
+        "ln_ext": 28,
+        "ln_base": 0
+      },
+      "16": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 16,
+        "name": "05 KV zero-check (hosts 09K, 09V)",
+        "cube_log": 17,
+        "ext": 1,
+        "tables": 27,
+        "base_tables": 17,
+        "nodes": 35,
+        "affine_nodes": 20,
+        "affine_terms": 25,
+        "terms": 3,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 67,
+        "later_body_prods": 143,
+        "f2_mul": 29,
+        "f2_mulb": 28,
+        "gl_mul": 0,
+        "ln_ext": 28,
+        "ln_base": 0
+      },
+      "17": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 17,
+        "name": "06 softmax zero-check (hosts 07, 10)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 28,
+        "base_tables": 16,
+        "nodes": 39,
+        "affine_nodes": 19,
+        "affine_terms": 24,
+        "terms": 3,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 67,
+        "later_body_prods": 164,
+        "f2_mul": 38,
+        "f2_mulb": 25,
+        "gl_mul": 0,
+        "ln_ext": 31,
+        "ln_base": 0
+      },
+      "18": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 18,
+        "name": "14 F zero-check (hosts 13G, 13U)",
+        "cube_log": 21,
+        "ext": 1,
+        "tables": 29,
+        "base_tables": 18,
+        "nodes": 37,
+        "affine_nodes": 22,
+        "affine_terms": 46,
+        "terms": 3,
+        "degree": 5,
+        "attained_degree": 4,
+        "coefs": 87,
+        "later_body_prods": 159,
+        "f2_mul": 35,
+        "f2_mulb": 27,
+        "gl_mul": 0,
+        "ln_ext": 33,
+        "ln_base": 0
+      },
+      "20": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 20,
+        "name": "ZS zero-sum row",
+        "cube_log": 14,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 1,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "21": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 21,
+        "name": "IO-in endpoint equality",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 3,
+        "base_tables": 2,
+        "nodes": 1,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      },
+      "22": {
+        "profile": "R13_8B_T128_H24",
+        "slot": 22,
+        "name": "IO-out endpoint equality",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 3,
+        "base_tables": 2,
+        "nodes": 1,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      }
+    },
+    "r13_shield": {
+      "0": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 0,
+        "name": "01 SS row sums norm_a (private)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 3,
+        "base_tables": 2,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 0,
+        "later_body_prods": 9,
+        "f2_mul": 3,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      },
+      "1": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 1,
+        "name": "01m SS row sums norm_m (private)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 3,
+        "base_tables": 2,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 0,
+        "later_body_prods": 9,
+        "f2_mul": 3,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      },
+      "2": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 2,
+        "name": "02 norm squares zero-check (hosts 01, 01m)",
+        "cube_log": 7,
+        "ext": 1,
+        "tables": 25,
+        "base_tables": 22,
+        "nodes": 15,
+        "affine_nodes": 6,
+        "affine_terms": 18,
+        "terms": 3,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 36,
+        "later_body_prods": 67,
+        "f2_mul": 9,
+        "f2_mulb": 20,
+        "gl_mul": 0,
+        "ln_ext": 26,
+        "ln_base": 0
+      },
+      "3": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 3,
+        "name": "08 limb zero-check",
+        "cube_log": 14,
+        "ext": 1,
+        "tables": 5,
+        "base_tables": 3,
+        "nodes": 6,
+        "affine_nodes": 4,
+        "affine_terms": 5,
+        "terms": 1,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 8,
+        "later_body_prods": 19,
+        "f2_mul": 5,
+        "f2_mulb": 2,
+        "gl_mul": 0,
+        "ln_ext": 6,
+        "ln_base": 0
+      },
+      "4": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 4,
+        "name": "07 masked row sums + selector (private)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 4,
+        "base_tables": 3,
+        "nodes": 1,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 1,
+        "later_body_prods": 9,
+        "f2_mul": 3,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 4,
+        "ln_base": 0
+      },
+      "5": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 5,
+        "name": "09Q matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "6": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 6,
+        "name": "09K matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "7": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 7,
+        "name": "09V matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "8": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 8,
+        "name": "10 score matmul (private, bilinear)",
+        "cube_log": 10,
+        "ext": 2,
+        "tables": 3,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 0,
+        "later_body_prods": 6,
+        "f2_mul": 2,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      },
+      "9": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 9,
+        "name": "11 PV matmul (private, bilinear)",
+        "cube_log": 10,
+        "ext": 2,
+        "tables": 3,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 3,
+        "attained_degree": 3,
+        "coefs": 0,
+        "later_body_prods": 6,
+        "f2_mul": 2,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      },
+      "10": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 10,
+        "name": "12 Wo matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "11": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 11,
+        "name": "13G gate matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "12": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 12,
+        "name": "13U up matmul (private)",
+        "cube_log": 12,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "13": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 13,
+        "name": "13D down matmul (private)",
+        "cube_log": 14,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 0,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "14": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 14,
+        "name": "03 D zero-check (hosts 12, 13D)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 64,
+        "base_tables": 44,
+        "nodes": 83,
+        "affine_nodes": 49,
+        "affine_terms": 106,
+        "terms": 3,
+        "degree": 5,
+        "attained_degree": 4,
+        "coefs": 205,
+        "later_body_prods": 341,
+        "f2_mul": 67,
+        "f2_mulb": 70,
+        "gl_mul": 0,
+        "ln_ext": 68,
+        "ln_base": 0
+      },
+      "15": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 15,
+        "name": "04 Q zero-check (hosts 09Q, 11)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 27,
+        "base_tables": 17,
+        "nodes": 35,
+        "affine_nodes": 20,
+        "affine_terms": 25,
+        "terms": 3,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 67,
+        "later_body_prods": 143,
+        "f2_mul": 29,
+        "f2_mulb": 28,
+        "gl_mul": 0,
+        "ln_ext": 28,
+        "ln_base": 0
+      },
+      "16": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 16,
+        "name": "05 KV zero-check (hosts 09K, 09V)",
+        "cube_log": 17,
+        "ext": 1,
+        "tables": 27,
+        "base_tables": 17,
+        "nodes": 35,
+        "affine_nodes": 20,
+        "affine_terms": 25,
+        "terms": 3,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 67,
+        "later_body_prods": 143,
+        "f2_mul": 29,
+        "f2_mulb": 28,
+        "gl_mul": 0,
+        "ln_ext": 28,
+        "ln_base": 0
+      },
+      "17": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 17,
+        "name": "06 softmax zero-check (hosts 07, 10)",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 28,
+        "base_tables": 16,
+        "nodes": 39,
+        "affine_nodes": 19,
+        "affine_terms": 24,
+        "terms": 3,
+        "degree": 4,
+        "attained_degree": 4,
+        "coefs": 67,
+        "later_body_prods": 164,
+        "f2_mul": 38,
+        "f2_mulb": 25,
+        "gl_mul": 0,
+        "ln_ext": 31,
+        "ln_base": 0
+      },
+      "18": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 18,
+        "name": "14 F zero-check (hosts 13G, 13U)",
+        "cube_log": 21,
+        "ext": 1,
+        "tables": 29,
+        "base_tables": 18,
+        "nodes": 37,
+        "affine_nodes": 22,
+        "affine_terms": 46,
+        "terms": 3,
+        "degree": 5,
+        "attained_degree": 4,
+        "coefs": 87,
+        "later_body_prods": 159,
+        "f2_mul": 35,
+        "f2_mulb": 27,
+        "gl_mul": 0,
+        "ln_ext": 33,
+        "ln_base": 0
+      },
+      "20": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 20,
+        "name": "ZS zero-sum row",
+        "cube_log": 14,
+        "ext": 1,
+        "tables": 2,
+        "base_tables": 1,
+        "nodes": 0,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 2,
+        "ln_base": 0
+      },
+      "21": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 21,
+        "name": "IO-in endpoint equality",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 3,
+        "base_tables": 2,
+        "nodes": 1,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      },
+      "22": {
+        "profile": "R13_SHIELD_T128_H24",
+        "slot": 22,
+        "name": "IO-out endpoint equality",
+        "cube_log": 19,
+        "ext": 1,
+        "tables": 3,
+        "base_tables": 2,
+        "nodes": 1,
+        "affine_nodes": 0,
+        "affine_terms": 0,
+        "terms": 1,
+        "degree": 2,
+        "attained_degree": 2,
+        "coefs": 0,
+        "later_body_prods": 3,
+        "f2_mul": 1,
+        "f2_mulb": 0,
+        "gl_mul": 0,
+        "ln_ext": 3,
+        "ln_base": 0
+      }
+    }
+  },
+  "arms": {
+    "w16r2_8b_armA_prod_batched": {
+      "guard_lines": [
+        "[zk60-guard 11:22:06] admission waiting: another heavy guarded job is live (one heavy job at a time)",
+        "[zk60-guard 11:22:22] START agy-w16r2_8b_armA_prod_batched class=gpu need=12G cap=24G enforce=watchdog-only waited=15s run=a617c8f27be1",
+        "[zk60-guard 11:22:28] END agy-w16r2_8b_armA_prod_batched exit=0 child_wall=6s peak_rss=4.16G min_avail=203.37G peak_vram=6143MiB"
+      ],
+      "pre_ds4_bench": "none",
+      "post_ds4_bench": "none",
+      "digest": "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe",
+      "warm_pass_count": 5,
+      "cpu_wall_s": 1.685,
+      "cpu_core_s": 1.542,
+      "metal_wall_median_s": 0.47,
+      "metal_core_median_s": 0.327,
+      "dev_sc_median_s": 0.072,
+      "batched": {
+        "categories_ms": {
+          "all_slots_gpu_ms": 63.302,
+          "commit_A_ms": 13.987,
+          "commit_H_ms": 13.9,
+          "other_diag_ms": 25.66,
+          "other_gather_ms": 0.185,
+          "total_prove_gpu_ms": 117.285
+        },
+        "slots_sorted_ms": [
+          {
+            "slot_label": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms",
+            "median_ms": 21.339,
+            "p25_ms": 21.335,
+            "p75_ms": 21.347,
+            "meta": "k=19 m=3 log_cap=21 deg=5 de=4 nd=17 n_vars=21 recover=1 pre=17"
+          },
+          {
+            "slot_label": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 36 tables (23 base), 45 nodes, 3 terms",
+            "median_ms": 14.007,
+            "p25_ms": 13.925,
+            "p75_ms": 14.027,
+            "meta": "k=36 m=3 log_cap=19 deg=4 de=4 nd=15 n_vars=19 recover=1 pre=34"
+          },
+          {
+            "slot_label": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms",
+            "median_ms": 7.51,
+            "p25_ms": 7.484,
+            "p75_ms": 7.633,
+            "meta": "k=19 m=1 log_cap=19 deg=4 de=4 nd=14 n_vars=19 recover=0 pre=18"
+          },
+          {
+            "slot_label": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+            "median_ms": 5.535,
+            "p25_ms": 5.521,
+            "p75_ms": 5.538,
+            "meta": "k=15 m=0 log_cap=19 deg=4 de=4 nd=14 n_vars=19 recover=1 pre=13"
+          },
+          {
+            "slot_label": "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms",
+            "median_ms": 3.9,
+            "p25_ms": 3.844,
+            "p75_ms": 3.933,
+            "meta": "k=58 m=18 log_cap=14 deg=3 de=3 nd=9 n_vars=14 recover=1 pre=33"
+          },
+          {
+            "slot_label": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+            "median_ms": 2.979,
+            "p25_ms": 2.976,
+            "p75_ms": 3.062,
+            "meta": "k=15 m=0 log_cap=17 deg=4 de=4 nd=12 n_vars=17 recover=1 pre=13"
+          },
+          {
+            "slot_label": "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 4 tables (3 base), 1 nodes, 1 terms",
+            "median_ms": 1.74,
+            "p25_ms": 1.617,
+            "p75_ms": 1.76,
+            "meta": "k=4 m=0 log_cap=19 deg=3 de=3 nd=11 n_vars=19 recover=1 pre=0"
+          },
+          {
+            "slot_label": "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms",
+            "median_ms": 1.509,
+            "p25_ms": 1.455,
+            "p75_ms": 1.51,
+            "meta": "k=2 m=0 log_cap=19 deg=3 de=3 nd=10 n_vars=19 recover=1 pre=0"
+          },
+          {
+            "slot_label": "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms",
+            "median_ms": 1.442,
+            "p25_ms": 1.43,
+            "p75_ms": 1.474,
+            "meta": "k=2 m=0 log_cap=19 deg=3 de=3 nd=10 n_vars=19 recover=1 pre=0"
+          },
+          {
+            "slot_label": "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 5 tables (3 base), 6 nodes, 1 terms",
+            "median_ms": 1.209,
+            "p25_ms": 1.157,
+            "p75_ms": 1.21,
+            "meta": "k=5 m=1 log_cap=14 deg=4 de=4 nd=8 n_vars=14 recover=1 pre=0"
+          },
+          {
+            "slot_label": "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+            "median_ms": 1.136,
+            "p25_ms": 1.048,
+            "p75_ms": 1.139,
+            "meta": "k=3 m=0 log_cap=19 deg=2 de=2 nd=10 n_vars=19 recover=1 pre=3"
+          },
+          {
+            "slot_label": "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+            "median_ms": 1.123,
+            "p25_ms": 1.119,
+            "p75_ms": 1.128,
+            "meta": "k=3 m=0 log_cap=19 deg=2 de=2 nd=9 n_vars=19 recover=1 pre=3"
+          }
+        ]
+      }
+    },
+    "w16r2_8b_armB_unbatched_sync_lin1": {
+      "guard_lines": [
+        "[zk60-guard 11:22:41] START agy-w16r2_8b_armB_unbatched_sync_lin1 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=ac256eb6f0df",
+        "[zk60-guard 11:22:48] END agy-w16r2_8b_armB_unbatched_sync_lin1 exit=0 child_wall=6s peak_rss=4.34G min_avail=203.37G peak_vram=6135MiB"
+      ],
+      "pre_ds4_bench": "none",
+      "post_ds4_bench": "none",
+      "digest": "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe",
+      "warm_pass_count": 5,
+      "cpu_wall_s": 1.628,
+      "cpu_core_s": 1.485,
+      "metal_wall_median_s": 0.501,
+      "metal_core_median_s": 0.36,
+      "dev_sc_median_s": 0.089,
+      "unbatched": {
+        "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms": {
+          "meta": "k=2 m=0 log_cap=19 deg=3 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.1,
+            "rounds_1_plus_fold_ms": 0.293,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.402,
+            "total_unbatched_with_tables_gpu_ms": 0.402
+          },
+          "per_round_median_ms": {
+            "j=0": 0.1,
+            "j=1": 0.112,
+            "j=2": 0.065,
+            "j=3": 0.037,
+            "j=4": 0.026,
+            "j=5": 0.024,
+            "j=6": 0.02,
+            "j=7": 0.019
+          }
+        },
+        "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms": {
+          "meta": "k=2 m=0 log_cap=19 deg=3 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.119,
+            "rounds_1_plus_fold_ms": 0.291,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.42,
+            "total_unbatched_with_tables_gpu_ms": 0.42
+          },
+          "per_round_median_ms": {
+            "j=0": 0.119,
+            "j=1": 0.113,
+            "j=2": 0.062,
+            "j=3": 0.037,
+            "j=4": 0.026,
+            "j=5": 0.024,
+            "j=6": 0.021,
+            "j=7": 0.019
+          }
+        },
+        "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 5 tables (3 base), 6 nodes, 1 terms": {
+          "meta": "k=5 m=1 log_cap=14 deg=4 j=0 half=8192 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.073,
+            "rounds_1_plus_fold_ms": 0.166,
+            "tail_fold_ms": 0.007,
+            "total_unbatched_gpu_ms": 0.239,
+            "total_unbatched_with_tables_gpu_ms": 0.239
+          },
+          "per_round_median_ms": {
+            "j=0": 0.073,
+            "j=1": 0.05,
+            "j=2": 0.04,
+            "j=3": 0.039,
+            "j=4": 0.042
+          }
+        },
+        "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 4 tables (3 base), 1 nodes, 1 terms": {
+          "meta": "k=4 m=0 log_cap=19 deg=3 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.132,
+            "rounds_1_plus_fold_ms": 0.4,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.546,
+            "total_unbatched_with_tables_gpu_ms": 0.546
+          },
+          "per_round_median_ms": {
+            "j=0": 0.132,
+            "j=1": 0.155,
+            "j=2": 0.089,
+            "j=3": 0.051,
+            "j=4": 0.033,
+            "j=5": 0.029,
+            "j=6": 0.025,
+            "j=7": 0.024
+          }
+        },
+        "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 36 tables (23 base), 45 nodes, 3 terms": {
+          "meta": "k=36 m=3 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 3.546,
+            "rounds_1_plus_fold_ms": 6.996,
+            "tables_sync_ms": 0.995,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 10.531,
+            "total_unbatched_with_tables_gpu_ms": 11.517
+          },
+          "per_round_median_ms": {
+            "j=0": 3.546,
+            "j=1": 2.753,
+            "j=2": 1.451,
+            "j=3": 0.742,
+            "j=4": 0.399,
+            "j=5": 0.249,
+            "j=6": 0.24,
+            "j=7": 0.225,
+            "j=8": 0.221,
+            "j=9": 0.241,
+            "j=10": 0.248,
+            "j=11": 0.253
+          }
+        },
+        "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms": {
+          "meta": "k=15 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.983,
+            "rounds_1_plus_fold_ms": 2.165,
+            "tables_sync_ms": 0.395,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 3.144,
+            "total_unbatched_with_tables_gpu_ms": 3.539
+          },
+          "per_round_median_ms": {
+            "j=0": 0.983,
+            "j=1": 0.792,
+            "j=2": 0.412,
+            "j=3": 0.243,
+            "j=4": 0.123,
+            "j=5": 0.111,
+            "j=6": 0.104,
+            "j=7": 0.097,
+            "j=8": 0.095,
+            "j=9": 0.105,
+            "j=10": 0.107
+          }
+        },
+        "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms": {
+          "meta": "k=15 m=0 log_cap=17 deg=4 j=0 half=65536 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.302,
+            "rounds_1_plus_fold_ms": 0.877,
+            "tables_sync_ms": 0.098,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 1.187,
+            "total_unbatched_with_tables_gpu_ms": 1.285
+          },
+          "per_round_median_ms": {
+            "j=0": 0.302,
+            "j=1": 0.249,
+            "j=2": 0.122,
+            "j=3": 0.11,
+            "j=4": 0.1,
+            "j=5": 0.098,
+            "j=6": 0.097,
+            "j=7": 0.104
+          }
+        },
+        "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms": {
+          "meta": "k=19 m=1 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 1.468,
+            "rounds_1_plus_fold_ms": 3.585,
+            "tables_sync_ms": 0.485,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 5.044,
+            "total_unbatched_with_tables_gpu_ms": 5.523
+          },
+          "per_round_median_ms": {
+            "j=0": 1.468,
+            "j=1": 1.415,
+            "j=2": 0.692,
+            "j=3": 0.371,
+            "j=4": 0.23,
+            "j=5": 0.157,
+            "j=6": 0.146,
+            "j=7": 0.14,
+            "j=8": 0.14,
+            "j=9": 0.155,
+            "j=10": 0.156
+          }
+        },
+        "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms": {
+          "meta": "k=19 m=3 log_cap=21 deg=5 j=0 half=1048576 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 6.377,
+            "rounds_1_plus_fold_ms": 10.484,
+            "tables_sync_ms": 1.701,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 16.869,
+            "total_unbatched_with_tables_gpu_ms": 18.557
+          },
+          "per_round_median_ms": {
+            "j=0": 6.377,
+            "j=1": 4.73,
+            "j=2": 2.421,
+            "j=3": 1.25,
+            "j=4": 0.619,
+            "j=5": 0.332,
+            "j=6": 0.177,
+            "j=7": 0.146,
+            "j=8": 0.135,
+            "j=9": 0.131,
+            "j=10": 0.129,
+            "j=11": 0.141,
+            "j=12": 0.142,
+            "j=13": 0.146
+          }
+        },
+        "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms": {
+          "meta": "k=58 m=18 log_cap=14 deg=3 j=0 half=8192 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.383,
+            "rounds_1_plus_fold_ms": 1.613,
+            "tables_sync_ms": 0.05,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 2.014,
+            "total_unbatched_with_tables_gpu_ms": 2.063
+          },
+          "per_round_median_ms": {
+            "j=0": 0.383,
+            "j=1": 0.373,
+            "j=2": 0.3,
+            "j=3": 0.295,
+            "j=4": 0.32,
+            "j=5": 0.325
+          }
+        },
+        "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=2 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.043,
+            "rounds_1_plus_fold_ms": 0.236,
+            "tables_sync_ms": 0.128,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.287,
+            "total_unbatched_with_tables_gpu_ms": 0.412
+          },
+          "per_round_median_ms": {
+            "j=0": 0.043,
+            "j=1": 0.101,
+            "j=2": 0.057,
+            "j=3": 0.036,
+            "j=4": 0.025,
+            "j=5": 0.021
+          }
+        },
+        "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=2 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.064,
+            "rounds_1_plus_fold_ms": 0.232,
+            "tables_sync_ms": 0.079,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.305,
+            "total_unbatched_with_tables_gpu_ms": 0.384
+          },
+          "per_round_median_ms": {
+            "j=0": 0.064,
+            "j=1": 0.097,
+            "j=2": 0.057,
+            "j=3": 0.038,
+            "j=4": 0.026,
+            "j=5": 0.021
+          }
+        }
+      }
+    },
+    "w16r2_8b_armC_unbatched_sync_lin0": {
+      "guard_lines": [
+        "[zk60-guard 11:23:01] START agy-w16r2_8b_armC_unbatched_sync_lin0 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=58a32b6e2495",
+        "[zk60-guard 11:23:09] END agy-w16r2_8b_armC_unbatched_sync_lin0 exit=0 child_wall=8s peak_rss=4.25G min_avail=203.09G peak_vram=6262MiB"
+      ],
+      "pre_ds4_bench": "none",
+      "post_ds4_bench": "none",
+      "digest": "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe",
+      "warm_pass_count": 5,
+      "cpu_wall_s": 1.886,
+      "cpu_core_s": 1.743,
+      "metal_wall_median_s": 0.505,
+      "metal_core_median_s": 0.362,
+      "dev_sc_median_s": 0.096,
+      "unbatched": {
+        "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms": {
+          "meta": "k=2 m=0 log_cap=19 deg=3 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.119,
+            "rounds_1_plus_fold_ms": 0.302,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.43,
+            "total_unbatched_with_tables_gpu_ms": 0.43
+          },
+          "per_round_median_ms": {
+            "j=0": 0.119,
+            "j=1": 0.122,
+            "j=2": 0.069,
+            "j=3": 0.038,
+            "j=4": 0.027,
+            "j=5": 0.024,
+            "j=6": 0.021
+          }
+        },
+        "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms": {
+          "meta": "k=2 m=0 log_cap=19 deg=3 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.117,
+            "rounds_1_plus_fold_ms": 0.333,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.458,
+            "total_unbatched_with_tables_gpu_ms": 0.458
+          },
+          "per_round_median_ms": {
+            "j=0": 0.117,
+            "j=1": 0.117,
+            "j=2": 0.068,
+            "j=3": 0.044,
+            "j=4": 0.027,
+            "j=5": 0.024,
+            "j=6": 0.021,
+            "j=7": 0.021
+          }
+        },
+        "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 5 tables (3 base), 6 nodes, 1 terms": {
+          "meta": "k=5 m=0 log_cap=14 deg=4 j=0 half=8192 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.058,
+            "rounds_1_plus_fold_ms": 0.184,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.246,
+            "total_unbatched_with_tables_gpu_ms": 0.246
+          },
+          "per_round_median_ms": {
+            "j=0": 0.058,
+            "j=1": 0.056,
+            "j=2": 0.046,
+            "j=3": 0.043,
+            "j=4": 0.043
+          }
+        },
+        "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 4 tables (3 base), 1 nodes, 1 terms": {
+          "meta": "k=4 m=0 log_cap=19 deg=3 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.137,
+            "rounds_1_plus_fold_ms": 0.428,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.567,
+            "total_unbatched_with_tables_gpu_ms": 0.567
+          },
+          "per_round_median_ms": {
+            "j=0": 0.137,
+            "j=1": 0.171,
+            "j=2": 0.093,
+            "j=3": 0.053,
+            "j=4": 0.034,
+            "j=5": 0.029,
+            "j=6": 0.026,
+            "j=7": 0.024
+          }
+        },
+        "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 36 tables (23 base), 45 nodes, 3 terms": {
+          "meta": "k=36 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 3.804,
+            "rounds_1_plus_fold_ms": 8.399,
+            "tables_sync_ms": 1.031,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 12.087,
+            "total_unbatched_with_tables_gpu_ms": 13.119
+          },
+          "per_round_median_ms": {
+            "j=0": 3.804,
+            "j=1": 3.171,
+            "j=2": 1.73,
+            "j=3": 0.92,
+            "j=4": 0.518,
+            "j=5": 0.306,
+            "j=6": 0.271,
+            "j=7": 0.262,
+            "j=8": 0.262,
+            "j=9": 0.287,
+            "j=10": 0.292,
+            "j=11": 0.296
+          }
+        },
+        "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms": {
+          "meta": "k=15 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 1.024,
+            "rounds_1_plus_fold_ms": 2.363,
+            "tables_sync_ms": 0.41,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 3.395,
+            "total_unbatched_with_tables_gpu_ms": 3.756
+          },
+          "per_round_median_ms": {
+            "j=0": 1.024,
+            "j=1": 0.823,
+            "j=2": 0.458,
+            "j=3": 0.259,
+            "j=4": 0.133,
+            "j=5": 0.115,
+            "j=6": 0.104,
+            "j=7": 0.101,
+            "j=8": 0.1,
+            "j=9": 0.108,
+            "j=10": 0.109
+          }
+        },
+        "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms": {
+          "meta": "k=15 m=0 log_cap=17 deg=4 j=0 half=65536 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.321,
+            "rounds_1_plus_fold_ms": 0.914,
+            "tables_sync_ms": 0.099,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 1.243,
+            "total_unbatched_with_tables_gpu_ms": 1.342
+          },
+          "per_round_median_ms": {
+            "j=0": 0.321,
+            "j=1": 0.257,
+            "j=2": 0.134,
+            "j=3": 0.115,
+            "j=4": 0.104,
+            "j=5": 0.099,
+            "j=6": 0.098,
+            "j=7": 0.106,
+            "j=8": 0.104
+          }
+        },
+        "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms": {
+          "meta": "k=19 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 1.471,
+            "rounds_1_plus_fold_ms": 3.773,
+            "tables_sync_ms": 0.495,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 5.236,
+            "total_unbatched_with_tables_gpu_ms": 5.723
+          },
+          "per_round_median_ms": {
+            "j=0": 1.471,
+            "j=1": 1.483,
+            "j=2": 0.739,
+            "j=3": 0.395,
+            "j=4": 0.234,
+            "j=5": 0.159,
+            "j=6": 0.15,
+            "j=7": 0.143,
+            "j=8": 0.142,
+            "j=9": 0.158,
+            "j=10": 0.157
+          }
+        },
+        "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms": {
+          "meta": "k=19 m=0 log_cap=21 deg=5 j=0 half=1048576 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 6.832,
+            "rounds_1_plus_fold_ms": 14.079,
+            "tables_sync_ms": 1.752,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 20.791,
+            "total_unbatched_with_tables_gpu_ms": 22.545
+          },
+          "per_round_median_ms": {
+            "j=0": 6.832,
+            "j=1": 6.329,
+            "j=2": 3.249,
+            "j=3": 1.658,
+            "j=4": 0.835,
+            "j=5": 0.436,
+            "j=6": 0.246,
+            "j=7": 0.184,
+            "j=8": 0.175,
+            "j=9": 0.17,
+            "j=10": 0.169,
+            "j=11": 0.187,
+            "j=12": 0.186,
+            "j=13": 0.191
+          }
+        },
+        "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms": {
+          "meta": "k=58 m=0 log_cap=14 deg=3 j=0 half=8192 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.363,
+            "rounds_1_plus_fold_ms": 1.975,
+            "tables_sync_ms": 0.051,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 2.347,
+            "total_unbatched_with_tables_gpu_ms": 2.398
+          },
+          "per_round_median_ms": {
+            "j=0": 0.363,
+            "j=1": 0.448,
+            "j=2": 0.362,
+            "j=3": 0.362,
+            "j=4": 0.401,
+            "j=5": 0.399
+          }
+        },
+        "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=2 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.044,
+            "rounds_1_plus_fold_ms": 0.247,
+            "tables_sync_ms": 0.129,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.3,
+            "total_unbatched_with_tables_gpu_ms": 0.416
+          },
+          "per_round_median_ms": {
+            "j=0": 0.044,
+            "j=1": 0.101,
+            "j=2": 0.059,
+            "j=3": 0.037,
+            "j=4": 0.026,
+            "j=5": 0.022,
+            "j=6": 0.019
+          }
+        },
+        "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=2 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.065,
+            "rounds_1_plus_fold_ms": 0.227,
+            "tables_sync_ms": 0.082,
+            "tail_fold_ms": 0.01,
+            "total_unbatched_gpu_ms": 0.303,
+            "total_unbatched_with_tables_gpu_ms": 0.384
+          },
+          "per_round_median_ms": {
+            "j=0": 0.065,
+            "j=1": 0.1,
+            "j=2": 0.06,
+            "j=3": 0.036,
+            "j=4": 0.026,
+            "j=5": 0.021
+          }
+        },
+        "slot 20 (ZS zero-sum row) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms": {
+          "meta": "k=2 m=0 log_cap=14 deg=2 j=0 half=8192 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.023,
+            "rounds_1_plus_fold_ms": 0.022,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.053,
+            "total_unbatched_with_tables_gpu_ms": 0.053
+          },
+          "per_round_median_ms": {
+            "j=0": 0.023,
+            "j=1": 0.022
+          }
+        }
+      }
+    },
+    "r13_shield_armA_prod_batched": {
+      "guard_lines": [
+        "[zk60-guard 11:23:23] START agy-r13_shield_armA_prod_batched class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=8aa8f9249888",
+        "[zk60-guard 11:23:33] END agy-r13_shield_armA_prod_batched exit=0 child_wall=11s peak_rss=8.58G min_avail=196.22G peak_vram=12249MiB"
+      ],
+      "pre_ds4_bench": "none",
+      "post_ds4_bench": "none",
+      "digest": "5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb",
+      "warm_pass_count": 5,
+      "cpu_wall_s": 4.087,
+      "cpu_core_s": 3.912,
+      "metal_wall_median_s": 0.666,
+      "metal_core_median_s": 0.494,
+      "dev_sc_median_s": 0.105,
+      "batched": {
+        "categories_ms": {
+          "all_slots_gpu_ms": 97.784,
+          "commit_A_ms": 39.481,
+          "commit_H_ms": 36.718,
+          "other_diag_ms": 74.631,
+          "other_gather_ms": 0.252,
+          "total_prove_gpu_ms": 248.899
+        },
+        "slots_sorted_ms": [
+          {
+            "slot_label": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 29 tables (18 base), 37 nodes, 3 terms",
+            "median_ms": 34.754,
+            "p25_ms": 34.675,
+            "p75_ms": 34.975,
+            "meta": "k=29 m=4 log_cap=21 deg=5 de=4 nd=17 n_vars=21 recover=1 pre=27"
+          },
+          {
+            "slot_label": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 64 tables (44 base), 83 nodes, 3 terms",
+            "median_ms": 27.95,
+            "p25_ms": 27.894,
+            "p75_ms": 27.957,
+            "meta": "k=64 m=4 log_cap=19 deg=5 de=4 nd=16 n_vars=19 recover=1 pre=61"
+          },
+          {
+            "slot_label": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 28 tables (16 base), 39 nodes, 3 terms",
+            "median_ms": 12.225,
+            "p25_ms": 12.216,
+            "p75_ms": 12.247,
+            "meta": "k=28 m=3 log_cap=19 deg=4 de=4 nd=15 n_vars=19 recover=0 pre=27"
+          },
+          {
+            "slot_label": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms",
+            "median_ms": 9.334,
+            "p25_ms": 9.322,
+            "p75_ms": 9.336,
+            "meta": "k=27 m=1 log_cap=19 deg=4 de=4 nd=14 n_vars=19 recover=1 pre=25"
+          },
+          {
+            "slot_label": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms",
+            "median_ms": 4.393,
+            "p25_ms": 4.39,
+            "p75_ms": 4.64,
+            "meta": "k=27 m=1 log_cap=17 deg=4 de=4 nd=12 n_vars=17 recover=1 pre=25"
+          },
+          {
+            "slot_label": "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms",
+            "median_ms": 1.856,
+            "p25_ms": 1.817,
+            "p75_ms": 1.86,
+            "meta": "k=3 m=0 log_cap=19 deg=4 de=4 nd=11 n_vars=19 recover=1 pre=0"
+          },
+          {
+            "slot_label": "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms",
+            "median_ms": 1.82,
+            "p25_ms": 1.804,
+            "p75_ms": 1.838,
+            "meta": "k=3 m=0 log_cap=19 deg=4 de=4 nd=11 n_vars=19 recover=1 pre=0"
+          },
+          {
+            "slot_label": "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 4 tables (3 base), 1 nodes, 1 terms",
+            "median_ms": 1.66,
+            "p25_ms": 1.659,
+            "p75_ms": 1.673,
+            "meta": "k=4 m=0 log_cap=19 deg=3 de=3 nd=11 n_vars=19 recover=1 pre=0"
+          },
+          {
+            "slot_label": "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 5 tables (3 base), 6 nodes, 1 terms",
+            "median_ms": 1.171,
+            "p25_ms": 1.168,
+            "p75_ms": 1.185,
+            "meta": "k=5 m=1 log_cap=14 deg=4 de=4 nd=8 n_vars=14 recover=1 pre=0"
+          },
+          {
+            "slot_label": "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms",
+            "median_ms": 1.156,
+            "p25_ms": 1.136,
+            "p75_ms": 1.174,
+            "meta": "k=3 m=0 log_cap=19 deg=2 de=2 nd=9 n_vars=19 recover=1 pre=3"
+          },
+          {
+            "slot_label": "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms",
+            "median_ms": 1.124,
+            "p25_ms": 1.038,
+            "p75_ms": 1.125,
+            "meta": "k=3 m=0 log_cap=19 deg=2 de=2 nd=8 n_vars=19 recover=1 pre=3"
+          },
+          {
+            "slot_label": "slot 20 (ZS zero-sum row) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 2 tables (1 base), 0 nodes, 1 terms",
+            "median_ms": 0.51,
+            "p25_ms": 0.51,
+            "p75_ms": 0.51,
+            "meta": "k=2 m=0 log_cap=14 deg=2 de=2 nd=5 n_vars=14 recover=1 pre=0"
+          }
+        ]
+      }
+    },
+    "r13_shield_armB_unbatched_sync_lin1": {
+      "guard_lines": [
+        "[zk60-guard 11:23:46] START agy-r13_shield_armB_unbatched_sync_lin1 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=719b70075309",
+        "[zk60-guard 11:23:57] END agy-r13_shield_armB_unbatched_sync_lin1 exit=0 child_wall=11s peak_rss=7.70G min_avail=196.50G peak_vram=12252MiB"
+      ],
+      "pre_ds4_bench": "none",
+      "post_ds4_bench": "none",
+      "digest": "5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb",
+      "warm_pass_count": 5,
+      "cpu_wall_s": 4.017,
+      "cpu_core_s": 3.843,
+      "metal_wall_median_s": 0.704,
+      "metal_core_median_s": 0.532,
+      "dev_sc_median_s": 0.121,
+      "unbatched": {
+        "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.127,
+            "rounds_1_plus_fold_ms": 0.406,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.541,
+            "total_unbatched_with_tables_gpu_ms": 0.541
+          },
+          "per_round_median_ms": {
+            "j=0": 0.127,
+            "j=1": 0.156,
+            "j=2": 0.091,
+            "j=3": 0.053,
+            "j=4": 0.032,
+            "j=5": 0.028,
+            "j=6": 0.024,
+            "j=7": 0.022
+          }
+        },
+        "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.132,
+            "rounds_1_plus_fold_ms": 0.4,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.54,
+            "total_unbatched_with_tables_gpu_ms": 0.54
+          },
+          "per_round_median_ms": {
+            "j=0": 0.132,
+            "j=1": 0.154,
+            "j=2": 0.087,
+            "j=3": 0.052,
+            "j=4": 0.032,
+            "j=5": 0.028,
+            "j=6": 0.024,
+            "j=7": 0.022
+          }
+        },
+        "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 5 tables (3 base), 6 nodes, 1 terms": {
+          "meta": "k=5 m=1 log_cap=14 deg=4 j=0 half=8192 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.064,
+            "rounds_1_plus_fold_ms": 0.165,
+            "tail_fold_ms": 0.007,
+            "total_unbatched_gpu_ms": 0.237,
+            "total_unbatched_with_tables_gpu_ms": 0.237
+          },
+          "per_round_median_ms": {
+            "j=0": 0.064,
+            "j=1": 0.046,
+            "j=2": 0.04,
+            "j=3": 0.039,
+            "j=4": 0.04
+          }
+        },
+        "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 4 tables (3 base), 1 nodes, 1 terms": {
+          "meta": "k=4 m=0 log_cap=19 deg=3 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.145,
+            "rounds_1_plus_fold_ms": 0.398,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.539,
+            "total_unbatched_with_tables_gpu_ms": 0.539
+          },
+          "per_round_median_ms": {
+            "j=0": 0.145,
+            "j=1": 0.15,
+            "j=2": 0.085,
+            "j=3": 0.05,
+            "j=4": 0.033,
+            "j=5": 0.028,
+            "j=6": 0.025,
+            "j=7": 0.024
+          }
+        },
+        "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 64 tables (44 base), 83 nodes, 3 terms": {
+          "meta": "k=64 m=4 log_cap=19 deg=5 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 9.01,
+            "rounds_1_plus_fold_ms": 13.947,
+            "tables_sync_ms": 1.656,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 22.951,
+            "total_unbatched_with_tables_gpu_ms": 24.602
+          },
+          "per_round_median_ms": {
+            "j=0": 9.01,
+            "j=1": 5.451,
+            "j=2": 2.907,
+            "j=3": 1.558,
+            "j=4": 0.869,
+            "j=5": 0.451,
+            "j=6": 0.377,
+            "j=7": 0.363,
+            "j=8": 0.362,
+            "j=9": 0.396,
+            "j=10": 0.399,
+            "j=11": 0.411,
+            "j=12": 0.416
+          }
+        },
+        "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms": {
+          "meta": "k=27 m=1 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 2.209,
+            "rounds_1_plus_fold_ms": 4.224,
+            "tables_sync_ms": 0.708,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 6.442,
+            "total_unbatched_with_tables_gpu_ms": 7.153
+          },
+          "per_round_median_ms": {
+            "j=0": 2.209,
+            "j=1": 1.656,
+            "j=2": 0.851,
+            "j=3": 0.437,
+            "j=4": 0.243,
+            "j=5": 0.186,
+            "j=6": 0.172,
+            "j=7": 0.166,
+            "j=8": 0.163,
+            "j=9": 0.176,
+            "j=10": 0.179
+          }
+        },
+        "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms": {
+          "meta": "k=27 m=1 log_cap=17 deg=4 j=0 half=65536 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.631,
+            "rounds_1_plus_fold_ms": 1.764,
+            "tables_sync_ms": 0.167,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 2.402,
+            "total_unbatched_with_tables_gpu_ms": 2.57
+          },
+          "per_round_median_ms": {
+            "j=0": 0.631,
+            "j=1": 0.464,
+            "j=2": 0.255,
+            "j=3": 0.186,
+            "j=4": 0.173,
+            "j=5": 0.166,
+            "j=6": 0.164,
+            "j=7": 0.178,
+            "j=8": 0.182
+          }
+        },
+        "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 28 tables (16 base), 39 nodes, 3 terms": {
+          "meta": "k=28 m=3 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 2.823,
+            "rounds_1_plus_fold_ms": 6.503,
+            "tables_sync_ms": 0.706,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 9.339,
+            "total_unbatched_with_tables_gpu_ms": 10.049
+          },
+          "per_round_median_ms": {
+            "j=0": 2.823,
+            "j=1": 2.597,
+            "j=2": 1.351,
+            "j=3": 0.712,
+            "j=4": 0.364,
+            "j=5": 0.21,
+            "j=6": 0.202,
+            "j=7": 0.198,
+            "j=8": 0.194,
+            "j=9": 0.219,
+            "j=10": 0.219,
+            "j=11": 0.222
+          }
+        },
+        "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 29 tables (18 base), 37 nodes, 3 terms": {
+          "meta": "k=29 m=4 log_cap=21 deg=5 j=0 half=1048576 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 11.564,
+            "rounds_1_plus_fold_ms": 17.506,
+            "tables_sync_ms": 2.59,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 29.106,
+            "total_unbatched_with_tables_gpu_ms": 31.68
+          },
+          "per_round_median_ms": {
+            "j=0": 11.564,
+            "j=1": 8.086,
+            "j=2": 4.084,
+            "j=3": 2.061,
+            "j=4": 1.071,
+            "j=5": 0.526,
+            "j=6": 0.288,
+            "j=7": 0.206,
+            "j=8": 0.194,
+            "j=9": 0.187,
+            "j=10": 0.184,
+            "j=11": 0.203,
+            "j=12": 0.203,
+            "j=13": 0.21
+          }
+        },
+        "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=2 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.04,
+            "rounds_1_plus_fold_ms": 0.238,
+            "tables_sync_ms": 0.144,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.288,
+            "total_unbatched_with_tables_gpu_ms": 0.432
+          },
+          "per_round_median_ms": {
+            "j=0": 0.04,
+            "j=1": 0.1,
+            "j=2": 0.057,
+            "j=3": 0.037,
+            "j=4": 0.025,
+            "j=5": 0.021
+          }
+        },
+        "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=2 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.065,
+            "rounds_1_plus_fold_ms": 0.233,
+            "tables_sync_ms": 0.079,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.307,
+            "total_unbatched_with_tables_gpu_ms": 0.386
+          },
+          "per_round_median_ms": {
+            "j=0": 0.065,
+            "j=1": 0.097,
+            "j=2": 0.058,
+            "j=3": 0.034,
+            "j=4": 0.025,
+            "j=5": 0.02
+          }
+        }
+      }
+    },
+    "r13_shield_armC_unbatched_sync_lin0": {
+      "guard_lines": [
+        "[zk60-guard 11:24:10] START agy-r13_shield_armC_unbatched_sync_lin0 class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=0c1520605e64",
+        "[zk60-guard 11:24:32] END agy-r13_shield_armC_unbatched_sync_lin0 exit=0 child_wall=21s peak_rss=8.58G min_avail=195.55G peak_vram=12998MiB"
+      ],
+      "pre_ds4_bench": "none",
+      "post_ds4_bench": "none",
+      "digest": "5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb",
+      "warm_pass_count": 5,
+      "cpu_wall_s": 4.235,
+      "cpu_core_s": 4.057,
+      "metal_wall_median_s": 0.774,
+      "metal_core_median_s": 0.604,
+      "dev_sc_median_s": 0.168,
+      "unbatched": {
+        "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.118,
+            "rounds_1_plus_fold_ms": 0.401,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.528,
+            "total_unbatched_with_tables_gpu_ms": 0.528
+          },
+          "per_round_median_ms": {
+            "j=0": 0.118,
+            "j=1": 0.162,
+            "j=2": 0.088,
+            "j=3": 0.051,
+            "j=4": 0.032,
+            "j=5": 0.028,
+            "j=6": 0.024,
+            "j=7": 0.022,
+            "j=8": 0.022
+          }
+        },
+        "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.122,
+            "rounds_1_plus_fold_ms": 0.402,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.531,
+            "total_unbatched_with_tables_gpu_ms": 0.531
+          },
+          "per_round_median_ms": {
+            "j=0": 0.122,
+            "j=1": 0.158,
+            "j=2": 0.09,
+            "j=3": 0.052,
+            "j=4": 0.031,
+            "j=5": 0.028,
+            "j=6": 0.024,
+            "j=7": 0.022
+          }
+        },
+        "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 5 tables (3 base), 6 nodes, 1 terms": {
+          "meta": "k=5 m=0 log_cap=14 deg=4 j=0 half=8192 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.047,
+            "rounds_1_plus_fold_ms": 0.172,
+            "tail_fold_ms": 0.007,
+            "total_unbatched_gpu_ms": 0.225,
+            "total_unbatched_with_tables_gpu_ms": 0.225
+          },
+          "per_round_median_ms": {
+            "j=0": 0.047,
+            "j=1": 0.049,
+            "j=2": 0.042,
+            "j=3": 0.039,
+            "j=4": 0.041
+          }
+        },
+        "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 4 tables (3 base), 1 nodes, 1 terms": {
+          "meta": "k=4 m=0 log_cap=19 deg=3 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.126,
+            "rounds_1_plus_fold_ms": 0.396,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 0.52,
+            "total_unbatched_with_tables_gpu_ms": 0.52
+          },
+          "per_round_median_ms": {
+            "j=0": 0.126,
+            "j=1": 0.151,
+            "j=2": 0.085,
+            "j=3": 0.05,
+            "j=4": 0.032,
+            "j=5": 0.028,
+            "j=6": 0.025,
+            "j=7": 0.024
+          }
+        },
+        "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 64 tables (44 base), 83 nodes, 3 terms": {
+          "meta": "k=64 m=0 log_cap=19 deg=5 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 15.33,
+            "rounds_1_plus_fold_ms": 34.853,
+            "tables_sync_ms": 1.656,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 50.217,
+            "total_unbatched_with_tables_gpu_ms": 51.869
+          },
+          "per_round_median_ms": {
+            "j=0": 15.33,
+            "j=1": 15.06,
+            "j=2": 7.733,
+            "j=3": 4.141,
+            "j=4": 2.148,
+            "j=5": 1.131,
+            "j=6": 0.749,
+            "j=7": 0.603,
+            "j=8": 0.596,
+            "j=9": 0.654,
+            "j=10": 0.648,
+            "j=11": 0.675,
+            "j=12": 0.701
+          }
+        },
+        "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms": {
+          "meta": "k=27 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 2.378,
+            "rounds_1_plus_fold_ms": 5.054,
+            "tables_sync_ms": 0.705,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 7.44,
+            "total_unbatched_with_tables_gpu_ms": 8.138
+          },
+          "per_round_median_ms": {
+            "j=0": 2.378,
+            "j=1": 2.01,
+            "j=2": 1.052,
+            "j=3": 0.54,
+            "j=4": 0.29,
+            "j=5": 0.203,
+            "j=6": 0.189,
+            "j=7": 0.184,
+            "j=8": 0.182,
+            "j=9": 0.201,
+            "j=10": 0.204
+          }
+        },
+        "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms": {
+          "meta": "k=27 m=0 log_cap=17 deg=4 j=0 half=65536 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.674,
+            "rounds_1_plus_fold_ms": 1.989,
+            "tables_sync_ms": 0.166,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 2.665,
+            "total_unbatched_with_tables_gpu_ms": 2.83
+          },
+          "per_round_median_ms": {
+            "j=0": 0.674,
+            "j=1": 0.528,
+            "j=2": 0.287,
+            "j=3": 0.205,
+            "j=4": 0.191,
+            "j=5": 0.185,
+            "j=6": 0.182,
+            "j=7": 0.202,
+            "j=8": 0.201
+          }
+        },
+        "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 28 tables (16 base), 39 nodes, 3 terms": {
+          "meta": "k=28 m=0 log_cap=19 deg=4 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 2.84,
+            "rounds_1_plus_fold_ms": 7.004,
+            "tables_sync_ms": 0.708,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 9.883,
+            "total_unbatched_with_tables_gpu_ms": 10.595
+          },
+          "per_round_median_ms": {
+            "j=0": 2.84,
+            "j=1": 2.78,
+            "j=2": 1.457,
+            "j=3": 0.762,
+            "j=4": 0.418,
+            "j=5": 0.23,
+            "j=6": 0.22,
+            "j=7": 0.213,
+            "j=8": 0.209,
+            "j=9": 0.236,
+            "j=10": 0.236,
+            "j=11": 0.239
+          }
+        },
+        "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 29 tables (18 base), 37 nodes, 3 terms": {
+          "meta": "k=29 m=0 log_cap=21 deg=5 j=0 half=1048576 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 15.884,
+            "rounds_1_plus_fold_ms": 27.774,
+            "tables_sync_ms": 2.583,
+            "tail_fold_ms": 0.008,
+            "total_unbatched_gpu_ms": 43.63,
+            "total_unbatched_with_tables_gpu_ms": 46.216
+          },
+          "per_round_median_ms": {
+            "j=0": 15.884,
+            "j=1": 12.787,
+            "j=2": 6.424,
+            "j=3": 3.248,
+            "j=4": 1.755,
+            "j=5": 0.986,
+            "j=6": 0.566,
+            "j=7": 0.301,
+            "j=8": 0.267,
+            "j=9": 0.262,
+            "j=10": 0.264,
+            "j=11": 0.292,
+            "j=12": 0.295,
+            "j=13": 0.303
+          }
+        },
+        "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=2 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.039,
+            "rounds_1_plus_fold_ms": 0.223,
+            "tables_sync_ms": 0.124,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.271,
+            "total_unbatched_with_tables_gpu_ms": 0.394
+          },
+          "per_round_median_ms": {
+            "j=0": 0.039,
+            "j=1": 0.101,
+            "j=2": 0.058,
+            "j=3": 0.036,
+            "j=4": 0.023,
+            "j=5": 0.02
+          }
+        },
+        "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms": {
+          "meta": "k=3 m=0 log_cap=19 deg=2 j=0 half=262144 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.063,
+            "rounds_1_plus_fold_ms": 0.215,
+            "tables_sync_ms": 0.078,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.288,
+            "total_unbatched_with_tables_gpu_ms": 0.366
+          },
+          "per_round_median_ms": {
+            "j=0": 0.063,
+            "j=1": 0.095,
+            "j=2": 0.058,
+            "j=3": 0.036,
+            "j=4": 0.024,
+            "j=5": 0.02
+          }
+        },
+        "slot 20 (ZS zero-sum row) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 2 tables (1 base), 0 nodes, 1 terms": {
+          "meta": "k=2 m=0 log_cap=14 deg=2 j=0 half=8192 fold=0 pre=0",
+          "phases_median_ms": {
+            "round0_mat_plus_k0_ms": 0.031,
+            "tail_fold_ms": 0.009,
+            "total_unbatched_gpu_ms": 0.04,
+            "total_unbatched_with_tables_gpu_ms": 0.04
+          },
+          "per_round_median_ms": {
+            "j=0": 0.031
+          }
+        }
+      }
+    }
+  }
+}
