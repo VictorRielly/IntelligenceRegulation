@@ -1,18 +1,18 @@
-⚠ [3851/3920] Replayed ZK60Formal.RunStgJoinLk
+⚠ [3851/3925] Replayed ZK60Formal.RunStgJoinLk
 warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
 warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
 warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
 warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
-⚠ [3857/3920] Replayed ZK60Formal.RunBlkWireDoom
+⚠ [3857/3925] Replayed ZK60Formal.RunBlkWireDoom
 warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
   [Algebra GF K]
 consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
   omit [Algebra GF K] in theorem ...
 
 Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
-⚠ [3858/3920] Replayed ZK60Formal.RunBlkWireSlots
+⚠ [3858/3925] Replayed ZK60Formal.RunBlkWireSlots
 warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
 warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
 warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
-✔ [3919/3920] Built ZK60Formal (11s)
-Build completed successfully (3920 jobs).
+✔ [3924/3925] Built ZK60Formal (11s)
+Build completed successfully (3925 jobs).

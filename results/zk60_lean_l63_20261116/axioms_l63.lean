@@ -1,3 +1,5 @@
+import ZK60Formal.RunStgShieldIncCube
+import ZK60Formal.RunStgShieldIncRun
 import ZK60Formal.RunStgShieldTopI
 import ZK60Formal.RunStgShieldCTopI
 import ZK60Formal.RunStgShieldCTopF
@@ -283,3 +285,71 @@ import ZK60Formal.RunStgShieldRbr
 -- RunStgShieldTopBx.lean
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIO
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv
+-- RunStgShieldLuK.lean
+#print axioms ZK60.ProtocolClassify.incClearedPolyG
+#print axioms ZK60.ProtocolClassify.incClearedPoly_eq_G
+#print axioms ZK60.ProtocolClassify.luk_indDeg_finsetProd
+#print axioms ZK60.ProtocolClassify.luk_incFactor_indDeg
+#print axioms ZK60.ProtocolClassify.incClearedPolyG_indDeg
+#print axioms ZK60.ProtocolClassify.luk_inA_fold_eq
+#print axioms ZK60.ProtocolClassify.stgLkInG
+#print axioms ZK60.ProtocolClassify.stgLkIn_eq_G
+#print axioms ZK60.ProtocolClassify.stgLkInG_rbr
+#print axioms ZK60.ProtocolClassify.stgLkInG_of_inLogUp
+#print axioms ZK60.ProtocolClassify.not_stgLkInG_nil_of_not_inGood
+#print axioms ZK60.ProtocolClassify.stgPlK
+#print axioms ZK60.ProtocolClassify.stgPlB_eq_piB
+#print axioms ZK60.ProtocolClassify.shdIncDataK
+#print axioms ZK60.ProtocolClassify.shdIncData_proj_tok
+#print axioms ZK60.ProtocolClassify.shdIncData_proj_X
+#print axioms ZK60.ProtocolClassify.shdIncData_proj_m
+#print axioms ZK60.ProtocolClassify.inGood_proj
+#print axioms ZK60.ProtocolClassify.shdIncDataK_vid_injective
+#print axioms ZK60.ProtocolClassify.not_stgLkInK_nil_of_not_inGood
+#print axioms ZK60.ProtocolClassify.shd_ΛIK
+#print axioms ZK60.ProtocolClassify.shd_hLuStgIK
+#print axioms ZK60.ProtocolClassify.ShdLuInAtK
+#print axioms ZK60.ProtocolClassify.stgLkAtV_of_luInK
+-- RunStgShieldIncLay.lean
+#print axioms ZK60.ProtocolClassify.shdTokOf
+#print axioms ZK60.ProtocolClassify.shdTokOf_pos
+#print axioms ZK60.ProtocolClassify.shdPos_inj
+#print axioms ZK60.ProtocolClassify.shdVpos_inj
+#print axioms ZK60.ProtocolClassify.lay_dite_idx
+#print axioms ZK60.ProtocolClassify.ctlPos_cases
+#print axioms ZK60.ProtocolClassify.shdIncLay
+#print axioms ZK60.ProtocolClassify.shdIncLay_pos
+#print axioms ZK60.ProtocolClassify.shdIncLay_u0
+#print axioms ZK60.ProtocolClassify.shdIncLay_pt
+#print axioms ZK60.ProtocolClassify.shdIncLay_kap
+#print axioms ZK60.ProtocolClassify.shdIncLay_bos
+#print axioms ZK60.ProtocolClassify.shdIncLay_bosTmpl
+#print axioms ZK60.ProtocolClassify.lay_natCast_alg
+#print axioms ZK60.ProtocolClassify.shd_inSat_of_goodK
+#print axioms ZK60.ProtocolClassify.shdP_incPub_lay
+-- RunStgShieldIncRun.lean
+#print axioms ZK60.ProtocolClassify.stg_r0Dm_of_def
+#print axioms ZK60.ProtocolClassify.stg_defAlive_of_notR0
+#print axioms ZK60.ProtocolClassify.stg_slDm_of_slot
+#print axioms ZK60.ProtocolClassify.stg_slAlive_of_notSl
+#print axioms ZK60.ProtocolClassify.stg_def_zero_of_alive
+-- RunStgShieldLuBase.lean
+#print axioms ZK60.ProtocolClassify.stgIOX_base
+#print axioms ZK60.ProtocolClassify.stgPlK_eq_alg
+#print axioms ZK60.ProtocolClassify.ogStage_radius
+#print axioms ZK60.ProtocolClassify.bin_radius
+#print axioms ZK60.ProtocolClassify.ogStage_lc_le
+#print axioms ZK60.ProtocolClassify.ogStage_h_le
+#print axioms ZK60.ProtocolClassify.shdIncDataK_tok
+#print axioms ZK60.ProtocolClassify.shdIncDataK_X
+#print axioms ZK60.ProtocolClassify.shdIncDataK_m
+#print axioms ZK60.ProtocolClassify.shdIncDataK_qTup
+#print axioms ZK60.ProtocolClassify.shdIncDataK_tTup
+#print axioms ZK60.ProtocolClassify.inLogUp_K_iff
+#print axioms ZK60.ProtocolClassify.stgLkInK_iff
+#print axioms ZK60.ProtocolClassify.shdLuInAt_of_K
+-- RunStgShieldIncCube.lean
+#print axioms ZK60.ProtocolClassify.incChalOf
+#print axioms ZK60.ProtocolClassify.ShdIncSlotsAt
+#print axioms ZK60.ProtocolClassify.shdLuInAtK_of_slots
+#print axioms ZK60.ProtocolClassify.shd_hLI_of_slots
