@@ -1,14 +1,13 @@
 /-
-D63 lane L63 (2026-11-18), part 50: **stage IN-C's LogUp predicate over the UNPROJECTED data** (finding L63-6, item 4 of
+D63 lane L63 (2026-11-18), part 50: **stage IN-C's LogUp predicate over the UNPROJECTED data** (item 4 of
 HANDOFF_20261118_1.md).
 
-Finding L63-6 (ARGUED, see HANDOFF_20261118_2.md section 3): `shd_ΛI` (lane L67b's `RunStgShieldLu.lean`, not edited)
-reads the token words, the `B_in` rows and the multiplicities through `piB`, a `GF`-linear projection `K → GF`, while
-the stage's slots (SIC_QZC, SIC_TZC, through `stgCsv`'s `claimSem` of the decoded rows) constrain the UNPROJECTED values
-in `K`. A run whose committed `A_MULT` (or `B_in`) values lie outside `GF`, whose helpers meet the slot relations over
-`K` and whose `K`-valued LogUp identity holds at the drawn challenges (an escape, but an accepted run with no doomed
-entrant of the eight earlier kinds) need not meet the PROJECTED identity there: `hLI_stg` at `shd_ΛI` is then false at
-that run. The relation the slots give pointwise is the one over the `K`-valued data. This file states it:
+`shd_ΛI` (lane L67b's `RunStgShieldLu.lean`, not edited) reads the token words, the `B_in` rows and the multiplicities
+through `piB`, a `GF`-linear projection `K → GF`, while the stage's slots (SIC_QZC, SIC_TZC, through `stgCsv`'s
+`claimSem` of the decoded rows) constrain the UNPROJECTED values in `K`. The two agree because the planes are base-field
+values (`RunStgShieldLuBase.lean`: L41's `decodeRows_base` and `planeZ_base` at the stage geometries), so `shd_ΛI` needs
+no change; the run-level argument (`incCube` on the slots' conclusions) is naturally stated over the `K`-valued data,
+which this file sets up:
 
 * `incClearedPolyG φ D`: Antigravity's `incClearedPoly` at any ring map `φ : B →+* K` (`incClearedPoly_eq_G`: the old
   one is `φ := algebraMap GF K`); `incClearedPolyG_indDeg`;
