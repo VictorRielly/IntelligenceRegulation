@@ -385,3 +385,7 @@
 'ZK60.ProtocolClassify.shd_inc_qt' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.ShdIncSumAt' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.shd_hLI_of_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stg_rd_chal' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shd_hEmb_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shd_inc_qt_run' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shd_hLI_run' depends on axioms: [propext, Classical.choice, Quot.sound]

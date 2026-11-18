@@ -1,3 +1,4 @@
+import ZK60Formal.RunStgShieldIncAt
 import ZK60Formal.RunStgShieldIncJoin
 import ZK60Formal.RunStgShieldIncCube
 import ZK60Formal.RunStgShieldIncRun
@@ -409,3 +410,8 @@ import ZK60Formal.RunStgShieldRbr
 #print axioms ZK60.ProtocolClassify.shd_inc_qt
 #print axioms ZK60.ProtocolClassify.ShdIncSumAt
 #print axioms ZK60.ProtocolClassify.shd_hLI_of_sum
+-- RunStgShieldIncAt.lean
+#print axioms ZK60.ProtocolClassify.stg_rd_chal
+#print axioms ZK60.ProtocolClassify.shd_hEmb_exists
+#print axioms ZK60.ProtocolClassify.shd_inc_qt_run
+#print axioms ZK60.ProtocolClassify.shd_hLI_run
