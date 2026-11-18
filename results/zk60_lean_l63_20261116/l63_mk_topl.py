@@ -123,18 +123,117 @@ docS = ("/-- **INTERIM: `hLI_stg` DISCHARGED UP TO THE TWO SUM FACTS** (D63 lane
         "* `hEmb` (finding L63-8, ruled interim): the public `embFold` is the multilinear fold of the padded embedding\n"
         "  `shdEpad Rp.inp` at a canonical challenge point of length `12` (satisfiable: `shd_hEmb_exists`).\n"
         "Remaining premises of blkIOv's: `hLO_stg`, `hdinX`, `hdoutC`. -/\n")
+
+# --- Z: `IncSum` PROVED at the run (shd_incSum_run, RunStgShieldIncSum.lean); only SIC_ZS's zero sum stays a premise
+hzs = ("(hZS :" + hyps
+       + "∑ j, (shdIncHd shdP_U tag (le64_of_le20 hL20) (ViB).pub ogStage.lc ogStage.h ogStage.Q ogStage.e\n"
+       + "        (IinB).pH.rows ((RnB).pf.off 0 + 5 + 4 + 15) " + VIEW + ").2.2 j = 0)")
+keptZ = binders[:7] + [hV, hEmb, hzs] + binders[8:]
+stmtZ = "theorem sshC_productionReadyL_epP_blkIOz" + "".join("\n    " + b for b in keptZ) + "\n    " + concl
+INCSUM = (
+    "        have hin_lay := shdP_incLay_nums Rp embDigest embFold\n"
+    "        have hout_lay := shdP_outcLay_nums Rp wDigest\n"
+    "        have hfIA : 8 * (IinB).pA.rows ≤ Lq := by\n"
+    "          change 8 * (incLay (shdP_incPub Rp embDigest embFold) 14).aRows ≤ Lq\n"
+    "          rw [hin_lay.1]; omega\n"
+    "        have hfIH : 8 * (IinB).pH.rows ≤ Lq := by\n"
+    "          change 8 * (incLay (shdP_incPub Rp embDigest embFold) 14).hRows ≤ Lq\n"
+    "          rw [hin_lay.2.1]; omega\n"
+    "        have hfOA : 8 * (OoutB).pA.rows ≤ Lq := by\n"
+    "          change 8 * (outcLay (shdP_outcPub Rp wDigest) 14).aRows ≤ Lq\n"
+    "          rw [hout_lay.1]; omega\n"
+    "        have hfOH : 8 * (OoutB).pH.rows ≤ Lq := by\n"
+    "          change 8 * (outcLay (shdP_outcPub Rp wDigest) 14).hRows ≤ Lq\n"
+    "          rw [hout_lay.2.1]; omega\n"
+    "        have hE0 := rc_uexecP_E (h := hv) ..\n"
+    "        rw [OC.runLog_fst] at hE0\n"
+    "        have hW := vd_hW Rp 26 preA preB (clsStart DomB key hw) (fun _ => ViB) (fun _ => rcIncGeom ViB 28)\n"
+    "          (d12aBlockProf (shdP_clampPk Pk0B) (shdP_sgeom Hdr (shdP_clampPk Pk0B)) (vdChk check0) paths digest\n"
+    "            (fun _ => 38) (fun _ => 14) bndCheck (cbBndOpen tag 38))\n"
+    "          (fun _ v => FoB v) (fun _ => rcOutcGeom (FoB 0) 28) P (CinB) (le64_of_le20 hL20) (shdP_hr tag hL20)\n"
+    "          (shdP_honestIn (Hdr := Hdr) tag epBase).base 768 key DomB (RnB) hw\n"
+    "          (shdP_rtRun_hdr Lq hL20 tag key DomB hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest bOutRow\n"
+    "            HPk0B check0 paths digest bndCheck)\n"
+    "          ViB FoB (fun _ => rfl) (fun _ _ => rfl) (vdChk_le check0) bl_zero_lt_26_blk\n"
+    "          (rcIncPart ViB 256 256) (rcOutcPart (FoB 0) 256 256 1) A G hv\n"
+    "        have hIS := shd_incSum_run shdP_U shdP_hbij tag (le64_of_le20 hL20) HsB HLB hL64 26 preA preB\n"
+    "          (clsStart DomB key hw) (fun _ => ViB) (fun _ => rcIncGeom ViB 28) (fun _ v => FoB v)\n"
+    "          (fun _ => rcOutcGeom (FoB 0) 28) (shdP_clampPk Pk0B) (shdP_sgeom Hdr (shdP_clampPk Pk0B)) (vdChk check0)\n"
+    "          paths digest (fun _ => 38) (fun _ => 14) bndCheck (cbBndOpen tag 38) (RnB) HvB rcCx0\n"
+    "          (rcIncPart ViB 256 256) (rcOutcPart (FoB 0) 256 256 1) (IinB) (OoutB) (BpB)\n"
+    "          (fun _ => 1 + 1 + 38) (fun _ => 2) (fun _ => 64)\n"
+    "          (shdP_rtRun_σs Lq hL20 tag key DomB hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest bOutRow\n"
+    "            HPk0B check0 paths digest bndCheck)\n"
+    "          le_rfl (fun _ _ => rfl)\n"
+    "          (rcIncAt_pA_stage shdP_U tag Lq hL20 (shdP_incPub Rp embDigest embFold) (shdP_incGeo bInRow)\n"
+    "            shdP_stgDim shdP_epDim 3 256 28 (by norm_num) (by norm_num) (by show 2 ^ 12 + 256 ≤ 2 ^ 15; norm_num)\n"
+    "            (by show 2 ^ 8 + 256 ≤ 2 ^ 15; norm_num) rfl)\n"
+    "          (rcIncAt_pH_stage shdP_U tag Lq hL20 (shdP_incPub Rp embDigest embFold) (shdP_incGeo bInRow)\n"
+    "            shdP_stgDim shdP_epDim 3 256 28 (by norm_num) (by norm_num) (by show 2 ^ 12 + 256 ≤ 2 ^ 15; norm_num)\n"
+    "            (by show 2 ^ 8 + 256 ≤ 2 ^ 15; norm_num) rfl)\n"
+    "          (rcOutcAt_pA_stage shdP_U tag Lq hL20 (shdP_outcPub Rp wDigest) (shdP_outcGeo bOutRow)\n"
+    "            shdP_stgDim Exec.Block.R13.blkDim 27 2 256 28 1 (by norm_num) (by norm_num)\n"
+    "            (by show 2 ^ 12 + 256 ≤ 2 ^ 15; norm_num) (by show 2 ^ 14 + 256 ≤ 2 ^ 15; norm_num) rfl)\n"
+    "          (rcOutcAt_pH_stage shdP_U tag Lq hL20 (shdP_outcPub Rp wDigest) (shdP_outcGeo bOutRow)\n"
+    "            shdP_stgDim Exec.Block.R13.blkDim 27 2 256 28 1 (by norm_num) (by norm_num)\n"
+    "            (by show 2 ^ 12 + 256 ≤ 2 ^ 15; norm_num) (by show 2 ^ 14 + 256 ≤ 2 ^ 15; norm_num) rfl)\n"
+    "          (shdP_rtBlk_pA_r13 shdP_U Lq hL20 tag HPk0B) (shdP_rtBlk_pH_r13 shdP_U Lq hL20 tag HPk0B)\n"
+    "          hfIA hfIH hfOA hfOH (fun _ => by change 8 * 4577 ≤ Lq; omega) (fun _ => by change 8 * 4390 ≤ Lq; omega)\n"
+    "          (vdWin ViB) (vdWout FoB) (ViB).lay.logupSumClaim (FoB 0).lay.logupSumClaim 15 8 14 (fun _ => rfl)\n"
+    "          (fun _ v => by\n"
+    "            show (outcLay (rcVerdict (shdP_outcPub Rp wDigest) v) 14).logupSumClaim\n"
+    "              = (outcLay (rcVerdict (shdP_outcPub Rp wDigest) 0) 14).logupSumClaim\n"
+    "            rw [rc_outcLay_verdict, rc_outcLay_verdict])\n"
+    "          (fun _ => (shdP_incPub_logs Rp embDigest embFold).2.2.2.2)\n"
+    "          _ abRdIn (2 ^ 26) RkDLB (shdRkD_eq_ebData ..) hDV (Rp.blks.length + 2)\n"
+    "          (le_of_eq ((RtRun.parts_length _).trans (congrArg (fun n => n + 2) (shdP_blks_length hR).symm)))\n"
+    "          A G hE0 hW.1 hW.2 (fun h => hb (Or.inl h)) hA shdP_hU rfl (shdN_ti " + NUM + ")\n"
+    "          (shdN_voc " + NUM + ") rfl\n")
+HLIZ = HLI.replace("    (hLI_stg := fun A G hDV hv hb hB hM hA hsl hR0 hR1 hH0 hH1 =>\n      shd_hLI_run",
+                   "    (hLI_stg := fun A G hDV hv hb hB hM hA hsl hR0 hR1 hH0 hH1 => by\n" + INCSUM
+                   + "        exact shd_hLI_run", 1)
+assert HLIZ != HLI
+HLIZ = HLIZ.replace("        (hSum A G hDV hv hb hB hM hA hsl hR0 hR1 hH0 hH1))\n",
+                    "        ⟨hIS, hZS A G hDV hv hb hB hM hA hsl hR0 hR1 hH0 hH1⟩)\n", 1)
+# re-indent the shd_hLI_run argument lines under the `by` block
+lines = HLIZ.split("\n")
+out = []
+inexact = False
+for ln in lines:
+    if ln.startswith("        exact shd_hLI_run"):
+        inexact = True
+        out.append(ln)
+        continue
+    if inexact and ln.startswith("        ") and ln.strip():
+        out.append("  " + ln)
+    else:
+        out.append(ln)
+HLIZ = "\n".join(out)
+argsZ = args
+bodyZ = ("  exact sshC_productionReadyL_epP_blkIOv\n    "
+         + "\n    ".join(" ".join(argsZ[x:x + 8]) for x in range(0, len(argsZ), 8)) + "\n" + HLIZ)
+docZ = ("/-- **INTERIM: `hLI_stg` DISCHARGED UP TO SIC_ZS'S ZERO SUM** (D63 lane L63; the coordinator's interim ruling of\n"
+        "2026-11-18, at a narrower premise): `sshC_productionReadyL_epP_blkIOs` with the first of the two sum facts, the\n"
+        "`H` opening's value-0 LogUp sum claim `Σ h_q − Σ h_tab + Σ u = 0`, PROVED at the run (`shd_incSum_run`: part `0`'s\n"
+        "`H` opening with no doomed `opA` entrant makes `logup_sum_claim` true of its decoded matrix, which is `IncSum` of\n"
+        "the `H_in` planes). ADDED, against blkIOv: `hZS` (interim, narrower than `hSum` and `hLI_stg`: every accepted run\n"
+        "outside `BadEvB` with no doomed entrant has `Σ u = 0` at the `H_in` planes at the run's view), `hV131072`\n"
+        "(L63-7; blkLu's `hV` follows from it), `hEmb` (L63-8, interim, satisfiable: `shd_hEmb_exists`).\n"
+        "Remaining premises of blkIOv's: `hLO_stg`, `hdinX`, `hdoutC`. -/\n")
 pre = ("/-\nD63 lane L63 (2026-11-18), part 65: **the concrete tops with `hLI_stg` discharged**. Generated by\n"
        "`results/zk60_lean_l63_20261116/l63_mk_topl.py` from `sshC_productionReadyL_epP_blkIOv` (RunStgShieldTopBx.lean):\n"
        "its `section BlkIOTop` variables and notations are copied (the private `bx_zero_lt_26_blk` renamed\n"
        "`bl_zero_lt_26_blk`), its binder list is kept except `hLI_stg`.\n\n"
        "* `sshC_productionReadyL_epP_blkIOs` (INTERIM): `hLI_stg` replaced by `hSum` (every accepted run gives\n"
-       "  `ShdIncSumAt`), `hV131072`, `hEmb`.\n\n"
+       "  `ShdIncSumAt`), `hV131072`, `hEmb`;\n"
+       "* `sshC_productionReadyL_epP_blkIOz` (INTERIM, narrower): `IncSum` PROVED at the run, only SIC_ZS's zero sum\n"
+       "  `hZS` stays, with `hV131072`, `hEmb`.\n\n"
        "Only `propext`, `Classical.choice`, `Quot.sound`.\n-/\n"
-       "import ZK60Formal.RunStgShieldTopBx\nimport ZK60Formal.RunStgShieldIncNum\n\n"
+       "import ZK60Formal.RunStgShieldTopBx\nimport ZK60Formal.RunStgShieldIncSum\n\n"
        "set_option autoImplicit false\nset_option linter.constructorNameAsVariable false\n\n"
        "namespace ZK60.ProtocolClassify\n\n"
        + OPENS + "\n")
-text = (pre + header + docS + stmtS + " := by\n" + bodyS
+text = (pre + header + docS + stmtS + " := by\n" + bodyS + "\n" + docZ + stmtZ + " := by\n" + bodyZ
         + "\nend BlkIOlTop\n\nend ZK60.ProtocolClassify\n")
 dst = F + "RunStgShieldTopL.lean"
 if len(sys.argv) > 2 and sys.argv[2] == "--check":

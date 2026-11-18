@@ -5,12 +5,14 @@ its `section BlkIOTop` variables and notations are copied (the private `bx_zero_
 `bl_zero_lt_26_blk`), its binder list is kept except `hLI_stg`.
 
 * `sshC_productionReadyL_epP_blkIOs` (INTERIM): `hLI_stg` replaced by `hSum` (every accepted run gives
-  `ShdIncSumAt`), `hV131072`, `hEmb`.
+  `ShdIncSumAt`), `hV131072`, `hEmb`;
+* `sshC_productionReadyL_epP_blkIOz` (INTERIM, narrower): `IncSum` PROVED at the run, only SIC_ZS's zero sum
+  `hZS` stays, with `hV131072`, `hEmb`.
 
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunStgShieldTopBx
-import ZK60Formal.RunStgShieldIncNum
+import ZK60Formal.RunStgShieldIncSum
 
 set_option autoImplicit false
 set_option linter.constructorNameAsVariable false
@@ -287,6 +289,193 @@ theorem sshC_productionReadyL_epP_blkIOs
         (shdN_cq tag Rp embDigest embFold bInRow)
         G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) hR0
         (hSum A G hDV hv hb hB hM hA hsl hR0 hR1 hH0 hH1))
+
+/-- **INTERIM: `hLI_stg` DISCHARGED UP TO SIC_ZS'S ZERO SUM** (D63 lane L63; the coordinator's interim ruling of
+2026-11-18, at a narrower premise): `sshC_productionReadyL_epP_blkIOs` with the first of the two sum facts, the
+`H` opening's value-0 LogUp sum claim `Σ h_q − Σ h_tab + Σ u = 0`, PROVED at the run (`shd_incSum_run`: part `0`'s
+`H` opening with no doomed `opA` entrant makes `logup_sum_claim` true of its decoded matrix, which is `IncSum` of
+the `H_in` planes). ADDED, against blkIOv: `hZS` (interim, narrower than `hSum` and `hLI_stg`: every accepted run
+outside `BadEvB` with no doomed entrant has `Σ u = 0` at the `H_in` planes at the run's view), `hV131072`
+(L63-7; blkLu's `hV` follows from it), `hEmb` (L63-8, interim, satisfiable: `shd_hEmb_exists`).
+Remaining premises of blkIOv's: `hLO_stg`, `hdinX`, `hdoutC`. -/
+theorem sshC_productionReadyL_epP_blkIOz
+    {ι : Type}
+    [Fintype ι]
+    (site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins shdP_K)
+    (kOf : ι → ℕ)
+    (δOf : ι → ℝ≥0∞)
+    (O : ClassifyOpenP Rp Lq
+      (shdP_runV tag key DomB hw preA preB Rp embDigest embFold bInRow wDigest bOutRow
+        Pk0B check0 paths digest bndCheck)
+      P (shdP_cin Hdr tag) (le64_of_le20 hL20) (shdP_hr tag hL20)
+      (shdP_honestIn tag epBase) shdP_U site kOf δOf (ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds))
+    (E0b : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt 6))
+    (hV131072 : Rp.inp.V = 131072)
+    (hEmb : ∀ rEmb : List Fp2, rEmb.length = 12 → (∀ a ∈ rEmb, a.Canon) → ∀ v : Fin Rp.inp.V,
+      ((embFold rEmb).getD v Fp2.zero).toK shdP_U
+        = mleAt (fun c => algebraMap GF shdP_K (shdEpad Rp.inp v c))
+          (fun c : Fin 12 => (rEmb.getD c Fp2.zero).toK shdP_U))
+    (hZS : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig)
+      (hDV : (RkDLB).Valid AbsB (RnB).pf),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      ¬ (rtKB key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKM key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKA key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKsl key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKR0 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKR1 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKH0 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKH1 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ∑ j, (shdIncHd shdP_U tag (le64_of_le20 hL20) (ViB).pub ogStage.lc ogStage.h ogStage.Q ogStage.e
+        (IinB).pH.rows ((RnB).pf.off 0 + 5 + 4 + 15) (stgVw AbsB (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)))).2.2 j = 0)
+    (hLO_stg : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig)
+      (hDV : (RkDLB).Valid AbsB (RnB).pf),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      ¬ (rtKB key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKM key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKA key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKsl key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKR0 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKR1 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKH0 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      ¬ (rtKH1 key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV).Dm (Rp.blks.length + 2)
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) →
+      StgLkAtV shdP_U key DomB (fun _ => (FoB (A.run G).1.verdict).bp) 2 ((RnB).pf.off 27 + 2) OutcV.bga AbsB (ΛOcB) G
+        (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)))
+    (hdinX : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      ¬ InSat Rp.inp ((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).tokW
+        (((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes 0) →
+      StgDoomAtV shdP_U key DomB P0inB (fun ch => (ViB).bp (incCtx (ViB).pub ch)) 15
+        ((RnB).pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) stgHostIn AbsB
+        (stgFstIC shdP_U shdP_hbij tag (le64_of_le20 hL20) P0inB (vdWin ViB)
+          ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          15 ogStage.lc ogStage.h ogStage.Q ogStage.e (IinB).pA.rows (IinB).pH.rows (rcIncPart ViB 256 256).S (CsIOIB))
+        (sshΦIC shdP_U shdP_hbij tag (le64_of_le20 hL20) P0inB ViB
+          ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          15 ogStage.lc ogStage.h ogStage.Q ogStage.e (IinB).pA.rows (IinB).pH.rows (CsIOIB))
+        sshDgI shdP_eI (ΛIcB) G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)))
+    (hdoutC : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      ¬ OutCSat Rp.out ((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).xC
+        (A.runLog G).1.1.verdict →
+      StgDoomAtV shdP_U key DomB P0outB (fun _ => (FoB (A.run G).1.verdict).bp) 2 ((RnB).pf.off 27 + 2) OutcV.bga
+        (stgHostOut P0outB) AbsB
+        (stgFstO shdP_U shdP_hbij tag (le64_of_le20 hL20) P0outB (vdWout FoB)
+          ((RnB).pf.off 27 + (rcOutcPart (FoB 0) 256 256 1).pre) ((RnB).pf.off 27 + 2)
+          ogStage.lc ogStage.h ogStage.Q ogStage.e (OoutB).pA.rows (OoutB).pH.rows (rcOutcPart (FoB 0) 256 256 1).S (CsIOOB))
+        (sshΦO shdP_U shdP_hbij tag (le64_of_le20 hL20) P0outB FoB
+          ((RnB).pf.off 27 + (rcOutcPart (FoB 0) 256 256 1).pre) ((RnB).pf.off 27 + 2)
+          ogStage.lc ogStage.h ogStage.Q ogStage.e (OoutB).pA.rows (OoutB).pH.rows (CsIOOB))
+        sshDgO shdP_eO (ΛOcB) G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)))
+    :
+    ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) ProtoUnclampedB
+      (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget := by
+  exact sshC_productionReadyL_epP_blkIOv
+    (Hdr := Hdr) (Coins := Coins) (tag := tag) (Lq := Lq) (hL20 := hL20) (hL64 := hL64) (key := key) (Rp := Rp)
+    (hR := hR) (hw := hw) (hhdrFit := hhdrFit) (preA := preA) (preB := preB) (check0 := check0) (paths := paths) (digest := digest)
+    (bndCheck := bndCheck) (ioIn := ioIn) (ioOut := ioOut) (checkOpening := checkOpening) (embDigest := embDigest) (embFold := embFold) (bInRow := bInRow) (wDigest := wDigest)
+    (bOutRow := bOutRow) (P := P) (epBase := epBase) (site := site) (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b)
+    (hLO_stg := hLO_stg) (hdinX := hdinX) (hdoutC := hdoutC)
+    (hLI_stg := fun A G hDV hv hb hB hM hA hsl hR0 hR1 hH0 hH1 => by
+        have hin_lay := shdP_incLay_nums Rp embDigest embFold
+        have hout_lay := shdP_outcLay_nums Rp wDigest
+        have hfIA : 8 * (IinB).pA.rows ≤ Lq := by
+          change 8 * (incLay (shdP_incPub Rp embDigest embFold) 14).aRows ≤ Lq
+          rw [hin_lay.1]; omega
+        have hfIH : 8 * (IinB).pH.rows ≤ Lq := by
+          change 8 * (incLay (shdP_incPub Rp embDigest embFold) 14).hRows ≤ Lq
+          rw [hin_lay.2.1]; omega
+        have hfOA : 8 * (OoutB).pA.rows ≤ Lq := by
+          change 8 * (outcLay (shdP_outcPub Rp wDigest) 14).aRows ≤ Lq
+          rw [hout_lay.1]; omega
+        have hfOH : 8 * (OoutB).pH.rows ≤ Lq := by
+          change 8 * (outcLay (shdP_outcPub Rp wDigest) 14).hRows ≤ Lq
+          rw [hout_lay.2.1]; omega
+        have hE0 := rc_uexecP_E (h := hv) ..
+        rw [OC.runLog_fst] at hE0
+        have hW := vd_hW Rp 26 preA preB (clsStart DomB key hw) (fun _ => ViB) (fun _ => rcIncGeom ViB 28)
+          (d12aBlockProf (shdP_clampPk Pk0B) (shdP_sgeom Hdr (shdP_clampPk Pk0B)) (vdChk check0) paths digest
+            (fun _ => 38) (fun _ => 14) bndCheck (cbBndOpen tag 38))
+          (fun _ v => FoB v) (fun _ => rcOutcGeom (FoB 0) 28) P (CinB) (le64_of_le20 hL20) (shdP_hr tag hL20)
+          (shdP_honestIn (Hdr := Hdr) tag epBase).base 768 key DomB (RnB) hw
+          (shdP_rtRun_hdr Lq hL20 tag key DomB hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest bOutRow
+            HPk0B check0 paths digest bndCheck)
+          ViB FoB (fun _ => rfl) (fun _ _ => rfl) (vdChk_le check0) bl_zero_lt_26_blk
+          (rcIncPart ViB 256 256) (rcOutcPart (FoB 0) 256 256 1) A G hv
+        have hIS := shd_incSum_run shdP_U shdP_hbij tag (le64_of_le20 hL20) HsB HLB hL64 26 preA preB
+          (clsStart DomB key hw) (fun _ => ViB) (fun _ => rcIncGeom ViB 28) (fun _ v => FoB v)
+          (fun _ => rcOutcGeom (FoB 0) 28) (shdP_clampPk Pk0B) (shdP_sgeom Hdr (shdP_clampPk Pk0B)) (vdChk check0)
+          paths digest (fun _ => 38) (fun _ => 14) bndCheck (cbBndOpen tag 38) (RnB) HvB rcCx0
+          (rcIncPart ViB 256 256) (rcOutcPart (FoB 0) 256 256 1) (IinB) (OoutB) (BpB)
+          (fun _ => 1 + 1 + 38) (fun _ => 2) (fun _ => 64)
+          (shdP_rtRun_σs Lq hL20 tag key DomB hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest bOutRow
+            HPk0B check0 paths digest bndCheck)
+          le_rfl (fun _ _ => rfl)
+          (rcIncAt_pA_stage shdP_U tag Lq hL20 (shdP_incPub Rp embDigest embFold) (shdP_incGeo bInRow)
+            shdP_stgDim shdP_epDim 3 256 28 (by norm_num) (by norm_num) (by show 2 ^ 12 + 256 ≤ 2 ^ 15; norm_num)
+            (by show 2 ^ 8 + 256 ≤ 2 ^ 15; norm_num) rfl)
+          (rcIncAt_pH_stage shdP_U tag Lq hL20 (shdP_incPub Rp embDigest embFold) (shdP_incGeo bInRow)
+            shdP_stgDim shdP_epDim 3 256 28 (by norm_num) (by norm_num) (by show 2 ^ 12 + 256 ≤ 2 ^ 15; norm_num)
+            (by show 2 ^ 8 + 256 ≤ 2 ^ 15; norm_num) rfl)
+          (rcOutcAt_pA_stage shdP_U tag Lq hL20 (shdP_outcPub Rp wDigest) (shdP_outcGeo bOutRow)
+            shdP_stgDim Exec.Block.R13.blkDim 27 2 256 28 1 (by norm_num) (by norm_num)
+            (by show 2 ^ 12 + 256 ≤ 2 ^ 15; norm_num) (by show 2 ^ 14 + 256 ≤ 2 ^ 15; norm_num) rfl)
+          (rcOutcAt_pH_stage shdP_U tag Lq hL20 (shdP_outcPub Rp wDigest) (shdP_outcGeo bOutRow)
+            shdP_stgDim Exec.Block.R13.blkDim 27 2 256 28 1 (by norm_num) (by norm_num)
+            (by show 2 ^ 12 + 256 ≤ 2 ^ 15; norm_num) (by show 2 ^ 14 + 256 ≤ 2 ^ 15; norm_num) rfl)
+          (shdP_rtBlk_pA_r13 shdP_U Lq hL20 tag HPk0B) (shdP_rtBlk_pH_r13 shdP_U Lq hL20 tag HPk0B)
+          hfIA hfIH hfOA hfOH (fun _ => by change 8 * 4577 ≤ Lq; omega) (fun _ => by change 8 * 4390 ≤ Lq; omega)
+          (vdWin ViB) (vdWout FoB) (ViB).lay.logupSumClaim (FoB 0).lay.logupSumClaim 15 8 14 (fun _ => rfl)
+          (fun _ v => by
+            show (outcLay (rcVerdict (shdP_outcPub Rp wDigest) v) 14).logupSumClaim
+              = (outcLay (rcVerdict (shdP_outcPub Rp wDigest) 0) 14).logupSumClaim
+            rw [rc_outcLay_verdict, rc_outcLay_verdict])
+          (fun _ => (shdP_incPub_logs Rp embDigest embFold).2.2.2.2)
+          _ abRdIn (2 ^ 26) RkDLB (shdRkD_eq_ebData ..) hDV (Rp.blks.length + 2)
+          (le_of_eq ((RtRun.parts_length _).trans (congrArg (fun n => n + 2) (shdP_blks_length hR).symm)))
+          A G hE0 hW.1 hW.2 (fun h => hb (Or.inl h)) hA shdP_hU rfl (shdN_ti tag Rp embDigest embFold bInRow)
+          (shdN_voc tag Rp embDigest embFold bInRow) rfl
+        exact shd_hLI_run key DomB HsB Lq HLB (RnB).pf (RnB).rd hL64 HvB shdP_U shdP_hbij RkDLB hDV shdP_hU
+          (Rp.blks.length + 2) (by rw [RtRun.parts_length]; omega) (by omega) tag (le64_of_le20 hL20) Rp.inp
+          P0inB ViB (shdEpad Rp.inp) ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          ((RnB).pf.off 0 + 2) (IinB).pA.rows (IinB).pH.rows (PXkB 0).rows (by omega)
+          (shdN_rA (Hdr := Hdr) tag Rp embDigest embFold bInRow Lq hL20) (shdN_rX tag) (CsIOIB)
+          (vwLoc_stgCsIOm shdP_U 6 8 256 _ 14 256 _ _ _
+            (vwLoc_epUxV tag Lq (le64_of_le20 hL20) key DomB HsB HLB 6 _ (by omega))
+            (vwLoc_bxUxV tag Lq (le64_of_le20 hL20) _ _ _ (by omega)))
+          (fun _ _ => rfl)
+          (ssh_hIO1m shdP_U shdP_hbij shdP_hU ViB 6 8 256 _ 14 256 _ _ (shdP_hwO tag Rp embDigest embFold bInRow))
+          (shdRkD_r0_zero ..)
+          (shdN_P tag Rp embDigest embFold bInRow (A.run G).1.hdr)
+          (fun _ => (IinB).hgt (A.run G).1.hdr) (fun _ k hk => ((IinB).hgeomL (A.run G).1.hdr _ k hk).1)
+          (shdN_sl tag Rp embDigest embFold bInRow) (shdN_d1 tag Rp embDigest embFold bInRow) (shdN_d2 tag Rp embDigest embFold bInRow)
+          (shdN_ti tag Rp embDigest embFold bInRow) (shdN_voc tag Rp embDigest embFold bInRow) (shdN_tB tag Rp embDigest embFold bInRow) (shdN_bIn tag Rp embDigest embFold bInRow)
+          (shdN_Gb tag Rp embDigest embFold bInRow) (shdN_lt tag Rp embDigest embFold bInRow) (shdN_lc tag Rp embDigest embFold bInRow)
+          (shdN_bos tag Rp embDigest embFold bInRow O.inPub) (shdN_kap tag Rp embDigest embFold bInRow O.inPub) (shdN_ns tag Rp embDigest embFold bInRow)
+          hV131072 hEmb (shdN_v tag Rp embDigest embFold bInRow hV131072) O.inPub.V2 (shdN_tok tag Rp embDigest embFold bInRow)
+          (shdN_cq tag Rp embDigest embFold bInRow)
+          G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) hR0
+          ⟨hIS, hZS A G hDV hv hb hB hM hA hsl hR0 hR1 hH0 hH1⟩)
 
 end BlkIOlTop
 
