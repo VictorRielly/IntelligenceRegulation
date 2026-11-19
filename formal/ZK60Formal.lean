@@ -570,3 +570,4 @@ import ZK60Formal.RunStgShieldClSJ
 import ZK60Formal.RunStgShieldClBlkLu
 import ZK60Formal.RunStgShieldClBx
 import ZK60Formal.RunStgShieldClTopL
+import ZK60Formal.RunStgShieldOutZero

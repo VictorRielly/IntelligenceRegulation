@@ -436,3 +436,5 @@
 'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv_cl' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.cl_agree' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkCl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.vwLoc_sshΦO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stg_outc_def_zero_tau' depends on axioms: [propext, Classical.choice, Quot.sound]

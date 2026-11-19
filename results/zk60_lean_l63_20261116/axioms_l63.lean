@@ -17,6 +17,7 @@ import ZK60Formal.RunStgShieldClSJ
 import ZK60Formal.RunStgShieldClBlkLu
 import ZK60Formal.RunStgShieldClBx
 import ZK60Formal.RunStgShieldClTopL
+import ZK60Formal.RunStgShieldOutZero
 import ZK60Formal.RunStgShieldTopL
 import ZK60Formal.RunStgShieldIncAt
 import ZK60Formal.RunStgShieldIncJoin
@@ -568,3 +569,6 @@ import ZK60Formal.RunStgShieldRbr
 -- RunStgShieldClTopL.lean
 #print axioms ZK60.ProtocolClassify.cl_agree
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkCl
+-- RunStgShieldOutZero.lean
+#print axioms ZK60.ProtocolClassify.vwLoc_sshΦO
+#print axioms ZK60.ProtocolClassify.stg_outc_def_zero_tau
