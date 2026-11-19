@@ -575,3 +575,5 @@ import ZK60Formal.RunStgShieldOutCube
 import ZK60Formal.RunStgShieldOutEval
 import ZK60Formal.RunStgShieldOutLzc
 import ZK60Formal.RunStgShieldOutDzc
+import ZK60Formal.RunStgShieldOutDzcV
+import ZK60Formal.RunStgShieldOutAt
