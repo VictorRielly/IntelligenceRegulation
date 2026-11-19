@@ -1,6 +1,22 @@
 import ZK60Formal.RunStgShieldIncBT
 import ZK60Formal.RunStgShieldInXEp
 import ZK60Formal.RunStgShieldOutNum
+import ZK60Formal.RunStgShieldClCover
+import ZK60Formal.RunStgShieldClEb
+import ZK60Formal.RunStgShieldClChain
+import ZK60Formal.RunStgShieldClJoin
+import ZK60Formal.RunStgShieldClWire
+import ZK60Formal.RunStgShieldClDef
+import ZK60Formal.RunStgShieldClTrue
+import ZK60Formal.RunStgShieldClClaimsO
+import ZK60Formal.RunStgShieldClClaimsW
+import ZK60Formal.RunStgShieldClDg
+import ZK60Formal.RunStgShieldClPins
+import ZK60Formal.RunStgShieldClTrO
+import ZK60Formal.RunStgShieldClSJ
+import ZK60Formal.RunStgShieldClBlkLu
+import ZK60Formal.RunStgShieldClBx
+import ZK60Formal.RunStgShieldClTopL
 import ZK60Formal.RunStgShieldTopL
 import ZK60Formal.RunStgShieldIncAt
 import ZK60Formal.RunStgShieldIncJoin
@@ -502,3 +518,53 @@ import ZK60Formal.RunStgShieldRbr
 #print axioms ZK60.ProtocolClassify.shdRkD_sls_out
 #print axioms ZK60.ProtocolClassify.shdRkD_lu_out
 #print axioms ZK60.ProtocolClassify.stg_outc_def_zero
+-- RunStgShieldClCover.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.rc_productionReadyL_runChainP_some_range_cl
+-- RunStgShieldClEb.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.eb_productionReadyL_run_epP_some_range_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.eb_productionReadyL_run_ep_tokenP_some_range_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.eb_productionReadyL_epP_some_range_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.eb_productionReadyL_epP_exec_some_range_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.eb_productionReadyL_epP_exec_top_range_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.eb_productionReadyL_epP_exec_rk_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.eb_productionReadyL_epP_exec_stage_cl
+-- RunStgShieldClChain.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_exec_blk_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_exec_alive_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_code_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_codeT_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireT_cl
+-- RunStgShieldClJoin.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireW_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireX_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireF_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_wireG_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.sjC_productionReadyL_epP_join_cl
+-- RunStgShieldClWire.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.bwC_productionReadyL_epP_wire_cl
+#print axioms ZK60.ProtocolClassify.RunShapeP.bwC_productionReadyL_epP_shield_cl
+-- RunStgShieldClDef.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_def_cl
+-- RunStgShieldClTrue.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_true_cl
+-- RunStgShieldClClaimsO.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsO_cl
+-- RunStgShieldClClaimsW.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_claimsW_cl
+-- RunStgShieldClDg.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_dg_cl
+-- RunStgShieldClPins.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pinsHd_cl
+-- RunStgShieldClTrO.lean
+#print axioms ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trO_cl
+-- RunStgShieldClSJ.lean
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldJ_cl
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldLu_cl
+-- RunStgShieldClBlkLu.lean
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLu_cl
+-- RunStgShieldClBx.lean
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIO_cl
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv_cl
+-- RunStgShieldClTopL.lean
+#print axioms ZK60.ProtocolClassify.cl_agree
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkCl

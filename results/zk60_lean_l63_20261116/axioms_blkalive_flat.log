@@ -14,3 +14,7 @@
 'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOl' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.shd_hdinX_blk' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOd' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.rc_productionReadyL_runChainP_some_range_cl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv_cl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.cl_agree' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkCl' depends on axioms: [propext, Classical.choice, Quot.sound]
