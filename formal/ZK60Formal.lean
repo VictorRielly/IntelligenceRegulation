@@ -577,3 +577,4 @@ import ZK60Formal.RunStgShieldOutLzc
 import ZK60Formal.RunStgShieldOutDzc
 import ZK60Formal.RunStgShieldOutDzcV
 import ZK60Formal.RunStgShieldOutAt
+import ZK60Formal.RunStgShieldOutSum
