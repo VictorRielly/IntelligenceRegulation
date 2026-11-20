@@ -591,3 +591,4 @@ import ZK60Formal.RunStgShieldOutRd
 import ZK60Formal.RunStgShieldOutLay
 import ZK60Formal.RunStgShieldOutTzc
 import ZK60Formal.RunStgShieldOutSat
+import ZK60Formal.RunStgShieldOutDoomC
