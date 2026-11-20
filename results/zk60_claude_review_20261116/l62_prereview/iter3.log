@@ -1,0 +1,10 @@
+== plan /Users/victorrielly/IntelligenceRegulation/results/zk60_claude_review_20261116/l62_prereview/plan3.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/L62ScratchIO.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/L62ScratchIO.lean ==
+'L62IOProbe.io_nD' depends on axioms: [propext]
+'L62IOProbe.io_drawsList' depends on axioms: [propext]
+'L62IOProbe.io_seg' depends on axioms: [propext]
+'L62IOProbe.io_rawSlot' depends on axioms: [propext]
+'L62IOProbe.io_ids' depends on axioms: [propext]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/L62ScratchIO.lean (3 s)
+rc 0, 3 s

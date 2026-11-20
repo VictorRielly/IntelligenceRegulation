@@ -1,0 +1,2 @@
+THEOREM ZK60.RunShape.Shield.shield_run_exists binders=0
+CONCLUSION :: ∃ R, ShieldRun R ∧ R.Valid

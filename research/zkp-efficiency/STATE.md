@@ -2,6 +2,420 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-20: Claude researcher tick 28, the Shieldstral shares re-paired to the app's profile W16R2_SHIELD (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web: a re-pairing item); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261120-claude-tick28-shield-repair.md) and its script `20261120-claude-tick28-shield-repair.py` (reads the coordinator's four GPU traces).
+- **The app's block has the 8B block's costs:** commit diag split inverse / forward / hash equals the 8B control's to 0.1 ms (f = 0.867, R13 0.855), slots 15 to 19 equal to under 0.1 ms. The only differences are the D-pad gate table: slot 14 +1.57 ms (37 tables against 36), slots 0 and 1 +0.34 and +0.40 ms (3 against 2), total +2.31 ms (MEASURED difference; tick 11's gate-table model predicted exactly those slots). Row totals from the commit records: 2,504 + 2,606 at both W16R2 profiles, 4,577 + 4,390 at R13_SHIELD.
+- **Re-paired shares (cadence 4.381 s, 26 blocks, full pass-through):** commit 30.6% of block GPU (not 43.7%); free NTT x1.36 (14.9%), traffic-floor kernel x1.14 (6.9%), H117b x1.09 (4.8%), padded-pair skip 5.5 to 10.2 ms = 5.8 to 10.8% of block, 3.3 to 6.1% of cadence (phase split ASSUMED from the 8B arm B), tail 5.9 / 13.5 / 25.6% (8B ms), K5 about 1.7%, plain two-table 2.9% batched, padded commit 4.6%, pad rule at most 1.4%. No decision flips; the R13 values must be labelled R13_SHIELD.
+- **Flag sharpened:** block GPU is 56% of the app's cadence (168.5 ms per block) against 78% at the 8B harness; unexplained from retained records; test S2 (a stream run on the current binary) stated, NOT scheduled. Other tests (arm B phase split at this profile, plane lists P2c') stated, NOT scheduled. Effect on committed words: 0; on proved tokens/s: none from this tick. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-20: Claude researcher tick 27, Shieldstral stream value of dropping committed padding, and a profile-pairing correction to tick 26 (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web: a local item); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261120-claude-tick27-shieldstral-padding-stream.md) and its script `20261120-claude-tick27-shieldstral-padding-stream.py`.
+- **Correction to tick 26 (and the Shieldstral shares of ticks 11, 21, 22):** the 174.25 ms block GPU and the 76.2 ms commit are the R13_SHIELD profile; the padded fraction 26.96% is the W16R2 one; the installed app has been W16R2 since 2026-11-13. Tick 26's 20.5 ms / 11.8% is a cross-profile product. R13's own fraction is 26.50% (R13_8B lists assumed at Shieldstral padding): 20.2 ms, 11.6% of 174.25, 6.6% of R13's cadence (7.948 s).
+- **At the app's profile (W16R2 Shieldstral):** measured cadence 4.381 s per T128 request (A30/A31 benchmark, 29.22 tok/s, binary of 2026-11-12, two samples per arm). Same row total as the 8B block, so commit about 27.9 ms (31.9 upper); padded part 7.5 to 8.6 ms per block = **4.5 to 5.1% of the cadence at full pass-through**, at the 5% line: not scheduled. W16R2_SHIELD block GPU is unmeasured (about 88 to 95 ms from older wall-phase sums, weak).
+- No retained record has Shieldstral plane lists (P2c open). Tests P2c' (census at both Shieldstral profiles), S1 (slot census at W16R2_SHIELD, decides whether the padded-pair-skip share of 5.7 to 10.5% survives the re-pairing), B1 (one quiet solo block at W16R2 Shieldstral) stated, NOT scheduled. Effect on committed words: none; on proved tokens/s: a compact layout at most x1.05 (ceiling). Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-20: Claude researcher tick 26, committed padding words and the pad rule's cost (claude-cycle)
+
+**COMPLETE, local counting plus a short web screen** (2 searches, 2 fetches: ePrint 2025/917 abstract page and an explainer); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261120-claude-tick26-padding-words.md) and its script `20261120-claude-tick26-padding-words.py`.
+- **Committed padding per block (DERIVED from COUNTED plane lists):** 304 of 5,103 rows (5.96%) at W16R2_8B (only F pads, 12.5%), 1,376 rows (26.96%) at the Shieldstral profile (D 25%, F 43.75%); 79.7 MB and 360.7 MB per block, 2.55 GB and 9.38 GB per request. Both profiles commit the same 1.338 GB per block (identical row totals), so the 3B block carries 27% fewer live words. 5.7% / 27.6% of the counted lookups sit on padded positions.
+- **Value:** commit-time bound (cost linear in rows) 1.66 ms per 8B block, at most 1.4% of the cadence: not a speed item at 8B; 20.5 ms (11.8% of production block GPU) at Shieldstral, which needs a compact commitment (jagged, ePrint 2025/917, abstract level only; zero knowledge and PCS fit unread) and a new profile.
+- **Pad rule cost:** one 9-plane group in slot 18 at 8B (19 planes in slot 14 at Shieldstral); in the kernel it is 2 of 25 `f2_mul` and 1 of 21 tables. New observation: the term is identically 0 in rounds 0 to 6, and the batch is linear in the planes, so it can be built after round 6 (H165, prover-only, same words out): 0.44 to 1.30 ms per 8B block, at most 1.1% of cadence; dropped at 8B, overlaps the padded-pair skip at Shieldstral.
+- Tests P2c (census at the Shieldstral profile), P3 (pad term zero in rounds 0 to 6, CPU) stated, NOT scheduled. Effect on committed words: 0 for the lazy node, up to -5.9% / -26.7% for a compact layout; on proved tokens/s: x1.00 to x1.01. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-20: Claude researcher tick 25, GPU witness generation against the sealing pass (claude-cycle)
+
+**COMPLETE, web reading plus local counting** (6 searches, 6 fetches; ZKPoG, MegaZK, ZK-Tracer at abstract level, the cost survey 2611.17042 first 100,000 characters, EmuGEMM summary); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261120-claude-tick25-gpu-witness.md) and its script `20261120-claude-tick25-gpu-witness.py`.
+- **Queue item 5's pointer was a misread:** EmuGEMM (arXiv 2606.25453) emulates FP32/FP64 GEMM on INT8 tensor cores (GH200 and B200 only); it has no witness or ZK content. No published GPU witness design maps onto the sealing chain (ZKPoG: Plonkish on an RTX 4090, 22.8x end to end [AUTHORS], no witness-stage figure; MegaZK's "more than 25%" is witness plus commit, quotient and FRI combined).
+- **Local count (Batch 8, MEASURED, DERIVED):** products are already on the GPU and are 17% of the 2.183 s solo sealing pass; 79.8% is host work. 5090 floors for the products are 0.067 ms (arithmetic) and 0.122 ms (weights) per block, 3.9 ms per request [third-party spec figures], so a GPU does not help by speeding the products. What is left to move: histograms and limb planes, 0.667 s (30.6% of the pass, 20.8 ms per block), exact, same words out; 1.135 s with attention and requant. PCIe upload of host-built A planes on a discrete GPU would be 9.6 GB per request (0.17 to 0.24 s, DERIVED, overlappable).
+- **Lead:** `check_accuracy_for_shape` takes no request input and scans 218 MB per block per request (group b, 0.128 s, 5.9% of the pass); a per-block memo would remove it (startup-load overlap and the H-1 refusal order not checked).
+- Test W1 (Metal micro-bench of histograms and limbs; pass at most 6 ms per block, kill above 11) stated, NOT scheduled; no stream gain while the prove call paces the stream (A33). Effect on committed words: 0; on proved tokens/s: 0 now, up to about x1.2 to x1.3 on the sealing side once the prove call is near 2.5 to 3.0 s (MODEL). H164 added. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-20: Claude researcher tick 24, inventory of the host-only time of a prove call (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web; `STREAM_GPU_PHASES.md` and its saved gap output, A33 and A34 records, Batch 6 one-block log, efficiency plan, `MVP_STATUS.md`, coordination file by grep); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261120-claude-tick24-host-only-inventory.md) and its script `20261120-claude-tick24-host-only-inventory.py`.
+- **Union wall time by class** (serve4 beside, P 3.809 s, host-only 1.109 s, COUNTED from the saved output): opening host work 277 ms (7.3% of P), serial small-commit loop 202 (5.3%), next block's A build 97, join gathers 70 (strict transcript chain, cannot change), between small slots 68, slots to slot 14 63, hand-over 59, A to H commit 52. No host class has changed since the Batch 7 reference: A33 touched the sealing pass only, A34 stopped at the investigation (needs `pcs.rs`), A9 not taken. Item 40 closed: the class is 63 ms (1.7% of P) in wall time, 105 ms solo (2.9%).
+- **All ten rows together are 888 ms: with every one gone P would still be about 2.92 s (upper bound, not additive), above the 2.56 s target.** The host-only pool cannot reach the target alone.
+- **Leads found by setting A33 beside the inventory** (DERIVED from the two-lane model, fit untested for shifts): A33 turned 0.28 s of sealing time into waiting, so about 0.22 s of host work can move from the prove call into the sealing turn before the sealing side paces again. L1: commit the boundary planes in the sealing turn (C1 + C7 = 261 ms; F4 wording and pins change; owner ruling). L2: re-measure A13's window (`HL_D55_AHEAD=16`, no code, never measured on a prover-paced stream); pass at least 3% cadence in 6 of 6 pairs, kill within 1%. L1 and L2 share the budget.
+- Caveats: reference binary predates A33 and the trace was on; slots 5 to 13 host time differs by up to x2 between two Batch 6 logs and tick 20 (item 44). Effect on committed words: 0; on proved tokens/s: ceiling about x1.06 on cadence from moving work, none claimed. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-19: Claude researcher tick 23, specification of the NTT-only bench for the commit kernels (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web; `metal_kernels.metal`, `metal.rs`, K0/K1/K4 record, tick 21); no run, no build, no Git. Specification only, not scheduled. Triage material (no ruling).
+[Handoff](handoffs/20261119-claude-tick23-ntt-bench-spec.md) and its script `20261119-claude-tick23-ntt-bench-spec.py`.
+- **Two-term model:** K4-rate arithmetic plus tick 21's traffic floor with no overlap gives 0.92 to 1.02 of measured NTT times at four shapes (e.g. 4.0 to 4.4 ms against 4.110, 8B A inverse); either term alone is 0.45 to 0.60. The kernels look serial in load, compute, store; the bench must test overlap. A prediction to falsify, not a finding (shift multiply never timed).
+- **Reading findings:** the head's input read is a bit-reversed gather (about 1/8 line efficiency per group, index map only, line size assumed); production 8B forward in ZK mode is NOT pruned (extent 2^14 + q > 2^14) while the plain diag is, plus a `gl_mul` by `pows` per word: about 0.4 to 0.5 ms per A commit, against 1.32 ms unexplained between commit and diag parts.
+- Ceiling of a shift-only 2^6 x 2^6 x 2^k split (general multiplications 0.40 to 0.50 of today's): 2.7 to 3.2% of 8B block GPU (at most 2.5% of cadence), 4.6 to 5.5% at Shieldstral, before the extra pass; no commitment change. Bench N0 to N5 and pre-stated readings in the handoff. Effect on committed words: 0; on proved tokens/s: none proposed. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-19: Claude researcher tick 22, recheck of every thresholded decision against the production denominator (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web; ticks 11 to 21, the slot breakdown README, `STREAM_GPU_PHASES.md`); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261119-claude-tick22-denominator-recheck.md) and its script `20261119-claude-tick22-denominator-recheck.py`.
+- **No decision flips.** G1 (plain two-table slots 2.47% / 0.87% of production block GPU at 8B), the padded-pair skip (dropped at 8B: 1.3 to 2.3%; kept at Shieldstral: 5.7 to 10.5%, tick 21 wrote 10.0), the tail (6.1 / 13.8 / 26.3% solo, cadence 2.5 to 3.9% if free), H133/H161/H134 (superseded by K1's 0.11 to 0.19 loads share) and the batch gap (12.4%) all stand; the K5 split at Shieldstral is 3.4% of block GPU, the nearest to the 5% line.
+- **Second error found:** "stream GPU-paced, cadence 3.7455 s against 3.753 s solo sum" was an accident of the inflated denominator (cadence / 32 = 117.05 ms). Production solo sum is 2.927 s (78% of cadence); the prove call is 68 to 72% GPU-busy; the Batch 6 one-block log (93.48 ms) agrees with 91.462 within 2.2%. Old 8B shares equal cadence shares numerically (upper bounds at full pass-through); new shares must not go into 1/(1-s). Tick 21's x1.10 / x1.36 / x1.15 are x1.076 / x1.261 / x1.112 on 8B cadence at most.
+- **Lead:** tick 20's host matmul claims (0.38 to 0.48 thread-s per request) match the "slots to slot 14" host gap (1.06 thread-s, 0.40 s exposed, 10.5% of a prove call); tick 20's "hidden" premise is withdrawn. Test T1 (reading) and item 40 queued. Effect on committed words: 0; on proved tokens/s: none from this tick. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-19: Claude researcher tick 21, NTT / hash split of commit_A + commit_H and a denominator error in the slot breakdown (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web; the externalized GPU traces of the slot breakdown, `metal.rs`, analyzer and run scripts); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261119-claude-tick21-commit-split.md) and its script `20261119-claude-tick21-commit-split.py`.
+- **f = 0.868 (W16R2_8B) and 0.855 (Shieldstral)**: the `HL_METAL_TIMING=1` diag records re-run each commit as inverse NTT, forward NTT and hash (8B: inverse 8.3 ms, forward 14.0, hash 3.4 per block; Shieldstral 14.5, 49.3, 10.8). The diag sum is 0.91 to 1.00 of the commit.
+- **Denominator error:** those same diag records are what the breakdown README calls "store fold with pads" (`other_diag_ms`, 21.9% and 30.0% of the "block GPU"). Production does not run them (`HL_METAL_TIMING=0` in the stream). Production block GPU is 91.46 ms (8B) and 174.25 ms (Shieldstral), not 117.285 and 248.899; every block-GPU share in ticks 11 to 20 is low by x1.28 (8B) or x1.43 (Shieldstral). The G1 drop (tick 20, 2.47% corrected) stands; thresholded statements need a recheck (queue item 38).
+- Commit_A + H is 30.5% / 43.7% of production block GPU, its NTT 26.5% / 37.4%; free-NTT ceilings x1.36 / x1.60 (not estimates). NTT kernels run 2.1 to 2.3x over a 700 GB/s traffic floor (DERIVED); at the floor x1.15 / x1.25. H117b (drop the inverse NTT) is 9.1% / 8.3% of block GPU (x1.10 / x1.09), consistent with the deferral note. G3 dense GEMM: about 2,000x the arithmetic per row on a kernel already 2x off its floor; stays unscheduled.
+- Caveats: diag forward is the plain mode and diag hash the old form, so f is of re-run parts; production-mode commit trace (T1) not available. Effect on committed words: 0; on proved tokens/s: none proposed. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-19: Claude researcher tick 20, which device sumcheck slots are plain two-table sums (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web; slot breakdown `summary.json`, two raw logs, layout and timing sources); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261119-claude-tick20-two-table-slots.md) and its script `20261119-claude-tick20-two-table-slots.py`.
+- **G1 has no target among the sumcheck slots.** The plain two-table degree-2 device slots are 21 and 22 (endpoint equalities; slot 20 at Shieldstral): 1.93% batched / 0.68% unbatched of block GPU at W16R2_8B, 1.12% / 0.33% at Shieldstral (DERIVED from MEASURED). Under the 5% rule: G1 dropped as a sumcheck-kernel project; tick 19's T1 not scheduled. The generous reading (all device slots with at most 4 tables and degree at most 3) is 5.93% / 1.85% at 8B, 3.26% / 0.98% at Shieldstral.
+- **The matmul claims are host work on small cubes** (slots 5 to 13, 2^10 to 2^14, 12 to 15 ms per block together in the logs, 0 GPU ms). Round 0 of slot 21 (0.043 ms) is already at the copy roofline; later rounds sit on the 0.02 ms dispatch floor.
+- Caveats: `summary.json` census is profile R13_8B (big-slot table counts differ from the timed W16R2_8B); slot 20 has no unbatched figure; slot 21/22 shape read from the census, not the kernel. Effect on committed words: 0; on proved tokens/s: none (at most 0.68% of block GPU). Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-19: Claude researcher tick 19, TensorZKP (ePrint 2026/1250) full read against the G1 and G3 tracks (claude-cycle)
+
+**COMPLETE, web reading** (2 searches, 5 fetches; USENIX Security 2026 PDF read in full from locally extracted text, the ePrint PDF 403 and `ia.cr` 404, the Zenodo artifact listed but not downloaded); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261119-claude-tick19-tensorzkp.md) and its script `20261119-claude-tick19-tensorzkp.py`.
+- **What it is:** H100, BabyBear degree-8 extension (32 B per element; section 4.1 says a 32-bit prime with k = 4, section 7.1 says k = 8), HyperPlonk plus Brakedown, INT8 limb matrix products with INT32 accumulators (N < 33,025 per chunk), Spielman encoder as a gathered batched inner product [paper]. 2^25: inner product 0.85 ms, degree-2 sumcheck 4.04 ms, encoder 11.58 ms, end to end 215.28 ms (955x CPU, 36.2x SIMT GPU) [AUTHORS]. Table 1 breakdown: permutation check 62%, encoder 23%, zero-check 8%, Merkle 4% (sums to 216.49, DERIVED). **No zero knowledge anywhere in the text**; rate, distance and queries of the code are not stated.
+- **Finding:** the primitives run at 70 to 80% of H100 bandwidth (DERIVED), so tensor cores moved a compute-bound kernel to the memory limit; degree 3 is not tensorized (elementwise product on ordinary cores). Not a sound form of G3 (the authors keep the sparse linear code and reject the dense matrix-NTT route; no measurement of G3's premise). For G1 it evidences only two-table inner products and folds; the project's zero-check body is not that shape and its fold is already at the copy roofline (K0). Metal has no integer `simdgroup_matrix` found: half inputs with float accumulators give N <= 258 per accumulator, not 33,025. If the G1 note's 1,500 TOPS counts two operations per multiply-accumulate its roof ratios halve (24.5x to 98x).
+- Effect on committed words: 0 (G1), unmeasured (a Spielman code changes openings). On proved tokens/s: none on the evidence. Test T1 (one small Metal bench against the copy roofline) and local items 36 and 37 proposed, NOT scheduled. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-19: Claude researcher tick 18, incremental proofs and KV or proof-state reuse for autoregressive decoding, published since 2026-09-26 (claude-cycle)
+
+**COMPLETE, web reading** (7 searches, 8 fetches; ZK-DeepSeek and SLP read in full from extracted PDF text, DeepProve and VeriAttn abstract only; DeepProve PDF 403); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261119-claude-tick18-incremental-decode.md) and its script `20261119-claude-tick18-incremental-decode.py`.
+- **No cross-token proof state for hidden activations found** [searches]. ZK-DeepSeek (arXiv 2511.19902) keeps kv/pe caches as plain files per layer, no commitment or binding; its "incremental" is a softmax input split in segments of 32; CPU o1js, hours per component [AUTHORS]. SLP (arXiv 2609.27367) proves a whole trace; context 8 to 16 costs +4.4% [AUTHORS], consistent with weights dominating. VeriAttn (arXiv 2606.16352) is TEE-based, not a proof system.
+- DeepProve's abstract certifies "the output sequence" without in-circuit RAM, which reads as a teacher-forced single pass (body NOT read). Self-reported 174 / 86 tokens/min (2.9 / 1.43 tok/s) [AUTHORS]; its README and abstract disagree.
+- Prefix re-proving is 256.5x one pass at N = 512 [DERIVED] but the window proof already avoids it; carried state buys latency only. H163 (counting test of the carried-state words, pass under 10%, kill over 25%) is not proposed as a speed item. Effect on committed words: 0; on proved tokens/s: none. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-18: Claude researcher tick 17, where the batched-minus-unbatched GPU gap per slot sits (claude-cycle)
+
+**COMPLETE, local reading and arithmetic only** (slot 18/14 breakdown `summary.json`, `knob_probe.json`, `metal.rs` batched and unbatched paths, `k_sc_fs_step`); no web, no run, no build, no Git. Triage material (scheduling and kernel latency, no ruling).
+[Handoff](handoffs/20261118-claude-tick17-batch-gap.md) and its script `20261118-claude-tick17-batch-gap.py`.
+- **What the arms measure** [COUNTED]: A's one command buffer holds the transcript step (`k_sc_fs_step`, one threadgroup, serial hashing by thread 0) and `k_sc_part_reduce`; B sums partials and runs Fiat-Shamir on the host, outside its GPU intervals. So the gap is device work B does elsewhere, not dead time, plus A's extra rounds. Wall check [MEASURED]: device-round wall per block A 72 ms against B 89 ms (8B), prove core 0.327 against 0.360 s.
+- **Split, W16R2_8B** [DERIVED]: gap 18.5 ms = 7.1 ms extra rounds (knob 250, measured) + 11.3 ms at equal rounds (9.6% of block GPU, 0.94 ms per slot). Not constant per batch: residual per A round 0.10 to 0.12 ms at degree 3 to 4 slots, 0.06 to 0.07 at degree 2, 0.14 at degree 5; negative intercept in a line fit. Shieldstral about 12.4 ms (5.0%, extrapolated).
+- **Not settled:** slots 21 and 22 (same shape, one round apart) differ by 0.013 ms, and the knob probe's first three rounds cost 0.27 to 0.35 ms each but the fourth 0.09; no kernel timing exists. Tests: K9 (micro-benchmark of `k_sc_fs_step` and `k_sc_part_reduce`, pass >= 0.06 ms at 4,096 partials, d1 = 5) and T1 extended. Fix R1 (concurrent per-point reductions, in-kernel partial reduction) is protocol-neutral. Effect: x1.01 to x1.02 on cadence (2.2 to 3.5% ceiling if the stream hides it like the tail). Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-18: Claude researcher tick 16, size of the tail sumcheck rounds in the real prover over all slots, and their encoding (claude-cycle)
+
+**COMPLETE, local reading and arithmetic only** (slot 18/14 breakdown `summary.json` and `knob_probe.json`, `metal.rs` batched path); no web, no run, no build, no Git. Triage material (scheduling only, no ruling).
+[Handoff](handoffs/20261118-claude-tick16-tail-size.md) and its script `20261118-claude-tick16-tail-size.py`.
+- **Tail = rounds j >= 5, all 12 device slots, W16R2_8B** [MEASURED sums]: Arm B 5.54 ms (4.7% of 117.3 ms block GPU); production runs 36 more batched rounds (3 per slot) that cost 7.12 ms solo (knob 250). Central 12.7 ms = 10.8% of block GPU (0.41 s per request), range 4.7 to 20.5% (upper end charges the whole batch gap to the tail). Shieldstral: Arm B 8.84 ms (3.6%), central about 15 ms (6.1%, extrapolated), upper 11.3%. Corrects tick 15's "about 1%" (slot 18 only) upward for the solo block.
+- **Encoding** [COUNTED]: one command buffer and one serial encoder per slot; per round fold, xfold (m > 0), round kernel, part-reduce (only above 4,096 threads), one-threadgroup `k_sc_fs_step`; the host finish already exists (25 microsecond budget, knob to 250). No split kernels ship, so K6 does not apply.
+- **The stream hides most of it** [DERIVED]: the 3 trailing rounds are 228 ms per request solo but 52 to 82 ms in the two-lane stream (64 to 77% hidden). Whole central tail if free: 2.5 to 3.9% of cadence; a persistent-kernel project is bounded by the same 52 to 82 ms (1.4 to 2.2%) and fits threadgroup memory only for rounds the host already takes. Realistic x1.01 to x1.02. About 0.8 ms per batch of A-minus-B gap is unexplained and not tail (about 9 to 10 ms per block, DERIVED).
+- Tests: T1 (sweep `HL_METAL_BATCH_TAIL_US` over 25 to 2500, fit marginal cost per round; pass floor >= 0.09 ms beyond round 10, also removes the Shieldstral extrapolation), T2 (the per-batch fixed 0.8 ms). Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-18: Claude researcher tick 15, census of the shipped later-round body and where its time over the product floor sits (claude-cycle)
+
+**COMPLETE, local counting and reading** (generated `k_v13` at four shapes parsed in full, the K0 to K5 bench folder and raw K5 per-round timings re-summed) plus 4 searches and 3 page reads on Apple GPU registers; **no measured improvement by me**, no build, proof, GPU run or Git. Triage material (kernel scheduling only, no ruling).
+[Handoff](handoffs/20261118-claude-tick15-body-census.md) and its script `20261118-claude-tick15-body-census.py`.
+- **Census** [COUNTED]: Shield slot 14 has 67 extension products (22 with a coefficient), 48 extension-by-base, 67 line values, 431 base multiplications per point; slot 18 213; 8B slots 260 and 143. Zero duplicate products, so common-subproduct sharing (c) is empty; fewer points (d) is already in (np 4).
+- **The "4 to 8x over the floor" was mostly the tail** [MEASURED rounds, DERIVED floor]: rounds 6 on are 36% (Shield 14), 20%, 41% (8B 14), 23% of v13's total and do not move with the split. The bulk (rounds 1 to 5) is 2.6 / 1.6 / 2.1 / 1.4x above a floor that now includes additions and line values, and 1.6 / 1.3 / 1.6 / 1.3x after G=4: the split already took half to two thirds of the gap.
+- **Tail law** [DERIVED fit]: tail per round = 0.91 microseconds x base multiplications per point at all four shapes (within 1.2%), against 0.015 to 0.041 ms for loads alone; about 14x K4's dependent gl_mul latency. Candidates: instruction fetch (12 KB instruction cache published for M1/M2 only), spills, clock state. Not a throughput floor.
+- **Registers** [published, M1 family]: 128 words per thread, 104 half-words for full occupancy; M3 allocates dynamically (Apple talk) with no stated limit. Live data words with all loads first: 272 / 132 / 160 / 92; loads at first use: 112 / 76 / 80 / 56 [COUNTED, heuristic].
+- **Delayed reduction** at most 3% of bulk time; production tail only about 1% of block GPU (135 to 240 microseconds per round), so x1.00 to x1.02. Tests K6 (concurrent dispatch of the split kernels, tail per round at most 0.20 ms against 0.41), K7 (same work in small code, at most 0.10 ms), K8 (loads at first use). Hypotheses 162 (as recorded by the coordinator). Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-18: Claude researcher tick 14, per-slot table traffic model for H133 and H134 from counts (claude-cycle)
+
+**COMPLETE, local counting** (A27 slot libraries for both profiles parsed in full, `metal_slot.rs`, `metal.rs`, `metal_kernels.metal`, the slot 18/14 breakdown `summary.json`) plus 2 searches for hardware figures; **no measured improvement by me**, no build, proof, GPU run or Git. Triage material (kernel and buffer layout only, no ruling).
+[Handoff](handoffs/20261118-claude-tick14-slot-table-traffic.md) and its script `20261118-claude-tick14-slot-table-traffic.py`.
+- **H134 is nearly empty** [COUNTED]: after A27's materialization, 0 to 1 original table per slot is not read by the later-round kernel (W16R2_8B slot 18: 1 of 19; slot 14: 0 of 36; Shieldstral slots 14 and 18: 1 each). Skipping those folds is worth 0.1 to 0.2% of block GPU [DERIVED].
+- **Fold is 76% of window 1's distinct bytes in slot 18** (1,107 of 1,460 MB); windows 0 to 4 of slots 14 to 19 are 33.6 ms, 28.6% of the 8B block GPU (24.7% Shieldstral), the ceiling for any traffic cut [DERIVED from MEASURED ms].
+- **Correction to tick 13:** fused fold-eval alone is not 17 to 22%; a fused kernel reads the unfolded table, so it pays only if re-reads are cache hits and is negative (-3.8% of block) if they reach DRAM. Single fetch carries the gain; both together: 4.3% of block GPU if re-reads are cache hits, 12.7 to 15.6% if all reach DRAM (upper bounds, 8B; about x1.04 to x1.19 if GPU-paced). Antigravity's 6.7 to 10.7% sits between.
+- **New H161:** base tables held at 8 B until the first fold (stored at 16 B stride today): at most 4.5% of block GPU [DERIVED upper bound, line-granular traffic ASSUMED]; larger code change.
+- **Tests:** K0 (fold kernel alone and a copy roofline at slot 18's window-1 shape: B near 500 GB/s means the DRAM scenario saturates), F3 with the predicted 1.46 against 2.3 GB, H161 packed-base kbench. Hypotheses 161. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-18: Claude researcher tick 13, published GPU sumcheck designs that cut table re-reads, against H133 (claude-cycle)
+
+**COMPLETE, literature screen plus local reading:** 6 searches, 10 page requests (3 refused; Chimera, PipeSC and SumCATS read at abstract level only, others through a fetch tool's summary); **no measured improvement by me**, no build, proof, GPU run or Git. Triage material (a kernel-only change needs no ruling).
+[Handoff](handoffs/20261118-claude-tick13-gpu-sumcheck-table-traffic.md).
+- **Nothing published matches our case:** no GPU sumcheck with 30 to 70 table bodies, no measured gain for evaluate-all-points-per-thread or shared-memory tiling on a prime field. "zkDuel" (queue item 28) did not resolve in two searches. H133's 50 to 70% traffic cut has no outside measurement.
+- **ICICLE already fuses** the previous round's fold with the next evaluation [vendor description, no number]; its Nsight profile (L4, 4 tables of 2^25) says memory-bound in early rounds [authors' profile]. Chimera: 2.94x over ICICLE at N = 2^22, quadratic body, cause not stated in the abstract [authors' number].
+- **H133 arithmetic** [DERIVED]: with e table fetches per evaluation, today (e + 1.5)N bytes per round; fused fold alone cuts 17 to 22%, single fetch alone 44 to 58%, both 67 to 75% (e = 3 from tick 12's load ratio, 4.5 from Antigravity). The 50 to 70% needs both halves and real DRAM re-reads, not shown (breakdown README's "saturation" has no counter reading; distinct rates are 52 to 95 GB/s).
+- **Tests:** F1 fused fold-eval alone (pass 15% below two passes, identical buffers), F2 = tick 12's K2, F3 a DRAM-byte counter read of one round. Hypotheses 160. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-18: Claude researcher tick 12, what A27 had already timed for line values, and what to time next (claude-cycle)
+
+**COMPLETE, local reading only** (A27 README and `kb1.log`, `kbench/` sources, the slot 18/14 breakdown README, `metal.rs`, `metal_kernels.metal`) plus `gen.py` counts on the two dumps and one arithmetic script: 0 searches, 0 fetches; **no measured improvement by me**, no build, proof, GPU run or Git. Triage material (a kernel-only change needs no ruling).
+[Handoff](handoffs/20261118-claude-tick12-kbench-spec.md).
+- **Correction to tick 10:** A27 had already timed line values by additions (`gen.py` `k_v2`, `kb1.log`): -30% (slot 14) and -14% (slot 18) on the old kernel, **+0.7% and -0.7% on top of the materialization** (v13 against v123: 14.1 against 14.0 ms, 14.3 against 14.4 ms). H158's 12 to 21% after A27 is withdrawn; tick 10's x1.04 to x1.14 for H158 + H159 falls to about x1.00 [MEASURED, A27 `kb1.log`; my tick 10 had not read `README.md:167-169`].
+- **Why:** line values are 18% of multiplications in the shipped kernel [DERIVED], so a 0.7% effect means the body's product count is not what the later rounds wait on. First-round logical loads are 204 and 291 GB/s (distinct data 68 and 97 GB/s) [DERIVED]: not clearly a DRAM ceiling either, against the breakdown README's "100% saturation" (an inference there, no counter reading).
+- **H159 (delayed reduction):** downgraded from 5 to 15% to about 0 to a few % by the same analogy [ASSUMED].
+- **Spec for an owner or Sol lane:** K1 roofline (v13's loads with a trivial body; within 20% means every arithmetic idea is dead), K2 loads once per pair (H133 in miniature), K3 occupancy, K4 `gl_mul` against `gl_add` micro-benchmark (skip if K1 passes the first branch).
+- No new hypothesis. Hypotheses 160. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-17: Claude researcher tick 11, which zero-check pairs are dead because of padding (claude-cycle)
+
+**COMPLETE, local code reading only** (`slot_ir.rs`, `slot_ir_accuracy.rs`, `pad.rs`, `shape.rs`, `accuracy_act.rs`, `argument_accuracy.rs`, `metal_slot.rs`, `metal_kernels.metal`, the slot 18/14 breakdown README) plus one arithmetic script: 0 searches, 0 fetches; **no measured improvement**, no build, proof, GPU run or Git. Triage material (a kernel-only change if the test passes; no ruling).
+[Handoff](handoffs/20261117-claude-tick11-gate-coverage.md).
+- **Tick 10's kill condition was the wrong test:** two of the four families inside `zc` (LogUp helper relations, `fa`) carry no gate. The skip does not need the gate; it needs lo == hi constants on both ends of a pair, which makes the term the relation at an honest padded point, 0. Honest planes, the `group` column and the helpers are column-constant at padding (COUNTED / DERIVED).
+- **At W16R2_8B only F pads** (14,336 of 16,384): slots 14, 15, 16, 17 have no gate. Pairs bind t first (`i, i + nhalf`, flat `t * f_pad + j`), so a pair is dead exactly when its column is, 12.5% in rounds 0 to 6, none after. Saving 1.2 to 2.1 ms of slot 18's 21.3 ms per block, 1.0 to 1.8% of block GPU, about x1.01 to x1.02 on the 8B stream [DERIVED].
+- **At the Shieldstral profile** (width 3,072 to 4,096, hidden 9,216 to 16,384) the gate-zero fractions are 25% (D) and 43.75% (F): slots 14 + 18 save 10 to 18 ms of 249 ms per block, 4 to 7%, 0.26 to 0.47 s of 6.47 s per request [DERIVED, assumes 60 to 100% of the gate-zero fraction realised]. In-place fold means padded cells need no fold work for non-eq tables.
+- **Test:** P1, CPU, evaluate the IR at padded round-0 pairs, all zero; P2, per-round bit-identity on both profiles and at least 1.0 ms on 8B slot 18. Not run.
+- New: H160 (skip padded pairs). Hypotheses 160. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-17: Claude researcher tick 10, prover-side speedups of the zero-check sumchecks, transcript unchanged (claude-cycle)
+
+**COMPLETE, local kernel reading (`metal.rs`, `metal_slot.rs`, `slot_ir.rs`, A27 README, kept stream phases) plus the small-value sumcheck paper (full text), zkDuel and tessera issue 391:** 4 searches, 5 reads (ePrint PDFs refused), a small arithmetic script; **no measured improvement**, no build, proof, GPU run or Git. Triage material (a kernel-only change needs no ruling; a univariate skip would).
+[Handoff](handoffs/20261117-claude-tick10-zerocheck-prover.md).
+- **H157 not supported at its central estimate:** base-field round 0, affine parts as tables and attained-degree evaluation are already in the kernels (A27). Small-value sumcheck beyond round 0 gains 4 to 7% at degree 4 to 5 in the paper's own cost model with today's multiplication costs (no degree above 3 measured by the authors) [DERIVED]. eq factoring saves at most a point on a slot that is three terms with three eqs. The univariate skip changes the protocol.
+- **H158 (new):** every table's line value `lo + d (hi - lo)` costs a full `gl_mul` (two for Fp2) per point (`metal.rs:2247-2260`); additions would do (zkDuel's specialised interpolation). Derived share of the later-round kernel about 34% of multiplications after A27 (assumed scaling), saving 12 to 21% of the kernel; 6 to 10% before A27.
+- **H159 (new):** delayed reduction in the body's sums (tessera, CPU, Goldilocks: 20 to 31%); GPU value unknown, guessed 5 to 15%.
+- **Effect:** committed words none; central 15 to 25% of the slot kernels, ceiling about 35%, about x1.08 on P (x1.04 to x1.14) if GPU-bound, about half that on the two-lane cadence. Test: kbench bit-identity plus 10% on slot 14.
+- Support skipping of padded columns: up to 12.5% of slot 18 at the 8B shape, only if every term carries the gate (the LogUp terms may not). Hypotheses 159. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-17: Claude researcher tick 9, the smallness test against knowledge soundness T1b (claude-cycle)
+
+**COMPLETE, direct reading of FlashProve `rng.h` (the comment that is the source's argument) and `11-1` limits, plus the local T1b text and formal README:** 2 fetches, 0 searches, one exhaustive toy script; **no measured improvement**, no build, proof, GPU run or Git. Triage material (ruling, profile string, re-proved Lean).
+[Handoff](handoffs/20261117-claude-tick9-smallness-knowledge.md).
+- **H154 answered, B stays alive conditionally:** the authors' 2^-N argument fixes the object (packed cells, reads, weights) before Theta, so the error is a round-by-round event on a decoded object; no rewind past Theta is needed. The "no knowledge error" caveat belongs to their printed union-bound line (my reading). The local framework (straight-line extractor, log-reading state, `RbrWide`) fits it as one more round. The step is argued on paper, unrefereed [AUTHORS].
+- **TOY:** exhaustive check of the neighbouring-values step (D = 2, two lanes, p = 59, packing plus one read, five weight pairs): worst Pr[pass] is exactly 0.5 with (1/4, 1/2, 1/4); 5/9 with uniform trits.
+- **Conditions:** Lean round plus lemma; `circuit_iff` for cells in (-2^18, 2^18), not bytes; tick 7's order. Union bound `tau - log2(columns)` is conservative; N >= 100 meets lambda1 >= 100.
+- **New number:** at T1a's `eps_c <= 2^-40` the honest RMS cap is about 311 (k = 4,096) and 235 (k = 7,168), not 453 / 342 (1% failure, tick 5) [DERIVED].
+- New: H156. Hypotheses 157. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-17: Claude researcher tick 8, cell-plane claim sites and k per read (claude-cycle)
+
+**COMPLETE, local code reading only:** `shape.rs` (`claim_sites`, `totals`), `layout.rs`, `argument.rs` slot bodies, census.log plane counts; one standard-library script. 0 searches, 0 fetches; **no measured improvement**, no build, proof, GPU run or Git. Triage material (ruling, profile string, re-proved Lean).
+[Handoff](handoffs/20261117-claude-tick8-cell-read-count.md).
+- **Correction to tick 7:** 120 A sites is the toy's table (`layout.rs:1118`); the 8B profile W16R2_8B has **110** (reproduces the census's 2,501 A rows), R13_8B 146. **67 of the 110 are cell-plane reads** (D 28, Q 9, Kv 9, S 11, F 10); 43 are not (T, L, Ht slices, table planes).
+- **H153 passes conditionally:** U (2k words per read) plus 2 mask rows per read plus the proximity pair is 179-204 rows with the class-C split only, 17.0-18.7% of the A data rows B saves; 20.3% with class M split; 34-37% if the int16 word planes (class W, unmeasured) must split. Whole block about 0.80-0.90 (tick 7: 0.79-0.94).
+- **Several parts:** different planes at one point need one U each; QMM/KMM/VMM share one (64 distinct vectors for 67 claims); a split limb probably needs two. Untaken credit: today's 134 A mask rows at the cell sites may be released if the Theta tie leaves few claims on packed A (38-114 rows).
+- **Open:** tie claim count (H155); class W RMS (item 17); item 20 (knowledge soundness) can still stop B.
+- New: H155. Hypotheses 156. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-17: Claude researcher tick 7, can the local schedule commit a contraction vector after the points (claude-cycle)
+
+**COMPLETE, local code reading only:** `protocol.rs` (current and R13 frozen), `shape.rs`, `layout.rs`, `zkp-core/src/pcs.rs` (`open_zk`, `zpart_weights`), D55 design, T1b/T2 statements; one standard-library script. 0 searches, 0 fetches; **no measured improvement**, no build, proof, GPU run or Git. Triage material (ruling, profile string, re-proved Lean).
+[Handoff](handoffs/20261117-claude-tick7-commit-after-point.md).
+- **Order is satisfiable, but the local combined row is not `U3`:** it contracts packed rows (three lanes weighted 1, 2^20, 2^40, inseparable), is a lambda mixture per column-weight group, and is an uncommitted masked message. A `U3` needs its own hiding commitment, then Theta, then the digit planes and lookup: 2 (product tree) or 3 (committed helpers) extra commit-then-challenge alternations after slot 23; M must be sized for the new slots up front.
+- **New cost:** the local one-reserved-pair-per-claim rule makes U mostly mask rows: at most 120 reads (A_SITES) gives 302-452 rows per block, 25-61% of candidate B's saved A rows (747-1,202); whole block 0.79-0.94 of today's (tick 6: 0.76-0.85). Read count not yet counted (H153).
+- **Open:** the source's "no knowledge error" against the local T1b (H154); mask-pair sharing is a privacy ruling. Smallness union bound 103.6-105.4 bits, negligible on 2^-97.3.
+- New: H153, H154. Hypotheses 155. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-17: Claude researcher tick 6, columns per cell matrix and honest cell size per A plane (claude-cycle)
+
+**COMPLETE, local counting only:** `accuracy_layout.rs` plane and lookup lists, `range16.rs`, `accuracy_precision.rs`, census.log; one standard-library script. 0 searches, 0 fetches; **no measured improvement**, no build, proof, GPU run or Git. Triage material (ruling, profile string, re-proved Lean).
+[Handoff](handoffs/20261117-claude-tick6-cell-width.md).
+- **H151 killed as written, by count:** 480 of 2,256 A cell rows (21.1% of 2,279) are 16-bit lookup limbs (low limbs of two-limb remainders, RH), uniform RMS about 18,900 against a cap of about 453 / 342. Byte re-expression is mandatory and reverses D54's widening in A.
+- **k per matrix:** D and Q 4,096; Kv 1,024; F 14,336 so 7,168 after a split (cap 8,191); S 128 per head or 4,096 with heads in columns. Row-weighted mean k 5,149-5,599, harmonic 939-4,847. H150 holds for D, Q, F (0.40-0.37 per cell), fails for Kv (0.58) and S at k = 128.
+- **Cost:** A data rows 1,077-1,532 of today's 2,279 (0.47-0.67); whole block 0.76-0.85, **about 0.86 if helpers stay committed** (each split limb adds a lookup, about +480 H rows). B's volume gain needs helper-free lookups.
+- **Unmeasured:** 672 int16-word rows and 272 conditional-remainder rows (calibration windows 9-16 bits); no per-plane RMS record exists in the files searched.
+- New: H152 (post-split volume), H151b (int16 word RMS from a witness capture). Hypotheses 153. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher tick 5, how FlashProve serves a claim on one cell from packed words (claude-cycle)
+
+**COMPLETE, direct full-text reading:** raw `11-1-machinery.md` (key parts) and `11-2` (parts of `U3`); `11-3` downloaded, unread. 3 fetches, 0 searches, one small toy script; **no measured improvement**, no build, proof, GPU run or Git. Triage material (ruling, profile string, re-proved Lean).
+[Handoff](handoffs/20261116-claude-tick5-flashprove-packed-claims.md).
+- **Mechanism exists, and is not an opening:** sumcheck end values land on a committed contraction vector `U3` (cell tensor summed along rows with a public weight vector); a random ternary column-compression ties `U3` and the packed M, its results committed as 10+8-bit digits and range-checked by lookup; the radix powers sit only on the digit side, where unpacking is unique (f1 checked). Answers 6b's premise, not its saving.
+- **Cost:** digits `2 tau mz` words, so cell part = `1/3 + 2 tau / k` of unpacked (0.40 at k = 4,096, 0.365 at 8,191, tau = 128); k capped at 8,191; 27 + 11 lookup levels, no extra round for the equations. Statistical, error 2^-tau per column, no knowledge error per the authors' own comment.
+- **New gate for B:** honest combinations must stay in +-2^17: max RMS cell about 453 (k = 4,096), 12-bit cells fail about 1.4% of combinations, 16-bit cells 88% [DERIVED]. Byte re-expression is mandatory.
+- New: H150 (ratio by count of k per A matrix), H151 (honest RMS per plane). Hypotheses 151. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher tick 4, what FlashProve's cost owes to hiding the weights (claude-cycle)
+
+**COMPLETE, partly through a summarizer:** local upstream copy read directly (performance, weight-hiding, protocol 1-7, architecture, figures.tsv); format pages 10, 11-5 and FORMAT.md
+(first 100,000 characters) via the fetch tool's summary. 0 searches, 6 fetches; **no measured improvement**, no build, proof, GPU run or Git. Triage material (ruling, profile string, re-proved Lean).
+[Handoff](handoffs/20261116-claude-tick4-flashprove-hiding-cost.md).
+- **No separable price for hiding the weights is published.** No phase split of prover seconds anywhere; `-public-weights` runs the same protocol with a public seed (no cheaper mode, no timing).
+- **Batch-size sweep fits a line:** 7.5-7.8 s per request + 34-47 s per batch (fixed part 16-21% of a 24-request batch) [DERIVED from figures.tsv]; the fixed part is an upper bound on batch-level
+  weight work (two table-opening passes among other things).
+- **Weight-only committed words per request are tiny:** request vector w = 2^18 words (256 per token), about 2-4 x 10^-5 of the trace [AUTHORS via summarizer; layers 48 ASSUMED]. A committed-M opening per batch survives in any public-weights variant.
+- **No authors' statement on hiding prompt or output.** **Pointer correction for queue 2b:** format 13.9 is the weight-matrix / second-chain claim, not the cell packing (that is 11-1).
+- New: H148 (batch time linear in requests; kill on n = 8 refit), H149 (public-weights switch gives no speed-up; needs a GPU). Hypotheses 149. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher tick 3, what FlashProve commits per activation (claude-cycle)
+
+**COMPLETE, partly through a summarizer:** paper text read directly; repository format pages (11-1 to 11-3, 08) read via the fetch tool's summary, 11-1 only to
+character 100,000. 0 searches, 13 fetches; **no measured improvement**, no build, proof, GPU run or Git. Triage material (ruling, profile string, re-proved Lean).
+[Handoff](handoffs/20261116-claude-tick3-flashprove-commits.md).
+- **FlashProve commits no lookup helper columns.** Its Lookup is a product-tree argument with masked sumchecks; only multiplicities are committed, as 32 bit-planes per
+  table entry. **Corrects tick 1** (no published ZK GKR-style lookup found): this one hides intermediates, with Lean-checked ZK per request; it was not read then.
+- **Cells packed 3 per field word** (radix 2^20, relaxed bound 2^18). Smallness test: random {-1,0,1} combinations (128), two digits (10+8 bits) per combination and
+  cell row, only to prevent wraparound; exact ranges use 2^8 / 2^16 lookups with virtual keys. Programs' own union bound is 113.44 bits (misses 128).
+- **Committed words per token per layer about 0.14-0.25 M against our 0.653 M (2.6x-4.6x fewer)** [DERIVED, layer grouping and flags unread]. Their cell count
+  (312-338 k) matches our A values (289 k); the gap is packing plus no helpers, i.e. cycle 4's "helpers not committed and A packed" scenario. Codeword bytes not compared (trace code rate unread).
+- **New:** H145 (pack small cells 3 per word; kill if under 40% of A rows qualify), H146 (smallness test for wraparound-only lookups; kill if under 10% of 2,162 range-helper rows),
+  H147 (compare FlashProve's committed-mask sumcheck to the local blinding design). Hypotheses 147. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher tick 2, Celer lookup argument (claude-cycle)
+
+**COMPLETE, but not a full read:** the paper PDF returns HTTP 403 to the fetch tool, so I read the full abstract, one search summary and the
+authors' public C++ prototype. 4 searches, 12 page reads; **no measured improvement**, no build, proof, GPU run or Git. Triage material
+(ruling, profile string, re-proved Lean). [Handoff](handoffs/20261116-claude-tick2-celer.md).
+- **Celer's prototype is BN254 plus Dory (pairing-based)**, not hash-based; its saving is stated in group operations [code, summary]. It fails the
+  cycle 6a screen ("kill if pairing or EC PCS"): **H137 closed, not a drop-in.**
+- **No zero knowledge** in abstract or code (fixed-seed Mersenne Twister, no blinding). The 25.9x / 9.4x speed-ups are against plookup and plain
+  LogUp [authors], hardware and field unread; the driver excludes committing the query vector from prover time.
+- **Idea that may port (unverified):** LogUp-style columns over two base-sqrt(m) digits, so committed domains are about 2^14 for m = 2^28 [code,
+  DERIVED]; it cannot beat the volume floor of 6a (49-51% of today's block rows).
+- **New:** H144 (port the digit PIOP to Ligero-style evaluation; kill if more than 24 evaluation claims per instance or more than 600 rows per block).
+  Needs the PDF read from a local file. Hypotheses 144. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher tick 1, zero knowledge for GKR-based lookups (claude-cycle)
+
+**COMPLETE.** 7 searches, 11 page reads; **no measured improvement**, no build, proof, GPU run or Git. Triage material (ruling, profile
+string, re-proved Lean). [Handoff](handoffs/20261116-claude-tick1-gkr-zk-masking.md).
+- **No published ZK LogUp-GKR for hidden-activation transformers found.** Papini-Haboeck and Celer pages are silent on ZK [abstracts].
+  Only tessera RFC-0032 (PR #325) works LogUp-specific masking; unimplemented, simulator pending; it **rejects** blinding leaves, which
+  the local design uses (reconcile before review).
+- **Mask bytes are not the problem:** local design 2,148 Fp2 coefficients per block (0.41-1.24% of a G1 block as allocated); Longfellow-style
+  one-time pads 1,275 Fp2; hash-based HVZK sumcheck (ePrint 2026/391) O(k*ell_zk); full-size CFS masks 281% of a G1 block [DERIVED].
+- **Closest published hash/RS analogue:** Longfellow ZK (pads plus deferred constraints inside Ligero; draft read to section 6.6 only).
+  A different design in kind, not a drop-in.
+- **New:** H142 (write the masked-layer simulator; kill on a degrees-of-freedom count), H143 (cost the one-time-pad route in zero-check
+  terms). Hypotheses 143. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher cycle 6c, linear chains without committed intermediates, and the cycle 6 ranking (claude-cycle)
+
+**COMPLETE.** Code reading plus 2 searches, 3 fetches (cycle 6 total 19 / 22); **no measured improvement**, no build, proof, GPU run
+or Git. Triage material (ruling, profile string, re-proved Lean). [Handoff](handoffs/20261116-claude-cycle6c-linear-chains.md), script
+`handoffs/20261116-claude-cycle6c-linear-chains.py`.
+- **Cycle 4's "chaining is near zero" confirmed:** only X1 = X + AO and X2 = X1 + Z are linear images of committed planes (64 rows per
+  block, 1.25%; `slot_ir_accuracy.rs:485,488`); rope remainders RQRL, RKRL are linear with public tables (40 rows). Matmul outputs are
+  already virtual (carried as word + remainder via `host_*` terms), so word and remainder cannot be dropped.
+- **New class, not in the Lean-found C1-C13:** remainder planes a relation determines pointwise need not be committed (the lookup
+  queries the expression). Per block 424 of 2,279 A data rows: L1 104 (linear/public-table), L2 192 (single-limb degree-2: SR, SG, RH),
+  L3 128 (top limbs of norm remainders). Request codewords 43.19 to 39.6 GB (-8.3%); worth about 8 ms of a 470 ms warm block (1.7%).
+- **Published practice:** FlashProve commits the trace per segment; zkLLM leaves Z' uncommitted but hides weights only; zkGPT, DeepProve,
+  TensorZKP read as abstracts. No published construction found that leaves an activation intermediate uncommitted and proves it hidden.
+- **Ranking across 6a-6c (DERIVED, per request, 43.19 GB today):** (1) LogUp-GKR for all lookups -49 to -51%, risk: GKR ZK unpublished and
+  unreviewed; (2) 31-bit base field for small and mask rows -25.5%, risk: small-field soundness (Fenzi-Sanso) and exactness above 2^31;
+  (3) derived planes -8.3%, risk: higher-degree queries, re-stated Lean. All three together 9.4 GB (22%), write floor 1.05-1.2x plain int8.
+  Ideal 4x packing (-34%) has no mechanism; binary tower (-38%) breaks integer arithmetic.
+- **New:** H140 (derived planes; kill if A rows do not fall 2,501 to 2,077, or extra zero-check time exceeds 8 ms per block), H141 (residual
+  sums only). Hypotheses 141. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher cycle 6b, packing small values (claude-cycle)
+
+**COMPLETE.** 8 searches, 5 fetches; **no measured improvement**, no build, proof, GPU run or Git. Triage material (a ruling, profile
+string and re-proved Lean needed). [Handoff](handoffs/20261116-claude-cycle6b-small-value-packing.md), script
+`handoffs/20261116-claude-cycle6b-small-value-packing.py`.
+- **No mechanism found to pack several small values per prime-field word** of a Merkle/RS commitment and use them separately. Published
+  packing (FRI-Binius ring-switching, Blaze) is an embedding in extensions of a *small base field*; Goldilocks has none. One opening
+  of a packed word gives one linear combination of k unknown values [DERIVED]. No ZK variant of FRI-Binius, Blaze or Ligerito found.
+- **Ceilings on 43.19 GB of codewords** [DERIVED]: ideal 4x on small rows (no mechanism) 28.6 GB (66%); 31-bit base field + degree-4
+  extension (parked H116) 32.2 GB (74.5%); binary tower 26.7 GB (62%, breaks exact integer arithmetic). With 6a's G2 (helpers retired):
+  7.5 / 11.1 / 5.6 GB (17 / 26 / 13%), about 0.8-1.4x plain int8 bytes. Helpers (full-field) and masks (uniform) cannot pack.
+- **Masking:** pad count is Q = 280 per row regardless of field or packing; only the pad share per value changes (1.7% to 6.8% at k = 4
+  if rows shrink). **Soundness cautions for small-field codes:** Fenzi-Sanso (ePrint 2025/2197) attacks on small-base extension codes in
+  practical regimes; Dao-Kominers-Thaler-Zheng (2026, summary) beyond-Johnson proximity gaps fail over binary fields.
+- **FlashProve** (Goldilocks, hash-based): whether digits share a field element is not stated in the pages read; settle by reading its source.
+- **New:** H138 (31-bit base field: kill if over 5% of small rows or any asserted relation exceeds 2^31), H139 (prime-field proof-of-packing;
+  kill-by-citation). Corrects cycle 3's "8x on activation planes". Hypotheses 139. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher cycle 6a, lookup arguments that commit less (claude-cycle)
+
+**COMPLETE.** 9 searches, 14 fetches (ePrint PDFs refused: abstracts only); **no measured improvement**, no build, proof, GPU run
+or Git. Triage material: any change needs a ruling, a new profile string and re-proved Lean. [Handoff](handoffs/20261116-claude-cycle6a-lookup-volume.md),
+script `handoffs/20261116-claude-cycle6a-lookup-volume.py`.
+- **Per lookup today:** one extra committed word (Fp2 helper per two lookups). Of the 2,514 H rows per block: 2,162 range
+  helpers, 30 table helpers, 320 exp/act, 2 `u` [DERIVED from plane lists].
+- **Only LogUp-GKR removes it** (multiplicities only). Lasso, Shout (dense Merkle commit of one-hot: 64-65,536 words per lookup),
+  Logup* (small-table gain needs tuples) and zkLLM's tlookup (one inverse word per lookup, ZK for weights only) do not beat today.
+  Celer (ePrint 2026/1453, m = 2^28, n = 2^16, Llama; 9.4x over LogUp [AUTHORS]) is the same regime but read as an abstract only.
+- **Derived volume per block (5,103 rows today):** G1 range+table helpers retired 2,911 (57%), G2 all lookups 2,591 (51%), G3 with
+  H site masks 2,509 (49%); per request 24.9 / 22.2 / 21.5 GB of codewords (43.2 today). Write floor vs plain int8 5.1x to 2.5-2.9x:
+  halves volume, does not reach 2x.
+- **Soundness:** LogUp (N+T)/|Fp2| about 2^-103 per block (2^-98 over 32), unchanged from helper LogUp; GKR sumchecks 2^-118.
+  **ZK is the open problem:** no source found publishes a benchmarked hidden-activation LogUp-GKR transformer (search summaries,
+  unverified); the local masked design is unreviewed.
+- **New hypotheses:** H136 (LogUp-GKR over all lookups; kill if allocated rows > 2,700 per block or GKR > 0.11 s per block on
+  Metal), H137 (read Celer in full; kill if it needs EC/pairing PCS). Hypotheses 137. Proofs / passes / positions: 0 / 0 / 0.
+
+## 2026-11-16: Claude researcher cycle 5, verification of relayed figures (claude-cycle)
+
+**COMPLETE.** Re-check of cycles 1-3 figures against primary pages; no new research, no build, proof, GPU run or Git.
+[Handoff](handoffs/20261116-claude-cycle5-verification.md).
+- **13 of 14 items confirmed** (FlashProve batch curve, 18.78 MB, 220.7-225.9 s, 94.0 s check, 71.4-93.0x; TensorZKP, EmuGEMM,
+  ePrint 2026/2681; WHIR 63 KiB; Ligerito 255 KiB; Thaler Table 5). No identifier wrong; none withdrawn.
+- **Corrected:** ePrint 2026/2481 is "Polygero" (new RS proximity test and a Ligero-inspired IOP, Lean-checked), not an
+  improved analysis of Ligero; only 2026/2681 is that. Thaler's overhead is 0.3-1.4% (Table 5), not "1-2%".
+- **Quote with caveats:** 71-93x is a best case against a vLLM FP8 baseline on eight H100s, start-up and commitment excluded;
+  18.78 MB is an average per proof at a 1,024-token window. WHIR and Ligerito abstracts make no zero-knowledge claim.
+
+## 2026-11-16: Claude researcher cycle 4, committed-volume census and memory floor (claude-cycle)
+
+**COMPLETE.** Local counting only (H133 from cycle 3); **no measured improvement**, no build, proof, GPU run, web search or
+Git. [Handoff](handoffs/20261116-claude-cycle4-committed-volume-census.md), script `handoffs/20261116-claude-cycle4-census.py`.
+- **Committed per request (8B, T128, 32 blocks, W16R2):** 164,548 regular rows of 2^14 words = **2.696e9 message words
+  (21.6 GB), 5.398e9 codeword words (43.2 GB)**, 43.6 GB hashed [COUNTED rows from `census.log`, tied to the measured
+  A/H/M/endpoint opening bytes; DERIVED words]. Cycle 3's 2.7e9 holds to 0.15%; its "40 GB" is 43.2 GB.
+- **Composition of a block's 5,103 rows:** activation words 19.3%, limb and remainder planes 24.9%, Fp2 LogUp helpers 49.3%,
+  masks 6.1%, tables 0.5%. 74.5% is lookup machinery.
+- **Plain pass:** int8 7.9-9.0 GB (7.5 GB weights), fp16 15.4-16.5 GB; 1.80 T ops [DERIVED; 5090 figures ASSUMED].
+- **Floor, 5090 at an assumed 1.792 TB/s, batch 1:** write codewords 24 ms, write and hash 48 ms, against plain int8 4.4-5.0
+  ms and fp16 8.6-9.2 ms: **4.8-5.5x / 9.6-11x vs int8; 2.6-2.8x / 5.3-5.6x vs fp16**. M3 Ultra (measured 640 GB/s): 67 / 136 ms,
+  same ratios. Floors are 1-2.5% of today's measured request, so volume limits the 2x aspiration, not D64.
+- **H133 kill condition triggered** (floor above 4x plain int8); batching raises the ratio (5.6-11x), never lowers it. The "2x"
+  planning number is unsupported for a commit-everything design. Reaching 1x added needs about 20% of today's volume, roughly
+  the activation words alone.
+- **H134 narrowed:** packable share 44.7% (passes its 40% gate narrowly) but a 4x packing leaves 66.8% of rows (3.4x floor);
+  chaining linear layers counts to near zero (every matmul output feeds a requantization and a range lookup); the 49% helper
+  rows are the big lever (B5), unpackable. Hypotheses stay 135. Proofs / passes / positions: 0 / 0 / 0.
+- **Not counted:** token I/O stages (no W16R2 profile; estimated 0.1-0.4%). **Unverified inputs:** 5090 bandwidth and int8/fp16
+  peaks.
+
+## 2026-11-16: Claude researcher cycle 3, receipt size and prover cost near the computation (claude-cycle)
+
+**COMPLETE.** 15 searches, 14 reads; **no measured improvement**, no build, proof, GPU run or Git. Triage material only:
+the owner shelved size work on 2026-11-09. [Handoff](handoffs/20261116-claude-cycle3-receipt-size-and-overhead.md).
+- **Size:** the only published precedent in our family for MB-scale receipts with hidden intermediates is FlashProve
+  (18.8 MB per 1,024-token request) [AUTHORS]. 372 of our 819 MB is opened column data, so batching or claim reduction
+  does not shrink it; wide rows plus a code-switch tower does (the local B6b study: about 40-52 MB, +13 to +42 ms GPU per
+  block). WHIR (63 KiB at 2^22), Ligerito (255 KiB at 2^24), recursion and Groth16 wrap give small sizes only without ZK or
+  not at this witness size. Nothing supports "< 1-5 MB for 8B".
+- **Overhead:** matmul sumchecks are about 1-2% of the matmul (Thaler 2013, no commitment, no ZK); full proofs with hidden
+  intermediates are 71-93x (FlashProve) and about 80-190x here. My counting floor: about 2.7e9 committed words per request
+  [DERIVED, recount] puts codeword traffic alone at about 3-4x plain on a 5090. **2x is not plausible** for 8B with this
+  design or any published one.
+- **Ranked:** H133 committed-volume census plus a plain-int8 denominator (kill the 2x number if the memory floor exceeds
+  4x plain); H134 shrink committed volume by packing and chaining linear layers (kill if packable fraction under 40%);
+  H135 B6b wide rows and tower (its own kill rule, +25 ms per block). Hypotheses now 135. Proofs / passes / positions: 0 / 0 / 0.
+- **Correction to cycle 1 R14:** TensorZKP (ePrint 2026/1250) does tensor-core sumcheck and encoding; field and hiding unread.
+
+## 2026-11-16: Claude researcher cycle 2, how FlashProve's throughput scales with batch size (claude-cycle)
+
+**COMPLETE.** Paper, repository pages and two source headers read; **no measured improvement**, no build, proof, GPU run or Git.
+[Handoff](handoffs/20261116-claude-cycle2-flashprove-batching.md).
+- **The batch curve is weight streaming** [AUTHORS]: weights (about 200 GB, hidden) sit in pinned host memory and stream to
+  the GPU per layer group; a batch pays for two opening passes over all of them, and up to 6 requests share each further
+  pass. My fit of their four points: batch time about **52 s fixed + 7 s per request** [DERIVED]; fixed is 88% of a
+  one-request batch and 23% at 24. Each request still gets its own trace commitments and proof; **no one-commitment-over-
+  many-requests** (that is SLP, a different paper, no zero knowledge).
+- **Latency at 24:** 221 to 226 s from batch start to release, plus about 94 s for the provider's check of 24 proofs
+  (not in the rate) [AUTHORS]. Their forward pass runs on the GPU inside the timed interval, one request's turn per
+  layer group. Zero knowledge and completeness are proved for one request per proof, not batches; a joint claim for B
+  proofs costs log2(B) bits.
+- **Transfer to P1 is small.** No weight table to open and weights resident, so the curve does not transfer (the
+  fold is under 0.1% of readiness [MEASURED, 125M]). Cycle 1's H127 table-sharing is **not** what FlashProve does.
+- **Ranked:** (1) measure the request-independent share of one request's proof time, **kill the batch-transcript line
+  if under 10%**; (2) H132 K-request batched exact forward (kill if K = 4 per-request wall above 0.8x K = 1); (3) H131
+  chained fork seeds for single-request latency (kill if under 15%; changes bytes). Gain on stream throughput x1.00 to
+  x1.15 at best. Hypotheses now 132. Proofs / passes / positions: 0 / 0 / 0.
+- **Not read:** the prover's forward, attention and memory-plan sources; the repository pages are tool summaries, the paper
+  was read directly.
+
+## 2026-11-16: Claude researcher cycle, literature scan (claude-cycle)
+
+**COMPLETE.** Web search and reads only; **no measured improvement**, no build, proof, GPU run or Git.
+[Handoff](handoffs/20261116-claude-cycle-literature-scan.md).
+- **FlashProve's 110 tok/s is a batch figure** (its own repository): 17.4 at one request, 76.3 at 8, 111.2 at 24,
+  123.3 at 64, one H100, 1,024-token windows, weights hidden, prompt and reply public [AUTHORS]. Quote the batch size
+  when claiming parity.
+- **Top three:** H128 exact int8 tensor-core witness forward (kill: over 9 ms per 8B block on the 5090); H127 one batch
+  transcript so shared LogUp tables are built once (kill: table-build share under 5%); H130 improved Ligero analysis
+  (ePrint 2026/2681, 2026/2481) as part of a W16R3 profile. H129 (grinding bits) is capped by the LogUp bound.
+- **Rejected:** Bolt, Blaze, Quasar, ReedWeave (field or structure mismatch), GPU sumcheck libraries (other fields,
+  memory-bound), CUDA carry-less multiply (binary fields). Hypotheses now 130.
+- No literature result changes the 5090 limiter (host path and witness chain). Proofs / passes / positions: 0 / 0 / 0.
+
 **2026-11-04 (coordinator), H124 partly landed, byte-identical:**
 - **Witness:** the weight products are tiled and use an exact i16 path. One 8B block's witness went from 0.438 to
   0.249 s, its products from 0.361 to 0.085 s [MEASURED].

@@ -1,0 +1,25 @@
+
+serve1 / solo (n=6)  median wall | prover busy | idle (no prover buffer executing), s
+   start (S..first big commit)                     0.289 |  0.015 |  0.276
+   forks (first big commit..last fork buffer)      3.291 |  2.496 |  0.796
+   join/tail (..E)                                 0.082 |  0.000 |  0.081
+
+serve4 / beside (n=18)  median wall | prover busy | idle (no prover buffer executing), s
+   start (S..first big commit)                     0.274 |  0.009 |  0.264
+   forks (first big commit..last fork buffer)      3.410 |  2.678 |  0.740
+   join/tail (..E)                                 0.083 |  0.000 |  0.083
+
+serve4 / last (n=6)  median wall | prover busy | idle (no prover buffer executing), s
+   start (S..first big commit)                     0.259 |  0.009 |  0.250
+   forks (first big commit..last fork buffer)      3.163 |  2.492 |  0.679
+   join/tail (..E)                                 0.083 |  0.000 |  0.083
+
+serve6 / beside (n=30)  median wall | prover busy | idle (no prover buffer executing), s
+   start (S..first big commit)                     0.368 |  0.014 |  0.354
+   forks (first big commit..last fork buffer)      3.438 |  2.662 |  0.756
+   join/tail (..E)                                 0.089 |  0.000 |  0.089
+
+serve6 / last (n=6)  median wall | prover busy | idle (no prover buffer executing), s
+   start (S..first big commit)                     0.242 |  0.009 |  0.233
+   forks (first big commit..last fork buffer)      3.185 |  2.502 |  0.686
+   join/tail (..E)                                 0.083 |  0.000 |  0.083

@@ -1,0 +1,146 @@
+# RunEpXTopH.lean:51  (144 binders, section variables not included)
+(Rp : ClassifyRunPublicP S
+(Lq : ℕ
+(Lb : ℕ
+(preA : Hdr → Except String Unit
+(preB : Hdr → Except String Unit
+(start : (HIn → Dig) → ClsStmt Hdr → Tr
+(inc : Hdr → IncV
+(incG : Hdr → StageGeom
+(Pk : ℕ → Exec.Block.BlockParams
+(sgeom : ClsStmt Hdr → ℕ → Exec.Block.SegGeom
+(check : ClsStmt Hdr → ℕ → Except String Unit
+(paths : ClsStmt Hdr → Exec.Block.Segment → Except String Unit
+(digest : ClsStmt Hdr → ℕ → Dig
+(bRows : ℕ → ℕ
+(bLogN : ℕ → ℕ
+(bndCheck : ClsStmt Hdr → ℕ → List Exec.Block.ZClaim → Tr → Except String Unit
+(bndOpen : (HIn → Dig) → ClsStmt Hdr → ℕ → Dig → List Exec.Block.ZClaim → Exec.Block.OpeningZk → Tr → Except String Tr
+(outc : Hdr → ℕ → OutcV
+(outcG : Hdr → StageGeom
+(P : RunP Hdr (S.Tok → ℕ) Coins
+(h64 : 64 ≤ Lq
+(hr : 8 * (CinR).R ≤ Lq
+(hon : HonestIn Coins (CinR)
+(U : K
+(hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U)
+(key : Option Dig
+(domain : List UInt8
+(hs : decodeLink (startMsg domain) = none
+(hL : (startMsg domain).length ≤ Lq
+(hL64 : Lq < 2 ^ 64
+(Rn : RtRun (classifyRunV Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) key domain Lq
+(hv : (RtRun.pf Rn).Valid
+(hw : Hdr → ClsHdrW
+(hRn : ∀ s, RtRun.hdr Rn s = clsHdrOf hw s
+(D : RtKData K Lq
+(hD : D.Valid (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) (RtRun.pf Rn)
+{ι : Type
+[_inst : Fintype ι
+(site : (S.Tok → ℕ) → ι → Site (QB Lq) Coins K
+(kOf : ι → ℕ
+(δOf : ι → ℝ≥0∞
+(E0 : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt S (ZK60.ProtocolClassify.EpxSalt Rr)
+{εzk : ℕ → ℕ → ℝ≥0∞
+(O : ClassifyOpenP Rp Lq (classifyRunV Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) P (CinR) h64 hr hon U site kOf δOf εzk
+(hU : U ^ 2 = algebraMap GF K 7
+(cx0 : IncCtx
+(pin : RtPart
+(pout : RtPart
+(Iin : RtInc Lq inc incG pin
+(Oout : RtOutc Lq outc outcG pout
+(bp : ∀ k, RtBlk Lq (Pk k)
+(wXk : ℕ → ℕ
+(gXk : ℕ → ℕ
+(mXk : ℕ → ℕ
+(hσ : RtRun.σs Rn = rtParts (classifyRunV Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG) (rtIncSeg inc incG cx0 pin) (fun k => rtBlockSeg Pk sgeom check paths digest bRows bLogN bndCheck bndOpen k (rtBlockPart (Pk k) (bp k).S ((bp k).nA + ( ...[+121]
+(hLb : Lb ≤ 26
+(hgeo : ∀ k s, (sgeom s k).g = (Pk k).geom
+(hIA : RkPcsAt U tag ogStage Iin.pA
+(hIH : RkPcsAt U tag ogStage Iin.pH
+(hOA : RkPcsAt U tag ogStage Oout.pA
+(hOH : RkPcsAt U tag ogStage Oout.pH
+(hBA : ∀ k, RkPcsR13 U tag (bp k).pA
+(hBH : ∀ k, RkPcsR13 U tag (bp k).pH
+(htI : Iin.tag = tag
+(htO : Oout.tag = tag
+(htB : ∀ k, (bp k).tag = tag
+(hfIA : 8 * Iin.pA.rows ≤ Lq
+(hfIH : 8 * Iin.pH.rows ≤ Lq
+(hfOA : 8 * Oout.pA.rows ≤ Lq
+(hfOH : 8 * Oout.pH.rows ≤ Lq
+(hfBA : ∀ k, 8 * (bp k).pA.rows ≤ Lq
+(hfBH : ∀ k, 8 * (bp k).pH.rows ≤ Lq
+(hfIM : 8 * (2 * pin.S + 4) ≤ Lq
+(hfOM : 8 * (2 * pout.S + 4) ≤ Lq
+(hfBM : ∀ k, 8 * (2 * (bp k).S + 4) ≤ Lq
+(Vi : IncV
+(F : ℕ → OutcV
+(hinc : ∀ hd, inc hd = Vi
+(houtc : ∀ hd v, outc hd v = F v
+(hchk : ∀ s : ClsStmt Hdr, check s 0 = .ok () → s.verdict ≤ 1
+(hLb1 : 0 < Lb
+(lscIn : Exec.Block.ZClaim
+(lscOut : Exec.Block.ZClaim
+(mIn : ℕ
+(kIn : ℕ
+(kOut : ℕ
+(hlscIn : ∀ hd, (inc hd).lay.logupSumClaim = lscIn
+(hlscOut : ∀ hd v, (outc hd v).lay.logupSumClaim = lscOut
+(hmIn : ∀ hd, incHeadDraws (inc hd).pub = mIn
+(hkIn : ∀ hd, (inc hd).lay.nFunctionals = kIn
+(hkOut : ∀ hd v, (outc hd v).lay.nFunctionals = kOut
+(base : ℕ → RkPart K Lq
+(eL : ℕ
+(hDe : D = ebData U tag Lq h64 key domain hs hL abRdIn (RtRun.pf Rn) (rxPs base Lb (rxDinG ogStage (RtRun.pf Rn) pin.S kIn Iin.pA.rows Iin.pH.rows Iin.nA Iin.nH mIn) (fun k => rxDblk (RtRun.pf Rn) k (bp k).S (Pk k).nFunctionals (bp k).pA.rows (bp k).pH.rows (bp k).nA (bp k).nH) (rxDoutG ogStage (RtRun.pf R ...[+185]
+(pXk : ∀ k, RtPcs (fun (s : ClsStmt Hdr) H root cl o t => bndOpen H s k root cl o t)
+(hXk : ∀ k, ZK60.ProtocolClassify.RkPcsR13 U tag (pXk k)
+(hwXk : ∀ k, k + 1 < Lb → wXk (k + 1) = (bp k).nOut + (bp (k + 1)).nIn + (pXk (k + 1)).rows
+(hmXk : ∀ k, k + 1 < Lb → mXk (k + 1) = (pXk (k + 1)).m
+(hfitXk : ∀ k, 8 * (pXk k).rows ≤ Lq
+(hgXk : ∀ k, k + 1 < Lb → (base (k + 1 + 1)).gX = ZK60.ProtocolClassify.rkR13 (pXk (k + 1)).rows ((RtRun.pf Rn).off (k + 1) + 2)
+(hnXk : ∀ k, k + 1 < Lb → (base (k + 1 + 1)).nX = (bp k).nOut + (bp (k + 1)).nIn
+(hwX0 : wXk 0 = Iin.nOut + (bp 0).nIn + (pXk 0).rows
+(hmX0 : mXk 0 = (pXk 0).m
+(hgX1 : (base 1).gX = ZK60.ProtocolClassify.rkR13 (pXk 0).rows ((RtRun.pf Rn).off 0 + 2)
+(hnX1 : (base 1).nX = Iin.nOut + (bp 0).nIn
+(hOX : ZK60.ProtocolClassify.RkPcsR13 U tag Oout.pX
+(hwXo : ∀ k, k + 1 = Lb → pout.wX = (bp k).nOut + Oout.nIn + Oout.pX.rows
+(hfitXo : 8 * Oout.pX.rows ≤ Lq
+(hgXo : ∀ k, k + 1 = Lb → (base (k + 1 + 1)).gX = ZK60.ProtocolClassify.rkR13 Oout.pX.rows ((RtRun.pf Rn).off (k + 1) + 2)
+(hnXo : ∀ k, k + 1 = Lb → (base (k + 1 + 1)).nX = (bp k).nOut + Oout.nIn
+(hgX0 : (base 0).gX = rkAt ogEp Iin.pX.rows 1
+(hnX0 : (base 0).nX = Iin.nIn
+(hXep : RkPcsAt U tag ogEp Iin.pX
+(hfitX : 8 * Iin.pX.rows ≤ Lq
+(hRr : Iin.pX.rows = Rr
+(hL81 : 81 ≤ Lq
+(Fsl : (k : ℕ) → Exec.Block.Cuts3 Lq → Exec.Block.RootsO → (j : ℕ) → Exec.Block.Seen → (Fin ((Exec.Block.slotShape (Pk k) j).1 + (Exec.Block.slotShape (Pk k) j).2.1) → K) → K
+(hslB : ∀ k, k < Lb → D.sls (k + 1) = Exec.Block.blockSchedX (Pk k) ((RtRun.pf Rn).off (k + 1) + 5) (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) (Fsl k)
+{ιL : ℕ → Type
+{πL : ℕ → Type
+{κL : ℕ → Type
+[_inst : ∀ k, Fintype (ιL k)
+[_inst : ∀ k, Fintype (πL k)
+[_inst : ∀ k, Fintype (κL k)
+(AlkL : (k : ℕ) → List (QB Lq × Dig) → ιL k ⊕ (πL k ⊕ πL k) → Tup K
+(TL : (k : ℕ) → κL k → Tup K
+(mlkL : (k : ℕ) → List (QB Lq × Dig) → κL k → K
+(hsl_blk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+995]
+(hsl_stg : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1027]
+(hR0_blk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1190]
+(hR0_stg : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1201]
+(hR1_blk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1370]
+(hR1_stg : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1381]
+(hH0_blk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1550]
+(hH0_stg : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1561]
+(hH1_blk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1730]
+(hH1_stg : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1741]
+(hLU_blk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1934]
+(hLU_stg : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+1921]
+(hdin : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+728]
+(hblk : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (k : ℕ) (hk : k < Rp.blks.length), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G). ...[+1034]
+(hdout : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+925]
+(hdzero : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (E ...[+635]
+(hzk : ∀ q R', q ≤ 2 ^ 64 → R' ≤ 2 ^ 64 → εzk q R' ≤ εzkTarget q R'
+CONCL: ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinR) h64 hr hon.base 768) (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget

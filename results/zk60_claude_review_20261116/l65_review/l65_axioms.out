@@ -1,0 +1,15 @@
+'ZK60.ProtocolClassify.stgDefsV_valid_inC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.stgDefsV_valid_out' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_dg' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.ssh_inc_rbrC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_outc_rbr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.offZero_standalone_draw' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.offZero_standalone_drawC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.offZero_host_draw' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.indDegLE_claimSem_priv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_inc_dg_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ssh_outc_dg_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.outc_ss_spT_deg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.outc_pd_spT_deg' depends on axioms: [propext, Classical.choice, Quot.sound]

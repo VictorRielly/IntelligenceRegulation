@@ -1,0 +1,49 @@
+⚠ [3851/3892] Replayed ZK60Formal.RunStgJoinLk
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+⚠ [3857/3892] Replayed ZK60Formal.RunBlkWireDoom
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+⚠ [3858/3892] Replayed ZK60Formal.RunBlkWireSlots
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✔ [3861/3892] Built ZK60Formal.RunStgShieldDef (11s)
+✔ [3862/3892] Built ZK60Formal.RunStgShieldRd (1.0s)
+✔ [3863/3892] Built ZK60Formal.RunStgShieldInst (1.8s)
+✔ [3864/3892] Built ZK60Formal.RunStgShieldRbr (2.4s)
+✔ [3865/3892] Built ZK60Formal.RunStgShieldTrue (2.5s)
+✔ [3866/3892] Built ZK60Formal.RunStgShieldTop (3.8s)
+✔ [3867/3892] Built ZK60Formal.RunStgShieldTrueRun (2.0s)
+✔ [3868/3892] Built ZK60Formal.RunStgShieldTopT (3.3s)
+✔ [3869/3892] Built ZK60Formal.RunStgShieldClaims (3.3s)
+✔ [3870/3892] Built ZK60Formal.RunStgShieldClaimsRun (1.0s)
+✔ [3871/3892] Built ZK60Formal.RunStgShieldInAH (2.1s)
+✔ [3872/3892] Built ZK60Formal.RunStgShieldTopC (3.1s)
+✔ [3873/3892] Built ZK60Formal.RunStgShieldInAHRun (2.4s)
+✔ [3874/3892] Built ZK60Formal.RunStgShieldC (2.3s)
+✔ [3875/3892] Built ZK60Formal.RunStgShieldTopI (3.3s)
+✔ [3876/3892] Built ZK60Formal.RunStgShieldIOTie (2.2s)
+✔ [3877/3892] Built ZK60Formal.RunStgShieldDefC (2.7s)
+✔ [3878/3892] Built ZK60Formal.RunStgShieldOutTie (1.8s)
+✔ [3879/3892] Built ZK60Formal.RunStgShieldInZero (1.8s)
+✔ [3880/3892] Built ZK60Formal.RunStgShieldCChain (8.1s)
+✔ [3881/3892] Built ZK60Formal.RunStgShieldCJoin (7.6s)
+✔ [3882/3892] Built ZK60Formal.RunStgShieldCWire (3.6s)
+✔ [3883/3892] Built ZK60Formal.RunStgShieldCTop (3.0s)
+✔ [3884/3892] Built ZK60Formal.RunStgShieldCTopT (2.0s)
+✔ [3885/3892] Built ZK60Formal.RunStgShieldCTopC (2.9s)
+✔ [3886/3892] Built ZK60Formal.RunStgShieldCTopI (2.9s)
+✔ [3887/3892] Built ZK60Formal.RunStgShieldCTopK (2.9s)
+✔ [3888/3892] Built ZK60Formal.RunStgShieldCTopZ (2.9s)
+✔ [3889/3892] Built ZK60Formal.RunStgShieldCTopF (2.0s)
+✔ [3890/3892] Built ZK60Formal.RunStgShieldCTopW (2.0s)
+✔ [3891/3892] Built ZK60Formal (1.7s)
+Build completed successfully (3892 jobs).
+root build in the main checkout rc 0, 85 s

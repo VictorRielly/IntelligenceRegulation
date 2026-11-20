@@ -1,0 +1,20 @@
+'ZK60.ProtocolClassify.shdP_hzk' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_bitLay_layR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_bitLay_dPos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_blkParams_shieldBlkAtD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_clampPk_Pk0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_blks_length' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_blk_cal_eq' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_Pk0_eq_blkParams' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_shieldRunAtD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLu' depends on axioms: [propext, Classical.choice, Quot.sound]
+ZK60.ProtocolClassify.shdP_Pk0_eq_blkParams : ∀ (tag : ZK60.Exec.MTag) (ioIn ioOut : ℕ)
+  (checkOpening :
+    (ZK60.Exec.HIn → ZK60.Exec.Dig) →
+      ZK60.Exec.Block.Cm → List ZK60.Exec.Block.ZClaim → ZK60.Exec.Tr → Except String Unit)
+  (Rp : ZK60.RunShape.ClassifyRunPublicP ZK60.RunShape.Shield.shieldS0) (hR : ZK60.RunShape.Shield.ShieldRun Rp) (k : ℕ)
+  (hk : k < 26),
+  ZK60.ProtocolClassify.shdP_Pk0 tag ioIn ioOut checkOpening Rp k =
+    let Ly := ZK60.RunShape.Shield.shieldExport[k];
+    let b := Rp.blks[k];
+    ZK60.ProtocolClassify.shdP_blkParams tag ioIn ioOut checkOpening Ly (cast ⋯ b.pub)

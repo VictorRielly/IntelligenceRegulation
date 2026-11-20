@@ -1,0 +1,2 @@
+THEOREM ZK60.ProtocolClassify.shdP_hU binders=0
+CONCLUSION :: shdP_U ^ 2 = (algebraMap GF shdP_K) 7

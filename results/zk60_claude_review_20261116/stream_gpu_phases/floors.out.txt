@@ -1,0 +1,91 @@
+====================================================================================================
+Prove-call times by context (from the logs; medians; n)
+====================================================================================================
+  serve1 solo                                          n= 6  P median 3.662  IQR 0.061  min 3.601 max 3.797
+  serve4 requests 0..2 (sealing beside)                n=18  P median 3.809  IQR 0.172  min 3.648 max 4.121
+  serve4 requests 1..3 (Batch 7 steady convention)     n=18  P median 3.700  IQR 0.209  min 3.454 max 3.862
+  serve4 last request (nothing beside)                 n= 6  P median 3.512  IQR 0.050  min 3.454 max 3.626
+  serve6 requests 0..4 (sealing beside)                n=30  P median 3.889  IQR 0.213  min 3.529 max 4.167
+  serve6 requests 1..5 (Batch 7 steady convention)     n=30  P median 3.784  IQR 0.311  min 3.377 max 3.993
+  serve6 last request (nothing beside)                 n= 6  P median 3.516  IQR 0.075  min 3.377 max 3.581
+
+====================================================================================================
+ITEM 5  floors for the prove call
+====================================================================================================
+  serve1   solo    n= 6 | P today 3.662 | (i) prover busy union 2.508 | (ii) sum of solo spans 2.976 | sum of actual spans 6.538 (x2.61 of union, x2.20 of solo sum) | idle 1.154
+  serve4   beside  n=18 | P today 3.809 | (i) prover busy union 2.688 | (ii) sum of solo spans 2.979 | sum of actual spans 6.399 (x2.38 of union, x2.15 of solo sum) | idle 1.121
+  serve4   last    n= 6 | P today 3.512 | (i) prover busy union 2.501 | (ii) sum of solo spans 2.976 | sum of actual spans 6.268 (x2.51 of union, x2.11 of solo sum) | idle 1.011
+  serve6   beside  n=30 | P today 3.889 | (i) prover busy union 2.674 | (ii) sum of solo spans 2.978 | sum of actual spans 6.455 (x2.41 of union, x2.17 of solo sum) | idle 1.215
+  serve6   last    n= 6 | P today 3.516 | (i) prover busy union 2.511 | (ii) sum of solo spans 2.977 | sum of actual spans 6.425 (x2.56 of union, x2.16 of solo sum) | idle 1.005
+  one-block log: 32 blocks x 93.482 ms = 2.991 s  (the same sum of solo spans, from one block run alone, n = 7)
+  solo spans used (pooled md < 1.1, ms):
+     slot 18 14 F zero-check (hosts 13G, 13U              22.52 ms 
+     slot 14 03 D zero-check (hosts 12, 13D               14.32 ms 
+     commit H (2606 rows)                                 13.81 ms 
+     commit A (2504 rows)                                 13.46 ms 
+     slot 12 13U up matmul (private                        8.16 ms all samples median (no low-concurrency samples)
+     slot 17 06 softmax zero-check (hosts 07, 10           7.78 ms 
+     slot 15 04 Q zero-check (hosts 09Q, 11                5.90 ms md<1.75 median, n=30 (fewer than 10 solo samples)
+     slot 19 TAB table helper zero-check                   3.93 ms 
+     slot 16 05 KV zero-check (hosts 09K, 09V              2.93 ms 
+     slot 04 07 masked row sums + selector (private        1.64 ms 
+     slot 00 01 SS row sums norm_a (private                1.43 ms 
+     slot 01 01m SS row sums norm_m (private               1.40 ms 
+     slot 21 IO-in endpoint equality                       1.14 ms 
+     slot 22 IO-out endpoint equality                      1.12 ms 
+     slot 03 08 limb zero-check                            1.11 ms 
+     slot 07 09V matmul (private                           0.80 ms all samples median (no low-concurrency samples)
+     slot 13 13D down matmul (private                      0.55 ms 
+     slot 20 ZS zero-sum row                               0.47 ms 
+     slot 06 09K matmul (private                           0.43 ms all samples median (no low-concurrency samples)
+     slot 10 12 Wo matmul (private                         0.37 ms all samples median (no low-concurrency samples)
+     slot 11 13G gate matmul (private                      0.36 ms all samples median (no low-concurrency samples)
+     small commits (37/38 rows)                            0.31 ms 
+     gather H (2606 rows)                                  0.11 ms 
+     gather A (2504 rows)                                  0.09 ms 
+     small gathers (37/38 rows)                            0.01 ms 
+  target 2.56 s (50 tok/s on 128 tokens); today's P 3.70 s (task) / measured medians above
+
+====================================================================================================
+ITEM 6  candidate A in GPU terms (measured spans for H commit and H open; model for the slot share)
+====================================================================================================
+
+  serve1 / solo, n = 6 calls; prover busy union U = 2.508 s
+     MEASURED  H commit: eq-share 378 ms (15.1 % of U), sum of spans 922 ms | H open (GPU gather): 3.6 ms (0.14 % of U), sum 4.2 ms
+     MODEL     helper share of slots 14-18 (table-count fractions D 27%, Q 20%, Kv 20%, S 21%, F 21%): high 280 ms, low end 136 ms; slot 19 TAB 0..86 ms
+     variant                                                dU ms  % of U | MODEL (P today 3.70 s, S 3.35, W 0.22)
+     A1: H commit + H open only (measured)                    381   15.2% | P' 3.319  x1.115 | cadence 3.446 (x1.074; today 3.700) | 3.319 (x1.115)
+     A2: A1 + helper share slots 14-18, low end               517   20.6% | P' 3.183  x1.163 | cadence 3.378 (x1.095; today 3.700) | 3.183 (x1.163)
+     A3: A1 + helper share slots 14-18, table-count value       662   26.4% | P' 3.038  x1.218 | cadence 3.306 (x1.119; today 3.700) | 3.038 (x1.218)
+     A4: A3 + whole TAB slot 19                               747   29.8% | P' 2.953  x1.253 | cadence 3.263 (x1.134; today 3.700) | 2.953 (x1.253)
+     (upper reading, MODEL: P falls in proportion to U, A3: P' = 2.724, x1.358; not used above because the host-only time need not shrink)
+
+  serve4 / beside, n = 18 calls; prover busy union U = 2.688 s
+     MEASURED  H commit: eq-share 403 ms (15.0 % of U), sum of spans 876 ms | H open (GPU gather): 5.6 ms (0.21 % of U), sum 8.7 ms
+     MODEL     helper share of slots 14-18 (table-count fractions D 27%, Q 20%, Kv 20%, S 21%, F 21%): high 298 ms, low end 144 ms; slot 19 TAB 0..98 ms
+     variant                                                dU ms  % of U | MODEL (P today 3.70 s, S 3.35, W 0.22)
+     A1: H commit + H open only (measured)                    408   15.2% | P' 3.292  x1.124 | cadence 3.433 (x1.078; today 3.700) | 3.292 (x1.124)
+     A2: A1 + helper share slots 14-18, low end               553   20.6% | P' 3.147  x1.176 | cadence 3.360 (x1.101; today 3.700) | 3.147 (x1.176)
+     A3: A1 + helper share slots 14-18, table-count value       706   26.3% | P' 2.994  x1.236 | cadence 3.284 (x1.127; today 3.700) | 2.994 (x1.236)
+     A4: A3 + whole TAB slot 19                               804   29.9% | P' 2.896  x1.277 | cadence 3.235 (x1.144; today 3.700) | 2.896 (x1.277)
+     (upper reading, MODEL: P falls in proportion to U, A3: P' = 2.728, x1.356; not used above because the host-only time need not shrink)
+
+  serve6 / beside, n = 30 calls; prover busy union U = 2.674 s
+     MEASURED  H commit: eq-share 401 ms (15.0 % of U), sum of spans 922 ms | H open (GPU gather): 5.4 ms (0.20 % of U), sum 9.4 ms
+     MODEL     helper share of slots 14-18 (table-count fractions D 27%, Q 20%, Kv 20%, S 21%, F 21%): high 299 ms, low end 145 ms; slot 19 TAB 0..99 ms
+     variant                                                dU ms  % of U | MODEL (P today 3.70 s, S 3.35, W 0.22)
+     A1: H commit + H open only (measured)                    406   15.2% | P' 3.294  x1.123 | cadence 3.434 (x1.078; today 3.700) | 3.294 (x1.123)
+     A2: A1 + helper share slots 14-18, low end               551   20.6% | P' 3.149  x1.175 | cadence 3.361 (x1.101; today 3.700) | 3.149 (x1.175)
+     A3: A1 + helper share slots 14-18, table-count value       705   26.4% | P' 2.995  x1.235 | cadence 3.284 (x1.127; today 3.700) | 2.995 (x1.235)
+     A4: A3 + whole TAB slot 19                               804   30.1% | P' 2.896  x1.278 | cadence 3.235 (x1.144; today 3.700) | 2.896 (x1.278)
+     (upper reading, MODEL: P falls in proportion to U, A3: P' = 2.725, x1.358; not used above because the host-only time need not shrink)
+
+  Batch 6 review, wall-time conversion for the stream cadence (BATCH6_REVIEW.md section 5): x1.09 (sealing unchanged) to x1.19 (sealing follows) for the 19.3 % list; x1.13 to x1.27 with the helper slots.
+
+====================================================================================================
+MODEL  how much prover GPU-busy union must go for P = 2.56 s, as a function of the host-only idle time that is left
+       dU = U + idle_left - 2.56  (P = U' + idle_left; the idle time is assumed independent of the GPU work)
+====================================================================================================
+  serve1 solo (no sealing beside), U 2.508             idle_left 0.0 s: dU  -52 ms (-2.1 % of U) | idle_left 0.2 s: dU  148 ms ( 5.9 % of U) | idle_left 0.4 s: dU  348 ms (13.9 % of U) | idle_left 0.6 s: dU  548 ms (21.9 % of U) | idle_left 0.8 s: dU  748 ms (29.8 % of U) | idle_left 1.1 s: dU 1048 ms (41.8 % of U)
+  serve4 beside, U 2.688                               idle_left 0.0 s: dU  128 ms ( 4.8 % of U) | idle_left 0.2 s: dU  328 ms (12.2 % of U) | idle_left 0.4 s: dU  528 ms (19.6 % of U) | idle_left 0.6 s: dU  728 ms (27.1 % of U) | idle_left 0.8 s: dU  928 ms (34.5 % of U) | idle_left 1.1 s: dU 1228 ms (45.7 % of U)
+  last request in stream (no sealing beside), U 2.501  idle_left 0.0 s: dU  -59 ms (-2.4 % of U) | idle_left 0.2 s: dU  141 ms ( 5.6 % of U) | idle_left 0.4 s: dU  341 ms (13.6 % of U) | idle_left 0.6 s: dU  541 ms (21.6 % of U) | idle_left 0.8 s: dU  741 ms (29.6 % of U) | idle_left 1.1 s: dU 1041 ms (41.6 % of U)

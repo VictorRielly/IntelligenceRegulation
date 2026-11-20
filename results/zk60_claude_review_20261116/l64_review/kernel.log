@@ -1,0 +1,6 @@
+build ZK60Formal.RunBlkAliveR13 rc 0, 1 s
+warning lines: 8
+axioms rc 0
+axiom print lines: 59
+non-standard lines: 59 total; sorryAx 0; ofReduceBool 0
+total 4 s

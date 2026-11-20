@@ -1,0 +1,16 @@
+tables 64, nodes 83, materialized 4; kmax 68; tables loaded by v13/k1: 68
+tables 29, nodes 37, materialized 4; kmax 33; tables loaded by v13/k1: 32
+tables 64, nodes 83, materialized 4; per point: v0 body 502 muls + 64 line values; v3 body 297 muls + 67 line values (2 muls each for d >= 2 in v0/v1/v3, adds in v2)
+kmax 68
+tables 29, nodes 37, materialized 4; per point: v0 body 222 muls + 29 line values; v3 body 149 muls + 32 line values (2 muls each for d >= 2 in v0/v1/v3, adds in v2)
+kmax 33
+wrote /Users/victorrielly/IntelligenceRegulation/results/zk60_k0k1_roofline_20261118/build/k0.metal 1750 723 69 521
+BUILD_OK
+tables 64, nodes 83, materialized 4; kmax 68; tables referenced by v13 source: 68, live (loaded by v13 after dead-code removal, and by k1): 67
+tables 29, nodes 37, materialized 4; kmax 33; tables referenced by v13 source: 32, live (loaded by v13 after dead-code removal, and by k1): 32
+tables 64, nodes 83, materialized 4; per point: v0 body 502 muls + 64 line values; v3 body 297 muls + 67 line values (2 muls each for d >= 2 in v0/v1/v3, adds in v2)
+kmax 68
+tables 29, nodes 37, materialized 4; per point: v0 body 222 muls + 29 line values; v3 body 149 muls + 32 line values (2 muls each for d >= 2 in v0/v1/v3, adds in v2)
+kmax 33
+wrote /Users/victorrielly/IntelligenceRegulation/results/zk60_k0k1_roofline_20261118/build/k0.metal 1750 723 69 521
+BUILD_OK

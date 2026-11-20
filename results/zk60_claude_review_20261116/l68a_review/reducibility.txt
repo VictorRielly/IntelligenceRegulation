@@ -1,0 +1,14 @@
+ZK60.ProtocolClassify.shdP_Pk0 : Lean.ReducibilityStatus.irreducible
+ZK60.ProtocolClassify.shdP_bitLay : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_w16Pub : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_blkParams : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_K : Lean.ReducibilityStatus.reducible
+ZK60.ProtocolClassify.shdP_U : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_K_decidableEq : Lean.ReducibilityStatus.instanceReducible
+ZK60.ProtocolClassify.shdP_K_fintype : Lean.ReducibilityStatus.instanceReducible
+ZK60.ProtocolClassify.shdP_rowsOf : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_slotKind : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_clampPk : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_runDomain : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_rtRun : Lean.ReducibilityStatus.irreducible
+ZK60.ProtocolClassify.shdP_wDelta : Lean.ReducibilityStatus.irreducible

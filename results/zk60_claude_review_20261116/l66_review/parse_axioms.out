@@ -1,0 +1,8 @@
+lines with axioms: 72 no-axiom lines: 0 other lines (errors/warnings/info): 0
+outside standard set: []
+any sorryAx / ofReduceBool: False
+Counter({('Classical.choice', 'Quot.sound', 'propext'): 63, ('Quot.sound', 'propext'): 7, ('propext',): 2})
+public theorems per script: 44
+theorems (incl private) printed: 44 of 51
+public theorems all printed and standard: True
+TOP: ['Classical.choice', 'Quot.sound', 'propext']

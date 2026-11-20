@@ -1,0 +1,8 @@
+ZK60.ProtocolClassify.shdP_rtRun : Lean.ReducibilityStatus.irreducible
+ZK60.ProtocolClassify.shdP_wDelta : Lean.ReducibilityStatus.irreducible
+ZK60.ProtocolClassify.shdRkD : Lean.ReducibilityStatus.irreducible
+ZK60.ProtocolClassify.shdRkBase : Lean.ReducibilityStatus.irreducible
+ZK60.ProtocolClassify.shdP_clampPk : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_runV : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_Iin : Lean.ReducibilityStatus.semireducible
+ZK60.ProtocolClassify.shdP_rtBlk : Lean.ReducibilityStatus.semireducible

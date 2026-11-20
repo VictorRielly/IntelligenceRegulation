@@ -1,0 +1,5 @@
+serve1   solo                         n= 6  witness GPU union 0.370 s (IQR 0.005), sum of spans 0.504 s, chain wall 2.180 s, of the union inside a prover-busy instant: 0.000 s (0 %)
+serve4   request 0 (nothing beside)   n= 6  witness GPU union 0.366 s (IQR 0.039), sum of spans 0.519 s, chain wall 2.113 s, of the union inside a prover-busy instant: 0.000 s (0 %)
+serve4   requests 1..3 (prover beside) n=18  witness GPU union 0.438 s (IQR 0.030), sum of spans 0.479 s, chain wall 3.307 s, of the union inside a prover-busy instant: 0.378 s (88 %)
+serve6   request 0 (nothing beside)   n= 6  witness GPU union 0.363 s (IQR 0.022), sum of spans 0.504 s, chain wall 2.114 s, of the union inside a prover-busy instant: 0.000 s (0 %)
+serve6   requests 1..5 (prover beside) n=30  witness GPU union 0.401 s (IQR 0.036), sum of spans 0.449 s, chain wall 3.174 s, of the union inside a prover-busy instant: 0.322 s (80 %)

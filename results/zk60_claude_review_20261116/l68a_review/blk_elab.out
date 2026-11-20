@@ -1,0 +1,124 @@
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.shdP_X2_sub_7_irred' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.shdP_X2_sub_7_fact' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_K' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_U' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hU' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hbij' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_K_decidableEq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_K_fintype' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hzk' depends on axioms: [propext, Classical.choice, Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.axMsb' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.tokInv' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.tokInv_msbBits' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.msbBits_tokInv' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.grpInv' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.grpInv_msbBits' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.msbBits_grpInv' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.hdZero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.hdEmb' depends on axioms: [propext,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.hdInv' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.hdFlip' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.hdInv_hdEmb' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.hdEmb_hdInv' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.hdFlip_hdEmb' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.slotEmb' depends on axioms: [propext]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.slotInv' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.slotInv_slotEmb' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.slotEmb_slotInv' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.shdP_bitLay' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_bitLay_layR' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_bitLay_dPos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.wid_msbBits_lt' depends on axioms: [propext,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.hid_msbBits_lt' depends on axioms: [propext,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.not_wid_lt_of_pad' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.not_hid_lt_of_pad' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.grpColFn' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.grpColFn_emb' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.wgFn' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.wgFn_emb' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.wuFn' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.wuFn_emb' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.wdFn' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.wdFn_emb' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.shdP_w16Pub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rowsOf' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shdP_slotKind' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_blkParams' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_blkParams_shieldBlkAtD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_Pk0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_clampPk_Pk0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_shieldRunAtD' depends on axioms: [propext, Classical.choice, Quot.sound]
+'_private.results.zk60_claude_review_20261116.l68a_review.RunShieldBlkInst_review_copy.0.ZK60.ProtocolClassify.zero_lt_26_blk' does not depend on any axioms
+'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLu' depends on axioms: [propext, Classical.choice, Quot.sound]
+Shield.shield_run_exists : ∃ R, ShieldRun R ∧ R.Valid
+def ZK60.RunShape.Shield.ShieldRun : ClassifyRunPublicP shieldS0 → Prop :=
+fun R => List.map RunBlock.cal R.blks = List.map shieldCal shieldExport
+def ZK60.Exec.msbBits : (n : ℕ) → ℕ → Fin n → Bool :=
+fun n idx j => decide (idx / 2 ^ (n - 1 - ↑j) % 2 = 1)
+def ZK60.Layout.W16Layout.dPos : {S : BlockShape} →
+  {Ct Cw Cg Cj Cd Cf : Type} → W16Layout S Ct Cw Cg Cj Cd Cf → S.Pos → Ct × Cw :=
+fun {S} {Ct Cw Cg Cj Cd Cf} L p => (L.tok.emb p.1, L.wid.emb p.2)
+def ZK60.ProtocolClassify.shieldDPos0 : shieldS0.Pos → (Fin 7 → Bool) × (Fin 12 → Bool) :=
+fun p => (msbBits 7 ↑p.1, msbBits 12 ↑p.2)
+def ZK60.ProtocolClassify.shdP_clampPk : (ℕ → BlockParams) → ℕ → BlockParams :=
+fun Pk0 k => Pk0 (min k 25)
+'ZK60.RunShape.Shield.shield_run_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ZKHonest.runK_ref_cap_110' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldLu' depends on axioms: [propext, Classical.choice, Quot.sound]

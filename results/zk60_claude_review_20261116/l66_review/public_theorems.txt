@@ -1,0 +1,72 @@
+105 def ZK60.ProtocolClassify.shieldDPos0
+108 theorem ZK60.ProtocolClassify.shieldDPos0_injective
+123 def ZK60.ProtocolClassify.ShieldBlkAtD
+141 theorem ZK60.ProtocolClassify.ShieldBlkAtD.toShieldBlkAtC
+148 def ZK60.ProtocolClassify.ShieldRunAtD
+154 theorem ZK60.ProtocolClassify.ShieldRunAtD.toShieldRunAtC
+161 theorem ZK60.ProtocolClassify.ShieldRunAtD.toShieldRunAt
+166 theorem ZK60.ProtocolClassify.ShieldRunAtD.ep14
+175 def ZK60.ProtocolClassify.shieldLyD
+178 def ZK60.ProtocolClassify.shieldBlkD
+181 def ZK60.ProtocolClassify.shieldPbD
+185 theorem ZK60.ProtocolClassify.shieldRunAtD_spec
+193 theorem ZK60.ProtocolClassify.shieldLyD_mem
+197 def ZK60.ProtocolClassify.shieldRowsOfD
+200 def ZK60.ProtocolClassify.shieldLayD
+207 def ZK60.ProtocolClassify.shieldBD
+211 def ZK60.ProtocolClassify.shieldIoInD
+214 def ZK60.ProtocolClassify.shieldIoOutD
+218 theorem ZK60.ProtocolClassify.shieldBlkAtD_spec
+243 theorem ZK60.ProtocolClassify.absAt_opTrace_indep
+255 theorem ZK60.ProtocolClassify.absAt_rtTr_indep
+261 theorem ZK60.ProtocolClassify.hdrX_rtTr_at_lt
+270 theorem ZK60.ProtocolClassify.bndPl_congr_at
+281 def ZK60.ProtocolClassify.bndPlanes
+294 def ZK60.ProtocolClassify.epxBndE
+306 theorem ZK60.ProtocolClassify.epxE_epxBndE_planes
+322 def ZK60.ProtocolClassify.ShieldBlkIO_D
+339 theorem ZK60.ProtocolClassify.shd_hblkIO
+371 theorem PRIVATE ZK60.ProtocolClassify.zero_sum_mMsg
+375 theorem PRIVATE ZK60.ProtocolClassify.getD_replicate_zero
+382 theorem PRIVATE ZK60.ProtocolClassify.append_left_char6
+388 theorem PRIVATE ZK60.ProtocolClassify.mErrMsg_pathLen_char6
+394 theorem PRIVATE ZK60.ProtocolClassify.combinedWeights_nil
+397 theorem PRIVATE ZK60.ProtocolClassify.maskVerify_eval_empty
+435 theorem ZK60.ProtocolClassify.maskField_inj_S
+514 def ZK60.ProtocolClassify.shdRkBaseX
+550 theorem ZK60.ProtocolClassify.shdRkBaseX_0_gX
+559 theorem ZK60.ProtocolClassify.shdRkBaseX_1_gX
+568 theorem ZK60.ProtocolClassify.shdRkBaseX_blk_gX
+579 theorem ZK60.ProtocolClassify.shdRkBaseX_out_gX
+592 def ZK60.ProtocolClassify.shdRkD0
+612 def ZK60.ProtocolClassify.shdRkBase
+690 def ZK60.ProtocolClassify.shdRkD
+719 theorem ZK60.ProtocolClassify.shdRkBase_gX_nX
+753 theorem ZK60.ProtocolClassify.shdRkD_ops_eq_D0
+808 theorem ZK60.ProtocolClassify.shd_hb0
+839 theorem ZK60.ProtocolClassify.shd_hbL
+876 theorem ZK60.ProtocolClassify.shd_hbBlk
+939 theorem ZK60.ProtocolClassify.shd_hslB
+1038 theorem ZK60.ProtocolClassify.shdRkD_eq_ebData
+1070 theorem ZK60.ProtocolClassify.shd_blk_sls
+1105 theorem ZK60.ProtocolClassify.rtPart_pre_le_len
+1110 theorem ZK60.ProtocolClassify.blk_hhi_of_rtRun
+1145 theorem ZK60.ProtocolClassify.shd_blk_rkPartOk
+1326 theorem ZK60.ProtocolClassify.stgDefPos_mono
+1331 theorem ZK60.ProtocolClassify.stgDefsV_pairwise
+1340 theorem ZK60.ProtocolClassify.stg_inc_log_le64
+1357 theorem ZK60.ProtocolClassify.stg_outc_log_le64
+1378 theorem ZK60.ProtocolClassify.shd_stg0_rkPartOk
+1564 theorem ZK60.ProtocolClassify.shd_stgOut_rkPartOk
+1750 theorem ZK60.ProtocolClassify.shdRkD_valid
+1872 def ZK60.ProtocolClassify.shieldAlkLD
+1884 def ZK60.ProtocolClassify.shieldTLD
+1890 def ZK60.ProtocolClassify.shieldMlkLD
+1899 theorem ZK60.ProtocolClassify.shield_hR0_blkD
+2112 theorem ZK60.ProtocolClassify.shield_hR1_blkD
+2192 theorem ZK60.ProtocolClassify.shield_hH0_blkD
+2287 theorem ZK60.ProtocolClassify.shield_hH1_blkD
+2468 theorem ZK60.ProtocolClassify.shield_hLU_blkD
+2703 theorem ZK60.ProtocolClassify.shield_hblkD
+2850 theorem PRIVATE ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pinsHd_aux
+3259 theorem ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pinsHd

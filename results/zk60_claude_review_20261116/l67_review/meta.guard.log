@@ -1,0 +1,2 @@
+[zk60-guard 11:21:18] START claude-l67-review-meta class=build need=4G cap=5.5G enforce=watchdog-only waited=0s run=c18f0031f928
+[zk60-guard 11:21:35] END claude-l67-review-meta exit=0 child_wall=17s peak_rss=3.78G min_avail=210.43G

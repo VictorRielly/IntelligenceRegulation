@@ -1,0 +1,10 @@
+tables 64, kmax 68; v13 live tabs 67; products ee 67 eb 48 bb 0 (base mults 297); K3a program 182 lines
+  split 2: [('k_b2_0', 40, 153), ('k_b2_1', 33, 147)]
+  split 4: [('k_b4_0', 20, 75), ('k_b4_1', 20, 78), ('k_b4_2', 17, 72), ('k_b4_3', 19, 81)]
+tables 29, kmax 33; v13 live tabs 32; products ee 35 eb 22 bb 0 (base mults 149); K3a program 89 lines
+  split 2: [('k_b2_0', 21, 76), ('k_b2_1', 18, 76)]
+  split 4: [('k_b4_0', 11, 39), ('k_b4_1', 10, 37), ('k_b4_2', 10, 42), ('k_b4_3', 12, 40)]
+K4 source written /Users/victorrielly/IntelligenceRegulation/results/zk60_k0k1_roofline_20261118/build/k3k4_k4.metal
+k3k4_s14 k_v13 identical to unmodified gen.py output: True
+k3k4_s18 k_v13 identical to unmodified gen.py output: True
+BUILD_OK

@@ -1,0 +1,53 @@
+K3: later rounds from cap/4 to 1, ms per full round sequence; split arms run their G kernels back to back in one command buffer per round
+
+[slot14] n = 15 timed reps
+  v13     total 14.267 (IQR 14.250-14.293, 0.3%)   rounds 1-5 9.192 (IQR 9.174-9.219, 0.5%)
+  k3a     total 21.762 (IQR 21.725-21.790, 0.3%)   rounds 1-5 16.828 (IQR 16.790-16.857, 0.4%)
+  split2  total 12.874 (IQR 12.864-12.895, 0.2%)   rounds 1-5 7.658 (IQR 7.645-7.672, 0.4%)
+  split4  total 10.997 (IQR 10.962-11.015, 0.5%)   rounds 1-5 5.610 (IQR 5.595-5.619, 0.4%)
+  k3a/v13 total     : 1.525  (per-rep median 1.525, IQR 1.522-1.527)
+  k3a/v13 rounds 1-5: 1.831  (per-rep median 1.831, IQR 1.826-1.834)
+  split2/v13 total     : 0.902  (per-rep median 0.902, IQR 0.901-0.904)
+  split2/v13 rounds 1-5: 0.833  (per-rep median 0.833, IQR 0.831-0.835)
+  split4/v13 total     : 0.771  (per-rep median 0.771, IQR 0.768-0.773)
+  split4/v13 rounds 1-5: 0.610  (per-rep median 0.610, IQR 0.608-0.612)
+  K3a reading on total (1.525): ARITHMETIC-BOUND (>= 0.80)
+  K3b split2 reading on total (0.902, +9.8% below v13): SMALL (between)
+  K3b split4 reading on total (0.771, +22.9% below v13): PASS (summed time at least 15% below v13)
+
+[slot18] n = 15 timed reps
+  v13     total 14.289 (IQR 14.271-14.314, 0.3%)   rounds 1-5 11.379 (IQR 11.367-11.406, 0.3%)
+  k3a     total 17.921 (IQR 17.906-17.950, 0.2%)   rounds 1-5 14.945 (IQR 14.919-14.967, 0.3%)
+  split2  total 12.545 (IQR 12.517-12.552, 0.3%)   rounds 1-5 9.503 (IQR 9.471-9.512, 0.4%)
+  split4  total 12.319 (IQR 12.317-12.336, 0.2%)   rounds 1-5 9.066 (IQR 9.058-9.073, 0.2%)
+  k3a/v13 total     : 1.254  (per-rep median 1.254, IQR 1.252-1.257)
+  k3a/v13 rounds 1-5: 1.313  (per-rep median 1.313, IQR 1.309-1.316)
+  split2/v13 total     : 0.878  (per-rep median 0.878, IQR 0.875-0.879)
+  split2/v13 rounds 1-5: 0.835  (per-rep median 0.835, IQR 0.832-0.836)
+  split4/v13 total     : 0.862  (per-rep median 0.863, IQR 0.861-0.863)
+  split4/v13 rounds 1-5: 0.797  (per-rep median 0.797, IQR 0.795-0.798)
+  K3a reading on total (1.254): ARITHMETIC-BOUND (>= 0.80)
+  K3b split2 reading on total (0.878, +12.2% below v13): SMALL (between)
+  K3b split4 reading on total (0.862, +13.8% below v13): SMALL (between)
+
+K4: operation costs (2^20 threads; throughput = whole-GPU time over total operations)
+
+ throughput, 16 repetitions of 64 ops per thread (2^20 x 8 chains x 8 x 16 = 1,073,741,824 ops)
+  gl_add   1.8335 (IQR 1.8327-1.8353, 0.1%) ms -> 1.7075 ps/op  (585.6 Gop/s)  ratio to gl_add 1.00
+  gl_mul   4.8850 (IQR 4.8838-4.8855, 0.0%) ms -> 4.5495 ps/op  (219.8 Gop/s)  ratio to gl_add 2.66
+  f2_mul   25.2192 (IQR 25.2136-25.2270, 0.1%) ms -> 23.4872 ps/op  (42.6 Gop/s)  ratio to gl_add 13.75
+  f2_mulb  9.9531 (IQR 9.9520-9.9544, 0.0%) ms -> 9.2696 ps/op  (107.9 Gop/s)  ratio to gl_add 5.43
+
+ throughput, 128 repetitions of 64 ops per thread (2^20 x 8 chains x 8 x 128 = 8,589,934,592 ops)
+  gl_add   14.4474 (IQR 14.4463-14.4500, 0.0%) ms -> 1.6819 ps/op  (594.6 Gop/s)  ratio to gl_add 1.00
+  gl_mul   38.8319 (IQR 38.8307-38.8352, 0.0%) ms -> 4.5206 ps/op  (221.2 Gop/s)  ratio to gl_add 2.69
+  f2_mul   201.1974 (IQR 201.1822-201.2723, 0.0%) ms -> 23.4225 ps/op  (42.7 Gop/s)  ratio to gl_add 13.93
+  f2_mulb  79.3165 (IQR 79.3038-79.3209, 0.0%) ms -> 9.2337 ps/op  (108.3 Gop/s)  ratio to gl_add 5.49
+
+ dependent chain latency (32 threads, one SIMD group), ns per op = (t(65536) - t(16384)) / 49152
+  gl_add  t16384 0.4793 ms, t65536 1.9030 ms -> 28.97 ns per dependent op
+  gl_mul  t16384 1.0493 ms, t65536 4.1828 ms -> 63.75 ns per dependent op
+  f2_mul  t16384 5.6851 ms, t65536 22.7240 ms -> 346.66 ns per dependent op
+
+spread flags (IQR over 10% of median):
+  none

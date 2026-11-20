@@ -1,0 +1,38 @@
+# L62 pre-review patch (Claude, 2026-11-16). Proposal only; not applied.
+# original sha256 c68a7c490561a309924eb89984ea3701ef025d630b5fea36c3cb182701a4249c
+# patched  sha256 8e66b1033e74897ca2e84d16e64a96d9b66f80e9708349299535af50abcf09b8 (scratch copy L62Scratch3.lean)
+# apply from the repository root: git apply --check <this file>, then git apply
+--- a/formal/ZK60Formal/RunBlkShieldInst.lean
++++ b/formal/ZK60Formal/RunBlkShieldInst.lean
+@@ -303,6 +303,7 @@
+   dsimp only [rxPs]
+   rw [ite_eq_left hk]
+ 
++omit [Fintype K] [DecidableEq K] in
+ theorem shield_hoAK {S0 : BlockShape} {Lq : ℕ} {U : K} {tag : MTag} {h64 : 64 ≤ Lq}
+     {key : Option Dig} {domain : List UInt8} {hs : decodeLink (startMsg domain) = none}
+     {hL : (startMsg domain).length ≤ Lq} {rdx : List UInt8 → Option Dig}
+@@ -322,6 +323,7 @@
+   show (dblk k).gA.lc = (Pk k).logCols
+   rw [hdA k hk, shieldRun_logCols hPk k hk]
+ 
++omit [Fintype K] [DecidableEq K] in
+ theorem shield_hoHK {S0 : BlockShape} {Lq : ℕ} {U : K} {tag : MTag} {h64 : 64 ≤ Lq}
+     {key : Option Dig} {domain : List UInt8} {hs : decodeLink (startMsg domain) = none}
+     {hL : (startMsg domain).length ≤ Lq} {rdx : List UInt8 → Option Dig}
+@@ -341,6 +343,7 @@
+   show (dblk k).gH.lc = (Pk k).logCols
+   rw [hdH k hk, shieldRun_logCols hPk k hk]
+ 
++omit [Fintype K] [DecidableEq K] in
+ theorem shield_hoIK {Lq : ℕ} {U : K} {tag : MTag} {h64 : 64 ≤ Lq}
+     {key : Option Dig} {domain : List UInt8} {hs : decodeLink (startMsg domain) = none}
+     {hL : (startMsg domain).length ≤ Lq} {rdx : List UInt8 → Option Dig}
+@@ -360,6 +363,7 @@
+   · rw [hgX1_lc, hep14 0 hk]
+   · rw [hgXk_lc j hk, hep14 (j + 1) hk]
+ 
++omit [Fintype K] [DecidableEq K] in
+ theorem shield_hoOK {Lq : ℕ} {U : K} {tag : MTag} {h64 : 64 ≤ Lq}
+     {key : Option Dig} {domain : List UInt8} {hs : decodeLink (startMsg domain) = none}
+     {hL : (startMsg domain).length ≤ Lq} {rdx : List UInt8 → Option Dig}

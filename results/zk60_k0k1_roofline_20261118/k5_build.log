@@ -1,0 +1,101 @@
+k_sc_round: tables in source 68; v13 live tabs 67; counts {'f2_mul': 67, 'f2_mulb': 48, 'gl_mul': 0} (base mults 297); items 21 (subterms 19); G sweep [2, 4, 8, 21]; materialized 4
+  s2: live tabs [40, 33]  base mults [153, 147]
+  a2: live tabs [40, 33]  base mults [153, 147]
+  s4: live tabs [20, 20, 17, 19]  base mults [75, 78, 72, 81]
+  a4: live tabs [20, 20, 17, 19]  base mults [75, 78, 72, 81]
+  s8: live tabs [13, 11, 10, 10, 10, 9, 9, 10]  base mults [36, 39, 33, 42, 42, 42, 42, 42]
+  a8: live tabs [13, 11, 10, 10, 10, 9, 9, 10]  base mults [36, 39, 33, 42, 42, 42, 42, 42]
+  s21: live tabs [13, 6, 6, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3]  base mults [36, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 9]
+  a21: live tabs [13, 6, 6, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3]  base mults [36, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 9]
+k_sc_round: tables in source 33; v13 live tabs 32; counts {'f2_mul': 35, 'f2_mulb': 22, 'gl_mul': 0} (base mults 149); items 12 (subterms 10); G sweep [2, 4, 8, 12]; materialized 4
+  s2: live tabs [21, 18]  base mults [76, 76]
+  a2: live tabs [21, 18]  base mults [76, 76]
+  s4: live tabs [11, 10, 10, 12]  base mults [39, 37, 42, 40]
+  a4: live tabs [11, 10, 10, 12]  base mults [39, 37, 42, 40]
+  s8: live tabs [6, 5, 7, 9, 6, 6, 4, 4]  base mults [17, 15, 29, 27, 22, 22, 16, 16]
+  a8: live tabs [6, 5, 7, 9, 6, 6, 4, 4]  base mults [17, 15, 29, 27, 22, 22, 16, 16]
+  s12: live tabs [6, 5, 4, 3, 4, 4, 4, 4, 4, 7, 3, 3]  base mults [17, 15, 16, 16, 16, 16, 16, 16, 16, 14, 9, 9]
+  a12: live tabs [6, 5, 4, 3, 4, 4, 4, 4, 4, 7, 3, 3]  base mults [17, 15, 16, 16, 16, 16, 16, 16, 16, 14, 9, 9]
+k_sc_round: tables in source 39; v13 live tabs 39; counts {'f2_mul': 40, 'f2_mulb': 31, 'gl_mul': 0} (base mults 182); items 13 (subterms 11); G sweep [2, 4, 8, 13]; materialized 0
+  s2: live tabs [24, 21]  base mults [92, 93]
+  a2: live tabs [24, 21]  base mults [92, 93]
+  s4: live tabs [16, 12, 10, 12]  base mults [45, 50, 42, 54]
+  a4: live tabs [16, 12, 10, 12]  base mults [45, 50, 42, 54]
+  s8: live tabs [12, 7, 7, 8, 6, 6, 4, 4]  base mults [33, 29, 29, 28, 28, 24, 16, 16]
+  a8: live tabs [12, 7, 7, 8, 6, 6, 4, 4]  base mults [33, 29, 29, 28, 28, 24, 16, 16]
+  s13: live tabs [12, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3]  base mults [33, 16, 16, 16, 16, 16, 16, 16, 16, 16, 12, 12, 11]
+  a13: live tabs [12, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3]  base mults [33, 16, 16, 16, 16, 16, 16, 16, 16, 16, 12, 12, 11]
+k_sc_round: tables in source 22; v13 live tabs 21; counts {'f2_mul': 25, 'f2_mulb': 13, 'gl_mul': 0} (base mults 101); items 9 (subterms 7); G sweep [2, 4, 8, 9]; materialized 0
+  s2: live tabs [14, 12]  base mults [50, 54]
+  a2: live tabs [14, 12]  base mults [50, 54]
+  s4: live tabs [9, 7, 6, 7]  base mults [30, 27, 29, 24]
+  a4: live tabs [9, 7, 6, 7]  base mults [30, 27, 29, 24]
+  s8: live tabs [5, 4, 4, 6, 4, 4, 3, 5]  base mults [15, 16, 16, 16, 13, 14, 11, 15]
+  a8: live tabs [5, 4, 4, 6, 4, 4, 3, 5]  base mults [15, 16, 16, 16, 13, 14, 11, 15]
+  s9: live tabs [5, 4, 4, 6, 4, 4, 3, 3, 3]  base mults [15, 16, 16, 16, 13, 14, 11, 9, 9]
+  a9: live tabs [5, 4, 4, 6, 4, 4, 3, 3, 3]  base mults [15, 16, 16, 16, 13, 14, 11, 9, 9]
+k_sc_round0: tables in source 22; v13 live tabs 21; counts {'f2_mul': 17, 'f2_mulb': 7, 'gl_mul': 14} (base mults 79); items 9 (subterms 7); G sweep [2, 4, 8, 9]; materialized 0
+  s2: live tabs [14, 12]  base mults [43, 39]
+  a2: live tabs [14, 12]  base mults [43, 39]
+  s4: live tabs [8, 8, 6, 8]  base mults [25, 21, 20, 19]
+  a4: live tabs [8, 8, 6, 8]  base mults [25, 21, 20, 19]
+  s8: live tabs [4, 4, 4, 5, 4, 3, 6, 5]  base mults [14, 14, 13, 10, 9, 10, 10, 14]
+  a8: live tabs [4, 4, 4, 5, 4, 3, 6, 5]  base mults [14, 14, 13, 10, 9, 10, 10, 14]
+  s9: live tabs [4, 4, 4, 5, 4, 3, 6, 3, 3]  base mults [14, 14, 13, 10, 9, 10, 10, 9, 8]
+  a9: live tabs [4, 4, 4, 5, 4, 3, 6, 3, 3]  base mults [14, 14, 13, 10, 9, 10, 10, 9, 8]
+k5_s14 k_v13 identical to unmodified gen.py output: False
+k5_s18 k_v13 identical to unmodified gen.py output: False
+k5_b14 k_v13 is the dumped k_sc_round (renamed, SC_DE -> 4u): True
+k5_b18 k_v13 is the dumped k_sc_round (renamed, SC_DE -> 4u): True
+k5_b18r0 k_v13 is the dumped k_sc_round0 (renamed, SC_DE -> 4u): True
+k_sc_round: tables in source 68; v13 live tabs 67; counts {'f2_mul': 67, 'f2_mulb': 48, 'gl_mul': 0} (base mults 297); items 21 (subterms 19); G sweep [2, 4, 8, 21]; materialized 4
+  s2: live tabs [40, 33]  base mults [153, 147]
+  a2: live tabs [40, 33]  base mults [153, 147]
+  s4: live tabs [20, 20, 17, 19]  base mults [75, 78, 72, 81]
+  a4: live tabs [20, 20, 17, 19]  base mults [75, 78, 72, 81]
+  s8: live tabs [13, 11, 10, 10, 10, 9, 9, 10]  base mults [36, 39, 33, 42, 42, 42, 42, 42]
+  a8: live tabs [13, 11, 10, 10, 10, 9, 9, 10]  base mults [36, 39, 33, 42, 42, 42, 42, 42]
+  s21: live tabs [13, 6, 6, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3]  base mults [36, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 9]
+  a21: live tabs [13, 6, 6, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3]  base mults [36, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 9]
+k_sc_round: tables in source 33; v13 live tabs 32; counts {'f2_mul': 35, 'f2_mulb': 22, 'gl_mul': 0} (base mults 149); items 12 (subterms 10); G sweep [2, 4, 8, 12]; materialized 4
+  s2: live tabs [21, 18]  base mults [76, 76]
+  a2: live tabs [21, 18]  base mults [76, 76]
+  s4: live tabs [11, 10, 10, 12]  base mults [39, 37, 42, 40]
+  a4: live tabs [11, 10, 10, 12]  base mults [39, 37, 42, 40]
+  s8: live tabs [6, 5, 7, 9, 6, 6, 4, 4]  base mults [17, 15, 29, 27, 22, 22, 16, 16]
+  a8: live tabs [6, 5, 7, 9, 6, 6, 4, 4]  base mults [17, 15, 29, 27, 22, 22, 16, 16]
+  s12: live tabs [6, 5, 4, 3, 4, 4, 4, 4, 4, 7, 3, 3]  base mults [17, 15, 16, 16, 16, 16, 16, 16, 16, 14, 9, 9]
+  a12: live tabs [6, 5, 4, 3, 4, 4, 4, 4, 4, 7, 3, 3]  base mults [17, 15, 16, 16, 16, 16, 16, 16, 16, 14, 9, 9]
+k_sc_round: tables in source 39; v13 live tabs 39; counts {'f2_mul': 40, 'f2_mulb': 31, 'gl_mul': 0} (base mults 182); items 13 (subterms 11); G sweep [2, 4, 8, 13]; materialized 0
+  s2: live tabs [24, 21]  base mults [92, 93]
+  a2: live tabs [24, 21]  base mults [92, 93]
+  s4: live tabs [16, 12, 10, 12]  base mults [45, 50, 42, 54]
+  a4: live tabs [16, 12, 10, 12]  base mults [45, 50, 42, 54]
+  s8: live tabs [12, 7, 7, 8, 6, 6, 4, 4]  base mults [33, 29, 29, 28, 28, 24, 16, 16]
+  a8: live tabs [12, 7, 7, 8, 6, 6, 4, 4]  base mults [33, 29, 29, 28, 28, 24, 16, 16]
+  s13: live tabs [12, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3]  base mults [33, 16, 16, 16, 16, 16, 16, 16, 16, 16, 12, 12, 11]
+  a13: live tabs [12, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3]  base mults [33, 16, 16, 16, 16, 16, 16, 16, 16, 16, 12, 12, 11]
+k_sc_round: tables in source 22; v13 live tabs 21; counts {'f2_mul': 25, 'f2_mulb': 13, 'gl_mul': 0} (base mults 101); items 9 (subterms 7); G sweep [2, 4, 8, 9]; materialized 0
+  s2: live tabs [14, 12]  base mults [50, 54]
+  a2: live tabs [14, 12]  base mults [50, 54]
+  s4: live tabs [9, 7, 6, 7]  base mults [30, 27, 29, 24]
+  a4: live tabs [9, 7, 6, 7]  base mults [30, 27, 29, 24]
+  s8: live tabs [5, 4, 4, 6, 4, 4, 3, 5]  base mults [15, 16, 16, 16, 13, 14, 11, 15]
+  a8: live tabs [5, 4, 4, 6, 4, 4, 3, 5]  base mults [15, 16, 16, 16, 13, 14, 11, 15]
+  s9: live tabs [5, 4, 4, 6, 4, 4, 3, 3, 3]  base mults [15, 16, 16, 16, 13, 14, 11, 9, 9]
+  a9: live tabs [5, 4, 4, 6, 4, 4, 3, 3, 3]  base mults [15, 16, 16, 16, 13, 14, 11, 9, 9]
+k_sc_round0: tables in source 22; v13 live tabs 21; counts {'f2_mul': 17, 'f2_mulb': 7, 'gl_mul': 14} (base mults 79); items 9 (subterms 7); G sweep [2, 4, 8, 9]; materialized 0
+  s2: live tabs [14, 12]  base mults [43, 39]
+  a2: live tabs [14, 12]  base mults [43, 39]
+  s4: live tabs [8, 8, 6, 8]  base mults [25, 21, 20, 19]
+  a4: live tabs [8, 8, 6, 8]  base mults [25, 21, 20, 19]
+  s8: live tabs [4, 4, 4, 5, 4, 3, 6, 5]  base mults [14, 14, 13, 10, 9, 10, 10, 14]
+  a8: live tabs [4, 4, 4, 5, 4, 3, 6, 5]  base mults [14, 14, 13, 10, 9, 10, 10, 14]
+  s9: live tabs [4, 4, 4, 5, 4, 3, 6, 3, 3]  base mults [14, 14, 13, 10, 9, 10, 10, 9, 8]
+  a9: live tabs [4, 4, 4, 5, 4, 3, 6, 3, 3]  base mults [14, 14, 13, 10, 9, 10, 10, 9, 8]
+k5_s14 k_v13 identical to unmodified gen.py output: True
+k5_s18 k_v13 identical to unmodified gen.py output: True
+k5_b14 k_v13 is the dumped k_sc_round (renamed, SC_DE -> 4u): True
+k5_b18 k_v13 is the dumped k_sc_round (renamed, SC_DE -> 4u): True
+k5_b18r0 k_v13 is the dumped k_sc_round0 (renamed, SC_DE -> 4u): True
+BUILD_OK

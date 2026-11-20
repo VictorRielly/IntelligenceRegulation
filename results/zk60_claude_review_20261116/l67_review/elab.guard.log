@@ -1,0 +1,4 @@
+[zk60-guard 11:17:55] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 11:18:56] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 11:19:47] START claude-l67-review-elab class=build need=4G cap=5.5G enforce=watchdog-only waited=111s run=3b7ebee43fe8
+[zk60-guard 11:20:01] END claude-l67-review-elab exit=0 child_wall=15s peak_rss=4.11G min_avail=209.96G

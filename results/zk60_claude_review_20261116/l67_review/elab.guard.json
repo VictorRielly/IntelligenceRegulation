@@ -1,0 +1,41 @@
+{
+ "ts_end": "2026-11-17T19:20:01Z",
+ "run_id": "3b7ebee43fe8",
+ "label": "claude-l67-review-elab",
+ "class": "build",
+ "cmd": [
+  "/Users/victorrielly/IntelligenceRegulation/results/zk60_claude_review_20261116/l67_review/l67_elab.sh"
+ ],
+ "need_gib": 4.0,
+ "cap_gib": 5.5,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 14.777403116226196,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 14191,
+ "boot_id": "B06DEC6D-4E7B-4BAA-B251-2DA7E22E411F",
+ "pid_ns": null,
+ "guard_starttime_ticks": 1794943075,
+ "lock_ids": {
+  "heavy": "16777234:68498707",
+  "build": "16777234:68498708"
+ },
+ "enforcement": "watchdog-only",
+ "waited_s": 111.1,
+ "guard_wall_s": 14.8,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": null,
+ "scope_adopted": null,
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 4.11,
+ "peak_cgroup_gib": null,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 209.96,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

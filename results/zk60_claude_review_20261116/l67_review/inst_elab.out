@@ -1,0 +1,107 @@
+'ZK60.ProtocolClassify.shdP_epPos' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_epPos_injective' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_epPlace' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_epPlace_val' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_epPlace_injective' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_stgInLay' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_cin' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_honestIn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_clog2_18' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_clog2_128' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_clog2_256' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_clog2_4096' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_clog2_131072' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_stgDim' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shdP_epDim' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shdP_incPub' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_incGeo' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_incV' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_wDelta' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_wDelta_eq' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_wDelta_length' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shdP_wDelta_getD' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shdP_outcPub' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_outcGeo' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_outcV' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_incPub_logs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_stgInLay_incPub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_incLay_nums' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_outcPub_logs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_outcLay_nums' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_P0in' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_P0out' depends on axioms: [propext, Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.rt_incBp_geom' depends on axioms: [propext, Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.stgSame_incBp' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hPin' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hPout' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_P0in_slots' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_P0out_slots' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hNin' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hN64I' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hNout' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hN64O' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hVi' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hwO' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_hwB' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_Iin' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_Oout' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_clampPk' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_clampPk_lt' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shdP_shieldRunAtD_clamp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_shieldGeom_bounds' depends on axioms: [propext]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_cnt_io_sums' depends on axioms: [propext]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_map_getD_cmCountS' depends on axioms: [propext]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_rtBlk_hokA' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_rtBlk_hokH' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_rtBlk_hgt' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_rtBlk_hgeomL' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_rtBlk_hPm' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_rtBlk_hcnt' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.shdP_blkPcs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtBlk' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtBlk_pA_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtBlk_pH_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_sgeom' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shdP_blockProf' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_runV' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtRun' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtRun_hdr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtRun_σs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtRun_pf' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtRun_rd' depends on axioms: [propext, Classical.choice, Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_rtPart_sqs_bounds' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_incPart_nums' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_outcPart_nums' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.shdP_blkPart_nums' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.map_const_range_sum' depends on axioms: [propext]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.flatMap_sqs_sum' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_rtProf_valid' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_runDomain' does not depend on any axioms
+'ZK60.ProtocolClassify.shdP_runDomain_start_none' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_runDomain_start_le' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdP_fp2_bijective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_incPart_S' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdP_outcPart_S' depends on axioms: [propext, Classical.choice, Quot.sound]
+'_private.RunShieldInstP_review_copy.0.ZK60.ProtocolClassify.zero_lt_26' does not depend on any axioms
+'ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst' depends on axioms: [propext, Classical.choice, Quot.sound]

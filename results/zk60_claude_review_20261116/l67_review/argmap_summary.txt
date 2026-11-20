@@ -1,0 +1,147 @@
+HEAD (some ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pinsHd) nargs=154 (pinsHd binders=154) top-theorem lambda binders=68
+Hdr        FORWARD Hdr
+Coins      FORWARD Coins
+K          FORWARD K
+Rr         TERM OfNat.ofNat                                             6
+dR         TERM OfNat.ofNat                                             1
+pos        TERM shdP_epPos                                              ZK60.ProtocolClassify.shdP_epPos
+hpos       TERM shdP_epPos_injective                                    ZK60.ProtocolClassify.shdP_epPos_injective
+place      TERM shdP_epPlace                                            ZK60.ProtocolClassify.shdP_epPlace
+hplace     TERM shdP_epPlace_injective                                  ZK60.ProtocolClassify.shdP_epPlace_injective
+tag        FORWARD tag
+dPos0      FORWARD dPos0
+Rp         FORWARD Rp
+Lq         FORWARD Lq
+Lb         TERM OfNat.ofNat                                             26
+hL20       FORWARD hL20
+preA       FORWARD preA
+preB       FORWARD preB
+start      TERM clsStart                                                ZK60.ProtocolClassify.clsStart domain key hw
+inc        TERM none                                                    fun x => ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold bInRow
+incG       TERM none                                                    fun x => ZK60.ProtocolClassify.rcIncGeom (ZK60.ProtocolClassify.shdP_incV tag Rp embDigest
+Pk         TERM shdP_clampPk                                            ZK60.ProtocolClassify.shdP_clampPk Pk0
+sgeom      TERM shdP_sgeom                                              ZK60.ProtocolClassify.shdP_sgeom Hdr (ZK60.ProtocolClassify.shdP_clampPk Pk0)
+check      TERM vdChk                                                   ZK60.ProtocolClassify.vdChk check0
+paths      FORWARD paths
+digest     FORWARD digest
+bRows      TERM none                                                    fun x => 38
+bLogN      TERM none                                                    fun x => 14
+bndCheck   FORWARD bndCheck
+bndOpen    TERM cbBndOpen                                               ZK60.ProtocolClassify.cbBndOpen tag 38
+outc       TERM none                                                    fun x v => ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow v
+outcG      TERM none                                                    fun x => ZK60.ProtocolClassify.rcOutcGeom (ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest
+P          FORWARD P
+h64        TERM ZK60.Exec.Link.le64_of_le20                             ZK60.Exec.Link.le64_of_le20 hL20
+hr         TERM shdP_hr                                                 ZK60.ProtocolClassify.shdP_hr tag hL20
+hon        TERM shdP_honestIn                                           ZK60.ProtocolClassify.shdP_honestIn tag epBase
+U          FORWARD U
+hbij       FORWARD hbij
+key        FORWARD key
+domain     FORWARD domain
+hs         FORWARD hs
+hL         FORWARD hL
+hL64       FORWARD hL64
+Rn         TERM shdP_rtRun                                              ZK60.ProtocolClassify.shdP_rtRun Lq hL20 tag key domain hw hhdrFit preA preB Rp embDigest 
+hv         TERM shdP_rtProf_valid                                       ZK60.ProtocolClassify.shdP_rtProf_valid Lq hL20 tag key domain hw hhdrFit preA preB Rp emb
+hw         FORWARD hw
+hRn        TERM shdP_rtRun_hdr                                          ZK60.ProtocolClassify.shdP_rtRun_hdr Lq hL20 tag key domain hw hhdrFit preA preB Rp embDig
+ι          FORWARD ι
+site       FORWARD site
+kOf        FORWARD kOf
+δOf        FORWARD δOf
+E0         FORWARD E0
+εzk        FORWARD εzk
+O          FORWARD O
+hU         FORWARD hU
+cx0        TERM rcCx0                                                   ZK60.ProtocolClassify.rcCx0
+pin        TERM rcIncPart                                               ZK60.ProtocolClassify.rcIncPart (ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold 
+pout       TERM rcOutcPart                                              ZK60.ProtocolClassify.rcOutcPart (ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow 
+Iin        TERM shdP_Iin                                                ZK60.ProtocolClassify.shdP_Iin Lq hL20 tag Rp embDigest embFold bInRow
+Oout       TERM shdP_Oout                                               ZK60.ProtocolClassify.shdP_Oout Lq hL20 tag Rp wDigest bOutRow
+bp         TERM shdP_rtBlk                                              ZK60.ProtocolClassify.shdP_rtBlk Lq hL20 tag hPk0
+wXk        TERM none                                                    fun x => 1 + 1 + 38
+gXk        TERM none                                                    fun x => 2
+mXk        TERM none                                                    fun x => 64
+hσ         TERM shdP_rtRun_σs                                           ZK60.ProtocolClassify.shdP_rtRun_σs Lq hL20 tag key domain hw hhdrFit preA preB Rp embDige
+hgeo       TERM none                                                    fun x x_1 => rfl
+hIA        TERM rcIncAt_pA_stage                                        ZK60.ProtocolClassify.rcIncAt_pA_stage U tag Lq hL20 (ZK60.ProtocolClassify.shdP_incPub Rp
+hIH        TERM rcIncAt_pH_stage                                        ZK60.ProtocolClassify.rcIncAt_pH_stage U tag Lq hL20 (ZK60.ProtocolClassify.shdP_incPub Rp
+hOA        TERM rcOutcAt_pA_stage                                       ZK60.ProtocolClassify.rcOutcAt_pA_stage U tag Lq hL20 (ZK60.ProtocolClassify.shdP_outcPub 
+hOH        TERM rcOutcAt_pH_stage                                       ZK60.ProtocolClassify.rcOutcAt_pH_stage U tag Lq hL20 (ZK60.ProtocolClassify.shdP_outcPub 
+hBA        TERM shdP_rtBlk_pA_r13                                       ZK60.ProtocolClassify.shdP_rtBlk_pA_r13 U Lq hL20 tag hPk0
+hBH        TERM shdP_rtBlk_pH_r13                                       ZK60.ProtocolClassify.shdP_rtBlk_pH_r13 U Lq hL20 tag hPk0
+htI        TERM rfl                                                     rfl
+htO        TERM rfl                                                     rfl
+htB        TERM none                                                    fun x => rfl
+hfIA       TERM id                                                      id   (Eq.mpr (id (congrArg (fun _a => 8 * _a ≤ Lq) (ZK60.ProtocolClassify.shdP_incLay_nums
+hfIH       TERM id                                                      id   (Eq.mpr     (id (congrArg (fun _a => 8 * _a ≤ Lq) (ZK60.ProtocolClassify.shdP_incLay_
+hfOA       TERM id                                                      id   (Eq.mpr (id (congrArg (fun _a => 8 * _a ≤ Lq) (ZK60.ProtocolClassify.shdP_outcLay_num
+hfOH       TERM id                                                      id   (Eq.mpr (id (congrArg (fun _a => 8 * _a ≤ Lq) (ZK60.ProtocolClassify.shdP_outcLay_num
+hfBA       TERM none                                                    fun x =>   id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_pro
+hfBH       TERM none                                                    fun x =>   id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_pro
+hfIM       TERM Eq.mpr                                                  Eq.mpr   (id     (congrArg (fun _a => 8 * (2 * _a + 4) ≤ Lq) (ZK60.ProtocolClassify.shdP_i
+hfOM       TERM Eq.mpr                                                  Eq.mpr (id (congrArg (fun _a => 8 * (2 * _a + 4) ≤ Lq) (ZK60.ProtocolClassify.shdP_outcPar
+hfBM       TERM none                                                    fun x =>   id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_pro
+hbpRows    TERM none                                                    fun x x_1 => ⟨rfl, rfl⟩
+Vi         TERM shdP_incV                                               ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold bInRow
+F          TERM shdP_outcV                                              ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow
+hinc       TERM none                                                    fun x => rfl
+houtc      TERM none                                                    fun x x_1 => rfl
+hchk       TERM vdChk_le                                                ZK60.ProtocolClassify.vdChk_le check0
+hLb1       TERM _private.ZK60Formal.RunShieldInstP.0.zero_lt_26         ZK60.ProtocolClassify.zero_lt_26✝
+lscIn      TERM ZK60.Exec.StageV.Lay.logupSumClaim                      (ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold bInRow).lay.logupSumClaim
+lscOut     TERM ZK60.Exec.StageV.Lay.logupSumClaim                      (ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow 0).lay.logupSumClaim
+mIn        TERM OfNat.ofNat                                             15
+kIn        TERM OfNat.ofNat                                             8
+kOut       TERM OfNat.ofNat                                             14
+hlscIn     TERM none                                                    fun x => rfl
+hlscOut    TERM none                                                    fun x v =>   id     (Eq.mpr       (id         (congrArg           (fun _a =>             _
+hmIn       TERM none                                                    fun x => (ZK60.ProtocolClassify.shdP_incPub_logs Rp embDigest embFold).right.right.right.r
+hkIn       TERM none                                                    fun x => (ZK60.ProtocolClassify.shdP_incLay_nums Rp embDigest embFold).right.right.left
+hkOut      TERM none                                                    fun x v =>   id     (Eq.mpr       (id         (congrArg (fun _a => _a.nFunctionals = 14)  
+pXk        TERM cbBndPcs                                                ZK60.ProtocolClassify.cbBndPcs tag 38
+hXk        TERM cbBndPcs_r13                                            ZK60.ProtocolClassify.cbBndPcs_r13 U tag 38
+hwXk       TERM none                                                    fun x x_1 => rfl
+hmXk       TERM none                                                    fun x x_1 => rfl
+hfitXk     TERM none                                                    fun x =>   id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_pro
+hwX0       TERM rfl                                                     rfl
+hmX0       TERM rfl                                                     rfl
+hOX        TERM rcOutcAt_pX_bnd_r13                                     ZK60.ProtocolClassify.rcOutcAt_pX_bnd_r13 U tag Lq hL20 (ZK60.ProtocolClassify.shdP_outcPu
+hwXo       TERM none                                                    fun x x_1 => rfl
+hfitXo     TERM id                                                      id   (Decidable.byContradiction fun a =>     ZK60.ProtocolClassify.sshC_productionReadyL_e
+hXep       TERM rcIncAt_pX_ep                                           ZK60.ProtocolClassify.rcIncAt_pX_ep U tag Lq hL20 (ZK60.ProtocolClassify.shdP_incPub Rp em
+hfitX      TERM id                                                      id   (Decidable.byContradiction fun a =>     ZK60.ProtocolClassify.sshC_productionReadyL_e
+hRr        TERM rfl                                                     rfl
+hL81       TERM Decidable.byContradiction                               Decidable.byContradiction fun a =>   ZK60.ProtocolClassify.sshC_productionReadyL_epP_shiel
+hPkD       TERM shdP_shieldRunAtD_clamp                                 ZK60.ProtocolClassify.shdP_shieldRunAtD_clamp hPk0
+P0in       TERM shdP_P0in                                               ZK60.ProtocolClassify.shdP_P0in tag Rp embDigest embFold bInRow
+P0out      TERM shdP_P0out                                              ZK60.ProtocolClassify.shdP_P0out tag Rp wDigest bOutRow
+csIOI      FORWARD csIOI
+csIOO      FORWARD csIOO
+hIOI       FORWARD hIOI
+hIOO       FORWARD hIOO
+hNin       TERM shdP_hNin                                               ZK60.ProtocolClassify.shdP_hNin tag Rp embDigest embFold bInRow
+hNout      TERM shdP_hNout                                              ZK60.ProtocolClassify.shdP_hNout tag Rp wDigest bOutRow
+hN64I      TERM shdP_hN64I                                              ZK60.ProtocolClassify.shdP_hN64I tag Rp embDigest embFold bInRow
+hN64O      TERM shdP_hN64O                                              ZK60.ProtocolClassify.shdP_hN64O tag Rp wDigest bOutRow
+hIOlI      FORWARD hIOlI
+hIOlO      FORWARD hIOlO
+eI         FORWARD eI
+eO         FORWARD eO
+ΛI         FORWARD ΛI
+ΛO         FORWARD ΛO
+hPin       TERM shdP_hPin                                               ZK60.ProtocolClassify.shdP_hPin tag Rp embDigest embFold bInRow
+hPout      TERM shdP_hPout                                              ZK60.ProtocolClassify.shdP_hPout tag Rp wDigest bOutRow
+hSm        TERM And.intro                                               ⟨Eq.mpr     (id       (congrArg (fun _a => 2 * _a + 2 ≤ 2 ^ 20) (ZK60.ProtocolClassify.shd
+hlcStg     TERM And.intro                                               ⟨id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionRea
+hCsIO      FORWARD hCsIO
+hLuStg     FORWARD hLuStg
+hTrIIO     FORWARD hTrIIO
+hTrOIO     FORWARD hTrOIO
+hLI_stg    FORWARD hLI_stg
+hLO_stg    FORWARD hLO_stg
+hdinS      FORWARD hdinS
+hdoutS     FORWARD hdoutS
+hLay       TERM shdP_stgInLay_incPub                                    ZK60.ProtocolClassify.shdP_stgInLay_incPub Rp embDigest embFold
+hdzW       FORWARD hdzW
+hzk        FORWARD hzk

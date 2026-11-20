@@ -1,0 +1,94 @@
+==============================================================================================================
+ITEM 4  span of a buffer (ms, median, n) by mean concurrency md during its own span (all owners counted), per label and arm
+==============================================================================================================
+
+commit A (2504 rows)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   13.6 ms (n=   7)         25.1 ms (n=   3)         36.8 ms (n=  32)         38.7 ms (n=  72)         44.1 ms (n=  78)           a 4.6 b 13.9 (n=192, mean md 2.54)
+   serve4   13.4 ms (n=  22)         14.9 ms (n=  56)         30.1 ms (n= 163)         38.0 ms (n= 301)         43.4 ms (n= 226)           a -5.8 b 17.3 (n=768, mean md 2.41)
+   serve6   13.5 ms (n=  34)         15.1 ms (n=  74)         31.6 ms (n= 236)         35.9 ms (n= 387)         43.9 ms (n= 421)           a -4.1 b 16.4 (n=1152, mean md 2.44)
+
+commit H (2606 rows)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   13.6 ms (n=   1)         16.4 ms (n=   8)         33.8 ms (n=  28)         32.5 ms (n=  65)         21.6 ms (n=  90)           a 28.0 b 0.3 (n=192, mean md 2.60)
+   serve4   13.7 ms (n=  21)         14.6 ms (n=  53)         30.4 ms (n= 134)         27.2 ms (n= 241)         28.6 ms (n= 319)           a 14.1 b 5.4 (n=768, mean md 2.49)
+   serve6   13.8 ms (n=  32)         14.9 ms (n=  70)         26.3 ms (n= 189)         28.8 ms (n= 339)         29.8 ms (n= 522)           a 10.5 b 7.0 (n=1152, mean md 2.52)
+
+slot 14 03 D zero-check (hosts 12, 13D)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   14.2 ms (n=   2)         17.9 ms (n=   1)         22.0 ms (n=  14)         30.6 ms (n=  23)         30.6 ms (n= 152)           a 10.7 b 7.0 (n=192, mean md 2.81)
+   serve4   14.4 ms (n=   6)         21.7 ms (n=  12)         21.3 ms (n=  56)         25.4 ms (n= 100)         30.9 ms (n= 594)           a 2.2 b 9.6 (n=768, mean md 2.84)
+   serve6   14.3 ms (n=   4)         18.5 ms (n=  15)         22.6 ms (n=  88)         23.6 ms (n= 167)         31.1 ms (n= 878)           a 0.1 b 10.5 (n=1152, mean md 2.84)
+
+slot 15 04 Q zero-check (hosts 09Q, 11)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   -                        5.9 ms (n=   1)          11.9 ms (n=  13)         9.7 ms (n=   7)          10.1 ms (n= 171)           a 13.9 b -1.1 (n=192, mean md 2.90)
+   serve4   6.0 ms (n=   1)          7.0 ms (n=   8)          8.1 ms (n=  52)          8.0 ms (n=  93)          10.3 ms (n= 613)           a 0.6 b 3.5 (n=767, mean md 2.88)
+   serve6   5.6 ms (n=   4)          5.8 ms (n=  16)          7.8 ms (n=  95)          8.0 ms (n= 139)          10.2 ms (n= 897)           a 2.3 b 2.9 (n=1151, mean md 2.85)
+
+slot 16 05 KV zero-check (hosts 09K, 09V)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   2.7 ms (n=   1)          2.9 ms (n=   1)          3.3 ms (n=  17)          4.3 ms (n=   7)          5.0 ms (n= 166)            a 0.0 b 2.0 (n=192, mean md 2.87)
+   serve4   2.9 ms (n=  12)          3.0 ms (n=  28)          3.4 ms (n=  73)          4.4 ms (n= 110)          5.7 ms (n= 545)            a 0.1 b 2.1 (n=768, mean md 2.78)
+   serve6   2.9 ms (n=  25)          3.1 ms (n=  39)          3.4 ms (n= 135)          4.1 ms (n= 163)          5.7 ms (n= 790)            a -0.7 b 2.4 (n=1152, mean md 2.74)
+
+slot 17 06 softmax zero-check (hosts 07, 10)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   -                        -                        18.5 ms (n=  12)         15.4 ms (n=   3)         15.9 ms (n= 177)           a 16.0 b 0.8 (n=192, mean md 2.92)
+   serve4   7.8 ms (n=  12)          8.0 ms (n=  21)          10.9 ms (n= 102)         12.4 ms (n=  94)         16.2 ms (n= 538)           a -0.1 b 6.0 (n=767, mean md 2.75)
+   serve6   7.7 ms (n=  22)          7.9 ms (n=  34)          11.2 ms (n= 117)         13.1 ms (n= 193)         16.3 ms (n= 786)           a 0.4 b 5.8 (n=1152, mean md 2.76)
+
+slot 18 14 F zero-check (hosts 13G, 13U)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   -                        21.4 ms (n=   1)         39.1 ms (n=  15)         23.0 ms (n=   3)         51.7 ms (n= 172)           a 9.6 b 12.5 (n=191, mean md 2.89)
+   serve4   22.1 ms (n=   2)         22.9 ms (n=  15)         36.5 ms (n= 104)         40.6 ms (n=  91)         48.4 ms (n= 556)           a 6.5 b 13.4 (n=768, mean md 2.79)
+   serve6   22.5 ms (n=  14)         22.5 ms (n=  24)         37.6 ms (n= 120)         41.8 ms (n= 143)         48.5 ms (n= 851)           a 9.8 b 12.4 (n=1152, mean md 2.79)
+
+slot 19 TAB table helper zero-check
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   3.9 ms (n=   1)          3.9 ms (n=   6)          4.0 ms (n=  26)          4.0 ms (n=  29)          5.1 ms (n= 129)            a -0.2 b 2.6 (n=191, mean md 2.72)
+   serve4   3.9 ms (n=  17)          4.2 ms (n=  63)          4.1 ms (n= 126)          4.7 ms (n= 114)          6.7 ms (n= 448)            a -1.0 b 3.2 (n=768, mean md 2.62)
+   serve6   4.0 ms (n=  36)          4.1 ms (n=  73)          4.3 ms (n= 161)          4.5 ms (n= 194)          6.5 ms (n= 688)            a -1.4 b 3.4 (n=1152, mean md 2.64)
+
+slot 00 01 SS row sums norm_a (private)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   1.4 ms (n=  12)          1.4 ms (n=  10)          1.6 ms (n=  36)          1.7 ms (n=  40)          9.4 ms (n=  94)            a -8.2 b 6.0 (n=192, mean md 2.48)
+   serve4   1.4 ms (n=  78)          1.5 ms (n=  74)          1.6 ms (n= 123)          3.9 ms (n= 153)          7.9 ms (n= 340)            a -5.6 b 5.0 (n=768, mean md 2.39)
+   serve6   1.4 ms (n= 103)          1.5 ms (n= 139)          1.7 ms (n= 194)          2.8 ms (n= 191)          7.3 ms (n= 525)            a -5.7 b 5.0 (n=1152, mean md 2.38)
+
+slot 01 01m SS row sums norm_m (private)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   1.4 ms (n=  13)          1.4 ms (n=  27)          1.5 ms (n=  35)          1.6 ms (n=  41)          7.2 ms (n=  76)            a -4.6 b 3.8 (n=192, mean md 2.34)
+   serve4   1.4 ms (n=  82)          1.5 ms (n= 104)          1.6 ms (n= 156)          1.7 ms (n= 124)          4.0 ms (n= 302)            a -2.4 b 2.7 (n=768, mean md 2.30)
+   serve6   1.4 ms (n= 122)          1.4 ms (n= 150)          1.6 ms (n= 216)          1.8 ms (n= 226)          4.4 ms (n= 438)            a -3.0 b 3.0 (n=1152, mean md 2.30)
+
+slot 04 07 masked row sums + selector (private)
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   1.6 ms (n=  42)          1.7 ms (n=  27)          1.7 ms (n=  54)          1.9 ms (n=  36)          3.4 ms (n=  33)            a -1.0 b 1.9 (n=192, mean md 1.96)
+   serve4   1.7 ms (n= 124)          1.7 ms (n= 128)          1.8 ms (n= 168)          2.1 ms (n= 127)          6.4 ms (n= 221)            a -3.5 b 3.7 (n=768, mean md 2.12)
+   serve6   1.6 ms (n= 195)          1.7 ms (n= 175)          1.8 ms (n= 239)          2.2 ms (n= 186)          5.2 ms (n= 357)            a -3.0 b 3.4 (n=1152, mean md 2.13)
+
+slot 03 08 limb zero-check
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   1.1 ms (n=  32)          1.1 ms (n=  35)          1.1 ms (n=  46)          1.3 ms (n=  38)          4.6 ms (n=  41)            a -1.4 b 1.7 (n=192, mean md 2.03)
+   serve4   1.1 ms (n= 117)          1.2 ms (n= 137)          1.2 ms (n= 177)          1.4 ms (n= 115)          2.6 ms (n= 222)            a -1.8 b 2.1 (n=768, mean md 2.10)
+   serve6   1.1 ms (n= 183)          1.1 ms (n= 183)          1.2 ms (n= 267)          1.4 ms (n= 156)          2.6 ms (n= 363)            a -1.5 b 1.9 (n=1152, mean md 2.13)
+
+slot 21 IO-in endpoint equality
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   1.0 ms (n=   5)          1.2 ms (n=  15)          1.2 ms (n=  32)          1.2 ms (n=  32)          1.4 ms (n= 108)            a 0.1 b 0.6 (n=192, mean md 2.56)
+   serve4   1.2 ms (n=  43)          1.2 ms (n=  63)          1.2 ms (n= 145)          1.4 ms (n= 115)          1.7 ms (n= 402)            a -0.3 b 0.9 (n=768, mean md 2.52)
+   serve6   1.1 ms (n=  75)          1.2 ms (n= 112)          1.2 ms (n= 219)          1.3 ms (n= 165)          1.6 ms (n= 578)            a -0.2 b 0.9 (n=1149, mean md 2.48)
+
+slot 22 IO-out endpoint equality
+   arm      1.0-1.1 (alone)          1.1-1.75                 1.75-2.25 (~2)           2.25-2.75                >2.75 (~3)                 fit span = a + b*md   (a ms, b ms per unit md; n)
+   serve1   1.1 ms (n=  16)          1.1 ms (n=  23)          1.2 ms (n=  44)          1.3 ms (n=  75)          1.4 ms (n=  34)            a 0.5 b 0.4 (n=192, mean md 2.24)
+   serve4   1.1 ms (n= 101)          1.1 ms (n=  99)          1.2 ms (n= 149)          1.4 ms (n= 174)          1.6 ms (n= 245)            a -0.4 b 1.0 (n=768, mean md 2.24)
+   serve6   1.1 ms (n= 144)          1.1 ms (n= 131)          1.2 ms (n= 248)          1.3 ms (n= 263)          1.7 ms (n= 366)            a -0.2 b 0.9 (n=1152, mean md 2.26)
+
+==============================================================================================================
+Stretch against the one-block log (Batch 6, 7 warm passes, one block alone: A commit GPU 13.376 ms, H commit GPU 14.001 ms, 23 slots 65.9 ms, opens 0.175 ms; total 93.482 ms)
+==============================================================================================================
+  serve1 (6 prove calls): A commit 39.8 ms/buffer (2.97x of 13.376); H commit 28.7 ms/buffer (2.05x of 14.001); slots 136.1 ms per block (2.07x of 65.9); all non-small buffers 204.6 ms per block (2.19x of 93.482)
+  serve4 (24 prove calls): A commit 35.8 ms/buffer (2.68x of 13.376); H commit 27.5 ms/buffer (1.97x of 14.001); slots 135.4 ms per block (2.05x of 65.9); all non-small buffers 198.7 ms per block (2.13x of 93.482)
+  serve6 (36 prove calls): A commit 36.1 ms/buffer (2.70x of 13.376); H commit 28.2 ms/buffer (2.02x of 14.001); slots 135.6 ms per block (2.06x of 65.9); all non-small buffers 199.9 ms per block (2.14x of 93.482)

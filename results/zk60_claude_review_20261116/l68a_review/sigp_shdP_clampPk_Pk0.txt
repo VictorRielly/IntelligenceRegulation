@@ -1,0 +1,7 @@
+THEOREM ZK60.ProtocolClassify.shdP_clampPk_Pk0 binders=5
+BINDER tag [Lean.BinderInfo.default] prop=false :: MTag
+BINDER ioIn [Lean.BinderInfo.default] prop=false :: ℕ
+BINDER ioOut [Lean.BinderInfo.default] prop=false :: ℕ
+BINDER checkOpening [Lean.BinderInfo.default] prop=false :: (HIn → Dig) → Cm → List Block.ZClaim → Tr → Except String Unit
+BINDER Rp [Lean.BinderInfo.default] prop=false :: ClassifyRunPublicP shieldS0
+CONCLUSION :: shdP_clampPk (shdP_Pk0 tag ioIn ioOut checkOpening Rp) = shdP_Pk0 tag ioIn ioOut checkOpening Rp

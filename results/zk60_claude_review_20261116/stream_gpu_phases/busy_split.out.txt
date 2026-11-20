@@ -1,0 +1,94 @@
+====================================================================================================
+ITEM 1a  GPU-busy union per steady request, split by owner (window and per-request normalisation as in the Batch 7 review)
+  serve1: window = [pass start, result] of the one request; serve4 / serve6: [result(0), result(R-1)] / (R-1) requests, per pass
+====================================================================================================
+
+serve1 (n = 6 passes; per request; medians)
+  window per request                   6.188 s  (IQR 0.035)  100.0 % of window
+  GPU busy union (any owner)           2.881 s  (IQR 0.023)   46.7 % of window
+  prover only                          2.509 s  (IQR 0.022)   40.7 % of window
+  witness (queue 99) only              0.370 s  (IQR 0.005)    6.0 % of window
+  both overlapping                     0.000 s  (IQR 0.000)    0.0 % of window
+  neither (GPU idle)                   3.304 s  (IQR 0.046)   53.3 % of window
+  prover union (alone + both)          2.509 s  (IQR 0.022)   40.7 % of window
+  witness union (alone + both)         0.370 s  (IQR 0.005)    6.0 % of window
+  busy union % of window per pass: [47.1, 46.0, 47.3, 46.9, 46.2, 46.5]
+
+serve4 (n = 6 passes; per request; medians)
+  window per request                   3.668 s  (IQR 0.061)  100.0 % of window
+  GPU busy union (any owner)           2.649 s  (IQR 0.040)   71.9 % of window
+  prover only                          2.357 s  (IQR 0.042)   64.0 % of window
+  witness (queue 99) only              0.028 s  (IQR 0.003)    0.8 % of window
+  both overlapping                     0.264 s  (IQR 0.012)    7.2 % of window
+  neither (GPU idle)                   1.027 s  (IQR 0.038)   28.1 % of window
+  prover union (alone + both)          2.619 s  (IQR 0.042)   71.1 % of window
+  witness union (alone + both)         0.293 s  (IQR 0.011)    8.0 % of window
+  busy union % of window per pass: [72.0, 71.8, 71.7, 71.0, 72.7, 73.2]
+
+serve6 (n = 6 passes; per request; medians)
+  window per request                   3.739 s  (IQR 0.038)  100.0 % of window
+  GPU busy union (any owner)           2.682 s  (IQR 0.021)   71.2 % of window
+  prover only                          2.379 s  (IQR 0.017)   63.0 % of window
+  witness (queue 99) only              0.055 s  (IQR 0.007)    1.5 % of window
+  both overlapping                     0.244 s  (IQR 0.015)    6.5 % of window
+  neither (GPU idle)                   1.081 s  (IQR 0.043)   28.8 % of window
+  prover union (alone + both)          2.623 s  (IQR 0.021)   69.7 % of window
+  witness union (alone + both)         0.303 s  (IQR 0.014)    8.0 % of window
+  busy union % of window per pass: [70.8, 70.8, 71.4, 72.5, 72.0, 71.1]
+
+====================================================================================================
+ITEM 1b  inside the prove call window [S, E] (log prover start/end; trace anchor = first rows=38 commit minus preflight)
+====================================================================================================
+
+serve1
+  class                                n   P call  prov busy prov busy%  host-only host-only%   wit-only       both    neither
+  solo (serve1)                        6    3.662      2.508      68.1%      1.168      31.9%      0.000      0.000      1.168
+
+serve4
+  class                                n   P call  prov busy prov busy%  host-only host-only%   wit-only       both    neither
+  beside next sealing pass            18    3.809      2.688      70.8%      1.109      29.2%      0.051      0.378      1.054
+  last request, no sealing beside      6    3.512      2.501      70.7%      1.014      29.3%      0.000      0.000      1.014
+     request 0: n=6 P call 4.018  prov busy 2.671 (67.3 %)  host-only 1.315 (32.7 %)  witness-only 0.077  both 0.360
+     request 1: n=6 P call 3.771  prov busy 2.704 (71.9 %)  host-only 1.060 (28.1 %)  witness-only 0.051  both 0.377
+     request 2: n=6 P call 3.705  prov busy 2.686 (72.0 %)  host-only 1.044 (28.0 %)  witness-only 0.038  both 0.416
+     request 3: n=6 P call 3.512  prov busy 2.501 (70.7 %)  host-only 1.014 (29.3 %)  witness-only 0.000  both 0.000
+
+serve6
+  class                                n   P call  prov busy prov busy%  host-only host-only%   wit-only       both    neither
+  beside next sealing pass            30    3.889      2.674      69.4%      1.193      30.6%      0.086      0.391      1.098
+  last request, no sealing beside      6    3.516      2.511      71.5%      1.009      28.5%      0.000      0.000      1.009
+     request 0: n=6 P call 4.028  prov busy 2.690 (66.8 %)  host-only 1.340 (33.2 %)  witness-only 0.114  both 0.398
+     request 1: n=6 P call 3.890  prov busy 2.715 (70.0 %)  host-only 1.171 (30.0 %)  witness-only 0.081  both 0.395
+     request 2: n=6 P call 3.835  prov busy 2.670 (69.5 %)  host-only 1.170 (30.5 %)  witness-only 0.089  both 0.398
+     request 3: n=6 P call 3.932  prov busy 2.693 (68.8 %)  host-only 1.214 (31.2 %)  witness-only 0.091  both 0.392
+     request 4: n=6 P call 3.592  prov busy 2.497 (70.1 %)  host-only 1.072 (29.9 %)  witness-only 0.036  both 0.056
+     request 5: n=6 P call 3.516  prov busy 2.511 (71.5 %)  host-only 1.009 (28.5 %)  witness-only 0.000  both 0.000
+
+====================================================================================================
+ITEM 3  prover concurrency inside the prove call: time share at depth d (prover buffers executing at one instant)
+====================================================================================================
+
+serve1 / solo (n = 6 prove calls; medians of per-call time share)
+   depth  :      0      1      2      3      4      5      6      7      8     9+
+   share %%:   31.9    4.9   15.9   46.7    0.0    0.0    0.0    0.0    0.0    0.0
+   mean depth while busy 2.61 (median), mean depth over the whole call 1.79; sum of spans / call = 1.79
+
+serve4 / beside sealing (n = 18 prove calls; medians of per-call time share)
+   depth  :      0      1      2      3      4      5      6      7      8     9+
+   share %%:   29.2   10.0   22.2   36.8    0.0    0.0    0.0    0.0    0.0    0.0
+   mean depth while busy 2.39 (median), mean depth over the whole call 1.67; sum of spans / call = 1.67
+
+serve4 / last (no sealing) (n = 6 prove calls; medians of per-call time share)
+   depth  :      0      1      2      3      4      5      6      7      8     9+
+   share %%:   29.3    7.1   19.5   44.8    0.0    0.0    0.0    0.0    0.0    0.0
+   mean depth while busy 2.53 (median), mean depth over the whole call 1.80; sum of spans / call = 1.80
+
+serve6 / beside sealing (n = 30 prove calls; medians of per-call time share)
+   depth  :      0      1      2      3      4      5      6      7      8     9+
+   share %%:   30.6    9.3   21.3   38.7    0.0    0.0    0.0    0.0    0.0    0.0
+   mean depth while busy 2.42 (median), mean depth over the whole call 1.67; sum of spans / call = 1.67
+
+serve6 / last (no sealing) (n = 6 prove calls; medians of per-call time share)
+   depth  :      0      1      2      3      4      5      6      7      8     9+
+   share %%:   28.5    6.4   18.0   46.2    0.0    0.0    0.0    0.0    0.0    0.0
+   mean depth while busy 2.55 (median), mean depth over the whole call 1.83; sum of spans / call = 1.83

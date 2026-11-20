@@ -1,0 +1,2 @@
+[zk60-guard 12:28:59] START claude-l68a-review-elab class=build need=4G cap=5.5G enforce=watchdog-only waited=0s run=c85b4182aa30
+[zk60-guard 12:29:26] END claude-l68a-review-elab exit=0 child_wall=28s peak_rss=4.15G min_avail=209.59G

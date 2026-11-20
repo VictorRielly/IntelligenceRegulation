@@ -1,0 +1,9 @@
+serve1: max number of buffers executing at once, prover only: 3   (time at depth 4+: 0.000 s of 17.6 s busy)
+serve1: max number of buffers executing at once, prover + witness: 3   (time at depth 4+: 0.000 s of 20.5 s busy)
+   n=6 prove calls: corr(P, union) 0.84 slope 1.84 ; corr(P, idle) 0.93 slope 1.39 ; sd(P) 0.063 sd(union) 0.029 sd(idle) 0.042
+serve4: max number of buffers executing at once, prover only: 3   (time at depth 4+: 0.000 s of 65.8 s busy)
+serve4: max number of buffers executing at once, prover + witness: 6   (time at depth 4+: 1.941 s of 69.7 s busy)
+   n=24 prove calls: corr(P, union) 0.72 slope 1.51 ; corr(P, idle) 0.89 slope 1.22 ; sd(P) 0.186 sd(union) 0.089 sd(idle) 0.136
+serve6: max number of buffers executing at once, prover only: 3   (time at depth 4+: 0.000 s of 97.3 s busy)
+serve6: max number of buffers executing at once, prover + witness: 6   (time at depth 4+: 2.739 s of 102.6 s busy)
+   n=36 prove calls: corr(P, union) 0.83 slope 1.79 ; corr(P, idle) 0.92 slope 1.38 ; sd(P) 0.196 sd(union) 0.091 sd(idle) 0.131

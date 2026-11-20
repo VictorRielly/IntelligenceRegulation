@@ -1,0 +1,3 @@
+THEOREM ZK60.ProtocolClassify.shdP_bitLay binders=1
+BINDER Ly [Lean.BinderInfo.default] prop=false :: ShieldLayer
+CONCLUSION :: W16Layout (shieldShape Ly) (CtR (Block.DefR13.cfgShieldR13 Ly)) (CwR (Block.DefR13.cfgShieldR13 Ly))   (CgR (Block.DefR13.cfgShieldR13 Ly)) (CjR (Block.DefR13.cfgShieldR13 Ly)) (CdR (Block.DefR13.cfgShieldR13 Ly))   (CfR (Block.DefR13.cfgShieldR13 Ly))

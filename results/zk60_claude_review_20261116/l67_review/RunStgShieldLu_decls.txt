@@ -1,0 +1,33 @@
+47 def ZK60.ProtocolClassify.shdP_eI
+50 def ZK60.ProtocolClassify.shdP_eO
+52 theorem ZK60.ProtocolClassify.stgLkSqV_rbr
+61 def ZK60.ProtocolClassify.stgPlB
+73 def ZK60.ProtocolClassify.lkStByte
+84 theorem ZK60.ProtocolClassify.lkStByte_nil
+90 theorem ZK60.ProtocolClassify.lkStByte_two
+100 theorem ZK60.ProtocolClassify.lkStByte_escape
+143 def ZK60.ProtocolClassify.stgLkOut
+153 theorem ZK60.ProtocolClassify.stgLkOut_nil
+163 theorem ZK60.ProtocolClassify.stgLkOut_two
+176 theorem ZK60.ProtocolClassify.stgLkOut_rbr
+196 def ZK60.ProtocolClassify.shdOutcLimb
+201 def ZK60.ProtocolClassify.shdOutcPl
+206 def ZK60.ProtocolClassify.shdOutcMult
+212 def ZK60.ProtocolClassify.shd_ΛO
+224 def ZK60.ProtocolClassify.clearedFull
+231 theorem ZK60.ProtocolClassify.clearedFull_eq_sum_mul
+268 theorem ZK60.ProtocolClassify.clearedFull_eq_zero_of_helperRel
+279 theorem ZK60.ProtocolClassify.helperRel_of_clearedFull_eq_zero
+303 def ZK60.ProtocolClassify.incClearedPoly
+314 theorem PRIVATE ZK60.ProtocolClassify.indDeg_finsetProd
+328 theorem PRIVATE ZK60.ProtocolClassify.incFactor_indDeg
+357 theorem ZK60.ProtocolClassify.incClearedPoly_indDeg
+394 theorem PRIVATE ZK60.ProtocolClassify.inA_fold_eq
+405 def ZK60.ProtocolClassify.stgLkIn
+411 theorem ZK60.ProtocolClassify.stgLkIn_rbr
+426 theorem ZK60.ProtocolClassify.stgLkIn_of_inLogUp
+459 theorem ZK60.ProtocolClassify.not_stgLkIn_nil_of_not_inGood
+566 def ZK60.ProtocolClassify.shdIncData
+580 def ZK60.ProtocolClassify.shd_ΛI
+591 theorem ZK60.ProtocolClassify.stg_hLuStg
+605 theorem ZK60.ProtocolClassify.shd_hLuStg

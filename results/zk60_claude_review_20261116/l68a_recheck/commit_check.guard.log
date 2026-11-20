@@ -1,0 +1,13 @@
+== source hash ==
+b1eac77515a15d31489b8b411c87828544b46c8eb04730f4c64b2f4dcef30f18  /Users/victorrielly/IntelligenceRegulation/formal/ZK60Formal/RunShieldBlkInst.lean
+400882604d8790d302bdf4ff895d8bdb8ae70a895d7bdb7924ff6e45474490cb  /Users/victorrielly/IntelligenceRegulation/formal/ZK60Formal.lean
+== (1) lake build ZK60Formal.RunShieldBlkInst ==
+module build rc 0; error lines: 0; warnings naming the file: 0
+== (2) lake build ZK60Formal (whole root) ==
+root build rc 0; error lines: 0
+== (3) axioms, from a scratch file importing the whole root ==
+axioms rc 0; declarations printed: 11 of 11; outside propext/Classical.choice/Quot.sound: 0; sorryAx or error lines: 0
+== sorry / axiom / admit in the source ==
+source lines with sorry, axiom or admit: 0
+wall 42 s
+VERDICT: green

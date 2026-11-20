@@ -1,0 +1,2 @@
+[zk60-guard 02:55:06] START claude-l64-review-kernel class=cpu need=14G cap=24G enforce=watchdog-only waited=0s run=86b0333e027c
+[zk60-guard 02:55:10] END claude-l64-review-kernel exit=0 child_wall=4s peak_rss=3.75G min_avail=211.09G

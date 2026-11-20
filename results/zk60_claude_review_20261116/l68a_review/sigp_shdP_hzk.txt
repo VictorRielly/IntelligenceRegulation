@@ -1,0 +1,6 @@
+THEOREM ZK60.ProtocolClassify.shdP_hzk binders=4
+BINDER q [Lean.BinderInfo.default] prop=false :: ℕ
+BINDER R' [Lean.BinderInfo.default] prop=false :: ℕ
+BINDER _hq [Lean.BinderInfo.default] prop=true :: q ≤ 2 ^ 64
+BINDER hR' [Lean.BinderInfo.default] prop=true :: R' ≤ 2 ^ 64
+CONCLUSION :: ZKHonest.refErr ZKCount.RunK.kinds q R' ≤ εzkTarget q R'

@@ -1,0 +1,52 @@
+51 theorem PRIVATE ZK60.ProtocolClassify.shdP_X2_sub_7_irred
+55 instance ZK60.ProtocolClassify.shdP_X2_sub_7_fact
+59 abbrev ZK60.ProtocolClassify.shdP_K
+62 def ZK60.ProtocolClassify.shdP_U
+64 theorem ZK60.ProtocolClassify.shdP_hU
+67 theorem ZK60.ProtocolClassify.shdP_hbij
+70 instance ZK60.ProtocolClassify.shdP_K_decidableEq
+73 instance ZK60.ProtocolClassify.shdP_K_fintype
+77 theorem ZK60.ProtocolClassify.shdP_hzk
+87 def PRIVATE ZK60.ProtocolClassify.axMsb
+94 def PRIVATE ZK60.ProtocolClassify.tokInv
+97 theorem PRIVATE ZK60.ProtocolClassify.tokInv_msbBits
+100 theorem PRIVATE ZK60.ProtocolClassify.msbBits_tokInv
+103 def PRIVATE ZK60.ProtocolClassify.grpInv
+106 theorem PRIVATE ZK60.ProtocolClassify.grpInv_msbBits
+109 theorem PRIVATE ZK60.ProtocolClassify.msbBits_grpInv
+112 def PRIVATE ZK60.ProtocolClassify.hdZero
+114 def PRIVATE ZK60.ProtocolClassify.hdEmb
+117 def PRIVATE ZK60.ProtocolClassify.hdInv
+120 def PRIVATE ZK60.ProtocolClassify.hdFlip
+123 theorem PRIVATE ZK60.ProtocolClassify.hdInv_hdEmb
+133 theorem PRIVATE ZK60.ProtocolClassify.hdEmb_hdInv
+147 theorem PRIVATE ZK60.ProtocolClassify.hdFlip_hdEmb
+158 def PRIVATE ZK60.ProtocolClassify.slotEmb
+161 def PRIVATE ZK60.ProtocolClassify.slotInv
+167 theorem PRIVATE ZK60.ProtocolClassify.slotInv_slotEmb
+177 theorem PRIVATE ZK60.ProtocolClassify.slotEmb_slotInv
+187 def ZK60.ProtocolClassify.shdP_bitLay
+205 theorem ZK60.ProtocolClassify.shdP_bitLay_layR
+212 theorem ZK60.ProtocolClassify.shdP_bitLay_dPos
+216 theorem PRIVATE ZK60.ProtocolClassify.wid_msbBits_lt
+219 theorem PRIVATE ZK60.ProtocolClassify.hid_msbBits_lt
+222 theorem PRIVATE ZK60.ProtocolClassify.not_wid_lt_of_pad
+227 theorem PRIVATE ZK60.ProtocolClassify.not_hid_lt_of_pad
+232 def PRIVATE ZK60.ProtocolClassify.grpColFn
+236 theorem PRIVATE ZK60.ProtocolClassify.grpColFn_emb
+245 def PRIVATE ZK60.ProtocolClassify.wgFn
+254 theorem PRIVATE ZK60.ProtocolClassify.wgFn_emb
+268 def PRIVATE ZK60.ProtocolClassify.wuFn
+277 theorem PRIVATE ZK60.ProtocolClassify.wuFn_emb
+291 def PRIVATE ZK60.ProtocolClassify.wdFn
+300 theorem PRIVATE ZK60.ProtocolClassify.wdFn_emb
+315 def ZK60.ProtocolClassify.shdP_w16Pub
+479 def ZK60.ProtocolClassify.shdP_rowsOf
+485 def ZK60.ProtocolClassify.shdP_slotKind
+489 def ZK60.ProtocolClassify.shdP_blkParams
+512 theorem ZK60.ProtocolClassify.shdP_blkParams_shieldBlkAtD
+528 def ZK60.ProtocolClassify.shdP_Pk0
+544 theorem ZK60.ProtocolClassify.shdP_clampPk_Pk0
+552 theorem ZK60.ProtocolClassify.shdP_shieldRunAtD
+639 theorem PRIVATE ZK60.ProtocolClassify.zero_lt_26_blk
+708 theorem ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLu

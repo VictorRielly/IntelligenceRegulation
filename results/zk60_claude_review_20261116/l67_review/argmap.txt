@@ -1,0 +1,155 @@
+HEAD (some ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pinsHd) nargs=154 (pinsHd binders=154) top-theorem lambda binders=68
+ARG Hdr <- FORWARD Hdr :: Hdr
+ARG Coins <- FORWARD Coins :: Coins
+ARG inst._@.ZK60Formal.RunBlkPinsHd.37914474._hygCtx._hyg.4 <- FORWARD inst._@.ZK60Formal.RunShieldInstP.3975787826._hygCtx._hyg.4 :: inst✝⁷
+ARG inst._@.ZK60Formal.RunBlkPinsHd.37914474._hygCtx._hyg.7 <- FORWARD inst._@.ZK60Formal.RunShieldInstP.3975787826._hygCtx._hyg.7 :: inst✝⁶
+ARG inst._@.ZK60Formal.RunBlkPinsHd.37914474._hygCtx._hyg.10 <- FORWARD inst._@.ZK60Formal.RunShieldInstP.3975787826._hygCtx._hyg.10 :: inst✝⁵
+ARG K <- FORWARD K :: K
+ARG inst._@.ZK60Formal.RunBlkPinsHd.37914474._hygCtx._hyg.14 <- FORWARD inst._@.ZK60Formal.RunShieldInstP.3975787826._hygCtx._hyg.14 :: inst✝⁴
+ARG inst._@.ZK60Formal.RunBlkPinsHd.37914474._hygCtx._hyg.17 <- FORWARD inst._@.ZK60Formal.RunShieldInstP.3975787826._hygCtx._hyg.17 :: inst✝³
+ARG inst._@.ZK60Formal.RunBlkPinsHd.37914474._hygCtx._hyg.20 <- FORWARD inst._@.ZK60Formal.RunShieldInstP.3975787826._hygCtx._hyg.20 :: inst✝²
+ARG inst._@.ZK60Formal.RunBlkPinsHd.37914474._hygCtx._hyg.23 <- FORWARD inst._@.ZK60Formal.RunShieldInstP.3975787826._hygCtx._hyg.23 :: inst✝¹
+ARG Rr <- TERM head=(some OfNat.ofNat) :: 6
+ARG dR <- TERM head=(some OfNat.ofNat) :: 1
+ARG pos <- TERM head=(some ZK60.ProtocolClassify.shdP_epPos) :: ZK60.ProtocolClassify.shdP_epPos
+ARG hpos <- TERM head=(some ZK60.ProtocolClassify.shdP_epPos_injective) :: ZK60.ProtocolClassify.shdP_epPos_injective
+ARG place <- TERM head=(some ZK60.ProtocolClassify.shdP_epPlace) :: ZK60.ProtocolClassify.shdP_epPlace
+ARG hplace <- TERM head=(some ZK60.ProtocolClassify.shdP_epPlace_injective) :: ZK60.ProtocolClassify.shdP_epPlace_injective
+ARG tag <- FORWARD tag :: tag
+ARG dPos0 <- FORWARD dPos0 :: dPos0
+ARG Rp <- FORWARD Rp :: Rp
+ARG Lq <- FORWARD Lq :: Lq
+ARG Lb <- TERM head=(some OfNat.ofNat) :: 26
+ARG hL20 <- FORWARD hL20 :: hL20
+ARG preA <- FORWARD preA :: preA
+ARG preB <- FORWARD preB :: preB
+ARG start <- TERM head=(some ZK60.ProtocolClassify.clsStart) :: ZK60.ProtocolClassify.clsStart domain key hw
+ARG inc <- TERM head=none :: fun x => ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold bInRow
+ARG incG <- TERM head=none :: fun x => ZK60.ProtocolClassify.rcIncGeom (ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold bInRow) 28
+ARG Pk <- TERM head=(some ZK60.ProtocolClassify.shdP_clampPk) :: ZK60.ProtocolClassify.shdP_clampPk Pk0
+ARG sgeom <- TERM head=(some ZK60.ProtocolClassify.shdP_sgeom) :: ZK60.ProtocolClassify.shdP_sgeom Hdr (ZK60.ProtocolClassify.shdP_clampPk Pk0)
+ARG check <- TERM head=(some ZK60.ProtocolClassify.vdChk) :: ZK60.ProtocolClassify.vdChk check0
+ARG paths <- FORWARD paths :: paths
+ARG digest <- FORWARD digest :: digest
+ARG bRows <- TERM head=none :: fun x => 38
+ARG bLogN <- TERM head=none :: fun x => 14
+ARG bndCheck <- FORWARD bndCheck :: bndCheck
+ARG bndOpen <- TERM head=(some ZK60.ProtocolClassify.cbBndOpen) :: ZK60.ProtocolClassify.cbBndOpen tag 38
+ARG outc <- TERM head=none :: fun x v => ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow v
+ARG outcG <- TERM head=none :: fun x => ZK60.ProtocolClassify.rcOutcGeom (ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow 0) 28
+ARG P <- FORWARD P :: P
+ARG h64 <- TERM head=(some ZK60.Exec.Link.le64_of_le20) :: ZK60.Exec.Link.le64_of_le20 hL20
+ARG hr <- TERM head=(some ZK60.ProtocolClassify.shdP_hr) :: ZK60.ProtocolClassify.shdP_hr tag hL20
+ARG hon <- TERM head=(some ZK60.ProtocolClassify.shdP_honestIn) :: ZK60.ProtocolClassify.shdP_honestIn tag epBase
+ARG U <- FORWARD U :: U
+ARG hbij <- FORWARD hbij :: hbij
+ARG key <- FORWARD key :: key
+ARG domain <- FORWARD domain :: domain
+ARG hs <- FORWARD hs :: hs
+ARG hL <- FORWARD hL :: hL
+ARG hL64 <- FORWARD hL64 :: hL64
+ARG Rn <- TERM head=(some ZK60.ProtocolClassify.shdP_rtRun) :: ZK60.ProtocolClassify.shdP_rtRun Lq hL20 tag key domain hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest bOutRow   hPk0 check0 paths digest bndCheck
+ARG hv <- TERM head=(some ZK60.ProtocolClassify.shdP_rtProf_valid) :: ZK60.ProtocolClassify.shdP_rtProf_valid Lq hL20 tag key domain hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest   bOutRow hPk0 check0 paths digest bndCheck
+ARG hw <- FORWARD hw :: hw
+ARG hRn <- TERM head=(some ZK60.ProtocolClassify.shdP_rtRun_hdr) :: ZK60.ProtocolClassify.shdP_rtRun_hdr Lq hL20 tag key domain hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest   bOutRow hPk0 check0 paths digest bndCheck
+ARG ι <- FORWARD ι :: ι
+ARG inst._@.ZK60Formal.RunBlkPinsHd.37914474._hygCtx._hyg.389 <- FORWARD inst._@.ZK60Formal.RunShieldInstP.3975787826._hygCtx._hyg.298 :: inst✝
+ARG site <- FORWARD site :: site
+ARG kOf <- FORWARD kOf :: kOf
+ARG δOf <- FORWARD δOf :: δOf
+ARG E0 <- FORWARD E0 :: E0
+ARG εzk <- FORWARD εzk :: εzk
+ARG O <- FORWARD O :: O
+ARG hU <- FORWARD hU :: hU
+ARG cx0 <- TERM head=(some ZK60.ProtocolClassify.rcCx0) :: ZK60.ProtocolClassify.rcCx0
+ARG pin <- TERM head=(some ZK60.ProtocolClassify.rcIncPart) :: ZK60.ProtocolClassify.rcIncPart (ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold bInRow) 256 256
+ARG pout <- TERM head=(some ZK60.ProtocolClassify.rcOutcPart) :: ZK60.ProtocolClassify.rcOutcPart (ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow 0) 256 256 1
+ARG Iin <- TERM head=(some ZK60.ProtocolClassify.shdP_Iin) :: ZK60.ProtocolClassify.shdP_Iin Lq hL20 tag Rp embDigest embFold bInRow
+ARG Oout <- TERM head=(some ZK60.ProtocolClassify.shdP_Oout) :: ZK60.ProtocolClassify.shdP_Oout Lq hL20 tag Rp wDigest bOutRow
+ARG bp <- TERM head=(some ZK60.ProtocolClassify.shdP_rtBlk) :: ZK60.ProtocolClassify.shdP_rtBlk Lq hL20 tag hPk0
+ARG wXk <- TERM head=none :: fun x => 1 + 1 + 38
+ARG gXk <- TERM head=none :: fun x => 2
+ARG mXk <- TERM head=none :: fun x => 64
+ARG hσ <- TERM head=(some ZK60.ProtocolClassify.shdP_rtRun_σs) :: ZK60.ProtocolClassify.shdP_rtRun_σs Lq hL20 tag key domain hw hhdrFit preA preB Rp embDigest embFold bInRow wDigest   bOutRow hPk0 check0 paths digest bndCheck
+ARG hgeo <- TERM head=none :: fun x x_1 => rfl
+ARG hIA <- TERM head=(some ZK60.ProtocolClassify.rcIncAt_pA_stage) :: ZK60.ProtocolClassify.rcIncAt_pA_stage U tag Lq hL20 (ZK60.ProtocolClassify.shdP_incPub Rp embDigest embFold)   (ZK60.ProtocolClassify.shdP_incGeo bInRow) ZK60.ProtocolClassify.shdP_stgDim ZK60.ProtocolClassify.shdP_epDim 3 256 28   (Mathlib.Meta.NormNum.isNat
+ARG hIH <- TERM head=(some ZK60.ProtocolClassify.rcIncAt_pH_stage) :: ZK60.ProtocolClassify.rcIncAt_pH_stage U tag Lq hL20 (ZK60.ProtocolClassify.shdP_incPub Rp embDigest embFold)   (ZK60.ProtocolClassify.shdP_incGeo bInRow) ZK60.ProtocolClassify.shdP_stgDim ZK60.ProtocolClassify.shdP_epDim 3 256 28   (Mathlib.Meta.NormNum.isNat
+ARG hOA <- TERM head=(some ZK60.ProtocolClassify.rcOutcAt_pA_stage) :: ZK60.ProtocolClassify.rcOutcAt_pA_stage U tag Lq hL20 (ZK60.ProtocolClassify.shdP_outcPub Rp wDigest)   (ZK60.ProtocolClassify.shdP_outcGeo bOutRow) ZK60.ProtocolClassify.shdP_stgDim ZK60.Exec.Block.R13.blkDim 27 2 256 28   1   (Mathlib.Meta.NormNum.isNat_lt_t
+ARG hOH <- TERM head=(some ZK60.ProtocolClassify.rcOutcAt_pH_stage) :: ZK60.ProtocolClassify.rcOutcAt_pH_stage U tag Lq hL20 (ZK60.ProtocolClassify.shdP_outcPub Rp wDigest)   (ZK60.ProtocolClassify.shdP_outcGeo bOutRow) ZK60.ProtocolClassify.shdP_stgDim ZK60.Exec.Block.R13.blkDim 27 2 256 28   1   (Mathlib.Meta.NormNum.isNat_lt_t
+ARG hBA <- TERM head=(some ZK60.ProtocolClassify.shdP_rtBlk_pA_r13) :: ZK60.ProtocolClassify.shdP_rtBlk_pA_r13 U Lq hL20 tag hPk0
+ARG hBH <- TERM head=(some ZK60.ProtocolClassify.shdP_rtBlk_pH_r13) :: ZK60.ProtocolClassify.shdP_rtBlk_pH_r13 U Lq hL20 tag hPk0
+ARG htI <- TERM head=(some rfl) :: rfl
+ARG htO <- TERM head=(some rfl) :: rfl
+ARG htB <- TERM head=none :: fun x => rfl
+ARG hfIA <- TERM head=(some id) :: id   (Eq.mpr (id (congrArg (fun _a => 8 * _a ≤ Lq) (ZK60.ProtocolClassify.shdP_incLay_nums Rp embDigest embFold).left))     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_1 tag Lq hL20 hL64 domain 
+ARG hfIH <- TERM head=(some id) :: id   (Eq.mpr     (id (congrArg (fun _a => 8 * _a ≤ Lq) (ZK60.ProtocolClassify.shdP_incLay_nums Rp embDigest embFold).right.left))     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_2 tag Lq hL20 hL
+ARG hfOA <- TERM head=(some id) :: id   (Eq.mpr (id (congrArg (fun _a => 8 * _a ≤ Lq) (ZK60.ProtocolClassify.shdP_outcLay_nums Rp wDigest).left))     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_2 tag Lq hL20 hL64 domain Rp embDig
+ARG hfOH <- TERM head=(some id) :: id   (Eq.mpr (id (congrArg (fun _a => 8 * _a ≤ Lq) (ZK60.ProtocolClassify.shdP_outcLay_nums Rp wDigest).right.left))     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_3 tag Lq hL20 hL64 domain Rp 
+ARG hfBA <- TERM head=none :: fun x =>   id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_6 tag Lq hL20 hL64 domain Rp embDigest embFold         bInRow wDigest bOutRow eI eO a)
+ARG hfBH <- TERM head=none :: fun x =>   id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_7 tag Lq hL20 hL64 domain Rp embDigest embFold         bInRow wDigest bOutRow eI eO a)
+ARG hfIM <- TERM head=(some Eq.mpr) :: Eq.mpr   (id     (congrArg (fun _a => 8 * (2 * _a + 4) ≤ Lq) (ZK60.ProtocolClassify.shdP_incPart_S tag Rp embDigest embFold bInRow)))   (Decidable.byContradiction fun a =>     ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_4 tag Lq hL20 hL
+ARG hfOM <- TERM head=(some Eq.mpr) :: Eq.mpr (id (congrArg (fun _a => 8 * (2 * _a + 4) ≤ Lq) (ZK60.ProtocolClassify.shdP_outcPart_S tag Rp wDigest bOutRow)))   (Decidable.byContradiction fun a =>     ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_5 tag Lq hL20 hL64 domain Rp e
+ARG hfBM <- TERM head=none :: fun x =>   id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_8 tag Lq hL20 hL64 domain Rp embDigest embFold         bInRow wDigest bOutRow eI eO a)
+ARG hbpRows <- TERM head=none :: fun x x_1 => ⟨rfl, rfl⟩
+ARG Vi <- TERM head=(some ZK60.ProtocolClassify.shdP_incV) :: ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold bInRow
+ARG F <- TERM head=(some ZK60.ProtocolClassify.shdP_outcV) :: ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow
+ARG hinc <- TERM head=none :: fun x => rfl
+ARG houtc <- TERM head=none :: fun x x_1 => rfl
+ARG hchk <- TERM head=(some ZK60.ProtocolClassify.vdChk_le) :: ZK60.ProtocolClassify.vdChk_le check0
+ARG hLb1 <- TERM head=(some _private.ZK60Formal.RunShieldInstP.0.ZK60.ProtocolClassify.zero_lt_26) :: ZK60.ProtocolClassify.zero_lt_26✝
+ARG lscIn <- TERM head=(some ZK60.Exec.StageV.Lay.logupSumClaim) :: (ZK60.ProtocolClassify.shdP_incV tag Rp embDigest embFold bInRow).lay.logupSumClaim
+ARG lscOut <- TERM head=(some ZK60.Exec.StageV.Lay.logupSumClaim) :: (ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow 0).lay.logupSumClaim
+ARG mIn <- TERM head=(some OfNat.ofNat) :: 15
+ARG kIn <- TERM head=(some OfNat.ofNat) :: 8
+ARG kOut <- TERM head=(some OfNat.ofNat) :: 14
+ARG hlscIn <- TERM head=none :: fun x => rfl
+ARG hlscOut <- TERM head=none :: fun x v =>   id     (Eq.mpr       (id         (congrArg           (fun _a =>             _a.logupSumClaim =               (ZK60.Exec.StageV.outcLay                   (ZK60.ProtocolClassify.rcVerdict (ZK60.ProtocolClassify.shdP_outcPub Rp wDigest) 0) 14).logupS
+ARG hmIn <- TERM head=none :: fun x => (ZK60.ProtocolClassify.shdP_incPub_logs Rp embDigest embFold).right.right.right.right
+ARG hkIn <- TERM head=none :: fun x => (ZK60.ProtocolClassify.shdP_incLay_nums Rp embDigest embFold).right.right.left
+ARG hkOut <- TERM head=none :: fun x v =>   id     (Eq.mpr       (id         (congrArg (fun _a => _a.nFunctionals = 14)           (ZK60.ProtocolClassify.rc_outcLay_verdict (ZK60.ProtocolClassify.shdP_outcPub Rp wDigest) 14 v)))       (ZK60.ProtocolClassify.shdP_outcLay_nums Rp wDigest).righ
+ARG pXk <- TERM head=(some ZK60.ProtocolClassify.cbBndPcs) :: ZK60.ProtocolClassify.cbBndPcs tag 38
+ARG hXk <- TERM head=(some ZK60.ProtocolClassify.cbBndPcs_r13) :: ZK60.ProtocolClassify.cbBndPcs_r13 U tag 38
+ARG hwXk <- TERM head=none :: fun x x_1 => rfl
+ARG hmXk <- TERM head=none :: fun x x_1 => rfl
+ARG hfitXk <- TERM head=none :: fun x =>   id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_3 tag Lq hL20 hL64 domain Rp embDigest embFold         bInRow wDigest bOutRow eI eO a)
+ARG hwX0 <- TERM head=(some rfl) :: rfl
+ARG hmX0 <- TERM head=(some rfl) :: rfl
+ARG hOX <- TERM head=(some ZK60.ProtocolClassify.rcOutcAt_pX_bnd_r13) :: ZK60.ProtocolClassify.rcOutcAt_pX_bnd_r13 U tag Lq hL20 (ZK60.ProtocolClassify.shdP_outcPub Rp wDigest)   (ZK60.ProtocolClassify.shdP_outcGeo bOutRow) ZK60.ProtocolClassify.shdP_stgDim ZK60.Exec.Block.R13.blkDim 27 2 256 28   1   (Mathlib.Meta.NormNum.isNat_lt
+ARG hwXo <- TERM head=none :: fun x x_1 => rfl
+ARG hfitXo <- TERM head=(some id) :: id   (Decidable.byContradiction fun a =>     ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_3 tag Lq hL20 hL64 domain Rp embDigest embFold       bInRow wDigest bOutRow eI eO a)
+ARG hXep <- TERM head=(some ZK60.ProtocolClassify.rcIncAt_pX_ep) :: ZK60.ProtocolClassify.rcIncAt_pX_ep U tag Lq hL20 (ZK60.ProtocolClassify.shdP_incPub Rp embDigest embFold)   (ZK60.ProtocolClassify.shdP_incGeo bInRow) ZK60.ProtocolClassify.shdP_stgDim ZK60.ProtocolClassify.shdP_epDim 2 256 28   (Mathlib.Meta.NormNum.isNat_lt
+ARG hfitX <- TERM head=(some id) :: id   (Decidable.byContradiction fun a =>     ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_9 tag Lq hL20 hL64 domain Rp embDigest embFold       bInRow wDigest bOutRow eI eO a)
+ARG hRr <- TERM head=(some rfl) :: rfl
+ARG hL81 <- TERM head=(some Decidable.byContradiction) :: Decidable.byContradiction fun a =>   ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_10 tag Lq hL20 hL64 domain Rp embDigest embFold     bInRow wDigest bOutRow eI eO a
+ARG hPkD <- TERM head=(some ZK60.ProtocolClassify.shdP_shieldRunAtD_clamp) :: ZK60.ProtocolClassify.shdP_shieldRunAtD_clamp hPk0
+ARG P0in <- TERM head=(some ZK60.ProtocolClassify.shdP_P0in) :: ZK60.ProtocolClassify.shdP_P0in tag Rp embDigest embFold bInRow
+ARG P0out <- TERM head=(some ZK60.ProtocolClassify.shdP_P0out) :: ZK60.ProtocolClassify.shdP_P0out tag Rp wDigest bOutRow
+ARG csIOI <- FORWARD csIOI :: csIOI
+ARG csIOO <- FORWARD csIOO :: csIOO
+ARG hIOI <- FORWARD hIOI :: hIOI
+ARG hIOO <- FORWARD hIOO :: hIOO
+ARG hNin <- TERM head=(some ZK60.ProtocolClassify.shdP_hNin) :: ZK60.ProtocolClassify.shdP_hNin tag Rp embDigest embFold bInRow
+ARG hNout <- TERM head=(some ZK60.ProtocolClassify.shdP_hNout) :: ZK60.ProtocolClassify.shdP_hNout tag Rp wDigest bOutRow
+ARG hN64I <- TERM head=(some ZK60.ProtocolClassify.shdP_hN64I) :: ZK60.ProtocolClassify.shdP_hN64I tag Rp embDigest embFold bInRow
+ARG hN64O <- TERM head=(some ZK60.ProtocolClassify.shdP_hN64O) :: ZK60.ProtocolClassify.shdP_hN64O tag Rp wDigest bOutRow
+ARG hIOlI <- FORWARD hIOlI :: hIOlI
+ARG hIOlO <- FORWARD hIOlO :: hIOlO
+ARG eI <- FORWARD eI :: eI
+ARG eO <- FORWARD eO :: eO
+ARG ΛI <- FORWARD ΛI :: ΛI
+ARG ΛO <- FORWARD ΛO :: ΛO
+ARG hPin <- TERM head=(some ZK60.ProtocolClassify.shdP_hPin) :: ZK60.ProtocolClassify.shdP_hPin tag Rp embDigest embFold bInRow
+ARG hPout <- TERM head=(some ZK60.ProtocolClassify.shdP_hPout) :: ZK60.ProtocolClassify.shdP_hPout tag Rp wDigest bOutRow
+ARG hSm <- TERM head=(some And.intro) :: ⟨Eq.mpr     (id       (congrArg (fun _a => 2 * _a + 2 ≤ 2 ^ 20) (ZK60.ProtocolClassify.shdP_incPart_S tag Rp embDigest embFold bInRow)))     (Mathlib.Meta.NormNum.isNat_le_true       (Mathlib.Meta.NormNum.isNat_add (Eq.refl HAdd.hAdd)         (Mathlib.Meta.Nor
+ARG hlcStg <- TERM head=(some And.intro) :: ⟨id     (Decidable.byContradiction fun a =>       ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst._proof_1_11 tag Lq hL20 domain Rp embDigest embFold         bInRow wDigest bOutRow eI eO a),   fun x =>   id     (Decidable.byContradiction fun a =>   
+ARG hCsIO <- FORWARD hCsIO :: hCsIO
+ARG hLuStg <- FORWARD hLuStg :: hLuStg
+ARG hTrIIO <- FORWARD hTrIIO :: hTrIIO
+ARG hTrOIO <- FORWARD hTrOIO :: hTrOIO
+ARG hLI_stg <- FORWARD hLI_stg :: hLI_stg
+ARG hLO_stg <- FORWARD hLO_stg :: hLO_stg
+ARG hdinS <- FORWARD hdinS :: hdinS
+ARG hdoutS <- FORWARD hdoutS :: hdoutS
+ARG hLay <- TERM head=(some ZK60.ProtocolClassify.shdP_stgInLay_incPub) :: ZK60.ProtocolClassify.shdP_stgInLay_incPub Rp embDigest embFold
+ARG hdzW <- FORWARD hdzW :: hdzW
+ARG hzk <- FORWARD hzk :: hzk

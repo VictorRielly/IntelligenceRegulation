@@ -1,0 +1,19 @@
+== inst_elab.out
+lines with axioms: 78 no-axiom lines: 9 other lines: 0
+outside standard set: []
+any sorryAx / ofReduceBool: False
+Counter({('Classical.choice', 'Quot.sound', 'propext'): 47, ('Quot.sound', 'propext'): 21, ('propext',): 10})
+declarations in source: 87 printed: 69 public: 69 public theorems: 44
+every public decl printed and standard: True
+AX ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst ['Classical.choice', 'Quot.sound', 'propext']
+AX ZK60.ProtocolClassify.shdP_rtProf_valid ['Classical.choice', 'Quot.sound', 'propext']
+== lu_elab.out
+lines with axioms: 33 no-axiom lines: 0 other lines: 0
+outside standard set: []
+any sorryAx / ofReduceBool: False
+Counter({('Classical.choice', 'Quot.sound', 'propext'): 31, ('propext',): 2})
+declarations in source: 33 printed: 30 public: 30 public theorems: 16
+every public decl printed and standard: True
+AX ZK60.ProtocolClassify.stgLkIn_rbr ['Classical.choice', 'Quot.sound', 'propext']
+AX ZK60.ProtocolClassify.stgLkOut_rbr ['Classical.choice', 'Quot.sound', 'propext']
+AX ZK60.ProtocolClassify.shd_hLuStg ['Classical.choice', 'Quot.sound', 'propext']

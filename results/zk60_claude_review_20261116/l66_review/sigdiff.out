@@ -1,0 +1,205 @@
+blkAlive binder groups 138 names 150 | pinsHd groups 124 names 136
+CONCLUSION old: : ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768) (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget
+CONCLUSION new: : ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768) (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget
+conclusion text equal: True
+
+--- REMOVED (in blkAlive only): ['D', 'hD', 'base', 'eL', 'hDe', 'hgXk', 'hnXk', 'hgX1', 'hnX1', 'hgXo', 'hnXo', 'hgX0', 'hnX0', 'hPkC', 'hslB', 'hbBlk', 'hb0', 'hbL', 'hblkIO'] 19
+
+--- ADDED (in pinsHd only):
+   hPkD ( :: ShieldRunAtD tag dPos0 Pk Rp.blks Lb
+   hSm ( :: 2 * pin.S + 2 ≤ 2 ^ 20 ∧ 2 * pout.S + 2 ≤ 2 ^ 20
+   hlcStg ( :: Vi.pub.lt ≤ ogStage.lc ∧ ∀ b, (F b).pub.lt ≤ ogStage.lc
+   hCsIO ( :: ZK60.ProtocolClassify.StgCsIODeg U hbij Vi.pub.epLogN (ZK60.ProtocolClassify.IncPrivIO0 Vi.pub) csIOI ∧ ZK60.ProtocolClassify.StgCsIODeg U hbij Vi.geo.bLogN (ZK60.ProtocolClassify.IncPrivIO1 Vi.pub) csIOI ∧ ∀ b, ZK60.ProtocolClassify.StgCsIODeg U hbij (F b).geo.bLogN (ZK60.ProtocolClassify.OutcPrivIO (F b).pub) csIOO
+   hLuStg ( :: (ZK60.ProtocolClassify.stgLkSqV mIn ((RtRun.pf Rn).off 0 + 5) eI (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) ΛI).Rbr ∧ eI ≤ 2 ^ 26 ∧ mIn * eI ≤ 3 * 2 ^ 26 ∧ (ZK60.ProtocolClassify.stgLkSqV 2 ((RtRun.pf Rn).off (Lb + 1) + 2) eO (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) ΛO).Rbr ∧ eO ≤ 2 ^ 26
+
+--- CHANGED (same name, text differs):
+   csIOI
+     old: StgVw Lq → Exec.Block.Cm → Exec.Block.ZClaim → K
+     new: ZK60.ProtocolClassify.StgVw Lq → Exec.Block.Cm → Exec.Block.ZClaim → K
+   csIOO
+     old: StgVw Lq → Exec.Block.Cm → Exec.Block.ZClaim → K
+     new: ZK60.ProtocolClassify.StgVw Lq → Exec.Block.Cm → Exec.Block.ZClaim → K
+   hNin
+     old: ∀ k, k < P0in.geom.slots.length → 0 < stgN P0in k ∧ stgN P0in k * (Exec.Block.slotShape P0in k).2.2 + 2 ≤ 512
+     new: ∀ k, k < P0in.geom.slots.length → 0 < ZK60.ProtocolClassify.stgN P0in k ∧ ZK60.ProtocolClassify.stgN P0in k * (Exec.Block.slotShape P0in k).2.2 + 2 ≤ 512
+   hNout
+     old: ∀ k, k < P0out.geom.slots.length → 0 < stgN P0out k ∧ stgN P0out k * (Exec.Block.slotShape P0out k).2.2 + 2 ≤ 512
+     new: ∀ k, k < P0out.geom.slots.length → 0 < ZK60.ProtocolClassify.stgN P0out k ∧ ZK60.ProtocolClassify.stgN P0out k * (Exec.Block.slotShape P0out k).2.2 + 2 ≤ 512
+   hN64I
+     old: ∀ k, k < P0in.geom.slots.length → stgN P0in k < 64
+     new: ∀ k, k < P0in.geom.slots.length → ZK60.ProtocolClassify.stgN P0in k < 64
+   hN64O
+     old: ∀ k, k < P0out.geom.slots.length → stgN P0out k < 64
+     new: ∀ k, k < P0out.geom.slots.length → ZK60.ProtocolClassify.stgN P0out k < 64
+   ΛI
+     old: StgVw Lq → List (List UInt8 × K) → Prop
+     new: ZK60.ProtocolClassify.StgVw Lq → List (List UInt8 × K) → Prop
+   ΛO
+     old: StgVw Lq → List (List UInt8 × K) → Prop
+     new: ZK60.ProtocolClassify.StgVw Lq → List (List UInt8 × K) → Prop
+   hPin
+     old: ∀ hd cx, StgSame P0in ((inc hd).bp cx)
+     new: ∀ hd cx, ZK60.ProtocolClassify.StgSame P0in ((inc hd).bp cx)
+   hPout
+     old: ∀ hd v, StgSame P0out (outc hd v).bp
+     new: ∀ hd v, ZK60.ProtocolClassify.StgSame P0out (outc hd v).bp
+   hTrIIO
+     old: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom) (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨ ZK60.ProtocolClassify.exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) → ¬ (rtKB key domain hs Lq hL (RtRun.pf Rn) (RtRun.rd Rn
+     new: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (hDV : (shdRkD U hbij tag dPos0 Lq h64 hL20 key domain hs hL Lb hLb1 (RtRun.pf Rn) Pk hPkD Vi F lscIn lscOut pin pout mIn kIn kOut Iin.pA.rows Iin.pH.rows Iin.pX.rows Iin.nA Iin.nH Iin.nIn Iin.nOut Oout.pA.rows Oout.pH.rows Oout.pX.rows Oout.nA Oout.nH Oout.nIn (fun j => (bp j).S) (fun j => (bp j).pA.rows) (fun j => (bp j).pH.rows) (fun j => (bp j).nA) (fun j => (bp j).nH) (fun j => (bp j).nIn) (fun j => (bp j).nOut) (fun j => (pXk j).rows) P0in P0out csIOI csIOO eI eO ΛI ΛO).Valid (Exec.Block.absOfC (chainEncB key domain hs L
+   hTrOIO
+     old: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom) (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨ ZK60.ProtocolClassify.exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) → ¬ (rtKB key domain hs Lq hL (RtRun.pf Rn) (RtRun.rd Rn
+     new: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (hDV : (shdRkD U hbij tag dPos0 Lq h64 hL20 key domain hs hL Lb hLb1 (RtRun.pf Rn) Pk hPkD Vi F lscIn lscOut pin pout mIn kIn kOut Iin.pA.rows Iin.pH.rows Iin.pX.rows Iin.nA Iin.nH Iin.nIn Iin.nOut Oout.pA.rows Oout.pH.rows Oout.pX.rows Oout.nA Oout.nH Oout.nIn (fun j => (bp j).S) (fun j => (bp j).pA.rows) (fun j => (bp j).pH.rows) (fun j => (bp j).nA) (fun j => (bp j).nH) (fun j => (bp j).nIn) (fun j => (bp j).nOut) (fun j => (pXk j).rows) P0in P0out csIOI csIOO eI eO ΛI ΛO).Valid (Exec.Block.absOfC (chainEncB key domain hs L
+   hLI_stg
+     old: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom) (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨ ZK60.ProtocolClassify.exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) → ¬ (rtKB key domain hs Lq hL (RtRun.pf Rn) (RtRun.rd Rn
+     new: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (hDV : (shdRkD U hbij tag dPos0 Lq h64 hL20 key domain hs hL Lb hLb1 (RtRun.pf Rn) Pk hPkD Vi F lscIn lscOut pin pout mIn kIn kOut Iin.pA.rows Iin.pH.rows Iin.pX.rows Iin.nA Iin.nH Iin.nIn Iin.nOut Oout.pA.rows Oout.pH.rows Oout.pX.rows Oout.nA Oout.nH Oout.nIn (fun j => (bp j).S) (fun j => (bp j).pA.rows) (fun j => (bp j).pH.rows) (fun j => (bp j).nA) (fun j => (bp j).nH) (fun j => (bp j).nIn) (fun j => (bp j).nOut) (fun j => (pXk j).rows) P0in P0out csIOI csIOO eI eO ΛI ΛO).Valid (Exec.Block.absOfC (chainEncB key domain hs L
+   hLO_stg
+     old: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom) (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨ ZK60.ProtocolClassify.exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) → ¬ (rtKB key domain hs Lq hL (RtRun.pf Rn) (RtRun.rd Rn
+     new: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig) (hDV : (shdRkD U hbij tag dPos0 Lq h64 hL20 key domain hs hL Lb hLb1 (RtRun.pf Rn) Pk hPkD Vi F lscIn lscOut pin pout mIn kIn kOut Iin.pA.rows Iin.pH.rows Iin.pX.rows Iin.nA Iin.nH Iin.nIn Iin.nOut Oout.pA.rows Oout.pH.rows Oout.pX.rows Oout.nA Oout.nH Oout.nIn (fun j => (bp j).S) (fun j => (bp j).pA.rows) (fun j => (bp j).pH.rows) (fun j => (bp j).nA) (fun j => (bp j).nH) (fun j => (bp j).nIn) (fun j => (bp j).nOut) (fun j => (pXk j).rows) P0in P0out csIOI csIOO eI eO ΛI ΛO).Valid (Exec.Block.absOfC (chainEncB key domain hs L
+   hdinS
+     old: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom) (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨ ZK60.ProtocolClassify.exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) → ¬ InOkP Rp ((ZK60.ProtocolClassify.epxE (CinS) (ZK60.P
+     new: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom) (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨ ZK60.ProtocolClassify.exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) → ¬ InOkP Rp ((ZK60.ProtocolClassify.epxE (CinS) (ZK60.P
+   hdoutS
+     old: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom) (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨ ZK60.ProtocolClassify.exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) → ¬ OutOkP Rp ((classifyProtocolUExecP Rp Lq Lb preA pre
+     new: ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig), (classifyProtocolUExecP Rp Lq Lb preA preB start inc incG (d12aBlockProf Pk sgeom check paths digest bRows bLogN bndCheck bndOpen) outc outcG P (CinS) h64 hr hon.base 768).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true → ¬ (EvXR tag Lq h64 (chainEncB key domain hs Lq hL) 256 256 256 16 16 12 26 (rxCoreOf sgeom) (rxVx tag Lq h64 incG outcG sgeom Lb) (rxRoots incG outcG sgeom Lb) A G ∨ ZK60.ProtocolClassify.exEvIn tag Lq h64 key domain hs hL incG outcG sgeom Lb A G) → ¬ OutOkP Rp ((classifyProtocolUExecP Rp Lq Lb preA pre
+
+--- KEPT identical: 115
+
+ORDER of shared names preserved: True
+
+ALL pinsHd binders in order:
+   Rp
+   Lq
+   Lb
+   hL20
+   preA
+   preB
+   start
+   inc
+   incG
+   Pk
+   sgeom
+   check
+   paths
+   digest
+   bRows
+   bLogN
+   bndCheck
+   bndOpen
+   outc
+   outcG
+   P
+   h64
+   hr
+   hon
+   U
+   hbij
+   key
+   domain
+   hs
+   hL
+   hL64
+   Rn
+   hv
+   hw
+   hRn
+   ι
+   [Fintype ι]
+   site
+   kOf
+   δOf
+   E0
+   εzk
+   O
+   hU
+   cx0
+   pin
+   pout
+   Iin
+   Oout
+   bp
+   wXk
+   gXk
+   mXk
+   hσ
+   hgeo
+   hIA
+   hIH
+   hOA
+   hOH
+   hBA
+   hBH
+   htI
+   htO
+   htB
+   hfIA
+   hfIH
+   hfOA
+   hfOH
+   hfBA
+   hfBH
+   hfIM
+   hfOM
+   hfBM
+   hbpRows
+   Vi
+   F
+   hinc
+   houtc
+   hchk
+   hLb1
+   lscIn
+   lscOut
+   mIn
+   kIn
+   kOut
+   hlscIn
+   hlscOut
+   hmIn
+   hkIn
+   hkOut
+   pXk
+   hXk
+   hwXk
+   hmXk
+   hfitXk
+   hwX0
+   hmX0
+   hOX
+   hwXo
+   hfitXo
+   hXep
+   hfitX
+   hRr
+   hL81
+   hPkD
+   P0in
+   P0out
+   csIOI
+   csIOO
+   hIOI
+   hIOO
+   hNin
+   hNout
+   hN64I
+   hN64O
+   hIOlI
+   hIOlO
+   eI
+   eO
+   ΛI
+   ΛO
+   hPin
+   hPout
+   hSm
+   hlcStg
+   hCsIO
+   hLuStg
+   hTrIIO
+   hTrOIO
+   hLI_stg
+   hLO_stg
+   hdinS
+   hdoutS
+   hLay
+   hdzW
+   hzk

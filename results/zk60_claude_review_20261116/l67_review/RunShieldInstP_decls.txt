@@ -1,0 +1,87 @@
+51 def ZK60.ProtocolClassify.shdP_epPos
+54 theorem ZK60.ProtocolClassify.shdP_epPos_injective
+59 def ZK60.ProtocolClassify.shdP_epPlace
+61 theorem ZK60.ProtocolClassify.shdP_epPlace_val
+63 theorem ZK60.ProtocolClassify.shdP_epPlace_injective
+67 theorem ZK60.ProtocolClassify.shdP_stgInLay
+80 abbrev ZK60.ProtocolClassify.shdP_cin
+85 theorem ZK60.ProtocolClassify.shdP_hr
+91 def ZK60.ProtocolClassify.shdP_honestIn
+108 theorem ZK60.ProtocolClassify.shdP_clog2_18
+112 theorem ZK60.ProtocolClassify.shdP_clog2_128
+116 theorem ZK60.ProtocolClassify.shdP_clog2_256
+120 theorem ZK60.ProtocolClassify.shdP_clog2_4096
+122 theorem ZK60.ProtocolClassify.shdP_clog2_131072
+127 def ZK60.ProtocolClassify.shdP_stgDim
+130 def ZK60.ProtocolClassify.shdP_epDim
+134 def ZK60.ProtocolClassify.shdP_incPub
+149 def ZK60.ProtocolClassify.shdP_incGeo
+152 def ZK60.ProtocolClassify.shdP_incV
+157 def ZK60.ProtocolClassify.shdP_wDelta
+159 theorem ZK60.ProtocolClassify.shdP_wDelta_eq
+161 theorem ZK60.ProtocolClassify.shdP_wDelta_length
+164 theorem ZK60.ProtocolClassify.shdP_wDelta_getD
+175 def ZK60.ProtocolClassify.shdP_outcPub
+192 def ZK60.ProtocolClassify.shdP_outcGeo
+195 def ZK60.ProtocolClassify.shdP_outcV
+199 theorem ZK60.ProtocolClassify.shdP_incPub_logs
+212 theorem ZK60.ProtocolClassify.shdP_stgInLay_incPub
+218 theorem ZK60.ProtocolClassify.shdP_incLay_nums
+232 theorem ZK60.ProtocolClassify.shdP_outcPub_logs
+244 theorem ZK60.ProtocolClassify.shdP_outcLay_nums
+259 def ZK60.ProtocolClassify.shdP_P0in
+263 def ZK60.ProtocolClassify.shdP_P0out
+266 theorem PRIVATE ZK60.ProtocolClassify.rt_incBp_geom
+268 theorem PRIVATE ZK60.ProtocolClassify.stgSame_incBp
+272 theorem ZK60.ProtocolClassify.shdP_hPin
+278 theorem ZK60.ProtocolClassify.shdP_hPout
+287 theorem ZK60.ProtocolClassify.shdP_P0in_slots
+293 theorem ZK60.ProtocolClassify.shdP_P0out_slots
+298 theorem ZK60.ProtocolClassify.shdP_hNin
+311 theorem ZK60.ProtocolClassify.shdP_hN64I
+322 theorem ZK60.ProtocolClassify.shdP_hNout
+334 theorem ZK60.ProtocolClassify.shdP_hN64O
+345 theorem ZK60.ProtocolClassify.shdP_hVi
+359 theorem ZK60.ProtocolClassify.shdP_hwO
+364 theorem ZK60.ProtocolClassify.shdP_hwB
+369 def ZK60.ProtocolClassify.shdP_Iin
+378 def ZK60.ProtocolClassify.shdP_Oout
+395 def ZK60.ProtocolClassify.shdP_clampPk
+397 theorem ZK60.ProtocolClassify.shdP_clampPk_lt
+401 theorem ZK60.ProtocolClassify.shdP_shieldRunAtD_clamp
+409 theorem PRIVATE ZK60.ProtocolClassify.shdP_shieldGeom_bounds
+416 theorem PRIVATE ZK60.ProtocolClassify.shdP_cnt_io_sums
+421 theorem PRIVATE ZK60.ProtocolClassify.shdP_map_getD_cmCountS
+432 theorem PRIVATE ZK60.ProtocolClassify.shdP_rtBlk_hokA
+446 theorem PRIVATE ZK60.ProtocolClassify.shdP_rtBlk_hokH
+460 theorem PRIVATE ZK60.ProtocolClassify.shdP_rtBlk_hgt
+471 theorem PRIVATE ZK60.ProtocolClassify.shdP_rtBlk_hgeomL
+490 theorem PRIVATE ZK60.ProtocolClassify.shdP_rtBlk_hPm
+499 theorem PRIVATE ZK60.ProtocolClassify.shdP_rtBlk_hcnt
+545 def ZK60.ProtocolClassify.shdP_blkPcs
+570 def ZK60.ProtocolClassify.shdP_rtBlk
+588 theorem ZK60.ProtocolClassify.shdP_rtBlk_pA_r13
+596 theorem ZK60.ProtocolClassify.shdP_rtBlk_pH_r13
+605 def ZK60.ProtocolClassify.shdP_sgeom
+609 def ZK60.ProtocolClassify.shdP_blockProf
+624 def ZK60.ProtocolClassify.shdP_runV
+641 def ZK60.ProtocolClassify.shdP_rtRun
+668 theorem ZK60.ProtocolClassify.shdP_rtRun_hdr
+687 theorem ZK60.ProtocolClassify.shdP_rtRun_σs
+723 theorem ZK60.ProtocolClassify.shdP_rtRun_pf
+745 theorem ZK60.ProtocolClassify.shdP_rtRun_rd
+775 theorem PRIVATE ZK60.ProtocolClassify.shdP_rtPart_sqs_bounds
+785 theorem PRIVATE ZK60.ProtocolClassify.shdP_incPart_nums
+824 theorem PRIVATE ZK60.ProtocolClassify.shdP_outcPart_nums
+862 theorem PRIVATE ZK60.ProtocolClassify.shdP_blkPart_nums
+892 theorem PRIVATE ZK60.ProtocolClassify.map_const_range_sum
+900 theorem PRIVATE ZK60.ProtocolClassify.flatMap_sqs_sum
+907 theorem ZK60.ProtocolClassify.shdP_rtProf_valid
+972 def ZK60.ProtocolClassify.shdP_runDomain
+977 theorem ZK60.ProtocolClassify.shdP_runDomain_start_none
+980 theorem ZK60.ProtocolClassify.shdP_runDomain_start_le
+985 theorem ZK60.ProtocolClassify.shdP_fp2_bijective
+990 theorem ZK60.ProtocolClassify.shdP_incPart_S
+997 theorem ZK60.ProtocolClassify.shdP_outcPart_S
+1051 theorem PRIVATE ZK60.ProtocolClassify.zero_lt_26
+1094 theorem ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst

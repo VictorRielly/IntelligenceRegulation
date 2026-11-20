@@ -1,0 +1,20 @@
+
+a1_default: 5897 rows, 4074 non-witness, 7 prove calls (31 rows=38 commits each: 217)
+   call 0: P 3.864  prover busy 2.546 (65.9 %)  idle 1.319  sum of spans 5.823 (x2.29 of union)  H commit eq 401 ms (15.8 %)  A commit eq 478 ms (18.8 %)
+   call 1: P 3.641  prover busy 2.473 (67.9 %)  idle 1.168  sum of spans 6.504 (x2.63 of union)  H commit eq 379 ms (15.3 %)  A commit eq 509 ms (20.6 %)
+   call 2: P 3.644  prover busy 2.534 (69.5 %)  idle 1.110  sum of spans 6.514 (x2.57 of union)  H commit eq 371 ms (14.6 %)  A commit eq 526 ms (20.8 %)
+   call 3: P 3.744  prover busy 2.505 (66.9 %)  idle 1.239  sum of spans 6.394 (x2.55 of union)  H commit eq 354 ms (14.1 %)  A commit eq 542 ms (21.6 %)
+   call 4: P 3.604  prover busy 2.483 (68.9 %)  idle 1.121  sum of spans 6.209 (x2.50 of union)  H commit eq 357 ms (14.4 %)  A commit eq 514 ms (20.7 %)
+   call 5: P 3.733  prover busy 2.535 (67.9 %)  idle 1.198  sum of spans 6.334 (x2.50 of union)  H commit eq 398 ms (15.7 %)  A commit eq 493 ms (19.5 %)
+   call 6: P 3.695  prover busy 2.572 (69.6 %)  idle 1.123  sum of spans 6.284 (x2.44 of union)  H commit eq 367 ms (14.3 %)  A commit eq 495 ms (19.3 %)
+   medians (calls 1..6, first excluded as cold): P 3.669  busy 2.520  idle 1.145
+
+a2_default: 5892 rows, 4069 non-witness, 7 prove calls (31 rows=38 commits each: 217)
+   call 0: P 3.942  prover busy 2.548 (64.6 %)  idle 1.394  sum of spans 5.860 (x2.30 of union)  H commit eq 398 ms (15.6 %)  A commit eq 504 ms (19.8 %)
+   call 1: P 3.613  prover busy 2.487 (68.8 %)  idle 1.127  sum of spans 6.358 (x2.56 of union)  H commit eq 381 ms (15.3 %)  A commit eq 507 ms (20.4 %)
+   call 2: P 3.769  prover busy 2.498 (66.3 %)  idle 1.271  sum of spans 6.470 (x2.59 of union)  H commit eq 354 ms (14.2 %)  A commit eq 528 ms (21.1 %)
+   call 3: P 3.736  prover busy 2.510 (67.2 %)  idle 1.226  sum of spans 6.285 (x2.50 of union)  H commit eq 366 ms (14.6 %)  A commit eq 525 ms (20.9 %)
+   call 4: P 3.680  prover busy 2.492 (67.7 %)  idle 1.188  sum of spans 6.481 (x2.60 of union)  H commit eq 365 ms (14.7 %)  A commit eq 514 ms (20.6 %)
+   call 5: P 3.818  prover busy 2.484 (65.1 %)  idle 1.334  sum of spans 6.453 (x2.60 of union)  H commit eq 381 ms (15.3 %)  A commit eq 518 ms (20.8 %)
+   call 6: P 3.750  prover busy 2.530 (67.5 %)  idle 1.220  sum of spans 6.493 (x2.57 of union)  H commit eq 399 ms (15.8 %)  A commit eq 552 ms (21.8 %)
+   medians (calls 1..6, first excluded as cold): P 3.743  busy 2.495  idle 1.223

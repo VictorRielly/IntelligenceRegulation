@@ -1,0 +1,15 @@
+shieldLu: total 63 inst 8 non-inst 55 Prop 18 data/type 37 explicit 50
+blkLu:    total 41 inst 4 non-inst 37 Prop 9 data/type 28 explicit 34
+REMOVED by name (non-inst): 22 Prop 10 data 12
+  removed Prop: ['hbij', 'hs', 'hL', 'hPk0', 'hU', 'hzk', 'hcsI', 'hcsO', 'hXEl', 'hV']
+  removed data: ['K', 'U', 'dPos0', 'domain', 'Pk0', 'csIOI', 'csIOO', 'εzk', 'rE', 'lcE', 'Qe', 'XE']
+ADDED (non-inst): 4 Prop ['hR'] data ['ioIn', 'ioOut', 'checkOpening']
+KEPT by name: 33 text identical 27
+  kept with changed text: ['site', 'O', 'hLI_stg', 'hLO_stg', 'hdinS', 'hdoutS']
+  kept identical text: ['Hdr', 'Coins', 'tag', 'Lq', 'hL20', 'hL64', 'key', 'Rp', 'hw', 'hhdrFit', 'preA', 'preB', 'check0', 'paths', 'digest', 'bndCheck', 'embDigest', 'embFold', 'bInRow', 'wDigest', 'bOutRow', 'P', 'epBase', 'E0', 'ι', 'kOf', 'δOf']
+kept Prop: ['hL20', 'hL64', 'hhdrFit', 'O', 'hLI_stg', 'hLO_stg', 'hdinS', 'hdoutS']
+kept data: ['Hdr', 'Coins', 'tag', 'Lq', 'key', 'Rp', 'hw', 'preA', 'preB', 'check0', 'paths', 'digest', 'bndCheck', 'embDigest', 'embFold', 'bInRow', 'wDigest', 'bOutRow', 'P', 'epBase', 'E0', 'ι', 'site', 'kOf', 'δOf']
+blkLu explicit: ['tag', 'Lq', 'hL20', 'hL64', 'key', 'Rp', 'hR', 'hw', 'hhdrFit', 'preA', 'preB', 'check0', 'paths', 'digest', 'bndCheck', 'ioIn', 'ioOut', 'checkOpening', 'embDigest', 'embFold', 'bInRow', 'wDigest', 'bOutRow', 'P', 'epBase', 'E0', 'site', 'kOf', 'δOf', 'O', 'hLI_stg', 'hLO_stg', 'hdinS', 'hdoutS']
+blkLu implicit/inst: ['Hdr', 'Coins', 'inst', 'inst', 'inst', 'ι', 'inst']
+--- O old len 230 new len 299
+--- hLI_stg old len 41959 new len 45946

@@ -1,0 +1,5 @@
+THEOREM ZK60.ZKHonest.runK_ref_cap_110 binders=3
+BINDER q [Lean.BinderInfo.default] prop=false :: ℕ
+BINDER R [Lean.BinderInfo.default] prop=false :: ℕ
+BINDER hR [Lean.BinderInfo.default] prop=true :: R ≤ 2 ^ 110
+CONCLUSION :: ZKHonest.refErr ZKCount.RunK.kinds q R ≤ εzkTarget q R

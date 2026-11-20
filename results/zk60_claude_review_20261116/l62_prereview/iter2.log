@@ -1,0 +1,40 @@
+== plan /Users/victorrielly/IntelligenceRegulation/results/zk60_claude_review_20261116/l62_prereview/plan2.txt ==
+build ZK60Formal.L62Scratch3
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/L62ScratchAxioms.lean
+== lake build ZK60Formal.L62Scratch3 ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+Build completed successfully (3801 jobs).
+build rc 0 (7 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/L62ScratchAxioms.lean ==
+'ZK60.ProtocolClassify.shield_draws_21' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shield_draws_22' depends on axioms: [propext]
+'ZK60.ProtocolClassify.shieldRun_logCols' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rdBlkR13B_cast' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rdBlkR13B_shield' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ShieldBlkRunData' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.nonempty_rdBlkR13B_of_shieldBlkRunData' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ZK60.ProtocolClassify.rxPs_gX_succ' does not depend on any axioms
+'ZK60.ProtocolClassify.rxPs_succ_lt' does not depend on any axioms
+'ZK60.ProtocolClassify.shield_hoAK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shield_hoHK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shield_hoIK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shield_hoOK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.RunShapeP.bw_productionReadyL_epP_shield_r13' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/formal/ZK60Formal/L62ScratchAxioms.lean (10 s)
+rc 0, 10 s

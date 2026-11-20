@@ -1,13 +1,709 @@
 # Where the MVP stands, in plain words
 
-**2026-11-13 UTC, SOL continuation:** The isolated B3 candidate passes full8B CPU/Metal core equality, six unchanged legacy digests, two matched three-block receipts, and13malicious refusals; all33,030,144local table words match actualMetal buffers. A26 PCS review, conditional rank and both native compatibility controls pass. Timing exposed a baseline-only parallel layout bug; a two-file repair and its validation are queued in batch60. Four C1 and three C5 staging checks pass; C1 softmax pairing needs degree5 at unpadded shapes. The optional device forest remains unbuilt. FullD78/token stages/formal/privacy gates remain open. [Native evidence](../../results/zk60_sol_20261105_w16r3/b3/NATIVE_REPORT_53.md), [repair](../../results/zk60_sol_20261105_w16r3/b3/RECOVERY_58.json), [D78 staging](../../results/zk60_sol_20261105_w16r3/b3/d78_stage_61/SOURCE_REVIEW.json). No new throughput or production/privacy acceptance.
+**2026-11-18 UTC, first native proof on trained 8B parameters (Sol's report; second reading done 15:28 UTC, evidence only, no source review):** **Second reading (Claude's read-only reviewer, `results/zk60_claude_review_20261116/SOL_TRAINED_8B_461_REVIEW.md`):** the retained evidence supports the narrow claim and nothing more. Recomputed: all 34 segment hashes and the 764,068,112-byte total (the coordinator repeated this check independently), the 62 pins of Sol's receipt audit, the 5,224 pins of the run specification; the six guard rows are in order and exit 0, and the verifier was a separate, later process. What the proof is: ONE next token for ONE 128-token prompt, and that prompt is sequence 0 of the calibration set the export was fitted on (in-sample); a CPU run on one thread with the GPU off (prover 468 s by its own report, 602 s in total); the public-row variant, with no privacy acceptance, as its own statement says; a development profile. The proved export is the one that failed D32 (final figure 1.137 times float perplexity on the 24 FineWeb examples completed, one refusal). The refitted export is a different export and has no native proof yet. Not checked by the reviewer: the Rust prover and verifier source, the privacy property, how the checkpoint became the export, and whether the owner-side input equals the archived prompt. **Sol's report as first recorded:** Sol reports a native development proof of the trained Llama-3-8B export at W16R3, T128: all 32 blocks on one archived calibration sequence, a fresh verifier accepting 34 segments (764,068,112 bytes, 95-bit minimum, 97-bit whole-run floor), both owner checks passed [REPORTED by Sol, 2026-11-18T07:30Z; `results/zk60_sol_20261105_w16r3/b3/D78_TRAINED_8B_NATIVE_DEVELOPMENT_467.md`]. Limits, in Sol's own words and figures: privacy and production acceptance are open; **the quality run (D32) on this export has since failed** (Sol, 08:06 UTC): it refused at FineWeb example 25 on one out-of-range gate word in layer 3, which breaks the zero-refusal criterion, and before that it stood at 1.110 times the float model's perplexity on the first 20 examples, against 1.013 for the archived calibration that passed D32. So the proof is valid for its one calibration prompt and the export is not an accepted model; Sol is refitting per channel from the passing calibration and has that refit in D32 now; it is a CPU development proof and says nothing about speed. Claude has asked Sol for the entry files and will put a read-only reviewer on it.
+
+**2026-11-18 UTC.** The six original text prompts reproduced all six historical margins and decisions from token IDs through the full 26-layer numerical model. Native proof checks for those exact lengths remain pending. For the first image-decoder layer, a public-only calculation reproduced the first 70 output rows in each of three synthetic cases. A separate overlap screen found 24 candidate pairs in the synthetic dataset controls. Real-data split review and quality measurements remain pending. [Text replay](../../results/zk60_astra_20261026/a2_exact_sequence_review_20261118/REVIEW.md), [public prompt rows](../../results/zk60_astra_20261026/a4_decoder_public_rows_20261118/REVIEW.md), [overlap controls](../../results/zk60_astra_20261026/a4_image_overlap_review_20261117/REVIEW.md).
+
+**2026-11-17 UTC, saved complete-image proof now replays:** One retained 2,873,106,100-byte container passed all 102 stages in a fresh ordinary verifier process; an altered first frame was rejected. All five guarded leaves passed, and the 452-file evidence package is frozen. The original parent exited 1 because its independent text sibling failed; the image child exited 0. This is one synthetic case, with no independent/privacy/production acceptance. [Replay evidence](../../results/zk60_astra_20261026/a4_complete_image_replay_20261116/REVIEW.md).
+
+The six exact-length text profiles compiled, then the first profile unit exposed a missing calibration registration. The isolated repair passed input checks for all six exports. An independent replay using the saved input at each of 26 layers found that all 221,207,168 active attention scores fit the required range. Across three synthetic images a separate replay reproduced every value in the 216 first-layer decoder reference arrays. Native witness comparisons and proof checks remain pending in one grouped launch. [Text score results](../../results/zk60_astra_20261026/a2_exact_score_review_20261117/REVIEW.md), [decoder replay](../../results/zk60_astra_20261026/a4_decoder_arithmetic_review_20261117/REVIEW.md), [native validation plan](../../results/zk60_astra_20261026/text_decoder_validation_20261117/PLAN.json).
+
+**2026-11-17 UTC, full-length text padding refusal localized:** Compilation, regression, admission and the first 234-token numerical sequence passed. The next case stopped at layer 7 before proof generation: four score values exceed the allowed range only where both positions are added padding. The original 174-token score square remains within range; three failures are causal, so masking future positions alone would not fix it. An independent attention-only reconstruction confirms the cause. A recovery must preserve the original prompt and historical arithmetic while reconciling native padding semantics. The independent full-image replay subsequently passed and is now frozen. [Diagnosis](../../results/zk60_astra_20261026/a2_padding_diagnosis_20261117/README.md).
+
+**2026-11-17 UTC, mobile label layout installed:** Category cards at 640px and below preserve readable proof, policy and anchor fields. Nine reviewed browser captures, keyboard disclosure controls, accessibility/layout checks and all four installed frontend suites pass. The controller subsequently continued to saved full-image replay after preserving the text padding refusal. No additional user input was needed for this installation. [Installation evidence](../../results/zk60_astra_20261026/a6_mobile_labels_integration_20261117/README.md).
+
+**2026-11-17 UTC, complete image development proof qualified and frozen:** All six honest image-to-verdict cases and all four coherent full-chain forgery checks passed. Each honest case verifies 102 stages, 102 roots and 101 internal boundaries, with 2,873,101,488 receipt bytes reported. The separate 26-layer decoder suite also passed its three honest cases, two boundary forgeries and full audit. The original parent exited 0; both packages are frozen. These synthetic implementing-lane results have no retained raw receipts. The classifier follow-up saved eight honest and 80 forged receipts; fresh verification, 192 wire controls and the recovered evidence audit pass. Its original controller exit 1 is preserved: the final parser missed libtest-prefixed evidence rows, corrected by an audit-only follow-up. Saved full-image replay now passes for one black/refusal-free case, with a retained102-stage container and fresh ordinary verification. A separate T follow-up implements an assigned-plane auditor but remains uncompiled, with retained/fresh T receipts still pending. Actual-image quality, independent acceptance, formal/privacy and production gates remain open. [Image qualification](../../results/zk60_astra_20261026/a4_complete_image_proof_20261116/REVIEW.md), [decoder qualification](../../results/zk60_astra_20261026/a4_decoder_chain_proof_20261115/REVIEW.md), [classifier audit recovery](../../results/zk60_astra_20261026/a4_image_head_audit_recovery_20261117/README.md).
+
+**2026-11-16 UTC, six original full-length text cases prepared for native validation:** The exact historical inputs and 162 input/layer references are recovered. An isolated T256 candidate preserves all six original lengths, including two strict-hate templates confined to a test-only registry. Its complete 23-step batch is sealed with 1,297 input/source pins and will check admission, all 26 layers, six ordinary proofs and fresh verification, owner and corruption checks. The launched batch compiled and passed five initial gates plus the first numerical sequence, then stopped on the second case's padding refusal described above; no proof was run. This is preparation, with no profile adoption or privacy/production acceptance. [Prepared scope](../../results/zk60_astra_20261026/a2_full_length_review_20261116/README.md).
+
+**2026-11-15 UTC, first decoder proof implementation:** The isolated real149/T256 development profile, strict norm/attention ranges, authenticated trained-model import and reference/proof tests now compile. A fixed seven-step guarded batch advances automatically through build, unit tests, three proof cases and tampering checks; native proof qualification is still pending. While the batch waits for the shared resource lock, a separate preparation audit checked all 26 layers' calibration/group metadata and all 75 retained numerical carry links without another approval. [First-layer candidate](../../results/zk60_astra_20261026/a4_text_decoder_proof_20261115/README.md), [chain preparation](../../results/zk60_astra_20261026/a4_decoder_chain_proof_20261115/README.md).
+
+**2026-11-15 UTC, decoder proof preparation:** Exact witness conversions now pass eight unit tests and all three existing first-layer fixtures, including symmetric signed ranges, normalization remainders, grouped rounding and causal/padded attention. The complete six-step batch needed no new approval and stayed below521MB combined memory. All1,011 files in the four qualified predecessor packages remain unchanged. This is preparation; the actual decoder proof builder and verifier still need integration. [Conversion review](../../results/zk60_astra_20261026/a4_text_decoder_proof_20261115/ADAPTER_REVIEW.md).
+
+**2026-11-15 UTC, native final classifier qualified:** The actual last row from each complete 26-layer native decoder run now passes both existing final normalization variants and the tied yes/no margin calculation. All six comparisons, 12 unit tests and 228 alteration controls pass, matching 55,338 intermediate values and every integer margin/decision. Black/white also match four historical heads; coordinates has a new reference. The 39-file package is frozen; combined memory stays below 79 MB. These synthetic cases do not establish task quality. Committed decoder/classifier proof, complete image proof and independent soundness/privacy/production work remain open. [Classifier qualification](../../results/zk60_astra_20261026/a4_native_image_classifier_20261115/RESULT.json), [review](../../results/zk60_astra_20261026/a4_native_image_classifier_20261115/REVIEW.md).
+
+**2026-11-15 UTC, all 26 native decoder layers qualified:** All three 149-token canvas cases pass every layer and the independent relation checker: 78 layer/case comparisons, 5,616 planes and 3,177,268,848 values. The audit authenticates 976 inputs and all 75 native output-to-input transitions against separately carried reference outputs. All 52 historical black/white outputs match. The original L7/L12/L25 calibrations are preserved. The 430-file package is frozen; combined parent/child memory stays below 1.29 GB, and no new host approval was needed. This is numerical qualification; committed decoder proof and independent quality/privacy/production gates remain open. [Decoder-chain qualification](../../results/zk60_astra_20261026/a4_native_decoder_chain_20261115/RESULT.json), [review](../../results/zk60_astra_20261026/a4_native_decoder_chain_20261115/REVIEW.md).
+
+**2026-11-15 UTC, complete image-to-decoder-input proof qualified:** Three cases now verify the RGB8 frontend, all24 encoder layers, projector and full149-token adapter as one75-stage chain with76 roots and74 joint internal openings. Twelve unit tests,135 model controls and831 wire/opening/stream controls pass. Two full-chain forgeries reject at the intended projector-output/adapter-input boundary after73/74 valid frames. All2,354,061,312 reference values match; receipts stream1,859,339,784 bytes per case without a replay archive. Peak RSS is7.28 GiB; the465-file package is frozen. Committed text decoding and classifier proof, actual task quality and independent soundness/privacy/production work remain open. [Qualification](../../results/zk60_astra_20261026/a4_image_input_proof_20261115/RESULT.json), [review](../../results/zk60_astra_20261026/a4_image_input_proof_20261115/REVIEW.md).
+
+**2026-11-15 UTC, first native text-decoder layer numerically qualified:** All three retained canvas inputs pass the full first layer and its separate scalar/field checker, matching122,202,648 values across72 planes per case. Sixteen unit tests and343 alteration controls pass; nine coordinated forgeries pass local rounding and fail their matrix/QK/PV definition. The77-file package is frozen. Native child RSS peaks at454 MB; all work completed without a new host approval. The full 26-layer native chain and final classifier are now qualified above. Committed decoder/classifier proof and quality/privacy/production obligations remain open. [Qualification](../../results/zk60_astra_20261026/a4_native_text_decoder_20261115/RESULT.json), [review](../../results/zk60_astra_20261026/a4_native_text_decoder_20261115/REVIEW.md).
+
+**2026-11-15 UTC, standalone full-prompt adapter proof qualified:** Three receipts now prove the signed Hadamard transform, exact Q24 conversion and complete 149-token decoder-input splice, including all inactive channel/context padding. Eleven unit tests, 17 model controls, 19 wire/model/root controls and 16 coherent forged receipts pass; six forgeries reach the global lookup close. All 3,732,480 reference values match. Receipts are 7,659,752 bytes each; the proof suite peaks at 0.89 GiB RSS. The 419-file package is frozen. This standalone proof requires T256 capability; composition with the encoder/projector is now qualified above. Committed text decoding, task quality and independent soundness/privacy/production work remain open. [Adapter proof qualification](../../results/zk60_astra_20261026/a4_adapter_proof_20261115/RESULT.json), [review](../../results/zk60_astra_20261026/a4_adapter_proof_20261115/REVIEW.md).
+
+**2026-11-15 UTC, complete encoder plus projector proof qualified:** The RGB8 frontend, all 24 encoder layers and N16 projector now verify together as 74 stages, 75 roots and 73 joint internal openings on all three retained canvases. Eleven unit tests, 117 model controls and 820 wire/opening/stream controls pass. Two coherent full-chain forgeries are rejected at the intended producer/consumer boundary checks after 72/73 valid preceding frames. The audit authenticates 1,613 inputs and 2,350,328,832 matched reference values; all eight guarded jobs exited cleanly. Receipts stream 1,852,013,856 bytes per case without a replay archive; peak RSS is 7.23 GiB. The 456-file package is frozen. Adapter composition is now qualified above. Committed T256 text decoding, actual task quality and independent soundness/privacy/production obligations remain open. [Composed qualification](../../results/zk60_astra_20261026/a4_encoder_projector_proof_20261115/RESULT.json), [review](../../results/zk60_astra_20261026/a4_encoder_projector_proof_20261115/REVIEW.md).
+
+**2026-11-15 UTC, complete 24-layer image encoder proof qualified:** All three canvas cases now verify the RGB8 frontend and all 24 trained encoder layers as one 73-stage proof, with 74 roots and 72 joint internal openings. The audit rehashes 869 inputs and confirms 27 unit tests, 102 model/statement controls and 808 wire/opening/stream controls. Native witnesses match 2,341,085,184 reference values. Each case streams 1,840,382,616 receipt bytes; peak RSS is 7.10 GiB, and raw receipts were not retained for replay. The frozen package has 425 files. Projector composition is now qualified above; adapter composition, text decoding, actual task quality and independent composed soundness/privacy/production work remain open. No profile is installed. [Full encoder qualification](../../results/zk60_astra_20261026/a4_encoder_chain_proof_20261115/RESULT.json), [review and limits](../../results/zk60_astra_20261026/a4_encoder_chain_proof_20261115/REVIEW.md).
+
+**2026-11-15 UTC, standalone image projector proof qualified:** Three trained-parameter canvas receipts now prove the full N16 projector, channel merge, three matrix operations, literal GELU and explicit output padding. Nine unit tests, 15 model checks, 24 wire/model/root controls and 27 serialized forged-receipt checks pass; 13 forgeries reach the global lookup check. Native witnesses match all 9,243,648 reference values. Each receipt is 11,965,064 bytes and the proof suite peaks at 1.05 GiB RSS. An initial GELU equation error was caught, repaired and regression-tested before qualification. This standalone qualification is now complemented by the encoder composition above; adapter/decoder proof and task-quality/privacy/production obligations remain open. [Projector proof qualification](../../results/zk60_astra_20261026/a4_projector_proof_20261115/RESULT.json), [review](../../results/zk60_astra_20261026/a4_projector_proof_20261115/REVIEW.md).
+
+**2026-11-15 UTC, complete first image encoder proof:** An isolated native proof now connects the RGB8 frontend and the complete first encoder layer, including attention, output projection, both authenticated residual connections, normalization and FFN. Three trained canvas cases and two explicit residual-scale parameter variants verify; all 60 wire/statement controls and 44 serialized forged proofs reject, including 25 global lookup failures. Twenty-six unit tests and four guarded jobs pass. Three internal commitments are each opened jointly once. The audit authenticates 399 inputs; joined receipts are 84,122,672 bytes and the CPU receipt suite peaks at 6.52 GiB. Raw receipts were not retained for standalone replay. Projector/splice, actual image task evaluation and independent composed soundness/privacy/production obligations remain open. No profile is installed. [Proof validation](../../results/zk60_astra_20261026/a4_encoder_tail_proof_20261115/RESULT.json), [implementation and limits](../../results/zk60_astra_20261026/a4_encoder_tail_proof_20261115/README.md).
+
+**2026-11-15 UTC, all 24 encoder layers numerically qualified:** The native encoder carries its own output through all 24 layers and matches the unchanged full integer reference on black, white and coordinate canvases, including both trained residual-scale transitions. All 72 layer comparisons pass: 4,392 plane comparisons and 2,341,085,184 matched values, streamed without archiving tensor arrays. The single-threaded checks completed inside the sandbox without a host approval and used at most 1.03 GB combined parent/child RSS upper bound. This establishes arithmetic agreement on those cases; the separate 73-stage authenticated proof chain is now qualified as reported above. [Numerical validation](../../results/zk60_astra_20261026/a4_native_encoder_chain_20261115/RESULT.json), [scope and remaining work](../../results/zk60_astra_20261026/a4_native_encoder_chain_20261115/README.md).
+
+**2026-11-15 UTC, native image projector numerically qualified:** The native output of all 24 encoder layers now feeds the unchanged N16 projector and matches the full integer reference on all three canvases. The projector comparison covers 9,243,648 values, including 589,824 output values; all 25 unit tests and 231 alteration controls pass. The audit also matches every encoder reference-plane digest to the prior qualification. Work completed in the sandbox with no host approval and a combined parent/child RSS upper bound below 1.34 GiB. Timings overlap the coordinator's A32 run and are functional diagnostics only. Projector composition is now qualified above; image-token adapter/splice proofs, complete image-to-text proof and actual task quality remain open. [Numerical qualification](../../results/zk60_astra_20261026/a4_native_projector_20261115/RESULT.json), [scope and remaining work](../../results/zk60_astra_20261026/a4_native_projector_20261115/README.md).
+
+**2026-11-15 UTC, native image-to-text input numerically qualified:** Native outputs now continue through the signed Hadamard adapter, exact Q24 scale conversion and complete 149-token embedding splice. All three canvas comparisons pass, covering 3,732,480 adapter values and every output coordinate; 32 unit tests and 123 adapter alteration controls pass. The full prompts require T256 capability; the installed T128 profile is not qualified for them. Coordinates uses the black prompt as an explicit numerical fixture. The audited 30-file package completed without host approval. This numerical qualification stops at decoder input. Encoder/projector composition is now qualified above; standalone committed adapter proof is also qualified above; adapter composition, native text decoding, complete image proof and task quality remain open. The all-24 encoder proof batch is now qualified separately; the standalone committed projector proof is also qualified separately. [Adapter qualification](../../results/zk60_astra_20261026/a4_native_image_splice_20261115/RESULT.json), [scope](../../results/zk60_astra_20261026/a4_native_image_splice_20261115/README.md).
+
+**2026-11-13 UTC, Astra app update:** The installed W16R2 app passed an actual three-category post, incompatible writer-mode refusal, clean restart, and three standalone public-store native verifications. The final audit rehashed 336 inputs and bound all 84 receipt segments to the verified publications. All five guarded jobs and four resident writers exited cleanly; test scratch is removed. The app forces both verifier-once and seal-ahead shortcuts off. All 304 installed-app tests pass. [Native app audit](../../results/zk60_astra_20261026/w16r2_app_native_qualification_20261113/NATIVE_AUDIT.json).
+
+The separate coordinator benchmark records 156 proved and checked requests across ten trials. Warm stream throughput is 29.22 proved tokens/s for W16R2 versus 16.11 for R13; warm single-post latency is 26.70 versus 39.14 seconds (two samples per arm). These count padded T128 separately for each category, exclude service startup, and compare different calibrated profiles. The 30-token target is not reached. Per-trial host-quiet observations and the inherited verifier-shortcut setting were not retained in that benchmark. Both results concern public-content development; private 8B performance and production/privacy obligations remain open. [Benchmark log and arithmetic review](../../results/zk60_astra_20261026/a30a31_benchmark_review_20261113/REVIEW.json).
+
+**2026-11-16 10:25 UTC, cross-review of Sol's independent verifier (Claude, co-coordinator):** Sol's separate Python verifier replays the saved two-block full-token D78 receipt (33,564,688 bytes) from the frozen source rules, without the native verifier. Two bounded review passes found no High finding. [REPRODUCED by the reviewer] all 203 pinned files rehash; a scratch re-run gives Sol's result (445 claims, 13 commitment openings plus 4 mask openings, transcript counter 0 to 4815); the run still passes after all 40 captured block program graphs are corrupted on disk, so the block expressions really come from the source port; the five corrections from the first pass were made. Limits: the port is specialised to this public synthetic LowH24 fixture (gate shift 18, product denominator 16 and the normalisation constants are fixture constants); model identity, block digests and expected roots are trusted inputs; the verifier shares the BLAKE3 crate with the prover; components 229 to 248 were checked only through the final replay; privacy, rank and nonlinear gates, the trained 8B export and the Lean obligations are untouched. This is review evidence for a development rung, not acceptance of D78. Third pass, 14:25 UTC, package 285 (schedule derivation and native constructor harnesses): still no High finding; all 347 pins rehash, the schedule digest is computed from the fixture calibration, and the replay re-runs to the same state. Two more limits: the receipt header binds per-layer calibration only through the model identity and block digests, which this verifier takes as trusted inputs (a per-layer gate changed from 20 to 21 leaves the schedule digest unchanged); and the native-versus-Python constructor comparison feeds both sides the same product shift. Fourth pass, 18:30 UTC, package 295: still no High finding; all 417 pins rehash and the five corrections from the third pass were made. The calibration limit above is closed for this one saved public fixture: the verifier now rebuilds the model record and the block preimage itself and compares their hashes with the receipt, and a per-layer gate changed by one is refused [REPRODUCED]. It remains open for an external checkpoint, for arbitrary model records and as the formal trusted-model premise. [Review 1](../../results/zk60_claude_review_20261116/SOL_D78_REVIEW_212_222.md), [review 2](../../results/zk60_claude_review_20261116/SOL_D78_REVIEW_229_LATEST.md), [review 3](../../results/zk60_claude_review_20261116/SOL_D78_REVIEW_PASS3.md), [review 4](../../results/zk60_claude_review_20261116/SOL_D78_REVIEW_PASS4.md). Fifth pass, 22:44 UTC, package 361 (the native full-crate admission, define and matrix-fold run): still no High finding; all 1,383 pins rehash, and the binary is the earlier crate plus one test-only module [REPRODUCED]. One native stage failed (the admission run's outer stage, exit 1, from a layout mismatch with the token stage) and one was refused at the job queue's wait limit and re-run; the package describes both, and nothing it claims rests on a failed stage. The larger-model identities run on test-only waivers and are labelled so; the compact-token geometry is preparation, not qualification. Limits: the token-stage IO layout is never executed natively in this run, and the compact proof was not run. [Review 5](../../results/zk60_claude_review_20261116/SOL_D78_REVIEW_PASS5.md).
+
+**2026-11-16 18:30 UTC, first cross-review of Astra's final-head package V (Claude, co-coordinator):** no High finding, six Medium. [REPRODUCED by the reviewer] all 893 package files, 913 source pins and 469 predecessor files rehash; all 55,338 reference values, recomputed independently from the stored decoder rows, equal the fixtures, and that reference comes from a different code path than the prover. Limits: the proof receipts were not kept, so the six verifications, the twelve wire controls and the nine forged-proof rejections rest on the implementing lane's logs alone (12 of 19 sub-claims); all six honest cases have verdict 0, so the positive-verdict branch has no honest proof; the "false verdict" control also falsifies the margin and does not isolate the verdict relation; every forgery and wire control runs on one case; the verifier's model, root and verdict come from the prover's own loading path. The verdict bit is public, which D40/D76 allow, but the package text does not say so. A re-run with receipts kept and verified in a fresh process (about half a minute per case by the lane's logs) would settle the first limit. Review evidence for a development rung, not acceptance. [Review](../../results/zk60_claude_review_20261116/ASTRA_V_REVIEW_PASS1.md). **Follow-up, 22:44 UTC:** Astra ran a new batch on the final head the same day. Receipts are now saved (88, all hashes match the logs) and verified in a fresh process (8 accepted, 80 refused); there are constructed positive-verdict cases; a control flips only the verdict and keeps the margin; controls cover 8 cases by 10 roles [hashes and logs checked by the reviewer; the verifier was not re-run by us]. Still open: the verifier's root and loaders come from the prover's own path, the package text is unchanged, and the batch's own audit stopped on a log-parsing problem, so it has no terminal pass yet.
+
+**2026-11-16 22:44 UTC, first cross-review of Astra's first-decoder-layer package T (Claude, co-coordinator):** no High finding, five Medium. [REPRODUCED] all 1,873 package files, 604 source pins and four predecessor packages rehash; the reviewer's own re-check of the three reference files holds. Limits: no receipts were kept (9 of 16 claims rest on logs); the reference comparison runs on the trace before assignment, not on the committed planes, so it does not show that the right values are what was committed; forgery and wire controls cover one case; paired controls share slots, and the expected slots were revised after the first run; the verifier's statement comes from the prover's own path. Review evidence for a development rung, not acceptance. [Review](../../results/zk60_claude_review_20261116/ASTRA_T_REVIEW_PASS1.md).
+
+**2026-11-16 05:45 UTC, SOL continuation:** D78 source164 passes both builds, all 14 native metadata checks, and the complete regression gate (1,008 passes, three unchanged baseline failures, 172 ignored). Six full 8B CPU/GPU/hybrid core variants and final states match; 12 cross-verifications and piece-boundary controls pass on public synthetic inputs. The two-block full-token proof now verifies with both owner checks, independent next-token reference and exact segment counts: 33,564,688 bytes in four segments. A coherent changed embedding input rejects at stage IN H. The last boundary control rejects early at a local sumcheck because its test prover still read honest producer words; source174 prepares the coherent consumer override and retains the exact boundary-opening target. It also prepares physical-slot capture, strict public-table export replay and a separate saved-receipt verifier in one new candidate; these remain unbuilt. [Native evidence](../../results/zk60_sol_20261105_w16r3/b3/D78_NATIVE_QUALIFICATION_REVIEW_177.json), [next candidate](../../results/zk60_sol_20261105_w16r3/b3/D78_CAPTURE_FRESH_BOUNDARY_REVIEW_174.json). Actual native LowH24 8B export/calibration, fulltoken8B, complete capture/joint rank/nonlinear/formal/privacy/freeze remain open. No throughput or production/privacy acceptance; earlier B3 timing is still marginal (0.153%, opposite signs by run order).
 
 **2026-11-10: what the Lean work does NOT yet establish (gap audit: `ZK60_LEAN_GAP_AUDIT_PREMISES_20261110.md` and
 `ZK60_LEAN_GAP_AUDIT_FAITHFULNESS_20261110.md`).** Read the Lean bullets further down against this list. Each High
 item was re-checked against the source by the coordinator.
+- **2026-11-16, lanes L60 and L61 (merged `1668946a`) independently reviewed: sound, but they close one premise, not
+  their stated targets** (review by Claude as co-coordinator; lanes written by the Antigravity coordinator;
+  [review](../../results/zk60_claude_review_20261116/LEAN_L60_L61_REVIEW.md)).
+  - **Holds [CHECKED]:** the new top theorem `bw_productionReadyL_epP_shield` (RunBlkWireTop.lean) and the four
+    beside it are sorry-free proofs of the same approved conclusion as L58's; `Statements.lean` is unchanged; only the
+    three standard axioms; the generators reproduce all nine files byte for byte. No new premise was found unmeetable
+    [ARGUED; no full instance was built].
+  - **Proved:** one substantive premise, the block slot-evaluation cover `hsl_blk`, at an explicit slot polynomial
+    built from the extracted tables. It adds four small geometry premises (`hoAK`, `hoHK`, `hoIK`, `hoOK`); the last
+    two need `endpointLogN = 14`, true in the code at T128 but not yet stated in Lean (R1-3, Medium).
+  - **Not proved (R1-2, High):** the stage facts. L60 replaced L58's eight stage premises by L57's eight (`hTrI`,
+    `hTrO`, `hDI_stg`, `hDO_stg`, `hLI_stg`, `hLO_stg`, `hdinS`, `hdoutS`) plus 20 set-up premises. `hdzero` is
+    unchanged. The premise count went from 144 to 166.
+  - **Not used (R1-1, High):** L61's "adversary-free LogUp coverage" and "IO schedule" lemmas are proved, but no top
+    theorem uses them. The 26-block wiring `hblk` is still a premise.
+  - **Open after L61:** `hblk`, `hdzero`, the eight stage facts, the block alive lists (`hR0_blk` … `hH1_blk`,
+    `hLU_blk`), `O`, `hzk`, `hoAK` … `hoOK`. Running now: L62 (Antigravity, `hblk`) and L63 (Claude, the stage
+    facts). L57-2 was sidestepped by a sound generalisation (`lkSqB`), not settled.
+  - The lane reports' axiom tables showed `['propext']` only for the top theorems; that was a parsing error in the
+    report, not in the proofs.
+  - **L63, first result (2026-11-16, on lane branch `worktree-agent-a8b5788916259e1b2` at `80771974`; NOT merged,
+    awaiting Antigravity's cross-review):** two of the eight stage facts, the define facts `hDI_stg` and `hDO_stg`,
+    are proved at the real define polynomials; restated top theorem `ssh_productionReadyL_epP_def`. Lane check green
+    (one guarded job, 33 declarations on the three standard axioms). **Finding L63-1 (Medium):** L57's `StgTrueAt`
+    asks M's functionals to be true only on the stage's own list, while the code checks the hosted ones too; OUT-C's
+    define fact needs them, so a new explicit premise `hHostO` carries it until it is proved with `hTrO`. Also new:
+    `hN64I`, `hN64O`, `hIOlI`, `hIOlO` (small, argued meetable). Still open of the stage facts: `hTrI`, `hTrO`,
+    `hLI_stg`, `hLO_stg`, `hdinS`, `hdoutS`, `hdzero`, and the stage degrees.
+    [Lane doc on the branch: `docs/zkmatrix-poc/ZK60_LEAN_L63_STAGE_FACTS_20261116.md`.]
+  - **Finding L63-4 (Medium, ARGUED, 2026-11-16):** the stages' define step refuses a zero batching challenge, so
+    the real define residual is not a bounded-degree polynomial in the draws, and the stage degree condition inside
+    `hD` cannot be proved in L57's form. The round bound still holds with one more escape per round. A generic lemma
+    for this and a checked recount of the run's soundness budget with the extra escape are in progress (L63).
+    **Resolved the same day (lane branch at `f3cc8a57`, not merged): informational, not a fault of the framework.**
+    The generic lemma is proved (`RunStgShieldRbr.lean`). The run's soundness budget is unchanged at 55,852,891 of
+    67,108,864 [PROVED: the gate prices each define kind by its form, and every stage entry still fits]. At an
+    accepted reading the challenges are nonzero, so the non-refusing branch's polynomial meets both conditions; the
+    define polynomial must be written that way (one bridge lemma per define closure, still to do).
+  - **L62 pre-review (Claude, 2026-11-16 18:20 UTC; the author, Antigravity, has not yet declared the lane finished;
+    file untracked, sha256 `c68a7c49…`):** `RunBlkShieldInst.lean` compiles as it stands and its declarations rest on
+    the three standard axioms only [REPRODUCED: a scratch copy built in the L63 worktree; the root module was not
+    built]. **It does not yet discharge `hblk` (L62-1, High).** The new top theorem
+    `bw_productionReadyL_epP_shield_r13` drops `hblk` by name and takes `hblkS` instead, which still assumes the
+    parts of the bundle that depend on the proof transcript: the define and lookup draws sitting in the right lists
+    (`hdefR`, `hdefIO`, `hlu`), the header length, and how block inputs and outputs are read. What is now proved is
+    the fixed public half (layout, tables, lookup coverage, the input/output check's algebra), so L61's lemmas are
+    finally used by a top theorem. Also: `hoAK` … `hoOK` are gone, two derived, two from a new premise `hep14`
+    (endpoint size 14, true for the app's profile but not yet tied to the export; L62-3, Medium); the block
+    input/output tables are still undefined existentials (L62-2, High); and the Lean input/output schedule had
+    not been checked against the code's two IO slots (L62-4). **That check is now done (18:40 UTC): they are the
+    same** [CHECKED against `argument.rs:2957-2963` and `layout.rs:1099-1100`; the Lean execution-model side PROVED by
+    a probe], so L62-4 drops to Low, with one small addition: the shield predicate should pin both IO slots to the
+    standalone kind (L62-9, Low). Premise count 166 → 164.
+    Nothing found is false or unmeetable.
+    [Review: `results/zk60_claude_review_20261116/L62_PREREVIEW.md`.]
+  - **L63, second result (2026-11-16 19:10 UTC, lane branch at `2970a51b`; NOT merged, awaiting cross-review):**
+    the "mask checks are true" stage facts are split in three. Two parts are proved on every accepted run: the
+    reader part and the mask-commitment part, the latter over the stage's own and its hosted functionals (the L63-1
+    correction). `hHostO` is gone; `hTrI` and `hTrO` shrink to their claims parts `hTrIC` and `hTrOC`. No new bad
+    event; the soundness budget stays 55,852,891 of 67,108,864. New top theorem `ssh_productionReadyL_epP_true`,
+    151 binders (was 152). Lane check green [guard record and log read by the coordinator: one guarded job, eight
+    modules, 56 declarations on the three standard axioms]. **Finding L63-5 (Medium, ARGUED, untested):** at the
+    input stage the statement's IO claims are read off a model accumulator that matches the code's only after the
+    claims are dropped, so they may not be the claims the code's openings check; being settled now.
+  - **L63, third result (2026-11-16 20:40 UTC, lane branch at `f3e6c794`; NOT merged): finding L63-5 is confirmed.**
+    A mismatch in a Lean model, not a protocol weakness: the code builds the input stage's input-endpoint claim at
+    the endpoint width (2^8, the geometry D77a records), while the stage model the stage facts are stated on gives
+    every slot the block width (2^14) [CHECKED against `token_io.rs:190`, `:1128` and `StageVerifyExec.lean:264-266`].
+    So the IO part of the input stage's claims premise speaks of claims the code never opens and cannot be met by
+    the real run [ARGUED]; rated High for the Lean chain. Everything else in the two stage models agrees, and the
+    first two results are unaffected. Repair: a corrected claims notion beside the original (stated in the lane's
+    files, not yet proved through), Lean only. **Also proved:** the output stage's A/H claims on an accepted run;
+    its claims premise shrinks to its IO claims (`hTrOIO`). New top theorem `ssh_productionReadyL_epP_claimsO`,
+    still 151 binders. Lane check green [guard record read: eleven modules, 64 declarations on the three standard
+    axioms]. Not yet cross-reviewed.
+  - **L63, fourth result (2026-11-16 21:20 UTC, lane branch at `9883532b`; NOT merged):** the input stage's A/H
+    claims are proved on an accepted run, so its claims premise shrinks to its IO claims too (`hTrIIO`, the part
+    L63-5 shows unmeetable as stated). New top theorem `ssh_productionReadyL_epP_claimsI`, 151 binders. Lane check
+    green [guard record read: fourteen modules, 77 declarations on the three standard axioms]. The L63-5 repair is
+    scoped: a stage polynomial for the input stage with each slot at its own width, and its terminal theorem,
+    built beside the originals; the input-endpoint fact `hdzero` waits for it. Not yet cross-reviewed.
+  - **L63-5 repaired (2026-11-16 21:36 UTC, lane branch at `a2ea4f91`; NOT merged, not yet cross-reviewed).** A
+    corrected top theorem `sshC_productionReadyL_epP_claimsI` is stated on a stage model that reads each
+    input-stage slot at the code's own width. Same number of premises; three are restated (the input stage's IO
+    claims, `hb0`, `hdinS`) and the unmeetable one is gone. No degree, draw count or budget change (55,852,891 of
+    67,108,864); nothing already proved turned out false. Lane check green [guard record read: 23 modules, 109
+    declarations on the three standard axioms]. Left: a short tie between two forms of the corrected IO claims
+    (Medium), then `hdzero`. **21:49 UTC, lane branch at `14da016b`:** that tie is proved for both stages, so both
+    IO-claims premises are now in the form the code's openings check, and `hdzero` is reduced to a stage-form
+    premise `hdzS` (top theorem `sshC_productionReadyL_epP_claimsF`; lane check green over 28 modules, 117
+    declarations). Still argued, not proved: that the claimed IO values are the evaluations of the committed IO
+    tables. A possible finding was settled the same hour as Low (lane branch at `097d0d1c`): `hdzero` asks exactly what the
+    protocol binds, because the first input-stage slot zero-checks every word of the input plane [CHECKED against
+    `stage_in_c.rs:174-183`, `classify.rs:911-917`]; the gap was only that the Lean layout parameters were not
+    tied to the code's layout. That tie is now a stated premise (`hLay`, true of the code's layout), and `hdzero`
+    becomes `hdzW`: a non-zero decoded word past the tokens dooms the input stage (top theorem
+    `sshC_productionReadyL_epP_claimsW`; lane check green over 30 modules, 120 declarations). Next: tie the claimed
+    input values to the decoded endpoint words, which closes `hdzW`.
+  - **Open of the stage facts after L63's seven steps of 2026-11-16:** `hdzW` with the claimed-value link, the two
+    IO-claims premises (now in the code's form), the stage dooms (`hdinS`, `hdoutS`), the stage LogUp facts
+    (`hLI_stg`, `hLO_stg`), the stage degrees (Antigravity's L65).
+  - **19:30 UTC, both lanes cross-reviewed.** L62: its author's root build is green [guard record read by Claude:
+    run `e9bb2967656d`, exit 0], with the warnings patch applied and the wording above agreed ("`hblk` reduced to
+    `hblkS`"); not yet committed. L63's two results: reviewed and accepted by Antigravity
+    (`results/zk60_coord_batch4_20261115/L63_DELIVERABLE1_AND_2_REVIEW.md`), which also confirmed that the second
+    result adds no new premise. Next: L62 is committed, L63 is rebased onto L62's top theorem and merged. Claimed by
+    Antigravity: L64 (the block alive lists, the list memberships, the block input/output tables, L62-3 and L62-9)
+    and L65 (the stage degree bridges). Claude keeps L63: L63-5, the stage claims parts, LogUp facts and dooms.
+  - **2026-11-17 06:01 UTC, L62 committed and L63's later steps cross-reviewed.** L62 is on the working branch
+    (`eda8b4f7`, not pushed): the reviewed file, unchanged since its green root build, and one import line
+    [commit read by Claude: two paths]. Antigravity reviewed L63's steps three to seven (the A/H claims of both
+    stages, the L63-5 repair, the IO-claims ties, the `hdzero` reduction) and accepted them: no High, no Medium,
+    one Low (a generator without a read-only check mode)
+    (`results/zk60_coord_batch4_20261115/L63_ITEMS_3_TO_7_REVIEW.md`). **06:14 UTC, L63 merged** (`4a24243c` on
+    the working branch, not pushed; its tree is identical to the checked lane tree `aa84f6d7`). The merged-tree
+    check with L62 is green [guard record and log read by Claude: run `0217bd7d990c`, exit 0, 96 s, peak 3.98 GiB;
+    root build with both lanes, 0 warnings in their files; 120 of 120 L63 declarations and L62's top theorem on
+    the three standard axioms; 13 generators reproduce their files; no name clash; `Statements.lean` unchanged;
+    regressions green] (`results/zk60_lean_l63_20261116/check_merge.log`). The Low finding is closed in the merge.
+    This shows the two lanes build together; it proves no new theorem. L63's top theorem is not yet restated on
+    top of L62's, and nothing in the two "Open" lists changes: the review and the merge accept what was proved,
+    they close no premise.
+  - **2026-11-17 08:52 UTC, L65 (stage degrees, Antigravity) cross-reviewed: accept with fixes; it closes no
+    premise yet.** Three new files, not committed. No High, two Medium, three Low
+    (`results/zk60_claude_review_20261116/L65_REVIEW.md`; kernel check by the reviewer, guard run `2d540a1bfe0f`,
+    exit 0, 13 theorems on the three standard axioms, 0 warnings in the L65 files). What holds: the concrete
+    degree lists agree with the Rust code slot by slot, none is below the code's degree; the zero-challenge
+    refusal is counted as a rejection and paid for in every round's bound; the unfolded terms are the executable
+    verifier definitions, not copies. What does not hold as described: the new top theorem
+    `sshC_productionReadyL_epP_dg` is L63's top theorem with the two degree lists filled in. Its premise list is
+    otherwise the same, the validity premise `hD` is still there, and its proof does not use the new degree
+    lemmas. Those lemmas prove four of the six conditions per stage entry, and they need a premise the top theorem
+    does not carry: that the IO claim is read from a multilinear table (`StgCsIODeg`), which is the open csIOI /
+    csIOO link of L63. So **"the stage degrees" stays in the open list** until a lemma builds the stage part of
+    `hD` from them and the csIO link is proved. **09:04 UTC, committed with the wording fixed** (`2df5f72d` on the
+    working branch, not pushed) [commit read by Claude: four paths, the three files equal the posted hashes, the
+    root gains exactly three import lines, rebuild guard run `eaff89fbaf2d` exit 0]. Agreed split: Antigravity
+    writes that lemma (L65b) after its alive-lists lane L64; Claude's L63 supplies the csIO link first.
+  - **2026-11-17 11:06 UTC, L64 (block alive lists, Antigravity) cross-reviewed: accept with fixes; one new file,
+    not yet committed.** No High, three Medium, four Low (`results/zk60_claude_review_20261116/L64_REVIEW.md`;
+    guard run `86b0333e027c`, exit 0; all 64 theorems on the three standard axioms or none, 0 `sorryAx`, 0
+    `ofReduceBool` [axiom output and guard record read by Claude]; the check replayed the author's compiled file
+    after the source-hash check, it did not recompile it). What holds: the new top theorem
+    `sshC_productionReadyL_epP_blkAlive` has the same conclusion as L65's and **is already the combined theorem**,
+    L62's block reduction and the stage chain of L63 and L65 in one statement, so the separate step "restate L63
+    on top of L62" is no longer needed. The five block alive statements (`hR0_blk` … `hLU_blk`) and `hoAK` … `hoOK`
+    are really proved and are gone from the premise list [premise names checked by Claude], and `hblk` is reduced
+    to two equalities, `hblkIO`. The block degree lists agree with the Rust code (the constant 80 is above the
+    code's 60; the two IO slots at degree 1 are right). What is narrower than first described: (1) the five
+    statements are proved for the squeeze lists that a new premise `hbBlk` pins, and their proofs still use the
+    unchanged `hD`; nobody has built an instance showing the pins can hold together (the reviewer argues they
+    can); (2) the lemma `blkLists_rkSqOk`, which proves the block lists' validity conditions, is not used by the
+    top theorem, so `hD` is not reduced yet; (3) `hblkIO` is a new real obligation: the endpoint planes the
+    extractor outputs must equal what the block's own boundary opening reads. `hep14` is no longer a separate
+    premise; endpoint size 14 now sits inside the shield predicate `hPkC`. **11:22 UTC, committed with the
+    wording fixed** (`b809b591` on the working branch, not pushed) [commit read by Claude: two paths, the file
+    equals the posted hash, rebuild guard run `e2ed9e141c3f` exit 0].
+  - **Open in Lean after L64 (`b809b591`):** `hD` (validity of the squeeze data for all
+    parts; the block lists' part is provable from `blkLists_rkSqOk` but not wired, the stage part is L65b and
+    needs the csIO link), `hblkIO`, the two stage IO-claims premises (`hTrIIO`, `hTrOIO`), the stage LogUp facts
+    (`hLI_stg`, `hLO_stg`), the stage dooms (`hdinS`, `hdoutS`), `hdzW`, `O`, `hzk`. Still to be constructed
+    rather than proved: a squeeze schedule `base` and data `D` that meet the pins `hbBlk`, `hslB`, `hb0`, `hbL`,
+    `hDe`, and the fact that the registered verifier is the shield one (`hPkC`). Proposed split: Antigravity takes
+    `hD`, the pins and `hblkIO`; Claude's L63 takes the csIO link, `hdzW`, the stage IO claims, dooms and LogUp
+    facts.
+  - **2026-11-17 16:17 UTC, in progress, nothing below is on the working branch yet.** (1) L64 and L65 are now
+    elaborated from source independently of their author's build products: the L63 lane merged `b809b591` and
+    rebuilt the merged tree (lane commit `1eab49f6`; guard run `f1c958113e75`, exit 0, peak 4.53 GiB; the L64 top
+    theorem on the three standard axioms) [reported by the lane agent; the commit is on the lane branch]. (2) The
+    csIO link is written on the lane branch (`f52d443b`, `RunStgShieldIOLink.lean`: `ssh_hIO0`, `ssh_hIO1`,
+    `ssh_hIOO`), and `hdzW` is half done; not merged, not cross-reviewed. **16:32 UTC: the lane handed back
+    with the csIO link and `hdzW` proved** (lane commit `8ccc8a12`; top theorem `sshC_productionReadyL_epP_dz`
+    on the L64 theorem; merged tree rebuilt from source, guard run `06bb0469d02e`, exit 0, 161 declarations
+    audited, standard axioms) [reported by the lane agent; on the lane branch only; not cross-reviewed]. `hdzW`,
+    `hIOI`, `hIOlI` are gone; four premises are added (`hcsI`, which pins the input IO claims to the matrix
+    decoded by the checked extractor; the B_in matrix still free with `hXOl`; profile facts `hVi`; `hPlace`).
+    The input endpoint's width is 8, not 14 as first guessed. (3) Antigravity posted L66
+    (`RunBlkPinsHd.lean`, uncommitted): it reports a concrete `base` and `D`, the pins and `hblkIO` proved, and
+    `hD` replaced by four stage-only premises [REPORTED by its author].
+  - **2026-11-17 16:29 UTC, L66 cross-reviewed: accept with wording fixes** (`results/zk60_claude_review_20261116/L66_REVIEW.md`;
+    the reviewer elaborated the file from source, guard run `7ed8c7cef0a0`, exit 0; all 51 theorems on the three
+    standard axioms; uncommitted until the wording is fixed). New top theorem
+    `sshC_productionReadyL_epP_pinsHd`, same conclusion. **Really closed:** the squeeze schedule `base` and the
+    data `D` are now concrete definitions, the five pins are proved, and the block part of `hD` is proved with no
+    new block premise. **Narrower than first described:** (1) `hblkIO` is not discharged but relocated: the
+    extractor's planes are now defined as what the block's boundary opening reads, and the stage dooms `hdinS`,
+    `hdoutS` are restated for that extractor and carry the coherence; (2) `hD`'s stage part is supplied by four
+    new premises (`hSm`, `hlcStg`, `hCsIO`, `hLuStg`), two of them conjuncts of the old `hD`, two sufficient
+    conditions; (3) the shield predicate is strengthened to `hPkD` with a new free parameter `dPos0`, and the
+    concrete `D` depends on choice witnesses that are not all unique, so later instantiation must prove its facts
+    from the specification alone. Net 13 fewer explicit premises (19 removed, 6 added).
+  - **Open in Lean after L66 (committed `be99d6f1` at 17:05 UTC with the wording fixed, not pushed) [commit
+    read by Claude: two paths, the file equals the posted hash]:** stage facts `hTrIIO`, `hTrOIO`, `hLI_stg`,
+    `hLO_stg`, `hdinS`, `hdoutS`, `hLay`, the csIO shape premises and `hCsIO` in the matrix form (Claude's L63,
+    which also holds `hdzW` proved on its branch); `hSm`, `hlcStg`, the stage geometry premises, `hPkD` with
+    `dPos0` and `hLuStg` (Antigravity's L67); `O`, `E0`, `hzk` last. Split agreed 17:05 UTC. No instance
+    satisfying all premises exists yet.
+  - **17:16 UTC, the working branch is at `2ae06f54` (not pushed): L66 and the L63 lane's csIO link and `hdzW`
+    together, rebuilt from source** (guard receipt `lean-l63-merge4`, run `cfa6de51c00d`, exit 0, peak 4.32 GiB
+    [receipt read by Claude]; the L64, L66 and `dz` top theorems on the three standard axioms [lane's report]).
+    The `dz` theorem still sits on the L64 theorem; restating it on L66's theorem with `hCsIO` discharged is the
+    lane's next step. The lane's seven new files are not cross-reviewed yet (asked of Antigravity).
+    **17:30 UTC: Antigravity cross-reviewed the seven files: accept, no finding above a note.**
+  - **17:34 UTC, on the lane branch only (`30584634`, checked; not on the working branch yet, which waits for
+    Antigravity's L67 commit):** the lane's theorem is restated on L66's theorem as
+    `sshC_productionReadyL_epP_pdz`. Gone from the L66 premise list: `hdzW`, `hCsIO`, `hIOI`, `hIOO`, `hIOlI`,
+    `hIOlO`. Added: the two IO claim semantics are pinned to concrete forms (`hcsI`, `hcsO`) over three matrices
+    that are still free (B_in, B_out and the output endpoint), two width facts, profile facts `hVi`, `hPlace`
+    [lane's report; guard run `21f8f95cd775`, exit 0; not cross-reviewed]. `hLay` goes to L67 (it can only hold
+    once the word layout is fixed at instantiation). Next in the lane: tie the three matrices to the extractor's
+    planes and prove `hTrIIO`, `hTrOIO`, then the dooms and the stage LogUp facts.
+  - **18:53 UTC, on the lane branch only (`8c324577`, checked): the stage IO claims `hTrIIO` and `hTrOIO` are
+    proved**; new top theorem `sshC_productionReadyL_epP_trO` on L66's theorem [lane's report; guard run
+    `671a3cada6f0`, exit 0, 188 declarations audited, standard axioms; not cross-reviewed]. On the way the lane
+    corrected its own earlier pin: the input claims are stated on the rows decoded from the opening the run
+    actually checks, and `hdzW` is re-proved through a new decoding bridge (unique decoding at the endpoint
+    code). B_in and B_out are tied to the openings the extractor's planes read; the output-endpoint matrix stays
+    free because the code refuses such a claim. Gone from L66's premise list so far: `hdzW`, `hCsIO`, `hIOI`,
+    `hIOO`, `hIOlI`, `hIOlO`, `hTrIIO`, `hTrOIO`. Added: `hcsI`, `hcsO`, two width facts, `hVi`, `hPlace`
+    (instantiation facts for L67). **The dooms `hdinS`, `hdoutS` cannot be proved for a free extractor** (they
+    read its token words and output row); ruling by the co-coordinator: fix those two fields by construction in
+    a wrapper, as L66 did for the planes, with no new premise, and then prove both dooms in full.
+    **18:56 UTC: the dooms also need concrete LogUp states.** The lane found that with the two stage lookup
+    predicates left free (the L66 premise `hLuStg` only bounds their escape probability) the dooms are
+    unprovable, because the stages' lookups are enforced only through the LogUp entrant [ARGUED by the lane
+    from the source]. Antigravity's uncommitted `RunStgShieldLu.lean` defines exactly such concrete states with
+    their bounds and two bridges for the input stage. The lane is paused until that file and L67 are committed;
+    then: merge, instantiate the predicates, add the wrapper, prove `hLI_stg`, `hLO_stg`, `hdinS`, `hdoutS`.
+  - **19:14 UTC, Antigravity committed L67 and L67b (`f5b70efe` on the working branch, not pushed):** a concrete
+    instantiation of the Shieldstral T128 R13 verifier and run shape (`RunShieldInstP.lean`, top theorem
+    `sshC_productionReadyL_epP_shieldInst` on the L66 theorem; its author reports 96 binders eliminated and
+    `hLay` discharged) and concrete LogUp states for the two stages with their bounds and four bridges
+    (`RunStgShieldLu.lean`) [REPORTED by the author: guarded build exit 0, 100 declarations on the standard
+    axioms]. The L63 lane is resumed on top of it.
+    **19:30 UTC, cross-reviewed: accept with wording fixes** (`results/zk60_claude_review_20261116/L67_REVIEW.md`;
+    both files elaborated from source by the reviewer, guard run `3b7ebee43fe8`, exit 0; 120 declarations on
+    the standard axioms). The count holds as a count of binders: 96 removed (58 premises proved, 37 data made
+    concrete, and the shield predicate carried on as `hPk0`), 10 new, net 86 fewer; `hLay`, `hSm`, `hlcStg`
+    are discharged. **Narrower than first described:** (1) the instantiated theorem is not yet connected to
+    the LogUp file or to the profile's domain string: `hLuStg` and its four parameters are still premises
+    there; (2) "concrete verifier" holds for shape, geometry and layouts, while the verifier's own checks and
+    the block parameters remain free arguments; (3) the two LogUp states are concrete only up to free
+    arguments, and only the doom premises force them to be meaningful. The reviewer compared the domain
+    string, the token endpoint layout, the vocabulary size, the boundary rows and both LogUp challenge orders
+    with the Rust code: they agree; other constants were not compared. **Open after L67:** the stage facts
+    (eight of them already proved in the L63 lane on the L66 line; the join onto the instantiated theorem is
+    in progress), `hLuStg`, `hLI_stg`, `hLO_stg`, `hdinS`, `hdoutS`; the instantiation leftovers (`hPk0` with
+    the free coordinate map `dPos0`, the header-fit fact, the domain, the verifier's free checks); `O`, `E0`,
+    `hzk`.
+  - **20:00 UTC, the working branch is at `936f4070` (not pushed): the stage part is joined onto the
+    instantiated theorem.** New top theorems `sshC_productionReadyL_epP_shieldJ` (the instantiated theorem
+    without the eight stage premises the L63 lane had proved) and `sshC_productionReadyL_epP_shieldLu` (the same
+    with the two LogUp states concrete and `hLuStg` discharged) [lane's report; check guard run
+    `a2ce26b44596`, exit 0, 198 declarations audited, standard axioms; not cross-reviewed]. Added on the way:
+    the two pins of the IO claim semantics and one fact about the public input data (`hV`, vocabulary at most
+    2^17). **Still open there:** `hLI_stg`, `hLO_stg` (the exact run-level statements they need are written
+    down as definitions and assumed nowhere; proving them is the next leg), `hdinS`, `hdoutS` (with the
+    extractor wrapper), then `hU`, `O`, `hzk` and the instantiation leftovers. **Ruling on the coordinate map:**
+    `dPos0` cannot be derived from `hPk0`, so the lane fixes it to the most-significant-bit-first map
+    `shieldDPos0` from its next leg on; the obligation that the registered layout really uses that order then
+    sits in `hPk0`, which Antigravity is instantiating.
+  - **20:26 UTC: Antigravity cross-reviewed the L63 lane's eleven newest files: accept, three low notes.** It
+    also posted L68a (`RunShieldBlkInst.lean`, uncommitted): a further join on top of `shieldLu`, top theorem
+    `sshC_productionReadyL_epP_blkLu`, in which its author reports the field, the domain, the coordinate map,
+    the block parameters and `hPk0` (from a premise `ShieldRun Rp`) made concrete and `hzk` discharged, leaving
+    the four stage premises, `O : ClassifyOpenP`, the header-fit fact and the verifier's check hooks [REPORTED
+    by the author: guarded build exit 0, 20 declarations on the standard axioms].
+    **20:37 UTC, L68a cross-reviewed: accept with fixes** (`results/zk60_claude_review_20261116/L68A_REVIEW.md`;
+    elaborated from source by the reviewer, guard run `c85b4182aa30`, exit 0; 52 declarations on the standard
+    axioms; uncommitted until the wording is fixed). The join is real: 22 binders of `shieldLu` gone, 4 added.
+    **What it does and does not establish:** (1) the shield premise is gone because the block verifier is now
+    *defined* in Lean (`shdP_Pk0`), so the theorem is about one Lean-defined verifier, with one IO pair and one
+    opening check for all 26 blocks; that this is the registered Rust verifier is the model-to-code
+    correspondence, which no Lean file proves; (2) `hzk` is only the numeric bound on the zero-knowledge error
+    (at most q·2^-128 + R·2^-120 up to 2^64); the zero-knowledge property itself is still assumed, as the field
+    `O.zk` of the open `O`; (3) a new premise `ShieldRun Rp` (the run's 26 calibrations are the export's), true
+    of the real run by construction. The reviewer compared the layout's bit order with the Rust code: it agrees
+    for the token and width axes and the RoPE flip bit; the slot, group and hidden axes were not determined.
+    Sol then compared those remaining axes with the Rust read-only (20:47 UTC, in the coordination file, with
+    the file hashes it used) and reports that they agree at this geometry [CHECKED by Sol; not re-derived by
+    Claude]. That is axis order only; it does not settle the verifier's hooks. Antigravity then edited the file
+    for the review's requests (20:49 UTC, still uncommitted). Claude re-checked that version at 23:31 UTC: it
+    does not build as it stands, because one redundant `rfl` on line 601 reports an error; with that line
+    removed in a copy it elaborates clean, the top theorem's statement is unchanged, and all ten printed
+    declarations are on the three standard axioms [CHECKED: one file, against existing build outputs, not
+    the full root build; `results/zk60_claude_review_20261116/l68a_recheck/`]. Antigravity ran out of credits
+    before fixing it (Victor, 2026-11-18: out for about three days). Claude removed the one line, ran the module
+    build, the whole-root build and the axiom print (green, guard run 2438abc7f99f) and committed the file as
+    4db41d46 at 07:23 UTC on 2026-11-18, with Antigravity named as the author. Sol was asked to be the second
+    reader of Claude's Lean and speed work until Antigravity is back. Sol took the role the same hour: its second
+    read of L68a at 4db41d46 (07:30 UTC) confirms the binder comparison and five geometry fields against the
+    native verifier, and adds one open correspondence item (Lean takes the block pre-checks as passed; the Rust
+    checks shape, layout and public data before absorbing) [CHECKED by Sol; not re-derived by Claude].
+  - **L63 leg 6 (2026-11-18, perf 9e8218ad):** the extractor wrapper and the plane identity are proved. New tops
+    `sshC_productionReadyL_epP_blkIO` (the input token words and the output row are fixed by construction, so the
+    extractor is no longer a free argument there) and `..._blkIOv` (verdict at most 1 proved from acceptance).
+    No premise added. The lane's four remaining premises are the two LogUp premises and the two doom premises
+    [PROVED in Lean: merge15, guard run 628ccb8f9fe5; second read by Sol at 08:06 UTC: the two tops keep blkLu's
+    conclusion and LogUp premises, the restated doom premises have the same content on accepted runs, and the
+    wrapped extractor takes only one field from its base].
+  - **L63 leg 7 (2026-11-18, perf f970bba3):** groundwork for the input LogUp premise, with no premise removed and no
+    new top: the stage planes are shown to be base-field values, the concrete input-stage layout is built, and the
+    premise is reduced to one defined predicate about the stage's slots that is still to be proved (the lane's
+    estimate: 1,200 to 1,800 lines) [PROVED in Lean: merge17, guard run 622a715dfb26; single-reader until Sol
+    reads it]. Two premises on public data will be added when it is joined, by coordinator ruling at 08:17 UTC: the
+    vocabulary is exactly 131,072 (the instantiation had fixed that number where the public input carries its own),
+    and the verifier's folded-embedding function really is the fold of the public embedding (interim; to be
+    removed by fixing it to a Lean definition).
+  - **L63 leg 8 (2026-11-18, perf b7abed69):** the input LogUp premise is proved down to one remaining fact. At every
+    accepted run with no doomed define entrant, the input stage's two zero-check relations hold for the concrete
+    layout, and the premise's exact conclusion follows from one defined predicate about the LogUp sums that is
+    still to be proved. The embedding-fold premise is shown to be satisfiable. Still no premise removed from the
+    top and no new top theorem; the concrete stage numbers are still hypotheses of the lemmas; the output LogUp
+    premise and both doom premises are untouched [PROVED in Lean: merge19, guard run 06062b37bbae; single-reader
+    until Sol reads legs 7 and 8]. The next leg starts at the morning check-in, to pace usage.
+  - **L63 leg 9, 2026-11-18 16:10 UTC: the first lane premise has left the top.** New top
+    `ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOl` (`RunStgShieldTopL.lean`, perf 5468cadc): the input
+    LogUp premise `hLI_stg` is now PROVED inside it, in the direct form, from the two LogUp sum facts and the
+    registered stage numbers, which are also proved. Against the previous top it adds exactly the two premises
+    ruled on 2026-11-18 (`Rp.inp.V = 131072`, and the interim `hEmb` on the embedding fold) and nothing else;
+    the coordinator compared the two premise lists by script (one removed, two added, none changed, same
+    conclusion). **Still premises:** the output LogUp premise `hLO_stg` and the two doom premises `hdinX`,
+    `hdoutC`, plus the interim `hEmb` [PROVED in Lean: merge22, guard run 025b5dda6a25, exit 0, 14 tops on
+    propext, Classical.choice, Quot.sound; single-reader until Sol reads legs 7 to 9]. The lane also found that
+    the interim form the coordinator had allowed as a fallback would have assumed more than the protocol gives;
+    it was not used.
+  - **L63 leg 10, 2026-11-18 20:47 UTC: no premise removed; one accepted premise turns out to be wrongly
+    shaped (finding L63-11).** The newest top is still `sshC_productionReadyL_epP_blkIOl` (perf 588c4a14), same
+    premises. The input doom premise `hdinX` is PROVED for every accepted run whose input commitment decodes to
+    one codeword matrix (`shd_hdinX_blk`; merge23, guard run e08de5a70733, exit 0), and a first piece of the
+    output LogUp premise is proved (merge24, guard run 6d06daaef3b3, exit 0; 16 tops on propext,
+    Classical.choice, Quot.sound). In the other case, a commitment far from the code that is accepted anyway,
+    the extractor returns zero tokens and the premise asks for a doomed input-stage state that need not exist
+    [ARGUED by the lane, the Lean definitions read by the coordinator; not proved]. This is not a hole in the
+    protocol: that case is the column test's low-probability event, and the endpoint part of the cover already
+    sends it there. The Lean cover splits the cases in an order that hands the far case to the input stage.
+    **Consequence:** the doom premise as written on the tops since L68a cannot be discharged as it stands.
+    **Ruling (Claude, co-coordinator):** the narrowed premise is not accepted to rest on; the next leg adds a
+    reordered cover in new files (closeness first, then the input stage) and a new top with the same
+    conclusion; no existing file of Antigravity's is edited; the same check is made for the output doom premise
+    before work on it. Single-reader until Sol reads legs 7 to 10; Antigravity is asked to review on its return.
+  - **L63 leg 11, 2026-11-19 00:40 UTC: the input doom premise has left the top; two lane premises remain.**
+    New top to rest on: `ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkCl` (`RunStgShieldClTopL.lean`,
+    perf a05b482c). It is the previous top with `hdinX` removed and nothing else changed: the coordinator
+    compared the two statements from the Lean text (12 premises against 11, only `hdinX` missing, same order,
+    same conclusion, same section variables) [PROVED in Lean: merge25, guard run aaeaf3cd2323, and merge26,
+    guard run 6d2f394bcfd9, both exit 0; 20 tops on propext, Classical.choice, Quot.sound]. The route is the
+    reordering ruled in L63-11: the 33 theorems of the chain are copied as generated twins in 16 new files, the
+    joint cover sends the far-from-the-code case to the column test first, and the input stage is asked for a
+    doomed state only when the commitment is close; no existing file was edited. That the old bad event does
+    not already exclude the far case, and that the output doom premise is not hit by the same case, are both
+    ARGUED from the definitions, not proved. **Still premises:** the output LogUp premise `hLO_stg` (first
+    step proved) and the output doom premise `hdoutC`, plus the interim `hEmb` and the ruled `V = 131072`.
+    **Debt:** about 9,000 generated lines duplicate the old chain; folding the change into the original
+    theorems means editing Antigravity's files and waits for its return. Single-reader until Sol reads legs 7
+    to 11.
+  - **L63 leg 12, 2026-11-19 05:04 UTC: no top changed; `hLO_stg` is reduced to one fact and the top.**
+    Seven new files (2,122 lines, perf 3ab97bc8, checks merge27 and merge28 green, guard runs 382a9074d73c
+    and 05b947a9060c) prove the clause equations of OUT-C's three LogUp slots, the join to `hLO_stg`'s
+    conclusion and the first of its two sum facts. Left for `hLO_stg`: the OUT-C zero-sum row at the
+    readings (350 to 450 lines) and the new top (150 to 250 lines); that the join fits the premise as the
+    top states it is shown only when that top builds. `hdoutC` grows to 600 to 1,000 lines because the full
+    OUT-C layout moved to it.
+  - **L63 leg 13, 2026-11-19 05:33 UTC: the output-side LogUp premise has left the top; one lane premise
+    remains.** New top to rest on: `ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLO`
+    (`RunStgShieldClTopLO.lean`, generated; perf 3797da25; check merge30 green, guard run 17eda5ea7728; axioms
+    propext, Classical.choice, Quot.sound). It is blkCl with `hLO_stg` removed and nothing else changed
+    [coordinator's own comparison of the Lean text: 11 binders against 10, conclusion identical]. Premises
+    left: the output doom premise `hdoutC` (600 to 1,000 lines by the lane's estimate; its first piece is
+    proved; three of its seven items are argued only, not yet in Lean), plus the interim `hEmb` and the ruled
+    `V = 131072`. Leg 12's join did not fit the top as stated (a bound that is false at the concrete numbers);
+    leg 13 proved it again without the bound. Next leg: 2026-11-20 00:12 UTC. Single-reader until Sol reads
+    legs 7 to 13.
+  - **L63 leg 14, 2026-11-20 00:58 UTC: six of the seven facts behind `hdoutC` are proved; the top is
+    unchanged.** perf 5dbd1b2f (not pushed); checks merge31 and merge32 green (guard runs e64582382748 and
+    86ccdf828547). Six new files, 1,328 lines: DZC's division clauses, the IO-in equation, the PD margin (it
+    was argued only; Lean agrees), AllBytes from the LogUp state, the layout with the assembly of the facts,
+    and the plane identity behind the tie to `xC`. Left: TZC hosting SS (450 to 550 lines, argued only), the
+    assembly lemma (about 250) and the new top (300 to 400). The agent found that `hdoutC` is false for
+    public output constants outside the valid range (the code's encoding wraps); the bounds are to come from
+    the top's existing open-conditions binder, which is shown only when the new top builds. Leg 15 is
+    running on exactly that. Single-reader: legs 7 to 14.
+  - **L63 leg 15, 2026-11-20 01:43 UTC: `hdoutC` is proved; no lane premise is left on the top.** New top to
+    rest on: `ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkOC` (`RunStgShieldClTopOC.lean`, generated;
+    perf 8e7e3328, not pushed; check merge33 green, guard run fff26417a048; 22 tops on propext,
+    Classical.choice, Quot.sound). It is blkLO with `hdoutC` removed and nothing else changed [coordinator's
+    own comparison of the Lean text: 10 binders against 9, conclusion identical]. Three new files, 889 lines:
+    TZC hosting SS, the assembly at a reading, and the doom bridge with the tie to `xC`. The two arguments
+    that were only argued (TZC hosting SS; no closeness hypothesis for the output side, finding L63-11) are
+    now Lean-checked, and the range bounds do come from the existing open-conditions binder. **Left on the
+    top:** the interim `hEmb` (leg 16 is running to remove it by a concrete Lean fold, which specialises the
+    top to the verifier that uses that fold), the ruled `V = 131072`, the open conditions
+    `O : ClassifyOpenP` including `O.zk` (Antigravity's L68b), and the section hypotheses (header fit and
+    the like), which leg 16 lists in its handoff. Single-reader: legs 7 to 15.
+  - **L63 leg 16, 2026-11-20 01:59 UTC: `hEmb` is proved for a concrete fold; L63's own premises are all
+    gone.** New top to rest on: `ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkEF`
+    (`RunStgShieldClTopEF.lean`, generated; perf f375e73d, not pushed; check merge34 green, guard run
+    36992c58380a; 23 tops on propext, Classical.choice, Quot.sound). It is blkOC applied to the concrete
+    fold `embFoldL` (`RunStgShieldEmbFold.lean`, 94 lines: rows padded to 4,096 columns with zeros, entries
+    by `Fp.fromI64`, summed against the eq table), so it speaks about the verifier that uses that fold
+    [coordinator's own comparison of the Lean text: after the substitution the only difference is `hEmb`].
+    blkOC is kept as the top for an arbitrary fold. **What blkEF still assumes:** the ruled `V = 131072`;
+    the setting (`2^20 <= Lq < 2^64`, `ShieldRun Rp`, header fit); the open obligations `O : ClassifyOpenP`
+    (completeness contracts, honest refusal, zero knowledge: Antigravity's L68b, not started); and it holds
+    for every value of the verifier's free hooks (`checkOpening`, `bndCheck` and the like), which is part of
+    the Lean-to-Rust correspondence. **Checked in the Rust source, 2026-11-20 02:00 UTC [CODE-READ by the
+    coordinator]:** the Rust verifier computes the embedding fold itself from the public table
+    (`stage_in_c.rs:254-260, 427-428`; `classify.rs:569-607`), with the same index order, padding, entry map
+    and field as `embFoldL`, and the table is bound to the statement by its digest (`classify.rs:1113`);
+    the Shieldstral policies fix the vocabulary at 131,072 and any other size is refused
+    (`classify.rs:167, 216, 662`). So blkEF is the right model and both rulings stand. One remark: the
+    default Rust path sums by exact integers and reduces once, where the Lean models the per-word fold;
+    their agreement is Rust's own gate, not a Lean fact. Next Lean leg after 00:00Z 2026-11-21: a scoping
+    of `O`, unless Antigravity is back. Single-reader: legs 7 to 16.
+  - **Speed lane while Antigravity is out:** its slot 18/14 breakdown is committed (25e70c25) on Sol's second read
+    (468): the solo-block numbers and the flat stream cadence stand, three figures in its README are corrected in a
+    note beside it, and the claim that the first rounds are memory-saturated is a hypothesis awaiting the roofline
+    test K1. Research tick 12 found that one kernel idea from tick 10 (line values by additions) was already
+    measured in A27 on 2026-11-07 and gives nothing on the shipped kernels; that estimate is withdrawn.
+  - **Roofline tests K0 and K1, 2026-11-18 15:31 UTC (`results/zk60_k0k1_roofline_20261118/README.md`; one clean
+    run, uncommitted, no second reader):** the memory-saturation hypothesis is not supported. A kernel with the
+    shipped kernel's loads and a trivial body takes 0.11 (slot 14 shape) and 0.19 (slot 18 shape) of the shipped
+    kernel's time over the later rounds, so those rounds are limited by the polynomial body, not by table loads
+    [MEASURED, at the Shieldstral R13 shapes; the 8B kernels hold fewer tables per thread]. The fold kernel runs
+    at the copy roofline, about 700 GB/s, and is a third of slot 18's second window at the 8B shape [MEASURED].
+    Consequence: ideas that cut table traffic are bounded by the loads' 11 to 19% share and move down; ideas that
+    cut the body's arithmetic or its register pressure move up. No speed gain is claimed from this; it says where
+    to look.
+  - **Follow-up bench rounds K3 to K5, 2026-11-18 15:39 and 15:46 UTC (same folder; clean, one run each,
+    uncommitted, no second reader):** splitting the kernel's sum of terms into four kernels, with identical
+    output, takes 0.77 (slot 14) and 0.87 (slot 18) of the shipped kernel's later-round time at the Shieldstral
+    R13 shapes, and 0.91 and 0.97 at the W16R2_8B shapes [MEASURED]. By the thresholds fixed beforehand that is a
+    pass at one Shield shape and no pass at 8B. Roughly 2 to 3% of block GPU at the Shield profile and about 1%
+    at 8B [DERIVED, not measured end to end], so it is recorded (H162) and gets no implementation lane now.
+    Research tick 15 then counted the kernel body from its generated source: in the big rounds the shipped
+    kernel is 1.4 to 2.6 times an optimistic floor built from the measured operation costs, and a fifth to two
+    fifths of the bench total is the small tail rounds, which cost in proportion to the body's size by a
+    mechanism not yet identified [DERIVED from measured medians]. **Reading (Claude, co-coordinator): the two
+    big zero-check kernels hold no hidden large factor; each kernel idea left is worth one to a few percent of
+    block GPU, so a large speed gain has to come from proving less per token or from hardware.**
+  - **Research tick 16, 2026-11-18 19:52 UTC (reading of the 2026-11-17 breakdown and `metal.rs`; nothing
+    run; the sums re-run by Claude):** the rounds past the fifth, over all 12 device slots, are 4.7 to 20.5% of
+    solo block GPU at W16R2_8B, central 10.8% [DERIVED from measured medians and the measured knob probe];
+    about 6.1% at Shieldstral [EXTRAPOLATED]. On the two-lane stream about two thirds of that is already hidden
+    by the other lane, and moving the last three rounds per slot to the host left the cadence flat (3.7455 s
+    against 3.7576 s) [MEASURED, 2026-11-17]. A tail-only project is therefore worth about x1.01 to x1.02 on
+    cadence [DERIVED] and gets no lane. Research tick 17 (23:52 UTC, reading only) then explained the gap
+    between the batched and unbatched arms of that breakdown: the batched arm does the transcript step and the
+    partial reduction on the device, inside its timed interval, and the unbatched arm does them on the host,
+    outside it; at equal round count the difference is 11.3 ms per block at W16R2_8B and behaves per round, not
+    per batch [DERIVED; two small slots do not fit cleanly, so not settled]. A faster transcript step is again
+    worth about x1.01 to x1.02 on cadence. **The kernel topic rests here:** six kernel items are recorded at
+    one to a few percent each, none is scheduled, and the research ticks move to the protocol items (proof-state
+    reuse across tokens, then TensorZKP's timings).
+    **Tick 18, 2026-11-19 03:50 UTC (proof-state reuse across tokens): dropped as a speed item.** No published
+    design carries proof state from token to token with hidden activations [reading, 7 searches, two papers in
+    full]; the window proof already processes each position once, so carried state would buy streaming latency
+    only, not proved tokens per second [DERIVED from the project's records].
+    **Tick 19, 2026-11-19 07:53 UTC (TensorZKP, full read): no effect on the shipped prover.** The paper has
+    no zero knowledge, runs on an H100 over a 31-bit field, and writes only two-table degree-2 sums and scalar
+    folds as 8-bit matrix products; those stop at 70 to 80% of memory bandwidth [DERIVED from its printed
+    timings]. Our zero-check slots have 19 to 36 tables at degree 4 to 5, so it gives them nothing. No bench
+    is scheduled; two local counts (queue items 36 and 37) decide whether the tensor-core tracks stay open.
+    **Tick 20, 2026-11-19 11:50 UTC (the first count): the tensor-core sumcheck track G1 is dropped.** Plain
+    two-table degree-2 slots hold 1.93% of block GPU at W16R2_8B and 1.12% at Shieldstral [DERIVED from the
+    MEASURED slot medians], and the matrix-product claims run on the host in 12 to 15 ms per block. The
+    second count (the split of the commit slots, which bounds the dense-encoder track G3) is next.
+    **CORRECTION, tick 21, 2026-11-19 15:52 UTC: the "block GPU" totals of the 2026-11-17 slot breakdown are
+    too high, so every share of block GPU quoted from it on this page is too low.** The breakdown ran with
+    `HL_METAL_TIMING=1`, which makes each commit re-run its three parts on scratch buffers for diagnosis
+    (`metal.rs:2148-2179`), and the analyzer counted those re-runs in the total under a wrong label ("store
+    fold with pads") [verified in the source by the coordinator]. Production does not run them. Corrected
+    block GPU: **91.46 ms at W16R2_8B (was 117.285) and 174.25 ms at Shieldstral (was 248.899)** [DERIVED: the
+    total minus the diagnostic records; it assumes a commit takes the same time with timing off, which no
+    trace has checked]. Multiply any share above by 1.28 (8B) or 1.43 (Shieldstral): the sumcheck slots are
+    69% and 56% of block GPU, the two commits 30.5% and 43.7%. Milliseconds, ratios between slots and every
+    stream cadence measurement are unaffected. The G1 drop stands (2.47%). "The kernel topic rests" is
+    provisional until the next tick has restated each thresholded decision with the corrected shares.
+    The count itself: the transforms are about 87% of a commit, and the dense-encoder track G3 stays
+    unscheduled. Coefficient-form rows (about 9% of block GPU, changes every commitment root) are added to
+    `ZK60_NEXT_PROTOCOL_CANDIDATES.md` as candidate G for a later profile version.
+    **Tick 22, 2026-11-19 19:54 UTC: the recheck is in and no thresholded decision flips, so "the kernel topic
+    rests" stands.** On the corrected totals the one kernel item above 5% is still the padded-pair skip at
+    Shieldstral (5.7 to 10.5% of block GPU; test specified, not scheduled). The corrected totals are now
+    supported by two records without diagnostic buffers (one-block log 93.48 ms; stream commit spans 13.4 to
+    13.8 ms). **A second conversion error is withdrawn:** earlier ticks treated the stream as GPU-paced and
+    turned a share s into a speedup of 1/(1-s). It is not GPU-paced: 29 to 32% of a prove call has no prover
+    buffer executing, and production solo GPU is 2.93 s of the 3.75 s cadence. A per-block saving of x ms is
+    at most x*32/3745.5 of the 8B cadence, so coefficient-form rows are at most x1.08 and a free transform at
+    most x1.26 on the stream. A new lead (host matmul claims in the gap before slot 14) has a ceiling of 4.7%
+    of a prove call, not the handoff's 10.5%, and is queued as reading only.
+    **Tick 23, 2026-11-19 23:52 UTC:** a transform-only bench for the commit kernels is specified (N0 to N5)
+    and not scheduled. One source reading, confirmed by the coordinator (`metal.rs:299-300`): at W16R2_8B the
+    production forward transform is not pruned, because the hiding pads push the row's extent 280 words past
+    half the code length, while the diagnostic re-run is pruned; estimated cost about 1% of block GPU, noted
+    for the owner of A28. The researcher now turns from kernel leftovers to an inventory of the host-only
+    time of a prove call (1.0 to 1.2 s of 3.7 s), the largest pool left.
+    **Tick 24 and test L2, 2026-11-20 04:23 UTC:** the inventory is in. No host class has changed since the
+    Batch 7 reference; the ten classes sum to 888 ms of a 3.81 s prove call, so with all of them gone the call
+    would still be about 2.92 s against the 2.56 s target [COUNTED from the saved traces, script re-run by the
+    coordinator]. The host-only pool cannot reach the target alone; GPU work has to leave the call too.
+    The tick's one no-code test was run the same hour by the coordinator, with its pass rule posted first:
+    **A13's window (`HL_D55_AHEAD`) does not pass on the prover-paced stream at 4, 8, 16 or 32 and stays off**
+    [MEASURED, two guarded runs `d6e69de757a5` and `cf6b66ae3a32`, 6 passes each, arms interleaved;
+    `results/zk60_l2_ahead_window_20261120/README.md`]. At 16 the four-request cadence was lower in 4 of 6
+    pairs (-2.2%), an end effect of the last request; on eight-request streams the steady gap at 8 was -0.25%
+    (4 of 6) and at 16 +1.1%. Work that uses the GPU comes back as a longer prove call when moved into the
+    sealing turn. Base arm of run 2: steady gap 3.80 s (34.0 tok/s steady mean), serial commit phase 0.21 to
+    0.23 s per prove call, and a sealed request waits 0.34 to 0.49 s for the prover.
+    **Speed task A35, 2026-11-20 05:09 UTC: PASS and replicated; on the working branch (`cbcb5f46`, not
+    pushed) with its switch OFF by default, waiting for a ruling.** With `HL_A35_BOUNDS_AHEAD=1` a served
+    request makes its prove call's commit phase (the boundary commitments) before it takes the prover turn,
+    beside the previous request's forks. Steady gap per request [MEASURED, 6 passes, arms interleaved, both
+    orders, rule fixed before each run]: -4.98% in the agent's run (guard `5dee3dc2932b`, loaded machine)
+    and -6.27% in the coordinator's replication (guard `0ae1db4e76ef`, quiet machine: 3.814 to 3.560 s),
+    lower in 6 of 6 passes both times; -6.61% at three lanes (first look). The test's steady mean goes from
+    34.07 to 36.27 tok/s on the synthetic W16R2_8B stream. No committed, absorbed or written word changes
+    under seeded generators (new test, CPU and Metal); the suite result is unchanged (the same three named
+    failures as before). Not shown: Shieldstral, trained weights. **Open:** the reviewer's ruling on running
+    one request's commit phase while the previous request's forks run (review finding F4's sentence stays
+    literally true), then the default. Write-ups: `results/zk60_a35_bounds_ahead_20261120/README.md`,
+    `results/zk60_a35_replication_20261120/README.md`.
+    **Tick 25, 2026-11-20 07:53 UTC (GPU witness generation): nothing to build now.** No published GPU
+    witness design fits the sealing chain; the weight products are already on the GPU (17% of the solo
+    sealing pass), and the host work a device builder could take is 0.667 s of 2.183 s, same words out.
+    Bound [MEASURED, the A35 replication]: with the switch on, a third lane changes the steady gap from
+    3.560 to 3.519 s, so no sealing-side saving is worth more than about 1.1% of the stream on this machine
+    until the forks phase gets shorter. The tick's lead (memoising the per-block weight scan) was read by
+    the coordinator and not scheduled for that reason. Handoff:
+    `research/zkp-efficiency/handoffs/20261120-claude-tick25-gpu-witness.md`.
+    **Tick 26, 2026-11-20 11:54 UTC (committed padding): not a speed item at 8B, a protocol-level lever at
+    Shieldstral.** Padded columns are 5.96% of a block's committed rows at W16R2_8B (at most 1.4% of the
+    stream cadence if all were dropped) and 26.96% at the installed W16R2 Shieldstral profile (plane lists
+    inferred, not counted). Dropping them changes the commitment and the verifier, so it is recorded as
+    candidate H in `ZK60_NEXT_PROTOCOL_CANDIDATES.md` and nothing is scheduled. Handoff:
+    `research/zkp-efficiency/handoffs/20261120-claude-tick26-padding-words.md`.
+    **Tick 27, 2026-11-20 15:52 UTC: a correction to tick 26 and to this page's earlier wording.** Tick 26's
+    "at most 11.8% of block GPU at Shieldstral" paired the W16R2 padded fraction with the commit time and
+    block GPU (174.25 ms) of the older R13 Shieldstral block. The slot breakdown of 2026-11-17 measured
+    `w16r2_8b` and `r13_shield` only; the installed W16R2 Shieldstral block has never been measured on its
+    own. With its commit time taken as the 8B block's (same rows; DERIVED, not measured) the ceiling is 4.5
+    to 5.1% of the measured Shieldstral stream cadence (4.381 s per request, benchmark of 2026-11-13, older
+    binary). Shieldstral shares quoted from ticks 11, 21 and 22 rest on the same R13 block and are being
+    re-paired (queue item 47). Handoff:
+    `research/zkp-efficiency/handoffs/20261120-claude-tick27-shieldstral-padding-stream.md`.
+    **The installed Shieldstral block measured on its own, 2026-11-20 15:56 UTC [MEASURED, four guarded
+    runs, reference binary, controls within 3.1% of 2026-11-17]:** block GPU about 94 ms (94.06 and 98.98
+    by arm; the 8B control gave 94.29 in the same session), commit A + H 28.95 ms over ten warm passes, all
+    slots 65.7 ms, and the 8B block's slot structure (slot 14: 37 tables against 36 at 8B and 64 at R13
+    Shieldstral). So the installed Shieldstral block costs what the 8B block costs; 174.25 ms is the R13
+    block. The padding ceiling at this profile is 4.6% of the 2026-11-13 stream cadence. Not shown: a
+    Shieldstral stream on the current binary. Write-up:
+    `results/zk60_w16r2_shield_block_20261120/README.md`.
+    **The app's stream against the harness stream, 2026-11-20 17:39 UTC [RECOMPUTED from the 2026-11-13
+    logs; a question for the app's lane, not a finding]:** the app still runs the prover binary built on
+    2026-11-12 (`zk60_classify.a30a31`), without A33 or A35. Per block of stream cadence the app spends
+    147.7 ms (3.839 s over 26 blocks, proof-only) and the harness stream 111 to 119 ms (3.560 to 3.814 s
+    over 32 blocks), with the same GPU cost per block. Not like for like (trained weights, six whole
+    requests side by side, the classifier's head). As a ceiling, the harness's rate would give 41 to 44
+    tok/s on the app's 26 blocks against 33.3 proof-only on 2026-11-13. The likely cause is the shape
+    of the stream [CODE-READ]: the app proves six whole requests side by side, each with its own sealing
+    pass, where the harness puts one request's forks in the prover turn and the next requests' sealing
+    beside it. A33 alone will not close it (about 1% of the time a request holds a lane). Asked of
+    Astra at 17:39 and 17:41 UTC: a GPU trace of the app's stream at W16R2, and whether the classifier's
+    run can take the harness stream's shape.
+    **Tick 28, 2026-11-20 19:54 UTC [re-pairing, no run]:** every "Shieldstral" share in research ticks 11
+    to 26 was an R13 figure. At the installed profile the commit is the 8B block's work and the only
+    difference is the D padding (at most 2.31 ms per block: one more table and one more degree at slots
+    0, 1 and 14). As shares of the 2026-11-13 cadence, ceilings: traffic-floor NTT kernel 6.9%,
+    padded-pair skip 3.3 to 6.1%, dropping the inverse transform 4.8%, padded commit rows 4.6%. No
+    decision changes and nothing is scheduled.
+    **The harness stream at the installed profile, 2026-11-20 19:59 UTC: NOT RUN.** The stream test's
+    fixture has no test-only run identity for the W16R2 Shieldstral block, so the leaf refused in 5 s
+    (a test-source change and a rebuild are needed; not scheduled). The 8B control of the same sequence
+    gives a third sample of the A35 switch [MEASURED, three passes]: 3.774 s off, 3.552 s on, -5.83%.
+    Write-up: `results/zk60_shield_stream_20261120/README.md`.
+    **Correction, 2026-11-20 22:05 UTC, to the 17:39 paragraph above [RECOMPUTED after Astra's timing
+    reconstruction]:** "147.7 ms per block, 24 to 33% above the harness" used the app's whole proof window,
+    which includes 7.2 s before the first writer is ready. With the six lanes full the app takes 3.50 to
+    3.54 s per request, 134.5 to 136.2 ms per block: 13 to 22% above the harness, 36.2 to 36.6 tok/s, GPU
+    about 70% busy (derived). Astra's code reading: the classifier cannot take the harness stream's shape by
+    a setting; six forks inside one request would be a new registered statement (D63 applies), so the 41 to
+    44 tok/s ceiling needs a protocol change. Astra is taking the GPU trace of the app's stream
+    (`results/zk60_astra_20261026/app_stream_timing_20261120/`); no result yet.
+    **The app's stream traced, 2026-11-20 22:11 UTC [Astra MEASURED; per-lane reading RECOMPUTED by the Claude
+    co-coordinator, `results/zk60_claude_review_20261116/app_trace_lanes.py`]:** 24 proofs in 86.5 s, 35.5 tok/s
+    proof-only; 39.5 tok/s with the six lanes full (completions come in four groups of six, 19.4 s apart).
+    Inside the 26 blocks the app does a block per 102 ms of wall, better than the harness stream (111 to
+    119 ms). The loss is elsewhere: each request spends 3.4 s outside its blocks, at the same time on all six
+    lanes, and the lanes move in step, so the GPU is idle 21% of the time even with all six lanes in blocks
+    (3% expected if their phases were unrelated). GPU busy 72.7% from the first block to the last proof;
+    never idle would be 55.6 tok/s (a ceiling, not a forecast). Why the lanes fall into step is not
+    determined. Proposed to Astra, settings only: 8 and 9 lanes beside 6. Not run.
+    **Second reads, 2026-11-20 22:18 UTC:** Sol (18:32Z) and Antigravity (22:16Z, back online) second-read
+    L63 legs 7 to 16, the Rust reading behind rulings L63-7 and L63-8, the A35 change and the macOS liveness
+    patch `cd1de293` (one correction by Sol), and accept them. A35 goes ON by default for the served stream
+    on those two reads. **Landed 22:58 UTC: the working branch is at `f323bb82` (not pushed)** with the
+    default on (`HL_A35_BOUNDS_AHEAD=0` turns it off) and the liveness patch merged; build, no-feature
+    check, the A35 off/on tests, s25, s26, the a22 CPU tests and the liveness tests all exit 0 under the
+    guard; the full suite was not run. Antigravity has reclaimed `O : ClassifyOpenP` (L68b, L68c); Claude's next L63 leg takes the
+    header-fit hypothesis instead.
+    **CAVEAT on every app figure above, 2026-11-20 22:48 UTC [CODE-READ by Antigravity and by Claude]:** the
+    installed app runs with `HL_METAL_QUEUES=thread` (`shieldstral_fast_runtime.py:163`, `deploy.json`), but
+    the 2026-11-12/13 benchmark runner and today's trace did not set it and ran on the one shared Metal
+    queue. So 33.3 and 35.5 tok/s proof-only, 4.381 s with checks, 39.5 tok/s with the lanes full, the
+    72.7% GPU busy share and the in-step reading all describe the shared queue. Whether the installed
+    setting is faster or slower at this profile is not known. Asked of Astra: the two queue modes side by
+    side at six lanes first, then eight lanes (the server's maximum; nine is refused).
+    **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
+    wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
+    marked private), said to make block completeness unsatisfiable with no effect on soundness; the
+    completeness hypotheses of L25, L29 and L32 said to be uninhabited, so those completeness results would
+    be vacuous; the top's zero-knowledge error term said to count a 32-commitment run where the real one has
+    79; and one zero-knowledge hypothesis (`hUw`) said to be false when 256 columns are opened. Antigravity
+    proposes fixes and has a new file that builds. Nothing is changed on the working branch. Claude's next
+    Lean leg (00:12 UTC) checks all five independently. Antigravity's reading (22:57 UTC, to be checked by
+    that leg): the approved texts fix only the target `εzkTarget`, the top's conclusion stays letter for
+    letter the same, and the change is in the hypothesis field `O.zk`; no soundness or extraction theorem
+    is affected.
+    **Scope fact, stated by Antigravity 2026-11-20 22:57 UTC:** the whole Lean chain up to the newest top
+    models Shieldstral T128 at the **R13** profile (rows 4577 and 4390). The installed app has run the
+    **W16R2** Shieldstral profile (rows 2504 and 2606, statement identity named dev-only) since 2026-11-13.
+    The proved chain and the running app are two different profiles; the D63 rule applies to whichever
+    profile goes to production.
+    **Open after L68a:** the four stage premises `hLI_stg`, `hLO_stg`, `hdinS`, `hdoutS` and the extractor
+    remainder `E0` (Claude's L63, next leg); `O : ClassifyOpenP` including `O.zk` (Antigravity's L68b); the
+    header-fit fact, the verifier's free check hooks, `ShieldRun Rp`. **Not a Lean item but now load-bearing:**
+    the correspondence between the Lean-defined verifier and the Rust one.
+    **19:20 UTC: the working branch is at `152fdd2e` (not pushed)**, which is `f5b70efe` merged with the L63
+    lane's results up to `hTrIIO` and `hTrOIO`, rebuilt from source (guard receipt `lean-l63-merge10`, run
+    `57d41b37ee2f`, exit 0, peak 7.16 GiB [receipt read by Claude]; both top theorems on the standard axioms
+    [lane's report]). The lane's nine newest files are not cross-reviewed yet.
+  - **Open defect in the prover, found 2026-11-17 while testing a patch (not a Lean matter):**
+    `clear_stale_writing_dirs` (`trained_block.rs:4763`) tests whether a writer's pid is alive by looking for
+    `/proc/<pid>`, which macOS does not have, so on the Mac a live writer's `statement.writing-<pid>` directory
+    is treated as stale and removed [diagnosed by Antigravity from the code; the test
+    `review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name` fails on the Mac with and
+    without the patch; not yet verified further, no owner yet, asked of Astra]. Two other tests fail on the Mac
+    only because fixtures above 1 MiB stayed on the laptop.
+  - **Before L64, kept for the record. Open in Lean after L62 as it stood and L63's second result:** `hblkS`, `hep14`, the block alive lists
+    (`hR0_blk` … `hH1_blk`, `hLU_blk`), `hdzero`, the stage claims parts `hTrIC` and `hTrOC`, the stage LogUp facts
+    and dooms (`hLI_stg`, `hLO_stg`, `hdinS`, `hdoutS`), the stage degrees, `O`, `hzk`.
 - **2026-11-12, the input endpoint extractor group CLOSED on the merged tree (L58, merged `c80f2311` and checked) and Astra resident writer scoped timing recorded:**
   - **L58 proved (`ex_productionReadyL_epP_codeH`):** one checked extractor for the input commitment's column test and closing openings at the code's real 84-byte `expected-IO` header (`hread`, `hE`, `mk` discharged; `49/49` `[COUNTED]` declarations audited, `0` `sorryAx`/`ofReduceBool` `[CHECKED]`; `l58_tagcheck.py` input Merkle tag + canonical-word refusal with negative control `[CHECKED]`; `RunAbsCheck` `29/29` `[CHECKED]`).
-  - **Still open in Lean:** stage define/LogUp/doom facts and `hdzero`/`hdin`/`hdout` (lane L60, joining L57 + L58), and widening `L46-3`/`L56-3` boundary IO slots to wire L49's `block_knowledge_r13_shield` across all 26 blocks (lane L61).
+  - **Still open in Lean:** stage define/LogUp/doom facts and `hdzero`/`hdin`/`hdout` (lane L60, joining L57 + L58), and widening `L46-3`/`L56-3` boundary IO slots to wire L49's `block_knowledge_r13_shield` across all 26 blocks (lane L61). **Update 2026-11-16: both are still open after L60/L61; see the entry above.**
   - **Scoped app activation-writer latency (`resident_writer_candidate_20261112/REPORT.md`):** warm-service ABBA on one public 14-token post across 3 categories (A28 binary `80f2b704`, R13 baseline `2ba468f9`, 2 samples/arm) fell from `47.206 s` to `40.9995 s` (`-13.15 %` `[MEASURED]`), writer-only `11.762 s` to `4.081 s` (`-65.3 %` `[MEASURED]`; `26.903 GiB` `[COUNTED]` per worker, `196/220 GiB` qualified service admission/cap).
 - **The answer to "are there gaps": yes, and most of the proof's substance is in them.** The strongest top theorem
   (`rt_productionReady_r13`) is a schema with 47 premises: 10 substantive open obligations (the soundness covers
@@ -252,7 +948,7 @@ here. The rates count proving and witness work. Verification time is recorded se
 | **one request from its input, all witness work on the clock (the harness: the model already in memory)** | 11.1 tok/s | **23.4–23.9 tok/s** (best 5.35–5.47 s) |
 | **one request through production's `stack-prove` path (each layer loaded and hashed per request; synthetic 8B stack)** | 6.6 tok/s (19.3 s, before A19) | **18.3–18.8 tok/s** (best 6.82–6.98 s) |
 | **production's stream, `stack-serve` (A22: the model loaded once, one request's sealing beside the last one's proof; A23: the resident blocks shared, their startup digests and checks reused, D72/D74), 4 requests, steady** | — (no production stream before A22; 29.2–29.7 with A22 alone) | **32.4–32.6 tok/s** (amortized 27.5–27.8; 8 requests 31.9–32.2 steady, 29.4–29.7 amortized; one request 20.2 tok/s) |
-| **a stream of 4 requests, steady (the harness)** | 15.9 tok/s | **32.3–33.4 tok/s** (amortized 28.8–29.6; latency 5.8–10.9 s) |
+| **a stream of 4 requests, steady (the harness)** | 15.9 tok/s | **32.3–33.4 tok/s** (amortized 28.8–29.6; latency 5.8–10.9 s). Re-measured 2026-11-17 on the current build, the harness's `serve4` arm: **35.5 tok/s** steady (amortized 29.7; one request alone 21.0; one block's proof core 268 ms, GPU busy 35% of it) [MEASURED by Antigravity, medians of 6 and 7 warm passes; reviewed, `results/zk60_claude_review_20261116/BATCH6_REVIEW.md`; one session, not an A/B against the older binary, so the difference is not attributed to any change]. Witness (sealing) pass profiled the same day: **2.2 s alone, 3.35 s beside a proof** (x1.51 to x1.56). Alone, 71% to 75% of it has no GPU witness product in flight, and the largest piece is the 31 gaps between blocks, about 36 ms each (1.17 s); what code fills those gaps is not measured yet (a sampler split is running, `results/zk60_claude_batch8_sealing_split_20261117/`). A third lane gives no gain today (about 2% slower, at the noise floor). The two-lane stream is balanced on both terms: the prove call beside sealing is 3.70 s and (sealing + write + prove)/2 is 3.64 s, against a 3.67 s cadence, so 50 tok/s (2.56 s per request) needs the prove call and the sealing side both down by about x1.3 to x1.45 [MEASURED by Antigravity, medians of 6 warm passes, the harness's synthetic stack with the GPU trace on, a session 1% to 2% slower than the one above; reviewed and recomputed, `results/zk60_claude_review_20261116/BATCH7_REVIEW.md`; the last sentence is the coordinator's ARITHMETIC]. The same traces read by phase: in the stream the prove call runs on a **saturated GPU for about 70% of its length** (2.5 to 2.7 s of 3.5 to 3.8 s), half of that GPU time is the five domain zero-check sumchecks, and the host-only rest is 1.0 to 1.2 s. GPU work alone is 2.5 to 2.7 s per request against the 2.56 s that 50 tok/s needs, so on this machine the target needs GPU work removed as well as host time; on a faster GPU the host-only time and the sealing pass would be the limit [RECOMPUTED from the kept traces by one agent, `results/zk60_claude_review_20261116/STREAM_GPU_PHASES.md`, not cross-reviewed; the floor is a MODEL]. The sealing pass split by function: half of it (1.07 of 2.18 s) only finishes the previous block's witness, about 0.3 s of that repeats a public check [MEASURED by sampler, one Claude agent, `results/zk60_claude_batch8_sealing_split_20261117/REPORT.md`; cross-reviewed by Antigravity, stands with notes: in unsampled time the half is about 0.95 s]. **A33 stage 1, a patch that drops the repeat on the sealing chain (merged on the working branch 2026-11-17 19:48 UTC as `a6eee4b0`, not pushed, after Antigravity's cross-review and Sol's and Astra's word that no source pin covers the files; source commit `b2330b16`; the reference binary `aaaab7e6...` is now the pre-A33 build):** one request alone 6.14 to 5.89 s, its sealing pass 2.181 to 1.906 s; the two-lane stream does not gain: over eight runs (24 passes per arm) the patched side is 0.2% to 0.9% slower, not separated from noise, and the 0.3 s saved in the sealing pass reappears as waiting (lane admission +0.28 s, prover wait +0.32 s), because the prove call paces the stream. So the second stage of this item (moving the witness-only work off the forward chain) would buy latency only and is not started [MEASURED by one Claude agent, A B A B, 12 warm passes per arm against the reference binary; byte gates equal; awaiting cross-review and Sol's and Astra's word on their source pins]. A34, running the 31 boundary commitments concurrently, was investigated and closed: it needs a change to a pinned file and would save about 0.10 s |
 | proof only | 22.7 tok/s | **32.5–34.2 tok/s** (best 3.75–3.94 s; it varies from run to run on the shared Mac) |
 | **the media app (Shieldstral classifier, R13 blocks, T128, 3 category proofs per post), through the app end to end: every receipt freshly verified, publication included (A24, 2026-11-07, merged 9be693d0; development mode `shieldstral-fast`, privacy statement pending, not production)** | 0.17 proved tok/s (r16b, CPU 2 threads; Astra 2026-11-05) | **one post 5.5 tok/s (70 s); an 8-post stream 11.4 tok/s** (269 s; second half 15.4) [MEASURED, public posts, single runs on the shared Mac] |
 | **the media app with lane A26's binary (the same receipts byte for byte; the CPU work per category proof cut by a third; development mode `shieldstral-fast`, privacy statement pending, not production)** | A24: native stream 11.25 tok/s, one post 55.2 s; app stream 11.4 | **native stream 14.10 tok/s (+25%, A/B pairs both orders), one post 46.7 s (+18%); through the app: stream 13.8 tok/s, one post 54.4 s (7.1 tok/s); proof only 15.5** [MEASURED; app rows single runs] |
