@@ -1,0 +1,4 @@
+[20:07:53] launching run2: serve8+lanes2,serve8+lanes2+ahead4,serve8+lanes2+ahead8,serve8+lanes2+ahead16
+[zk60-guard 20:07:54] START l2-ahead-run2 class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=cf6b66ae3a32
+[zk60-guard 20:22:16] END l2-ahead-run2 exit=0 child_wall=862s peak_rss=44.99G min_avail=136.96G peak_vram=33933MiB
+[20:22:16] run2 guard exit 0
