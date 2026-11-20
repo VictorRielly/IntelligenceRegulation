@@ -1,0 +1,58 @@
+[
+  {
+    "label": "w16r2_shield_a1",
+    "rc": 0,
+    "wall_s": 5.778,
+    "pre": {
+      "ds4_bench": "none",
+      "loadavg": 2.310546875,
+      "guard_status": "RAM   209.63 GiB available of 256.0; swap used 0.0 GiB\nBUDGET 0 of 252.5 GiB committed by guarded jobs\nLOCKS heavy free, build free\nGPU   521 of 196608 MiB used\nDISK  /System/Volumes/VM 196.2 GiB free (heavy jobs wait under 40, any job is killed under 8)\nkernel memory cap available: False\n  rss  16539 MiB  pid 48978   agy\n  rss   3632 MiB  pid 1578    claude\n  rss   1837 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma\n  rss   1353 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma\n  rss   1234 MiB  pid 17265   claude\n  rss    951 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/"
+    },
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/w16r2_shield_block_20261120/w16r2_shield_a1.75029.tsv.gz"
+    ]
+  },
+  {
+    "label": "w16r2_8b_ctl",
+    "rc": 0,
+    "wall_s": 5.636,
+    "pre": {
+      "ds4_bench": "none",
+      "loadavg": 3.7099609375,
+      "guard_status": "RAM   209.61 GiB available of 256.0; swap used 0.0 GiB\nBUDGET 0 of 252.5 GiB committed by guarded jobs\nLOCKS heavy free, build free\nGPU   521 of 196608 MiB used\nDISK  /System/Volumes/VM 196.2 GiB free (heavy jobs wait under 40, any job is killed under 8)\nkernel memory cap available: False\n  rss  16539 MiB  pid 48978   agy\n  rss   3632 MiB  pid 1578    claude\n  rss   1837 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma\n  rss   1353 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma\n  rss   1234 MiB  pid 17265   claude\n  rss    952 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/"
+    },
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/w16r2_shield_block_20261120/w16r2_8b_ctl.75103.tsv.gz"
+    ]
+  },
+  {
+    "label": "r13_shield_ctl",
+    "rc": 0,
+    "wall_s": 8.68,
+    "pre": {
+      "ds4_bench": "none",
+      "loadavg": 5.357421875,
+      "guard_status": "RAM   209.66 GiB available of 256.0; swap used 0.0 GiB\nBUDGET 0 of 252.5 GiB committed by guarded jobs\nLOCKS heavy free, build free\nGPU   521 of 196608 MiB used\nDISK  /System/Volumes/VM 196.2 GiB free (heavy jobs wait under 40, any job is killed under 8)\nkernel memory cap available: False\n  rss  16539 MiB  pid 48978   agy\n  rss   3632 MiB  pid 1578    claude\n  rss   1837 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma\n  rss   1353 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma\n  rss   1234 MiB  pid 17265   claude\n  rss    952 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/"
+    },
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/w16r2_shield_block_20261120/r13_shield_ctl.75193.tsv.gz"
+    ]
+  },
+  {
+    "label": "w16r2_shield_a2",
+    "rc": 0,
+    "wall_s": 5.71,
+    "pre": {
+      "ds4_bench": "none",
+      "loadavg": 7.619140625,
+      "guard_status": "RAM   210.17 GiB available of 256.0; swap used 0.0 GiB\nBUDGET 0 of 252.5 GiB committed by guarded jobs\nLOCKS heavy free, build free\nGPU   14 of 196608 MiB used\nDISK  /System/Volumes/VM 196.2 GiB free (heavy jobs wait under 40, any job is killed under 8)\nkernel memory cap available: False\n  rss  16539 MiB  pid 48978   agy\n  rss   3632 MiB  pid 1578    claude\n  rss   1837 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma\n  rss   1353 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma\n  rss   1234 MiB  pid 17265   claude\n  rss    952 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/"
+    },
+    "post_ds4_bench": "none",
+    "trace_gz_files": [
+      "/Users/victorrielly/zk60-artifacts/w16r2_shield_block_20261120/w16r2_shield_a2.75288.tsv.gz"
+    ]
+  }
+]

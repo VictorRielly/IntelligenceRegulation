@@ -1,0 +1,204 @@
+[zk60-guard 07:53:51] START claude-r13_shield_ctl class=gpu need=12G cap=24G enforce=watchdog-only waited=0s run=074ce2c3044b
+M4-TRAINED R13_SHIELD_T128_H24 setup 0.42 s
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=false -> metal_on=false (R13_SHIELD_T128_H24)
+[ZK60-METAL] commit 4577 x 2^14 -> 2^16: setup 0.054 s, gpu total 0.107 s (inverse 0.019, init 0.000, forward 0.066, hash 0.006)
+[ZK60-METAL] commit 4390 x 2^14 -> 2^16: setup 0.038 s, gpu total 0.038 s (inverse 0.017, init 0.000, forward 0.064, hash 0.006)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_SHIELD_T128_H24)
+[ZK60-METAL] compiled a slot library (3 tables, degree 4, 7675 B of source, 2 kernels) in 0.001 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0015 s
+[ZK60-METAL M6] 12 of 19 rounds batched (degree 4), batch + replay 0.0028 s, then 7 host rounds
+[ZK60-METAL] compiled a slot library (3 tables, degree 4, 7677 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 4), batch + replay 0.0026 s, then 8 host rounds
+[ZK60-METAL] compiled a slot library (5 tables, degree 4, 10205 B of source, 2 kernels) in 0.001 s
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0002 s
+[ZK60-METAL M6] 9 of 14 rounds batched (degree 4), batch + replay 0.0021 s, then 5 host rounds
+[ZK60-METAL] compiled a slot library (4 tables, degree 3, 7987 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0016 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0025 s, then 8 host rounds
+[ZK60-METAL] compiled a slot library (64 tables, degree 5, 49042 B of source, 2 kernels) in 0.003 s
+[ZK60-METAL] sumcheck setup (tables in place): 64 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 5), batch + replay 0.0337 s, then 3 host rounds
+[ZK60-METAL] compiled a slot library (27 tables, degree 4, 23185 B of source, 2 kernels) in 0.002 s
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0138 s, then 4 host rounds
+[ZK60-METAL] compiled a slot library (27 tables, degree 4, 23189 B of source, 2 kernels) in 0.001 s
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^17 in 0.0000 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0058 s, then 5 host rounds
+[ZK60-METAL] compiled a slot library (28 tables, degree 4, 24634 B of source, 2 kernels) in 0.001 s
+[ZK60-METAL] sumcheck setup (tables in place): 28 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0165 s, then 4 host rounds
+[ZK60-METAL] compiled a slot library (29 tables, degree 5, 26371 B of source, 2 kernels) in 0.001 s
+[ZK60-METAL] sumcheck setup (tables in place): 29 tables x 2^21 in 0.0000 s
+[ZK60-METAL M6] 18 of 21 rounds batched (degree 5), batch + replay 0.0541 s, then 3 host rounds
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] compiled a slot library (3 tables, degree 2, 7706 B of source, 2 kernels) in 0.001 s
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0020 s, then 10 host rounds
+[ZK60-METAL] compiled a slot library (3 tables, degree 2, 7708 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+[ZK60-METAL] store fold with pads (Small): 37 rho x 4577 rows x (16384 + 256) cols (zk data) in 0.0076 s
+[ZK60-METAL] store columns: 256 x 4577 rows in 0.0012 s
+[ZK60-METAL] store fold with pads (Small): 10 rho x 4390 rows x (16384 + 256) cols (zk data) in 0.0095 s
+[ZK60-METAL] store columns: 256 x 4390 rows in 0.0011 s
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.450 s metal-cold 0.987 s (prove core cpu 2.276 s metal 0.813 s; kernel compile 0.011 s, device sumcheck rounds 0.137 s; 1 slots without a matching IR; buffer pool 133 reused / 65 new) digest cpu 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb metal 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb
+[ZK60-METAL] commit 4577 x 2^14 -> 2^16: setup 0.005 s, gpu total 0.048 s (inverse 0.008, init 0.000, forward 0.025, hash 0.006)
+[ZK60-METAL] commit 4390 x 2^14 -> 2^16: setup 0.038 s, gpu total 0.038 s (inverse 0.007, init 0.000, forward 0.024, hash 0.006)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_SHIELD_T128_H24)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 13 of 19 rounds batched (degree 4), batch + replay 0.0029 s, then 6 host rounds
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 4), batch + replay 0.0021 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0020 s, then 6 host rounds
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0005 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0025 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 64 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 5), batch + replay 0.0291 s, then 3 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0106 s, then 4 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^17 in 0.0000 s
+[ZK60-METAL M6] 13 of 17 rounds batched (degree 4), batch + replay 0.0050 s, then 4 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 28 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0126 s, then 4 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 29 tables x 2^21 in 0.0000 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0354 s, then 4 host rounds
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0020 s, then 10 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+[ZK60-METAL] store fold with pads (Small): 37 rho x 4577 rows x (16384 + 256) cols (zk data) in 0.0086 s
+[ZK60-METAL] store columns: 256 x 4577 rows in 0.0012 s
+[ZK60-METAL] store fold with pads (Small): 10 rho x 4390 rows x (16384 + 256) cols (zk data) in 0.0092 s
+[ZK60-METAL] store columns: 256 x 4390 rows in 0.0010 s
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.450 s metal-warm 0.694 s (prove core cpu 2.276 s metal 0.519 s; kernel compile 0.000 s, device sumcheck rounds 0.105 s; 1 slots without a matching IR; buffer pool 145 reused / 1 new) digest cpu 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb metal 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb
+[ZK60-METAL] commit 4577 x 2^14 -> 2^16: setup 0.038 s, gpu total 0.042 s (inverse 0.008, init 0.000, forward 0.025, hash 0.006)
+[ZK60-METAL] commit 4390 x 2^14 -> 2^16: setup 0.004 s, gpu total 0.038 s (inverse 0.007, init 0.000, forward 0.024, hash 0.006)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_SHIELD_T128_H24)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0006 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 4), batch + replay 0.0027 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 12 of 19 rounds batched (degree 4), batch + replay 0.0022 s, then 7 host rounds
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0019 s, then 6 host rounds
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0006 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0025 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 64 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 5), batch + replay 0.0291 s, then 3 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 14 of 19 rounds batched (degree 4), batch + replay 0.0103 s, then 5 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^17 in 0.0000 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0047 s, then 5 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 28 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0126 s, then 4 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 29 tables x 2^21 in 0.0000 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0356 s, then 4 host rounds
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0020 s, then 10 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+[ZK60-METAL] store fold with pads (Small): 37 rho x 4577 rows x (16384 + 256) cols (zk data) in 0.0074 s
+[ZK60-METAL] store columns: 256 x 4577 rows in 0.0011 s
+[ZK60-METAL] store fold with pads (Small): 10 rho x 4390 rows x (16384 + 256) cols (zk data) in 0.0098 s
+[ZK60-METAL] store columns: 256 x 4390 rows in 0.0010 s
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.450 s metal-warm 0.692 s (prove core cpu 2.276 s metal 0.523 s; kernel compile 0.000 s, device sumcheck rounds 0.104 s; 1 slots without a matching IR; buffer pool 145 reused / 1 new) digest cpu 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb metal 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb
+[ZK60-METAL] commit 4577 x 2^14 -> 2^16: setup 0.004 s, gpu total 0.044 s (inverse 0.008, init 0.000, forward 0.025, hash 0.006)
+[ZK60-METAL] commit 4390 x 2^14 -> 2^16: setup 0.004 s, gpu total 0.038 s (inverse 0.007, init 0.000, forward 0.024, hash 0.006)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_SHIELD_T128_H24)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 4), batch + replay 0.0027 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 4), batch + replay 0.0027 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0020 s, then 6 host rounds
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0005 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0026 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 64 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 5), batch + replay 0.0289 s, then 3 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0105 s, then 4 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^17 in 0.0000 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0047 s, then 5 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 28 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0128 s, then 4 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 29 tables x 2^21 in 0.0000 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0355 s, then 4 host rounds
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0020 s, then 10 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+[ZK60-METAL] store fold with pads (Small): 37 rho x 4577 rows x (16384 + 256) cols (zk data) in 0.0069 s
+[ZK60-METAL] store columns: 256 x 4577 rows in 0.0012 s
+[ZK60-METAL] store fold with pads (Small): 10 rho x 4390 rows x (16384 + 256) cols (zk data) in 0.0093 s
+[ZK60-METAL] store columns: 256 x 4390 rows in 0.0011 s
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.450 s metal-warm 0.652 s (prove core cpu 2.276 s metal 0.478 s; kernel compile 0.000 s, device sumcheck rounds 0.105 s; 1 slots without a matching IR; buffer pool 146 reused / 0 new) digest cpu 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb metal 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb
+[ZK60-METAL] commit 4577 x 2^14 -> 2^16: setup 0.004 s, gpu total 0.045 s (inverse 0.008, init 0.000, forward 0.025, hash 0.006)
+[ZK60-METAL] commit 4390 x 2^14 -> 2^16: setup 0.004 s, gpu total 0.038 s (inverse 0.007, init 0.000, forward 0.024, hash 0.006)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_SHIELD_T128_H24)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 4), batch + replay 0.0027 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 4), batch + replay 0.0026 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0020 s, then 6 host rounds
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0024 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 64 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 5), batch + replay 0.0289 s, then 3 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 14 of 19 rounds batched (degree 4), batch + replay 0.0102 s, then 5 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^17 in 0.0000 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0047 s, then 5 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 28 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0125 s, then 4 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 29 tables x 2^21 in 0.0000 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0356 s, then 4 host rounds
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0019 s, then 11 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+[ZK60-METAL] store fold with pads (Small): 37 rho x 4577 rows x (16384 + 256) cols (zk data) in 0.0082 s
+[ZK60-METAL] store columns: 256 x 4577 rows in 0.0011 s
+[ZK60-METAL] store fold with pads (Small): 10 rho x 4390 rows x (16384 + 256) cols (zk data) in 0.0091 s
+[ZK60-METAL] store columns: 256 x 4390 rows in 0.0011 s
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.450 s metal-warm 0.657 s (prove core cpu 2.276 s metal 0.488 s; kernel compile 0.000 s, device sumcheck rounds 0.104 s; 1 slots without a matching IR; buffer pool 146 reused / 0 new) digest cpu 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb metal 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb
+[ZK60-METAL] commit 4577 x 2^14 -> 2^16: setup 0.004 s, gpu total 0.046 s (inverse 0.008, init 0.000, forward 0.025, hash 0.006)
+[ZK60-METAL] commit 4390 x 2^14 -> 2^16: setup 0.004 s, gpu total 0.038 s (inverse 0.007, init 0.000, forward 0.024, hash 0.006)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_SHIELD_T128_H24)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0004 s
+[ZK60-METAL M6] 12 of 19 rounds batched (degree 4), batch + replay 0.0028 s, then 7 host rounds
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0003 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 4), batch + replay 0.0026 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup: 5 tables x 2^14 in 0.0001 s
+[ZK60-METAL M6] 8 of 14 rounds batched (degree 4), batch + replay 0.0020 s, then 6 host rounds
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0004 s
+[ZK60-METAL M6] 11 of 19 rounds batched (degree 3), batch + replay 0.0025 s, then 8 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 64 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 16 of 19 rounds batched (degree 5), batch + replay 0.0290 s, then 3 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 14 of 19 rounds batched (degree 4), batch + replay 0.0102 s, then 5 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 27 tables x 2^17 in 0.0000 s
+[ZK60-METAL M6] 12 of 17 rounds batched (degree 4), batch + replay 0.0047 s, then 5 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 28 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 15 of 19 rounds batched (degree 4), batch + replay 0.0126 s, then 4 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 29 tables x 2^21 in 0.0000 s
+[ZK60-METAL M6] 17 of 21 rounds batched (degree 5), batch + replay 0.0354 s, then 4 host rounds
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] compiled a slot library (2 tables, degree 2, 7388 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^14 in 0.0000 s
+[ZK60-METAL M6] 4 of 14 rounds batched (degree 2), batch + replay 0.0012 s, then 10 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 9 of 19 rounds batched (degree 2), batch + replay 0.0014 s, then 10 host rounds
+[ZK60-METAL] sumcheck setup (tables in place): 3 tables x 2^19 in 0.0000 s
+[ZK60-METAL M6] 8 of 19 rounds batched (degree 2), batch + replay 0.0013 s, then 11 host rounds
+[ZK60-METAL] store fold with pads (Small): 37 rho x 4577 rows x (16384 + 256) cols (zk data) in 0.0069 s
+[ZK60-METAL] store columns: 256 x 4577 rows in 0.0011 s
+[ZK60-METAL] store fold with pads (Small): 10 rho x 4390 rows x (16384 + 256) cols (zk data) in 0.0098 s
+[ZK60-METAL] store columns: 256 x 4390 rows in 0.0012 s
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.450 s metal-warm 0.650 s (prove core cpu 2.276 s metal 0.478 s; kernel compile 0.000 s, device sumcheck rounds 0.105 s; 1 slots without a matching IR; buffer pool 152 reused / 2 new) digest cpu 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb metal 5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb
+[zk60-guard 07:53:59] END claude-r13_shield_ctl exit=0 child_wall=8s peak_rss=8.58G min_avail=194.85G peak_vram=12248MiB

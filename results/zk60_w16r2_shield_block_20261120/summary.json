@@ -1,0 +1,590 @@
+{
+  "w16r2_shield_a1": {
+    "trace": "/Users/victorrielly/zk60-artifacts/w16r2_shield_block_20261120/w16r2_shield_a1.75029.tsv.gz",
+    "a_commit_rows": 2504,
+    "other_commit_rows": [
+      2606
+    ],
+    "passes_found": 6,
+    "warm_passes": 5,
+    "median_ms": {
+      "block_gpu": 94.056,
+      "commit_A": 14.436,
+      "commit_AH": 28.719,
+      "commit_H": 13.61,
+      "other_diag": 25.494,
+      "other_gather": 0.177,
+      "slots": 65.668,
+      "total": 120.604
+    },
+    "per_pass_ms": {
+      "block_gpu": [
+        95.302,
+        98.084,
+        92.451,
+        92.83,
+        94.056
+      ],
+      "commit_AH": [
+        29.176,
+        32.159,
+        26.771,
+        26.981,
+        28.719
+      ],
+      "slots": [
+        65.958,
+        65.761,
+        65.494,
+        65.668,
+        65.161
+      ]
+    },
+    "slots": [
+      {
+        "slot": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms",
+        "median_ms": 21.281
+      },
+      {
+        "slot": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 37 tables (24 base), 47 nodes, 3 terms",
+        "median_ms": 15.521
+      },
+      {
+        "slot": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms",
+        "median_ms": 7.511
+      },
+      {
+        "slot": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 5.484
+      },
+      {
+        "slot": "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms",
+        "median_ms": 3.928
+      },
+      {
+        "slot": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 3.036
+      },
+      {
+        "slot": "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 3 tables (2 base), 0 nodes, 1 terms",
+        "median_ms": 1.853
+      },
+      {
+        "slot": "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 3 tables (2 base), 0 nodes, 1 terms",
+        "median_ms": 1.839
+      },
+      {
+        "slot": "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 4 tables (3 base), 1 nodes, 1 terms",
+        "median_ms": 1.665
+      },
+      {
+        "slot": "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 5 tables (3 base), 6 nodes, 1 terms",
+        "median_ms": 1.17
+      },
+      {
+        "slot": "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.158
+      },
+      {
+        "slot": "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.089
+      }
+    ],
+    "m4": {
+      "profile": "W16R2_SHIELD_T128_H24",
+      "digest": "0e88d84fd04b33ab841ca56382e503aae9503b7cea269d24636d1ea9e9921c1a",
+      "cpu_s": 1.513,
+      "metal_warm_wall_median_s": 0.447,
+      "metal_warm_core_median_s": 0.308
+    }
+  },
+  "w16r2_8b_ctl": {
+    "trace": "/Users/victorrielly/zk60-artifacts/w16r2_shield_block_20261120/w16r2_8b_ctl.75103.tsv.gz",
+    "a_commit_rows": 2504,
+    "other_commit_rows": [
+      2606
+    ],
+    "passes_found": 6,
+    "warm_passes": 5,
+    "median_ms": {
+      "block_gpu": 94.293,
+      "commit_A": 16.874,
+      "commit_AH": 30.504,
+      "commit_H": 13.618,
+      "other_diag": 25.399,
+      "other_gather": 0.173,
+      "slots": 63.403,
+      "total": 119.687
+    },
+    "per_pass_ms": {
+      "block_gpu": [
+        96.337,
+        90.383,
+        94.293,
+        94.852,
+        90.231
+      ],
+      "commit_AH": [
+        32.612,
+        27.016,
+        30.504,
+        31.28,
+        26.748
+      ],
+      "slots": [
+        63.568,
+        63.192,
+        63.616,
+        63.403,
+        63.308
+      ]
+    },
+    "slots": [
+      {
+        "slot": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms",
+        "median_ms": 21.342
+      },
+      {
+        "slot": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 36 tables (23 base), 45 nodes, 3 terms",
+        "median_ms": 13.956
+      },
+      {
+        "slot": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms",
+        "median_ms": 7.46
+      },
+      {
+        "slot": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 5.532
+      },
+      {
+        "slot": "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms",
+        "median_ms": 3.925
+      },
+      {
+        "slot": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 2.958
+      },
+      {
+        "slot": "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 4 tables (3 base), 1 nodes, 1 terms",
+        "median_ms": 1.608
+      },
+      {
+        "slot": "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms",
+        "median_ms": 1.509
+      },
+      {
+        "slot": "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms",
+        "median_ms": 1.436
+      },
+      {
+        "slot": "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 5 tables (3 base), 6 nodes, 1 terms",
+        "median_ms": 1.164
+      },
+      {
+        "slot": "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.147
+      },
+      {
+        "slot": "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.085
+      },
+      {
+        "slot": "slot 20 (ZS zero-sum row) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms",
+        "median_ms": 0.433
+      }
+    ],
+    "m4": {
+      "profile": "W16R2_8B_T128_H24",
+      "digest": "90003b760eb7ad80a5b85136cc69510fc42d95cfa1997947e4a8d0c871dbdebe",
+      "cpu_s": 1.37,
+      "metal_warm_wall_median_s": 0.439,
+      "metal_warm_core_median_s": 0.297
+    }
+  },
+  "r13_shield_ctl": {
+    "trace": "/Users/victorrielly/zk60-artifacts/w16r2_shield_block_20261120/r13_shield_ctl.75193.tsv.gz",
+    "a_commit_rows": 4577,
+    "other_commit_rows": [
+      4390
+    ],
+    "passes_found": 6,
+    "warm_passes": 5,
+    "median_ms": {
+      "block_gpu": 178.231,
+      "commit_A": 44.124,
+      "commit_AH": 80.829,
+      "commit_H": 36.705,
+      "other_diag": 74.663,
+      "other_gather": 0.255,
+      "slots": 97.821,
+      "total": 252.88
+    },
+    "per_pass_ms": {
+      "block_gpu": [
+        182.195,
+        175.724,
+        177.261,
+        178.231,
+        179.211
+      ],
+      "commit_AH": [
+        83.626,
+        77.716,
+        79.193,
+        80.829,
+        80.936
+      ],
+      "slots": [
+        98.299,
+        97.764,
+        97.821,
+        97.133,
+        98.02
+      ]
+    },
+    "slots": [
+      {
+        "slot": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 29 tables (18 base), 37 nodes, 3 terms",
+        "median_ms": 34.574
+      },
+      {
+        "slot": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 64 tables (44 base), 83 nodes, 3 terms",
+        "median_ms": 27.981
+      },
+      {
+        "slot": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 28 tables (16 base), 39 nodes, 3 terms",
+        "median_ms": 12.295
+      },
+      {
+        "slot": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms",
+        "median_ms": 9.474
+      },
+      {
+        "slot": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms",
+        "median_ms": 4.377
+      },
+      {
+        "slot": "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms",
+        "median_ms": 1.883
+      },
+      {
+        "slot": "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms",
+        "median_ms": 1.879
+      },
+      {
+        "slot": "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 4 tables (3 base), 1 nodes, 1 terms",
+        "median_ms": 1.687
+      },
+      {
+        "slot": "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.177
+      },
+      {
+        "slot": "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 5 tables (3 base), 6 nodes, 1 terms",
+        "median_ms": 1.164
+      },
+      {
+        "slot": "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.033
+      },
+      {
+        "slot": "slot 20 (ZS zero-sum row) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 2 tables (1 base), 0 nodes, 1 terms",
+        "median_ms": 0.41
+      }
+    ],
+    "m4": {
+      "profile": "R13_SHIELD_T128_H24",
+      "digest": "5a6193d3df87cf21ac75e444629e8bfbe53e9c5d9fe5d40d501f0e3cd9443ecb",
+      "cpu_s": 2.45,
+      "metal_warm_wall_median_s": 0.657,
+      "metal_warm_core_median_s": 0.488
+    }
+  },
+  "w16r2_shield_a2": {
+    "trace": "/Users/victorrielly/zk60-artifacts/w16r2_shield_block_20261120/w16r2_shield_a2.75288.tsv.gz",
+    "a_commit_rows": 2504,
+    "other_commit_rows": [
+      2606
+    ],
+    "passes_found": 6,
+    "warm_passes": 5,
+    "median_ms": {
+      "block_gpu": 98.977,
+      "commit_A": 18.979,
+      "commit_AH": 32.599,
+      "commit_H": 13.602,
+      "other_diag": 25.399,
+      "other_gather": 0.176,
+      "slots": 65.908,
+      "total": 124.376
+    },
+    "per_pass_ms": {
+      "block_gpu": [
+        92.543,
+        98.977,
+        99.23,
+        92.207,
+        99.042
+      ],
+      "commit_AH": [
+        26.938,
+        32.89,
+        32.956,
+        26.832,
+        32.599
+      ],
+      "slots": [
+        65.433,
+        65.908,
+        66.098,
+        65.193,
+        66.284
+      ]
+    },
+    "slots": [
+      {
+        "slot": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms",
+        "median_ms": 21.282
+      },
+      {
+        "slot": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 37 tables (24 base), 47 nodes, 3 terms",
+        "median_ms": 15.529
+      },
+      {
+        "slot": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms",
+        "median_ms": 7.433
+      },
+      {
+        "slot": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 5.581
+      },
+      {
+        "slot": "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms",
+        "median_ms": 3.911
+      },
+      {
+        "slot": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 2.991
+      },
+      {
+        "slot": "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 3 tables (2 base), 0 nodes, 1 terms",
+        "median_ms": 1.904
+      },
+      {
+        "slot": "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 3 tables (2 base), 0 nodes, 1 terms",
+        "median_ms": 1.854
+      },
+      {
+        "slot": "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 4 tables (3 base), 1 nodes, 1 terms",
+        "median_ms": 1.652
+      },
+      {
+        "slot": "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 5 tables (3 base), 6 nodes, 1 terms",
+        "median_ms": 1.174
+      },
+      {
+        "slot": "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.142
+      },
+      {
+        "slot": "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.08
+      },
+      {
+        "slot": "slot 20 (ZS zero-sum row) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms",
+        "median_ms": 0.473
+      }
+    ],
+    "m4": {
+      "profile": "W16R2_SHIELD_T128_H24",
+      "digest": "0e88d84fd04b33ab841ca56382e503aae9503b7cea269d24636d1ea9e9921c1a",
+      "cpu_s": 1.402,
+      "metal_warm_wall_median_s": 0.459,
+      "metal_warm_core_median_s": 0.315
+    }
+  },
+  "20261117_w16r2_8b_armA_prod_batched": {
+    "trace": "/Users/victorrielly/zk60-artifacts/slot18_14_traces_20261117/w16r2_8b_armA_prod_batched.17444.tsv.gz",
+    "a_commit_rows": 2504,
+    "other_commit_rows": [
+      2606
+    ],
+    "passes_found": 6,
+    "warm_passes": 5,
+    "median_ms": {
+      "block_gpu": 91.462,
+      "commit_A": 13.987,
+      "commit_AH": 28.181,
+      "commit_H": 13.9,
+      "other_diag": 25.66,
+      "other_gather": 0.185,
+      "slots": 63.302,
+      "total": 117.285
+    },
+    "per_pass_ms": {
+      "block_gpu": [
+        91.628,
+        92.546,
+        91.462,
+        91.426,
+        90.427
+      ],
+      "commit_AH": [
+        27.026,
+        28.575,
+        28.181,
+        28.318,
+        26.939
+      ],
+      "slots": [
+        64.417,
+        63.777,
+        63.107,
+        62.936,
+        63.302
+      ]
+    },
+    "slots": [
+      {
+        "slot": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 23 nodes, 3 terms",
+        "median_ms": 21.339
+      },
+      {
+        "slot": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 36 tables (23 base), 45 nodes, 3 terms",
+        "median_ms": 14.007
+      },
+      {
+        "slot": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 19 tables (11 base), 25 nodes, 3 terms",
+        "median_ms": 7.51
+      },
+      {
+        "slot": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 5.535
+      },
+      {
+        "slot": "slot 19 (TAB table helper zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 58 tables (25 base), 69 nodes, 1 terms",
+        "median_ms": 3.9
+      },
+      {
+        "slot": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 15 tables (9 base), 17 nodes, 3 terms",
+        "median_ms": 2.979
+      },
+      {
+        "slot": "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 4 tables (3 base), 1 nodes, 1 terms",
+        "median_ms": 1.74
+      },
+      {
+        "slot": "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms",
+        "median_ms": 1.509
+      },
+      {
+        "slot": "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 2 tables (1 base), 0 nodes, 1 terms",
+        "median_ms": 1.442
+      },
+      {
+        "slot": "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 5 tables (3 base), 6 nodes, 1 terms",
+        "median_ms": 1.209
+      },
+      {
+        "slot": "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.136
+      },
+      {
+        "slot": "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.123
+      }
+    ]
+  },
+  "20261117_r13_shield_armA_prod_batched": {
+    "trace": "/Users/victorrielly/zk60-artifacts/slot18_14_traces_20261117/r13_shield_armA_prod_batched.17767.tsv.gz",
+    "a_commit_rows": 4577,
+    "other_commit_rows": [
+      4390
+    ],
+    "passes_found": 6,
+    "warm_passes": 5,
+    "median_ms": {
+      "block_gpu": 174.249,
+      "commit_A": 39.481,
+      "commit_AH": 76.212,
+      "commit_H": 36.718,
+      "other_diag": 74.631,
+      "other_gather": 0.252,
+      "slots": 97.784,
+      "total": 248.899
+    },
+    "per_pass_ms": {
+      "block_gpu": [
+        173.955,
+        177.536,
+        173.935,
+        174.249,
+        176.579
+      ],
+      "commit_AH": [
+        75.882,
+        80.146,
+        76.199,
+        76.212,
+        78.434
+      ],
+      "slots": [
+        97.82,
+        97.148,
+        97.486,
+        97.784,
+        97.882
+      ]
+    },
+    "slots": [
+      {
+        "slot": "slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 29 tables (18 base), 37 nodes, 3 terms",
+        "median_ms": 34.754
+      },
+      {
+        "slot": "slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 64 tables (44 base), 83 nodes, 3 terms",
+        "median_ms": 27.95
+      },
+      {
+        "slot": "slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 28 tables (16 base), 39 nodes, 3 terms",
+        "median_ms": 12.225
+      },
+      {
+        "slot": "slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms",
+        "median_ms": 9.334
+      },
+      {
+        "slot": "slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 27 tables (17 base), 35 nodes, 3 terms",
+        "median_ms": 4.393
+      },
+      {
+        "slot": "slot 1 (01m SS row sums norm_m (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms",
+        "median_ms": 1.856
+      },
+      {
+        "slot": "slot 0 (01 SS row sums norm_a (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 0 nodes, 1 terms",
+        "median_ms": 1.82
+      },
+      {
+        "slot": "slot 4 (07 masked row sums + selector (private)) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 4 tables (3 base), 1 nodes, 1 terms",
+        "median_ms": 1.66
+      },
+      {
+        "slot": "slot 3 (08 limb zero-check) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 5 tables (3 base), 6 nodes, 1 terms",
+        "median_ms": 1.171
+      },
+      {
+        "slot": "slot 21 (IO-in endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.156
+      },
+      {
+        "slot": "slot 22 (IO-out endpoint equality) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 3 tables (2 base), 1 nodes, 1 terms",
+        "median_ms": 1.124
+      },
+      {
+        "slot": "slot 20 (ZS zero-sum row) at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: 2 tables (1 base), 0 nodes, 1 terms",
+        "median_ms": 0.51
+      }
+    ]
+  }
+}
